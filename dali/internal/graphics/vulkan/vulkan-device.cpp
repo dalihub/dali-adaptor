@@ -686,6 +686,17 @@ void Device::PreparePhysicalDevice()
 
   GetPhysicalDeviceProperties();
   GetQueueFamilyProperties();
+
+  Integration::Log::LogMessage(Integration::Log::INFO,
+                               "Vulkan information:\n"
+                               "  Vulkan version: %d.%d.%d\n"
+                               "  Device name:    %s\n"
+                               "  Driver Version: %x\n",
+                               VK_API_VERSION_MAJOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_API_VERSION_MINOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion),
+                               (const char*)mPhysicalDeviceProperties.deviceName,
+                               mPhysicalDeviceProperties.driverVersion);
 }
 
 void Device::GetPhysicalDeviceProperties()
@@ -880,8 +891,7 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry)
-                   {
+                   [&](CommandBufferImpl* entry) {
                      return entry->GetVkHandle();
                    });
 
