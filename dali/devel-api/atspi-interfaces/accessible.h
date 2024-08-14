@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -166,6 +167,13 @@ public:
    * @return The string with description
    */
   virtual std::string GetDescription() const = 0;
+
+  /**
+   * @brief Gets accessibility value.
+   *
+   * @return The value text
+   */
+  virtual std::string GetValue() const = 0;
 
   /**
    * @brief Gets parent.
@@ -567,6 +575,8 @@ private:
   ReadingInfoTypes                    mReadingInfoTypes = ~ReadingInfoTypes(); // all set
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
+  std::map<State, int>                mLastEmittedState;
+
 }; // Accessible class
 
 namespace Internal

@@ -1,5 +1,5 @@
 /*
- f * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ using namespace Dali::Accessibility;
 namespace
 {
 constexpr const char* FORCE_CHILD_SEARCH_ATTR{"forceChildSearch"};
+constexpr const char* VALUE_FORMAT_KEY      = "value_format";
+constexpr const char* VALUE_FORMAT_TEXT_VAL = "text";
 
 bool SortVertically(Component* lhs, Component* rhs)
 {
@@ -526,6 +528,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   std::string labeledByName   = labellingObject ? labellingObject->GetName() : "";
 
   auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
+  auto attributes        = self->GetAttributes();
 
   double      currentValue = 0.0;
   std::string currentValueText;
@@ -540,6 +543,15 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     minimumIncrement = valueInterface->GetMinimumIncrement();
     maximumValue     = valueInterface->GetMaximum();
     minimumValue     = valueInterface->GetMinimum();
+  }
+  else
+  {
+    // value text support outside of IAtspiValue interface
+    currentValueText = self->GetValue();
+    if(!currentValueText.empty())
+    {
+      attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
+    }
   }
 
   int32_t firstSelectedChildIndex = -1;
@@ -567,7 +579,6 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     }
   }
 
-  auto    attributes        = self->GetAttributes();
   auto    itemCount         = attributes.find("item_count");
   auto    atspiRole         = self->GetRole();
   int32_t listChildrenCount = 0;
@@ -1061,11 +1072,18 @@ DBus::ValueOrError<std::array<uint32_t, 2>> BridgeAccessible::GetStates()
 
 DBus::ValueOrError<std::map<std::string, std::string>> BridgeAccessible::GetAttributes()
 {
-  std::map<std::string, std::string> attributes = FindSelf()->GetAttributes();
+  auto                               self       = FindSelf();
+  std::map<std::string, std::string> attributes = self->GetAttributes();
 
   if(mIsScreenReaderSuppressed)
   {
     attributes.insert({"suppress-screen-reader", "true"});
+  }
+
+  auto* valueInterface = Value::DownCast(self);
+  if(!valueInterface && !self->GetValue().empty())
+  {
+    attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
   }
 
   return attributes;

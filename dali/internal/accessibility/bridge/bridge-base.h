@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,12 @@ public:
 
   std::string GetDescription() const override
   {
-    return "";
+    return {};
+  }
+
+  std::string GetValue() const override
+  {
+    return {};
   }
 
   Dali::Accessibility::Accessible* GetParent() override
@@ -279,7 +284,7 @@ public:
 enum class CoalescableMessages
 {
   BOUNDS_CHANGED, ///< Bounds changed
-  SET_OFFSET, ///< Set offset
+  SET_OFFSET,     ///< Set offset
 };
 
 // Custom specialization of std::hash

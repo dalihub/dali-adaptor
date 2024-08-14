@@ -1,7 +1,7 @@
 #ifndef DALI_ATSPI_ACCESSIBILITY_H
 #define DALI_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bitset.h>
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -500,6 +501,16 @@ enum class AtspiEvent
   MAX_COUNT
 };
 
+enum class ActionType
+{
+  ACTIVATE,
+  ESCAPE,
+  INCREMENT,
+  DECREMENT,
+  SCROLL_TO_CHILD,
+  MAX_COUNT
+};
+
 using AtspiInterfaces  = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
 using AtspiEvents      = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
 using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
@@ -734,6 +745,19 @@ struct DALI_ADAPTOR_API Relation
 
   RelationType             mRelationType;
   std::vector<Accessible*> mTargets;
+};
+
+struct DALI_ADAPTOR_API ActionInfo
+{
+  ActionInfo() = default;
+  ActionInfo(ActionType type, Actor target)
+  : type{type},
+    target{target}
+  {
+  }
+
+  ActionType type{ActionType::MAX_COUNT};
+  Actor      target{};
 };
 
 } // namespace Accessibility
