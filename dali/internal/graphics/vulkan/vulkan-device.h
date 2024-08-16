@@ -23,28 +23,28 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/common/surface-factory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
-#include <dali/graphics-api/graphics-types.h>
 
-#include <thread>
-#include <mutex>
-#include <map>
 #include <functional>
+#include <map>
+#include <mutex>
+#include <thread>
 
 namespace Dali::Graphics::Vulkan
 {
 class RenderPassImpl;
 
-using CommandPoolMap = std::unordered_map< std::thread::id, CommandPool* >;
+using CommandPoolMap = std::unordered_map<std::thread::id, CommandPool*>;
 
 struct SwapchainSurfacePair
 {
-  Swapchain* swapchain;
+  Swapchain*   swapchain;
   SurfaceImpl* surface;
 };
 
@@ -53,44 +53,39 @@ class Device
 public:
   Device();
 
-  Device( const Device& ) = delete;
+  Device(const Device&) = delete;
 
-  Device& operator=( const Device& ) = delete;
+  Device& operator=(const Device&) = delete;
 
   ~Device();
 
 public: // Create methods
-
   void Create();
 
   void CreateDevice();
 
-  Graphics::SurfaceId CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
-                                     const Dali::Graphics::GraphicsCreateInfo& createInfo );
+  Graphics::SurfaceId CreateSurface(Dali::Graphics::SurfaceFactory&           surfaceFactory,
+                                    const Dali::Graphics::GraphicsCreateInfo& createInfo);
 
-  void DestroySurface( Dali::Graphics::SurfaceId surfaceId );
+  void DestroySurface(Dali::Graphics::SurfaceId surfaceId);
 
-  Swapchain* CreateSwapchainForSurface( SurfaceImpl* surface );
+  Swapchain* CreateSwapchainForSurface(SurfaceImpl* surface);
 
-  Swapchain* ReplaceSwapchainForSurface( SurfaceImpl* surface, Swapchain*&& oldSwapchain);
+  Swapchain* ReplaceSwapchainForSurface(SurfaceImpl* surface, Swapchain*&& oldSwapchain);
 
-  Swapchain* CreateSwapchain( SurfaceImpl* surface, vk::Format requestedFormat,
-                              vk::PresentModeKHR presentMode,
-                              uint32_t bufferCount,
-                              Swapchain*&& oldSwapchain );
+  Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t bufferCount, Swapchain*&& oldSwapchain);
 
-  vk::Result Submit(Queue& queue, const std::vector< SubmissionData >& submissionData, Fence* fence = nullptr);
-  vk::Result Present( Queue& queue, vk::PresentInfoKHR presentInfo );
-  vk::Result QueueWaitIdle( Queue& queue );
+  vk::Result Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, Fence* fence = nullptr);
+  vk::Result Present(Queue& queue, vk::PresentInfoKHR presentInfo);
+  vk::Result QueueWaitIdle(Queue& queue);
   vk::Result DeviceWaitIdle();
 
-
 public: // Getters
-  SurfaceImpl* GetSurface( Graphics::SurfaceId surfaceId );
+  SurfaceImpl* GetSurface(Graphics::SurfaceId surfaceId);
 
-  Swapchain* GetSwapchainForSurface( SurfaceImpl* surface );
+  Swapchain* GetSwapchainForSurface(SurfaceImpl* surface);
 
-  Swapchain* GetSwapchainForSurfaceId( Graphics::SurfaceId surfaceId );
+  Swapchain* GetSwapchainForSurfaceId(Graphics::SurfaceId surfaceId);
 
   vk::Device GetLogicalDevice() const;
 
@@ -98,59 +93,62 @@ public: // Getters
 
   vk::Instance GetInstance() const;
 
-  const vk::AllocationCallbacks& GetAllocator( const char* tag  = nullptr );
+  const vk::AllocationCallbacks& GetAllocator(const char* tag = nullptr);
 
-  Queue& GetGraphicsQueue( uint32_t index = 0u ) const;
+  Queue& GetGraphicsQueue(uint32_t index = 0u) const;
 
-  Queue& GetTransferQueue( uint32_t index = 0u ) const;
+  Queue& GetTransferQueue(uint32_t index = 0u) const;
 
-  Queue& GetComputeQueue( uint32_t index = 0u ) const;
+  Queue& GetComputeQueue(uint32_t index = 0u) const;
 
   Queue& GetPresentQueue() const;
 
   Platform GetDefaultPlatform() const;
 
-  CommandPool* GetCommandPool( std::thread::id threadid);
+  CommandPool* GetCommandPool(std::thread::id threadid);
 
-  void SurfaceResized( unsigned int width, unsigned int height );
+  void SurfaceResized(unsigned int width, unsigned int height);
   bool IsSurfaceResized() const
   {
     return mSurfaceResized;
   }
 
-  void DiscardResource( std::function< void() > deleter );
+  void DiscardResource(std::function<void()> deleter);
 
   Fence* CreateFence(const vk::FenceCreateInfo& fenceCreateInfo);
 
-  FramebufferImpl* CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
-                                     FramebufferAttachment* depthAttachment,
-                                     uint32_t width,
-                                     uint32_t height,
-                                     RenderPassImpl* externalRenderPass = nullptr);
+  FramebufferImpl* CreateFramebuffer(const std::vector<FramebufferAttachment*>& colorAttachments,
+                                     FramebufferAttachment*                     depthAttachment,
+                                     uint32_t                                   width,
+                                     uint32_t                                   height,
+                                     RenderPassImpl*                            externalRenderPass = nullptr);
 
-  Image* CreateImageFromExternal( vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent );
+  Image* CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent);
 
   ImageView* CreateImageView(const vk::ImageViewCreateFlags& flags,
-                             const Image& image,
-                             vk::ImageViewType viewType,
-                             vk::Format format,
-                             vk::ComponentMapping components,
-                             vk::ImageSubresourceRange subresourceRange,
-                             void* pNext = nullptr);
+                             const Image&                    image,
+                             vk::ImageViewType               viewType,
+                             vk::Format                      format,
+                             vk::ComponentMapping            components,
+                             vk::ImageSubresourceRange       subresourceRange,
+                             void*                           pNext = nullptr);
 
-  ImageView* CreateImageView( Image* image );
+  ImageView* CreateImageView(Image* image);
 
-  vk::Result WaitForFence( Fence* fence, uint32_t timeout = std::numeric_limits< uint32_t >::max() );
+  vk::Result WaitForFence(Fence* fence, uint32_t timeout = std::numeric_limits<uint32_t>::max());
 
   uint32_t GetCurrentBufferIndex() const;
 
   uint32_t SwapBuffers();
 
+  const vk::PhysicalDeviceMemoryProperties& GetMemoryProperties() const
+  {
+    return mPhysicalDeviceMemoryProperties;
+  }
 
 private: // Methods
-
-  void CreateInstance( const std::vector< const char* >& extensions,
-                       const std::vector< const char* >& validationLayers );
+  void CreateInstance(const std::vector<const char*>& extensions,
+                      const std::vector<const char*>& validationLayers);
 
   void DestroyInstance();
 
@@ -160,41 +158,40 @@ private: // Methods
 
   void GetQueueFamilyProperties();
 
-  std::vector< vk::DeviceQueueCreateInfo > GetQueueCreateInfos();
+  std::vector<vk::DeviceQueueCreateInfo> GetQueueCreateInfos();
 
-  std::vector< const char* > PrepareDefaultInstanceExtensions();
+  std::vector<const char*> PrepareDefaultInstanceExtensions();
 
 private: // Members
   vk::PhysicalDevice mPhysicalDevice;
-  vk::Device mLogicalDevice;
-  vk::Instance mInstance;
+  vk::Device         mLogicalDevice;
+  vk::Instance       mInstance;
 
-  vk::PhysicalDeviceProperties mPhysicalDeviceProperties;
-  vk::PhysicalDeviceMemoryProperties mPhysicalDeviceMemoryProperties;
-  vk::PhysicalDeviceFeatures mPhysicalDeviceFeatures;
-  std::unique_ptr< vk::AllocationCallbacks > mAllocator{ nullptr };
+  vk::PhysicalDeviceProperties             mPhysicalDeviceProperties;
+  vk::PhysicalDeviceMemoryProperties       mPhysicalDeviceMemoryProperties;
+  vk::PhysicalDeviceFeatures               mPhysicalDeviceFeatures;
+  std::unique_ptr<vk::AllocationCallbacks> mAllocator{nullptr};
 
-  std::vector< vk::QueueFamilyProperties > mQueueFamilyProperties;
+  std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
 
   // Sets of queues
-  std::vector< std::unique_ptr< Queue > > mAllQueues;
-  std::vector< Queue* > mGraphicsQueues;
-  std::vector< Queue* > mTransferQueues;
-  std::vector< Queue* > mComputeQueues;
+  std::vector<std::unique_ptr<Queue> > mAllQueues;
+  std::vector<Queue*>                  mGraphicsQueues;
+  std::vector<Queue*>                  mTransferQueues;
+  std::vector<Queue*>                  mComputeQueues;
 
   CommandPoolMap mCommandPools;
 
-  std::unordered_map< Graphics::SurfaceId, SwapchainSurfacePair > mSurfaceMap;
-  bool mSurfaceResized{false};
-  Graphics::SurfaceId mBaseSurfaceId{0u};
+  std::unordered_map<Graphics::SurfaceId, SwapchainSurfacePair> mSurfaceMap;
+  bool                                                          mSurfaceResized{false};
+  Graphics::SurfaceId                                           mBaseSurfaceId{0u};
 
-  Platform mPlatform{Platform::UNDEFINED};
-  uint32_t mCurrentBufferIndex{0u};
+  Platform   mPlatform{Platform::UNDEFINED};
+  uint32_t   mCurrentBufferIndex{0u};
   std::mutex mMutex;
 
-  bool mHasDepth { false };
-  bool mHasStencil { false };
-
+  bool mHasDepth{false};
+  bool mHasStencil{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

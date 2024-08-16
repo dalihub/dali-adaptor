@@ -19,84 +19,84 @@
 namespace Dali::Graphics::Vulkan
 {
 
-Memory::Memory( Device* _graphicsDevice, vk::DeviceMemory deviceMemory, size_t memSize, size_t memAlign, bool isHostVisible )
-: graphicsDevice( _graphicsDevice ),
-  memory( deviceMemory ),
-  size( memSize ),
-  alignment( memAlign ),
-  mappedPtr( nullptr ),
-  mappedSize( 0u ),
-  hostVisible( isHostVisible )
+MemoryImpl::MemoryImpl(Device& device, size_t memSize, size_t memAlign, bool isHostVisible)
+: mDevice(device),
+  deviceMemory(nullptr),
+  size(memSize),
+  alignment(memAlign),
+  mappedPtr(nullptr),
+  mappedSize(0u),
+  hostVisible(isHostVisible)
 {
 }
 
-Memory::~Memory()
+vk::Result MemoryImpl::Allocate(vk::MemoryAllocateInfo allocateInfo, const vk::AllocationCallbacks& allocator)
+{
+  auto result = mDevice.GetLogicalDevice().allocateMemory(&allocateInfo, &allocator, &deviceMemory);
+  return result;
+}
+
+MemoryImpl::~MemoryImpl()
 {
   // free memory
-  if( memory )
+  if(deviceMemory)
   {
-    auto device = graphicsDevice->GetLogicalDevice();
-    auto allocator = &graphicsDevice->GetAllocator();
-    auto deviceMemory = memory;
-
-    // Discard unused descriptor set layouts
-    graphicsDevice->DiscardResource( [ device, deviceMemory, allocator ]() {
-      // free memory
-      device.freeMemory( deviceMemory, allocator );
-    } );
+    auto device    = mDevice.GetLogicalDevice();
+    auto allocator = &mDevice.GetAllocator();
+    device.freeMemory(deviceMemory, allocator);
+    deviceMemory = nullptr;
   }
 }
 
-void* Memory::Map( uint32_t offset, uint32_t requestedMappedSize )
+void* MemoryImpl::Map()
 {
-  if( !memory )
+  return Map(0u, 0u);
+}
+
+void* MemoryImpl::Map(uint32_t offset, uint32_t requestedMappedSize)
+{
+  if(!deviceMemory)
   {
     return nullptr;
   }
 
-  if( mappedPtr )
+  if(mappedPtr)
   {
     return mappedPtr;
   }
-  mappedPtr = graphicsDevice->GetLogicalDevice().mapMemory( memory, offset, requestedMappedSize ? requestedMappedSize : VK_WHOLE_SIZE ).value;
+  mappedPtr  = mDevice.GetLogicalDevice().mapMemory(deviceMemory, offset, requestedMappedSize ? requestedMappedSize : VK_WHOLE_SIZE).value;
   mappedSize = requestedMappedSize;
   return mappedPtr;
 }
 
-void* Memory::Map()
+void MemoryImpl::Unmap()
 {
-  return Map( 0u, 0u );
-}
-
-void Memory::Unmap()
-{
-  if( memory && mappedPtr )
+  if(deviceMemory && mappedPtr)
   {
-    graphicsDevice->GetLogicalDevice().unmapMemory( memory );
+    mDevice.GetLogicalDevice().unmapMemory(deviceMemory);
     mappedPtr = nullptr;
   }
 }
 
-vk::DeviceMemory Memory::ReleaseVkObject()
+vk::DeviceMemory MemoryImpl::ReleaseVkObject()
 {
-  auto retval = memory;
-  memory = nullptr;
+  auto retval  = deviceMemory;
+  deviceMemory = nullptr;
   return retval;
 }
 
-void Memory::Flush()
+void MemoryImpl::Flush()
 {
-  vk::Result result = graphicsDevice->GetLogicalDevice().flushMappedMemoryRanges( { vk::MappedMemoryRange{}
-    .setSize( mappedSize )
-    .setMemory( memory )
-    .setOffset( 0u )
-  } );
+  vk::Result result = mDevice.GetLogicalDevice().flushMappedMemoryRanges({vk::MappedMemoryRange{}
+                                                                            .setSize(mappedSize)
+                                                                            .setMemory(deviceMemory)
+                                                                            .setOffset(0u)});
   DALI_ASSERT_ALWAYS(result == vk::Result::eSuccess); // If it's out of memory, may as well crash.
 }
 
-vk::DeviceMemory Memory::GetVkHandle() const
+vk::DeviceMemory MemoryImpl::GetVkHandle() const
 {
-  return memory;
+  return deviceMemory;
 }
 
-} //namespace Dali::Graphics::Vulkan
+} // namespace Dali::Graphics::Vulkan

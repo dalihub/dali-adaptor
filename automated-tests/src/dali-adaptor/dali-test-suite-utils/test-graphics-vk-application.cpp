@@ -15,8 +15,7 @@
  *
  */
 
-#include "test-graphics-application.h"
-#include <test-graphics-sync-impl.h>
+#include "test-graphics-vk-application.h"
 
 namespace Dali
 {
@@ -28,7 +27,11 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
                                                  uint32_t verticalDpi,
                                                  bool     initialize,
                                                  bool     enablePartialUpdate)
-: mCore(NULL),
+: mGraphics(GetGraphicsCreateInfo(surfaceWidth, surfaceHeight),
+            Integration::DepthBufferAvailable::FALSE,
+            Integration::StencilBufferAvailable::FALSE,
+            Integration::PartialUpdateAvailable::FALSE),
+  mCore(NULL),
   mSurfaceWidth(surfaceWidth),
   mSurfaceHeight(surfaceHeight),
   mFrame(0u),
@@ -40,6 +43,15 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
   {
     Initialize();
   }
+}
+
+const Graphics::GraphicsCreateInfo& TestGraphicsApplication::GetGraphicsCreateInfo(uint32_t width, uint32_t height)
+{
+  static Graphics::GraphicsCreateInfo info{
+    480, 800, Graphics::DepthStencilMode::NONE, Graphics::SwapchainBufferingMode::OPTIMAL, ColorDepth::COLOR_DEPTH_24, 0};
+  info.surfaceWidth  = width;
+  info.surfaceHeight = height;
+  return info;
 }
 
 void TestGraphicsApplication::Initialize()
@@ -61,9 +73,6 @@ void TestGraphicsApplication::CreateCore()
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
   mDisplayConnection   = DisplayConnection::New();
   mGraphics.Initialize(*mDisplayConnection);
-  mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
-  mGraphicsController.ActivateResourceContext();
 
   Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
   if(mPartialUpdateEnabled)
@@ -73,7 +82,7 @@ void TestGraphicsApplication::CreateCore()
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
-                                       mGraphicsController,
+                                       mGraphics.GetController(),
                                        corePolicyFlags);
 
   mCore->ContextCreated();
@@ -102,7 +111,7 @@ void TestGraphicsApplication::InitializeCore()
 
 TestGraphicsApplication::~TestGraphicsApplication()
 {
-  mGraphicsController.Shutdown();
+  mGraphics.GetController().Shutdown();
   Dali::Integration::Log::UninstallLogFunction();
   delete mCore;
 }
@@ -161,12 +170,7 @@ TestRenderController& TestGraphicsApplication::GetRenderController()
 
 Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
 {
-  return mGraphicsController;
-}
-
-TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
-{
-  return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
+  return mGraphics.GetController();
 }
 
 void TestGraphicsApplication::ProcessEvent(const Integration::Event& event)
@@ -275,8 +279,7 @@ bool TestGraphicsApplication::RenderOnly()
 void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
-  mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
+  // re-create vulkan graphics?
   mCore->ContextCreated();
 }
 

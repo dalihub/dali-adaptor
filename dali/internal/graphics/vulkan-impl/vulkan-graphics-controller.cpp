@@ -20,14 +20,19 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
 
 namespace Dali::Graphics::Vulkan
 {
@@ -272,7 +277,7 @@ UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const
 
 UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
 {
-  return UniquePtr<Graphics::Buffer>{};
+  return NewObject<Vulkan::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
 UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
@@ -311,26 +316,40 @@ UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const
   return UniquePtr<Graphics::SyncObject>{};
 }
 
-UniquePtr<Memory> VulkanGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
+UniquePtr<Graphics::Memory> VulkanGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
 {
-  return UniquePtr<Memory>{};
+  // @todo: Process create queues
+  auto        buffer     = static_cast<Vulkan::Buffer*>(mapInfo.buffer);
+  BufferImpl* bufferImpl = buffer->GetImpl();
+  DALI_ASSERT_DEBUG(bufferImpl && "Mapping CPU allocated buffer is not used in Vulkan");
+  if(bufferImpl)
+  {
+    auto memoryImpl = bufferImpl->GetMemory();
+    auto memory     = UniquePtr<Memory>(new Memory(mapInfo, *this));
+    memory->Initialize(memoryImpl);
+    return memory;
+  }
+  return nullptr;
 }
 
-UniquePtr<Memory> VulkanGraphicsController::MapTextureRange(const MapTextureInfo& mapInfo)
+UniquePtr<Graphics::Memory> VulkanGraphicsController::MapTextureRange(const MapTextureInfo& mapInfo)
 {
-  return UniquePtr<Memory>{};
+  return UniquePtr<Memory>{nullptr};
 }
 
-void VulkanGraphicsController::UnmapMemory(UniquePtr<Memory> memory)
+void VulkanGraphicsController::UnmapMemory(UniquePtr<Graphics::Memory> memory)
 {
+  // Do nothing. Let unique ptr die, and deal with it in the destructor.
+}
+
+MemoryRequirements VulkanGraphicsController::GetBufferMemoryRequirements(Graphics::Buffer& gfxBuffer) const
+{
+  auto        buffer     = static_cast<Vulkan::Buffer*>(&gfxBuffer);
+  BufferImpl* bufferImpl = buffer->GetImpl();
+  return bufferImpl->GetMemoryRequirements();
 }
 
 MemoryRequirements VulkanGraphicsController::GetTextureMemoryRequirements(Graphics::Texture& texture) const
-{
-  return MemoryRequirements{};
-}
-
-MemoryRequirements VulkanGraphicsController::GetBufferMemoryRequirements(Graphics::Buffer& buffer) const
 {
   return MemoryRequirements{};
 }
@@ -419,14 +438,20 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
   return "";
 }
 
-// Add to initialize resource queue
 void VulkanGraphicsController::Add(Vulkan::RenderTarget* renderTarget)
 {
+  // @todo Add create resource queues?
+  renderTarget->InitializeResource();
 }
 
-// Add to discard queue
 void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* renderTarget)
 {
+  // @todo Add discard queues
+}
+
+void VulkanGraphicsController::DiscardResource(Vulkan::Buffer* buffer)
+{
+  // @todo Add discard queues
 }
 
 Vulkan::Device& VulkanGraphicsController::GetGraphicsDevice()

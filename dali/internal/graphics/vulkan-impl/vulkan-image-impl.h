@@ -18,6 +18,7 @@
  *
  */
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
@@ -31,7 +32,6 @@ class Image : public VkManaged
   friend class Device;
 
 public:
-
   /**
    * Returns underlying Vulkan object
    * @return
@@ -96,7 +96,7 @@ public:
 
   [[nodiscard]] vk::SampleCountFlagBits GetSampleCount() const;
 
-  void SetImageLayout( vk::ImageLayout imageLayout );
+  void SetImageLayout(vk::ImageLayout imageLayout);
 
   const Image& ConstRef();
 
@@ -104,7 +104,7 @@ public:
 
   bool OnDestroy() override;
 
-  [[nodiscard]] Memory* GetMemory() const
+  [[nodiscard]] MemoryImpl* GetMemory() const
   {
     return mDeviceMemory.get();
   }
@@ -118,14 +118,13 @@ public:
   void DestroyNow();
 
 private:
-
   /**
    * Creates new VkImage with given specification, it doesn't
    * bind the memory.
    * @param graphics
    * @param createInfo
    */
-  Image( Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr );
+  Image(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr);
 
   /**
    * Destroys used Vulkan resource objects
@@ -134,23 +133,19 @@ private:
    * @param memory Vulkan device memory
    * @param allocator Pointer to the Vulkan allocator callbacks
    */
-  static void DestroyVulkanResources( vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator );
+  static void DestroyVulkanResources(vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator);
 
 private:
-  Device* mGraphicsDevice;
-  vk::ImageCreateInfo mCreateInfo;
-  vk::Image mImage;
-  vk::ImageLayout mImageLayout;
+  Device*              mGraphicsDevice;
+  vk::ImageCreateInfo  mCreateInfo;
+  vk::Image            mImage;
+  vk::ImageLayout      mImageLayout;
   vk::ImageAspectFlags mAspectFlags;
 
-  std::unique_ptr<Memory> mDeviceMemory;
-  bool mIsExternal;
+  std::unique_ptr<MemoryImpl> mDeviceMemory;
+  bool                        mIsExternal;
 };
 
 } // namespace Dali::Graphics::Vulkan
-
-
-
-
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_IMPL_H
