@@ -29,15 +29,23 @@
 
 namespace Dali::Internal::Adaptor
 {
+namespace
+{
+static AdaptorBuilder* gAdaptorBuilder = nullptr;
+}
 AdaptorBuilder& AdaptorBuilder::Get(EnvironmentOptions& environmentOptions)
 {
-  static AdaptorBuilder* gAdaptorBuilder = nullptr;
-
   if(gAdaptorBuilder == nullptr)
   {
     gAdaptorBuilder = new AdaptorBuilder(environmentOptions);
   }
   return *gAdaptorBuilder;
+}
+
+void AdaptorBuilder::Finalize()
+{
+  delete gAdaptorBuilder;
+  gAdaptorBuilder = nullptr;
 }
 
 AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)

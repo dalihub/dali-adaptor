@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -492,12 +492,7 @@ protected:
   /**
    * Creates the adaptor
    */
-  void CreateAdaptor();
-
-  /**
-   * Creates the adaptor builder
-   */
-  void CreateAdaptorBuilder();
+  void CreateAdaptor(AdaptorBuilder& adaptorBuilder);
 
   /**
    * Quits from the main loop
@@ -536,7 +531,6 @@ private:
 
   CommandLineOptions* mCommandLineOptions;
 
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder; ///< The adaptor builder
   Dali::Adaptor*                           mAdaptor;
   std::unique_ptr<EnvironmentOptions>      mEnvironmentOptions;
 

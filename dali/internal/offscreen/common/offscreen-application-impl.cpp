@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,11 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
   // Disable ATSPI
   Dali::Accessibility::Bridge::DisableAutoInit();
 
+  // Create environment options after environmnet value changed.
+  mEnvironmentOptions = std::unique_ptr<Dali::Internal::Adaptor::EnvironmentOptions>(new Dali::Internal::Adaptor::EnvironmentOptions());
+
+  auto& adaptorBuilder = Dali::Internal::Adaptor::AdaptorBuilder::Get(*mEnvironmentOptions);
+
   // Now we assume separated main loop for the offscreen application
   mFrameworkFactory = std::unique_ptr<Adaptor::FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
   mFramework        = mFrameworkFactory->CreateFramework(Internal::Adaptor::FrameworkBackend::GLIB, *this, *this, nullptr, nullptr, Adaptor::Framework::NORMAL, false);
@@ -71,7 +76,12 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
   IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
   mDefaultWindow                               = Dali::OffscreenWindow(impl.Get());
 
-  mAdaptor.reset(Dali::Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(impl.Get()), impl->GetSurface(), NULL, renderMode == RenderMode::AUTO ? Dali::Internal::Adaptor::ThreadMode::NORMAL : Dali::Internal::Adaptor::ThreadMode::RUN_IF_REQUESTED));
+  auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
+
+  mAdaptor.reset(Dali::Internal::Adaptor::Adaptor::New(graphicsFactory, Dali::Integration::SceneHolder(impl.Get()), impl->GetSurface(), mEnvironmentOptions.get(), renderMode == RenderMode::AUTO ? Dali::Internal::Adaptor::ThreadMode::NORMAL : Dali::Internal::Adaptor::ThreadMode::RUN_IF_REQUESTED));
+
+  // adaptorBuilder invalidate after now.
+  Dali::Internal::Adaptor::AdaptorBuilder::Finalize();
 
   // Initialize default window
   impl->Initialize(true);
