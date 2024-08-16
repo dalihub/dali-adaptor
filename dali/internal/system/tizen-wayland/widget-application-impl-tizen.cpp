@@ -19,10 +19,11 @@
 #include <dali/internal/system/tizen-wayland/widget-application-impl-tizen.h>
 
 // INTERNAL INCLUDE
-#include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
@@ -38,8 +39,8 @@ namespace Internal
 {
 namespace
 {
-constexpr char const* const kApplicationNamePrefix     = "libdali2-adaptor-application-";
-constexpr char const* const kApplicationNamePostfix    = ".so";
+constexpr char const* const kApplicationNamePrefix  = "libdali2-adaptor-application-";
+constexpr char const* const kApplicationNamePostfix = ".so";
 
 std::string MakePluginName(const char* appModelName)
 {
@@ -89,7 +90,7 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
 
 unsigned int GetEnvWidgetRenderRefreshRate()
 {
-  const char* envVariable = std::getenv(DALI_WIDGET_REFRESH_RATE);
+  const char* envVariable = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_WIDGET_REFRESH_RATE);
 
   return envVariable ? std::atoi(envVariable) : 1u; // Default 60 fps
 }
@@ -128,15 +129,15 @@ void WidgetApplicationTizen::RegisterWidgetCreatingFunction(const std::string& w
 {
   AddWidgetCreatingFunctionPair(CreateWidgetFunctionPair(widgetName, createFunction));
 
-  using RegisterFunction          = void (*)(const char*, void*);
-  RegisterFunction                registerFunctionPtr;
-  std::string pluginName = MakePluginName("widget");
+  using RegisterFunction = void (*)(const char*, void*);
+  RegisterFunction registerFunctionPtr;
+  std::string      pluginName = MakePluginName("widget");
 
   void* mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_INFO, "DALI", "error : %s", dlerror() );
+    print_log(DLOG_INFO, "DALI", "error : %s", dlerror());
     return;
   }
 

@@ -30,11 +30,12 @@
 #endif // DALI_ELDBUS_AVAILABLE
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {
@@ -42,19 +43,23 @@ namespace Internal
 {
 namespace Adaptor
 {
-extern "C" DALI_ADAPTOR_API AppModelComponentBased* Create() {
+extern "C" DALI_ADAPTOR_API AppModelComponentBased* Create()
+{
   return new AppModelComponentBased;
 }
 
-extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
+extern "C" DALI_ADAPTOR_API void Destroy(void* p)
+{
   AppModelComponentBased* appComponent = static_cast<AppModelComponentBased*>(p);
   delete appComponent;
 }
 
-extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
+extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
+{
   AppModelComponentBased* appComponent = static_cast<AppModelComponentBased*>(pData);
+
   int ret = 0;
-  if (appComponent != nullptr)
+  if(appComponent != nullptr)
   {
     ret = appComponent->AppMain(data);
   }
@@ -65,7 +70,8 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   return ret;
 }
 
-extern "C" DALI_ADAPTOR_API void AppExit(AppModelComponentBased* p) {
+extern "C" DALI_ADAPTOR_API void AppExit(AppModelComponentBased* p)
+{
   p->AppExit();
 }
 
@@ -75,6 +81,9 @@ namespace
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
 #endif
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FRAMEWORK, true);
+
+const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
+const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
 } // anonymous namespace
 
 struct DALI_ADAPTOR_API AppModelComponentBased::Impl
@@ -94,7 +103,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     callback.terminate = ComponentAppTerminate;
     callback.fini      = ComponentAppFinish;
 
-    ret = component_based_app_base_main(*mFramework->GetArgc(), *mFramework->GetArgv(), &callback, mFramework);;
+    ret = component_based_app_base_main(*mFramework->GetArgc(), *mFramework->GetArgv(), &callback, mFramework);
 #else
     DALI_LOG_ERROR("component application feature is not supported");
 #endif
@@ -103,17 +112,17 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void AppInit(int argc, char** argv, void* data)
   {
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
     ecore_init();
     ecore_app_args_set(argc, (const char**)argv);
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 
-  #ifdef DALI_ELDBUS_AVAILABLE
+#ifdef DALI_ELDBUS_AVAILABLE
     // Initialize ElDBus.
     DALI_LOG_INFO(gDBusLogging, Debug::General, "Starting DBus Initialization\n");
     eldbus_init();
-  #endif
+#endif
   }
 
   static void AppRun(void* data)
@@ -128,8 +137,8 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void* ComponentAppCreate(void* data)
   {
-    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer  = &framework->GetObserver();
+    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer  = &framework->GetObserver();
     observer->OnInit();
 
     return Dali::AnyCast<void*>(observer->OnCreate());
@@ -145,9 +154,9 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   {
     ecore_shutdown();
 
-    if(getenv("AUL_LOADER_INIT"))
+    if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
     {
-      setenv("AUL_LOADER_INIT", "0", 1);
+      Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
       ecore_shutdown();
     }
   }
@@ -168,8 +177,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   {
   }
 
-  AppModelComponentBased*                     mAppModelComponentBased;
-
+  AppModelComponentBased* mAppModelComponentBased;
 };
 
 AppModelComponentBased::AppModelComponentBased()
@@ -182,7 +190,7 @@ AppModelComponentBased::~AppModelComponentBased()
   delete mImpl;
 }
 
-int AppModelComponentBased::AppMain(void *data)
+int AppModelComponentBased::AppMain(void* data)
 {
   return mImpl->AppMain(data);
 }
@@ -191,6 +199,6 @@ void AppModelComponentBased::AppExit()
 {
   mImpl->AppExit();
 }
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

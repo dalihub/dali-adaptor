@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -275,10 +276,10 @@ void WindowRenderSurface::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiV
 {
   if(mDpiHorizontal == 0 || mDpiVertical == 0)
   {
-    const char* environmentDpiHorizontal = std::getenv(DALI_ENV_DPI_HORIZONTAL);
+    const char* environmentDpiHorizontal = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DPI_HORIZONTAL);
     mDpiHorizontal                       = environmentDpiHorizontal ? std::atoi(environmentDpiHorizontal) : 0;
 
-    const char* environmentDpiVertical = std::getenv(DALI_ENV_DPI_VERTICAL);
+    const char* environmentDpiVertical = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DPI_VERTICAL);
     mDpiVertical                       = environmentDpiVertical ? std::atoi(environmentDpiVertical) : 0;
 
     if(mDpiHorizontal == 0 || mDpiVertical == 0)
