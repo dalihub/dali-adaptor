@@ -220,9 +220,9 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         else
         {
           // for fragment shader the gl_FragColor is our output
-          // we will use OUT_COLOR
+          // we will use OUT_COLOR, in such shader we have only single output
           auto varName = GetToken(l, -1);
-          ss << "out" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          ss << "layout(location=0) out" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
           outString += ss.str();
         }
         return true;
