@@ -1,7 +1,7 @@
 #ifndef DALI_ATSPI_ACCESSIBILITY_H
 #define DALI_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -510,6 +510,15 @@ enum class AtspiEvent
   WINDOW_CHANGED,
   SCROLL_STARTED,
   SCROLL_FINISHED,
+  MAX_COUNT
+};
+
+enum class ActionType
+{
+  ACTIVATE,
+  ESCAPE,
+  INCREMENT,
+  DECREMENT,
   MAX_COUNT
 };
 
