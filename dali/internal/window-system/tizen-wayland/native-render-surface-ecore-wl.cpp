@@ -52,6 +52,36 @@ static void TbmAcquirableCallback(tbm_surface_queue_h queue, void* data)
   }
 }
 
+inline bool IsColorDepth32Required(const tbm_format format)
+{
+  switch(format)
+  {
+    case TBM_FORMAT_ARGB8888:
+    case TBM_FORMAT_ABGR8888:
+    case TBM_FORMAT_RGBA8888:
+    case TBM_FORMAT_BGRA8888:
+    case TBM_FORMAT_XRGB8888:
+    case TBM_FORMAT_XBGR8888:
+    case TBM_FORMAT_RGBX8888:
+    case TBM_FORMAT_BGRX8888:
+    case TBM_FORMAT_XRGB2101010:
+    case TBM_FORMAT_XBGR2101010:
+    case TBM_FORMAT_RGBX1010102:
+    case TBM_FORMAT_BGRX1010102:
+    case TBM_FORMAT_ARGB2101010:
+    case TBM_FORMAT_ABGR2101010:
+    case TBM_FORMAT_RGBA1010102:
+    case TBM_FORMAT_BGRA1010102:
+    {
+      return true;
+    }
+    default:
+    {
+      return false;
+    }
+  }
+}
+
 } // unnamed namespace
 
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent)
@@ -81,7 +111,7 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, 
 
     mTbmFormat = tbm_surface_queue_get_format(mTbmQueue);
 
-    mColorDepth = (mTbmFormat == TBM_FORMAT_ARGB8888) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth = IsColorDepth32Required(mTbmFormat) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
 }
 
@@ -180,7 +210,7 @@ void NativeRenderSurfaceEcoreWl::InitializeGraphics()
     CreateContext();
   }
 
-    // Create the OpenGL surface
+  // Create the OpenGL surface
   if(mEGLSurface == NULL)
   {
     CreateSurface();
