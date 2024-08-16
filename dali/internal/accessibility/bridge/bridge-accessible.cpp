@@ -706,17 +706,17 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
     recurse = component->IsProxy();
     if(recurse)
     {
-      Accessible* parent = component->GetParent();
-      while(parent && parent != accessible && !deputy)
+      Accessible* parent = component;
+      do
       {
+        parent = parent->GetParent();
         if(IsObjectAcceptable(parent))
         {
           deputy = parent;
           LOG() << "deputy:    " << GetComponentInfo(dynamic_cast<Component*>(deputy));
           break;
         }
-        parent = parent->GetParent();
-      }
+      } while(parent && parent != accessible);
     }
   }
   return {component, recurse, deputy};
