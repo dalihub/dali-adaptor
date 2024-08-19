@@ -1023,11 +1023,18 @@ DBus::ValueOrError<std::array<uint32_t, 2>> BridgeAccessible::GetStates()
 
 DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessible::GetAttributes()
 {
-  std::unordered_map<std::string, std::string> attributes = FindSelf()->GetAttributes();
+  auto                                         self       = FindSelf();
+  std::unordered_map<std::string, std::string> attributes = self->GetAttributes();
 
   if(mIsScreenReaderSuppressed)
   {
     attributes.insert({"suppress-screen-reader", "true"});
+  }
+
+  auto* valueInterface = Value::DownCast(self);
+  if(!valueInterface && !self->GetValue().empty())
+  {
+    attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
   }
 
   return attributes;
