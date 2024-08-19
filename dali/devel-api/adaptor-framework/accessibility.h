@@ -25,6 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bitset.h>
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -519,6 +520,7 @@ enum class ActionType
   ESCAPE,
   INCREMENT,
   DECREMENT,
+  SCROLL_TO_CHILD,
   MAX_COUNT
 };
 
@@ -736,6 +738,19 @@ struct DALI_ADAPTOR_API Relation
 
   RelationType             mRelationType;
   std::vector<Accessible*> mTargets;
+};
+
+struct DALI_ADAPTOR_API ActionInfo
+{
+  ActionInfo() = default;
+  ActionInfo(ActionType type, Actor target)
+  : type{type},
+    target{target}
+  {
+  }
+
+  ActionType type{ActionType::MAX_COUNT};
+  Actor      target{};
 };
 
 } // namespace Accessibility
