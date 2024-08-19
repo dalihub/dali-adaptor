@@ -70,7 +70,7 @@ int32_t GetTbmSurfaceQueueSize()
 
 NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(queueCount, width, height, colorFormat, nativeImageSourceQueue);
+  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(queueCount, width, height, nativeImageSourceQueue);
   DALI_ASSERT_DEBUG(image && "NativeImageSourceQueueTizen allocation failed.");
 
   if(image)
@@ -81,7 +81,7 @@ NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t queueCoun
   return image;
 }
 
-NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Any nativeImageSourceQueue)
 : mMutex(),
   mQueueCount(queueCount),
   mWidth(width),
@@ -137,24 +137,39 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
 
     switch(colorFormat)
     {
-      case Dali::NativeImageSourceQueue::ColorFormat::RGBA8888: // TODO : Implement me after other codes fixed.
       case Dali::NativeImageSourceQueue::ColorFormat::BGRA8888:
       {
         tbmFormat         = TBM_FORMAT_ARGB8888;
         mBlendingRequired = true;
         break;
       }
-      case Dali::NativeImageSourceQueue::ColorFormat::RGBX8888: // TODO : Implement me after other codes fixed.
       case Dali::NativeImageSourceQueue::ColorFormat::BGRX8888:
       {
         tbmFormat         = TBM_FORMAT_XRGB8888;
         mBlendingRequired = false;
         break;
       }
-      case Dali::NativeImageSourceQueue::ColorFormat::RGB888: // TODO : Implement me after other codes fixed.
       case Dali::NativeImageSourceQueue::ColorFormat::BGR888:
       {
         tbmFormat         = TBM_FORMAT_RGB888;
+        mBlendingRequired = false;
+        break;
+      }
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBA8888:
+      {
+        tbmFormat         = TBM_FORMAT_ABGR8888;
+        mBlendingRequired = true;
+        break;
+      }
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBX8888:
+      {
+        tbmFormat         = TBM_FORMAT_XBGR8888;
+        mBlendingRequired = false;
+        break;
+      }
+      case Dali::NativeImageSourceQueue::ColorFormat::RGB888:
+      {
+        tbmFormat         = TBM_FORMAT_BGR888;
         mBlendingRequired = false;
         break;
       }

@@ -195,10 +195,9 @@ private:
    * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] colorFormat The format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Any nativeImageSourceQueue);
 
   void Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat);
 

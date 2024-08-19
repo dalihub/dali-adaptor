@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -448,7 +448,7 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
 #ifdef THORVG_SUPPORT
   if(!mNativeImageQueue)
   {
-    mNativeImageQueue = Dali::NativeImageSourceQueue::New(size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::RGBA8888);
+    mNativeImageQueue = Dali::NativeImageSourceQueue::New(size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
   }
   else
   {
