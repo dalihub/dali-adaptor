@@ -35,6 +35,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-program.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-program-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-queue-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-reflection.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-target.cpp

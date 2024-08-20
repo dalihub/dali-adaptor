@@ -26,6 +26,8 @@
 
 namespace Dali::Graphics::Vulkan
 {
+class Reflection;
+
 /**
  * @brief Program implementation
  *
@@ -97,6 +99,13 @@ public:
    * @return Refcount value
    */
   [[nodiscard]] uint32_t GetRefCount() const;
+
+  /**
+   * @brief Returns reflection
+   *
+   * @return Valid reflection associated with the Program
+   */
+  [[nodiscard]] const Vulkan::Reflection& GetReflection() const;
 
   /**
    * @brief Returns controller

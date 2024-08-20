@@ -40,3 +40,7 @@ SET( static_libraries_nanosvg_src_files
 SET( adaptor_macos_platform_src_files
     ${adaptor_thirdparty_dir}/macos-platform/thread.cpp
 )
+
+SET( adaptor_libraries_spirv_reflect_src_files
+    ${adaptor_thirdparty_dir}/SPIRV-Reflect/spirv_reflect.cpp
+)

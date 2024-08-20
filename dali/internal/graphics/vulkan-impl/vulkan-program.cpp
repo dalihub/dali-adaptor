@@ -51,8 +51,7 @@ Program::~Program()
 
 const Vulkan::Reflection& Program::GetReflection() const
 {
-  // TODO: Implement reflection
-  return *reinterpret_cast<Vulkan::Reflection*>(0u);
+  return mProgram->GetReflection();
 }
 
 VulkanGraphicsController& Program::GetController() const

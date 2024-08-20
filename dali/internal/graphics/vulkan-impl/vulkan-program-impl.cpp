@@ -21,6 +21,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
 
@@ -58,6 +59,8 @@ struct ProgramImpl::Impl
   ProgramCreateInfo         createInfo;
   std::string               name;
   uint32_t                  refCount{0u};
+
+  std::unique_ptr<Vulkan::Reflection> reflection{nullptr};
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -76,8 +79,15 @@ ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGr
       if(!shaderImpl->Compile())
       {
         DALI_LOG_ERROR("SPIRV Compilation failed!\n");
+        success = false;
       }
     }
+  }
+
+  if(success)
+  {
+    // Build reflection
+    mImpl->reflection = std::make_unique<Vulkan::Reflection>(*this, controller);
   }
 }
 
@@ -188,6 +198,11 @@ uint32_t ProgramImpl::Release()
 uint32_t ProgramImpl::GetRefCount() const
 {
   return mImpl->refCount;
+}
+
+const Vulkan::Reflection& ProgramImpl::GetReflection() const
+{
+  return *mImpl->reflection;
 }
 
 bool ProgramImpl::GetParameter(uint32_t parameterId, void* out)
