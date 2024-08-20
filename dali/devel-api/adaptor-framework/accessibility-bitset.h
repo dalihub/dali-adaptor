@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACCESSIBILITY_BITSET_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace Internal
 {
 // Number of 32-bit chunks required to hold N bits
 template<typename Enum, Enum EnumMax, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-inline constexpr std::size_t BitSetSize = (static_cast<std::size_t>(EnumMax) + 31u) / 32u;
+constexpr std::size_t BitSetSize = (static_cast<std::size_t>(EnumMax) + 31u) / 32u;
 
 /**
  * @brief A writable reference to a single bit.
@@ -45,12 +45,12 @@ inline constexpr std::size_t BitSetSize = (static_cast<std::size_t>(EnumMax) + 3
  * @code std::uint32_t x = 0; x[5] = true; @endcode is not possible. The BitSet type uses this proxy
  * class to make such operations possible.
  *
- * @see Accessibility::BitSet
+ * @see Dali::Accessibility::BitSet
  */
 class BitReference
 {
   template<std::size_t>
-  friend class Accessibility::BitSet;
+  friend class Dali::Accessibility::BitSet;
 
 public:
   using ElementType = std::uint32_t; ///< Integral type used for storing bits.
@@ -126,9 +126,9 @@ class BitSet
 public:
   // Types
 
-  using ReferenceType = Internal::BitReference;     ///< @copybrief Dali::Accessibility::Internal::BitReference
-  using ElementType   = ReferenceType::ElementType; ///< @copydoc Dali::Accessibility::Internal::BitReference::ElementType
-  using IndexType     = ReferenceType::IndexType;   ///< @copydoc Dali::Accessibility::Internal::BitReference::IndexType
+  using ReferenceType = Internal::BitReference;     ///< Dali::Accessibility::Internal::BitReference
+  using ElementType   = ReferenceType::ElementType; ///< Dali::Accessibility::Internal::BitReference::ElementType
+  using IndexType     = ReferenceType::IndexType;   ///< Dali::Accessibility::Internal::BitReference::IndexType
   using ArrayType     = std::array<ElementType, N>; ///< An array of N integers that can store 32*N bits.
 
   // Constructors
@@ -437,16 +437,14 @@ private:
  * @see Dali::Accessibility::Accessible::GetStates
  * @see Dali::Accessibility::Accessible::GetRoles
  */
-template<typename Enum, Enum EnumMax>
-class EnumBitSet : public BitSet<Internal::BitSetSize<Enum, EnumMax>>
+template<typename Enum, Enum EnumMax, std::size_t N = Internal::BitSetSize<Enum, EnumMax>>
+class EnumBitSet : public BitSet<N>
 {
-  static constexpr std::size_t N = Internal::BitSetSize<Enum, EnumMax>;
-
 public:
   // Types
 
-  using IndexType     = typename BitSet<N>::IndexType;     ///< @copydoc Dali::Accessibility::BitSet::IndexType
-  using ReferenceType = typename BitSet<N>::ReferenceType; ///< @copydoc Dali::Accessibility::BitSet::ReferenceType
+  using IndexType     = typename BitSet<N>::IndexType;     ///< Dali::Accessibility::BitSet<N>::IndexType
+  using ReferenceType = typename BitSet<N>::ReferenceType; ///< Dali::Accessibility::BitSet<N>::ReferenceType
 
   // Constructors
 
@@ -487,7 +485,14 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::BitSet::operator[](IndexType) const
+   * @brief Queries the value of the specified bit.
+   *
+   * This operator is used in expressions like @code bool b = bitset[i]; @endcode
+   *
+   * @note Since doxygen version 1.9.8 (Which is default of Ubuntu24.04) have some bug, copydoc not working.
+   *
+   * @param index Index of the bit to query.
+   * @return true if the specified bit is set to 1, false if it is set to 0.
    */
   bool operator[](Enum index) const
   {
@@ -495,7 +500,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::BitSet::operator[](IndexType)
+   * @copydoc Dali::Accessibility::BitSet::operator[]()
    */
   ReferenceType operator[](Enum index)
   {
