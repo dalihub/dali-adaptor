@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -297,11 +297,6 @@ public:
    * @brief Get image to render.
    */
   virtual NativeImageSourcePtr GetNativeImageSource() = 0;
-
-  /**
-   * @brief Change orientation.
-   */
-  virtual void ChangeOrientation(int orientation) = 0;
 
   /**
    * @brief Return the URL of the Web.
