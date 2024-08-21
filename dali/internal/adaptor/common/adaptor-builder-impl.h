@@ -31,6 +31,7 @@ class AdaptorBuilder
 {
 public:
   static AdaptorBuilder& Get(EnvironmentOptions& environmentOptions);
+  static void            Finalize();
 
   /**
    * Destructor

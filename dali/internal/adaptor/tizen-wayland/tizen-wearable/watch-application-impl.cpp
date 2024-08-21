@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/adaptor/tizen-wayland/tizen-wearable/watch-application-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
@@ -32,7 +33,7 @@ namespace
 {
 unsigned int GetEnvWatchRenderRefreshRate()
 {
-  const char* envVariable = std::getenv(DALI_WATCH_REFRESH_RATE);
+  const char* envVariable = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_WATCH_REFRESH_RATE);
 
   return envVariable ? std::atoi(envVariable) : 2u; // Default 30 fps
 }

@@ -40,7 +40,7 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK              = INT32_MAX;
+static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK              = 1000;
 constexpr int32_t         SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
 constexpr uint32_t        TIME_OUT_DURATION                            = 1000;
 } // namespace

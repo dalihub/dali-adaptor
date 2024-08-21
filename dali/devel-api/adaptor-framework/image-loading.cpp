@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
 
   Internal::Platform::FileReader fileReader(url);
   FILE* const                    fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::Devel::PixelBuffer bitmap;
     bool                     success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, url, fp, bitmap);
@@ -47,6 +47,10 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
     {
       return bitmap;
     }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
   }
   return Dali::Devel::PixelBuffer();
 }
@@ -57,9 +61,13 @@ void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuf
 
   Internal::Platform::FileReader fileReader(url);
   FILE* const                    fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     TizenPlatform::ImageLoader::ConvertStreamToPlanes(resourceType, url, fp, buffers);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
   }
 }
 
@@ -74,7 +82,7 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
 
   Internal::Platform::FileReader fileReader(buffer);
   FILE* const                    fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::Devel::PixelBuffer bitmap;
     // Make path as empty string. Path information just for file format hint.
@@ -83,6 +91,10 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
     {
       return bitmap;
     }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
   }
   return Dali::Devel::PixelBuffer();
 }
@@ -98,7 +110,7 @@ Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, Image
 
   Internal::Platform::FileReader fileReader(buffer, bufferSize);
   FILE* const                    fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::Devel::PixelBuffer bitmap;
     // Make path as empty string. Path information just for file format hint.
@@ -107,6 +119,10 @@ Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, Image
     {
       return bitmap;
     }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
   }
   return Dali::Devel::PixelBuffer();
 }
@@ -142,14 +158,13 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
   if(succeeded)
   {
     size_t blobSize = dataBuffer.Size();
-    DALI_ASSERT_DEBUG(blobSize > 0U);
 
-    if(blobSize > 0U)
+    if(DALI_LIKELY(blobSize > 0U))
     {
       // Open a file handle on the memory buffer:
       Dali::Internal::Platform::FileReader fileReader(dataBuffer, blobSize);
       FILE* const                          fp = fileReader.GetFile();
-      if(NULL != fp)
+      if(DALI_LIKELY(NULL != fp))
       {
         Dali::Devel::PixelBuffer bitmap;
         bool                     result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
@@ -167,7 +182,19 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
           DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
         }
       }
+      else
+      {
+        DALI_LOG_ERROR("Error reading file\n");
+      }
     }
+    else
+    {
+      DALI_LOG_ERROR("Error download empty buffer!\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error download failed!\n");
   }
   return Dali::Devel::PixelBuffer();
 }

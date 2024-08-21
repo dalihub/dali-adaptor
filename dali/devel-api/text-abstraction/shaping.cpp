@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,21 @@ Shaping Shaping::Get()
   return Internal::Shaping::Get();
 }
 
-Length Shaping::Shape(const Character* const text,
-                      Length                 numberOfCharacters,
-                      FontId                 fontId,
-                      Script                 script)
+Shaping Shaping::New()
 {
-  return GetImplementation(*this).Shape(text,
+  auto shapingImpl = new Internal::Shaping();
+
+  return Shaping(shapingImpl);
+}
+
+Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
+                      const Character*       const text,
+                      Length                       numberOfCharacters,
+                      FontId                       fontId,
+                      Script                       script)
+{
+  return GetImplementation(*this).Shape(fontClient,
+                                        text,
                                         numberOfCharacters,
                                         fontId,
                                         script);

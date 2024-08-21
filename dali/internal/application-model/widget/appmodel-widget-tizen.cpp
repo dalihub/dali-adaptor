@@ -33,6 +33,7 @@
 #endif // DALI_ELDBUS_AVAILABLE
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/framework.h>
@@ -84,6 +85,9 @@ namespace
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
 #endif
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FRAMEWORK, true);
+
+const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
+const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
 } // anonymous namespace
 
 namespace AppCoreWidget
@@ -228,9 +232,9 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
   {
     ecore_shutdown();
 
-    if(getenv("AUL_LOADER_INIT"))
+    if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
     {
-      setenv("AUL_LOADER_INIT", "0", 1);
+      Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
       ecore_shutdown();
     }
 

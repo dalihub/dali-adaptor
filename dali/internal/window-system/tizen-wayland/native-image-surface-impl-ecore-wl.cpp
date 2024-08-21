@@ -37,6 +37,39 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+inline bool IsColorDepth32Required(const tbm_format format)
+{
+  switch(format)
+  {
+    case TBM_FORMAT_ARGB8888:
+    case TBM_FORMAT_ABGR8888:
+    case TBM_FORMAT_RGBA8888:
+    case TBM_FORMAT_BGRA8888:
+    case TBM_FORMAT_XRGB8888:
+    case TBM_FORMAT_XBGR8888:
+    case TBM_FORMAT_RGBX8888:
+    case TBM_FORMAT_BGRX8888:
+    case TBM_FORMAT_XRGB2101010:
+    case TBM_FORMAT_XBGR2101010:
+    case TBM_FORMAT_RGBX1010102:
+    case TBM_FORMAT_BGRX1010102:
+    case TBM_FORMAT_ARGB2101010:
+    case TBM_FORMAT_ABGR2101010:
+    case TBM_FORMAT_RGBA1010102:
+    case TBM_FORMAT_BGRA1010102:
+    {
+      return true;
+    }
+    default:
+    {
+      return false;
+    }
+  }
+}
+} // namespace
+
 NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueuePtr queue)
 : mDisplayConnection(nullptr),
   mGraphics(nullptr),
@@ -55,7 +88,7 @@ NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueu
   {
     mTbmQueue   = AnyCast<tbm_surface_queue_h>(queue->GetNativeImageSourceQueue());
     mTbmFormat  = tbm_surface_queue_get_format(mTbmQueue);
-    mColorDepth = (mTbmFormat == TBM_FORMAT_ARGB8888) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth = IsColorDepth32Required(mTbmFormat) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
   else
   {
@@ -93,8 +126,8 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
   std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(*(new EnvironmentOptions()));
   auto                             graphicsFactory    = *graphicsFactoryPtr.get();
 
-  mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
-  auto graphics = mGraphics.get();
+  mGraphics        = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
+  auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
   mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));

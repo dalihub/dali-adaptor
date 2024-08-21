@@ -19,7 +19,7 @@
 
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-actor-utils.h>
-#include <test-graphics-application.h>
+#include <test-graphics-egl-application.h>
 #include <test-graphics-framebuffer.h>
 
 using namespace Dali;

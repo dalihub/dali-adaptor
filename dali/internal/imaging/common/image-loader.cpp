@@ -176,7 +176,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
   size_t        read = fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
 
   // Reset to the start of the file.
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -262,7 +262,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
   }
 
   // Reset to the start of the file.
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -280,7 +280,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
 
   bool result = false;
 
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::ImageLoader::LoadBitmapFunction       function;
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
@@ -315,6 +315,10 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
       DALI_LOG_ERROR("Image Decoder for %s unavailable\n", path.c_str());
     }
   }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
+  }
 
   return result;
 }
@@ -325,7 +329,7 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
 
   bool result = false;
 
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::ImageLoader::LoadBitmapFunction       loader;
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
@@ -399,6 +403,10 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
       DALI_LOG_ERROR("Image Decoder for %s unavailable\n", path.c_str());
     }
   }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
+  }
 
   return result;
 }
@@ -410,7 +418,7 @@ ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& re
 
   Internal::Platform::FileReader fileReader(path);
   FILE* const                    fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     bool success = ConvertStreamToBitmap(resource, path, fp, bitmap);
     if(success && bitmap)
@@ -435,6 +443,10 @@ ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& re
       result.Reset(retval);
     }
   }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file\n");
+  }
   return result;
 }
 
@@ -458,7 +470,7 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
 
   Internal::Platform::FileReader fileReader(filename);
   FILE*                          fp = fileReader.GetFile();
-  if(fp != NULL)
+  if(DALI_LIKELY(fp != NULL))
   {
     Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
@@ -486,6 +498,10 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
       DALI_LOG_ERROR("Image Decoder for %s unavailable\n", filename.c_str());
     }
   }
+  else
+  {
+    DALI_LOG_ERROR("Error reading file for %s\n", filename.c_str());
+  }
   return ImageDimensions(width, height);
 }
 
@@ -502,14 +518,14 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
   DALI_ASSERT_DEBUG(resourceBuffer);
   Dali::RefCountedVector<uint8_t>* const encodedBlob = reinterpret_cast<Dali::RefCountedVector<uint8_t>*>(resourceBuffer.Get());
 
-  if(encodedBlob != 0)
+  if(DALI_LIKELY(encodedBlob != 0))
   {
-    if(encodedBlob->GetVector().Size())
+    if(DALI_LIKELY(encodedBlob->GetVector().Size()))
     {
       // Open a file handle on the memory buffer:
       Internal::Platform::FileReader fileReader(encodedBlob->GetVector());
       FILE*                          fp = fileReader.GetFile();
-      if(fp != NULL)
+      if(DALI_LIKELY(fp != NULL))
       {
         Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
         Dali::ImageLoader::LoadPlanesFunction       planeLoader;
@@ -531,8 +547,24 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
             DALI_LOG_ERROR("Image Decoder failed to read header for resourceBuffer\n");
           }
         }
+        else
+        {
+          DALI_LOG_ERROR("Image Decoder unavailable\n");
+        }
+      }
+      else
+      {
+        DALI_LOG_ERROR("Error reading file\n");
       }
     }
+    else
+    {
+      DALI_LOG_ERROR("Image Buffer is empty size\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Image Buffer is nullptr\n");
   }
   return ImageDimensions(width, height);
 }

@@ -19,15 +19,17 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-graphics-controller.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-buffer.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-buffer-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-buffer.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-buffer-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-pool-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-fence-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-view-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-memory.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-memory-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-queue-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass.cpp

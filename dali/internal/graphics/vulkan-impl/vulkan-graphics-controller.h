@@ -19,6 +19,7 @@
 
 #include <dali/graphics-api/graphics-controller.h>
 
+#include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 
@@ -32,6 +33,7 @@ namespace Vulkan
 {
 class Device;
 class Surface;
+class Buffer;
 
 class VulkanGraphicsController : public Graphics::Controller, public Integration::GraphicsConfig
 {
@@ -290,17 +292,6 @@ public:
   void UnmapMemory(UniquePtr<Graphics::Memory> memory) override;
 
   /**
-   * @brief Returns memory requirements of the Texture object.
-   *
-   * Call this function whenever it's necessary to know how much memory
-   * is needed to store all the texture data and what memory alignment
-   * the data should follow.
-   *
-   * @return Returns memory requirements of Texture
-   */
-  Graphics::MemoryRequirements GetTextureMemoryRequirements(Graphics::Texture& texture) const override;
-
-  /**
    * @brief Returns memory requirements of the Buffer object.
    *
    * Call this function whenever it's necessary to know how much memory
@@ -310,6 +301,17 @@ public:
    * @return Returns memory requirements of Buffer
    */
   Graphics::MemoryRequirements GetBufferMemoryRequirements(Graphics::Buffer& buffer) const override;
+
+  /**
+   * @brief Returns memory requirements of the Texture object.
+   *
+   * Call this function whenever it's necessary to know how much memory
+   * is needed to store all the texture data and what memory alignment
+   * the data should follow.
+   *
+   * @return Returns memory requirements of Texture
+   */
+  Graphics::MemoryRequirements GetTextureMemoryRequirements(Graphics::Texture& texture) const override;
 
   /**
    * @brief Returns specification of the Texture object
@@ -353,6 +355,7 @@ public:
 
   void Add(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::RenderTarget* renderTarget);
+  void DiscardResource(Vulkan::Buffer* buffer);
 
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
@@ -413,4 +416,4 @@ private:
 } // namespace Vulkan
 } // namespace Graphics
 } // namespace Dali
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H

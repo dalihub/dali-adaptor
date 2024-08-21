@@ -299,17 +299,20 @@ bool LoaderInfo::FileData::LoadLocalFile()
   FILE*                          fp = fileReader.GetFile();
   if(DALI_UNLIKELY(fp == NULL))
   {
+    DALI_LOG_ERROR("Error reading file\n");
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
+    DALI_LOG_ERROR("Error seeking within file\n");
     return false;
   }
 
   length = ftell(fp);
   if(DALI_UNLIKELY(length <= -1))
   {
+    DALI_LOG_ERROR("Could not determine GIF file size.\n");
     return false;
   }
 
@@ -325,6 +328,7 @@ bool LoaderInfo::FileData::LoadLocalFile()
   }
   else
   {
+    DALI_LOG_ERROR("Error seeking within file\n");
     return false;
   }
   return true;
@@ -371,6 +375,14 @@ bool LoaderInfo::FileData::LoadRemoteFile()
         DALI_LOG_ERROR("Error reading file\n");
       }
     }
+    else
+    {
+      DALI_LOG_ERROR("Error download empty buffer!\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error download failed!\n");
   }
 
   return succeeded;

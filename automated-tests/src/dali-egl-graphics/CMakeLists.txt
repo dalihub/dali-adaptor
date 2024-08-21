@@ -26,7 +26,7 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
   ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
   ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp
-  ../dali-adaptor/dali-test-suite-utils/test-graphics-application.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-egl-application.cpp
   ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
 
   ../dali-adaptor/dali-test-suite-utils/test-graphics-sync-impl.cpp
@@ -38,6 +38,8 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
   ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
   ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
+  ../dali-adaptor/dali-test-suite-utils/adaptor-environment-variable.cpp
+
   tct-dali-egl-graphics-core.cpp
 )
 

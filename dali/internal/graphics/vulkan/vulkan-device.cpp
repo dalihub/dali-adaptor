@@ -19,6 +19,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
@@ -67,7 +68,13 @@ auto reqLayers = std::vector<const char*>{
   //"VK_LAYER_GOOGLE_unique_objects",      // unique objects
   //"VK_LAYER_LUNARG_standard_validation", // standard
   // Don't add VK_LAYER_RENDERDOC_Capture, set ENABLE_VULKAN_RENDERDOC_CAPTURE=1 environment variable
-};
+  "VK_LAYER_KHRONOS_validation"};
+
+#if NDEBUG
+const bool gEnableValidationLayers = false;
+#else
+const bool gEnableValidationLayers = true;
+#endif
 
 Device::Device()
 {
@@ -631,7 +638,7 @@ void Device::CreateInstance(const std::vector<const char*>& extensions,
     .setEnabledLayerCount(U32(validationLayers.size()))
     .setPpEnabledLayerNames(validationLayers.data());
 
-  const char* log_level = std::getenv("LOG_VULKAN");
+  const char* log_level = Dali::EnvironmentVariable::GetEnvironmentVariable("LOG_VULKAN");
   int         intValue  = log_level ? std::atoi(log_level) : 0;
   if(!intValue)
   {
@@ -686,6 +693,17 @@ void Device::PreparePhysicalDevice()
 
   GetPhysicalDeviceProperties();
   GetQueueFamilyProperties();
+
+  Integration::Log::LogMessage(Integration::Log::INFO,
+                               "Vulkan information:\n"
+                               "  Vulkan version: %d.%d.%d\n"
+                               "  Device name:    %s\n"
+                               "  Driver Version: %x\n",
+                               VK_API_VERSION_MAJOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_API_VERSION_MINOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion),
+                               (const char*)mPhysicalDeviceProperties.deviceName,
+                               mPhysicalDeviceProperties.driverVersion);
 }
 
 void Device::GetPhysicalDeviceProperties()
@@ -771,15 +789,16 @@ std::vector<vk::DeviceQueueCreateInfo> Device::GetQueueCreateInfos()
 
 std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
 {
-  auto extensions = vk::enumerateInstanceExtensionProperties();
+  auto availableExtensions = vk::enumerateInstanceExtensionProperties();
 
   std::string extensionName;
 
   bool xlibAvailable{false};
   bool xcbAvailable{false};
   bool waylandAvailable{false};
+  bool debugReportExtensionAvailable{false};
 
-  for(auto&& ext : extensions.value)
+  for(auto&& ext : availableExtensions.value)
   {
     extensionName = std::string(ext.extensionName);
     if(extensionName == VK_KHR_XCB_SURFACE_EXTENSION_NAME)
@@ -794,26 +813,30 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
     {
       waylandAvailable = true;
     }
+    else if(extensionName == VK_EXT_DEBUG_REPORT_EXTENSION_NAME)
+    {
+      debugReportExtensionAvailable = true;
+    }
   }
 
-  std::vector<const char*> retval{};
+  std::vector<const char*> extensions{};
 
-  // depending on the platform validate extensions
+  // depending on the platform validate availableExtensions
   auto platform = GetDefaultPlatform();
 
   if(platform != Platform::UNDEFINED)
   {
     if(platform == Platform::XCB && xcbAvailable)
     {
-      retval.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
     }
     else if(platform == Platform::XLIB && xlibAvailable)
     {
-      retval.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     }
     else if(platform == Platform::WAYLAND && waylandAvailable)
     {
-      retval.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
       /* For native image, check these exist first:
        *  VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
@@ -825,17 +848,17 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
     if(xcbAvailable)
     {
       mPlatform = Platform::XCB;
-      retval.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
     }
     else if(xlibAvailable)
     {
       mPlatform = Platform::XLIB;
-      retval.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     }
     else if(waylandAvailable)
     {
       mPlatform = Platform::WAYLAND;
-      retval.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+      extensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
       /* For native image, check these exist first:
        *  VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
@@ -849,10 +872,14 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
   }
 
   // other essential extensions
-  retval.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-  retval.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+  extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
-  return retval;
+  if(debugReportExtensionAvailable)
+  {
+    extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+  }
+
+  return extensions;
 }
 
 vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, Fence* fence)
@@ -880,14 +907,22 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry)
-                   {
+                   [&](CommandBufferImpl* entry) {
                      return entry->GetVkHandle();
                    });
 
-    auto retval = vk::SubmitInfo().setWaitSemaphoreCount(U32(subData.waitSemaphores.size())).setPWaitSemaphores(subData.waitSemaphores.data()).setPWaitDstStageMask(&subData.waitDestinationStageMask).setCommandBufferCount(U32(subData.commandBuffers.size())).setPCommandBuffers(&commandBufferHandles[currentBufferIndex]).setSignalSemaphoreCount(U32(subData.signalSemaphores.size())).setPSignalSemaphores(subData.signalSemaphores.data());
+    // clang-format=off
+    auto submitInfo = vk::SubmitInfo()
+                        .setWaitSemaphoreCount(U32(subData.waitSemaphores.size()))
+                        .setPWaitSemaphores(subData.waitSemaphores.data())
+                        .setPWaitDstStageMask(&subData.waitDestinationStageMask)
+                        .setCommandBufferCount(U32(subData.commandBuffers.size()))
+                        .setPCommandBuffers(&commandBufferHandles[currentBufferIndex])
+                        .setSignalSemaphoreCount(U32(subData.signalSemaphores.size()))
+                        .setPSignalSemaphores(subData.signalSemaphores.data());
 
-    submitInfos.push_back(retval);
+    submitInfos.push_back(submitInfo);
+    // clang-format=on
   }
 
   return VkAssert(queue.Submit(submitInfos, fence));

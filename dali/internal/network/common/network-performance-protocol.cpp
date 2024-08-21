@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,42 +101,51 @@ const char* const helpMsg =
     GREEN " custom_command " PARAM "ANY_STRING" NORMAL "\n"
     "\n"
     GREEN " dump_scene" NORMAL " - dump the current scene in json format\n";
-// clang-format off
-} // un-named namespace
+// clang-format on
 
-bool GetCommandId( const char* const commandString, unsigned int lengthInBytes, CommandId& commandId, unsigned int& intParam, std::string& stringParam  )
+const char* const DELIMITERS = " \t\n";
+
+inline bool IsDelimChar(char endOfCommand)
+{
+  // DevNote : If endOfCommand is \0, it will always return true.
+  return (strchr(DELIMITERS, endOfCommand) != NULL);
+}
+} // namespace
+
+bool GetCommandId(const char* const commandString, unsigned int lengthInBytes, CommandId& commandId, unsigned int& intParam, std::string& stringParam)
 {
   commandId = UNKNOWN_COMMAND;
-  intParam = 0;
+  intParam  = 0;
 
   // the command list is small so just do a O(n) search for the commandID.
-  for( unsigned int i = 0 ; i < CommandLookupLength; ++i )
+  for(unsigned int i = 0; i < CommandLookupLength; ++i)
   {
-    if( strncmp( commandString, CommandLookup[i].cmdString ,strlen(CommandLookup[i].cmdString  )) == 0 )
+    auto cmdLength = strlen(CommandLookup[i].cmdString);
+    if(strncmp(commandString, CommandLookup[i].cmdString, cmdLength) == 0 && IsDelimChar(commandString + cmdLength))
     {
       commandId = CommandLookup[i].cmdId;
 
       // if the command has a parameter read it
-      if( CommandLookup[i].paramType ==  UNSIGNED_INT)
+      if(CommandLookup[i].paramType == UNSIGNED_INT)
       {
-        int count = sscanf(commandString,"%*s %d",&intParam);
-        if( count != 1 )
+        int count = sscanf(commandString, "%*s %d", &intParam);
+        if(count != 1)
         {
           // missing parameter
           return false;
         }
       }
-      else if (CommandLookup[i].paramType == STRING )
+      else if(CommandLookup[i].paramType == STRING)
       {
-        char* charParam( NULL );
+        char* charParam(NULL);
         // allocates the character array
-        int count = sscanf(commandString,"%*s %ms",&charParam);
-        if( count != 1 )
+        int count = sscanf(commandString, "%*s %ms", &charParam);
+        if(count != 1)
         {
           // missing parameter
           return false;
         }
-        stringParam = std::string( charParam);
+        stringParam = std::string(charParam);
         free(charParam);
       }
       return true;
@@ -146,17 +155,17 @@ bool GetCommandId( const char* const commandString, unsigned int lengthInBytes, 
   return false;
 }
 
-bool GetCommandString( CommandId commandId, CommandString& commandString )
+bool GetCommandString(CommandId commandId, CommandString& commandString)
 {
-  for( unsigned int i = 0; i < CommandLookupLength; ++i)
+  for(unsigned int i = 0; i < CommandLookupLength; ++i)
   {
-    if( CommandLookup[ i ].cmdId == commandId )
+    if(CommandLookup[i].cmdId == commandId)
     {
-      strncpy( commandString,  CommandLookup[ i ].cmdString, strlen(CommandLookup[ i ].cmdString) );
+      strncpy(commandString, CommandLookup[i].cmdString, strlen(CommandLookup[i].cmdString) + 1);
       return true;
     }
   }
-  strncpy( commandString, CommandLookup[ UNKNOWN_COMMAND ].cmdString, MAX_COMMAND_STRING_LENGTH);
+  strncpy(commandString, CommandLookup[UNKNOWN_COMMAND].cmdString, MAX_COMMAND_STRING_LENGTH);
   return false;
 }
 
@@ -164,7 +173,6 @@ const char* const GetHelpMessage()
 {
   return helpMsg;
 }
-
 
 } // namespace PerformanceProtocol
 

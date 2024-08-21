@@ -57,6 +57,7 @@ IF(NOT ENABLE_VULKAN)
     ${adaptor_public_api_egl_src_files}
     ${adaptor_devel_api_egl_src_files}
     ${adaptor_system_common_egl_src_files}
+    ${adaptor_window_system_common_egl_src_files}
   )
 ENDIF()
 

@@ -17,24 +17,20 @@
  * limitations under the License.
  */
 
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
-
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 namespace Dali::Graphics::Vulkan
 {
 
-class Memory
+class MemoryImpl
 {
-  friend class Device;
-
-private:
-
-  Memory( Device* graphicsDevice, vk::DeviceMemory deviceMemory, size_t memSize, size_t memAlign, bool hostVisible );
-
 public:
+  MemoryImpl(Device& device, size_t memSize, size_t memAlign, bool hostVisible);
 
-  ~Memory();
+  ~MemoryImpl();
+
+  vk::Result Allocate(vk::MemoryAllocateInfo, const vk::AllocationCallbacks& allocator);
 
   template<class T>
   T* MapTyped()
@@ -42,12 +38,13 @@ public:
     return reinterpret_cast<T*>(Map());
   }
 
-  Memory(Memory&) = delete;
-  Memory& operator=(Memory&) = delete;
+  // No copy constructor or assignment operator
+  MemoryImpl(MemoryImpl&)            = delete;
+  MemoryImpl& operator=(MemoryImpl&) = delete;
 
   void* Map();
 
-  void* Map( uint32_t offset, uint32_t size );
+  void* Map(uint32_t offset, uint32_t size);
 
   void Unmap();
 
@@ -63,15 +60,15 @@ public:
   [[nodiscard]] vk::DeviceMemory GetVkHandle() const;
 
 private:
-  Device* graphicsDevice;
-  vk::DeviceMemory memory;
-  size_t size;
-  size_t alignment;
-  void* mappedPtr;
-  size_t mappedSize;
-  bool hostVisible;
+  Device&          mDevice;
+  vk::DeviceMemory deviceMemory;
+  size_t           size;
+  size_t           alignment;
+  void*            mappedPtr;
+  size_t           mappedSize;
+  bool             hostVisible;
 };
 
-}//namespaces
+} // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H

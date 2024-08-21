@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ namespace TizenPlatform
 {
 namespace // unnamed namespace
 {
+const char* HTTP_PROXY_ENV = "http_proxy";
+
 inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, std::string prefix)
 {
   if(result != CURLE_OK)
@@ -188,7 +190,7 @@ void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
   // If the proxy variable is set, ensure it's also used.
   // In theory, this variable should be used by the curl library; however, something
   // is overriding it.
-  char* proxy = std::getenv("http_proxy");
+  const char* proxy = Dali::EnvironmentVariable::GetEnvironmentVariable(HTTP_PROXY_ENV);
   if(proxy != nullptr)
   {
     curl_easy_setopt(curlHandle, CURLOPT_PROXY, proxy);

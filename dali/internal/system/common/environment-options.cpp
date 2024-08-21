@@ -25,6 +25,7 @@
 #include <functional>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/trace/common/trace-factory.h>
 
@@ -45,7 +46,7 @@ const bool         DEFAULT_VSYNC_RENDER_REQUIRED_SETTING   = true;
 
 unsigned int GetEnvironmentVariable(const char* variable, unsigned int defaultValue)
 {
-  const char* variableParameter = std::getenv(variable);
+  const char* variableParameter = Dali::EnvironmentVariable::GetEnvironmentVariable(variable);
 
   // if the parameter exists convert it to an integer, else return the default value
   unsigned int intValue = variableParameter ? std::atoi(variableParameter) : defaultValue;
@@ -54,7 +55,7 @@ unsigned int GetEnvironmentVariable(const char* variable, unsigned int defaultVa
 
 bool GetEnvironmentVariable(const char* variable, int& intValue)
 {
-  const char* variableParameter = std::getenv(variable);
+  const char* variableParameter = Dali::EnvironmentVariable::GetEnvironmentVariable(variable);
 
   if(!variableParameter)
   {
@@ -67,7 +68,7 @@ bool GetEnvironmentVariable(const char* variable, int& intValue)
 
 bool GetEnvironmentVariable(const char* variable, float& floatValue)
 {
-  const char* variableParameter = std::getenv(variable);
+  const char* variableParameter = Dali::EnvironmentVariable::GetEnvironmentVariable(variable);
 
   if(!variableParameter)
   {
@@ -80,7 +81,7 @@ bool GetEnvironmentVariable(const char* variable, float& floatValue)
 
 void SetFromEnvironmentVariable(const char* variable, std::string& stringValue)
 {
-  const char* charValue = std::getenv(variable);
+  const char* charValue = Dali::EnvironmentVariable::GetEnvironmentVariable(variable);
   if(charValue)
   {
     stringValue = charValue;

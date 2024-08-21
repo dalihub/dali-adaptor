@@ -108,6 +108,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
   void SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi);
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::SetDpiFromWindowSystem()
+   */
+  void SetDpiFromWindowSystem();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDpi()
    */
   void GetDpi(unsigned int& horizontalDpi, unsigned int& verticalDpi);
@@ -304,6 +309,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
    * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
    */
   bool AddCustomFontDirectory(const FontPath& path);
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::ApplyCustomFontDirectories()
+   */
+  void ApplyCustomFontDirectories();
 
 public: // API for Dali::TextAbstraction::Internal::FontClient used.
   /**
