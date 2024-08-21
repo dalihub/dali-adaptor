@@ -66,6 +66,21 @@ public:
    * @return true if the context is secure, false otherwise
    */
   virtual bool IsContextSecure() const = 0;
+
+  /**
+   * @brief Get certificate policy decision error.
+   *
+   * @return Ewk_Certificate_Policy_Decision_Error type
+   */
+  virtual int GetPolicyDecisionError() const = 0;
+
+  /**
+   * @brief Suspend certification policy decision.
+   *
+   * @return true if suspend, false otherwise
+   */
+  virtual bool SuspendPolicyDecision() const = 0;
+
 };
 
 } // namespace Dali
