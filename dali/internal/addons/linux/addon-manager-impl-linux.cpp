@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,8 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
     std::vector<std::string> results;
     results.emplace_back();
 
-    std::find_if(addonLibsStr.begin(), addonLibsStr.end(), [&results](char& c) {
+    for(auto&& c : addonLibsStr)
+    {
       if(c == ':')
       {
         results.emplace_back();
@@ -86,8 +87,7 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
       {
         results.back() += c;
       }
-      return false;
-    });
+    }
 
     const char* EXTENSION_PATH = (addonsPath) ? addonsPath : "/usr/lib";
 
