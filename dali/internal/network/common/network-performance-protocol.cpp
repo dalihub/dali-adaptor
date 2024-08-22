@@ -121,7 +121,7 @@ bool GetCommandId(const char* const commandString, unsigned int lengthInBytes, C
   for(unsigned int i = 0; i < CommandLookupLength; ++i)
   {
     auto cmdLength = strlen(CommandLookup[i].cmdString);
-    if(strncmp(commandString, CommandLookup[i].cmdString, cmdLength) == 0 && IsDelimChar(commandString + cmdLength))
+    if(strncmp(commandString, CommandLookup[i].cmdString, cmdLength) == 0 && IsDelimChar(*(commandString + cmdLength)))
     {
       commandId = CommandLookup[i].cmdId;
 
