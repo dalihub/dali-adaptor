@@ -151,13 +151,13 @@ void ProgramImpl::Preprocess()
   for(const auto& state : *info.shaderState)
   {
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);
-    if(state.pipelineStage == PipelineStage::VERTEX_SHADER)
+    if(shader && state.pipelineStage == PipelineStage::VERTEX_SHADER)
     {
       // Only TEXT source mode can be processed
       currentString = &vertexString;
       vsh           = shader;
     }
-    else if(state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    else if(shader && state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
     {
       // Only TEXT source mode can be processed
       currentString = &fragmentString;
@@ -167,18 +167,25 @@ void ProgramImpl::Preprocess()
     {
       // no valid stream to push
       currentString = nullptr;
-      DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!");
+      DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!\n");
     }
 
     // Check if stream valid
-    if(currentString && currentString->empty() && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
+    if(currentString && currentString->empty() && shader && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
     {
       *currentString = std::string(reinterpret_cast<const char*>(shader->GetCreateInfo().sourceData),
                                    shader->GetCreateInfo().sourceSize);
     }
     else
     {
-      DALI_LOG_ERROR("Preprocessing of binary shaders isn't allowed!");
+      if(shader)
+      {
+        DALI_LOG_ERROR("Preprocessing of binary shaders isn't allowed!\n");
+      }
+      else
+      {
+        DALI_LOG_ERROR("Shader state contains invalid shader pointer! pipeline stage : %d\n", static_cast<int>(state.pipelineStage));
+      }
     }
   }
 
