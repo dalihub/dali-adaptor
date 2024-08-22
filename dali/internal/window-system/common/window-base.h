@@ -599,6 +599,20 @@ public:
    */
   virtual Any GetNativeBuffer() const = 0;
 
+  /**
+   * @brief Requests relative motion grab
+   * @param[in] boundary The Pointer edge boundary for grab.
+   * @return True if the request was successful, false otherwise.
+   */
+  virtual bool RelativeMotionGrab(uint32_t boundary) = 0;
+
+  /**
+   * @brief Requests relative motion ungrab
+   *
+   * @return True if the request was successful, false otherwise.
+   */
+  virtual bool RelativeMotionUnGrab() = 0;
+
   // Signals
 
   /**
