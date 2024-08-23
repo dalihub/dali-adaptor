@@ -21,6 +21,7 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 
 namespace Dali
@@ -356,6 +357,7 @@ public:
   void Add(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::Buffer* buffer);
+  void DiscardResource(Vulkan::Program* renderProgram);
 
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
