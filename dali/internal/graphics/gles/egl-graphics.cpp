@@ -88,7 +88,12 @@ void EglGraphics::ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterfa
 void EglGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return;
+  }
 
   mEglImplementation->MakeContextCurrent(search->second.surface, search->second.context);
 }
@@ -120,7 +125,12 @@ void EglGraphics::Resume()
 int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return 0;
+  }
 
   return mEglImplementation->GetBufferAge(search->second.surface);
 }
@@ -128,7 +138,12 @@ int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
 void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return;
+  }
 
   mEglImplementation->SetDamageRegion(search->second.surface, damagedRegion);
 }
@@ -136,7 +151,12 @@ void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rec
 void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return;
+  }
 
   mEglImplementation->SwapBuffers(search->second.surface);
 }
@@ -144,7 +164,12 @@ void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
 void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return;
+  }
 
   mEglImplementation->SwapBuffers(search->second.surface, damagedRegion);
 }
@@ -210,7 +235,12 @@ Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surface
 void EglGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return;
+  }
 
   mEglImplementation->DestroySurface(search->second.surface);
   mEglImplementation->DestroyContext(search->second.context);
@@ -221,7 +251,12 @@ void EglGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
 bool EglGraphics::ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int height)
 {
   auto search = mSurfaceMap.find(surfaceId);
-  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    DALI_ASSERT_DEBUG(0 && "Invalid srufaceId");
+    return false;
+  }
 
   auto& windowBase = search->second.windowBase;
 
