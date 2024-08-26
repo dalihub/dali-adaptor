@@ -237,6 +237,13 @@ void NativeRenderSurfaceEcoreWl::DestroySurface()
 
   DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroySurface mTbmQueue(%p), mOwnSurface(%d), surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
   eglImpl.DestroySurface(mEGLSurface);
+  mEGLSurface = NULL;
+
+  // TODO : We'd better call this API for more clear way.
+  if(mEGLContext != NULL)
+  {
+    DestroyContext();
+  }
 }
 
 void NativeRenderSurfaceEcoreWl::CreateContext()
@@ -259,6 +266,7 @@ void NativeRenderSurfaceEcoreWl::DestroyContext()
 
   DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroyContext mTbmQueue(%p), mOwnSurface(%d), destroy context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
   eglImpl.DestroyContext(mEGLContext);
+  mEGLContext = NULL;
 }
 
 bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
