@@ -237,6 +237,13 @@ void NativeRenderSurfaceEcoreWl::DestroySurface()
 
   DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroySurface mTbmQueue(%p), mOwnSurface(%d), surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
   eglImpl.DestroySurface(mEGLSurface);
+  mEGLSurface = NULL;
+
+  // TODO : We'd better call this API for more clear way.
+  if(mEGLContext != NULL)
+  {
+    DestroyContext();
+  }
 }
 
 void NativeRenderSurfaceEcoreWl::CreateContext()
@@ -259,6 +266,7 @@ void NativeRenderSurfaceEcoreWl::DestroyContext()
 
   DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroyContext mTbmQueue(%p), mOwnSurface(%d), destroy context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
   eglImpl.DestroyContext(mEGLContext);
+  mEGLContext = NULL;
 }
 
 bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
@@ -299,6 +307,39 @@ bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vect
 {
   // Not support partial update
   clippingRect = Rect<int32_t>(0, 0, mSurfaceSize.GetWidth(), mSurfaceSize.GetHeight());
+
+  // Discard old surface if we cannot enqueue to tbm buffer.
+  // If we don't acquire & release any buffer, it will be dead lock when we call
+  // any glClear, or glFlush, glDraw, etc.
+  if(DALI_UNLIKELY(mTbmQueue && !tbm_surface_queue_can_dequeue(mTbmQueue, 0)))
+  {
+    if(tbm_surface_queue_can_acquire(mTbmQueue, 0))
+    {
+      tbm_surface_h surface;
+
+      auto ret = tbm_surface_queue_acquire(mTbmQueue, &surface);
+
+      if(ret != TBM_SURFACE_QUEUE_ERROR_NONE)
+      {
+        DALI_LOG_ERROR("Failed to aquire a tbm_surface. error : 0x%x. Deadlock might be occured!!\n", ret);
+      }
+      else
+      {
+        if(tbm_surface_internal_is_valid(surface))
+        {
+          ret = tbm_surface_queue_release(mTbmQueue, surface);
+          if(ret != TBM_SURFACE_QUEUE_ERROR_NONE)
+          {
+            DALI_LOG_ERROR("Failed to release a tbm_surface[%p]. error : 0x%x. Deadlock might be occured!!\n", surface, ret);
+          }
+        }
+        else
+        {
+          DALI_LOG_ERROR("tbm_surface[%p] is not valid!. Deadlock might be occured!!\n", surface);
+        }
+      }
+    }
+  }
   return true;
 }
 
