@@ -607,6 +607,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   Dali::Any GetNativeBuffer() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::RelativeMotionGrab()
+   */
+  bool RelativeMotionGrab(uint32_t boundary);
+
+  /**
+   * @copydoc Dali::DevelWindow::RelativeMotionUnGrab()
+   */
+  bool RelativeMotionUnGrab();
+
 private:
   /**
    * @brief Enumeration for orietation mode.

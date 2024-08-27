@@ -25,14 +25,6 @@ SET( adaptor_window_system_tizen_wayland_src_files
     ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl.cpp
 )
 
-# module: window-system, backend: ecore-wl
-SET( adaptor_window_system_ecore_wl_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/render-surface-factory-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-base-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-factory-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl/window-system-ecore-wl.cpp
-)
-
 # module: window-system, backend: ecore-wl2
 SET( adaptor_window_system_ecore_wl2_src_files
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.cpp

@@ -1120,6 +1120,16 @@ Any WindowBaseEcoreX::GetNativeBuffer() const
   return 0;
 }
 
+bool WindowBaseEcoreX::RelativeMotionGrab(uint32_t boundary)
+{
+  return false;
+}
+
+bool WindowBaseEcoreX::RelativeMotionUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

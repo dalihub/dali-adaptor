@@ -70,7 +70,7 @@ struct Program
   Shader                     fragmentShader;
   std::map<std::string, int> varyings;
   int                        uboBinding{0};
-  int                        samplerBinding{0};
+  int&                       samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
 };
 
 struct ShaderParserInfo

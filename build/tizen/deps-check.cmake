@@ -27,6 +27,13 @@ ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
 
 ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build")
+
+# force GLSLANG when Vulkan enabled
+IF( enable_vulkan )
+  SET(ENABLE_GLSLANG CACHE STRING "ON")
+  SET(ENABLE_GLSLANG  "ON")
+ENDIF()
+
 ARG_ENABLE( ENABLE_GLSLANG enable_glslang "${ENABLE_VAL}" "Enables Vulkan GLSLang")
 
 # help option
@@ -121,6 +128,7 @@ CHECK_MODULE_AND_SET( LIBUV libuv [] )
 CHECK_MODULE_AND_SET( GLIB glib-2.0 [] )
 CHECK_MODULE_AND_SET( VULKAN vulkan [] )
 CHECK_MODULE_AND_SET( GLSLANG glslang [] )
+CHECK_MODULE_AND_SET( SPIRVTOOLS SPIRV-Tools [] )
 CHECK_MODULE_AND_SET( X11 x11 [] )
 CHECK_MODULE_AND_SET( XCB x11-xcb [] )
 CHECK_MODULE_AND_SET( XDAMAGE xdamage [] )
@@ -529,8 +537,11 @@ IF(enable_glslang)
     FIND_PACKAGE(glslang)
     SET(DALI_LDFLAGS ${DALI_LDFLAGS} glslang::glslang )
   ELSE()
-    SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${GLSLANG_LDFLAGS} )
+    # On Ubuntu 22.04 glslang seems to be horribly broken, pc file doesn't include
+    # all needed deps and SPIRV-Tools package is needed
+    SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${GLSLANG_LDFLAGS} -lSPIRV ${SPIRVTOOLS_LDFLAGS} -lglslang-default-resource-limits)
   ENDIF()
+
 ENDIF()
 
 IF(LIBUV_X11_PROFILE)

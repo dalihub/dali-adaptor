@@ -394,6 +394,16 @@ Any GetNativeBuffer(Window window)
   return GetImplementation(window).GetNativeBuffer();
 }
 
+bool RelativeMotionGrab(Window window, uint32_t boundary)
+{
+  return GetImplementation(window).RelativeMotionGrab(boundary);
+}
+
+bool RelativeMotionUnGrab(Window window)
+{
+  return GetImplementation(window).RelativeMotionUnGrab();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

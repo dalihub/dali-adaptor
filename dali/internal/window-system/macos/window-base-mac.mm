@@ -829,6 +829,16 @@ Any WindowBaseCocoa::GetNativeBuffer() const
   return 0;
 }
 
+bool WindowBaseCocoa::RelativeMotionGrab(uint32_t boundary)
+{
+  return false;
+}
+
+bool WindowBaseCocoa::RelativeMotionUnGrab()
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

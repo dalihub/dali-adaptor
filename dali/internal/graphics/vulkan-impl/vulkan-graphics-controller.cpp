@@ -26,8 +26,10 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #if defined(DEBUG_ENABLED)
@@ -297,12 +299,12 @@ UniquePtr<Graphics::Pipeline> VulkanGraphicsController::CreatePipeline(const Gra
 
 UniquePtr<Graphics::Program> VulkanGraphicsController::CreateProgram(const Graphics::ProgramCreateInfo& programCreateInfo, UniquePtr<Graphics::Program>&& oldProgram)
 {
-  return UniquePtr<Graphics::Program>{};
+  return NewObject<Vulkan::Program>(programCreateInfo, *this, std::move(oldProgram));
 }
 
 UniquePtr<Graphics::Shader> VulkanGraphicsController::CreateShader(const Graphics::ShaderCreateInfo& shaderCreateInfo, UniquePtr<Graphics::Shader>&& oldShader)
 {
-  return UniquePtr<Graphics::Shader>{};
+  return NewObject<Vulkan::Shader>(shaderCreateInfo, *this, std::move(oldShader));
 }
 
 UniquePtr<Graphics::Sampler> VulkanGraphicsController::CreateSampler(const Graphics::SamplerCreateInfo& samplerCreateInfo, UniquePtr<Graphics::Sampler>&& oldSampler)
@@ -359,9 +361,9 @@ TextureProperties VulkanGraphicsController::GetTextureProperties(const Graphics:
   return TextureProperties{};
 }
 
-const Reflection& VulkanGraphicsController::GetProgramReflection(const Graphics::Program& program)
+const Graphics::Reflection& VulkanGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
-  return *(reinterpret_cast<Reflection*>(0));
+  return *(reinterpret_cast<Graphics::Reflection*>(0));
 }
 
 bool VulkanGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
@@ -450,6 +452,11 @@ void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* renderTarge
 }
 
 void VulkanGraphicsController::DiscardResource(Vulkan::Buffer* buffer)
+{
+  // @todo Add discard queues
+}
+
+void VulkanGraphicsController::DiscardResource(Vulkan::Program* program)
 {
   // @todo Add discard queues
 }
