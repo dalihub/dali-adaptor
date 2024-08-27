@@ -25,6 +25,23 @@
 
 using namespace Dali::Accessibility;
 
+namespace
+{
+bool UpdateLastEmitted(std::map<State, int>& lastEmitted, State state, int newValue)
+{
+  bool updated                = false;
+  const auto [iter, inserted] = lastEmitted.emplace(state, newValue);
+  if(!inserted && iter->second != newValue)
+  {
+    iter->second = newValue;
+    updated      = true;
+  }
+
+  return inserted || updated;
+}
+
+} // namespace
+
 Accessible::Accessible()
 {
 }
@@ -50,41 +67,33 @@ void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
+    if(UpdateLastEmitted(mLastEmittedState, state, newValue))
+    {
+      bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
+    }
   }
 }
 
 void Accessible::EmitShowing(bool isShowing)
 {
-  if(auto bridgeData = GetBridgeData())
-  {
-    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::SHOWING, isShowing ? 1 : 0, 0);
-  }
+  EmitStateChanged(State::SHOWING, isShowing ? 1 : 0);
 }
 
 void Accessible::EmitVisible(bool isVisible)
 {
-  if(auto bridgeData = GetBridgeData())
-  {
-    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::VISIBLE, isVisible ? 1 : 0, 0);
-  }
+  EmitStateChanged(State::VISIBLE, isVisible ? 1 : 0);
 }
 
 void Accessible::EmitHighlighted(bool isHighlighted)
 {
-  if(auto bridgeData = GetBridgeData())
-  {
-    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::HIGHLIGHTED, isHighlighted ? 1 : 0, 0);
-  }
+  EmitStateChanged(State::HIGHLIGHTED, isHighlighted ? 1 : 0);
 }
 
 void Accessible::EmitFocused(bool isFocused)
 {
-  if(auto bridgeData = GetBridgeData())
-  {
-    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::FOCUSED, isFocused ? 1 : 0, 0);
-  }
+  EmitStateChanged(State::FOCUSED, isFocused ? 1 : 0);
 }
+
 void Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
 {
   if(auto bridgeData = GetBridgeData())
@@ -218,14 +227,15 @@ bool Accessible::IsProxy() const
 
 void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)
 {
-  if(auto data = GetBridgeData())
+  if(Accessibility::IsUp())
   {
+    const auto newStates = GetStates();
     for(auto i = 0u; i < static_cast<unsigned int>(Dali::Accessibility::State::MAX_COUNT); i++)
     {
-      auto index = static_cast<Dali::Accessibility::State>(i);
+      const auto index = static_cast<Dali::Accessibility::State>(i);
       if(states[index])
       {
-        data->mBridge->EmitStateChanged(shared_from_this(), index, GetStates()[index], 0);
+        EmitStateChanged(index, newStates[index]);
       }
     }
 

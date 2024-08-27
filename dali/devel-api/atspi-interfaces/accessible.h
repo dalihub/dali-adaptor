@@ -22,6 +22,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -521,6 +522,7 @@ private:
   mutable AtspiInterfaces             mInterfaces;
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
+  std::map<State, int>                mLastEmittedState;
 
 }; // Accessible class
 
