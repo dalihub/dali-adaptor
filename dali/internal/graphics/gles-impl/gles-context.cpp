@@ -463,6 +463,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         }
       }
     }
+
+    // Reset vertex buffer changed flag now.
+    mImpl->mVertexBuffersChanged = false;
   }
 
   // Resolve topology
@@ -570,8 +573,7 @@ void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindi
     mImpl->mCurrentVertexBufferBindings.resize(count);
   }
   // Copy only set slots
-  mImpl->mVertexBuffersChanged = false;
-  auto toIter                  = mImpl->mCurrentVertexBufferBindings.begin();
+  auto toIter = mImpl->mCurrentVertexBufferBindings.begin();
   for(auto fromIter = bindings, end = bindings + count; fromIter != end; ++fromIter)
   {
     if(fromIter->buffer != nullptr)
