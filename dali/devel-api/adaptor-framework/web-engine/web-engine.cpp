@@ -375,11 +375,6 @@ bool WebEngine::SendWheelEvent(const WheelEvent& event)
   return GetImplementation(*this).SendWheelEvent(event);
 }
 
-void WebEngine::ExitFullscreen()
-{
-  GetImplementation(*this).ExitFullscreen();
-}
-
 void WebEngine::SetFocus(bool focused)
 {
   GetImplementation(*this).SetFocus(focused);
@@ -540,11 +535,6 @@ void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::W
   GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
 }
 
-void WebEngine::RegisterNewWindowPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNewWindowPolicyDecidedCallback callback)
-{
-  GetImplementation(*this).RegisterNewWindowPolicyDecidedCallback(callback);
-}
-
 void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
 {
   GetImplementation(*this).RegisterNewWindowCreatedCallback(callback);
@@ -573,21 +563,6 @@ void WebEngine::RegisterContextMenuShownCallback(Dali::WebEnginePlugin::WebEngin
 void WebEngine::RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback)
 {
   GetImplementation(*this).RegisterContextMenuHiddenCallback(callback);
-}
-
-void WebEngine::RegisterFullscreenEnteredCallback(Dali::WebEnginePlugin::WebEngineFullscreenEnteredCallback callback)
-{
-  GetImplementation(*this).RegisterFullscreenEnteredCallback(callback);
-}
-
-void WebEngine::RegisterFullscreenExitedCallback(Dali::WebEnginePlugin::WebEngineFullscreenExitedCallback callback)
-{
-  GetImplementation(*this).RegisterFullscreenExitedCallback(callback);
-}
-
-void WebEngine::RegisterTextFoundCallback(Dali::WebEnginePlugin::WebEngineTextFoundCallback callback)
-{
-  GetImplementation(*this).RegisterTextFoundCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
