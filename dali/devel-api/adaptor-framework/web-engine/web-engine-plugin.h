@@ -127,6 +127,11 @@ public:
   using JavaScriptMessageHandlerCallback = std::function<void(const std::string&)>;
 
   /**
+   * @brief Message result callback when JavaScript is executed with message name and body.
+   */
+  using JavaScriptEntireMessageHandlerCallback = std::function<void(const std::string&, const std::string&)>;
+
+  /**
    * @brief Alert callback when JavaScript alert is called with a message.
    *  It returns true if a pop-up is created successfully, false otherwise.
    */
@@ -488,6 +493,14 @@ public:
    * @param[in] handler The callback function
    */
   virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, JavaScriptMessageHandlerCallback handler) = 0;
+
+  /**
+   * @brief Add a message handler into JavaScript.
+   *
+   * @param[in] exposedObjectName The name of exposed object
+   * @param[in] handler The callback function
+   */
+  virtual void AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, JavaScriptEntireMessageHandlerCallback handler) = 0;
 
   /**
    * @brief Register a callback for JavaScript alert.
