@@ -270,11 +270,6 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
-void WebEngine::AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler)
-{
-  GetImplementation(*this).AddJavaScriptEntireMessageHandler(exposedObjectName, handler);
-}
-
 void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
   GetImplementation(*this).RegisterJavaScriptAlertCallback(callback);

@@ -308,11 +308,6 @@ public:
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
-   * @copydoc Dali::WebEngine::AddJavaScriptEntireMessageHandler()
-   */
-  void AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler);
-
-  /**
    * @copydoc Dali::WebEngine::ClearAllTilesResources()
    */
   void ClearAllTilesResources();

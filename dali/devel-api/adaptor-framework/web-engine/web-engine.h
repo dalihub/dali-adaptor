@@ -371,14 +371,6 @@ public:
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
-   * @brief Add a message handler into JavaScript.
-   *
-   * @param[in] exposedObjectName The name of exposed object
-   * @param[in] handler The callback function
-   */
-  void AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler);
-
-  /**
    * @brief Register a callback for JavaScript alert.
    *
    * @param[in] callback The callback function

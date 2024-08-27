@@ -530,11 +530,6 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   mPlugin->AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
-void WebEngine::AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler)
-{
-  mPlugin->AddJavaScriptEntireMessageHandler(exposedObjectName, handler);
-}
-
 void WebEngine::ClearAllTilesResources()
 {
   mPlugin->ClearAllTilesResources();
