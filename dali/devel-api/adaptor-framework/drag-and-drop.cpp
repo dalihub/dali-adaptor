@@ -44,9 +44,9 @@ bool DragAndDrop::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow
   return GetImplementation(*this).StartDragAndDrop(source, shadowWindow, dragData, callback);
 }
 
-bool DragAndDrop::AddListener(Dali::Actor target, DragAndDropFunction callback)
+bool DragAndDrop::AddListener(Dali::Actor target, char* mimeType, DragAndDropFunction callback)
 {
-  return GetImplementation(*this).AddListener(target, callback);
+  return GetImplementation(*this).AddListener(target, mimeType, callback);
 }
 
 bool DragAndDrop::RemoveListener(Dali::Actor target)
@@ -54,9 +54,9 @@ bool DragAndDrop::RemoveListener(Dali::Actor target)
   return GetImplementation(*this).RemoveListener(target);
 }
 
-bool DragAndDrop::AddListener(Dali::Window target, DragAndDropFunction callback)
+bool DragAndDrop::AddListener(Dali::Window target, char* mimeType, DragAndDropFunction callback)
 {
-  return GetImplementation(*this).AddListener(target, callback);
+  return GetImplementation(*this).AddListener(target, mimeType, callback);
 }
 
 bool DragAndDrop::RemoveListener(Dali::Window target)

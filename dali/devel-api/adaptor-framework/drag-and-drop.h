@@ -76,15 +76,16 @@ public:
   {
     DragEvent()
     {
-      this->mimeType = nullptr;
+      this->mimeTypes = nullptr;
       this->data = nullptr;
     }
-    DragEvent(DragType type, Dali::Vector2 position, const char* mimeType = nullptr, char* data = nullptr)
+    DragEvent(DragType type, Dali::Vector2 position, const char** mimeTypes = nullptr, int mimeTypesSize = 0, char* data = nullptr)
     {
-      this->type     = type;
-      this->position = position;
-      this->mimeType = mimeType;
-      this->data     = data;
+      this->type          = type;
+      this->position      = position;
+      this->mimeTypes     = mimeTypes;
+      this->mimeTypesSize = mimeTypesSize;
+      this->data          = data;
     }
 
     void SetAction(DragType type)
@@ -103,13 +104,18 @@ public:
     {
       return position;
     }
-    void SetMimeType(const char* mimeType)
+    void SetMimeTypes(const char** mimeTypes, int mimeTypeSize)
     {
-      this->mimeType = mimeType;
+      this->mimeTypes = mimeTypes;
+      this->mimeTypesSize = mimeTypeSize;
     }
-    const char* GetMimeType()
+    const char** GetMimeTypes()
     {
-      return mimeType;
+      return this->mimeTypes;
+    }
+    int GetMimeTypesSize() const
+    {
+      return mimeTypesSize;
     }
     void SetData(char* data)
     {
@@ -123,8 +129,9 @@ public:
   private:
     DragType      type{DragType::DROP}; ///< The drag event type.
     Dali::Vector2 position;             ///< The position of drag object.
-    const char*   mimeType;             ///< The mime type of drag object.
+    const char**  mimeTypes{nullptr};   ///< The mime types of drag object.
     char*         data{nullptr};        ///< The data of drag object.
+    int           mimeTypesSize{0};     ///< The size of mime types array.
   };
 
   /**
@@ -132,26 +139,43 @@ public:
    */
   struct DragData
   {
-     void SetMimeType(const char* mimeType)
+     void SetMimeTypes(const char** mimeTypes, int mimeTypesSize)
      {
-       this->mimeType = mimeType;
+      this->mimeTypes = mimeTypes;
+      this->mimeTypesSize = mimeTypesSize;
      }
-     const char* GetMimeType() const
+
+     const char** GetMimeTypes() const
      {
-       return mimeType;
+       return mimeTypes;
      }
-     void SetData(const char* data)
+
+     int GetMimeTypesSize() const
      {
-       this->data = data;
+      return mimeTypesSize;
      }
-     const char* GetData() const
+
+     void SetDataSet(const char** dataSet, int dataSetSize)
      {
-       return data;
+      this->dataSet = dataSet;
+      this->dataSetSize = dataSetSize;
+     }
+
+     const char** GetDataSet() const
+     {
+       return dataSet;
+     }
+
+     int GetDataSetSize() const
+     {
+      return dataSetSize;
      }
 
   private:
-     const char* mimeType{nullptr}; ///<The mime type of drag data.
-     const char* data{nullptr};     ///<The drag data.
+     const char**             mimeTypes{nullptr};///< The mime types of drag object.
+     int                      mimeTypesSize{0};  ///< The size of mime types.
+     const char**             dataSet{nullptr};  ///<The drag data set.
+     int                      dataSetSize{0};    ///<The size of data set.
   };
 
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
@@ -198,10 +222,11 @@ public:
    * @brief Add the listener for receiving the drag and drop events.
    *
    * @param[in] target The drop target object.
+   * @param[in] mimeType The mime type of target object.
    * @param[in] callback A drag and drop event callback.
    * @return bool true if the listener is added successfully.
    */
-  bool AddListener(Dali::Actor target, DragAndDropFunction callback);
+  bool AddListener(Dali::Actor target, char* mimeType, DragAndDropFunction callback);
 
   /**
    * @brief Remove the listener.
@@ -215,10 +240,11 @@ public:
    * @brief Add the listener for receiving the drag and drop events.
    *
    * @param[in] target The drop target object.
+   * @param[in] mimeType The mime type of target object.
    * @param[in] callback A drag and drop event callback.
    * @return bool true if the listener is added successfully.
    */
-  bool AddListener(Dali::Window target, DragAndDropFunction callback);
+  bool AddListener(Dali::Window target, char* mimeType, DragAndDropFunction callback);
 
   /**
    * @brief Remove the listener.
