@@ -98,9 +98,9 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   return surfaceId;
 }
 
-void VulkanGraphics::DestroySurface(Graphics::SurfaceId)
+void VulkanGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
 {
-  // @todo Destroy swapchain.
+  mGraphicsDevice.DestroySurface(surfaceId);
 }
 
 bool VulkanGraphics::ReplaceSurface(Graphics::SurfaceId surface, int width, int height)
@@ -132,6 +132,7 @@ void VulkanGraphics::Shutdown()
 
 void VulkanGraphics::Destroy()
 {
+  mGraphicsController.RunGarbageCollector(0);
 }
 
 void VulkanGraphics::Pause()

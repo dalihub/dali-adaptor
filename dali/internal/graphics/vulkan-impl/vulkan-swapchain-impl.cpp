@@ -100,7 +100,9 @@ Swapchain::Swapchain(Device& graphicsDevice, Queue& presentationQueue)
 {
 }
 
-Swapchain::~Swapchain() = default;
+Swapchain::~Swapchain()
+{
+}
 
 void Swapchain::CreateVkSwapchain(
   vk::SwapchainKHR   oldSwapchain,
@@ -161,7 +163,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -191,6 +194,22 @@ void Swapchain::CreateVkSwapchain(
 
   // Create the swap chain
   mSwapchainKHR = VkAssert(mGraphicsDevice.GetLogicalDevice().createSwapchainKHR(mSwapchainCreateInfoKHR, mGraphicsDevice.GetAllocator()));
+}
+
+void Swapchain::Destroy()
+{
+  if(mSwapchainKHR)
+  {
+    auto device    = mGraphicsDevice.GetLogicalDevice();
+    auto swapchain = mSwapchainKHR;
+    auto allocator = &mGraphicsDevice.GetAllocator();
+    mFramebuffers.clear();
+    mSwapchainBuffers.clear();
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying SwapChain: %p\n", static_cast<VkSwapchainKHR>(swapchain));
+    device.destroySwapchainKHR(swapchain, allocator);
+    mSwapchainKHR = nullptr;
+  }
 }
 
 void Swapchain::CreateFramebuffers()
@@ -227,19 +246,28 @@ void Swapchain::CreateFramebuffers()
                                                               mSwapchainCreateInfoKHR.imageFormat,
                                                               mSwapchainCreateInfoKHR.imageExtent);
 
-    auto colorImageView = ImageView::NewFromImage(mGraphicsDevice, *colorImage);
+    std::unique_ptr<ImageView> colorImageView;
+    colorImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
 
     // A new color attachment for each framebuffer
-    auto colorAttachment = FramebufferAttachment::NewColorAttachment(colorImageView,
-                                                                     clearColor,
-                                                                     true); // presentable
-
-    mFramebuffers.push_back(FramebufferImpl::New(mGraphicsDevice,
-                                                 compatibleRenderPass,
-                                                 {colorAttachment},
-                                                 nullptr,
-                                                 mSwapchainCreateInfoKHR.imageExtent.width,
-                                                 mSwapchainCreateInfoKHR.imageExtent.height));
+    OwnedAttachments attachments;
+    attachments.emplace_back(FramebufferAttachment::NewColorAttachment(colorImageView,
+                                                                       clearColor,
+                                                                       true));
+    std::unique_ptr<FramebufferAttachment>                       depthAttachment;
+    std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)> framebuffer(
+      FramebufferImpl::New(mGraphicsDevice,
+                           compatibleRenderPass,
+                           attachments,
+                           depthAttachment,
+                           mSwapchainCreateInfoKHR.imageExtent.width,
+                           mSwapchainCreateInfoKHR.imageExtent.height),
+      [](FramebufferImpl* framebuffer1)
+      {
+        framebuffer1->Destroy();
+        delete framebuffer1;
+      });
+    mFramebuffers.push_back(std::move(framebuffer));
 
     if(compatibleRenderPass == nullptr)
     {
@@ -264,7 +292,7 @@ FramebufferImpl* Swapchain::GetCurrentFramebuffer() const
 
 FramebufferImpl* Swapchain::GetFramebuffer(uint32_t index) const
 {
-  return mFramebuffers[index];
+  return mFramebuffers[index].get();
 }
 
 FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
@@ -319,8 +347,8 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // cause a stall ( nvidia, ubuntu )
   if(mFrameCounter >= mSwapchainBuffers.size())
   {
-    vk::Result result = swapchainBuffer->endOfFrameFence->GetStatus();
-    if(result == vk::Result::eNotReady)
+    vk::Result status = swapchainBuffer->endOfFrameFence->GetStatus();
+    if(status == vk::Result::eNotReady)
     {
       swapchainBuffer->endOfFrameFence->Wait();
       swapchainBuffer->endOfFrameFence->Reset();
@@ -332,7 +360,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   }
   // mGraphicsDevice.CollectGarbage();
 
-  return mFramebuffers[mSwapchainImageIndex];
+  return mFramebuffers[mSwapchainImageIndex].get();
 }
 
 void Swapchain::Submit(CommandBufferImpl* commandBuffer)
@@ -389,23 +417,6 @@ void Swapchain::Present()
   }
 
   mFrameCounter++;
-}
-
-bool Swapchain::OnDestroy()
-{
-  if(mSwapchainKHR)
-  {
-    auto device    = mGraphicsDevice.GetLogicalDevice();
-    auto swapchain = mSwapchainKHR;
-    auto allocator = &mGraphicsDevice.GetAllocator();
-
-    mGraphicsDevice.DiscardResource([device, swapchain, allocator]() {
-      DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkSwapchainKHR>(swapchain))
-      device.destroySwapchainKHR(swapchain, allocator); });
-
-    mSwapchainKHR = nullptr;
-  }
-  return false;
 }
 
 bool Swapchain::IsValid() const

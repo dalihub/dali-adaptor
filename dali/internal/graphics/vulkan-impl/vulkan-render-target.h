@@ -61,6 +61,23 @@ public:
   void DiscardResource() override;
 
   /**
+   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
+   */
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return mCreateInfo.allocationCallbacks;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
+   * Only intended for use by discard queue.
+   */
+  void InvokeDeleter() override
+  {
+    this->~RenderTarget();
+  }
+
+  /**
    * @brief Returns framebuffer associated with the render target
    */
   [[nodiscard]] Vulkan::Framebuffer* GetFramebuffer() const;
@@ -91,4 +108,4 @@ private:
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H

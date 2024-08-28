@@ -41,7 +41,7 @@ class RenderTarget;
  * FramebufferImpl will create a separate compatible RenderPassImpl if a matching
  * render pass is NOT found.
  */
-class RenderPassImpl final : public Dali::Graphics::Vulkan::VkManaged
+class RenderPassImpl
 {
 public:
   struct CreateInfo
@@ -61,11 +61,11 @@ public:
 
   RenderPassImpl(Vulkan::Device& device, const std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
 
-  ~RenderPassImpl() override;
+  ~RenderPassImpl();
+
+  void Destroy();
 
   vk::RenderPass GetVkHandle();
-
-  bool OnDestroy() override;
 
   std::vector<vk::ImageView>& GetAttachments();
 

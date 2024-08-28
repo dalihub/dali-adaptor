@@ -39,11 +39,23 @@ SamplerImpl::SamplerImpl(Device& device, const vk::SamplerCreateInfo& samplerCre
 {
 }
 
-SamplerImpl::~SamplerImpl() = default;
+SamplerImpl::~SamplerImpl()
+{
+  Destroy();
+}
 
 void SamplerImpl::Initialize()
 {
   VkAssert(mDevice.GetLogicalDevice().createSampler(&mCreateInfo, &mDevice.GetAllocator("SAMPLER"), &mSampler));
+}
+
+void SamplerImpl::Destroy()
+{
+  if(mSampler)
+  {
+    mDevice.GetLogicalDevice().destroySampler(mSampler);
+    mSampler = nullptr;
+  }
 }
 
 vk::Sampler SamplerImpl::GetVkHandle() const

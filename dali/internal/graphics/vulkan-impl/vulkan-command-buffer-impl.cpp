@@ -58,7 +58,15 @@ CommandBufferImpl::CommandBufferImpl(CommandPool&                         comman
 {
 }
 
-CommandBufferImpl::~CommandBufferImpl() = default;
+CommandBufferImpl::~CommandBufferImpl()
+{
+  Destroy();
+}
+
+void CommandBufferImpl::Destroy()
+{
+  // Command buffer Pool cleanup will remove the vulkan command buffer
+}
 
 /** Begin recording */
 void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
@@ -68,7 +76,6 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
   auto info = vk::CommandBufferBeginInfo{};
 
   vk::CommandBufferInheritanceInfo defaultInheritanceInfo{};
-  defaultInheritanceInfo.sType                = vk::StructureType::eCommandBufferInheritanceInfo;
   defaultInheritanceInfo.pNext                = nullptr;
   defaultInheritanceInfo.subpass              = 0;
   defaultInheritanceInfo.occlusionQueryEnable = false;
@@ -287,12 +294,6 @@ void CommandBufferImpl::CopyImage(
 uint32_t CommandBufferImpl::GetPoolAllocationIndex() const
 {
   return mPoolAllocationIndex;
-}
-
-bool CommandBufferImpl::OnDestroy()
-{
-  mOwnerCommandPool->ReleaseCommandBuffer(*this);
-  return true;
 }
 
 void CommandBufferImpl::Draw(uint32_t vertexCount,

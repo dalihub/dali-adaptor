@@ -35,7 +35,6 @@
 
 namespace Dali::Graphics
 {
-
 namespace
 {
 // Default value use to clear the stencil buffer
@@ -50,7 +49,6 @@ std::unique_ptr<T> MakeUnique(Args&&... args)
 
 namespace Vulkan
 {
-
 /**
  * Forward class declarations
  */
@@ -194,12 +192,12 @@ struct VkStoreOpType
   vk::AttachmentStoreOp storeOp{vk::AttachmentStoreOp::eDontCare};
 };
 
-class VkManaged
+class VkSharedResource // E.g. render pass
 {
 public:
-  VkManaged() = default;
+  VkSharedResource() = default;
 
-  virtual ~VkManaged() = default;
+  virtual ~VkSharedResource() = default;
 
   void Release()
   {

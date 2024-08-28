@@ -33,22 +33,6 @@ class CommandBuffer : public CommandBufferResource
 public:
   CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller);
   ~CommandBuffer() override;
-  /**
-   * @brief Called when GL resources are destroyed
-   */
-  void DestroyResource() override;
-
-  /**
-   * @brief Called when initializing the resource
-   *
-   * @return True on success
-   */
-  bool InitializeResource() override;
-
-  /**
-   * @brief Called when UniquePtr<> on client-side dies
-   */
-  void DiscardResource() override;
 
   void Begin(const Graphics::CommandBufferBeginInfo& info) override;
 
@@ -338,7 +322,42 @@ public:
    */
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
-public: //API
+public: // VulkanResource API
+  /**
+   * @brief Called when GL resources are destroyed
+   */
+  void DestroyResource() override;
+
+  /**
+   * @brief Called when initializing the resource
+   *
+   * @return True on success
+   */
+  bool InitializeResource() override;
+
+  /**
+   * @brief Called when UniquePtr<> on client-side dies
+   */
+  void DiscardResource() override;
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
+   */
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return mCreateInfo.allocationCallbacks;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
+   * Only intended for use by discard queue.
+   */
+  void InvokeDeleter() override
+  {
+    this->~CommandBuffer();
+  }
+
+public: // API
   /**
    * Get the last swapchain referenced by a BeginRenderPass command in this command buffer.
    *
