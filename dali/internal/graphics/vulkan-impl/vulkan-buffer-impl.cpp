@@ -20,46 +20,29 @@
 
 #include <cstdint>
 
+#if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
-
-namespace
-{
-const uint32_t INVALID_MEMORY_INDEX = -1u;
-
-/**
- * Helper function which returns GPU heap index that can be used to allocate
- * particular type of resource
- */
-uint32_t GetMemoryIndex(const vk::PhysicalDeviceMemoryProperties& memoryProperties,
-                        uint32_t                                  memoryTypeBits,
-                        vk::MemoryPropertyFlags                   properties)
-{
-  for(uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
-  {
-    if((memoryTypeBits & (1u << i)) &&
-       ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
-    {
-      return i;
-    }
-  }
-  return INVALID_MEMORY_INDEX;
-}
-} // namespace
+#endif
 
 namespace Dali::Graphics::Vulkan
 {
-BufferImpl* BufferImpl::New(Device& device, size_t size, VkBufferUsageFlags usageFlags)
+BufferImpl* BufferImpl::New(Device& device, size_t size, vk::BufferUsageFlags usageFlags)
+{
+  return New(device, size, vk::SharingMode(vk::SharingMode::eExclusive), usageFlags, vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible));
+}
+
+BufferImpl* BufferImpl::New(Device& device, size_t size, vk::SharingMode sharingMode, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryProperties)
 {
   auto info = vk::BufferCreateInfo{};
-  info.setSharingMode(vk::SharingMode::eExclusive);
+  info.setSharingMode(sharingMode);
   info.setSize(size);
-  info.setUsage(static_cast<vk::BufferUsageFlags>(usageFlags));
+  info.setUsage(usageFlags);
 
   auto bufferImpl = new BufferImpl(device, info);
 
   VkAssert(device.GetLogicalDevice().createBuffer(&info, &device.GetAllocator(), &bufferImpl->mBuffer));
 
-  bufferImpl->Initialize(vk::MemoryPropertyFlagBits::eHostVisible);
+  bufferImpl->Initialize(memoryProperties);
 
   return bufferImpl;
 }
@@ -75,9 +58,9 @@ void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
 {
   // Allocate
   auto requirements    = mDevice.GetLogicalDevice().getBufferMemoryRequirements(mBuffer);
-  auto memoryTypeIndex = GetMemoryIndex(mDevice.GetMemoryProperties(),
-                                        requirements.memoryTypeBits,
-                                        memoryProperties);
+  auto memoryTypeIndex = Device::GetMemoryIndex(mDevice.GetMemoryProperties(),
+                                                requirements.memoryTypeBits,
+                                                memoryProperties);
 
   mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), ((memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible));
 

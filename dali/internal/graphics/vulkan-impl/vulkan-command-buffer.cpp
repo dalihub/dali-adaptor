@@ -27,6 +27,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
+
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : CommandBufferResource(createInfo, controller),
   mCommandBufferImpl(nullptr)

@@ -23,7 +23,9 @@
 
 namespace Dali::Graphics::Vulkan
 {
+class CommandBufferImpl;
 class Device;
+class FenceImpl;
 class SurfaceImpl;
 class Queue;
 class SwapchainBuffer;
@@ -35,20 +37,20 @@ class Swapchain : public VkManaged
 {
 public:
   static Swapchain* NewSwapchain(
-    Device& device,
-    Queue& presentationQueue,
-    vk::SwapchainKHR oldSwapchain,
-    SurfaceImpl* surface,
-    vk::Format requestedFormat,
+    Device&            device,
+    Queue&             presentationQueue,
+    vk::SwapchainKHR   oldSwapchain,
+    SurfaceImpl*       surface,
+    vk::Format         requestedFormat,
     vk::PresentModeKHR presentMode,
-    uint32_t bufferCount);
+    uint32_t           bufferCount);
 
   Swapchain(Device& graphicsDevice, Queue& presentationQueue);
 
   ~Swapchain() override;
 
-  Swapchain( const Swapchain& ) = delete;
-  Swapchain& operator=( const Swapchain& ) = delete;
+  Swapchain(const Swapchain&)            = delete;
+  Swapchain& operator=(const Swapchain&) = delete;
 
   /**
    * Automatically create framebuffers (generating compatible render passes)
@@ -73,14 +75,14 @@ public:
    * @param index
    * @return
    */
-  [[nodiscard]] FramebufferImpl* GetFramebuffer( uint32_t index ) const;
+  [[nodiscard]] FramebufferImpl* GetFramebuffer(uint32_t index) const;
 
   /**
    * This function acquires next framebuffer
    * @todo we should rather use round robin method
    * @return
    */
-  FramebufferImpl* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
+  FramebufferImpl* AcquireNextFramebuffer(bool shouldCollectGarbageNow = true);
 
   /**
    * Submits the given command buffer to the swapchain queue
@@ -112,7 +114,7 @@ public:
    *
    * @param[in] depthStencilFormat valid depth/stencil pixel format
    */
-  void SetDepthStencil( vk::Format depthStencilFormat );
+  void SetDepthStencil(vk::Format depthStencilFormat);
 
   /**
    * Returns number of allocated swapchain images
@@ -122,20 +124,20 @@ public:
 
 private:
   void CreateVkSwapchain(
-    vk::SwapchainKHR oldSwapchain,
-    SurfaceImpl* surface,
-    vk::Format requestedFormat,
+    vk::SwapchainKHR   oldSwapchain,
+    SurfaceImpl*       surface,
+    vk::Format         requestedFormat,
     vk::PresentModeKHR presentMode,
-    uint32_t bufferCount);
+    uint32_t           bufferCount);
 
 private:
-  Device& mGraphicsDevice;
-  Queue* mQueue;
+  Device&      mGraphicsDevice;
+  Queue*       mQueue;
   SurfaceImpl* mSurface{};
 
   uint32_t mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
-  vk::SwapchainKHR mSwapchainKHR;
+  vk::SwapchainKHR           mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR{};
 
   /**
@@ -148,14 +150,13 @@ private:
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
 
-  Fence* mBetweenRenderPassFence{};
+  FenceImpl* mBetweenRenderPassFence{};
 
-  uint32_t mFrameCounter { 0u }; ///< Current frame number
-
+  uint32_t mFrameCounter{0u}; ///< Current frame number
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H
