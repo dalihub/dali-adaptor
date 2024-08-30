@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,6 +127,11 @@ public:
   using JavaScriptMessageHandlerCallback = std::function<void(const std::string&)>;
 
   /**
+   * @brief Message result callback when JavaScript is executed with message name and body.
+   */
+  using JavaScriptEntireMessageHandlerCallback = std::function<void(const std::string&, const std::string&)>;
+
+  /**
    * @brief Alert callback when JavaScript alert is called with a message.
    *  It returns true if a pop-up is created successfully, false otherwise.
    */
@@ -166,6 +171,11 @@ public:
   using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
+   * @brief WebView callback related with new window policy would be decided.
+   */
+  using WebEngineNewWindowPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
+
+  /**
    * @brief WebView callback related with a new window would be created.
    */
   using WebEngineNewWindowCreatedCallback = std::function<void(Dali::WebEnginePlugin*&)>;
@@ -174,6 +184,21 @@ public:
    * @brief Hit test callback called after hit test is created asynchronously.
    */
   using WebEngineHitTestCreatedCallback = std::function<bool(std::unique_ptr<Dali::WebEngineHitTest>)>;
+
+  /**
+   * @brief WebView callback called after fullscreen is entered.
+   */
+  using WebEngineFullscreenEnteredCallback = std::function<void(void)>;
+
+  /**
+   * @brief WebView callback called after fullscreen is exited.
+   */
+  using WebEngineFullscreenExitedCallback = std::function<void(void)>;
+
+  /**
+   * @brief WebView callback called after text is found.
+   */
+  using WebEngineTextFoundCallback = std::function<void(uint32_t)>;
 
   /**
    * @brief The callback to be called when the web engine received a plain text of current web page.
@@ -277,6 +302,11 @@ public:
    * @brief Get image to render.
    */
   virtual NativeImageSourcePtr GetNativeImageSource() = 0;
+
+  /**
+   * @brief Change orientation.
+   */
+  virtual void ChangeOrientation(int orientation) = 0;
 
   /**
    * @brief Return the URL of the Web.
@@ -463,6 +493,14 @@ public:
    * @param[in] handler The callback function
    */
   virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, JavaScriptMessageHandlerCallback handler) = 0;
+
+  /**
+   * @brief Add a message handler into JavaScript.
+   *
+   * @param[in] exposedObjectName The name of exposed object
+   * @param[in] handler The callback function
+   */
+  virtual void AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, JavaScriptEntireMessageHandlerCallback handler) = 0;
 
   /**
    * @brief Register a callback for JavaScript alert.
@@ -757,6 +795,11 @@ public:
   virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
+   * @brief Exit fullscreen.
+   */
+  virtual void ExitFullscreen() = 0;
+
+  /**
    * @brief Callback to be called when frame would be rendered.
    *
    * @param[in] callback
@@ -834,6 +877,13 @@ public:
   virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
 
   /**
+   * @brief Callback to be called when new window policy would be decided.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNewWindowPolicyDecidedCallback(WebEngineNewWindowPolicyDecidedCallback callback) = 0;
+
+  /**
    * @brief Callback to be called when a new window would be created.
    *
    * @param[in] callback
@@ -874,6 +924,27 @@ public:
    * @param[in] callback
    */
   virtual void RegisterContextMenuHiddenCallback(WebEngineContextMenuHiddenCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when fullscreen would be entered.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterFullscreenEnteredCallback(WebEngineFullscreenEnteredCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when fullscreen would be exited.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterFullscreenExitedCallback(WebEngineFullscreenExitedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when text would be found.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterTextFoundCallback(WebEngineTextFoundCallback callback) = 0;
 
   /**
    * @brief Get a plain text of current web page asynchronously.
