@@ -63,6 +63,21 @@ struct DALI_ADAPTOR_API Bridge
   virtual ~Bridge() = default;
 
   /**
+   * @brief Adds the accessible object associated with given actorId to the brige.
+   */
+  virtual void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) = 0;
+
+  /**
+   * @brief Removed the accessible object associated with given actorId from the brige.
+   */
+  virtual void RemoveAccessible(uint32_t actorId) = 0;
+
+  /**
+   * @brief Gets the accessible object associated with given actorId from the brige.
+   */
+  virtual std::shared_ptr<Accessible> GetAccessible(uint32_t actorId) const = 0;
+
+  /**
    * @brief Gets bus name which bridge is initialized on.
    *
    * @return The bus name
