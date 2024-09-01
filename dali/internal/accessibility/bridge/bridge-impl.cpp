@@ -90,9 +90,26 @@ class BridgeImpl : public virtual BridgeBase,
   Dali::Timer                                                   mReadScreenReaderEnabledTimer;
   Dali::Timer                                                   mForceUpTimer;
   std::string                                                   mPreferredBusName;
+  std::map<uint32_t, std::shared_ptr<Accessible>>               mAccessibles; // Actor.ID to Accessible map
 
 public:
   BridgeImpl() = default;
+
+  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  {
+    mAccessibles[actorId] = std::move(accessible);
+  }
+
+  void RemoveAccessible(uint32_t actorId) override
+  {
+    mAccessibles.erase(actorId);
+  }
+
+  std::shared_ptr<Accessible> GetAccessible(uint32_t actorId) const override
+  {
+    auto iter = mAccessibles.find(actorId);
+    return iter != mAccessibles.end() ? iter->second : nullptr;
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitKeyEvent()
