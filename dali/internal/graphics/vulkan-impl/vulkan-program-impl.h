@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-program-create-info.h>
 #include <dali/graphics-api/graphics-program.h>
+#include <vulkan/vulkan.hpp>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
@@ -120,6 +121,13 @@ public:
    * @return Reference to valid create info structure
    */
   [[nodiscard]] const ProgramCreateInfo& GetCreateInfo() const;
+
+  /**
+   * @brief Returns list of shader stages
+   *
+   * @return List of shader stages
+   */
+  [[nodiscard]] const std::vector<vk::PipelineShaderStageCreateInfo>& GetVkPipelineShaderStageCreateInfoList() const;
 
   /**
    * @brief Returns parameter value specified by parameterId

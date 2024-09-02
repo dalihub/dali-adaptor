@@ -61,6 +61,8 @@ struct ProgramImpl::Impl
   uint32_t                  refCount{0u};
 
   std::unique_ptr<Vulkan::Reflection> reflection{nullptr};
+
+  std::vector<vk::PipelineShaderStageCreateInfo> mPipelineShaderStageCreateInfoList;
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -88,6 +90,28 @@ ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGr
   {
     // Build reflection
     mImpl->reflection = std::make_unique<Vulkan::Reflection>(*this, controller);
+  }
+
+  // Create shader stages for pipeline creation
+  for(const auto& state : *createInfo.shaderState)
+  {
+    mImpl->mPipelineShaderStageCreateInfoList.emplace_back();
+    auto& info = mImpl->mPipelineShaderStageCreateInfoList.back();
+    info.setModule(static_cast<const Vulkan::Shader*>(state.shader)->GetImplementation()->GetVkShaderModule());
+    if(state.pipelineStage == PipelineStage::VERTEX_SHADER)
+    {
+      info.setStage(vk::ShaderStageFlagBits::eVertex);
+      info.setPName("main");
+    }
+    if(state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    {
+      info.setStage(vk::ShaderStageFlagBits::eFragment);
+      info.setPName("main");
+    }
+    else
+    {
+      DALI_ASSERT_ALWAYS(true && "Invalid pipeline shader stage!");
+    }
   }
 }
 
@@ -218,6 +242,11 @@ VulkanGraphicsController& ProgramImpl::GetController() const
 const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
 {
   return mImpl->createInfo;
+}
+
+[[nodiscard]] const std::vector<vk::PipelineShaderStageCreateInfo>& ProgramImpl::GetVkPipelineShaderStageCreateInfoList() const
+{
+  return mImpl->mPipelineShaderStageCreateInfoList;
 }
 
 }; // namespace Dali::Graphics::Vulkan

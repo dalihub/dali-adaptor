@@ -368,6 +368,7 @@ public:
   void Add(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::Buffer* buffer);
+  void DiscardResource(Vulkan::Pipeline* buffer);
   void DiscardResource(Vulkan::Program* renderProgram);
   void DiscardResource(Vulkan::Sampler* sampler);
   void DiscardResource(Vulkan::Texture* texture);

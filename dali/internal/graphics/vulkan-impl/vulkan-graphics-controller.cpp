@@ -30,6 +30,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-pipeline.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
@@ -191,8 +192,7 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex)
-      {
+      auto workerFunc = [&, size](auto workerIndex) {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -282,8 +282,7 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool
-        {
+        auto predicate = [&](auto& item) -> bool {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -598,8 +597,7 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
-          {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -634,8 +632,7 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
-          {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -673,8 +670,7 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex)
-    {
+    auto task     = [pUpdates](auto workerIndex) {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -842,7 +838,7 @@ UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(con
 
 UniquePtr<Graphics::Pipeline> VulkanGraphicsController::CreatePipeline(const Graphics::PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
-  return UniquePtr<Graphics::Pipeline>{};
+  return UniquePtr<Graphics::Pipeline>(new Vulkan::Pipeline(pipelineCreateInfo, *this, nullptr));
 }
 
 UniquePtr<Graphics::Program> VulkanGraphicsController::CreateProgram(const Graphics::ProgramCreateInfo& programCreateInfo, UniquePtr<Graphics::Program>&& oldProgram)
@@ -914,7 +910,7 @@ TextureProperties VulkanGraphicsController::GetTextureProperties(const Graphics:
 
 const Graphics::Reflection& VulkanGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
-  return *(reinterpret_cast<Graphics::Reflection*>(0));
+  return (static_cast<const Vulkan::Program*>(&program))->GetReflection();
 }
 
 bool VulkanGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
@@ -1003,6 +999,11 @@ void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* renderTarge
 }
 
 void VulkanGraphicsController::DiscardResource(Vulkan::Buffer* buffer)
+{
+  // @todo Add discard queues
+}
+
+void VulkanGraphicsController::DiscardResource(Vulkan::Pipeline* buffer)
 {
   // @todo Add discard queues
 }
