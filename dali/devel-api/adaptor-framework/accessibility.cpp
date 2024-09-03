@@ -352,12 +352,6 @@ class AdaptorAccessible : public ActorAccessible
 private:
   std::unique_ptr<TriggerEventInterface> mRenderNotification = nullptr;
 
-  void OffSceneCallback(Actor actor)
-  {
-    uint32_t actorId = actor.GetProperty<int>(Actor::Property::ID);
-    Bridge::GetCurrentBridge()->RemoveAccessible(actorId);
-  }
-
 protected:
   bool mRoot = false;
 
@@ -366,7 +360,6 @@ public:
   : ActorAccessible(actor),
     mRoot(isRoot)
   {
-    actor.OffSceneSignal().Connect(this, &AdaptorAccessible::OffSceneCallback);
   }
 
   bool GrabFocus() override
@@ -533,15 +526,31 @@ public:
   }
 }; // AdaptorAccessible
 
-using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
+using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::shared_ptr<AdaptorAccessible>>;
 
-std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
-  return {nullptr, true};
+// Save RefObject from an Actor in Accessible::Get()
+AdaptorAccessiblesType& GetAdaptorAccessibles()
+{
+  static AdaptorAccessiblesType gAdaptorAccessibles;
+  return gAdaptorAccessibles;
+}
+
+std::function<std::shared_ptr<Accessible>(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> std::shared_ptr<Accessible> {
+  return nullptr;
 };
 
+ObjectRegistry objectRegistry;
 } // namespace
 
-void Accessible::RegisterExternalAccessibleGetter(std::function<ConvertingResult(Dali::Actor)> functor)
+void Accessible::SetObjectRegistry(ObjectRegistry registry)
+{
+  objectRegistry = registry;
+  objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
+    GetAdaptorAccessibles().erase(obj);
+  });
+}
+
+void Accessible::RegisterExternalAccessibleGetter(std::function<std::shared_ptr<Accessible>(Dali::Actor)> functor)
 {
   convertingFunctor = functor;
 }
@@ -553,32 +562,21 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
     return nullptr;
   }
 
-  auto bridge = Bridge::GetCurrentBridge();
-
-  uint32_t actorId    = actor.GetProperty<int>(Actor::Property::ID);
-  auto     accessible = bridge->GetAccessible(actorId);
-  if(accessible)
+  auto accessible = convertingFunctor(actor);
+  if(!accessible)
   {
-    return accessible;
-  }
-
-  auto result                = convertingFunctor(actor);
-  accessible                 = result.first;
-  const bool creationEnabled = result.second;
-  if(!accessible && creationEnabled)
-  {
-    bool                     isRoot = false;
-    Dali::Integration::Scene scene  = Dali::Integration::Scene::Get(actor);
-    if(scene)
+    auto pair = GetAdaptorAccessibles().emplace(&actor.GetBaseObject(), nullptr);
+    if(pair.second)
     {
-      isRoot = (actor == scene.GetRootLayer());
+      bool                     isRoot = false;
+      Dali::Integration::Scene scene  = Dali::Integration::Scene::Get(actor);
+      if(scene)
+      {
+        isRoot = (actor == scene.GetRootLayer());
+      }
+      pair.first->second.reset(new AdaptorAccessible(actor, isRoot));
     }
-    accessible = std::make_shared<AdaptorAccessible>(actor, isRoot);
-  }
-
-  if(accessible)
-  {
-    bridge->AddAccessible(actorId, accessible);
+    accessible = pair.first->second;
   }
 
   return accessible;
