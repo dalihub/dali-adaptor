@@ -587,6 +587,21 @@ public:
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
 
+  /**
+   * @copydoc Dali::WebEngine::WebAuthenticationCancel()
+   */
+  void WebAuthenticationCancel();
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterWebAuthDisplayQRCallback()
+   */
+  void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterWebAuthResponseCallback()
+   */
+  void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
+
 private:
   /**
    * @brief Constructor.
