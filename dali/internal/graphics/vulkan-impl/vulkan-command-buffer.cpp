@@ -189,13 +189,13 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
     mLastSwapchain = swapchain;
     framebuffer    = swapchain->GetCurrentFramebuffer();
-    renderPassImpl = framebuffer->GetRenderPass(renderPass);
+    renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
   }
   else
   {
     auto coreFramebuffer = renderTarget->GetFramebuffer();
     framebuffer          = coreFramebuffer->GetImpl();
-    renderPassImpl       = framebuffer->GetRenderPass(renderPass);
+    renderPassImpl       = framebuffer->GetImplFromRenderPass(renderPass);
   }
 
   std::vector<vk::ClearValue> vkClearValues;

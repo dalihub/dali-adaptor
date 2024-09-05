@@ -87,7 +87,7 @@ Vulkan::RenderPassImpl* RenderTarget::GetRenderPass(const Graphics::RenderPass* 
     fbImpl = framebuffer->GetImpl();
   }
 
-  return fbImpl->GetRenderPass(renderPass);
+  return fbImpl->GetImplFromRenderPass(renderPass);
 }
 
 } // namespace Dali::Graphics::Vulkan

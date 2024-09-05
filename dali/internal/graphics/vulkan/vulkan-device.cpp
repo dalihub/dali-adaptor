@@ -107,18 +107,21 @@ Device::~Device()
 // Create methods -----------------------------------------------------------------------------------------------
 void Device::Create()
 {
-  auto extensions = PrepareDefaultInstanceExtensions();
-  auto layers     = vk::enumerateInstanceLayerProperties();
+  auto extensions     = PrepareDefaultInstanceExtensions();
+  auto instanceLayers = vk::enumerateInstanceLayerProperties();
 
   std::vector<const char*> validationLayers;
-  for(auto&& reqLayer : reqLayers)
+  if(!instanceLayers.value.empty())
   {
-    for(auto&& prop : layers.value)
+    for(auto&& prop : instanceLayers.value)
     {
       DALI_LOG_STREAM(gVulkanFilter, Debug::General, prop.layerName);
-      if(std::string(prop.layerName) == reqLayer)
+      for(auto&& reqLayer : reqLayers)
       {
-        validationLayers.push_back(reqLayer);
+        if(std::string(prop.layerName) == reqLayer)
+        {
+          validationLayers.push_back(reqLayer);
+        }
       }
     }
   }

@@ -114,7 +114,7 @@ public:
 
   [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
-  [[nodiscard]] RenderPassImpl* GetRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
+  [[nodiscard]] RenderPassImpl* GetImplFromRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
 
   [[nodiscard]] RenderPassImpl* GetRenderPass(uint32_t index) const;
 

@@ -185,7 +185,7 @@ FramebufferImpl* FramebufferImpl::New(
   // Flag that indicates if the render pass is externally provided
   if(renderPass == nullptr)
   {
-    // Create compatible render pass
+    // Create compatible vulkan render pass
     renderPass = RenderPassImpl::New(device, colorAttachments, depthAttachment);
   }
   attachments.reserve(colorAttachments.size());
@@ -314,7 +314,7 @@ RenderPassImpl* FramebufferImpl::GetRenderPass(uint32_t index) const
   return nullptr;
 }
 
-RenderPassImpl* FramebufferImpl::GetRenderPass(RenderPass* renderPass)
+RenderPassImpl* FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
 {
   auto attachments  = renderPass->GetCreateInfo().attachments;
   auto matchLoadOp  = attachments->front().loadOp;
@@ -348,7 +348,15 @@ RenderPassImpl* FramebufferImpl::GetRenderPass(RenderPass* renderPass)
   }
 
   // @todo create new render pass from existing + load/store op, add it to mRenderPasses, and return it.
-
+  // @todo Need to reconsider swapchain/fbo/renderpass creation model.
+  // This framebuffer may belong to a swapchain, in which case, there are multiple framebuffers
+  // that could share render passes.
+  // A) Need to detect this situation - keep owner info?
+  // B) Sharing render passes means we
+  //    1) need to ref-count to ensure safe ownership, or
+  //    2) move ownership of renderpass to swapchain.
+  //       Onus is on client to determine which interface to use, if it's a surface, use swapchain;
+  //       if it's an offscreen, use framebuffer. (Kinda need a core interface to wrap surface/offscreen)
   return mRenderPasses[0].renderPassImpl;
 }
 

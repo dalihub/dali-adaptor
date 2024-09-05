@@ -541,7 +541,8 @@ IF(enable_glslang)
     # all needed deps and SPIRV-Tools package is needed
     SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${GLSLANG_LDFLAGS} -lSPIRV ${SPIRVTOOLS_LDFLAGS} -lglslang-default-resource-limits)
   ENDIF()
-  LIST(APPEND DALI_CFLAGS ${GLSLANG_CFLAGS})
+
+  SET(DALI_CFLAGS ${DALI_CFLAGS} ${GLSLANG_CFLAGS} )
 ENDIF()
 
 IF(LIBUV_X11_PROFILE)
@@ -645,3 +646,6 @@ ADD_DEFINITIONS(  -DDALI_DATA_RW_DIR="${daliReadWriteDir}"
                   -DFONT_CONFIGURATION_FILE="${fontConfigurationFile}"
                   -DTIZEN_PLATFORM_CONFIG_SUPPORTED=${tizenPlatformConfigSupported}
 )
+
+
+MESSAGE(STATUS "DALI_CFLAGS: ${DALI_CFLAGS}")
