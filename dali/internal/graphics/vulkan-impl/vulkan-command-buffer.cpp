@@ -27,7 +27,6 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : CommandBufferResource(createInfo, controller),
   mCommandBufferImpl(nullptr)
@@ -94,6 +93,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<UniformBufferBinding>& 
 
 void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 {
+  mCommandBufferImpl->BindPipeline(&pipeline);
 }
 
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
@@ -184,6 +184,7 @@ void CommandBuffer::Draw(uint32_t vertexCount,
                          uint32_t firstVertex,
                          uint32_t firstInstance)
 {
+  mCommandBufferImpl->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void CommandBuffer::DrawIndexed(uint32_t indexCount,
@@ -192,6 +193,7 @@ void CommandBuffer::DrawIndexed(uint32_t indexCount,
                                 int32_t  vertexOffset,
                                 uint32_t firstInstance)
 {
+  mCommandBufferImpl->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& buffer,
@@ -199,6 +201,7 @@ void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& buffer,
                                         uint32_t          drawCount,
                                         uint32_t          stride)
 {
+  mCommandBufferImpl->DrawIndexedIndirect(buffer, offset, drawCount, stride);
 }
 
 void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)

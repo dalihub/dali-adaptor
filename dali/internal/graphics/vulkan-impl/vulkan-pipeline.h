@@ -60,9 +60,9 @@ public:
    *
    * @return Valid pipeline implementation
    */
-  [[nodiscard]] auto& GetPipeline() const
+  [[nodiscard]] Vulkan::PipelineImpl& GetImpl() const
   {
-    return mPipeline;
+    return *mPipeline;
   }
 
   /**

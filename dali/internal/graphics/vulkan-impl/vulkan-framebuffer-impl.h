@@ -116,6 +116,10 @@ public:
 
   [[nodiscard]] RenderPassImpl* GetRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
 
+  [[nodiscard]] RenderPassImpl* GetRenderPass(uint32_t index) const;
+
+  [[nodiscard]] uint32_t GetRenderPassCount() const;
+
   [[nodiscard]] vk::Framebuffer GetVkHandle() const;
 
   [[nodiscard]] std::vector<vk::ClearValue> GetClearValues() const;

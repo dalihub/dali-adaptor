@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -91,9 +92,11 @@ public:
    */
   [[nodiscard]] VulkanGraphicsController& GetController() const;
 
-private:
+  vk::Pipeline GetVkPipeline() const;
+
   void InitializePipeline();
 
+private:
   void InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out);
   void InitializeInputAssemblyState(vk::PipelineInputAssemblyStateCreateInfo& out) const;
   void InitializeViewportState(vk::PipelineViewportStateCreateInfo& out);
@@ -148,7 +151,13 @@ private:
 
   std::vector<vk::DynamicState> mDynamicStates;
 
-  vk::Pipeline mVkPipeline;
+  struct RenderPassPipelinePair
+  {
+    Graphics::RenderPass* renderPass;
+    vk::Pipeline          pipeline;
+  };
+
+  std::vector<RenderPassPipelinePair> mVkPipelines;
 };
 
 } // namespace Dali::Graphics::Vulkan

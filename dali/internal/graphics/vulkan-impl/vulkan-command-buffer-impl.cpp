@@ -20,9 +20,11 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
@@ -33,7 +35,6 @@ namespace Graphics
 {
 namespace Vulkan
 {
-
 CommandBufferImpl::CommandBufferImpl(CommandPool&                         commandPool,
                                      uint32_t                             poolIndex,
                                      const vk::CommandBufferAllocateInfo& allocateInfo,
@@ -98,6 +99,22 @@ void CommandBufferImpl::Free()
   mGraphicsDevice->GetLogicalDevice().freeCommandBuffers(mOwnerCommandPool->GetVkHandle(), mCommandBuffer);
 }
 
+void CommandBufferImpl::BindPipeline(const Graphics::Pipeline* pipeline)
+{
+  assert(mCommandBuffer && "Invalid command buffer!");
+  assert(mRecording && "Can't bind pipeline when buffer isn't recording!");
+  assert(pipeline && "Can't bind null pipeline!");
+
+  auto& pipelineImpl = static_cast<const Vulkan::Pipeline*>(pipeline)->GetImpl();
+
+  // Bind if pipeline is ready (if nullptr, pipeline isn't ready).
+  // If pipeline is valid, bind it early
+  if(pipelineImpl.GetVkPipeline())
+  {
+    mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineImpl.GetVkPipeline());
+  }
+}
+
 vk::CommandBuffer CommandBufferImpl::GetVkHandle() const
 {
   return mCommandBuffer;
@@ -158,6 +175,32 @@ bool CommandBufferImpl::OnDestroy()
 {
   mOwnerCommandPool->ReleaseCommandBuffer(*this);
   return true;
+}
+
+void CommandBufferImpl::Draw(uint32_t vertexCount,
+                             uint32_t instanceCount,
+                             uint32_t firstVertex,
+                             uint32_t firstInstance)
+{
+}
+
+void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
+                                    uint32_t instanceCount,
+                                    uint32_t firstIndex,
+                                    int32_t  vertexOffset,
+                                    uint32_t firstInstance)
+{
+}
+
+void CommandBufferImpl::DrawIndexedIndirect(Graphics::Buffer& buffer,
+                                            uint32_t          offset,
+                                            uint32_t          drawCount,
+                                            uint32_t          stride)
+{
+}
+
+void CommandBufferImpl::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
+{
 }
 
 } // namespace Vulkan

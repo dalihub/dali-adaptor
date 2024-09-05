@@ -23,9 +23,12 @@
 #include <vulkan/vulkan.hpp>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -144,8 +147,8 @@ struct PipelineImpl::PipelineState
   RasterizationState rasterizationState;
   VertexInputState   vertexInputState;
   InputAssemblyState inputAssemblyState;
-
-  PipelineCache* pipelineCache{};
+  RenderTarget*      renderTarget;
+  PipelineCache*     pipelineCache{};
 };
 
 PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, VulkanGraphicsController& controller, PipelineCache* pipelineCache)
@@ -163,6 +166,7 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Vulka
   CopyStateIfSet(createInfo.colorBlendState, mPipelineState->colorBlendState, &mCreateInfo.colorBlendState);
   CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
   CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
+  mCreateInfo.renderTarget = createInfo.renderTarget;
 
   InitializePipeline();
 }
@@ -179,6 +183,11 @@ VulkanGraphicsController& PipelineImpl::GetController() const
 
 void PipelineImpl::Bind()
 {
+}
+
+vk::Pipeline PipelineImpl::GetVkPipeline() const
+{
+  return mVkPipelines[0].pipeline;
 }
 
 void PipelineImpl::Retain()
@@ -209,10 +218,6 @@ void PipelineImpl::InitializePipeline()
   gfxPipelineInfo.setStages(programImpl->GetVkPipelineShaderStageCreateInfoList());
   gfxPipelineInfo.setBasePipelineHandle(nullptr);
   gfxPipelineInfo.setBasePipelineIndex(0);
-
-  // TODO: to resolve
-  gfxPipelineInfo.setRenderPass({});
-  gfxPipelineInfo.setSubpass({});
 
   // 1. PipelineVertexInputStateCreateInfo
   vk::PipelineVertexInputStateCreateInfo visInfo;
@@ -248,6 +253,7 @@ void PipelineImpl::InitializePipeline()
 
   // 8. PipelineColorBlendStateCreateInfo
   vk::PipelineColorBlendStateCreateInfo bsInfo;
+  InitializeColorBlendState(bsInfo);
   gfxPipelineInfo.setPColorBlendState(&bsInfo);
 
   // 9. PipelineDynamicStateCreateInfo
@@ -255,13 +261,62 @@ void PipelineImpl::InitializePipeline()
   dynInfo.setDynamicStates(mDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynInfo);
 
-  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+  auto& allocator   = mController.GetGraphicsDevice().GetAllocator();
+  auto  rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  auto  framebuffer = rtImpl->GetFramebuffer();
+  auto  surface     = rtImpl->GetSurface();
 
-  VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
-                                            1,
-                                            &gfxPipelineInfo,
-                                            &allocator,
-                                            &mVkPipeline));
+  FramebufferImpl* fbImpl = nullptr;
+  if(surface)
+  {
+    auto& gfxDevice = mController.GetGraphicsDevice();
+    auto  surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto  swapchain = gfxDevice.GetSwapchainForSurfaceId(surfaceId);
+    fbImpl          = swapchain->GetCurrentFramebuffer();
+  }
+  else if(framebuffer)
+  {
+    fbImpl = framebuffer->GetImpl();
+  }
+
+  auto renderPassCount = fbImpl->GetRenderPassCount();
+  for(auto i = 0u; i < renderPassCount; ++i)
+  {
+    RenderPassImpl* impl       = fbImpl->GetRenderPass(i);
+    gfxPipelineInfo.renderPass = impl->GetVkHandle();
+    gfxPipelineInfo.subpass    = 0;
+
+    if(gfxPipelineInfo.pColorBlendState)
+    {
+      auto attachmentCount = impl->GetAttachments().size();
+
+      if(attachmentCount != mBlendStateAttachments.size())
+      {
+        // Make sure array is 1
+        mBlendStateAttachments.resize(1);
+
+        // make it the right size
+        mBlendStateAttachments.resize(attachmentCount);
+
+        // Fill with defaults
+        std::fill(mBlendStateAttachments.begin() + 1, mBlendStateAttachments.end(), mBlendStateAttachments[0]);
+        const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->attachmentCount = attachmentCount;
+        const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->pAttachments    = mBlendStateAttachments.data();
+      }
+    }
+
+    vk::Pipeline vkPipeline;
+    VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
+                                              1,
+                                              &gfxPipelineInfo,
+                                              &allocator,
+                                              &vkPipeline));
+
+    RenderPassPipelinePair item;
+    item.renderPass = nullptr;
+    item.pipeline   = vkPipeline;
+    mVkPipelines.emplace_back(item);
+  }
 }
 
 void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out)

@@ -32,7 +32,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-
 FramebufferAttachment* FramebufferAttachment::NewColorAttachment(ImageView*          imageView,
                                                                  vk::ClearColorValue clearColorValue,
                                                                  bool                presentable)
@@ -133,8 +132,7 @@ FramebufferImpl* FramebufferImpl::New(
   std::transform(attachments.cbegin(),
                  attachments.cend(),
                  std::back_inserter(imageViewAttachments),
-                 [&](FramebufferAttachment* entry)
-                 {
+                 [&](FramebufferAttachment* entry) {
                    return entry->GetImageView()->GetVkHandle();
                  });
 
@@ -302,6 +300,20 @@ uint32_t FramebufferImpl::GetAttachmentCount(AttachmentType type) const
   return 0u;
 }
 
+uint32_t FramebufferImpl::GetRenderPassCount() const
+{
+  return uint32_t(mRenderPasses.size());
+}
+
+RenderPassImpl* FramebufferImpl::GetRenderPass(uint32_t index) const
+{
+  if(index < mRenderPasses.size())
+  {
+    return mRenderPasses[index].renderPassImpl;
+  }
+  return nullptr;
+}
+
 RenderPassImpl* FramebufferImpl::GetRenderPass(RenderPass* renderPass)
 {
   auto attachments  = renderPass->GetCreateInfo().attachments;
@@ -352,8 +364,7 @@ std::vector<vk::ClearValue> FramebufferImpl::GetClearValues() const
   std::transform(mAttachments.begin(), // @todo & color clear enabled / depth clear enabled
                  mAttachments.end(),
                  std::back_inserter(result),
-                 [](FramebufferAttachment* attachment)
-                 {
+                 [](FramebufferAttachment* attachment) {
                    return attachment->GetClearValue();
                  });
 
@@ -370,8 +381,7 @@ bool FramebufferImpl::OnDestroy()
 
   auto allocator = &mGraphicsDevice->GetAllocator();
 
-  mGraphicsDevice->DiscardResource([device, frameBuffer, renderPass, allocator]()
-                                   {
+  mGraphicsDevice->DiscardResource([device, frameBuffer, renderPass, allocator]() {
                                      DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: framebuffer->%p\n", static_cast<VkFramebuffer>(frameBuffer))
                                      device.destroyFramebuffer(frameBuffer, allocator);
 
