@@ -605,4 +605,24 @@ void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextRecei
   GetImplementation(*this).GetPlainTextAsynchronously(callback);
 }
 
+void WebEngine::WebAuthenticationCancel()
+{
+  GetImplementation(*this).WebAuthenticationCancel();
+}
+
+void WebEngine::RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback)
+{
+  GetImplementation(*this).RegisterWebAuthDisplayQRCallback(callback);
+}
+
+void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback)
+{
+  GetImplementation(*this).RegisterWebAuthResponseCallback(callback);
+}
+
+void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)
+{
+  GetImplementation(*this).RegisterUserMediaPermissionRequestCallback(callback);
+}
+
 } // namespace Dali
