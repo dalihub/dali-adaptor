@@ -162,12 +162,14 @@ std::string GlImplementation::GetFragmentShaderPrefix()
     if(GetShadingLanguageVersion() < 300)
     {
       mFragmentShaderPrefix += "#define INPUT varying\n";
+      mFragmentShaderPrefix += "#define FLAT\n";
       mFragmentShaderPrefix += "#define OUT_COLOR gl_FragColor\n";
       mFragmentShaderPrefix += "#define TEXTURE texture2D\n";
     }
     else
     {
       mFragmentShaderPrefix += "#define INPUT in\n";
+      mFragmentShaderPrefix += "#define FLAT flat\n";
       mFragmentShaderPrefix += "#define OUT_COLOR fragColor\n";
       mFragmentShaderPrefix += "#define TEXTURE texture\n";
 
