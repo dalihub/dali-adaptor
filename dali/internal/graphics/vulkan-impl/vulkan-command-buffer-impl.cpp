@@ -24,8 +24,12 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-sampler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
@@ -115,6 +119,79 @@ void CommandBufferImpl::BindPipeline(const Graphics::Pipeline* pipeline)
   }
 }
 
+void CommandBufferImpl::BindVertexBuffers(
+  uint32_t                        firstBinding,
+  const std::vector<BufferImpl*>& buffers,
+  const std::vector<uint32_t>&    offsets)
+{
+  // update list of used resources and create an array of VkBuffers
+  std::vector<vk::Buffer> vkBuffers;
+  vkBuffers.reserve(buffers.size());
+  for(auto&& buffer : buffers)
+  {
+    vkBuffers.emplace_back(buffer->GetVkHandle());
+  }
+  std::vector<vk::DeviceSize> vkOffsets;
+  vkOffsets.reserve(offsets.size());
+  for(auto&& offset : offsets)
+  {
+    vkOffsets.emplace_back(static_cast<vk::DeviceSize>(offset));
+  }
+  mCommandBuffer.bindVertexBuffers(firstBinding, vkBuffers.size(), vkBuffers.data(), vkOffsets.data());
+}
+
+void CommandBufferImpl::BindIndexBuffer(
+  BufferImpl& buffer,
+  uint32_t    offset,
+  Format      format)
+{
+  if(format == Graphics::Format::R16_UINT)
+  {
+    mCommandBuffer.bindIndexBuffer(buffer.GetVkHandle(), offset, vk::IndexType::eUint16);
+  }
+  else if(format == Graphics::Format::R32_UINT)
+  {
+    mCommandBuffer.bindIndexBuffer(buffer.GetVkHandle(), offset, vk::IndexType::eUint32);
+  }
+}
+
+void CommandBufferImpl::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
+{
+  // Needs descriptor set pools.
+}
+
+void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureBindings)
+{
+  for(const auto& textureBinding : textureBindings)
+  {
+    auto texture   = static_cast<const Vulkan::Texture*>(textureBinding.texture);
+    auto sampler   = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
+    auto vkSampler = sampler ? sampler->GetImpl()->GetVkHandle() : nullptr;
+
+    auto image     = texture->GetImage();
+    auto imageView = texture->GetImageView();
+
+    // test if image is valid, skip invalid image
+    if(!image || !image->GetVkHandle())
+    {
+      continue;
+    }
+
+    // Store: imageView, sampler & texture.binding for later use
+    // We don't know at this point what pipeline is bound (As dali-core
+    // binds the pipeline after calling this API)
+    mDeferredTextureBindings.emplace_back();
+    mDeferredTextureBindings.back().imageView = imageView->GetVkHandle();
+    mDeferredTextureBindings.back().sampler   = vkSampler;
+    mDeferredTextureBindings.back().binding   = textureBinding.binding;
+  }
+}
+
+void CommandBufferImpl::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
+{
+  // Unused in core
+}
+
 vk::CommandBuffer CommandBufferImpl::GetVkHandle() const
 {
   return mCommandBuffer;
@@ -182,6 +259,7 @@ void CommandBufferImpl::Draw(uint32_t vertexCount,
                              uint32_t firstVertex,
                              uint32_t firstInstance)
 {
+  mCommandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
@@ -190,17 +268,34 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
                                     int32_t  vertexOffset,
                                     uint32_t firstInstance)
 {
+  mCommandBuffer.drawIndexed(indexCount,
+                             instanceCount,
+                             firstIndex,
+                             static_cast<int32_t>(vertexOffset),
+                             firstInstance);
 }
 
-void CommandBufferImpl::DrawIndexedIndirect(Graphics::Buffer& buffer,
-                                            uint32_t          offset,
-                                            uint32_t          drawCount,
-                                            uint32_t          stride)
+void CommandBufferImpl::DrawIndexedIndirect(BufferImpl& buffer,
+                                            uint32_t    offset,
+                                            uint32_t    drawCount,
+                                            uint32_t    stride)
 {
+  mCommandBuffer.drawIndexedIndirect(buffer.GetVkHandle(), static_cast<vk::DeviceSize>(offset), drawCount, stride);
 }
 
-void CommandBufferImpl::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
+void CommandBufferImpl::ExecuteCommandBuffers(std::vector<vk::CommandBuffer>& commandBuffers)
 {
+  mCommandBuffer.executeCommands(commandBuffers);
+}
+
+void CommandBufferImpl::SetScissor(Rect2D value)
+{
+  mCommandBuffer.setScissor(0, 1, reinterpret_cast<vk::Rect2D*>(&value));
+}
+
+void CommandBufferImpl::SetViewport(Viewport value)
+{
+  mCommandBuffer.setViewport(0, 1, reinterpret_cast<vk::Viewport*>(&value));
 }
 
 } // namespace Vulkan

@@ -18,15 +18,14 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
-MemoryImpl::MemoryImpl(Device& device, size_t memSize, size_t memAlign, bool isHostVisible)
+MemoryImpl::MemoryImpl(Device& device, size_t memSize, size_t memAlign, vk::MemoryPropertyFlags memoryProperties)
 : mDevice(device),
   deviceMemory(nullptr),
   size(memSize),
   alignment(memAlign),
   mappedPtr(nullptr),
   mappedSize(0u),
-  hostVisible(isHostVisible)
+  mMemoryProperties(memoryProperties)
 {
 }
 
@@ -87,11 +86,16 @@ vk::DeviceMemory MemoryImpl::ReleaseVkObject()
 
 void MemoryImpl::Flush()
 {
-  vk::Result result = mDevice.GetLogicalDevice().flushMappedMemoryRanges({vk::MappedMemoryRange{}
-                                                                            .setSize(mappedSize)
-                                                                            .setMemory(deviceMemory)
-                                                                            .setOffset(0u)});
-  DALI_ASSERT_ALWAYS(result == vk::Result::eSuccess); // If it's out of memory, may as well crash.
+  // Don't flush if we are using host coherent memory - it's un-necessary
+  if((mMemoryProperties & vk::MemoryPropertyFlagBits::eHostCoherent) != vk::MemoryPropertyFlagBits::eHostCoherent)
+  {
+    vk::Result result = mDevice.GetLogicalDevice().flushMappedMemoryRanges({vk::MappedMemoryRange{}
+                                                                              .setSize(mappedSize ? mappedSize : VK_WHOLE_SIZE)
+                                                                              .setMemory(deviceMemory)
+                                                                              .setOffset(0u)});
+
+    DALI_ASSERT_ALWAYS(result == vk::Result::eSuccess); // If it's out of memory, may as well crash.
+  }
 }
 
 vk::DeviceMemory MemoryImpl::GetVkHandle() const

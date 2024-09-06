@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
@@ -27,6 +29,12 @@
 
 namespace Dali::Graphics::Vulkan
 {
+template<typename VT, typename GT>
+VT* ConstGraphicsCast(const GT* object)
+{
+  return const_cast<VT*>(static_cast<const VT*>(object));
+}
+
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : CommandBufferResource(createInfo, controller),
   mCommandBufferImpl(nullptr)
@@ -82,13 +90,30 @@ void CommandBuffer::Reset()
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
-                                      const std::vector<const Graphics::Buffer*>& buffers,
+                                      const std::vector<const Graphics::Buffer*>& gfxBuffers,
                                       const std::vector<uint32_t>&                offsets)
 {
+  std::vector<BufferImpl*> buffers;
+  buffers.reserve(gfxBuffers.size());
+  for(auto& gfxBuffer : gfxBuffers)
+  {
+    buffers.push_back(ConstGraphicsCast<Buffer, Graphics::Buffer>(gfxBuffer)->GetImpl());
+  }
+  mCommandBufferImpl->BindVertexBuffers(firstBinding, buffers, offsets);
+}
+
+void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& gfxBuffer,
+                                    uint32_t                offset,
+                                    Format                  format)
+{
+  auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
+  DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
+  mCommandBufferImpl->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
 }
 
 void CommandBuffer::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
 {
+  mCommandBufferImpl->BindUniformBuffers(bindings);
 }
 
 void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
@@ -98,21 +123,17 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
+  mCommandBufferImpl->BindTextures(textureBindings);
 }
 
 void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
 {
+  mCommandBufferImpl->BindSamplers(samplerBindings);
 }
 
 void CommandBuffer::BindPushConstants(void*    data,
                                       uint32_t size,
                                       uint32_t binding)
-{
-}
-
-void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
-                                    uint32_t                offset,
-                                    Format                  format)
 {
 }
 
@@ -175,8 +196,15 @@ void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
   mCommandBufferImpl->EndRenderPass();
 }
 
-void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
+void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& gfxCommandBuffers)
 {
+  std::vector<vk::CommandBuffer> vkCommandBuffers;
+  vkCommandBuffers.reserve(gfxCommandBuffers.size());
+  for(auto& gfxCmdBuf : gfxCommandBuffers)
+  {
+    vkCommandBuffers.push_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
+  }
+  mCommandBufferImpl->ExecuteCommandBuffers(vkCommandBuffers);
 }
 
 void CommandBuffer::Draw(uint32_t vertexCount,
@@ -196,12 +224,14 @@ void CommandBuffer::DrawIndexed(uint32_t indexCount,
   mCommandBufferImpl->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
-void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& buffer,
+void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
                                         uint32_t          offset,
                                         uint32_t          drawCount,
                                         uint32_t          stride)
 {
-  mCommandBufferImpl->DrawIndexedIndirect(buffer, offset, drawCount, stride);
+  auto buffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer)->GetImpl();
+
+  mCommandBufferImpl->DrawIndexedIndirect(*buffer, offset, drawCount, stride);
 }
 
 void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
@@ -210,18 +240,25 @@ void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
 
 void CommandBuffer::SetScissor(Rect2D value)
 {
+  // @todo Vulkan accepts array of scissors... add to API
+  mCommandBufferImpl->SetScissor(value);
 }
 
 void CommandBuffer::SetScissorTestEnable(bool value)
 {
+  // Enabled by default. What does disabling test do?!
+  // Probably should force pipeline to not use dynamic scissor state
 }
 
 void CommandBuffer::SetViewport(Viewport value)
 {
+  mCommandBufferImpl->SetViewport(value);
 }
 
 void CommandBuffer::SetViewportEnable(bool value)
 {
+  // Enabled by default. What does disabling test do?!
+  // Probably should force pipeline to not use dynamic viewport state
 }
 
 void CommandBuffer::SetColorMask(bool enabled)
