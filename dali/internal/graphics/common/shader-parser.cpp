@@ -135,7 +135,7 @@ void TokenizeSource(Program& program, ShaderStage stage, const std::string& sour
 template<class IT>
 bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStage stage)
 {
-  int               attributeLocation = 0;
+  int&              attributeLocation = program.attributeLocation;
   auto&             l                 = *it;
   std::string&      outString         = ((stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output);
   std::stringstream ss;

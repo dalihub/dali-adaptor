@@ -7,6 +7,7 @@
 //@ignore:off
 
 INPUT mediump vec2 aPosition;
+INPUT mediump vec2 aTexCoord;
 OUTPUT mediump vec2 vTexCoord;
 UNIFORM_BLOCK VertBlock
 {

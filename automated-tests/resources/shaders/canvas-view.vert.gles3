@@ -3,6 +3,7 @@
 
 #define TEXTURE texture
 in mediump vec2 aPosition;
+in mediump vec2 aTexCoord;
 out mediump vec2 vTexCoord;
 layout(std140) uniform VertBlock
 {
