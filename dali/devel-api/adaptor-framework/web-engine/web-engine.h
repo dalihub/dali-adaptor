@@ -825,27 +825,6 @@ public:
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
 
-  /**
-   * @brief Cancel WebAuthentication(cancel in progress passkey operation).
-   */
-  void WebAuthenticationCancel();
-
-  /**
-   * @brief Get a plain text of current web page asynchronously.
-   *
-   * @param[in] callback The callback function called asynchronously.
-
-   */
-  void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
-
-  /**
-   * @brief Get a plain text of current web page asynchronously.
-   *
-   * @param[in] callback The callback function called asynchronously.
-
-   */
-  void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
-
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

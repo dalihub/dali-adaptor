@@ -201,16 +201,6 @@ public:
   using PlainTextReceivedCallback = std::function<void(const std::string&)>;
 
   /**
-   * @brief WebView callback informs browser app to display QB code popup for passkey scenario.
-   */
-  using WebEngineWebAuthDisplayQRCallback = std::function<void(const std::string&)>;
-
-  /**
-   * @brief WebView callback informs browser app that the passkey registration and authentication has been successful and app can close QR popup.
-   */
-  using WebEngineWebAuthResponseCallback = std::function<void(void)>;
-
-  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -949,26 +939,6 @@ public:
    * @param[in] callback The callback function called asynchronously.
    */
   virtual void GetPlainTextAsynchronously(PlainTextReceivedCallback callback) = 0;
-
-  /**
-   * @brief Cancel WebAuthentication(cancel in progress passkey operation).
-   */
-  virtual void WebAuthenticationCancel() = 0;
-
-  /**
-   * @brief Register WebAuthDisplayQR callback.
-   *
-   * @param[in] callback The callback informs browser app to display QR code popup for passkey scenario.
-   */
-  virtual void RegisterWebAuthDisplayQRCallback(WebEngineWebAuthDisplayQRCallback callback) = 0;
-
-  /**
-   * @brief Register WebAuthResponse callback.
-   *
-   * @param[in] callback The callback informs browser app that the passkey registration and authentication has been successful and app can close QR popup.
-   */
-  virtual void RegisterWebAuthResponseCallback(WebEngineWebAuthResponseCallback callback) = 0;
-
 };
 
 // specialization has to be done in the same namespace
