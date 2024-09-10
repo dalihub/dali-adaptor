@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,9 @@ protected:
    */
   Dali::Accessibility::Application* FindSelf() const;
 
+private:
+  virtual void NotifyIncludeHiddenChanged(){};
+
 public:
   /**
    * @brief Gets name of graphic user interface framework used by an application.
@@ -58,6 +61,18 @@ public:
    * @return String with version
    */
   std::string GetVersion();
+
+  /**
+   * @brief Gets include_hidden flag currently set on the application.
+   *
+   * @return true is include_hidden is set; false otherwise.
+   */
+  DBus::ValueOrError<bool> GetIncludeHidden();
+
+  /**
+   * @brief Sets include_hidden flag to the application.
+   */
+  DBus::ValueOrError<void> SetIncludeHidden(bool includeHidden);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H

@@ -327,7 +327,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
   }
 
   auto it = mData->mKnownObjects.find(static_cast<Accessible*>(accessible));
-  if(it == mData->mKnownObjects.end() || (*it)->IsHidden())
+  if(it == mData->mKnownObjects.end() || (!mApplication.mShouldIncludeHidden && (*it)->IsHidden()))
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }

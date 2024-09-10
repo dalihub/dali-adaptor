@@ -50,6 +50,7 @@ public:
   std::string                                   mName;
   std::string                                   mToolkitName{"dali"};
   bool                                          mIsEmbedded{false};
+  bool                                          mShouldIncludeHidden{false};
 
   std::string GetName() const override
   {
@@ -180,6 +181,21 @@ public:
   std::string GetVersion() const override
   {
     return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
+  }
+
+  bool GetIncludeHidden() const override
+  {
+    return mShouldIncludeHidden;
+  }
+
+  bool SetIncludeHidden(bool includeHidden) override
+  {
+    if(mShouldIncludeHidden != includeHidden)
+    {
+      mShouldIncludeHidden = includeHidden;
+      return true;
+    }
+    return false;
   }
 
   // Socket

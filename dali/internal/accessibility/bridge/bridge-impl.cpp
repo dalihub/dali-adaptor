@@ -25,6 +25,7 @@
 #include <map>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
@@ -122,6 +123,30 @@ public:
     uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
     auto     iter    = mAccessibles.find(actorId);
     return iter != mAccessibles.end() ? iter->second : nullptr;
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ShouldIncludeHidden()
+   */
+  bool ShouldIncludeHidden() const override
+  {
+    return mApplication.mShouldIncludeHidden;
+  }
+
+  void NotifyIncludeHiddenChanged() override
+  {
+    for(const auto& iter : mAccessibles)
+    {
+      const auto& accessible = iter.second;
+      if(accessible->IsHidden())
+      {
+        auto* parent = dynamic_cast<ActorAccessible*>(accessible->GetParent());
+        if(parent)
+        {
+          parent->OnChildrenChanged();
+        }
+      }
+    }
   }
 
   /**
