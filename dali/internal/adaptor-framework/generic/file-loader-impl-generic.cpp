@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,33 +46,40 @@ int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali:
 template<typename T>
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType)
 {
-  int            errorCode = 0;
-  std::ifstream* file;
+  int errorCode = 0;
 
-  if(fileType == Dali::FileLoader::BINARY)
+  if(fileType != Dali::FileLoader::BINARY && fileType != Dali::FileLoader::TEXT)
   {
-    file = new std::ifstream(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
-  }
-  else if(fileType == Dali::FileLoader::TEXT)
-  {
-    file = new std::ifstream(filename.c_str(), std::ios::in | std::ios::ate);
-  }
-  else
-  {
+    DALI_LOG_ERROR("Invaild fileType! input fileType:%d file: \"%s\"\n", static_cast<int>(fileType), filename.c_str());
     return errorCode;
   }
 
-  if(file->is_open())
+  auto iosFlags = std::ios::in | std::ios::ate;
+  if(fileType == Dali::FileLoader::BINARY)
   {
-    fileSize = file->tellg();
+    iosFlags |= std::ios::binary;
+  }
+
+  std::ifstream file(filename.c_str(), iosFlags);
+
+  if(file.is_open())
+  {
+    fileSize = file.tellg();
+
+    if(file.seekg(0, std::ios::beg).good() == false)
+    {
+      DALI_LOG_ERROR("Failed to seek the beginning of the file: \"%s\"\n", filename.c_str());
+      return errorCode;
+    }
 
     memblock.ResizeUninitialized(fileSize);
 
-    file->seekg(0, std::ios::beg);
-    file->read(reinterpret_cast<char*>(memblock.Begin()), fileSize);
-    file->close();
-
-    delete file;
+    if(file.read(reinterpret_cast<char*>(memblock.Begin()), fileSize).good() == false)
+    {
+      DALI_LOG_ERROR("Failed to read the file: \"%s\"\n", filename.c_str());
+      return errorCode;
+    }
+    file.close();
 
     errorCode = 1;
   }
