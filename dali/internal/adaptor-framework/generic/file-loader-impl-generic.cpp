@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ template<typename T>
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType)
 {
   int            errorCode = 0;
-  std::ifstream* file;
+  std::ifstream* file{nullptr};
 
   if(fileType == Dali::FileLoader::BINARY)
   {
@@ -72,8 +72,6 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     file->read(reinterpret_cast<char*>(memblock.Begin()), fileSize);
     file->close();
 
-    delete file;
-
     errorCode = 1;
   }
   else
@@ -81,6 +79,8 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     char buf[512];
     DALI_LOG_ERROR("file open failed for: \"%s\", error : %s\n", filename.c_str(), strerror_r(errno, buf, 512));
   }
+
+  delete file;
 
   return errorCode;
 }
