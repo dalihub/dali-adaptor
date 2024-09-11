@@ -40,6 +40,17 @@ bool UpdateLastEmitted(std::map<State, int>& lastEmitted, State state, int newVa
   return inserted || updated;
 }
 
+bool RoleTriggersContextRebuilding(Role role)
+{
+  return role == Role::POPUP_MENU || role == Role::PANEL || role == Role::DIALOG || role == Role::PAGE_TAB || role == Role::WINDOW;
+}
+
+// Allowing duplicate showing event for some roles as it used to rebuild context after switching default label in Accessibility V1.
+bool ShouldForceEmit(Accessible* accessible, State state)
+{
+  return state == State::SHOWING && RoleTriggersContextRebuilding(accessible->GetRole());
+}
+
 } // namespace
 
 Accessible::Accessible()
@@ -67,7 +78,7 @@ void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    if(UpdateLastEmitted(mLastEmittedState, state, newValue))
+    if(UpdateLastEmitted(mLastEmittedState, state, newValue) || ShouldForceEmit(this, state))
     {
       bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
     }
