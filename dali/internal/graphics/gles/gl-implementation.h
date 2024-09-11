@@ -240,11 +240,13 @@ public:
       {
         mVertexShaderPrefix += "#define INPUT attribute\n";
         mVertexShaderPrefix += "#define OUTPUT varying\n";
+        mVertexShaderPrefix += "#define FLAT\n";
       }
       else
       {
         mVertexShaderPrefix += "#define INPUT in\n";
         mVertexShaderPrefix += "#define OUTPUT out\n";
+        mVertexShaderPrefix += "#define FLAT flat\n";
       }
     }
     return mVertexShaderPrefix;

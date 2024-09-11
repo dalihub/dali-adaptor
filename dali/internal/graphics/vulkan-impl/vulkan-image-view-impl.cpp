@@ -17,9 +17,9 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <utility>
 
@@ -33,16 +33,82 @@ namespace Graphics
 {
 namespace Vulkan
 {
+ImageView* ImageView::NewFromImage(Device& device, const Image& image)
+{
+  vk::ComponentMapping componentsMapping = {vk::ComponentSwizzle::eR,
+                                            vk::ComponentSwizzle::eG,
+                                            vk::ComponentSwizzle::eB,
+                                            vk::ComponentSwizzle::eA};
 
-ImageView::ImageView( Device& graphicsDevice, const Image* image, vk::ImageViewCreateInfo createInfo )
-: mGraphicsDevice( &graphicsDevice ),
-  mImage( image ),
-  mCreateInfo( std::move( createInfo ) ),
-  mImageView( nullptr )
+  return NewFromImage(device, image, componentsMapping);
+}
+
+ImageView* ImageView::NewFromImage(
+  Device&                     device,
+  const Image&                image,
+  const vk::ComponentMapping& componentMapping)
+{
+  auto subresourceRange = vk::ImageSubresourceRange{}
+                            .setAspectMask(image.GetAspectFlags())
+                            .setBaseArrayLayer(0)
+                            .setBaseMipLevel(0)
+                            .setLevelCount(image.GetMipLevelCount())
+                            .setLayerCount(image.GetLayerCount());
+
+  auto imageView = New(device,
+                       image,
+                       {},
+                       vk::ImageViewType::e2D,
+                       image.GetFormat(),
+                       componentMapping,
+                       subresourceRange,
+                       nullptr);
+
+  return imageView;
+}
+
+ImageView* ImageView::New(Device&                         device,
+                          const Image&                    image,
+                          const vk::ImageViewCreateFlags& flags,
+                          vk::ImageViewType               viewType,
+                          vk::Format                      format,
+                          vk::ComponentMapping            components,
+                          vk::ImageSubresourceRange       subresourceRange,
+                          void*                           pNext)
+{
+  auto imageViewCreateInfo = vk::ImageViewCreateInfo{}
+                               .setPNext(pNext)
+                               .setFlags(flags)
+                               .setImage(image.GetVkHandle())
+                               .setViewType(viewType)
+                               .setFormat(format)
+                               .setComponents(components)
+                               .setSubresourceRange(std::move(subresourceRange));
+
+  return New(device, image, imageViewCreateInfo);
+}
+
+ImageView* ImageView::New(Device& device, const Image& image, const vk::ImageViewCreateInfo& createInfo)
+{
+  auto imageView = new ImageView(device, image, createInfo);
+
+  VkAssert(device.GetLogicalDevice().createImageView(&createInfo, &device.GetAllocator("IMAGEVIEW"), &imageView->mImageView));
+
+  return imageView;
+}
+
+ImageView::ImageView(Device& graphicsDevice, const Image& image, vk::ImageViewCreateInfo createInfo)
+: mDevice(graphicsDevice),
+  mImage(image),
+  mCreateInfo(std::move(createInfo)),
+  mImageView(nullptr)
 {
 }
 
-ImageView::~ImageView() = default;
+ImageView::~ImageView()
+{
+  Destroy();
+}
 
 vk::ImageView ImageView::GetVkHandle() const
 {
@@ -51,17 +117,17 @@ vk::ImageView ImageView::GetVkHandle() const
 
 const Image* ImageView::GetImage() const
 {
-  return mImage;
+  return &mImage;
 }
 
 uint32_t ImageView::GetLayerCount() const
 {
-  return mImage->GetLayerCount();
+  return mImage.GetLayerCount();
 }
 
 uint32_t ImageView::GetMipLevelCount() const
 {
-  return mImage->GetMipLevelCount();
+  return mImage.GetMipLevelCount();
 }
 
 vk::ImageAspectFlags ImageView::GetImageAspectMask() const
@@ -69,29 +135,10 @@ vk::ImageAspectFlags ImageView::GetImageAspectMask() const
   return vk::ImageAspectFlags();
 }
 
-const ImageView& ImageView::ConstRef()
+void ImageView::Destroy()
 {
-  return *this;
-}
-
-ImageView& ImageView::Ref()
-{
-  return *this;
-}
-
-bool ImageView::OnDestroy()
-{
-  auto device = mGraphicsDevice->GetLogicalDevice();
-  auto imageView = mImageView;
-  auto allocator = &mGraphicsDevice->GetAllocator();
-
-  mGraphicsDevice->DiscardResource( [ device, imageView, allocator ]() {
-    DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: image view->%p\n",
-                   static_cast< VkImageView >(imageView) )
-    device.destroyImageView( imageView, allocator );
-  } );
-
-  return VkManaged::OnDestroy();
+  auto device = mDevice.GetLogicalDevice();
+  device.destroyImageView(mImageView, mDevice.GetAllocator());
 }
 
 } // namespace Vulkan

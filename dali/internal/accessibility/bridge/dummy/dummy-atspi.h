@@ -237,6 +237,19 @@ struct DummyBridge : Dali::Accessibility::Bridge
   void SetPreferredBusName(std::string_view preferredBusName) override
   {
   }
+
+  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  {
+  }
+
+  void RemoveAccessible(uint32_t actorId) override
+  {
+  }
+
+  std::shared_ptr<Accessible> GetAccessible(Actor actor) const override
+  {
+    return nullptr;
+  };
 };
 
 } // namespace Dali::Accessibility

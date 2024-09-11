@@ -23,15 +23,44 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 class Device;
 class Memory;
 
-class Image : public VkManaged
-{
-  friend class Device;
+// @todo use ImageImpl to make naming convention consistent
 
+/**
+ * Wrapper class for vk::Image
+ */
+class Image
+{
 public:
+  static Image* New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo);
+
+  /**
+   * Create the wrapper object, either for the given vkImage, or as a new image
+   * that will get allocated.
+   *
+   * @param graphicsDevice The graphics Device
+   * @param createInfo The creation structure
+   * @param[in] externalImage  External image, or nullptr if not external
+   */
+  Image(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr);
+
+  /**
+   * Second stage initialization:
+   * Creates new VkImage with given specification, it doesn't
+   * bind the memory.
+   */
+  void Initialize();
+
+  /**
+   * Allocate memory for the image and bind it.
+   * Kept separate from Initialize because reasons. ?!?!
+   *
+   * @param[in] memoryProperties The properties flags for the memory.
+   */
+  void AllocateAndBind(vk::MemoryPropertyFlags memoryProperties);
+
   /**
    * Returns underlying Vulkan object
    * @return
@@ -43,6 +72,25 @@ public:
    * @return
    */
   [[nodiscard]] vk::ImageLayout GetImageLayout() const;
+
+  /**
+   * Set the image layout locally (Not in GPU)
+   * @param[in] imageLayout The image layout.
+   */
+  void SetImageLayout(vk::ImageLayout imageLayout);
+
+  /**
+   * Create a memory barrier to transition from current layout to the new layout
+   */
+  vk::ImageMemoryBarrier CreateMemoryBarrier(vk::ImageLayout newLayout) const;
+
+  /**
+   * Create a memory barrier for (a future) transition from the given layout to the new layout
+   * @param[in] layout
+   * @param[in] newLayout
+   * @return the memory barrier
+   */
+  vk::ImageMemoryBarrier CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const;
 
   /**
    * Returns width in pixels
@@ -96,18 +144,12 @@ public:
 
   [[nodiscard]] vk::SampleCountFlagBits GetSampleCount() const;
 
-  void SetImageLayout(vk::ImageLayout imageLayout);
-
-  const Image& ConstRef();
-
-  Image& Ref();
-
-  bool OnDestroy() override;
-
   [[nodiscard]] MemoryImpl* GetMemory() const
   {
-    return mDeviceMemory.get();
+    return mMemory.get();
   }
+
+  bool OnDestroy();
 
   /**
    * Destroys underlying Vulkan resources on the caller thread.
@@ -116,15 +158,6 @@ public:
    * image invalid.
    */
   void DestroyNow();
-
-private:
-  /**
-   * Creates new VkImage with given specification, it doesn't
-   * bind the memory.
-   * @param graphics
-   * @param createInfo
-   */
-  Image(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr);
 
   /**
    * Destroys used Vulkan resource objects
@@ -136,13 +169,13 @@ private:
   static void DestroyVulkanResources(vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator);
 
 private:
-  Device*              mGraphicsDevice;
+  Device&              mDevice;
   vk::ImageCreateInfo  mCreateInfo;
   vk::Image            mImage;
   vk::ImageLayout      mImageLayout;
   vk::ImageAspectFlags mAspectFlags;
 
-  std::unique_ptr<MemoryImpl> mDeviceMemory;
+  std::unique_ptr<MemoryImpl> mMemory;
   bool                        mIsExternal;
 };
 

@@ -19,12 +19,17 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/graphics-api/graphics-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
 {
+class Buffer;
 class Device;
+class CommandPool;
+class PipelineImpl;
 
 class CommandBufferImpl : public VkManaged
 {
@@ -38,7 +43,7 @@ public:
   ~CommandBufferImpl() override;
 
   /** Begin recording */
-  void Begin( vk::CommandBufferUsageFlags usageFlags, vk::CommandBufferInheritanceInfo* inheritanceInfo );
+  void Begin(vk::CommandBufferUsageFlags usageFlags, vk::CommandBufferInheritanceInfo* inheritanceInfo);
 
   /** Finish recording */
   void End();
@@ -48,6 +53,12 @@ public:
 
   /** Free command buffer */
   void Free();
+
+  /** Binds Vulkan pipeline */
+  void BindPipeline(const Graphics::Pipeline* pipeline);
+
+  /** Final validation of the pipeline */
+  void ValidatePipeline();
 
   /** Returns Vulkan object associated with the buffer */
   [[nodiscard]] vk::CommandBuffer GetVkHandle() const;
@@ -63,12 +74,23 @@ public:
    * @param renderPassBeginInfo
    * @param subpassContents
    */
-  void BeginRenderPass( vk::RenderPassBeginInfo renderPassBeginInfo, vk::SubpassContents subpassContents );
+  void BeginRenderPass(vk::RenderPassBeginInfo renderPassBeginInfo, vk::SubpassContents subpassContents);
 
   /**
    * Ends current render pass
    */
   void EndRenderPass();
+
+  void PipelineBarrier(vk::PipelineStageFlags               srcStageMask,
+                       vk::PipelineStageFlags               dstStageMask,
+                       vk::DependencyFlags                  dependencyFlags,
+                       std::vector<vk::MemoryBarrier>       memoryBarriers,
+                       std::vector<vk::BufferMemoryBarrier> bufferBarriers,
+                       std::vector<vk::ImageMemoryBarrier>  imageBarriers);
+
+  void CopyBufferToImage(Vulkan::BufferImpl* srcBuffer, Vulkan::Image* dstImage, vk::ImageLayout dstLayout, const std::vector<vk::BufferImageCopy>& regions);
+
+  void CopyImage(Vulkan::Image* srcImage, vk::ImageLayout srcLayout, Image* dstImage, vk::ImageLayout dstLayout, const std::vector<vk::ImageCopy>& regions);
 
   /**
    * Implements VkManaged::OnDestroy
@@ -76,8 +98,28 @@ public:
    */
   bool OnDestroy() override;
 
-private:
+  void Draw(
+    uint32_t vertexCount,
+    uint32_t instanceCount,
+    uint32_t firstVertex,
+    uint32_t firstInstance);
 
+  void DrawIndexed(
+    uint32_t indexCount,
+    uint32_t instanceCount,
+    uint32_t firstIndex,
+    int32_t  vertexOffset,
+    uint32_t firstInstance);
+
+  void DrawIndexedIndirect(
+    Graphics::Buffer& buffer,
+    uint32_t          offset,
+    uint32_t          drawCount,
+    uint32_t          stride);
+
+  void ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers);
+
+private:
   /**
    * Returns allocation index
    * @return
@@ -85,23 +127,22 @@ private:
   [[nodiscard]] uint32_t GetPoolAllocationIndex() const;
 
 private:
-
   // Constructor called by the CommandPool only
-  CommandBufferImpl( CommandPool& commandPool,
-                 uint32_t poolIndex,
-                 const vk::CommandBufferAllocateInfo& allocateInfo,
-                 vk::CommandBuffer vulkanHandle );
+  CommandBufferImpl(
+    CommandPool&                         commandPool,
+    uint32_t                             poolIndex,
+    const vk::CommandBufferAllocateInfo& allocateInfo,
+    vk::CommandBuffer                    vulkanHandle);
 
 private:
-
-  CommandPool* mOwnerCommandPool;
-  Device* mGraphicsDevice;
-  uint32_t mPoolAllocationIndex;
+  CommandPool*                  mOwnerCommandPool;
+  Device*                       mGraphicsDevice;
+  uint32_t                      mPoolAllocationIndex;
   vk::CommandBufferAllocateInfo mAllocateInfo{};
 
   vk::CommandBuffer mCommandBuffer{};
 
-  bool mRecording{ false };
+  bool mRecording{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

@@ -22,6 +22,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -456,17 +457,10 @@ public:
   static void SetCurrentlyHighlightedActor(Dali::Actor actor);
 
   /**
-   * @brief Sets ObjectRegistry.
-   *
-   * @param[in] registry ObjectRegistry instance
-   */
-  static void SetObjectRegistry(ObjectRegistry registry);
-
-  /**
    * @brief The method registers functor resposible for converting Actor into Accessible.
    * @param functor The returning Accessible handle from Actor object
    */
-  static void RegisterExternalAccessibleGetter(std::function<std::shared_ptr<Accessible>(Dali::Actor)> functor);
+  static void RegisterExternalAccessibleGetter(std::function<std::pair<std::shared_ptr<Accessible>, bool>(Dali::Actor)> functor);
 
   /**
    * @brief Acquires Accessible object from Actor object.
@@ -521,6 +515,7 @@ private:
   mutable AtspiInterfaces             mInterfaces;
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
+  std::map<State, int>                mLastEmittedState;
 
 }; // Accessible class
 

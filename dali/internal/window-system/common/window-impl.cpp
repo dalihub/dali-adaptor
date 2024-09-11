@@ -1663,6 +1663,31 @@ bool Window::RelativeMotionUnGrab()
   return mWindowBase->RelativeMotionUnGrab();
 }
 
+void Window::SetBlur(const WindowBlurInfo& blurInfo)
+{
+  if(mBlurInfo == blurInfo)
+  {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), same window blur Info\n", this, mNativeWindowId);
+    return;
+  }
+
+  mBlurInfo = blurInfo;
+
+  if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
+  {
+    mWindowBase->SetBackgroundBlur(mBlurInfo.windowBlurRadius, mBlurInfo.backgroundBlurRadius);
+  }
+  else
+  {
+    mWindowBase->SetBackgroundBlur(0, 0);
+  }
+  // TODO : When new Blur type is append, it will be added
+}
+
+WindowBlurInfo Window::GetBlur() const
+{
+  return mBlurInfo;
+}
 
 } // namespace Adaptor
 

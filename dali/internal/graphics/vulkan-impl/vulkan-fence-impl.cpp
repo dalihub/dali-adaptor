@@ -18,8 +18,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
@@ -28,64 +28,54 @@ extern Debug::Filter* gVulkanFilter;
 namespace Dali::Graphics::Vulkan
 {
 
-Fence::Fence( Device& graphicsDevice, vk::Fence handle )
-: mGraphicsDevice( &graphicsDevice ),
-  mFence(handle)
+FenceImpl* FenceImpl::New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo)
+{
+  auto fence = new FenceImpl(graphicsDevice);
+  fence->Initialize(fenceCreateInfo);
+  return fence;
+}
+
+FenceImpl::FenceImpl(Device& graphicsDevice)
+: mGraphicsDevice(&graphicsDevice)
 {
 }
 
-const Fence& Fence::ConstRef() const
+FenceImpl::~FenceImpl()
 {
-  return *this;
+  Destroy();
 }
 
-Fence& Fence::Ref()
-{
-  return *this;
-}
-
-Fence::~Fence() = default;
-
-vk::Fence Fence::GetVkHandle() const
+vk::Fence FenceImpl::GetVkHandle() const
 {
   return mFence;
 }
 
-bool Fence::OnDestroy()
+void FenceImpl::Initialize(const vk::FenceCreateInfo& fenceCreateInfo)
 {
-  // Copy the Vulkan handles and pointers here.
-  // Cannot capture the "this" pointer in the lambda.
-  // When the lambda is invoked "this" is already destroyed.
-  // This method is only deferring execution to the end of the frame.
   auto device = mGraphicsDevice->GetLogicalDevice();
-  auto fence = mFence;
-  auto allocator = &mGraphicsDevice->GetAllocator();
-
-  // capture copies of the pointers and handles
-  mGraphicsDevice->DiscardResource( [ device, fence, allocator ]() {
-    DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: fence->%p\n",
-                   static_cast< VkFence >(fence) )
-    device.destroyFence( fence, allocator );
-  } );
-
-  return false;
+  VkAssert(device.createFence(&fenceCreateInfo, &mGraphicsDevice->GetAllocator(), &mFence));
 }
 
-void Fence::Reset()
+void FenceImpl::Destroy()
+{
+  mGraphicsDevice->GetLogicalDevice().destroyFence(mFence, &mGraphicsDevice->GetAllocator());
+}
+
+void FenceImpl::Reset()
 {
   auto device = mGraphicsDevice->GetLogicalDevice();
   VkAssert(device.resetFences(1, &mFence));
 }
 
-void Fence::Wait(uint32_t timeout)
+void FenceImpl::Wait(uint32_t timeout)
 {
   auto device = mGraphicsDevice->GetLogicalDevice();
   VkAssert(device.waitForFences(1, &mFence, VK_TRUE, timeout));
 }
 
-vk::Result Fence::GetStatus()
+vk::Result FenceImpl::GetStatus()
 {
-  auto device = mGraphicsDevice->GetLogicalDevice();
+  auto       device = mGraphicsDevice->GetLogicalDevice();
   vk::Result result = device.getFenceStatus(mFence);
   return result;
 }

@@ -66,7 +66,7 @@ bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   return true;
 }
 
-bool DragAndDropGeneric::AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback)
+bool DragAndDropGeneric::AddListener(Dali::Actor target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback)
 {
   return true;
 }
@@ -76,7 +76,7 @@ bool DragAndDropGeneric::RemoveListener(Dali::Actor target)
   return true;
 }
 
-bool DragAndDropGeneric::AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback)
+bool DragAndDropGeneric::AddListener(Dali::Window target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback)
 {
   return true;
 }

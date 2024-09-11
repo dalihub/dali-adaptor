@@ -148,6 +148,17 @@ enum class WindowInsetsPartState
   VISIBLE,       ///< Visible
 };
 
+/**
+ * @brief Enumeration of window blur type.
+ */
+enum class WindowBlurType
+{
+  NONE = 0,   ///< default value for blur disable
+  BACKGROUND, ///< the window's background
+  // BEHIND,  ///< the window's behind except background
+  // BOTH,    ///< both window's background and behind
+};
+
 } // namespace Dali
 
 #endif // DALI_WINDOW_ENUMERATIONS_H

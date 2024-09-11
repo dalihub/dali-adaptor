@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,11 @@ public:
    * @copydoc Dali::WebEngine::GetNativeImageSource()
    */
   Dali::NativeImageSourcePtr GetNativeImageSource();
+
+  /**
+   * @copydoc Dali::WebEngine::ChangeOrientation()
+   */
+  void ChangeOrientation(int orientation);
 
   /**
    * @copydoc Dali::WebEngine::GetSettings()
@@ -303,6 +308,11 @@ public:
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
+   * @copydoc Dali::WebEngine::AddJavaScriptEntireMessageHandler()
+   */
+  void AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler);
+
+  /**
    * @copydoc Dali::WebEngine::ClearAllTilesResources()
    */
   void ClearAllTilesResources();
@@ -468,6 +478,11 @@ public:
   bool SendWheelEvent(const Dali::WheelEvent& event);
 
   /**
+   * @copydoc Dali::WebEngine::ExitFullscreen()
+   */
+  void ExitFullscreen();
+
+  /**
    @copydoc Dali::WebEngine::RegisterFrameRenderedCallback()
    */
   void RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback);
@@ -523,6 +538,11 @@ public:
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
 
   /**
+   @copydoc Dali::WebEngine::RegisterNewWindowPolicyDecidedCallback()
+   */
+  void RegisterNewWindowPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNewWindowPolicyDecidedCallback callback);
+
+  /**
    @copydoc Dali::WebEngine::RegisterNewWindowCreatedCallback()
    */
   void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
@@ -551,6 +571,21 @@ public:
    * @copydoc Dali::WebEngine::RegisterContextMenuHiddenCallback()
    */
   void RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterFullscreenEnteredCallback()
+   */
+  void RegisterFullscreenEnteredCallback(Dali::WebEnginePlugin::WebEngineFullscreenEnteredCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterFullscreenExitedCallback()
+   */
+  void RegisterFullscreenExitedCallback(Dali::WebEnginePlugin::WebEngineFullscreenExitedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterTextFoundCallback()
+   */
+  void RegisterTextFoundCallback(Dali::WebEnginePlugin::WebEngineTextFoundCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()

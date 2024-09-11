@@ -71,6 +71,7 @@ struct Program
   std::map<std::string, int> varyings;
   int                        uboBinding{0};
   int&                       samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
+  int                        attributeLocation{0};
 };
 
 struct ShaderParserInfo

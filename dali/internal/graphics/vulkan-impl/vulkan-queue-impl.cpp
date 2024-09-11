@@ -16,58 +16,58 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
 
 // submission
-SubmissionData::SubmissionData( const std::vector<vk::Semaphore>& waitSemaphores_,
-                                vk::PipelineStageFlags waitDestinationStageMask_,
-                                const std::vector<CommandBufferImpl*>& commandBuffers_,
-                                const std::vector<vk::Semaphore>& signalSemaphores_ )
-        : waitSemaphores( waitSemaphores_ ),
-          waitDestinationStageMask( waitDestinationStageMask_ ),
-          commandBuffers( commandBuffers_ ),
-          signalSemaphores( signalSemaphores_ )
+SubmissionData::SubmissionData(const std::vector<vk::Semaphore>&      waitSemaphores_,
+                               vk::PipelineStageFlags                 waitDestinationStageMask_,
+                               const std::vector<CommandBufferImpl*>& commandBuffers_,
+                               const std::vector<vk::Semaphore>&      signalSemaphores_)
+: waitSemaphores(waitSemaphores_),
+  waitDestinationStageMask(waitDestinationStageMask_),
+  commandBuffers(commandBuffers_),
+  signalSemaphores(signalSemaphores_)
 {
 }
 
-SubmissionData& SubmissionData::SetWaitSemaphores( const std::vector< vk::Semaphore >& semaphores )
+SubmissionData& SubmissionData::SetWaitSemaphores(const std::vector<vk::Semaphore>& semaphores)
 {
   waitSemaphores = semaphores;
   return *this;
 }
 
-SubmissionData& SubmissionData::SetWaitDestinationStageMask( vk::PipelineStageFlags dstStageMask )
+SubmissionData& SubmissionData::SetWaitDestinationStageMask(vk::PipelineStageFlags dstStageMask)
 {
   waitDestinationStageMask = dstStageMask;
   return *this;
 }
 
-SubmissionData& SubmissionData::SetCommandBuffers( const std::vector<CommandBufferImpl* >& cmdBuffers )
+SubmissionData& SubmissionData::SetCommandBuffers(const std::vector<CommandBufferImpl*>& cmdBuffers)
 {
   commandBuffers = cmdBuffers;
   return *this;
 }
 
-SubmissionData& SubmissionData::SetSignalSemaphores( const std::vector< vk::Semaphore >& semaphores )
+SubmissionData& SubmissionData::SetSignalSemaphores(const std::vector<vk::Semaphore>& semaphores)
 {
   signalSemaphores = semaphores;
   return *this;
 }
 
 // queue
-Queue::Queue( vk::Queue queue,
-              uint32_t queueFamilyIndex,
-              uint32_t queueIndex,
-              vk::QueueFlags queueFlags )
-        : mQueue( queue ),
-          mFlags( queueFlags ),
-          mQueueFamilyIndex( queueFamilyIndex ),
-          mQueueIndex( queueIndex ),
-          mMutex()
+Queue::Queue(vk::Queue      queue,
+             uint32_t       queueFamilyIndex,
+             uint32_t       queueIndex,
+             vk::QueueFlags queueFlags)
+: mQueue(queue),
+  mFlags(queueFlags),
+  mQueueFamilyIndex(queueFamilyIndex),
+  mQueueIndex(queueIndex),
+  mMutex()
 {
 }
 
@@ -80,7 +80,7 @@ vk::Queue Queue::GetVkHandle()
 
 std::unique_ptr<std::lock_guard<std::recursive_mutex>> Queue::Lock()
 {
-  return std::unique_ptr<std::lock_guard<std::recursive_mutex>>( new std::lock_guard<std::recursive_mutex>( mMutex ) );
+  return std::unique_ptr<std::lock_guard<std::recursive_mutex>>(new std::lock_guard<std::recursive_mutex>(mMutex));
 }
 
 vk::Result Queue::WaitIdle()
@@ -93,9 +93,9 @@ vk::Result Queue::Present(vk::PresentInfoKHR& presentInfo)
   return mQueue.presentKHR(&presentInfo);
 }
 
-vk::Result Queue::Submit(std::vector<vk::SubmitInfo>& info, Fence* fence)
+vk::Result Queue::Submit(std::vector<vk::SubmitInfo>& info, FenceImpl* fence)
 {
-  return VkAssert(mQueue.submit(info, fence?fence->GetVkHandle():nullptr));
+  return VkAssert(mQueue.submit(info, fence ? fence->GetVkHandle() : nullptr));
 }
 
 } // namespace Dali::Graphics::Vulkan

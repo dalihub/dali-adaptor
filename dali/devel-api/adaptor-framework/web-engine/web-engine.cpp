@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,11 @@ Dali::WebEnginePlugin* WebEngine::GetPlugin() const
 NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return GetImplementation(*this).GetNativeImageSource();
+}
+
+void WebEngine::ChangeOrientation(int orientation)
+{
+  return GetImplementation(*this).ChangeOrientation(orientation);
 }
 
 Dali::WebEngineSettings& WebEngine::GetSettings() const
@@ -265,6 +270,11 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
+void WebEngine::AddJavaScriptEntireMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptEntireMessageHandlerCallback handler)
+{
+  GetImplementation(*this).AddJavaScriptEntireMessageHandler(exposedObjectName, handler);
+}
+
 void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
   GetImplementation(*this).RegisterJavaScriptAlertCallback(callback);
@@ -373,6 +383,11 @@ bool WebEngine::SendHoverEvent(const HoverEvent& event)
 bool WebEngine::SendWheelEvent(const WheelEvent& event)
 {
   return GetImplementation(*this).SendWheelEvent(event);
+}
+
+void WebEngine::ExitFullscreen()
+{
+  GetImplementation(*this).ExitFullscreen();
 }
 
 void WebEngine::SetFocus(bool focused)
@@ -535,6 +550,11 @@ void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::W
   GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
 }
 
+void WebEngine::RegisterNewWindowPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNewWindowPolicyDecidedCallback callback)
+{
+  GetImplementation(*this).RegisterNewWindowPolicyDecidedCallback(callback);
+}
+
 void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
 {
   GetImplementation(*this).RegisterNewWindowCreatedCallback(callback);
@@ -563,6 +583,21 @@ void WebEngine::RegisterContextMenuShownCallback(Dali::WebEnginePlugin::WebEngin
 void WebEngine::RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback)
 {
   GetImplementation(*this).RegisterContextMenuHiddenCallback(callback);
+}
+
+void WebEngine::RegisterFullscreenEnteredCallback(Dali::WebEnginePlugin::WebEngineFullscreenEnteredCallback callback)
+{
+  GetImplementation(*this).RegisterFullscreenEnteredCallback(callback);
+}
+
+void WebEngine::RegisterFullscreenExitedCallback(Dali::WebEnginePlugin::WebEngineFullscreenExitedCallback callback)
+{
+  GetImplementation(*this).RegisterFullscreenExitedCallback(callback);
+}
+
+void WebEngine::RegisterTextFoundCallback(Dali::WebEnginePlugin::WebEngineTextFoundCallback callback)
+{
+  GetImplementation(*this).RegisterTextFoundCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)

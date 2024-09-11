@@ -55,7 +55,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  virtual bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+  virtual bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -65,7 +65,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  virtual bool AddListener(Dali::Window window, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+  virtual bool AddListener(Dali::Window window, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()

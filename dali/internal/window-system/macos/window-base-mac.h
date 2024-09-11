@@ -488,6 +488,16 @@ public:
    */
   bool RelativeMotionUnGrab() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBackgroundBlur()
+   */
+  void SetBackgroundBlur(int blurRadius, int cornerRadius) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBackgroundBlur()
+   */
+  int GetBackgroundBlur() override;
+
 private:
   // Undefined
   WindowBaseCocoa(const WindowBaseCocoa&) = delete;

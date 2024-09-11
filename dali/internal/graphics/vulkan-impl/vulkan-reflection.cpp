@@ -24,6 +24,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
 // EXTERNAL INCLUDES
@@ -84,7 +85,17 @@ Reflection::Reflection(Vulkan::ProgramImpl& program, VulkanGraphicsController& c
   BuildReflection();
 }
 
-Reflection::~Reflection() = default;
+Reflection::~Reflection()
+{
+  auto  vkDevice  = mController.GetGraphicsDevice().GetLogicalDevice();
+  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+
+  vkDevice.destroyPipelineLayout(mVkPipelineLayout, allocator);
+  for(auto& dsLayout : mVkDescriptorSetLayoutList)
+  {
+    vkDevice.destroyDescriptorSetLayout(dsLayout, allocator);
+  }
+}
 
 template<typename FN, typename OUT>
 void SPIRVEnumerate(FN& proc, SpvReflectShaderModule* module, std::vector<OUT*>& out)
@@ -257,7 +268,7 @@ void Reflection::BuildReflection()
 
     if(!samplers.empty())
     {
-      mUniformOpaques.insert(samplers.begin(), samplers.end(), mUniformOpaques.end());
+      mUniformOpaques.insert(mUniformOpaques.end(), samplers.begin(), samplers.end());
       // sort samplers by bindings
       std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
       for(auto i = 0u; i < mUniformOpaques.size(); ++i)
@@ -268,6 +279,34 @@ void Reflection::BuildReflection()
 
     spvReflectDestroyShaderModule(&module);
   }
+
+  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
+
+  // Create descriptor set layouts
+
+  for(auto& dsLayoutCreateInfo : mVkDescriptorSetLayoutCreateInfoList)
+  {
+    auto dsLayout = vkDevice.createDescriptorSetLayout(dsLayoutCreateInfo,
+                                                       mController.GetGraphicsDevice().GetAllocator());
+
+    mVkDescriptorSetLayoutList.emplace_back(dsLayout.value);
+  }
+
+  // Create pipeline layout
+  vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+  pipelineLayoutCreateInfo.setSetLayouts(mVkDescriptorSetLayoutList);
+  // TODO: support push-constants, for now pipeline layout ignores push-constant
+
+  vk::PipelineLayout pipelineLayout;
+  VkAssert(vkDevice.createPipelineLayout(&pipelineLayoutCreateInfo, &mController.GetGraphicsDevice().GetAllocator(), &pipelineLayout));
+  mVkPipelineLayout = pipelineLayout;
+
+  // Destroy descriptor set layouts
+}
+
+vk::PipelineLayout Reflection::GetVkPipelineLayout() const
+{
+  return mVkPipelineLayout;
 }
 
 void Reflection::BuildVertexAttributeReflection(SpvReflectShaderModule* spvModule)

@@ -28,34 +28,32 @@ namespace Dali::Graphics::Vulkan
 {
 class Device;
 
-
 /**
- * CPU sync
+ * Synchronization primitive
  */
-class Fence : public VkManaged
+class FenceImpl
 {
 public:
-  Fence(Device& graphicsDevice, vk::Fence handle);
+  static FenceImpl* New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo);
 
-  ~Fence() override;
+  FenceImpl(Device& graphicsDevice);
 
-  const Fence& ConstRef() const;
+  void Initialize(const vk::FenceCreateInfo& fenceCreateInfo);
 
-  Fence& Ref();
+  ~FenceImpl();
 
   vk::Fence GetVkHandle() const;
 
-  bool OnDestroy() override;
-
   void Reset();
 
-  void Wait(uint32_t timeout=std::numeric_limits< uint32_t >::max());
+  void Wait(uint32_t timeout = std::numeric_limits<uint32_t>::max());
 
   vk::Result GetStatus();
 
 private:
+  void Destroy();
 
-  Device* mGraphicsDevice;
+  Device*   mGraphicsDevice;
   vk::Fence mFence;
 };
 
