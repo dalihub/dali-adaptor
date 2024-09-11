@@ -22,6 +22,7 @@
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
+#include <map>
 
 namespace Dali
 {
@@ -40,6 +41,7 @@ struct DelayedWritingData{
 struct DropTarget
 {
   Dali::Actor                            target;
+  std::string                            mimeType;
   Dali::DragAndDrop::DragAndDropFunction callback;
   bool                                   inside;
   int                                    parentWindowId;
@@ -48,6 +50,7 @@ struct DropTarget
 struct DropWindowTarget
 {
   Dali::Window                            target;
+  std::string                             mimeType;
   Dali::DragAndDrop::DragAndDropFunction  callback;
   bool                                    inside;
   int                                     windowId;
@@ -78,12 +81,12 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Window target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -179,26 +182,24 @@ private:
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&&) = delete;
 
 private:
-  Dali::Window                      mDragWindow;
-  uint32_t                          mSerial{std::numeric_limits<uint32_t>::max()};
-  Ecore_Event_Handler*              mSendHandler{nullptr};
-  Ecore_Event_Handler*              mSourceEndHandler{nullptr};
-  Ecore_Event_Handler*              mSourceDropHandler{nullptr};
-  Ecore_Event_Handler*              mReceiveHandler{nullptr};
-  Ecore_Event_Handler*              mMotionHandler{nullptr};
-  Ecore_Event_Handler*              mDropHandler{nullptr};
-  Ecore_Event_Handler*              mEnterHandler{nullptr};
-  Ecore_Event_Handler*              mLeaveHandler{nullptr};
-  int                               mTargetIndex{-1};
-  int                               mWindowTargetIndex{-1};
-  std::string                       mMimeType;
-  std::string                       mData;
-  int                               mDataSize{0};
-  Dali::Vector2                     mPosition;
-  Dali::Vector2                     mWindowPosition;
-  Dali::DragAndDrop::SourceFunction mSourceCallback{nullptr};
-  std::vector<DropTarget>           mDropTargets;
-  std::vector<DropWindowTarget>     mDropWindowTargets;
+  Dali::Window                       mDragWindow;
+  uint32_t                           mSerial{std::numeric_limits<uint32_t>::max()};
+  Ecore_Event_Handler*               mSendHandler{nullptr};
+  Ecore_Event_Handler*               mSourceEndHandler{nullptr};
+  Ecore_Event_Handler*               mSourceDropHandler{nullptr};
+  Ecore_Event_Handler*               mReceiveHandler{nullptr};
+  Ecore_Event_Handler*               mMotionHandler{nullptr};
+  Ecore_Event_Handler*               mDropHandler{nullptr};
+  Ecore_Event_Handler*               mEnterHandler{nullptr};
+  Ecore_Event_Handler*               mLeaveHandler{nullptr};
+  int                                mTargetIndex{-1};
+  int                                mWindowTargetIndex{-1};
+  Dali::Vector2                      mPosition;
+  Dali::Vector2                      mWindowPosition;
+  Dali::DragAndDrop::SourceFunction  mSourceCallback{nullptr};
+  std::vector<DropTarget>            mDropTargets;
+  std::vector<DropWindowTarget>      mDropWindowTargets;
+  std::map<std::string, std::string> mDataMap;
 }; // class DragAndDropEcoreWl
 
 } // namespace Adaptor

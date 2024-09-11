@@ -54,7 +54,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Actor target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -64,7 +64,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Window target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
