@@ -321,6 +321,11 @@ void PipelineImpl::InitializePipeline()
   }
 }
 
+const Vulkan::Program* PipelineImpl::GetProgram() const
+{
+  return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
+}
+
 void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out)
 {
   std::vector<vk::VertexInputBindingDescription> bindings;

@@ -113,9 +113,16 @@ void CommandBufferImpl::BindPipeline(const Graphics::Pipeline* pipeline)
 
   // Bind if pipeline is ready (if nullptr, pipeline isn't ready).
   // If pipeline is valid, bind it early
+
   if(pipelineImpl.GetVkPipeline())
   {
     mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineImpl.GetVkPipeline());
+
+    mCurrentProgram = pipelineImpl.GetProgram()->GetImplementation();
+  }
+  else
+  {
+    mCurrentProgram = nullptr;
   }
 }
 
@@ -259,6 +266,15 @@ void CommandBufferImpl::Draw(uint32_t vertexCount,
                              uint32_t firstVertex,
                              uint32_t firstInstance)
 {
+  // Example of deferred binding descriptors
+  if(mCurrentProgram)
+  {
+    auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
+    if(set)
+    {
+      // bind resources here
+    }
+  }
   mCommandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
@@ -268,6 +284,16 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
                                     int32_t  vertexOffset,
                                     uint32_t firstInstance)
 {
+  // Example of deferred binding descriptors
+  if(mCurrentProgram)
+  {
+    auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
+    if(set)
+    {
+      // bind resources here
+    }
+  }
+  // draw here
   mCommandBuffer.drawIndexed(indexCount,
                              instanceCount,
                              firstIndex,

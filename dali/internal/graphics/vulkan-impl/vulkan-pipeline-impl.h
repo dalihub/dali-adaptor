@@ -96,6 +96,8 @@ public:
 
   void InitializePipeline();
 
+  const Vulkan::Program* GetProgram() const;
+
 private:
   void InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out);
   void InitializeInputAssemblyState(vk::PipelineInputAssemblyStateCreateInfo& out) const;

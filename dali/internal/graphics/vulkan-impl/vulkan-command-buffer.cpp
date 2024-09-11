@@ -20,6 +20,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
@@ -68,6 +69,23 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
   if(mCommandBufferImpl)
   {
+    // Check if there is some extra information about used resources
+    // if so then apply optimizations
+    if(info.resourceBindings)
+    {
+      // update programs with descriptor pools
+      for(auto& binding : *info.resourceBindings)
+      {
+        if(binding.type == ResourceType::PROGRAM)
+        {
+          auto programImpl = static_cast<Vulkan::Program*>(binding.programBinding->program)->GetImplementation();
+
+          // Pool index is returned and we may do something with it later (storing it per cmdbuf?)
+          [[maybe_unused]] auto poolIndex = programImpl->AddDescriptorPool(binding.programBinding->count, 3); // add new pool, limit pools to 3 per program
+        }
+      }
+    }
+
     vk::CommandBufferInheritanceInfo inheritanceInfo{};
     if(info.renderPass)
     {
