@@ -58,6 +58,7 @@ class CommandPool
     inline void clear()
     {
       free(ptr);
+      ptr      = nullptr;
       capacity = 0;
       dataSize = 0;
     }
@@ -579,7 +580,11 @@ void CommandBuffer::PresentRenderTarget(GLES::RenderTarget* renderTarget)
 
 void CommandBuffer::DestroyResource()
 {
-  // Nothing to do
+  if(DALI_LIKELY(mCommandPool))
+  {
+    mCommandPool->Rollback(true); // Discard memory here!
+  }
+  mCommandPool.reset();
 }
 
 bool CommandBuffer::InitializeResource()

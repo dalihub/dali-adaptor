@@ -102,6 +102,10 @@ void TestGraphicsApplication::InitializeCore()
 
 TestGraphicsApplication::~TestGraphicsApplication()
 {
+  if(DALI_LIKELY(mCore))
+  {
+    mCore->ContextDestroyed();
+  }
   mGraphicsController.Shutdown();
   Dali::Integration::Log::UninstallLogFunction();
   delete mCore;
