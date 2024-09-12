@@ -64,7 +64,11 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 
     if(gTraceManagerEnablePrintLog)
     {
+#ifndef DALI_PROFILE_TV // printing INFO level in TV
       DALI_LOG_DEBUG_INFO("BEGIN: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+#else
+      DALI_LOG_RELEASE_INFO("BEGIN: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+#endif
     }
   }
   else
@@ -75,7 +79,11 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 
     if(gTraceManagerEnablePrintLog)
     {
+#ifndef DALI_PROFILE_TV // printing INFO level in TV
       DALI_LOG_DEBUG_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+#else
+      DALI_LOG_RELEASE_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+#endif
     }
   }
 }
