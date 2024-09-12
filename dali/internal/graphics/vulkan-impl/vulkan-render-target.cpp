@@ -16,12 +16,16 @@
  */
 
 // CLASS HEADER
-#include "vulkan-render-target.h"
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
-#include "vulkan-framebuffer.h"
-#include "vulkan-graphics-controller.h"
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -61,6 +65,29 @@ Vulkan::Framebuffer* RenderTarget::GetFramebuffer() const
 Integration::RenderSurfaceInterface* RenderTarget::GetSurface() const
 {
   return mCreateInfo.surface;
+}
+
+Vulkan::RenderPassImpl* RenderTarget::GetRenderPass(const Graphics::RenderPass* gfxRenderPass) const
+{
+  auto renderPass = const_cast<Vulkan::RenderPass*>(static_cast<const Vulkan::RenderPass*>(gfxRenderPass));
+
+  auto framebuffer = GetFramebuffer();
+  auto surface     = GetSurface();
+
+  FramebufferImpl* fbImpl = nullptr;
+  if(surface)
+  {
+    auto& gfxDevice = mController.GetGraphicsDevice();
+    auto  surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto  swapchain = gfxDevice.GetSwapchainForSurfaceId(surfaceId);
+    fbImpl          = swapchain->GetCurrentFramebuffer();
+  }
+  else if(framebuffer)
+  {
+    fbImpl = framebuffer->GetImpl();
+  }
+
+  return fbImpl->GetRenderPass(renderPass);
 }
 
 } // namespace Dali::Graphics::Vulkan

@@ -261,10 +261,12 @@ void PipelineImpl::InitializePipeline()
   dynInfo.setDynamicStates(mDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynInfo);
 
-  auto& allocator   = mController.GetGraphicsDevice().GetAllocator();
-  auto  rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
-  auto  framebuffer = rtImpl->GetFramebuffer();
-  auto  surface     = rtImpl->GetSurface();
+  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+
+  auto rtImpl = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+
+  auto framebuffer = rtImpl->GetFramebuffer();
+  auto surface     = rtImpl->GetSurface();
 
   FramebufferImpl* fbImpl = nullptr;
   if(surface)

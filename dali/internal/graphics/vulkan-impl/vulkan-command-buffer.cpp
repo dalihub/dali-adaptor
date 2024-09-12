@@ -68,7 +68,16 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
   if(mCommandBufferImpl)
   {
-    mCommandBufferImpl->Begin(static_cast<vk::CommandBufferUsageFlags>(info.usage), nullptr);
+    vk::CommandBufferInheritanceInfo inheritanceInfo{};
+    if(info.renderPass)
+    {
+      auto renderTarget                  = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
+      inheritanceInfo.renderPass         = renderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
+      inheritanceInfo.subpass            = 0;
+      inheritanceInfo.queryFlags         = static_cast<vk::QueryControlFlags>(0);
+      inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
+    }
+    mCommandBufferImpl->Begin(static_cast<vk::CommandBufferUsageFlags>(info.usage), &inheritanceInfo);
   }
 }
 
