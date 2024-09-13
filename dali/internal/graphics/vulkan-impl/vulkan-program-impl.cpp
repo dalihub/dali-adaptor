@@ -72,7 +72,7 @@ struct ProgramImpl::Impl
   };
 
   std::vector<DescriptorPool> poolList;
-  uint32_t                    currentPoolIndex{0};
+  int32_t                     currentPoolIndex{-1};
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -263,6 +263,8 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
 {
   auto& poolList  = mImpl->poolList;
   auto& poolIndex = mImpl->currentPoolIndex;
+  poolIndex %= maxPoolCounts;
+
   auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
   auto& allocator = gfxDevice.GetAllocator();
   auto  vkDevice  = gfxDevice.GetLogicalDevice();
@@ -274,11 +276,8 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
   }
 
   // round-robin the pool index
-  auto returnIndex = poolIndex;
-  poolIndex %= maxPoolCounts;
   Impl::DescriptorPool& descriptorPool = mImpl->poolList[poolIndex];
 
-  poolIndex++;
   // if pool exists at index...
   if(descriptorPool.vkPool)
   {
@@ -320,7 +319,7 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
   // create pool
   VkAssert(vkDevice.createDescriptorPool(&descriptorPool.createInfo, &allocator, &descriptorPool.vkPool));
 
-  return returnIndex;
+  return poolIndex;
 }
 
 [[nodiscard]] vk::DescriptorSet ProgramImpl::AllocateDescriptorSet(int poolIndex)
