@@ -42,6 +42,7 @@ struct RawShaderData
   std::vector<std::string_view> shaderName;
   std::string_view              vertexShader;
   std::string_view              fragmentShader;
+  bool custom;
 };
 
 /**
