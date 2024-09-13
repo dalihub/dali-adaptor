@@ -343,6 +343,13 @@ public:
   virtual bool IsProxy() const;
 
   /**
+   * @brief Checks if this is highlighted
+   *
+   * @return True if highlighted, false otherwise
+   */
+  bool IsHighlighted() const;
+
+  /**
    * @brief Gets unique address on accessibility bus.
    *
    * @return The Address class containing address
@@ -385,7 +392,7 @@ public:
    *
    * @return The internal Actor
    */
-  virtual Dali::Actor GetInternalActor() = 0;
+  virtual Dali::Actor GetInternalActor() const = 0;
 
   /**
    * @brief Sets whether to listen for post render callback.

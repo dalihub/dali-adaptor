@@ -376,6 +376,13 @@ void Accessible::SetCurrentlyHighlightedActor(Dali::Actor actor)
   }
 }
 
+bool Accessible::IsHighlighted() const
+{
+  Dali::Actor self = GetInternalActor();
+
+  return self && self == GetCurrentlyHighlightedActor();
+}
+
 Dali::Actor Accessible::GetHighlightActor()
 {
   return IsUp() ? Bridge::GetCurrentBridge()->mData->mHighlightActor : Dali::Actor{};
@@ -480,15 +487,14 @@ public:
       return false;
     }
 
-    auto self = Self();
-    if(self != GetCurrentlyHighlightedActor())
+    if(!IsHighlighted())
     {
       return false;
     }
 
     SetCurrentlyHighlightedActor({});
 
-    auto                             window     = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::DevelWindow::Get(Self());
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(false);
 

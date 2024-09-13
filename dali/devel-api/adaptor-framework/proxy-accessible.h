@@ -129,7 +129,7 @@ public:
     return {};
   }
 
-  Dali::Actor GetInternalActor() override
+  Dali::Actor GetInternalActor() const override
   {
     return Dali::Actor{};
   }

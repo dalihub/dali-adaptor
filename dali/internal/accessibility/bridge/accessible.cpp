@@ -40,15 +40,27 @@ bool UpdateLastEmitted(std::map<State, int>& lastEmitted, State state, int newVa
   return inserted || updated;
 }
 
-bool RoleTriggersContextRebuilding(Role role)
+bool IsModalRole(Role role)
 {
-  return role == Role::POPUP_MENU || role == Role::PANEL || role == Role::DIALOG || role == Role::PAGE_TAB || role == Role::WINDOW;
+  return role == Role::POPUP_MENU || role == Role::PANEL || role == Role::DIALOG || role == Role::PAGE_TAB;
 }
 
-// Allowing duplicate showing event for some roles as it used to rebuild context after switching default label in Accessibility V1.
-bool ShouldForceEmit(Accessible* accessible, State state)
+bool IsWindowRole(Role role)
 {
-  return state == State::SHOWING && RoleTriggersContextRebuilding(accessible->GetRole());
+  return role == Role::WINDOW || role == Role::FRAME || role == Role::INPUT_METHOD_WINDOW;
+}
+
+bool ShouldEmitVisible(Accessible* accessible)
+{
+  Role role = accessible->GetRole();
+  return IsWindowRole(role);
+}
+
+bool ShouldEmitShowing(Accessible* accessible, bool showing)
+{
+  Role role = accessible->GetRole();
+  return IsWindowRole(role) || IsModalRole(role) || (showing && role == Role::NOTIFICATION) ||
+         (!showing && accessible->IsHighlighted()) || accessible->GetStates()[State::MODAL];
 }
 
 } // namespace
@@ -78,7 +90,28 @@ void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    if(UpdateLastEmitted(mLastEmittedState, state, newValue) || ShouldForceEmit(this, state))
+    bool shouldEmit{false};
+
+    switch(state)
+    {
+      case State::SHOWING:
+      {
+        shouldEmit = ShouldEmitShowing(this, static_cast<bool>(newValue));
+        break;
+      }
+      case State::VISIBLE:
+      {
+        shouldEmit = ShouldEmitVisible(this);
+        break;
+      }
+      default:
+      {
+        shouldEmit = UpdateLastEmitted(mLastEmittedState, state, newValue);
+        break;
+      }
+    }
+
+    if(shouldEmit)
     {
       bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
     }
