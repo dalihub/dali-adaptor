@@ -138,6 +138,11 @@ private:
    */
   [[nodiscard]] uint32_t GetPoolAllocationIndex() const;
 
+  /**
+   * Bind all deferred resources before drawing
+   */
+  void BindResources(vk::DescriptorSet set);
+
 private:
   // Constructor called by the CommandPool only
   CommandBufferImpl(
@@ -153,6 +158,13 @@ private: // Struct for deferring texture binding
     vk::Sampler   sampler;
     uint32_t      binding;
   };
+  struct DeferredUniformBinding
+  {
+    vk::Buffer buffer;
+    uint32_t   offset;
+    uint32_t   range;
+    uint32_t   binding;
+  };
 
 private:
   CommandPool*                        mOwnerCommandPool;
@@ -160,6 +172,7 @@ private:
   uint32_t                            mPoolAllocationIndex;
   vk::CommandBufferAllocateInfo       mAllocateInfo{};
   std::vector<DeferredTextureBinding> mDeferredTextureBindings;
+  std::vector<DeferredUniformBinding> mDeferredUniformBindings;
 
   vk::CommandBuffer mCommandBuffer{};
 
