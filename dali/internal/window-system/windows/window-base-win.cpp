@@ -768,6 +768,15 @@ int WindowBaseWin::GetBackgroundBlur()
   return 0;
 }
 
+void WindowBaseWin::SetBehindBlur(int blurRadius)
+{
+}
+
+int WindowBaseWin::GetBehindBlur()
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
