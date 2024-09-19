@@ -49,11 +49,11 @@ class WebEngine : public Dali::BaseObject
 {
 public:
   /**
-   * @brief Create a new WebEngine handle
-   *
+   * @brief Create a new WebEngine handle with type (0: Chromium, 1: LWE, otherwise: depend on system environment).
+   * @param[in] type The WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
    * @return WebEngine pointer
    */
-  static WebEnginePtr New();
+  static WebEnginePtr New(int32_t type);
 
   /**
    * @brief Get context of web engine
@@ -594,9 +594,9 @@ public:
 
 private:
   /**
-   * @brief Constructor.
+   * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
    */
-  WebEngine();
+  WebEngine(int32_t type);
 
   /**
    * @brief Destructor.

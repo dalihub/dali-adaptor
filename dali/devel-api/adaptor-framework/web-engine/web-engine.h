@@ -65,6 +65,12 @@ public:
   static WebEngine New();
 
   /**
+   * @brief Create a new instance of a WebEngine with type (0: Chromium, 1: LWE, otherwise: depend on system environment).
+   * @param[in] type The WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
+   */
+  static WebEngine New(int type);
+
+  /**
    * @brief Get context of WebEngine.
    */
   static Dali::WebEngineContext* GetContext();

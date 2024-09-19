@@ -52,7 +52,14 @@ WebEngine::~WebEngine()
 
 WebEngine WebEngine::New()
 {
-  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New();
+  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New(-1);
+
+  return WebEngine(engine.Get());
+}
+
+WebEngine WebEngine::New(int32_t type)
+{
+  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New(type);
 
   return WebEngine(engine.Get());
 }
