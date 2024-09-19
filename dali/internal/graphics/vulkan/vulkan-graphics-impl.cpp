@@ -123,6 +123,7 @@ void VulkanGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
 
 void VulkanGraphics::PostRender()
 {
+  mGraphicsDevice.SwapBuffers();
 }
 
 void VulkanGraphics::Shutdown()

@@ -561,6 +561,7 @@ void Device::SurfaceResized(unsigned int width, unsigned int height)
 
 uint32_t Device::SwapBuffers()
 {
+  DeviceWaitIdle();
   mCurrentBufferIndex = (mCurrentBufferIndex + 1) & 1;
   return mCurrentBufferIndex;
 }

@@ -309,6 +309,10 @@ void CommandBufferImpl::Draw(uint32_t vertexCount,
       BindResources(set);
     }
   }
+  if(instanceCount == 0)
+  {
+    instanceCount = 1;
+  }
   mCommandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
@@ -328,6 +332,10 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
     }
   }
   // draw here
+  if(instanceCount == 0)
+  {
+    instanceCount = 1;
+  }
   mCommandBuffer.drawIndexed(indexCount,
                              instanceCount,
                              firstIndex,

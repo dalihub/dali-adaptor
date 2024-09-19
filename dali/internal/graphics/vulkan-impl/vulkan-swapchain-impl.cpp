@@ -339,7 +339,7 @@ void Swapchain::Submit(CommandBufferImpl* commandBuffer)
   mGraphicsDevice.Submit(*mQueue,
                          {Vulkan::SubmissionData{
                            {swapchainBuffer->acquireNextImageSemaphore},
-                           {},
+                           {vk::PipelineStageFlagBits::eFragmentShader},
                            {commandBuffer},
                            {swapchainBuffer->submitSemaphore}}},
                          swapchainBuffer->endOfFrameFence.get());
