@@ -383,7 +383,8 @@ void EglGraphicsController::CreateSurfaceContext(Dali::Integration::RenderSurfac
 void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mSurfaceContexts.erase(std::remove_if(
-                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
+                           { return surface == iter.first; }),
                          mSurfaceContexts.end());
 }
 
@@ -405,7 +406,8 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::Integration::RenderSurf
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return (iter.first == surface); });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
+                             { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -494,7 +496,8 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
   auto       count    = 0u;
   const auto commands = commandBuffer.GetCommands(count);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) { oss << "[commandCount:" << count << "]"; });
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss)
+                                          { oss << "[commandCount:" << count << "]"; });
 
   for(auto i = 0u; i < count; ++i)
   {
@@ -1080,6 +1083,16 @@ Graphics::UniquePtr<Graphics::Texture> EglGraphicsController::ReleaseTextureFrom
   }
 
   return texture;
+}
+
+bool EglGraphicsController::HasClipMatrix() const
+{
+  return false;
+}
+
+const Matrix& EglGraphicsController::GetClipMatrix() const
+{
+  return Matrix::IDENTITY;
 }
 
 } // namespace Dali::Graphics

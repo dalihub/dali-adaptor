@@ -99,6 +99,7 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
       auto renderTarget                  = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
       inheritanceInfo.renderPass         = renderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
       inheritanceInfo.subpass            = 0;
+      inheritanceInfo.framebuffer        = renderTarget->GetCurrentFramebufferImpl()->GetVkHandle();
       inheritanceInfo.queryFlags         = static_cast<vk::QueryControlFlags>(0);
       inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
     }

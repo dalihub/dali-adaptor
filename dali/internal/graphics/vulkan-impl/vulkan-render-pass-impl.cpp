@@ -29,7 +29,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-
 RenderPassImpl* RenderPassImpl::New(
   Vulkan::Device&                            device,
   const std::vector<FramebufferAttachment*>& colorAttachments,
@@ -173,10 +172,12 @@ void RenderPassImpl::CreateCompatibleCreateInfo(
       .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
       .setDependencyFlags(vk::DependencyFlagBits::eByRegion)};
 
-  mCreateInfo.createInfo.setAttachmentCount(U32(mCreateInfo.attachmentDescriptions.size()))
+  mCreateInfo.createInfo
+    .setAttachmentCount(U32(mCreateInfo.attachmentDescriptions.size()))
     .setPAttachments(mCreateInfo.attachmentDescriptions.data())
     .setPSubpasses(&mCreateInfo.subpassDesc)
     .setSubpassCount(1)
+    .setDependencyCount(2)
     .setPDependencies(mCreateInfo.subpassDependencies.data());
 }
 

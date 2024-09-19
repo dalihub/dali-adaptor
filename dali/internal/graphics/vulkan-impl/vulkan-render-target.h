@@ -71,6 +71,13 @@ public:
   [[nodiscard]] Integration::RenderSurfaceInterface* GetSurface() const;
 
   /**
+   * @brief Returns the current framebuffer impl for this frame.
+   * (May be either the swapchain's current fb, or the offscreen's fb).
+   * @return the current framebuffer
+   */
+  [[nodiscard]] Vulkan::FramebufferImpl* GetCurrentFramebufferImpl() const;
+
+  /**
    * Find a matching render pass for this render target
    * @param[in] renderPass A render pass to search for
    * @return a matching render pass implementation from the current framebuffer
