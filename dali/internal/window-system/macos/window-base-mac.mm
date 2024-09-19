@@ -824,6 +824,15 @@ bool WindowBaseCocoa::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseCocoa::SetToBottom(bool toBottom)
+{
+}
+
+bool WindowBaseCocoa::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseCocoa::GetNativeBuffer() const
 {
   return 0;

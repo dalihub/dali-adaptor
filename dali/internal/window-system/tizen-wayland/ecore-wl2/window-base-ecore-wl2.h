@@ -683,6 +683,16 @@ public:
   bool IsAlwaysOnTop() override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetToBottom()
+   */
+  void SetToBottom(bool toBottom) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsBottom()
+   */
+  bool IsBottom() override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeBuffer()
    */
   Any GetNativeBuffer() const override;
@@ -806,6 +816,7 @@ private:
   bool mBrightnessChangeDone;
   bool mIsFrontBufferRendering;
   bool mIsIMEWindowInitialized;
+  bool mToBottom;
 };
 
 } // namespace Adaptor
