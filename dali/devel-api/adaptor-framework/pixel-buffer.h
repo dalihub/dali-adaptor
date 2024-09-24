@@ -261,6 +261,8 @@ public:
   /**
    * @brief Multiplies the image's color values by the alpha value. This provides better
    * blending capability.
+   * @note Compressed pixel format doesn't have any efforts.
+   * @note Even if pixel format doesn't have an alpha channel, it will be marked as PreMultiplied.
    */
   void MultiplyColorByAlpha();
 

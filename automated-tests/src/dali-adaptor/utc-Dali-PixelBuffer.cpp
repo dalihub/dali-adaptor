@@ -45,6 +45,8 @@ int UtcDaliPixelBufferCreatePixelData(void)
   END_TEST;
 }
 
+namespace
+{
 void Mask1stQuadrant(Devel::PixelBuffer maskData)
 {
   int           width       = maskData.GetWidth();
@@ -186,6 +188,7 @@ int GetAlphaAt(Devel::PixelBuffer buffer, int x, int y)
   GetAlphaOffsetAndMask(buffer.GetPixelFormat(), byteOffset, bitMask);
   return int(pixels[stride * y + x * bpp + byteOffset]) & bitMask;
 }
+} // namespace
 
 int UtcDaliPixelBufferNew01P(void)
 {
@@ -830,6 +833,135 @@ int UtcDaliPixelBufferGaussianBlur(void)
   // Test that the pixels' alpha values are changed after applying gaussian blur
   DALI_TEST_EQUALS(buffer[43], 0x7Au, TEST_LOCATION);
   DALI_TEST_EQUALS(buffer[55], 0x7Eu, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMultiplyColorByAlpha01(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  FillCheckerboard(imageData);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  uint8_t* buffer = imageData.GetBuffer();
+
+  //Change 0x0 pixel's rgb value as non-zero forcibly.
+  buffer[0] = 0xff;
+  buffer[1] = 0xf0;
+  buffer[2] = 0x0f;
+  buffer[3] = 0x11;
+
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0xff, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0xf0, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x0f, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[3]), 0x11, TEST_LOCATION);
+
+  // Apply alpha pre-multiplication
+  imageData.MultiplyColorByAlpha();
+
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), true, TEST_LOCATION);
+
+  // Test that the buffer is still the same as the previous one.
+  DALI_TEST_EQUALS(buffer, imageData.GetBuffer(), TEST_LOCATION);
+
+  // Test alpha premultiplied
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0x11, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0x10, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x01, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[3]), 0x11, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMultiplyColorByAlpha02(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB888);
+  FillCheckerboard(imageData);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  uint8_t* buffer = imageData.GetBuffer();
+
+  //Change 0x0 pixel's rgb value as non-zero forcibly.
+  buffer[0] = 0xff;
+  buffer[1] = 0xf0;
+  buffer[2] = 0x0f;
+
+  // Test that non-alpha channel item return false.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0xff, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0xf0, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x0f, TEST_LOCATION);
+
+  // Apply alpha pre-multiplication
+  imageData.MultiplyColorByAlpha();
+
+  // Test that non-alpha channel item return true after call MultiplyColorByAlpha.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), true, TEST_LOCATION);
+
+  // Test that the buffer is still the same as the previous one.
+  DALI_TEST_EQUALS(buffer, imageData.GetBuffer(), TEST_LOCATION);
+
+  // Test MultiplyColorByAlpha have no effect
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0xff, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0xf0, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x0f, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMultiplyColorByAlpha03(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGBA_ASTC_4x4_KHR);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  // For now, we cannot create compressed pixel buffer directly.
+
+  // Test that alpha channel item return false.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+
+  // Apply alpha pre-multiplication
+  imageData.MultiplyColorByAlpha();
+
+  // Test compressed type have no effect.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferMultiplyColorByAlpha04(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGB8_ETC2);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  // For now, we cannot create compressed pixel buffer directly.
+
+  // Test that non-alpha channel item return false.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+
+  // Apply alpha pre-multiplication
+  imageData.MultiplyColorByAlpha();
+
+  // Test compressed type have no effect.
+  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
 
   END_TEST;
 }

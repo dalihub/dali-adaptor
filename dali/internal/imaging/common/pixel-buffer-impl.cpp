@@ -247,13 +247,16 @@ void PixelBuffer::TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer)
   ReleaseBuffer();
 
   // Take ownership of new buffer
-  mBuffer             = pixelBuffer.mBuffer;
-  pixelBuffer.mBuffer = NULL;
-  mBufferSize         = pixelBuffer.mBufferSize;
-  mWidth              = pixelBuffer.mWidth;
-  mHeight             = pixelBuffer.mHeight;
-  mStride             = pixelBuffer.mStride;
-  mPixelFormat        = pixelBuffer.mPixelFormat;
+  mMetadata      = std::move(pixelBuffer.mMetadata);
+  mBuffer        = pixelBuffer.mBuffer;
+  mBufferSize    = pixelBuffer.mBufferSize;
+  mWidth         = pixelBuffer.mWidth;
+  mHeight        = pixelBuffer.mHeight;
+  mStride        = pixelBuffer.mStride;
+  mPixelFormat   = pixelBuffer.mPixelFormat;
+  mPreMultiplied = pixelBuffer.mPreMultiplied;
+
+  pixelBuffer.mBuffer = nullptr;
 }
 
 void PixelBuffer::ReleaseBuffer()
@@ -506,55 +509,62 @@ void PixelBuffer::ApplyGaussianBlur(const float blurRadius)
 
 void PixelBuffer::MultiplyColorByAlpha()
 {
-  // Compressed textures have unknown size of the pixel. Alpha premultiplication
-  // must be skipped in such case
-  if(!Pixel::IsCompressed(mPixelFormat) && Pixel::HasAlpha(mPixelFormat))
+  // Do not allow premultiply alpha feature if pixel format compressed.
+  if(!Pixel::IsCompressed(mPixelFormat))
   {
-    auto bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
-
-    uint8_t*       pixel       = mBuffer;
-    const uint32_t strideBytes = mStride * bytesPerPixel;
-    const uint32_t widthBytes  = mWidth * bytesPerPixel;
-
-    // Collect all valid channel list before lookup whole buffer
-    std::vector<Channel> validChannelList;
-    for(const Channel& channel : {Adaptor::RED, Adaptor::GREEN, Adaptor::BLUE, Adaptor::LUMINANCE})
+    if(Pixel::HasAlpha(mPixelFormat))
     {
-      if(HasChannel(mPixelFormat, channel))
-      {
-        validChannelList.emplace_back(channel);
-      }
-    }
+      // Compressed textures have unknown size of the pixel. Alpha premultiplication
+      // must be skipped in such case
+      auto bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+      DALI_ASSERT_DEBUG(bytesPerPixel > 0 && "Pixel format is invalid!");
 
-    if(DALI_LIKELY(!validChannelList.empty()))
-    {
-      for(uint32_t y = 0; y < mHeight; y++)
+      uint8_t*       pixel       = mBuffer;
+      const uint32_t strideBytes = mStride * bytesPerPixel;
+      const uint32_t widthBytes  = mWidth * bytesPerPixel;
+
+      // Collect all valid channel list before lookup whole buffer
+      std::vector<Channel> validChannelList;
+      for(const Channel& channel : {Adaptor::RED, Adaptor::GREEN, Adaptor::BLUE, Adaptor::LUMINANCE})
       {
-        for(uint32_t x = 0; x < widthBytes; x += bytesPerPixel)
+        if(HasChannel(mPixelFormat, channel))
         {
-          uint32_t alpha = ReadChannel(&pixel[x], mPixelFormat, Adaptor::ALPHA);
-          if(alpha < 255)
+          validChannelList.emplace_back(channel);
+        }
+      }
+
+      if(DALI_LIKELY(!validChannelList.empty()))
+      {
+        for(uint32_t y = 0; y < mHeight; y++)
+        {
+          for(uint32_t x = 0; x < widthBytes; x += bytesPerPixel)
           {
-            // If alpha is 255, we don't need to change color. Skip current pixel
-            // But if alpha is not 255, we should change color.
-            if(alpha > 0)
+            uint32_t alpha = ReadChannel(&pixel[x], mPixelFormat, Adaptor::ALPHA);
+            if(alpha < 255)
             {
-              for(const Channel& channel : validChannelList)
+              // If alpha is 255, we don't need to change color. Skip current pixel
+              // But if alpha is not 255, we should change color.
+              if(alpha > 0)
               {
-                auto color = ReadChannel(&pixel[x], mPixelFormat, channel);
-                WriteChannel(&pixel[x], mPixelFormat, channel, Platform::MultiplyAndNormalizeColor(color, alpha));
+                for(const Channel& channel : validChannelList)
+                {
+                  auto color = ReadChannel(&pixel[x], mPixelFormat, channel);
+                  WriteChannel(&pixel[x], mPixelFormat, channel, Platform::MultiplyAndNormalizeColor(color, alpha));
+                }
+              }
+              else
+              {
+                // If alpha is 0, just set all pixel as zero.
+                memset(&pixel[x], 0, bytesPerPixel);
               }
             }
-            else
-            {
-              // If alpha is 0, just set all pixel as zero.
-              memset(&pixel[x], 0, bytesPerPixel);
-            }
           }
+          pixel += strideBytes;
         }
-        pixel += strideBytes;
       }
     }
+
+    // Note : Mark as premultiplied even if alpha channel is not present.
     mPreMultiplied = true;
   }
 }
