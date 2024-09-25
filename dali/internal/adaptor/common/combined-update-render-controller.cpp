@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/shader-integ.h>
+#include <dali/public-api/common/dali-common.h>
 #include <errno.h>
 #include <unistd.h>
-#include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/shader-precompiler.h>
@@ -611,13 +612,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           std::string fragmentShader;
           if(precompiledShader->custom)
           {
-            vertexShader = precompiledShader->vertexPrefix[i].data();
+            vertexShader   = precompiledShader->vertexPrefix[i].data();
             fragmentShader = precompiledShader->fragmentPrefix[i].data();
           }
           else
           {
-            vertexShader   = graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
-            fragmentShader = graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+            vertexShader   = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix()) + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
+            fragmentShader = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix()) + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
           }
 
           PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]) : "");
