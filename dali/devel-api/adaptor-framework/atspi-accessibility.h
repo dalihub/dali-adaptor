@@ -1,7 +1,7 @@
 #ifndef DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 #define DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,22 +63,6 @@ DALI_ADAPTOR_API void StopReading(bool alsoNonDiscardable = false);
  * @return true on success, false otherwise
  */
 DALI_ADAPTOR_API bool SuppressScreenReader(bool suppress);
-
-/**
- * @brief Sets ATSPI to be turned On or Off forcibly.
- *
- * @param[in] turnOn true to turn on, false to turn off.
- * @return The status of ATSPI : 0(ATSPI OFF, ScreenReader OFF), 1(ATSPI ON, ScreenReader OFF),
- * 2 (ATSPI OFF, ScreenReader ON), 3(ATSPI ON, ScreenReader ON)
- */
-DALI_ADAPTOR_API int SetForcefully(bool turnOn);
-
-/**
- * @brief Gets ATSPI status.
- * @return Status of ATSPI : 0(ATSPI OFF, ScreenReader OFF), 1(ATSPI ON, ScreenReader OFF),
- * 2 (ATSPI OFF, ScreenReader ON), 3(ATSPI ON, ScreenReader ON)
- */
-DALI_ADAPTOR_API int GetStatus();
 
 /**
  * @brief Returns whether the state of Accessibility is enabled or not.

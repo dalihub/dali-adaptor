@@ -1115,6 +1115,15 @@ bool WindowBaseEcoreX::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseEcoreX::SetBottom(bool enable)
+{
+}
+
+bool WindowBaseEcoreX::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseEcoreX::GetNativeBuffer() const
 {
   return 0;
@@ -1135,6 +1144,15 @@ void WindowBaseEcoreX::SetBackgroundBlur(int blurRadius, int cornerRadius)
 }
 
 int WindowBaseEcoreX::GetBackgroundBlur()
+{
+  return 0;
+}
+
+void WindowBaseEcoreX::SetBehindBlur(int blurRadius)
+{
+}
+
+int WindowBaseEcoreX::GetBehindBlur()
 {
   return 0;
 }

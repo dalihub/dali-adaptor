@@ -250,6 +250,11 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
     return nullptr;
   };
+
+  bool ShouldIncludeHidden() const override
+  {
+    return false;
+  }
 };
 
 } // namespace Dali::Accessibility

@@ -1049,6 +1049,15 @@ bool WindowBaseX::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseX::SetBottom(bool enable)
+{
+}
+
+bool WindowBaseX::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseX::GetNativeBuffer()
 {
   return 0;
@@ -1069,6 +1078,15 @@ void WindowBaseX::SetBackgroundBlur(int blurRadius, int cornerRadius)
 }
 
 int WindowBaseX::GetBackgroundBlur()
+{
+  return 0;
+}
+
+void WindowBaseX::SetBehindBlur(int blurRadius)
+{
+}
+
+int WindowBaseX::GetBehindBlur()
 {
   return 0;
 }

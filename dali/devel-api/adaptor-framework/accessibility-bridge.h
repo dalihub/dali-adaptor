@@ -78,6 +78,11 @@ struct DALI_ADAPTOR_API Bridge
   virtual std::shared_ptr<Accessible> GetAccessible(Actor actor) const = 0;
 
   /**
+   * @brief Returns true if GetChildren should include hidden objects; false otherwise.
+   */
+  virtual bool ShouldIncludeHidden() const = 0;
+
+  /**
    * @brief Gets bus name which bridge is initialized on.
    *
    * @return The bus name

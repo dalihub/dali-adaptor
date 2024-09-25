@@ -86,10 +86,14 @@ enum Key
   DALI_KEY_CONTROL_RIGHT = 105,
 
   /**
-   * @brief Control Return key.
+   * @brief Return key.
    */
-  DALI_KEY_RETURN = 36
+  DALI_KEY_RETURN = 36,
 
+  /**
+   * @brief Keypad Enter key.
+   */
+  DALI_KEY_KP_ENTER = 104
 };
 
 /**

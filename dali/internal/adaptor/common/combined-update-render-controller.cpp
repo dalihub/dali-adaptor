@@ -193,6 +193,7 @@ void CombinedUpdateRenderController::Start()
 
   LOG_EVENT("Startup Complete, starting Update/Render Thread");
 
+  CancelPreCompile();
   RunUpdateRenderThread(CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL);
 
   auto currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
@@ -324,7 +325,6 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::Integration::RenderSur
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
       mNewSurface    = newSurface;
-      CancelPreCompile();
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -385,7 +385,6 @@ void CombinedUpdateRenderController::ResizeSurface()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
-    CancelPreCompile();
     mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
@@ -464,7 +463,6 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
   mUpdateRenderThreadCanSleep = FALSE;
   mUploadWithoutRendering     = (updateMode == UpdateMode::SKIP_RENDER);
   LOG_COUNTER_EVENT("mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait);
-  CancelPreCompile();
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -606,13 +604,25 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         }
 
         auto numberOfPrecompiledShader = precompiledShader->shaderCount;
+        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
         for(int i = 0; i < numberOfPrecompiledShader; ++i)
         {
-          auto vertexShader   = graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
-          auto fragmentShader = graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+          std::string vertexShader;
+          std::string fragmentShader;
+          if(precompiledShader->custom)
+          {
+            vertexShader = precompiledShader->vertexPrefix[i].data();
+            fragmentShader = precompiledShader->fragmentPrefix[i].data();
+          }
+          else
+          {
+            vertexShader   = graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
+            fragmentShader = graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+          }
+
           PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]) : "");
+          DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], precompile shader >> %s \n", precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]).c_str() : "");
         }
-        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
       }
       TRACE_UPDATE_RENDER_END("DALI_PRECOMPILE_SHADER");
     }
@@ -1129,7 +1139,6 @@ void CombinedUpdateRenderController::PostRenderComplete()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
-  CancelPreCompile();
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
