@@ -468,9 +468,9 @@ public:
   bool IsAlwaysOnTop() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetToBottom()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()
    */
-  void SetToBottom(bool toBottom) override;
+  void SetBottom(bool enable) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsBottom()

@@ -1115,7 +1115,7 @@ bool WindowBaseEcoreX::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseEcoreX::SetToBottom(bool toBottom)
+void WindowBaseEcoreX::SetBottom(bool enable)
 {
 }
 
