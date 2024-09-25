@@ -1186,16 +1186,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
           }
           else if(samplingMode == SamplingMode::LANCZOS || samplingMode == SamplingMode::BOX_THEN_LANCZOS)
           {
-            // TODO : Need to support LanczosSample various pixel format.
-            // Until now, just use LinearSample instead.
-            if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-            {
-              LanczosSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
-            }
-            else
-            {
-              LinearSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
-            }
+            LanczosSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
           }
           else
           {
@@ -2425,6 +2416,15 @@ void LanczosSample4BPP(const uint8_t* __restrict__ inPixels,
   Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true);
 }
 
+void LanczosSample3BPP(const uint8_t* __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       uint32_t        inputStride,
+                       uint8_t* __restrict__ outPixels,
+                       ImageDimensions desiredDimensions)
+{
+  Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 3, false);
+}
+
 void LanczosSample1BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
                        uint32_t        inputStride,
@@ -2443,11 +2443,19 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
                    uint8_t* __restrict__ outPixels,
                    ImageDimensions outDimensions)
 {
+  // TODO : Need to support LanczosSample various pixel format.
+  // Until now, just use LinearSample instead.
+  //
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
+  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
     switch(pixelFormat)
     {
+      case Pixel::RGB888:
+      {
+        LanczosSample3BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
       case Pixel::RGBA8888:
       case Pixel::BGRA8888:
       {
@@ -2468,6 +2476,7 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
   }
   else
   {
+    LinearSample(inPixels, inDimensions, inStride, pixelFormat, outPixels, outDimensions);
     DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", static_cast<uint32_t>(pixelFormat));
   }
 }
