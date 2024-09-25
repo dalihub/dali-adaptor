@@ -744,7 +744,7 @@ bool WindowBaseWin::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseWin::SetToBottom(bool toBottom)
+void WindowBaseWin::SetBottom(bool enable)
 {
 }
 

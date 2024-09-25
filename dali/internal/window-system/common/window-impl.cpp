@@ -1649,9 +1649,9 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
-void Window::SetToBottom(bool toBottom)
+void Window::SetBottom(bool enable)
 {
-  mWindowBase->SetToBottom(toBottom);
+  mWindowBase->SetBottom(enable);
 }
 
 bool Window::IsBottom()

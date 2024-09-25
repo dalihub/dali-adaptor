@@ -603,9 +603,9 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsAlwaysOnTop();
 
   /**
-   * @copydoc Dali::DevelWindow::SetToBottom()
+   * @copydoc Dali::DevelWindow::SetBottom()
    */
-  void SetToBottom(bool toBottom);
+  void SetBottom(bool enable);
 
   /**
    * @copydoc Dali::DevelWindow::IsBottom()

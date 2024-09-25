@@ -516,7 +516,7 @@ bool WindowBaseAndroid::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseAndroid::SetToBottom(bool toBottom)
+void WindowBaseAndroid::SetBottom(bool enable)
 {
 }
 
