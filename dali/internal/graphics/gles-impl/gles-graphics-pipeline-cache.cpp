@@ -502,15 +502,24 @@ ShaderImpl* PipelineCache::FindShaderImpl(const ShaderCreateInfo& shaderCreateIn
     for(auto& item : mImpl->shaderEntries)
     {
       auto& itemInfo = item.shaderImpl->GetCreateInfo();
+
+      // Check metadata
       if(itemInfo.pipelineStage != shaderCreateInfo.pipelineStage ||
          itemInfo.shaderlanguage != shaderCreateInfo.shaderlanguage ||
-         itemInfo.sourceMode != shaderCreateInfo.sourceMode ||
-         itemInfo.sourceSize != shaderCreateInfo.sourceSize)
+         itemInfo.sourceMode != shaderCreateInfo.sourceMode)
       {
         continue;
       }
 
-      if(memcmp(itemInfo.sourceData, shaderCreateInfo.sourceData, itemInfo.sourceSize) == 0)
+      // Get offset of source. Since prefix might be removed after ShaderImpl created,
+      // we should compare only after the offset.
+      auto sourceOffset = item.shaderImpl->GetSourceOffset();
+      if(itemInfo.sourceSize + sourceOffset != shaderCreateInfo.sourceSize)
+      {
+        continue;
+      }
+
+      if(memcmp(itemInfo.sourceData, reinterpret_cast<const uint8_t*>(shaderCreateInfo.sourceData) + sourceOffset, itemInfo.sourceSize) == 0)
       {
         return item.shaderImpl.get();
       }
