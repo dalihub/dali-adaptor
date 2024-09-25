@@ -42,7 +42,7 @@ struct RawShaderData
   std::vector<std::string_view> shaderName;
   std::string_view              vertexShader;
   std::string_view              fragmentShader;
-  bool custom;
+  bool                          custom;
 };
 
 /**
@@ -112,6 +112,12 @@ public:
    *
    */
   void Awake();
+
+  /**
+   * @brief Remove all pre-compiled programs from cache.
+   * @note It must be called before graphics shutdown.
+   */
+  void ClearPreCompiledPrograms();
 
 private:
   /**

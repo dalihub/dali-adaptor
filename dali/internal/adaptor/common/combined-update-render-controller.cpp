@@ -611,7 +611,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           std::string fragmentShader;
           if(precompiledShader->custom)
           {
-            vertexShader = precompiledShader->vertexPrefix[i].data();
+            vertexShader   = precompiledShader->vertexPrefix[i].data();
             fragmentShader = precompiledShader->fragmentPrefix[i].data();
           }
           else
@@ -936,6 +936,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
   TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_THREAD_FINISH");
+
+  // Remove pre-compiled program before context destroyed
+  ShaderPreCompiler::Get().ClearPreCompiledPrograms();
 
   // Inform core of context destruction
   mCore.ContextDestroyed();
