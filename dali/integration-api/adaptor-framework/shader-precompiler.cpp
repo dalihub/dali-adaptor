@@ -33,8 +33,8 @@ std::once_flag                     ShaderPreCompiler::mOnceFlag;
 
 ShaderPreCompiler::ShaderPreCompiler()
 : mRawShaderList(),
-  mPrecompiled(false),
-  mEnabled(false)
+  mEnabled(false),
+  mNeedsSleep(true)
 {
 }
 
@@ -45,36 +45,33 @@ ShaderPreCompiler& ShaderPreCompiler::Get()
   return *(mInstance.get());
 }
 
-void ShaderPreCompiler::AddPreCompiledProgram(Graphics::UniquePtr<Dali::Graphics::Program> program)
+void ShaderPreCompiler::AddPreCompiledProgram(ShaderPreCompiler::CompiledProgram program)
 {
   mProgram.push_back(move(program));
 }
 
-void ShaderPreCompiler::GetPreCompileShaderList(std::vector<RawShaderData>& shaderList)
+void ShaderPreCompiler::GetPreCompileShaderList(ShaderPreCompiler::RawShaderDataList& shaderList)
 {
   // move shader list
-  shaderList = mRawShaderList;
+  shaderList = std::move(mRawShaderList);
+
+  // Call clear, to avoid SVACE false alarm.
+  mRawShaderList.clear();
 }
 
-void ShaderPreCompiler::SavePreCompileShaderList(std::vector<RawShaderData>& shaderList)
+void ShaderPreCompiler::SavePreCompileShaderList(ShaderPreCompiler::RawShaderDataList&& shaderList)
 {
-  mRawShaderList = shaderList;
-  mPrecompiled   = true;
+  mRawShaderList = std::move(shaderList);
   DALI_LOG_RELEASE_INFO("Precompile shader list is saved! Precompile available now\n");
   Awake();
 }
 
-bool ShaderPreCompiler::IsReady() const
+void ShaderPreCompiler::Enable(bool enable)
 {
-  return mPrecompiled;
+  mEnabled = enable;
 }
 
-void ShaderPreCompiler::Enable()
-{
-  mEnabled = true;
-}
-
-bool ShaderPreCompiler::IsEnable()
+bool ShaderPreCompiler::IsEnable() const
 {
   return mEnabled;
 }
