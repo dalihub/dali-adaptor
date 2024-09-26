@@ -928,8 +928,7 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
     return false;
   }
 
-  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                         { return item.oldFormat == mConvertFromFormat; });
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == mConvertFromFormat; });
 
   // No suitable format, return empty array
   if(it == COLOR_CONVERSION_TABLE.end())
@@ -951,8 +950,7 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
     return false;
   }
 
-  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                         { return item.oldFormat == mConvertFromFormat; });
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == mConvertFromFormat; });
 
   // No suitable format, return empty array
   if(it == COLOR_CONVERSION_TABLE.end())
@@ -1080,6 +1078,15 @@ void Texture::CopyMemoryDirect(
     // ...and flush
     memory->Flush();
   }
+
+  ResourceTransferRequest transferRequest(TransferRequestType::LAYOUT_TRANSITION_ONLY);
+  transferRequest.imageLayoutTransitionInfo.image     = mImage;
+  transferRequest.imageLayoutTransitionInfo.srcLayout = mImage->GetImageLayout();
+  transferRequest.imageLayoutTransitionInfo.dstLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+  transferRequest.deferredTransferMode                = false;
+
+  // schedule transfer
+  mController.ScheduleResourceTransfer(std::move(transferRequest));
 }
 
 vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
@@ -1092,8 +1099,7 @@ vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
   // if format isn't supported, see whether suitable conversion is implemented
   if(!formatFlags)
   {
-    auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                           { return item.oldFormat == sourceFormat; });
+    auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == sourceFormat; });
 
     // No suitable format, return empty array
     if(it != COLOR_CONVERSION_TABLE.end())

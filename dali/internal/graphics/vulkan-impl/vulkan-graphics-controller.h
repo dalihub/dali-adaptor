@@ -417,6 +417,16 @@ public: // ResourceId relative API.
    */
   UniquePtr<Graphics::Texture> ReleaseTextureFromResourceId(uint32_t resourceId) override;
 
+  /**
+   * @return true if there is a clip space transform matrix
+   */
+  bool HasClipMatrix() const override;
+
+  /**
+   * @return the clip space transform matrix
+   */
+  const Matrix& GetClipMatrix() const override;
+
 public: // For debug
   void FrameStart();
 

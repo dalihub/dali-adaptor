@@ -849,6 +849,9 @@ public:
     return mCapacity;
   }
 
+  bool          HasClipMatrix() const override;
+  const Matrix& GetClipMatrix() const override;
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};

@@ -161,8 +161,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -221,6 +220,7 @@ void Swapchain::CreateFramebuffers()
   //
   // CREATE FRAMEBUFFERS
   //
+  RenderPassImpl* compatibleRenderPass = nullptr;
   for(auto&& image : images)
   {
     auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
@@ -235,11 +235,19 @@ void Swapchain::CreateFramebuffers()
                                                                      true); // presentable
 
     mFramebuffers.push_back(FramebufferImpl::New(mGraphicsDevice,
-                                                 nullptr,
+                                                 compatibleRenderPass,
                                                  {colorAttachment},
                                                  nullptr,
                                                  mSwapchainCreateInfoKHR.imageExtent.width,
                                                  mSwapchainCreateInfoKHR.imageExtent.height));
+
+    if(compatibleRenderPass == nullptr)
+    {
+      // use common renderpass for all framebuffers.
+      // @todo Swapchain should own _these_ renderpasses, not framebuffer.
+      // @todo fix renderpass ownership model
+      compatibleRenderPass = mFramebuffers.back()->GetRenderPass(0);
+    }
   }
   mIsValid = true;
 }
@@ -339,7 +347,7 @@ void Swapchain::Submit(CommandBufferImpl* commandBuffer)
   mGraphicsDevice.Submit(*mQueue,
                          {Vulkan::SubmissionData{
                            {swapchainBuffer->acquireNextImageSemaphore},
-                           {},
+                           {vk::PipelineStageFlagBits::eFragmentShader},
                            {commandBuffer},
                            {swapchainBuffer->submitSemaphore}}},
                          swapchainBuffer->endOfFrameFence.get());
@@ -391,8 +399,7 @@ bool Swapchain::OnDestroy()
     auto swapchain = mSwapchainKHR;
     auto allocator = &mGraphicsDevice.GetAllocator();
 
-    mGraphicsDevice.DiscardResource([device, swapchain, allocator]()
-                                    {
+    mGraphicsDevice.DiscardResource([device, swapchain, allocator]() {
       DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkSwapchainKHR>(swapchain))
       device.destroySwapchainKHR(swapchain, allocator); });
 
