@@ -192,59 +192,6 @@ struct VkStoreOpType
   vk::AttachmentStoreOp storeOp{vk::AttachmentStoreOp::eDontCare};
 };
 
-class VkSharedResource // E.g. render pass
-{
-public:
-  VkSharedResource() = default;
-
-  virtual ~VkSharedResource() = default;
-
-  void Release()
-  {
-    OnRelease(--mRefCount);
-
-    if(mRefCount == 0)
-    {
-      // orphaned
-      if(!Destroy())
-      {
-        delete this;
-      }
-    }
-  }
-
-  void Retain()
-  {
-    OnRetain(++mRefCount);
-  }
-
-  uint32_t GetRefCount()
-  {
-    return mRefCount;
-  }
-
-  virtual bool Destroy()
-  {
-    return OnDestroy();
-  }
-
-  virtual void OnRetain(uint32_t refcount)
-  {
-  }
-
-  virtual void OnRelease(uint32_t refcount)
-  {
-  }
-
-  virtual bool OnDestroy()
-  {
-    return false;
-  }
-
-private:
-  std::atomic_uint mRefCount{0u};
-};
-
 } // namespace Vulkan
 } // namespace Dali::Graphics
 

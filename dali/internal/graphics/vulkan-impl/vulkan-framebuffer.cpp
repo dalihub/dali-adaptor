@@ -48,7 +48,7 @@ bool Framebuffer::InitializeResource()
   }
 
   auto& device     = mController.GetGraphicsDevice();
-  mFramebufferImpl = FramebufferImpl::New(device, nullptr, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
+  mFramebufferImpl = FramebufferImpl::New(device, RenderPassHandle{}, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
 
   return true;
 }

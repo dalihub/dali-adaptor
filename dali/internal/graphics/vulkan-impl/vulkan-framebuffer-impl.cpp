@@ -119,13 +119,13 @@ bool FramebufferAttachment::IsValid() const
 
 FramebufferImpl* FramebufferImpl::New(
   Vulkan::Device&   device,
-  RenderPassImpl*   renderPass,
+  RenderPassHandle  renderPass,
   OwnedAttachments& attachments,
   uint32_t          width,
   uint32_t          height,
   bool              hasDepthAttachments)
 {
-  DALI_ASSERT_ALWAYS(renderPass != nullptr && "You require more render passes!");
+  DALI_ASSERT_ALWAYS(renderPass && "You require more render passes!");
 
   std::vector<vk::ImageView> imageViewAttachments;
   for(auto& attachment : attachments)
@@ -146,7 +146,7 @@ FramebufferImpl* FramebufferImpl::New(
   return new FramebufferImpl(device,
                              attachments,
                              vkFramebuffer,
-                             *renderPass,
+                             renderPass,
                              width,
                              height,
                              hasDepthAttachments);
@@ -154,7 +154,7 @@ FramebufferImpl* FramebufferImpl::New(
 
 FramebufferImpl* FramebufferImpl::New(
   Vulkan::Device&                         device,
-  RenderPassImpl*                         renderPass,
+  RenderPassHandle                        renderPass,
   OwnedAttachments&                       colorAttachments,
   std::unique_ptr<FramebufferAttachment>& depthAttachment,
   uint32_t                                width,
@@ -187,7 +187,7 @@ FramebufferImpl* FramebufferImpl::New(
   // This vector stores the attachments (vk::ImageViews)
 
   // Flag that indicates if the render pass is externally provided
-  if(renderPass == nullptr)
+  if(!renderPass)
   {
     // Create compatible vulkan render pass
     renderPass = RenderPassImpl::New(device, attachments, depthAttachment.get());
@@ -201,13 +201,13 @@ FramebufferImpl* FramebufferImpl::New(
   return FramebufferImpl::New(device, renderPass, ownedAttachments, width, height, hasDepth);
 }
 
-FramebufferImpl::FramebufferImpl(Device&               graphicsDevice,
-                                 OwnedAttachments&     attachments,
-                                 vk::Framebuffer       vkHandle,
-                                 const RenderPassImpl& renderPassImpl,
-                                 uint32_t              width,
-                                 uint32_t              height,
-                                 bool                  hasDepthAttachment)
+FramebufferImpl::FramebufferImpl(Device&           graphicsDevice,
+                                 OwnedAttachments& attachments,
+                                 vk::Framebuffer   vkHandle,
+                                 RenderPassHandle  renderPassImpl,
+                                 uint32_t          width,
+                                 uint32_t          height,
+                                 bool              hasDepthAttachment)
 : mGraphicsDevice(&graphicsDevice),
   mWidth(width),
   mHeight(height),
@@ -215,7 +215,7 @@ FramebufferImpl::FramebufferImpl(Device&               graphicsDevice,
   mFramebuffer(vkHandle),
   mHasDepthAttachment(hasDepthAttachment)
 {
-  mRenderPasses.push_back(RenderPassMapElement{nullptr, const_cast<RenderPassImpl*>(&renderPassImpl)});
+  mRenderPasses.emplace_back(RenderPassMapElement{nullptr, renderPassImpl});
 }
 
 void FramebufferImpl::Destroy()
@@ -331,16 +331,16 @@ uint32_t FramebufferImpl::GetRenderPassCount() const
   return uint32_t(mRenderPasses.size());
 }
 
-RenderPassImpl* FramebufferImpl::GetRenderPass(uint32_t index) const
+RenderPassHandle FramebufferImpl::GetRenderPass(uint32_t index) const
 {
   if(index < mRenderPasses.size())
   {
     return mRenderPasses[index].renderPassImpl;
   }
-  return nullptr;
+  return RenderPassHandle{};
 }
 
-RenderPassImpl* FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
+RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
 {
   auto attachments  = renderPass->GetCreateInfo().attachments;
   auto matchLoadOp  = attachments->front().loadOp;
@@ -360,7 +360,7 @@ RenderPassImpl* FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
     }
     else
     {
-      DALI_ASSERT_DEBUG(element.renderPassImpl != nullptr && "Render pass list doesn't contain impl");
+      DALI_ASSERT_DEBUG(element.renderPassImpl && "Render pass list doesn't contain impl");
       auto createInfo = element.renderPassImpl->GetCreateInfo();
 
       if(createInfo.attachmentDescriptions[0].loadOp == VkLoadOpType(matchLoadOp).loadOp &&

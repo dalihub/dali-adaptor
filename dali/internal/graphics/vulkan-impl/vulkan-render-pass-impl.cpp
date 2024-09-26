@@ -29,13 +29,13 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-RenderPassImpl* RenderPassImpl::New(
+RenderPassHandle RenderPassImpl::New(
   Vulkan::Device&                            device,
   const std::vector<FramebufferAttachment*>& colorAttachments,
   FramebufferAttachment*                     depthAttachment)
 {
   auto renderPass = new RenderPassImpl(device, colorAttachments, depthAttachment);
-  return renderPass;
+  return RenderPassHandle(renderPass);
 }
 
 RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device,
@@ -49,7 +49,7 @@ RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device
 
 RenderPassImpl::~RenderPassImpl() = default;
 
-void RenderPassImpl::Destroy()
+bool RenderPassImpl::OnDestroy()
 {
   if(mVkRenderPass)
   {
@@ -62,6 +62,7 @@ void RenderPassImpl::Destroy()
 
     mVkRenderPass = nullptr;
   }
+  return true;
 }
 
 vk::RenderPass RenderPassImpl::GetVkHandle()

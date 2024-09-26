@@ -21,11 +21,11 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
 class RenderPass;
-class RenderPassImpl;
 
 enum class AttachmentType
 {
@@ -120,7 +120,7 @@ public:
    */
   static FramebufferImpl* New(
     Vulkan::Device&   device,
-    RenderPassImpl*   renderPass,
+    RenderPassHandle  renderPass,
     OwnedAttachments& attachments,
     uint32_t          width,
     uint32_t          height,
@@ -140,7 +140,7 @@ public:
    */
   static FramebufferImpl* New(
     Vulkan::Device&                         device,
-    RenderPassImpl*                         renderPass,
+    RenderPassHandle                        renderPass,
     OwnedAttachments&                       colorAttachments,
     std::unique_ptr<FramebufferAttachment>& depthAttachment,
     uint32_t                                width,
@@ -157,13 +157,13 @@ public:
    * @param[in] height Height of the framebuffer
    * @param[in] hasDepthAttachment True if the last attachment is a depth buffer
    */
-  FramebufferImpl(Device&               graphicsDevice,
-                  OwnedAttachments&     attachments,
-                  vk::Framebuffer       vkHandle,
-                  const RenderPassImpl& renderPass,
-                  uint32_t              width,
-                  uint32_t              height,
-                  bool                  hasDepthAttachment);
+  FramebufferImpl(Device&           graphicsDevice,
+                  OwnedAttachments& attachments,
+                  vk::Framebuffer   vkHandle,
+                  RenderPassHandle  renderPass,
+                  uint32_t          width,
+                  uint32_t          height,
+                  bool              hasDepthAttachment);
 
   void Destroy();
 
@@ -177,9 +177,9 @@ public:
 
   [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
-  [[nodiscard]] RenderPassImpl* GetImplFromRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
+  [[nodiscard]] RenderPassHandle GetImplFromRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
 
-  [[nodiscard]] RenderPassImpl* GetRenderPass(uint32_t index) const;
+  [[nodiscard]] RenderPassHandle GetRenderPass(uint32_t index) const;
 
   [[nodiscard]] uint32_t GetRenderPassCount() const;
 
@@ -198,8 +198,8 @@ private:
    */
   struct RenderPassMapElement
   {
-    RenderPass*     renderPass{nullptr};
-    RenderPassImpl* renderPassImpl{nullptr};
+    RenderPass*      renderPass{nullptr};
+    RenderPassHandle renderPassImpl{nullptr};
   };
   using RenderPasses = std::vector<RenderPassMapElement>;
 

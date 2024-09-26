@@ -163,8 +163,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -239,7 +238,7 @@ void Swapchain::CreateFramebuffers()
   //
   // CREATE FRAMEBUFFERS
   //
-  RenderPassImpl* compatibleRenderPass = nullptr;
+  RenderPassHandle compatibleRenderPass{};
   for(auto&& image : images)
   {
     auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
@@ -262,18 +261,15 @@ void Swapchain::CreateFramebuffers()
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
     mFramebuffers.push_back(std::move(framebuffer));
 
-    if(compatibleRenderPass == nullptr)
+    if(!compatibleRenderPass)
     {
       // use common renderpass for all framebuffers.
-      // @todo Swapchain should own _these_ renderpasses, not framebuffer.
-      // @todo fix renderpass ownership model
       compatibleRenderPass = mFramebuffers.back()->GetRenderPass(0);
     }
   }

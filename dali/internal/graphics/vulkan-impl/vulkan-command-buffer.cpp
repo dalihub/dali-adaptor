@@ -186,7 +186,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   auto             surface      = renderTarget->GetSurface();
   auto&            device       = mController.GetGraphicsDevice();
   FramebufferImpl* framebuffer;
-  RenderPassImpl*  renderPassImpl;
+  RenderPassHandle renderPassImpl;
   if(surface)
   {
     auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);

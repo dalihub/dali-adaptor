@@ -18,6 +18,7 @@
  */
 
 #include <dali/graphics-api/graphics-render-pass-create-info.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
@@ -26,6 +27,9 @@ namespace Dali::Graphics::Vulkan
 class Device;
 class VulkanGraphicsController;
 class RenderTarget;
+class RenderPassImpl;
+
+using RenderPassHandle = Handle<class RenderPassImpl>;
 
 /**
  * Holder class for Vulkan RenderPass object.
@@ -41,7 +45,7 @@ class RenderTarget;
  * FramebufferImpl will create a separate compatible RenderPassImpl if a matching
  * render pass is NOT found.
  */
-class RenderPassImpl
+class RenderPassImpl : public VkSharedResource
 {
 public:
   struct CreateInfo
@@ -54,16 +58,15 @@ public:
     vk::RenderPassCreateInfo               createInfo;
   };
 
-  static RenderPassImpl* New(
-    Vulkan::Device&                            device,
-    const std::vector<FramebufferAttachment*>& colorAttachments,
-    FramebufferAttachment*                     depthAttachment);
+  static RenderPassHandle New(Vulkan::Device&                            device,
+                              const std::vector<FramebufferAttachment*>& colorAttachments,
+                              FramebufferAttachment*                     depthAttachment);
 
   RenderPassImpl(Vulkan::Device& device, const std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
 
   ~RenderPassImpl();
 
-  void Destroy();
+  bool OnDestroy() override;
 
   vk::RenderPass GetVkHandle();
 
@@ -87,6 +90,7 @@ private:
   vk::RenderPass             mVkRenderPass;
   std::vector<vk::ImageView> mAttachments{};
 };
+
 } // namespace Dali::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_PASS_IMPL_H
