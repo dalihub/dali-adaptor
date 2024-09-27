@@ -48,9 +48,17 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
+static constexpr int32_t USE_ENVIRONMENT_VALUE = -1;
+static constexpr int32_t USE_CHROMIUM_WEB_ENGINE = 0;
+static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE = 1;
+static constexpr int32_t DEFAULT_WEB_ENGINE_PLUGIN_TYPE = USE_ENVIRONMENT_VALUE;
+static int32_t webEnginePluginType = DEFAULT_WEB_ENGINE_PLUGIN_TYPE;
+
 constexpr char const* const kPluginFullNamePrefix  = "libdali2-web-engine-";
 constexpr char const* const kPluginFullNamePostfix = "-plugin.so";
 constexpr char const* const kPluginFullNameDefault = "libdali2-web-engine-plugin.so";
+constexpr char const* const kPluginFullNameChromium = "libdali2-web-engine-chromium-plugin.so";
+constexpr char const* const kPluginFullNameLwe = "libdali2-web-engine-lwe-plugin.so";
 
 std::string MakePluginName(const char* environmentName)
 {
@@ -143,14 +151,26 @@ private:
     mGetWebEngineCookieManagerPtr{nullptr}
   {
     std::string pluginName;
-    const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
-    if(name)
+
+    if(webEnginePluginType == USE_CHROMIUM_WEB_ENGINE)
     {
-      pluginName = MakePluginName(name);
+      pluginName = kPluginFullNameChromium;
+    }
+    else if(webEnginePluginType == USE_LIGHT_WEIGHT_WEB_ENGINE)
+    {
+      pluginName = kPluginFullNameLwe;
     }
     else
     {
-      pluginName = std::string(kPluginFullNameDefault);
+      const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
+      if(name)
+      {
+        pluginName = MakePluginName(name);
+      }
+      else
+      {
+        pluginName = std::string(kPluginFullNameDefault);
+      }
     }
 
     mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
@@ -212,9 +232,9 @@ public:
 
 } // unnamed namespace
 
-WebEnginePtr WebEngine::New()
+WebEnginePtr WebEngine::New(int32_t type)
 {
-  WebEngine* instance = new WebEngine();
+  WebEngine* instance = new WebEngine(type);
   if(!instance->Initialize())
   {
     delete instance;
@@ -254,9 +274,10 @@ Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
   return nullptr;
 }
 
-WebEngine::WebEngine()
+WebEngine::WebEngine(int32_t type)
 : mPlugin(nullptr)
 {
+  webEnginePluginType = type;
 }
 
 WebEngine::~WebEngine()
