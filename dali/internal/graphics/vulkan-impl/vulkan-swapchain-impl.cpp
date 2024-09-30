@@ -66,7 +66,7 @@ SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice_)
   acquireNextImageSemaphore = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
   submitSemaphore           = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
 
-  endOfFrameFence.reset(FenceImpl::New(graphicsDevice, {}));
+  endOfFrameFence = FenceImpl::New(graphicsDevice, {});
 }
 
 SwapchainBuffer::~SwapchainBuffer()
@@ -163,7 +163,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -261,7 +262,8 @@ void Swapchain::CreateFramebuffers()
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });

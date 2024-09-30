@@ -396,7 +396,7 @@ struct VulkanGraphicsController::Impl
         commandBuffer->End();
 
         // submit to the queue
-        mGraphicsDevice->Submit(mGraphicsDevice->GetTransferQueue(0u), {Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence);
+        mGraphicsDevice->Submit(mGraphicsDevice->GetTransferQueue(0u), {Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence.get());
         fence->Wait();
         fence->Reset();
       }
