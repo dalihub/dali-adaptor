@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_COLLECTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,21 +42,6 @@
  */
 class BridgeCollection : public virtual BridgeBase
 {
-private:
-  struct Comparer;
-
-  /**
-   * @brief Visits all nodes of Accessible object and pushes the object to 'result' container.
-   *
-   * To query the entire tree, the BridgeCollection::Comparer is used inside this method,
-   * which traverse the tree using GetChildAtIndex().
-   * @param[in] obj The Accessible object to search
-   * @param[out] result The vector container for result
-   * @param[in] comparer BridgeCollection::Comparer which do the comparison against a single accessible object
-   * @param[in] maxCount The maximum count of containing Accessible object
-   */
-  static void VisitNodes(Dali::Accessibility::Accessible* obj, std::vector<Dali::Accessibility::Accessible*>& result, Comparer& comparer, size_t maxCount);
-
 protected:
   BridgeCollection() = default;
 
@@ -74,57 +59,14 @@ protected:
 
 public:
   /**
-   * MatchRule type is a tuple that only carries data of de-serialized parameter from BridgeCollection::GetMatches dbus method.
+   * @copydoc Dali::Accessibility::Collection::GetMatches()
    */
-  using MatchRule = std::tuple<
-    std::array<int32_t, 2>,
-    int32_t,
-    std::unordered_map<std::string, std::string>,
-    int32_t,
-    std::array<int32_t, 4>,
-    int32_t,
-    std::vector<std::string>,
-    int32_t,
-    bool>;
+  DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatches(Dali::Accessibility::Collection::MatchRule rule, uint32_t sortBy, int32_t count, bool traverse);
 
   /**
-   * @brief Enumeration for Collection Index.
+   * @copydoc Dali::Accessibility::Collection::GetMatchesInMatches()
    */
-  enum class Index
-  {
-    STATES,
-    STATES_MATCH_TYPE,
-    ATTRIBUTES,
-    ATTRIBUTES_MATCH_TYPE,
-    ROLES,
-    ROLES_MATCH_TYPE,
-    INTERFACES,
-    INTERFACES_MATCH_TYPE,
-  };
-
-  /**
-   * @brief Gets the matching Accessible objects with MatchRule.
-   *
-   * @param[in] rule BridgeCollection::MatchRule
-   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
-   * @param[in] count The maximum number of objects
-   * @param[in] traverse True if it is traverse, otherwise false.
-   * @return The matching Accessible objects
-   */
-  DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatches(MatchRule rule, uint32_t sortBy, int32_t count, bool traverse);
-
-  /**
-   * @brief Gets the matching Accessible objects with two MatchRules.
-   *
-   * @param[in] firstRule The initial BridgeCollection::MatchRule.
-   * @param[in] secondRule An secondary BridgeCollection::MatchRule.
-   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
-   * @param[in] firstCount The maximum number of objects to return for the initial match.
-   * @param[in] secondCount The maximum number of objects to return for the secondary match.
-   * @param[in] traverse True if it is traverse, otherwise false.
-   * @return The matching Accessible objects
-   */
-  DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount,  bool traverse);
+  DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatchesInMatches(Dali::Accessibility::Collection::MatchRule firstRule, Dali::Accessibility::Collection::MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount, bool traverse);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_COLLECTION_H

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_COLLECTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,21 @@ namespace Dali::Accessibility
  */
 class DALI_ADAPTOR_API Collection : public virtual Accessible
 {
+public:
+  /**
+   * MatchRule type is a tuple that only carries data of de-serialized parameter from BridgeCollection::GetMatches dbus method.
+   */
+  using MatchRule = std::tuple<
+    std::array<int32_t, 2>,
+    int32_t,
+    std::unordered_map<std::string, std::string>,
+    int32_t,
+    std::array<int32_t, 4>,
+    int32_t,
+    std::vector<std::string>,
+    int32_t,
+    bool>;
+
   /**
    * @brief Downcasts an Accessible to a Collection.
    *
@@ -39,6 +54,28 @@ class DALI_ADAPTOR_API Collection : public virtual Accessible
    * @see Dali::Accessibility::Accessible::DownCast()
    */
   static inline Collection* DownCast(Accessible* obj);
+
+  /**
+   * @brief Gets the matching Accessible objects with MatchRule.
+   *
+   * @param[in] rule Collection::MatchRule
+   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
+   * @param[in] maxCount The maximum number of objects; returns all matches if 0
+   * @return The matching Accessible objects
+   */
+  std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount);
+
+  /**
+   * @brief Gets the matching Accessible objects with two MatchRules.
+   *
+   * @param[in] firstRule The initial Collection::MatchRule.
+   * @param[in] secondRule An secondary Collection::MatchRule.
+   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
+   * @param[in] firstCount The maximum number of objects to return for the initial match.; returns all matches if 0
+   * @param[in] secondCount The maximum number of objects to return for the secondary match.; returns all matches if 0
+   * @return The matching Accessible objects
+   */
+  std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount);
 };
 
 namespace Internal
