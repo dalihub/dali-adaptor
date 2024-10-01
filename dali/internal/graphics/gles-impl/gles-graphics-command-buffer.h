@@ -61,8 +61,7 @@ enum class CommandType
   CLEAR_DEPTH_BUFFER,
   SET_STENCIL_TEST_ENABLE,
   SET_STENCIL_WRITE_MASK,
-  SET_STENCIL_OP,
-  SET_STENCIL_FUNC,
+  SET_STENCIL_STATE,
   SET_DEPTH_COMPARE_OP,
   SET_DEPTH_TEST_ENABLE,
   SET_DEPTH_WRITE_ENABLE,
@@ -190,22 +189,19 @@ struct Command
 
     struct
     {
-      Graphics::StencilOp failOp;
-      Graphics::StencilOp passOp;
-      Graphics::StencilOp depthFailOp;
-    } stencilOp;
-
-    struct
-    {
       uint32_t mask;
     } stencilWriteMask;
 
     struct
     {
-      uint32_t            compareMask;
       Graphics::CompareOp compareOp;
+      uint32_t            compareMask;
       uint32_t            reference;
-    } stencilFunc;
+
+      Graphics::StencilOp failOp;
+      Graphics::StencilOp passOp;
+      Graphics::StencilOp depthFailOp;
+    } stencilState;
 
     struct
     {
@@ -382,18 +378,14 @@ public:
   void SetStencilWriteMask(uint32_t writeMask) override;
 
   /**
-   * @copydoc Dali::Graphics::CommandBuffer::SetStencilOp
+   * @copydoc Dali::Graphics::CommandBuffer::SetStencilState
    */
-  void SetStencilOp(Graphics::StencilOp failOp,
-                    Graphics::StencilOp passOp,
-                    Graphics::StencilOp depthFailOp) override;
-
-  /**
-   * @copydoc Dali::Graphics::CommandBuffer::SetStencilFunc
-   */
-  void SetStencilFunc(Graphics::CompareOp compareOp,
-                      uint32_t            reference,
-                      uint32_t            compareMask) override;
+  void SetStencilState(Graphics::CompareOp compareOp,
+                       uint32_t            reference,
+                       uint32_t            compareMask,
+                       Graphics::StencilOp failOp,
+                       Graphics::StencilOp passOp,
+                       Graphics::StencilOp depthFailOp) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::SetDepthCompareOp

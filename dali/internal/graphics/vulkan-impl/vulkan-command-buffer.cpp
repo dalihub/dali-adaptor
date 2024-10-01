@@ -306,42 +306,88 @@ void CommandBuffer::SetColorMask(bool enabled)
 
 void CommandBuffer::ClearStencilBuffer()
 {
+  // Ignore, we should only do this in render pass
 }
 
 void CommandBuffer::ClearDepthBuffer()
 {
+  // Ignore, we should only do this in render pass
 }
 
 void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 {
+  mCommandBufferImpl->SetStencilTestEnable(stencilEnable);
 }
 
 void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 {
+  mCommandBufferImpl->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
 }
 
-void CommandBuffer::SetStencilFunc(Graphics::CompareOp compareOp,
-                                   uint32_t            reference,
-                                   uint32_t            compareMask)
+void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
+                                    uint32_t            reference,
+                                    uint32_t            compareMask,
+                                    Graphics::StencilOp failOp,
+                                    Graphics::StencilOp passOp,
+                                    Graphics::StencilOp depthFailOp)
 {
-}
-
-void CommandBuffer::SetStencilOp(Graphics::StencilOp failOp,
-                                 Graphics::StencilOp passOp,
-                                 Graphics::StencilOp depthFailOp)
-{
+  mCommandBufferImpl->SetStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, compareMask);
+  mCommandBufferImpl->SetStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, reference);
+  mCommandBufferImpl->SetStencilOp(vk::StencilFaceFlagBits::eFrontAndBack,
+                                   VkStencilOpType(failOp).op,
+                                   VkStencilOpType(passOp).op,
+                                   VkStencilOpType(depthFailOp).op,
+                                   VkCompareOpType(compareOp).op);
 }
 
 void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
+  // @todo Invert comparison
+  // This makes depth test work, but implies that the conversion to NDC has the wrong sense.
+  vk::CompareOp depthOp;
+  switch(compareOp)
+  {
+    case Graphics::CompareOp::NEVER:
+    case Graphics::CompareOp::EQUAL:
+    case Graphics::CompareOp::NOT_EQUAL:
+    case Graphics::CompareOp::ALWAYS:
+    {
+      depthOp = VkCompareOpType(compareOp).op;
+      break;
+    }
+    case Graphics::CompareOp::LESS:
+    {
+      depthOp = vk::CompareOp::eGreaterOrEqual;
+      break;
+    }
+    case Graphics::CompareOp::LESS_OR_EQUAL:
+    {
+      depthOp = vk::CompareOp::eGreater;
+      break;
+    }
+    case Graphics::CompareOp::GREATER:
+    {
+      depthOp = vk::CompareOp::eLessOrEqual;
+      break;
+    }
+    case Graphics::CompareOp::GREATER_OR_EQUAL:
+    {
+      depthOp = vk::CompareOp::eLess;
+      break;
+    }
+  }
+  depthOp = VkCompareOpType(compareOp).op;
+  mCommandBufferImpl->SetDepthCompareOp(depthOp);
 }
 
 void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
 {
+  mCommandBufferImpl->SetDepthTestEnable(depthTestEnable);
 }
 
 void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 {
+  mCommandBufferImpl->SetDepthWriteEnable(depthWriteEnable);
 }
 
 Swapchain* CommandBuffer::GetLastSwapchain() const

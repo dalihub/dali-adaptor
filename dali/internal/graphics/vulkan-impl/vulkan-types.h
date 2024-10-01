@@ -192,6 +192,76 @@ struct VkStoreOpType
   vk::AttachmentStoreOp storeOp{vk::AttachmentStoreOp::eDontCare};
 };
 
+struct VkCompareOpType
+{
+  constexpr explicit VkCompareOpType(Graphics::CompareOp compareOp)
+  {
+    switch(compareOp)
+    {
+      case Graphics::CompareOp::NEVER:
+        op = vk::CompareOp::eNever;
+        break;
+      case Graphics::CompareOp::LESS:
+        op = vk::CompareOp::eLess;
+        break;
+      case Graphics::CompareOp::EQUAL:
+        op = vk::CompareOp::eEqual;
+        break;
+      case Graphics::CompareOp::LESS_OR_EQUAL:
+        op = vk::CompareOp::eLessOrEqual;
+        break;
+      case Graphics::CompareOp::GREATER:
+        op = vk::CompareOp::eGreater;
+        break;
+      case Graphics::CompareOp::NOT_EQUAL:
+        op = vk::CompareOp::eNotEqual;
+        break;
+      case Graphics::CompareOp::GREATER_OR_EQUAL:
+        op = vk::CompareOp::eGreaterOrEqual;
+        break;
+      case Graphics::CompareOp::ALWAYS:
+        op = vk::CompareOp::eAlways;
+        break;
+    }
+  }
+  vk::CompareOp op{vk::CompareOp::eLess};
+};
+
+struct VkStencilOpType
+{
+  constexpr explicit VkStencilOpType(Graphics::StencilOp stencilOp)
+  {
+    switch(stencilOp)
+    {
+      case Graphics::StencilOp::KEEP:
+        op = vk::StencilOp::eKeep;
+        break;
+      case Graphics::StencilOp::ZERO:
+        op = vk::StencilOp::eZero;
+        break;
+      case Graphics::StencilOp::REPLACE:
+        op = vk::StencilOp::eReplace;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_CLAMP:
+        op = vk::StencilOp::eIncrementAndClamp;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_CLAMP:
+        op = vk::StencilOp::eDecrementAndClamp;
+        break;
+      case Graphics::StencilOp::INVERT:
+        op = vk::StencilOp::eInvert;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_WRAP:
+        op = vk::StencilOp::eIncrementAndWrap;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_WRAP:
+        op = vk::StencilOp::eDecrementAndWrap;
+        break;
+    }
+  }
+  vk::StencilOp op{vk::StencilOp::eZero};
+};
+
 } // namespace Vulkan
 } // namespace Dali::Graphics
 

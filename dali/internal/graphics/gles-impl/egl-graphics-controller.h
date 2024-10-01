@@ -170,7 +170,7 @@ public:
   /**
    * @copydoc Dali::Graphics::EnableDepthStencilBuffer()
    */
-  bool EnableDepthStencilBuffer(bool enableDepth, bool enableStencil) override
+  bool EnableDepthStencilBuffer(const Graphics::RenderTarget& renderTarget, bool enableDepth, bool enableStencil) override
   {
     return {};
   }

@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
@@ -28,7 +29,7 @@ class Device;
 class FenceImpl;
 class SurfaceImpl;
 class Queue;
-class SwapchainBuffer;
+struct SwapchainBuffer;
 
 /**
  * Creates swapchain for given surface and queue
@@ -56,8 +57,10 @@ public:
 
   /**
    * Automatically create framebuffers (generating compatible render passes)
+   *
+   * @param[in] depthAttachment Optional depth attachment.
    */
-  void CreateFramebuffers();
+  void CreateFramebuffers(FramebufferAttachmentHandle depthAttachment);
 
   [[nodiscard]] vk::SwapchainKHR GetVkHandle() const;
 
@@ -145,6 +148,7 @@ private:
    */
   using OwnedFramebuffer = std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)>;
   std::vector<OwnedFramebuffer> mFramebuffers;
+  std::unique_ptr<Image>        mDepthStencilBuffer;
 
   /**
    * Array of swapchain buffers
