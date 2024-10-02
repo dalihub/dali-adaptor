@@ -155,8 +155,8 @@ struct ShaderImpl::Impl
   std::vector<uint8_t>   sourcePreprocessed{};
 
   size_t sourceOffset{0u}; /// byte offset of source data from original CreateInfo.
-                             /// It will be changed after call StripLegacyCodeIfNeeded
-                             /// More detail, createInfo.sourceData[0] == source[0] == (original CreateInfo).sourceData[sourceOffset];
+                           /// It will be changed after call StripLegacyCodeIfNeeded
+                           /// More detail, createInfo.sourceData[0] == source[0] == (original CreateInfo).sourceData[sourceOffset];
 
   uint32_t glShader{};
   uint32_t refCount{0u};
@@ -171,7 +171,7 @@ ShaderImpl::ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::E
 
 ShaderImpl::~ShaderImpl()
 {
-  if(!mImpl->controller.IsShuttingDown())
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
     mImpl->Destroy();
   }
@@ -302,6 +302,11 @@ Shader::~Shader()
 {
   if(!mShader->Release())
   {
+    if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+    {
+      return; // Early out if shutting down
+    }
+
     GetImplementation()->GetController().GetPipelineCache().MarkShaderCacheFlushRequired();
   }
 }
@@ -313,11 +318,7 @@ Shader::~Shader()
 
 void Shader::DiscardResource()
 {
-  auto& controller = GetImplementation()->GetController();
-  if(!controller.IsShuttingDown())
-  {
-    controller.DiscardResource(this);
-  }
+  GetImplementation()->GetController().DiscardResource(this);
 }
 
 uint32_t Shader::GetGLSLVersion() const

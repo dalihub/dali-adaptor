@@ -158,6 +158,11 @@ EglSyncImplementation::EglSyncImplementation()
 
 EglSyncImplementation::~EglSyncImplementation()
 {
+  for(auto& syncObject : mSyncObjects)
+  {
+    delete static_cast<EglSyncObject*>(syncObject);
+  }
+  mSyncObjects.Clear();
 }
 
 void EglSyncImplementation::Initialize(EglImplementation* eglImpl)

@@ -70,8 +70,21 @@ struct GLESDeleter
 
   void operator()(T* object)
   {
-    // Discard resource (add it to discard queue)
-    object->DiscardResource();
+    // GLES object deleter should skip discard queue if controller shutting down
+    if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+    {
+      // Discard resource (add it to discard queue)
+      object->DiscardResource();
+    }
+    else
+    {
+      // Destroy and delete object otherwise
+      if(DALI_LIKELY(object))
+      {
+        object->DestroyResource();
+      }
+      delete object;
+    }
   }
 };
 
@@ -130,7 +143,14 @@ T0* CastObject(T1* apiObject)
 const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, false);
+
+bool gIsShuttingDown = true; ///< Global static flag to ensure that we have single graphics controller instance per each UpdateRender thread loop.
 } // namespace
+
+bool EglGraphicsController::IsShuttingDown()
+{
+  return gIsShuttingDown;
+}
 
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
@@ -151,6 +171,7 @@ EglGraphicsController::~EglGraphicsController()
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 1\n");
+
   mGlAbstraction  = &glAbstraction;
   mContext        = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mCurrentContext = mContext.get();
@@ -161,6 +182,9 @@ void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syn
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
   auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
+
+  DALI_ASSERT_ALWAYS(gIsShuttingDown && "Don't initialize Phase 2 EglGraphicsController twice");
+  gIsShuttingDown = false;
 
   mEglSyncImplementation = syncImplPtr;
   mGraphics              = &graphicsInterface;
@@ -191,6 +215,28 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 void EglGraphicsController::WaitIdle()
 {
   Flush();
+}
+
+void EglGraphicsController::Shutdown()
+{
+  DALI_ASSERT_ALWAYS(!gIsShuttingDown && "Don't call EglGraphicsController::Shutdown twice");
+  gIsShuttingDown = true;
+
+  // Final flush
+  Flush();
+
+  if(mContext)
+  {
+    mContext->GlContextDestroyed();
+  }
+
+  for(auto&& context : mSurfaceContexts)
+  {
+    if(context.second)
+    {
+      context.second->GlContextDestroyed();
+    }
+  }
 }
 
 void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
@@ -383,8 +429,7 @@ void EglGraphicsController::CreateSurfaceContext(Dali::Integration::RenderSurfac
 void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mSurfaceContexts.erase(std::remove_if(
-                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
-                           { return surface == iter.first; }),
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
                          mSurfaceContexts.end());
 }
 
@@ -406,8 +451,7 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::Integration::RenderSurf
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
-                             { return (iter.first == surface); });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -496,8 +540,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
   auto       count    = 0u;
   const auto commands = commandBuffer.GetCommands(count);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss)
-                                          { oss << "[commandCount:" << count << "]"; });
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) { oss << "[commandCount:" << count << "]"; });
 
   for(auto i = 0u; i < count; ++i)
   {
