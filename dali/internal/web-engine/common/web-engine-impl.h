@@ -592,6 +592,26 @@ public:
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
 
+  /**
+   * @copydoc Dali::WebEngine::WebAuthenticationCancel()
+   */
+  void WebAuthenticationCancel();
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterWebAuthDisplayQRCallback()
+   */
+  void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterWebAuthResponseCallback()
+   */
+  void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterUserMediaPermissionRequestCallback()
+   */
+  void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
