@@ -69,6 +69,11 @@ class EglGraphicsController : public Graphics::Controller
 {
 public:
   /**
+   * @brief Get whether is graphics controller shutting down or not.
+   */
+  static bool IsShuttingDown();
+
+  /**
    * @brief Constructor
    */
   EglGraphicsController();
@@ -142,26 +147,7 @@ public:
   /**
    * @copydoc Dali::Graphics::Shutdown()
    */
-  void Shutdown() override
-  {
-    mIsShuttingDown = true;
-
-    // Final flush
-    Flush();
-
-    if(mContext)
-    {
-      mContext->GlContextDestroyed();
-    }
-
-    for(auto&& context : mSurfaceContexts)
-    {
-      if(context.second)
-      {
-        context.second->GlContextDestroyed();
-      }
-    }
-  }
+  void Shutdown() override;
 
   /**
    * @copydoc Dali::Graphics::Destroy()
@@ -350,7 +336,7 @@ public: // ResourceId relative API.
 public:
   [[nodiscard]] Integration::GlAbstraction* GetGL() const
   {
-    if(mIsShuttingDown)
+    if(DALI_UNLIKELY(IsShuttingDown()))
     {
       return nullptr;
     }
@@ -740,11 +726,6 @@ public:
     mGLESVersion = glesVersion;
   }
 
-  bool IsShuttingDown() const
-  {
-    return mIsShuttingDown;
-  }
-
   /**
    * @brief Reset texture cache in the contexts
    */
@@ -890,8 +871,6 @@ private:
 
   GLES::GLESVersion mGLESVersion{GLES::GLESVersion::GLES_20}; ///< Runtime supported GLES version
   uint32_t          mTextureUploadTotalCPUMemoryUsed{0u};
-
-  bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 
   std::queue<const GLES::CommandBuffer*> mPresentationCommandBuffers{}; ///< Queue of reusable command buffers used by presentation engine
 

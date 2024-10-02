@@ -122,6 +122,11 @@ ProgramImpl::~ProgramImpl() = default;
 
 bool ProgramImpl::Destroy()
 {
+  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+  {
+    return false; // Early out if shutting down
+  }
+
   if(mImpl->glProgram)
   {
     auto gl = mImpl->controller.GetGL();
@@ -351,6 +356,11 @@ void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
   const auto& reflection = GetReflection();
 
   const auto& extraInfos = reflection.GetStandaloneUniformExtraInfo();
+
+  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+  {
+    return; // Early out if shutting down
+  }
 
   auto* gl = GetController().GetGL();
   if(!gl)
