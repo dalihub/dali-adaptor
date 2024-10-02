@@ -29,13 +29,13 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-RenderPassImpl* RenderPassImpl::New(
+RenderPassHandle RenderPassImpl::New(
   Vulkan::Device&                            device,
   const std::vector<FramebufferAttachment*>& colorAttachments,
   FramebufferAttachment*                     depthAttachment)
 {
   auto renderPass = new RenderPassImpl(device, colorAttachments, depthAttachment);
-  return renderPass;
+  return RenderPassHandle(renderPass);
 }
 
 RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device,
@@ -49,11 +49,6 @@ RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device
 
 RenderPassImpl::~RenderPassImpl() = default;
 
-vk::RenderPass RenderPassImpl::GetVkHandle()
-{
-  return mVkRenderPass;
-}
-
 bool RenderPassImpl::OnDestroy()
 {
   if(mVkRenderPass)
@@ -61,14 +56,18 @@ bool RenderPassImpl::OnDestroy()
     auto device     = mGraphicsDevice->GetLogicalDevice();
     auto allocator  = &mGraphicsDevice->GetAllocator();
     auto renderPass = mVkRenderPass;
-    mGraphicsDevice->DiscardResource([device, renderPass, allocator]()
-                                     {
-      DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkRenderPass>(renderPass))
-      device.destroyRenderPass(renderPass, allocator); });
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying render pass: %p\n", static_cast<VkRenderPass>(renderPass));
+    device.destroyRenderPass(renderPass, allocator);
 
     mVkRenderPass = nullptr;
   }
-  return false;
+  return true;
+}
+
+vk::RenderPass RenderPassImpl::GetVkHandle()
+{
+  return mVkRenderPass;
 }
 
 std::vector<vk::ImageView>& RenderPassImpl::GetAttachments()

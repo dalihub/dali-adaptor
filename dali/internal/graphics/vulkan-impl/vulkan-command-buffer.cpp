@@ -61,6 +61,9 @@ CommandBuffer::~CommandBuffer() = default;
 
 void CommandBuffer::DestroyResource()
 {
+  // Don't delete the impl, it's pool allocated and should have been
+  // returned to the command pool for re-use.
+  mCommandBufferImpl = nullptr;
 }
 
 bool CommandBuffer::InitializeResource()
@@ -70,6 +73,7 @@ bool CommandBuffer::InitializeResource()
 
 void CommandBuffer::DiscardResource()
 {
+  mController.DiscardResource(this);
 }
 
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
@@ -182,7 +186,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   auto             surface      = renderTarget->GetSurface();
   auto&            device       = mController.GetGraphicsDevice();
   FramebufferImpl* framebuffer;
-  RenderPassImpl*  renderPassImpl;
+  RenderPassHandle renderPassImpl;
   if(surface)
   {
     auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);

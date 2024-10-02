@@ -284,7 +284,7 @@ void PipelineImpl::InitializePipeline()
   auto renderPassCount = fbImpl->GetRenderPassCount();
   for(auto i = 0u; i < renderPassCount; ++i)
   {
-    RenderPassImpl* impl       = fbImpl->GetRenderPass(i);
+    RenderPassHandle impl      = fbImpl->GetRenderPass(i);
     gfxPipelineInfo.renderPass = impl->GetVkHandle();
     gfxPipelineInfo.subpass    = 0;
 

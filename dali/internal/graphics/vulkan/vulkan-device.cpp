@@ -95,6 +95,7 @@ Device::~Device()
   DALI_LOG_STREAM(gVulkanFilter, Debug::General, "DESTROYING GRAPHICS CONTEXT--------------------------------\n");
 
   SwapBuffers();
+  ReleaseCommandPools();
 
   // We are done with all resources (technically... . If not we will get a ton of validation layer errors)
   // Kill the Vulkan logical device
@@ -379,7 +380,8 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
     // during replacing the swapchain
     auto khr = oldSwapchain->GetVkHandle();
     oldSwapchain->SetVkHandle(nullptr);
-    oldSwapchain->Release();
+    oldSwapchain->Destroy();
+    delete oldSwapchain;
 
     mLogicalDevice.destroySwapchainKHR(khr, *mAllocator);
   }
@@ -437,8 +439,8 @@ Queue& Device::GetPresentQueue() const
 
 void Device::DiscardResource(std::function<void()> deleter)
 {
-  // std::lock_guard< std::mutex > lock( mMutex );
-  // mDiscardQueue[mCurrentBufferIndex].push_back( std::move( deleter ) );
+  // For now, just call immediately.
+  deleter();
 }
 
 Image* Device::CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent)
@@ -541,6 +543,15 @@ CommandPool* Device::GetCommandPool(std::thread::id threadId)
     }
   }
   return commandPool;
+}
+
+void Device::ReleaseCommandPools()
+{
+  for(auto& commandPool : mCommandPools)
+  {
+    commandPool.second->Reset(true);
+    delete commandPool.second;
+  }
 }
 
 void Device::SurfaceResized(unsigned int width, unsigned int height)

@@ -87,7 +87,7 @@ Vulkan::FramebufferImpl* RenderTarget::GetCurrentFramebufferImpl() const
   return fbImpl;
 }
 
-Vulkan::RenderPassImpl* RenderTarget::GetRenderPass(const Graphics::RenderPass* gfxRenderPass) const
+Vulkan::RenderPassHandle RenderTarget::GetRenderPass(const Graphics::RenderPass* gfxRenderPass) const
 {
   auto renderPass      = const_cast<Vulkan::RenderPass*>(static_cast<const Vulkan::RenderPass*>(gfxRenderPass));
   auto framebufferImpl = GetCurrentFramebufferImpl();

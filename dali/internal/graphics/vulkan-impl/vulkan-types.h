@@ -35,7 +35,6 @@
 
 namespace Dali::Graphics
 {
-
 namespace
 {
 // Default value use to clear the stencil buffer
@@ -50,7 +49,6 @@ std::unique_ptr<T> MakeUnique(Args&&... args)
 
 namespace Vulkan
 {
-
 /**
  * Forward class declarations
  */
@@ -192,59 +190,6 @@ struct VkStoreOpType
     storeOp = op;
   }
   vk::AttachmentStoreOp storeOp{vk::AttachmentStoreOp::eDontCare};
-};
-
-class VkManaged
-{
-public:
-  VkManaged() = default;
-
-  virtual ~VkManaged() = default;
-
-  void Release()
-  {
-    OnRelease(--mRefCount);
-
-    if(mRefCount == 0)
-    {
-      // orphaned
-      if(!Destroy())
-      {
-        delete this;
-      }
-    }
-  }
-
-  void Retain()
-  {
-    OnRetain(++mRefCount);
-  }
-
-  uint32_t GetRefCount()
-  {
-    return mRefCount;
-  }
-
-  virtual bool Destroy()
-  {
-    return OnDestroy();
-  }
-
-  virtual void OnRetain(uint32_t refcount)
-  {
-  }
-
-  virtual void OnRelease(uint32_t refcount)
-  {
-  }
-
-  virtual bool OnDestroy()
-  {
-    return false;
-  }
-
-private:
-  std::atomic_uint mRefCount{0u};
 };
 
 } // namespace Vulkan
