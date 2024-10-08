@@ -374,6 +374,8 @@ public:
    */
   bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
 
+  uint32_t GetDeviceLimitation(Graphics::DeviceCapability capability) override;
+
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
   uint32_t    GetShaderLanguageVersion() override;

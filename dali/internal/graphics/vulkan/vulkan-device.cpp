@@ -670,7 +670,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 
   assert(mPhysicalDevice && "No suitable Physical Device found!");
 
-  GetPhysicalDeviceProperties();
+  InitializePhysicalDeviceProperties();
   GetQueueFamilyProperties();
 
   Integration::Log::LogMessage(Integration::Log::INFO,
@@ -687,7 +687,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
 }
 
-void Device::GetPhysicalDeviceProperties()
+void Device::InitializePhysicalDeviceProperties()
 {
   mPhysicalDeviceProperties       = mPhysicalDevice.getProperties();
   mPhysicalDeviceMemoryProperties = mPhysicalDevice.getMemoryProperties();
@@ -927,6 +927,11 @@ uint32_t Device::GetMemoryIndex(
     }
   }
   return INVALID_MEMORY_INDEX;
+}
+
+const vk::PhysicalDeviceProperties& Device::GetPhysicalDeviceProperties() const
+{
+  return mPhysicalDeviceProperties;
 }
 
 } // namespace Dali::Graphics::Vulkan

@@ -1,4 +1,5 @@
 #version 100
+#define flat
 
 
 #define TEXTURE texture2D
