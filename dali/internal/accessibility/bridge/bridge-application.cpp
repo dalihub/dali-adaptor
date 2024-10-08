@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@ void BridgeApplication::RegisterInterfaces()
   DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
   AddGetPropertyToInterface(desc, "ToolkitName", &BridgeApplication::GetToolkitName);
   AddGetPropertyToInterface(desc, "Version", &BridgeApplication::GetVersion);
-  AddFunctionToInterface(desc, "GetIncludeHidden", &BridgeApplication::GetIncludeHidden);
-  AddFunctionToInterface(desc, "SetIncludeHidden", &BridgeApplication::SetIncludeHidden);
   mDbusServer.addInterface("/", desc, true);
 }
 
@@ -46,18 +44,4 @@ std::string BridgeApplication::GetToolkitName()
 std::string BridgeApplication::GetVersion()
 {
   return FindSelf()->GetVersion();
-}
-
-DBus::ValueOrError<bool> BridgeApplication::GetIncludeHidden()
-{
-  return FindSelf()->GetIncludeHidden();
-}
-
-DBus::ValueOrError<void> BridgeApplication::SetIncludeHidden(bool includeHidden)
-{
-  if(FindSelf()->SetIncludeHidden(includeHidden))
-  {
-    NotifyIncludeHiddenChanged();
-  }
-  return {};
 }

@@ -62,7 +62,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitStateChanged()
    */
-  void EmitStateChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::State state, int newValue, int reserved) override;
+  void EmitStateChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::State state, int newValue, int reserved) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
@@ -72,12 +72,12 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void Emit(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
+  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
    */
-  void EmitBoundsChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Rect<> rect) override;
+  void EmitBoundsChanged(Dali::Accessibility::Accessible* obj, Dali::Rect<> rect) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()

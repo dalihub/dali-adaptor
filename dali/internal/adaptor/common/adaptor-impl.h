@@ -700,6 +700,13 @@ private:                                          // Data
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 
+  class AccessibilityObserver : public ConnectionTracker
+  {
+  public:
+    void OnAccessibleKeyEvent(const Dali::KeyEvent& event);
+  };
+  AccessibilityObserver mAccessibilityObserver;
+
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor)
   {

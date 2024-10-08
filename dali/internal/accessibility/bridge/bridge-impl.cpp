@@ -25,7 +25,6 @@
 #include <map>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
@@ -77,22 +76,21 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeTable,
                    public BridgeTableCell
 {
-  DBus::DBusClient                                              mAccessibilityStatusClient{};
-  DBus::DBusClient                                              mRegistryClient{};
-  DBus::DBusClient                                              mDirectReadingClient{};
-  bool                                                          mIsScreenReaderEnabled{false};
-  bool                                                          mIsEnabled{false};
-  bool                                                          mIsApplicationRunning{false};
-  std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks{};
-  Dali::Actor                                                   mHighlightedActor;
-  std::function<void(Dali::Actor)>                              mHighlightClearAction{nullptr};
-  Dali::CallbackBase*                                           mIdleCallback{};
-  Dali::Timer                                                   mInitializeTimer;
-  Dali::Timer                                                   mReadIsEnabledTimer;
-  Dali::Timer                                                   mReadScreenReaderEnabledTimer;
-  Dali::Timer                                                   mForceUpTimer;
-  std::string                                                   mPreferredBusName;
-  std::map<uint32_t, std::shared_ptr<Accessible>>               mAccessibles; // Actor.ID to Accessible map
+  DBus::DBusClient                                    mAccessibilityStatusClient;
+  DBus::DBusClient                                    mRegistryClient;
+  DBus::DBusClient                                    mDirectReadingClient;
+  bool                                                mIsScreenReaderEnabled = false;
+  bool                                                mIsEnabled             = false;
+  bool                                                mIsApplicationRunning  = false;
+  std::map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
+  Dali::Actor                                         mHighlightedActor;
+  std::function<void(Dali::Actor)>                    mHighlightClearAction;
+  Dali::CallbackBase*                                 mIdleCallback = NULL;
+  Dali::Timer                                         mInitializeTimer;
+  Dali::Timer                                         mReadIsEnabledTimer;
+  Dali::Timer                                         mReadScreenReaderEnabledTimer;
+  Dali::Timer                                         mForceUpTimer;
+  std::string                                         mPreferredBusName;
 
 public:
   BridgeImpl()
@@ -100,53 +98,36 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::AddAccessible()
+   * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
-    mAccessibles[actorId] = std::move(accessible);
-  }
-
-  /**
-   * @copydoc Dali::Accessibility::Bridge::RemoveAccessible()
-   */
-  void RemoveAccessible(uint32_t actorId) override
-  {
-    mAccessibles.erase(actorId);
-  }
-
-  /**
-   * @copydoc Dali::Accessibility::Bridge::GetAccessible()
-   */
-  std::shared_ptr<Accessible> GetAccessible(Dali::Actor actor) const override
-  {
-    uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
-    auto     iter    = mAccessibles.find(actorId);
-    return iter != mAccessibles.end() ? iter->second : nullptr;
-  }
-
-  /**
-   * @copydoc Dali::Accessibility::Bridge::ShouldIncludeHidden()
-   */
-  bool ShouldIncludeHidden() const override
-  {
-    return mApplication.mShouldIncludeHidden;
-  }
-
-  void NotifyIncludeHiddenChanged() override
-  {
-    for(const auto& iter : mAccessibles)
+    if(!IsUp())
     {
-      const auto& accessible = iter.second;
-      if(accessible->IsHidden())
+      return Consumed::NO;
+    }
+
+    unsigned int keyType = 0;
+
+    switch(type)
+    {
+      case KeyEventType::KEY_PRESSED:
       {
-        auto* parent = dynamic_cast<ActorAccessible*>(accessible->GetParent());
-        if(parent)
-        {
-          parent->OnChildrenChanged();
-        }
+        keyType = 0;
+        break;
+      }
+      case KeyEventType::KEY_RELEASED:
+      {
+        keyType = 1;
+        break;
+      }
+      default:
+      {
+        return Consumed::NO;
       }
     }
+
+    return Consumed::NO;
   }
 
   /**

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_APPLICATION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,20 +48,6 @@ public:
    * @return String with version
    */
   virtual std::string GetVersion() const = 0;
-
-  /**
-   * @brief Gets include_hidden flag currently set on the application.
-   *
-   * @return true is include_hidden is set; false otherwise.
-   */
-  virtual bool GetIncludeHidden() const = 0;
-
-  /**
-   * @brief Sets include_hidden flag to the application.
-   *
-   * @return true is include_hidden flag is updated; false otherwise.
-   */
-  virtual bool SetIncludeHidden(bool includeHidden) = 0;
 
   /**
    * @brief Downcasts an Accessible to an Application.

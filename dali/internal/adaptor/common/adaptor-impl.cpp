@@ -314,6 +314,24 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
 }
 
+void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)
+{
+  Accessibility::KeyEventType type;
+  if(event.GetState() == Dali::KeyEvent::DOWN)
+  {
+    type = Accessibility::KeyEventType::KEY_PRESSED;
+  }
+  else if(event.GetState() == Dali::KeyEvent::UP)
+  {
+    type = Accessibility::KeyEventType::KEY_RELEASED;
+  }
+  else
+  {
+    return;
+  }
+  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit(type, event.GetKeyCode(), event.GetKeyName(), event.GetTime(), !event.GetKeyString().empty());
+}
+
 Adaptor::~Adaptor()
 {
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
@@ -374,6 +392,7 @@ void Adaptor::Start()
   auto bridge  = Accessibility::Bridge::GetCurrentBridge();
   bridge->SetApplicationName(appName);
   bridge->Initialize();
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 

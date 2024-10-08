@@ -113,7 +113,7 @@ void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 
     if(shouldEmit)
     {
-      bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
+      bridgeData->mBridge->EmitStateChanged(this, state, newValue, reserved);
     }
   }
 }
@@ -189,7 +189,7 @@ void Accessible::Emit(ObjectPropertyChangeEvent event)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->Emit(shared_from_this(), event);
+    bridgeData->mBridge->Emit(this, event);
   }
 }
 
@@ -197,7 +197,7 @@ void Accessible::EmitBoundsChanged(Rect<> rect)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitBoundsChanged(shared_from_this(), rect);
+    bridgeData->mBridge->EmitBoundsChanged(this, rect);
   }
 }
 

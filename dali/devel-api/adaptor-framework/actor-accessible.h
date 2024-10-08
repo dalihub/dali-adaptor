@@ -18,7 +18,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/object/base-object-observer.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
@@ -33,16 +32,12 @@ namespace Dali::Accessibility
 class DALI_ADAPTOR_API ActorAccessible : public virtual Accessible,
                                          public virtual Collection,
                                          public virtual Component,
-                                         public Dali::ConnectionTracker,
-                                         public Dali::BaseObjectObserver
+                                         public Dali::ConnectionTracker
 {
 public:
   ActorAccessible() = delete;
 
   ActorAccessible(Actor actor);
-
-  // BaseObjectObserver::ObjectDestroyed
-  void ObjectDestroyed() override;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetName()
@@ -171,7 +166,6 @@ private:
   Dali::WeakHandle<Dali::Actor> mSelf;
   std::vector<Accessible*>      mChildren;
   bool                          mChildrenDirty;
-  const uint32_t                mActorId;
 };
 
 } // namespace Dali::Accessibility
