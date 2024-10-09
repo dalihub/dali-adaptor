@@ -128,11 +128,12 @@ void Device::Create()
   }
 
   CreateInstance(extensions, validationLayers);
-  PreparePhysicalDevice();
 }
 
-void Device::CreateDevice()
+void Device::CreateDevice(SurfaceImpl* surface)
 {
+  PreparePhysicalDevice(surface);
+
   auto queueInfos = GetQueueCreateInfos();
   {
     auto maxQueueCountPerFamily = 0u;
@@ -236,11 +237,14 @@ Graphics::SurfaceId Device::CreateSurface(
   }
 
   // create surface from the factory
-  auto* surface = new SurfaceImpl(*this, vulkanSurfaceFactory->Create(mInstance, mAllocator.get(), mPhysicalDevice));
+  auto* surface = new SurfaceImpl(*this, vulkanSurfaceFactory->Create(mInstance, mAllocator.get()));
   if(!surface->GetVkHandle())
   {
     return -1;
   }
+
+  // Find a device that can support this surface.
+  CreateDevice(surface);
 
   VkBool32 supported(VK_FALSE);
   for(auto i = 0u; i < mQueueFamilyProperties.size(); ++i)
@@ -251,7 +255,6 @@ Graphics::SurfaceId Device::CreateSurface(
       break;
     }
   }
-
   assert(supported && "There is no queue family supporting presentation!");
 
   surface->GetCapabilities() = VkAssert(mPhysicalDevice.getSurfaceCapabilitiesKHR(surface->GetVkHandle()));
@@ -614,7 +617,7 @@ void Device::DestroyInstance()
   }
 }
 
-void Device::PreparePhysicalDevice()
+void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 {
   auto devices = VkAssert(mInstance.enumeratePhysicalDevices());
   assert(!devices.empty() && "No Vulkan supported device found!");
@@ -627,6 +630,8 @@ void Device::PreparePhysicalDevice()
   }
   else // otherwise look for one which is a graphics device
   {
+    auto vkSurface = surface->GetVkHandle();
+
     for(auto& device : devices)
     {
       auto properties = device.getProperties();
@@ -634,13 +639,20 @@ void Device::PreparePhysicalDevice()
          properties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu)
       {
         auto queueFamilyProperties = device.getQueueFamilyProperties();
+        int  queueIndex            = 0;
         for(const auto& queueFamily : queueFamilyProperties)
         {
           if(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
           {
-            mPhysicalDevice = device;
-            break;
+            VkBool32 presentSupported = false;
+            auto     result           = device.getSurfaceSupportKHR(queueIndex, vkSurface, &presentSupported);
+            if((result == vk::Result::eSuccess) && presentSupported)
+            {
+              mPhysicalDevice = device;
+              break;
+            }
           }
+          ++queueIndex;
         }
       }
     }

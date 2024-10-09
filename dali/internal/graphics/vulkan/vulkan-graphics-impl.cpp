@@ -44,9 +44,6 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 {
   // Pass down depth/stencil req, partial rendering & msaa level
   mGraphicsDevice.Create();
-  mGraphicsDevice.CreateDevice();
-
-  // Create DescriptorSetAllocator
 
   mGraphicsController.Initialize(*this, mGraphicsDevice);
   InitializeGraphicsAPI(displayConnection);
@@ -84,7 +81,8 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   int                            width,
   int                            height)
 {
-  // create surface ( also takes surface factory ownership )
+  // create surface ( also takes surface factory ownership ),
+  // and find viable vulkan device.
   auto createInfo          = mCreateInfo;
   createInfo.surfaceWidth  = width;
   createInfo.surfaceHeight = height;
