@@ -122,6 +122,14 @@ void EglGraphics::Resume()
   }
 }
 
+void EglGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
+{
+  if(surface)
+  {
+    surface->Resize(size);
+  }
+}
+
 int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
 {
   auto search = mSurfaceMap.find(surfaceId);

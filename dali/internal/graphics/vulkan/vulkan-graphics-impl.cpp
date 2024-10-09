@@ -143,6 +143,11 @@ void VulkanGraphics::Resume()
   mGraphicsController.Resume();
 }
 
+void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
+{
+  // TODO: Need to consider how to resize the surface for vulkan
+}
+
 int VulkanGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
 {
   return 0;

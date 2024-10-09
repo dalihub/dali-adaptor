@@ -151,9 +151,15 @@ public:
 
   /**
    * @brief Resizes the underlying surface.
-   * @param[in] The dimensions of the new position
+   * @param[in] positionSize The dimensions of the new position
    */
   virtual void MoveResize(Dali::PositionSize positionSize) = 0;
+
+  /**
+   * @brief Sets the size of the surface.
+   * @param[in] size The new size of the surface
+   */
+  virtual void Resize(Uint16Pair size) = 0;
 
   /**
    * @brief Called when Render thread has started

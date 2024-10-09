@@ -183,6 +183,11 @@ public:
     mCallstack.PushCall("Resume()", "");
   }
 
+  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size) override
+  {
+    mCallstack.PushCall("Resize()", "");
+  }
+
   /**
    * Get the buffer age of the surface. 0 means that the back buffer
    * is invalid and needs a full swap.
