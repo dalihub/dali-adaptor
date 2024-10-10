@@ -299,6 +299,11 @@ void NativeRenderSurfaceEcoreWl::MoveResize(Dali::PositionSize positionSize)
   mSurfaceSize.SetHeight(static_cast<uint16_t>(positionSize.height));
 }
 
+void NativeRenderSurfaceEcoreWl::Resize(Dali::Uint16Pair size)
+{
+  MoveResize(PositionSize(0, 0, size.GetWidth(), size.GetHeight()));
+}
+
 void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
