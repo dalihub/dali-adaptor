@@ -44,7 +44,7 @@ VkSurfaceXlib2Xcb::VkSurfaceXlib2Xcb(::Display* display, ::Window window)
   mWindow     = static_cast<decltype(mWindow)>(window);
 }
 
-vk::SurfaceKHR VkSurfaceXlib2Xcb::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks, vk::PhysicalDevice physicalDevice) const
+vk::SurfaceKHR VkSurfaceXlib2Xcb::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks) const
 {
   vk::XcbSurfaceCreateInfoKHR info;
   info.setConnection(mConnection).setWindow(mWindow);

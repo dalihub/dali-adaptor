@@ -30,33 +30,32 @@ namespace Graphics
 namespace Vulkan
 {
 
-VkSurfaceXlib::VkSurfaceXlib( Dali::RenderSurface& renderSurface )
+VkSurfaceXlib::VkSurfaceXlib(Dali::RenderSurface& renderSurface)
 : SurfaceFactory()
 {
-  auto ecoreSurface = dynamic_cast< Dali::Internal::Adaptor::WindowRenderSurface* >( &renderSurface );
-  assert( ecoreSurface != nullptr && "This is not ecore surface!");
-  mWindow = ecoreSurface->GetNativeWindowId();
-  mDisplay = XOpenDisplay( nullptr );
+  auto ecoreSurface = dynamic_cast<Dali::Internal::Adaptor::WindowRenderSurface*>(&renderSurface);
+  assert(ecoreSurface != nullptr && "This is not ecore surface!");
+  mWindow  = ecoreSurface->GetNativeWindowId();
+  mDisplay = XOpenDisplay(nullptr);
 }
 
-vk::SurfaceKHR VkSurfaceXlib::Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                      vk::PhysicalDevice physicalDevice ) const
+vk::SurfaceKHR VkSurfaceXlib::Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks) const
 {
   vk::XlibSurfaceCreateInfoKHR info;
-  info.setDpy( mDisplay ).setWindow( mWindow );
-  auto retval = instance.createXlibSurfaceKHR( info, allocCallbacks ).value;
+  info.setDpy(mDisplay).setWindow(mWindow);
+  auto retval = instance.createXlibSurfaceKHR(info, allocCallbacks).value;
   return retval;
 }
 
-} // Vulkan
+} // namespace Vulkan
 
 std::unique_ptr<SurfaceFactory> SurfaceFactory::New(Dali::RenderSurface& renderSurface)
 {
-  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXlib>( new Graphics::Vulkan::VkSurfaceXlib( renderSurface ) );
+  auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXlib>(new Graphics::Vulkan::VkSurfaceXlib(renderSurface));
   return surfaceFactory;
 }
 
-} // Graphics
-} // Dali
+} // namespace Graphics
+} // namespace Dali
 
 #pragma GCC diagnostic pop

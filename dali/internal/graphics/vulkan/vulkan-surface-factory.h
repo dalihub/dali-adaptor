@@ -30,12 +30,10 @@ namespace Dali::Graphics::Vulkan
 class SurfaceFactory : public Dali::Graphics::SurfaceFactory
 {
 public:
-
   SurfaceFactory() = default;
 
-  virtual vk::SurfaceKHR Create( vk::Instance instance,
-                                 const vk::AllocationCallbacks* allocCallbacks,
-                                 vk::PhysicalDevice physicalDevice ) const = 0;
+  virtual vk::SurfaceKHR Create(vk::Instance                   instance,
+                                const vk::AllocationCallbacks* allocCallbacks) const = 0;
 };
 
 } // namespace Dali::Graphics::Vulkan
