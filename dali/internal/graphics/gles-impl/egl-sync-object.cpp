@@ -38,12 +38,6 @@ SyncObject::~SyncObject()
 
 void SyncObject::DestroyResource()
 {
-  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
-  {
-    return;
-  }
-  mEglSyncImplementation.DestroySyncObject(mEglSyncObject);
-  mEglSyncObject = nullptr;
 }
 
 bool SyncObject::InitializeResource()
@@ -57,7 +51,8 @@ void SyncObject::DiscardResource()
 {
   // Called from custom deleter.
   // Don't use discard queue, drop immediately.
-  DestroyResource();
+  mEglSyncImplementation.DestroySyncObject(mEglSyncObject);
+  mEglSyncObject = nullptr;
 }
 
 bool SyncObject::IsSynced()

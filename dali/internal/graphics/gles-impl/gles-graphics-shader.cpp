@@ -168,7 +168,7 @@ ShaderImpl::ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::E
 
 ShaderImpl::~ShaderImpl()
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  if(!mImpl->controller.IsShuttingDown())
   {
     mImpl->Destroy();
   }
@@ -283,11 +283,6 @@ Shader::~Shader()
 {
   if(!mShader->Release())
   {
-    if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
-    {
-      return; // Early out if shutting down
-    }
-
     GetImplementation()->GetController().GetPipelineCache().MarkShaderCacheFlushRequired();
   }
 }
@@ -299,7 +294,11 @@ Shader::~Shader()
 
 void Shader::DiscardResource()
 {
-  GetImplementation()->GetController().DiscardResource(this);
+  auto& controller = GetImplementation()->GetController();
+  if(!controller.IsShuttingDown())
+  {
+    controller.DiscardResource(this);
+  }
 }
 
 uint32_t Shader::GetGLSLVersion() const

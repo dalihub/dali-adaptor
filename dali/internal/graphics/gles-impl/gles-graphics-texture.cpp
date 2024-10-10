@@ -310,26 +310,20 @@ bool Texture::InitializeTexture()
 
 void Texture::DestroyResource()
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  auto gl = mController.GetGL();
+  if(!gl)
   {
-    auto gl = mController.GetGL();
-    if(!gl)
-    {
-      return;
-    }
+    return;
+  }
 
-    // This is a proper destructor
-    if(mTextureId)
-    {
-      gl->DeleteTextures(1, &mTextureId);
-    }
-
-    // TODO : Shouldn't we call DestroyResource even if shutting down?
-    // For now, we use EglExtensions API at DestroyResource. So just block for now.
-    if(mCreateInfo.nativeImagePtr)
-    {
-      mCreateInfo.nativeImagePtr->DestroyResource();
-    }
+  // This is a proper destructor
+  if(mTextureId)
+  {
+    gl->DeleteTextures(1, &mTextureId);
+  }
+  if(mCreateInfo.nativeImagePtr)
+  {
+    mCreateInfo.nativeImagePtr->DestroyResource();
   }
 }
 

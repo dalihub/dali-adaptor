@@ -70,21 +70,8 @@ struct GLESDeleter
 
   void operator()(T* object)
   {
-    // GLES object deleter should skip discard queue if controller shutting down
-    if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
-    {
-      // Discard resource (add it to discard queue)
-      object->DiscardResource();
-    }
-    else
-    {
-      // Destroy and delete object otherwise
-      if(DALI_LIKELY(object))
-      {
-        object->DestroyResource();
-      }
-      delete object;
-    }
+    // Discard resource (add it to discard queue)
+    object->DiscardResource();
   }
 };
 
@@ -143,14 +130,7 @@ T0* CastObject(T1* apiObject)
 const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, false);
-
-bool gIsShuttingDown = true; ///< Global static flag to ensure that we have single graphics controller instance per each UpdateRender thread loop.
 } // namespace
-
-bool EglGraphicsController::IsShuttingDown()
-{
-  return gIsShuttingDown;
-}
 
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
@@ -171,7 +151,6 @@ EglGraphicsController::~EglGraphicsController()
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 1\n");
-
   mGlAbstraction  = &glAbstraction;
   mContext        = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mCurrentContext = mContext.get();
@@ -182,9 +161,6 @@ void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syn
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
   auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
-
-  DALI_ASSERT_ALWAYS(gIsShuttingDown && "Don't initialize Phase 2 EglGraphicsController twice");
-  gIsShuttingDown = false;
 
   mEglSyncImplementation = syncImplPtr;
   mGraphics              = &graphicsInterface;
@@ -215,28 +191,6 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 void EglGraphicsController::WaitIdle()
 {
   Flush();
-}
-
-void EglGraphicsController::Shutdown()
-{
-  DALI_ASSERT_ALWAYS(!gIsShuttingDown && "Don't call EglGraphicsController::Shutdown twice");
-  gIsShuttingDown = true;
-
-  // Final flush
-  Flush();
-
-  if(mContext)
-  {
-    mContext->GlContextDestroyed();
-  }
-
-  for(auto&& context : mSurfaceContexts)
-  {
-    if(context.second)
-    {
-      context.second->GlContextDestroyed();
-    }
-  }
 }
 
 void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)

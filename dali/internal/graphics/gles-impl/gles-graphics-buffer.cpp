@@ -125,11 +125,6 @@ void Buffer::InitializeCPUBuffer()
 
 void Buffer::InitializeGPUBuffer()
 {
-  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
-  {
-    return;
-  }
-
   auto context = mController.GetCurrentContext();
   auto gl      = mController.GetGL();
   if(!gl || !context)
@@ -165,13 +160,10 @@ void Buffer::DestroyResource()
   // Deestroy GPU allocation
   else
   {
-    if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+    auto gl = mController.GetGL();
+    if(gl)
     {
-      auto gl = mController.GetGL();
-      if(gl)
-      {
-        gl->DeleteBuffers(1, &mBufferId);
-      }
+      gl->DeleteBuffers(1, &mBufferId);
     }
   }
 }

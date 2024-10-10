@@ -78,31 +78,28 @@ void* Memory2::LockRegion(uint32_t offset, uint32_t size)
 
 void Memory2::Unlock(bool flush)
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  if(auto gl = mController.GetGL())
   {
-    if(auto gl = mController.GetGL())
+    // for buffer...
+    if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
     {
-      // for buffer...
-      if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
+      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+      if(!buffer->IsCPUAllocated())
       {
-        auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-        if(!buffer->IsCPUAllocated())
-        {
-          buffer->Bind(BufferUsage::VERTEX_BUFFER);
-          gl->BufferSubData(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), mMappedPointer);
-        }
+        buffer->Bind(BufferUsage::VERTEX_BUFFER);
+        gl->BufferSubData(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), mMappedPointer);
       }
+    }
 
-      if(mIsAllocatedLocally)
-      {
-        free(mMappedPointer);
-        mMappedPointer = nullptr;
-      }
+    if(mIsAllocatedLocally)
+    {
+      free(mMappedPointer);
+      mMappedPointer = nullptr;
+    }
 
-      if(flush)
-      {
-        Flush();
-      }
+    if(flush)
+    {
+      Flush();
     }
   }
 }
