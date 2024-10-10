@@ -102,10 +102,4 @@ void ShaderPreCompiler::Awake()
   mNeedsSleep = false;
   mConditionalWait.Notify(lock);
 }
-
-void ShaderPreCompiler::ClearPreCompiledPrograms()
-{
-  mProgram.clear();
-}
-
 } // namespace Dali
