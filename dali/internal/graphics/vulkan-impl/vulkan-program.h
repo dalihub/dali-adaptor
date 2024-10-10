@@ -28,6 +28,7 @@ namespace Dali::Graphics::Vulkan
 {
 class Reflection;
 class ProgramImpl;
+
 /**
  * @brief Wrapper for the program implementation
  *
@@ -37,7 +38,7 @@ class ProgramImpl;
  * within Graphics API is a set of shader stages linked together
  * so the reflection can do its work on it.
  */
-class Program : public Graphics::Program
+class Program : public Graphics::Program, public Vulkan::ResourceBase
 {
 public:
   /**
@@ -59,7 +60,6 @@ public:
 
   /**
    * @brief Returns reference to the Reflection object
-
    * @return Reflection
    */
   [[nodiscard]] const Vulkan::Reflection& GetReflection() const;
@@ -104,9 +104,14 @@ public:
   }
 
   /**
+   * @brief Initialize the resource
+   */
+  bool InitializeResource() override;
+
+  /**
    * @brief Run by UniquePtr to discard resource
    */
-  void DiscardResource();
+  void DiscardResource() override;
 
   /**
    * @brief Destroying resources
@@ -114,10 +119,7 @@ public:
    * This function is kept for compatibility with Resource<> class
    * so can the object can be use with templated functions.
    */
-  void DestroyResource()
-  {
-    // nothing to do here
-  }
+  void DestroyResource() override;
 
   bool TryRecycle(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
   {
@@ -129,4 +131,4 @@ private:
 };
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_GRAPHICS_VULKAN_PROGRAM_H
+#endif // DALI_GRAPHICS_VULKAN_PROGRAM_H

@@ -49,25 +49,28 @@ Memory3::~Memory3()
 
 void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 {
-  if(auto gl = mController.GetGL())
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    if(mMapObjectType == MapObjectType::BUFFER)
+    if(auto gl = mController.GetGL())
     {
-      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+      if(mMapObjectType == MapObjectType::BUFFER)
+      {
+        auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
 
-      if(buffer->IsCPUAllocated())
-      {
-        using Ptr      = char*;
-        mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+        if(buffer->IsCPUAllocated())
+        {
+          using Ptr      = char*;
+          mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+        }
+        else
+        {
+          gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
+          void* ptr      = nullptr;
+          ptr            = gl->MapBufferRange(GL_COPY_WRITE_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
+          mMappedPointer = ptr;
+        }
+        return mMappedPointer;
       }
-      else
-      {
-        gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
-        void* ptr      = nullptr;
-        ptr            = gl->MapBufferRange(GL_COPY_WRITE_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
-        mMappedPointer = ptr;
-      }
-      return mMappedPointer;
     }
   }
   return nullptr;
@@ -75,21 +78,24 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 
 void Memory3::Unlock(bool flush)
 {
-  if(auto gl = mController.GetGL())
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
+    if(auto gl = mController.GetGL())
     {
-      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-      if(!buffer->IsCPUAllocated())
+      if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
       {
-        gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
-        gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
+        auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+        if(!buffer->IsCPUAllocated())
+        {
+          gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
+          gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
+        }
       }
-    }
 
-    if(flush)
-    {
-      Flush();
+      if(flush)
+      {
+        Flush();
+      }
     }
 
     mMappedPointer = nullptr;

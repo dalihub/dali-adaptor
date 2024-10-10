@@ -24,7 +24,6 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 namespace
 {
 constexpr vk::Filter ConvertFilter(Dali::Graphics::SamplerFilter filter)
@@ -82,7 +81,11 @@ Sampler::~Sampler() = default;
 
 void Sampler::DestroyResource()
 {
-  // For now, no GPU resources are initialized so nothing to destroy
+  if(mSamplerImpl)
+  {
+    mSamplerImpl->Destroy();
+    mSamplerImpl = nullptr;
+  }
 }
 
 bool Sampler::InitializeResource()

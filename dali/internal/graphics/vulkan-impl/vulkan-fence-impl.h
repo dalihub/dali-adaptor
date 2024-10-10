@@ -23,6 +23,7 @@
 
 // EXTERNAL INCLUDES
 #include <limits>
+#include <memory>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -34,7 +35,7 @@ class Device;
 class FenceImpl
 {
 public:
-  static FenceImpl* New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo);
+  static std::unique_ptr<FenceImpl> New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo);
 
   FenceImpl(Device& graphicsDevice);
 

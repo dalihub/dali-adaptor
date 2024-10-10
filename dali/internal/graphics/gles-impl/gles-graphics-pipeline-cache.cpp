@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,26 +39,18 @@ struct CachedObjectDeleter
 
   void operator()(T* object)
   {
-    // Discard resource (add it to discard queue)
-    object->DiscardResource();
-  }
-};
-
-template<>
-struct CachedObjectDeleter<GLES::Program>
-{
-  CachedObjectDeleter() = default;
-
-  void operator()(GLES::Program* object)
-  {
-    // Program deleter should skip discard queue if controller shutting down
-    if(!object->GetController().IsShuttingDown())
+    // Discard resource (add it to discard queue) if controller is not shutting down
+    if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
     {
       object->DiscardResource();
     }
     else
     {
-      // delete object otherwise
+      // Destroy and delete object otherwise
+      if(DALI_LIKELY(object))
+      {
+        object->DestroyResource();
+      }
       delete object;
     }
   }
@@ -502,15 +494,24 @@ ShaderImpl* PipelineCache::FindShaderImpl(const ShaderCreateInfo& shaderCreateIn
     for(auto& item : mImpl->shaderEntries)
     {
       auto& itemInfo = item.shaderImpl->GetCreateInfo();
+
+      // Check metadata
       if(itemInfo.pipelineStage != shaderCreateInfo.pipelineStage ||
          itemInfo.shaderlanguage != shaderCreateInfo.shaderlanguage ||
-         itemInfo.sourceMode != shaderCreateInfo.sourceMode ||
-         itemInfo.sourceSize != shaderCreateInfo.sourceSize)
+         itemInfo.sourceMode != shaderCreateInfo.sourceMode)
       {
         continue;
       }
 
-      if(memcmp(itemInfo.sourceData, shaderCreateInfo.sourceData, itemInfo.sourceSize) == 0)
+      // Get offset of source. Since prefix might be removed after ShaderImpl created,
+      // we should compare only after the offset.
+      auto sourceOffset = item.shaderImpl->GetSourceOffset();
+      if(itemInfo.sourceSize + sourceOffset != shaderCreateInfo.sourceSize)
+      {
+        continue;
+      }
+
+      if(memcmp(itemInfo.sourceData, reinterpret_cast<const uint8_t*>(shaderCreateInfo.sourceData) + sourceOffset, itemInfo.sourceSize) == 0)
       {
         return item.shaderImpl.get();
       }

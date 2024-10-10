@@ -52,6 +52,8 @@ public:
 
   ~ImageView();
 
+  void Destroy();
+
   /**
    *
    * @return
@@ -78,8 +80,6 @@ public:
    * @return
    */
   [[nodiscard]] vk::ImageAspectFlags GetImageAspectMask() const;
-
-  void Destroy();
 
 private:
   Device&                 mDevice;

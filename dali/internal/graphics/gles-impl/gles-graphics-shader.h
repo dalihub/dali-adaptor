@@ -126,6 +126,12 @@ public:
    */
   [[nodiscard]] uint32_t GetGLSLVersion() const;
 
+  /**
+   * @brief Returns source prefix offset infomation.
+   * @return Returns source prefix offset value
+   */
+  [[nodiscard]] size_t GetSourceOffset() const;
+
 private:
   friend class Shader;
   struct Impl;
