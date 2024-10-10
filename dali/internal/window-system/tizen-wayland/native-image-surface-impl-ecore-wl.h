@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,15 +88,17 @@ public:
 private:
   void MakeContextCurrent();
 
-private:                                                       // Data
-  std::unique_ptr<Dali::DisplayConnection> mDisplayConnection; ///< The native display connection
+private:                                                           // Data
+  std::unique_ptr<Dali::DisplayConnection>     mDisplayConnection; ///< The native display connection
   std::unique_ptr<Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
-  EglInterface*                            mEGL;
-  EGLSurface                               mEGLSurface;
-  EGLContext                               mEGLContext;
-  ColorDepth                               mColorDepth;
-  tbm_format                               mTbmFormat;
-  tbm_surface_queue_h                      mTbmQueue;
+#if(!VULKAN_ENABLED)
+  EglInterface* mEGL;
+  EGLSurface    mEGLSurface;
+  EGLContext    mEGLContext;
+#endif
+  ColorDepth          mColorDepth;
+  tbm_format          mTbmFormat;
+  tbm_surface_queue_h mTbmQueue;
 
   bool mDepth : 1;
   bool mStencil : 1;

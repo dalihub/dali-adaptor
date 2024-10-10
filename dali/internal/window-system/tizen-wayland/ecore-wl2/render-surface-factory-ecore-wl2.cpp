@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,11 @@
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#if(!VULKAN_ENABLED)
 #include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
+#else
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#endif
 
 // EXTERNAL INCLUDES
 #include <memory>
@@ -45,7 +49,11 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreWl2::CreatePixmapR
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
+#if(!VULKAN_ENABLED)
   return Utils::MakeUnique<NativeRenderSurfaceEcoreWl>(surfaceSize, surface, isTransparent);
+#else
+  return nullptr;
+#endif
 }
 
 // this should be created from somewhere
