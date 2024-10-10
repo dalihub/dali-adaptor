@@ -589,32 +589,32 @@ void DragAndDropEcoreWl::TriggerDragEventForWindowTarget(int targetIndex, Ecore_
   bool currentInside = IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
 
   // Calculate Drag Enter, Leave, Move Event
-  if(currentInside && !mDropTargets[targetIndex].inside)
+  if(currentInside && !mDropWindowTargets[targetIndex].inside)
   {
-    mDropTargets[targetIndex].inside = true;
+    mDropWindowTargets[targetIndex].inside = true;
     // Call Enter Event
     dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
     dragEvent.SetPosition(cursor);
-    mDropTargets[targetIndex].callback(dragEvent);
+    mDropWindowTargets[targetIndex].callback(dragEvent);
     // Accept Offer
     ecore_wl2_offer_mimes_set(event->offer, mimes);
   }
-  else if(!currentInside && mDropTargets[targetIndex].inside)
+  else if(!currentInside && mDropWindowTargets[targetIndex].inside)
   {
-    mDropTargets[targetIndex].inside = false;
+    mDropWindowTargets[targetIndex].inside = false;
     // Call Leave Event
     dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
     dragEvent.SetPosition(cursor);
-    mDropTargets[targetIndex].callback(dragEvent);
+    mDropWindowTargets[targetIndex].callback(dragEvent);
     // Reject Offer
     ecore_wl2_offer_accept(event->offer, nullptr);
   }
-  else if(currentInside && mDropTargets[targetIndex].inside)
+  else if(currentInside && mDropWindowTargets[targetIndex].inside)
   {
     // Call Move Event
     dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
     dragEvent.SetPosition(cursor);
-    mDropTargets[targetIndex].callback(dragEvent);
+    mDropWindowTargets[targetIndex].callback(dragEvent);
   }
 }
 
