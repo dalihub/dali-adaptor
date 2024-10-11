@@ -91,11 +91,6 @@ auto& PipelineImpl::GetController() const
 
 void PipelineImpl::Bind(const uint32_t glProgram) const
 {
-  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
-  {
-    return; // Early out if shutting down
-  }
-
   if(auto gl = GetController().GetGL())
   {
     gl->UseProgram(glProgram);

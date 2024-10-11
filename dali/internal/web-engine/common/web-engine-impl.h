@@ -49,11 +49,11 @@ class WebEngine : public Dali::BaseObject
 {
 public:
   /**
-   * @brief Create a new WebEngine handle with type (0: Chromium, 1: LWE, otherwise: depend on system environment).
-   * @param[in] type The WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
+   * @brief Create a new WebEngine handle
+   *
    * @return WebEngine pointer
    */
-  static WebEnginePtr New(int32_t type);
+  static WebEnginePtr New();
 
   /**
    * @brief Get context of web engine
@@ -592,31 +592,11 @@ public:
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
 
-  /**
-   * @copydoc Dali::WebEngine::WebAuthenticationCancel()
-   */
-  void WebAuthenticationCancel();
-
-  /**
-   * @copydoc Dali::WebEngine::RegisterWebAuthDisplayQRCallback()
-   */
-  void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
-
-  /**
-   * @copydoc Dali::WebEngine::RegisterWebAuthResponseCallback()
-   */
-  void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
-
-  /**
-   * @copydoc Dali::WebEngine::RegisterUserMediaPermissionRequestCallback()
-   */
-  void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
-
 private:
   /**
-   * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
+   * @brief Constructor.
    */
-  WebEngine(int32_t type);
+  WebEngine();
 
   /**
    * @brief Destructor.

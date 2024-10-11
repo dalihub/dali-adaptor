@@ -58,7 +58,7 @@ public:
   std::string GetNativeWindowResourceId() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::CreateWindow()
+  * @copydoc Dali::Internal::Adaptor::WindowBase::CreateWindow()
    */
   Dali::Any CreateWindow(int width, int height) override;
 
@@ -468,16 +468,6 @@ public:
   bool IsAlwaysOnTop() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()
-   */
-  void SetBottom(bool enable) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IsBottom()
-   */
-  bool IsBottom() override;
-
-  /**
    * @brief Sets front buffer rendering to the window.
    * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
    */
@@ -507,16 +497,6 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBackgroundBlur()
    */
   int GetBackgroundBlur() override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlur()
-   */
-  void SetBehindBlur(int blurRadius) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
-   */
-  int GetBehindBlur() override;
 
 private:
   // Undefined

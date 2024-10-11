@@ -36,8 +36,6 @@ public:
 
   void Initialize();
 
-  void Destroy();
-
   /**
    * Returns VkSampler object
    * @return

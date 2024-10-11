@@ -22,10 +22,11 @@
 
 namespace Dali::Graphics::Vulkan
 {
+
 class MemoryImpl
 {
 public:
-  MemoryImpl(Device& device, size_t memSize, size_t memAlign, vk::MemoryPropertyFlags memoryProperties);
+  MemoryImpl(Device& device, size_t memSize, size_t memAlign, bool hostVisible);
 
   ~MemoryImpl();
 
@@ -49,16 +50,23 @@ public:
 
   void Flush();
 
+  /**
+   * Releases vk::DeviceMemory object so it can be deleted
+   * externally
+   * @return
+   */
+  vk::DeviceMemory ReleaseVkObject();
+
   [[nodiscard]] vk::DeviceMemory GetVkHandle() const;
 
 private:
-  Device&                 mDevice;
-  vk::DeviceMemory        deviceMemory;
-  size_t                  size;
-  size_t                  alignment;
-  void*                   mappedPtr;
-  size_t                  mappedSize;
-  vk::MemoryPropertyFlags mMemoryProperties;
+  Device&          mDevice;
+  vk::DeviceMemory deviceMemory;
+  size_t           size;
+  size_t           alignment;
+  void*            mappedPtr;
+  size_t           mappedSize;
+  bool             hostVisible;
 };
 
 } // namespace Dali::Graphics::Vulkan

@@ -25,14 +25,12 @@ namespace Dali::Graphics::Vulkan
 {
 class Device;
 
-class SurfaceImpl
+class SurfaceImpl final : public Dali::Graphics::Vulkan::VkManaged
 {
 public:
   explicit SurfaceImpl(Device& device, vk::SurfaceKHR surfaceKhr);
 
-  ~SurfaceImpl();
-
-  void Destroy();
+  ~SurfaceImpl() final;
 
   /**
    * @return the handle to this surface
@@ -59,13 +57,15 @@ public:
    */
   bool GetSupportedFormats(
     vk::SurfaceFormatKHR requestedFormat,
-    vk::Format&          swapchainImageFormat,
-    vk::ColorSpaceKHR&   swapchainColorSpace);
+    vk::Format& swapchainImageFormat,
+    vk::ColorSpaceKHR& swapchainColorSpace);
 
   /**
    * Update size of surface
    */
   void UpdateSize(unsigned int width, unsigned int height);
+
+  bool OnDestroy() override;
 
 private:
   Device&                    mGraphicsDevice;

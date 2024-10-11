@@ -158,7 +158,6 @@ SET( devel_api_adaptor_framework_web_engine_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-request-interceptor.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-security-origin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-settings.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-user-media-permission-request.h  
 )
 
 

@@ -48,17 +48,9 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
-static constexpr int32_t USE_ENVIRONMENT_VALUE = -1;
-static constexpr int32_t USE_CHROMIUM_WEB_ENGINE = 0;
-static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE = 1;
-static constexpr int32_t DEFAULT_WEB_ENGINE_PLUGIN_TYPE = USE_ENVIRONMENT_VALUE;
-static int32_t webEnginePluginType = DEFAULT_WEB_ENGINE_PLUGIN_TYPE;
-
 constexpr char const* const kPluginFullNamePrefix  = "libdali2-web-engine-";
 constexpr char const* const kPluginFullNamePostfix = "-plugin.so";
 constexpr char const* const kPluginFullNameDefault = "libdali2-web-engine-plugin.so";
-constexpr char const* const kPluginFullNameChromium = "libdali2-web-engine-chromium-plugin.so";
-constexpr char const* const kPluginFullNameLwe = "libdali2-web-engine-lwe-plugin.so";
 
 std::string MakePluginName(const char* environmentName)
 {
@@ -151,26 +143,14 @@ private:
     mGetWebEngineCookieManagerPtr{nullptr}
   {
     std::string pluginName;
-
-    if(webEnginePluginType == USE_CHROMIUM_WEB_ENGINE)
+    const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
+    if(name)
     {
-      pluginName = kPluginFullNameChromium;
-    }
-    else if(webEnginePluginType == USE_LIGHT_WEIGHT_WEB_ENGINE)
-    {
-      pluginName = kPluginFullNameLwe;
+      pluginName = MakePluginName(name);
     }
     else
     {
-      const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
-      if(name)
-      {
-        pluginName = MakePluginName(name);
-      }
-      else
-      {
-        pluginName = std::string(kPluginFullNameDefault);
-      }
+      pluginName = std::string(kPluginFullNameDefault);
     }
 
     mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
@@ -232,9 +212,9 @@ public:
 
 } // unnamed namespace
 
-WebEnginePtr WebEngine::New(int32_t type)
+WebEnginePtr WebEngine::New()
 {
-  WebEngine* instance = new WebEngine(type);
+  WebEngine* instance = new WebEngine();
   if(!instance->Initialize())
   {
     delete instance;
@@ -274,10 +254,9 @@ Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
   return nullptr;
 }
 
-WebEngine::WebEngine(int32_t type)
+WebEngine::WebEngine()
 : mPlugin(nullptr)
 {
-  webEnginePluginType = type;
 }
 
 WebEngine::~WebEngine()
@@ -835,27 +814,6 @@ void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextRecei
 {
   mPlugin->GetPlainTextAsynchronously(callback);
 }
-
-void WebEngine::WebAuthenticationCancel()
-{
-  mPlugin->WebAuthenticationCancel();
-}
-
-void WebEngine::RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback)
-{
-  mPlugin->RegisterWebAuthDisplayQRCallback(callback);
-}
-
-void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback)
-{
-  mPlugin->RegisterWebAuthResponseCallback(callback);
-}
-
-void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)
-{
-  mPlugin->RegisterUserMediaPermissionRequestCallback(callback);
-}
-
 
 } // namespace Adaptor
 } // namespace Internal

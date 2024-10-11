@@ -582,9 +582,6 @@ public:
   /**
    * @brief Enables or disables the window always is on top.
    *
-   * This is valid between windows that have no notification level or a notification level of 'none'.
-   * If it has a notification level, this will not do anything.
-   *
    * @param[in] alwaysOnTop true to enable the window always is on top, false to disable.
    */
   virtual void SetAlwaysOnTop(bool alwaysOnTop) = 0;
@@ -595,24 +592,6 @@ public:
    * @return True if the window always is on top, false otherwise.
    */
   virtual bool IsAlwaysOnTop() = 0;
-
-  /**
-   * @brief Enables or disables the window's layer is changed to bottom.
-   *
-   * If the enable flag is true, this window will be placed below other windows.
-   * Otherwise, if it's called with a false value, it will be located above other windows.
-   *
-   * @param[in] window The window instance.
-   * @param[in] enable true to change the window layer to the bottom.
-   */
-  virtual void SetBottom(bool enable) = 0;
-
-  /**
-   * @brief Returns whether the window layer is the bottom or not.
-   *
-   * @return True if the window layer is the bottom, false otherwise.
-   */
-  virtual bool IsBottom() = 0;
 
   /**
    * @brief Get native buffer of window.
@@ -638,8 +617,8 @@ public:
    * @brief Set the window's background blur.
    * If this value is 0, the background blur is disabled.
    *
-   * @param[in] blurRadius The radius of the blur effect.
-   * @param[in] cornerRadius The radius of the corner radius.
+   * @param[in] blurRadius the background blur.
+   * @param[in] cornerRadius the background blur.
    */
   virtual void SetBackgroundBlur(int blurRadius, int cornerRadius) = 0;
 
@@ -650,22 +629,6 @@ public:
    * @return current background blur.
    */
   virtual int GetBackgroundBlur() = 0;
-
-  /**
-   * @brief Set the window's behind blur.
-   * If this value is 0, the behind blur is disabled.
-   *
-   * @param[in] blurRadius The radius of the blur effect.
-   */
-  virtual void SetBehindBlur(int blurRadius) = 0;
-
-  /**
-   * @brief Returns current behind blur.
-   * If this value is 0, behind blur is disabled.
-   *
-   * @return current behind blur.
-   */
-  virtual int GetBehindBlur() = 0;
 
   // Signals
 

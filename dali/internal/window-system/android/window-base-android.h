@@ -540,16 +540,6 @@ public:
   bool IsAlwaysOnTop() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()
-   */
-  void SetBottom(bool enable) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IsBottom()
-   */
-  bool IsBottom() override;
-
-  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeBuffer()
    */
   Any GetNativeBuffer() const override;
@@ -564,25 +554,16 @@ public:
    */
   bool RelativeMotionUnGrab() override;
 
-  /**
+/**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBackgroundBlur()
    */
   void SetBackgroundBlur(int blurRadius, int cornerRadius) override;
+
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBackgroundBlur()
    */
   int GetBackgroundBlur() override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlur()
-   */
-  void SetBehindBlur(int blurRadius) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
-   */
-  int GetBehindBlur() override;
 
 private:
   /**

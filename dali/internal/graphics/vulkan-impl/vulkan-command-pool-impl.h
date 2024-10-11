@@ -24,7 +24,7 @@ namespace Dali::Graphics::Vulkan
 class Device;
 class CommandBufferImpl;
 
-class CommandPool
+class CommandPool : public VkManaged
 {
 public: // Construction, destruction
   /**
@@ -46,7 +46,7 @@ public: // Construction, destruction
 
   CommandPool(Device& graphicsDevice, const vk::CommandPoolCreateInfo& createInfo);
 
-  ~CommandPool();
+  ~CommandPool() override;
 
   vk::CommandPool GetVkHandle() const;
 
@@ -54,7 +54,7 @@ public: // Construction, destruction
 
   bool Initialize();
 
-  void Destroy();
+  bool OnDestroy() override; // TODO: Queue deleter for destruction
 
   /**
    * Resets command pool

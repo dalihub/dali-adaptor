@@ -42,36 +42,11 @@ public:
   Texture(const Graphics::TextureCreateInfo& createInfo, VulkanGraphicsController& controller);
   ~Texture();
 
-  /**
-   * @copydoc Graphics::Vulkan::Resource::InitializeResource();
-   */
   bool InitializeResource() override;
 
-  /**
-   * @copydoc Graphics::Vulkan::Resource::DiscardResource();
-   */
-  void DiscardResource() override;
-  /**
-   * @copydoc Graphics::Vulkan::Resource::DestroyResource();
-   */
   void DestroyResource() override;
 
-  /**
-   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
-   */
-  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
-  {
-    return mCreateInfo.allocationCallbacks;
-  }
-
-  /**
-   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
-   * Only intended for use by discard queue.
-   */
-  void InvokeDeleter() override
-  {
-    this->~Texture();
-  }
+  void DiscardResource() override;
 
   bool IsSamplerImmutable() const;
 

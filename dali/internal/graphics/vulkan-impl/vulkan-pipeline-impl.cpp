@@ -261,12 +261,10 @@ void PipelineImpl::InitializePipeline()
   dynInfo.setDynamicStates(mDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynInfo);
 
-  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
-
-  auto rtImpl = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
-
-  auto framebuffer = rtImpl->GetFramebuffer();
-  auto surface     = rtImpl->GetSurface();
+  auto& allocator   = mController.GetGraphicsDevice().GetAllocator();
+  auto  rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  auto  framebuffer = rtImpl->GetFramebuffer();
+  auto  surface     = rtImpl->GetSurface();
 
   FramebufferImpl* fbImpl = nullptr;
   if(surface)
@@ -284,7 +282,7 @@ void PipelineImpl::InitializePipeline()
   auto renderPassCount = fbImpl->GetRenderPassCount();
   for(auto i = 0u; i < renderPassCount; ++i)
   {
-    RenderPassHandle impl      = fbImpl->GetRenderPass(i);
+    RenderPassImpl* impl       = fbImpl->GetRenderPass(i);
     gfxPipelineInfo.renderPass = impl->GetVkHandle();
     gfxPipelineInfo.subpass    = 0;
 
@@ -319,11 +317,6 @@ void PipelineImpl::InitializePipeline()
     item.pipeline   = vkPipeline;
     mVkPipelines.emplace_back(item);
   }
-}
-
-const Vulkan::Program* PipelineImpl::GetProgram() const
-{
-  return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
 }
 
 void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out)
@@ -831,11 +824,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 
   att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
   att.setBlendEnable(in->blendEnable);
-  //att.setColorWriteMask()
   att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
   att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
-  att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                        vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
   att.setDstAlphaBlendFactor(ConvBlendFactor(in->dstAlphaBlendFactor));
   att.setDstColorBlendFactor(ConvBlendFactor(in->dstColorBlendFactor));
   att.setSrcAlphaBlendFactor(ConvBlendFactor(in->srcAlphaBlendFactor));

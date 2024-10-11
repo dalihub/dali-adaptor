@@ -32,9 +32,9 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-FramebufferAttachment* FramebufferAttachment::NewColorAttachment(std::unique_ptr<ImageView>& imageView,
-                                                                 vk::ClearColorValue         clearColorValue,
-                                                                 bool                        presentable)
+FramebufferAttachment* FramebufferAttachment::NewColorAttachment(ImageView*          imageView,
+                                                                 vk::ClearColorValue clearColorValue,
+                                                                 bool                presentable)
 {
   assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eColorAttachment);
 
@@ -46,8 +46,8 @@ FramebufferAttachment* FramebufferAttachment::NewColorAttachment(std::unique_ptr
 }
 
 FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
-  std::unique_ptr<ImageView>& imageView,
-  vk::ClearDepthStencilValue  clearDepthStencilValue)
+  ImageView*                 imageView,
+  vk::ClearDepthStencilValue clearDepthStencilValue)
 {
   assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
@@ -59,15 +59,15 @@ FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
   return attachment;
 }
 
-FramebufferAttachment::FramebufferAttachment(std::unique_ptr<ImageView>& imageView,
-                                             vk::ClearValue              clearColor,
-                                             AttachmentType              type,
-                                             bool                        presentable)
-: mClearValue(clearColor),
+FramebufferAttachment::FramebufferAttachment(ImageView*     imageView,
+                                             vk::ClearValue clearColor,
+                                             AttachmentType type,
+                                             bool           presentable)
+: mImageView(imageView),
+  mClearValue(clearColor),
   mType(type)
 {
-  mImageView.swap(imageView);
-  auto image = mImageView->GetImage();
+  auto image = imageView->GetImage();
 
   auto sampleCountFlags = image->GetSampleCount();
 
@@ -92,7 +92,7 @@ FramebufferAttachment::FramebufferAttachment(std::unique_ptr<ImageView>& imageVi
 
 ImageView* FramebufferAttachment::GetImageView() const
 {
-  return mImageView.get();
+  return mImageView;
 }
 
 const vk::AttachmentDescription& FramebufferAttachment::GetDescription() const
@@ -112,61 +112,56 @@ AttachmentType FramebufferAttachment::GetType() const
 
 bool FramebufferAttachment::IsValid() const
 {
-  return mImageView != nullptr;
+  return mImageView;
 }
 
 // FramebufferImpl -------------------------------
 
 FramebufferImpl* FramebufferImpl::New(
-  Vulkan::Device&   device,
-  RenderPassHandle  renderPass,
-  OwnedAttachments& attachments,
-  uint32_t          width,
-  uint32_t          height,
-  bool              hasDepthAttachments)
+  Vulkan::Device&                      device,
+  RenderPassImpl*                      renderPass,
+  std::vector<FramebufferAttachment*>& attachments,
+  uint32_t                             width,
+  uint32_t                             height,
+  bool                                 hasDepthAttachments)
 {
-  DALI_ASSERT_ALWAYS(renderPass && "You require more render passes!");
-
   std::vector<vk::ImageView> imageViewAttachments;
-  for(auto& attachment : attachments)
-  {
-    imageViewAttachments.emplace_back(attachment->GetImageView()->GetVkHandle());
-  }
 
-  auto framebufferCreateInfo = vk::FramebufferCreateInfo{}
-                                 .setRenderPass(renderPass->GetVkHandle())
-                                 .setPAttachments(imageViewAttachments.data())
-                                 .setLayers(1)
-                                 .setWidth(width)
-                                 .setHeight(height)
-                                 .setAttachmentCount(U32(attachments.size()));
+  DALI_ASSERT_ALWAYS(renderPass != nullptr && "You require more render passes!");
+
+  std::transform(attachments.cbegin(),
+                 attachments.cend(),
+                 std::back_inserter(imageViewAttachments),
+                 [&](FramebufferAttachment* entry) {
+                   return entry->GetImageView()->GetVkHandle();
+                 });
+
+  auto framebufferCreateInfo = vk::FramebufferCreateInfo{}.setRenderPass(renderPass->GetVkHandle()).setPAttachments(imageViewAttachments.data()).setLayers(1).setWidth(width).setHeight(height).setAttachmentCount(U32(attachments.size()));
 
   auto vkFramebuffer = VkAssert(device.GetLogicalDevice().createFramebuffer(framebufferCreateInfo, device.GetAllocator()));
 
   return new FramebufferImpl(device,
                              attachments,
                              vkFramebuffer,
-                             renderPass,
+                             *renderPass,
                              width,
                              height,
                              hasDepthAttachments);
 }
 
 FramebufferImpl* FramebufferImpl::New(
-  Vulkan::Device&                         device,
-  RenderPassHandle                        renderPass,
-  OwnedAttachments&                       colorAttachments,
-  std::unique_ptr<FramebufferAttachment>& depthAttachment,
-  uint32_t                                width,
-  uint32_t                                height)
+  Vulkan::Device&                            device,
+  RenderPassImpl*                            renderPass,
+  const std::vector<FramebufferAttachment*>& colorAttachments,
+  FramebufferAttachment*                     depthAttachment,
+  uint32_t                                   width,
+  uint32_t                                   height)
 {
   assert((!colorAttachments.empty() || depthAttachment) && "Cannot create framebuffer. Please provide at least one attachment");
 
-  auto                                colorAttachmentsValid = true;
-  std::vector<FramebufferAttachment*> attachments;
+  auto colorAttachmentsValid = true;
   for(auto& attachment : colorAttachments)
   {
-    attachments.emplace_back(attachment.get());
     if(!attachment->IsValid())
     {
       colorAttachmentsValid = false;
@@ -185,54 +180,38 @@ FramebufferImpl* FramebufferImpl::New(
   }
 
   // This vector stores the attachments (vk::ImageViews)
+  auto attachments = std::vector<FramebufferAttachment*>{};
 
   // Flag that indicates if the render pass is externally provided
-  if(!renderPass)
+  if(renderPass == nullptr)
   {
-    // Create compatible vulkan render pass
-    renderPass = RenderPassImpl::New(device, attachments, depthAttachment.get());
+    // Create compatible render pass
+    renderPass = RenderPassImpl::New(device, colorAttachments, depthAttachment);
   }
-
-  OwnedAttachments ownedAttachments(std::move(colorAttachments));
+  attachments.reserve(colorAttachments.size());
+  attachments.insert(attachments.begin(), colorAttachments.begin(), colorAttachments.end());
   if(hasDepth)
   {
-    ownedAttachments.emplace_back(std::move(depthAttachment));
+    attachments.push_back(depthAttachment);
   }
-  return FramebufferImpl::New(device, renderPass, ownedAttachments, width, height, hasDepth);
+  return FramebufferImpl::New(device, renderPass, attachments, width, height, hasDepth);
 }
 
-FramebufferImpl::FramebufferImpl(Device&           graphicsDevice,
-                                 OwnedAttachments& attachments,
-                                 vk::Framebuffer   vkHandle,
-                                 RenderPassHandle  renderPassImpl,
-                                 uint32_t          width,
-                                 uint32_t          height,
-                                 bool              hasDepthAttachment)
+FramebufferImpl::FramebufferImpl(Device&                                    graphicsDevice,
+                                 const std::vector<FramebufferAttachment*>& attachments,
+                                 vk::Framebuffer                            vkHandle,
+                                 const RenderPassImpl&                      renderPassImpl,
+                                 uint32_t                                   width,
+                                 uint32_t                                   height,
+                                 bool                                       hasDepthAttachment)
 : mGraphicsDevice(&graphicsDevice),
   mWidth(width),
   mHeight(height),
-  mAttachments(std::move(attachments)),
+  mAttachments(attachments),
   mFramebuffer(vkHandle),
   mHasDepthAttachment(hasDepthAttachment)
 {
-  mRenderPasses.emplace_back(RenderPassMapElement{nullptr, renderPassImpl});
-}
-
-void FramebufferImpl::Destroy()
-{
-  auto device = mGraphicsDevice->GetLogicalDevice();
-
-  mRenderPasses.clear();
-  mAttachments.clear();
-
-  if(mFramebuffer)
-  {
-    auto allocator = &mGraphicsDevice->GetAllocator();
-
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying Framebuffer: %p\n", static_cast<VkFramebuffer>(mFramebuffer));
-    device.destroyFramebuffer(mFramebuffer, allocator);
-  }
-  mFramebuffer = nullptr;
+  mRenderPasses.push_back(RenderPassMapElement{nullptr, const_cast<RenderPassImpl*>(&renderPassImpl)});
 }
 
 uint32_t FramebufferImpl::GetWidth() const
@@ -251,14 +230,12 @@ FramebufferAttachment* FramebufferImpl::GetAttachment(AttachmentType type, uint3
   {
     case AttachmentType::COLOR:
     {
-      return mAttachments[index].get();
+      return mAttachments[index];
     }
     case AttachmentType::DEPTH_STENCIL:
     {
       if(mHasDepthAttachment)
-      {
-        return mAttachments.back().get();
-      }
+        return mAttachments.back();
     }
     case AttachmentType::INPUT:
     case AttachmentType::RESOLVE:
@@ -279,10 +256,7 @@ std::vector<FramebufferAttachment*> FramebufferImpl::GetAttachments(AttachmentTy
     {
       auto numColorAttachments = mHasDepthAttachment ? mAttachments.size() - 1 : mAttachments.size();
       retval.reserve(numColorAttachments);
-      for(size_t i = 0; i < numColorAttachments; ++i)
-      {
-        retval.emplace_back(mAttachments[i].get());
-      }
+      retval.insert(retval.end(), mAttachments.begin(), mAttachments.begin() + numColorAttachments);
       break;
     }
     case AttachmentType::DEPTH_STENCIL:
@@ -290,7 +264,7 @@ std::vector<FramebufferAttachment*> FramebufferImpl::GetAttachments(AttachmentTy
       if(mHasDepthAttachment)
       {
         retval.reserve(1);
-        retval.emplace_back(mAttachments.back().get());
+        retval.push_back(mAttachments.back());
       }
       break;
     }
@@ -331,16 +305,16 @@ uint32_t FramebufferImpl::GetRenderPassCount() const
   return uint32_t(mRenderPasses.size());
 }
 
-RenderPassHandle FramebufferImpl::GetRenderPass(uint32_t index) const
+RenderPassImpl* FramebufferImpl::GetRenderPass(uint32_t index) const
 {
   if(index < mRenderPasses.size())
   {
     return mRenderPasses[index].renderPassImpl;
   }
-  return RenderPassHandle{};
+  return nullptr;
 }
 
-RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
+RenderPassImpl* FramebufferImpl::GetRenderPass(RenderPass* renderPass)
 {
   auto attachments  = renderPass->GetCreateInfo().attachments;
   auto matchLoadOp  = attachments->front().loadOp;
@@ -360,7 +334,7 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
     }
     else
     {
-      DALI_ASSERT_DEBUG(element.renderPassImpl && "Render pass list doesn't contain impl");
+      DALI_ASSERT_DEBUG(element.renderPassImpl != nullptr && "Render pass list doesn't contain impl");
       auto createInfo = element.renderPassImpl->GetCreateInfo();
 
       if(createInfo.attachmentDescriptions[0].loadOp == VkLoadOpType(matchLoadOp).loadOp &&
@@ -374,15 +348,7 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
   }
 
   // @todo create new render pass from existing + load/store op, add it to mRenderPasses, and return it.
-  // @todo Need to reconsider swapchain/fbo/renderpass creation model.
-  // This framebuffer may belong to a swapchain, in which case, there are multiple framebuffers
-  // that could share render passes.
-  // A) Need to detect this situation - keep owner info?
-  // B) Sharing render passes means we
-  //    1) need to ref-count to ensure safe ownership, or
-  //    2) move ownership of renderpass to swapchain.
-  //       Onus is on client to determine which interface to use, if it's a surface, use swapchain;
-  //       if it's an offscreen, use framebuffer. (Kinda need a core interface to wrap surface/offscreen)
+
   return mRenderPasses[0].renderPassImpl;
 }
 
@@ -395,13 +361,37 @@ std::vector<vk::ClearValue> FramebufferImpl::GetClearValues() const
 {
   auto result = std::vector<vk::ClearValue>{};
 
-  // @todo & color clear enabled / depth clear enabled
-  for(auto& attachment : mAttachments)
-  {
-    result.emplace_back(attachment->GetClearValue());
-  }
+  std::transform(mAttachments.begin(), // @todo & color clear enabled / depth clear enabled
+                 mAttachments.end(),
+                 std::back_inserter(result),
+                 [](FramebufferAttachment* attachment) {
+                   return attachment->GetClearValue();
+                 });
 
   return result;
+}
+
+bool FramebufferImpl::OnDestroy()
+{
+  auto device      = mGraphicsDevice->GetLogicalDevice();
+  auto frameBuffer = mFramebuffer;
+
+  ///@todo Destroy all render passes.
+  vk::RenderPass renderPass = mRenderPasses[0].renderPassImpl->GetVkHandle();
+
+  auto allocator = &mGraphicsDevice->GetAllocator();
+
+  mGraphicsDevice->DiscardResource([device, frameBuffer, renderPass, allocator]() {
+                                     DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: framebuffer->%p\n", static_cast<VkFramebuffer>(frameBuffer))
+                                     device.destroyFramebuffer(frameBuffer, allocator);
+
+                                     if(renderPass)
+                                     {
+                                       DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: render pass->%p\n", static_cast<VkRenderPass>(renderPass))
+                                       device.destroyRenderPass(renderPass, allocator);
+                                     } });
+
+  return false;
 }
 
 } // namespace Dali::Graphics::Vulkan

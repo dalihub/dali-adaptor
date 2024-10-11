@@ -113,6 +113,16 @@ Window::Window()
 
 Window::~Window()
 {
+  if(mScene)
+  {
+    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
+    bridge->RemoveTopLevelWindow(accessible);
+    // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
+    bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
+  }
+
   if(mAdaptor)
   {
     mAdaptor->RemoveWindow(this);
@@ -1298,9 +1308,14 @@ void Window::OnAccessibilityEnabled()
 
 void Window::OnAccessibilityDisabled()
 {
+  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer  = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
+
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
 
   InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
+  bridge->RemoveTopLevelWindow(accessible);
 }
 
 bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
@@ -1314,8 +1329,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
-  {
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
@@ -1634,16 +1648,6 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
-void Window::SetBottom(bool enable)
-{
-  mWindowBase->SetBottom(enable);
-}
-
-bool Window::IsBottom()
-{
-  return mWindowBase->IsBottom();
-}
-
 Dali::Any Window::GetNativeBuffer() const
 {
   return mWindowBase->GetNativeBuffer();
@@ -1671,16 +1675,13 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
 
   if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
   {
-    mWindowBase->SetBackgroundBlur(mBlurInfo.windowBlurRadius, mBlurInfo.backgroundCornerRadius);
-  }
-  else if(mBlurInfo.windowBlurType == WindowBlurType::BEHIND)
-  {
-    mWindowBase->SetBehindBlur(mBlurInfo.windowBlurRadius);
+    mWindowBase->SetBackgroundBlur(mBlurInfo.windowBlurRadius, mBlurInfo.backgroundBlurRadius);
   }
   else
   {
     mWindowBase->SetBackgroundBlur(0, 0);
   }
+  // TODO : When new Blur type is append, it will be added
 }
 
 WindowBlurInfo Window::GetBlur() const

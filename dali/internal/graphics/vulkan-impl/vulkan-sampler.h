@@ -28,7 +28,6 @@
 namespace Dali::Graphics::Vulkan
 {
 using SamplerResource = Resource<Graphics::Sampler, Graphics::SamplerCreateInfo>;
-class SamplerImpl;
 
 class Sampler : public SamplerResource
 {
@@ -48,7 +47,7 @@ public:
   /**
    * @brief Called when GPU resources are destroyed
    */
-  void DestroyResource() override;
+  void DestroyResource();
 
   /**
    * @brief Called when initializing the resource
@@ -61,31 +60,6 @@ public:
    * @brief Called when UniquePtr<> on client-side dies
    */
   void DiscardResource() override;
-
-  SamplerImpl* GetImpl()
-  {
-    return mSamplerImpl;
-  }
-
-  /**
-   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
-   */
-  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
-  {
-    return mCreateInfo.allocationCallbacks;
-  }
-
-  /**
-   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
-   * Only intended for use by discard queue.
-   */
-  void InvokeDeleter() override
-  {
-    this->~Sampler();
-  }
-
-private:
-  SamplerImpl* mSamplerImpl;
 };
 
 } // namespace Dali::Graphics::Vulkan

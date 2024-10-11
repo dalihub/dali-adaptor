@@ -65,12 +65,6 @@ public:
   static WebEngine New();
 
   /**
-   * @brief Create a new instance of a WebEngine with type (0: Chromium, 1: LWE, otherwise: depend on system environment).
-   * @param[in] type The WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).
-   */
-  static WebEngine New(int type);
-
-  /**
    * @brief Get context of WebEngine.
    */
   static Dali::WebEngineContext* GetContext();
@@ -838,35 +832,6 @@ public:
    * @param[in] callback The callback function called asynchronously.
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
-
-  /**
-   * @brief Cancel WebAuthentication(cancel in progress passkey operation).
-   */
-  void WebAuthenticationCancel();
-
-  /**
-   * @brief Get a plain text of current web page asynchronously.
-   *
-   * @param[in] callback The callback function called asynchronously.
-
-   */
-  void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
-
-  /**
-   * @brief Get a plain text of current web page asynchronously.
-   *
-   * @param[in] callback The callback function called asynchronously.
-
-   */
-  void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
-
-  /**
-   * @brief Register UserMediaPermissionRequest callback.
-   *
-   * @param[in] callback The callback to be called for handling user media permission.
-   */
-  void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
-
 
 private: // Not intended for application developers
   /**

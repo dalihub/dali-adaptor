@@ -30,6 +30,7 @@ namespace Graphics
 {
 namespace Vulkan
 {
+
 Image* Image::New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo)
 {
   auto image = new Image(graphicsDevice, createInfo, nullptr);
@@ -83,18 +84,6 @@ void Image::Initialize()
   VkAssert(mDevice.GetLogicalDevice().createImage(&mCreateInfo, &mDevice.GetAllocator("IMAGE"), &mImage));
 }
 
-void Image::Destroy()
-{
-  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying image: %p\n", static_cast<VkImage>(mImage));
-  auto device = mDevice.GetLogicalDevice();
-  if(mImage)
-  {
-    device.destroyImage(mImage, mDevice.GetAllocator());
-  }
-  mImage = nullptr;
-  mMemory.reset();
-}
-
 void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
 {
   auto requirements    = mDevice.GetLogicalDevice().getImageMemoryRequirements(mImage);
@@ -105,7 +94,7 @@ void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
   mMemory = std::make_unique<MemoryImpl>(mDevice,
                                          size_t(requirements.size),
                                          size_t(requirements.alignment),
-                                         memoryProperties);
+                                         (memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible);
 
   auto allocateInfo = vk::MemoryAllocateInfo{}
                         .setMemoryTypeIndex(memoryTypeIndex)
@@ -265,6 +254,39 @@ vk::ImageUsageFlags Image::GetUsageFlags() const
 vk::SampleCountFlagBits Image::GetSampleCount() const
 {
   return mCreateInfo.samples;
+}
+
+void Image::DestroyNow()
+{
+  DestroyVulkanResources(mDevice.GetLogicalDevice(), mImage, mMemory->ReleaseVkObject(), &mDevice.GetAllocator());
+  mImage  = nullptr;
+  mMemory = nullptr;
+}
+
+bool Image::OnDestroy()
+{
+  if(!mIsExternal)
+  {
+    if(mImage)
+    {
+      auto device    = mDevice.GetLogicalDevice();
+      auto image     = mImage;
+      auto allocator = &mDevice.GetAllocator();
+      auto memory    = mMemory->ReleaseVkObject();
+
+      mDevice.DiscardResource([device, image, memory, allocator]()
+                              { DestroyVulkanResources(device, image, memory, allocator); });
+    }
+  }
+
+  return false;
+}
+
+void Image::DestroyVulkanResources(vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator)
+{
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: image->%p\n", static_cast<VkImage>(image))
+  device.destroyImage(image, allocator);
+  device.freeMemory(memory, allocator);
 }
 
 } // namespace Vulkan

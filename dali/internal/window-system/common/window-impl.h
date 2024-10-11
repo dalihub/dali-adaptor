@@ -603,16 +603,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsAlwaysOnTop();
 
   /**
-   * @copydoc Dali::DevelWindow::SetBottom()
-   */
-  void SetBottom(bool enable);
-
-  /**
-   * @copydoc Dali::DevelWindow::IsBottom()
-   */
-  bool IsBottom();
-
-  /**
    * @copydoc Dali::DevelWindow::GetNativeBuffer()
    */
   Dali::Any GetNativeBuffer() const;

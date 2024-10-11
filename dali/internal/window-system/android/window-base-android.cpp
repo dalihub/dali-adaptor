@@ -516,15 +516,6 @@ bool WindowBaseAndroid::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseAndroid::SetBottom(bool enable)
-{
-}
-
-bool WindowBaseAndroid::IsBottom()
-{
-  return false;
-}
-
 Any WindowBaseAndroid::GetNativeBuffer() const
 {
   return 0;
@@ -545,15 +536,6 @@ void WindowBaseAndroid::SetBackgroundBlur(int blurRadius, int cornerRadius)
 }
 
 int WindowBaseAndroid::GetBackgroundBlur()
-{
-  return 0;
-}
-
-void WindowBaseAndroid::SetBehindBlur(int blurRadius)
-{
-}
-
-int WindowBaseAndroid::GetBehindBlur()
 {
   return 0;
 }

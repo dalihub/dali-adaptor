@@ -54,14 +54,6 @@ public:
   void Initialize();
 
   /**
-   * Destroys underlying Vulkan resources on the caller thread.
-   *
-   * @note Calling this function is unsafe and makes any further use of
-   * image invalid.
-   */
-  void Destroy();
-
-  /**
    * Allocate memory for the image and bind it.
    * Kept separate from Initialize because reasons. ?!?!
    *
@@ -157,12 +149,32 @@ public:
     return mMemory.get();
   }
 
+  bool OnDestroy();
+
+  /**
+   * Destroys underlying Vulkan resources on the caller thread.
+   *
+   * @note Calling this function is unsafe and makes any further use of
+   * image invalid.
+   */
+  void DestroyNow();
+
+  /**
+   * Destroys used Vulkan resource objects
+   * @param device Vulkan device
+   * @param image Vulkan image
+   * @param memory Vulkan device memory
+   * @param allocator Pointer to the Vulkan allocator callbacks
+   */
+  static void DestroyVulkanResources(vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator);
+
 private:
-  Device&                     mDevice;
-  vk::ImageCreateInfo         mCreateInfo;
-  vk::Image                   mImage;
-  vk::ImageLayout             mImageLayout;
-  vk::ImageAspectFlags        mAspectFlags;
+  Device&              mDevice;
+  vk::ImageCreateInfo  mCreateInfo;
+  vk::Image            mImage;
+  vk::ImageLayout      mImageLayout;
+  vk::ImageAspectFlags mAspectFlags;
+
   std::unique_ptr<MemoryImpl> mMemory;
   bool                        mIsExternal;
 };
