@@ -142,6 +142,16 @@ public:
    */
   bool GetParameter(uint32_t parameterId, void* out);
 
+  /**
+   *
+   * @param[in] poolCapacity the capacity of pool
+   * @param maxPoolCounts number of pools, last added pool will be removed
+   * @return index of descriptor pool or -1 if unable to create pool
+   */
+  [[nodiscard]] int AddDescriptorPool(uint32_t poolCapacity, uint32_t maxPoolCounts);
+
+  [[nodiscard]] vk::DescriptorSet AllocateDescriptorSet(int poolIndex);
+
 private:
   friend class Program;
 

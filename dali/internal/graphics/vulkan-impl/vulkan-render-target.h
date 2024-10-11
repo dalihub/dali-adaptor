@@ -28,6 +28,7 @@ namespace Dali::Graphics::Vulkan
 {
 class Framebuffer;
 class Surface;
+class RenderPassImpl;
 
 using RenderTargetResource = Resource<Graphics::RenderTarget, Graphics::RenderTargetCreateInfo>;
 
@@ -69,6 +70,12 @@ public:
    */
   [[nodiscard]] Integration::RenderSurfaceInterface* GetSurface() const;
 
+  /**
+   * Find a matching render pass for this render target
+   * @param[in] renderPass A render pass to search for
+   * @return a matching render pass implementation from the current framebuffer
+   */
+  [[nodiscard]] Vulkan::RenderPassImpl* GetRenderPass(const Graphics::RenderPass* renderPass) const;
   // Get Swapchain?
 
 private:

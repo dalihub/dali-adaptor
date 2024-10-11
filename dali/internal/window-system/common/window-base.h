@@ -617,8 +617,8 @@ public:
    * @brief Set the window's background blur.
    * If this value is 0, the background blur is disabled.
    *
-   * @param[in] blurRadius the background blur.
-   * @param[in] cornerRadius the background blur.
+   * @param[in] blurRadius The radius of the blur effect.
+   * @param[in] cornerRadius The radius of the corner radius.
    */
   virtual void SetBackgroundBlur(int blurRadius, int cornerRadius) = 0;
 
@@ -629,6 +629,22 @@ public:
    * @return current background blur.
    */
   virtual int GetBackgroundBlur() = 0;
+
+  /**
+   * @brief Set the window's behind blur.
+   * If this value is 0, the behind blur is disabled.
+   *
+   * @param[in] blurRadius The radius of the blur effect.
+   */
+  virtual void SetBehindBlur(int blurRadius) = 0;
+
+  /**
+   * @brief Returns current behind blur.
+   * If this value is 0, behind blur is disabled.
+   *
+   * @return current behind blur.
+   */
+  virtual int GetBehindBlur() = 0;
 
   // Signals
 

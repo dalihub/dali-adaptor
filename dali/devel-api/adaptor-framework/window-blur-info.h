@@ -46,7 +46,7 @@ public:
   WindowBlurInfo()
   : windowBlurType(WindowBlurType::NONE),
     windowBlurRadius(0),
-    backgroundBlurRadius(0)
+    backgroundCornerRadius(0)
   {
   }
 
@@ -61,7 +61,7 @@ public:
   explicit constexpr WindowBlurInfo(WindowBlurType type, int blurRadius, int cornerRadius)
   : windowBlurType(type),
     windowBlurRadius(blurRadius),
-    backgroundBlurRadius(cornerRadius)
+    backgroundCornerRadius(cornerRadius)
   {
   }
 
@@ -76,7 +76,7 @@ public:
   explicit constexpr WindowBlurInfo(WindowBlurType type, int blurRadius)
   : windowBlurType(type),
     windowBlurRadius(blurRadius),
-    backgroundBlurRadius(0)
+    backgroundCornerRadius(0)
   {
   }
 
@@ -149,7 +149,7 @@ public:
 public:
   WindowBlurType windowBlurType;
   int windowBlurRadius;
-  int backgroundBlurRadius;
+  int backgroundCornerRadius;
 };
 
 } // namespace Dali
