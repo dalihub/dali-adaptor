@@ -810,6 +810,21 @@ void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextRecei
   mPlugin->GetPlainTextAsynchronously(callback);
 }
 
+void WebEngine::WebAuthenticationCancel()
+{
+  mPlugin->WebAuthenticationCancel();
+}
+
+void WebEngine::RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback)
+{
+  mPlugin->RegisterWebAuthDisplayQRCallback(callback);
+}
+
+void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback)
+{
+  mPlugin->RegisterWebAuthResponseCallback(callback);
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
