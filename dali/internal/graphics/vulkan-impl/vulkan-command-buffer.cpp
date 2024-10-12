@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// CLASS HEADER
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 
+// INTERNAL HEADERS
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
@@ -24,9 +27,13 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+
+#include <dali/integration-api/debug.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogCmdBufferFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VK_COMMAND_BUFFER");
+#endif
 
 namespace Dali::Graphics::Vulkan
 {
@@ -54,6 +61,9 @@ CommandBuffer::~CommandBuffer() = default;
 
 void CommandBuffer::DestroyResource()
 {
+  // Don't delete the impl, it's pool allocated and should have been
+  // returned to the command pool for re-use.
+  mCommandBufferImpl = nullptr;
 }
 
 bool CommandBuffer::InitializeResource()
@@ -63,6 +73,7 @@ bool CommandBuffer::InitializeResource()
 
 void CommandBuffer::DiscardResource()
 {
+  mController.DiscardResource(this);
 }
 
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
@@ -92,6 +103,7 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
       auto renderTarget                  = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
       inheritanceInfo.renderPass         = renderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
       inheritanceInfo.subpass            = 0;
+      inheritanceInfo.framebuffer        = renderTarget->GetCurrentFramebufferImpl()->GetVkHandle();
       inheritanceInfo.queryFlags         = static_cast<vk::QueryControlFlags>(0);
       inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
     }
@@ -174,7 +186,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   auto             surface      = renderTarget->GetSurface();
   auto&            device       = mController.GetGraphicsDevice();
   FramebufferImpl* framebuffer;
-  RenderPassImpl*  renderPassImpl;
+  RenderPassHandle renderPassImpl;
   if(surface)
   {
     auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
@@ -182,13 +194,13 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
     mLastSwapchain = swapchain;
     framebuffer    = swapchain->GetCurrentFramebuffer();
-    renderPassImpl = framebuffer->GetRenderPass(renderPass);
+    renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
   }
   else
   {
     auto coreFramebuffer = renderTarget->GetFramebuffer();
     framebuffer          = coreFramebuffer->GetImpl();
-    renderPassImpl       = framebuffer->GetRenderPass(renderPass);
+    renderPassImpl       = framebuffer->GetImplFromRenderPass(renderPass);
   }
 
   std::vector<vk::ClearValue> vkClearValues;
@@ -215,7 +227,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                         .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
                                         .setPClearValues(vkClearValues.data())
                                         .setClearValueCount(uint32_t(framebuffer->GetClearValues().size())),
-                                      vk::SubpassContents::eInline);
+                                      vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)

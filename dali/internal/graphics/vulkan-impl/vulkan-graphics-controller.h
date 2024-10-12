@@ -270,6 +270,14 @@ public:
                                                    UniquePtr<Graphics::SyncObject>&&     oldSyncObject) override;
 
   /**
+   * Add the graphics resource to a discard queue for later destruction
+   * @param[in] resource The graphics resource to discard.
+   */
+  void DiscardResource(Vulkan::ResourceBase* resource);
+
+  void DiscardResource(Vulkan::ResourceWithDeleter* program);
+
+  /**
    * @brief Maps memory associated with Buffer object
    *
    * @param[in] mapInfo Filled details of mapped resource
@@ -365,14 +373,6 @@ public:
    */
   bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
 
-  void Add(Vulkan::RenderTarget* renderTarget);
-  void DiscardResource(Vulkan::RenderTarget* renderTarget);
-  void DiscardResource(Vulkan::Buffer* buffer);
-  void DiscardResource(Vulkan::Pipeline* buffer);
-  void DiscardResource(Vulkan::Program* renderProgram);
-  void DiscardResource(Vulkan::Sampler* sampler);
-  void DiscardResource(Vulkan::Texture* texture);
-
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
   uint32_t    GetShaderLanguageVersion() override;
@@ -417,12 +417,27 @@ public: // ResourceId relative API.
    */
   UniquePtr<Graphics::Texture> ReleaseTextureFromResourceId(uint32_t resourceId) override;
 
+  /**
+   * @return true if there is a clip space transform matrix
+   */
+  bool HasClipMatrix() const override;
+
+  /**
+   * @return the clip space transform matrix
+   */
+  const Matrix& GetClipMatrix() const override;
+
 public: // For debug
   void FrameStart();
 
   std::size_t GetCapacity() const;
 
 private:
+  /**
+   * Flush all outstanding queues.
+   */
+  void Flush();
+
   bool IsAdvancedBlendEquationSupported();
 
   struct Impl;

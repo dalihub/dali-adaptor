@@ -516,6 +516,15 @@ bool WindowBaseAndroid::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseAndroid::SetBottom(bool enable)
+{
+}
+
+bool WindowBaseAndroid::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseAndroid::GetNativeBuffer() const
 {
   return 0;

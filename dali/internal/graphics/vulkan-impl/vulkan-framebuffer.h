@@ -20,8 +20,8 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
-#include <dali/graphics-api/graphics-framebuffer.h>
 #include <dali/graphics-api/graphics-framebuffer-create-info.h>
+#include <dali/graphics-api/graphics-framebuffer.h>
 
 namespace Dali
 {
@@ -32,6 +32,7 @@ namespace Vulkan
 class FramebufferImpl;
 
 using FramebufferResource = Resource<Graphics::Framebuffer, Graphics::FramebufferCreateInfo>;
+
 class Framebuffer : public FramebufferResource
 {
 public:
@@ -40,7 +41,7 @@ public:
   ~Framebuffer() override;
 
   /**
-   * @brief Called when GL resources are destroyed
+   * @brief Called when resources are destroyed
    */
   void DestroyResource() override;
 
@@ -56,10 +57,28 @@ public:
    */
   void DiscardResource() override;
 
+  /**
+   * @copydoc Graphics::Vulkan::ResourceBase::GetAllocationCallbacks()
+   */
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return mCreateInfo.allocationCallbacks;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::ResourceBase::InvokeDeleter()
+   * Only intended for use by discard queue.
+   */
+  void InvokeDeleter() override
+  {
+    this->~Framebuffer();
+  }
+
   FramebufferImpl* GetImpl()
   {
     return mFramebufferImpl;
   }
+
 private:
   FramebufferImpl* mFramebufferImpl;
 };

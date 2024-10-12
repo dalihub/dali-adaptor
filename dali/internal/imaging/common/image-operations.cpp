@@ -466,25 +466,25 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
   // If both dimensions have values requested, use them both:
   if(requestedWidth != 0 && requestedHeight != 0)
   {
-    DALI_ASSERT_DEBUG( (bitmapWidth > 0 && bitmapHeight > 0) && "Bitmap dimensions are zero");
+    DALI_ASSERT_DEBUG((bitmapWidth > 0 && bitmapHeight > 0) && "Bitmap dimensions are zero");
 
     if(fittingMode == FittingMode::VISUAL_FITTING)
     {
       uint32_t adjustedDesiredWidth, adjustedDesiredHeight;
-      float aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
-      float aspectOfImageSize = (float)bitmapHeight / (float)bitmapWidth;
-      if (aspectOfImageSize > aspectOfDesiredSize)
+      float    aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
+      float    aspectOfImageSize   = (float)bitmapHeight / (float)bitmapWidth;
+      if(aspectOfImageSize > aspectOfDesiredSize)
       {
-        adjustedDesiredWidth = requestedWidth;
+        adjustedDesiredWidth  = requestedWidth;
         adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< round up
       }
       else
       {
-        adjustedDesiredWidth = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
+        adjustedDesiredWidth  = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
         adjustedDesiredHeight = requestedHeight;
       }
 
-      requestedWidth = adjustedDesiredWidth;
+      requestedWidth  = adjustedDesiredWidth;
       requestedHeight = adjustedDesiredHeight;
     }
 
@@ -1173,6 +1173,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     if(filteredWidth < shrunkWidth || filteredHeight < shrunkHeight)
     {
       if(samplingMode == SamplingMode::LINEAR || samplingMode == SamplingMode::BOX_THEN_LINEAR ||
+         samplingMode == SamplingMode::LANCZOS || samplingMode == SamplingMode::BOX_THEN_LANCZOS ||
          samplingMode == SamplingMode::NEAREST || samplingMode == SamplingMode::BOX_THEN_NEAREST)
       {
         outputBitmap = Dali::Devel::PixelBuffer::New(filteredWidth, filteredHeight, pixelFormat);
@@ -1182,6 +1183,10 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
           if(samplingMode == SamplingMode::LINEAR || samplingMode == SamplingMode::BOX_THEN_LINEAR)
           {
             LinearSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
+          }
+          else if(samplingMode == SamplingMode::LANCZOS || samplingMode == SamplingMode::BOX_THEN_LANCZOS)
+          {
+            LanczosSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
           }
           else
           {
@@ -1660,7 +1665,7 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
   outHeight = inputHeight;
   outStride = inputStride;
   // Perform power of 2 iterated 4:1 box filtering if the requested filter mode requires it:
-  if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR)
+  if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR || samplingMode == SamplingMode::BOX_THEN_LANCZOS)
   {
     // Check the pixel format is one that is supported:
     if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
@@ -2411,6 +2416,15 @@ void LanczosSample4BPP(const uint8_t* __restrict__ inPixels,
   Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true);
 }
 
+void LanczosSample3BPP(const uint8_t* __restrict__ inPixels,
+                       ImageDimensions inputDimensions,
+                       uint32_t        inputStride,
+                       uint8_t* __restrict__ outPixels,
+                       ImageDimensions desiredDimensions)
+{
+  Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 3, false);
+}
+
 void LanczosSample1BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
                        uint32_t        inputStride,
@@ -2429,11 +2443,19 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
                    uint8_t* __restrict__ outPixels,
                    ImageDimensions outDimensions)
 {
+  // TODO : Need to support LanczosSample various pixel format.
+  // Until now, just use LinearSample instead.
+  //
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
+  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
     switch(pixelFormat)
     {
+      case Pixel::RGB888:
+      {
+        LanczosSample3BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
       case Pixel::RGBA8888:
       case Pixel::BGRA8888:
       {
@@ -2454,6 +2476,7 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
   }
   else
   {
+    LinearSample(inPixels, inDimensions, inStride, pixelFormat, outPixels, outDimensions);
     DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", static_cast<uint32_t>(pixelFormat));
   }
 }

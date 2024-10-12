@@ -34,17 +34,6 @@
 
 namespace Dali
 {
-struct RawShaderData
-{
-  int                           shaderCount;
-  std::vector<std::string_view> vertexPrefix;
-  std::vector<std::string_view> fragmentPrefix;
-  std::vector<std::string_view> shaderName;
-  std::string_view              vertexShader;
-  std::string_view              fragmentShader;
-  bool custom;
-};
-
 /**
  * ShaderPreCompiler  is used to precompile shaders.
  * The precompiled shaders are stored in a file.
@@ -52,6 +41,21 @@ struct RawShaderData
  */
 class DALI_CORE_API ShaderPreCompiler : public BaseHandle
 {
+public:
+  struct RawShaderData
+  {
+    uint32_t                 shaderCount;
+    std::vector<std::string> vertexPrefix;
+    std::vector<std::string> fragmentPrefix;
+    std::vector<std::string> shaderName;
+    std::string_view         vertexShader;
+    std::string_view         fragmentShader;
+    bool                     custom;
+  };
+
+  using RawShaderDataList = std::vector<RawShaderData>;
+  using CompiledProgram   = Dali::Graphics::UniquePtr<Dali::Graphics::Program>;
+
 public:
   /**
    * @brief Gets the singleton of ShaderPreCompiler object.
@@ -65,41 +69,36 @@ public:
    *
    * @param[in] program precompiled program
    */
-  void AddPreCompiledProgram(Graphics::UniquePtr<Dali::Graphics::Program> program);
+  void AddPreCompiledProgram(CompiledProgram program);
 
   /**
-   * @brief Gets the shader list to be precompiled
+   * @brief Gets the shader list to be precompiled.
+   * @note Stored shader list will be cleared after calling this function.
    *
-   *  @param[in] shaders shader data for precompile
+   * @param[out] shaders shader data for precompile
    */
-  void GetPreCompileShaderList(std::vector<RawShaderData>& shaders);
+  void GetPreCompileShaderList(RawShaderDataList& shaders);
 
   /**
    * @brief Save the shader list to be precompiled
    *
    * @param[in] shaders shader data for precompile
    */
-  void SavePreCompileShaderList(std::vector<RawShaderData>& shaders);
-
-  /**
-   * @brief Checks whether the precompiled list is ready or not
-   *
-   * @return true if precompile list is ready
-   */
-  bool IsReady() const;
+  void SavePreCompileShaderList(RawShaderDataList&& shaders);
 
   /**
    * @brief Enable the feature of precompile
    *
+   * @param[in] enable True if we need to enable precompile. False if we need to disable precompile.
    */
-  void Enable();
+  void Enable(bool enable);
 
   /**
    * @brief Check the feature of precompile is enabled or not
    *
    * @return true if the feature of precompile is enabled
   */
-  bool IsEnable();
+  bool IsEnable() const;
 
   /**
    * @brief Waiting for a list of shaders to be precompiled
@@ -112,6 +111,12 @@ public:
    *
    */
   void Awake();
+
+  /**
+   * @brief Remove all pre-compiled programs from cache.
+   * @note It must be called before graphics shutdown.
+   */
+  void ClearPreCompiledPrograms();
 
 private:
   /**
@@ -126,15 +131,18 @@ private:
   ShaderPreCompiler& operator=(const ShaderPreCompiler& rhs) = delete;
 
 private:
-  std::vector<Graphics::UniquePtr<Dali::Graphics::Program>> mProgram;
-  static std::unique_ptr<ShaderPreCompiler>                 mInstance;
-  static std::once_flag                                     mOnceFlag;
-  std::vector<RawShaderData>                                mRawShaderList;
-  ConditionalWait                                           mConditionalWait;
-  Dali::Mutex                                               mMutex;
-  bool                                                      mPrecompiled;
-  bool                                                      mEnabled;
-  bool                                                      mNeedsSleep{true};
+  static std::unique_ptr<ShaderPreCompiler> mInstance;
+  static std::once_flag                     mOnceFlag;
+
+private:
+  std::vector<CompiledProgram> mProgram; ///< Keep compiled programs so we can use cached program.
+
+  RawShaderDataList mRawShaderList;
+  ConditionalWait   mConditionalWait;
+  Dali::Mutex       mMutex;
+
+  bool mEnabled : 1;
+  bool mNeedsSleep : 1;
 };
 
 } // namespace Dali

@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/shader-integ.h>
+#include <dali/public-api/common/dali-common.h>
 #include <errno.h>
 #include <unistd.h>
-#include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/shader-precompiler.h>
@@ -591,10 +592,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if(ShaderPreCompiler::Get().IsEnable())
     {
       TRACE_UPDATE_RENDER_BEGIN("DALI_PRECOMPILE_SHADER");
-      std::vector<RawShaderData> precompiledShaderList;
+      ShaderPreCompiler::RawShaderDataList precompiledShaderList;
       ShaderPreCompiler::Get().GetPreCompileShaderList(precompiledShaderList);
-      DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], list size:%d \n", precompiledShaderList.size());
-      for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
+
+      while(!precompiledShaderList.empty())
       {
         if(mIsPreCompileCancelled == TRUE)
         {
@@ -603,26 +604,34 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           break;
         }
 
-        auto numberOfPrecompiledShader = precompiledShader->shaderCount;
-        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
-        for(int i = 0; i < numberOfPrecompiledShader; ++i)
+        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], Remained shader list : %zu \n", precompiledShaderList.size());
+
+        // We can assume that last element exist.
+        const auto& shaderRawData = precompiledShaderList.back();
+
+        auto numberOfPrecompiledShader = shaderRawData.shaderCount;
+        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count : %u \n", numberOfPrecompiledShader);
+        for(auto i = 0u; i < numberOfPrecompiledShader; ++i)
         {
           std::string vertexShader;
           std::string fragmentShader;
-          if(precompiledShader->custom)
+          if(shaderRawData.custom)
           {
-            vertexShader = precompiledShader->vertexPrefix[i].data();
-            fragmentShader = precompiledShader->fragmentPrefix[i].data();
+            vertexShader   = shaderRawData.vertexPrefix[i];
+            fragmentShader = shaderRawData.fragmentPrefix[i];
           }
           else
           {
-            vertexShader   = graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
-            fragmentShader = graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+            vertexShader   = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix()) + shaderRawData.vertexPrefix[i] + std::string(shaderRawData.vertexShader);
+            fragmentShader = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix()) + shaderRawData.fragmentPrefix[i] + std::string(shaderRawData.fragmentShader);
           }
 
-          PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]) : "");
-          DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], precompile shader >> %s \n", precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]).c_str() : "");
+          PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < shaderRawData.shaderName.size() ? shaderRawData.shaderName[i] : "");
+          DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], precompile shader [%u/%u] >> %s \n", i + 1u, numberOfPrecompiledShader, shaderRawData.shaderName.size() ? shaderRawData.shaderName[i].c_str() : "");
         }
+
+        // Pop last one.
+        precompiledShaderList.pop_back();
       }
       TRACE_UPDATE_RENDER_END("DALI_PRECOMPILE_SHADER");
     }
@@ -936,6 +945,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
   }
   TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_THREAD_FINISH");
+
+  // Remove pre-compiled program before context destroyed
+  ShaderPreCompiler::Get().ClearPreCompiledPrograms();
+  ShaderPreCompiler::Get().Enable(false);
 
   // Inform core of context destruction
   mCore.ContextDestroyed();
