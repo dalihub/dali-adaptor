@@ -18,15 +18,68 @@
  *
  */
 
+#include <dali/graphics-api/graphics-types.h>
+
 namespace Dali::Graphics::Vulkan
 {
 class VulkanGraphicsController;
 
 /**
- * @brief Base class for the Graphics resource.
+ * Interface class for graphics resources
  */
-template<class BASE, class CreateInfo>
-class Resource : public BASE
+class ResourceBase
+{
+public:
+  /**
+   * @brief Destroys resource
+   *
+   * This function must be implemented by the derived class.
+   * It should perform final destruction of used GL resources.
+   */
+  virtual void DestroyResource() = 0;
+
+  /**
+   * @brief Initializes resource
+   *
+   * This function must be implemented by the derived class.
+   * It should initialize all necessary GL resources.
+   *
+   * @return True on success
+   */
+  virtual bool InitializeResource() = 0;
+
+  /**
+   * @brief Discards resource by adding it to the discard queue
+   */
+  virtual void DiscardResource() = 0;
+
+  virtual ~ResourceBase() = default;
+};
+
+class ResourceWithDeleter : public ResourceBase
+{
+public:
+  /**
+   * @brief Get the allocation callbacks for this object
+   */
+  [[nodiscard]] virtual const Graphics::AllocationCallbacks* GetAllocationCallbacks() const = 0;
+
+  /**
+   * @brief Invoke the deleter of the derived type.
+   */
+  virtual void InvokeDeleter() = 0;
+
+  ~ResourceWithDeleter() override = default;
+};
+
+/**
+ * @brief Base class for the Graphics resource.
+ * A graphics resource is any Graphics API object created by the controller that
+ * requires lifecycle management.
+ * It explicitly does not include Vulkan Impl objects that wrap a vkHandle.
+ */
+template<class GraphicsType, class CreateInfo>
+class Resource : public GraphicsType, public ResourceWithDeleter
 {
 public:
   /**
@@ -80,33 +133,10 @@ public:
   }
 
   /**
-   * @brief Destroys resource
-   *
-   * This function must be implemented by the derived class.
-   * It should perform final destruction of used GL resources.
-   */
-  virtual void DestroyResource() = 0;
-
-  /**
-   * @brief Initializes resource
-   *
-   * This function must be implemented by the derived class.
-   * It should initialize all necessary GL resources.
-   *
-   * @return True on success
-   */
-  virtual bool InitializeResource() = 0;
-
-  /**
-   * @brief Discards resource by adding it to the discard queue
-   */
-  virtual void DiscardResource() = 0;
-
-  /**
    * @brief returns pointer to base
    * @return
    */
-  BASE* GetBase()
+  GraphicsType* GetBase()
   {
     return this;
   }

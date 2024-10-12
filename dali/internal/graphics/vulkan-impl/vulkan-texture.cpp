@@ -1080,6 +1080,15 @@ void Texture::CopyMemoryDirect(
     // ...and flush
     memory->Flush();
   }
+
+  ResourceTransferRequest transferRequest(TransferRequestType::LAYOUT_TRANSITION_ONLY);
+  transferRequest.imageLayoutTransitionInfo.image     = mImage;
+  transferRequest.imageLayoutTransitionInfo.srcLayout = mImage->GetImageLayout();
+  transferRequest.imageLayoutTransitionInfo.dstLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+  transferRequest.deferredTransferMode                = false;
+
+  // schedule transfer
+  mController.ScheduleResourceTransfer(std::move(transferRequest));
 }
 
 vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
@@ -1154,10 +1163,26 @@ bool Texture::InitializeResource()
 
 void Texture::DestroyResource()
 {
+  if(mImageView)
+  {
+    mImageView->Destroy();
+    mImageView = nullptr;
+  }
+  if(mImage)
+  {
+    mImage->Destroy();
+    mImage = nullptr;
+  }
+  if(mSampler)
+  {
+    mSampler->Destroy();
+    mSampler = nullptr;
+  }
 }
 
 void Texture::DiscardResource()
 {
+  mController.DiscardResource(this);
 }
 
 void Texture::SetFormatAndUsage()

@@ -71,13 +71,13 @@ static bool TestCopyRectIntersection(const ResourceTransferRequest* srcRequest, 
  *
  * When Graphics object dies the unique pointer (Graphics::UniquePtr)
  * doesn't destroy it directly but passes the ownership back
- * to the Controller. The VKDeleter is responsible for passing
- * the object to the discard queue (by calling Resource::DiscardResource()).
+ * to the Controller. The GraphicsDeleter is responsible for passing
+ * the graphics object to the discard queue (by calling Resource::DiscardResource()).
  */
 template<typename T>
-struct VKDeleter
+struct GraphicsDeleter
 {
-  VKDeleter() = default;
+  GraphicsDeleter() = default;
 
   void operator()(T* object)
   {
@@ -94,7 +94,7 @@ struct VKDeleter
  * @param[out] out Unique pointer to the return object
  */
 template<class VKType, class GfxCreateInfo, class T>
-auto NewObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, T&& oldObject)
+auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, T&& oldObject)
 {
   // Use allocator
   using Type = typename T::element_type;
@@ -105,7 +105,7 @@ auto NewObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, 
       sizeof(VKType),
       0,
       info.allocationCallbacks->userData);
-    return UPtr(new(memory) VKType(info, controller), VKDeleter<VKType>());
+    return UPtr(new(memory) VKType(info, controller), GraphicsDeleter<VKType>());
   }
   else // Use standard allocator
   {
@@ -116,7 +116,7 @@ auto NewObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, 
       // If succeeded, attach the object to the unique_ptr and return it back
       if(static_cast<VKType*>(reusedObject)->TryRecycle(info, controller))
       {
-        return UPtr(reusedObject, VKDeleter<VKType>());
+        return UPtr(reusedObject, GraphicsDeleter<VKType>());
       }
       else
       {
@@ -126,8 +126,8 @@ auto NewObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, 
       }
     }
 
-    // Create brand new object
-    UPtr gfxObject(new VKType(info, controller), VKDeleter<VKType>());
+    // Create brand-new object
+    UPtr gfxObject(new VKType(info, controller), GraphicsDeleter<VKType>());
     static_cast<VKType*>(gfxObject.get())->InitializeResource(); // @todo Consider using create queues?
     return gfxObject;
   }
@@ -192,7 +192,8 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex) {
+      auto workerFunc = [&, size](auto workerIndex)
+      {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -282,7 +283,8 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool {
+        auto predicate = [&](auto& item) -> bool
+        {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -394,7 +396,7 @@ struct VulkanGraphicsController::Impl
         commandBuffer->End();
 
         // submit to the queue
-        mGraphicsDevice->Submit(mGraphicsDevice->GetTransferQueue(0u), {Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence);
+        mGraphicsDevice->Submit(mGraphicsDevice->GetTransferQueue(0u), {Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence.get());
         fence->Wait();
         fence->Reset();
       }
@@ -408,7 +410,7 @@ struct VulkanGraphicsController::Impl
           // Do not destroy
           if(buffer != mTextureStagingBuffer->GetImpl())
           {
-            buffer->DestroyNow();
+            buffer->Destroy();
           }
         }
         else if(request.requestType == TransferRequestType::IMAGE_TO_IMAGE)
@@ -416,7 +418,7 @@ struct VulkanGraphicsController::Impl
           auto& image = request.imageToImageInfo.srcImage;
           if(image->GetVkHandle())
           {
-            image->DestroyNow();
+            image->Destroy();
           }
         }
       }
@@ -426,12 +428,74 @@ struct VulkanGraphicsController::Impl
     }
   }
 
+  /**
+   * @brief Processes a discard queue for objects created with NewObject
+   *
+   * @param[in,out] queue Reference to the queue
+   */
+  template<class ResourceType>
+  void ProcessResourceDiscardQueue(std::queue<ResourceType*>& queue)
+  {
+    while(!queue.empty())
+    {
+      auto* object = const_cast<ResourceType*>(queue.front());
+
+      // Destroy
+      object->DestroyResource();
+
+      auto* allocationCallbacks = object->GetAllocationCallbacks();
+      if(allocationCallbacks)
+      {
+        object->InvokeDeleter();
+        allocationCallbacks->freeCallback(object, allocationCallbacks->userData);
+      }
+      else
+      {
+        delete object;
+      }
+      queue.pop();
+    }
+  }
+
+  /**
+   * Processes a discard queue for direct instantiated objects
+   */
+  template<class ResourceType>
+  void ProcessDiscardQueue(std::queue<ResourceType*>& queue)
+  {
+    while(!queue.empty())
+    {
+      auto* object = queue.front();
+
+      // Destroy
+      object->DestroyResource();
+      delete object;
+
+      queue.pop();
+    }
+  }
+
+  void GarbageCollect()
+  {
+    ProcessResourceDiscardQueue<ResourceWithDeleter>(mResourceDiscardQueue);
+    ProcessDiscardQueue<ResourceBase>(mDiscardQueue);
+  }
+
+  void Flush()
+  {
+    // Flush any outstanding queues.
+
+    GarbageCollect();
+  }
+
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
   // used for texture<->buffer<->memory transfers
-  std::vector<ResourceTransferRequest> mResourceTransferRequests;
-  std::recursive_mutex                 mResourceTransferMutex{};
+  std::vector<ResourceTransferRequest>     mResourceTransferRequests;
+  std::recursive_mutex                     mResourceTransferMutex{};
+  std::queue<Vulkan::ResourceBase*>        mDiscardQueue;
+  std::queue<Vulkan::ResourceWithDeleter*> mResourceDiscardQueue;
 
   std::unique_ptr<Vulkan::Buffer>       mTextureStagingBuffer{};
   Dali::SharedFuture                    mTextureStagingBufferFuture{};
@@ -451,7 +515,10 @@ VulkanGraphicsController::VulkanGraphicsController()
 {
 }
 
-VulkanGraphicsController::~VulkanGraphicsController() = default;
+VulkanGraphicsController::~VulkanGraphicsController()
+{
+  mImpl->GarbageCollect();
+}
 
 void VulkanGraphicsController::Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation,
                                           Vulkan::Device&                 graphicsDevice)
@@ -481,6 +548,12 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
     {
       swapchain->Submit(cmdBuffer->GetImpl());
     }
+  }
+
+  // If flush bit set, flush all pending tasks
+  if(submitInfo.flags & (0 | SubmitFlagBits::FLUSH))
+  {
+    Flush();
   }
 }
 
@@ -597,7 +670,8 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
+          {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -632,7 +706,8 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
+          {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -670,7 +745,8 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex) {
+    auto task     = [pUpdates](auto workerIndex)
+    {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -787,6 +863,7 @@ bool VulkanGraphicsController::EnableDepthStencilBuffer(bool enableDepth, bool e
 
 void VulkanGraphicsController::RunGarbageCollector(size_t numberOfDiscardedRenderers)
 {
+  mImpl->GarbageCollect();
 }
 
 void VulkanGraphicsController::DiscardUnusedResources()
@@ -805,12 +882,12 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
 
 UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
-  return NewObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+  return NewGraphicsObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
 }
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
-  return NewObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  return NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
 }
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
@@ -823,12 +900,12 @@ UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const
 
 UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
 {
-  return NewObject<Vulkan::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
+  return NewGraphicsObject<Vulkan::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
 UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const Graphics::TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
 {
-  return NewObject<Vulkan::Texture>(textureCreateInfo, *this, std::move(oldTexture));
+  return NewGraphicsObject<Vulkan::Texture>(textureCreateInfo, *this, std::move(oldTexture));
 }
 
 UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer)
@@ -853,13 +930,23 @@ UniquePtr<Graphics::Shader> VulkanGraphicsController::CreateShader(const Graphic
 
 UniquePtr<Graphics::Sampler> VulkanGraphicsController::CreateSampler(const Graphics::SamplerCreateInfo& samplerCreateInfo, UniquePtr<Graphics::Sampler>&& oldSampler)
 {
-  return NewObject<Vulkan::Sampler>(samplerCreateInfo, *this, std::move(oldSampler));
+  return NewGraphicsObject<Vulkan::Sampler>(samplerCreateInfo, *this, std::move(oldSampler));
 }
 
 UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const Graphics::SyncObjectCreateInfo& syncObjectCreateInfo,
                                                                            UniquePtr<Graphics::SyncObject>&&     oldSyncObject)
 {
   return UniquePtr<Graphics::SyncObject>{};
+}
+
+void VulkanGraphicsController::DiscardResource(Vulkan::ResourceBase* resource)
+{
+  mImpl->mDiscardQueue.push(resource);
+}
+
+void VulkanGraphicsController::DiscardResource(Vulkan::ResourceWithDeleter* resource)
+{
+  mImpl->mResourceDiscardQueue.push(resource);
 }
 
 UniquePtr<Graphics::Memory> VulkanGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
@@ -904,7 +991,7 @@ MemoryRequirements VulkanGraphicsController::GetTextureMemoryRequirements(Graphi
 
 TextureProperties VulkanGraphicsController::GetTextureProperties(const Graphics::Texture& gfxTexture)
 {
-  Vulkan::Texture* texture = const_cast<Vulkan::Texture*>(static_cast<const Vulkan::Texture*>(&gfxTexture));
+  auto* texture = const_cast<Vulkan::Texture*>(static_cast<const Vulkan::Texture*>(&gfxTexture));
   return texture->GetProperties();
 }
 
@@ -987,40 +1074,6 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
   return "";
 }
 
-void VulkanGraphicsController::Add(Vulkan::RenderTarget* renderTarget)
-{
-  // @todo Add create resource queues?
-  renderTarget->InitializeResource();
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* renderTarget)
-{
-  // @todo Add discard queues
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::Buffer* buffer)
-{
-  // @todo Add discard queues
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::Pipeline* buffer)
-{
-  // @todo Add discard queues
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::Program* program)
-{
-  // @todo Add discard queues
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::Sampler* sampler)
-{
-}
-
-void VulkanGraphicsController::DiscardResource(Vulkan::Texture* texture)
-{
-}
-
 Vulkan::Device& VulkanGraphicsController::GetGraphicsDevice()
 {
   return *mImpl->mGraphicsDevice;
@@ -1078,9 +1131,27 @@ Graphics::UniquePtr<Graphics::Texture> VulkanGraphicsController::ReleaseTextureF
   return gfxTexture;
 }
 
+void VulkanGraphicsController::Flush()
+{
+  mImpl->Flush();
+}
+
 std::size_t VulkanGraphicsController::GetCapacity() const
 {
   return mImpl->mCapacity;
+}
+
+bool VulkanGraphicsController::HasClipMatrix() const
+{
+  return true;
+}
+
+const Matrix& VulkanGraphicsController::GetClipMatrix() const
+{
+  constexpr float CLIP_MATRIX_DATA[] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
+  static const Matrix CLIP_MATRIX(CLIP_MATRIX_DATA);
+  return CLIP_MATRIX;
 }
 
 } // namespace Dali::Graphics::Vulkan

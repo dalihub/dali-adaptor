@@ -95,6 +95,7 @@ Device::~Device()
   DALI_LOG_STREAM(gVulkanFilter, Debug::General, "DESTROYING GRAPHICS CONTEXT--------------------------------\n");
 
   SwapBuffers();
+  ReleaseCommandPools();
 
   // We are done with all resources (technically... . If not we will get a ton of validation layer errors)
   // Kill the Vulkan logical device
@@ -107,18 +108,21 @@ Device::~Device()
 // Create methods -----------------------------------------------------------------------------------------------
 void Device::Create()
 {
-  auto extensions = PrepareDefaultInstanceExtensions();
-  auto layers     = vk::enumerateInstanceLayerProperties();
+  auto extensions     = PrepareDefaultInstanceExtensions();
+  auto instanceLayers = vk::enumerateInstanceLayerProperties();
 
   std::vector<const char*> validationLayers;
-  for(auto&& reqLayer : reqLayers)
+  if(!instanceLayers.value.empty())
   {
-    for(auto&& prop : layers.value)
+    for(auto&& prop : instanceLayers.value)
     {
       DALI_LOG_STREAM(gVulkanFilter, Debug::General, prop.layerName);
-      if(std::string(prop.layerName) == reqLayer)
+      for(auto&& reqLayer : reqLayers)
       {
-        validationLayers.push_back(reqLayer);
+        if(std::string(prop.layerName) == reqLayer)
+        {
+          validationLayers.push_back(reqLayer);
+        }
       }
     }
   }
@@ -376,7 +380,8 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
     // during replacing the swapchain
     auto khr = oldSwapchain->GetVkHandle();
     oldSwapchain->SetVkHandle(nullptr);
-    oldSwapchain->Release();
+    oldSwapchain->Destroy();
+    delete oldSwapchain;
 
     mLogicalDevice.destroySwapchainKHR(khr, *mAllocator);
   }
@@ -434,8 +439,8 @@ Queue& Device::GetPresentQueue() const
 
 void Device::DiscardResource(std::function<void()> deleter)
 {
-  // std::lock_guard< std::mutex > lock( mMutex );
-  // mDiscardQueue[mCurrentBufferIndex].push_back( std::move( deleter ) );
+  // For now, just call immediately.
+  deleter();
 }
 
 Image* Device::CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent)
@@ -540,6 +545,15 @@ CommandPool* Device::GetCommandPool(std::thread::id threadId)
   return commandPool;
 }
 
+void Device::ReleaseCommandPools()
+{
+  for(auto& commandPool : mCommandPools)
+  {
+    commandPool.second->Reset(true);
+    delete commandPool.second;
+  }
+}
+
 void Device::SurfaceResized(unsigned int width, unsigned int height)
 {
   // Get main window's surface
@@ -561,6 +575,7 @@ void Device::SurfaceResized(unsigned int width, unsigned int height)
 
 uint32_t Device::SwapBuffers()
 {
+  DeviceWaitIdle();
   mCurrentBufferIndex = (mCurrentBufferIndex + 1) & 1;
   return mCurrentBufferIndex;
 }

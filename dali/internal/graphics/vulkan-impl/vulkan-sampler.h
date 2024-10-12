@@ -48,7 +48,7 @@ public:
   /**
    * @brief Called when GPU resources are destroyed
    */
-  void DestroyResource();
+  void DestroyResource() override;
 
   /**
    * @brief Called when initializing the resource
@@ -65,6 +65,23 @@ public:
   SamplerImpl* GetImpl()
   {
     return mSamplerImpl;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
+   */
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return mCreateInfo.allocationCallbacks;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
+   * Only intended for use by discard queue.
+   */
+  void InvokeDeleter() override
+  {
+    this->~Sampler();
   }
 
 private:
