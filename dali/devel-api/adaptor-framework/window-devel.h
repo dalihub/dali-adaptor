@@ -685,9 +685,7 @@ DALI_ADAPTOR_API bool IsModal(Window window);
 
 /**
  * @brief Enables or disables the window always is on top.
- *
- * This is valid between windows that have no notification level or a notification level of 'none'.
- * If it has a notification level, this will not do anything.
+ * 
  *
  * @param[in] window The window instance.
  * @param[in] alwaysOnTop true to enable the window always is on top, false to disable.
@@ -697,21 +695,21 @@ DALI_ADAPTOR_API void SetAlwaysOnTop(Window window, bool alwaysOnTop);
 /**
  * @brief Returns whether the window always is on top.
  *
+ * This is valid between windows that have no notification level or a notification level of 'none'.
+ * If it has a notification level, this will not do anything.
+ *
  * @param[in] window The window instance.
  * @return True if the window always is on top, false otherwise.
  */
 DALI_ADAPTOR_API bool IsAlwaysOnTop(Window window);
 
 /**
- * @brief Enables or disables the window's layer is changed to bottom.
- *
- * If the enable flag is true, this window will be placed below other windows.
- * Otherwise, if it's called with a false value, it will be located above other windows.
+ * @brief Enables or disables the window's layer is changed to the bottom.
  *
  * @param[in] window The window instance.
- * @param[in] enable true to change the window layer to the bottom.
+ * @param[in] toBottom true to change the window layer to the bottom.
  */
-DALI_ADAPTOR_API void SetBottom(Window window, bool enable);
+DALI_ADAPTOR_API void SetToBottom(Window window, bool toBottom);
 
 /**
  * @brief Returns whether the window layer is the bottom or not.

@@ -1049,7 +1049,7 @@ bool WindowBaseX::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseX::SetBottom(bool enable)
+void WindowBaseX::SetToBottom(bool toBottom)
 {
 }
 

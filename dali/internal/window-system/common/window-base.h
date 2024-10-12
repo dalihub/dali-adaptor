@@ -597,15 +597,11 @@ public:
   virtual bool IsAlwaysOnTop() = 0;
 
   /**
-   * @brief Enables or disables the window's layer is changed to bottom.
+   * @brief Enables or disables the window's layer is changed to the bottom.
    *
-   * If the enable flag is true, this window will be placed below other windows.
-   * Otherwise, if it's called with a false value, it will be located above other windows.
-   *
-   * @param[in] window The window instance.
-   * @param[in] enable true to change the window layer to the bottom.
+   * @param[in] toBottom true to change the window layer to the bottom.
    */
-  virtual void SetBottom(bool enable) = 0;
+  virtual void SetToBottom(bool toBottom) = 0;
 
   /**
    * @brief Returns whether the window layer is the bottom or not.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,59 @@ void Dali::AtspiAccessibility::Say(const std::string& text, bool discardable, st
   {
     bridge->Say(text, discardable, callback);
   }
+}
+
+int Dali::AtspiAccessibility::SetForcefully(bool turnOn)
+{
+  if(turnOn)
+  {
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->Initialize();
+      auto ret = bridge->ForceUp();
+      return (int)ret;
+    }
+  }
+  else
+  {
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->ForceDown();
+      return 0;
+    }
+  }
+  return -1;
+}
+
+int Dali::AtspiAccessibility::GetStatus()
+{
+  //0(ATSPI OFF, ScreenReader OFF), 1(ATSPI ON, ScreenReader OFF), 2 (ATSPI OFF, ScreenReader ON), 3(ATSPI ON, ScreenReader ON)
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  {
+    if(bridge->GetScreenReaderEnabled())
+    {
+      if(bridge->IsEnabled())
+      {
+        return 3;
+      }
+      else
+      {
+        return 2;
+      }
+    }
+    else
+    {
+      if(bridge->IsEnabled())
+      {
+        return 1;
+      }
+      else
+      {
+        return 0;
+      }
+    }
+  }
+  return -1;
 }
 
 bool Dali::AtspiAccessibility::IsEnabled()
