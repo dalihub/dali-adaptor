@@ -936,8 +936,7 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mOwnSurface(false),
   mBrightnessChangeDone(true),
   mIsFrontBufferRendering(false),
-  mIsIMEWindowInitialized(false),
-  mToBottom(false)
+  mIsIMEWindowInitialized(false)
 {
   Initialize(positionSize, surface, isTransparent);
 }
@@ -3691,7 +3690,6 @@ void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_set, window: [%p], flag [%d]\n", mEcoreWindow, alwaysOnTop);
   START_DURATION_CHECK();
   ecore_wl2_window_pin_mode_set(mEcoreWindow, alwaysOnTop);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
   FINISH_DURATION_CHECK("ecore_wl2_window_pin_mode_set");
 }
 
@@ -3700,29 +3698,6 @@ bool WindowBaseEcoreWl2::IsAlwaysOnTop()
   bool ret = ecore_wl2_window_pin_mode_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
-}
-
-void WindowBaseEcoreWl2::SetToBottom(bool toBottom)
-{
-  START_DURATION_CHECK();
-  mToBottom = toBottom;
-  if(toBottom)
-  {
-    DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_BELOW\n", mEcoreWindow, toBottom);
-    ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_BELOW);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_NONE\n", mEcoreWindow, toBottom);
-    ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_NONE);
-  }
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-  FINISH_DURATION_CHECK("ecore_wl2_window_pin_mode_set");
-}
-
-bool WindowBaseEcoreWl2::IsBottom()
-{
-  return mToBottom;
 }
 
 Any WindowBaseEcoreWl2::GetNativeBuffer() const
