@@ -33,7 +33,7 @@ class SwapchainBuffer;
 /**
  * Creates swapchain for given surface and queue
  */
-class Swapchain
+class Swapchain : public VkManaged
 {
 public:
   static Swapchain* NewSwapchain(
@@ -47,12 +47,10 @@ public:
 
   Swapchain(Device& graphicsDevice, Queue& presentationQueue);
 
-  ~Swapchain();
+  ~Swapchain() override;
 
   Swapchain(const Swapchain&)            = delete;
   Swapchain& operator=(const Swapchain&) = delete;
-
-  void Destroy();
 
   /**
    * Automatically create framebuffers (generating compatible render passes)
@@ -95,6 +93,8 @@ public:
    * Presents using default present queue, asynchronously
    */
   void Present();
+
+  bool OnDestroy() override;
 
   /**
    * Returns true when swapchain expired
@@ -143,14 +143,16 @@ private:
   /**
    * FramebufferImpl object associated with the buffer
    */
-  using OwnedFramebuffer = std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)>;
-  std::vector<OwnedFramebuffer> mFramebuffers;
+  std::vector<FramebufferImpl*> mFramebuffers;
 
   /**
    * Array of swapchain buffers
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
-  uint32_t                                      mFrameCounter{0u}; ///< Current frame number
+
+  FenceImpl* mBetweenRenderPassFence{};
+
+  uint32_t mFrameCounter{0u}; ///< Current frame number
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };

@@ -17,22 +17,18 @@
 
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <cstdint>
 
 namespace Dali::Graphics::Vulkan
 {
-class BufferImpl
+class BufferImpl // : public VkManaged
 {
 public:
   static BufferImpl* New(Vulkan::Device& device, size_t size, vk::BufferUsageFlags usageFlags);
 
   static BufferImpl* New(Vulkan::Device& device, size_t size, vk::SharingMode sharingMode, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryProperties);
-
-  /** Destructor */
-  ~BufferImpl();
 
   /**
    * Returns buffer usage flags
@@ -79,7 +75,7 @@ public:
    * @note Calling this function is unsafe and makes any further use of
    * buffer invalid.
    */
-  void Destroy();
+  void DestroyNow();
 
   BufferImpl(const Buffer&)            = delete;
   BufferImpl& operator=(const Buffer&) = delete;

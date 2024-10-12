@@ -27,9 +27,10 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-std::unique_ptr<FenceImpl> FenceImpl::New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo)
+
+FenceImpl* FenceImpl::New(Device& graphicsDevice, const vk::FenceCreateInfo& fenceCreateInfo)
 {
-  auto fence = std::unique_ptr<FenceImpl>(new FenceImpl(graphicsDevice));
+  auto fence = new FenceImpl(graphicsDevice);
   fence->Initialize(fenceCreateInfo);
   return fence;
 }

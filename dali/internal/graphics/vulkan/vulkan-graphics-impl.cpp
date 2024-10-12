@@ -98,9 +98,9 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   return surfaceId;
 }
 
-void VulkanGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
+void VulkanGraphics::DestroySurface(Graphics::SurfaceId)
 {
-  mGraphicsDevice.DestroySurface(surfaceId);
+  // @todo Destroy swapchain.
 }
 
 bool VulkanGraphics::ReplaceSurface(Graphics::SurfaceId surface, int width, int height)
@@ -123,7 +123,6 @@ void VulkanGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
 
 void VulkanGraphics::PostRender()
 {
-  mGraphicsDevice.SwapBuffers();
 }
 
 void VulkanGraphics::Shutdown()
@@ -132,7 +131,6 @@ void VulkanGraphics::Shutdown()
 
 void VulkanGraphics::Destroy()
 {
-  mGraphicsController.RunGarbageCollector(0);
 }
 
 void VulkanGraphics::Pause()

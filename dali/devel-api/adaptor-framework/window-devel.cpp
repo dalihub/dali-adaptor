@@ -389,16 +389,6 @@ bool IsAlwaysOnTop(Window window)
   return GetImplementation(window).IsAlwaysOnTop();
 }
 
-void SetBottom(Window window, bool enable)
-{
-  GetImplementation(window).SetBottom(enable);
-}
-
-bool IsBottom(Window window)
-{
-  return GetImplementation(window).IsBottom();
-}
-
 Any GetNativeBuffer(Window window)
 {
   return GetImplementation(window).GetNativeBuffer();

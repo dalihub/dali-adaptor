@@ -25,9 +25,11 @@
 #include <dali/public-api/common/dali-common.h>
 
 // EXTERNAL INCLUDES
+#include <cstdint>
 
 namespace Dali::Graphics::Vulkan
 {
+
 Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : BufferResource(createInfo, controller)
 {
@@ -119,7 +121,8 @@ void Buffer::DestroyResource()
     }
     mBufferPtr = nullptr;
   }
-  else // Destroy GPU allocation
+  // Deestroy GPU allocation
+  else
   {
     delete(mBufferImpl);
     mBufferImpl = nullptr;

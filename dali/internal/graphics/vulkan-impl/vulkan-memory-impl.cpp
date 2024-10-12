@@ -77,6 +77,13 @@ void MemoryImpl::Unmap()
   }
 }
 
+vk::DeviceMemory MemoryImpl::ReleaseVkObject()
+{
+  auto retval  = deviceMemory;
+  deviceMemory = nullptr;
+  return retval;
+}
+
 void MemoryImpl::Flush()
 {
   // Don't flush if we are using host coherent memory - it's un-necessary

@@ -56,11 +56,6 @@ Pipeline::Pipeline(const Graphics::PipelineCreateInfo& createInfo, VulkanGraphic
   mPipeline = std::make_unique<PipelineImpl>(createInfo, controller, pipelineCache);
 }
 
-bool Pipeline::InitializeResource()
-{
-  return true;
-}
-
 void Pipeline::DiscardResource()
 {
   // Send pipeline to discard queue if refcount is 0

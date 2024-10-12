@@ -1649,16 +1649,6 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
-void Window::SetBottom(bool enable)
-{
-  mWindowBase->SetBottom(enable);
-}
-
-bool Window::IsBottom()
-{
-  return mWindowBase->IsBottom();
-}
-
 Dali::Any Window::GetNativeBuffer() const
 {
   return mWindowBase->GetNativeBuffer();

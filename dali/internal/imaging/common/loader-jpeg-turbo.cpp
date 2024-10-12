@@ -1206,7 +1206,6 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
       case SamplingMode::BOX:
       case SamplingMode::BOX_THEN_NEAREST:
       case SamplingMode::BOX_THEN_LINEAR:
-      case SamplingMode::BOX_THEN_LANCZOS:
       case SamplingMode::DONT_CARE:
       {
         useTurboJpegScaleFactor = true;
@@ -1215,7 +1214,6 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
       case SamplingMode::NO_FILTER:
       case SamplingMode::NEAREST:
       case SamplingMode::LINEAR:
-      case SamplingMode::LANCZOS:
       {
         useTurboJpegScaleFactor = false;
         break;

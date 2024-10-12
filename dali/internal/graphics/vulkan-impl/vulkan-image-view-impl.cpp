@@ -110,13 +110,6 @@ ImageView::~ImageView()
   Destroy();
 }
 
-void ImageView::Destroy()
-{
-  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying ImageView: %p\n", static_cast<VkImageView>(mImageView));
-  auto device = mDevice.GetLogicalDevice();
-  device.destroyImageView(mImageView, mDevice.GetAllocator());
-}
-
 vk::ImageView ImageView::GetVkHandle() const
 {
   return mImageView;
@@ -140,6 +133,12 @@ uint32_t ImageView::GetMipLevelCount() const
 vk::ImageAspectFlags ImageView::GetImageAspectMask() const
 {
   return vk::ImageAspectFlags();
+}
+
+void ImageView::Destroy()
+{
+  auto device = mDevice.GetLogicalDevice();
+  device.destroyImageView(mImageView, mDevice.GetAllocator());
 }
 
 } // namespace Vulkan

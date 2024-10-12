@@ -53,19 +53,19 @@ inline VertexInputAttributeFormat ToVertexInputAttributeFormat(SpvReflectFormat 
     {
       return VertexInputAttributeFormat::FLOAT;
     }
-    // case SPV_REFLECT_FORMAT_R32G32_SINT:{
-    //   return VertexInputAttributeFormat::VEC2
-    // }
+    //case SPV_REFLECT_FORMAT_R32G32_SINT:{
+    //  return VertexInputAttributeFormat::VEC2
+    //}
     case SPV_REFLECT_FORMAT_R32G32_SFLOAT:
     {
       return VertexInputAttributeFormat::VEC2;
     }
-    // case SPV_REFLECT_FORMAT_R32G32B32_SINT:{}
+    //case SPV_REFLECT_FORMAT_R32G32B32_SINT:{}
     case SPV_REFLECT_FORMAT_R32G32B32_SFLOAT:
     {
       return VertexInputAttributeFormat::VEC3;
     }
-    // case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:{};
+    //case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:{};
     case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:
     {
       return VertexInputAttributeFormat::VEC4;
@@ -147,8 +147,7 @@ void Reflection::BuildReflection()
     }
 
     // helper lambda if we need to check more types of pipeline stages in the future
-    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult
-    {
+    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult {
       if(stage == expectedStage)
       {
         if(!variable)
@@ -271,8 +270,7 @@ void Reflection::BuildReflection()
     {
       mUniformOpaques.insert(mUniformOpaques.end(), samplers.begin(), samplers.end());
       // sort samplers by bindings
-      std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs)
-                { return lhs.binding < rhs.binding; });
+      std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
       for(auto i = 0u; i < mUniformOpaques.size(); ++i)
       {
         mUniformOpaques[i].location = i;

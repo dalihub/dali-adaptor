@@ -29,13 +29,14 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-RenderPassHandle RenderPassImpl::New(
+
+RenderPassImpl* RenderPassImpl::New(
   Vulkan::Device&                            device,
   const std::vector<FramebufferAttachment*>& colorAttachments,
   FramebufferAttachment*                     depthAttachment)
 {
   auto renderPass = new RenderPassImpl(device, colorAttachments, depthAttachment);
-  return RenderPassHandle(renderPass);
+  return renderPass;
 }
 
 RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device,
@@ -49,6 +50,11 @@ RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device
 
 RenderPassImpl::~RenderPassImpl() = default;
 
+vk::RenderPass RenderPassImpl::GetVkHandle()
+{
+  return mVkRenderPass;
+}
+
 bool RenderPassImpl::OnDestroy()
 {
   if(mVkRenderPass)
@@ -56,18 +62,14 @@ bool RenderPassImpl::OnDestroy()
     auto device     = mGraphicsDevice->GetLogicalDevice();
     auto allocator  = &mGraphicsDevice->GetAllocator();
     auto renderPass = mVkRenderPass;
-
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying render pass: %p\n", static_cast<VkRenderPass>(renderPass));
-    device.destroyRenderPass(renderPass, allocator);
+    mGraphicsDevice->DiscardResource([device, renderPass, allocator]()
+                                     {
+      DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkRenderPass>(renderPass))
+      device.destroyRenderPass(renderPass, allocator); });
 
     mVkRenderPass = nullptr;
   }
-  return true;
-}
-
-vk::RenderPass RenderPassImpl::GetVkHandle()
-{
-  return mVkRenderPass;
+  return false;
 }
 
 std::vector<vk::ImageView>& RenderPassImpl::GetAttachments()
@@ -171,12 +173,10 @@ void RenderPassImpl::CreateCompatibleCreateInfo(
       .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
       .setDependencyFlags(vk::DependencyFlagBits::eByRegion)};
 
-  mCreateInfo.createInfo
-    .setAttachmentCount(U32(mCreateInfo.attachmentDescriptions.size()))
+  mCreateInfo.createInfo.setAttachmentCount(U32(mCreateInfo.attachmentDescriptions.size()))
     .setPAttachments(mCreateInfo.attachmentDescriptions.data())
     .setPSubpasses(&mCreateInfo.subpassDesc)
     .setSubpassCount(1)
-    .setDependencyCount(2)
     .setPDependencies(mCreateInfo.subpassDependencies.data());
 }
 

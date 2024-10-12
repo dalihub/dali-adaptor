@@ -45,6 +45,8 @@ public:
    * @copydoc Graphics::Vulkan::Resource::InitializeResource();
    */
   bool InitializeResource() override;
+  void InitializeCPUBuffer();
+  void InitializeGPUBuffer();
 
   /**
    * @return false - Vulkan should always allocate GPU buffers
@@ -57,23 +59,6 @@ public:
    */
   void DiscardResource() override;
 
-  /**
-   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
-   */
-  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
-  {
-    return mCreateInfo.allocationCallbacks;
-  }
-
-  /**
-   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
-   * Only intended for use by discard queue.
-   */
-  void InvokeDeleter() override
-  {
-    this->~Buffer();
-  }
-
   void Bind(Graphics::BufferUsage bindingTarget) const;
 
   BufferImpl* GetImpl()
@@ -84,10 +69,6 @@ public:
     }
     return nullptr;
   }
-
-private:
-  void InitializeCPUBuffer();
-  void InitializeGPUBuffer();
 
 private:
   union

@@ -52,14 +52,7 @@ WebEngine::~WebEngine()
 
 WebEngine WebEngine::New()
 {
-  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New(-1);
-
-  return WebEngine(engine.Get());
-}
-
-WebEngine WebEngine::New(int32_t type)
-{
-  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New(type);
+  Internal::Adaptor::WebEnginePtr engine = Internal::Adaptor::WebEngine::New();
 
   return WebEngine(engine.Get());
 }
@@ -610,26 +603,6 @@ void WebEngine::RegisterTextFoundCallback(Dali::WebEnginePlugin::WebEngineTextFo
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
 {
   GetImplementation(*this).GetPlainTextAsynchronously(callback);
-}
-
-void WebEngine::WebAuthenticationCancel()
-{
-  GetImplementation(*this).WebAuthenticationCancel();
-}
-
-void WebEngine::RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback)
-{
-  GetImplementation(*this).RegisterWebAuthDisplayQRCallback(callback);
-}
-
-void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback)
-{
-  GetImplementation(*this).RegisterWebAuthResponseCallback(callback);
-}
-
-void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)
-{
-  GetImplementation(*this).RegisterUserMediaPermissionRequestCallback(callback);
 }
 
 } // namespace Dali

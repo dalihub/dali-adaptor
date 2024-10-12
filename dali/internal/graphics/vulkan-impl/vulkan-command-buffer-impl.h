@@ -32,7 +32,7 @@ class Device;
 class CommandPool;
 class PipelineImpl;
 
-class CommandBufferImpl
+class CommandBufferImpl : public VkManaged
 {
   friend class CommandPool;
 
@@ -41,9 +41,7 @@ class CommandBufferImpl
 public:
   CommandBufferImpl() = delete;
 
-  ~CommandBufferImpl();
-
-  void Destroy();
+  ~CommandBufferImpl() override;
 
   /** Begin recording */
   void Begin(vk::CommandBufferUsageFlags usageFlags, vk::CommandBufferInheritanceInfo* inheritanceInfo);
@@ -103,6 +101,12 @@ public:
 
   void CopyImage(Vulkan::Image* srcImage, vk::ImageLayout srcLayout, Image* dstImage, vk::ImageLayout dstLayout, const std::vector<vk::ImageCopy>& regions);
 
+  /**
+   * Implements VkManaged::OnDestroy
+   * @return
+   */
+  bool OnDestroy() override;
+
   void SetScissor(Rect2D value);
   void SetViewport(Viewport value);
 
@@ -134,11 +138,6 @@ private:
    */
   [[nodiscard]] uint32_t GetPoolAllocationIndex() const;
 
-  /**
-   * Bind all deferred resources before drawing
-   */
-  void BindResources(vk::DescriptorSet set);
-
 private:
   // Constructor called by the CommandPool only
   CommandBufferImpl(
@@ -154,13 +153,6 @@ private: // Struct for deferring texture binding
     vk::Sampler   sampler;
     uint32_t      binding;
   };
-  struct DeferredUniformBinding
-  {
-    vk::Buffer buffer;
-    uint32_t   offset;
-    uint32_t   range;
-    uint32_t   binding;
-  };
 
 private:
   CommandPool*                        mOwnerCommandPool;
@@ -168,7 +160,6 @@ private:
   uint32_t                            mPoolAllocationIndex;
   vk::CommandBufferAllocateInfo       mAllocateInfo{};
   std::vector<DeferredTextureBinding> mDeferredTextureBindings;
-  std::vector<DeferredUniformBinding> mDeferredUniformBindings;
 
   vk::CommandBuffer mCommandBuffer{};
 

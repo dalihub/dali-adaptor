@@ -342,8 +342,6 @@ int UtcDaliImageOperationsAveragePixelRGB565(void)
   END_TEST;
 }
 
-namespace
-{
 /**
  * @brief Build a square bitmap, downscale it and assert the resulting bitmap has the right dimensions.
  */
@@ -366,99 +364,6 @@ void TestDownscaledBitmapHasRightDimensionsAndFormat(
   DALI_TEST_EQUALS(downScaled.GetHeight(), expectedDimension, location);
   DALI_TEST_EQUALS(downScaled.GetPixelFormat(), format, location);
 }
-
-/**
- * @brief Test that resizing RGBA8888 images as raw pixel arrays produces a result of the correct dimensions.
- */
-void TestDownscaleOutputsExpectedDimensionsRGBA8888(uint32_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
-{
-  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
-  Dali::Internal::Platform::DownscaleInPlacePow2RGBA8888(
-    reinterpret_cast<unsigned char*>(pixels),
-    inputWidth,
-    inputHeight,
-    inputWidth,
-    desiredWidth,
-    desiredHeight,
-    BoxDimensionTestBoth,
-    resultingWidth,
-    resultingHeight,
-    resultingStride);
-
-  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
-  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
-  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
-}
-
-/**
- * @brief Test that resizing RGB565 images as raw pixel arrays produces a result of the correct dimensions.
- */
-void TestDownscaleOutputsExpectedDimensionsRGB565(uint16_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
-{
-  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB565(
-    reinterpret_cast<unsigned char*>(pixels),
-    inputWidth,
-    inputHeight,
-    inputWidth,
-    desiredWidth,
-    desiredHeight,
-    BoxDimensionTestBoth,
-    resultingWidth,
-    resultingHeight,
-    resultingStride);
-
-  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
-  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
-  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
-}
-
-/**
- * @brief Test that resizing 2-byte-per-pixel images as raw pixel arrays produces a result of the correct dimensions.
- */
-void TestDownscaleOutputsExpectedDimensions2ComponentPair(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
-{
-  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
-  Dali::Internal::Platform::DownscaleInPlacePow2ComponentPair(
-    pixels,
-    inputWidth,
-    inputHeight,
-    inputWidth,
-    desiredWidth,
-    desiredHeight,
-    BoxDimensionTestBoth,
-    resultingWidth,
-    resultingHeight,
-    resultingStride);
-
-  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
-  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
-  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
-}
-
-/**
- * @brief Test that resizing single-byte-per-pixel images as raw pixel arrays produces a result of the correct dimensions.
- */
-void TestDownscaleOutputsExpectedDimensionsSingleComponent(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
-{
-  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
-  Dali::Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(
-    pixels,
-    inputWidth,
-    inputHeight,
-    inputWidth,
-    desiredWidth,
-    desiredHeight,
-    BoxDimensionTestBoth,
-    resultingWidth,
-    resultingHeight,
-    resultingStride);
-
-  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
-  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
-  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
-}
-} // namespace
 
 /**
  * @brief Test the top-level function for reducing the dimension of a bitmap,
@@ -595,6 +500,98 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   DALI_TEST_EQUALS(numNonMagenta, 0u, TEST_LOCATION);
 
   END_TEST;
+}
+
+/**
+ * @brief Test that resizing RGBA8888 images as raw pixel arrays produces a result of the correct dimensions.
+ */
+void TestDownscaleOutputsExpectedDimensionsRGBA8888(uint32_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
+{
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
+  Dali::Internal::Platform::DownscaleInPlacePow2RGBA8888(
+    reinterpret_cast<unsigned char*>(pixels),
+    inputWidth,
+    inputHeight,
+    inputWidth,
+    desiredWidth,
+    desiredHeight,
+    BoxDimensionTestBoth,
+    resultingWidth,
+    resultingHeight,
+    resultingStride);
+
+  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
+  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
+}
+
+/**
+ * @brief Test that resizing RGB565 images as raw pixel arrays produces a result of the correct dimensions.
+ */
+void TestDownscaleOutputsExpectedDimensionsRGB565(uint16_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
+{
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB565(
+    reinterpret_cast<unsigned char*>(pixels),
+    inputWidth,
+    inputHeight,
+    inputWidth,
+    desiredWidth,
+    desiredHeight,
+    BoxDimensionTestBoth,
+    resultingWidth,
+    resultingHeight,
+    resultingStride);
+
+  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
+  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
+}
+
+/**
+ * @brief Test that resizing 2-byte-per-pixel images as raw pixel arrays produces a result of the correct dimensions.
+ */
+void TestDownscaleOutputsExpectedDimensions2ComponentPair(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
+{
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
+  Dali::Internal::Platform::DownscaleInPlacePow2ComponentPair(
+    pixels,
+    inputWidth,
+    inputHeight,
+    inputWidth,
+    desiredWidth,
+    desiredHeight,
+    BoxDimensionTestBoth,
+    resultingWidth,
+    resultingHeight,
+    resultingStride);
+
+  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
+  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
+}
+
+/**
+ * @brief Test that resizing single-byte-per-pixel images as raw pixel arrays produces a result of the correct dimensions.
+ */
+void TestDownscaleOutputsExpectedDimensionsSingleComponent(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
+{
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
+  Dali::Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(
+    pixels,
+    inputWidth,
+    inputHeight,
+    inputWidth,
+    desiredWidth,
+    desiredHeight,
+    BoxDimensionTestBoth,
+    resultingWidth,
+    resultingHeight,
+    resultingStride);
+
+  DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
+  DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
 }
 
 /**
