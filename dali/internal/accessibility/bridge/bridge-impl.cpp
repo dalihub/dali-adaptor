@@ -338,6 +338,7 @@ public:
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
     }
+    mAccessibles.clear();
     ForceDown();
     if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
