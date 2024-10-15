@@ -28,6 +28,24 @@ class Swapchain;
 
 using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
 
+namespace DynamicStateMaskBits
+{
+const uint32_t SCISSOR               = 1 << 0;
+const uint32_t VIEWPORT              = 1 << 1;
+const uint32_t STENCIL_TEST          = 1 << 2;
+const uint32_t STENCIL_WRITE_MASK    = 1 << 3;
+const uint32_t STENCIL_COMP_MASK     = 1 << 4;
+const uint32_t STENCIL_REF           = 1 << 5;
+const uint32_t STENCIL_OP_FAIL       = 1 << 6;
+const uint32_t STENCIL_OP_DEPTH_FAIL = 1 << 7;
+const uint32_t STENCIL_OP_PASS       = 1 << 8;
+const uint32_t STENCIL_OP_COMP       = 1 << 9;
+const uint32_t DEPTH_TEST            = 1 << 10;
+const uint32_t DEPTH_WRITE           = 1 << 11;
+const uint32_t DEPTH_OP_COMP         = 1 << 12;
+}; // namespace DynamicStateMaskBits
+using DynamicStateMask = uint32_t;
+
 class CommandBuffer : public CommandBufferResource
 {
 public:
@@ -368,6 +386,39 @@ public: // API
   }
 
 private:
+  static const DynamicStateMask INITIAL_DYNAMIC_MASK_VALUE{0xFFFFFFFF};
+
+  /** Struct that defines the current state */
+  struct DynamicState
+  {
+    Rect2D              scissor;
+    Viewport            viewport;
+    uint32_t            stencilWriteMask;
+    uint32_t            stencilReference;
+    uint32_t            stencilCompareMask;
+    Graphics::CompareOp stencilCompareOp;
+    Graphics::CompareOp depthCompareOp;
+    Graphics::StencilOp stencilFailOp;
+    Graphics::StencilOp stencilPassOp;
+    Graphics::StencilOp stencilDepthFailOp;
+    bool                stencilTest;
+    bool                depthTest;
+    bool                depthWrite;
+  } mDynamicState;
+  DynamicStateMask mDynamicStateMask{INITIAL_DYNAMIC_MASK_VALUE}; // If a bit is 1, next cmd will write, else check & write if different.
+
+  template<typename ValueType>
+  bool SetDynamicState(ValueType& oldValue, ValueType& newValue, uint32_t bit)
+  {
+    if(((mDynamicStateMask & bit) != 0) || oldValue != newValue)
+    {
+      oldValue = newValue;
+      mDynamicStateMask &= ~bit;
+      return true;
+    }
+    return false;
+  }
+
   CommandBufferImpl* mCommandBufferImpl;
   Swapchain*         mLastSwapchain{nullptr};
 };
