@@ -763,7 +763,10 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
     if(Dali::Accessibility::IsUp())
     {
-      Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+      if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
+      {
+        accessible->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+      }
     }
   }
 
@@ -801,7 +804,10 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
     if(Dali::Accessibility::IsUp())
     {
-      Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+      if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
+      {
+        accessible->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+      }
     }
   }
 
@@ -875,7 +881,10 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   if((moved || resize) && Dali::Accessibility::IsUp())
   {
-    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
+    {
+      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    }
   }
 
   mSurface->SetFullSwapNextFrame();
@@ -1136,7 +1145,10 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   if((moved || resize) && Dali::Accessibility::IsUp())
   {
-    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
+    {
+      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    }
   }
 
   mSurface->SetFullSwapNextFrame();
@@ -1263,13 +1275,14 @@ void Window::OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartStat
 
 void Window::OnAccessibilityEnabled()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
-
+  auto bridge    = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer = mScene.GetRootLayer();
+  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  {
+    bridge->AddTopLevelWindow(accessible);
+  }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
 
-  bridge->AddTopLevelWindow(accessible);
   InterceptKeyEventSignal().Connect(this, &Window::OnAccessibilityInterceptKeyEvent);
 
   Dali::Window handle(this);
@@ -1314,8 +1327,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
-  {
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);

@@ -19,8 +19,8 @@
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
 #include <bundle.h>
+#include <dali/public-api/actors/layer.h>
 #include <dlfcn.h>
 #include <dlog.h>
 #include <tizen.h>
@@ -37,8 +37,8 @@ namespace Internal
 {
 namespace
 {
-constexpr char const* const kApplicationNamePrefix     = "libdali2-adaptor-application-";
-constexpr char const* const kApplicationNamePostfix    = ".so";
+constexpr char const* const kApplicationNamePrefix  = "libdali2-adaptor-application-";
+constexpr char const* const kApplicationNamePostfix = ".so";
 
 std::string MakePluginName(const char* appModelName)
 {
@@ -47,7 +47,7 @@ std::string MakePluginName(const char* appModelName)
   return fullName.str();
 }
 
-}
+} // namespace
 namespace Adaptor
 {
 WidgetImplTizen::WidgetImplTizen(void* instanceHandle)
@@ -70,16 +70,15 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   int         len              = contentInfo.length();
   contentBundle                = bundle_decode(contentBundleRaw, len);
 
-
-  using SetContentInfoFunc          = void (*)(void*, bundle*);
-  SetContentInfoFunc                setContentInfoFuncPtr;
-  std::string pluginName = MakePluginName("widget");
+  using SetContentInfoFunc = void (*)(void*, bundle*);
+  SetContentInfoFunc setContentInfoFuncPtr;
+  std::string        pluginName = MakePluginName("widget");
 
   void* mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "error : %s", dlerror() );
+    print_log(DLOG_ERROR, "DALI", "error : %s", dlerror());
     return;
   }
 
@@ -90,7 +89,7 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   }
   else
   {
-    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n" );
+    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n");
   }
 
   bundle_free(contentBundle);
@@ -113,7 +112,7 @@ void WidgetImplTizen::SetUsingKeyEvent(bool flag)
 
 void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
 {
-  mWindow = window;
+  mWindow   = window;
   mWidgetId = widgetId;
 
   auto bridge           = Accessibility::Bridge::GetCurrentBridge();
@@ -125,9 +124,12 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   bridge->SetPreferredBusName(preferredBusName);
 
   // Widget should not send window events (which could narrow down the navigation context)
-  auto& suppressedEvents = Accessibility::Accessible::Get(window.GetRootLayer())->GetSuppressedEvents();
-  suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED] = true;
-  suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
+  if(auto accessible = Accessibility::Accessible::Get(window.GetRootLayer()))
+  {
+    auto& suppressedEvents                                      = accessible->GetSuppressedEvents();
+    suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED]  = true;
+    suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
+  }
 }
 
 Dali::Window WidgetImplTizen::GetWindow() const
