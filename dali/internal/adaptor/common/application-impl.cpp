@@ -285,7 +285,6 @@ void Application::OnInit()
   DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_ADAPTOR_START");
   mAdaptor->Start();
   DALI_TRACE_END(gTraceFilter, "DALI_APP_ADAPTOR_START");
-  Accessibility::Accessible::SetObjectRegistry(mAdaptor->GetObjectRegistry());
 
   if(!mStylesheet.empty())
   {

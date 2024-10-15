@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
 #include <bundle.h>
+#include <dali/public-api/actors/layer.h>
 #include <unistd.h>
 #include <widget_base.h>
 
@@ -71,7 +71,7 @@ void WidgetImplTizen::SetUsingKeyEvent(bool flag)
 
 void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
 {
-  mWindow = window;
+  mWindow   = window;
   mWidgetId = widgetId;
 
   auto bridge           = Accessibility::Bridge::GetCurrentBridge();
@@ -83,9 +83,12 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   bridge->SetPreferredBusName(preferredBusName);
 
   // Widget should not send window events (which could narrow down the navigation context)
-  auto& suppressedEvents = Accessibility::Accessible::Get(window.GetRootLayer())->GetSuppressedEvents();
-  suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED] = true;
-  suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
+  if(auto accessible = Accessibility::Accessible::Get(window.GetRootLayer()))
+  {
+    auto& suppressedEvents                                      = accessible->GetSuppressedEvents();
+    suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED]  = true;
+    suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
+  }
 }
 
 Dali::Window WidgetImplTizen::GetWindow() const

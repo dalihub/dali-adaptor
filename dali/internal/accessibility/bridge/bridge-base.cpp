@@ -233,24 +233,25 @@ void BridgeBase::CompressDefaultLabels()
 {
   // Remove entries for objects which no longer exist
   mDefaultLabels.remove_if([](const DefaultLabelType& label) {
-    return !label.first.GetBaseHandle(); // Check window's weak handle
-    // TODO: Once Accessible becomes a handle type, check its weak handle here as well
+    // Check 1) window's weak handle; 2) accessible's ref object
+    return !label.first.GetBaseHandle() || label.second.expired();
   });
 }
 
-void BridgeBase::RegisterDefaultLabel(Accessible* object)
+void BridgeBase::RegisterDefaultLabel(std::shared_ptr<Accessible> object)
 {
   CompressDefaultLabels();
 
-  Dali::WeakHandle<Dali::Window> window = GetWindow(object);
+  Dali::WeakHandle<Dali::Window> window = GetWindow(object.get());
   if(!window.GetBaseHandle()) // true also if `object` is null
   {
     DALI_LOG_ERROR("Cannot register default label: object does not belong to any window");
     return;
   }
 
-  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [object](const DefaultLabelType& label) {
-    return object == label.second;
+  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [&object](const DefaultLabelType& label) {
+    auto labelPtr = label.second.lock();
+    return labelPtr && object == labelPtr;
   });
 
   if(it == mDefaultLabels.end())
@@ -269,17 +270,20 @@ void BridgeBase::RegisterDefaultLabel(Accessible* object)
   }
 }
 
-void BridgeBase::UnregisterDefaultLabel(Accessible* object)
+void BridgeBase::UnregisterDefaultLabel(std::shared_ptr<Accessible> object)
 {
   CompressDefaultLabels();
 
-  mDefaultLabels.remove_if([object](const DefaultLabelType& label) {
-    return object == label.second;
+  mDefaultLabels.remove_if([&object](const DefaultLabelType& label) {
+    auto labelPtr = label.second.lock();
+    return labelPtr && object == labelPtr;
   });
 }
 
-Accessible* BridgeBase::GetDefaultLabel(Accessible* root) const
+Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
 {
+  CompressDefaultLabels();
+
   Dali::WeakHandle<Dali::Window> window = GetWindow(root);
   if(!window.GetBaseHandle())
   {
@@ -290,7 +294,16 @@ Accessible* BridgeBase::GetDefaultLabel(Accessible* root) const
     return window == label.first;
   });
 
-  return (it == mDefaultLabels.rend()) ? root : it->second;
+  Accessible* rawPtr = root;
+  if(it != mDefaultLabels.rend())
+  {
+    if(auto labelPtr = it->second.lock())
+    {
+      rawPtr = labelPtr.get();
+    }
+  }
+
+  return rawPtr;
 }
 
 std::string BridgeBase::StripPrefix(const std::string& path)
@@ -314,7 +327,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
   }
 
   auto it = mData->mKnownObjects.find(static_cast<Accessible*>(accessible));
-  if(it == mData->mKnownObjects.end() || (*it)->IsHidden())
+  if(it == mData->mKnownObjects.end() || (!mApplication.mShouldIncludeHidden && (*it)->IsHidden()))
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }

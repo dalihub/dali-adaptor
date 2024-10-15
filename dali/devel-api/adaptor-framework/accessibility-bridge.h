@@ -62,6 +62,31 @@ struct DALI_ADAPTOR_API Bridge
   virtual ~Bridge() = default;
 
   /**
+   * @brief Adds the accessible object associated with given actorId to the brige.
+   *
+   * @param[in] actorId The actorId assosiated with the accessible
+   * @param[in] accessible The accessible object
+   *
+   * @return true if given accessible is added to the bridge
+   */
+  virtual bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) = 0;
+
+  /**
+   * @brief Removed the accessible object associated with given actorId from the brige.
+   */
+  virtual void RemoveAccessible(uint32_t actorId) = 0;
+
+  /**
+   * @brief Gets the accessible object associated with given actor from the brige.
+   */
+  virtual std::shared_ptr<Accessible> GetAccessible(Actor actor) const = 0;
+
+  /**
+   * @brief Returns true if GetChildren should include hidden objects; false otherwise.
+   */
+  virtual bool ShouldIncludeHidden() const = 0;
+
+  /**
    * @brief Gets bus name which bridge is initialized on.
    *
    * @return The bus name
@@ -98,7 +123,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @param[in] object The accessible object
    */
-  virtual void RegisterDefaultLabel(Accessible* object) = 0;
+  virtual void RegisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
 
   /**
    * @brief Removes object from the stack of "default label" sourcing objects.
@@ -107,7 +132,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @param[in] object The accessible object
    */
-  virtual void UnregisterDefaultLabel(Accessible* object) = 0;
+  virtual void UnregisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
 
   /**
    * @brief Gets the top-most object from the stack of "default label" sourcing objects.
@@ -125,7 +150,7 @@ struct DALI_ADAPTOR_API Bridge
    * Following strings are valid values for "default_label" attribute: "enabled", "disabled".
    * Any other value will be interpreted as "enabled".
    */
-  virtual Accessible* GetDefaultLabel(Accessible* root) const = 0;
+  virtual Accessible* GetDefaultLabel(Accessible* root) = 0;
 
   /**
    * @brief Sets name of current application which will be visible on accessibility bus.
@@ -292,7 +317,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] newValue Whether the state value is changed to new value or not.
    * @param[in] reserved Reserved. (Currently, this argument is not implemented in dali)
    **/
-  virtual void EmitStateChanged(Accessible* obj, State state, int newValue, int reserved = 0) = 0;
+  virtual void EmitStateChanged(std::shared_ptr<Accessible> obj, State state, int newValue, int reserved = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
@@ -309,7 +334,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] event Property changed event
    **/
-  virtual void Emit(Accessible* obj, ObjectPropertyChangeEvent event) = 0;
+  virtual void Emit(std::shared_ptr<Accessible> obj, ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
@@ -317,22 +342,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] rect The rectangle for changed bounds
    **/
-  virtual void EmitBoundsChanged(Accessible* obj, Rect<> rect) = 0;
-
-  /**
-   * @brief Emits key event on at-spi bus.
-   *
-   * Screen-reader might receive this event and reply, that given keycode is consumed. In that case
-   * further processing of the keycode should be ignored.
-   *
-   * @param[in] type Key event type
-   * @param[in] keyCode Key code
-   * @param[in] keyName Key name
-   * @param[in] timeStamp Time stamp
-   * @param[in] isText Whether it's text or not
-   * @return Whether this event is consumed or not
-   **/
-  virtual Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) = 0;
+  virtual void EmitBoundsChanged(std::shared_ptr<Accessible> obj, Rect<> rect) = 0;
 
   /**
    * @brief Reads given text by screen reader

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,12 +113,14 @@ Window::~Window()
 {
   if(mScene)
   {
-    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-    auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer);
-    bridge->RemoveTopLevelWindow(accessible);
-    // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
-    bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
+    auto bridge    = Accessibility::Bridge::GetCurrentBridge();
+    auto rootLayer = mScene.GetRootLayer();
+    if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+    {
+      bridge->RemoveTopLevelWindow(accessible);
+      // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
+      bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
+    }
   }
 
   if(DALI_LIKELY(mAdaptor))
@@ -715,7 +717,10 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+  if(auto accessible = Accessibility::Accessible::Get(mScene.GetRootLayer()))
+  {
+    accessible->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+  }
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -742,7 +747,10 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+  if(auto accessible = Accessibility::Accessible::Get(mScene.GetRootLayer()))
+  {
+    accessible->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+  }
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -810,7 +818,10 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  if(auto accessible = Accessibility::Accessible::Get(mScene.GetRootLayer()))
+  {
+    accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  }
 }
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
@@ -1011,7 +1022,10 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   if(DALI_LIKELY(mScene))
   {
-    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    if(auto accessible = Accessibility::Accessible::Get(mScene.GetRootLayer()))
+    {
+      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    }
   }
 }
 
@@ -1108,11 +1122,12 @@ void Window::OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartStat
 
 void Window::OnAccessibilityEnabled()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
-  bridge->AddTopLevelWindow(accessible);
-
+  auto bridge    = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer = mScene.GetRootLayer();
+  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  {
+    bridge->AddTopLevelWindow(accessible);
+  }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
 
   Dali::Window handle(this);
@@ -1141,10 +1156,12 @@ void Window::OnAccessibilityEnabled()
 
 void Window::OnAccessibilityDisabled()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
-  bridge->RemoveTopLevelWindow(accessible);
+  auto bridge    = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer = mScene.GetRootLayer();
+  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  {
+    bridge->RemoveTopLevelWindow(accessible);
+  }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
 }
 
