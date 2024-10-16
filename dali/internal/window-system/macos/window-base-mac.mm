@@ -824,7 +824,7 @@ bool WindowBaseCocoa::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseCocoa::SetToBottom(bool toBottom)
+void WindowBaseCocoa::SetBottom(bool enable)
 {
 }
 

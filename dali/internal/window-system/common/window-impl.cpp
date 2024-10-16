@@ -113,16 +113,6 @@ Window::Window()
 
 Window::~Window()
 {
-  if(mScene)
-  {
-    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-    auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer);
-    bridge->RemoveTopLevelWindow(accessible);
-    // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
-    bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
-  }
-
   if(mAdaptor)
   {
     mAdaptor->RemoveWindow(this);
@@ -1308,14 +1298,9 @@ void Window::OnAccessibilityEnabled()
 
 void Window::OnAccessibilityDisabled()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
-
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
 
   InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
-  bridge->RemoveTopLevelWindow(accessible);
 }
 
 bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
@@ -1649,9 +1634,9 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
-void Window::SetToBottom(bool toBottom)
+void Window::SetBottom(bool enable)
 {
-  mWindowBase->SetToBottom(toBottom);
+  mWindowBase->SetBottom(enable);
 }
 
 bool Window::IsBottom()

@@ -389,9 +389,9 @@ bool IsAlwaysOnTop(Window window)
   return GetImplementation(window).IsAlwaysOnTop();
 }
 
-void SetToBottom(Window window, bool toBottom)
+void SetBottom(Window window, bool enable)
 {
-  GetImplementation(window).SetToBottom(toBottom);
+  GetImplementation(window).SetBottom(enable);
 }
 
 bool IsBottom(Window window)
