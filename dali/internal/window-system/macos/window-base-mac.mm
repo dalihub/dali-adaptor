@@ -824,6 +824,15 @@ bool WindowBaseCocoa::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseCocoa::SetBottom(bool enable)
+{
+}
+
+bool WindowBaseCocoa::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseCocoa::GetNativeBuffer() const
 {
   return 0;
@@ -844,6 +853,15 @@ void WindowBaseCocoa::SetBackgroundBlur(int blurRadius, int cornerRadius)
 }
 
 int WindowBaseCocoa::GetBackgroundBlur()
+{
+  return 0;
+}
+
+void WindowBaseCocoa::SetBehindBlur(int blurRadius)
+{
+}
+
+int WindowBaseCocoa::GetBehindBlur()
 {
   return 0;
 }

@@ -24,6 +24,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 // EXTERNAL HEADERS
 #include <iostream>
@@ -63,6 +64,15 @@ struct ProgramImpl::Impl
   std::unique_ptr<Vulkan::Reflection> reflection{nullptr};
 
   std::vector<vk::PipelineShaderStageCreateInfo> mPipelineShaderStageCreateInfoList;
+
+  struct DescriptorPool
+  {
+    vk::DescriptorPoolCreateInfo createInfo;
+    vk::DescriptorPool           vkPool;
+  };
+
+  std::vector<DescriptorPool> poolList;
+  int32_t                     currentPoolIndex{-1};
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -247,6 +257,97 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
 [[nodiscard]] const std::vector<vk::PipelineShaderStageCreateInfo>& ProgramImpl::GetVkPipelineShaderStageCreateInfoList() const
 {
   return mImpl->mPipelineShaderStageCreateInfoList;
+}
+
+[[nodiscard]] int ProgramImpl::AddDescriptorPool(uint32_t poolCapacity, uint32_t maxPoolCounts)
+{
+  auto& poolList  = mImpl->poolList;
+  auto& poolIndex = mImpl->currentPoolIndex;
+  poolIndex %= maxPoolCounts;
+
+  auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
+  auto& allocator = gfxDevice.GetAllocator();
+  auto  vkDevice  = gfxDevice.GetLogicalDevice();
+
+  if(poolCapacity != poolList.size())
+  {
+    poolList.resize(poolCapacity);
+    // should error if pool index exceeds pool capacity
+  }
+
+  // round-robin the pool index
+  Impl::DescriptorPool& descriptorPool = mImpl->poolList[poolIndex];
+
+  // if pool exists at index...
+  if(descriptorPool.vkPool)
+  {
+    // ...try to reuse the pool
+    if(descriptorPool.createInfo.maxSets >= poolCapacity)
+    {
+      vkDevice.resetDescriptorPool(descriptorPool.vkPool, vk::DescriptorPoolResetFlags{});
+      return poolIndex;
+    }
+
+    // ... else, destroy vulkan object
+    vkDevice.destroyDescriptorPool(descriptorPool.vkPool, &allocator);
+  }
+
+  descriptorPool.createInfo.setMaxSets(poolCapacity);
+  std::vector<vk::DescriptorPoolSize> poolSizes;
+
+  // Note, first block is for gles emulation, so ignore it.
+  auto uniformBlockCount = GetReflection().GetUniformBlockCount() - 1;
+  auto samplersCount     = GetReflection().GetSamplers().size();
+
+  if(uniformBlockCount)
+  {
+    vk::DescriptorPoolSize item;
+    item.setType(vk::DescriptorType::eUniformBuffer);
+    item.setDescriptorCount(uniformBlockCount * poolCapacity);
+    poolSizes.emplace_back(item);
+  }
+  if(samplersCount) // For now, we use only combined image sampler type as 'sampler'
+  {
+    vk::DescriptorPoolSize item;
+    item.setType(vk::DescriptorType::eCombinedImageSampler);
+    item.setDescriptorCount(samplersCount * poolCapacity);
+    poolSizes.emplace_back(item);
+  }
+
+  // set sizes
+  descriptorPool.createInfo.setPoolSizes(poolSizes);
+
+  // create pool
+  VkAssert(vkDevice.createDescriptorPool(&descriptorPool.createInfo, &allocator, &descriptorPool.vkPool));
+
+  return poolIndex;
+}
+
+[[nodiscard]] vk::DescriptorSet ProgramImpl::AllocateDescriptorSet(int poolIndex)
+{
+  // if pool index isn't specified, last added pool will be used
+  if(poolIndex < 0)
+  {
+    poolIndex = mImpl->currentPoolIndex;
+  }
+
+  auto& poolList  = mImpl->poolList;
+  auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
+  auto  vkDevice  = gfxDevice.GetLogicalDevice();
+
+  vk::DescriptorSetAllocateInfo allocateInfo;
+  allocateInfo.setDescriptorPool(poolList[poolIndex].vkPool);
+
+  auto& layouts = GetReflection().GetVkDescriptorSetLayouts();
+  allocateInfo.setSetLayouts(layouts);
+  // TODO: making sure only first layout will be use.
+  // Reflection supports multiple sets but current architecture of Vulkan backend
+  // uses single set only per pipeline/program
+  allocateInfo.setDescriptorSetCount(1);
+
+  vk::DescriptorSet set;
+  VkAssert(vkDevice.allocateDescriptorSets(&allocateInfo, &set));
+  return set;
 }
 
 }; // namespace Dali::Graphics::Vulkan

@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
@@ -31,7 +32,7 @@ class Device;
 class CommandPool;
 class PipelineImpl;
 
-class CommandBufferImpl : public VkManaged
+class CommandBufferImpl
 {
   friend class CommandPool;
 
@@ -40,7 +41,9 @@ class CommandBufferImpl : public VkManaged
 public:
   CommandBufferImpl() = delete;
 
-  ~CommandBufferImpl() override;
+  ~CommandBufferImpl();
+
+  void Destroy();
 
   /** Begin recording */
   void Begin(vk::CommandBufferUsageFlags usageFlags, vk::CommandBufferInheritanceInfo* inheritanceInfo);
@@ -60,6 +63,15 @@ public:
   /** Final validation of the pipeline */
   void ValidatePipeline();
 
+  void BindVertexBuffers(
+    uint32_t                                firstBinding,
+    const std::vector<Vulkan::BufferImpl*>& buffers,
+    const std::vector<uint32_t>&            offsets);
+  void BindIndexBuffer(Vulkan::BufferImpl& buffer, uint32_t offset, Format format);
+  void BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings);
+  void BindTextures(const std::vector<TextureBinding>& textureBindings);
+  void BindSamplers(const std::vector<SamplerBinding>& samplerBindings);
+
   /** Returns Vulkan object associated with the buffer */
   [[nodiscard]] vk::CommandBuffer GetVkHandle() const;
 
@@ -68,7 +80,6 @@ public:
    * @return Returns true if the command buffer is primary
    */
   [[nodiscard]] bool IsPrimary() const;
-
   /**
    * Allows to issue custom VkRenderPassBeginInfo structure
    * @param renderPassBeginInfo
@@ -92,11 +103,8 @@ public:
 
   void CopyImage(Vulkan::Image* srcImage, vk::ImageLayout srcLayout, Image* dstImage, vk::ImageLayout dstLayout, const std::vector<vk::ImageCopy>& regions);
 
-  /**
-   * Implements VkManaged::OnDestroy
-   * @return
-   */
-  bool OnDestroy() override;
+  void SetScissor(Rect2D value);
+  void SetViewport(Viewport value);
 
   void Draw(
     uint32_t vertexCount,
@@ -112,12 +120,12 @@ public:
     uint32_t firstInstance);
 
   void DrawIndexedIndirect(
-    Graphics::Buffer& buffer,
-    uint32_t          offset,
-    uint32_t          drawCount,
-    uint32_t          stride);
+    BufferImpl& buffer,
+    uint32_t    offset,
+    uint32_t    drawCount,
+    uint32_t    stride);
 
-  void ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers);
+  void ExecuteCommandBuffers(std::vector<vk::CommandBuffer>& commandBuffers);
 
 private:
   /**
@@ -125,6 +133,11 @@ private:
    * @return
    */
   [[nodiscard]] uint32_t GetPoolAllocationIndex() const;
+
+  /**
+   * Bind all deferred resources before drawing
+   */
+  void BindResources(vk::DescriptorSet set);
 
 private:
   // Constructor called by the CommandPool only
@@ -134,13 +147,32 @@ private:
     const vk::CommandBufferAllocateInfo& allocateInfo,
     vk::CommandBuffer                    vulkanHandle);
 
+private: // Struct for deferring texture binding
+  struct DeferredTextureBinding
+  {
+    vk::ImageView imageView;
+    vk::Sampler   sampler;
+    uint32_t      binding;
+  };
+  struct DeferredUniformBinding
+  {
+    vk::Buffer buffer;
+    uint32_t   offset;
+    uint32_t   range;
+    uint32_t   binding;
+  };
+
 private:
-  CommandPool*                  mOwnerCommandPool;
-  Device*                       mGraphicsDevice;
-  uint32_t                      mPoolAllocationIndex;
-  vk::CommandBufferAllocateInfo mAllocateInfo{};
+  CommandPool*                        mOwnerCommandPool;
+  Device*                             mGraphicsDevice;
+  uint32_t                            mPoolAllocationIndex;
+  vk::CommandBufferAllocateInfo       mAllocateInfo{};
+  std::vector<DeferredTextureBinding> mDeferredTextureBindings;
+  std::vector<DeferredUniformBinding> mDeferredUniformBindings;
 
   vk::CommandBuffer mCommandBuffer{};
+
+  Vulkan::ProgramImpl* mCurrentProgram{nullptr}; /// To test descriptor sets, will collide with other work
 
   bool mRecording{false};
 };

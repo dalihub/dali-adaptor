@@ -23,6 +23,7 @@
 #include <dali/graphics-api/graphics-render-target-create-info.h>
 #include <dali/graphics-api/graphics-render-target.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -60,6 +61,23 @@ public:
   void DiscardResource() override;
 
   /**
+   * @copydoc Graphics::Vulkan::Resource::GetAllocationCallbacks()
+   */
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return mCreateInfo.allocationCallbacks;
+  }
+
+  /**
+   * @copydoc Graphics::Vulkan::Resource::InvokeDeleter()
+   * Only intended for use by discard queue.
+   */
+  void InvokeDeleter() override
+  {
+    this->~RenderTarget();
+  }
+
+  /**
    * @brief Returns framebuffer associated with the render target
    */
   [[nodiscard]] Vulkan::Framebuffer* GetFramebuffer() const;
@@ -69,12 +87,21 @@ public:
    */
   [[nodiscard]] Integration::RenderSurfaceInterface* GetSurface() const;
 
-  // Get Swapchain?
+  /**
+   * @brief Returns the current framebuffer impl for this frame.
+   * (May be either the swapchain's current fb, or the offscreen's fb).
+   * @return the current framebuffer
+   */
+  [[nodiscard]] Vulkan::FramebufferImpl* GetCurrentFramebufferImpl() const;
 
-private:
-  //  UniquePtr<Swapchain> mSwapchain;
+  /**
+   * Find a matching render pass for this render target
+   * @param[in] renderPass A render pass to search for
+   * @return a matching render pass implementation from the current framebuffer
+   */
+  [[nodiscard]] Vulkan::RenderPassHandle GetRenderPass(const Graphics::RenderPass* renderPass) const;
 };
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H

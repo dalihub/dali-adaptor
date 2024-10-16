@@ -36,14 +36,13 @@ struct ShaderImpl::Impl
 
     // Make a copy of source code. if code is meant to be used
     // by modern parser, skip the prefix part
-    size_t dataStartIndex = 0;
     size_t dataSize;
 
-    ShaderImpl::StripLegacyCodeIfNeeded(_createInfo, dataStartIndex, glslVersion, dataSize);
+    ShaderImpl::StripLegacyCodeIfNeeded(_createInfo, sourceOffset, glslVersion, dataSize);
 
     source.resize(dataSize);
-    std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex,
-              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex + dataSize,
+    std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + sourceOffset,
+              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + sourceOffset + dataSize,
               source.data());
 
     // Substitute pointer
@@ -155,6 +154,10 @@ struct ShaderImpl::Impl
   std::vector<uint8_t>   source{};
   std::vector<uint8_t>   sourcePreprocessed{};
 
+  size_t sourceOffset{0u}; /// byte offset of source data from original CreateInfo.
+                           /// It will be changed after call StripLegacyCodeIfNeeded
+                           /// More detail, createInfo.sourceData[0] == source[0] == (original CreateInfo).sourceData[sourceOffset];
+
   uint32_t glShader{};
   uint32_t refCount{0u};
   uint32_t flushCount{0u};  ///< Number of frames at refCount=0
@@ -168,7 +171,7 @@ ShaderImpl::ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::E
 
 ShaderImpl::~ShaderImpl()
 {
-  if(!mImpl->controller.IsShuttingDown())
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
     mImpl->Destroy();
   }
@@ -207,6 +210,11 @@ uint32_t ShaderImpl::Release()
   return mImpl->glslVersion;
 }
 
+[[nodiscard]] size_t ShaderImpl::GetSourceOffset() const
+{
+  return mImpl->sourceOffset;
+}
+
 /**
  * @brief Compiles shader
  *
@@ -234,6 +242,16 @@ const ShaderCreateInfo& ShaderImpl::GetCreateInfo() const
 
 void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& startIndex, uint32_t& glslVersion, size_t& finalDataSize)
 {
+  startIndex = 0u;
+
+  // Fast-out if shader is not a text.
+  if(info.sourceMode != ShaderSourceMode::TEXT)
+  {
+    glslVersion   = info.shaderVersion;
+    finalDataSize = info.sourceSize;
+    return;
+  }
+
   // Make a copy of source code. if code is meant to be used
   // by modern parser, skip the prefix part
   auto text   = reinterpret_cast<const char*>(info.sourceData);
@@ -248,7 +266,8 @@ void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& s
     else if(result == 0)
     {
       char* end;
-      startIndex = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
+      startIndex  = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
+      glslVersion = info.shaderVersion;
     }
   }
   else
@@ -283,6 +302,11 @@ Shader::~Shader()
 {
   if(!mShader->Release())
   {
+    if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+    {
+      return; // Early out if shutting down
+    }
+
     GetImplementation()->GetController().GetPipelineCache().MarkShaderCacheFlushRequired();
   }
 }
@@ -294,11 +318,7 @@ Shader::~Shader()
 
 void Shader::DiscardResource()
 {
-  auto& controller = GetImplementation()->GetController();
-  if(!controller.IsShuttingDown())
-  {
-    controller.DiscardResource(this);
-  }
+  GetImplementation()->GetController().DiscardResource(this);
 }
 
 uint32_t Shader::GetGLSLVersion() const

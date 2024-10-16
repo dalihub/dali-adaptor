@@ -35,7 +35,7 @@ class PipelineCache;
 /**
  * @brief Pipeline class wraps the PipelineImpl
  */
-class Pipeline : public Graphics::Pipeline
+class Pipeline : public Graphics::Pipeline, public Vulkan::ResourceBase
 {
 public:
   Pipeline() = delete;
@@ -82,18 +82,19 @@ public:
   bool operator==(const PipelineImpl* impl) const;
 
   /**
-   * @brief Run by UniquePtr to discard resource
+   * @brief Initialize the resource
    */
-  void DiscardResource();
+  bool InitializeResource() override;
+
+  /**
+   * @brief trigger discard
+   */
+  void DiscardResource() override;
 
   /**
    * @brief Destroy resource
-   *
-   * Despite this class doesn't inherit Resource it must provide
-   * (so it won't duplicate same data) same set of functions
-   * so it can work with resource management functions of Controller.
    */
-  void DestroyResource();
+  void DestroyResource() override;
 
 private:
   std::unique_ptr<PipelineImpl> mPipeline; // TODO: it may need to be changed when we have caching

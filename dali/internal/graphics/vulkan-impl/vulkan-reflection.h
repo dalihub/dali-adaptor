@@ -94,7 +94,9 @@ public:
 
   /**
    * @brief Gets the number of uniform blocks in the shader
-   *
+   * Note: GLES implementation generates an emulated block at index 0, so we have
+   * to handle that here. Reduce the count by 1 to get the number of actual uniform
+   * buffers.
    * @return The number of uniform blocks
    */
   [[nodiscard]] uint32_t GetUniformBlockCount() const override;
@@ -206,6 +208,8 @@ public:
 
   vk::PipelineLayout GetVkPipelineLayout() const;
 
+  const std::vector<vk::DescriptorSetLayout>& GetVkDescriptorSetLayouts() const;
+
 protected:
   Reflection(Reflection&&) = default;
   Reflection& operator=(Reflection&&) = default;
@@ -229,7 +233,8 @@ private:
   std::vector<vk::DescriptorSetLayoutCreateInfo>           mVkDescriptorSetLayoutCreateInfoList; ///< List of DSlayout create structures
   std::vector<std::vector<vk::DescriptorSetLayoutBinding>> mVkDescriptorSetLayoutBindingList;
   std::vector<vk::DescriptorSetLayout>                     mVkDescriptorSetLayoutList;
-  vk::PipelineLayout                                       mVkPipelineLayout;
+
+  vk::PipelineLayout mVkPipelineLayout;
 };
 
 } // namespace Vulkan

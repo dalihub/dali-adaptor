@@ -78,6 +78,7 @@ SET( adaptor_accessibility_atspi_bridge_src_files
     ${adaptor_accessibility_dir}/bridge/bridge-table-cell.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-text.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-value.cpp
+    ${adaptor_accessibility_dir}/bridge/collection.cpp
     ${adaptor_accessibility_dir}/bridge/component.cpp
     ${adaptor_accessibility_dir}/bridge/dbus/dbus-tizen.cpp
 )

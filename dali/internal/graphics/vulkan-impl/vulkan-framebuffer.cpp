@@ -22,11 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
@@ -39,25 +35,20 @@ Framebuffer::~Framebuffer() = default;
 bool Framebuffer::InitializeResource()
 {
   // Create attachments
-  std::vector<FramebufferAttachment*> colorAttachments;
+  OwnedAttachments colorAttachments;
   // for(auto& attachment : mCreateInfo.colorAttachments)
   {
     // auto graphicsTexture = static_cast<const Vulkan::Texture*>(attachment.texture);
     // colorAttachments.push_back(FramebufferAttachment::NewColorAttachment(attachment.texture->GetVkHandle(), clearColor, AttachmentType::COLOR, false);
   }
-  FramebufferAttachment* depthStencilAttachment{nullptr};
+  std::unique_ptr<FramebufferAttachment> depthStencilAttachment;
   if(mCreateInfo.depthStencilAttachment.depthTexture || mCreateInfo.depthStencilAttachment.stencilTexture)
   {
     // depthStencilAttachment = FramebufferAttachment::NewDepthAttachment();
   }
 
-  // Create initial render pass.
-  auto renderPassImpl = RenderPassImpl::New(mController.GetGraphicsDevice(),
-                                            colorAttachments,
-                                            depthStencilAttachment);
-
   auto& device     = mController.GetGraphicsDevice();
-  mFramebufferImpl = FramebufferImpl::New(device, renderPassImpl, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
+  mFramebufferImpl = FramebufferImpl::New(device, RenderPassHandle{}, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
 
   return true;
 }
@@ -70,6 +61,4 @@ void Framebuffer::DiscardResource()
 {
 }
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan

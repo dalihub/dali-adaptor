@@ -153,6 +153,8 @@ private: // Methods
 
   std::vector<const char*> PrepareDefaultInstanceExtensions();
 
+  void ReleaseCommandPools();
+
 private: // Members
   vk::PhysicalDevice mPhysicalDevice;
   vk::Device         mLogicalDevice;
@@ -166,10 +168,10 @@ private: // Members
   std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
 
   // Sets of queues
-  std::vector<std::unique_ptr<Queue> > mAllQueues;
-  std::vector<Queue*>                  mGraphicsQueues;
-  std::vector<Queue*>                  mTransferQueues;
-  std::vector<Queue*>                  mComputeQueues;
+  std::vector<std::unique_ptr<Queue>> mAllQueues;
+  std::vector<Queue*>                 mGraphicsQueues;
+  std::vector<Queue*>                 mTransferQueues;
+  std::vector<Queue*>                 mComputeQueues;
 
   CommandPoolMap mCommandPools;
 

@@ -163,6 +163,12 @@ uint32_t ShaderImpl::Release()
   return mImpl->refCount;
 }
 
+void ShaderImpl::Destroy()
+{
+  mImpl->Destroy();
+  mImpl.reset();
+}
+
 [[nodiscard]] uint32_t ShaderImpl::IncreaseFlushCount()
 {
   return ++mImpl->flushCount;

@@ -28,7 +28,7 @@ namespace Dali::Graphics::Vulkan
 {
 BufferImpl* BufferImpl::New(Device& device, size_t size, vk::BufferUsageFlags usageFlags)
 {
-  return New(device, size, vk::SharingMode(vk::SharingMode::eExclusive), usageFlags, vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible));
+  return New(device, size, vk::SharingMode(vk::SharingMode::eExclusive), usageFlags, vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
 }
 
 BufferImpl* BufferImpl::New(Device& device, size_t size, vk::SharingMode sharingMode, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryProperties)
@@ -54,6 +54,11 @@ BufferImpl::BufferImpl(Device& device, const vk::BufferCreateInfo& createInfo)
 {
 }
 
+BufferImpl::~BufferImpl()
+{
+  Destroy();
+}
+
 void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
 {
   // Allocate
@@ -62,7 +67,7 @@ void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
                                                 requirements.memoryTypeBits,
                                                 memoryProperties);
 
-  mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), ((memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible));
+  mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), memoryProperties);
 
   auto allocateInfo = vk::MemoryAllocateInfo{}
                         .setMemoryTypeIndex(memoryTypeIndex)
@@ -84,19 +89,16 @@ void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
   }
 }
 
-void BufferImpl::DestroyNow()
+void BufferImpl::Destroy()
 {
-  DestroyVulkanResources(mDevice.GetLogicalDevice(), mBuffer, mMemory->ReleaseVkObject(), &mDevice.GetAllocator());
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying buffer: %p\n", static_cast<VkBuffer>(mBuffer));
+
+  auto device = mDevice.GetLogicalDevice();
+  device.destroyBuffer(mBuffer, mDevice.GetAllocator());
+
+  mMemory.reset();
   mBuffer = nullptr;
   mMemory = nullptr;
-}
-
-void BufferImpl::DestroyVulkanResources(vk::Device device, vk::Buffer buffer, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator)
-{
-  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: buffer->%p\n", static_cast<VkBuffer>(buffer));
-
-  device.destroyBuffer(buffer, allocator);
-  device.freeMemory(memory, allocator);
 }
 
 Graphics::MemoryRequirements BufferImpl::GetMemoryRequirements()

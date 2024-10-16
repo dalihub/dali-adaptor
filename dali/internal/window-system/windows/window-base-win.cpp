@@ -744,6 +744,15 @@ bool WindowBaseWin::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseWin::SetBottom(bool enable)
+{
+}
+
+bool WindowBaseWin::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseWin::GetNativeBuffer() const
 {
   return 0;
@@ -764,6 +773,15 @@ void WindowBaseWin::SetBackgroundBlur(int blurRadius, int cornerRadius)
 }
 
 int WindowBaseWin::GetBackgroundBlur()
+{
+  return 0;
+}
+
+void WindowBaseWin::SetBehindBlur(int blurRadius)
+{
+}
+
+int WindowBaseWin::GetBehindBlur()
 {
   return 0;
 }

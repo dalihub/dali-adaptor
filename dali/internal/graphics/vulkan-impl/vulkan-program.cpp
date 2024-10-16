@@ -64,9 +64,19 @@ const ProgramCreateInfo& Program::GetCreateInfo() const
   return GetImplementation()->GetCreateInfo();
 }
 
+bool Program::InitializeResource()
+{
+  return true;
+}
+
 void Program::DiscardResource()
 {
   GetController().DiscardResource(this);
+}
+
+void Program::DestroyResource()
+{
+  // nothing to do here
 }
 
 }; // namespace Dali::Graphics::Vulkan
