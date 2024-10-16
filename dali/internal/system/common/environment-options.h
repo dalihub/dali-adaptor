@@ -26,6 +26,7 @@
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/internal/adaptor/common/threading-mode.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {
@@ -295,6 +296,11 @@ public:
   ThreadingMode::Type GetThreadingMode() const;
 
   /**
+   * @return The graphics backend to use.
+   */
+  Graphics::Backend GetGraphicsBackend() const;
+
+  /**
    * @return The render refresh rate.
    */
   unsigned int GetRenderRefreshRate() const;
@@ -403,7 +409,8 @@ private: // Data
   int   mGlesCallTime;                          ///< time in seconds between status updates
   int   mMultiSamplingLevel;                    ///< The number of samples required in multisample buffers
 
-  ThreadingMode::Type mThreadingMode; ///< threading mode
+  ThreadingMode::Type mThreadingMode;   ///< Threading mode
+  Graphics::Backend   mGraphicsBackend; ///< The graphics backend
 
   bool mGlesCallAccumulate;    ///< Whether or not to accumulate gles call statistics
   bool mDepthBufferRequired;   ///< Whether the depth buffer is required

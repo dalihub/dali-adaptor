@@ -113,6 +113,12 @@ namespace Adaptor
 
 #define DALI_THREADING_MODE "DALI_THREADING_MODE"
 
+/**
+ * Specify the Graphics Backend to use.
+ * Can be "GLES" or "VULKAN", or the appropriate integer value from Graphics::Backend.
+ */
+#define DALI_GRAPHICS_BACKEND "DALI_GRAPHICS_BACKEND"
+
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 
 #define DALI_WATCH_REFRESH_RATE "DALI_WATCH_REFRESH_RATE"
