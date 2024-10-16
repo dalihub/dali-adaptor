@@ -582,6 +582,9 @@ public:
   /**
    * @brief Enables or disables the window always is on top.
    *
+   * This is valid between windows that have no notification level or a notification level of 'none'.
+   * If it has a notification level, this will not do anything.
+   *
    * @param[in] alwaysOnTop true to enable the window always is on top, false to disable.
    */
   virtual void SetAlwaysOnTop(bool alwaysOnTop) = 0;
@@ -592,6 +595,20 @@ public:
    * @return True if the window always is on top, false otherwise.
    */
   virtual bool IsAlwaysOnTop() = 0;
+
+  /**
+   * @brief Enables or disables the window's layer is changed to the bottom.
+   *
+   * @param[in] toBottom true to change the window layer to the bottom.
+   */
+  virtual void SetToBottom(bool toBottom) = 0;
+
+  /**
+   * @brief Returns whether the window layer is the bottom or not.
+   *
+   * @return True if the window layer is the bottom, false otherwise.
+   */
+  virtual bool IsBottom() = 0;
 
   /**
    * @brief Get native buffer of window.

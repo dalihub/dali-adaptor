@@ -744,6 +744,15 @@ bool WindowBaseWin::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseWin::SetToBottom(bool toBottom)
+{
+}
+
+bool WindowBaseWin::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseWin::GetNativeBuffer() const
 {
   return 0;

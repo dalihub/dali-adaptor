@@ -1115,6 +1115,15 @@ bool WindowBaseEcoreX::IsAlwaysOnTop()
   return false;
 }
 
+void WindowBaseEcoreX::SetToBottom(bool toBottom)
+{
+}
+
+bool WindowBaseEcoreX::IsBottom()
+{
+  return false;
+}
+
 Any WindowBaseEcoreX::GetNativeBuffer() const
 {
   return 0;
