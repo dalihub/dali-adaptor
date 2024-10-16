@@ -234,36 +234,37 @@ void BridgeBase::CompressDefaultLabels()
 {
   // Remove entries for objects which no longer exist
   mDefaultLabels.remove_if([](const DefaultLabelType& label) {
-    // Check 1) window's weak handle; 2) accessible's ref object
-    return !label.first.GetBaseHandle() || label.second.expired();
+    // Check 1) window's weak handle; 2) actor's weak handle
+    return !label.first.GetBaseHandle() || !label.second.GetBaseHandle();
   });
 }
 
-void BridgeBase::RegisterDefaultLabel(std::shared_ptr<Accessible> object)
+void BridgeBase::RegisterDefaultLabel(Dali::Actor actor)
 {
   CompressDefaultLabels();
 
-  Dali::WeakHandle<Dali::Window> window = GetWindow(object.get());
-  if(!window.GetBaseHandle()) // true also if `object` is null
+  Dali::WeakHandle<Dali::Window> window = GetWindow(actor);
+  if(!window.GetBaseHandle())
   {
-    DALI_LOG_ERROR("Cannot register default label: object does not belong to any window");
+    DALI_LOG_ERROR("Cannot register default label: actor does not belong to any window");
     return;
   }
 
-  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [&object](const DefaultLabelType& label) {
-    auto labelPtr = label.second.lock();
-    return labelPtr && object == labelPtr;
+  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [&actor](const DefaultLabelType& label) {
+    auto actorHandle = label.second.GetBaseHandle();
+    return actorHandle && actorHandle == actor;
   });
 
+  Dali::WeakHandle<Dali::Actor> weakActor{actor};
   if(it == mDefaultLabels.end())
   {
-    mDefaultLabels.push_back({window, object});
+    mDefaultLabels.push_back({window, weakActor});
   }
   else if(it->first != window)
   {
     // TODO: Tentative implementation. It is yet to be specified what should happen
     // when the same object is re-registered as a default label for another window.
-    *it = {window, object};
+    *it = {window, weakActor};
   }
   else // it->first == window && it->second == object
   {
@@ -271,21 +272,27 @@ void BridgeBase::RegisterDefaultLabel(std::shared_ptr<Accessible> object)
   }
 }
 
-void BridgeBase::UnregisterDefaultLabel(std::shared_ptr<Accessible> object)
+void BridgeBase::UnregisterDefaultLabel(Dali::Actor actor)
 {
   CompressDefaultLabels();
 
-  mDefaultLabels.remove_if([&object](const DefaultLabelType& label) {
-    auto labelPtr = label.second.lock();
-    return labelPtr && object == labelPtr;
+  mDefaultLabels.remove_if([&actor](const DefaultLabelType& label) {
+    auto actorHandle = label.second.GetBaseHandle();
+    return actorHandle && actorHandle == actor;
   });
 }
 
 Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
 {
+  if(!root)
+  {
+    DALI_LOG_ERROR("Cannot get defaultLabel as given root accessible is null.");
+    return nullptr;
+  }
+
   CompressDefaultLabels();
 
-  Dali::WeakHandle<Dali::Window> window = GetWindow(root);
+  Dali::WeakHandle<Dali::Window> window = GetWindow(root->GetInternalActor());
   if(!window.GetBaseHandle())
   {
     return root;
@@ -295,16 +302,20 @@ Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
     return window == label.first;
   });
 
-  Accessible* rawPtr = root;
+  Accessible* accessible = root;
   if(it != mDefaultLabels.rend())
   {
-    if(auto labelPtr = it->second.lock())
+    if(auto actorHandle = it->second.GetBaseHandle())
     {
-      rawPtr = labelPtr.get();
+      auto actor = Dali::Actor::DownCast(actorHandle);
+      if(actor)
+      {
+        accessible = Accessible::Get(actor);
+      }
     }
   }
 
-  return rawPtr;
+  return accessible;
 }
 
 std::string BridgeBase::StripPrefix(const std::string& path)
@@ -417,11 +428,9 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     item->GetStates().GetRawData());
 }
 
-Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Accessibility::Accessible* accessible)
+Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Actor actor)
 {
   Dali::WeakHandle<Dali::Window> windowHandle;
-  Dali::Actor                    actor = accessible ? accessible->GetInternalActor() : Dali::Actor();
-
   if(actor)
   {
     Dali::Window window = Dali::DevelWindow::Get(actor);
