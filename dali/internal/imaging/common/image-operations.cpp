@@ -476,11 +476,11 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
       if (aspectOfImageSize > aspectOfDesiredSize)
       {
         adjustedDesiredWidth = requestedWidth;
-        adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< round up
+        adjustedDesiredHeight = static_cast<uint64_t>(bitmapHeight) * requestedWidth / bitmapWidth;
       }
       else
       {
-        adjustedDesiredWidth = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
+        adjustedDesiredWidth = static_cast<uint64_t>(bitmapWidth) * requestedHeight / bitmapHeight;
         adjustedDesiredHeight = requestedHeight;
       }
 

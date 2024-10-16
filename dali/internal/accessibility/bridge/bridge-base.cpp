@@ -38,6 +38,7 @@ BridgeBase::BridgeBase()
 
 BridgeBase::~BridgeBase()
 {
+  mApplication.mChildren.clear();
 }
 
 void BridgeBase::AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
@@ -224,7 +225,6 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
     if(mApplication.mChildren[i] == windowAccessible)
     {
       mApplication.mChildren.erase(mApplication.mChildren.begin() + i);
-      Emit(windowAccessible, WindowEvent::DESTROY);
       break;
     }
   }

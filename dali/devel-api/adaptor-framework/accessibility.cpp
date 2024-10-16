@@ -359,17 +359,6 @@ public:
   {
   }
 
-  ~AdaptorAccessible() override
-  {
-    if(mRoot)
-    {
-      if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
-      {
-        bridge->RemoveTopLevelWindow(this);
-      }
-    }
-  }
-
   bool GrabFocus() override
   {
     return false;

@@ -1049,15 +1049,6 @@ bool WindowBaseX::IsAlwaysOnTop()
   return false;
 }
 
-void WindowBaseX::SetBottom(bool enable)
-{
-}
-
-bool WindowBaseX::IsBottom()
-{
-  return false;
-}
-
 Any WindowBaseX::GetNativeBuffer()
 {
   return 0;
