@@ -1139,15 +1139,6 @@ int WindowBaseEcoreX::GetBackgroundBlur()
   return 0;
 }
 
-void WindowBaseEcoreX::SetBehindBlur(int blurRadius)
-{
-}
-
-int WindowBaseEcoreX::GetBehindBlur()
-{
-  return 0;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

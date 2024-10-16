@@ -540,15 +540,6 @@ int WindowBaseAndroid::GetBackgroundBlur()
   return 0;
 }
 
-void WindowBaseAndroid::SetBehindBlur(int blurRadius)
-{
-}
-
-int WindowBaseAndroid::GetBehindBlur()
-{
-  return 0;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

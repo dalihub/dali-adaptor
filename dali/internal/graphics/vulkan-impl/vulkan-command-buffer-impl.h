@@ -22,7 +22,6 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
@@ -61,15 +60,6 @@ public:
   /** Final validation of the pipeline */
   void ValidatePipeline();
 
-  void BindVertexBuffers(
-    uint32_t                                firstBinding,
-    const std::vector<Vulkan::BufferImpl*>& buffers,
-    const std::vector<uint32_t>&            offsets);
-  void BindIndexBuffer(Vulkan::BufferImpl& buffer, uint32_t offset, Format format);
-  void BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings);
-  void BindTextures(const std::vector<TextureBinding>& textureBindings);
-  void BindSamplers(const std::vector<SamplerBinding>& samplerBindings);
-
   /** Returns Vulkan object associated with the buffer */
   [[nodiscard]] vk::CommandBuffer GetVkHandle() const;
 
@@ -78,6 +68,7 @@ public:
    * @return Returns true if the command buffer is primary
    */
   [[nodiscard]] bool IsPrimary() const;
+
   /**
    * Allows to issue custom VkRenderPassBeginInfo structure
    * @param renderPassBeginInfo
@@ -107,9 +98,6 @@ public:
    */
   bool OnDestroy() override;
 
-  void SetScissor(Rect2D value);
-  void SetViewport(Viewport value);
-
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
@@ -124,12 +112,12 @@ public:
     uint32_t firstInstance);
 
   void DrawIndexedIndirect(
-    BufferImpl& buffer,
-    uint32_t    offset,
-    uint32_t    drawCount,
-    uint32_t    stride);
+    Graphics::Buffer& buffer,
+    uint32_t          offset,
+    uint32_t          drawCount,
+    uint32_t          stride);
 
-  void ExecuteCommandBuffers(std::vector<vk::CommandBuffer>& commandBuffers);
+  void ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers);
 
 private:
   /**
@@ -146,24 +134,13 @@ private:
     const vk::CommandBufferAllocateInfo& allocateInfo,
     vk::CommandBuffer                    vulkanHandle);
 
-private: // Struct for deferring texture binding
-  struct DeferredTextureBinding
-  {
-    vk::ImageView imageView;
-    vk::Sampler   sampler;
-    uint32_t      binding;
-  };
-
 private:
-  CommandPool*                        mOwnerCommandPool;
-  Device*                             mGraphicsDevice;
-  uint32_t                            mPoolAllocationIndex;
-  vk::CommandBufferAllocateInfo       mAllocateInfo{};
-  std::vector<DeferredTextureBinding> mDeferredTextureBindings;
+  CommandPool*                  mOwnerCommandPool;
+  Device*                       mGraphicsDevice;
+  uint32_t                      mPoolAllocationIndex;
+  vk::CommandBufferAllocateInfo mAllocateInfo{};
 
   vk::CommandBuffer mCommandBuffer{};
-
-  Vulkan::ProgramImpl* mCurrentProgram{nullptr}; /// To test descriptor sets, will collide with other work
 
   bool mRecording{false};
 };

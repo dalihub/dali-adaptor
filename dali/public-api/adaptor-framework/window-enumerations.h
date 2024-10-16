@@ -155,7 +155,8 @@ enum class WindowBlurType
 {
   NONE = 0,   ///< default value for blur disable
   BACKGROUND, ///< the window's background
-  BEHIND,     ///< the window's behind except background
+  // BEHIND,  ///< the window's behind except background
+  // BOTH,    ///< both window's background and behind
 };
 
 } // namespace Dali

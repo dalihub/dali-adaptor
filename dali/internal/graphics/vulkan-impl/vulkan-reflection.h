@@ -206,8 +206,6 @@ public:
 
   vk::PipelineLayout GetVkPipelineLayout() const;
 
-  const std::vector<vk::DescriptorSetLayout>& GetVkDescriptorSetLayouts() const;
-
 protected:
   Reflection(Reflection&&) = default;
   Reflection& operator=(Reflection&&) = default;
@@ -231,8 +229,7 @@ private:
   std::vector<vk::DescriptorSetLayoutCreateInfo>           mVkDescriptorSetLayoutCreateInfoList; ///< List of DSlayout create structures
   std::vector<std::vector<vk::DescriptorSetLayoutBinding>> mVkDescriptorSetLayoutBindingList;
   std::vector<vk::DescriptorSetLayout>                     mVkDescriptorSetLayoutList;
-
-  vk::PipelineLayout mVkPipelineLayout;
+  vk::PipelineLayout                                       mVkPipelineLayout;
 };
 
 } // namespace Vulkan

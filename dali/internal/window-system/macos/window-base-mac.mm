@@ -848,15 +848,6 @@ int WindowBaseCocoa::GetBackgroundBlur()
   return 0;
 }
 
-void WindowBaseCocoa::SetBehindBlur(int blurRadius)
-{
-}
-
-int WindowBaseCocoa::GetBehindBlur()
-{
-  return 0;
-}
-
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

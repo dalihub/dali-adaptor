@@ -30,6 +30,7 @@ namespace Graphics
 {
 namespace Vulkan
 {
+
 Image* Image::New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo)
 {
   auto image = new Image(graphicsDevice, createInfo, nullptr);
@@ -93,7 +94,7 @@ void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
   mMemory = std::make_unique<MemoryImpl>(mDevice,
                                          size_t(requirements.size),
                                          size_t(requirements.alignment),
-                                         memoryProperties);
+                                         (memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible);
 
   auto allocateInfo = vk::MemoryAllocateInfo{}
                         .setMemoryTypeIndex(memoryTypeIndex)
@@ -273,7 +274,8 @@ bool Image::OnDestroy()
       auto allocator = &mDevice.GetAllocator();
       auto memory    = mMemory->ReleaseVkObject();
 
-      mDevice.DiscardResource([device, image, memory, allocator]() { DestroyVulkanResources(device, image, memory, allocator); });
+      mDevice.DiscardResource([device, image, memory, allocator]()
+                              { DestroyVulkanResources(device, image, memory, allocator); });
     }
   }
 

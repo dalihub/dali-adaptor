@@ -28,7 +28,6 @@
 namespace Dali::Graphics::Vulkan
 {
 using SamplerResource = Resource<Graphics::Sampler, Graphics::SamplerCreateInfo>;
-class SamplerImpl;
 
 class Sampler : public SamplerResource
 {
@@ -61,14 +60,6 @@ public:
    * @brief Called when UniquePtr<> on client-side dies
    */
   void DiscardResource() override;
-
-  SamplerImpl* GetImpl()
-  {
-    return mSamplerImpl;
-  }
-
-private:
-  SamplerImpl* mSamplerImpl;
 };
 
 } // namespace Dali::Graphics::Vulkan

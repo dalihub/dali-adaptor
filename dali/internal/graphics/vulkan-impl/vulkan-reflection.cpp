@@ -309,11 +309,6 @@ vk::PipelineLayout Reflection::GetVkPipelineLayout() const
   return mVkPipelineLayout;
 }
 
-const std::vector<vk::DescriptorSetLayout>& Reflection::GetVkDescriptorSetLayouts() const
-{
-  return mVkDescriptorSetLayoutList;
-}
-
 void Reflection::BuildVertexAttributeReflection(SpvReflectShaderModule* spvModule)
 {
   std::vector<SpvReflectInterfaceVariable*> attrs;

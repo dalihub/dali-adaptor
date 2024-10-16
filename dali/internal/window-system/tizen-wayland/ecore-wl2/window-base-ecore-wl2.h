@@ -707,16 +707,6 @@ public:
    */
   int GetBackgroundBlur() override;
 
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlur()
-   */
-  void SetBehindBlur(int blurRadius) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
-   */
-  int GetBehindBlur() override;
-
 private:
   /**
    * Second stage initialization

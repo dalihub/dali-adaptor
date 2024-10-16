@@ -28,7 +28,7 @@ namespace Dali::Graphics::Vulkan
 {
 BufferImpl* BufferImpl::New(Device& device, size_t size, vk::BufferUsageFlags usageFlags)
 {
-  return New(device, size, vk::SharingMode(vk::SharingMode::eExclusive), usageFlags, vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+  return New(device, size, vk::SharingMode(vk::SharingMode::eExclusive), usageFlags, vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eHostVisible));
 }
 
 BufferImpl* BufferImpl::New(Device& device, size_t size, vk::SharingMode sharingMode, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryProperties)
@@ -62,7 +62,7 @@ void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
                                                 requirements.memoryTypeBits,
                                                 memoryProperties);
 
-  mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), memoryProperties);
+  mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), ((memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible));
 
   auto allocateInfo = vk::MemoryAllocateInfo{}
                         .setMemoryTypeIndex(memoryTypeIndex)

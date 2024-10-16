@@ -1329,8 +1329,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
-  {
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
@@ -1676,16 +1675,13 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
 
   if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
   {
-    mWindowBase->SetBackgroundBlur(mBlurInfo.windowBlurRadius, mBlurInfo.backgroundCornerRadius);
-  }
-  else if(mBlurInfo.windowBlurType == WindowBlurType::BEHIND)
-  {
-    mWindowBase->SetBehindBlur(mBlurInfo.windowBlurRadius);
+    mWindowBase->SetBackgroundBlur(mBlurInfo.windowBlurRadius, mBlurInfo.backgroundBlurRadius);
   }
   else
   {
     mWindowBase->SetBackgroundBlur(0, 0);
   }
+  // TODO : When new Blur type is append, it will be added
 }
 
 WindowBlurInfo Window::GetBlur() const

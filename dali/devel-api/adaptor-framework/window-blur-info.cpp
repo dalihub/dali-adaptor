@@ -31,7 +31,7 @@ bool WindowBlurInfo::operator==(const WindowBlurInfo& blurInfo) const
   {
     return false;
   }
-  if(backgroundCornerRadius != blurInfo.backgroundCornerRadius)
+  if(backgroundBlurRadius != blurInfo.backgroundBlurRadius)
   {
     return false;
   }
@@ -61,12 +61,12 @@ int WindowBlurInfo::GetBlurRadius() const
 
 void WindowBlurInfo::SetCornerRadiusForBackground(int cornerRadius)
 {
-  backgroundCornerRadius = cornerRadius;
+  backgroundBlurRadius = cornerRadius;
 }
 
 int WindowBlurInfo::GetCornerRadiusForBackground() const
 {
-  return backgroundCornerRadius;
+  return backgroundBlurRadius;
 }
 
 } // namespace Dali

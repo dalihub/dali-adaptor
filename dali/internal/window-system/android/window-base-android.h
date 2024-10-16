@@ -554,25 +554,16 @@ public:
    */
   bool RelativeMotionUnGrab() override;
 
-  /**
+/**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBackgroundBlur()
    */
   void SetBackgroundBlur(int blurRadius, int cornerRadius) override;
+
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBackgroundBlur()
    */
   int GetBackgroundBlur() override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlur()
-   */
-  void SetBehindBlur(int blurRadius) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
-   */
-  int GetBehindBlur() override;
 
 private:
   /**

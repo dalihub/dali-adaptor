@@ -261,12 +261,10 @@ void PipelineImpl::InitializePipeline()
   dynInfo.setDynamicStates(mDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynInfo);
 
-  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
-
-  auto rtImpl = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
-
-  auto framebuffer = rtImpl->GetFramebuffer();
-  auto surface     = rtImpl->GetSurface();
+  auto& allocator   = mController.GetGraphicsDevice().GetAllocator();
+  auto  rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  auto  framebuffer = rtImpl->GetFramebuffer();
+  auto  surface     = rtImpl->GetSurface();
 
   FramebufferImpl* fbImpl = nullptr;
   if(surface)
@@ -319,11 +317,6 @@ void PipelineImpl::InitializePipeline()
     item.pipeline   = vkPipeline;
     mVkPipelines.emplace_back(item);
   }
-}
-
-const Vulkan::Program* PipelineImpl::GetProgram() const
-{
-  return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
 }
 
 void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out)
