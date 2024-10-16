@@ -94,9 +94,7 @@ public:
 
   /**
    * @brief Gets the number of uniform blocks in the shader
-   * Note: GLES implementation generates an emulated block at index 0, so we have
-   * to handle that here. Reduce the count by 1 to get the number of actual uniform
-   * buffers.
+   *
    * @return The number of uniform blocks
    */
   [[nodiscard]] uint32_t GetUniformBlockCount() const override;

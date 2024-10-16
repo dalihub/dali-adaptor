@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,26 +179,23 @@ bool Framebuffer::InitializeResource()
 
 void Framebuffer::DestroyResource()
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(gl && context && mInitialized)
   {
-    auto context = mController.GetCurrentContext();
-    auto gl      = mController.GetGL();
-    if(gl && context && mInitialized)
+    if(mDepthBufferId)
     {
-      if(mDepthBufferId)
-      {
-        gl->DeleteRenderbuffers(1, &mDepthBufferId);
-      }
-      if(mStencilBufferId)
-      {
-        gl->DeleteRenderbuffers(1, &mStencilBufferId);
-      }
-
-      context->DeleteFramebuffers(1, &mFramebufferId);
-
-      mFramebufferId = 0u;
-      mInitialized   = false;
+      gl->DeleteRenderbuffers(1, &mDepthBufferId);
     }
+    if(mStencilBufferId)
+    {
+      gl->DeleteRenderbuffers(1, &mStencilBufferId);
+    }
+
+    context->DeleteFramebuffers(1, &mFramebufferId);
+
+    mFramebufferId = 0u;
+    mInitialized   = false;
   }
 }
 

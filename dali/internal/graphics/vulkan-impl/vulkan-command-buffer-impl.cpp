@@ -15,7 +15,6 @@
  *
  */
 
-// CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 
 // INTERNAL INCLUDES
@@ -33,12 +32,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-
-#include <dali/integration-api/debug.h>
-
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gLogCmdBufferFilter;
-#endif
 
 namespace Dali
 {
@@ -58,15 +51,7 @@ CommandBufferImpl::CommandBufferImpl(CommandPool&                         comman
 {
 }
 
-CommandBufferImpl::~CommandBufferImpl()
-{
-  Destroy();
-}
-
-void CommandBufferImpl::Destroy()
-{
-  // Command buffer Pool cleanup will remove the vulkan command buffer
-}
+CommandBufferImpl::~CommandBufferImpl() = default;
 
 /** Begin recording */
 void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
@@ -76,6 +61,7 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
   auto info = vk::CommandBufferBeginInfo{};
 
   vk::CommandBufferInheritanceInfo defaultInheritanceInfo{};
+  defaultInheritanceInfo.sType                = vk::StructureType::eCommandBufferInheritanceInfo;
   defaultInheritanceInfo.pNext                = nullptr;
   defaultInheritanceInfo.subpass              = 0;
   defaultInheritanceInfo.occlusionQueryEnable = false;
@@ -179,41 +165,15 @@ void CommandBufferImpl::BindIndexBuffer(
 void CommandBufferImpl::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
 {
   // Needs descriptor set pools.
-  bool standalone = true;
-  for(const auto& uniformBinding : bindings)
-  {
-    if(standalone)
-    {
-      // First buffer is not used in Vulkan (it's a fake buffer in GLES)
-      standalone = false;
-      continue;
-    }
-
-    auto buffer = const_cast<Vulkan::Buffer*>(static_cast<const Vulkan::Buffer*>(uniformBinding.buffer));
-
-    CommandBufferImpl::DeferredUniformBinding deferredUniformBinding{};
-    deferredUniformBinding.buffer  = buffer->GetImpl()->GetVkHandle();
-    deferredUniformBinding.offset  = uniformBinding.offset;
-    deferredUniformBinding.range   = uniformBinding.dataSize;
-    deferredUniformBinding.binding = uniformBinding.binding;
-
-    mDeferredUniformBindings.push_back(deferredUniformBinding);
-  }
 }
 
 void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
   for(const auto& textureBinding : textureBindings)
   {
-    auto texture     = static_cast<const Vulkan::Texture*>(textureBinding.texture);
-    auto sampler     = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
-    auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetSampler();
-    auto vkSampler   = samplerImpl ? samplerImpl->GetVkHandle() : nullptr;
-    // @todo If there is still no sampler, fall back to default?
-    if(!vkSampler)
-    {
-      DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Concise, "No sampler for texture binding\n");
-    }
+    auto texture   = static_cast<const Vulkan::Texture*>(textureBinding.texture);
+    auto sampler   = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
+    auto vkSampler = sampler ? sampler->GetImpl()->GetVkHandle() : nullptr;
 
     auto image     = texture->GetImage();
     auto imageView = texture->GetImageView();
@@ -227,11 +187,10 @@ void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureB
     // Store: imageView, sampler & texture.binding for later use
     // We don't know at this point what pipeline is bound (As dali-core
     // binds the pipeline after calling this API)
-
     mDeferredTextureBindings.emplace_back();
     mDeferredTextureBindings.back().imageView = imageView->GetVkHandle();
     mDeferredTextureBindings.back().sampler   = vkSampler;
-    mDeferredTextureBindings.back().binding   = textureBinding.binding; // zero indexed
+    mDeferredTextureBindings.back().binding   = textureBinding.binding;
   }
 }
 
@@ -296,6 +255,12 @@ uint32_t CommandBufferImpl::GetPoolAllocationIndex() const
   return mPoolAllocationIndex;
 }
 
+bool CommandBufferImpl::OnDestroy()
+{
+  mOwnerCommandPool->ReleaseCommandBuffer(*this);
+  return true;
+}
+
 void CommandBufferImpl::Draw(uint32_t vertexCount,
                              uint32_t instanceCount,
                              uint32_t firstVertex,
@@ -307,12 +272,8 @@ void CommandBufferImpl::Draw(uint32_t vertexCount,
     auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
     if(set)
     {
-      BindResources(set);
+      // bind resources here
     }
-  }
-  if(instanceCount == 0)
-  {
-    instanceCount = 1;
   }
   mCommandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
@@ -329,14 +290,10 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
     auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
     if(set)
     {
-      BindResources(set);
+      // bind resources here
     }
   }
   // draw here
-  if(instanceCount == 0)
-  {
-    instanceCount = 1;
-  }
   mCommandBuffer.drawIndexed(indexCount,
                              instanceCount,
                              firstIndex,
@@ -365,77 +322,6 @@ void CommandBufferImpl::SetScissor(Rect2D value)
 void CommandBufferImpl::SetViewport(Viewport value)
 {
   mCommandBuffer.setViewport(0, 1, reinterpret_cast<vk::Viewport*>(&value));
-}
-
-void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
-{
-  std::vector<vk::DescriptorImageInfo>  imageInfos;
-  std::vector<vk::DescriptorBufferInfo> bufferInfos;
-  std::vector<vk::WriteDescriptorSet>   descriptorWrites;
-
-  // Deferred uniform buffer bindings:
-  for(auto& uniformBinding : mDeferredUniformBindings)
-  {
-    bufferInfos.emplace_back();
-    bufferInfos.back()
-      .setOffset(uniformBinding.offset)
-      .setRange(uniformBinding.range)
-      .setBuffer(uniformBinding.buffer);
-
-    descriptorWrites.emplace_back();
-    descriptorWrites.back()
-      .setPBufferInfo(&bufferInfos.back())
-      .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-      .setDescriptorCount(1)
-      .setDstSet(descriptorSet)
-      .setDstBinding(uniformBinding.binding)
-      .setDstArrayElement(0);
-  }
-
-  auto& reflection = mCurrentProgram->GetReflection();
-  auto& samplers   = reflection.GetSamplers();
-
-  // Deferred texture bindings:
-  uint32_t binding = 1;
-  for(auto& textureBinding : mDeferredTextureBindings)
-  {
-    imageInfos.emplace_back();
-    imageInfos.back()
-      .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-      .setImageView(textureBinding.imageView)
-      .setSampler(textureBinding.sampler);
-
-    descriptorWrites.emplace_back();
-    for(auto& info : samplers)
-    {
-      if(info.location == textureBinding.binding)
-      {
-        binding = info.binding;
-        break;
-      }
-    }
-
-    descriptorWrites.back()
-      .setPImageInfo(&imageInfos.back())
-      .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-      .setDescriptorCount(1)
-      .setDstSet(descriptorSet)
-      .setDstBinding(binding)
-      .setDstArrayElement(0);
-  }
-  mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-
-  auto pipelineLayout = reflection.GetVkPipelineLayout();
-
-  mCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                    pipelineLayout,
-                                    0,
-                                    1,
-                                    &descriptorSet, // @note - old impl could use multiple sets (possibly)
-                                    0,
-                                    nullptr);
-  mDeferredTextureBindings.clear();
-  mDeferredUniformBindings.clear();
 }
 
 } // namespace Vulkan

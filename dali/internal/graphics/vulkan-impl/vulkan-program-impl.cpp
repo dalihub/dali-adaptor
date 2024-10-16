@@ -295,8 +295,7 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
   descriptorPool.createInfo.setMaxSets(poolCapacity);
   std::vector<vk::DescriptorPoolSize> poolSizes;
 
-  // Note, first block is for gles emulation, so ignore it.
-  auto uniformBlockCount = GetReflection().GetUniformBlockCount() - 1;
+  auto uniformBlockCount = GetReflection().GetUniformBlockCount();
   auto samplersCount     = GetReflection().GetSamplers().size();
 
   if(uniformBlockCount)

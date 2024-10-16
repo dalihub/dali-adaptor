@@ -36,15 +36,6 @@ SyncObject::~SyncObject()
 
 void SyncObject::DestroyResource()
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
-  {
-    auto gl = mController.GetGL();
-    if(gl)
-    {
-      gl->DeleteSync(mGlSyncObject);
-    }
-    mGlSyncObject = 0;
-  }
 }
 
 bool SyncObject::InitializeResource()
@@ -62,7 +53,12 @@ void SyncObject::DiscardResource()
 {
   // Called from custom deleter.
   // Don't use discard queue, drop immediately.
-  DestroyResource();
+  auto gl = mController.GetGL();
+  if(gl)
+  {
+    gl->DeleteSync(mGlSyncObject);
+  }
+  mGlSyncObject = 0;
 }
 
 bool SyncObject::IsSynced()

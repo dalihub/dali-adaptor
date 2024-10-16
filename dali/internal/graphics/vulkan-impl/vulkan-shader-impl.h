@@ -21,9 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-shader-create-info.h>
 #include <dali/graphics-api/graphics-shader.h>
-
-#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
@@ -38,7 +36,7 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, VulkanGraphicsController& controller);
+  ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::Vulkan::VulkanGraphicsController& controller);
 
   /**
    * @brief destructor
@@ -64,11 +62,6 @@ public:
   [[nodiscard]] uint32_t GetRefCount() const;
 
   /**
-   * @brief Destroys Vulkan shader module
-   */
-  void Destroy();
-
-  /**
    * Whilst unreferenced, increase the flush count and return it
    *
    * @return The new flush count
@@ -88,6 +81,11 @@ public:
    * @return True on success
    */
   [[nodiscard]] bool Compile() const;
+
+  /**
+   * @brief Destroys Vulkan shader module
+   */
+  void Destroy();
 
   /**
    * @brief Returns Vulkan resource

@@ -76,9 +76,9 @@ struct ResourceTransferRequest
   bool deferredTransferMode{true}; // Vulkan implementation prefers deferred mode
 
   // delete copy
-  ResourceTransferRequest(const ResourceTransferRequest&) = delete;
+  ResourceTransferRequest(const ResourceTransferRequest&)            = delete;
   ResourceTransferRequest& operator=(const ResourceTransferRequest&) = delete;
-  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj) = delete;
+  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj)  = delete;
 
   ResourceTransferRequest(ResourceTransferRequest&& obj)
   {
@@ -96,13 +96,6 @@ struct ResourceTransferRequest
       imageToImageInfo.srcImage = obj.imageToImageInfo.srcImage;
       imageToImageInfo.dstImage = obj.imageToImageInfo.dstImage;
       imageToImageInfo.copyInfo = obj.imageToImageInfo.copyInfo;
-    }
-    else if(requestType == TransferRequestType::LAYOUT_TRANSITION_ONLY)
-    {
-      imageLayoutTransitionInfo.image     = obj.imageLayoutTransitionInfo.image;
-      imageLayoutTransitionInfo.srcLayout = obj.imageLayoutTransitionInfo.srcLayout;
-      imageLayoutTransitionInfo.dstLayout = obj.imageLayoutTransitionInfo.dstLayout;
-      deferredTransferMode                = false;
     }
   }
 };

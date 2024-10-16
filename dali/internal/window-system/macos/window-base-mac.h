@@ -468,16 +468,6 @@ public:
   bool IsAlwaysOnTop() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()
-   */
-  void SetBottom(bool enable) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IsBottom()
-   */
-  bool IsBottom() override;
-
-  /**
    * @brief Sets front buffer rendering to the window.
    * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
    */

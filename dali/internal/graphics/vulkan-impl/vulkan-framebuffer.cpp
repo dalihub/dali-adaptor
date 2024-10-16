@@ -22,7 +22,11 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
-namespace Dali::Graphics::Vulkan
+namespace Dali
+{
+namespace Graphics
+{
+namespace Vulkan
 {
 Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
@@ -35,20 +39,25 @@ Framebuffer::~Framebuffer() = default;
 bool Framebuffer::InitializeResource()
 {
   // Create attachments
-  OwnedAttachments colorAttachments;
+  std::vector<FramebufferAttachment*> colorAttachments;
   // for(auto& attachment : mCreateInfo.colorAttachments)
   {
     // auto graphicsTexture = static_cast<const Vulkan::Texture*>(attachment.texture);
     // colorAttachments.push_back(FramebufferAttachment::NewColorAttachment(attachment.texture->GetVkHandle(), clearColor, AttachmentType::COLOR, false);
   }
-  std::unique_ptr<FramebufferAttachment> depthStencilAttachment;
+  FramebufferAttachment* depthStencilAttachment{nullptr};
   if(mCreateInfo.depthStencilAttachment.depthTexture || mCreateInfo.depthStencilAttachment.stencilTexture)
   {
     // depthStencilAttachment = FramebufferAttachment::NewDepthAttachment();
   }
 
+  // Create initial render pass.
+  auto renderPassImpl = RenderPassImpl::New(mController.GetGraphicsDevice(),
+                                            colorAttachments,
+                                            depthStencilAttachment);
+
   auto& device     = mController.GetGraphicsDevice();
-  mFramebufferImpl = FramebufferImpl::New(device, RenderPassHandle{}, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
+  mFramebufferImpl = FramebufferImpl::New(device, renderPassImpl, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
 
   return true;
 }
@@ -61,4 +70,6 @@ void Framebuffer::DiscardResource()
 {
 }
 
-} // namespace Dali::Graphics::Vulkan
+} // namespace Vulkan
+} // namespace Graphics
+} // namespace Dali

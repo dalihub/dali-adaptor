@@ -38,7 +38,7 @@ public:
   }
 
   // No copy constructor or assignment operator
-  MemoryImpl(MemoryImpl&)            = delete;
+  MemoryImpl(MemoryImpl&) = delete;
   MemoryImpl& operator=(MemoryImpl&) = delete;
 
   void* Map();
@@ -48,6 +48,13 @@ public:
   void Unmap();
 
   void Flush();
+
+  /**
+   * Releases vk::DeviceMemory object so it can be deleted
+   * externally
+   * @return
+   */
+  vk::DeviceMemory ReleaseVkObject();
 
   [[nodiscard]] vk::DeviceMemory GetVkHandle() const;
 

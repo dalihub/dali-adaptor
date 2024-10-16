@@ -52,7 +52,7 @@ AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& controller, co
 
 AgingSyncObject::~AgingSyncObject()
 {
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  if(!controller.IsShuttingDown())
   {
     if(egl)
     {

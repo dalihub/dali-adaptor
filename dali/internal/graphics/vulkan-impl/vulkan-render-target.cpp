@@ -67,8 +67,10 @@ Integration::RenderSurfaceInterface* RenderTarget::GetSurface() const
   return mCreateInfo.surface;
 }
 
-Vulkan::FramebufferImpl* RenderTarget::GetCurrentFramebufferImpl() const
+Vulkan::RenderPassImpl* RenderTarget::GetRenderPass(const Graphics::RenderPass* gfxRenderPass) const
 {
+  auto renderPass = const_cast<Vulkan::RenderPass*>(static_cast<const Vulkan::RenderPass*>(gfxRenderPass));
+
   auto framebuffer = GetFramebuffer();
   auto surface     = GetSurface();
 
@@ -84,14 +86,8 @@ Vulkan::FramebufferImpl* RenderTarget::GetCurrentFramebufferImpl() const
   {
     fbImpl = framebuffer->GetImpl();
   }
-  return fbImpl;
-}
 
-Vulkan::RenderPassHandle RenderTarget::GetRenderPass(const Graphics::RenderPass* gfxRenderPass) const
-{
-  auto renderPass      = const_cast<Vulkan::RenderPass*>(static_cast<const Vulkan::RenderPass*>(gfxRenderPass));
-  auto framebufferImpl = GetCurrentFramebufferImpl();
-  return framebufferImpl->GetImplFromRenderPass(renderPass);
+  return fbImpl->GetRenderPass(renderPass);
 }
 
 } // namespace Dali::Graphics::Vulkan
