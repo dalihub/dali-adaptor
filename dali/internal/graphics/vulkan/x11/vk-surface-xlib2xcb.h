@@ -49,7 +49,7 @@ public:
 
   VkSurfaceXlib2Xcb(::Display* display, ::Window window);
 
-  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks, vk::PhysicalDevice physicalDevice) const override;
+  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks) const override;
 
 private:
   xcb_connection_t* mConnection;

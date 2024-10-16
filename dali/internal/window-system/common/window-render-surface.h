@@ -222,6 +222,11 @@ public: // from Dali::Integration::RenderSurfaceInterface
   void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
+   * @copydoc Dali::Integration::RenderSurfaceInterface::Resize()
+   */
+  void Resize(Uint16Pair size) override;
+
+  /**
    * @copydoc Dali::Integration::RenderSurfaceInterface::StartRender()
    */
   void StartRender() override;

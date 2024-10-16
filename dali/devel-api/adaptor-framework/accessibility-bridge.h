@@ -64,8 +64,13 @@ struct DALI_ADAPTOR_API Bridge
 
   /**
    * @brief Adds the accessible object associated with given actorId to the brige.
+   *
+   * @param[in] actorId The actorId assosiated with the accessible
+   * @param[in] accessible The accessible object
+   *
+   * @return true if given accessible is added to the bridge
    */
-  virtual void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) = 0;
+  virtual bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) = 0;
 
   /**
    * @brief Removed the accessible object associated with given actorId from the brige.

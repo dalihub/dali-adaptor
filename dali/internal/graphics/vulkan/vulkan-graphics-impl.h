@@ -108,6 +108,11 @@ public:
   void Resume() override;
 
   /**
+   * @copydoc Graphics::GraphicsInterface::Resize()
+   */
+  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair positionSize) override;
+
+  /**
    * @copydoc Graphics::GraphicsInterface::GetBufferAge()
    */
   int GetBufferAge(Graphics::SurfaceId surfaceId) override;

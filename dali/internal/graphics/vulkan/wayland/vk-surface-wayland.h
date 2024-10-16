@@ -24,10 +24,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
-
 // EXTERNAL INCLUDES
 #include <vulkan/vulkan.hpp>
-
 
 namespace Dali
 {
@@ -41,18 +39,17 @@ namespace Vulkan
 class VkSurfaceWayland final : public SurfaceFactory
 {
 public:
-
   VkSurfaceWayland(NativeWindowInterface& renderSurface);
 
   VkSurfaceWayland(::wl_display* display, ::wl_surface* surface);
 
-  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                vk::PhysicalDevice physicalDevice) const override;
-
+  virtual vk::SurfaceKHR Create(
+    vk::Instance                   instance,
+    const vk::AllocationCallbacks* allocCallbacks) const override;
 
 private:
-  wl_display *w_display;
-  wl_surface *w_surface;
+  wl_display* w_display;
+  wl_surface* w_surface;
 };
 
 } // Namespace Vulkan

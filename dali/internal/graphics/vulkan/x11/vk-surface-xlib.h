@@ -23,8 +23,8 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
 namespace Dali
 {
@@ -38,10 +38,9 @@ namespace Vulkan
 class VkSurfaceXlib final : public SurfaceFactory
 {
 public:
-  VkSurfaceXlib( Dali::RenderSurface& renderSurface );
+  VkSurfaceXlib(Dali::RenderSurface& renderSurface);
 
-  virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                 vk::PhysicalDevice physicalDevice ) const override;
+  virtual vk::SurfaceKHR Create(vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks) const override;
 
 private:
   Display*       mDisplay;

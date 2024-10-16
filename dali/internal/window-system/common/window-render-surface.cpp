@@ -428,6 +428,20 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   mWindowBase->MoveResize(positionSize);
 }
 
+void WindowRenderSurface::Resize(Uint16Pair size)
+{
+  Dali::PositionSize positionSize;
+
+  // Some native resize API (e.g. wl_egl_window_resize) have the input parameters of x, y, width and height.
+  // So, position data should be set as well.
+  positionSize.x      = mPositionSize.x;
+  positionSize.y      = mPositionSize.y;
+  positionSize.width  = size.GetWidth();
+  positionSize.height = size.GetHeight();
+
+  mWindowBase->ResizeWindow(positionSize);
+}
+
 void WindowRenderSurface::StartRender()
 {
 }
@@ -551,24 +565,20 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
 
     // Resize case
-    Dali::PositionSize positionSize;
+    Uint16Pair size;
 
-    // Some native resize API(wl_egl_window_resize) has the input parameters of x, y, width and height.
-    // So, position data should be set.
-    positionSize.x = mPositionSize.x;
-    positionSize.y = mPositionSize.y;
     if(totalAngle == 0 || totalAngle == 180)
     {
-      positionSize.width  = mPositionSize.width;
-      positionSize.height = mPositionSize.height;
+      size.SetWidth(mPositionSize.width);
+      size.SetHeight(mPositionSize.height);
     }
     else
     {
-      positionSize.width  = mPositionSize.height;
-      positionSize.height = mPositionSize.width;
+      size.SetWidth(mPositionSize.height);
+      size.SetHeight(mPositionSize.width);
     }
 
-    mWindowBase->ResizeWindow(positionSize);
+    mGraphics->Resize(this, size);
 
     SetFullSwapNextFrame();
   }

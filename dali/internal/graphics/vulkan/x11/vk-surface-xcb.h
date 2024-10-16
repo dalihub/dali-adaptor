@@ -22,8 +22,8 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
 namespace Dali
 {
@@ -39,10 +39,10 @@ public:
    * Instantiates surface factory
    * @param[in] renderSurface
    */
-  VkSurfaceXcb( NativeWindowInterface& nativeWindow );
+  VkSurfaceXcb(NativeWindowInterface& nativeWindow);
 
-  virtual vk::SurfaceKHR Create( vk::Instance instance, const vk::AllocationCallbacks* allocCallbacks,
-                                 vk::PhysicalDevice physicalDevice) const override;
+  virtual vk::SurfaceKHR Create(vk::Instance                   instance,
+                                const vk::AllocationCallbacks* allocCallbacks) const override;
 
 private:
   xcb_connection_t* mConnection;

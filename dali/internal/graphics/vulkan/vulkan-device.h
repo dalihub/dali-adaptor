@@ -62,7 +62,7 @@ public:
 public: // Create methods
   void Create();
 
-  void CreateDevice();
+  void CreateDevice(SurfaceImpl* surface);
 
   Graphics::SurfaceId CreateSurface(Dali::Graphics::SurfaceFactory&           surfaceFactory,
                                     const Dali::Graphics::GraphicsCreateInfo& createInfo);
@@ -143,7 +143,7 @@ private: // Methods
 
   void DestroyInstance();
 
-  void PreparePhysicalDevice();
+  void PreparePhysicalDevice(SurfaceImpl* surface);
 
   void GetPhysicalDeviceProperties();
 

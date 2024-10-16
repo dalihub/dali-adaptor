@@ -123,6 +123,11 @@ public: // from Dali::Integration::RenderSurfaceInterface
   void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
+   * @copydoc Dali::Integration::RenderSurfaceInterface::Resize()
+   */
+  void Resize(Uint16Pair size) override;
+
+  /**
    * @copydoc Dali::Integration::RenderSurfaceInterface::StartRender()
    */
   void StartRender() override;
@@ -189,15 +194,15 @@ private:
   void DestroyContext();
 
 private: // Data
-  SurfaceSize                           mSurfaceSize;
-  TriggerEventInterface*                mRenderNotification;
-  Graphics::GraphicsInterface*          mGraphics; ///< The graphics interface
-  EglInterface*                         mEGL;
-  EGLSurface                            mEGLSurface;
-  EGLContext                            mEGLContext;
-  ColorDepth                            mColorDepth;
-  tbm_format                            mTbmFormat;
-  bool                                  mOwnSurface;
+  SurfaceSize                  mSurfaceSize;
+  TriggerEventInterface*       mRenderNotification;
+  Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
+  EglInterface*                mEGL;
+  EGLSurface                   mEGLSurface;
+  EGLContext                   mEGLContext;
+  ColorDepth                   mColorDepth;
+  tbm_format                   mTbmFormat;
+  bool                         mOwnSurface;
 
   tbm_surface_queue_h                  mTbmQueue;
   ThreadSynchronizationInterface*      mThreadSynchronization; ///< A pointer to the thread-synchronization

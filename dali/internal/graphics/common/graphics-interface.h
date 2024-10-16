@@ -18,13 +18,16 @@
  *
  */
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-controller.h>
 #include <dali/integration-api/core-enumerations.h>
+#include <dali/public-api/math/uint-16-pair.h>
+#include <limits>
+
+// INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-base.h>
-#include <limits>
 
 namespace Dali
 {
@@ -205,8 +208,13 @@ public:
    *
    * @param[in] surface The surface whose context to be switched to.
    */
-  virtual void ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) = 0;
+  virtual void ActivateSurfaceContext(Integration::RenderSurfaceInterface* surface) = 0;
 
+  /**
+   * Makes the context for the given surface ID the current context.
+   *
+   * @param surfaceId The ID of the surface whose context we want to make current.
+   */
   virtual void MakeContextCurrent(Graphics::SurfaceId surfaceId) = 0;
 
   /**
@@ -235,6 +243,14 @@ public:
    * Lifecycle event for resuming application
    */
   virtual void Resume() = 0;
+
+  /**
+   * Sets the size of the surface.
+   *
+   * @param[in] surface The surface whose context to resize
+   * @param[in] size The new size of the surface
+   */
+  virtual void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size) = 0;
 
   /**
    * Get the buffer age of the surface. 0 means that the back buffer

@@ -581,10 +581,16 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
   if(accessible)
   {
     uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
-    bridge->AddAccessible(actorId, accessible);
-    if(auto actorAccesible = std::dynamic_pointer_cast<ActorAccessible>(accessible))
+    if(bridge->AddAccessible(actorId, accessible))
     {
-      actorAccesible->StartObservingDestruction();
+      if(auto actorAccesible = std::dynamic_pointer_cast<ActorAccessible>(accessible))
+      {
+        actorAccesible->StartObservingDestruction();
+      }
+    }
+    else
+    {
+      return nullptr;
     }
   }
 

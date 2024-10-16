@@ -99,9 +99,10 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::AddAccessible()
    */
-  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
   {
     mAccessibles[actorId] = std::move(accessible);
+    return true;
   }
 
   /**
@@ -338,6 +339,7 @@ public:
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
     }
+    mAccessibles.clear();
     ForceDown();
     if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
@@ -1041,10 +1043,11 @@ void Bridge::EnableAutoInit()
   auto window          = Dali::DevelWindow::Get(rootLayer);
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
-
   auto bridge = Bridge::GetCurrentBridge();
-  bridge->AddTopLevelWindow(accessible);
+  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  {
+    bridge->AddTopLevelWindow(accessible);
+  }
   bridge->SetApplicationName(applicationName);
   bridge->Initialize();
 

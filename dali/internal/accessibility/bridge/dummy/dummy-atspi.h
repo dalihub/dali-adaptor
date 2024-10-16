@@ -238,8 +238,9 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
   {
+    return false;
   }
 
   void RemoveAccessible(uint32_t actorId) override
