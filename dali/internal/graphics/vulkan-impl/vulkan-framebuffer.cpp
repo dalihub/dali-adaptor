@@ -35,13 +35,13 @@ Framebuffer::~Framebuffer() = default;
 bool Framebuffer::InitializeResource()
 {
   // Create attachments
-  OwnedAttachments colorAttachments;
+  SharedAttachments colorAttachments;
   // for(auto& attachment : mCreateInfo.colorAttachments)
   {
     // auto graphicsTexture = static_cast<const Vulkan::Texture*>(attachment.texture);
     // colorAttachments.push_back(FramebufferAttachment::NewColorAttachment(attachment.texture->GetVkHandle(), clearColor, AttachmentType::COLOR, false);
   }
-  std::unique_ptr<FramebufferAttachment> depthStencilAttachment;
+  FramebufferAttachmentHandle depthStencilAttachment;
   if(mCreateInfo.depthStencilAttachment.depthTexture || mCreateInfo.depthStencilAttachment.stencilTexture)
   {
     // depthStencilAttachment = FramebufferAttachment::NewDepthAttachment();

@@ -18,6 +18,7 @@
  */
 
 #include <dali/graphics-api/graphics-render-pass-create-info.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -58,11 +59,11 @@ public:
     vk::RenderPassCreateInfo               createInfo;
   };
 
-  static RenderPassHandle New(Vulkan::Device&                            device,
-                              const std::vector<FramebufferAttachment*>& colorAttachments,
-                              FramebufferAttachment*                     depthAttachment);
+  static RenderPassHandle New(Vulkan::Device&             device,
+                              const SharedAttachments&    colorAttachments,
+                              FramebufferAttachmentHandle depthAttachment);
 
-  RenderPassImpl(Vulkan::Device& device, const std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
+  RenderPassImpl(Vulkan::Device& device, const SharedAttachments& colorAttachments, FramebufferAttachmentHandle depthAttachment);
 
   ~RenderPassImpl();
 
@@ -72,6 +73,11 @@ public:
 
   std::vector<vk::ImageView>& GetAttachments();
 
+  bool HasDepthAttachment()
+  {
+    return mHasDepthAttachment;
+  }
+
   CreateInfo& GetCreateInfo()
   {
     return mCreateInfo;
@@ -79,8 +85,8 @@ public:
 
 private:
   void CreateCompatibleCreateInfo(
-    const std::vector<FramebufferAttachment*>& colorAttachments,
-    FramebufferAttachment*                     depthAttachment);
+    const SharedAttachments&    colorAttachments,
+    FramebufferAttachmentHandle depthAttachment);
 
   void CreateRenderPass();
 
@@ -89,6 +95,7 @@ private:
   CreateInfo                 mCreateInfo;
   vk::RenderPass             mVkRenderPass;
   std::vector<vk::ImageView> mAttachments{};
+  bool                       mHasDepthAttachment;
 };
 
 } // namespace Dali::Graphics::Vulkan

@@ -22,6 +22,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
+
 class MemoryImpl
 {
 public:

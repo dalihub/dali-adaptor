@@ -20,81 +20,14 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
 class RenderPass;
-
-enum class AttachmentType
-{
-  COLOR,
-  DEPTH_STENCIL,
-  INPUT,
-  RESOLVE,
-  PRESERVE,
-  UNDEFINED
-};
-
 class Device;
-
-class FramebufferAttachment
-{
-public:
-  /**
-   * Constructor
-   *
-   * @param[in] imageView The imageview of the attachment
-   * @param[in] clearColor The color used to clear this attachment during CLEAR_OP
-   * @param[in] type The attachment type (usually COLOR or DEPTH_STENCIL)
-   * @param[in] presentable Whether the attachment is presentable (changes final layout)
-   */
-  FramebufferAttachment(std::unique_ptr<ImageView>& imageView,
-                        vk::ClearValue              clearColor,
-                        AttachmentType              type,
-                        bool                        presentable);
-
-  /**
-   * Creates a new color attachment.
-   *
-   * @param[in] imageView The imageview of the attachment
-   * @param[in] clearColorValue The color used to clear this attachment during CLEAR_OP
-   * @param[in] presentable Whether the attachment is presentable (changes final layout)
-   */
-  static FramebufferAttachment* NewColorAttachment(std::unique_ptr<ImageView>& imageView,
-                                                   vk::ClearColorValue         clearColorValue,
-                                                   bool                        presentable);
-
-  /**
-   * Creates a new depth attachment.
-   *
-   * @param[in] imageView The imageview of the attachment
-   * @param[in] clearDepthStencilValue The value used to clear this attachment during CLEAR_OP
-   */
-  static FramebufferAttachment* NewDepthAttachment(std::unique_ptr<ImageView>& imageView,
-                                                   vk::ClearDepthStencilValue  clearDepthStencilValue);
-
-  [[nodiscard]] ImageView* GetImageView() const;
-
-  [[nodiscard]] const vk::AttachmentDescription& GetDescription() const;
-
-  [[nodiscard]] const vk::ClearValue& GetClearValue() const;
-
-  [[nodiscard]] AttachmentType GetType() const;
-
-  [[nodiscard]] bool IsValid() const;
-
-private:
-  FramebufferAttachment() = default;
-
-  std::unique_ptr<ImageView> mImageView;
-  vk::AttachmentDescription  mDescription;
-  vk::ClearValue             mClearValue;
-  AttachmentType             mType{AttachmentType::UNDEFINED};
-};
-
-using OwnedAttachments = std::vector<std::unique_ptr<FramebufferAttachment>>;
 
 /**
  * FramebufferImpl encapsulates following objects:
@@ -119,12 +52,12 @@ public:
    * @return A new framebuffer object
    */
   static FramebufferImpl* New(
-    Vulkan::Device&   device,
-    RenderPassHandle  renderPass,
-    OwnedAttachments& attachments,
-    uint32_t          width,
-    uint32_t          height,
-    bool              hasDepthAttachment);
+    Vulkan::Device&    device,
+    RenderPassHandle   renderPass,
+    SharedAttachments& attachments,
+    uint32_t           width,
+    uint32_t           height,
+    bool               hasDepthAttachment);
 
   /**
    * @brief Create a new Framebuffer
@@ -139,12 +72,12 @@ public:
    * @return A new framebuffer object
    */
   static FramebufferImpl* New(
-    Vulkan::Device&                         device,
-    RenderPassHandle                        renderPass,
-    OwnedAttachments&                       colorAttachments,
-    std::unique_ptr<FramebufferAttachment>& depthAttachment,
-    uint32_t                                width,
-    uint32_t                                height);
+    Vulkan::Device&             device,
+    RenderPassHandle            renderPass,
+    SharedAttachments&          colorAttachments,
+    FramebufferAttachmentHandle depthAttachment,
+    uint32_t                    width,
+    uint32_t                    height);
 
   /**
    * @brief Constructor
@@ -157,13 +90,13 @@ public:
    * @param[in] height Height of the framebuffer
    * @param[in] hasDepthAttachment True if the last attachment is a depth buffer
    */
-  FramebufferImpl(Device&           graphicsDevice,
-                  OwnedAttachments& attachments,
-                  vk::Framebuffer   vkHandle,
-                  RenderPassHandle  renderPass,
-                  uint32_t          width,
-                  uint32_t          height,
-                  bool              hasDepthAttachment);
+  FramebufferImpl(Device&            graphicsDevice,
+                  SharedAttachments& attachments,
+                  vk::Framebuffer    vkHandle,
+                  RenderPassHandle   renderPass,
+                  uint32_t           width,
+                  uint32_t           height,
+                  bool               hasDepthAttachment);
 
   void Destroy();
 
@@ -171,9 +104,9 @@ public:
 
   [[nodiscard]] uint32_t GetHeight() const;
 
-  [[nodiscard]] FramebufferAttachment* GetAttachment(AttachmentType type, uint32_t index) const;
+  [[nodiscard]] FramebufferAttachmentHandle GetAttachment(AttachmentType type, uint32_t index) const;
 
-  [[nodiscard]] std::vector<FramebufferAttachment*> GetAttachments(AttachmentType type) const;
+  [[nodiscard]] SharedAttachments GetAttachments(AttachmentType type) const;
 
   [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
@@ -203,10 +136,10 @@ private:
   };
   using RenderPasses = std::vector<RenderPassMapElement>;
 
-  OwnedAttachments mAttachments;
-  vk::Framebuffer  mFramebuffer;
-  RenderPasses     mRenderPasses;
-  bool             mHasDepthAttachment{false};
+  SharedAttachments mAttachments;
+  vk::Framebuffer   mFramebuffer;
+  RenderPasses      mRenderPasses;
+  bool              mHasDepthAttachment{false};
 };
 
 } // Namespace Dali::Graphics::Vulkan

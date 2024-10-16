@@ -390,7 +390,8 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
   }
 
   // @todo: Only create framebuffers if no "external" render passes.
-  newSwapchain->CreateFramebuffers(); // Note, this may destroy vk swapchain if invalid.
+  FramebufferAttachmentHandle empty;
+  newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
   return newSwapchain;
 }
 
@@ -591,9 +592,12 @@ uint32_t Device::GetCurrentBufferIndex() const
 void Device::CreateInstance(const std::vector<const char*>& extensions,
                             const std::vector<const char*>& validationLayers)
 {
-  auto info = vk::InstanceCreateInfo{};
-
-  info.setEnabledExtensionCount(U32(extensions.size()))
+  auto info    = vk::InstanceCreateInfo{};
+  auto appInfo = vk::ApplicationInfo{};
+  appInfo.setApiVersion(VK_API_VERSION_1_3);
+  info
+    .setPApplicationInfo(&appInfo)
+    .setEnabledExtensionCount(U32(extensions.size()))
     .setPpEnabledExtensionNames(extensions.data())
     .setEnabledLayerCount(U32(validationLayers.size()))
     .setPpEnabledLayerNames(validationLayers.data());
@@ -624,6 +628,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 
   // if only one, pick first
   mPhysicalDevice = nullptr;
+  int gpuId       = 0;
   if(devices.size() == 1)
   {
     mPhysicalDevice = devices[0];
@@ -655,6 +660,11 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
           ++queueIndex;
         }
       }
+      if(mPhysicalDevice)
+      {
+        break;
+      }
+      gpuId++;
     }
   }
 
@@ -673,6 +683,8 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
                                VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion),
                                (const char*)mPhysicalDeviceProperties.deviceName,
                                mPhysicalDeviceProperties.driverVersion);
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
 }
 
 void Device::GetPhysicalDeviceProperties()
@@ -876,8 +888,7 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry)
-                   {
+                   [&](CommandBufferImpl* entry) {
                      return entry->GetVkHandle();
                    });
 

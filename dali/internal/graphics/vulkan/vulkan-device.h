@@ -115,12 +115,6 @@ public: // Getters
 
   void DiscardResource(std::function<void()> deleter);
 
-  FramebufferImpl* CreateFramebuffer(const std::vector<FramebufferAttachment*>& colorAttachments,
-                                     FramebufferAttachment*                     depthAttachment,
-                                     uint32_t                                   width,
-                                     uint32_t                                   height,
-                                     RenderPassImpl*                            externalRenderPass = nullptr);
-
   Image* CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent);
 
   uint32_t GetCurrentBufferIndex() const;

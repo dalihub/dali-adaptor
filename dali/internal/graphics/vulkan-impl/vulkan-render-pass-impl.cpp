@@ -30,18 +30,19 @@ extern Debug::Filter* gVulkanFilter;
 namespace Dali::Graphics::Vulkan
 {
 RenderPassHandle RenderPassImpl::New(
-  Vulkan::Device&                            device,
-  const std::vector<FramebufferAttachment*>& colorAttachments,
-  FramebufferAttachment*                     depthAttachment)
+  Vulkan::Device&             device,
+  const SharedAttachments&    colorAttachments,
+  FramebufferAttachmentHandle depthAttachment)
 {
   auto renderPass = new RenderPassImpl(device, colorAttachments, depthAttachment);
   return RenderPassHandle(renderPass);
 }
 
-RenderPassImpl::RenderPassImpl(Vulkan::Device&                            device,
-                               const std::vector<FramebufferAttachment*>& colorAttachments,
-                               FramebufferAttachment*                     depthAttachment)
-: mGraphicsDevice(&device)
+RenderPassImpl::RenderPassImpl(Vulkan::Device&             device,
+                               const SharedAttachments&    colorAttachments,
+                               FramebufferAttachmentHandle depthAttachment)
+: mGraphicsDevice(&device),
+  mHasDepthAttachment(bool(depthAttachment))
 {
   CreateCompatibleCreateInfo(colorAttachments, depthAttachment);
   CreateRenderPass();
@@ -76,8 +77,8 @@ std::vector<vk::ImageView>& RenderPassImpl::GetAttachments()
 }
 
 void RenderPassImpl::CreateCompatibleCreateInfo(
-  const std::vector<FramebufferAttachment*>& colorAttachments,
-  FramebufferAttachment*                     depthAttachment)
+  const SharedAttachments&    colorAttachments,
+  FramebufferAttachmentHandle depthAttachment)
 {
   auto hasDepth = false;
   if(depthAttachment)
@@ -152,22 +153,30 @@ void RenderPassImpl::CreateCompatibleCreateInfo(
 
   // Creating 2 subpass dependencies using VK_SUBPASS_EXTERNAL to leverage the implicit image layout
   // transitions provided by the driver
+  vk::AccessFlags        accessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite);
+  vk::PipelineStageFlags stageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+  if(hasDepth)
+  {
+    accessMask |= vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+    stageMask |= vk::PipelineStageFlagBits::eEarlyFragmentTests;
+  }
+
   mCreateInfo.subpassDependencies = {
     vk::SubpassDependency{}
       .setSrcSubpass(VK_SUBPASS_EXTERNAL)
       .setDstSubpass(0)
       .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-      .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+      .setDstStageMask(stageMask)
       .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-      .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite)
+      .setDstAccessMask(accessMask)
       .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
 
     vk::SubpassDependency{}
       .setSrcSubpass(0)
       .setDstSubpass(VK_SUBPASS_EXTERNAL)
-      .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+      .setSrcStageMask(stageMask)
       .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-      .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite)
+      .setSrcAccessMask(accessMask)
       .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
       .setDependencyFlags(vk::DependencyFlagBits::eByRegion)};
 

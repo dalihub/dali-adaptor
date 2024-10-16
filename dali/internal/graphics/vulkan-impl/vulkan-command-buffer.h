@@ -281,25 +281,21 @@ public:
   void SetStencilWriteMask(uint32_t writeMask) override;
 
   /**
-   * @brief Setup the stencil function
+   * @brief Setup the stencil function and how subsequent draws will affect the stencil buffer.
    *
+   * @param[in] failOp What happens to stencil buffer if drawing a pixel fails the stencil test
+   * @param[in] passOp What happens to stencil buffer if drawing a pixel passes stencil & depth test
+   * @param[in] depthFailOp What happens to stencil buffer if drawing a pixel passes stencil but fails depth test.
    * @param[in] compareOp How the stencil buffer, reference and compareMask are combined to determine whether to draw a pixel or not.
    * @param[in] reference A reference value that is ANDed with the mask in the compare op.
    * @param[in] compareMask The bitplanes from the stencil buffer that are active.
    */
-  void SetStencilFunc(Graphics::CompareOp compareOp,
-                      uint32_t            reference,
-                      uint32_t            compareMask) override;
-
-  /**
-   * @brief Set how subsequent draws will affect the stencil buffer.
-   * @param[in] failOp What happens to stencil buffer if drawing a pixel fails the stencil test
-   * @param[in] passOp What happens to stencil buffer if drawing a pixel passes stencil & depth test
-   * @param[in] depthFailOp What happens to stencil buffer if drawing a pixel passes stencil but fails depth test.
-   */
-  void SetStencilOp(Graphics::StencilOp failOp,
-                    Graphics::StencilOp passOp,
-                    Graphics::StencilOp depthFailOp) override;
+  void SetStencilState(Graphics::CompareOp compareOp,
+                       uint32_t            reference,
+                       uint32_t            compareMask,
+                       Graphics::StencilOp failOp,
+                       Graphics::StencilOp passOp,
+                       Graphics::StencilOp depthFailOp) override;
 
   /**
    * @brief Defines the comparison operator for passing the depth test.
