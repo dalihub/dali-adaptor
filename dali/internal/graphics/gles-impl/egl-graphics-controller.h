@@ -833,6 +833,8 @@ public:
   bool          HasClipMatrix() const override;
   const Matrix& GetClipMatrix() const override;
 
+  uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};

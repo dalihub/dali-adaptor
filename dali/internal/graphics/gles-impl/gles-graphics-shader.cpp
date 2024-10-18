@@ -267,7 +267,7 @@ void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& s
     {
       char* end;
       startIndex  = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
-      glslVersion = info.shaderVersion;
+      glslVersion = 0;
     }
   }
   else

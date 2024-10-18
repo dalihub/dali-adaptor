@@ -385,17 +385,19 @@ void Reflection::BuildUniformBlockReflection()
       gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_NAME_LENGTH, &blockNameLength);
       char* blockName = new char[blockNameLength];
       gl->GetActiveUniformBlockName(glProgram, blockIndex - 1, blockNameLength, nullptr, blockName);
-      ubo.name = blockName;
-      ubo.size = uboSize;
+      ubo.name    = blockName;
+      ubo.size    = uboSize;
+      ubo.binding = blockIndex - 1;
       delete[] blockName;
     }
     else
     {
-      ubo.name = "";
-      ubo.size = 0; // to compute later
+      ubo.name    = "";
+      ubo.size    = 0; // to compute later
+      ubo.binding = 0;
     }
-    ubo.binding       = 0;
     ubo.descriptorSet = 0;
+
     blockIndex++;
   }
 

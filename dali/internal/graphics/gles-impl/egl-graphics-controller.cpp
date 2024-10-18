@@ -1133,4 +1133,15 @@ const Matrix& EglGraphicsController::GetClipMatrix() const
   return Matrix::IDENTITY;
 }
 
+uint32_t EglGraphicsController::GetDeviceLimitation(Dali::Graphics::DeviceCapability capability)
+{
+  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  {
+    GLint i = 0;
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &i);
+    return i;
+  }
+  return 0u;
+}
+
 } // namespace Dali::Graphics

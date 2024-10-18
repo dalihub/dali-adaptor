@@ -131,6 +131,8 @@ public: // Getters
     uint32_t                                  memoryTypeBits,
     vk::MemoryPropertyFlags                   properties);
 
+  const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const;
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -139,7 +141,7 @@ private: // Methods
 
   void PreparePhysicalDevice(SurfaceImpl* surface);
 
-  void GetPhysicalDeviceProperties();
+  void InitializePhysicalDeviceProperties();
 
   void GetQueueFamilyProperties();
 

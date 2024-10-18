@@ -422,6 +422,8 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
   std::vector<vk::DescriptorBufferInfo> bufferInfos;
   std::vector<vk::WriteDescriptorSet>   descriptorWrites;
 
+  bufferInfos.reserve(mDeferredUniformBindings.size() + 1);
+
   // Deferred uniform buffer bindings:
   for(auto& uniformBinding : mDeferredUniformBindings)
   {
@@ -446,6 +448,7 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 
   // Deferred texture bindings:
   uint32_t binding = 1;
+  imageInfos.reserve(mDeferredTextureBindings.size() + 1);
   for(auto& textureBinding : mDeferredTextureBindings)
   {
     imageInfos.emplace_back();

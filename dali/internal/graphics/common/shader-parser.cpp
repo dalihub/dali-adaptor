@@ -507,6 +507,10 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     {
       program.vertexShader.output += "#version 100\n";
       program.fragmentShader.output += "#version 100\n";
+
+      // redefine 'flat' qualifier
+      program.vertexShader.output += "#define flat\n";
+      program.fragmentShader.output += "#define flat\n";
     }
     else if(parseInfo.language == OutputLanguage::SPIRV_GLSL)
     {

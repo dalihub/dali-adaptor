@@ -1064,6 +1064,16 @@ bool VulkanGraphicsController::GetProgramParameter(Graphics::Program& program, u
   return false;
 }
 
+uint32_t VulkanGraphicsController::GetDeviceLimitation(Graphics::DeviceCapability capability)
+{
+  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  {
+    const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+    return properties.limits.minUniformBufferOffsetAlignment;
+  }
+  return 0;
+}
+
 bool VulkanGraphicsController::IsBlendEquationSupported(DevelBlendEquation::Type blendEquation)
 {
   switch(blendEquation)
