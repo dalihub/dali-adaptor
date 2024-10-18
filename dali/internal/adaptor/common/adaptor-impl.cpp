@@ -74,6 +74,7 @@
 using Dali::TextAbstraction::FontClient;
 
 extern std::string GetSystemCachePath();
+extern std::string GetProgramBinaryPath();
 
 namespace Dali::Internal::Adaptor
 {
@@ -315,10 +316,17 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   std::string systemCachePath = GetSystemCachePath();
   if(!systemCachePath.empty())
   {
-    const int dir_err = mkdir(systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    int dir_err = mkdir(systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating system cache directory: %s!\n", systemCachePath.c_str());
+    }
+
+    std::string shaderCachePath = GetProgramBinaryPath();
+    dir_err = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    if(0 != dir_err && errno != EEXIST)
+    {
+      DALI_LOG_ERROR("Error creating shader cache directory: %s!\n", shaderCachePath.c_str());
     }
   }
 

@@ -22,17 +22,11 @@
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #endif
 
-std::string GetSystemCachePath()
+std::string GetSystemProgramBinaryPath()
 {
 #if ANDROID
-  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/";
+  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/shader/";
 #else
-  return std::string( "@cachePath@/.cache/dali_common_caches/" );
+  return std::string( "@cachePath@/.cache/dali_common_caches/shader/" );
 #endif
-}
-
-std::string GetProgramBinaryPath()
-{
-  std::string programBinaryPath = GetSystemCachePath() + "shader/";
-  return programBinaryPath;
 }

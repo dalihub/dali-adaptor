@@ -508,6 +508,7 @@ pushd %{_libdir}
 for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
 popd
 /sbin/ldconfig
+rm -rf /home/owner/.cache/dali_common_caches/shader/ # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
 exit 0
 
 %preun

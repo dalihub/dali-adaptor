@@ -62,3 +62,4 @@ dali-adaptor.files
 dali-adaptor.includes
 tags
 /dali/internal/adaptor/common/system-cache-path.cpp
+/dali/internal/graphics/common/shader-cache-path.cpp

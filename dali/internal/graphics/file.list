@@ -23,12 +23,14 @@ SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
     ${adaptor_graphics_dir}/gles/egl-surface-factory.cpp
     ${adaptor_graphics_dir}/common/shader-parser.cpp
+    ${adaptor_graphics_dir}/common/shader-cache-path.cpp
 )
 
 INCLUDE( ${adaptor_graphics_dir}/gles-impl/file.list )
 
 SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/common/shader-parser.cpp
+    ${adaptor_graphics_dir}/common/shader-cache-path.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-impl.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp

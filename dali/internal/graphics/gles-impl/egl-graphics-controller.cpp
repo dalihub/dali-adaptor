@@ -41,7 +41,7 @@
 #include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
-
+#include <dali/internal/system/common/environment-variables.h>
 #include <any>
 
 // Uncomment the following define to turn on frame dumping
@@ -206,6 +206,9 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
   mGlAbstraction  = &glAbstraction;
   mContext        = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mCurrentContext = mContext.get();
+
+  static auto enableShaderUseProgramBinaryString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SHADER_USE_PROGRAM_BINARY);
+  mUseProgramBinary = enableShaderUseProgramBinaryString ? std::atoi(enableShaderUseProgramBinaryString) : false;
 }
 
 void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
