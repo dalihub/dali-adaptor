@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/processor-interface.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/weak-handle.h>
@@ -45,7 +46,7 @@ namespace Adaptor
 class Capture;
 typedef IntrusivePtr<Capture> CapturePtr;
 
-class Capture : public BaseObject, public ConnectionTracker
+class Capture : public BaseObject, public ConnectionTracker, public Integration::Processor
 {
 public:
   static constexpr uint32_t DEFAULT_QUALITY = 100;
@@ -213,6 +214,20 @@ private:
   // Undefined
   Capture& operator=(const Capture& rhs);
 
+protected: // Implementation of Processor
+  /**
+   * @copydoc Dali::Integration::Processor::Process()
+   */
+  void Process(bool postProcessor) override;
+
+  /**
+   * @copydoc Dali::Integration::Processor::GetProcessorName()
+   */
+  std::string_view GetProcessorName() const override
+  {
+    return "Capture";
+  }
+
 private:
   uint32_t                                         mQuality;
   Dali::Texture                                    mTexture;
@@ -226,6 +241,7 @@ private:
   std::string                                      mPath;
   Dali::NativeImageSourcePtr                       mNativeImageSourcePtr; ///< pointer to surface image
   Dali::Devel::PixelBuffer                         mPixelBuffer;
+  bool                                             mInCapture{false};
   bool                                             mIsExclusive{false};
   bool                                             mFileSave;
   bool                                             mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
