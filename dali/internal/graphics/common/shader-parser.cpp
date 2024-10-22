@@ -421,14 +421,29 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
     if(lineNum > 0 && !textureDone)
     {
       textureDone = true;
-      // Add texture macro
+      // For textures we will bring macros compatible with
+      // GLES2 however, to turn GLES3 specific code back into GLES2
+      // the more complex analysis is needed (turn texture() into texture2D, etc.)
       if(language == OutputLanguage::GLSL2)
       {
-        outString += "\n#define TEXTURE texture2D\n";
+        outString += "#define TEXTURE texture2D\n";
+        outString += "#define TEXTURE_CUBE textureCube\n";
+        outString += "#define TEXTURE_LOD texture2DLod\n";
+        outString += "#define TEXTURE_CUBE_LOD textureCubeLod\n";
       }
       else
       {
-        outString += "\n#define TEXTURE texture\n";
+        outString += "#define TEXTURE texture\n";
+        outString += "#define TEXTURE_CUBE texture\n";
+        outString += "#define TEXTURE_LOD textureLod\n";
+        outString += "#define TEXTURE_CUBE_LOD textureLod\n";
+
+        // redefine textureCube (if used in old GLSL2 style)
+        // The old-style GLES2 shaders will be still compatible
+        outString += "#define textureCube texture\n";
+        outString += "#define texture2D texture\n";
+        outString += "#define texture2DLod textureLod\n";
+        outString += "#define textureCubeLod textureLod\n";
       }
     }
     lineNum++;
