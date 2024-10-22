@@ -1,7 +1,7 @@
 #ifndef DALI_ADDON_MANAGER_IMPL_LINUX
 #define DALI_ADDON_MANAGER_IMPL_LINUX
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,11 @@ public:
    * @copydoc Dali::Internal::AddOnManager::LoadAddOns()
    */
   std::vector<Dali::AddOnLibrary> LoadAddOns(const std::vector<std::string>& extensionNames) override;
+
+  /**
+   * @copydoc Dali::Internal::AddOnManager::LoadAddOn()
+   */
+  AddOnLibrary LoadAddOn(const std::string& addonName, const std::string& libraryName) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::GetGlobalProc()

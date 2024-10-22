@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_COMMON_ADDON_MANAGER
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,11 @@ public:
    * @return vector of initialised extension handles
    */
   std::vector<AddOnLibrary> LoadAddOns(const std::vector<std::string>& addonNames) override;
+
+  /**
+   * @copydoc Integration::AddOnManager::LoadAddOn
+   */
+  AddOnLibrary LoadAddOn(const std::string& addonName, const std::string& libraryName) override;
 
   /**
    * @brief Returns addon global function pointer

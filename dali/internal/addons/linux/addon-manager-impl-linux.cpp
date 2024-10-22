@@ -190,6 +190,51 @@ std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns(const std::vector<
   return retval;
 }
 
+AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const std::string& libraryName)
+{
+  AddOnLibrary addOnLibrary = nullptr;
+
+  auto index = 0u;
+  auto iter  = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, &addonName](AddOnCacheEntry& item) {
+    ++index;
+    return (item.info.name == addonName);
+  });
+
+  if(iter != mAddOnCache.end())
+  {
+    addOnLibrary = reinterpret_cast<void*>(index);
+  }
+  else
+  {
+    // Attempt to load the library if not found in the cache
+    auto* handle = dlopen(libraryName.c_str(), RTLD_DEEPBIND | RTLD_LAZY);
+    if(handle)
+    {
+      // Can only have one addon per library so just check if the last added item to the cache is the addon we want
+      auto&     cacheEntry = mAddOnCache.back();
+      AddOnInfo info{};
+      cacheEntry.GetAddOnInfo(info);
+      if(info.name == addonName)
+      {
+        cacheEntry.info      = info;
+        cacheEntry.addOnLib  = libraryName;
+        cacheEntry.libHandle = handle;
+        cacheEntry.opened    = true;
+        addOnLibrary         = reinterpret_cast<void*>(mAddOnCache.size());
+      }
+      else
+      {
+        DALI_LOG_ERROR("Can't find %s addon in %s library\n", addonName.c_str(), libraryName.c_str());
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR("Can't open library: %s, error: %s\n", libraryName.c_str(), dlerror());
+    }
+  }
+  return addOnLibrary;
+}
+
 void* AddOnManagerLinux::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
 {
   if(!addonHandle)

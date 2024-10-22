@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADDON_MANAGER_IMPL
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,11 @@ public:
    * @return vector of initialised AddOnLibrary handles
    */
   virtual std::vector<Dali::AddOnLibrary> LoadAddOns(const std::vector<std::string>& addonNames) = 0;
+
+  /**
+   * @copydoc Integration::AddOnManager::LoadAddOn
+   */
+  virtual AddOnLibrary LoadAddOn(const std::string& addonName, const std::string& libraryName) = 0;
 
   /**
    * @brief Returns AddOn global function pointer
