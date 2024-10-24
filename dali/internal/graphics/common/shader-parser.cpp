@@ -301,14 +301,38 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
   std::stringstream ss;
   if(l.tokens.size())
   {
-    auto token = GetToken(l, 0);
+    auto token            = GetToken(l, 0);
+    auto uniformBlockName = GetToken(l, 1);
+
+    auto localBinding = binding;
+    bool blockReused  = false;
+    if(!program.uniformBlocks.empty())
+    {
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
+      if(it != program.uniformBlocks.end())
+      {
+        localBinding = (*it).second;
+        blockReused  = true;
+      }
+    }
+
+    if(!blockReused)
+    {
+      program.uniformBlocks.emplace_back(std::make_pair(uniformBlockName, localBinding));
+    }
+
     if(token == "UNIFORM_BLOCK")
     {
       bool gles3plus = false;
       if(lang == OutputLanguage::SPIRV_GLSL)
       {
-        ss << "layout(set=0, binding=" << binding << ", std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
-        binding++;
+        ss << "layout(set=0, binding=" << localBinding << ", std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        // update binding point only if UBO has been bound to the new binding point
+        // duplication UBOs between stages should not increment binding point
+        if(!blockReused)
+        {
+          binding++;
+        }
         gles3plus = true;
       }
       else if(lang == OutputLanguage::GLSL3)
