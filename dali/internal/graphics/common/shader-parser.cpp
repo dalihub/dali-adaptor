@@ -301,14 +301,38 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
   std::stringstream ss;
   if(l.tokens.size())
   {
-    auto token = GetToken(l, 0);
+    auto token            = GetToken(l, 0);
+    auto uniformBlockName = GetToken(l, 1);
+
+    auto localBinding = binding;
+    bool blockReused  = false;
+    if(!program.uniformBlocks.empty())
+    {
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
+      if(it != program.uniformBlocks.end())
+      {
+        localBinding = (*it).second;
+        blockReused  = true;
+      }
+    }
+
+    if(!blockReused)
+    {
+      program.uniformBlocks.emplace_back(std::make_pair(uniformBlockName, localBinding));
+    }
+
     if(token == "UNIFORM_BLOCK")
     {
       bool gles3plus = false;
       if(lang == OutputLanguage::SPIRV_GLSL)
       {
-        ss << "layout(set=0, binding=" << binding << ", std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
-        binding++;
+        ss << "layout(set=0, binding=" << localBinding << ", std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        // update binding point only if UBO has been bound to the new binding point
+        // duplication UBOs between stages should not increment binding point
+        if(!blockReused)
+        {
+          binding++;
+        }
         gles3plus = true;
       }
       else if(lang == OutputLanguage::GLSL3)
@@ -421,14 +445,29 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
     if(lineNum > 0 && !textureDone)
     {
       textureDone = true;
-      // Add texture macro
+      // For textures we will bring macros compatible with
+      // GLES2 however, to turn GLES3 specific code back into GLES2
+      // the more complex analysis is needed (turn texture() into texture2D, etc.)
       if(language == OutputLanguage::GLSL2)
       {
-        outString += "\n#define TEXTURE texture2D\n";
+        outString += "#define TEXTURE texture2D\n";
+        outString += "#define TEXTURE_CUBE textureCube\n";
+        outString += "#define TEXTURE_LOD texture2DLod\n";
+        outString += "#define TEXTURE_CUBE_LOD textureCubeLod\n";
       }
       else
       {
-        outString += "\n#define TEXTURE texture\n";
+        outString += "#define TEXTURE texture\n";
+        outString += "#define TEXTURE_CUBE texture\n";
+        outString += "#define TEXTURE_LOD textureLod\n";
+        outString += "#define TEXTURE_CUBE_LOD textureLod\n";
+
+        // redefine textureCube (if used in old GLSL2 style)
+        // The old-style GLES2 shaders will be still compatible
+        outString += "#define textureCube texture\n";
+        outString += "#define texture2D texture\n";
+        outString += "#define texture2DLod textureLod\n";
+        outString += "#define textureCubeLod textureLod\n";
       }
     }
     lineNum++;

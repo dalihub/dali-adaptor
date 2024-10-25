@@ -1,10 +1,8 @@
-//@ignore:on
-#define UNIFORM_BLOCK uniform
-#define UNIFORM uniform
-#define INPUT in
-#define OUTPUT out
-#define OUT_COLOR gl_FragColor
-//@ignore:off
+
+UNIFORM_BLOCK SharedBlock0
+{
+  UNIFORM highp vec4 uOther;
+};
 
 UNIFORM_BLOCK FragBlock
 {
@@ -14,6 +12,11 @@ UNIFORM_BLOCK FragBlock
 INPUT mediump vec2 vTexCoord;
 UNIFORM sampler2D sTexture;
 UNIFORM samplerCube sTextureCube;
+
+UNIFORM_BLOCK SharedBlock1
+{
+  UNIFORM highp vec4 uColor;
+};
 
 void main()
 {

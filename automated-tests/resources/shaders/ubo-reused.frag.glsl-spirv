@@ -1,4 +1,4 @@
-#version 320 es
+#version 430
 
 #define TEXTURE texture
 #define TEXTURE_CUBE texture
@@ -8,17 +8,27 @@
 #define texture2D texture
 #define texture2DLod textureLod
 #define textureCubeLod textureLod
-layout(std140) uniform FragBlock
+layout(set=0, binding=2, std140) uniform SharedBlock0
+{
+ highp vec4 uOther;
+};
+
+layout(set=0, binding=3, std140) uniform FragBlock
 {
  lowp vec4 uColor;
 };
 
-in mediump vec2 vTexCoord;
-uniform sampler2D sTexture;
-uniform samplerCube sTextureCube;
+layout(location = 0) in mediump vec2 vTexCoord;
+layout(binding = 4) uniform sampler2D sTexture;
+layout(binding = 5) uniform samplerCube sTextureCube;
+
+layout(set=0, binding=0, std140) uniform SharedBlock1
+{
+ highp vec4 uColor;
+};
 
 #define gl_FragColor _glFragColor
-out mediump vec4 _glFragColor;
+layout(location=0) out mediump vec4 _glFragColor;
 void main()
 {
 

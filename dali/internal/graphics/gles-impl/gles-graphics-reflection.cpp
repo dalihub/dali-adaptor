@@ -123,14 +123,16 @@ std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
   std::vector<uint8_t> data;
   auto*                shader           = static_cast<const Dali::Graphics::GLES::Shader*>(shaderState.shader);
   auto&                shaderCreateInfo = shader->GetCreateInfo();
-  data.resize(shaderCreateInfo.sourceSize + 1);
-  std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
-  data[shaderCreateInfo.sourceSize] = 0;
 
-  return std::string(reinterpret_cast<char*>(&data[0]));
+  auto shaderImpl = shader->GetImplementation();
+  if(shaderImpl->HasPreprocessedCode())
+  {
+    return std::string{shaderImpl->GetPreprocessedCode()};
+  }
+  return {reinterpret_cast<char*>(&data[0]), shaderCreateInfo.sourceSize};
 }
 
-void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
+void ParseShaderSamplers(const std::string& shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
 {
   if(!shaderSource.empty())
   {

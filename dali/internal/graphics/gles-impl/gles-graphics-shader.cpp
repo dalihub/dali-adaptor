@@ -235,6 +235,16 @@ const ShaderCreateInfo& ShaderImpl::GetCreateInfo() const
   return mImpl->createInfo;
 }
 
+bool ShaderImpl::HasPreprocessedCode() const
+{
+  return !mImpl->sourcePreprocessed.empty();
+}
+
+std::string_view ShaderImpl::GetPreprocessedCode() const
+{
+  return {reinterpret_cast<char*>(mImpl->sourcePreprocessed.data())};
+}
+
 [[nodiscard]] EglGraphicsController& ShaderImpl::GetController() const
 {
   return mImpl->controller;

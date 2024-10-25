@@ -269,3 +269,44 @@ int UtcParseSPIRVShaderWithOutput(void)
   }
   END_TEST;
 }
+
+int UtcParseSPIRVShaderDuplicateUBO(void)
+{
+  tet_infoline("UtcParseSPIRVShaderDuplicateUBO - Tests binding for reused UBOs for Vulkan");
+
+  // TODO: this test should fail in future after modifying sampler keywords!
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/ubo-reused.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/ubo-reused.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
+  parseInfo.outputVersion               = 0;
+  Parse(parseInfo, outStrings);
+
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+  // save to compare
+  /*
+  {
+    std::ofstream outv(TEST_RESOURCE_DIR "/shaders/tmp.vert.glsl-spirv");
+    std::ofstream outf(TEST_RESOURCE_DIR "/shaders/tmp.frag.glsl-spirv");
+    outv << outVertexShader;
+    outf << outFragmentShader;
+  }*/
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/ubo-reused.vert.glsl-spirv", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/ubo-reused.frag.glsl-spirv", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}

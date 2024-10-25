@@ -1,7 +1,13 @@
 #version 320 es
 
-
 #define TEXTURE texture
+#define TEXTURE_CUBE texture
+#define TEXTURE_LOD textureLod
+#define TEXTURE_CUBE_LOD textureLod
+#define textureCube texture
+#define texture2D texture
+#define texture2DLod textureLod
+#define textureCubeLod textureLod
 layout(std140) uniform FragBlock
 {
  lowp vec4 uColor;

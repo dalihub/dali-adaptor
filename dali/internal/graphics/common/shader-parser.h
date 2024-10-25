@@ -72,6 +72,8 @@ struct Program
   int                        uboBinding{0};
   int&                       samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
   int                        attributeLocation{0};
+
+  std::vector<std::pair<std::string, uint32_t>> uniformBlocks;
 };
 
 struct ShaderParserInfo
