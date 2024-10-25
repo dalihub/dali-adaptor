@@ -664,6 +664,9 @@ public:
 
   void SwitchBridge()
   {
+    //If DBusClient is not ready, don't remove initialize timer.
+    if (mInitializeTimer && mInitializeTimer.IsRunning()) return;
+
     bool isScreenReaderEnabled = mIsScreenReaderEnabled && !mIsScreenReaderSuppressed;
 
     if((isScreenReaderEnabled || mIsEnabled) && mIsApplicationRunning)
