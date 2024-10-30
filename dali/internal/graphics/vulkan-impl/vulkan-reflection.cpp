@@ -249,7 +249,8 @@ void Reflection::BuildReflection()
           out.location      = 0;
           out.offset        = memb.offset;
           out.elementStride = memb.array.dims_count ? memb.array.stride : 0;
-          out.elementCount  = memb.array.dims[0]; // will be zero for non-array
+          out.matrixStride  = memb.numeric.matrix.stride; // will be zero for non-matrix
+          out.elementCount  = memb.array.dims[0];         // will be zero for non-array
           out.uniformClass  = UniformClass::UNIFORM_BUFFER;
           out.bufferIndex   = blockIndex++; // TODO: do we need this for Vulkan?
           block.size += memb.padded_size;
@@ -443,6 +444,7 @@ bool Reflection::GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInf
     out.members[i].location      = memberUniform.location;
     out.members[i].elementCount  = memberUniform.elementCount;
     out.members[i].elementStride = memberUniform.elementStride;
+    out.members[i].matrixStride  = memberUniform.matrixStride;
   }
 
   return true;

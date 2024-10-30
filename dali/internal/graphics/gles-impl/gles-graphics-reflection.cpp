@@ -306,19 +306,20 @@ void Reflection::BuildUniformBlockReflection()
   }
 
   // Obtain all parameters for active uniforms
-  auto getActiveUniformParams = [gl, glProgram, uniformIndices](GLenum param) {
+  auto getActiveUniformParams = [gl, glProgram, uniformIndices](GLenum param)
+  {
     std::vector<GLint> params;
     params.resize(uniformIndices.size());
     gl->GetActiveUniformsiv(glProgram, uniformIndices.size(), uniformIndices.data(), param, params.data());
     return params;
   };
 
-  auto activeUniformType       = getActiveUniformParams(GL_UNIFORM_TYPE);
-  auto activeUniformSize       = getActiveUniformParams(GL_UNIFORM_SIZE);
-  auto activeUniformNameLength = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
-  auto activeUniformBlockIndex = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
-  auto activeUniformOffset     = getActiveUniformParams(GL_UNIFORM_OFFSET);
-
+  auto activeUniformType         = getActiveUniformParams(GL_UNIFORM_TYPE);
+  auto activeUniformSize         = getActiveUniformParams(GL_UNIFORM_SIZE);
+  auto activeUniformNameLength   = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
+  auto activeUniformBlockIndex   = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
+  auto activeUniformOffset       = getActiveUniformParams(GL_UNIFORM_OFFSET);
+  auto activeUniformMatrixStride = getActiveUniformParams(GL_UNIFORM_MATRIX_STRIDE);
   // Extract only uniform blocks and collect data
   // collect samplers into separate array
   std::vector<UniformInfo> samplers;
@@ -352,6 +353,7 @@ void Reflection::BuildUniformBlockReflection()
       uniformInfo->bufferIndex  = blockIndex;
       uniformInfo->binding      = blockIndex == 0 ? i : 0; // this will be reset later
       uniformInfo->offset       = activeUniformOffset[i];
+      uniformInfo->matrixStride = activeUniformMatrixStride[i];
     }
 
     uniformInfo->location = location; // location must be set later and sorted by offset
@@ -375,9 +377,8 @@ void Reflection::BuildUniformBlockReflection()
   uint32_t blockIndex = 0;
   for(auto& ubo : mUniformBlocks)
   {
-    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs) {
-      return lhs.offset < rhs.offset;
-    });
+    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs)
+              { return lhs.offset < rhs.offset; });
 
     if(blockIndex > 0)
     {
@@ -544,6 +545,7 @@ bool Reflection::GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInf
     out.members[i].location      = memberUniform.location;
     out.members[i].elementCount  = memberUniform.elementCount;
     out.members[i].elementStride = memberUniform.elementStride;
+    out.members[i].matrixStride  = memberUniform.matrixStride;
   }
 
   return true;
@@ -692,7 +694,7 @@ Graphics::ShaderLanguage Reflection::GetLanguage() const
 
 void Reflection::SortOpaques()
 {
-  //Determine declaration order of each sampler
+  // Determine declaration order of each sampler
   auto& programCreateInfo = mProgram.GetCreateInfo();
 
   std::vector<uint8_t> data;
@@ -717,7 +719,8 @@ void Reflection::SortOpaques()
   ParseShaderSamplers(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
   ParseShaderSamplers(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
 
-  std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b) { return a.offset < b.offset; });
+  std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b)
+            { return a.offset < b.offset; });
 }
 
 } // namespace Dali::Graphics::GLES
