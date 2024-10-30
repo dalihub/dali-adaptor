@@ -79,27 +79,6 @@ static bool cmpf(float A, float B, float epsilon = 0.005f)
   return (fabs(A - B) < epsilon);
 }
 
-/**
- * Helper operators
- */
-static bool operator==(const Graphics::Viewport& lhs, const Graphics::Viewport& rhs)
-{
-  return cmpf(lhs.x, rhs.x) &&
-         cmpf(lhs.y, rhs.y) &&
-         cmpf(lhs.width, rhs.width) &&
-         cmpf(lhs.height, rhs.height) &&
-         cmpf(lhs.minDepth, rhs.minDepth) &&
-         cmpf(lhs.maxDepth, rhs.maxDepth);
-}
-
-static bool operator==(const Graphics::Rect2D& lhs, const Graphics::Rect2D& rhs)
-{
-  return cmpf(lhs.x, rhs.x) &&
-         cmpf(lhs.y, rhs.y) &&
-         cmpf(lhs.width, rhs.width) &&
-         cmpf(lhs.height, rhs.height);
-}
-
 static bool operator==(const Graphics::StencilOpState& lhs, const Graphics::StencilOpState& rhs)
 {
   return lhs.failOp == rhs.failOp &&
@@ -111,9 +90,8 @@ static bool operator==(const Graphics::StencilOpState& lhs, const Graphics::Sten
          lhs.reference == rhs.reference;
 }
 
-static bool
-operator==(const Dali::Graphics::VertexInputState::Attribute& lhs,
-           const Dali::Graphics::VertexInputState::Attribute& rhs)
+static bool operator==(const Dali::Graphics::VertexInputState::Attribute& lhs,
+                       const Dali::Graphics::VertexInputState::Attribute& rhs)
 {
   return lhs.location == rhs.location &&
          lhs.binding == rhs.binding &&
@@ -121,8 +99,8 @@ operator==(const Dali::Graphics::VertexInputState::Attribute& lhs,
          lhs.format == rhs.format;
 }
 
-static bool
-operator==(const Dali::Graphics::VertexInputState::Binding& lhs, const Dali::Graphics::VertexInputState::Binding& rhs)
+static bool operator==(const Dali::Graphics::VertexInputState::Binding& lhs,
+                       const Dali::Graphics::VertexInputState::Binding& rhs)
 {
   return lhs.stride == rhs.stride &&
          lhs.inputRate == rhs.inputRate;
