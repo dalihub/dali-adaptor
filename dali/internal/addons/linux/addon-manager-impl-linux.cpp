@@ -102,6 +102,8 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
       auto* handle = dlopen(fullPath.c_str(), RTLD_DEEPBIND | RTLD_LAZY);
       if(handle)
       {
+        DALI_ASSERT_ALWAYS(!mAddOnCache.empty() && "AddOnCache should not be empty!");
+
         auto&     cacheEntry = mAddOnCache.back();
         AddOnInfo info{};
         cacheEntry.GetAddOnInfo(info);
@@ -211,6 +213,8 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
     if(handle)
     {
       // Can only have one addon per library so just check if the last added item to the cache is the addon we want
+      DALI_ASSERT_ALWAYS(!mAddOnCache.empty() && "AddOnCache should not be empty!");
+
       auto&     cacheEntry = mAddOnCache.back();
       AddOnInfo info{};
       cacheEntry.GetAddOnInfo(info);
@@ -242,7 +246,9 @@ void* AddOnManagerLinux::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, co
     return nullptr;
   }
 
-  auto        index = (intptr_t(addonHandle));
+  auto index = (intptr_t(addonHandle));
+  DALI_ASSERT_ALWAYS(index >= 1 && index <= static_cast<intptr_t>(mAddOnCache.size()) && "Invalid AddOn handle!");
+
   const auto& entry = mAddOnCache[index - 1];
 
   if(entry.opened && entry.libHandle)
@@ -270,7 +276,9 @@ void* AddOnManagerLinux::GetInstanceProc(const Dali::AddOnLibrary& addonHandle, 
     return nullptr;
   }
 
-  auto        index = (intptr_t(addonHandle));
+  auto index = (intptr_t(addonHandle));
+  DALI_ASSERT_ALWAYS(index >= 1 && index <= static_cast<intptr_t>(mAddOnCache.size()) && "Invalid AddOn handle!");
+
   const auto& entry = mAddOnCache[index - 1];
   if(entry.opened && entry.libHandle)
   {
