@@ -129,11 +129,12 @@ public:
   /**
    * @brief Enables depth/stencil buffer
    *
+   * @param[in] renderTarget The surface for which to enable depth/stencil buffer.
    * @param[in] enableDepth True to enable depth
    * @param[in] enableStencil True to enable stencil
    * @return True on success
    */
-  bool EnableDepthStencilBuffer(bool enableDepth, bool enableStencil) override;
+  bool EnableDepthStencilBuffer(const Graphics::RenderTarget& renderTarget, bool enableDepth, bool enableStencil) override;
 
   /**
    * @brief Runs garbage collector (if supported)
@@ -372,6 +373,8 @@ public:
    * @return True on success
    */
   bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
+
+  uint32_t GetDeviceLimitation(Graphics::DeviceCapability capability) override;
 
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;

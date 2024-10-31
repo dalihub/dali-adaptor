@@ -235,6 +235,16 @@ const ShaderCreateInfo& ShaderImpl::GetCreateInfo() const
   return mImpl->createInfo;
 }
 
+bool ShaderImpl::HasPreprocessedCode() const
+{
+  return !mImpl->sourcePreprocessed.empty();
+}
+
+std::string_view ShaderImpl::GetPreprocessedCode() const
+{
+  return {reinterpret_cast<char*>(mImpl->sourcePreprocessed.data())};
+}
+
 [[nodiscard]] EglGraphicsController& ShaderImpl::GetController() const
 {
   return mImpl->controller;
@@ -267,7 +277,7 @@ void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& s
     {
       char* end;
       startIndex  = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
-      glslVersion = info.shaderVersion;
+      glslVersion = 0;
     }
   }
   else

@@ -45,6 +45,7 @@ VT* ConstGraphicsCast(const GT* object)
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : CommandBufferResource(createInfo, controller),
+  mDynamicStateMask(CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE),
   mCommandBufferImpl(nullptr)
 {
   auto& device    = controller.GetGraphicsDevice();
@@ -78,6 +79,7 @@ void CommandBuffer::DiscardResource()
 
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
+  mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
   if(mCommandBufferImpl)
   {
     // Check if there is some extra information about used resources
@@ -108,6 +110,12 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
       inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
     }
     mCommandBufferImpl->Begin(static_cast<vk::CommandBufferUsageFlags>(info.usage), &inheritanceInfo);
+
+    // Default depth/stencil should be off:
+    SetDepthTestEnable(false);
+    SetDepthWriteEnable(false);
+    SetDepthCompareOp(Graphics::CompareOp::LESS);
+    SetStencilTestEnable(false);
   }
 }
 
@@ -125,7 +133,8 @@ void CommandBuffer::Reset()
   {
     mCommandBufferImpl->Reset();
   }
-  mLastSwapchain = nullptr;
+  mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
+  mLastSwapchain    = nullptr;
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
@@ -280,7 +289,11 @@ void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
 void CommandBuffer::SetScissor(Rect2D value)
 {
   // @todo Vulkan accepts array of scissors... add to API
-  mCommandBufferImpl->SetScissor(value);
+
+  if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
+  {
+    mCommandBufferImpl->SetScissor(value);
+  }
 }
 
 void CommandBuffer::SetScissorTestEnable(bool value)
@@ -291,7 +304,10 @@ void CommandBuffer::SetScissorTestEnable(bool value)
 
 void CommandBuffer::SetViewport(Viewport value)
 {
-  mCommandBufferImpl->SetViewport(value);
+  if(SetDynamicState(mDynamicState.viewport, value, DynamicStateMaskBits::VIEWPORT))
+  {
+    mCommandBufferImpl->SetViewport(value);
+  }
 }
 
 void CommandBuffer::SetViewportEnable(bool value)
@@ -306,42 +322,81 @@ void CommandBuffer::SetColorMask(bool enabled)
 
 void CommandBuffer::ClearStencilBuffer()
 {
+  // Ignore, we should only do this in render pass
 }
 
 void CommandBuffer::ClearDepthBuffer()
 {
+  // Ignore, we should only do this in render pass
 }
 
 void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 {
+  if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
+  {
+    mCommandBufferImpl->SetStencilTestEnable(stencilEnable);
+  }
 }
 
 void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 {
+  if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
+  {
+    mCommandBufferImpl->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
+  }
 }
 
-void CommandBuffer::SetStencilFunc(Graphics::CompareOp compareOp,
-                                   uint32_t            reference,
-                                   uint32_t            compareMask)
+void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
+                                    uint32_t            reference,
+                                    uint32_t            compareMask,
+                                    Graphics::StencilOp failOp,
+                                    Graphics::StencilOp passOp,
+                                    Graphics::StencilOp depthFailOp)
 {
-}
+  if(SetDynamicState(mDynamicState.stencilCompareMask, compareMask, DynamicStateMaskBits::STENCIL_COMP_MASK))
+  {
+    mCommandBufferImpl->SetStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, compareMask);
+  }
+  if(SetDynamicState(mDynamicState.stencilReference, reference, DynamicStateMaskBits::STENCIL_REF))
+  {
+    mCommandBufferImpl->SetStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, reference);
+  }
 
-void CommandBuffer::SetStencilOp(Graphics::StencilOp failOp,
-                                 Graphics::StencilOp passOp,
-                                 Graphics::StencilOp depthFailOp)
-{
+  if(SetDynamicState(mDynamicState.stencilFailOp, failOp, DynamicStateMaskBits::STENCIL_OP_FAIL) ||
+     SetDynamicState(mDynamicState.stencilPassOp, passOp, DynamicStateMaskBits::STENCIL_OP_PASS) ||
+     SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL) ||
+     SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP))
+  {
+    mCommandBufferImpl->SetStencilOp(vk::StencilFaceFlagBits::eFrontAndBack,
+                                     VkStencilOpType(failOp).op,
+                                     VkStencilOpType(passOp).op,
+                                     VkStencilOpType(depthFailOp).op,
+                                     VkCompareOpType(compareOp).op);
+  }
 }
 
 void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
+  if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
+  {
+    mCommandBufferImpl->SetDepthCompareOp(VkCompareOpType(compareOp).op);
+  }
 }
 
 void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
 {
+  if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
+  {
+    mCommandBufferImpl->SetDepthTestEnable(depthTestEnable);
+  }
 }
 
 void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 {
+  if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
+  {
+    mCommandBufferImpl->SetDepthWriteEnable(depthWriteEnable);
+  }
 }
 
 Swapchain* CommandBuffer::GetLastSwapchain() const

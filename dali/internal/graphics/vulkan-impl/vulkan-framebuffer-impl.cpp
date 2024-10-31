@@ -17,6 +17,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
@@ -118,12 +119,12 @@ bool FramebufferAttachment::IsValid() const
 // FramebufferImpl -------------------------------
 
 FramebufferImpl* FramebufferImpl::New(
-  Vulkan::Device&   device,
-  RenderPassHandle  renderPass,
-  OwnedAttachments& attachments,
-  uint32_t          width,
-  uint32_t          height,
-  bool              hasDepthAttachments)
+  Vulkan::Device&    device,
+  RenderPassHandle   renderPass,
+  SharedAttachments& attachments,
+  uint32_t           width,
+  uint32_t           height,
+  bool               hasDepthAttachments)
 {
   DALI_ASSERT_ALWAYS(renderPass && "You require more render passes!");
 
@@ -153,20 +154,20 @@ FramebufferImpl* FramebufferImpl::New(
 }
 
 FramebufferImpl* FramebufferImpl::New(
-  Vulkan::Device&                         device,
-  RenderPassHandle                        renderPass,
-  OwnedAttachments&                       colorAttachments,
-  std::unique_ptr<FramebufferAttachment>& depthAttachment,
-  uint32_t                                width,
-  uint32_t                                height)
+  Vulkan::Device&             device,
+  RenderPassHandle            renderPass,
+  SharedAttachments&          colorAttachments,
+  FramebufferAttachmentHandle depthAttachment,
+  uint32_t                    width,
+  uint32_t                    height)
 {
   assert((!colorAttachments.empty() || depthAttachment) && "Cannot create framebuffer. Please provide at least one attachment");
 
-  auto                                colorAttachmentsValid = true;
-  std::vector<FramebufferAttachment*> attachments;
+  auto              colorAttachmentsValid = true;
+  SharedAttachments attachments;
   for(auto& attachment : colorAttachments)
   {
-    attachments.emplace_back(attachment.get());
+    attachments.emplace_back(attachment);
     if(!attachment->IsValid())
     {
       colorAttachmentsValid = false;
@@ -190,28 +191,27 @@ FramebufferImpl* FramebufferImpl::New(
   if(!renderPass)
   {
     // Create compatible vulkan render pass
-    renderPass = RenderPassImpl::New(device, attachments, depthAttachment.get());
+    renderPass = RenderPassImpl::New(device, attachments, depthAttachment);
   }
 
-  OwnedAttachments ownedAttachments(std::move(colorAttachments));
   if(hasDepth)
   {
-    ownedAttachments.emplace_back(std::move(depthAttachment));
+    attachments.emplace_back(std::move(depthAttachment));
   }
-  return FramebufferImpl::New(device, renderPass, ownedAttachments, width, height, hasDepth);
+  return FramebufferImpl::New(device, renderPass, attachments, width, height, hasDepth);
 }
 
-FramebufferImpl::FramebufferImpl(Device&           graphicsDevice,
-                                 OwnedAttachments& attachments,
-                                 vk::Framebuffer   vkHandle,
-                                 RenderPassHandle  renderPassImpl,
-                                 uint32_t          width,
-                                 uint32_t          height,
-                                 bool              hasDepthAttachment)
+FramebufferImpl::FramebufferImpl(Device&            graphicsDevice,
+                                 SharedAttachments& attachments,
+                                 vk::Framebuffer    vkHandle,
+                                 RenderPassHandle   renderPassImpl,
+                                 uint32_t           width,
+                                 uint32_t           height,
+                                 bool               hasDepthAttachment)
 : mGraphicsDevice(&graphicsDevice),
   mWidth(width),
   mHeight(height),
-  mAttachments(std::move(attachments)),
+  mAttachments(attachments),
   mFramebuffer(vkHandle),
   mHasDepthAttachment(hasDepthAttachment)
 {
@@ -245,19 +245,19 @@ uint32_t FramebufferImpl::GetHeight() const
   return mHeight;
 }
 
-FramebufferAttachment* FramebufferImpl::GetAttachment(AttachmentType type, uint32_t index) const
+FramebufferAttachmentHandle FramebufferImpl::GetAttachment(AttachmentType type, uint32_t index) const
 {
   switch(type)
   {
     case AttachmentType::COLOR:
     {
-      return mAttachments[index].get();
+      return mAttachments[index];
     }
     case AttachmentType::DEPTH_STENCIL:
     {
       if(mHasDepthAttachment)
       {
-        return mAttachments.back().get();
+        return mAttachments.back();
       }
     }
     case AttachmentType::INPUT:
@@ -267,12 +267,12 @@ FramebufferAttachment* FramebufferImpl::GetAttachment(AttachmentType type, uint3
       break;
   }
 
-  return nullptr;
+  return {};
 }
 
-std::vector<FramebufferAttachment*> FramebufferImpl::GetAttachments(AttachmentType type) const
+SharedAttachments FramebufferImpl::GetAttachments(AttachmentType type) const
 {
-  auto retval = std::vector<FramebufferAttachment*>{};
+  auto retval = SharedAttachments{};
   switch(type)
   {
     case AttachmentType::COLOR:
@@ -281,7 +281,7 @@ std::vector<FramebufferAttachment*> FramebufferImpl::GetAttachments(AttachmentTy
       retval.reserve(numColorAttachments);
       for(size_t i = 0; i < numColorAttachments; ++i)
       {
-        retval.emplace_back(mAttachments[i].get());
+        retval.emplace_back(&*mAttachments[i]);
       }
       break;
     }
@@ -290,7 +290,7 @@ std::vector<FramebufferAttachment*> FramebufferImpl::GetAttachments(AttachmentTy
       if(mHasDepthAttachment)
       {
         retval.reserve(1);
-        retval.emplace_back(mAttachments.back().get());
+        retval.emplace_back(&*mAttachments.back());
       }
       break;
     }

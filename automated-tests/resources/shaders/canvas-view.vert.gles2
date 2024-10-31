@@ -1,7 +1,10 @@
 #version 100
-
+#define flat
 
 #define TEXTURE texture2D
+#define TEXTURE_CUBE textureCube
+#define TEXTURE_LOD texture2DLod
+#define TEXTURE_CUBE_LOD textureCubeLod
 attribute mediump vec2 aPosition;
 attribute mediump vec2 aTexCoord;
 varying mediump vec2 vTexCoord;

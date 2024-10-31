@@ -202,7 +202,7 @@ void PipelineImpl::Release()
 
 uint32_t PipelineImpl::GetRefCount() const
 {
-  return 0; //mRefCount;
+  return 0; // mRefCount;
 }
 
 PipelineImpl::~PipelineImpl() = default;
@@ -291,7 +291,10 @@ void PipelineImpl::InitializePipeline()
     if(gfxPipelineInfo.pColorBlendState)
     {
       auto attachmentCount = impl->GetAttachments().size();
-
+      if(impl->HasDepthAttachment())
+      {
+        attachmentCount--;
+      }
       if(attachmentCount != mBlendStateAttachments.size())
       {
         // Make sure array is 1
@@ -332,7 +335,8 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
   std::transform(mCreateInfo.vertexInputState->bufferBindings.begin(),
                  mCreateInfo.vertexInputState->bufferBindings.end(),
                  std::back_inserter(bindings),
-                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription {
+                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription
+                 {
                    vk::VertexInputBindingDescription out;
                    out.setInputRate((in.inputRate == VertexInputRate::PER_VERTEX ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance));
                    out.setBinding(0u); // To be filled later using indices
@@ -350,7 +354,8 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
   std::transform(mCreateInfo.vertexInputState->attributes.begin(),
                  mCreateInfo.vertexInputState->attributes.end(),
                  std::back_inserter(attrs),
-                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription {
+                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription
+                 {
                    vk::VertexInputAttributeDescription out;
                    out.setBinding(in.binding);
                    out.setLocation(in.location);
@@ -506,11 +511,11 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
 {
   auto gfxRastState = mCreateInfo.rasterizationState;
 
-  out.setFrontFace([gfxRastState]() {
-    return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise;
-  }());
+  out.setFrontFace([gfxRastState]()
+                   { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
 
-  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]() {
+  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]()
+                     {
     switch(polygonMode)
     {
       case PolygonMode::FILL:
@@ -526,10 +531,10 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
         return vk::PolygonMode::ePoint;
       }
     }
-    return vk::PolygonMode{};
-  }());
+    return vk::PolygonMode{}; }());
 
-  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits {
+  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits
+                  {
     switch(cullMode)
     {
       case CullMode::NONE:
@@ -549,8 +554,7 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
         return vk::CullModeFlagBits::eFrontAndBack;
       }
     }
-    return {};
-  }());
+    return {}; }());
 
   out.setLineWidth(1.0f);         // Line with hardcoded to 1.0f
   out.setDepthClampEnable(false); // no depth clamp
@@ -573,6 +577,21 @@ bool PipelineImpl::InitializeDepthStencilState(vk::PipelineDepthStencilStateCrea
     out.setDepthCompareOp(ConvCompareOp(in->depthCompareOp));
     return true;
   }
+  else
+  {
+    // If we're not setting the following through the createInfo struct, they must instead
+    // come from command buffer commands.
+    mDynamicStates.emplace_back(vk::DynamicState::eDepthTestEnable);
+    mDynamicStates.emplace_back(vk::DynamicState::eDepthWriteEnable);
+    mDynamicStates.emplace_back(vk::DynamicState::eDepthCompareOp);
+    mDynamicStates.emplace_back(vk::DynamicState::eDepthBounds);
+    mDynamicStates.emplace_back(vk::DynamicState::eDepthBoundsTestEnable);
+    mDynamicStates.emplace_back(vk::DynamicState::eStencilTestEnable);
+    mDynamicStates.emplace_back(vk::DynamicState::eStencilOp);
+    mDynamicStates.emplace_back(vk::DynamicState::eStencilCompareMask);
+    mDynamicStates.emplace_back(vk::DynamicState::eStencilWriteMask);
+    mDynamicStates.emplace_back(vk::DynamicState::eStencilReference);
+  }
   return false;
 }
 
@@ -580,7 +599,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 {
   auto in = mCreateInfo.colorBlendState;
 
-  auto ConvLogicOp = [](LogicOp in) {
+  auto ConvLogicOp = [](LogicOp in)
+  {
     switch(in)
     {
       case LogicOp::CLEAR:
@@ -651,7 +671,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::LogicOp{};
   };
 
-  auto ConvBlendOp = [](BlendOp in) {
+  auto ConvBlendOp = [](BlendOp in)
+  {
     switch(in)
     {
       case BlendOp::ADD:
@@ -738,7 +759,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::BlendOp{};
   };
 
-  auto ConvBlendFactor = [](BlendFactor in) {
+  auto ConvBlendFactor = [](BlendFactor in)
+  {
     switch(in)
     {
       case BlendFactor::ZERO:
@@ -831,7 +853,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 
   att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
   att.setBlendEnable(in->blendEnable);
-  //att.setColorWriteMask()
+  // att.setColorWriteMask()
   att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
   att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
   att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
