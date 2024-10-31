@@ -204,8 +204,11 @@ void ProgramImpl::Preprocess()
     parseInfo.fragmentShaderCode          = &fragmentString;
     parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
     parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
-    parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL3; // We default to GLSL3
-    parseInfo.outputVersion               = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
+
+    // set up language dialect for parsed shader
+    auto glslVersion        = mImpl->controller.GetGraphicsInterface()->GetShaderLanguageVersion();
+    parseInfo.language      = Internal::ShaderParser::OutputLanguage(glslVersion); // We default to GLSL3
+    parseInfo.outputVersion = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
 
     std::vector<std::string> newShaders;
 

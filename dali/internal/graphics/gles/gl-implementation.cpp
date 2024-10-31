@@ -137,6 +137,59 @@ void GlImplementation::ContextCreated()
         mShadingLanguageVersion *= 100;
         std::getline(shadingLanguageVersionStream, token, '.');
         mShadingLanguageVersion += std::atoi(token.c_str());
+
+        // For glsl 3+ we will compile dummy shader to make sure this is
+        // the highest supported version. Spec doesn't guarantee that
+        // GL_SHADING_LANGUAGE_VERSION will return expected version.
+        if(mShadingLanguageVersion > 300)
+        {
+          // try to compile simple shader to see if returned value is valid
+          // for the platform.
+          auto        vertexShader   = glCreateShader(GL_VERTEX_SHADER);
+          auto        fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+          std::string version        = "#version " + std::to_string(mShadingLanguageVersion) + " es\n";
+
+          std::string vertexShaderCode   = version + "\nvoid main() { gl_Position.xyz = vec3(0,0,0); }\n";
+          std::string fragmentShaderCode = version + "\nout highp vec4 fragColor;\nvoid main() { fragColor = vec4(0,0,0,1); }\n";
+
+          const auto vshData = vertexShaderCode.data();
+          auto       size    = GLint(vertexShaderCode.size());
+          glShaderSource(vertexShader, 1, &vshData, &size);
+
+          size               = GLint(fragmentShaderCode.size());
+          const auto fshData = fragmentShaderCode.data();
+          glShaderSource(fragmentShader, 1, &fshData, &size);
+
+          glCompileShader(vertexShader);
+          glCompileShader(fragmentShader);
+
+          // check for errors
+          GLint status{0};
+          int   stage = 0; // 0 - vertex shader, 1 - fragment shader, for error reporting
+          glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+          if(status == GL_TRUE)
+          {
+            stage = 1;
+            glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+          }
+          if(status != GL_TRUE)
+          {
+            DALI_LOG_ERROR("Graphics backend can't compile shader with GLSL version %d\n", int(mShadingLanguageVersion));
+            DALI_LOG_ERROR("Using GLSL 300 ES as a fallback\n");
+            auto    shaderModule = stage == 0 ? vertexShader : fragmentShader;
+            char    msg[4096];
+            GLsizei msgSize;
+            glGetShaderInfoLog(shaderModule, 4096, &msgSize, msg);
+            msg[msgSize] = 0;
+            DALI_LOG_ERROR(msg);
+            mShadingLanguageVersion = 300; // fallback to the minimum GLES3 version;
+          }
+          glDeleteShader(vertexShader);
+          glDeleteShader(fragmentShader);
+
+          // clear GL error flags so it won't mess with further calls
+          glGetError();
+        }
         break;
       }
       tokenCount++;

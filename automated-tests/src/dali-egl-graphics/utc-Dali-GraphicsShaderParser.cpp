@@ -65,7 +65,7 @@ int UtcParseGLES2Shader(void)
   parseInfo.fragmentShaderCode          = &fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
-  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL2; // We default to GLSL3
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
   parseInfo.outputVersion               = 0;
 
   Parse(parseInfo, outStrings);
@@ -97,7 +97,7 @@ int UtcParseGLES2ShaderWithOutput(void)
   parseInfo.fragmentShaderCode          = &fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
-  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL2; // We default to GLSL3
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
   parseInfo.outputVersion               = 0;
   Parse(parseInfo, outStrings);
 
@@ -129,7 +129,7 @@ int UtcParseGLES3Shader(void)
   parseInfo.fragmentShaderCode          = &fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
-  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL3;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
   parseInfo.outputVersion               = 0;
   Parse(parseInfo, outStrings);
   auto& outVertexShader   = outStrings[0];
@@ -160,7 +160,7 @@ int UtcParseGLES3ShaderWithOutput(void)
   parseInfo.fragmentShaderCode          = &fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
-  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL3;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
   parseInfo.outputVersion               = 0;
   Parse(parseInfo, outStrings);
 
@@ -307,6 +307,50 @@ int UtcParseSPIRVShaderDuplicateUBO(void)
   {
     bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/ubo-reused.frag.glsl-spirv", outFragmentShader);
     DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcParseShaderGLSLEnumValues(void)
+{
+  tet_infoline("UtcParseGLES3Shader - Tests parser output for generating GLES3");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.outputVersion               = 0;
+
+  std::vector<Internal::ShaderParser::OutputLanguage> values =
+    {
+      Internal::ShaderParser::OutputLanguage::GLSL_100_ES,
+      Internal::ShaderParser::OutputLanguage::GLSL_300_ES,
+      Internal::ShaderParser::OutputLanguage::GLSL_310_ES,
+      Internal::ShaderParser::OutputLanguage::GLSL_320_ES};
+  std::vector<std::string> expectedOutput = {
+    "#version 100\n",
+    "#version 300 es\n",
+    "#version 310 es\n",
+    "#version 320 es\n"};
+  int i = 0;
+  for(auto& v : values)
+  {
+    parseInfo.language = v;
+    Parse(parseInfo, outStrings);
+    auto& outVertexShader   = outStrings[0];
+    auto& outFragmentShader = outStrings[1];
+
+    auto vshResult = expectedOutput[i].compare(0, expectedOutput[i].length(), outVertexShader, 0, expectedOutput[i].length());
+    auto fshResult = expectedOutput[i].compare(0, expectedOutput[i].length(), outFragmentShader, 0, expectedOutput[i].length());
+    DALI_TEST_EQUALS(vshResult, 0, TEST_LOCATION);
+    DALI_TEST_EQUALS(fshResult, 0, TEST_LOCATION);
+    ++i;
   }
   END_TEST;
 }

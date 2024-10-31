@@ -166,13 +166,13 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
         outString += ss.str();
         return true;
       }
-      else if(lang == OutputLanguage::GLSL3)
+      else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
         ss << "in" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
-      else if(lang == OutputLanguage::GLSL2)
+      else if(lang == OutputLanguage::GLSL_100_ES)
       {
         if(stage == ShaderStage::VERTEX)
         {
@@ -227,7 +227,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         }
         return true;
       }
-      else if(lang == OutputLanguage::GLSL3)
+      else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
         std::stringstream ss;
         ss << "out"
@@ -235,7 +235,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         outString += ss.str();
         return true;
       }
-      else if(lang == OutputLanguage::GLSL2)
+      else if(lang == OutputLanguage::GLSL_100_ES)
       {
         std::stringstream ss;
         if(stage == ShaderStage::VERTEX)
@@ -271,7 +271,8 @@ bool ProcessTokenUNIFORM(IT& it, Program& program, OutputLanguage lang, ShaderSt
       std::string&      outStr  = (stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output;
       std::stringstream ss;
       {
-        if(lang == OutputLanguage::GLSL2 || lang == OutputLanguage::GLSL3)
+        if(lang == OutputLanguage::GLSL_100_ES ||
+           (lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX))
         {
           ss << "uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
           outStr += ss.str();
@@ -335,7 +336,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
         }
         gles3plus = true;
       }
-      else if(lang == OutputLanguage::GLSL3)
+      else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
         ss << "layout(std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
         gles3plus = true;
@@ -359,7 +360,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
         }
         ss << "};\n";
       }
-      else if(lang == OutputLanguage::GLSL2)
+      else if(lang == OutputLanguage::GLSL_100_ES)
       {
         while(l.line.find('{') == std::string::npos)
         {
@@ -429,7 +430,7 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
   if(stage == ShaderStage::FRAGMENT &&
      program.fragmentShader.customOutputLineIndex < 0 &&
      program.fragmentShader.mainLine >= 0 &&
-     language != OutputLanguage::GLSL2)
+     language != OutputLanguage::GLSL_100_ES)
   {
     // Push tokenized extra line into the code that defines the output
     // we add output as _glFragColor and define
@@ -448,7 +449,7 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
       // For textures we will bring macros compatible with
       // GLES2 however, to turn GLES3 specific code back into GLES2
       // the more complex analysis is needed (turn texture() into texture2D, etc.)
-      if(language == OutputLanguage::GLSL2)
+      if(language == OutputLanguage::GLSL_100_ES)
       {
         outString += "#define TEXTURE texture2D\n";
         outString += "#define TEXTURE_CUBE textureCube\n";
@@ -537,12 +538,14 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     // Both shaders need processing and linking
     // Assign the shader version. Since both stages are being converted
     // the version can be assumed.
-    if(parseInfo.language == OutputLanguage::GLSL3)
+    if(parseInfo.language >= OutputLanguage::GLSL_3 &&
+       parseInfo.language < OutputLanguage::GLSL_3_MAX)
     {
-      program.vertexShader.output += "#version 320 es\n";
-      program.fragmentShader.output += "#version 320 es\n";
+      std::string version("#version " + std::to_string(int(parseInfo.language)) + " es\n");
+      program.vertexShader.output += version;
+      program.fragmentShader.output += version;
     }
-    else if(parseInfo.language == OutputLanguage::GLSL2)
+    else if(parseInfo.language == OutputLanguage::GLSL_100_ES)
     {
       program.vertexShader.output += "#version 100\n";
       program.fragmentShader.output += "#version 100\n";
@@ -581,11 +584,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       {
         if(parseInfo.outputVersion < 200)
         {
-          language = OutputLanguage::GLSL2;
+          language = OutputLanguage::GLSL_100_ES;
         }
         else
         {
-          language = OutputLanguage::GLSL3;
+          language = OutputLanguage(parseInfo.outputVersion);
         }
       }
       ProcessStage(program, ShaderStage::VERTEX, language);
@@ -604,11 +607,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       {
         if(parseInfo.outputVersion < 200)
         {
-          language = OutputLanguage::GLSL2;
+          language = OutputLanguage::GLSL_100_ES;
         }
         else
         {
-          language = OutputLanguage::GLSL3;
+          language = OutputLanguage(parseInfo.outputVersion);
         }
       }
 
