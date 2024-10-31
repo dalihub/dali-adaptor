@@ -219,7 +219,7 @@ public:
   /**
    * @brief The callback to be called when the web engine received a user media permission reqeust from user application.
    */
-  using WebEngineUserMediaPermissionRequestCallback = std::function<void(Dali::WebEngineUserMediaPermissionRequest*, const std::string&)>;
+  using WebEngineUserMediaPermissionRequestCallback = std::function<void(std::unique_ptr<Dali::WebEngineUserMediaPermissionRequest>, const std::string&)>;
 
   /**
    * @brief Enumeration for the scroll edge.
