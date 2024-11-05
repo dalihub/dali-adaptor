@@ -129,3 +129,49 @@ To build, run:
 ```zsh
 % make install -j8
 ```
+
+## Apendix : How to build thorvg for Ubuntu
+
+### Environment setup
+- Need environment created using dali_env script in dali-core repository
+- Also need to prepare meson & ninja for build thorvg
+
+```sh
+sudo apt-get install meson ninja-build
+```
+
+### Dali
+- Install Dali libraries with reference to dali-core/README.md
+    - https://review.tizen.org/gerrit/#/admin/projects/platform/core/uifw/dali-core
+
+### thorvg
+- Checkout thorvg codes.
+- For now, we only support 0.8.0 version
+```sh
+git clone https://github.com/thorvg/thorvg.git
+cd thorvg
+git checkout v0.8.0
+```
+#### thorvg Build & Install for dali
+- Build as debug with optimized level 2 (default)
+```sh
+meson setup builddir --prefix $DESKTOP_PREFIX --libdir $DESKTOP_PREFIX/lib
+```
+- Build as release with optimized level s (same option as Tizen platform)
+```sh
+meson setup builddir --buildtype custom --optimization s --prefix $DESKTOP_PREFIX --libdir $DESKTOP_PREFIX/lib
+```
+- Install
+```sh
+ninja -C builddir install
+```
+
+
+#### thorvg Install check
+- See `$DESKTOP_PREFIX/lib` has `libthorvg.so` file
+- Check `-- ThorVG version` result at build summary.
+  - `0.8.x` shown if you build thorvg well.
+  - `1.x.x` shown if you build thorvg at main branch.
+  - `OFF` shown if you don't support thorvg.
+
+
