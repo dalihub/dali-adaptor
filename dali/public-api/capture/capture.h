@@ -21,6 +21,7 @@
 // EXTERNAL HEADERS
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
+#include <dali/public-api/rendering/texture.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
@@ -272,6 +273,13 @@ public:
    * @return NativeImageSourcePtr Captured result that can be rendered with DALi
    */
   Dali::NativeImageSourcePtr GetNativeImageSource() const;
+
+  /**
+   * @brief Get Texture of captured image.
+   *
+   * @return Texture Captured result
+   */
+  Dali::Texture GetTexture() const;
 
   /**
    * @brief Get finished signal.
