@@ -202,8 +202,7 @@ public:
   void Resize(ImageDimensions outDimensions);
 
   /**
-   * Multiplies the image's color values by the alpha value. This provides better
-   * blending capability.
+   * @copydoc Devel::PixelBuffer::MultiplyColorByAlpha()
    */
   void MultiplyColorByAlpha();
 
@@ -303,14 +302,16 @@ private:
   static PixelBufferPtr NewResize(const PixelBuffer& inBuffer, ImageDimensions outDimensions);
 
 private:
-  std::unique_ptr<Property::Map> mMetadata;      ///< Metadata fields
-  uint8_t*                       mBuffer;        ///< The raw pixel data
-  uint32_t                       mBufferSize;    ///< Buffer sized in bytes
-  uint32_t                       mWidth;         ///< Buffer width in pixels
-  uint32_t                       mHeight;        ///< Buffer height in pixels
-  uint32_t                       mStride;        ///< Buffer stride in bytes, 0 means the buffer is tightly packed
-  Pixel::Format                  mPixelFormat;   ///< Pixel format
-  bool                           mPreMultiplied; ///< PreMultiplied
+  std::unique_ptr<Property::Map> mMetadata; ///< Metadata fields
+
+  uint8_t*      mBuffer;      ///< The raw pixel data
+  uint32_t      mBufferSize;  ///< Buffer sized in bytes
+  uint32_t      mWidth;       ///< Buffer width in pixels
+  uint32_t      mHeight;      ///< Buffer height in pixels
+  uint32_t      mStride;      ///< Buffer stride in bytes, 0 means the buffer is tightly packed
+  Pixel::Format mPixelFormat; ///< Pixel format
+
+  bool mPreMultiplied : 1; ///< PreMultiplied
 
 #if defined(DEBUG_ENABLED)
   static uint32_t gPixelBufferAllocationTotal;

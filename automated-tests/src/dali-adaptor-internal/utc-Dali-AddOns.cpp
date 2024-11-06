@@ -39,6 +39,7 @@ struct TestAddOn : public Dali::AddOn::AddOnBinder
   }
 
   ADDON_BIND_FUNCTION(GetLifecycleStatus, bool());
+  ADDON_BIND_FUNCTION(FakeFunction, void()); // Function doesn't exist - for a negative test
 };
 
 int UtcDaliTestAddOnInterface(void)
@@ -66,6 +67,20 @@ int UtcDaliTestAddOnInterface(void)
   addOnManager->Resume();
   auto result2 = addon.GetLifecycleStatus();
   DALI_TEST_EQUALS(result2, false, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliTestAddOnInterfaceN(void)
+{
+  TestApplication application;
+  // Create AddOnManager using internal factory
+  auto addOnManager = CreateAddOnManager();
+
+  TestAddOn addon;
+
+  DALI_TEST_EQUALS(addon.IsValid(), true, TEST_LOCATION);
+  DALI_TEST_CHECK(addon.FakeFunction == nullptr); // Function should not exist
 
   END_TEST;
 }
