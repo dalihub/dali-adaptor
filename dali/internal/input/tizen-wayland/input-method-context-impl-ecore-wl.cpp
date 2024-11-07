@@ -647,9 +647,10 @@ void InputMethodContextEcoreWl::PreEditChanged(void*, ImfContext* imfContext, vo
 
   if(Dali::Adaptor::IsAvailable())
   {
-    Dali::InputMethodContext               handle(this);
-    Dali::InputMethodContext::EventData    eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext            handle(this);
+    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
+    mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
@@ -675,9 +676,10 @@ void InputMethodContextEcoreWl::CommitReceived(void*, ImfContext* imfContext, vo
   {
     const std::string keyString(static_cast<char*>(eventInfo));
 
-    Dali::InputMethodContext               handle(this);
-    Dali::InputMethodContext::EventData    eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext            handle(this);
+    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+    mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
@@ -698,9 +700,10 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData    imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext               handle(this);
-  Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, imfData);
+  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
+  Dali::InputMethodContext            handle(this);
+  mEventSignal.Emit(handle, imfData);
+  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {
@@ -759,6 +762,7 @@ void InputMethodContextEcoreWl::DeleteSurrounding(void* data, ImfContext* imfCon
     Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
     Dali::InputMethodContext            handle(this);
     mEventSignal.Emit(handle, imfData);
+    mKeyboardEventSignal.Emit(handle, imfData);
   }
 }
 
@@ -776,6 +780,7 @@ void InputMethodContextEcoreWl::SendPrivateCommand(void* data, ImfContext* imfCo
     Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
     Dali::InputMethodContext            handle(this);
     mEventSignal.Emit(handle, imfData);
+    mKeyboardEventSignal.Emit(handle, imfData);
   }
 }
 
@@ -813,6 +818,7 @@ void InputMethodContextEcoreWl::SendSelectionSet(void* data, ImfContext* imfCont
       Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection->start, selection->end);
       Dali::InputMethodContext            handle(this);
       mEventSignal.Emit(handle, imfData);
+      mKeyboardEventSignal.Emit(handle, imfData);
     }
   }
 }

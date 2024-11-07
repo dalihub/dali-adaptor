@@ -140,9 +140,10 @@ void InputMethodContextCocoa::CommitReceived(void*, ImfContext* imfContext, void
   {
     const std::string keyString(static_cast<char*>(eventInfo));
 
-    Dali::InputMethodContext               handle(this);
-    Dali::InputMethodContext::EventData    eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext            handle(this);
+    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+    mEventSignal.Emit(handle, eventData);
+    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
@@ -162,9 +163,10 @@ bool InputMethodContextCocoa::RetrieveSurrounding(void* data, ImfContext* imfCon
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData    imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext               handle(this);
-  Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, imfData);
+  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
+  Dali::InputMethodContext            handle(this);
+  mEventSignal.Emit(handle, imfData);
+  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {

@@ -241,6 +241,11 @@ InputMethodContext::KeyboardEventSignalType& InputMethodContext::EventReceivedSi
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).EventReceivedSignal();
 }
 
+InputMethodContext::KeyboardEventSignalType& InputMethodContext::KeyboardEventReceivedSignal()
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).KeyboardEventReceivedSignal();
+}
+
 InputMethodContext::StatusSignalType& InputMethodContext::StatusChangedSignal()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).StatusChangedSignal();
