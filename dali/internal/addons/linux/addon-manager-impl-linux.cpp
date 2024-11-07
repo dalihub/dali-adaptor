@@ -128,6 +128,7 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
         else
         {
           DALI_LOG_ERROR("Can't find any addon in %s library\n", fullPath.c_str());
+          dlclose(handle);
         }
       }
       else
@@ -254,6 +255,7 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
       if(!addOnLibrary)
       {
         DALI_LOG_ERROR("Can't find %s addon in %s library\n", addonName.c_str(), libraryName.c_str());
+        dlclose(handle);
       }
     }
     else
