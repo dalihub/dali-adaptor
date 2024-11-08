@@ -1,0 +1,46 @@
+//@legacy-prefix-end 00368
+#version 320 es
+#define INPUT in
+#define FLAT flat
+#define OUT_COLOR fragColor
+#define TEXTURE texture
+#ifdef GL_KHR_blend_equation_advanced
+#extension GL_KHR_blend_equation_advanced : enable
+#endif
+#if defined(GL_KHR_blend_equation_advanced) || __VERSION__>=320
+  layout(blend_support_all_equations) out;
+#endif
+out mediump vec4 fragColor;
+@version 100
+#extension GL_OES_EGL_image_external:require
+
+UNIFORM_BLOCK SharedBlock0
+{
+  UNIFORM highp vec4 uOther;
+};
+
+UNIFORM_BLOCK FragBlock
+{
+  UNIFORM lowp vec4 uColor;
+};
+
+INPUT mediump vec2 vTexCoord;
+UNIFORM SamplerExternalOES sTexture;
+UNIFORM samplerCube sTextureCube;
+
+UNIFORM_BLOCK SharedBlock1
+{
+  UNIFORM highp vec4 uColor;
+};
+
+void main()
+{
+
+  // Using GLSL100 semantics
+  vec4 skyboxColor = textureCube(sTextureCube, vec3(0,0,0));
+
+  // Using modern semantics
+  vec4 skyboxColor2 = TEXTURE_CUBE(sTextureCube, vec3(0,0,0));
+
+  gl_FragColor = TEXTURE(sTexture, vTexCoord) * uColor;
+}
