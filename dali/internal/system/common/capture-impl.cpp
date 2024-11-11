@@ -372,30 +372,38 @@ void Capture::OnRenderFinished(Dali::RenderTask& task)
     }
   }
 
+  mInCapture = false;
+
   Dali::Capture handle(this);
   mFinishedSignal.Emit(handle, state);
 
-  UnsetResources();
+  // Don't unset resources when capture re-start during finished signal.
+  if(!mInCapture)
+  {
+    UnsetResources();
+  }
 
   // Decrease the reference count forcely. It is increased at Start().
   Unreference();
-
-  mInCapture = false;
 }
 
 bool Capture::OnTimeOut()
 {
   Dali::Capture::FinishState state = Dali::Capture::FinishState::FAILED;
 
+  mInCapture = false;
+
   Dali::Capture handle(this);
   mFinishedSignal.Emit(handle, state);
 
-  UnsetResources();
+  // Don't unset resources when capture re-start during finished signal.
+  if(!mInCapture)
+  {
+    UnsetResources();
+  }
 
   // Decrease the reference count forcely. It is increased at Start().
   Unreference();
-
-  mInCapture = false;
 
   return false;
 }

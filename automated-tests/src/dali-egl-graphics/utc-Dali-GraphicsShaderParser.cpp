@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include <dali/dali.h>
-
 #include <dali-test-suite-utils.h>
 #include <dali/internal/graphics/common/shader-parser.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
 #include <fstream>
+#include "../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.h"
 
 #ifndef TEST_RESOURCE_DIR
 #define TEST_RESOURCE_DIR ""
@@ -32,6 +32,12 @@ static std::string LoadTextFile(std::string filename)
   std::string   str((std::istreambuf_iterator<char>(t)),
                   std::istreambuf_iterator<char>());
   return str;
+}
+
+[[maybe_unused]] static void SaveTextFile(std::string filename, std::string content)
+{
+  std::ofstream outf(TEST_RESOURCE_DIR + filename);
+  outf << content;
 }
 
 static bool CompareFileWithString(std::string file1, std::string stringToCompare)
@@ -351,6 +357,157 @@ int UtcParseShaderGLSLEnumValues(void)
     DALI_TEST_EQUALS(vshResult, 0, TEST_LOCATION);
     DALI_TEST_EQUALS(fshResult, 0, TEST_LOCATION);
     ++i;
+  }
+  END_TEST;
+}
+
+namespace
+{
+/**
+ * Helper implementation that allows spoofing GLSL version
+ * and test applying native shader output code
+ */
+struct GlImplWithGLSLVersion : public Dali::TestGlAbstraction
+{
+  explicit GlImplWithGLSLVersion(uint32_t glslVersion)
+  {
+    mGlslVersion = glslVersion;
+  }
+
+  uint32_t GetShaderLanguageVersion() override
+  {
+    return mGlslVersion;
+  }
+
+  uint32_t mGlslVersion = 0;
+};
+} // namespace
+
+int UtcApplyNativeFragmentShader(void)
+{
+  tet_infoline("UtcApplyNativeFragmentShader - Tests applying native image fragment shader for modern shader");
+
+  // The parser function has been made static so it can be tested without
+  // instantiating real GlAbstraction object and with spoofing the GLSL
+  // version.
+
+  // need vertex source for parsing
+  std::string vertexSource = LoadTextFile(TEST_RESOURCE_DIR "/shaders/native-image-test.vert");
+
+  using RealGlImpl = Dali::Internal::Adaptor::GlImplementation;
+  {
+    GlImplWithGLSLVersion glsl100(100);
+
+    std::string source = LoadTextFile(TEST_RESOURCE_DIR "/shaders/native-image-test.frag");
+
+    // Test GLSL100
+    [[maybe_unused]] auto result = RealGlImpl::ApplyNativeFragmentShader(glsl100, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/native-image-test.frag.100", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+  }
+  {
+    GlImplWithGLSLVersion glsl300(300);
+
+    std::string source = LoadTextFile(TEST_RESOURCE_DIR "/shaders/native-image-test.frag");
+
+    // Test GLSL100
+    [[maybe_unused]] auto result = RealGlImpl::ApplyNativeFragmentShader(glsl300, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/native-image-test.frag.300", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+  }
+
+  // Add legacy prefix (using GLSL320 in prefix) and GLSL100 (forcing old extension)
+  {
+    std::string fragPrefix = LoadTextFile(TEST_RESOURCE_DIR "/shaders/legacy-prefix.frag");
+
+    GlImplWithGLSLVersion glsl100(100);
+
+    std::string shaderSource = LoadTextFile(TEST_RESOURCE_DIR "/shaders/native-image-test.frag");
+    auto        source       = fragPrefix + shaderSource;
+    // Test GLSL100
+    [[maybe_unused]] auto result = RealGlImpl::ApplyNativeFragmentShader(glsl100, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/native-image-test.frag.100.modern", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+
+    // parse the output with legacy vertex shader
+    std::vector<std::string>                 outStrings;
+    Internal::ShaderParser::ShaderParserInfo parseInfo{};
+    parseInfo.vertexShaderCode            = &vertexSource;
+    parseInfo.fragmentShaderCode          = &source;
+    parseInfo.vertexShaderLegacyVersion   = 0;
+    parseInfo.fragmentShaderLegacyVersion = 0;
+    parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
+    parseInfo.outputVersion               = 0;
+
+    Parse(parseInfo, outStrings);
+    auto& outFragmentShader = outStrings[1];
+    {
+      // the output file will contain two #version, one will be removed
+      // by discarding legacy prefix by the real backend. this is correct
+      // output at this point!
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/native-image-test.frag.100.processed", outFragmentShader);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+  }
+
+  END_TEST;
+}
+
+int UtcApplyNativeFragmentShaderToCustomOrLegacy(void)
+{
+  tet_infoline("UtcApplyNativeFragmentShaderToCustomOrLegacy - Tests applying native image fragment shader to custom/legacy shader");
+
+  // The parser function has been made static so it can be tested without
+  // instantiating real GlAbstraction object and with spoofing the GLSL
+  // version.
+
+  using RealGlImpl = Dali::Internal::Adaptor::GlImplementation;
+  {
+    // If no version in the legacy source, it will return to 100 despite
+    // spoofing 300
+    GlImplWithGLSLVersion glsl300(300);
+
+    std::string source = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-legacy.frag");
+
+    auto result = RealGlImpl::ApplyNativeFragmentShader(glsl300, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-legacy.frag.native", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+  }
+  {
+    GlImplWithGLSLVersion glsl100(100);
+
+    std::string source = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-100.frag");
+
+    auto result = RealGlImpl::ApplyNativeFragmentShader(glsl100, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-100.frag.native", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
+  }
+  {
+    GlImplWithGLSLVersion glsl300(300);
+
+    std::string source = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-300.frag");
+
+    auto result = RealGlImpl::ApplyNativeFragmentShader(glsl300, source, "SamplerExternalOES");
+    DALI_TEST_EQUALS(result, true, TEST_LOCATION);
+    {
+      bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-300.frag.native", source);
+      DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+    }
   }
   END_TEST;
 }

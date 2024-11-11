@@ -237,17 +237,18 @@ std::string GlImplementation::GetFragmentShaderPrefix()
   return mFragmentShaderPrefix;
 }
 
-bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
+bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType)
 {
+  // Identify if it's a modern shader. Modern shader will dynamically apply GLSL version
+  bool        hasGLSLVersionString = true;
+  std::string extensionString;
   bool        modified        = false;
-  std::string versionString   = "#version";
-  size_t      versionPosition = shader.find(versionString);
+  size_t      versionPosition = shader.find("@version");
   if(versionPosition != std::string::npos)
   {
-    std::string extensionString;
-    size_t      shadingLanguageVersionPosition = shader.find_first_not_of(" \t", versionPosition + versionString.length());
-    if(shadingLanguageVersionPosition != std::string::npos &&
-       shader.substr(shadingLanguageVersionPosition, 3) == LEGACY_SHADING_LANGUAGE_VERSION)
+    // we have a new shader, pull GLSL version
+    auto glslVersion = impl.GetShaderLanguageVersion();
+    if(glslVersion < 300) // old GLES2
     {
       extensionString = OES_EGL_IMAGE_EXTERNAL_STRING;
     }
@@ -255,21 +256,46 @@ bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char
     {
       extensionString = OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3;
     }
-
-    if(shader.find(extensionString) == std::string::npos)
-    {
-      modified                 = true;
-      size_t extensionPosition = shader.find_first_of("\n", versionPosition) + 1;
-      shader.insert(extensionPosition, extensionString);
-    }
   }
   else
   {
-    if(shader.find(OES_EGL_IMAGE_EXTERNAL_STRING) == std::string::npos)
+    // If the shader isn't modern, we look for 'classic' #version and
+    // based on that we assign extension requirement
+    std::string versionString = "#version";
+    versionPosition           = shader.find(versionString);
+    if(versionPosition != std::string::npos)
     {
-      modified = true;
-      shader   = OES_EGL_IMAGE_EXTERNAL_STRING + shader;
+      size_t shadingLanguageVersionPosition = shader.find_first_not_of(" \t", versionPosition + versionString.length());
+      if(shadingLanguageVersionPosition != std::string::npos &&
+         shader.substr(shadingLanguageVersionPosition, 3) == LEGACY_SHADING_LANGUAGE_VERSION)
+      {
+        extensionString = OES_EGL_IMAGE_EXTERNAL_STRING;
+      }
+      else
+      {
+        extensionString = OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3;
+      }
     }
+    else
+    // If version isn't supplied we assume GLES2 shader (as this is the only
+    // dialect allowing source without #version
+    {
+      extensionString      = OES_EGL_IMAGE_EXTERNAL_STRING;
+      versionPosition      = 0;
+      hasGLSLVersionString = false;
+    }
+  }
+
+  // insert extension string if not there yet
+  if(!extensionString.empty() && shader.find(extensionString) == std::string::npos)
+  {
+    modified                 = true;
+    size_t extensionPosition = 0;
+    if(hasGLSLVersionString)
+    {
+      extensionPosition = shader.find_first_of("\n", versionPosition) + 1;
+    }
+    shader.insert(extensionPosition, extensionString);
   }
 
   if(shader.find(customSamplerType) == std::string::npos)
@@ -283,6 +309,11 @@ bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char
   }
 
   return modified;
+}
+
+bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
+{
+  return ApplyNativeFragmentShader(*this, shader, customSamplerType);
 }
 
 } // namespace Adaptor

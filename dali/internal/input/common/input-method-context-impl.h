@@ -400,6 +400,14 @@ public: // Signals
   }
 
   /**
+   * @copydoc Dali::InputMethodContext::KeyboardEventReceivedSignal()
+   */
+  KeyboardEventSignalType& KeyboardEventReceivedSignal()
+  {
+    return mKeyboardEventSignal;
+  }
+
+  /**
    * @copydoc Dali::InputMethodContext::StatusChangedSignal()
    */
   StatusSignalType& StatusChangedSignal()
@@ -485,6 +493,7 @@ protected:
 protected:
   ActivatedSignalType       mActivatedSignal;
   KeyboardEventSignalType   mEventSignal;
+  KeyboardEventSignalType   mKeyboardEventSignal;
   StatusSignalType          mKeyboardStatusSignal;
   KeyboardResizedSignalType mKeyboardResizeSignal;
   LanguageChangedSignalType mKeyboardLanguageChangedSignal;

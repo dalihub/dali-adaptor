@@ -1606,6 +1606,11 @@ public:
     }
   }
 
+  /**
+   * This function is static to make it easier testable
+   */
+  static bool ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType);
+
 private:
   std::unique_ptr<GlesAbstraction> mImpl;
 
