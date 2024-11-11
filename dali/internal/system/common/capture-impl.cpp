@@ -160,11 +160,6 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
   return mNativeImageSourcePtr;
 }
 
-Dali::Texture Capture::GetTexture() const
-{
-  return mTexture;
-}
-
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
@@ -394,7 +389,6 @@ bool Capture::SaveFile()
   {
     return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
   }
-
   return false;
 }
 
