@@ -122,18 +122,18 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @see GetDefaultLabel
    *
-   * @param[in] object The accessible object
+   * @param[in] actor The actor to set a default label
    */
-  virtual void RegisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
+  virtual void RegisterDefaultLabel(Dali::Actor actor) = 0;
 
   /**
    * @brief Removes object from the stack of "default label" sourcing objects.
    *
    * @see GetDefaultLabel
    *
-   * @param[in] object The accessible object
+   * @param[in] actor The actor to unset a default label
    */
-  virtual void UnregisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
+  virtual void UnregisterDefaultLabel(Dali::Actor actor) = 0;
 
   /**
    * @brief Gets the top-most object from the stack of "default label" sourcing objects.

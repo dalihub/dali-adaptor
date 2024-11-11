@@ -46,11 +46,11 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void RegisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
+  void RegisterDefaultLabel(Dali::Actor actor) override
   {
   }
 
-  void UnregisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
+  void UnregisterDefaultLabel(Dali::Actor actor) override
   {
   }
 
