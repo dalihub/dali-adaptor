@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,11 @@ public:
    * @copydoc Dali::Accessibility::Accessible::GetRoleName()
    */
   DBus::ValueOrError<std::string> GetRoleName();
+
+  /**
+   * @copydoc Dali::Accessibility::Accessible::DumpTree()
+   */
+  DBus::ValueOrError<std::string> DumpTree(Dali::Accessibility::Accessible::DumpDetailLevel detailLevel);
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetLocalizedRoleName()

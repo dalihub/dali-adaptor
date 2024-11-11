@@ -41,6 +41,11 @@ Accessibility::Address Accessibility::Accessible::GetAddress() const
   return {};
 }
 
+std::string Accessibility::Accessible::DumpTree(Accessibility::Accessible::DumpDetailLevel detailLevel)
+{
+  return {};
+}
+
 std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridgeData() const
 {
   return {};

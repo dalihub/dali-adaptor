@@ -269,6 +269,20 @@ public:
     return mSuppressedEvents;
   }
 
+  enum class DumpDetailLevel
+  {
+    DUMP_SHORT              = 0,
+    DUMP_SHORT_SHOWING_ONLY = 1,
+    DUMP_FULL               = 2,
+    DUMP_FULL_SHOWING_ONLY  = 3,
+  };
+
+  /**
+   * @brief Dumps tree structure of accessible objects starting from self.
+   * @param [in] detailLevel Detail level of dumped json output.
+   */
+  std::string DumpTree(DumpDetailLevel detailLevel);
+
 protected:
   Accessible();
   Accessible(const Accessible&)         = delete;
