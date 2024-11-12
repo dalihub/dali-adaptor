@@ -511,3 +511,36 @@ int UtcApplyNativeFragmentShaderToCustomOrLegacy(void)
   }
   END_TEST;
 }
+
+int UtcParserInfoPrefixTest(void)
+{
+  tet_infoline("UtcParserInfoPrefixTest - tests applying prefixes");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
+  parseInfo.outputVersion               = 0;
+  parseInfo.vertexShaderPrefix          = "// Vertex Shader prefix\n";
+  parseInfo.fragmentShaderPrefix        = "// Fragment Shader prefix\n";
+  Parse(parseInfo, outStrings);
+
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view.vert.prefix", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view.frag.prefix", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}

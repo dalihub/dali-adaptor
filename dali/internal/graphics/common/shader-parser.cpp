@@ -544,11 +544,17 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string version("#version " + std::to_string(int(parseInfo.language)) + " es\n");
       program.vertexShader.output += version;
       program.fragmentShader.output += version;
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
     }
     else if(parseInfo.language == OutputLanguage::GLSL_100_ES)
     {
       program.vertexShader.output += "#version 100\n";
       program.fragmentShader.output += "#version 100\n";
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
 
       // redefine 'flat' qualifier
       program.vertexShader.output += "#define flat\n";
@@ -558,6 +564,9 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     {
       program.vertexShader.output += "#version 430\n";
       program.fragmentShader.output += "#version 430\n";
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
     }
 
     // link inputs and outputs between vertex and fragment shader
