@@ -23,18 +23,25 @@ namespace Dali::Internal::ShaderParser
 {
 CodeLine TokenizeLine(std::string line)
 {
-  std::regex word_regex("(\\w+)");
-  auto       words_begin =
-    std::sregex_iterator(line.begin(), line.end(), word_regex);
-  auto words_end = std::sregex_iterator();
+  const auto commentDelimiter = std::regex("//");
+  const auto word_regex       = std::regex("(\\w+)");
 
   CodeLine lineOfCode;
-  lineOfCode.line = line;
-
-  for(auto it = words_begin; it != words_end; ++it)
+  if(!line.empty())
   {
-    const std::smatch& match = *it;
-    lineOfCode.tokens.emplace_back(match.position(), match.length());
+    std::vector<std::string> strs{std::sregex_token_iterator(line.begin(), line.end(), commentDelimiter, -1),
+                                  std::sregex_token_iterator()};
+
+    auto words_begin = std::sregex_iterator(strs[0].begin(), strs[0].end(), word_regex);
+    auto words_end   = std::sregex_iterator();
+
+    lineOfCode.line = line;
+
+    for(auto it = words_begin; it != words_end; ++it)
+    {
+      const std::smatch& match = *it;
+      lineOfCode.tokens.emplace_back(match.position(), match.length());
+    }
   }
   return lineOfCode;
 }
@@ -309,7 +316,8 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
     bool blockReused  = false;
     if(!program.uniformBlocks.empty())
     {
-      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
+                             { return (item.first == uniformBlockName); });
       if(it != program.uniformBlocks.end())
       {
         localBinding = (*it).second;

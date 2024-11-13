@@ -544,3 +544,34 @@ int UtcParserInfoPrefixTest(void)
   }
   END_TEST;
 }
+
+int UtcParserSingleLineCommentStrip(void)
+{
+  tet_infoline("UtcParserSingleLineCommentStrip - stripping single line comments");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/comments-strip.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/comments-strip.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
+  parseInfo.outputVersion               = 0;
+  Parse(parseInfo, outStrings);
+
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/comments-strip.vert.stripped", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/comments-strip.frag.stripped", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}

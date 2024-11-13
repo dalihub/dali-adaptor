@@ -1,0 +1,38 @@
+#version 430
+//@version 100
+#define TEXTURE texture
+#define TEXTURE_CUBE texture
+#define TEXTURE_LOD textureLod
+#define TEXTURE_CUBE_LOD textureLod
+#define textureCube texture
+#define texture2D texture
+#define texture2DLod textureLod
+#define textureCubeLod textureLod
+
+
+// Some amazing uniform block
+layout(set=0, binding=1, std140) uniform FragBlock// another breaking comment
+{
+ lowp vec4 uColor;// This is color (used to cause a parsing error!)
+};
+
+// Input coords
+layout(location = 0) in mediump vec2 vTexCoord;
+layout(location = 1) in mediump vec2 vTexCoord2;
+
+layout(binding = 2) uniform sampler2D sTexture;// Sampler two-dimensional
+layout(binding = 3) uniform samplerCube sTextureCube;// Cube sampler for fun
+
+#define gl_FragColor _glFragColor
+layout(location=0) out mediump vec4 _glFragColor;
+void main()
+{
+
+  // Using GLSL100 semantics
+  vec4 skyboxColor = textureCube(sTextureCube, vec3(0,0,0));
+
+  // Using modern semantics
+  vec4 skyboxColor2 = TEXTURE_CUBE(sTextureCube, vec3(0,0,0));
+
+  gl_FragColor = TEXTURE(sTexture, vTexCoord) * uColor;
+}
