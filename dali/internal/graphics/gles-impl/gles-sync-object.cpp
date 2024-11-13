@@ -60,9 +60,8 @@ bool SyncObject::InitializeResource()
 
 void SyncObject::DiscardResource()
 {
-  // Called from custom deleter.
   // Don't use discard queue, drop immediately.
-  DestroyResource();
+  DALI_ASSERT_ALWAYS(false && "SyncObject don't support DiscardResource() method. Please check your code.");
 }
 
 bool SyncObject::IsSynced()
