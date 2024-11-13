@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_TEXTURE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,15 @@ public:
   [[nodiscard]] BoundTextureType GetTextureTypeId() const
   {
     return mCreateInfo.nativeImagePtr ? BoundTextureType::TEXTURE_EXTERNAL_OES : static_cast<BoundTextureType>(mCreateInfo.textureType);
+  }
+
+  /**
+   * @brief Returns wether we are using a native texture or not.
+   * @return True if we are using a native texture. False otherwise.
+   */
+  [[nodiscard]] bool IsNativeTexture() const
+  {
+    return mCreateInfo.nativeImagePtr != nullptr;
   }
 
   /**
