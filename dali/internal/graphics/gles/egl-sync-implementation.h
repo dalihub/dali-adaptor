@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/ordered-set.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
@@ -115,8 +116,8 @@ private:
   void InitializeEglSync();
 
 private:
-  typedef Vector<EglSyncObject*>  SyncContainer;
-  typedef SyncContainer::Iterator SyncIter;
+  typedef Integration::OrderedSet<EglSyncObject, false> SyncContainer;
+  typedef SyncContainer::Iterator                       SyncIter;
 
   EglImplementation* mEglImplementation;    ///< Egl implementation (to get display)
   bool               mSyncInitialized;      ///< Flag to perform initialization on first use
