@@ -736,6 +736,11 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
         break;
       }
+      case GLES::CommandType::READ_PIXELS:
+      {
+        mCurrentContext->ReadPixels(cmd.readPixelsBuffer.buffer);
+        break;
+      }
       case GLES::CommandType::PRESENT_RENDER_TARGET:
       {
         ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);

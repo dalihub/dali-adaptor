@@ -930,6 +930,21 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
   }
 }
 
+void Context::ReadPixels(uint8_t* buffer)
+{
+  if(buffer && mImpl->mCurrentRenderTarget)
+  {
+    GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
+    auto*              gl          = mImpl->GetGL();
+    if(framebuffer && gl)
+    {
+      gl->Finish(); // To guarantee ReadPixels.
+      gl->ReadPixels(0, 0, framebuffer->GetCreateInfo().size.width, framebuffer->GetCreateInfo().size.height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    }
+  }
+}
+
+
 void Context::ClearState()
 {
   mImpl->mCurrentTextureBindings.clear();

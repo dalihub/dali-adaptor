@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/pixel-data-integ.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <string.h>
@@ -41,7 +42,6 @@ namespace Adaptor
 namespace
 {
 static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK              = 1000;
-constexpr int32_t         SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
 constexpr uint32_t        TIME_OUT_DURATION                            = 1000;
 } // namespace
 
@@ -49,7 +49,6 @@ Capture::Capture()
 : mQuality(DEFAULT_QUALITY),
   mTimer(),
   mPath(),
-  mNativeImageSourcePtr(NULL),
   mFileSave(false),
   mUseDefaultCamera(true),
   mSceneOffCameraAfterCaptureFinished(false)
@@ -61,7 +60,6 @@ Capture::Capture(Dali::CameraActor cameraActor)
   mCameraActor(cameraActor),
   mTimer(),
   mPath(),
-  mNativeImageSourcePtr(NULL),
   mFileSave(false),
   mUseDefaultCamera(!cameraActor),
   mSceneOffCameraAfterCaptureFinished(false)
@@ -74,7 +72,6 @@ Capture::~Capture()
   {
     Adaptor::Get().UnregisterProcessorOnce(*this, true);
   }
-  DeleteNativeImageSource();
   mTexture.Reset();
 }
 
@@ -119,14 +116,15 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
   // Increase the reference count focely to avoid application mistake.
   Reference();
 
+  UnsetResources();
+  SetupResources(position, size, clearColor, source);
+
   mPath = path;
   if(!mPath.empty())
   {
     mFileSave = true;
   }
-
-  UnsetResources();
-  SetupResources(position, size, clearColor, source);
+  mRenderTask.KeepRenderResult();
 
   mInCapture = true;
   Adaptor::Get().RegisterProcessorOnce(*this, true);
@@ -154,9 +152,24 @@ bool Capture::IsExclusive() const
   return mIsExclusive;
 }
 
-Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
+Dali::NativeImageSourcePtr Capture::GetNativeImageSource()
 {
-  return mNativeImageSourcePtr;
+  Dali::NativeImageSourcePtr result;
+  if(mRenderTask)
+  {
+    Dali::PixelData pixelData = mRenderTask.GetRenderResult();
+    if(pixelData)
+    {
+      auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
+      NativeImageSourcePtr nativeImageSourcePtr = Dali::NativeImageSource::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImageSource::COLOR_DEPTH_32);  // Texture pixel format is RGBA8888
+
+      if(Dali::DevelNativeImageSource::SetPixels(*nativeImageSourcePtr, pixelDataBuffer.buffer, pixelData.GetPixelFormat()))
+      {
+        result = nativeImageSourcePtr;
+      }
+    }
+  }
+  return result;
 }
 
 Dali::Texture Capture::GetTexture() const
@@ -166,19 +179,18 @@ Dali::Texture Capture::GetTexture() const
 
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
-  if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
+  Devel::PixelBuffer pixelBuffer;
+  if(mRenderTask)
   {
-    std::vector<uint8_t> buffer;
-    uint32_t             width, height;
-    Dali::Pixel::Format  pixelFormat;
-    if(!mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+    Dali::PixelData pixelData = mRenderTask.GetRenderResult();
+    if(pixelData)
     {
-      return Dali::Devel::PixelBuffer();
+      auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
+      pixelBuffer          = Dali::Devel::PixelBuffer::New(pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetPixelFormat());
+      memcpy(pixelBuffer.GetBuffer(), pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);
     }
-    mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
-    memcpy(mPixelBuffer.GetBuffer(), &buffer[0], width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
   }
-  return mPixelBuffer;
+  return pixelBuffer;
 }
 
 Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
@@ -188,26 +200,7 @@ Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 
 void Capture::CreateTexture(const Vector2& size)
 {
-  if(mFileSave)
-  {
-    if(!mNativeImageSourcePtr)
-    {
-      mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
-      mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
-    }
-  }
-  else
-  {
-    mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGBA8888, unsigned(size.width), unsigned(size.height));
-  }
-}
-
-void Capture::DeleteNativeImageSource()
-{
-  if(mNativeImageSourcePtr)
-  {
-    mNativeImageSourcePtr.Reset();
-  }
+  mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGBA8888, unsigned(size.width), unsigned(size.height));
 }
 
 void Capture::CreateFrameBuffer()
@@ -319,8 +312,10 @@ void Capture::UnsetRenderTask()
     Dali::RenderTaskList taskList = sceneHolder.GetRenderTaskList();
     taskList.RemoveTask(mRenderTask);
   }
+  mRenderTask.ClearRenderResult();
   mRenderTask.Reset();
   mSource.Reset();
+  mTexture.Reset();
   mSceneHolderHandle.Reset();
 }
 
@@ -331,12 +326,6 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
 {
-  if(mFileSave && Dali::Shader::GetShaderLanguageVersion() < SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE)
-  {
-    DALI_LOG_ERROR("GLES is 2.0, we can't use native image source \n");
-    mFileSave = false;
-  }
-
   CreateTexture(size);
 
   CreateFrameBuffer();
@@ -410,9 +399,11 @@ bool Capture::OnTimeOut()
 
 bool Capture::SaveFile()
 {
-  if(mNativeImageSourcePtr)
+  Dali::PixelData pixelData = mRenderTask.GetRenderResult();
+  if(pixelData)
   {
-    return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
+    auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
+    return Dali::EncodeToFile(pixelDataBuffer.buffer, mPath, pixelData.GetPixelFormat(), pixelData.GetWidth(), pixelData.GetHeight(), mQuality);
   }
 
   return false;

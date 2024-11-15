@@ -69,6 +69,18 @@ DALI_ADAPTOR_API uint8_t* AcquireBuffer(NativeImageSource& image, uint32_t& widt
 DALI_ADAPTOR_API bool ReleaseBuffer(NativeImageSource& image, const Rect<uint32_t>& updatedArea);
 
 /**
+ * @brief Sets PixelBuffers to NativeImageSource
+ *
+ * @param[in] image The instance of NativeImageSource.
+ * @param[in] pixbuf Pixel buffer to copy.
+ * @param[in] pixelFormat Pixel format of the pixel buffer
+ * @return @c true If the buffer is successfully set.
+ * @note The width and height of the input pixel buffer should be same with those of NativeImageSource.
+ * @note Only Pixel::Format::RGB888 and Pixel::Format::RGBA8888 are available as a input pixel format.
+ */
+DALI_ADAPTOR_API bool SetPixels(NativeImageSource& image, uint8_t* pixbuf, const Pixel::Format& pixelFormat);
+
+/**
  * @brief Set the Resource Destruction Callback object
  *
  * @param[in] image The instance of NativeImageSource.

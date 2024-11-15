@@ -92,6 +92,11 @@ public:
    */
   void EndRenderPass();
 
+  /**
+   * Request to read pixels.
+   */
+  void ReadPixels(uint8_t* buffer);
+
   void PipelineBarrier(vk::PipelineStageFlags               srcStageMask,
                        vk::PipelineStageFlags               dstStageMask,
                        vk::DependencyFlags                  dependencyFlags,

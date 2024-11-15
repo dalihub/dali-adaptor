@@ -40,6 +40,11 @@ bool ReleaseBuffer(NativeImageSource& image, const Rect<uint32_t>& updatedArea)
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).ReleaseBuffer(updatedArea);
 }
 
+bool SetPixels(NativeImageSource& image, uint8_t* pixbuf, const Pixel::Format& pixelFormat)
+{
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetPixels(pixbuf, pixelFormat);
+}
+
 void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback)
 {
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetResourceDestructionCallback(callback);

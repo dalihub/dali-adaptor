@@ -260,6 +260,10 @@ void CommandBufferImpl::EndRenderPass()
   mCommandBuffer.endRenderPass();
 }
 
+void CommandBufferImpl::ReadPixels(uint8_t* buffer)
+{
+}
+
 void CommandBufferImpl::PipelineBarrier(
   vk::PipelineStageFlags               srcStageMask,
   vk::PipelineStageFlags               dstStageMask,
