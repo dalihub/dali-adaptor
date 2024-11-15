@@ -784,6 +784,7 @@ private:
   wl_egl_window*        mEglWindow;
   wl_display*           mDisplay;
   wl_event_queue*       mEventQueue;
+  wl_registry*          mDisplayRegistry;
   tizen_policy*         mTizenPolicy;
   tizen_display_policy* mTizenDisplayPolicy;
   xkb_keymap*           mKeyMap;
