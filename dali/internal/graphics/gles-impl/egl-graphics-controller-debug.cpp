@@ -273,6 +273,11 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
         fprintf(output, "{\"Cmd\":\"END_RENDER_PASS\"}\n");
         break;
       }
+      case GLES::CommandType::READ_PIXELS:
+      {
+        fprintf(output, "{\"Cmd\":\"READ_PIXELS\"}\n");
+        break;
+      }
       case GLES::CommandType::PRESENT_RENDER_TARGET:
       {
         fprintf(output, "{\"Cmd\":\"PRESENT_RENDER_TARGET\"}\n");

@@ -336,6 +336,116 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
   return false;
 }
 
+bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
+{
+  std::scoped_lock lock(mMutex);
+  if(mTbmSurface != NULL)
+  {
+    tbm_surface_info_s surface_info;
+
+    if(tbm_surface_map(mTbmSurface, TBM_SURF_OPTION_READ | TBM_SURF_OPTION_WRITE, &surface_info) != TBM_SURFACE_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("Fail to map tbm_surface\n");
+      return false;
+    }
+    tbm_surface_internal_ref(mTbmSurface);
+
+    if(pixelFormat != Pixel::Format::RGBA8888 && pixelFormat != Pixel::Format::RGB888)
+    {
+      DALI_LOG_ERROR("Not Supported PixelFormat\n");
+      return false;
+    }
+
+    tbm_format format = surface_info.format;
+    uint32_t   stride = surface_info.planes[0].stride;
+    uint8_t*   ptr    = surface_info.planes[0].ptr;
+
+    size_t lineSize;
+    size_t inputBufferLinePixelSize = Dali::Pixel::GetBytesPerPixel(pixelFormat);
+
+    switch(format)
+    {
+      case TBM_FORMAT_RGB888:
+      {
+        lineSize        = mWidth * inputBufferLinePixelSize;
+        uint8_t* bufptr = &pixbuf[0];
+
+        for(uint32_t r = 0; r < mHeight; ++r, bufptr += lineSize)
+        {
+          for(uint32_t c = 0; c < mWidth; ++c)
+          {
+            size_t sOffset  = c * inputBufferLinePixelSize;
+            size_t dOffset  = c * 3;
+            size_t offset          = dOffset + r * stride;
+            ptr[offset + 2] = *(bufptr + sOffset);
+            ptr[offset + 1] = *(bufptr + sOffset + 1);
+            ptr[offset]     = *(bufptr + sOffset + 2);
+          }
+        }
+        break;
+      }
+      case TBM_FORMAT_RGBA8888:
+      {
+        lineSize        = mWidth * inputBufferLinePixelSize;
+        uint8_t* bufptr = &pixbuf[0];
+
+        for(uint32_t r = 0; r < mHeight; ++r, bufptr += lineSize)
+        {
+          for(uint32_t c = 0; c < mWidth; ++c)
+          {
+            size_t sOffset  = c * inputBufferLinePixelSize;
+            size_t dOffset  = c * 4;
+            size_t offset          = dOffset + r * stride;
+            ptr[offset + 3] = *(bufptr + sOffset);
+            ptr[offset + 2] = *(bufptr + sOffset + 1);
+            ptr[offset + 1] = *(bufptr + sOffset + 2);
+            ptr[offset]     = (inputBufferLinePixelSize == 4) ? *(bufptr + sOffset + 3) : 0xFF;
+          }
+        }
+        break;
+      }
+      case TBM_FORMAT_ARGB8888:
+      {
+        lineSize        = mWidth * inputBufferLinePixelSize;
+        uint8_t* bufptr = &pixbuf[0];
+
+        for(uint32_t r = 0; r < mHeight; ++r, bufptr += lineSize)
+        {
+          for(uint32_t c = 0; c < mWidth; ++c)
+          {
+            size_t sOffset  = c * inputBufferLinePixelSize;
+            size_t dOffset  = c * 4;
+            size_t offset          = dOffset + r * stride;
+            ptr[offset + 2] = *(bufptr + sOffset);
+            ptr[offset + 1] = *(bufptr + sOffset + 1);
+            ptr[offset]     = *(bufptr + sOffset + 2);
+            ptr[offset + 3] = (inputBufferLinePixelSize == 4) ? *(bufptr + sOffset + 3) : 0xFF;
+          }
+        }
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_ALWAYS(0 && "Tbm surface has unsupported pixel format.\n");
+
+        return false;
+      }
+    }
+
+    if(tbm_surface_unmap(mTbmSurface) != TBM_SURFACE_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("Fail to unmap tbm_surface\n");
+    }
+    tbm_surface_internal_unref(mTbmSurface);
+
+    return true;
+  }
+
+  DALI_LOG_WARNING("TBM surface does not exist.\n");
+
+  return false;
+}
+
 void NativeImageSourceTizen::SetSource(Any source)
 {
   std::scoped_lock lock(mMutex);

@@ -62,6 +62,11 @@ public:
     Pixel::Format&        pixelFormat) const override;
 
   /**
+   * @copydoc Dali::NativeImageSource::SetPixels()
+   */
+  bool SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat) override;
+
+  /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
   void SetSource(Any source) override;
