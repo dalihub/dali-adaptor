@@ -82,12 +82,37 @@ const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_S
  */
 const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 
+// Code from Dali::Internal::ShaderData
 inline std::vector<char> StringToVector(const std::string& str)
 {
   auto retval = std::vector<char>{};
   retval.insert(retval.begin(), str.begin(), str.end());
   retval.push_back('\0');
   return retval;
+}
+
+// Code from Dali::Internal::ShaderData
+void UpdateShaderVersion(const std::vector<char>& code, uint32_t& outVersion)
+{
+  // The version may be updated only for GLSL language.
+  // If we support direct SPIRV this will be skipped
+  std::string_view strView = code.data();
+
+  // find first occurence of 'version' tag
+  // the tag is expected at the start of line
+  static const std::string VERSION_TAG = "//@version";
+
+  auto pos = strView.find(VERSION_TAG);
+  if(pos != std::string_view::npos && (pos == 0 || strView[pos - 1] == '\n'))
+  {
+    char* end;
+    // Update version
+    outVersion = std::strtoul(strView.data() + pos + VERSION_TAG.length(), &end, 10);
+  }
+  else
+  {
+    outVersion = 0;
+  }
 }
 
 } // unnamed namespace
@@ -1085,6 +1110,11 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   const std::vector<char>& vertexShaderSrc = StringToVector(std::move(vertexShader));
   vertexShaderCreateInfo.SetSourceSize(vertexShaderSrc.size());
   vertexShaderCreateInfo.SetSourceData(static_cast<const void*>(vertexShaderSrc.data()));
+
+  uint32_t vertexShaderVersion = 0;
+  UpdateShaderVersion(vertexShaderSrc, vertexShaderVersion);
+  vertexShaderCreateInfo.SetShaderVersion(vertexShaderVersion);
+
   auto vertexGraphicsShader = graphics.GetController().CreateShader(vertexShaderCreateInfo, nullptr);
 
   Graphics::ShaderCreateInfo fragmentShaderCreateInfo;
@@ -1093,6 +1123,11 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   const std::vector<char>& fragmentShaderSrc = StringToVector(std::move(fragmentShader));
   fragmentShaderCreateInfo.SetSourceSize(fragmentShaderSrc.size());
   fragmentShaderCreateInfo.SetSourceData(static_cast<const void*>(fragmentShaderSrc.data()));
+
+  uint32_t fragmentShaderVersion = 0;
+  UpdateShaderVersion(fragmentShaderSrc, fragmentShaderVersion);
+  fragmentShaderCreateInfo.SetShaderVersion(fragmentShaderVersion);
+
   auto fragmentGraphicsShader = graphics.GetController().CreateShader(fragmentShaderCreateInfo, nullptr);
 
   std::vector<Graphics::ShaderState> shaderStates{
