@@ -121,6 +121,38 @@ int UtcParseGLES2ShaderWithOutput(void)
   END_TEST;
 }
 
+int UtcParseGLES2ShaderWithFlat(void)
+{
+  tet_infoline("UtcParseGLES2Shader - Tests parser output for generating GLES2 with FLAT keyword");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
+  parseInfo.outputVersion               = 0;
+
+  Parse(parseInfo, outStrings);
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert.gles2", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag.gles2", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
+
 int UtcParseGLES3Shader(void)
 {
   tet_infoline("UtcParseGLES3Shader - Tests parser output for generating GLES3");
@@ -187,6 +219,37 @@ int UtcParseGLES3ShaderWithOutput(void)
   }
   {
     bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-output.frag.gles3", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcParseGLES3ShaderWithFlat(void)
+{
+  tet_infoline("UtcParseGLES3Shader - Tests parser output for generating GLES3");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
+  parseInfo.outputVersion               = 0;
+  Parse(parseInfo, outStrings);
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert.gles3", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag.gles3", outFragmentShader);
     DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
   }
   END_TEST;
@@ -271,6 +334,39 @@ int UtcParseSPIRVShaderWithOutput(void)
   }
   {
     bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-output.frag.glsl-spirv", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcParseSPIRVShaderWithFlat(void)
+{
+  tet_infoline("UtcParseSPIRVShader - Tests parser output for generating SPIRV");
+
+  // TODO: this test should fail in future after modifying sampler keywords!
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
+  parseInfo.outputVersion               = 0;
+  Parse(parseInfo, outStrings);
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.vert.glsl-spirv", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/canvas-view-with-flat.frag.glsl-spirv", outFragmentShader);
     DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
   }
   END_TEST;

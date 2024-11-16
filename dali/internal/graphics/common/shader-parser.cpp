@@ -53,13 +53,13 @@ std::string GetToken(CodeLine& line, int i)
   // GetToken( line, -1 ) - retrieves last token
   // GetToken( line, 0 ) - retrieves first token
   // GetToken( line, 1 ) - retrieves second (counting from 0) token
-  if(abs(i) >= line.tokens.size())
-  {
-    return "";
-  }
   if(i < 0)
   {
     i = int(line.tokens.size()) + i;
+  }
+  if(i < 0 || i >= int(line.tokens.size()))
+  {
+    return "";
   }
   return std::string(std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second));
 }
@@ -149,7 +149,17 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
   if(l.tokens.size())
   {
     auto token = GetToken(l, 0);
-    if(token == "INPUT")
+
+    bool       isInputToken      = (token == "INPUT");
+    const bool isFlatKeywordUsed = (token == "FLAT");
+    if(isFlatKeywordUsed && stage != ShaderStage::VERTEX)
+    {
+      // Check secondary token if first token is flat.
+      token = GetToken(l, 1);
+      isInputToken = (token == "INPUT");
+    }
+
+    if(isInputToken)
     {
       auto varName = GetToken(l, -1);
       if(lang == OutputLanguage::SPIRV_GLSL)
@@ -169,13 +179,13 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
           }
         }
 
-        ss << "layout(location = " << location << ") in" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        ss << "layout(location = " << location << ") " << (isFlatKeywordUsed ? "flat " : "") <<"in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
       else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
-        ss << "in" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        ss << (isFlatKeywordUsed ? "flat " : "") << "in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
@@ -183,11 +193,11 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
       {
         if(stage == ShaderStage::VERTEX)
         {
-          ss << "attribute" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          ss << "attribute" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         }
         else
         {
-          ss << "varying" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          ss << "varying" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         }
         outString += ss.str();
         return true;
@@ -205,7 +215,16 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
   if(l.tokens.size())
   {
     auto token = GetToken(l, 0);
-    if(token == "OUTPUT")
+
+    bool       isOutputToken     = (token == "OUTPUT");
+    const bool isFlatKeywordUsed = (token == "FLAT");
+    if(isFlatKeywordUsed && stage != ShaderStage::FRAGMENT)
+    {
+      // Check secondary token if first token is flat.
+      token = GetToken(l, 1);
+      isOutputToken = (token == "OUTPUT");
+    }
+    if(isOutputToken)
     {
       if(lang == OutputLanguage::SPIRV_GLSL)
       {
@@ -220,16 +239,19 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
           {
             location = (*iter).second;
           }
+
+          // Dev note : SPIRV don't need to ad flat keyword at Vertex shader.
           // SPIRV requires storing locations
-          ss << "layout(location=" << location << ") out" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          ss << "layout(location=" << location << ") out" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
           outString += ss.str();
         }
         else
         {
           // for fragment shader the gl_FragColor is our output
-          // we will use OUT_COLOR, in such shader we have only single output
+          // we will use gl_FragColor, in such shader we have only single output
           auto varName = GetToken(l, -1);
-          ss << "layout(location=0) out" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+
+          ss << "layout(location=0) out" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
           outString += ss.str();
         }
         return true;
@@ -237,8 +259,8 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
       else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
         std::stringstream ss;
-        ss << "out"
-           << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        ss << (isFlatKeywordUsed ? "flat " : "") << "out"
+           << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
@@ -247,7 +269,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         std::stringstream ss;
         if(stage == ShaderStage::VERTEX)
         {
-          ss << "varying" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          ss << "varying" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
           outString += ss.str();
         }
         else
@@ -409,7 +431,16 @@ void LinkProgram(Program& program)
   for(auto& line : program.vertexShader.codeLines)
   {
     auto token = GetToken(line, 0);
-    if(token == std::string("OUTPUT"))
+
+    bool       isOutputToken     = (token == "OUTPUT");
+    const bool isFlatKeywordUsed = (token == "FLAT");
+    if(isFlatKeywordUsed)
+    {
+      token = GetToken(line, 1);
+      isOutputToken = (token == "OUTPUT");
+    }
+
+    if(isOutputToken)
     {
       auto varname              = GetToken(line, -1);
       program.varyings[varname] = location++;
@@ -419,7 +450,16 @@ void LinkProgram(Program& program)
   for(auto& line : program.fragmentShader.codeLines)
   {
     auto token = GetToken(line, 0);
-    if(token == std::string("INPUT"))
+
+    bool       isInputToken      = (token == "INPUT");
+    const bool isFlatKeywordUsed = (token == "FLAT");
+    if(isFlatKeywordUsed)
+    {
+      token = GetToken(line, 1);
+      isInputToken = (token == "INPUT");
+    }
+
+    if(isInputToken)
     {
       auto varname = GetToken(line, -1);
     }

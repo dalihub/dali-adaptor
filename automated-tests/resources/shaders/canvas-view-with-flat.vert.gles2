@@ -1,0 +1,19 @@
+#version 100
+#define flat
+
+#define TEXTURE texture2D
+#define TEXTURE_CUBE textureCube
+#define TEXTURE_LOD texture2DLod
+#define TEXTURE_CUBE_LOD textureCubeLod
+attribute mediump vec2 aPosition;
+attribute mediump vec2 aTexCoord;
+varying mediump vec2 vTexCoord;
+varying mediump int vInteger;
+uniform  highp mat4 uMvpMatrix;
+uniform  highp vec3 uSize;
+void main()
+{
+  gl_Position = uMvpMatrix * vec4(aPosition * uSize.xy, 0.0, 1.0);
+  vInteger = 3;
+  vTexCoord = aPosition + vec2(0.5);
+}
