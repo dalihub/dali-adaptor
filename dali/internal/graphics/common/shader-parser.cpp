@@ -19,34 +19,87 @@
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <sstream>
 
+namespace
+{
+inline bool IsWordChar(const char c)
+{
+  return ('A' <= c && c <= 'Z') ||
+         ('0' <= c && c <= '9') ||
+         ('a' <= c && c <= 'z') ||
+         (c == '_');
+}
+} // namespace
+
 namespace Dali::Internal::ShaderParser
 {
+/**
+ * @brief Tokenizes a single line of code.
+ * Parse word tokens, which had number and alphabet, and underline.
+ * @note The string ownership will be moved to CodeLine's line value.
+ * @param line A string containing a single line of code.
+ * @return A CodeLine object containing the line of code and its tokens.
+ */
 CodeLine TokenizeLine(std::string line)
 {
-  const auto commentDelimiter = std::regex("//");
-  const auto word_regex       = std::regex("(\\w+)");
-
   CodeLine lineOfCode;
   if(!line.empty())
   {
-    std::vector<std::string> strs{std::sregex_token_iterator(line.begin(), line.end(), commentDelimiter, -1),
-                                  std::sregex_token_iterator()};
+    uint32_t ei = 0;
 
-    auto words_begin = std::sregex_iterator(strs[0].begin(), strs[0].end(), word_regex);
-    auto words_end   = std::sregex_iterator();
+    bool wordState    = false;
+    bool commentState = false;
 
-    lineOfCode.line = line;
+    uint32_t wordStart = 0;
 
-    for(auto it = words_begin; it != words_end; ++it)
+    while(ei < line.size())
     {
-      const std::smatch& match = *it;
-      lineOfCode.tokens.emplace_back(match.position(), match.length());
+      const char c = line[ei];
+      if(IsWordChar(c))
+      {
+        if(!wordState)
+        {
+          wordState = true;
+          wordStart = ei;
+        }
+        commentState = false;
+      }
+      else
+      {
+        if(wordState)
+        {
+          lineOfCode.tokens.push_back(CodeTokenPair(wordStart, ei - wordStart));
+          wordState = false;
+        }
+
+        if(c == '/')
+        {
+          if(commentState)
+          {
+            // Comment found! Ignore remaind characters
+            --ei;
+            break;
+          }
+          commentState = true;
+        }
+        else
+        {
+          commentState = false;
+        }
+      }
+      ++ei;
     }
+
+    if(wordState)
+    {
+      lineOfCode.tokens.push_back(CodeTokenPair(wordStart, ei - wordStart));
+    }
+
+    lineOfCode.line = std::move(line);
   }
   return lineOfCode;
 }
 
-std::string GetToken(CodeLine& line, int i)
+std::string_view GetToken(CodeLine& line, int i)
 {
   // Function allows retrieving a token from start and from the
   // end of line. Negative 'i' retrieves token from the end. For example:
@@ -61,7 +114,7 @@ std::string GetToken(CodeLine& line, int i)
   {
     return "";
   }
-  return std::string(std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second));
+  return std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second);
 }
 
 void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
@@ -106,7 +159,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       continue;
     }
 
-    CodeLine lineOfCode = TokenizeLine(line);
+    CodeLine lineOfCode = TokenizeLine(std::move(line));
 
     // find out whether fragment shader contains OUTPUT
     if(!lineOfCode.tokens.empty() && stage == ShaderStage::FRAGMENT)
@@ -155,7 +208,7 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
     if(isFlatKeywordUsed && stage != ShaderStage::VERTEX)
     {
       // Check secondary token if first token is flat.
-      token = GetToken(l, 1);
+      token        = GetToken(l, 1);
       isInputToken = (token == "INPUT");
     }
 
@@ -179,7 +232,7 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
           }
         }
 
-        ss << "layout(location = " << location << ") " << (isFlatKeywordUsed ? "flat " : "") <<"in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
+        ss << "layout(location = " << location << ") " << (isFlatKeywordUsed ? "flat " : "") << "in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
@@ -221,7 +274,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
     if(isFlatKeywordUsed && stage != ShaderStage::FRAGMENT)
     {
       // Check secondary token if first token is flat.
-      token = GetToken(l, 1);
+      token         = GetToken(l, 1);
       isOutputToken = (token == "OUTPUT");
     }
     if(isOutputToken)
@@ -249,8 +302,6 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         {
           // for fragment shader the gl_FragColor is our output
           // we will use gl_FragColor, in such shader we have only single output
-          auto varName = GetToken(l, -1);
-
           ss << "layout(location=0) out" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
           outString += ss.str();
         }
@@ -338,8 +389,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
     bool blockReused  = false;
     if(!program.uniformBlocks.empty())
     {
-      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
-                             { return (item.first == uniformBlockName); });
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
       if(it != program.uniformBlocks.end())
       {
         localBinding = (*it).second;
@@ -436,7 +486,7 @@ void LinkProgram(Program& program)
     const bool isFlatKeywordUsed = (token == "FLAT");
     if(isFlatKeywordUsed)
     {
-      token = GetToken(line, 1);
+      token         = GetToken(line, 1);
       isOutputToken = (token == "OUTPUT");
     }
 
@@ -447,23 +497,24 @@ void LinkProgram(Program& program)
     }
   }
   // Verify
-  for(auto& line : program.fragmentShader.codeLines)
-  {
-    auto token = GetToken(line, 0);
+  // For now, we don't verify anything. Just skip this codes.
+  // for(auto& line : program.fragmentShader.codeLines)
+  // {
+  //   auto token = GetToken(line, 0);
 
-    bool       isInputToken      = (token == "INPUT");
-    const bool isFlatKeywordUsed = (token == "FLAT");
-    if(isFlatKeywordUsed)
-    {
-      token = GetToken(line, 1);
-      isInputToken = (token == "INPUT");
-    }
+  //   bool       isInputToken      = (token == "INPUT");
+  //   const bool isFlatKeywordUsed = (token == "FLAT");
+  //   if(isFlatKeywordUsed)
+  //   {
+  //     token = GetToken(line, 1);
+  //     isInputToken = (token == "INPUT");
+  //   }
 
-    if(isInputToken)
-    {
-      auto varname = GetToken(line, -1);
-    }
-  }
+  //   if(isInputToken)
+  //   {
+  //     auto varname = GetToken(line, -1);
+  //   }
+  // }
 }
 
 void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
