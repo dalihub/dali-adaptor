@@ -15,6 +15,7 @@
  */
 
 #include <dali-test-suite-utils.h>
+#include <dali/integration-api/shader-integ.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
 #include <fstream>

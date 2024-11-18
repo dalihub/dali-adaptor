@@ -61,10 +61,11 @@ struct CodeLine
 
 struct Shader
 {
-  std::vector<CodeLine> codeLines;
-  std::string           output;
-  int                   customOutputLineIndex;
-  int                   mainLine;
+  std::vector<CodeLine>    codeLines;
+  std::vector<std::string> extensions;
+  std::string              output;
+  int                      customOutputLineIndex;
+  int                      mainLine;
 };
 
 struct Program

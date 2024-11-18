@@ -26,7 +26,8 @@ inline bool IsWordChar(const char c)
   return ('A' <= c && c <= 'Z') ||
          ('0' <= c && c <= '9') ||
          ('a' <= c && c <= 'z') ||
-         (c == '_');
+         (c == '_') ||
+         (c == '#');
 }
 } // namespace
 
@@ -140,11 +141,15 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
   int         lineNumber        = 0;
   output->customOutputLineIndex = -1; // Assume using gl_FragColor in fragment shader, no index for custom output
   output->mainLine              = -1;
+
+  int legacyPrefixCount = 0;
+
   while(std::getline(ss, line))
   {
     // turn ignoring on
     if(line.substr(0, 12) == "//@ignore:on")
     {
+      legacyPrefixCount -= line.size() + 1;
       ignoreLines = true;
       continue;
     }
@@ -152,10 +157,28 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     // turn ignoring off
     if(ignoreLines)
     {
+      legacyPrefixCount -= line.size() + 1;
       if(line.substr(0, 13) == "//@ignore:off")
       {
         ignoreLines = false;
       }
+      continue;
+    }
+
+    // Do not tokenize legacy-prefix codes if they exist
+    if(line.substr(0, 20) == "//@legacy-prefix-end")
+    {
+      char* end;
+      legacyPrefixCount = std::strtoul(reinterpret_cast<const char*>(line.data()) + 21, &end, 10);
+    }
+    if(legacyPrefixCount > 0)
+    {
+      legacyPrefixCount -= line.size() + 1;
+
+      CodeLine lineOfCode;
+      lineOfCode.line = std::move(line);
+      output->codeLines.emplace_back(std::move(lineOfCode));
+      lineNumber++;
       continue;
     }
 
@@ -178,6 +201,15 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       if(output->mainLine < 0 && GetToken(lineOfCode, 0) == "void" && GetToken(lineOfCode, 1) == "main")
       {
         output->mainLine = lineNumber;
+      }
+    }
+    if(!lineOfCode.tokens.empty())
+    {
+      if(GetToken(lineOfCode, 0) == "#extension")
+      {
+        // Emplace extension code and skip this line, without adding it to the codeLines.
+        output->extensions.emplace_back(std::move(lineOfCode.line));
+        continue;
       }
     }
 
@@ -643,29 +675,36 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string version("#version " + std::to_string(int(parseInfo.language)) + " es\n");
       program.vertexShader.output += version;
       program.fragmentShader.output += version;
-
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
     }
     else if(parseInfo.language == OutputLanguage::GLSL_100_ES)
     {
       program.vertexShader.output += "#version 100\n";
       program.fragmentShader.output += "#version 100\n";
-
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
-
-      // redefine 'flat' qualifier
-      program.vertexShader.output += "#define flat\n";
-      program.fragmentShader.output += "#define flat\n";
     }
     else if(parseInfo.language == OutputLanguage::SPIRV_GLSL)
     {
       program.vertexShader.output += "#version 430\n";
       program.fragmentShader.output += "#version 430\n";
+    }
 
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+    // Define extensions follow after version.
+    for(auto ext : program.vertexShader.extensions)
+    {
+      program.vertexShader.output += ext + "\n";
+    }
+    for(auto ext : program.fragmentShader.extensions)
+    {
+      program.fragmentShader.output += ext + "\n";
+    }
+
+    program.vertexShader.output += parseInfo.vertexShaderPrefix;
+    program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+
+    if(parseInfo.language == OutputLanguage::GLSL_100_ES)
+    {
+      // redefine 'flat' qualifier
+      program.vertexShader.output += "#define flat\n";
+      program.fragmentShader.output += "#define flat\n";
     }
 
     // link inputs and outputs between vertex and fragment shader
@@ -686,6 +725,19 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
       program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
+
+      // Define extensions follow after version.
+      for(auto ext : program.vertexShader.extensions)
+      {
+        program.vertexShader.output += ext + "\n";
+      }
+      for(auto ext : program.fragmentShader.extensions)
+      {
+        program.fragmentShader.output += ext + "\n";
+      }
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)
@@ -709,6 +761,19 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
       program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
+
+      // Define extensions follow after version.
+      for(auto ext : program.vertexShader.extensions)
+      {
+        program.vertexShader.output += ext + "\n";
+      }
+      for(auto ext : program.fragmentShader.extensions)
+      {
+        program.fragmentShader.output += ext + "\n";
+      }
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)

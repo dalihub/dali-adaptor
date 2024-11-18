@@ -1,4 +1,5 @@
 #version 100
+#extension GL_OES_EGL_image_external:require
 #define flat
 //@legacy-prefix-end 00368
 #define TEXTURE texture2D
@@ -18,7 +19,6 @@
 #endif
 out mediump vec4 fragColor;
 @version 100
-#extension GL_OES_EGL_image_external:require
 
 uniform  highp vec4 uOther;
 
