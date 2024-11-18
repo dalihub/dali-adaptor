@@ -974,6 +974,12 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
     mDisplayRegistry = nullptr;
   }
 
+  if(mWlInputPanel)
+  {
+    wl_proxy_destroy((struct wl_proxy *)mWlInputPanel);
+    mWlInputPanel = nullptr;
+  }
+
   if(mWlOutput)
   {
     wl_output_destroy(mWlOutput);
