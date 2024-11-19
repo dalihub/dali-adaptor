@@ -258,6 +258,8 @@ bool ProgramImpl::Create()
 
   Preprocess();
 
+  DALI_LOG_DEBUG_INFO("Program[%s] pre-process finishe for program id : %u\n", mImpl->name.c_str(), program);
+
   for(const auto& state : *info.shaderState)
   {
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);

@@ -30,7 +30,7 @@ const char* VERTEX_SHADER = DALI_COMPOSE_SHADER(
   INPUT mediump vec2       aPos;\n
     INPUT mediump int      aCount;\n
       uniform mediump mat4 uMvpMatrix;\n
-        OUTPUT flat int vCount;\n void main()\n {
+        FLAT OUTPUT int vCount;\n void main()\n {
           \n
             mediump vec4 vertexPosition(aPos, 0.0, 1.0);
           \n
@@ -40,7 +40,7 @@ const char* VERTEX_SHADER = DALI_COMPOSE_SHADER(
 
 const char* FRAGMENT_SHADER = DALI_COMPOSE_SHADER(
   uniform lowp vec4 uColor;\n
-    INPUT flat int vCount;\n void main()\n {
+    FLAT INPUT int vCount;\n void main()\n {
       \n
         mediump float g = (128.0 + vCount * 16) / 255.0;
       \n
