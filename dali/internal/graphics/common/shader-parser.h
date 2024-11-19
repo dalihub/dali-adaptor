@@ -90,6 +90,9 @@ struct ShaderParserInfo
 
   OutputLanguage language;
   uint32_t       outputVersion;
+
+  std::string vertexShaderPrefix;   // this code will be added right after #version
+  std::string fragmentShaderPrefix; // this code will be added right after #version
 };
 
 /**

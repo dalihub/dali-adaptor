@@ -534,7 +534,7 @@ void CanvasRendererUbuntu::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& d
         }
       }
 
-      if(tvgDuplicatedObject->composite(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject)), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
+      if(tvgDuplicatedObject->composite(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
       {
         DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
         return;
@@ -542,7 +542,7 @@ void CanvasRendererUbuntu::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& d
     }
   }
 
-  if(group->push(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject))) != tvg::Result::Success)
+  if(group->push(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject)) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
     return;

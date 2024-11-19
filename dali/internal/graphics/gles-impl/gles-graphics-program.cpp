@@ -26,6 +26,15 @@
 // EXTERNAL HEADERS
 #include <iostream>
 
+static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
+  "#ifdef GL_KHR_blend_equation_advanced\n"
+  "#extension GL_KHR_blend_equation_advanced : enable\n"
+  "#endif\n"
+
+  "#if defined(GL_KHR_blend_equation_advanced) || __VERSION__>=320\n"
+  "  layout(blend_support_all_equations) out;\n"
+  "#endif\n";
+
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
 #endif
@@ -142,6 +151,8 @@ bool ProgramImpl::Destroy()
 
 void ProgramImpl::Preprocess()
 {
+  auto* gl               = mImpl->controller.GetGL();
+  bool  advancedBlending = !gl ? false : gl->IsAdvancedBlendEquationSupported();
   // For now only Vertex and Fragment shader stages supported
   // and one per stage
   std::string  vertexString;
@@ -205,6 +216,11 @@ void ProgramImpl::Preprocess()
     parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
     parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
 
+    if(advancedBlending)
+    {
+      parseInfo.fragmentShaderPrefix = FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX;
+    }
+
     // set up language dialect for parsed shader
     auto glslVersion        = mImpl->controller.GetGraphicsInterface()->GetShaderLanguageVersion();
     parseInfo.language      = Internal::ShaderParser::OutputLanguage(glslVersion); // We default to GLSL3
@@ -241,6 +257,8 @@ bool ProgramImpl::Create()
   const auto& info = mImpl->createInfo;
 
   Preprocess();
+
+  DALI_LOG_DEBUG_INFO("Program[%s] pre-process finishe for program id : %u\n", mImpl->name.c_str(), program);
 
   for(const auto& state : *info.shaderState)
   {

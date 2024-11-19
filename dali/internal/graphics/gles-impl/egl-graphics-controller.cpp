@@ -88,6 +88,38 @@ struct GLESDeleter
   }
 };
 
+template<>
+struct GLESDeleter<GLES::SyncObject>
+{
+  GLESDeleter() = default;
+
+  void operator()(GLES::SyncObject* object)
+  {
+    // Destroy and delete object otherwise
+    if(DALI_LIKELY(object))
+    {
+      object->DestroyResource();
+    }
+    delete object;
+  }
+};
+
+template<>
+struct GLESDeleter<EGL::SyncObject>
+{
+  GLESDeleter() = default;
+
+  void operator()(EGL::SyncObject* object)
+  {
+    // Destroy and delete object otherwise
+    if(DALI_LIKELY(object))
+    {
+      object->DestroyResource();
+    }
+    delete object;
+  }
+};
+
 /**
  * @brief Helper function allocating graphics object
  *

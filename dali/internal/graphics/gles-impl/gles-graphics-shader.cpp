@@ -142,7 +142,14 @@ struct ShaderImpl::Impl
 
   void SetPreprocessedCode(void* data, uint32_t size)
   {
-    sourcePreprocessed.resize(size);
+    if(size == 0)
+    {
+      sourcePreprocessed.clear();
+      return;
+    }
+
+    sourcePreprocessed.resize(size + 1 /* Include null-terminated char */);
+    sourcePreprocessed[size] = '\0';
 
     std::copy(reinterpret_cast<const uint8_t*>(data),
               reinterpret_cast<const uint8_t*>(data) + size,

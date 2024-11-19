@@ -628,6 +628,11 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   {
     screenExtents = component->GetExtents(CoordinateType::SCREEN);
     windowExtents = component->GetExtents(CoordinateType::WINDOW);
+
+    screenExtents.x += mData->mExtentsOffset.first;
+    screenExtents.y += mData->mExtentsOffset.second;
+    windowExtents.x += mData->mExtentsOffset.first;
+    windowExtents.y += mData->mExtentsOffset.second;
   }
 
   auto*  valueInterface   = Value::DownCast(self);
