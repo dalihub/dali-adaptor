@@ -672,3 +672,34 @@ int UtcParserSingleLineCommentStrip(void)
   }
   END_TEST;
 }
+
+int UtcParserInOutLocation0(void)
+{
+  tet_infoline("UtcParserInOutLocation0 - Tests In/Out locations for longer types");
+
+  auto vertexShader   = LoadTextFile(TEST_RESOURCE_DIR "/shaders/inout-locations.vert");
+  auto fragmentShader = LoadTextFile(TEST_RESOURCE_DIR "/shaders/inout-locations.frag");
+
+  std::vector<std::string> outStrings;
+
+  Internal::ShaderParser::ShaderParserInfo parseInfo{};
+  parseInfo.vertexShaderCode            = &vertexShader;
+  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderLegacyVersion   = 0;
+  parseInfo.fragmentShaderLegacyVersion = 0;
+  parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
+  parseInfo.outputVersion               = 0;
+  Parse(parseInfo, outStrings);
+
+  auto& outVertexShader   = outStrings[0];
+  auto& outFragmentShader = outStrings[1];
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/inout-locations.vert.processed", outVertexShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  {
+    bool cmp = CompareFileWithString(TEST_RESOURCE_DIR "/shaders/inout-locations.frag.processed", outFragmentShader);
+    DALI_TEST_EQUALS(cmp, true, TEST_LOCATION);
+  }
+  END_TEST;
+}
