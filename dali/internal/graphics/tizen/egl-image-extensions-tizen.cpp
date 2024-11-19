@@ -29,10 +29,13 @@
 #include <tbm_surface.h>
 #include <tbm_surface_internal.h>
 
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/time-service.h>
 
 // TBM surface support
 #ifndef EGL_NATIVE_SURFACE_TIZEN
@@ -48,6 +51,34 @@ PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 
 const char* EGL_TIZEN_IMAGE_NATIVE_SURFACE = "EGL_TIZEN_image_native_surface";
 const char* EGL_EXT_IMAGE_DMA_BUF_IMPORT   = "EGL_EXT_image_dma_buf_import";
+
+static uint32_t gLogThreshold{0};
+static bool     gLogEnabled{false};
+
+static uint32_t GetPerformanceLogThresholdTime()
+{
+  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
+  return time;
+}
+
+#define START_DURATION_CHECK()                         \
+  uint64_t startTimeNanoSeconds = 0ull;                \
+  uint64_t endTimeNanoSeconds   = 0ull;                \
+  if(gLogEnabled)                                      \
+  {                                                    \
+    TimeService::GetNanoseconds(startTimeNanoSeconds); \
+  }
+
+#define FINISH_DURATION_CHECK(functionName)                                                                                                                \
+  if(gLogEnabled)                                                                                                                                          \
+  {                                                                                                                                                        \
+    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                       \
+    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= gLogThreshold)                                                   \
+    {                                                                                                                                                      \
+      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms]\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0); \
+    }                                                                                                                                                      \
+  }
 
 } // unnamed namespace
 
@@ -70,6 +101,9 @@ EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
   mImageKHRInitializeFailed(false)
 {
   DALI_ASSERT_ALWAYS(eglImpl && "EGL Implementation not instantiated");
+
+  gLogThreshold = GetPerformanceLogThresholdTime();
+  gLogEnabled   = gLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
 }
 
 EglImageExtensions::~EglImageExtensions()
@@ -97,11 +131,13 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     // If EGL_TIZEN_image_native_surface is supported
     const EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
 
+    START_DURATION_CHECK();
     eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
                                      EGL_NO_CONTEXT,
                                      EGL_NATIVE_SURFACE_TIZEN,
                                      clientBuffer,
                                      attribs);
+    FINISH_DURATION_CHECK("eglCreateImageKHRProc(EGL_NATIVE_SURFACE_TIZEN)");
   }
   else if(mImpl->mIsExtImageDmaBufImportSupported)
   {
@@ -127,11 +163,13 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
                               EGL_NONE};
     // clang-format on
 
+    START_DURATION_CHECK();
     eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
                                      EGL_NO_CONTEXT,
                                      EGL_LINUX_DMA_BUF_EXT,
                                      nullptr,
                                      attribs);
+    FINISH_DURATION_CHECK("eglCreateImageKHRProc(tbmBo)");
   }
   else
   {
@@ -206,7 +244,9 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
   EGLImageKHR eglImage = static_cast<EGLImageKHR>(eglImageKHR);
 
+  START_DURATION_CHECK();
   EGLBoolean result = eglDestroyImageKHRProc(mEglImplementation->GetDisplay(), eglImage);
+  FINISH_DURATION_CHECK("eglDestroyImageKHRProc");
 
   if(EGL_FALSE == result)
   {
@@ -253,7 +293,9 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     }
 #endif
 
+    START_DURATION_CHECK();
     glEGLImageTargetTexture2DOESProc(GL_TEXTURE_EXTERNAL_OES, reinterpret_cast<GLeglImageOES>(eglImage));
+    FINISH_DURATION_CHECK("glEGLImageTargetTexture2DOESProc");
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
@@ -270,9 +312,11 @@ void EglImageExtensions::InitializeEglImageKHR()
   // avoid trying to reload extended KHR functions, if it fails the first time
   if(!mImageKHRInitializeFailed)
   {
+    START_DURATION_CHECK();
     eglCreateImageKHRProc            = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     eglDestroyImageKHRProc           = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     glEGLImageTargetTexture2DOESProc = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
+    FINISH_DURATION_CHECK("eglGetProcAddress");
   }
 
   if(eglCreateImageKHRProc && eglDestroyImageKHRProc && glEGLImageTargetTexture2DOESProc)
@@ -284,7 +328,9 @@ void EglImageExtensions::InitializeEglImageKHR()
     mImageKHRInitializeFailed = true;
   }
 
+  START_DURATION_CHECK();
   std::string extensionStr = eglQueryString(mEglImplementation->GetDisplay(), EGL_EXTENSIONS);
+  FINISH_DURATION_CHECK("eglQueryString(EGL_EXTENSIONS)");
 
   auto found = extensionStr.find(EGL_TIZEN_IMAGE_NATIVE_SURFACE);
   if(found != std::string::npos)

@@ -28,6 +28,7 @@
 
 #endif
 
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -36,11 +37,56 @@
 
 #ifdef _ARCH_ARM_
 
+#include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/time-service.h>
+
+namespace
+{
 // function pointers
 static PFNEGLCREATESYNCKHRPROC     eglCreateSyncKHR     = NULL;
 static PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = NULL;
 static PFNEGLDESTROYSYNCKHRPROC    eglDestroySyncKHR    = NULL;
 static PFNEGLWAITSYNCKHRPROC       eglWaitSyncKHR       = NULL;
+
+static uint32_t gLogThreshold{0};
+static bool     gLogEnabled{false};
+
+static uint32_t GetPerformanceLogThresholdTime()
+{
+  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
+  return time;
+}
+
+#define START_DURATION_CHECK()                         \
+  uint64_t startTimeNanoSeconds = 0ull;                \
+  uint64_t endTimeNanoSeconds   = 0ull;                \
+  if(gLogEnabled)                                      \
+  {                                                    \
+    TimeService::GetNanoseconds(startTimeNanoSeconds); \
+  }
+
+#define FINISH_DURATION_CHECK(functionName)                                                                                                                \
+  if(gLogEnabled)                                                                                                                                          \
+  {                                                                                                                                                        \
+    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                       \
+    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= gLogThreshold)                                                   \
+    {                                                                                                                                                      \
+      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms]\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0); \
+    }                                                                                                                                                      \
+  }
+
+#define FINISH_DURATION_CHECK_WITH_FORMAT(functionName, format, ...)                                                                                                                 \
+  if(gLogEnabled)                                                                                                                                                                    \
+  {                                                                                                                                                                                  \
+    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                                                 \
+    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= gLogThreshold)                                                                             \
+    {                                                                                                                                                                                \
+      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms] " format "\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0, ##__VA_ARGS__); \
+    }                                                                                                                                                                                \
+  }
+
+} // namespace
 
 #endif
 
@@ -61,7 +107,11 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
-  mEglSync           = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
+
+  START_DURATION_CHECK();
+  mEglSync = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
+  FINISH_DURATION_CHECK("eglCreateSyncKHR");
+
   if(mEglSync == EGL_NO_SYNC_KHR)
   {
     DALI_LOG_ERROR("eglCreateSyncKHR failed %#0.4x\n", eglGetError());
@@ -75,9 +125,12 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
 
 EglSyncObject::~EglSyncObject()
 {
-  if(mEglSync != NULL)
+  if(mEglSync != NULL && mEglImplementation.IsGlesInitialized())
   {
+    START_DURATION_CHECK();
     eglDestroySyncKHR(mEglImplementation.GetDisplay(), mEglSync);
+    FINISH_DURATION_CHECK("eglDestroySyncKHR");
+
     EGLint error = eglGetError();
     if(EGL_SUCCESS != error)
     {
@@ -97,8 +150,11 @@ bool EglSyncObject::IsSynced()
   if(mEglSync != NULL)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
+
+    START_DURATION_CHECK();
     EGLint result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0, 0ull);
-    EGLint error  = eglGetError();
+
+    EGLint error = eglGetError();
     if(EGL_SUCCESS != error)
     {
       DALI_LOG_ERROR("eglClientWaitSyncKHR failed %#0.4x\n", error);
@@ -107,37 +163,23 @@ bool EglSyncObject::IsSynced()
     {
       synced = true;
     }
+    FINISH_DURATION_CHECK_WITH_FORMAT("eglClientWaitSyncKHR(no timeout)", "synced : %d", synced);
   }
 
   DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, 0) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
   return synced;
 }
 
-void EglSyncObject::ClientWait()
-{
-  bool synced = false;
-  if(mEglSync != nullptr)
-  {
-    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
-    auto result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER_KHR);
-    if(result == EGL_FALSE)
-    {
-      Egl::PrintError(eglGetError());
-    }
-    else if(result == EGL_CONDITION_SATISFIED_KHR)
-    {
-      synced = true;
-    }
-  }
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
-}
-
 void EglSyncObject::Wait()
 {
-  if(mEglSync != nullptr)
+  if(mEglSync != NULL)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
+
+    START_DURATION_CHECK();
     auto result = eglWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0);
+    FINISH_DURATION_CHECK("eglWaitSyncKHR");
+
     if(EGL_FALSE == result)
     {
       Egl::PrintError(eglGetError());
@@ -149,11 +191,40 @@ void EglSyncObject::Wait()
   }
 }
 
+void EglSyncObject::ClientWait()
+{
+#if defined(DEBUG_ENABLED)
+  bool synced = false;
+#endif
+  if(mEglSync != NULL)
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
+
+    START_DURATION_CHECK();
+    auto result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER_KHR);
+    FINISH_DURATION_CHECK("eglClientWaitSyncKHR(forever)");
+
+    if(result == EGL_FALSE)
+    {
+      Egl::PrintError(eglGetError());
+    }
+#if defined(DEBUG_ENABLED)
+    else if(result == EGL_CONDITION_SATISFIED_KHR)
+    {
+      synced = true;
+    }
+#endif
+  }
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
+}
+
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(NULL),
   mSyncInitialized(false),
   mSyncInitializeFailed(false)
 {
+  gLogThreshold = GetPerformanceLogThresholdTime();
+  gLogEnabled   = gLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
 }
 
 EglSyncImplementation::~EglSyncImplementation()
@@ -192,14 +263,7 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
     InitializeEglSync();
   }
 
-  for(SyncIter iter = mSyncObjects.Begin(), end = mSyncObjects.End(); iter != end; ++iter)
-  {
-    if(*iter == syncObject)
-    {
-      mSyncObjects.Erase(iter);
-      break;
-    }
-  }
+  mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
@@ -207,10 +271,12 @@ void EglSyncImplementation::InitializeEglSync()
 {
   if(!mSyncInitializeFailed)
   {
+    START_DURATION_CHECK();
     eglCreateSyncKHR     = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
     eglClientWaitSyncKHR = reinterpret_cast<PFNEGLCLIENTWAITSYNCKHRPROC>(eglGetProcAddress("eglClientWaitSyncKHR"));
     eglWaitSyncKHR       = reinterpret_cast<PFNEGLWAITSYNCKHRPROC>(eglGetProcAddress("eglWaitSyncKHR"));
     eglDestroySyncKHR    = reinterpret_cast<PFNEGLDESTROYSYNCKHRPROC>(eglGetProcAddress("eglDestroySyncKHR"));
+    FINISH_DURATION_CHECK("eglGetProcAddress");
   }
 
   if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglWaitSyncKHR && eglDestroySyncKHR)

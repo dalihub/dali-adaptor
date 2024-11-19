@@ -19,6 +19,7 @@
 
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <dali/integration-api/ordered-set.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
@@ -52,6 +53,7 @@ struct AgingSyncObject
   bool    syncing{false};
   bool    egl{false};
 
+  bool IsSynced();
   void Wait();
   bool ClientWait();
 };
@@ -87,6 +89,13 @@ public:
   AgingSyncObject* AllocateSyncObject(const Context* writeContext, SyncContext syncContext);
 
   /**
+   * Check whether given object is synced in the CPU
+   * @param syncPoolObject The object to check synced.
+   * @return true if the sync object was signaled, false if it timed out
+   */
+  bool IsSynced(AgingSyncObject* syncPoolObject);
+
+  /**
    * Wait on a sync object in any context in the GPU
    * @param syncPoolObject The object to wait on.
    */
@@ -112,8 +121,8 @@ public:
   void AgeSyncObjects();
 
 private:
-  std::vector<std::unique_ptr<AgingSyncObject>> mSyncObjects;
-  EglGraphicsController&                        mController;
+  Dali::Integration::OrderedSet<AgingSyncObject> mSyncObjects; ///< The list of sync objects in this pool (owned)
+  EglGraphicsController&                         mController;
 };
 
 } // namespace GLES
