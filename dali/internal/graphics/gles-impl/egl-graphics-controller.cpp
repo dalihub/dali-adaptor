@@ -88,6 +88,38 @@ struct GLESDeleter
   }
 };
 
+template<>
+struct GLESDeleter<GLES::SyncObject>
+{
+  GLESDeleter() = default;
+
+  void operator()(GLES::SyncObject* object)
+  {
+    // Destroy and delete object otherwise
+    if(DALI_LIKELY(object))
+    {
+      object->DestroyResource();
+    }
+    delete object;
+  }
+};
+
+template<>
+struct GLESDeleter<EGL::SyncObject>
+{
+  GLESDeleter() = default;
+
+  void operator()(EGL::SyncObject* object)
+  {
+    // Destroy and delete object otherwise
+    if(DALI_LIKELY(object))
+    {
+      object->DestroyResource();
+    }
+    delete object;
+  }
+};
+
 /**
  * @brief Helper function allocating graphics object
  *
@@ -638,25 +670,20 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         break;
       }
 
-      case GLES::CommandType::SET_STENCIL_FUNC:
+      case GLES::CommandType::SET_STENCIL_STATE:
       {
-        mCurrentContext->StencilFunc(cmd.stencilFunc.compareOp,
-                                     cmd.stencilFunc.reference,
-                                     cmd.stencilFunc.compareMask);
+        mCurrentContext->StencilFunc(cmd.stencilState.compareOp,
+                                     cmd.stencilState.reference,
+                                     cmd.stencilState.compareMask);
+        mCurrentContext->StencilOp(cmd.stencilState.failOp,
+                                   cmd.stencilState.depthFailOp,
+                                   cmd.stencilState.passOp);
         break;
       }
 
       case GLES::CommandType::SET_STENCIL_WRITE_MASK:
       {
         mCurrentContext->StencilMask(cmd.stencilWriteMask.mask);
-        break;
-      }
-
-      case GLES::CommandType::SET_STENCIL_OP:
-      {
-        mCurrentContext->StencilOp(cmd.stencilOp.failOp,
-                                   cmd.stencilOp.depthFailOp,
-                                   cmd.stencilOp.passOp);
         break;
       }
 
@@ -1136,6 +1163,17 @@ bool EglGraphicsController::HasClipMatrix() const
 const Matrix& EglGraphicsController::GetClipMatrix() const
 {
   return Matrix::IDENTITY;
+}
+
+uint32_t EglGraphicsController::GetDeviceLimitation(Dali::Graphics::DeviceCapability capability)
+{
+  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  {
+    GLint i = 0;
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &i);
+    return i;
+  }
+  return 0u;
 }
 
 } // namespace Dali::Graphics

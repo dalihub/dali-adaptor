@@ -367,11 +367,62 @@ void CommandBufferImpl::SetViewport(Viewport value)
   mCommandBuffer.setViewport(0, 1, reinterpret_cast<vk::Viewport*>(&value));
 }
 
+void CommandBufferImpl::SetStencilTestEnable(bool stencilEnable)
+{
+  mCommandBuffer.setStencilTestEnable(stencilEnable);
+  if(!stencilEnable)
+  {
+    mCommandBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
+    mCommandBuffer.setStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
+    mCommandBuffer.setStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
+    mCommandBuffer.setStencilOp(vk::StencilFaceFlagBits::eFrontAndBack, vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::CompareOp::eLess);
+  }
+}
+
+void CommandBufferImpl::SetStencilWriteMask(vk::StencilFaceFlags faceMask, uint32_t writeMask)
+{
+  mCommandBuffer.setStencilWriteMask(faceMask, writeMask);
+}
+
+void CommandBufferImpl::SetStencilCompareMask(vk::StencilFaceFlags faceMask, uint32_t compareMask)
+{
+  mCommandBuffer.setStencilCompareMask(faceMask, compareMask);
+}
+
+void CommandBufferImpl::SetStencilReference(vk::StencilFaceFlags faceMask, uint32_t reference)
+{
+  mCommandBuffer.setStencilReference(faceMask, reference);
+}
+
+void CommandBufferImpl::SetStencilOp(vk::StencilFaceFlags faceMask, vk::StencilOp failOp, vk::StencilOp passOp, vk::StencilOp depthFailOp, vk::CompareOp compareOp)
+{
+  mCommandBuffer.setStencilOp(faceMask, failOp, passOp, depthFailOp, compareOp);
+}
+
+void CommandBufferImpl::SetDepthTestEnable(bool depthTestEnable)
+{
+  mCommandBuffer.setDepthTestEnable(depthTestEnable);
+  mCommandBuffer.setDepthBoundsTestEnable(false);
+  mCommandBuffer.setDepthBounds(0.0f, 1.0f);
+}
+
+void CommandBufferImpl::SetDepthWriteEnable(bool depthWriteEnable)
+{
+  mCommandBuffer.setDepthWriteEnable(depthWriteEnable);
+}
+
+void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
+{
+  mCommandBuffer.setDepthCompareOp(op);
+}
+
 void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 {
   std::vector<vk::DescriptorImageInfo>  imageInfos;
   std::vector<vk::DescriptorBufferInfo> bufferInfos;
   std::vector<vk::WriteDescriptorSet>   descriptorWrites;
+
+  bufferInfos.reserve(mDeferredUniformBindings.size() + 1);
 
   // Deferred uniform buffer bindings:
   for(auto& uniformBinding : mDeferredUniformBindings)
@@ -397,6 +448,7 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 
   // Deferred texture bindings:
   uint32_t binding = 1;
+  imageInfos.reserve(mDeferredTextureBindings.size() + 1);
   for(auto& textureBinding : mDeferredTextureBindings)
   {
     imageInfos.emplace_back();

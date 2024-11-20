@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/addons/common/addon-manager.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/addons/common/addon-manager.h>
 
 namespace Dali
 {
@@ -61,6 +61,11 @@ bool AddOnManager::GetAddOnInfo(const std::string& name, AddOnInfo& info)
 std::vector<Dali::AddOnLibrary> AddOnManager::LoadAddOns(const std::vector<std::string>& addonNames)
 {
   return mImpl->LoadAddOns(addonNames);
+}
+
+AddOnLibrary AddOnManager::LoadAddOn(const std::string& addonName, const std::string& libraryName)
+{
+  return mImpl->LoadAddOn(addonName, libraryName);
 }
 
 void* AddOnManager::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName)

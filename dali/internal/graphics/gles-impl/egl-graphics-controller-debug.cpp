@@ -196,36 +196,28 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
         break;
       }
 
-      case GLES::CommandType::SET_STENCIL_FUNC:
+      case GLES::CommandType::SET_STENCIL_STATE:
       {
         fprintf(output,
-                "{\"Cmd\":\"STENCIL_FUNC\",\n"
+                "{\"Cmd\":\"STENCIL_STATE\",\n"
                 "\"compareOp\":\"%s\",\n"
                 "\"reference\":\"0x%x\",\n"
-                "\"compareMask\":\"0x%x\"\n}",
-                DumpCompareOp(cmd.stencilFunc.compareOp).c_str(),
-                cmd.stencilFunc.reference,
-                cmd.stencilFunc.compareMask);
+                "\"compareMask\":\"0x%x\"\n"
+                "\"failOp\":\"%s\",\n"
+                "\"depthFailOp\":\"%s\",\n"
+                "\"passOp\":\"%s\"\n}",
+                DumpCompareOp(cmd.stencilState.compareOp).c_str(),
+                cmd.stencilState.reference,
+                cmd.stencilState.compareMask,
+                DumpStencilOp(cmd.stencilState.failOp).c_str(),
+                DumpStencilOp(cmd.stencilState.depthFailOp).c_str(),
+                DumpStencilOp(cmd.stencilState.passOp).c_str());
         break;
       }
 
       case GLES::CommandType::SET_STENCIL_WRITE_MASK:
       {
         fprintf(output, "{\"Cmd\":\"SET_STENCIL_WRITE_MASK\",\n\"mask\":%d\n}\n", cmd.stencilWriteMask.mask);
-        break;
-      }
-
-      case GLES::CommandType::SET_STENCIL_OP:
-      {
-        fprintf(output,
-                "{\"Cmd\":\"SET_STENCIL_OP\",\n"
-                "\"failOp\":\"%s\",\n"
-                "\"depthFailOp\":\"%s\",\n"
-                "\"passOp\":\"%s\"\n}",
-
-                DumpStencilOp(cmd.stencilOp.failOp).c_str(),
-                DumpStencilOp(cmd.stencilOp.depthFailOp).c_str(),
-                DumpStencilOp(cmd.stencilOp.passOp).c_str());
         break;
       }
 

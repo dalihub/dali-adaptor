@@ -912,6 +912,7 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mEglWindow(nullptr),
   mDisplay(nullptr),
   mEventQueue(nullptr),
+  mDisplayRegistry(nullptr),
   mTizenPolicy(nullptr),
   mTizenDisplayPolicy(nullptr),
   mKeyMap(nullptr),
@@ -955,9 +956,40 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
   }
   mEcoreEventHandler.Clear();
 
+  if(mTizenDisplayPolicy)
+  {
+    tizen_display_policy_destroy(mTizenDisplayPolicy);
+    mTizenDisplayPolicy = nullptr;
+  }
+
+  if(mTizenPolicy)
+  {
+    tizen_policy_destroy(mTizenPolicy);
+    mTizenPolicy = nullptr;
+  }
+
+  if(mDisplayRegistry)
+  {
+    wl_registry_destroy(mDisplayRegistry);
+    mDisplayRegistry = nullptr;
+  }
+
+  if(mWlInputPanel)
+  {
+    wl_proxy_destroy((struct wl_proxy *)mWlInputPanel);
+    mWlInputPanel = nullptr;
+  }
+
+  if(mWlOutput)
+  {
+    wl_output_destroy(mWlOutput);
+    mWlOutput = nullptr;
+  }
+
   if(mEventQueue)
   {
     wl_event_queue_destroy(mEventQueue);
+    mEventQueue = nullptr;
   }
 
   mSupportedAuxiliaryHints.clear();
@@ -1094,8 +1126,8 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
       {
         wl_proxy_set_queue(reinterpret_cast<wl_proxy*>(displayWrapper), mEventQueue);
 
-        wl_registry* registry = wl_display_get_registry(displayWrapper);
-        wl_registry_add_listener(registry, &registryListener, this);
+        mDisplayRegistry = wl_display_get_registry(displayWrapper);
+        wl_registry_add_listener(mDisplayRegistry, &registryListener, this);
 
         // To support ECORE_WL2_EVENT_CONFORMANT_CHANGE event handler
         ecore_wl2_window_conformant_set(mEcoreWindow, true);

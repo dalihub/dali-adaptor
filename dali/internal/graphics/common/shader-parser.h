@@ -43,8 +43,12 @@ enum class ShaderStage
  */
 enum class OutputLanguage
 {
-  GLSL2,
-  GLSL3,
+  GLSL_100_ES = 100,
+  GLSL_3      = 300,
+  GLSL_300_ES = GLSL_3,
+  GLSL_310_ES = 310,
+  GLSL_320_ES = 320,
+  GLSL_3_MAX, // end of GLSL3xx list
   SPIRV_GLSL
 };
 
@@ -72,6 +76,8 @@ struct Program
   int                        uboBinding{0};
   int&                       samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
   int                        attributeLocation{0};
+
+  std::vector<std::pair<std::string, uint32_t>> uniformBlocks;
 };
 
 struct ShaderParserInfo
@@ -84,6 +90,9 @@ struct ShaderParserInfo
 
   OutputLanguage language;
   uint32_t       outputVersion;
+
+  std::string vertexShaderPrefix;   // this code will be added right after #version
+  std::string fragmentShaderPrefix; // this code will be added right after #version
 };
 
 /**

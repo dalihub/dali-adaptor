@@ -83,8 +83,6 @@ class BridgeImpl : public virtual BridgeBase,
   bool                                                          mIsEnabled{false};
   bool                                                          mIsApplicationRunning{false};
   std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks{};
-  Dali::Actor                                                   mHighlightedActor;
-  std::function<void(Dali::Actor)>                              mHighlightClearAction{nullptr};
   Dali::CallbackBase*                                           mIdleCallback{};
   Dali::Timer                                                   mInitializeTimer;
   Dali::Timer                                                   mReadIsEnabledTimer;
@@ -287,8 +285,6 @@ public:
       ReleaseBusName(mPreferredBusName);
     }
 
-    mHighlightedActor     = {};
-    mHighlightClearAction = {};
     BridgeAccessible::ForceDown();
     mRegistryClient      = {};
     mDirectReadingClient = {};
@@ -664,6 +660,9 @@ public:
 
   void SwitchBridge()
   {
+    //If DBusClient is not ready, don't remove initialize timer.
+    if (mInitializeTimer && mInitializeTimer.IsRunning()) return;
+
     bool isScreenReaderEnabled = mIsScreenReaderEnabled && !mIsScreenReaderSuppressed;
 
     if((isScreenReaderEnabled || mIsEnabled) && mIsApplicationRunning)

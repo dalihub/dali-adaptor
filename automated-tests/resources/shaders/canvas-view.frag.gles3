@@ -1,7 +1,13 @@
 #version 320 es
 
-
 #define TEXTURE texture
+#define TEXTURE_CUBE texture
+#define TEXTURE_LOD textureLod
+#define TEXTURE_CUBE_LOD textureLod
+#define textureCube texture
+#define texture2D texture
+#define texture2DLod textureLod
+#define textureCubeLod textureLod
 layout(std140) uniform FragBlock
 {
  lowp vec4 uColor;
@@ -9,10 +15,18 @@ layout(std140) uniform FragBlock
 
 in mediump vec2 vTexCoord;
 uniform sampler2D sTexture;
+uniform samplerCube sTextureCube;
 
 #define gl_FragColor _glFragColor
 out mediump vec4 _glFragColor;
 void main()
 {
+
+  // Using GLSL100 semantics
+  vec4 skyboxColor = textureCube(sTextureCube, vec3(0,0,0));
+
+  // Using modern semantics
+  vec4 skyboxColor2 = TEXTURE_CUBE(sTextureCube, vec3(0,0,0));
+
   gl_FragColor = TEXTURE(sTexture, vTexCoord) * uColor;
 }

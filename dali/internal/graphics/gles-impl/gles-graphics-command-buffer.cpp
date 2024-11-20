@@ -524,23 +524,18 @@ void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
   command->stencilWriteMask.mask = writeMask;
 }
 
-void CommandBuffer::SetStencilOp(Graphics::StencilOp failOp,
-                                 Graphics::StencilOp passOp,
-                                 Graphics::StencilOp depthFailOp)
+void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
+                                    uint32_t            reference,
+                                    uint32_t            compareMask,
+                                    Graphics::StencilOp failOp,
+                                    Graphics::StencilOp passOp,
+                                    Graphics::StencilOp depthFailOp)
 {
-  auto  command   = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_OP);
-  auto& cmd       = command->stencilOp;
+  auto  command   = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_STATE);
+  auto& cmd       = command->stencilState;
   cmd.failOp      = failOp;
   cmd.passOp      = passOp;
   cmd.depthFailOp = depthFailOp;
-}
-
-void CommandBuffer::SetStencilFunc(Graphics::CompareOp compareOp,
-                                   uint32_t            reference,
-                                   uint32_t            compareMask)
-{
-  auto  command   = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_FUNC);
-  auto& cmd       = command->stencilFunc;
   cmd.compareOp   = compareOp;
   cmd.compareMask = compareMask;
   cmd.reference   = reference;

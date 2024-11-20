@@ -123,19 +123,27 @@ std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
   std::vector<uint8_t> data;
   auto*                shader           = static_cast<const Dali::Graphics::GLES::Shader*>(shaderState.shader);
   auto&                shaderCreateInfo = shader->GetCreateInfo();
-  data.resize(shaderCreateInfo.sourceSize + 1);
-  std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
-  data[shaderCreateInfo.sourceSize] = 0;
 
-  return std::string(reinterpret_cast<char*>(&data[0]));
+  auto shaderImpl = shader->GetImplementation();
+  if(shaderImpl->HasPreprocessedCode())
+  {
+    return std::string{shaderImpl->GetPreprocessedCode()};
+  }
+  return {reinterpret_cast<char*>(&data[0]), shaderCreateInfo.sourceSize};
 }
 
-void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
+void ParseShaderSamplers(const std::string& shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
 {
   if(!shaderSource.empty())
   {
     char* shaderStr = strdup(shaderSource.c_str());
-    char* uniform   = strstr(shaderStr, UNIFORM);
+    if(shaderStr == nullptr)
+    {
+      DALI_LOG_ERROR("Failed to allocate memory for shader string duplicate\n");
+      return;
+    }
+
+    char* uniform = strstr(shaderStr, UNIFORM);
 
     while(uniform)
     {
@@ -311,12 +319,12 @@ void Reflection::BuildUniformBlockReflection()
     return params;
   };
 
-  auto activeUniformType       = getActiveUniformParams(GL_UNIFORM_TYPE);
-  auto activeUniformSize       = getActiveUniformParams(GL_UNIFORM_SIZE);
-  auto activeUniformNameLength = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
-  auto activeUniformBlockIndex = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
-  auto activeUniformOffset     = getActiveUniformParams(GL_UNIFORM_OFFSET);
-
+  auto activeUniformType         = getActiveUniformParams(GL_UNIFORM_TYPE);
+  auto activeUniformSize         = getActiveUniformParams(GL_UNIFORM_SIZE);
+  auto activeUniformNameLength   = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
+  auto activeUniformBlockIndex   = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
+  auto activeUniformOffset       = getActiveUniformParams(GL_UNIFORM_OFFSET);
+  auto activeUniformMatrixStride = getActiveUniformParams(GL_UNIFORM_MATRIX_STRIDE);
   // Extract only uniform blocks and collect data
   // collect samplers into separate array
   std::vector<UniformInfo> samplers;
@@ -350,6 +358,7 @@ void Reflection::BuildUniformBlockReflection()
       uniformInfo->bufferIndex  = blockIndex;
       uniformInfo->binding      = blockIndex == 0 ? i : 0; // this will be reset later
       uniformInfo->offset       = activeUniformOffset[i];
+      uniformInfo->matrixStride = activeUniformMatrixStride[i];
     }
 
     uniformInfo->location = location; // location must be set later and sorted by offset
@@ -373,9 +382,7 @@ void Reflection::BuildUniformBlockReflection()
   uint32_t blockIndex = 0;
   for(auto& ubo : mUniformBlocks)
   {
-    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs) {
-      return lhs.offset < rhs.offset;
-    });
+    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs) { return lhs.offset < rhs.offset; });
 
     if(blockIndex > 0)
     {
@@ -385,17 +392,19 @@ void Reflection::BuildUniformBlockReflection()
       gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_NAME_LENGTH, &blockNameLength);
       char* blockName = new char[blockNameLength];
       gl->GetActiveUniformBlockName(glProgram, blockIndex - 1, blockNameLength, nullptr, blockName);
-      ubo.name = blockName;
-      ubo.size = uboSize;
+      ubo.name    = blockName;
+      ubo.size    = uboSize;
+      ubo.binding = blockIndex - 1;
       delete[] blockName;
     }
     else
     {
-      ubo.name = "";
-      ubo.size = 0; // to compute later
+      ubo.name    = "";
+      ubo.size    = 0; // to compute later
+      ubo.binding = 0;
     }
-    ubo.binding       = 0;
     ubo.descriptorSet = 0;
+
     blockIndex++;
   }
 
@@ -540,6 +549,7 @@ bool Reflection::GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInf
     out.members[i].location      = memberUniform.location;
     out.members[i].elementCount  = memberUniform.elementCount;
     out.members[i].elementStride = memberUniform.elementStride;
+    out.members[i].matrixStride  = memberUniform.matrixStride;
   }
 
   return true;
@@ -688,7 +698,7 @@ Graphics::ShaderLanguage Reflection::GetLanguage() const
 
 void Reflection::SortOpaques()
 {
-  //Determine declaration order of each sampler
+  // Determine declaration order of each sampler
   auto& programCreateInfo = mProgram.GetCreateInfo();
 
   std::vector<uint8_t> data;

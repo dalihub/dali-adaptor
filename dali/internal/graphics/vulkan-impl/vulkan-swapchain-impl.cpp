@@ -18,6 +18,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
@@ -212,7 +213,7 @@ void Swapchain::Destroy()
   }
 }
 
-void Swapchain::CreateFramebuffers()
+void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
 {
   assert(mSwapchainKHR && "Needs a swapchain before creating framebuffers");
 
@@ -250,11 +251,11 @@ void Swapchain::CreateFramebuffers()
     colorImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
 
     // A new color attachment for each framebuffer
-    OwnedAttachments attachments;
+    SharedAttachments attachments;
     attachments.emplace_back(FramebufferAttachment::NewColorAttachment(colorImageView,
                                                                        clearColor,
                                                                        true));
-    std::unique_ptr<FramebufferAttachment>                       depthAttachment;
+
     std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)> framebuffer(
       FramebufferImpl::New(mGraphicsDevice,
                            compatibleRenderPass,
@@ -429,70 +430,40 @@ void Swapchain::Invalidate()
 
 void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 {
-#if 0
-  RefCountedFramebufferAttachment depthAttachment;
-  auto swapchainExtent = mSwapchainCreateInfoKHR.imageExtent;
+  FramebufferAttachmentHandle depthAttachment;
+  auto                        swapchainExtent = mSwapchainCreateInfoKHR.imageExtent;
 
-  if( depthStencilFormat != vk::Format::eUndefined )
+  if(depthStencilFormat != vk::Format::eUndefined)
   {
     // Create depth/stencil image
     auto imageCreateInfo = vk::ImageCreateInfo{}
-      .setFormat( depthStencilFormat )
-      .setMipLevels( 1 )
-      .setTiling( vk::ImageTiling::eOptimal )
-      .setImageType( vk::ImageType::e2D )
-      .setArrayLayers( 1 )
-      .setExtent( { swapchainExtent.width, swapchainExtent.height, 1 } )
-      .setUsage( vk::ImageUsageFlagBits::eDepthStencilAttachment )
-      .setSharingMode( vk::SharingMode::eExclusive )
-      .setInitialLayout( vk::ImageLayout::eUndefined )
-      .setSamples( vk::SampleCountFlagBits::e1 );
+                             .setFormat(depthStencilFormat)
+                             .setMipLevels(1)
+                             .setTiling(vk::ImageTiling::eOptimal)
+                             .setImageType(vk::ImageType::e2D)
+                             .setArrayLayers(1)
+                             .setExtent({swapchainExtent.width, swapchainExtent.height, 1})
+                             .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
+                             .setSharingMode(vk::SharingMode::eExclusive)
+                             .setInitialLayout(vk::ImageLayout::eUndefined)
+                             .setSamples(vk::SampleCountFlagBits::e1);
 
-    auto dsRefCountedImage = mGraphicsDevice->CreateImage( imageCreateInfo );
+    mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo));
 
-    auto memory = mGraphicsDevice->AllocateMemory( dsRefCountedImage, vk::MemoryPropertyFlagBits::eDeviceLocal );
-
-    mGraphics->BindImageMemory( dsRefCountedImage, std::move(memory), 0 );
+    mDepthStencilBuffer->AllocateAndBind(vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     // create the depth stencil ImageView to be used within framebuffer
-    auto depthStencilImageView = ImageView::New(dsRefCountedImage);
-    auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth( 0.0 )
-                                                       .setStencil( STENCIL_DEFAULT_CLEAR_VALUE );
+    auto depthStencilImageView = std::unique_ptr<ImageView>(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer));
+    auto depthClearValue       = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
-    // A single depth attachment for the swapchain.
-    depthAttachment = FramebufferAttachment::NewDepthAttachment( depthStencilImageView, depthClearValue );
-  }
-
-  // Get images
-  auto images = VkAssert( mGraphics->GetDevice().getSwapchainImagesKHR( mSwapchainKHR ) );
-
-  // allocate framebuffers
-  auto framebuffers = std::vector< RefCountedFramebuffer >{};
-  framebuffers.reserve( images.size() );
-
-  auto clearColor = vk::ClearColorValue{}.setFloat32( { 0.0f, 0.0f, 0.0f, 1.0f } );
-
-  for( auto&& image : images )
-  {
-    // @todo When do we kill this auto image & imageView? MemLeak.
-    auto colorImageView = ImageView::New( mGraphics->CreateImageFromExternal( image, mSwapchainCreateInfoKHR.imageFormat, swapchainExtent ) );
-
-    // A new color attachment for each framebuffer
-    auto colorAttachment = FramebufferAttachment::NewColorAttachment(colorImageView,
-                                                                     clearColor,
-                                                                     true);//presentable
-
-    framebuffers.push_back( mGraphics->CreateFramebuffer({colorAttachment},
-                                                         depthAttachment,
-                                                         swapchainExtent.width,
-                                                         swapchainExtent.height ) );
+    // A single depth attachment for the swapchain. Takes ownership of the image view
+    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue));
   }
 
   // Before replacing framebuffers in the swapchain, wait until all is done
-  mGraphics->DeviceWaitIdle();
+  mGraphicsDevice.DeviceWaitIdle();
 
-  mFramebuffers = std::move( framebuffers );
-#endif
+  CreateFramebuffers(depthAttachment);
 }
 
 uint32_t Swapchain::GetImageCount() const

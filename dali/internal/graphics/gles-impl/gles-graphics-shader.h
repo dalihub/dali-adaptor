@@ -121,6 +121,22 @@ public:
   void SetPreprocessedCode(void* data, uint32_t size);
 
   /**
+   * @brief Returns preprocessed code
+   *
+   * @note Use HasPreprocessedCode() first before using this function.
+   *
+   * @return the string_view to the preprocessed code
+   */
+  [[nodiscard]] std::string_view GetPreprocessedCode() const;
+
+  /**
+   * @brief Checks whether preprocessed code is available
+   *
+   * @return true if there is a preprocessed code
+   */
+  [[nodiscard]] bool HasPreprocessedCode() const;
+
+  /**
    * @brief Returns GLSL version
    * @return Returns valid GLSL version or 0 if undefined
    */

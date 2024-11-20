@@ -70,6 +70,10 @@ Capture::Capture(Dali::CameraActor cameraActor)
 
 Capture::~Capture()
 {
+  if(Adaptor::IsAvailable())
+  {
+    Adaptor::Get().UnregisterProcessorOnce(*this, true);
+  }
   DeleteNativeImageSource();
   mTexture.Reset();
 }
@@ -90,12 +94,23 @@ CapturePtr Capture::New(Dali::CameraActor cameraActor)
 
 void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string& path, const Dali::Vector4& clearColor, const uint32_t quality)
 {
+  if(mInCapture)
+  {
+    DALI_LOG_ERROR("Capture is already requested.\n");
+    return;
+  }
   mQuality = quality;
   Start(source, position, size, path, clearColor);
 }
 
 void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string& path, const Dali::Vector4& clearColor)
 {
+  if(mInCapture)
+  {
+    DALI_LOG_ERROR("Capture is already requested.\n");
+    return;
+  }
+
   if(!source)
   {
     return;
@@ -112,6 +127,9 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
 
   UnsetResources();
   SetupResources(position, size, clearColor, source);
+
+  mInCapture = true;
+  Adaptor::Get().RegisterProcessorOnce(*this, true);
 }
 
 void Capture::SetImageQuality(uint32_t quality)
@@ -278,10 +296,6 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
   mRenderTask.SetProperty(Dali::RenderTask::Property::REQUIRES_SYNC, true);
   mRenderTask.FinishedSignal().Connect(this, &Capture::OnRenderFinished);
   mRenderTask.GetCameraActor().SetInvertYAxis(true);
-
-  mTimer = Dali::Timer::New(TIME_OUT_DURATION);
-  mTimer.TickSignal().Connect(this, &Capture::OnTimeOut);
-  mTimer.Start();
 }
 
 void Capture::UnsetRenderTask()
@@ -358,10 +372,16 @@ void Capture::OnRenderFinished(Dali::RenderTask& task)
     }
   }
 
+  mInCapture = false;
+
   Dali::Capture handle(this);
   mFinishedSignal.Emit(handle, state);
 
-  UnsetResources();
+  // Don't unset resources when capture re-start during finished signal.
+  if(!mInCapture)
+  {
+    UnsetResources();
+  }
 
   // Decrease the reference count forcely. It is increased at Start().
   Unreference();
@@ -371,10 +391,16 @@ bool Capture::OnTimeOut()
 {
   Dali::Capture::FinishState state = Dali::Capture::FinishState::FAILED;
 
+  mInCapture = false;
+
   Dali::Capture handle(this);
   mFinishedSignal.Emit(handle, state);
 
-  UnsetResources();
+  // Don't unset resources when capture re-start during finished signal.
+  if(!mInCapture)
+  {
+    UnsetResources();
+  }
 
   // Decrease the reference count forcely. It is increased at Start().
   Unreference();
@@ -390,6 +416,16 @@ bool Capture::SaveFile()
   }
 
   return false;
+}
+
+void Capture::Process(bool postProcessor)
+{
+  if(mInCapture)
+  {
+    mTimer = Dali::Timer::New(TIME_OUT_DURATION);
+    mTimer.TickSignal().Connect(this, &Capture::OnTimeOut);
+    mTimer.Start();
+  }
 }
 
 } // End of namespace Adaptor

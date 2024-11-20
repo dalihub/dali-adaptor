@@ -385,12 +385,12 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::RegisterDefaultLabel()
    */
-  void RegisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
+  void RegisterDefaultLabel(Dali::Actor actor) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::UnregisterDefaultLabel()
    */
-  void UnregisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
+  void UnregisterDefaultLabel(Dali::Actor actor) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
@@ -639,7 +639,7 @@ public:
 
 protected:
   // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
-  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, std::weak_ptr<Dali::Accessibility::Accessible>>;
+  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::WeakHandle<Dali::Actor>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
   mutable ApplicationAccessible mApplication;
@@ -700,12 +700,12 @@ private:
   void CompressDefaultLabels();
 
   /**
-   * @brief Gets the window to which this accessible belongs (or an empty handle).
+   * @brief Gets the window to which this actor belongs (or an empty handle).
    *
-   * @param accessible The accessible
+   * @param actor The actor
    * @return The window
    */
-  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Accessibility::Accessible* accessible);
+  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Actor actor);
 
 protected:
   BridgeBase();

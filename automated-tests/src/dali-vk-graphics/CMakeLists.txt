@@ -8,6 +8,7 @@ SET(CAPI_LIB "dali-vk-graphics")
 
 SET(TC_SOURCES
     utc-Dali-VkGraphicsBuffer.cpp
+    utc-Dali-VkClipMatrix.cpp
 )
 
 SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")

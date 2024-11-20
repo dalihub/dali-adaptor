@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DALI_GRAPHICS_VULKAN_HANDLE_H
+#define DALI_GRAPHICS_VULKAN_HANDLE_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -31,7 +32,7 @@ public:
 
   Handle& operator=(const Handle& handle);
 
-  Handle& operator=(Handle&& handle);
+  Handle& operator=(Handle&& handle) noexcept;
 
   Handle(Handle&& handle) noexcept;
 
@@ -44,7 +45,7 @@ public:
     return mObject;
   }
 
-  uint32_t GetRefCount() const
+  [[nodiscard]] uint32_t GetRefCount() const
   {
     return mObject->GetRefCount();
   }
@@ -134,7 +135,7 @@ Handle<T>::operator bool() const
 }
 
 template<class T>
-Handle<T>& Handle<T>::operator=(Handle&& handle)
+Handle<T>& Handle<T>::operator=(Handle&& handle) noexcept
 {
   if(mObject)
   {
@@ -148,10 +149,13 @@ Handle<T>& Handle<T>::operator=(Handle&& handle)
 template<class T>
 Handle<T>& Handle<T>::operator=(const Handle<T>& handle)
 {
-  mObject = handle.mObject;
-  if(mObject)
+  if(handle.mObject != this)
   {
-    mObject->Retain();
+    mObject = handle.mObject;
+    if(mObject)
+    {
+      mObject->Retain();
+    }
   }
   return *this;
 }
@@ -243,3 +247,5 @@ private:
 };
 
 } // namespace Dali::Graphics::Vulkan
+
+#endif // DALI_GRAPHICS_VULKAN_HANDLE_H

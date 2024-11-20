@@ -139,6 +139,15 @@ T0* CastObject(T1* apiObject)
   return static_cast<T0*>(apiObject);
 }
 
+namespace DepthStencilFlagBits
+{
+static constexpr uint32_t DEPTH_BUFFER_BIT   = 1; // depth buffer enabled
+static constexpr uint32_t STENCIL_BUFFER_BIT = 2; // stencil buffer enabled
+} // namespace DepthStencilFlagBits
+
+// State of the depth-stencil buffer
+using DepthStencilFlags = uint32_t;
+
 struct VulkanGraphicsController::Impl
 {
   explicit Impl(VulkanGraphicsController& controller)
@@ -182,8 +191,50 @@ struct VulkanGraphicsController::Impl
     }
   }
 
+  bool EnableDepthStencilBuffer(const RenderTarget& renderTarget, bool enableDepth, bool enableStencil)
+  {
+    auto surface = static_cast<const Vulkan::RenderTarget*>(&renderTarget)->GetSurface();
+    if(!surface)
+    {
+      // Do nothing if this is not a surface.
+      return false;
+    }
+
+    auto renderSurface = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
+    auto surfaceId     = renderSurface->GetSurfaceId();
+
+    mDepthStencilBufferRequestedState = (enableDepth ? DepthStencilFlagBits::DEPTH_BUFFER_BIT : 0u) |
+                                        (enableStencil ? DepthStencilFlagBits::STENCIL_BUFFER_BIT : 0u);
+
+    auto retval = mDepthStencilBufferRequestedState != mDepthStencilBufferCurrentState;
+
+    // @todo move state vars to surface
+    if(surface && mDepthStencilBufferCurrentState != mDepthStencilBufferRequestedState)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "UpdateDepthStencilBuffer(): New state: DEPTH: %d, STENCIL: %d\n", int(mDepthStencilBufferRequestedState & 1), int((mDepthStencilBufferRequestedState >> 1) & 1));
+
+      // Formats
+      const std::array<vk::Format, 4> DEPTH_STENCIL_FORMATS = {
+        vk::Format::eUndefined,     // no depth nor stencil needed
+        vk::Format::eD16Unorm,      // only depth buffer
+        vk::Format::eS8Uint,        // only stencil buffer
+        vk::Format::eD24UnormS8Uint // depth and stencil buffers
+      };
+
+      mGraphicsDevice->DeviceWaitIdle();
+
+      mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId)->SetDepthStencil(DEPTH_STENCIL_FORMATS[mDepthStencilBufferRequestedState]);
+
+      // make sure GPU finished any pending work
+      mGraphicsDevice->DeviceWaitIdle();
+
+      mDepthStencilBufferCurrentState = mDepthStencilBufferRequestedState;
+    }
+    return retval;
+  }
+
   /**
-   * Mappign the staging buffer may take some time, so can delegate to a worker thread
+   * Mapping the staging buffer may take some time, so can delegate to a worker thread
    * if necessary.
    */
   Dali::SharedFuture InitializeTextureStagingBuffer(uint32_t size, bool useWorkerThread)
@@ -192,8 +243,7 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex)
-      {
+      auto workerFunc = [&, size](auto workerIndex) {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -283,8 +333,7 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool
-        {
+        auto predicate = [&](auto& item) -> bool {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -504,6 +553,9 @@ struct VulkanGraphicsController::Impl
 
   ThreadPool mThreadPool;
 
+  DepthStencilFlags mDepthStencilBufferCurrentState{0u};
+  DepthStencilFlags mDepthStencilBufferRequestedState{0u};
+
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
 
@@ -670,8 +722,7 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
-          {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -706,8 +757,7 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
-          {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -745,8 +795,7 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex)
-    {
+    auto task     = [pUpdates](auto workerIndex) {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -856,9 +905,14 @@ void VulkanGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& t
 {
 }
 
-bool VulkanGraphicsController::EnableDepthStencilBuffer(bool enableDepth, bool enableStencil)
+bool VulkanGraphicsController::EnableDepthStencilBuffer(
+  const Graphics::RenderTarget& gfxRenderTarget,
+  bool                          enableDepth,
+  bool                          enableStencil)
 {
-  return true;
+  // if we enable depth/stencil dynamically we need to block and invalidate pipeline cache
+  auto renderTarget = static_cast<const Vulkan::RenderTarget*>(&gfxRenderTarget);
+  return mImpl->EnableDepthStencilBuffer(*renderTarget, enableDepth, enableStencil);
 }
 
 void VulkanGraphicsController::RunGarbageCollector(size_t numberOfDiscardedRenderers)
@@ -1010,6 +1064,16 @@ bool VulkanGraphicsController::GetProgramParameter(Graphics::Program& program, u
   return false;
 }
 
+uint32_t VulkanGraphicsController::GetDeviceLimitation(Graphics::DeviceCapability capability)
+{
+  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  {
+    const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+    return properties.limits.minUniformBufferOffsetAlignment;
+  }
+  return 0;
+}
+
 bool VulkanGraphicsController::IsBlendEquationSupported(DevelBlendEquation::Type blendEquation)
 {
   switch(blendEquation)
@@ -1149,7 +1213,7 @@ bool VulkanGraphicsController::HasClipMatrix() const
 const Matrix& VulkanGraphicsController::GetClipMatrix() const
 {
   constexpr float CLIP_MATRIX_DATA[] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
   static const Matrix CLIP_MATRIX(CLIP_MATRIX_DATA);
   return CLIP_MATRIX;
 }

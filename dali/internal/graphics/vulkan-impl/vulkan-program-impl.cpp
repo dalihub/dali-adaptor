@@ -199,6 +199,7 @@ bool ProgramImpl::Preprocess()
     // substitute shader code
     vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
     fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+
     return true;
   }
   else

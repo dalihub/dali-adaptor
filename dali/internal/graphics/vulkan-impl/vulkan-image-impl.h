@@ -24,7 +24,7 @@
 namespace Dali::Graphics::Vulkan
 {
 class Device;
-class Memory;
+class MemoryImpl;
 
 // @todo use ImageImpl to make naming convention consistent
 
@@ -152,7 +152,7 @@ public:
 
   [[nodiscard]] vk::SampleCountFlagBits GetSampleCount() const;
 
-  [[nodiscard]] MemoryImpl* GetMemory() const
+  [[nodiscard]] Vulkan::MemoryImpl* GetMemory() const
   {
     return mMemory.get();
   }

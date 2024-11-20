@@ -106,6 +106,16 @@ public:
   void SetScissor(Rect2D value);
   void SetViewport(Viewport value);
 
+  void SetStencilTestEnable(bool stencilEnable);
+  void SetStencilWriteMask(vk::StencilFaceFlags faceMask, uint32_t writeMask);
+  void SetStencilCompareMask(vk::StencilFaceFlags faceMask, uint32_t compareMask);
+  void SetStencilReference(vk::StencilFaceFlags faceMask, uint32_t reference);
+  void SetStencilOp(vk::StencilFaceFlags faceMask, vk::StencilOp failOp, vk::StencilOp passOp, vk::StencilOp depthFailOp, vk::CompareOp compareOp);
+
+  void SetDepthTestEnable(bool depthTestEnable);
+  void SetDepthWriteEnable(bool depthWriteEnable);
+  void SetDepthCompareOp(vk::CompareOp compareOp);
+
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
