@@ -31,9 +31,18 @@ SET( adaptor_imaging_common_egl_src_files
 # module: imaging, backend: tizen
 SET( adaptor_imaging_tizen_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp
+)
+
+# module: imaging, backend: tizen/egl
+SET( adaptor_imaging_tizen_egl_src_files
     ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen.cpp
     ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen.cpp
     ${adaptor_imaging_dir}/tizen/native-image-source-queue-impl-tizen.cpp
+)
+
+# module: imaging, backend: tizen/vulkan
+SET( adaptor_imaging_tizen_vulkan_src_files
+    ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen-vulkan.cpp
 )
 
 # module: imaging, backend: ubuntu

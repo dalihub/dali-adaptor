@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
+
+#if(!VULKAN_ENABLED)
 #include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl.h>
+#else
+#include <dali/internal/window-system/common/native-image-surface-impl.h>
+#endif
 
 namespace Dali
 {
@@ -27,7 +32,11 @@ namespace Adaptor
 {
 std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
 {
+#if(!VULKAN_ENABLED)
   return std::make_unique<Internal::Adaptor::NativeImageSurfaceEcoreWl>(queue);
+#else
+  return nullptr;
+#endif
 }
 
 } // namespace Adaptor

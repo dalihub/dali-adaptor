@@ -66,7 +66,6 @@ size_t GetNumberOfLowPriorityThreads(size_t defaultValue, size_t maxValue)
 Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_ASYNC_TASK_MANAGER");
 
 uint32_t gThreadId = 0u; // Only for debug
-#endif
 
 /**
  * @brief Get the Task Name.
@@ -80,6 +79,8 @@ const char* GetTaskName(AsyncTaskPtr task)
   // Note
   return task ? task->GetTaskName().data() : "(nil)";
 }
+
+#endif
 
 } // unnamed namespace
 

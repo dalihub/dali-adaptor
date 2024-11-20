@@ -26,6 +26,9 @@
 
 #if !defined(VULKAN_ENABLED)
 #include <dali/internal/graphics/gles/egl-graphics.h>
+using NativeDisplayType = EGLNativeDisplayType;
+#else
+using NativeDisplayType = Dali::Any;
 #endif
 
 namespace Dali
@@ -92,7 +95,7 @@ protected:
   /**
    * @brief Gets display connection for native surface
    */
-  EGLNativeDisplayType GetNativeDisplay();
+  NativeDisplayType GetNativeDisplay();
 
   /**
    * @brief Release display connection for native surface
@@ -100,7 +103,7 @@ protected:
   void ReleaseNativeDisplay();
 
 private:
-  EGLNativeDisplayType                            mDisplay;     ///< Wayland-display for rendering
+  NativeDisplayType                               mDisplay;     ///< Wayland-display for rendering
   Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
   tbm_bufmgr                                      mBufMgr;      ///< For creating tbm_dummy_display
 };

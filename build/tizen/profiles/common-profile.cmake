@@ -1,4 +1,4 @@
-# PROFILE: IVI
+# PROFILE: COMMON
 
 # Set the sources
 SET( SOURCES
@@ -14,8 +14,6 @@ SET( SOURCES
     ${devel_api_src_files}
     ${adaptor_devel_api_text_abstraction_src_files}
     ${adaptor_graphics_common_src_files}
-    ${adaptor_graphics_gles_src_files}
-    ${adaptor_graphics_tizen_src_files}
     ${adaptor_haptics_common_src_files}
     ${adaptor_imaging_common_src_files}
     ${adaptor_imaging_tizen_src_files}
@@ -45,63 +43,74 @@ SET( SOURCES
     ${adaptor_trace_common_src_files}
     ${adaptor_thread_common_src_files}
     ${adaptor_thread_linux_src_files}
+    ${devel_api_text_abstraction_src_files}
     ${adaptor_addons_common_src_files}
     ${adaptor_addons_tizen_src_files}
-    ${devel_api_text_abstraction_src_files}
     ${static_libraries_libunibreak_src_files}
-     )
+)
 
-IF(NOT ENABLE_VULKAN)
+IF( ENABLE_VULKAN )
   SET(SOURCES ${SOURCES}
+    ${adaptor_graphics_vulkan_src_files}
+    ${adaptor_graphics_vulkan_wayland_src_files}
+    ${adaptor_imaging_tizen_vulkan_src_files}
+    ${adaptor_libraries_spirv_reflect_src_files}
+  )
+ELSE()
+  SET(SOURCES ${SOURCES}
+    ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_tizen_src_files}
+    ${adaptor_imaging_tizen_egl_src_files}
     ${adaptor_public_api_egl_src_files}
     ${adaptor_devel_api_egl_src_files}
     ${adaptor_system_common_egl_src_files}
     ${adaptor_window_system_common_egl_src_files}
+    ${adaptor_window_system_tizen_wayland_egl_src_files}
   )
 ENDIF()
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}
-         ${static_libraries_glyphy_src_files}
-         )
+        ${static_libraries_glyphy_src_files}
+    )
 ENDIF()
 
 IF( NOT thorvg_support)
     SET( SOURCES ${SOURCES}
-         ${static_libraries_nanosvg_src_files}
-         )
+        ${static_libraries_nanosvg_src_files}
+    )
 ENDIF()
 
 IF( enable_ecore_wayland2 )
     SET( SOURCES ${SOURCES}
-         ${adaptor_window_system_ecore_wl2_src_files}
-         )
+        ${adaptor_window_system_ecore_wl2_src_files}
+    )
 ELSE()
     SET( SOURCES ${SOURCES}
-         ${adaptor_window_system_ecore_wl_src_files}
-         )
+        ${adaptor_window_system_ecore_wl_src_files}
+    )
 ENDIF()
 
 IF( ENABLE_NETWORK_LOGGING )
     SET( SOURCES ${SOURCES}
-         ${adaptor_performance_logging_src_files}
-         )
+        ${adaptor_performance_logging_src_files}
+    )
 ENDIF()
 
 IF( ENABLE_TRACE_STREAMLINE )
     SET( SOURCES ${SOURCES}
-         ${adaptor_trace_tizen_streamline_src_files}
-         )
+        ${adaptor_trace_tizen_streamline_src_files}
+    )
 ELSEIF( ENABLE_TRACE )
     SET( SOURCES ${SOURCES}
-         ${adaptor_trace_tizen_src_files}
-         )
+        ${adaptor_trace_tizen_src_files}
+    )
 ENDIF()
 
 IF( COMPONENT_APPLICATION_SUPPORT )
     SET( SOURCES ${SOURCES}
         ${adaptor_adaptor_component_application_src_files}
-      )
+    )
 ENDIF()
 
 # Set the linker flags

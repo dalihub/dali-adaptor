@@ -20,7 +20,7 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 
-#include <dali/graphics/vulkan/wayland/vk-surface-wayland.h>
+#include <dali/internal/graphics/vulkan/wayland/vk-surface-wayland.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 // Ecore system headers need hardening!
