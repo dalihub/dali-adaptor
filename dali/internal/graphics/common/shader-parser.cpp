@@ -688,11 +688,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     }
 
     // Define extensions follow after version.
-    for(auto ext : program.vertexShader.extensions)
+    for(const auto& ext : program.vertexShader.extensions)
     {
       program.vertexShader.output += ext + "\n";
     }
-    for(auto ext : program.fragmentShader.extensions)
+    for(const auto& ext : program.fragmentShader.extensions)
     {
       program.fragmentShader.output += ext + "\n";
     }
@@ -727,11 +727,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
 
       // Define extensions follow after version.
-      for(auto ext : program.vertexShader.extensions)
+      for(const auto& ext : program.vertexShader.extensions)
       {
         program.vertexShader.output += ext + "\n";
       }
-      for(auto ext : program.fragmentShader.extensions)
+      for(const auto& ext : program.fragmentShader.extensions)
       {
         program.fragmentShader.output += ext + "\n";
       }
@@ -763,11 +763,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
 
       // Define extensions follow after version.
-      for(auto ext : program.vertexShader.extensions)
+      for(const auto& ext : program.vertexShader.extensions)
       {
         program.vertexShader.output += ext + "\n";
       }
-      for(auto ext : program.fragmentShader.extensions)
+      for(const auto& ext : program.fragmentShader.extensions)
       {
         program.fragmentShader.output += ext + "\n";
       }
