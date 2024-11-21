@@ -57,31 +57,7 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, false);
 #endif
 
-static uint32_t GetPerformanceLogThresholdTime()
-{
-  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
-  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
-  return time;
-}
-
-#define START_DURATION_CHECK()                         \
-  uint64_t startTimeNanoSeconds = 0ull;                \
-  uint64_t endTimeNanoSeconds   = 0ull;                \
-  if(mLogEnabled)                                      \
-  {                                                    \
-    TimeService::GetNanoseconds(startTimeNanoSeconds); \
-  }
-
-#define FINISH_DURATION_CHECK(functionName)                                                                                                                \
-  if(mLogEnabled)                                                                                                                                          \
-  {                                                                                                                                                        \
-    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                       \
-    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                   \
-    {                                                                                                                                                      \
-      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms]\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0); \
-    }                                                                                                                                                      \
-  }
-
+DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 } // namespace
 
 namespace Dali
@@ -138,9 +114,6 @@ EglImplementation::~EglImplementation()
 
 bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnSurface)
 {
-  mLogThreshold = GetPerformanceLogThresholdTime();
-  mLogEnabled   = mLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
-
   if(!mGlesInitialized)
   {
     mEglNativeDisplay = display;
@@ -149,10 +122,10 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
         oss << "[native display:" << mEglNativeDisplay << "]";
       });
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
       // Try to get the display connection for the native display first
       mEglDisplay = eglGetDisplay(mEglNativeDisplay);
-      FINISH_DURATION_CHECK("eglGetDisplay");
+      DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglGetDisplay");
       DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << "]";
       });
@@ -161,10 +134,10 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     if(mEglDisplay == EGL_NO_DISPLAY)
     {
       DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_GET_DISPLAY");
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
       // If failed, try to get the default display connection
       mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-      FINISH_DURATION_CHECK("eglGetDisplay");
+      DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglGetDisplay(default)");
       DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << "]";
       });
@@ -183,9 +156,9 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_INITIALIZE", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << "]";
       });
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
       bool ret = eglInitialize(mEglDisplay, &majorVersion, &minorVersion);
-      FINISH_DURATION_CHECK("eglInitialize");
+      DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglInitialize");
       DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_INITIALIZE", [&](std::ostringstream& oss) {
         oss << "[ret:" << ret << " version:" << majorVersion << "." << minorVersion << "]";
       });
@@ -198,21 +171,20 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
 
     {
       DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_BIND_API");
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglBindAPI");
       eglBindAPI(EGL_OPENGL_ES_API);
-      FINISH_DURATION_CHECK("eglBindAPI");
     }
 
     mIsOwnSurface = isOwnSurface;
   }
 
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     const char* const versionStr   = eglQueryString(mEglDisplay, EGL_VERSION);
     const char* const extensionStr = eglQueryString(mEglDisplay, EGL_EXTENSIONS);
     const char* const vendorStr    = eglQueryString(mEglDisplay, EGL_VENDOR);
     const char* const clientStr    = eglQueryString(mEglDisplay, EGL_CLIENT_APIS);
-    FINISH_DURATION_CHECK("eglQueryString");
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglQueryString");
 
     // Query EGL extensions to check whether required extensions are supported
     std::istringstream versionStream(versionStr);
@@ -289,9 +261,8 @@ bool EglImplementation::CreateContext()
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[display:" << mEglDisplay << "]";
     });
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateContext");
     mEglContext = eglCreateContext(mEglDisplay, mEglConfig, NULL, &(mContextAttribs[0]));
-    FINISH_DURATION_CHECK("eglCreateContext");
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[context:" << mEglContext << "]";
     });
@@ -307,24 +278,22 @@ bool EglImplementation::CreateContext()
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
 
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress(\"eglSetDamageRegionKHR\")");
     mEglSetDamageRegionKHR = reinterpret_cast<PFNEGLSETDAMAGEREGIONKHRPROC>(eglGetProcAddress("eglSetDamageRegionKHR"));
     if(!mEglSetDamageRegionKHR)
     {
       DALI_LOG_ERROR("Coudn't find eglSetDamageRegionKHR!\n");
       mPartialUpdateRequired = false;
     }
-    FINISH_DURATION_CHECK("eglGetProcAddress(\"eglSetDamageRegionKHR\")");
   }
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress(\"eglSwapBuffersWithDamageKHR\")");
     mEglSwapBuffersWithDamageKHR = reinterpret_cast<PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC>(eglGetProcAddress("eglSwapBuffersWithDamageKHR"));
     if(!mEglSwapBuffersWithDamageKHR)
     {
       DALI_LOG_ERROR("Coudn't find eglSwapBuffersWithDamageKHR!\n");
       mPartialUpdateRequired = false;
     }
-    FINISH_DURATION_CHECK("eglGetProcAddress(\"eglSwapBuffersWithDamageKHR\")");
   }
   return true;
 }
@@ -338,9 +307,8 @@ bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[display:" << mEglDisplay << ", share_context:" << mEglContext << "]";
     });
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateContext");
     eglContext = eglCreateContext(mEglDisplay, mEglConfig, mEglContext, &(mContextAttribs[0]));
-    FINISH_DURATION_CHECK("eglCreateContext");
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[context:" << eglContext << "]";
     });
@@ -358,24 +326,22 @@ bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
   mEglWindowContexts.push_back(eglContext);
 
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress(\"eglSetDamageRegionKHR\")");
     mEglSetDamageRegionKHR = reinterpret_cast<PFNEGLSETDAMAGEREGIONKHRPROC>(eglGetProcAddress("eglSetDamageRegionKHR"));
     if(!mEglSetDamageRegionKHR)
     {
       DALI_LOG_ERROR("Coudn't find eglSetDamageRegionKHR!\n");
       mPartialUpdateRequired = false;
     }
-    FINISH_DURATION_CHECK("eglGetProcAddress(\"eglSetDamageRegionKHR\")");
   }
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress(\"eglSwapBuffersWithDamageKHR\")");
     mEglSwapBuffersWithDamageKHR = reinterpret_cast<PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC>(eglGetProcAddress("eglSwapBuffersWithDamageKHR"));
     if(!mEglSwapBuffersWithDamageKHR)
     {
       DALI_LOG_ERROR("Coudn't find eglSwapBuffersWithDamageKHR!\n");
       mPartialUpdateRequired = false;
     }
-    FINISH_DURATION_CHECK("eglGetProcAddress(\"eglSwapBuffersWithDamageKHR\")");
   }
   return true;
 }
@@ -394,10 +360,10 @@ void EglImplementation::DestroyContext(EGLContext& eglContext)
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[display:" << mEglDisplay << ", context:" << eglContext << "]";
     });
-    START_DURATION_CHECK();
+
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglDestroyContext");
     eglDestroyContext(mEglDisplay, eglContext);
     eglContext = 0;
-    FINISH_DURATION_CHECK("eglDestroyContext");
     DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
   }
 }
@@ -411,10 +377,9 @@ void EglImplementation::DestroySurface(EGLSurface& eglSurface)
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_SURFACE", [&](std::ostringstream& oss) {
       oss << "[display:" << mEglDisplay << ", surface:" << eglSurface << "]";
     });
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglDestroySurface");
     eglDestroySurface(mEglDisplay, eglSurface);
     eglSurface = 0;
-    FINISH_DURATION_CHECK("eglDestroySurface");
     DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_SURFACE");
   }
 }
@@ -430,11 +395,10 @@ void EglImplementation::MakeContextCurrent(EGLSurface eglSurface, EGLContext egl
 
   if(mIsOwnSurface)
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglMakeCurrent");
     eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, eglContext);
 
     mCurrentEglContext = eglContext;
-    FINISH_DURATION_CHECK("eglMakeCurrent");
   }
 
   EGLint error = eglGetError();
@@ -459,11 +423,10 @@ void EglImplementation::MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSu
 
   if(mIsOwnSurface)
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglMakeCurrent(pixmap)");
     eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, mEglContext);
 
     mCurrentEglContext = mEglContext;
-    FINISH_DURATION_CHECK("eglMakeCurrent");
   }
 
   EGLint error = eglGetError();
@@ -479,10 +442,9 @@ void EglImplementation::MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSu
 void EglImplementation::MakeContextNull()
 {
   // clear the current context
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglMakeCurrent(null)");
   eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   mCurrentEglContext = EGL_NO_CONTEXT;
-  FINISH_DURATION_CHECK("eglMakeCurrent(null)");
 }
 
 void EglImplementation::TerminateGles()
@@ -501,9 +463,8 @@ void EglImplementation::TerminateGles()
           DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_SURFACE", [&](std::ostringstream& oss) {
             oss << "[display:" << mEglDisplay << ", surface:" << eglSurface << "]";
           });
-          START_DURATION_CHECK();
+          DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglDestroySurface");
           eglDestroySurface(mEglDisplay, eglSurface);
-          FINISH_DURATION_CHECK("eglDestroySurface");
           DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_SURFACE");
         }
       }
@@ -512,9 +473,8 @@ void EglImplementation::TerminateGles()
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << ", context:" << mEglContext << "]";
       });
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglDestroyContext");
       eglDestroyContext(mEglDisplay, mEglContext);
-      FINISH_DURATION_CHECK("eglDestroyContext");
       DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
     }
     for(auto eglContext : mEglWindowContexts)
@@ -522,9 +482,8 @@ void EglImplementation::TerminateGles()
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << ", context:" << eglContext << "]";
       });
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglDestroyContext");
       eglDestroyContext(mEglDisplay, eglContext);
-      FINISH_DURATION_CHECK("eglDestroyContext");
       DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
     }
 
@@ -532,9 +491,8 @@ void EglImplementation::TerminateGles()
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_TERMINATE", [&](std::ostringstream& oss) {
         oss << "[display:" << mEglDisplay << "]";
       });
-      START_DURATION_CHECK();
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglTerminate");
       eglTerminate(mEglDisplay);
-      FINISH_DURATION_CHECK("eglTerminate");
       DALI_TRACE_END(gTraceFilter, "DALI_EGL_TERMINATE");
     }
 
@@ -557,7 +515,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 {
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglSwapBuffers");
 
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
@@ -578,14 +536,12 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
-
-    FINISH_DURATION_CHECK("eglSwapBuffers");
   }
 }
 
 int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQuerySurface");
 
   int age = 0;
   eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
@@ -594,8 +550,6 @@ int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
     DALI_LOG_ERROR("eglQuerySurface(%d)\n", eglGetError());
     age = 0;
   }
-
-  FINISH_DURATION_CHECK("eglQuerySurface");
 
   return age;
 }
@@ -609,13 +563,12 @@ void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect
 
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglSetDamageRegionKHR");
     EGLBoolean result = mEglSetDamageRegionKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(damagedRects.data()), 1);
     if(result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSetDamageRegionKHR(0x%x)\n", eglGetError());
     }
-    FINISH_DURATION_CHECK("eglSetDamageRegionKHR");
   }
 }
 
@@ -629,7 +582,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       return;
     }
 
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglSwapBuffersWithDamageKHR");
 
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
@@ -653,23 +606,19 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
-
-    FINISH_DURATION_CHECK("eglSwapBuffersWithDamageKHR");
   }
 }
 
 void EglImplementation::CopyBuffers(EGLSurface& eglSurface)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCopyBuffers");
   eglCopyBuffers(mEglDisplay, eglSurface, mCurrentEglNativePixmap);
-  FINISH_DURATION_CHECK("eglCopyBuffers");
 }
 
 void EglImplementation::WaitGL()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglWaitGL");
   eglWaitGL();
-  FINISH_DURATION_CHECK("eglWaitGL");
 }
 
 bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
@@ -740,9 +689,9 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   configAttribs.PushBack(EGL_NONE);
 
   DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   auto ret = eglChooseConfig(mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs);
-  FINISH_DURATION_CHECK("eglChooseConfig");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglChooseConfig");
   DALI_TRACE_END(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
 
   // Ensure number of configs is set to 1 as on some drivers,
@@ -826,15 +775,16 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-    oss << "[display:" << mEglDisplay << "]";
-  });
-  START_DURATION_CHECK();
-  mCurrentEglSurface = eglCreateWindowSurface(mEglDisplay, mEglConfig, mEglNativeWindow, NULL);
-  FINISH_DURATION_CHECK("eglCreateWindowSurface");
-  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-    oss << "[window surface:" << mCurrentEglSurface << "]";
-  });
+  {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << "]";
+    });
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateWindowSurface");
+    mCurrentEglSurface = eglCreateWindowSurface(mEglDisplay, mEglConfig, mEglNativeWindow, NULL);
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+      oss << "[window surface:" << mCurrentEglSurface << "]";
+    });
+  }
 
   TEST_EGL_ERROR("eglCreateWindowSurface");
 
@@ -852,15 +802,16 @@ EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, Co
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-    oss << "[display:" << mEglDisplay << "]";
-  });
-  START_DURATION_CHECK();
-  mCurrentEglSurface = eglCreatePixmapSurface(mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL);
-  FINISH_DURATION_CHECK("eglCreatePixmapSurface");
-  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-    oss << "[pixmap surface:" << mCurrentEglSurface << "]";
-  });
+  {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << "]";
+    });
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreatePixmapSurface");
+    mCurrentEglSurface = eglCreatePixmapSurface(mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL);
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+      oss << "[pixmap surface:" << mCurrentEglSurface << "]";
+    });
+  }
 
   TEST_EGL_ERROR("eglCreatePixmapSurface");
 
@@ -938,13 +889,12 @@ bool EglImplementation::IsSurfacelessContextSupported() const
 
 void EglImplementation::WaitClient()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglWaitClient");
   // Wait for EGL to finish executing all rendering calls for the current context
   if(eglWaitClient() != EGL_TRUE)
   {
     TEST_EGL_ERROR("eglWaitClient");
   }
-  FINISH_DURATION_CHECK("eglWaitClient");
 }
 
 bool EglImplementation::IsPartialUpdateRequired() const
