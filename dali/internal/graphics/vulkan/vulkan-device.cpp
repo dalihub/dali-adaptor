@@ -640,6 +640,13 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
     for(auto& device : devices)
     {
       auto properties = device.getProperties();
+
+      // We only want to choose a device that supports Vulkan 1.3 or above.
+      if(properties.apiVersion < VK_API_VERSION_1_3)
+      {
+        continue;
+      }
+
       if(properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu ||
          properties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu)
       {
