@@ -28,6 +28,7 @@
 // EXTERNAL HEDAER
 #include <dali/graphics-api/graphics-program.h>
 #include <dali/graphics-api/graphics-types.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <memory>
 #include <mutex>
 #include <string_view>
@@ -39,7 +40,7 @@ namespace Dali
  * The precompiled shaders are stored in a file.
  * @SINCE_2_2.45
  */
-class DALI_CORE_API ShaderPreCompiler : public BaseHandle
+class DALI_ADAPTOR_API ShaderPreCompiler : public BaseHandle
 {
 public:
   struct RawShaderData
