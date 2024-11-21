@@ -390,12 +390,12 @@ struct DefaultDBusWrapper : public DBusWrapper
 
   MessagePtr eldbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)
   {
-    return create(eldbus_proxy_method_call_new(get(proxy), funcName.c_str()));
+    return create(eldbus_proxy_method_call_new(get(proxy), funcName.c_str()), true);
   }
 
   MessagePtr eldbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg) override
   {
-    return create(eldbus_proxy_send_and_block(get(proxy), release(msg), ELDBUS_CALL_TIMEOUT));
+    return create(eldbus_proxy_send_and_block(get(proxy), release(msg), ELDBUS_CALL_TIMEOUT), true);
   }
 
   bool eldbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text) override
@@ -483,22 +483,22 @@ struct DefaultDBusWrapper : public DBusWrapper
 
   MessagePtr eldbus_message_method_return_new_impl(const MessagePtr& msg) override
   {
-    return create(eldbus_message_method_return_new(get(msg)));
+    return create(eldbus_message_method_return_new(get(msg)), true);
   }
 
   MessagePtr eldbus_message_error_new_impl(const MessagePtr& msg, const std::string& err, const std::string& txt) override
   {
-    return create(eldbus_message_error_new(get(msg), err.c_str(), txt.c_str()));
+    return create(eldbus_message_error_new(get(msg), err.c_str(), txt.c_str()), true);
   }
 
   PendingPtr eldbus_connection_send_impl(const ConnectionPtr& conn, const MessagePtr& msg) override
   {
-    return create(eldbus_connection_send(get(conn), get(msg), NULL, NULL, -1));
+    return create(eldbus_connection_send(get(conn), release(msg), NULL, NULL, -1));
   }
 
   MessagePtr eldbus_message_signal_new_impl(const std::string& path, const std::string& iface, const std::string& name) override
   {
-    return create(eldbus_message_signal_new(path.c_str(), iface.c_str(), name.c_str()));
+    return create(eldbus_message_signal_new(path.c_str(), iface.c_str(), name.c_str()), true);
   }
 
   MessagePtr eldbus_message_ref_impl(const MessagePtr& msg) override
