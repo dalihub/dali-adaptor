@@ -21,6 +21,8 @@
 
 namespace
 {
+const std::vector<std::string> MATRIX_DATA_TYPE_TOKENS{"mat3", "mat4", "mat2"};
+
 inline bool IsWordChar(const char c)
 {
   return ('A' <= c && c <= 'Z') ||
@@ -116,6 +118,42 @@ std::string_view GetToken(CodeLine& line, int i)
     return "";
   }
   return std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second);
+}
+
+/**
+ * Function is looking for any token from the given list.
+ *
+ * @return return -1 if no token found, or index of token that has been found first
+ */
+int HasAnyToken(CodeLine& line, const std::vector<std::string>& tokens)
+{
+  for(const auto& token : line.tokens)
+  {
+    uint32_t i   = 0;
+    auto     str = std::string_view(&line.line[token.first], token.second);
+    for(const auto& token2 : tokens)
+    {
+      if(str == token2)
+      {
+        return i;
+      }
+      ++i;
+    }
+  }
+  return -1;
+}
+
+bool HasToken(CodeLine& line, std::string_view tokenToFind)
+{
+  for(const auto& token : line.tokens)
+  {
+    auto str = std::string_view(&line.line[token.first], token.second);
+    if(str == tokenToFind)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
@@ -524,8 +562,21 @@ void LinkProgram(Program& program)
 
     if(isOutputToken)
     {
-      auto varname              = GetToken(line, -1);
-      program.varyings[varname] = location++;
+      auto varname = GetToken(line, -1);
+
+      // The location depends on type, anything larger than vec4 (4 floats)
+      // will require adjusting the location, otherwise the location override error
+      // will occur.
+      auto locationsUsed = 1;
+      auto tokenIndex    = HasAnyToken(line, MATRIX_DATA_TYPE_TOKENS);
+      if(tokenIndex >= 0)
+      {
+        // get last character which indicates how many vec4-sizes the type uses
+        locationsUsed = int(std::string_view(MATRIX_DATA_TYPE_TOKENS[tokenIndex]).back()) - '0';
+      }
+
+      program.varyings[varname] = location;
+      location += locationsUsed;
     }
   }
   // Verify

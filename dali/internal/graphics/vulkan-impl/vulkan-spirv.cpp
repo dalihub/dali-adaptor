@@ -39,7 +39,7 @@ SPIRVGenerator::SPIRVGenerator(Dali::Graphics::Vulkan::SPIRVGeneratorInfo genera
   // Using new to inject internal data visible only within implementation
   mGeneratorInfo.extraInfo = new SPIRVGeneratorExtraInfo;
 
-  mGeneratorInfo.extraInfo->valid = true;
+  mGeneratorInfo.extraInfo->valid = false;
 
   switch(mGeneratorInfo.pipelineStage)
   {
@@ -137,9 +137,14 @@ void SPIRVGenerator::Generate()
   mBinary.resize(size);
   glslang_program_SPIRV_get(program, mBinary.data());
 
+  mGeneratorInfo.extraInfo->valid = true;
+
   const char* spirv_messages = glslang_program_SPIRV_get_messages(program);
   if(spirv_messages)
+  {
     DALI_LOG_ERROR("%s\b", spirv_messages);
+    mGeneratorInfo.extraInfo->valid = false;
+  }
 
   glslang_program_delete(program);
   glslang_finalize_process();
