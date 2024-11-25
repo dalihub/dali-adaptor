@@ -550,7 +550,25 @@ static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
   if(windowBase)
   {
     // When the mouse is out, the previous mouse must be canceled.
-    windowBase->OnMouseButtonCancel(data, type, event);
+    // event's type is Ecore_Event_Mouse_IO, so fill in inner struct value in need.
+    {
+      Ecore_Event_Mouse_IO*    ioEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
+      Ecore_Event_Mouse_Button buttonEvent;
+
+      buttonEvent.window       = ioEvent->window;
+      buttonEvent.event_window = ioEvent->event_window;
+
+      buttonEvent.timestamp = ioEvent->timestamp;
+      buttonEvent.modifiers = ioEvent->modifiers;
+
+      buttonEvent.x = ioEvent->x;
+      buttonEvent.y = ioEvent->y;
+
+      buttonEvent.dev          = ioEvent->dev;
+      buttonEvent.multi.device = 0;
+
+      windowBase->OnMouseButtonCancel(data, type, &buttonEvent);
+    }
     windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
   }
   return ECORE_CALLBACK_PASS_ON;
@@ -976,7 +994,7 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
 
   if(mWlInputPanel)
   {
-    wl_proxy_destroy((struct wl_proxy *)mWlInputPanel);
+    wl_proxy_destroy((struct wl_proxy*)mWlInputPanel);
     mWlInputPanel = nullptr;
   }
 
@@ -1486,9 +1504,6 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
     point.SetDeviceId(touchEvent->multi.device);
     point.SetState(PointState::INTERRUPTED);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
-    point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radius_x, touchEvent->multi.radius_y));
-    point.SetPressure(touchEvent->multi.pressure);
-    point.SetAngle(Degree(touchEvent->multi.angle));
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
 
@@ -3766,7 +3781,7 @@ Any WindowBaseEcoreWl2::GetNativeBuffer() const
 bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
 {
   Ecore_Wl2_Pointer_Boundary wlPointerBoundary = static_cast<Ecore_Wl2_Pointer_Boundary>(boundary);
-  bool ret = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
+  bool                       ret               = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_grab, window: [%p], boundary:[%d] flag [%d]\n", mEcoreWindow, wlPointerBoundary, ret);
   return ret;
 }
