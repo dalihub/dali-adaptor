@@ -44,6 +44,11 @@ Dali::BaseHandle Create()
 
 Dali::TypeRegistration type(typeid(Dali::CanvasRenderer), typeid(Dali::BaseHandle), Create);
 
+#ifdef THORVG_SUPPORT
+constexpr uint32_t CANVAS_RENDERER_QUEUE_SIZE = 2u; ///< The number of buffers in native image queue.
+                                                    ///< Let we use double-buffer as default.
+#endif
+
 } // unnamed namespace
 
 CanvasRendererTizen* CanvasRendererTizen::New(const Vector2& viewBox)
@@ -324,8 +329,22 @@ bool CanvasRendererTizen::Rasterize()
 #ifdef THORVG_SUPPORT
   Mutex::ScopedLock lock(mMutex);
 
-  if(mNativeImageQueue && mNativeImageQueue->CanDequeueBuffer())
+  if(mNativeImageQueue)
   {
+    bool canDequeue = mNativeImageQueue->CanDequeueBuffer();
+    if(!canDequeue)
+    {
+      // Ignore the previous image which is inserted to the queue.
+      mNativeImageQueue->IgnoreSourceImage();
+
+      // Check again
+      canDequeue = mNativeImageQueue->CanDequeueBuffer();
+      if(!canDequeue)
+      {
+        return false;
+      }
+    }
+
     uint32_t width, height, stride;
     uint8_t* buffer = mNativeImageQueue->DequeueBuffer(width, height, stride);
     if(!buffer)
@@ -448,7 +467,7 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
 #ifdef THORVG_SUPPORT
   if(!mNativeImageQueue)
   {
-    mNativeImageQueue = Dali::NativeImageSourceQueue::New(size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
+    mNativeImageQueue = Dali::NativeImageSourceQueue::New(CANVAS_RENDERER_QUEUE_SIZE, size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
   }
   else
   {
