@@ -245,6 +245,7 @@ void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent)
 void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
 {
   Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
   GetImplementation(window).FeedKeyEvent(convertedEvent);
 }
 
@@ -447,6 +448,11 @@ MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)
 PointerConstraintsSignalType& PointerConstraintsSignal(Window window)
 {
   return GetImplementation(window).PointerConstraintsSignal();
+}
+
+KeyEventSignalType& KeyEventMonitorSignal(Window window)
+{
+  return GetImplementation(window).KeyEventMonitorSignal();
 }
 
 } // namespace DevelWindow

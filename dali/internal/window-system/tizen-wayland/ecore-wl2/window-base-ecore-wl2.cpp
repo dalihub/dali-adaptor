@@ -1642,6 +1642,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
     keyEvent.isRepeat = isRepeat;
     keyEvent.windowId = GetNativeWindowId();
+    keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
   }
@@ -1714,6 +1715,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
     keyEvent.windowId = GetNativeWindowId();
+    keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
   }

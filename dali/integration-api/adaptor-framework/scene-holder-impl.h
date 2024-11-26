@@ -311,6 +311,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::KeyEventMonitorSignal()
+   */
+  Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventMonitorSignal()
+  {
+    return mScene.KeyEventMonitorSignal();
+  }
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::TouchedSignal()
    */
   Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal()
