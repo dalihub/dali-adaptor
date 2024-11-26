@@ -59,7 +59,8 @@ struct FontFaceCacheItem : public FontCacheItemInterface
                     int                fixedSizeIndex,
                     float              fixedWidth,
                     float              fixedHeight,
-                    bool               hasColorTables);
+                    bool               hasColorTables,
+                    std::size_t        variationsHash = 0u);
 
   FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
   FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept;
@@ -149,6 +150,7 @@ public:
   FontId          mFontId;                ///< Index to the vector with the cache of font's ids.
   bool            mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
   bool            mHasColorTables : 1;    ///< Whether the font has color tables.
+  std::size_t     mVariationsHash;
 };
 
 } // namespace Dali::TextAbstraction::Internal

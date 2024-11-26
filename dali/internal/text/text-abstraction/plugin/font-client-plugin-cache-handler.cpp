@@ -90,7 +90,11 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
 constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
 
+constexpr std::size_t DEFAULT_DESCRIPTION_CACHE_MAX   = 1024;
+constexpr std::size_t MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX = 3;
+
 constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
+constexpr auto MAX_NUMBER_OF_DESCRIPTION_CACHE_ENV = "DALI_DESCRIPTION_CACHE_MAX";
 
 /**
  * @brief Get maximum size of glyph cache size from environment.
@@ -103,6 +107,13 @@ inline size_t GetMaxNumberOfGlyphCache()
   static auto numberString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_MAX_NUMBER_OF_GLYPH_CACHE);
   static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_GLYPH_CACHE_MAX;
   return (number < MINIMUM_SIZE_OF_GLYPH_CACHE_MAX) ? MINIMUM_SIZE_OF_GLYPH_CACHE_MAX : number;
+}
+
+inline size_t GetMaxNumberOfDescriptionCache()
+{
+  static auto numberString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_MAX_NUMBER_OF_DESCRIPTION_CACHE);
+  static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_DESCRIPTION_CACHE_MAX;
+  return (number < MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX) ? MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX : number;
 }
 
 } // namespace
@@ -275,9 +286,11 @@ FontClient::Plugin::CacheHandler::FontDescriptionCacheItem::FontDescriptionCache
 }
 
 FontClient::Plugin::CacheHandler::FontDescriptionSizeCacheKey::FontDescriptionSizeCacheKey(FontDescriptionId fontDescriptionId,
-                                                                                           PointSize26Dot6   requestedPointSize)
+                                                                                           PointSize26Dot6   requestedPointSize,
+                                                                                           std::size_t       variationsMapHash)
 : fontDescriptionId(fontDescriptionId),
-  requestedPointSize(requestedPointSize)
+  requestedPointSize(requestedPointSize),
+  variationsMapHash(variationsMapHash)
 {
 }
 
@@ -292,7 +305,7 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mValidatedFontCache(),
   mFontDescriptionCache(),
   mCharacterSetCache(),
-  mFontDescriptionSizeCache(),
+  mFontDescriptionSizeCache(GetMaxNumberOfDescriptionCache()),
   mFontDataCache(),
   mFontFTFaceCache(),
   mEllipsisCache(),
@@ -301,8 +314,9 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mGlyphCacheManager(new GlyphCacheManager(GetMaxNumberOfGlyphCache())),
   mLatestFoundFontDescription(),
   mLatestFoundFontDescriptionId(0u),
-  mLatestFoundCacheKey(0, 0),
+  mLatestFoundCacheKey(0, 0, 0u),
   mLatestFoundCacheIndex(0u),
+  mFontCacheCount(0u),
   mDefaultFontDescriptionCached(false)
 {
 }
@@ -344,8 +358,7 @@ void FontClient::Plugin::CacheHandler::ClearCache()
   DestroyCharacterSets(mCharacterSetCache);
   mCharacterSetCache.Clear();
 
-  mFontDescriptionSizeCache.clear();
-  mFontDescriptionSizeCache.rehash(0); // Note : unordered_map.clear() didn't deallocate memory
+  mFontDescriptionSizeCache.Clear();
 
   mFontDataCache.clear();
   mFontDataCache.rehash(0);
@@ -360,8 +373,9 @@ void FontClient::Plugin::CacheHandler::ClearCache()
   mBitmapFontCache.clear();
 
   mLatestFoundFontDescription.family.clear();
-  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0);
+  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0, 0u);
 
+  mFontCacheCount = 0u;
   mDefaultFontDescriptionCached = false;
 }
 
@@ -382,9 +396,11 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
   mFallbackCache.clear();
 
   mFontIdCache.clear();
+  mFontIdCache.rehash(0);
 
   ClearCharacterSetFromFontFaceCache();
   mFontFaceCache.clear();
+  mFontFaceCache.rehash(0);
 
   mValidatedFontCache.clear();
   mFontDescriptionCache.clear();
@@ -392,8 +408,7 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
   DestroyCharacterSets(mCharacterSetCache);
   mCharacterSetCache.Clear();
 
-  mFontDescriptionSizeCache.clear();
-  mFontDescriptionSizeCache.rehash(0); // Note : unordered_map.clear() didn't deallocate memory
+  mFontDescriptionSizeCache.Clear();
 
   mEllipsisCache.clear();
   mPixelBufferCache.clear();
@@ -401,8 +416,9 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
   mBitmapFontCache.clear();
 
   mLatestFoundFontDescription.family.clear();
-  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0);
+  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0, 0u);
 
+  mFontCacheCount = 0u;
   mDefaultFontDescriptionCached = false;
 }
 
@@ -433,7 +449,7 @@ void FontClient::Plugin::CacheHandler::ClearFallbackCache()
 
 void FontClient::Plugin::CacheHandler::ClearCharacterSetFromFontFaceCache()
 {
-  for(auto& item : mFontFaceCache)
+  for(auto& [index, item] : mFontFaceCache)
   {
     FcCharSetDestroy(item.mCharacterSet);
     item.mCharacterSet = nullptr;
@@ -886,6 +902,7 @@ void FontClient::Plugin::CacheHandler::CacheFallbackFontList(FontDescription&&  
 bool FontClient::Plugin::CacheHandler::FindFontByPath(const FontPath& path,
                                                       PointSize26Dot6 requestedPointSize,
                                                       FaceIndex       faceIndex,
+                                                      Property::Map*  variationsMapPtr,
                                                       FontId&         fontId) const
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
@@ -894,11 +911,12 @@ bool FontClient::Plugin::CacheHandler::FindFontByPath(const FontPath& path,
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of fonts in the cache : %zu\n", mFontFaceCache.size());
 
   fontId = 0u;
-  for(const auto& cacheItem : mFontFaceCache)
+  for(const auto& [index, cacheItem] : mFontFaceCache)
   {
     if(cacheItem.mRequestedPointSize == requestedPointSize &&
        cacheItem.mFaceIndex == faceIndex &&
-       cacheItem.mPath == path)
+       cacheItem.mPath == path &&
+       cacheItem.mVariationsHash == (variationsMapPtr ? variationsMapPtr->GetHash() : 0u))
     {
       fontId = cacheItem.mFontId + 1u;
 
@@ -913,7 +931,8 @@ bool FontClient::Plugin::CacheHandler::FindFontByPath(const FontPath& path,
 
 bool FontClient::Plugin::CacheHandler::FindFont(FontDescriptionId fontDescriptionId,
                                                 PointSize26Dot6   requestedPointSize,
-                                                FontCacheIndex&   fontCacheIndex)
+                                                FontCacheIndex&   fontCacheIndex,
+                                                Property::Map*    variationsMapPtr)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "   fontDescriptionId : %d\n", fontDescriptionId);
@@ -921,21 +940,20 @@ bool FontClient::Plugin::CacheHandler::FindFont(FontDescriptionId fontDescriptio
 
   fontCacheIndex = 0u;
 
-  const FontDescriptionSizeCacheKey key(fontDescriptionId, requestedPointSize);
+  const FontDescriptionSizeCacheKey key(fontDescriptionId, requestedPointSize, variationsMapPtr ? variationsMapPtr->GetHash() : 0u);
 
   // Heuristic optimize code : Compare with latest found item.
   if(key == mLatestFoundCacheKey)
   {
     fontCacheIndex = mLatestFoundCacheIndex;
-
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font same as latest, index of font cache : %d\n", fontCacheIndex);
     return true;
   }
 
-  const auto& iter = mFontDescriptionSizeCache.find(key);
-  if(iter != mFontDescriptionSizeCache.cend())
+  auto iter = mFontDescriptionSizeCache.Find(key);
+  if(iter != mFontDescriptionSizeCache.End())
   {
-    fontCacheIndex = iter->second;
+    fontCacheIndex = mFontDescriptionSizeCache.Get(key);
 
     mLatestFoundCacheKey   = key;
     mLatestFoundCacheIndex = fontCacheIndex;
@@ -948,12 +966,25 @@ bool FontClient::Plugin::CacheHandler::FindFont(FontDescriptionId fontDescriptio
   return false;
 }
 
-void FontClient::Plugin::CacheHandler::CacheFontDescriptionSize(FontDescriptionId fontDescriptionId, PointSize26Dot6 requestedPointSize, FontCacheIndex fontCacheIndex)
+void FontClient::Plugin::CacheHandler::CacheFontDescriptionSize(FontDescriptionId fontDescriptionId, PointSize26Dot6 requestedPointSize, Property::Map* variationsMapPtr, FontCacheIndex fontCacheIndex)
 {
-  mFontDescriptionSizeCache.emplace(FontDescriptionSizeCacheKey(fontDescriptionId, requestedPointSize), fontCacheIndex);
+  if(mFontDescriptionSizeCache.IsFull())
+  {
+    FontCacheIndex fontId = mFontDescriptionSizeCache.Pop();
+
+    if(IsFontIdCacheItemExist(fontId))
+    {
+      FaceIndex faceIndex = FindFontIdCacheItem(fontId).index;
+      mFontIdCache.erase(fontId);
+      mFontFaceCache.erase(faceIndex);
+    }
+  }
+
+  auto key = FontDescriptionSizeCacheKey(fontDescriptionId, requestedPointSize, variationsMapPtr ? variationsMapPtr->GetHash() : 0u);
+  mFontDescriptionSizeCache.Push(key, fontCacheIndex);
 }
 
-void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId fontId, PointSize26Dot6 requestedPointSize, const FontPath& path)
+void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId fontId, PointSize26Dot6 requestedPointSize, Property::Map* variationsMapPtr, const FontPath& path)
 {
   FontDescription description;
   description.path   = path;
@@ -996,8 +1027,8 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
     FcCharSet* characterSet = nullptr;
     FcPatternGetCharSet(match, FC_CHARSET, 0u, &characterSet);
 
-    const FontCacheIndex fontCacheIndex          = mFontIdCache[fontId - 1u].index;
-    mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(characterSet); // Increases the reference counter.
+    const FontCacheIndex fontCacheIndex          = FindFontIdCacheItem(fontId - 1u).index;
+    FindFontFaceCacheItem(fontCacheIndex).mCharacterSet = FcCharSetCopy(characterSet); // Increases the reference counter.
 
     // Destroys the created patterns.
     FcPatternDestroy(match);
@@ -1017,28 +1048,29 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
     CacheValidateFont(std::move(description), fontDescriptionId);
 
     // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
-    CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, fontCacheIndex);
+    CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, variationsMapPtr, fontCacheIndex);
   }
 }
 
 FontId FontClient::Plugin::CacheHandler::CacheFontFaceCacheItem(FontFaceCacheItem&& fontFaceCacheItem)
 {
   // Set the index to the font's id cache.
-  fontFaceCacheItem.mFontId = static_cast<FontId>(mFontIdCache.size());
+  fontFaceCacheItem.mFontId = mFontCacheCount;
 
   // Create the font id item to cache.
   FontIdCacheItem fontIdCacheItem;
   fontIdCacheItem.type = FontDescription::FACE_FONT;
 
   // Set the index to the FreeType font face cache.
-  fontIdCacheItem.index = static_cast<FontCacheIndex>(mFontFaceCache.size());
+  fontIdCacheItem.index = mFontCacheCount;
 
   // Cache the items.
-  mFontFaceCache.emplace_back(std::move(fontFaceCacheItem));
-  mFontIdCache.emplace_back(std::move(fontIdCacheItem));
+  mFontFaceCache.insert({mFontCacheCount, std::move(fontFaceCacheItem)});
+  mFontIdCache.insert({mFontCacheCount, std::move(fontIdCacheItem)});
+  ++mFontCacheCount;
 
   // Set the font id to be returned.
-  FontId fontId = static_cast<FontId>(mFontIdCache.size());
+  FontId fontId = mFontCacheCount;
 
   return fontId;
 }
@@ -1082,7 +1114,7 @@ bool FontClient::Plugin::CacheHandler::FindBitmapFont(const FontFamily& bitmapFo
 {
   fontId = 0u;
 
-  for(const auto& item : mBitmapFontCache)
+  for(const auto& [index, item] : mBitmapFontCache)
   {
     if(bitmapFontFamily == item.font.name)
     {
@@ -1107,8 +1139,9 @@ FontId FontClient::Plugin::CacheHandler::CacheBitmapFontCacheItem(BitmapFontCach
   fontIdCacheItem.index = static_cast<FontCacheIndex>(mBitmapFontCache.size());
 
   // Cache the items.
-  mBitmapFontCache.emplace_back(std::move(bitmapFontCacheItem));
-  mFontIdCache.emplace_back(std::move(fontIdCacheItem));
+  mBitmapFontCache.insert({mFontCacheCount, std::move(bitmapFontCacheItem)});
+  mFontIdCache.insert({mFontCacheCount,std::move(fontIdCacheItem)});
+  ++mFontCacheCount;
 
   // Set the font id to be returned.
   FontId fontId = static_cast<FontId>(mFontIdCache.size());
@@ -1187,6 +1220,37 @@ GlyphIndex FontClient::Plugin::CacheHandler::CacheEmbeddedItem(EmbeddedItem&& em
   GlyphIndex index = static_cast<GlyphIndex>(mEmbeddedItemCache.size());
 
   return index;
+}
+
+bool FontClient::Plugin::CacheHandler::IsFontIdCacheItemExist(FontId fontId)
+{
+  return mFontIdCache.find(fontId) != mFontIdCache.end();
+}
+
+bool FontClient::Plugin::CacheHandler::IsFontFaceCacheItemExist(FontCacheIndex fontCacheIndex)
+{
+  return mFontFaceCache.find(fontCacheIndex) != mFontFaceCache.end();
+}
+
+FontClient::Plugin::CacheHandler::FontIdCacheItem& FontClient::Plugin::CacheHandler::FindFontIdCacheItem(FontId fontId)
+{
+  auto iter = mFontIdCache.find(fontId);
+  DALI_ASSERT_ALWAYS(iter != mFontIdCache.end())
+  return iter->second;
+}
+
+FontFaceCacheItem& FontClient::Plugin::CacheHandler::FindFontFaceCacheItem(FontCacheIndex fontCacheIndex)
+{
+  auto iter = mFontFaceCache.find(fontCacheIndex);
+  DALI_ASSERT_ALWAYS(iter != mFontFaceCache.end())
+  return iter->second;
+}
+
+BitmapFontCacheItem& FontClient::Plugin::CacheHandler::FindBitmapFontCacheItem(FontCacheIndex fontCacheIndex)
+{
+  auto iter = mBitmapFontCache.find(fontCacheIndex);
+  DALI_ASSERT_ALWAYS(iter != mBitmapFontCache.end())
+  return iter->second;
 }
 
 } // namespace Dali::TextAbstraction::Internal

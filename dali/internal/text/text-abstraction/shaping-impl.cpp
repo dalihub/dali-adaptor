@@ -134,7 +134,8 @@ struct Shaping::Plugin
                const Character*       const text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script)
+               Script                       script,
+               Property::Map*               variationsMapPtr)
   {
     // Clear previoursly shaped texts.
     mIndices.Clear();
@@ -199,6 +200,37 @@ struct Shaping::Plugin
           hb_buffer_set_invisible_glyph(harfBuzzBuffer, TextAbstraction::GetUnicodeForInvisibleGlyph());
         }
         */
+
+        if(variationsMapPtr != nullptr)
+        {
+          Property::Map& variationsMap = *variationsMapPtr;
+
+          std::size_t axis_cnt = variationsMap.Count();
+          hb_variation_t *variations = new hb_variation_t[axis_cnt];
+          int valid_cnt = 0;
+
+          for(std::size_t index = 0; index < axis_cnt; index++)
+          {
+            const KeyValuePair& keyvalue = variationsMap.GetKeyValue(index);
+
+            if(keyvalue.first.type == Property::Key::STRING)
+            {
+              const std::string& key   = keyvalue.first.stringKey;
+              float              value = 0.0f;
+
+              if(key.length() == 4u && keyvalue.second.Get(value))
+              {
+                variations[valid_cnt].tag = HB_TAG(key[0], key[1], key[2], key[3]);
+                variations[valid_cnt].value = value;
+
+                ++valid_cnt;
+              }
+            }
+          }
+
+          hb_font_set_variations(harfBuzzFont, variations, valid_cnt);
+          delete[] variations;
+        }
 
         hb_shape(harfBuzzFont, harfBuzzBuffer, NULL, 0u);
 
@@ -368,7 +400,8 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                       const Character*       const text,
                       Length                       numberOfCharacters,
                       FontId                       fontId,
-                      Script                       script)
+                      Script                       script,
+                      Property::Map*               variationsMapPtr)
 {
   CreatePlugin();
 
@@ -376,7 +409,8 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                         text,
                         numberOfCharacters,
                         fontId,
-                        script);
+                        script,
+                        variationsMapPtr);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,

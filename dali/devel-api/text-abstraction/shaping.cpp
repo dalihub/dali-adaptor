@@ -54,13 +54,15 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                       const Character*       const text,
                       Length                       numberOfCharacters,
                       FontId                       fontId,
-                      Script                       script)
+                      Script                       script,
+                      Property::Map*               variationsMapPtr)
 {
   return GetImplementation(*this).Shape(fontClient,
                                         text,
                                         numberOfCharacters,
                                         fontId,
-                                        script);
+                                        script,
+                                        variationsMapPtr);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,

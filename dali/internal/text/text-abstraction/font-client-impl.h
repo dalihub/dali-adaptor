@@ -204,11 +204,12 @@ public: // API for Dali::TextAbstraction::FontClient used.
   FontId GetFontId(const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& fontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex, Property::Map* variationsMapPtr )
    */
   FontId GetFontId(const FontDescription& fontDescription,
                    PointSize26Dot6        requestedPointSize,
-                   FaceIndex              faceIndex);
+                   FaceIndex              faceIndex,
+                   Property::Map*         variationsMapPtr = nullptr);
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const BitmapFont& bitmapFont )

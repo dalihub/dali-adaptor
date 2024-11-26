@@ -210,11 +210,13 @@ FontId FontClient::GetFontId(const FontPath& path, PointSize26Dot6 requestedPoin
 
 FontId FontClient::GetFontId(const FontDescription& fontDescription,
                              PointSize26Dot6        requestedPointSize,
-                             FaceIndex              faceIndex)
+                             FaceIndex              faceIndex,
+                             Property::Map*         variationsMapPtr)
 {
   return GetImplementation(*this).GetFontId(fontDescription,
                                             requestedPointSize,
-                                            faceIndex);
+                                            faceIndex,
+                                            variationsMapPtr);
 }
 
 FontId FontClient::GetFontId(const BitmapFont& bitmapFont)
