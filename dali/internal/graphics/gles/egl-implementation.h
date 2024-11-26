@@ -247,7 +247,6 @@ private:
 
   int32_t  mMultiSamplingLevel;
   int32_t  mGlesVersion;
-  uint32_t mLogThreshold{0};
 
   ColorDepth mColorDepth;
 
@@ -259,7 +258,6 @@ private:
   bool mPartialUpdateRequired;
   bool mIsSurfacelessContextSupported;
   bool mIsKhrCreateContextSupported;
-  bool mLogEnabled{false};
 
   uint32_t                           mSwapBufferCountAfterResume;
   PFNEGLSETDAMAGEREGIONKHRPROC       mEglSetDamageRegionKHR;

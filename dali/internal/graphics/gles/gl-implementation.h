@@ -22,6 +22,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <dali/devel-api/threading/conditional-wait.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -43,42 +44,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace
-{
-#ifndef START_DURATION_CHECK
-#define START_DURATION_CHECK()                         \
-  uint64_t startTimeNanoSeconds = 0ull;                \
-  uint64_t endTimeNanoSeconds   = 0ull;                \
-  if(mLogEnabled)                                      \
-  {                                                    \
-    TimeService::GetNanoseconds(startTimeNanoSeconds); \
-  }
-#endif
-
-#ifndef FINISH_DURATION_CHECK
-#define FINISH_DURATION_CHECK(functionName)                                                                                                                \
-  if(mLogEnabled)                                                                                                                                          \
-  {                                                                                                                                                        \
-    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                       \
-    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                   \
-    {                                                                                                                                                      \
-      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms]\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0); \
-    }                                                                                                                                                      \
-  }
-#endif
-
-#ifndef FINISH_DURATION_CHECK_WITH_FORMAT
-#define FINISH_DURATION_CHECK_WITH_FORMAT(functionName, format, ...)                                                                                                                 \
-  if(mLogEnabled)                                                                                                                                                                    \
-  {                                                                                                                                                                                  \
-    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                                                 \
-    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                                             \
-    {                                                                                                                                                                                \
-      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms] " format "\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0, ##__VA_ARGS__); \
-    }                                                                                                                                                                                \
-  }
-#endif
-} // namespace
 /**
  * GlImplementation is a concrete implementation for GlAbstraction.
  * The class provides an OpenGL-ES 2.0 or 3.0 implementation.
@@ -402,11 +367,8 @@ public:
 
   void Clear(GLbitfield mask) override
   {
-    START_DURATION_CHECK();
-
+    DALI_TIME_CHECKER_SCOPE(mTimeCheckerFilter, "glClear");
     glClear(mask);
-
-    FINISH_DURATION_CHECK("glClear");
   }
 
   void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) override
@@ -431,29 +393,35 @@ public:
 
   void CompileShader(GLuint shader) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glCompileShader(shader);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glCompileShader", "shader id : %u", shader);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glCompileShader shader id : " << shader;
+    });
   }
 
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glCompressedTexImage2D", "size : %u x %u", width, height);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glCompressedTexImage2D size : " << width << " x " << height;
+    });
   }
 
   void CompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glCompressedTexSubImage2D", "size : %u x %u", width, height);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glCompressedTexSubImage2D size : " << width << " x " << height;
+    });
   }
 
   void CopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) override
@@ -563,20 +531,14 @@ public:
 
   void Finish(void) override
   {
-    START_DURATION_CHECK();
-
+    DALI_TIME_CHECKER_SCOPE(mTimeCheckerFilter, "glFinish");
     glFinish();
-
-    FINISH_DURATION_CHECK("glFinish");
   }
 
   void Flush(void) override
   {
-    START_DURATION_CHECK();
-
+    DALI_TIME_CHECKER_SCOPE(mTimeCheckerFilter, "glFlush");
     glFlush();
-
-    FINISH_DURATION_CHECK("glFlush");
   }
 
   void FramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) override
@@ -601,6 +563,7 @@ public:
 
   void GenerateMipmap(GLenum target) override
   {
+    DALI_TIME_CHECKER_SCOPE(mTimeCheckerFilter, "glGenerateMipmap");
     glGenerateMipmap(target);
   }
 
@@ -796,11 +759,13 @@ public:
 
   void LinkProgram(GLuint program) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glLinkProgram(program);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glLinkProgram", "program id : %u", program);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glLinkProgram program id : " << program;
+    });
   }
 
   void PixelStorei(GLenum pname, GLint param) override
@@ -815,7 +780,13 @@ public:
 
   void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels) override
   {
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
+
     glReadPixels(x, y, width, height, format, type, pixels);
+
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glReadPixels size : (" << x << "," << y << ") " << width << "x" << height << ", format : " << format << ", type : " << type;
+    });
   }
 
   void ReleaseShaderCompiler(void) override
@@ -880,11 +851,13 @@ public:
 
   void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glTexImage2D", "size : %u x %u, format : %d, type : %d", width, height, static_cast<int>(format), static_cast<int>(type));
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glTexImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type;
+    });
   }
 
   void TexParameterf(GLenum target, GLenum pname, GLfloat param) override
@@ -909,11 +882,13 @@ public:
 
   void TexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels) override
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
 
     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glTexSubImage2D", "size : %u x %u, format : %d, type : %d", width, height, static_cast<int>(format), static_cast<int>(type));
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "glTexSubImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type;
+    });
   }
 
   void Uniform1f(GLint location, GLfloat x) override
@@ -1616,6 +1591,8 @@ private:
 
   GlExtensionCache::GlExtensionSupportedCacheList mGlExtensionSupportedCacheList;
 
+  Dali::Integration::TimeChecker::ThresholdFilter* mTimeCheckerFilter{nullptr}; ///< For duration checking. (not owned)
+
   ConditionalWait mContextCreatedWaitCondition;
   GLint           mMaxTextureSize;
   GLint           mMaxCombinedTextureUnits;
@@ -1625,23 +1602,10 @@ private:
   std::string     mFragmentShaderPrefix;
   int32_t         mGlesVersion;
   int32_t         mShadingLanguageVersion;
-  uint32_t        mLogThreshold{0};
   bool            mShadingLanguageVersionCached;
   bool            mIsSurfacelessContextSupported;
   bool            mIsContextCreated;
-  bool            mLogEnabled{false};
 };
-#ifdef START_DURATION_CHECK
-#undef START_DURATION_CHECK
-#endif
-
-#ifdef FINISH_DURATION_CHECK
-#undef FINISH_DURATION_CHECK
-#endif
-
-#ifdef FINISH_DURATION_CHECK_WITH_FORMAT
-#undef FINISH_DURATION_CHECK_WITH_FORMAT
-#endif
 
 } // namespace Adaptor
 
