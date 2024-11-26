@@ -216,8 +216,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
 
   auto attachments = renderPass->GetCreateInfo().attachments;
   if(attachments != nullptr &&
-     !attachments->empty() &&
-     attachments->front().loadOp == Graphics::AttachmentLoadOp::CLEAR)
+     !attachments->empty()) // Can specify clear color even if load op is not clear.
   {
     for(auto clearValue : clearValues)
     {
@@ -235,7 +234,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                         .setRenderPass(renderPassImpl->GetVkHandle())
                                         .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
                                         .setPClearValues(vkClearValues.data())
-                                        .setClearValueCount(uint32_t(framebuffer->GetClearValues().size())),
+                                        .setClearValueCount(uint32_t(vkClearValues.size())),
                                       vk::SubpassContents::eSecondaryCommandBuffers);
 }
 

@@ -524,7 +524,7 @@ IF(enable_vulkan)
 #                           -Wno-weak-vtables
   # Warnings that cause issues with vulkan.hpp. Double check when we upgrade.
   ADD_COMPILE_OPTIONS($<$<COMPILE_LANGUAGE:CXX>:-Wno-init-list-lifetime>)
-  ADD_COMPILE_OPTIONS(-Werror)
+  ADD_COMPILE_OPTIONS(-Werror -Wno-deprecated-declarations)
   INCLUDE(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG(-Wno-class-memaccess HAVE_NO_CLASS_MEMACCESS)
   IF (HAVE_NO_CLASS_MEMACCESS)
@@ -547,7 +547,7 @@ IF(enable_glslang)
   # package configuration.
   IF(NOT GLSLANG_LDFLAGS)
     FIND_PACKAGE(glslang)
-    SET(DALI_LDFLAGS ${DALI_LDFLAGS} glslang::glslang )
+    SET(DALI_LDFLAGS ${DALI_LDFLAGS} glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits)
   ELSE()
     # On Ubuntu 22.04 glslang seems to be horribly broken, pc file doesn't include
     # all needed deps and SPIRV-Tools package is needed

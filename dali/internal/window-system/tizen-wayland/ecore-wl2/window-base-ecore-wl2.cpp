@@ -43,19 +43,6 @@
 #include <vconf.h>
 #endif
 
-#define START_DURATION_CHECK()                               \
-  uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
-  uint32_t startTime, endTime;                               \
-  startTime = TimeService::GetMilliSeconds();
-
-#define FINISH_DURATION_CHECK(functionName)                                             \
-  endTime              = TimeService::GetMilliSeconds();                                \
-  durationMilliSeconds = endTime - startTime;                                           \
-  if(durationMilliSeconds > 0)                                                          \
-  {                                                                                     \
-    DALI_LOG_DEBUG_INFO("%s : duration [%u ms]\n", functionName, durationMilliSeconds); \
-  }
-
 #include <wayland-egl-tizen.h>
 
 namespace Dali
@@ -71,6 +58,8 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 #endif
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+
+DALI_INIT_TIME_CHECKER_FILTER_WITH_DEFAULT_THRESHOLD(gTimeCheckerFilter, DALI_ECORE_WL2_PERFORMANCE_LOG_THRESHOLD_TIME, 1);
 
 /**
  * @brief Enumeration of location for window resized by display server.
@@ -550,7 +539,25 @@ static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
   if(windowBase)
   {
     // When the mouse is out, the previous mouse must be canceled.
-    windowBase->OnMouseButtonCancel(data, type, event);
+    // event's type is Ecore_Event_Mouse_IO, so fill in inner struct value in need.
+    {
+      Ecore_Event_Mouse_IO*    ioEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
+      Ecore_Event_Mouse_Button buttonEvent;
+
+      buttonEvent.window       = ioEvent->window;
+      buttonEvent.event_window = ioEvent->event_window;
+
+      buttonEvent.timestamp = ioEvent->timestamp;
+      buttonEvent.modifiers = ioEvent->modifiers;
+
+      buttonEvent.x = ioEvent->x;
+      buttonEvent.y = ioEvent->y;
+
+      buttonEvent.dev          = ioEvent->dev;
+      buttonEvent.multi.device = 0;
+
+      windowBase->OnMouseButtonCancel(data, type, &buttonEvent);
+    }
     windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
   }
   return ECORE_CALLBACK_PASS_ON;
@@ -976,7 +983,7 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
 
   if(mWlInputPanel)
   {
-    wl_proxy_destroy((struct wl_proxy *)mWlInputPanel);
+    wl_proxy_destroy((struct wl_proxy*)mWlInputPanel);
     mWlInputPanel = nullptr;
   }
 
@@ -1486,9 +1493,6 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
     point.SetDeviceId(touchEvent->multi.device);
     point.SetState(PointState::INTERRUPTED);
     point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
-    point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radius_x, touchEvent->multi.radius_y));
-    point.SetPressure(touchEvent->multi.pressure);
-    point.SetAngle(Degree(touchEvent->multi.angle));
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
 
@@ -2138,7 +2142,7 @@ Dali::Any WindowBaseEcoreWl2::CreateWindow(int width, int height)
 {
   int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_create");
   if(totalAngle == 90 || totalAngle == 270)
   {
     mEglWindow = wl_egl_window_create(mWlSurface, height, width);
@@ -2147,7 +2151,6 @@ Dali::Any WindowBaseEcoreWl2::CreateWindow(int width, int height)
   {
     mEglWindow = wl_egl_window_create(mWlSurface, width, height);
   }
-  FINISH_DURATION_CHECK("wl_egl_window_create");
 
   return static_cast<void*>(mEglWindow);
 }
@@ -2156,9 +2159,8 @@ void WindowBaseEcoreWl2::DestroyWindow()
 {
   if(mEglWindow != NULL)
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_destroy");
     wl_egl_window_destroy(mEglWindow);
-    FINISH_DURATION_CHECK("wl_egl_window_destroy");
 
     mEglWindow = NULL;
   }
@@ -2197,9 +2199,8 @@ void WindowBaseEcoreWl2::SetWindowRotation(int angle)
     }
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_set_rotation");
   wl_egl_window_tizen_set_rotation(mEglWindow, rotation);
-  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_rotation");
 }
 
 void WindowBaseEcoreWl2::SetWindowBufferTransform(int angle)
@@ -2236,9 +2237,8 @@ void WindowBaseEcoreWl2::SetWindowBufferTransform(int angle)
   }
 
   DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_buffer_transform() with buffer Transform [%d]\n", bufferTransform);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_set_buffer_transform");
   wl_egl_window_tizen_set_buffer_transform(mEglWindow, bufferTransform);
-  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_buffer_transform");
 }
 
 void WindowBaseEcoreWl2::SetWindowTransform(int angle)
@@ -2275,32 +2275,30 @@ void WindowBaseEcoreWl2::SetWindowTransform(int angle)
   }
 
   DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_window_transform() with window Transform [%d]\n", windowTransform);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_set_window_transform");
   wl_egl_window_tizen_set_window_transform(mEglWindow, windowTransform);
-  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_window_transform");
 }
 
 void WindowBaseEcoreWl2::ResizeWindow(PositionSize positionSize)
 {
   DALI_LOG_RELEASE_INFO("wl_egl_window_resize(), (%d, %d) [%d x %d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_resize");
   wl_egl_window_resize(mEglWindow, positionSize.width, positionSize.height, positionSize.x, positionSize.y);
 
   // Note: Both "Resize" and "MoveResize" cases can reach here, but only "MoveResize" needs to submit serial number
   if(mMoveResizeSerial != mLastSubmittedMoveResizeSerial)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_set_window_serial");
     wl_egl_window_tizen_set_window_serial(mEglWindow, mMoveResizeSerial);
     mLastSubmittedMoveResizeSerial = mMoveResizeSerial;
   }
-  FINISH_DURATION_CHECK("wl_egl_window functions");
 }
 
 bool WindowBaseEcoreWl2::IsWindowRotationSupported()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_get_capabilities");
   // Check capability
   wl_egl_window_tizen_capability capability = static_cast<wl_egl_window_tizen_capability>(wl_egl_window_tizen_get_capabilities(mEglWindow));
-  FINISH_DURATION_CHECK("wl_egl_window_tizen_get_capabilities");
 
   if(capability == WL_EGL_WINDOW_TIZEN_CAPABILITY_ROTATION_SUPPORTED)
   {
@@ -2393,9 +2391,9 @@ void WindowBaseEcoreWl2::Move(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_position_set x[%d], y[%d]\n", newPositionSize.x, newPositionSize.y);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_position_set");
   ecore_wl2_window_position_set(mEcoreWindow, newPositionSize.x, newPositionSize.y);
-  FINISH_DURATION_CHECK("ecore_wl2_window_position_set");
 }
 
 void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
@@ -2404,9 +2402,9 @@ void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
-  FINISH_DURATION_CHECK("ecore_wl2_window_sync_geometry_set");
 }
 
 void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
@@ -2415,18 +2413,18 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
-  FINISH_DURATION_CHECK("ecore_wl2_window_sync_geometry_set");
 }
 
 void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
 #ifdef OVER_TIZEN_VERSION_8
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
   ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
-  FINISH_DURATION_CHECK("ecore_wl2_window_layout_set");
 #endif
 }
 
@@ -2438,31 +2436,27 @@ void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& cl
 
 void WindowBaseEcoreWl2::Raise()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
   // Use ecore_wl2_window_activate to prevent the window shown without rendering
   ecore_wl2_window_activate(mEcoreWindow);
-  FINISH_DURATION_CHECK("ecore_wl2_window_activate");
 }
 
 void WindowBaseEcoreWl2::Lower()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_lower");
   ecore_wl2_window_lower(mEcoreWindow);
-  FINISH_DURATION_CHECK("ecore_wl2_window_lower");
 }
 
 void WindowBaseEcoreWl2::Activate()
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
   ecore_wl2_window_activate(mEcoreWindow);
-  FINISH_DURATION_CHECK("ecore_wl2_window_activate");
 }
 
 void WindowBaseEcoreWl2::Maximize(bool maximize)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximized_set");
   ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
-  FINISH_DURATION_CHECK("ecore_wl2_window_maximized_set");
 }
 
 bool WindowBaseEcoreWl2::IsMaximized() const
@@ -2473,17 +2467,20 @@ bool WindowBaseEcoreWl2::IsMaximized() const
 void WindowBaseEcoreWl2::SetMaximumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
-  START_DURATION_CHECK();
-  ecore_wl2_window_maximum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
-  FINISH_DURATION_CHECK("ecore_wl2_window_maximum_size_set");
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximum_size_set");
+    ecore_wl2_window_maximum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 void WindowBaseEcoreWl2::Minimize(bool minimize)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_iconified_set");
   ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
-  FINISH_DURATION_CHECK("ecore_wl2_window_iconified_set");
 }
 
 bool WindowBaseEcoreWl2::IsMinimized() const
@@ -2494,10 +2491,14 @@ bool WindowBaseEcoreWl2::IsMinimized() const
 void WindowBaseEcoreWl2::SetMimimumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_minimum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
-  START_DURATION_CHECK();
-  ecore_wl2_window_minimum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
-  FINISH_DURATION_CHECK("ecore_wl2_window_minimum_size_set");
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_minimum_size_set");
+    ecore_wl2_window_minimum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
@@ -2510,42 +2511,41 @@ void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "%d ", rotations[i]);
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_available_rotations_set");
   ecore_wl2_window_available_rotations_set(mEcoreWindow, rotations, angles.size());
-  FINISH_DURATION_CHECK("ecore_wl2_window_available_rotations_set");
 }
 
 void WindowBaseEcoreWl2::SetPreferredAngle(int angle)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_preferred_rotation_set");
   ecore_wl2_window_preferred_rotation_set(mEcoreWindow, angle);
-  FINISH_DURATION_CHECK("ecore_wl2_window_preferred_rotation_set");
 }
 
 void WindowBaseEcoreWl2::SetAcceptFocus(bool accept)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_focus_skip_set");
   ecore_wl2_window_focus_skip_set(mEcoreWindow, !accept);
-  FINISH_DURATION_CHECK("ecore_wl2_window_focus_skip_set");
 }
 
 void WindowBaseEcoreWl2::Show()
 {
   if(!mVisible)
   {
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_geometry_set");
     ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
-    FINISH_DURATION_CHECK("ecore_wl2_window_geometry_set");
   }
   mVisible = true;
 
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_show");
   ecore_wl2_window_show(mEcoreWindow);
 }
 
 void WindowBaseEcoreWl2::Hide()
 {
   mVisible = false;
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_hide");
   ecore_wl2_window_hide(mEcoreWindow);
 }
 
@@ -2603,9 +2603,8 @@ unsigned int WindowBaseEcoreWl2::AddAuxiliaryHint(const std::string& hint, const
 
   unsigned int id = mAuxiliaryHints.size();
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_aux_hint_add");
   ecore_wl2_window_aux_hint_add(mEcoreWindow, static_cast<int>(id), hint.c_str(), value.c_str());
-  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_add");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id);
 
@@ -2622,9 +2621,8 @@ bool WindowBaseEcoreWl2::RemoveAuxiliaryHint(unsigned int id)
 
   mAuxiliaryHints[id - 1].second = std::string();
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_aux_hint_del");
   ecore_wl2_window_aux_hint_del(mEcoreWindow, static_cast<int>(id));
-  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_del");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::RemoveAuxiliaryHint: id = %d, hint = %s\n", id, mAuxiliaryHints[id - 1].first.c_str());
 
@@ -2641,9 +2639,8 @@ bool WindowBaseEcoreWl2::SetAuxiliaryHintValue(unsigned int id, const std::strin
 
   mAuxiliaryHints[id - 1].second = value;
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_aux_hint_change");
   ecore_wl2_window_aux_hint_change(mEcoreWindow, static_cast<int>(id), value.c_str());
-  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_change");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str());
 
@@ -2690,10 +2687,14 @@ void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
-  START_DURATION_CHECK();
-  ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
-  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_set");
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_input_rect_set");
+    ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
@@ -2749,9 +2750,8 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
       }
     }
 
-    START_DURATION_CHECK();
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_type_set");
     ecore_wl2_window_type_set(mEcoreWindow, windowType);
-    FINISH_DURATION_CHECK("ecore_wl2_window_type_set");
   }
 }
 
@@ -2763,7 +2763,7 @@ Dali::WindowType WindowBaseEcoreWl2::GetType() const
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetNotificationLevel");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2816,11 +2816,11 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
 
   while(!mNotificationLevelChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
-  FINISH_DURATION_CHECK("ecore_wl2 & wl_display");
 
   if(!mNotificationLevelChangeDone)
   {
@@ -2840,6 +2840,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
 
 Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetNotificationLevel");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2849,6 +2850,7 @@ Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
 
   while(!mNotificationLevelChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
@@ -2904,6 +2906,7 @@ Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
 
 void WindowBaseEcoreWl2::SetOpaqueState(bool opaque)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetOpaqueState");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2914,6 +2917,7 @@ void WindowBaseEcoreWl2::SetOpaqueState(bool opaque)
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetScreenOffMode");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2944,6 +2948,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOff
 
   while(!mScreenOffModeChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
@@ -2967,6 +2972,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOff
 
 WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetScreenOffMode");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2976,6 +2982,7 @@ WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 
   while(!mScreenOffModeChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
@@ -3010,7 +3017,7 @@ WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetBrightness");
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3025,11 +3032,11 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 
   while(!mBrightnessChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
-  FINISH_DURATION_CHECK("ecore_wl2_display_flush");
 
   if(!mBrightnessChangeDone)
   {
@@ -3049,7 +3056,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 
 int WindowBaseEcoreWl2::GetBrightness() const
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetBrightness");
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3059,11 +3066,11 @@ int WindowBaseEcoreWl2::GetBrightness() const
 
   while(!mBrightnessChangeDone && count < 3)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_flush");
     ecore_wl2_display_flush(ecore_wl2_connected_display_get(NULL));
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
-  FINISH_DURATION_CHECK("ecore_wl2_display_flush");
 
   if(!mBrightnessChangeDone)
   {
@@ -3125,6 +3132,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   {
     return false;
   }
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GrabKeyList");
 
   eina_init();
 
@@ -3167,9 +3175,11 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
     keyList = eina_list_append(keyList, &info);
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
-  FINISH_DURATION_CHECK("ecore_wl2_window_keygrab_list_set");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
+    oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]";
+  });
 
   result.Resize(keyCount, true);
 
@@ -3215,6 +3225,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   {
     return false;
   }
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::UngrabKeyList");
 
   eina_init();
 
@@ -3227,9 +3238,11 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
     keyList         = eina_list_append(keyList, &info);
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
-  FINISH_DURATION_CHECK("ecore_wl2_window_keygrab_list_unset");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
+    oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]";
+  });
 
   result.Resize(keyCount, true);
 
@@ -3265,6 +3278,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
 
 void WindowBaseEcoreWl2::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetDpi");
   // calculate DPI
   float xres, yres;
 
@@ -3295,6 +3309,7 @@ int WindowBaseEcoreWl2::GetScreenRotationAngle()
     DALI_LOG_RELEASE_INFO("Support PreRotation and return 0\n");
     return 0;
   }
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetScreenRotationAngle");
   int transform;
   if(ecore_wl2_window_ignore_output_transform_get(mEcoreWindow))
   {
@@ -3311,35 +3326,40 @@ int WindowBaseEcoreWl2::GetScreenRotationAngle()
 void WindowBaseEcoreWl2::SetWindowRotationAngle(int degree)
 {
   mWindowRotationAngle = degree;
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_rotation_set");
   ecore_wl2_window_rotation_set(mEcoreWindow, degree);
 }
 
 void WindowBaseEcoreWl2::WindowRotationCompleted(int degree, int width, int height)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_rotation_change_done_send");
   ecore_wl2_window_rotation_change_done_send(mEcoreWindow, degree, width, height);
-  FINISH_DURATION_CHECK("ecore_wl2_window_rotation_change_done_send");
 }
 
 void WindowBaseEcoreWl2::SetTransparency(bool transparent)
 {
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_alpha_set");
   ecore_wl2_window_alpha_set(mEcoreWindow, transparent);
-  FINISH_DURATION_CHECK("ecore_wl2_window_alpha_set");
 }
 
 void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::CreateInternalWindow");
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(!display)
   {
     DALI_ASSERT_ALWAYS(0 && "Failed to get display");
   }
 
-  START_DURATION_CHECK();
-  ecore_wl2_display_sync(display);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_display_sync");
+    ecore_wl2_display_sync(display);
+  }
 
-  mEcoreWindow = ecore_wl2_window_new(display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_new");
+    mEcoreWindow = ecore_wl2_window_new(display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  }
 
   if(mEcoreWindow == 0)
   {
@@ -3347,8 +3367,10 @@ void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
   }
 
   // Set default type
-  ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
-  FINISH_DURATION_CHECK("ecore_wl2 functions");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_type_set");
+    ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
+  }
 }
 
 void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
@@ -3360,31 +3382,33 @@ void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
     ecoreParent                       = winBaseEcore2->mEcoreWindow;
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_transient_parent_set");
   ecore_wl2_window_transient_parent_set(mEcoreWindow, ecoreParent, belowParent);
-  FINISH_DURATION_CHECK("ecore_wl2_window_transient_parent_set");
 }
 
 int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_create_commit_sync_fd");
   return wl_egl_window_tizen_create_commit_sync_fd(mEglWindow);
 }
 
 int WindowBaseEcoreWl2::CreateFramePresentedSyncFence()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_create_presentation_sync_fd");
   return wl_egl_window_tizen_create_presentation_sync_fd(mEglWindow);
 }
 
 void WindowBaseEcoreWl2::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPositionSizeWithAngle, angle: %d, x: %d, y: %d, w: %d, h: %d\n", angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_rotation_geometry_set");
   ecore_wl2_window_rotation_geometry_set(mEcoreWindow, angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
-  FINISH_DURATION_CHECK("ecore_wl2_window_rotation_geometry_set");
 }
 
 void WindowBaseEcoreWl2::InitializeIme()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::InitializeIme");
   Eina_Iterator*      globals;
   struct wl_registry* registry;
   Ecore_Wl2_Global*   global;
@@ -3416,7 +3440,6 @@ void WindowBaseEcoreWl2::InitializeIme()
     return;
   }
 
-  START_DURATION_CHECK();
   EINA_ITERATOR_FOREACH(globals, global)
   {
 #ifdef OVER_TIZEN_VERSION_7
@@ -3447,22 +3470,27 @@ void WindowBaseEcoreWl2::InitializeIme()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland output panel interface\n");
     return;
   }
+
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
 #ifdef OVER_TIZEN_VERSION_7
   mWlInputPanelSurface = zwp_input_panel_v1_get_input_panel_surface(mWlInputPanel, mWlSurface);
 #else
   mWlInputPanelSurface = wl_input_panel_get_input_panel_surface(mWlInputPanel, mWlSurface);
 #endif
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "zwp_input_panel_v1_get_input_panel_surface");
+
   if(!mWlInputPanelSurface)
   {
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
     return;
   }
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
 #ifdef OVER_TIZEN_VERSION_7
   zwp_input_panel_surface_v1_set_toplevel(mWlInputPanelSurface, mWlOutput, ZWP_INPUT_PANEL_SURFACE_V1_POSITION_CENTER_BOTTOM);
 #else
   wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
 #endif
-  FINISH_DURATION_CHECK("zwp_input_panel_surface_v1_set_toplevel");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "zwp_input_panel_surface_v1_set_toplevel");
   mIsIMEWindowInitialized = true;
 }
 
@@ -3474,17 +3502,17 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     return;
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "zwp_input_panel_surface_v1_set_ready");
 #ifdef OVER_TIZEN_VERSION_7
   zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
 #else
   wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
 #endif
-  FINISH_DURATION_CHECK("zwp_input_panel_surface_v1_set_ready");
 }
 
 void WindowBaseEcoreWl2::RequestMoveToServer()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::RequestMoveToServer");
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   if(!display)
   {
@@ -3499,14 +3527,15 @@ void WindowBaseEcoreWl2::RequestMoveToServer()
     return;
   }
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   ecore_wl2_window_move(mEcoreWindow, input);
-  FINISH_DURATION_CHECK("ecore_wl2_window_move");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "ecore_wl2_window_move");
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestMoveToServer, starts the window[%p] is moved by server\n", mEcoreWindow);
 }
 
 void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::RequestResizeToServer");
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   if(!display)
   {
@@ -3523,16 +3552,16 @@ void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
 
   ResizeLocation location = RecalculateLocationToCurrentOrientation(direction, mWindowRotationAngle);
 
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   ecore_wl2_window_resize(mEcoreWindow, input, static_cast<int>(location));
-  FINISH_DURATION_CHECK("ecore_wl2_window_resize");
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "ecore_wl2_window_resize");
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, direction:%d oriention:%d mode:%d\n", mEcoreWindow, direction, mWindowRotationAngle, location);
 }
 
 void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::EnableFloatingMode, floating mode flag: [%p], enable [%d]\n", mEcoreWindow, enable);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_floating_mode_set");
   if(enable == true)
   {
     ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_TRUE);
@@ -3541,11 +3570,11 @@ void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
   {
     ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_FALSE);
   }
-  FINISH_DURATION_CHECK("ecore_wl2_window_floating_mode_set");
 }
 
 bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_floating_mode_get");
   return ecore_wl2_window_floating_mode_get(mEcoreWindow);
 }
 
@@ -3560,10 +3589,14 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Add input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
-  START_DURATION_CHECK();
-  ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
-  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_add");
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_input_rect_add");
+    ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
@@ -3577,15 +3610,20 @@ void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Subtract input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
-  START_DURATION_CHECK();
-  ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
-  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_subtract");
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_input_rect_subtract");
+    ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 bool WindowBaseEcoreWl2::PointerConstraintsLock()
 {
 #ifdef OVER_TIZEN_VERSION_8
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pointer_constraints_lock_pointer");
   return ecore_wl2_window_pointer_constraints_lock_pointer(mEcoreWindow);
 #else
   return false;
@@ -3595,6 +3633,7 @@ bool WindowBaseEcoreWl2::PointerConstraintsLock()
 bool WindowBaseEcoreWl2::PointerConstraintsUnlock()
 {
 #ifdef OVER_TIZEN_VERSION_8
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pointer_constraints_unlock_pointer");
   return ecore_wl2_window_pointer_constraints_unlock_pointer(mEcoreWindow);
 #else
   return false;
@@ -3604,27 +3643,41 @@ bool WindowBaseEcoreWl2::PointerConstraintsUnlock()
 void WindowBaseEcoreWl2::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
 {
 #ifdef OVER_TIZEN_VERSION_8
-  ecore_wl2_window_locked_pointer_region_set(mEcoreWindow, x, y, width, height);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_locked_pointer_region_set");
+    ecore_wl2_window_locked_pointer_region_set(mEcoreWindow, x, y, width, height);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 #endif
 }
 
 void WindowBaseEcoreWl2::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
 {
 #ifdef OVER_TIZEN_VERSION_8
-  ecore_wl2_window_locked_pointer_cursor_position_hint_set(mEcoreWindow, x, y);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_locked_pointer_cursor_position_hint_set");
+    ecore_wl2_window_locked_pointer_cursor_position_hint_set(mEcoreWindow, x, y);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 #endif
 }
 
 bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pointer_warp");
   return ecore_wl2_window_pointer_warp(mEcoreWindow, x, y);
 }
 
 void WindowBaseEcoreWl2::CursorVisibleSet(bool visible)
 {
 #ifdef OVER_TIZEN_VERSION_8
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_cursor_visible_set");
   ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
 #endif
 }
@@ -3658,6 +3711,7 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
       return false;
     }
   }
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_grab");
   return ecore_wl2_window_keyboard_grab(mEcoreWindow, ecoreDeviceSubclass);
 #else
   return false;
@@ -3668,6 +3722,7 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 bool WindowBaseEcoreWl2::KeyboardUnGrab()
 {
 #ifdef OVER_TIZEN_VERSION_8
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_ungrab");
   return ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
 #else
   return false;
@@ -3677,14 +3732,19 @@ bool WindowBaseEcoreWl2::KeyboardUnGrab()
 void WindowBaseEcoreWl2::SetFullScreen(bool fullscreen)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_fullscreen_set, window: [%p], fullscreen [%d]\n", mEcoreWindow, fullscreen);
-  START_DURATION_CHECK();
-  ecore_wl2_window_fullscreen_set(mEcoreWindow, fullscreen);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-  FINISH_DURATION_CHECK("ecore_wl2_window_fullscreen_set");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_fullscreen_set");
+    ecore_wl2_window_fullscreen_set(mEcoreWindow, fullscreen);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 bool WindowBaseEcoreWl2::GetFullScreen()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_fullscreen_get");
   return ecore_wl2_window_fullscreen_get(mEcoreWindow);
 }
 
@@ -3700,19 +3760,20 @@ bool WindowBaseEcoreWl2::GetFrontBufferRendering()
 
 void WindowBaseEcoreWl2::SetWindowFrontBufferMode(bool enable)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_tizen_set_frontbuffer_mode");
   wl_egl_window_tizen_set_frontbuffer_mode(mEglWindow, enable);
 }
 
 void WindowBaseEcoreWl2::SetModal(bool modal)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set, window: [%p], flag [%d]\n", mEcoreWindow, modal);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_set");
   ecore_wl2_window_modal_set(mEcoreWindow, modal);
-  FINISH_DURATION_CHECK("ecore_wl2_window_modal_set");
 }
 
 bool WindowBaseEcoreWl2::IsModal()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_modal_get");
   bool ret = ecore_wl2_window_modal_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
@@ -3721,14 +3782,19 @@ bool WindowBaseEcoreWl2::IsModal()
 void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_set, window: [%p], flag [%d]\n", mEcoreWindow, alwaysOnTop);
-  START_DURATION_CHECK();
-  ecore_wl2_window_pin_mode_set(mEcoreWindow, alwaysOnTop);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-  FINISH_DURATION_CHECK("ecore_wl2_window_pin_mode_set");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pin_mode_set");
+    ecore_wl2_window_pin_mode_set(mEcoreWindow, alwaysOnTop);
+  }
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  }
 }
 
 bool WindowBaseEcoreWl2::IsAlwaysOnTop()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pin_mode_get");
   bool ret = ecore_wl2_window_pin_mode_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
@@ -3736,20 +3802,24 @@ bool WindowBaseEcoreWl2::IsAlwaysOnTop()
 
 void WindowBaseEcoreWl2::SetBottom(bool enable)
 {
-  START_DURATION_CHECK();
-  mBottom = enable;
-  if(mBottom)
   {
-    DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_BELOW\n", mEcoreWindow, mBottom);
-    ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_BELOW);
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_stack_mode_set");
+    mBottom = enable;
+    if(mBottom)
+    {
+      DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_BELOW\n", mEcoreWindow, mBottom);
+      ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_BELOW);
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_NONE\n", mEcoreWindow, mBottom);
+      ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_NONE);
+    }
   }
-  else
   {
-    DALI_LOG_RELEASE_INFO("ecore_wl2_window_stack_mode_set, window: [%p], flag[%d] ECORE_WL2_WINDOW_STACK_NONE\n", mEcoreWindow, mBottom);
-    ecore_wl2_window_stack_mode_set(mEcoreWindow, ECORE_WL2_WINDOW_STACK_NONE);
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_commit");
+    ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
   }
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-  FINISH_DURATION_CHECK("ecore_wl2_window_stack_mode_set");
 }
 
 bool WindowBaseEcoreWl2::IsBottom()
@@ -3765,14 +3835,16 @@ Any WindowBaseEcoreWl2::GetNativeBuffer() const
 
 bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_grab");
   Ecore_Wl2_Pointer_Boundary wlPointerBoundary = static_cast<Ecore_Wl2_Pointer_Boundary>(boundary);
-  bool ret = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
+  bool                       ret               = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_grab, window: [%p], boundary:[%d] flag [%d]\n", mEcoreWindow, wlPointerBoundary, ret);
   return ret;
 }
 
 bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_ungrab");
   bool ret = ecore_wl2_window_relative_motion_ungrab(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_ungrab, window: [%p], flag [%d]\n", mEcoreWindow, ret);
   return ret;
@@ -3781,13 +3853,14 @@ bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
 void WindowBaseEcoreWl2::SetBackgroundBlur(int blurRadius, int cornerRadius)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_set, window: [%p], blur radius [%d], corner radius[%d]\n", mEcoreWindow, blurRadius, cornerRadius);
-  START_DURATION_CHECK();
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_background_blur_set");
   ecore_wl2_window_background_blur_set(mEcoreWindow, blurRadius, cornerRadius, cornerRadius);
-  FINISH_DURATION_CHECK("ecore_wl2_window_background_blur_set");
 }
 
 int WindowBaseEcoreWl2::GetBackgroundBlur()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_background_blur_get");
   int radius = ecore_wl2_window_background_blur_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_get, window: [%p], radius [%d]\n", mEcoreWindow, radius);
   return radius;
@@ -3796,13 +3869,13 @@ int WindowBaseEcoreWl2::GetBackgroundBlur()
 void WindowBaseEcoreWl2::SetBehindBlur(int blurRadius)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_set, window: [%p], blur radius [%d]\n", mEcoreWindow, blurRadius);
-  START_DURATION_CHECK();
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_blur_set");
   ecore_wl2_window_behind_blur_set(mEcoreWindow, blurRadius);
-  FINISH_DURATION_CHECK("ecore_wl2_window_behind_blur_set");
 }
 
 int WindowBaseEcoreWl2::GetBehindBlur()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_blur_get");
   int radius = ecore_wl2_window_behind_blur_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_get, window: [%p], radius [%d]\n", mEcoreWindow, radius);
   return radius;

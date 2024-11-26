@@ -129,7 +129,7 @@ void Reflection::BuildReflection()
   std::vector<UniformInfo> samplers;
 
   // build descriptor set layout (currently, we support only one set!)
-  std::vector<vk::DescriptorSetLayoutCreateInfo> dsLayoutInfos;
+  std::unordered_map<uint32_t, vk::DescriptorSetLayoutCreateInfo*> boundSets;
 
   for(auto& state : (*mProgram.GetCreateInfo().shaderState))
   {
@@ -206,7 +206,7 @@ void Reflection::BuildReflection()
       {
         auto& bind = bindings[i];
         auto& ref  = *dsSet->bindings[i];
-        bind.setBinding(ref.binding);
+        bind.setBinding(ref.binding); // If this binding is used by both Vertex & Frag shaders, change the stage Flags to match that...
         bind.setDescriptorCount(ref.count);
         bind.setDescriptorType(vk::DescriptorType(ref.descriptor_type));
         bind.setStageFlags(
@@ -216,7 +216,10 @@ void Reflection::BuildReflection()
       auto& dsSetCreateInfo = mVkDescriptorSetLayoutCreateInfoList[dsSet->set];
 
       auto& bindingList = mVkDescriptorSetLayoutBindingList[dsSet->set];
+
+      // Single binding list (as there is usually only one set), is grown by next group of bindings
       bindingList.insert(bindingList.end(), bindings.begin(), bindings.end());
+
       dsSetCreateInfo.setBindings(bindingList);
       dsSetCreateInfo.setBindingCount(bindingList.size());
     }
@@ -285,8 +288,36 @@ void Reflection::BuildReflection()
 
   auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
 
-  // Create descriptor set layouts
+  // Merge shared UBO bindings
+  for(uint32_t dsSet = 0; dsSet < mVkDescriptorSetLayoutCreateInfoList.size(); ++dsSet)
+  {
+    auto& dsSetCreateInfo = mVkDescriptorSetLayoutCreateInfoList[dsSet];
+    auto& bindingList     = mVkDescriptorSetLayoutBindingList[dsSet];
 
+    std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding*> bindings;
+    std::vector<vk::DescriptorSetLayoutBinding>                   newBindingList;
+    newBindingList.reserve(dsSetCreateInfo.bindingCount);
+
+    for(uint32_t i = 0; i < dsSetCreateInfo.bindingCount; ++i)
+    {
+      auto iter = bindings.find(dsSetCreateInfo.pBindings[i].binding);
+      if(iter != bindings.end())
+      {
+        // We've already seen this binding
+        iter->second->stageFlags |= dsSetCreateInfo.pBindings[i].stageFlags;
+      }
+      else
+      {
+        newBindingList.emplace_back(dsSetCreateInfo.pBindings[i]);
+        bindings[dsSetCreateInfo.pBindings[i].binding] = &newBindingList.back();
+      }
+    }
+    bindingList = std::move(newBindingList);
+    dsSetCreateInfo.setBindings(bindingList);
+    dsSetCreateInfo.setBindingCount(bindingList.size());
+  }
+
+  // Create descriptor set layouts
   for(auto& dsLayoutCreateInfo : mVkDescriptorSetLayoutCreateInfoList)
   {
     auto dsLayout = vkDevice.createDescriptorSetLayout(dsLayoutCreateInfo,

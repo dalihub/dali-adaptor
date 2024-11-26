@@ -381,7 +381,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Warning, this may cause glWaitSync to occur on the GPU, or glClientWaitSync to block the CPU.
     dependencyChecker.CheckNeedsSync(this, texture, true);
     texture->Bind(binding);
-    texture->Prepare();
+
+    if(texture->IsNativeTexture())
+    {
+      texture->Prepare();
+      dependencyChecker.MarkNativeTexturePrepared(texture);
+    }
 
     if(programChanged)
     {
@@ -917,6 +922,11 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
        */
       dependencyChecker.AddTextures(this, framebuffer);
     }
+  }
+
+  if(dependencyChecker.GetNativeTextureCount() > 0)
+  {
+    dependencyChecker.CreateNativeTextureSync(this);
   }
 }
 

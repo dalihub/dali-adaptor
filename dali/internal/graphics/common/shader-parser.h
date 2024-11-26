@@ -56,26 +56,26 @@ using CodeTokenPair = std::pair<int, int>;
 struct CodeLine
 {
   std::vector<CodeTokenPair> tokens;
-  std::vector<std::string>   replacement;
   std::string                line;
 };
 
 struct Shader
 {
-  std::vector<CodeLine> codeLines;
-  std::string           output;
-  int                   customOutputLineIndex;
-  int                   mainLine;
+  std::vector<CodeLine>    codeLines;
+  std::vector<std::string> extensions;
+  std::string              output;
+  int                      customOutputLineIndex;
+  int                      mainLine;
 };
 
 struct Program
 {
-  Shader                     vertexShader;
-  Shader                     fragmentShader;
-  std::map<std::string, int> varyings;
-  int                        uboBinding{0};
-  int&                       samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
-  int                        attributeLocation{0};
+  Shader                          vertexShader;
+  Shader                          fragmentShader;
+  std::map<std::string_view, int> varyings;
+  int                             uboBinding{0};
+  int&                            samplerBinding{uboBinding}; // sampler bindings and ubo bindings are the same
+  int                             attributeLocation{0};
 
   std::vector<std::pair<std::string, uint32_t>> uniformBlocks;
 };

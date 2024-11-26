@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.3.50
+Version:    2.3.51
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -27,6 +27,10 @@ Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
+
+%if 0%{?enable_vulkan}
+Requires:  glslang
+%endif
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
@@ -58,7 +62,6 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpng)
-BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  hyphen-devel
@@ -67,14 +70,19 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
+%if 0%{?enable_vulkan}
+BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  glslang-devel
+BuildRequires:  glslang
+%else
+BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(wayland-egl)
+%endif
+
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(input-method-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
-
-BuildRequires:  glslang-devel
-BuildRequires:  glslang
 
 # WebP support only from Tizen 6 onwards
 %if 0%{?tizen_version_major} >= 6
@@ -87,7 +95,9 @@ BuildRequires:  pkgconfig(libwebpmux)
 # We use ecore mainloop
 %if 0%{?tizen_version_major} >= 5
 BuildRequires:  pkgconfig(ecore-wl2)
+%if !0%{?enable_vulkan}
 BuildRequires:  pkgconfig(wayland-egl-tizen)
+%endif
 %else
 BuildRequires:  pkgconfig(ecore-wayland)
 %endif
@@ -262,7 +272,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 ##############################
 %build
 PREFIX+="/usr"
-CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES"
+CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES -Wno-psabi"
 LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
@@ -305,6 +315,10 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 
 %if 0%{?enable_logging}
 cmake_flags+=" -DENABLE_NETWORK_LOGGING=ON"
+%endif
+
+%if 0%{?enable_vulkan}
+cmake_flags+=" -DENABLE_VULKAN=ON"
 %endif
 
 libtoolize --force
