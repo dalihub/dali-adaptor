@@ -212,9 +212,7 @@ void CombinedUpdateRenderController::Start()
   // Wait until all threads created in Initialise are up and running
   for(unsigned int i = 0; i < CREATED_THREAD_COUNT; ++i)
   {
-    DALI_LOG_RELEASE_INFO("Wait thread context [%u/%u] initialized\n", i, CREATED_THREAD_COUNT);
     mEventThreadSemaphore.Acquire();
-    DALI_LOG_RELEASE_INFO("Thread context [%u] initialized done\n", i);
   }
 
   mRunning = TRUE;
@@ -357,9 +355,7 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::Integration::RenderSur
     }
 
     // Wait until the surface has been replaced
-    DALI_LOG_RELEASE_INFO("Wait surface semaphore\n");
     mSurfaceSemaphore.Acquire();
-    DALI_LOG_RELEASE_INFO("Surface semaphore done.\n");
 
     LOG_EVENT("Surface replaced, event-thread continuing");
   }
@@ -383,9 +379,7 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::Integration::RenderSurf
     }
 
     // Wait until the surface has been deleted
-    DALI_LOG_RELEASE_INFO("Wait surface semaphore\n");
     mSurfaceSemaphore.Acquire();
-    DALI_LOG_RELEASE_INFO("Surface semaphore done.\n");
 
     LOG_EVENT("Surface deleted, event-thread continuing");
   }
@@ -561,7 +555,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Install a function for tracing
   mEnvironmentOptions.InstallTraceFunction();
 
-  DALI_LOG_RELEASE_INFO("BEGIN: DALI_RENDER_THREAD_INIT\n");
+  TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_THREAD_INIT");
 
   LOG_UPDATE_RENDER("THREAD CREATED");
 
@@ -616,7 +610,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
   unsigned int       frameCount          = 0u;
 
-  DALI_LOG_RELEASE_INFO("END: DALI_RENDER_THREAD_INIT\n");
+  TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_INIT");
   if(!mDestroyUpdateRenderThread)
   {
     ShaderPreCompiler::Get().Wait();
@@ -1072,7 +1066,6 @@ Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::Shoul
 
 void CombinedUpdateRenderController::SurfaceReplaced()
 {
-  DALI_LOG_RELEASE_INFO("SurfaceReplaced\n");
   // Just increment the semaphore
   mSurfaceSemaphore.Release(1);
 }
@@ -1089,7 +1082,6 @@ Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::Shoul
 
 void CombinedUpdateRenderController::SurfaceDeleted()
 {
-  DALI_LOG_RELEASE_INFO("SurfaceDeleted\n");
   // Just increment the semaphore
   mSurfaceSemaphore.Release(1);
 }
@@ -1170,14 +1162,12 @@ void CombinedUpdateRenderController::CancelPreCompile()
 
 void CombinedUpdateRenderController::NotifyThreadInitialised()
 {
-  DALI_LOG_RELEASE_INFO("NotifyThreadInitialised\n");
   // Just increment the semaphore
   mEventThreadSemaphore.Release(1);
 }
 
 void CombinedUpdateRenderController::NotifyGraphicsInitialised()
 {
-  DALI_LOG_RELEASE_INFO("NotifyGraphicsInitialised\n");
   mGraphicsInitializeWait.Notify();
 }
 
