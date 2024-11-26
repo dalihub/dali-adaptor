@@ -70,33 +70,6 @@ AgingSyncObject::~AgingSyncObject()
   }
 }
 
-bool AgingSyncObject::IsSynced()
-{
-  bool synced = false;
-  if(egl)
-  {
-    if(eglSyncObject)
-    {
-      DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::IsSynced(); EGL::ClientWaitSync\n");
-      synced = eglSyncObject->IsSynced();
-    }
-  }
-  else
-  {
-    auto gl = controller.GetGL();
-    if(gl && glSyncObject)
-    {
-      DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::IsSynced(); glClientWaitSync 0ms\n");
-      const GLuint64 TIMEOUT = 0; //0ms!
-      GLenum         result  = gl->ClientWaitSync(glSyncObject, GL_SYNC_FLUSH_COMMANDS_BIT, TIMEOUT);
-
-      synced = (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED);
-    }
-  }
-  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::IsSynced(); Result: %s\n", synced ? "Synced" : "NOT SYNCED");
-  return synced;
-}
-
 bool AgingSyncObject::ClientWait()
 {
   bool synced = false;
@@ -150,46 +123,35 @@ SyncPool::~SyncPool() = default;
 
 AgingSyncObject* SyncPool::AllocateSyncObject(const Context* writeContext, SyncPool::SyncContext syncContext)
 {
-  AgingSyncObject* agingSyncObject = new AgingSyncObject(mController, writeContext, (syncContext == SyncContext::EGL));
-
-  // Take ownership of sync object
-  mSyncObjects.PushBack(agingSyncObject);
-  return agingSyncObject;
+  std::unique_ptr<AgingSyncObject> syncObject = std::make_unique<AgingSyncObject>(mController, writeContext, (syncContext == SyncContext::EGL));
+  mSyncObjects.push_back(std::move(syncObject));
+  return mSyncObjects.back().get();
 }
 
-bool SyncPool::IsSynced(AgingSyncObject* agingSyncObject)
+void SyncPool::Wait(AgingSyncObject* syncPoolObject)
 {
-  if(DALI_LIKELY(agingSyncObject != nullptr))
+  if(syncPoolObject != nullptr)
   {
-    return agingSyncObject->IsSynced();
-  }
-  return false;
-}
-
-void SyncPool::Wait(AgingSyncObject* agingSyncObject)
-{
-  if(DALI_LIKELY(agingSyncObject != nullptr))
-  {
-    agingSyncObject->syncing = true;
-    agingSyncObject->Wait();
+    syncPoolObject->syncing = true;
+    syncPoolObject->Wait();
   }
 }
 
-bool SyncPool::ClientWait(AgingSyncObject* agingSyncObject)
+bool SyncPool::ClientWait(AgingSyncObject* syncPoolObject)
 {
-  if(DALI_LIKELY(agingSyncObject != nullptr))
+  if(syncPoolObject)
   {
-    return agingSyncObject->ClientWait();
+    return syncPoolObject->ClientWait();
   }
   return false;
 }
 
 void SyncPool::FreeSyncObject(AgingSyncObject* agingSyncObject)
 {
-  if(DALI_LIKELY(agingSyncObject != nullptr))
+  auto iter = std::find_if(mSyncObjects.begin(), mSyncObjects.end(), [&agingSyncObject](AgingSyncPtrRef agingSyncPtr) { return agingSyncPtr.get() == agingSyncObject; });
+  if(iter != mSyncObjects.end())
   {
-    // Release memory of sync object
-    mSyncObjects.EraseObject(agingSyncObject);
+    iter->reset();
   }
 }
 
@@ -199,28 +161,31 @@ void SyncPool::FreeSyncObject(AgingSyncObject* agingSyncObject)
  */
 void SyncPool::AgeSyncObjects()
 {
-  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgeSyncObjects: count: %d\n", mSyncObjects.Count());
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgeSyncObjects: count: %d\n", mSyncObjects.size());
 
-  if(!mSyncObjects.IsEmpty())
+  if(!mSyncObjects.empty())
   {
     // Age the remaining sync objects.
-    for(auto iter = mSyncObjects.Begin(); iter != mSyncObjects.End();)
+    for(auto& agingSyncObject : mSyncObjects)
     {
-      auto* agingSyncObject = (*iter);
-      if(agingSyncObject != nullptr && (agingSyncObject->glSyncObject != 0 || agingSyncObject->eglSyncObject != nullptr) && agingSyncObject->age > 0)
+      if(agingSyncObject != nullptr && (agingSyncObject->glSyncObject != 0 || agingSyncObject->eglSyncObject != nullptr))
       {
-        --agingSyncObject->age;
-        ++iter;
-      }
-      else
-      {
-        // Release memory of sync object
-        iter = mSyncObjects.Erase(iter);
+        if(agingSyncObject->age > 0)
+        {
+          agingSyncObject->age--;
+        }
+        else
+        {
+          agingSyncObject.reset();
+        }
       }
     }
   }
+  // Move any old sync objects to the end of the list, and then remove them all.
+  mSyncObjects.erase(std::remove_if(mSyncObjects.begin(), mSyncObjects.end(), [&](std::unique_ptr<AgingSyncObject>& agingSyncObject) { return agingSyncObject == nullptr; }),
+                     mSyncObjects.end());
 
-  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgeSyncObjects: count after erase: %d\n", mSyncObjects.Count());
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgeSyncObjects: count after erase: %d\n", mSyncObjects.size());
 }
 
 } // namespace Dali::Graphics::GLES
