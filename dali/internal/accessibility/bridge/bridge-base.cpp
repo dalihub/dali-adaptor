@@ -175,6 +175,7 @@ void BridgeBase::ForceDown()
   Bridge::ForceDown();
   tickTimer.Reset();
   mCoalescableMessages.clear();
+  DBusWrapper::Installed()->Strings.clear();
   mRegistry      = {};
   mDbusServer    = {};
   mConnectionPtr = {};

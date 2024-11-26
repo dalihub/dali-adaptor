@@ -81,23 +81,19 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
   {
 #ifdef ECORE_WAYLAND2
     Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-    mDisplay                   = reinterpret_cast<EGLNativeDisplayType>(ecore_wl2_display_get(display));
+    mDisplay                   = NativeDisplayType(ecore_wl2_display_get(display));
 #else
-    mDisplay = reinterpret_cast<EGLNativeDisplayType>(ecore_wl_display_get());
+    mDisplay = reinterpret_cast<NativeDisplayType>(ecore_wl_display_get());
 #endif
   }
 }
 
 Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
 {
-#if defined(VULKAN_ENABLED)
-  return {nullptr};
-#else
-  return {mDisplay};
-#endif
+  return Any(mDisplay);
 }
 
-EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
+NativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
   mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
   if(mBufMgr == nullptr)
@@ -105,16 +101,23 @@ EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
     DALI_LOG_ERROR("Fail to init tbm buf mgr\n");
     return nullptr;
   }
-  return reinterpret_cast<EGLNativeDisplayType>(tbm_dummy_display_create());
+  return NativeDisplayType(tbm_dummy_display_create());
 }
 
 void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
 {
+#ifdef VULKAN_ENABLED
+  if(!mDisplay.Empty())
+  {
+    // TODO: Fix this call for Vulkan
+    //tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display>());
+  }
+#else
   if(mDisplay)
   {
     tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
   }
-
+#endif
   if(mBufMgr != nullptr)
   {
     tbm_bufmgr_deinit(mBufMgr);

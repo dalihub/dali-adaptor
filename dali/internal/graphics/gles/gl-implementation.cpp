@@ -56,13 +56,6 @@ static constexpr const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING = "#extension GL_OES_EGL_image_external:require\n";
 
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3 = "#extension GL_OES_EGL_image_external_essl3:require\n";
-
-static uint32_t GetPerformanceLogThresholdTime()
-{
-  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
-  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
-  return time;
-}
 } // namespace
 
 GlImplementation::GlImplementation()
@@ -196,8 +189,7 @@ void GlImplementation::ContextCreated()
     }
   }
 
-  mLogThreshold = GetPerformanceLogThresholdTime();
-  mLogEnabled   = mLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
+  mTimeCheckerFilter = Dali::Integration::TimeChecker::ThresholdFilter::New(std::numeric_limits<uint32_t>::max(), DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 
   {
     ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);

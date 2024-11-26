@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <unordered_set>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
@@ -48,9 +49,14 @@ class TextureDependencyChecker
 {
 public:
   explicit TextureDependencyChecker(EglGraphicsController& controller)
-  : mController(controller)
+  : mController(controller),
+    mCurrentNativeTextureDependencyIndex(0u),
+    mPreviousNativeTextureDependencyIndex(1u),
+    mIsFirstPreparedNativeTextureDependency(true)
   {
   }
+
+  ~TextureDependencyChecker();
 
   /**
    * Clear all the textures. Call at the start of a frame
@@ -78,22 +84,62 @@ public:
   /**
    * Get the number of (offscreen) textures for dependency checking
    */
-  size_t GetTextureCount() const
+  size_t GetFramebufferTextureCount() const
   {
-    return mTextureDependencies.size();
+    return mFramebufferTextureDependencies.size();
   }
 
+  /**
+   * Get the number of (offscreen) textures for dependency checking
+   */
+  size_t GetNativeTextureCount() const
+  {
+    return mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].size();
+  }
+
+public: ///< For NativeTexture dependency checker
+  /**
+   * @brief Add prepared native image texture to dependency list
+   */
+  void MarkNativeTexturePrepared(const Texture* texture);
+
+  /**
+   * @brief Remove native image texture from dependency list.
+   * It will be called at discarding texture.
+   */
+  void DiscardNativeTexture(const Texture* texture);
+
+  /**
+   * @brief Create Sync object for native images.
+   * It will be called at EndRenderPass.
+   */
+  void CreateNativeTextureSync(const Context* writeContext);
+
 private:
-  struct TextureDependency
+  struct FramebufferTextureDependency
   {
     std::vector<Texture*> textures;
     Context*              writeContext{nullptr};
     Framebuffer*          framebuffer{nullptr};
-    AgingSyncObject*      agingSyncObject;
+    AgingSyncObject*      agingSyncObject{nullptr};
     bool                  syncing{false};
   };
-  std::vector<TextureDependency> mTextureDependencies;
-  EglGraphicsController&         mController;
+  std::vector<FramebufferTextureDependency> mFramebufferTextureDependencies;
+
+  struct NativeTextureDependency
+  {
+    std::unordered_set<const Texture*> textures;
+    AgingSyncObject*                   agingSyncObject{nullptr};
+    bool                               synced{false};
+  };
+  std::vector<NativeTextureDependency> mNativeTextureDependencies[2];
+
+  EglGraphicsController& mController;
+
+  uint32_t mCurrentNativeTextureDependencyIndex;  // 0 or 1, toggled every frame
+  uint32_t mPreviousNativeTextureDependencyIndex; // 0 or 1, toggled every frame
+
+  bool mIsFirstPreparedNativeTextureDependency : 1;
 };
 
 } // namespace GLES

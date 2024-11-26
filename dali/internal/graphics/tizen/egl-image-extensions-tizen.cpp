@@ -49,6 +49,8 @@ PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 const char* EGL_TIZEN_IMAGE_NATIVE_SURFACE = "EGL_TIZEN_image_native_surface";
 const char* EGL_EXT_IMAGE_DMA_BUF_IMPORT   = "EGL_EXT_image_dma_buf_import";
 
+DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+
 } // unnamed namespace
 
 namespace Dali
@@ -97,6 +99,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     // If EGL_TIZEN_image_native_surface is supported
     const EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
 
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateImageKHRProc(EGL_NATIVE_SURFACE_TIZEN)");
     eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
                                      EGL_NO_CONTEXT,
                                      EGL_NATIVE_SURFACE_TIZEN,
@@ -127,6 +130,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
                               EGL_NONE};
     // clang-format on
 
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateImageKHRProc(tbmBo)");
     eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
                                      EGL_NO_CONTEXT,
                                      EGL_LINUX_DMA_BUF_EXT,
@@ -206,7 +210,9 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
   EGLImageKHR eglImage = static_cast<EGLImageKHR>(eglImageKHR);
 
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   EGLBoolean result = eglDestroyImageKHRProc(mEglImplementation->GetDisplay(), eglImage);
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDestroyImageKHRProc");
 
   if(EGL_FALSE == result)
   {
@@ -253,7 +259,9 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     }
 #endif
 
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     glEGLImageTargetTexture2DOESProc(GL_TEXTURE_EXTERNAL_OES, reinterpret_cast<GLeglImageOES>(eglImage));
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "glEGLImageTargetTexture2DOESProc");
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
@@ -270,6 +278,7 @@ void EglImageExtensions::InitializeEglImageKHR()
   // avoid trying to reload extended KHR functions, if it fails the first time
   if(!mImageKHRInitializeFailed)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress");
     eglCreateImageKHRProc            = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     eglDestroyImageKHRProc           = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     glEGLImageTargetTexture2DOESProc = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
@@ -284,7 +293,9 @@ void EglImageExtensions::InitializeEglImageKHR()
     mImageKHRInitializeFailed = true;
   }
 
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   std::string extensionStr = eglQueryString(mEglImplementation->GetDisplay(), EGL_EXTENSIONS);
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglQueryString(EGL_EXTENSIONS)");
 
   auto found = extensionStr.find(EGL_TIZEN_IMAGE_NATIVE_SURFACE);
   if(found != std::string::npos)

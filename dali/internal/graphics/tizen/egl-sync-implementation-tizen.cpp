@@ -36,11 +36,17 @@
 
 #ifdef _ARCH_ARM_
 
+namespace
+{
 // function pointers
 static PFNEGLCREATESYNCKHRPROC     eglCreateSyncKHR     = NULL;
 static PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = NULL;
 static PFNEGLDESTROYSYNCKHRPROC    eglDestroySyncKHR    = NULL;
 static PFNEGLWAITSYNCKHRPROC       eglWaitSyncKHR       = NULL;
+
+DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+
+} // namespace
 
 #endif
 
@@ -61,7 +67,11 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
-  mEglSync           = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
+
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+  mEglSync = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglCreateSyncKHR");
+
   if(mEglSync == EGL_NO_SYNC_KHR)
   {
     DALI_LOG_ERROR("eglCreateSyncKHR failed %#0.4x\n", eglGetError());
@@ -75,9 +85,12 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
 
 EglSyncObject::~EglSyncObject()
 {
-  if(mEglSync != NULL)
+  if(mEglSync != NULL && mEglImplementation.IsGlesInitialized())
   {
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     eglDestroySyncKHR(mEglImplementation.GetDisplay(), mEglSync);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDestroySyncKHR");
+
     EGLint error = eglGetError();
     if(EGL_SUCCESS != error)
     {
@@ -97,8 +110,11 @@ bool EglSyncObject::IsSynced()
   if(mEglSync != NULL)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     EGLint result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0, 0ull);
-    EGLint error  = eglGetError();
+
+    EGLint error = eglGetError();
     if(EGL_SUCCESS != error)
     {
       DALI_LOG_ERROR("eglClientWaitSyncKHR failed %#0.4x\n", error);
@@ -107,37 +123,25 @@ bool EglSyncObject::IsSynced()
     {
       synced = true;
     }
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "eglClientWaitSyncKHR(no timeout) synced : " << synced;
+    });
   }
 
   DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, 0) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
   return synced;
 }
 
-void EglSyncObject::ClientWait()
-{
-  bool synced = false;
-  if(mEglSync != nullptr)
-  {
-    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
-    auto result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER_KHR);
-    if(result == EGL_FALSE)
-    {
-      Egl::PrintError(eglGetError());
-    }
-    else if(result == EGL_CONDITION_SATISFIED_KHR)
-    {
-      synced = true;
-    }
-  }
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
-}
-
 void EglSyncObject::Wait()
 {
-  if(mEglSync != nullptr)
+  if(mEglSync != NULL)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     auto result = eglWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglWaitSyncKHR");
+
     if(EGL_FALSE == result)
     {
       Egl::PrintError(eglGetError());
@@ -147,6 +151,33 @@ void EglSyncObject::Wait()
       DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync() %p synced!\n", mEglSync);
     }
   }
+}
+
+void EglSyncObject::ClientWait()
+{
+#if defined(DEBUG_ENABLED)
+  bool synced = false;
+#endif
+  if(mEglSync != NULL)
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    auto result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER_KHR);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglClientWaitSyncKHR(forever)");
+
+    if(result == EGL_FALSE)
+    {
+      Egl::PrintError(eglGetError());
+    }
+#if defined(DEBUG_ENABLED)
+    else if(result == EGL_CONDITION_SATISFIED_KHR)
+    {
+      synced = true;
+    }
+#endif
+  }
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
 }
 
 EglSyncImplementation::EglSyncImplementation()
@@ -192,14 +223,7 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
     InitializeEglSync();
   }
 
-  for(SyncIter iter = mSyncObjects.Begin(), end = mSyncObjects.End(); iter != end; ++iter)
-  {
-    if(*iter == syncObject)
-    {
-      mSyncObjects.Erase(iter);
-      break;
-    }
-  }
+  mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
@@ -207,6 +231,7 @@ void EglSyncImplementation::InitializeEglSync()
 {
   if(!mSyncInitializeFailed)
   {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress");
     eglCreateSyncKHR     = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
     eglClientWaitSyncKHR = reinterpret_cast<PFNEGLCLIENTWAITSYNCKHRPROC>(eglGetProcAddress("eglClientWaitSyncKHR"));
     eglWaitSyncKHR       = reinterpret_cast<PFNEGLWAITSYNCKHRPROC>(eglGetProcAddress("eglWaitSyncKHR"));

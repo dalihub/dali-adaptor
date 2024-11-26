@@ -19,34 +19,90 @@
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <sstream>
 
+namespace
+{
+const std::vector<std::string> MATRIX_DATA_TYPE_TOKENS{"mat3", "mat4", "mat2"};
+
+inline bool IsWordChar(const char c)
+{
+  return ('A' <= c && c <= 'Z') ||
+         ('0' <= c && c <= '9') ||
+         ('a' <= c && c <= 'z') ||
+         (c == '_') ||
+         (c == '#');
+}
+} // namespace
+
 namespace Dali::Internal::ShaderParser
 {
+/**
+ * @brief Tokenizes a single line of code.
+ * Parse word tokens, which had number and alphabet, and underline.
+ * @note The string ownership will be moved to CodeLine's line value.
+ * @param line A string containing a single line of code.
+ * @return A CodeLine object containing the line of code and its tokens.
+ */
 CodeLine TokenizeLine(std::string line)
 {
-  const auto commentDelimiter = std::regex("//");
-  const auto word_regex       = std::regex("(\\w+)");
-
   CodeLine lineOfCode;
   if(!line.empty())
   {
-    std::vector<std::string> strs{std::sregex_token_iterator(line.begin(), line.end(), commentDelimiter, -1),
-                                  std::sregex_token_iterator()};
+    uint32_t ei = 0;
 
-    auto words_begin = std::sregex_iterator(strs[0].begin(), strs[0].end(), word_regex);
-    auto words_end   = std::sregex_iterator();
+    bool wordState    = false;
+    bool commentState = false;
 
-    lineOfCode.line = line;
+    uint32_t wordStart = 0;
 
-    for(auto it = words_begin; it != words_end; ++it)
+    while(ei < line.size())
     {
-      const std::smatch& match = *it;
-      lineOfCode.tokens.emplace_back(match.position(), match.length());
+      const char c = line[ei];
+      if(IsWordChar(c))
+      {
+        if(!wordState)
+        {
+          wordState = true;
+          wordStart = ei;
+        }
+        commentState = false;
+      }
+      else
+      {
+        if(wordState)
+        {
+          lineOfCode.tokens.push_back(CodeTokenPair(wordStart, ei - wordStart));
+          wordState = false;
+        }
+
+        if(c == '/')
+        {
+          if(commentState)
+          {
+            // Comment found! Ignore remaind characters
+            --ei;
+            break;
+          }
+          commentState = true;
+        }
+        else
+        {
+          commentState = false;
+        }
+      }
+      ++ei;
     }
+
+    if(wordState)
+    {
+      lineOfCode.tokens.push_back(CodeTokenPair(wordStart, ei - wordStart));
+    }
+
+    lineOfCode.line = std::move(line);
   }
   return lineOfCode;
 }
 
-std::string GetToken(CodeLine& line, int i)
+std::string_view GetToken(CodeLine& line, int i)
 {
   // Function allows retrieving a token from start and from the
   // end of line. Negative 'i' retrieves token from the end. For example:
@@ -61,7 +117,43 @@ std::string GetToken(CodeLine& line, int i)
   {
     return "";
   }
-  return std::string(std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second));
+  return std::string_view(&line.line[line.tokens[i].first], line.tokens[i].second);
+}
+
+/**
+ * Function is looking for any token from the given list.
+ *
+ * @return return -1 if no token found, or index of token that has been found first
+ */
+int HasAnyToken(CodeLine& line, const std::vector<std::string>& tokens)
+{
+  for(const auto& token : line.tokens)
+  {
+    uint32_t i   = 0;
+    auto     str = std::string_view(&line.line[token.first], token.second);
+    for(const auto& token2 : tokens)
+    {
+      if(str == token2)
+      {
+        return i;
+      }
+      ++i;
+    }
+  }
+  return -1;
+}
+
+bool HasToken(CodeLine& line, std::string_view tokenToFind)
+{
+  for(const auto& token : line.tokens)
+  {
+    auto str = std::string_view(&line.line[token.first], token.second);
+    if(str == tokenToFind)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
@@ -87,11 +179,15 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
   int         lineNumber        = 0;
   output->customOutputLineIndex = -1; // Assume using gl_FragColor in fragment shader, no index for custom output
   output->mainLine              = -1;
+
+  int legacyPrefixCount = 0;
+
   while(std::getline(ss, line))
   {
     // turn ignoring on
     if(line.substr(0, 12) == "//@ignore:on")
     {
+      legacyPrefixCount -= line.size() + 1;
       ignoreLines = true;
       continue;
     }
@@ -99,6 +195,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     // turn ignoring off
     if(ignoreLines)
     {
+      legacyPrefixCount -= line.size() + 1;
       if(line.substr(0, 13) == "//@ignore:off")
       {
         ignoreLines = false;
@@ -106,7 +203,24 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       continue;
     }
 
-    CodeLine lineOfCode = TokenizeLine(line);
+    // Do not tokenize legacy-prefix codes if they exist
+    if(line.substr(0, 20) == "//@legacy-prefix-end")
+    {
+      char* end;
+      legacyPrefixCount = std::strtoul(reinterpret_cast<const char*>(line.data()) + 21, &end, 10);
+    }
+    if(legacyPrefixCount > 0)
+    {
+      legacyPrefixCount -= line.size() + 1;
+
+      CodeLine lineOfCode;
+      lineOfCode.line = std::move(line);
+      output->codeLines.emplace_back(std::move(lineOfCode));
+      lineNumber++;
+      continue;
+    }
+
+    CodeLine lineOfCode = TokenizeLine(std::move(line));
 
     // find out whether fragment shader contains OUTPUT
     if(!lineOfCode.tokens.empty() && stage == ShaderStage::FRAGMENT)
@@ -125,6 +239,15 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       if(output->mainLine < 0 && GetToken(lineOfCode, 0) == "void" && GetToken(lineOfCode, 1) == "main")
       {
         output->mainLine = lineNumber;
+      }
+    }
+    if(!lineOfCode.tokens.empty())
+    {
+      if(GetToken(lineOfCode, 0) == "#extension")
+      {
+        // Emplace extension code and skip this line, without adding it to the codeLines.
+        output->extensions.emplace_back(std::move(lineOfCode.line));
+        continue;
       }
     }
 
@@ -155,7 +278,7 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
     if(isFlatKeywordUsed && stage != ShaderStage::VERTEX)
     {
       // Check secondary token if first token is flat.
-      token = GetToken(l, 1);
+      token        = GetToken(l, 1);
       isInputToken = (token == "INPUT");
     }
 
@@ -179,7 +302,7 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
           }
         }
 
-        ss << "layout(location = " << location << ") " << (isFlatKeywordUsed ? "flat " : "") <<"in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
+        ss << "layout(location = " << location << ") " << (isFlatKeywordUsed ? "flat " : "") << "in" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
         return true;
       }
@@ -221,7 +344,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
     if(isFlatKeywordUsed && stage != ShaderStage::FRAGMENT)
     {
       // Check secondary token if first token is flat.
-      token = GetToken(l, 1);
+      token         = GetToken(l, 1);
       isOutputToken = (token == "OUTPUT");
     }
     if(isOutputToken)
@@ -249,8 +372,6 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
         {
           // for fragment shader the gl_FragColor is our output
           // we will use gl_FragColor, in such shader we have only single output
-          auto varName = GetToken(l, -1);
-
           ss << "layout(location=0) out" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
           outString += ss.str();
         }
@@ -338,8 +459,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
     bool blockReused  = false;
     if(!program.uniformBlocks.empty())
     {
-      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
-                             { return (item.first == uniformBlockName); });
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
       if(it != program.uniformBlocks.end())
       {
         localBinding = (*it).second;
@@ -436,34 +556,48 @@ void LinkProgram(Program& program)
     const bool isFlatKeywordUsed = (token == "FLAT");
     if(isFlatKeywordUsed)
     {
-      token = GetToken(line, 1);
+      token         = GetToken(line, 1);
       isOutputToken = (token == "OUTPUT");
     }
 
     if(isOutputToken)
     {
-      auto varname              = GetToken(line, -1);
-      program.varyings[varname] = location++;
+      auto varname = GetToken(line, -1);
+
+      // The location depends on type, anything larger than vec4 (4 floats)
+      // will require adjusting the location, otherwise the location override error
+      // will occur.
+      auto locationsUsed = 1;
+      auto tokenIndex    = HasAnyToken(line, MATRIX_DATA_TYPE_TOKENS);
+      if(tokenIndex >= 0)
+      {
+        // get last character which indicates how many vec4-sizes the type uses
+        locationsUsed = int(std::string_view(MATRIX_DATA_TYPE_TOKENS[tokenIndex]).back()) - '0';
+      }
+
+      program.varyings[varname] = location;
+      location += locationsUsed;
     }
   }
   // Verify
-  for(auto& line : program.fragmentShader.codeLines)
-  {
-    auto token = GetToken(line, 0);
+  // For now, we don't verify anything. Just skip this codes.
+  // for(auto& line : program.fragmentShader.codeLines)
+  // {
+  //   auto token = GetToken(line, 0);
 
-    bool       isInputToken      = (token == "INPUT");
-    const bool isFlatKeywordUsed = (token == "FLAT");
-    if(isFlatKeywordUsed)
-    {
-      token = GetToken(line, 1);
-      isInputToken = (token == "INPUT");
-    }
+  //   bool       isInputToken      = (token == "INPUT");
+  //   const bool isFlatKeywordUsed = (token == "FLAT");
+  //   if(isFlatKeywordUsed)
+  //   {
+  //     token = GetToken(line, 1);
+  //     isInputToken = (token == "INPUT");
+  //   }
 
-    if(isInputToken)
-    {
-      auto varname = GetToken(line, -1);
-    }
-  }
+  //   if(isInputToken)
+  //   {
+  //     auto varname = GetToken(line, -1);
+  //   }
+  // }
 }
 
 void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
@@ -592,29 +726,36 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string version("#version " + std::to_string(int(parseInfo.language)) + " es\n");
       program.vertexShader.output += version;
       program.fragmentShader.output += version;
-
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
     }
     else if(parseInfo.language == OutputLanguage::GLSL_100_ES)
     {
       program.vertexShader.output += "#version 100\n";
       program.fragmentShader.output += "#version 100\n";
-
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
-
-      // redefine 'flat' qualifier
-      program.vertexShader.output += "#define flat\n";
-      program.fragmentShader.output += "#define flat\n";
     }
     else if(parseInfo.language == OutputLanguage::SPIRV_GLSL)
     {
       program.vertexShader.output += "#version 430\n";
       program.fragmentShader.output += "#version 430\n";
+    }
 
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+    // Define extensions follow after version.
+    for(const auto& ext : program.vertexShader.extensions)
+    {
+      program.vertexShader.output += ext + "\n";
+    }
+    for(const auto& ext : program.fragmentShader.extensions)
+    {
+      program.fragmentShader.output += ext + "\n";
+    }
+
+    program.vertexShader.output += parseInfo.vertexShaderPrefix;
+    program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+
+    if(parseInfo.language == OutputLanguage::GLSL_100_ES)
+    {
+      // redefine 'flat' qualifier
+      program.vertexShader.output += "#define flat\n";
+      program.fragmentShader.output += "#define flat\n";
     }
 
     // link inputs and outputs between vertex and fragment shader
@@ -635,6 +776,19 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
       program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
+
+      // Define extensions follow after version.
+      for(const auto& ext : program.vertexShader.extensions)
+      {
+        program.vertexShader.output += ext + "\n";
+      }
+      for(const auto& ext : program.fragmentShader.extensions)
+      {
+        program.fragmentShader.output += ext + "\n";
+      }
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)
@@ -658,6 +812,19 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
       program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
+
+      // Define extensions follow after version.
+      for(const auto& ext : program.vertexShader.extensions)
+      {
+        program.vertexShader.output += ext + "\n";
+      }
+      for(const auto& ext : program.fragmentShader.extensions)
+      {
+        program.fragmentShader.output += ext + "\n";
+      }
+
+      program.vertexShader.output += parseInfo.vertexShaderPrefix;
+      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)

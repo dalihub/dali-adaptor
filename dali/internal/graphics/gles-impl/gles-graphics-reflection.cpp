@@ -324,6 +324,7 @@ void Reflection::BuildUniformBlockReflection()
   auto activeUniformNameLength   = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
   auto activeUniformBlockIndex   = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
   auto activeUniformOffset       = getActiveUniformParams(GL_UNIFORM_OFFSET);
+  auto activeUniformArrayStride  = getActiveUniformParams(GL_UNIFORM_ARRAY_STRIDE);
   auto activeUniformMatrixStride = getActiveUniformParams(GL_UNIFORM_MATRIX_STRIDE);
   // Extract only uniform blocks and collect data
   // collect samplers into separate array
@@ -352,13 +353,14 @@ void Reflection::BuildUniformBlockReflection()
       auto  blockIndex = activeUniformBlockIndex[i] + 1;
       auto& members    = mUniformBlocks[blockIndex].members;
       members.emplace_back();
-      uniformInfo               = &members.back();
-      uniformInfo->uniformClass = UniformClass::UNIFORM;
-      uniformInfo->binding      = 0;
-      uniformInfo->bufferIndex  = blockIndex;
-      uniformInfo->binding      = blockIndex == 0 ? i : 0; // this will be reset later
-      uniformInfo->offset       = activeUniformOffset[i];
-      uniformInfo->matrixStride = activeUniformMatrixStride[i];
+      uniformInfo                = &members.back();
+      uniformInfo->uniformClass  = UniformClass::UNIFORM;
+      uniformInfo->binding       = 0;
+      uniformInfo->bufferIndex   = blockIndex;
+      uniformInfo->binding       = blockIndex == 0 ? i : 0; // this will be reset later
+      uniformInfo->offset        = activeUniformOffset[i];
+      uniformInfo->elementStride = activeUniformArrayStride[i] < 0 ? 0 : activeUniformArrayStride[i];
+      uniformInfo->matrixStride  = activeUniformMatrixStride[i];
     }
 
     uniformInfo->location = location; // location must be set later and sorted by offset
@@ -390,6 +392,7 @@ void Reflection::BuildUniformBlockReflection()
       GLint blockNameLength;
       gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_DATA_SIZE, &uboSize);
       gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_NAME_LENGTH, &blockNameLength);
+
       char* blockName = new char[blockNameLength];
       gl->GetActiveUniformBlockName(glProgram, blockIndex - 1, blockNameLength, nullptr, blockName);
       ubo.name    = blockName;
@@ -406,32 +409,6 @@ void Reflection::BuildUniformBlockReflection()
     ubo.descriptorSet = 0;
 
     blockIndex++;
-  }
-
-  // Calculate array element stride for uniform blocks (not needed for standalone block)
-  if(mUniformBlocks.size() > 1)
-  {
-    for(auto i = 1u; i < mUniformBlocks.size(); ++i)
-    {
-      auto& block = mUniformBlocks[i];
-
-      // check last member
-      auto& lastMember = block.members.back();
-      if(lastMember.elementCount > 0)
-      {
-        lastMember.elementStride = (block.size - lastMember.offset) / lastMember.elementCount;
-      }
-
-      // update other arrays in this block
-      for(auto memberIndex = 0u; memberIndex < block.members.size() - 1; ++memberIndex)
-      {
-        auto& member = block.members[memberIndex];
-        if(member.elementCount > 0)
-        {
-          member.elementStride = (block.members[memberIndex + 1].offset - member.offset) / member.elementCount;
-        }
-      }
-    }
   }
 
   // count uniform size
