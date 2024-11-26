@@ -883,6 +883,13 @@ DALI_ADAPTOR_API InsetsChangedSignalType& InsetsChangedSignal(Window window);
  */
 DALI_ADAPTOR_API PointerConstraintsSignalType& PointerConstraintsSignal(Window window);
 
+/**
+ * @brief This signal is emitted when the key event monitor is received.
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API KeyEventSignalType& KeyEventMonitorSignal(Window window);
+
 } // namespace DevelWindow
 
 } // namespace Dali
