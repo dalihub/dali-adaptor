@@ -19,7 +19,6 @@
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 // EXTERNAL INCLUDES
-
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -29,6 +28,11 @@
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
 #endif
+
+namespace
+{
+DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+} // namespace
 
 namespace Dali
 {
@@ -42,69 +46,118 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
-  mEglSync           = eglCreateSync(display, EGL_SYNC_FENCE, NULL);
+
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+  mEglSync = eglCreateSync(display, EGL_SYNC_FENCE, NULL);
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglCreateSync");
+
+  if(mEglSync == EGL_NO_SYNC)
+  {
+    DALI_LOG_ERROR("eglCreateSync failed %#0.4x\n", eglGetError());
+    mEglSync = NULL;
+  }
+  else
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglCreateSync Success: %p\n", mEglSync);
+  }
 }
 
 EglSyncObject::~EglSyncObject()
 {
-  if(mEglSync && mEglImplementation.IsGlesInitialized())
+  if(mEglSync != NULL && mEglImplementation.IsGlesInitialized())
   {
-    EGLDisplay display = mEglImplementation.GetDisplay();
-    eglDestroySync(display, mEglSync);
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    eglDestroySync(mEglImplementation.GetDisplay(), mEglSync);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDestroySync");
+
+    EGLint error = eglGetError();
+    if(EGL_SUCCESS != error)
+    {
+      DALI_LOG_ERROR("eglDestroySync failed %#0.4x\n", error);
+    }
+    else
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglDestroySync Success: %p\n", mEglSync);
+    }
   }
 }
 
 bool EglSyncObject::IsSynced()
 {
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync\n");
-  auto result = eglClientWaitSync(mEglImplementation.GetDisplay(), mEglSync, 0 | EGL_SYNC_FLUSH_COMMANDS_BIT, 0);
+  bool synced = false;
 
-  if(result == EGL_FALSE)
+  if(mEglSync != NULL)
   {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    EGLint result = eglClientWaitSync(mEglImplementation.GetDisplay(), mEglSync, 0, 0ull);
+
     EGLint error = eglGetError();
     if(EGL_SUCCESS != error)
     {
-      DALI_LOG_ERROR("eglClientSyncWait failed: %#0.4x\n", error);
+      DALI_LOG_ERROR("eglClientWaitSync failed %#0.4x\n", error);
     }
+    else if(result == EGL_CONDITION_SATISFIED)
+    {
+      synced = true;
+    }
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
+      oss << "eglClientWaitSync(no timeout) synced : " << synced;
+    });
   }
-  else if(result == EGL_CONDITION_SATISFIED)
-  {
-    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync Synced!\n");
-    return true;
-  }
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync not synced :(\n");
-  return false;
+
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, 0) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
+  return synced;
 }
 
 void EglSyncObject::Wait()
 {
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
-  if(!eglWaitSync(mEglImplementation.GetDisplay(), mEglSync, 0))
+  if(mEglSync != NULL)
   {
-    EGLint error = eglGetError();
-    if(EGL_SUCCESS != error)
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    auto result = eglWaitSync(mEglImplementation.GetDisplay(), mEglSync, 0);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglWaitSync");
+
+    if(EGL_FALSE == result)
     {
-      DALI_LOG_ERROR("eglSyncWait failed: %#0.4x\n", error);
+      Egl::PrintError(eglGetError());
+    }
+    else
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync() %p synced!\n", mEglSync);
     }
   }
 }
 
 void EglSyncObject::ClientWait()
 {
-  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync (blocking)\n");
-  auto result = eglClientWaitSync(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER);
-  if(result == EGL_FALSE)
+#if defined(DEBUG_ENABLED)
+  bool synced = false;
+#endif
+  if(mEglSync != NULL)
   {
-    EGLint error = eglGetError();
-    if(EGL_SUCCESS != error)
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    auto result = eglClientWaitSync(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT, EGL_FOREVER);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglClientWaitSync(forever)");
+
+    if(result == EGL_FALSE)
     {
-      DALI_LOG_ERROR("eglSyncWait failed: %#0.4x\n", error);
+      Egl::PrintError(eglGetError());
     }
+#if defined(DEBUG_ENABLED)
+    else if(result == EGL_CONDITION_SATISFIED)
+    {
+      synced = true;
+    }
+#endif
   }
-  else if(result == EGL_CONDITION_SATISFIED)
-  {
-    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync Synced!\n");
-  }
+
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
 }
 
 EglSyncImplementation::EglSyncImplementation()
