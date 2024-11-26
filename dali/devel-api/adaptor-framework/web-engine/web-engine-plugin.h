@@ -670,6 +670,21 @@ public:
   virtual void SetFocus(bool focused) = 0;
 
   /**
+   * @brief Set the style of IME.
+   * @param[in] position Position of IME.
+   * @param[in] alignment Alignment of IME.
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool SetImePositionAndAlignment(Dali::Vector2 position, int alignment) = 0;
+
+  /**
+   * @brief Set the theme name of cursor.
+   * @param[in] themeName The name of theme of cursor.
+   */
+  virtual void SetCursorThemeName(const std::string themeName) = 0;
+
+  /**
    * @brief Set zoom factor of the current page.
    * @param[in] zoomFactor a new factor to be set.
    */
