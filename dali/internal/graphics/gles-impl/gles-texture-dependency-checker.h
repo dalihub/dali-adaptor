@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstddef>
+#include <cstdint>
 #include <unordered_set>
 
 // INTERNAL INCLUDES
