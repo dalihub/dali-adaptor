@@ -25,6 +25,7 @@
 #include <iostream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
@@ -44,6 +45,17 @@ namespace
 constexpr const char* VALUE_FORMAT_KEY      = "value_format";
 constexpr const char* VALUE_FORMAT_TEXT_VAL = "text";
 constexpr const char* FORCE_CHILD_SEARCH_ATTR{"forceChildSearch"};
+
+bool IsSubWindow(Accessible* accessible)
+{
+  auto baseHandle = BridgeBase::GetWindow(accessible->GetInternalActor()).GetBaseHandle();
+  if(baseHandle)
+  {
+    auto window = Dali::Window::DownCast(baseHandle);
+    return DALI_LIKELY(Dali::DevelWindow::GetParent(window));
+  }
+  return false;
+}
 
 bool SortVertically(Component* lhs, Component* rhs)
 {
@@ -685,8 +697,12 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   auto        accessible = FindSelf();
   auto        cType      = static_cast<CoordinateType>(coordinateType);
 
-  x -= mData->mExtentsOffset.first;
-  y -= mData->mExtentsOffset.second;
+  const bool hasExtentsOffset = mData->mExtentsOffset.first != 0 || mData->mExtentsOffset.second != 0;
+  if(hasExtentsOffset && !IsSubWindow(accessible))
+  {
+    x -= mData->mExtentsOffset.first;
+    y -= mData->mExtentsOffset.second;
+  }
 
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
   auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);

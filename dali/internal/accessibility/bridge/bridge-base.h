@@ -638,6 +638,14 @@ public:
     mApplication.mToolkitName = std::string{toolkitName};
   }
 
+  /**
+   * @brief Gets the window to which this actor belongs (or an empty handle).
+   *
+   * @param actor The actor
+   * @return The window
+   */
+  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Actor actor);
+
 protected:
   // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
   using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::WeakHandle<Dali::Actor>>;
@@ -699,14 +707,6 @@ private:
    * @brief Removes expired elements from the default label collection.
    */
   void CompressDefaultLabels();
-
-  /**
-   * @brief Gets the window to which this actor belongs (or an empty handle).
-   *
-   * @param actor The actor
-   * @return The window
-   */
-  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Actor actor);
 
 protected:
   BridgeBase();
