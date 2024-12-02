@@ -627,6 +627,14 @@ public:
     mApplication.mToolkitName = std::string{toolkitName};
   }
 
+  /**
+   * @brief Gets the window to which this accessible belongs (or an empty handle).
+   *
+   * @param accessible The accessible
+   * @return The window
+   */
+  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Accessibility::Accessible* accessible);
+
 protected:
   // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
   using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, std::weak_ptr<Dali::Accessibility::Accessible>>;
@@ -688,14 +696,6 @@ private:
    * @brief Removes expired elements from the default label collection.
    */
   void CompressDefaultLabels();
-
-  /**
-   * @brief Gets the window to which this accessible belongs (or an empty handle).
-   *
-   * @param accessible The accessible
-   * @return The window
-   */
-  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Accessibility::Accessible* accessible);
 
 protected:
   BridgeBase();
