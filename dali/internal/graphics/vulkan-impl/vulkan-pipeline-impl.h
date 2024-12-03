@@ -98,6 +98,10 @@ public:
 
   const Vulkan::Program* GetProgram() const;
 
+  bool ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state);
+
+  vk::Pipeline CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState);
+
 private:
   void InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out);
   void InitializeInputAssemblyState(vk::PipelineInputAssemblyStateCreateInfo& out) const;
@@ -160,6 +164,25 @@ private:
   };
 
   std::vector<RenderPassPipelinePair> mVkPipelines;
+
+  vk::GraphicsPipelineCreateInfo           mVkPipelineCreateInfo{};
+  vk::PipelineVertexInputStateCreateInfo   mVertexInputState{};
+  vk::PipelineInputAssemblyStateCreateInfo mInputAssemblyState{};
+  vk::PipelineViewportStateCreateInfo      mViewportState{};
+  vk::PipelineRasterizationStateCreateInfo mRasterizationState{};
+  vk::PipelineMultisampleStateCreateInfo   mMultisampleState{};
+  vk::PipelineDepthStencilStateCreateInfo  mDepthStencilState{};
+  vk::PipelineColorBlendStateCreateInfo    mColorBlendState{};
+  vk::PipelineDynamicStateCreateInfo       mDynamicState{};
+
+  struct DepthStatePipelineHashed
+  {
+    uint32_t                                hash;
+    vk::PipelineDepthStencilStateCreateInfo ds;
+    vk::Pipeline                            pipeline;
+  };
+
+  std::vector<DepthStatePipelineHashed> mPipelineForDepthStateCache;
 };
 
 } // namespace Dali::Graphics::Vulkan
