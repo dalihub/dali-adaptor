@@ -330,21 +330,6 @@ void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType 
     {"", "root"});
 }
 
-void BridgeObject::EmitSocketAvailable(Accessible* obj)
-{
-  if(!IsUp() || obj->IsHidden()) //TODO Suppress SocketAvailable event
-  {
-    return;
-  }
-
-  mDbusServer.emit2<Address, Address>(
-    GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::SOCKET),
-    "Available",
-    obj->GetAddress(),
-    {"", "root"});
-}
-
 void BridgeObject::EmitScrollStarted(Accessible* obj)
 {
   if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::SCROLL_STARTED])

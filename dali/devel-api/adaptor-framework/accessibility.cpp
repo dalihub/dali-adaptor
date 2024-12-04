@@ -530,7 +530,14 @@ public:
 
   void OnPostRender()
   {
-    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
+    try
+    {
+      Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
+    }
+    catch(const std::bad_weak_ptr& e)
+    {
+      DALI_LOG_ERROR("bad_weak_ptr exception caught: %s", e.what());
+    }
   }
 }; // AdaptorAccessible
 
