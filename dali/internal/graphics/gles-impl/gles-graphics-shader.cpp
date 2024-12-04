@@ -142,7 +142,26 @@ struct ShaderImpl::Impl
                 line << c;
               }
             }
-            DALI_LOG_ERROR("%4d > %s\n", ++lineNumber, line.str().c_str());
+            DALI_LOG_ERROR("%4d > %s[%d / %d]\n", ++lineNumber, line.str().c_str(), i, static_cast<int>(size));
+
+            if(i < size)
+            {
+              while(i < size)
+              {
+                const char c = static_cast<const char>(src[i++]);
+                if(c == '\n')
+                {
+                  DALI_LOG_ERROR("(extra) %4d > %s\n", ++lineNumber, line.str().c_str());
+                  line = std::ostringstream();
+                }
+                else
+                {
+                  line << c;
+                }
+              }
+            }
+            DALI_LOG_ERROR("(extra) %4d > %s\n", ++lineNumber, line.str().c_str());
+            line = std::ostringstream();
           }
           //DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
           DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
