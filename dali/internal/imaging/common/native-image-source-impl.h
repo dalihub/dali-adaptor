@@ -61,6 +61,11 @@ public:
   virtual bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const = 0;
 
   /**
+   * @copydoc Dali::NativeImageSource::SetPixels()
+   */
+  virtual bool SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat) = 0;
+
+  /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
   virtual void SetSource(Any source) = 0;

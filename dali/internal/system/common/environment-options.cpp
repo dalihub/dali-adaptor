@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/math/math-utils.h>
+#include <algorithm>
 #include <cstdlib>
 #include <functional>
 
@@ -105,6 +106,55 @@ void SetFromEnvironmentVariable(const char* variable, std::function<void(Type)> 
   if(GetEnvironmentVariable(variable, envVarValue))
   {
     function(envVarValue);
+  }
+}
+
+void SetGraphicsBackendFromEnvironmentVariable(Graphics::Backend& api)
+{
+  const char* charValue = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_GRAPHICS_BACKEND);
+  if(charValue)
+  {
+    // Expecting upper/lower case variations of GLES and VULKAN/VK, and 0 and 1 too so just check the first character
+    switch(*charValue)
+    {
+      case '0':
+      case '1':
+      {
+        api = static_cast<Graphics::Backend>(*charValue - '0');
+        break;
+      }
+
+      case 'g':
+      case 'G':
+      {
+        std::string stringValue(charValue);
+        if(stringValue.size() == 4)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "GLES")
+          {
+            api = Graphics::Backend::GLES;
+          }
+        }
+        break;
+      }
+
+      case 'v':
+      case 'V':
+      {
+        std::string stringValue(charValue);
+        const auto  stringValueSize = stringValue.size();
+        if(stringValueSize == 2 || stringValueSize == 6)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "VULKAN" || stringValue == "VK")
+          {
+            api = Graphics::Backend::VULKAN;
+          }
+        }
+        break;
+      }
+    }
   }
 }
 
@@ -245,6 +295,7 @@ EnvironmentOptions::EnvironmentOptions()
   mGlesCallTime(0),
   mMultiSamplingLevel(DEFAULT_MULTI_SAMPLING_LEVEL),
   mThreadingMode(ThreadingMode::COMBINED_UPDATE_RENDER),
+  mGraphicsBackend(Graphics::Backend::DEFAULT),
   mGlesCallAccumulate(false),
   mDepthBufferRequired(DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING),
   mStencilBufferRequired(DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING),
@@ -481,6 +532,11 @@ ThreadingMode::Type EnvironmentOptions::GetThreadingMode() const
   return mThreadingMode;
 }
 
+Graphics::Backend EnvironmentOptions::GetGraphicsBackend() const
+{
+  return mGraphicsBackend;
+}
+
 unsigned int EnvironmentOptions::GetRenderRefreshRate() const
 {
   return mRenderRefreshRate;
@@ -600,6 +656,8 @@ void EnvironmentOptions::ParseEnvironmentOptions()
                                       }
                                     }
                                   });
+
+  SetGraphicsBackendFromEnvironmentVariable(mGraphicsBackend);
 
   SetFromEnvironmentVariable<int>(DALI_REFRESH_RATE, GreaterThan(mRenderRefreshRate, 1));
 

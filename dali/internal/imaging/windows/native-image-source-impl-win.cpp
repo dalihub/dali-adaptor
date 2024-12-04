@@ -115,6 +115,11 @@ bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& wid
   return success;
 }
 
+bool NativeImageSourceWin::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
+{
+  return false;
+}
+
 void NativeImageSourceWin::SetSource(Any source)
 {
   mPixmap = GetPixmapFromAny(source);

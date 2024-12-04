@@ -259,6 +259,17 @@ public:
   KeyEventGeneratedSignalType& InterceptKeyEventSignal();
 
   /**
+   * @brief This signal is emitted when key event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(const KeyEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  KeyEventSignalType& KeyEventMonitorSignal();
+
+  /**
    * @brief This signal is emitted when the screen is touched and when the touch ends
    * (i.e. the down & up touch events only).
    *

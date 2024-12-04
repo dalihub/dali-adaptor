@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-utils.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 #if defined(VULKAN_ENABLED)
 #include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
@@ -51,6 +52,23 @@ void AdaptorBuilder::Finalize()
 AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions)
 {
+  switch(Graphics::GetCurrentGraphicsBackend())
+  {
+    case Graphics::Backend::GLES:
+    {
+      DALI_LOG_RELEASE_INFO("DALi Graphics Backend: GLES\n");
+      // TODO: Load GLES library
+      break;
+    }
+
+    case Graphics::Backend::VULKAN:
+    {
+      DALI_LOG_RELEASE_INFO("DALi Graphics Backend: VULKAN\n");
+      // TODO: Attempt to load Vulkan library
+      break;
+    }
+  }
+
   // Construct Graphics Factory
   mGraphicsFactory = Utils::MakeUnique<GraphicsFactory>(environmentOptions);
 }
