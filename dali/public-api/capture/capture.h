@@ -284,13 +284,6 @@ public:
   Dali::Texture GetTexture() const;
 
   /**
-   * @brief Get Texture of captured image.
-   *
-   * @return Texture Captured result
-   */
-  Dali::Texture GetTexture() const;
-
-  /**
    * @brief Get finished signal.
    *
    * @SINCE_1_3_4
