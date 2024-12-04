@@ -177,6 +177,11 @@ Dali::Texture Capture::GetTexture() const
   return mTexture;
 }
 
+Dali::Texture Capture::GetTexture() const
+{
+  return mTexture;
+}
+
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   Devel::PixelBuffer pixelBuffer;
