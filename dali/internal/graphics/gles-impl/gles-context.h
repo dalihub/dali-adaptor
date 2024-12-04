@@ -230,6 +230,7 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable);
 
   void ResetGLESState();
+
 private:
   /**
    * @brief Clear current state
