@@ -45,7 +45,10 @@ TextureDependencyChecker::~TextureDependencyChecker()
     {
       for(auto& nativeTextureDependency : mNativeTextureDependencies[nativeIndex])
       {
-        mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+        if(nativeTextureDependency.agingSyncObject != nullptr)
+        {
+          mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+        }
       }
       mNativeTextureDependencies[nativeIndex].clear();
     }
@@ -73,7 +76,10 @@ void TextureDependencyChecker::Reset()
     // Remove all infomations about previous native textures
     for(auto& nativeTextureDependency : mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex])
     {
-      mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+      if(nativeTextureDependency.agingSyncObject != nullptr)
+      {
+        mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+      }
     }
     mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex].clear();
 
@@ -170,6 +176,13 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
           {
             DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
             nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObject);
+
+            if(DALI_LIKELY(nativeTextureDependency.synced) && readContext == nativeTextureDependency.agingSyncObject->writeContext)
+            {
+              // We can free sync object immediatly if we are using same context.
+              mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+              nativeTextureDependency.agingSyncObject = nullptr;
+            }
           }
           else
           {
