@@ -37,7 +37,7 @@ TextureDependencyChecker::~TextureDependencyChecker()
       {
         texture->SetDependencyIndex(0xffffffff);
       }
-      mController.GetSyncPool().FreeSyncObject(textureDependency.agingSyncObject);
+      mController.GetSyncPool().FreeSyncObject(textureDependency.agingSyncObjectId);
     }
     mFramebufferTextureDependencies.clear();
 
@@ -45,10 +45,7 @@ TextureDependencyChecker::~TextureDependencyChecker()
     {
       for(auto& nativeTextureDependency : mNativeTextureDependencies[nativeIndex])
       {
-        if(nativeTextureDependency.agingSyncObject != nullptr)
-        {
-          mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
-        }
+        mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
       }
       mNativeTextureDependencies[nativeIndex].clear();
     }
@@ -64,22 +61,19 @@ void TextureDependencyChecker::Reset()
     }
     if(!textureDependency.syncing)
     {
-      mController.GetSyncPool().FreeSyncObject(textureDependency.agingSyncObject);
+      mController.GetSyncPool().FreeSyncObject(textureDependency.agingSyncObjectId);
     }
   }
   mFramebufferTextureDependencies.clear();
 
-  if(mNativeTextureDependencies[0].size() > 0 || mNativeTextureDependencies[1].size())
+  if(!mNativeTextureDependencies[0].empty() || !mNativeTextureDependencies[1].empty())
   {
     DALI_ASSERT_ALWAYS(mIsFirstPreparedNativeTextureDependency && "CreateNativeTextureSync should be called before PostRender!");
 
     // Remove all infomations about previous native textures
     for(auto& nativeTextureDependency : mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex])
     {
-      if(nativeTextureDependency.agingSyncObject != nullptr)
-      {
-        mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
-      }
+      mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
     }
     mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex].clear();
 
@@ -125,7 +119,7 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
   // We have to check on different EGL contexts: The shared resource context is used to write to fbos,
   // but they are usually drawn onto separate scene context.
   DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
-  textureDependency.agingSyncObject = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
+  textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
 }
 
 void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture, bool cpu)
@@ -142,7 +136,7 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
       if(cpu)
       {
         DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert CPU WAIT");
-        mController.GetSyncPool().ClientWait(textureDependency.agingSyncObject);
+        mController.GetSyncPool().ClientWait(textureDependency.agingSyncObjectId);
       }
       else
       {
@@ -150,7 +144,7 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
         // to the sync point.
         // However, this may instead timeout, and we can't tell the difference (at least, for glFenceSync)
         DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert GPU WAIT");
-        mController.GetSyncPool().Wait(textureDependency.agingSyncObject);
+        mController.GetSyncPool().Wait(textureDependency.agingSyncObjectId);
       }
     }
   }
@@ -170,28 +164,24 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
       auto iter = nativeTextureDependency.textures.find(texture);
       if(iter != nativeTextureDependency.textures.end())
       {
-        if(nativeTextureDependency.agingSyncObject != nullptr)
+        if(cpu)
         {
-          if(cpu)
-          {
-            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
-            nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObject);
+          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
+          nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObjectId);
 
-            if(DALI_LIKELY(nativeTextureDependency.synced) && readContext == nativeTextureDependency.agingSyncObject->writeContext)
-            {
-              // We can free sync object immediatly if we are using same context.
-              mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
-              nativeTextureDependency.agingSyncObject = nullptr;
-            }
-          }
-          else
+          if(DALI_LIKELY(nativeTextureDependency.synced) && readContext == nativeTextureDependency.writeContext)
           {
-            // Wait on the sync object in GPU. This will ensure that the writeContext completes its tasks prior
-            // to the sync point.
-            // However, this may instead timeout, and we can't tell the difference (at least, for glFenceSync)
-            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert GPU WAIT");
-            mController.GetSyncPool().Wait(nativeTextureDependency.agingSyncObject);
+            // We can free sync object immediatly if we are using same context.
+            mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
           }
+        }
+        else
+        {
+          // Wait on the sync object in GPU. This will ensure that the writeContext completes its tasks prior
+          // to the sync point.
+          // However, this may instead timeout, and we can't tell the difference (at least, for glFenceSync)
+          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert GPU WAIT");
+          mController.GetSyncPool().Wait(nativeTextureDependency.agingSyncObjectId);
         }
 
         nativeTextureDependency.textures.erase(iter);
@@ -236,7 +226,7 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
           nativeTextureDependency.textures.erase(jter);
           if(nativeTextureDependency.textures.empty())
           {
-            mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObject);
+            mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
             iter = mNativeTextureDependencies[nativeIndex].erase(iter);
 
             isErased = true;
@@ -264,10 +254,11 @@ void TextureDependencyChecker::CreateNativeTextureSync(const GLES::Context* writ
 
   if(DALI_LIKELY(!mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].empty()))
   {
-    auto& nativeTextureDependency = mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].back();
+    auto& nativeTextureDependency        = mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].back();
+    nativeTextureDependency.writeContext = writeContext; // Store write context
 
     DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CreateNativeTextureSync() Allocating sync object\n");
-    nativeTextureDependency.agingSyncObject = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
+    nativeTextureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
   }
 }
 
