@@ -20,6 +20,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
+#include <tbm_bufmgr.h>
 #include <tbm_dummy_display.h>
 
 #ifdef ECORE_WAYLAND2
@@ -38,6 +39,81 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+/**
+ * @brief Helper class to make we keep NativeDisplay for NativeRenderSurface as unique pointer
+ * even if Application terminated and restart again.
+ *
+ * @note Follow by eglSpec, eglGetDipslay() creates new EGLDisplay per each input paramater,
+ * and never be deleted until process terminated. But we can re-create DisplayConnecter multiple times
+ * when we are using OffscreenApplication.
+ * So, we need to keep dummy NativeDisplay pointer to avoid creating multiple EGLDisplay.
+ */
+struct NativeRenderSurfaceDisplayHolder
+{
+  NativeRenderSurfaceDisplayHolder()
+  : mBufMgr(nullptr),
+    mDisplay(nullptr)
+  {
+    Initialize();
+  }
+  ~NativeRenderSurfaceDisplayHolder()
+  {
+    Destroy();
+  }
+
+  void Initialize()
+  {
+    mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
+    if(mBufMgr)
+    {
+      mDisplay = reinterpret_cast<NativeDisplayType>(tbm_dummy_display_create());
+    }
+  }
+  void Destroy()
+  {
+#ifdef VULKAN_ENABLED
+    if(!mDisplay.Empty())
+    {
+      // TODO: Fix this call for Vulkan
+      //tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display>());
+    }
+#else
+    if(mDisplay)
+    {
+      tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
+    }
+#endif
+    if(mBufMgr)
+    {
+      tbm_bufmgr_deinit(mBufMgr);
+    }
+  }
+
+  tbm_bufmgr mBufMgr; ///< For creating tbm_dummy_display
+
+  NativeDisplayType mDisplay;
+};
+
+static NativeDisplayType GetUniqueTbmDummyDisplay()
+{
+  static NativeRenderSurfaceDisplayHolder sNativeRenderSurfaceDisplayHolder;
+  if(sNativeRenderSurfaceDisplayHolder.mBufMgr == nullptr)
+  {
+    // Retry to initialize tbm bufmgr
+    sNativeRenderSurfaceDisplayHolder.Destroy();
+    sNativeRenderSurfaceDisplayHolder.Initialize();
+    if(sNativeRenderSurfaceDisplayHolder.mBufMgr == nullptr)
+    {
+      DALI_LOG_ERROR("Fail to init tbm buf mgr\n");
+      return nullptr;
+    }
+  }
+  return sNativeRenderSurfaceDisplayHolder.mDisplay;
+}
+} // namespace
+
 DisplayConnection* DisplayConnectionEcoreWl::New()
 {
   DisplayConnection* pDisplayConnection(new DisplayConnectionEcoreWl());
@@ -47,8 +123,7 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay(NULL),
-  mSurfaceType(Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
-  mBufMgr(nullptr)
+  mSurfaceType(Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
 {
 }
 
@@ -95,33 +170,11 @@ Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
 
 NativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
-  if(mBufMgr == nullptr)
-  {
-    DALI_LOG_ERROR("Fail to init tbm buf mgr\n");
-    return nullptr;
-  }
-  return NativeDisplayType(tbm_dummy_display_create());
+  return GetUniqueTbmDummyDisplay();
 }
 
 void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
 {
-#ifdef VULKAN_ENABLED
-  if(!mDisplay.Empty())
-  {
-    // TODO: Fix this call for Vulkan
-    //tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display>());
-  }
-#else
-  if(mDisplay)
-  {
-    tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
-  }
-#endif
-  if(mBufMgr != nullptr)
-  {
-    tbm_bufmgr_deinit(mBufMgr);
-  }
 }
 
 } // namespace Adaptor
