@@ -117,7 +117,34 @@ struct ShaderImpl::Impl
           char    output[4096];
           GLsizei outputSize{0u};
           gl->GetShaderInfoLog(shader, 4096, &outputSize, output);
-          DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
+          DALI_LOG_ERROR("Shader code : (preprocessed?%d)\n", sourcePreprocessed.empty());
+
+          // TODO : Some device don't allow to print logs multiple lines. Let we print line by line, for temperally.
+          {
+            int i          = 0;
+            int lineNumber = 0;
+
+            std::ostringstream line;
+            while(i < size)
+            {
+              const char c = static_cast<const char>(src[i++]);
+              if(c == '\0')
+              {
+                break;
+              }
+              if(c == '\n')
+              {
+                DALI_LOG_ERROR("%4d > %s\n", ++lineNumber, line.str().c_str());
+                line = std::ostringstream();
+              }
+              else
+              {
+                line << c;
+              }
+            }
+            DALI_LOG_ERROR("%4d > %s\n", ++lineNumber, line.str().c_str());
+          }
+          //DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
           DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
           gl->DeleteShader(shader);
           return false;
