@@ -73,6 +73,9 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
                               vk::CommandBufferInheritanceInfo* inheritanceInfo)
 {
   assert(!mRecording && "CommandBufferImpl already is in the recording state");
+  mDeferredPipelineToBind = nullptr;
+  mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
+
   auto info = vk::CommandBufferBeginInfo{};
 
   vk::CommandBufferInheritanceInfo defaultInheritanceInfo{};
@@ -108,6 +111,8 @@ void CommandBufferImpl::Reset()
   assert(!mRecording && "Can't reset command buffer during recording!");
   assert(mCommandBuffer && "Invalid command buffer!");
   mCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+  mDeferredPipelineToBind = nullptr;
+  mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
 }
 
 /** Free command buffer */
@@ -123,21 +128,8 @@ void CommandBufferImpl::BindPipeline(const Graphics::Pipeline* pipeline)
   assert(mRecording && "Can't bind pipeline when buffer isn't recording!");
   assert(pipeline && "Can't bind null pipeline!");
 
-  auto& pipelineImpl = static_cast<const Vulkan::Pipeline*>(pipeline)->GetImpl();
-
-  // Bind if pipeline is ready (if nullptr, pipeline isn't ready).
-  // If pipeline is valid, bind it early
-
-  if(pipelineImpl.GetVkPipeline())
-  {
-    mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineImpl.GetVkPipeline());
-
-    mCurrentProgram = pipelineImpl.GetProgram()->GetImplementation();
-  }
-  else
-  {
-    mCurrentProgram = nullptr;
-  }
+  // We don't bind anything yet, we will bind it when we resolve depth/stencil state
+  mDeferredPipelineToBind = const_cast<Vulkan::Pipeline*>(static_cast<const Vulkan::Pipeline*>(pipeline));
 }
 
 void CommandBufferImpl::BindVertexBuffers(
@@ -300,12 +292,47 @@ uint32_t CommandBufferImpl::GetPoolAllocationIndex() const
   return mPoolAllocationIndex;
 }
 
+void CommandBufferImpl::ResolveDeferredPipelineBinding()
+{
+  // Pipeline deferred state to resolve depth/stencil
+  if(mDeferredPipelineToBind)
+  {
+    auto& impl = mDeferredPipelineToBind->GetImpl();
+    // The depth stencil state doesn't match the pipeline
+    vk::Pipeline pipelineToBind;
+    mDepthStencilState.front = mStencilTestFrontState;
+    mDepthStencilState.back  = mStencilTestBackState;
+    if(!impl.ComparePipelineDepthStencilState(mDepthStencilState))
+    {
+      // Clone implementation for that state
+      // One pipeline will hold to multiple implementations (?)
+      pipelineToBind = impl.CloneInheritedVkPipeline(mDepthStencilState);
+    }
+
+    if(!pipelineToBind)
+    {
+      pipelineToBind = impl.GetVkPipeline(); // get default pipeline
+    }
+
+    if(pipelineToBind)
+    {
+      mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineToBind);
+      mCurrentProgram = impl.GetProgram()->GetImplementation();
+    }
+    else
+    {
+      mCurrentProgram = nullptr;
+    }
+  }
+}
+
 void CommandBufferImpl::Draw(uint32_t vertexCount,
                              uint32_t instanceCount,
                              uint32_t firstVertex,
                              uint32_t firstInstance)
 {
-  // Example of deferred binding descriptors
+  ResolveDeferredPipelineBinding();
+
   if(mCurrentProgram)
   {
     auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
@@ -327,7 +354,8 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
                                     int32_t  vertexOffset,
                                     uint32_t firstInstance)
 {
-  // Example of deferred binding descriptors
+  ResolveDeferredPipelineBinding();
+
   if(mCurrentProgram)
   {
     auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
@@ -373,51 +401,84 @@ void CommandBufferImpl::SetViewport(Viewport value)
 
 void CommandBufferImpl::SetStencilTestEnable(bool stencilEnable)
 {
-  mCommandBuffer.setStencilTestEnable(stencilEnable);
+  mDepthStencilState.setStencilTestEnable(stencilEnable);
   if(!stencilEnable)
   {
-    mCommandBuffer.setStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
-    mCommandBuffer.setStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
-    mCommandBuffer.setStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, 0x00);
-    mCommandBuffer.setStencilOp(vk::StencilFaceFlagBits::eFrontAndBack, vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::CompareOp::eLess);
+    // Reset
+    mStencilTestFrontState.setCompareMask(0x00);
+    mStencilTestFrontState.setWriteMask(0x00);
+    mStencilTestFrontState.setReference(0x00);
+    mStencilTestFrontState.setCompareOp(vk::CompareOp::eLess);
+    mStencilTestFrontState.setFailOp(vk::StencilOp::eKeep);
+    mStencilTestFrontState.setPassOp(vk::StencilOp::eKeep);
+    mStencilTestFrontState.setDepthFailOp(vk::StencilOp::eKeep);
+
+    mStencilTestBackState.setCompareMask(0x00);
+    mStencilTestBackState.setWriteMask(0x00);
+    mStencilTestBackState.setReference(0x00);
+    mStencilTestBackState.setCompareOp(vk::CompareOp::eLess);
+    mStencilTestBackState.setFailOp(vk::StencilOp::eKeep);
+    mStencilTestBackState.setPassOp(vk::StencilOp::eKeep);
+    mStencilTestBackState.setDepthFailOp(vk::StencilOp::eKeep);
+    mDepthStencilState.setFront(mStencilTestFrontState);
+    mDepthStencilState.setBack(mStencilTestBackState);
   }
 }
 
 void CommandBufferImpl::SetStencilWriteMask(vk::StencilFaceFlags faceMask, uint32_t writeMask)
 {
-  mCommandBuffer.setStencilWriteMask(faceMask, writeMask);
+  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+  mStencilTestStates[f].setWriteMask(writeMask);
+  mStencilTestStates[b].setWriteMask(writeMask);
 }
 
 void CommandBufferImpl::SetStencilCompareMask(vk::StencilFaceFlags faceMask, uint32_t compareMask)
 {
-  mCommandBuffer.setStencilCompareMask(faceMask, compareMask);
+  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+  mStencilTestStates[f].setCompareMask(compareMask);
+  mStencilTestStates[b].setCompareMask(compareMask);
 }
 
 void CommandBufferImpl::SetStencilReference(vk::StencilFaceFlags faceMask, uint32_t reference)
 {
-  mCommandBuffer.setStencilReference(faceMask, reference);
+  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+  mStencilTestStates[f].setReference(reference);
+  mStencilTestStates[b].setReference(reference);
 }
 
 void CommandBufferImpl::SetStencilOp(vk::StencilFaceFlags faceMask, vk::StencilOp failOp, vk::StencilOp passOp, vk::StencilOp depthFailOp, vk::CompareOp compareOp)
 {
-  mCommandBuffer.setStencilOp(faceMask, failOp, passOp, depthFailOp, compareOp);
+  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+  mStencilTestStates[f].setFailOp(failOp);
+  mStencilTestStates[f].setDepthFailOp(depthFailOp);
+  mStencilTestStates[f].setPassOp(passOp);
+  mStencilTestStates[f].setCompareOp(compareOp);
+  mStencilTestStates[b].setFailOp(failOp);
+  mStencilTestStates[b].setDepthFailOp(depthFailOp);
+  mStencilTestStates[b].setPassOp(passOp);
+  mStencilTestStates[b].setCompareOp(compareOp);
 }
 
 void CommandBufferImpl::SetDepthTestEnable(bool depthTestEnable)
 {
-  mCommandBuffer.setDepthTestEnable(depthTestEnable);
-  mCommandBuffer.setDepthBoundsTestEnable(false);
-  mCommandBuffer.setDepthBounds(0.0f, 1.0f);
+  mDepthStencilState.setDepthTestEnable(depthTestEnable);
+  mDepthStencilState.setDepthBoundsTestEnable(false);
+  mDepthStencilState.setMinDepthBounds(0.0f);
+  mDepthStencilState.setMaxDepthBounds(1.0f);
 }
 
 void CommandBufferImpl::SetDepthWriteEnable(bool depthWriteEnable)
 {
-  mCommandBuffer.setDepthWriteEnable(depthWriteEnable);
+  mDepthStencilState.setDepthWriteEnable(depthWriteEnable);
 }
 
 void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
 {
-  mCommandBuffer.setDepthCompareOp(op);
+  mDepthStencilState.setDepthCompareOp(op);
 }
 
 void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
