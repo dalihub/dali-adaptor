@@ -106,7 +106,10 @@ struct ShaderImpl::Impl
       {
         auto       shader = gl->CreateShader(pipelineStage);
         const auto src    = !sourcePreprocessed.empty() ? reinterpret_cast<const char*>(sourcePreprocessed.data()) : reinterpret_cast<const char*>(createInfo.sourceData);
-        GLint      size   = !sourcePreprocessed.empty() ? GLint(sourcePreprocessed.size()) : createInfo.sourceSize;
+
+        // null-terminated char already included. So we should remove last character (null terminator) from size.
+        GLint size = (!sourcePreprocessed.empty() ? GLint(sourcePreprocessed.size()) : createInfo.sourceSize) - 1u;
+
         gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
         gl->CompileShader(shader);
 
