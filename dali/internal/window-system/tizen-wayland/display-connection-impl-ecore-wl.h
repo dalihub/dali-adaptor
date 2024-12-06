@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <tbm_bufmgr.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
@@ -105,7 +104,6 @@ protected:
 private:
   NativeDisplayType                               mDisplay;     ///< Wayland-display for rendering
   Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
-  tbm_bufmgr                                      mBufMgr;      ///< For creating tbm_dummy_display
 };
 
 } // namespace Adaptor

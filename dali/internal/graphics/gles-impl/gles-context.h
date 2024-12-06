@@ -149,6 +149,12 @@ public:
   void EndRenderPass(TextureDependencyChecker& checker);
 
   /**
+   * @brief Request to read pixels
+   * @param[out] buffer to load pixel data.
+   */
+  void ReadPixels(uint8_t* buffer);
+
+  /**
    * @brief Returns the cache of GL state in the context
    * @return the reference of GL state cache (which can be modified)
    */

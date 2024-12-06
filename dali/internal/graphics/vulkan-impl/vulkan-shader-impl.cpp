@@ -125,12 +125,20 @@ struct ShaderImpl::Impl
       return;
     }
 
-    sourcePreprocessed.resize(size + 1 /* Include null-terminated char */);
-    sourcePreprocessed[size] = '\0';
+    const uint8_t* dataPtr = reinterpret_cast<const uint8_t*>(data);
 
-    std::copy(reinterpret_cast<const uint8_t*>(data),
-              reinterpret_cast<const uint8_t*>(data) + size,
-              sourcePreprocessed.data());
+    if(*(dataPtr + size - 1) != '\0')
+    {
+      sourcePreprocessed.resize(size + 1 /* Include null-terminated char */);
+      sourcePreprocessed[size] = '\0';
+    }
+    else
+    {
+      // null-terminated char already included.
+      sourcePreprocessed.resize(size);
+    }
+
+    std::copy(dataPtr, dataPtr + size, sourcePreprocessed.data());
   }
 
   VulkanGraphicsController&       controller;
