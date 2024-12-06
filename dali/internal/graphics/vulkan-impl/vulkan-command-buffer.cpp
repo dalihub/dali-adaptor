@@ -243,11 +243,6 @@ void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
   mCommandBufferImpl->EndRenderPass();
 }
 
-void CommandBuffer::ReadPixels(uint8_t* buffer)
-{
-  mCommandBufferImpl->ReadPixels(buffer);
-}
-
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& gfxCommandBuffers)
 {
   std::vector<vk::CommandBuffer> vkCommandBuffers;

@@ -150,6 +150,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void EmitSocketAvailable(Accessibility::Accessible* obj) override
+  {
+  }
+
   void EmitScrollStarted(Accessibility::Accessible* obj) override
   {
   }

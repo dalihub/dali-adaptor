@@ -407,12 +407,6 @@ void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
   command->endRenderPass.syncObject = static_cast<GLES::SyncObject*>(syncObject);
 }
 
-void CommandBuffer::ReadPixels(uint8_t* buffer)
-{
-  auto command = mCommandPool->AllocateCommand(CommandType::READ_PIXELS);
-  command->readPixelsBuffer.buffer = buffer;
-}
-
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
 {
   auto  command    = mCommandPool->AllocateCommand(CommandType::EXECUTE_COMMAND_BUFFERS);

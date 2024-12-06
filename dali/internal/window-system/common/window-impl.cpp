@@ -32,7 +32,7 @@
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/devel-api/adaptor-framework/actor-accessible.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
@@ -763,7 +763,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
     if(Dali::Accessibility::IsUp())
     {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
+      if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
       {
         accessible->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
       }
@@ -804,7 +804,7 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
     if(Dali::Accessibility::IsUp())
     {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
+      if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
       {
         accessible->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
       }
@@ -881,7 +881,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   if((moved || resize) && Dali::Accessibility::IsUp())
   {
-    if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
+    if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
     {
       accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
     }
@@ -1145,7 +1145,7 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   if((moved || resize) && Dali::Accessibility::IsUp())
   {
-    if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
+    if(auto accessible = Dali::Accessibility::Accessible::Get(mScene.GetRootLayer()))
     {
       accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
     }

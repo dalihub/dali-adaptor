@@ -96,7 +96,7 @@ public:
   /**
    * @copydoc Dali::Capture::GetNativeImageSource
    */
-  Dali::NativeImageSourcePtr GetNativeImageSource();
+  Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
    * @copydoc Dali::Capture::GetCapturedBuffer
@@ -124,6 +124,11 @@ private:
    * @brief Create texture.
    */
   void CreateTexture(const Dali::Vector2& size);
+
+  /**
+   * @brief Delete native image source.
+   */
+  void DeleteNativeImageSource();
 
   /**
    * @brief Create frame buffer.
@@ -234,6 +239,8 @@ private:
   Dali::Timer                                      mTimer; ///< For timeout.
   Dali::Capture::CaptureFinishedSignalType         mFinishedSignal;
   std::string                                      mPath;
+  Dali::NativeImageSourcePtr                       mNativeImageSourcePtr; ///< pointer to surface image
+  Dali::Devel::PixelBuffer                         mPixelBuffer;
   bool                                             mInCapture{false};
   bool                                             mIsExclusive{false};
   bool                                             mFileSave;

@@ -91,6 +91,11 @@ protected:
   void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
 
   /**
+   * @copydoc Dali::Accessibility::Bridge::EmitSocketAvailable()
+   */
+  void EmitSocketAvailable(Dali::Accessibility::Accessible* obj) override;
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::EmitScrollStarted()
    */
   void EmitScrollStarted(Dali::Accessibility::Accessible* obj) override;

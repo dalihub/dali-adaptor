@@ -271,15 +271,13 @@ public:
    * @SINCE_1_9.10
    *
    * @return NativeImageSourcePtr Captured result that can be rendered with DALi
-   * @note GetNativeImageSource is only available inside FinishedSignal.
    */
-  Dali::NativeImageSourcePtr GetNativeImageSource();
+  Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
    * @brief Get Texture of captured image.
    *
    * @return Texture Captured result
-   * @note GetTexture is only available inside FinishedSignal.
    */
   Dali::Texture GetTexture() const;
 

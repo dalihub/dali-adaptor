@@ -35,10 +35,136 @@ namespace Dali::Accessibility
 /**
  * @brief Basic interface implemented by all accessibility objects.
  */
-class DALI_ADAPTOR_API Accessible
+class DALI_ADAPTOR_API Accessible : public std::enable_shared_from_this<Accessible>
 {
 public:
   virtual ~Accessible() noexcept;
+
+  /**
+   * @brief Helper function for emiting active-descendant-changed event.
+   *
+   * @param[in] child The child of the object
+   */
+  void EmitActiveDescendantChanged(Accessible* child);
+
+  /**
+   * @brief Helper function for emiting state-changed event.
+   *
+   * @param[in] state The accessibility state (SHOWING, HIGHLIGHTED, etc)
+   * @param[in] newValue Whether the state value is changed to new value or not.
+   * @param[in] reserved Reserved. (TODO : Currently, this argument is not implemented in dali)
+   *
+   * @note The second argument determines which value is depending on State.
+   * For instance, if the state is PRESSED, newValue means isPressed or isSelected.
+   * If the state is SHOWING, newValue means isShowing.
+   */
+  void EmitStateChanged(State state, int newValue, int reserved = 0);
+
+  /**
+   * @brief Helper function for emiting bounds-changed event.
+   *
+   * @param rect The rectangle for changed bounds
+   */
+  void EmitBoundsChanged(Rect<> rect);
+
+  /**
+   * @brief Emits "showing" event.
+   * The method informs accessibility clients about "showing" state.
+   *
+   * @param[in] isShowing The flag pointing if object is showing
+   */
+  void EmitShowing(bool isShowing);
+
+  /**
+   * @brief Emits "visible" event.
+   * The method informs accessibility clients about "visible" state.
+   *
+   * @param[in] isVisible The flag pointing if object is visible
+   */
+  void EmitVisible(bool isVisible);
+
+  /**
+   * @brief Emits "highlighted" event.
+   * The method informs accessibility clients about "highlighted" state.
+   *
+   * @param[in] isHighlighted The flag pointing if object is highlighted
+   */
+  void EmitHighlighted(bool isHighlighted);
+
+  /**
+   * @brief Emits "focused" event.
+   * The method informs accessibility clients about "focused" state.
+   *
+   * @param[in] isFocused The flag pointing if object is focused
+   */
+  void EmitFocused(bool isFocused);
+
+  /**
+   * @brief Emits "text inserted" event.
+   *
+   * @param[in] position The cursor position
+   * @param[in] length The text length
+   * @param[in] content The inserted text
+   */
+  void EmitTextInserted(unsigned int position, unsigned int length, const std::string& content);
+
+  /**
+   * @brief Emits "text deleted" event.
+   *
+   * @param[in] position The cursor position
+   * @param[in] length The text length
+   * @param[in] content The deleted text
+   */
+  void EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content);
+
+  /**
+   * @brief Emits "cursor moved" event.
+   *
+   * @param[in] cursorPosition The new cursor position
+   */
+  void EmitTextCursorMoved(unsigned int cursorPosition);
+
+  /**
+   * @brief Emits "MoveOuted" event.
+   *
+   * @param[in] type moved out of screen type
+   */
+  void EmitMovedOutOfScreen(ScreenRelativeMoveType type);
+
+  /**
+   * @brief Emits "org.a11y.atspi.Socket.Available" signal.
+   */
+  // This belongs to Dali::Accessibility::Socket. However, all Emit*() helpers
+  // are here in Accessible, regardless of what interface they belong to (perhaps
+  // to spare a dynamic_cast if used like this: Accessible::Get()->Emit*(...)).
+  void EmitSocketAvailable();
+
+  /**
+   * @brief Emits "ScrollStarted" event.
+   *
+   */
+  void EmitScrollStarted();
+
+  /**
+   * @brief Emits "ScrollFinished" event.
+   *
+   */
+  void EmitScrollFinished();
+
+  /**
+   * @brief Emits "highlighted" event.
+   *
+   * @param[in] event The enumerated window event
+   * @param[in] detail The additional parameter which interpretation depends on chosen event
+   */
+  void Emit(WindowEvent event, unsigned int detail = 0);
+
+  /**
+   * @brief Emits property-changed event.
+   *
+   * @param[in] event Property changed event
+   **/
+  void Emit(ObjectPropertyChangeEvent event);
 
   /**
    * @brief Gets accessibility name.
@@ -190,6 +316,14 @@ public:
    * @see Dali::Accessibility::GestureInfo
    */
   virtual bool DoGesture(const GestureInfo& gestureInfo) = 0;
+
+  /**
+   * @brief Re-emits selected states of an Accessibility Object.
+   *
+   * @param[in] states The chosen states to re-emit
+   * @param[in] isRecursive If true, all children of the Accessibility object will also re-emit the states
+   */
+  void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive);
 
   /**
    * @brief Gets information about current object and all relations that connects
@@ -381,6 +515,7 @@ private:
   mutable AtspiInterfaces             mInterfaces;
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
+  std::map<State, int>                mLastEmittedState;
 
 }; // Accessible class
 

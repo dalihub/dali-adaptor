@@ -32,7 +32,6 @@ namespace DevelCapture
  * @brief Get PixelBuffer of captured image.
  *
  * @return PixelBuffer Captured result
- * @note GetCapturedBuffer is only available inside FinishedSignal, otherwise this returns empty handle.
  */
 DALI_ADAPTOR_API Dali::Devel::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
 

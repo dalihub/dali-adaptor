@@ -25,6 +25,46 @@
 
 using namespace Dali::Accessibility;
 
+namespace
+{
+bool UpdateLastEmitted(std::map<State, int>& lastEmitted, State state, int newValue)
+{
+  bool updated                = false;
+  const auto [iter, inserted] = lastEmitted.emplace(state, newValue);
+  if(!inserted && iter->second != newValue)
+  {
+    iter->second = newValue;
+    updated      = true;
+  }
+
+  return inserted || updated;
+}
+
+bool IsModalRole(Role role)
+{
+  return role == Role::POPUP_MENU || role == Role::PANEL || role == Role::DIALOG || role == Role::PAGE_TAB;
+}
+
+bool IsWindowRole(Role role)
+{
+  return role == Role::WINDOW || role == Role::FRAME || role == Role::INPUT_METHOD_WINDOW;
+}
+
+bool ShouldEmitVisible(Accessible* accessible)
+{
+  Role role = accessible->GetRole();
+  return IsWindowRole(role);
+}
+
+bool ShouldEmitShowing(Accessible* accessible, bool showing)
+{
+  Role role = accessible->GetRole();
+  return IsWindowRole(role) || IsModalRole(role) || (showing && role == Role::NOTIFICATION) ||
+         (!showing && accessible->IsHighlighted()) || accessible->GetStates()[State::MODAL];
+}
+
+} // namespace
+
 Accessible::Accessible()
 {
 }
@@ -35,6 +75,145 @@ Accessible::~Accessible() noexcept
   if(handle)
   {
     handle->mKnownObjects.erase(this);
+  }
+}
+
+void Accessible::EmitActiveDescendantChanged(Accessible* child)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitActiveDescendantChanged(this, child);
+  }
+}
+
+void Accessible::EmitStateChanged(State state, int newValue, int reserved)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bool shouldEmit{false};
+
+    switch(state)
+    {
+      case State::SHOWING:
+      {
+        shouldEmit = ShouldEmitShowing(this, static_cast<bool>(newValue));
+        break;
+      }
+      case State::VISIBLE:
+      {
+        shouldEmit = ShouldEmitVisible(this);
+        break;
+      }
+      default:
+      {
+        shouldEmit = UpdateLastEmitted(mLastEmittedState, state, newValue);
+        break;
+      }
+    }
+
+    if(shouldEmit)
+    {
+      bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
+    }
+  }
+}
+
+void Accessible::EmitShowing(bool isShowing)
+{
+  EmitStateChanged(State::SHOWING, isShowing ? 1 : 0);
+}
+
+void Accessible::EmitVisible(bool isVisible)
+{
+  EmitStateChanged(State::VISIBLE, isVisible ? 1 : 0);
+}
+
+void Accessible::EmitHighlighted(bool isHighlighted)
+{
+  EmitStateChanged(State::HIGHLIGHTED, isHighlighted ? 1 : 0);
+}
+
+void Accessible::EmitFocused(bool isFocused)
+{
+  EmitStateChanged(State::FOCUSED, isFocused ? 1 : 0);
+}
+
+void Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
+  }
+}
+void Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
+  }
+}
+void Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitCursorMoved(this, cursorPosition);
+  }
+}
+
+void Accessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
+  }
+}
+
+void Accessible::EmitSocketAvailable()
+{
+  DALI_ASSERT_DEBUG(Socket::DownCast(this));
+
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitSocketAvailable(this);
+  }
+}
+
+void Accessible::EmitScrollStarted()
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitScrollStarted(this);
+  }
+}
+
+void Accessible::EmitScrollFinished()
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitScrollFinished(this);
+  }
+}
+
+void Accessible::Emit(WindowEvent event, unsigned int detail)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->Emit(this, event, detail);
+  }
+}
+void Accessible::Emit(ObjectPropertyChangeEvent event)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->Emit(shared_from_this(), event);
+  }
+}
+
+void Accessible::EmitBoundsChanged(Rect<> rect)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitBoundsChanged(shared_from_this(), rect);
   }
 }
 
@@ -88,4 +267,29 @@ void Accessible::SetListenPostRender(bool enabled)
 bool Accessible::IsProxy() const
 {
   return false;
+}
+
+void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)
+{
+  if(Accessibility::IsUp())
+  {
+    const auto newStates = GetStates();
+    for(auto i = 0u; i < static_cast<unsigned int>(Dali::Accessibility::State::MAX_COUNT); i++)
+    {
+      const auto index = static_cast<Dali::Accessibility::State>(i);
+      if(states[index])
+      {
+        EmitStateChanged(index, newStates[index]);
+      }
+    }
+
+    if(isRecursive)
+    {
+      auto children = GetChildren();
+      for(auto iter : children)
+      {
+        iter->NotifyAccessibilityStateChange(states, isRecursive);
+      }
+    }
+  }
 }

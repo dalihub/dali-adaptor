@@ -264,11 +264,6 @@ bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width
   return success;
 }
 
-bool NativeImageSourceX::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
-{
-  return false;
-}
-
 void NativeImageSourceX::SetSource(Any source)
 {
   mPixmap = GetPixmapFromAny(source);

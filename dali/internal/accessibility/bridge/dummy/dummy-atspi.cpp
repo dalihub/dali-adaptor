@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,70 @@ void Accessibility::Bridge::EnableAutoInit()
 std::string MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId)
 {
   return std::string{widgetInstanceId};
+}
+
+void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue, int reserved)
+{
+}
+
+void Accessibility::Accessible::Emit(Accessibility::ObjectPropertyChangeEvent event)
+{
+}
+
+void Accessibility::Accessible::EmitHighlighted(bool set)
+{
+}
+
+void Accessibility::Accessible::EmitBoundsChanged(Rect<> rect)
+{
+}
+
+void Accessibility::Accessible::EmitShowing(bool showing)
+{
+}
+
+void Accessibility::Accessible::EmitFocused(bool set)
+{
+}
+
+void Accessibility::Accessible::EmitVisible(bool visible)
+{
+}
+
+void Accessibility::Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
+{
+}
+
+void Accessibility::Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
+{
+}
+
+void Accessibility::Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
+{
+}
+
+void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* child)
+{
+}
+
+void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::ScreenRelativeMoveType type)
+{
+}
+
+void Accessibility::Accessible::EmitSocketAvailable()
+{
+}
+
+void Accessibility::Accessible::EmitScrollStarted()
+{
+}
+
+void Accessibility::Accessible::EmitScrollFinished()
+{
+}
+
+void Accessibility::Accessible::NotifyAccessibilityStateChange(Accessibility::States states, bool isRecursive)
+{
 }
 
 } // namespace Dali

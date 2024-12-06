@@ -208,11 +208,6 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t&
   return success;
 }
 
-bool NativeImageSourceAndroid::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
-{
-  return false;
-}
-
 void NativeImageSourceAndroid::SetSource(Any source)
 {
   if(mPixmap)

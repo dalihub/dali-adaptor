@@ -27,7 +27,6 @@
 #include <tuple>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -135,7 +134,7 @@ public:
    * @return Null if mChildren is empty, otherwise the Accessible object
    * @note Currently, the default window would be returned when mChildren is not empty.
    */
-  Dali::Accessibility::ActorAccessible* GetWindowAccessible(Dali::Window window)
+  Dali::Accessibility::Accessible* GetWindowAccessible(Dali::Window window)
   {
     if(mChildren.empty())
     {
@@ -149,12 +148,12 @@ public:
     {
       if(rootLayer == mChildren[i]->GetInternalActor())
       {
-        return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[i]);
+        return mChildren[i];
       }
     }
 
     // If can't find its children, return the default window.
-    return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[0]);
+    return mChildren[0];
   }
 
   bool DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override

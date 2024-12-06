@@ -54,7 +54,6 @@ enum class CommandType
   SET_VIEWPORT,
   BEGIN_RENDERPASS,
   END_RENDERPASS,
-  READ_PIXELS,
   EXECUTE_COMMAND_BUFFERS,
   PRESENT_RENDER_TARGET,
   SET_COLOR_MASK,
@@ -169,11 +168,6 @@ struct Command
     {
       Graphics::SyncObject* syncObject;
     } endRenderPass;
-
-    struct
-    {
-      uint8_t* buffer;
-    } readPixelsBuffer;
 
     struct
     {
@@ -299,11 +293,6 @@ public:
    * @copydoc Dali::Graphics::CommandBuffer::EndRenderPass
    */
   void EndRenderPass(Graphics::SyncObject* syncObject) override;
-
-  /**
-   * @copydoc Dali::Graphics::CommandBuffer::ReadPixels
-   */
-  void ReadPixels(uint8_t* buffer) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::ExecuteCommandBuffers

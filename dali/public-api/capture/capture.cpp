@@ -93,7 +93,7 @@ bool Capture::IsExclusive() const
   return GetImpl(*this).IsExclusive();
 }
 
-Dali::NativeImageSourcePtr Capture::GetNativeImageSource()
+Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
 {
   return GetImpl(*this).GetNativeImageSource();
 }

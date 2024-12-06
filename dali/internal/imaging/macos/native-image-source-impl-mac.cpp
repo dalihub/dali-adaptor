@@ -128,11 +128,6 @@ bool NativeImageSourceCocoa::GetPixels(
   return true;
 }
 
-bool NativeImageSourceCocoa::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
-{
-  return false;
-}
-
 void NativeImageSourceCocoa::SetSource(Any source)
 {
 }

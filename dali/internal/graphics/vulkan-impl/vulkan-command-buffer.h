@@ -152,11 +152,6 @@ public:
   void EndRenderPass(Graphics::SyncObject* syncObject) override;
 
   /**
-   * @copydoc Dali::Graphics::CommandBuffer::ReadPixels
-   */
-  void ReadPixels(uint8_t* buffer) override;
-
-  /**
    * @brief Executes a list of secondary command buffers
    *
    * The secondary command buffers will be executed as a part of a primary
