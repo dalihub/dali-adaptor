@@ -686,6 +686,10 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
   auto vs = std::istringstream(*parseInfo.vertexShaderCode);
   auto fs = std::istringstream(*parseInfo.fragmentShaderCode);
 
+  DALI_LOG_DEBUG_INFO("Preprocessing shader. language version : %u\n", static_cast<uint32_t>(parseInfo.language));
+  DALI_LOG_DEBUG_INFO("  vsh size : %zu, legacy version : %u\n", parseInfo.vertexShaderCode->size(), parseInfo.vertexShaderLegacyVersion);
+  DALI_LOG_DEBUG_INFO("  fsh size : %zu, legacy version : %u\n", parseInfo.fragmentShaderCode->size(), parseInfo.fragmentShaderLegacyVersion);
+
   output.resize(2);
 
   // Create program
@@ -713,6 +717,7 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
   if(parseInfo.vertexShaderLegacyVersion && parseInfo.fragmentShaderLegacyVersion)
   {
     // Not touching any shaders, return current code as output
+    DALI_LOG_DEBUG_INFO("Skip preprocessing. Use same shader as input\n");
     return;
   }
   else if(!parseInfo.vertexShaderLegacyVersion && !parseInfo.fragmentShaderLegacyVersion)
