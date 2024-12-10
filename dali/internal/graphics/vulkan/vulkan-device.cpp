@@ -641,8 +641,8 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
     {
       auto properties = device.getProperties();
 
-      // We only want to choose a device that supports Vulkan 1.3 or above.
-      if(properties.apiVersion < VK_API_VERSION_1_3)
+      // We only want to choose a device that supports Vulkan 1.2 or above.
+      if(properties.apiVersion < VK_API_VERSION_1_2)
       {
         continue;
       }

@@ -34,7 +34,6 @@ namespace GLES
 class Context;
 class Framebuffer;
 class Texture;
-class AgingSyncObject;
 
 /**
  * Class to handle dependency checks between textures on different
@@ -117,12 +116,14 @@ public: ///< For NativeTexture dependency checker
   void CreateNativeTextureSync(const Context* writeContext);
 
 private:
+  using SyncObjectId = uint32_t; ///< Note : It should be matched with Dali::Graphics::GLES::SyncPool:SyncObjectId.
+
   struct FramebufferTextureDependency
   {
     std::vector<Texture*> textures;
     Context*              writeContext{nullptr};
     Framebuffer*          framebuffer{nullptr};
-    AgingSyncObject*      agingSyncObject{nullptr};
+    SyncObjectId          agingSyncObjectId{0u};
     bool                  syncing{false};
   };
   std::vector<FramebufferTextureDependency> mFramebufferTextureDependencies;
@@ -130,7 +131,8 @@ private:
   struct NativeTextureDependency
   {
     std::unordered_set<const Texture*> textures;
-    AgingSyncObject*                   agingSyncObject{nullptr};
+    const Context*                     writeContext{nullptr};
+    SyncObjectId                       agingSyncObjectId{0u};
     bool                               synced{false};
   };
   std::vector<NativeTextureDependency> mNativeTextureDependencies[2];

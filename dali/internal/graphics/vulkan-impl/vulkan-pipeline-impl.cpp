@@ -34,6 +34,37 @@ namespace Dali::Graphics::Vulkan
 {
 namespace
 {
+inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+{
+  struct FloatToInt
+  {
+    FloatToInt(float f)
+    {
+      v0 = f;
+    }
+    union
+    {
+      float    v0;
+      uint32_t v1;
+    };
+  };
+
+  // hash first level using xor for each value (fast and should be enough)
+  uint32_t hash = uint32_t(state.depthTestEnable) ^ uint32_t(state.depthWriteEnable) ^
+                  uint32_t(state.depthCompareOp) ^ state.depthBoundsTestEnable ^ state.stencilTestEnable ^
+                  FloatToInt(state.minDepthBounds).v1 ^ FloatToInt(state.maxDepthBounds).v1;
+
+  // hash front and back
+  auto HashStencilOpState = [](const vk::StencilOpState& sop) -> uint32_t {
+    return sop.reference ^ sop.writeMask ^ sop.compareMask ^ uint32_t(sop.compareOp) ^
+           uint32_t(sop.passOp) ^ uint32_t(sop.depthFailOp) ^ uint32_t(sop.failOp);
+  };
+
+  hash ^= HashStencilOpState(state.front) ^ HashStencilOpState(state.back);
+
+  return hash;
+}
+
 constexpr vk::CompareOp ConvCompareOp(const CompareOp in)
 {
   switch(in)
@@ -171,6 +202,78 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Vulka
   InitializePipeline();
 }
 
+vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState)
+{
+  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
+
+  vk::Pipeline vkPipeline;
+  auto         hash = HashDepthStencilState(dsState);
+  for(auto& item : mPipelineForDepthStateCache)
+  {
+    if(item.hash == hash)
+    {
+      bool result = item.ds == dsState;
+      if(result)
+      {
+        vkPipeline = item.pipeline;
+        break;
+      }
+    }
+  }
+
+  if(!vkPipeline)
+  {
+    // Copy original info
+    vk::GraphicsPipelineCreateInfo gfxPipelineInfo = mVkPipelineCreateInfo;
+
+    // override depth stencil
+    gfxPipelineInfo.setPDepthStencilState(&dsState);
+
+    // make sure dynamic depth stencil states are not on
+    decltype(mDynamicStates) newDynamicStates = {};
+
+    // Make sure depth and stencil dynamic states are not included
+    // in the list of dynamic states
+    for(auto& state : mDynamicStates)
+    {
+      if(!(vk::DynamicState::eDepthWriteEnable == state ||
+           vk::DynamicState::eDepthTestEnable == state ||
+           vk::DynamicState::eDepthCompareOp == state ||
+           vk::DynamicState::eDepthBounds == state ||
+           vk::DynamicState::eDepthBoundsTestEnable == state ||
+           vk::DynamicState::eStencilTestEnable == state ||
+           vk::DynamicState::eStencilOp == state ||
+           vk::DynamicState::eStencilCompareMask == state ||
+           vk::DynamicState::eStencilWriteMask == state ||
+           vk::DynamicState::eStencilReference == state))
+      {
+        newDynamicStates.emplace_back(state);
+      }
+    }
+
+    vk::PipelineDynamicStateCreateInfo dynamicStateInfo;
+    dynamicStateInfo.setDynamicStates(newDynamicStates);
+    gfxPipelineInfo.setPDynamicState(&dynamicStateInfo);
+
+    // create pipeline
+    auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+
+    VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
+                                              1,
+                                              &gfxPipelineInfo,
+                                              &allocator,
+                                              &vkPipeline));
+
+    // Push pipeline to the state
+    DepthStatePipelineHashed item;
+    item.hash     = hash;
+    item.pipeline = vkPipeline;
+    item.ds       = dsState;
+    mPipelineForDepthStateCache.emplace_back(item);
+  }
+  return vkPipeline;
+}
+
 const PipelineCreateInfo& PipelineImpl::GetCreateInfo() const
 {
   return mCreateInfo;
@@ -187,6 +290,11 @@ void PipelineImpl::Bind()
 
 vk::Pipeline PipelineImpl::GetVkPipeline() const
 {
+  // this returns base VkPipeline only now but may return null
+  if(mVkPipelines.empty())
+  {
+    return {};
+  }
   return mVkPipelines[0].pipeline;
 }
 
@@ -209,10 +317,10 @@ PipelineImpl::~PipelineImpl() = default;
 
 void PipelineImpl::InitializePipeline()
 {
-  auto                           vkDevice    = mController.GetGraphicsDevice().GetLogicalDevice();
-  auto                           programImpl = static_cast<const Vulkan::Program*>(mCreateInfo.programState->program)->GetImplementation();
-  auto&                          reflection  = programImpl->GetReflection();
-  vk::GraphicsPipelineCreateInfo gfxPipelineInfo;
+  auto  programImpl = static_cast<const Vulkan::Program*>(mCreateInfo.programState->program)->GetImplementation();
+  auto& reflection  = programImpl->GetReflection();
+
+  vk::GraphicsPipelineCreateInfo& gfxPipelineInfo = mVkPipelineCreateInfo;
   gfxPipelineInfo.setLayout(reflection.GetVkPipelineLayout());
   gfxPipelineInfo.setStageCount(programImpl->GetVkPipelineShaderStageCreateInfoList().size());
   gfxPipelineInfo.setStages(programImpl->GetVkPipelineShaderStageCreateInfoList());
@@ -220,12 +328,12 @@ void PipelineImpl::InitializePipeline()
   gfxPipelineInfo.setBasePipelineIndex(0);
 
   // 1. PipelineVertexInputStateCreateInfo
-  vk::PipelineVertexInputStateCreateInfo visInfo;
+  vk::PipelineVertexInputStateCreateInfo& visInfo = mVertexInputState;
   InitializeVertexInputState(visInfo);
   gfxPipelineInfo.setPVertexInputState(&visInfo);
 
   // 2. PipelineInputAssemblyStateCreateInfo
-  vk::PipelineInputAssemblyStateCreateInfo iasInfo;
+  vk::PipelineInputAssemblyStateCreateInfo& iasInfo = mInputAssemblyState;
   InitializeInputAssemblyState(iasInfo);
   gfxPipelineInfo.setPInputAssemblyState(&iasInfo);
 
@@ -233,35 +341,32 @@ void PipelineImpl::InitializePipeline()
   gfxPipelineInfo.setPTessellationState(nullptr);
 
   // 4. PipelineViewportStateCreateInfo
-  vk::PipelineViewportStateCreateInfo viewInfo;
+  vk::PipelineViewportStateCreateInfo& viewInfo = mViewportState;
   InitializeViewportState(viewInfo);
   gfxPipelineInfo.setPViewportState(&viewInfo);
 
   // 5. PipelineRasterizationStateCreateInfo
-  vk::PipelineRasterizationStateCreateInfo rsInfo;
+  vk::PipelineRasterizationStateCreateInfo& rsInfo = mRasterizationState;
   InitializeRasterizationState(rsInfo);
   gfxPipelineInfo.setPRasterizationState(&rsInfo);
 
   // 6. PipelineMultisampleStateCreateInfo
-  vk::PipelineMultisampleStateCreateInfo msInfo;
-
+  vk::PipelineMultisampleStateCreateInfo& msInfo = mMultisampleState;
   gfxPipelineInfo.setPMultisampleState(&msInfo);
 
   // 7. PipelineDepthStencilStateCreateInfo
-  vk::PipelineDepthStencilStateCreateInfo dsInfo;
+  vk::PipelineDepthStencilStateCreateInfo& dsInfo = mDepthStencilState;
   gfxPipelineInfo.setPDepthStencilState(InitializeDepthStencilState(dsInfo) ? &dsInfo : nullptr);
 
   // 8. PipelineColorBlendStateCreateInfo
-  vk::PipelineColorBlendStateCreateInfo bsInfo;
+  vk::PipelineColorBlendStateCreateInfo& bsInfo = mColorBlendState;
   InitializeColorBlendState(bsInfo);
   gfxPipelineInfo.setPColorBlendState(&bsInfo);
 
   // 9. PipelineDynamicStateCreateInfo
-  vk::PipelineDynamicStateCreateInfo dynInfo;
+  vk::PipelineDynamicStateCreateInfo& dynInfo = mDynamicState;
   dynInfo.setDynamicStates(mDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynInfo);
-
-  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
 
   auto rtImpl = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
 
@@ -308,19 +413,24 @@ void PipelineImpl::InitializePipeline()
         const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->attachmentCount = attachmentCount;
         const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->pAttachments    = mBlendStateAttachments.data();
       }
+      // This code must not run if Vulkan API version is < 1.3
+      // We don't pass dynamic states anymore but neither any depth/stencil
+      // state (no default state).
+      // TODO: fix it by implementing proper caching
+      /*
+      vk::Pipeline vkPipeline;
+      VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
+                                                1,
+                                                &gfxPipelineInfo,
+                                                &allocator,
+                                                &vkPipeline));
+
+      RenderPassPipelinePair item;
+      item.renderPass = nullptr;
+      item.pipeline   = vkPipeline;
+      mVkPipelines.emplace_back(item);
+      */
     }
-
-    vk::Pipeline vkPipeline;
-    VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
-                                              1,
-                                              &gfxPipelineInfo,
-                                              &allocator,
-                                              &vkPipeline));
-
-    RenderPassPipelinePair item;
-    item.renderPass = nullptr;
-    item.pipeline   = vkPipeline;
-    mVkPipelines.emplace_back(item);
   }
 }
 
@@ -329,14 +439,24 @@ const Vulkan::Program* PipelineImpl::GetProgram() const
   return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
 }
 
+bool PipelineImpl::ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+{
+  auto hashToCompare = HashDepthStencilState(state);
+  auto currentHash   = HashDepthStencilState(mDepthStencilState);
+  if(hashToCompare == currentHash)
+  {
+    return mDepthStencilState == state;
+  }
+  return false;
+}
+
 void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out)
 {
   std::vector<vk::VertexInputBindingDescription> bindings;
   std::transform(mCreateInfo.vertexInputState->bufferBindings.begin(),
                  mCreateInfo.vertexInputState->bufferBindings.end(),
                  std::back_inserter(bindings),
-                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription
-                 {
+                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription {
                    vk::VertexInputBindingDescription out;
                    out.setInputRate((in.inputRate == VertexInputRate::PER_VERTEX ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance));
                    out.setBinding(0u); // To be filled later using indices
@@ -354,8 +474,7 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
   std::transform(mCreateInfo.vertexInputState->attributes.begin(),
                  mCreateInfo.vertexInputState->attributes.end(),
                  std::back_inserter(attrs),
-                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription
-                 {
+                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription {
                    vk::VertexInputAttributeDescription out;
                    out.setBinding(in.binding);
                    out.setLocation(in.location);
@@ -511,11 +630,9 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
 {
   auto gfxRastState = mCreateInfo.rasterizationState;
 
-  out.setFrontFace([gfxRastState]()
-                   { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
+  out.setFrontFace([gfxRastState]() { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
 
-  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]()
-                     {
+  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]() {
     switch(polygonMode)
     {
       case PolygonMode::FILL:
@@ -533,8 +650,7 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
     }
     return vk::PolygonMode{}; }());
 
-  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits
-                  {
+  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits {
     switch(cullMode)
     {
       case CullMode::NONE:
@@ -599,8 +715,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 {
   auto in = mCreateInfo.colorBlendState;
 
-  auto ConvLogicOp = [](LogicOp in)
-  {
+  auto ConvLogicOp = [](LogicOp in) {
     switch(in)
     {
       case LogicOp::CLEAR:
@@ -671,8 +786,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::LogicOp{};
   };
 
-  auto ConvBlendOp = [](BlendOp in)
-  {
+  auto ConvBlendOp = [](BlendOp in) {
     switch(in)
     {
       case BlendOp::ADD:
@@ -759,8 +873,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::BlendOp{};
   };
 
-  auto ConvBlendFactor = [](BlendFactor in)
-  {
+  auto ConvBlendFactor = [](BlendFactor in) {
     switch(in)
     {
       case BlendFactor::ZERO:

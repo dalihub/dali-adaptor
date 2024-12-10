@@ -22,6 +22,9 @@
 #include <dali/integration-api/ordered-set.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
+#include <cstdint>
+#include <memory>
+
 namespace Dali
 {
 namespace Internal::Adaptor
@@ -37,37 +40,21 @@ namespace GLES
 {
 class Context;
 
-struct AgingSyncObject
-{
-  AgingSyncObject(Graphics::EglGraphicsController& controller, const Context* writeContext, bool egl = false);
-  ~AgingSyncObject();
-
-  EglGraphicsController& controller;
-  const Context*         writeContext;
-  union
-  {
-    GLsync                            glSyncObject;
-    Internal::Adaptor::EglSyncObject* eglSyncObject;
-  };
-  uint8_t age{2};
-  bool    syncing{false};
-  bool    egl{false};
-
-  bool IsSynced();
-  void Wait();
-  bool ClientWait();
-};
-using AgingSyncPtrRef = std::unique_ptr<AgingSyncObject>&;
-
 /**
  * A vector of current fence syncs. They only age if glWaitSync is called on them in the
  * same frame they are created, otherwise they are deleted.
  * They must be created in the writeContext, but can be synced from a readContext.
- * (Pool per context? - probably only ever used in resource context!)
+ *
+ * To match the created context and destroy context, we use discarded sync objects queue per each context.
+ * After when we can assume that eglMakeCurrent called, we can safely discard the sync objects.
+ *
+ * @note Before destroy the context, we should call InvalidateContext(), to ensure release memories.
  */
 class SyncPool
 {
 public:
+  using SyncObjectId = uint32_t;
+
   enum class SyncContext
   {
     EGL, ///< Use EGL sync when syncing between multiple contexts
@@ -84,35 +71,35 @@ public:
   /**
    * Allocate a sync object in the writeContext
    * @param writeContext
-   * @return An owned ptr to a sync object
+   * @return An unique id to a sync object
    */
-  AgingSyncObject* AllocateSyncObject(const Context* writeContext, SyncContext syncContext);
+  SyncObjectId AllocateSyncObject(const Context* writeContext, SyncContext syncContext);
 
   /**
    * Check whether given object is synced in the CPU
-   * @param syncPoolObject The object to check synced.
+   * @param syncPoolObjectId The id of object to check synced.
    * @return true if the sync object was signaled, false if it timed out
    */
-  bool IsSynced(AgingSyncObject* syncPoolObject);
+  bool IsSynced(SyncObjectId syncPoolObjectId);
 
   /**
    * Wait on a sync object in any context in the GPU
-   * @param syncPoolObject The object to wait on.
+   * @param syncPoolObjectId The id of object to wait on.
    */
-  void Wait(AgingSyncObject* syncPoolObject);
+  void Wait(SyncObjectId syncPoolObjectId);
 
   /**
    * Wait on a sync object in any context in the CPU
-   * @param syncPoolObject The object to wait on.
+   * @param syncPoolObjectId The id of object to wait on.
    * @return true if the sync object was signaled, false if it timed out
    */
-  bool ClientWait(AgingSyncObject* syncPoolObject);
+  bool ClientWait(SyncObjectId syncPoolObjectId);
 
   /**
    * Delete the sync object if it's not needed.
-   * @param syncPoolObject The object to delete.
+   * @param syncPoolObjectId The id of object to delete.
    */
-  void FreeSyncObject(AgingSyncObject* syncPoolObject);
+  void FreeSyncObject(SyncObjectId syncPoolObjectId);
 
   /**
    * Age outstanding sync objects. Call at the end of each frame.
@@ -120,9 +107,68 @@ public:
    */
   void AgeSyncObjects();
 
+public: /// Contexts relative API
+  /**
+   * Delete all sync objects that were created by given context.
+   *
+   * @param[in] currentContext The current context which will delete its sync objects.
+   */
+  void ProcessDiscardSyncObjects(const Context* currentContext);
+
+  /**
+   * Notify that given context will be destroyed soon.
+   * Let we remove all sync objects created by given context.
+   * @param invalidatedContext The context which will be called eglDestroyContext soon.
+   */
+  void InvalidateContext(const Context* invalidatedContext);
+
 private:
-  Dali::Integration::OrderedSet<AgingSyncObject> mSyncObjects; ///< The list of sync objects in this pool (owned)
-  EglGraphicsController&                         mController;
+  struct AgingSyncObject
+  {
+    AgingSyncObject(Graphics::EglGraphicsController& controller, const Context* writeContext, bool egl = false);
+    ~AgingSyncObject();
+
+    EglGraphicsController& controller;
+    const Context*         writeContext;
+    union
+    {
+      GLsync                            glSyncObject;
+      Internal::Adaptor::EglSyncObject* eglSyncObject;
+    };
+    uint8_t age{2};
+    bool    syncing{false};
+    bool    egl{false};
+
+    bool IsSynced();
+    void Wait();
+    bool ClientWait();
+  };
+
+private:
+  /**
+   * Discard a sync object that was created by given context.
+   * @param currentContext The current context which will delete its sync object.
+   * @param agingSyncObject The sync object to delete.
+   */
+  void DiscardAgingSyncObject(std::unique_ptr<AgingSyncObject>&& agingSyncObject);
+
+  /**
+   * Get aging sync object from the container
+   * @param syncPoolObjectId The id of object to get.
+   * @return pointer to the aging sync object
+   */
+  AgingSyncObject* GetAgingSyncObject(SyncObjectId syncPoolObjectId) const;
+
+private:
+  using SyncObjectContainer = std::unordered_map<SyncObjectId, std::unique_ptr<AgingSyncObject>>;
+  SyncObjectContainer mSyncObjects; ///< The list of sync objects in this pool (owned)
+
+  using DiscardedSyncObjectContainer = std::unordered_map<const Context*, std::vector<std::unique_ptr<AgingSyncObject>>>;
+  DiscardedSyncObjectContainer mDiscardSyncObjects; ///< The list of discarded sync objects per each context
+
+  EglGraphicsController& mController;
+
+  SyncObjectId mSyncObjectId{0u};
 };
 
 } // namespace GLES

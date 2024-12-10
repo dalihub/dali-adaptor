@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/map-wrapper.h>
 #include <dali/graphics-api/graphics-controller.h>
+#include <memory>
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
@@ -840,6 +841,15 @@ public:
   uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;
 
 private:
+  /**
+   * Get the surface context
+   *
+   * @param[in] surface The surface whose context to want get context.
+   * @return valid context or null if not found.
+   */
+  GLES::Context* GetSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) const;
+
+private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
 
@@ -886,8 +896,9 @@ private:
   void* mSharedContext{nullptr}; ///< Shared EGL context
 
   GLES::TextureDependencyChecker mTextureDependencyChecker; // Checks if FBO textures need syncing
-  GLES::SyncPool                 mSyncPool;
-  std::size_t                    mCapacity{0u}; ///< Memory Usage (of command buffers)
+
+  GLES::SyncPool mSyncPool;
+  std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
 
 } // namespace Graphics

@@ -268,7 +268,8 @@ struct Context::Impl
   std::unordered_map<const GLES::ProgramImpl*, std::map<std::size_t, uint32_t>> mProgramVAOMap;              ///< GL program-VAO map
   uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
   GLStateCache                                                                  mGlStateCache{};             ///< GL status cache
-  std::vector<Dali::GLuint>                                                     mDiscardedVAOList{};
+
+  std::vector<Dali::GLuint> mDiscardedVAOList{};
 
   bool mGlContextCreated{false};    ///< True if the OpenGL context has been created
   bool mVertexBuffersChanged{true}; ///< True if BindVertexBuffers changed any buffer bindings
@@ -943,7 +944,6 @@ void Context::ReadPixels(uint8_t* buffer)
     }
   }
 }
-
 
 void Context::ClearState()
 {

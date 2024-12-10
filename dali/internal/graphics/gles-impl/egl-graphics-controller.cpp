@@ -304,6 +304,11 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
+
+    // Delete discarded surface context sync objects.
+    // NOTE : We can assume that surface context is become current now.
+    //        And also can asusme that ResolvePresentRenderTarget() will be called at most 1 times per each frame.
+    mSyncPool.ProcessDiscardSyncObjects(GetSurfaceContext(surfaceInterface));
   }
 }
 
@@ -311,6 +316,10 @@ void EglGraphicsController::PostRender()
 {
   mTextureDependencyChecker.Reset();
   mSyncPool.AgeSyncObjects();
+
+  // Delete discarded resource context sync objects.
+  // NOTE : We can assume that current context is resource context now.
+  mSyncPool.ProcessDiscardSyncObjects(mCurrentContext);
 }
 
 Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
@@ -460,9 +469,30 @@ void EglGraphicsController::CreateSurfaceContext(Dali::Integration::RenderSurfac
 
 void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
-  mSurfaceContexts.erase(std::remove_if(
-                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
-                         mSurfaceContexts.end());
+  auto       iter       = mSurfaceContexts.begin();
+  auto       newEndIter = mSurfaceContexts.begin();
+  const auto endIter    = mSurfaceContexts.end();
+  for(; iter != endIter; ++iter)
+  {
+    if(iter->first != surface)
+    {
+      if(newEndIter != iter)
+      {
+        *newEndIter = std::move(*iter);
+      }
+      newEndIter++;
+      continue;
+    }
+    else
+    {
+      // Mark as given context will be deleted soon.
+      // It will make sync object id that created by given context
+      // become invalidated.
+      mSyncPool.InvalidateContext(iter->second.get());
+    }
+  }
+
+  mSurfaceContexts.erase(newEndIter, endIter);
 }
 
 void EglGraphicsController::ActivateResourceContext()
@@ -483,14 +513,28 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::Integration::RenderSurf
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return (iter.first == surface); });
+    auto* context = GetSurfaceContext(surface);
 
-    if(iter != mSurfaceContexts.end())
+    if(context)
     {
-      mCurrentContext = iter->second.get();
+      mCurrentContext = context;
       mCurrentContext->GlContextCreated();
     }
   }
+}
+
+GLES::Context* EglGraphicsController::GetSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) const
+{
+  if(DALI_LIKELY(surface))
+  {
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& iter) { return (iter.first == surface); });
+
+    if(iter != mSurfaceContexts.end())
+    {
+      return iter->second.get();
+    }
+  }
+  return nullptr;
 }
 
 void EglGraphicsController::AddTexture(GLES::Texture& texture)

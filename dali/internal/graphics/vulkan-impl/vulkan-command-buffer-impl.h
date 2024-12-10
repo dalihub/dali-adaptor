@@ -121,6 +121,8 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable);
   void SetDepthCompareOp(vk::CompareOp compareOp);
 
+  void ResolveDeferredPipelineBinding();
+
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
@@ -184,6 +186,16 @@ private:
   vk::CommandBufferAllocateInfo       mAllocateInfo{};
   std::vector<DeferredTextureBinding> mDeferredTextureBindings;
   std::vector<DeferredUniformBinding> mDeferredUniformBindings;
+
+  // Deferred pipeline to bind if dynamic states not supported
+  Vulkan::Pipeline* mDeferredPipelineToBind;
+
+  // Dynamic depth/stencil states for deferred pipeline binding if API < 1.3
+  // TODO: check API version
+  vk::PipelineDepthStencilStateCreateInfo mDepthStencilState{};
+  vk::StencilOpState                      mStencilTestStates[3]; /// 0 - unused, we can avoid branching
+  vk::StencilOpState&                     mStencilTestFrontState{mStencilTestStates[1]};
+  vk::StencilOpState&                     mStencilTestBackState{mStencilTestStates[2]};
 
   vk::CommandBuffer mCommandBuffer{};
 
