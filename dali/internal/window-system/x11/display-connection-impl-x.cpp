@@ -18,14 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/window-system/x11/display-connection-impl-x.h>
 
-// EXTERNAL_HEADERS
-
-// INTERNAL HEADERS
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/x11/display-connection-native-types.h>
 #include <dali/internal/window-system/x11/window-system-x.h>
-
-#if !defined(VULKAN_ENABLED)
-#include <dali/internal/graphics/common/egl-include.h>
-#endif
 
 namespace Dali::Internal::Adaptor
 {
@@ -43,11 +38,7 @@ Any DisplayConnectionX11::GetDisplay()
 
 Any DisplayConnectionX11::GetNativeGraphicsDisplay()
 {
-#if defined(VULKAN_ENABLED)
-  return {nullptr};
-#else
-  return {static_cast<EGLNativeDisplayType>(mDisplay)};
-#endif
+  return CastToNativeGraphicsType(mDisplay);
 }
 
 void DisplayConnectionX11::ConsumeEvents()

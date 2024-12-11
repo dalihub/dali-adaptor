@@ -19,23 +19,15 @@
 #include <dali/internal/window-system/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.h>
 
 // INTERNAL HEADERS
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#if(!VULKAN_ENABLED)
-#include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
-#else
-#include <dali/integration-api/adaptor-framework/native-render-surface.h>
-#endif
 
 // EXTERNAL INCLUDES
 #include <memory>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
@@ -49,11 +41,7 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreWl2::CreatePixmapR
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
-#if(!VULKAN_ENABLED)
-  return Utils::MakeUnique<NativeRenderSurfaceEcoreWl>(surfaceSize, surface, isTransparent);
-#else
   return nullptr;
-#endif
 }
 
 // this should be created from somewhere
@@ -63,6 +51,4 @@ std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
   return Utils::MakeUnique<RenderSurfaceFactoryEcoreWl2>();
 }
 
-} // namespace Adaptor
-} // namespace Internal
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

@@ -22,10 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
-#if !defined(VULKAN_ENABLED)
 #include <dali/internal/graphics/common/egl-include.h>
-#endif
 
 namespace Dali
 {
@@ -55,11 +52,7 @@ Any DisplayConnectionWin::GetDisplay()
 
 Any DisplayConnectionWin::GetNativeGraphicsDisplay()
 {
-#if defined(VULKAN_ENABLED)
-  return {nullptr};
-#else
   return {eglGetDisplay(mDisplay)};
-#endif
 }
 
 void DisplayConnectionWin::ConsumeEvents()

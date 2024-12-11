@@ -56,6 +56,7 @@ IF( ENABLE_VULKAN )
     ${adaptor_graphics_vulkan_wayland_src_files}
     ${adaptor_imaging_tizen_vulkan_src_files}
     ${adaptor_libraries_spirv_reflect_src_files}
+    ${adaptor_window_system_tizen_wayland_vulkan_src_files}
   )
 ELSE()
   SET(SOURCES ${SOURCES}
@@ -79,16 +80,6 @@ ENDIF()
 IF( NOT thorvg_support)
     SET( SOURCES ${SOURCES}
         ${static_libraries_nanosvg_src_files}
-    )
-ENDIF()
-
-IF( enable_ecore_wayland2 )
-    SET( SOURCES ${SOURCES}
-        ${adaptor_window_system_ecore_wl2_src_files}
-    )
-ELSE()
-    SET( SOURCES ${SOURCES}
-        ${adaptor_window_system_ecore_wl_src_files}
     )
 ENDIF()
 

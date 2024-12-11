@@ -15,21 +15,15 @@
  *
  */
 
-#include <dali/internal/window-system/x11/display-connection-factory-x.h>
-#include <dali/internal/window-system/x11/display-connection-impl-x.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 
-namespace Dali::Internal::Adaptor
+namespace Dali::Graphics
 {
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
+std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
 {
-  return Utils::MakeUnique<DisplayConnectionX11>();
+  // Just create a dummy implementation as we do not use this in EGL
+  auto surfaceFactory = std::unique_ptr<SurfaceFactory>(new SurfaceFactory());
+  return surfaceFactory;
 }
 
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
-{
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryX>();
-}
-
-} // namespace Dali::Internal::Adaptor
+} // namespace Dali::Graphics

@@ -30,20 +30,12 @@ namespace Adaptor
 {
 std::unique_ptr<NativeImageSource> NativeImageSourceFactoryX::CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-#if !defined(VULKAN_ENABLED)
   return std::unique_ptr<NativeImageSource>(NativeImageSourceX::New(width, height, depth, nativeImageSource));
-#else
-  return nullptr;
-#endif
 }
 
 std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryX::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-#if !defined(VULKAN_ENABLED)
   return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueX::New(queueCount, width, height, colorFormat, nativeImageSourceQueue));
-#else
-  return nullptr;
-#endif
 }
 
 // this should be created from somewhere

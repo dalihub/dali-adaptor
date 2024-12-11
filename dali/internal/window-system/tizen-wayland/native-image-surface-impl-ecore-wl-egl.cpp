@@ -16,19 +16,16 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl-egl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <system_info.h>
 
 // INTERNAL INCLUDES
-#if(!VULKAN_ENABLED)
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
-#endif
-
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
@@ -76,11 +73,9 @@ inline bool IsColorDepth32Required(const tbm_format format)
 NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueuePtr queue)
 : mDisplayConnection(nullptr),
   mGraphics(nullptr),
-#if(!VULKAN_ENABLED)
   mEGL(nullptr),
   mEGLSurface(nullptr),
   mEGLContext(nullptr),
-#endif
   mColorDepth(COLOR_DEPTH_32),
   mTbmFormat(0u),
   mTbmQueue(nullptr),
@@ -128,7 +123,6 @@ Any NativeImageSurfaceEcoreWl::GetNativeRenderable()
 
 void NativeImageSurfaceEcoreWl::InitializeGraphics()
 {
-#if(!VULKAN_ENABLED)
   std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(*(new EnvironmentOptions()));
   auto                             graphicsFactory    = *graphicsFactoryPtr.get();
 
@@ -163,12 +157,10 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
 
     MakeContextCurrent();
   }
-#endif
 }
 
 void NativeImageSurfaceEcoreWl::TerminateGraphics()
 {
-#if(!VULKAN_ENABLED)
   auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
@@ -182,19 +174,15 @@ void NativeImageSurfaceEcoreWl::TerminateGraphics()
   {
     eglImpl.DestroyContext(mEGLContext);
   }
-#endif
 }
 
 void NativeImageSurfaceEcoreWl::PreRender()
 {
-#if(!VULKAN_ENABLED)
   MakeContextCurrent();
-#endif
 }
 
 void NativeImageSurfaceEcoreWl::PostRender()
 {
-#if(!VULKAN_ENABLED)
   auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
   if(eglGraphics)
@@ -202,12 +190,10 @@ void NativeImageSurfaceEcoreWl::PostRender()
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     eglImpl.SwapBuffers(mEGLSurface);
   }
-#endif
 }
 
 void NativeImageSurfaceEcoreWl::MakeContextCurrent()
 {
-#if(!VULKAN_ENABLED)
   if(mEGL != nullptr)
   {
     if(mEGLSurface && mEGLContext)
@@ -219,7 +205,6 @@ void NativeImageSurfaceEcoreWl::MakeContextCurrent()
       DALI_LOG_ERROR("EGLSurface(%p) or mEGLContext(%p) is null\n", mEGLSurface, mEGLContext);
     }
   }
-#endif
 }
 
 bool NativeImageSurfaceEcoreWl::CanRender()

@@ -18,13 +18,11 @@
 // CLASS HEADER
 #include <dali/internal/window-system/ubuntu-x11/display-connection-impl-x.h>
 
-// EXTERNAL_HEADERS
+// EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL HEADERS
-#if !defined(VULKAN_ENABLED)
-#include <dali/internal/graphics/common/egl-include.h>
-#endif
+#include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 
 namespace Dali
 {
@@ -32,13 +30,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-DisplayConnection* DisplayConnectionX11::New()
-{
-  return nullptr;
-  DisplayConnection* pDisplayConnection(new DisplayConnectionX11());
-  return pDisplayConnection;
-}
-
 DisplayConnectionX11::DisplayConnectionX11()
 : mDisplay(nullptr)
 {
@@ -59,11 +50,7 @@ Any DisplayConnectionX11::GetDisplay()
 
 Any DisplayConnectionX11::GetNativeGraphicsDisplay()
 {
-#if defined(VULKAN_ENABLED)
-  return {nullptr};
-#else
-  return {static_cast<EGLNativeDisplayType>(mDisplay)};
-#endif
+  return CastToNativeGraphicsType(mDisplay);
 }
 
 void DisplayConnectionX11::ConsumeEvents()

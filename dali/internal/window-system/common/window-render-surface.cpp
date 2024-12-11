@@ -329,10 +329,7 @@ void WindowRenderSurface::CreateSurface()
     height = mPositionSize.width;
   }
 
-  std::unique_ptr<Graphics::SurfaceFactory> surfaceFactory = nullptr;
-#if defined(VULKAN_ENABLED)
-  surfaceFactory = Graphics::SurfaceFactory::New(*this);
-#endif
+  std::unique_ptr<Graphics::SurfaceFactory> surfaceFactory = Graphics::SurfaceFactory::New(*this);
 
   mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height);
 
@@ -897,9 +894,8 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
-#if defined(VULKAN_ENABLED)
-  //@todo Implement me (or rather, do this quite differently!!!!)
-#else
+  // @todo Need to do this differently as Vulkan does not need this; it's only required for GLES
+
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
      mFullSwapNextFrame)
   {
@@ -927,7 +923,6 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
   {
     mGraphics->SwapBuffers(mSurfaceId, damagedRects);
   }
-#endif
 }
 
 void WindowRenderSurface::SetFrontBufferRendering(bool enable)

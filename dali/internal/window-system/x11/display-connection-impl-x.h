@@ -39,13 +39,6 @@ public:
    */
   DisplayConnectionX11();
 
-  /**
-   * @brief Create an initialized DisplayConnection.
-   *
-   * @return A handle to a newly allocated DisplayConnection resource.
-   */
-  static DisplayConnection* New();
-
 public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay

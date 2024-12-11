@@ -22,9 +22,6 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#if !defined(VULKAN_ENABLED)
-#include <dali/integration-api/adaptor-framework/egl-interface.h>
-#endif
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
