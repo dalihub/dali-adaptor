@@ -68,7 +68,12 @@ struct NativeRenderSurfaceDisplayHolder
     mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
     if(mBufMgr)
     {
+#ifdef VULKAN_ENABLED
+      // TODO: Fix this call for Vulkan
+      mDisplay = tbm_dummy_display_create();
+#else
       mDisplay = reinterpret_cast<NativeDisplayType>(tbm_dummy_display_create());
+#endif
     }
   }
   void Destroy()
@@ -77,7 +82,7 @@ struct NativeRenderSurfaceDisplayHolder
     if(!mDisplay.Empty())
     {
       // TODO: Fix this call for Vulkan
-      //tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display>());
+      tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display*>());
     }
 #else
     if(mDisplay)
