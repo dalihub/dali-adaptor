@@ -82,23 +82,6 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
   mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
   if(mCommandBufferImpl)
   {
-    // Check if there is some extra information about used resources
-    // if so then apply optimizations
-    if(info.resourceBindings)
-    {
-      // update programs with descriptor pools
-      for(auto& binding : *info.resourceBindings)
-      {
-        if(binding.type == ResourceType::PROGRAM)
-        {
-          auto programImpl = static_cast<Vulkan::Program*>(binding.programBinding->program)->GetImplementation();
-
-          // Pool index is returned and we may do something with it later (storing it per cmdbuf?)
-          [[maybe_unused]] auto poolIndex = programImpl->AddDescriptorPool(binding.programBinding->count, 3); // add new pool, limit pools to 3 per program
-        }
-      }
-    }
-
     vk::CommandBufferInheritanceInfo inheritanceInfo{};
     if(info.renderPass)
     {

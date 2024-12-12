@@ -589,6 +589,24 @@ void VulkanGraphicsController::FrameStart()
   mImpl->AcquireNextFramebuffer();
 }
 
+void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
+{
+  // Check if there is some extra information about used resources
+  // if so then apply optimizations
+
+  // update programs with descriptor pools
+  for(auto& binding : resourceBindings)
+  {
+    if(binding.type == ResourceType::PROGRAM)
+    {
+      auto programImpl = static_cast<Vulkan::Program*>(binding.programBinding->program)->GetImplementation();
+
+      // Pool index is returned and we may do something with it later (storing it per cmdbuf?)
+      [[maybe_unused]] auto poolIndex = programImpl->AddDescriptorPool(binding.programBinding->count, 3); // add new pool, limit pools to 3 per program
+    }
+  }
+}
+
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
   // Figure out where to submit each command buffer.

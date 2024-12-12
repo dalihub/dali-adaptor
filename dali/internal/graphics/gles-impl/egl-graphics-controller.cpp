@@ -227,6 +227,11 @@ void EglGraphicsController::FrameStart()
   mCapacity = 0; // Reset the command buffer capacity at the start of the frame.
 }
 
+void EglGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
+{
+  // Do nothing.
+}
+
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
   for(auto& cmdbuf : submitInfo.cmdBuffer)

@@ -56,6 +56,8 @@ public:
 
   Vulkan::Device& GetGraphicsDevice();
 
+  void SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings) override;
+
   /**
    * @brief Submits array of command buffers
    *
