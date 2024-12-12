@@ -69,7 +69,11 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   switch(level)
   {
     case Dali::Integration::Log::DEBUG:
+#ifdef DALI_PROFILE_TV // TV profile want to print debug level information as INFO level.
+      print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
+#else
       print_log(DLOG_DEBUG, DALI_TAG, "%s", message.c_str());
+#endif
       break;
     case Dali::Integration::Log::INFO:
       print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
