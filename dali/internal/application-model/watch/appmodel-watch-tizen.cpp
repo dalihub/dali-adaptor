@@ -158,11 +158,13 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 #ifdef APPCORE_WATCH_AVAILABLE
   static bool WatchAppCreate(int width, int height, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppCreate() emitted", __MODULE__, __func__, __LINE__);
     return static_cast<FrameworkTizen*>(data)->Create();
   }
 
   static void WatchAppTimeTick(watch_time_h time, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppTimeTick() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     WatchTime            curTime(time);
 
@@ -171,6 +173,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppAmbientTick(watch_time_h time, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppAmbientTick() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     WatchTime            curTime(time);
 
@@ -179,6 +182,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppAmbientChanged(bool ambient, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppAmbientChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
 
     observer->OnAmbientChanged(ambient);
@@ -186,6 +190,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppControl(app_control_h app_control, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppControl() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework  = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer   = &framework->GetObserver();
     bundle*              bundleData = NULL;
@@ -199,6 +204,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppTerminate(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppTerminate() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
 
     observer->OnTerminate();
@@ -206,6 +212,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppPause(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppPause() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
 
     observer->OnPause();
@@ -213,6 +220,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppResume(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WatchAppResume() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
 
     observer->OnResume();
@@ -220,6 +228,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void ProcessBundle(FrameworkTizen* framework, bundle* bundleData)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ProcessBundle() emitted", __MODULE__, __func__, __LINE__);
     if(bundleData == NULL)
     {
       return;
@@ -243,6 +252,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppLanguageChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer  = &framework->GetObserver();
 
@@ -259,6 +269,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppRegionChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRegionChanged() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer  = &framework->GetObserver();
 
@@ -275,6 +286,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppBatteryLow(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppBatteryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*                observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                 status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
@@ -300,6 +312,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppMemoryLow(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppMemoryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
@@ -330,6 +343,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppDeviceOrientationChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*                    observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                     status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;

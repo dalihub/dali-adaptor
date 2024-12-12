@@ -334,6 +334,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
 Adaptor::~Adaptor()
 {
+  DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
@@ -439,6 +440,8 @@ void Adaptor::Start()
   {
     mAddOnManager->Start();
   }
+
+  DALI_LOG_RELEASE_INFO("Adaptor::Start: Started\n");
 }
 
 // Dali::Internal::Adaptor::Adaptor::Pause

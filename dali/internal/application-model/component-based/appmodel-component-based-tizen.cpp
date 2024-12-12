@@ -112,6 +112,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void AppInit(int argc, char** argv, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
     ecore_init();
@@ -127,16 +128,19 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void AppRun(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
     ecore_main_loop_begin();
   }
 
   static void AppExit(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
     ecore_main_loop_quit();
   }
 
   static void* ComponentAppCreate(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppCreate() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer  = &framework->GetObserver();
     observer->OnInit();
@@ -146,12 +150,14 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void ComponentAppTerminate(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppTerminate() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     observer->OnTerminate();
   }
 
   static void ComponentAppFinish(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppFinish() emitted", __MODULE__, __func__, __LINE__);
     ecore_shutdown();
 
     if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))

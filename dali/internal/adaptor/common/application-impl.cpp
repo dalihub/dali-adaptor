@@ -173,6 +173,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
 
 Application::~Application()
 {
+  DALI_LOG_RELEASE_INFO("Application::~Application\n");
   SingletonService service = SingletonService::Get();
   // Note this can be false i.e. if Application has never created a Core instance
   if(service)
@@ -180,7 +181,11 @@ Application::~Application()
     service.UnregisterAll();
   }
 
-  mMainWindow.Reset();
+  if(mMainWindow)
+  {
+    DALI_LOG_RELEASE_INFO("Application terminate not comes. Main window reset now\n");
+    mMainWindow.Reset();
+  }
 
   delete mCommandLineOptions;
 
@@ -312,6 +317,7 @@ void Application::CreateWindow()
   }
 
   mMainWindow = Dali::Window(window);
+  DALI_LOG_RELEASE_INFO("Main window created done\n");
 
   // Quit the application when the window is closed
   GetImplementation(mMainWindow).DeleteRequestSignal().Connect(mSlotDelegate, &Application::Quit);
@@ -344,6 +350,7 @@ void Application::Lower()
 
 void Application::Quit()
 {
+  DALI_LOG_RELEASE_INFO("Application::Quit requested!\n");
   // Actually quit the application.
   // Force a call to Quit even if adaptor is not running.
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &Application::QuitFromMainLoop), false);
@@ -351,16 +358,19 @@ void Application::Quit()
 
 void Application::QuitFromMainLoop()
 {
+  DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   mAdaptor->Stop();
 
   mFramework->Quit();
   // This will trigger OnTerminate(), below, after the main loop has completed.
+  DALI_LOG_RELEASE_INFO("Application::Quit finished\n");
 }
 
 void Application::OnInit()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnInit\n");
   mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
 
   mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
@@ -417,6 +427,7 @@ void Application::OnInit()
 
 void Application::OnTerminate()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTerminate\n");
   // We've been told to quit by AppCore, ecore_x_destroy has been called, need to quit synchronously
   // delete the window as ecore_x has been destroyed by AppCore
 
@@ -429,7 +440,11 @@ void Application::OnTerminate()
     mAdaptor->Stop();
   }
 
-  mMainWindow.Reset(); // This only resets (clears) the default Window
+  if(mMainWindow)
+  {
+    DALI_LOG_RELEASE_INFO("Main window reset at app terminated case\n");
+    mMainWindow.Reset(); // This only resets (clears) the default Window
+  }
 
   // If DALi's UI Thread works, some resources are created in UI Thread, not Main thread.
   // For that case, these resource should be deleted in UI Thread.
@@ -442,6 +457,7 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnPause\n");
   Accessibility::Bridge::GetCurrentBridge()->ApplicationPaused();
 
   // A DALi app should handle Pause/Resume events.
@@ -453,6 +469,7 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnResume\n");
   Accessibility::Bridge::GetCurrentBridge()->ApplicationResumed();
 
   // Emit the signal first so the application can queue any messages before we do an update/render
@@ -470,6 +487,7 @@ void Application::OnResume()
 
 void Application::OnReset()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnReset\n");
   /*
    * usually, reset callback was called when a caller request to launch this application via aul.
    * because Application class already handled initialization in OnInit(), OnReset do nothing.
@@ -480,12 +498,14 @@ void Application::OnReset()
 
 void Application::OnAppControl(void* data)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnAppControl\n");
   Dali::Application application(this);
   mAppControlSignal.Emit(application, data);
 }
 
 void Application::OnLanguageChanged()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnLanguageChanged\n");
   mAdaptor->NotifyLanguageChanged();
   Dali::Application application(this);
   mLanguageChangedSignal.Emit(application);
@@ -493,30 +513,35 @@ void Application::OnLanguageChanged()
 
 void Application::OnRegionChanged()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnRegionChanged\n");
   Dali::Application application(this);
   mRegionChangedSignal.Emit(application);
 }
 
 void Application::OnBatteryLow(Dali::DeviceStatus::Battery::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnBatteryLow\n");
   Dali::Application application(this);
   mLowBatterySignal.Emit(status);
 }
 
 void Application::OnMemoryLow(Dali::DeviceStatus::Memory::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnMemoryLow\n");
   Dali::Application application(this);
   mLowMemorySignal.Emit(status);
 }
 
 void Application::OnDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnDeviceOrientationChanged\n");
   Dali::Application application(this);
   mDeviceOrientationChangedSignal.Emit(status);
 }
 
 void Application::OnSurfaceCreated(Any newSurface)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnSurfaceCreated\n");
   void* newWindow = AnyCast<void*>(newSurface);
   void* oldWindow = AnyCast<void*>(mMainWindow.GetNativeHandle());
   if(oldWindow != newWindow)
@@ -534,48 +559,56 @@ void Application::OnSurfaceDestroyed(Any surface)
 
 void Application::OnTaskInit()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskInit\n");
   Dali::Application application(this);
   mTaskInitSignal.Emit(application);
 }
 
 void Application::OnTaskTerminate()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskTerminate\n");
   Dali::Application application(this);
   mTaskTerminateSignal.Emit(application);
 }
 
 void Application::OnTaskAppControl(void* data)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskAppControl\n");
   Dali::Application application(this);
   mTaskAppControlSignal.Emit(application, data);
 }
 
 void Application::OnTaskLanguageChanged()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskLanguageChanged\n");
   Dali::Application application(this);
   mTaskLanguageChangedSignal.Emit(application);
 }
 
 void Application::OnTaskRegionChanged()
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskRegionChanged\n");
   Dali::Application application(this);
   mTaskRegionChangedSignal.Emit(application);
 }
 
 void Application::OnTaskBatteryLow(Dali::DeviceStatus::Battery::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskBatteryLow\n");
   Dali::Application application(this);
   mTaskLowBatterySignal.Emit(status);
 }
 
 void Application::OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskMemoryLow\n");
   Dali::Application application(this);
   mTaskLowMemorySignal.Emit(status);
 }
 
 void Application::OnTaskDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
 {
+  DALI_LOG_RELEASE_INFO("Application::OnTaskDeviceOrientationChanged\n");
   Dali::Application application(this);
   mTaskDeviceOrientationChangedSignal.Emit(status);
 }
