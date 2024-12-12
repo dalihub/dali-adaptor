@@ -44,6 +44,7 @@ TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Option
   mFileDescriptor = eventfd(0, EFD_NONBLOCK);
   if(mFileDescriptor >= 0)
   {
+    DALI_LOG_DEBUG_INFO("Create eventfd:%d\n", mFileDescriptor);
     // Now Monitor the created event file descriptor
     mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
   }
@@ -59,6 +60,7 @@ TriggerEvent::~TriggerEvent()
 
   if(mFileDescriptor >= 0)
   {
+    DALI_LOG_DEBUG_INFO("Close eventfd:%d\n", mFileDescriptor);
     close(mFileDescriptor);
     mFileDescriptor = 0;
   }
@@ -68,6 +70,7 @@ void TriggerEvent::Trigger()
 {
   if(mFileDescriptor >= 0)
   {
+    DALI_LOG_DEBUG_INFO("Trigger fd:%d\n", mFileDescriptor);
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
@@ -88,6 +91,7 @@ void TriggerEvent::Trigger()
 
 void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
+  DALI_LOG_DEBUG_INFO("Triggered fd:%d, mask:%x\n", mFileDescriptor, eventBitMask);
   if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
     DALI_ASSERT_ALWAYS(0 && "Trigger event file descriptor error");
