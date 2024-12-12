@@ -195,17 +195,20 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   void AppExit()
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
     widget_base_exit();
   }
 
   static int WidgetAppCreate(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WidgetAppCreate() emitted", __MODULE__, __func__, __LINE__);
     widget_base_on_create();
     return static_cast<int>(static_cast<FrameworkTizen*>(data)->Create());
   }
 
   static int WidgetAppTerminate(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WidgetAppTerminate() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     observer->OnTerminate();
 
@@ -215,6 +218,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppInit(int argc, char** argv, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
     ecore_init();
@@ -230,6 +234,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppFinish(void)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppFinish() emitted", __MODULE__, __func__, __LINE__);
     ecore_shutdown();
 
     if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
@@ -247,16 +252,19 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppRun(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
     ecore_main_loop_begin();
   }
 
   static void AppExit(void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
     ecore_main_loop_quit();
   }
 
   static void AppLanguageChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer  = &framework->GetObserver();
 
@@ -273,6 +281,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppRegionChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRegionChanged() emitted", __MODULE__, __func__, __LINE__);
     FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
     Framework::Observer* observer  = &framework->GetObserver();
 
@@ -289,6 +298,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppBatteryLow(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppBatteryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*                observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                 status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
@@ -314,6 +324,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppMemoryLow(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppMemoryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
@@ -344,6 +355,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppDeviceOrientationChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer*                    observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                     status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
