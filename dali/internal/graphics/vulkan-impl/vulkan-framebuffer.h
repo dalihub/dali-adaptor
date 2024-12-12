@@ -19,6 +19,7 @@
  */
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 
 #include <dali/graphics-api/graphics-framebuffer-create-info.h>
 #include <dali/graphics-api/graphics-framebuffer.h>
@@ -80,7 +81,8 @@ public:
   }
 
 private:
-  FramebufferImpl* mFramebufferImpl;
+  FramebufferImpl*              mFramebufferImpl;
+  std::vector<RenderPassHandle> mRenderPasses;
 };
 
 } // namespace Vulkan

@@ -33,37 +33,44 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-FramebufferAttachment* FramebufferAttachment::NewColorAttachment(std::unique_ptr<ImageView>& imageView,
-                                                                 vk::ClearColorValue         clearColorValue,
-                                                                 bool                        presentable)
+FramebufferAttachment* FramebufferAttachment::NewColorAttachment(
+  std::unique_ptr<ImageView>&            imageView,
+  vk::ClearColorValue                    clearColorValue,
+  const Graphics::AttachmentDescription* description,
+  bool                                   presentable)
 {
   assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eColorAttachment);
 
   auto attachment = new FramebufferAttachment(imageView,
                                               clearColorValue,
+                                              description,
                                               AttachmentType::COLOR,
                                               presentable);
   return attachment;
 }
 
 FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
-  std::unique_ptr<ImageView>& imageView,
-  vk::ClearDepthStencilValue  clearDepthStencilValue)
+  std::unique_ptr<ImageView>&            imageView,
+  vk::ClearDepthStencilValue             clearDepthStencilValue,
+  const Graphics::AttachmentDescription* description)
 {
   assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
   auto attachment = new FramebufferAttachment(imageView,
                                               clearDepthStencilValue,
+                                              description,
                                               AttachmentType::DEPTH_STENCIL,
                                               false /* presentable */);
 
   return attachment;
 }
 
-FramebufferAttachment::FramebufferAttachment(std::unique_ptr<ImageView>& imageView,
-                                             vk::ClearValue              clearColor,
-                                             AttachmentType              type,
-                                             bool                        presentable)
+FramebufferAttachment::FramebufferAttachment(
+  std::unique_ptr<ImageView>&            imageView,
+  vk::ClearValue                         clearColor,
+  const Graphics::AttachmentDescription* description,
+  AttachmentType                         type,
+  bool                                   presentable)
 : mClearValue(clearColor),
   mType(type)
 {
@@ -73,13 +80,22 @@ FramebufferAttachment::FramebufferAttachment(std::unique_ptr<ImageView>& imageVi
   auto sampleCountFlags = image->GetSampleCount();
 
   mDescription.setSamples(sampleCountFlags);
-
-  mDescription.setLoadOp(vk::AttachmentLoadOp::eClear);
-  mDescription.setStoreOp(vk::AttachmentStoreOp::eStore);
-  mDescription.setStencilLoadOp(vk::AttachmentLoadOp::eClear);
-  mDescription.setStencilStoreOp(vk::AttachmentStoreOp::eStore);
   mDescription.setFormat(image->GetFormat());
   mDescription.setInitialLayout(vk::ImageLayout::eUndefined);
+  if(description == nullptr)
+  {
+    mDescription.setLoadOp(vk::AttachmentLoadOp::eClear);
+    mDescription.setStoreOp(vk::AttachmentStoreOp::eStore);
+    mDescription.setStencilLoadOp(vk::AttachmentLoadOp::eClear);
+    mDescription.setStencilStoreOp(vk::AttachmentStoreOp::eStore);
+  }
+  else
+  {
+    mDescription.setLoadOp(VkLoadOpType(description->loadOp).loadOp);
+    mDescription.setStoreOp(VkStoreOpType(description->storeOp).storeOp);
+    mDescription.setStencilLoadOp(VkLoadOpType(description->stencilLoadOp).loadOp);
+    mDescription.setStencilStoreOp(VkStoreOpType(description->stencilStoreOp).storeOp);
+  }
 
   if(type == AttachmentType::DEPTH_STENCIL)
   {
@@ -366,7 +382,6 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
       if(createInfo.attachmentDescriptions[0].loadOp == VkLoadOpType(matchLoadOp).loadOp &&
          createInfo.attachmentDescriptions[0].storeOp == VkStoreOpType(matchStoreOp).storeOp)
       {
-        // Point at passed in render pass... should be a weak ptr... What's lifecycle?!
         element.renderPass = renderPass;
         return element.renderPassImpl;
       }
@@ -374,16 +389,26 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
   }
 
   // @todo create new render pass from existing + load/store op, add it to mRenderPasses, and return it.
-  // @todo Need to reconsider swapchain/fbo/renderpass creation model.
-  // This framebuffer may belong to a swapchain, in which case, there are multiple framebuffers
-  // that could share render passes.
-  // A) Need to detect this situation - keep owner info?
-  // B) Sharing render passes means we
-  //    1) need to ref-count to ensure safe ownership, or
-  //    2) move ownership of renderpass to swapchain.
-  //       Onus is on client to determine which interface to use, if it's a surface, use swapchain;
-  //       if it's an offscreen, use framebuffer. (Kinda need a core interface to wrap surface/offscreen)
+
   return mRenderPasses[0].renderPassImpl;
+}
+
+void FramebufferImpl::AddRenderPass(RenderPass* renderPass, Vulkan::RenderPassHandle renderPassImpl)
+{
+  bool found = false;
+  for(auto& element : mRenderPasses)
+  {
+    if(element.renderPassImpl == renderPassImpl && !element.renderPass)
+    {
+      element.renderPass = renderPass; // Update existing element with matched objects
+      found              = true;
+      break;
+    }
+  }
+  if(!found)
+  {
+    mRenderPasses.emplace_back(RenderPassMapElement{renderPass, renderPassImpl});
+  }
 }
 
 vk::Framebuffer FramebufferImpl::GetVkHandle() const
@@ -395,7 +420,6 @@ std::vector<vk::ClearValue> FramebufferImpl::GetClearValues() const
 {
   auto result = std::vector<vk::ClearValue>{};
 
-  // @todo & color clear enabled / depth clear enabled
   for(auto& attachment : mAttachments)
   {
     result.emplace_back(attachment->GetClearValue());

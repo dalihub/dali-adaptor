@@ -395,7 +395,7 @@ void PipelineImpl::InitializePipeline()
 
     if(gfxPipelineInfo.pColorBlendState)
     {
-      auto attachmentCount = impl->GetAttachments().size();
+      auto attachmentCount = impl->GetAttachmentCount();
       if(impl->HasDepthAttachment())
       {
         attachmentCount--;

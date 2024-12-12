@@ -29,6 +29,7 @@ namespace Dali::Graphics::Vulkan
 {
 class Framebuffer;
 class Surface;
+class CommandBuffer;
 
 using RenderTargetResource = Resource<Graphics::RenderTarget, Graphics::RenderTargetCreateInfo>;
 
@@ -100,6 +101,32 @@ public:
    * @return a matching render pass implementation from the current framebuffer
    */
   [[nodiscard]] Vulkan::RenderPassHandle GetRenderPass(const Graphics::RenderPass* renderPass) const;
+  /**
+   * Submit the command buffer to the graphics queue using the right sync.
+   */
+  void Submit(const CommandBuffer* commandBuffer);
+
+  void ResetDependencies()
+  {
+    mDependencies.clear();
+  }
+
+  void AddDependency(RenderTarget* dependency)
+  {
+    mDependencies.push_back(dependency);
+  }
+  void RemoveDependency(RenderTarget* dependency)
+  {
+    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
+    if(iter != mDependencies.end())
+    {
+      mDependencies.erase(iter);
+    }
+  }
+
+private:
+  vk::Semaphore              mSubmitSemaphore; ///< Signaled when the command buffer for this target is processed
+  std::vector<RenderTarget*> mDependencies;    ///< Render targets whose output is used as input to this task.
 };
 
 } // namespace Dali::Graphics::Vulkan

@@ -253,6 +253,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
     SharedAttachments attachments;
     attachments.emplace_back(FramebufferAttachment::NewColorAttachment(colorImageView,
                                                                        clearColor,
+                                                                       nullptr,
                                                                        true));
 
     std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)> framebuffer(
@@ -376,16 +377,12 @@ void Swapchain::Submit(CommandBufferImpl* commandBuffer)
 
   swapchainBuffer->endOfFrameFence->Reset();
 
-  // @todo Should we allow multiple submits per swapchain per frame?
-  // If so, should change the fence, or at least wait for the fence
-  // prior to the reset above.
-  mGraphicsDevice.Submit(*mQueue,
-                         {Vulkan::SubmissionData{
-                           {swapchainBuffer->acquireNextImageSemaphore},
-                           {vk::PipelineStageFlagBits::eFragmentShader},
-                           {commandBuffer},
-                           {swapchainBuffer->submitSemaphore}}},
-                         swapchainBuffer->endOfFrameFence.get());
+  mQueue->Submit({Vulkan::SubmissionData{
+                   {swapchainBuffer->acquireNextImageSemaphore},
+                   {vk::PipelineStageFlagBits::eFragmentShader},
+                   {commandBuffer},
+                   {swapchainBuffer->submitSemaphore}}},
+                 swapchainBuffer->endOfFrameFence.get());
 }
 
 void Swapchain::Present()
@@ -465,7 +462,7 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
     auto depthClearValue       = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
     // A single depth attachment for the swapchain. Takes ownership of the image view
-    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue));
+    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue, nullptr));
   }
 
   // Before replacing framebuffers in the swapchain, wait until all is done

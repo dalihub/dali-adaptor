@@ -1294,6 +1294,17 @@ void Texture::InitializeImageView()
   }
 }
 
+std::unique_ptr<Vulkan::ImageView> Texture::CreateImageView()
+{
+  if(!mImageView)
+  {
+    // Ensure we have initialized the image:
+    InitializeImageView();
+  }
+  std::unique_ptr<Vulkan::ImageView> imageView(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping));
+  return imageView;
+}
+
 Vulkan::Image* Texture::GetImage() const
 {
   return mImage;

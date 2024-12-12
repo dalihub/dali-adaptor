@@ -70,7 +70,7 @@ public:
 
   vk::Result Present(vk::PresentInfoKHR& presentInfo);
 
-  vk::Result Submit(std::vector<vk::SubmitInfo>& info, FenceImpl* fence);
+  vk::Result Submit(const std::vector<SubmissionData>& submissionData, FenceImpl* fence);
 
 private:
   vk::Queue      mQueue;

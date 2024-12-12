@@ -40,6 +40,10 @@ class Buffer;
 class Sampler;
 class Texture;
 
+/**
+ * Class to manage the vulkan graphics backend. This is the main object that clients interact
+ * with to get work done on the GPU.
+ */
 class VulkanGraphicsController : public Graphics::Controller, public Integration::GraphicsConfig
 {
 public:
@@ -431,6 +435,23 @@ public: // ResourceId relative API.
    * @return the clip space transform matrix
    */
   const Matrix& GetClipMatrix() const override;
+
+public: // Other API
+  /**
+   * Adds the render-target's fbo attachments into the dependency graph.
+   */
+  void AddTextureDependencies(RenderTarget* renderTarget);
+
+  /**
+   * Check if any of the textures are fbo attachments and update dependency graph
+   */
+  void CheckTextureDependencies(const std::vector<Graphics::TextureBinding>& textureBindings,
+                                RenderTarget*                                renderTarget);
+
+  /**
+   * Remove the render target from dependency graph
+   */
+  void RemoveRenderTarget(RenderTarget* renderTarget);
 
 public: // For debug
   void FrameStart();
