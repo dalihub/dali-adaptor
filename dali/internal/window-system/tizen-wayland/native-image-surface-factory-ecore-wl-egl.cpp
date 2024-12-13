@@ -15,21 +15,14 @@
  *
  */
 
-#include <dali/internal/window-system/x11/display-connection-factory-x.h>
-#include <dali/internal/window-system/x11/display-connection-impl-x.h>
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/native-image-surface-factory.h>
+#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl-egl.h>
 
 namespace Dali::Internal::Adaptor
 {
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
+std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
 {
-  return Utils::MakeUnique<DisplayConnectionX11>();
+  return std::make_unique<Internal::Adaptor::NativeImageSurfaceEcoreWl>(queue);
 }
-
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
-{
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryX>();
-}
-
 } // namespace Dali::Internal::Adaptor

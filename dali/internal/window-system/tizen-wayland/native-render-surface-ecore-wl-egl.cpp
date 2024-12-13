@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
+#include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl-egl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

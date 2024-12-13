@@ -48,16 +48,11 @@ SET( SOURCES
         ${static_libraries_libunibreak_src_files}
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_dummy_src_files}
+        ${adaptor_public_api_egl_src_files}
+        ${adaptor_devel_api_egl_src_files}
+        ${adaptor_system_common_egl_src_files}
+        ${adaptor_window_system_common_egl_src_files}
 )
-
-IF( NOT ENABLE_VULKAN )
-  SET(SOURCES ${SOURCES}
-    ${adaptor_public_api_egl_src_files}
-    ${adaptor_devel_api_egl_src_files}
-    ${adaptor_system_common_egl_src_files}
-    ${adaptor_window_system_common_egl_src_files}
-  )
-ENDIF()
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}

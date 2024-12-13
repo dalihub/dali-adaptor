@@ -9,6 +9,7 @@ SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
+    ${adaptor_graphics_dir}/gles/egl-surface-factory.cpp
     ${adaptor_graphics_dir}/common/shader-parser.cpp
 )
 

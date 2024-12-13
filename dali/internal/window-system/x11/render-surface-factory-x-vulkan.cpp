@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,13 @@
 // CLASS HEADER
 #include <dali/internal/window-system/x11/render-surface-factory-x.h>
 
-// EXTERNAL HEADERS
-#include <memory>
-
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/x11/pixmap-render-surface-x.h>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryX::CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
@@ -40,12 +33,12 @@ std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryX::CreateWindowRenderSu
 
 std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryX::CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique<PixmapRenderSurfaceX>(positionSize, surface, isTransparent);
+  return nullptr;
 }
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryX::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
-  return std::unique_ptr<NativeRenderSurface>(nullptr);
+  return nullptr;
 }
 
 // this should be created from somewhere
@@ -55,6 +48,4 @@ std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
   return Utils::MakeUnique<RenderSurfaceFactoryX>();
 }
 
-} // namespace Adaptor
-} // namespace Internal
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

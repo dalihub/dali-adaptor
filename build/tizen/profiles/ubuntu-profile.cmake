@@ -54,6 +54,7 @@ IF( ENABLE_VULKAN )
     ${adaptor_graphics_vulkan_x11_src_files}
     ${adaptor_imaging_ubuntu_x11_vulkan_src_files}
     ${adaptor_libraries_spirv_reflect_src_files}
+    ${adaptor_window_system_ubuntu_x11_vulkan_src_files}
     )
 ELSE()
   SET(SOURCES ${SOURCES}

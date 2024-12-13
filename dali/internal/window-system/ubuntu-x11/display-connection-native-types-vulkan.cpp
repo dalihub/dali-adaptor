@@ -15,21 +15,15 @@
  *
  */
 
-#include <dali/internal/window-system/x11/display-connection-factory-x.h>
-#include <dali/internal/window-system/x11/display-connection-impl-x.h>
+// EXTERNAL INCLUDES
+#include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 
 namespace Dali::Internal::Adaptor
 {
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
+Any CastToNativeGraphicsType(XDisplay* display)
 {
-  return Utils::MakeUnique<DisplayConnectionX11>();
-}
-
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
-{
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryX>();
+  // Not required for Vulkan
+  return {nullptr};
 }
 
 } // namespace Dali::Internal::Adaptor
