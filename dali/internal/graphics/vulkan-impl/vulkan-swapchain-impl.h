@@ -50,7 +50,7 @@ public:
 
   ~Swapchain();
 
-  Swapchain(const Swapchain&)            = delete;
+  Swapchain(const Swapchain&) = delete;
   Swapchain& operator=(const Swapchain&) = delete;
 
   void Destroy();
@@ -87,7 +87,7 @@ public:
    * @todo we should rather use round robin method
    * @return
    */
-  FramebufferImpl* AcquireNextFramebuffer(bool shouldCollectGarbageNow = true);
+  [[nodiscard]] FramebufferImpl* AcquireNextFramebuffer(bool shouldCollectGarbageNow = true);
 
   /**
    * Submits the given command buffer to the swapchain queue
@@ -124,6 +124,15 @@ public:
    * @return Number of swapchain images
    */
   [[nodiscard]] uint32_t GetImageCount() const;
+
+  /**
+   * Returns surface associated with swapchain
+   * @return Pointer to surface
+   */
+  [[nodiscard]] SurfaceImpl* GetSurface() const
+  {
+    return mSurface;
+  }
 
 private:
   void CreateVkSwapchain(

@@ -164,8 +164,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -263,8 +262,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -317,9 +315,12 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d", int(mSwapchainImageIndex));
 
+  constexpr auto TIMEOUT = 1'000'000'000;
+
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
-  auto  result          = device.acquireNextImageKHR(mSwapchainKHR,
-                                           std::numeric_limits<uint64_t>::max(),
+
+  auto result = device.acquireNextImageKHR(mSwapchainKHR,
+                                           TIMEOUT,
                                            swapchainBuffer->acquireNextImageSemaphore,
                                            nullptr,
                                            &mSwapchainImageIndex);
@@ -330,14 +331,21 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // setting validity to false
   if(result != vk::Result::eSuccess)
   {
-    mIsValid = false;
     if(result == vk::Result::eErrorOutOfDateKHR)
     {
+      mIsValid = false;
       return nullptr;
     }
-    else
+    else if(result == vk::Result::eTimeout || result == vk::Result::eNotReady)
     {
-      assert(mIsValid);
+      // TODO: this isn't error, swapchain may be still valid.
+      // we may think of looping it or discarding old swapchain.
+      // At this point, we ignore those return codes.
+    }
+    else // Only real error case
+    {
+      mIsValid = false;
+      assert(true && "AcquireNextImageKHR failed with error, cannot continue.");
     }
   }
 

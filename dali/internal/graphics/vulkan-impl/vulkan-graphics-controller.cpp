@@ -165,32 +165,6 @@ struct VulkanGraphicsController::Impl
     return true;
   }
 
-  void AcquireNextFramebuffer()
-  {
-    // @todo for all swapchains acquire new framebuffer
-    auto surface   = mGraphicsDevice->GetSurface(0u);
-    auto swapchain = mGraphicsDevice->GetSwapchainForSurfaceId(0u);
-
-    if(mGraphicsDevice->IsSurfaceResized())
-    {
-      swapchain->Invalidate();
-    }
-
-    swapchain->AcquireNextFramebuffer(true);
-
-    if(!swapchain->IsValid())
-    {
-      // make sure device doesn't do any work before replacing swapchain
-      mGraphicsDevice->DeviceWaitIdle();
-
-      // replace swapchain
-      swapchain = mGraphicsDevice->ReplaceSwapchainForSurface(surface, std::move(swapchain));
-
-      // get new valid framebuffer
-      swapchain->AcquireNextFramebuffer(true);
-    }
-  }
-
   bool EnableDepthStencilBuffer(const RenderTarget& renderTarget, bool enableDepth, bool enableStencil)
   {
     auto surface = static_cast<const Vulkan::RenderTarget*>(&renderTarget)->GetSurface();
@@ -586,7 +560,6 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mCapacity = 0;
-  mImpl->AcquireNextFramebuffer();
 }
 
 void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)

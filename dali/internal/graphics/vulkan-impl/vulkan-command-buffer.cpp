@@ -184,8 +184,42 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
     auto surfaceId = window->GetSurfaceId();
     auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
-    mLastSwapchain = swapchain;
-    framebuffer    = swapchain->GetCurrentFramebuffer();
+
+    // If we have swapchain then we need to acquire image
+    // This is a special case:
+    // We assume that:
+    // - only one BeginRenderPass() happens per surface so we can acquire image here
+    // - swapchain shouldn't change but in case it does hence the condition below (?)
+    if(mLastSwapchain != swapchain)
+    {
+      mLastSwapchain = swapchain;
+    }
+
+    if(mLastSwapchain)
+    {
+      framebuffer = mLastSwapchain->AcquireNextFramebuffer(true);
+    }
+
+    // In case something went wrong we will try to replace swapchain once
+    // before calling it a day.
+    if(!framebuffer || !swapchain->IsValid())
+    {
+      // make sure device doesn't do any work before replacing swapchain
+      device.DeviceWaitIdle();
+
+      // replace swapchain (only once)
+      swapchain = device.ReplaceSwapchainForSurface(swapchain->GetSurface(), std::move(swapchain));
+
+      mLastSwapchain = swapchain;
+
+      // get new valid framebuffer
+      if(mLastSwapchain)
+      {
+        framebuffer = swapchain->AcquireNextFramebuffer(true);
+      }
+      assert(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
+    }
+
     renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
   }
   else
