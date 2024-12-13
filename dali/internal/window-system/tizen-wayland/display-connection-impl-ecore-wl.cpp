@@ -23,11 +23,7 @@
 #include <tbm_bufmgr.h>
 #include <tbm_dummy_display.h>
 
-#ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
-#else
-#include <Ecore_Wayland.h>
-#endif
 
 #if !defined(VULKAN_ENABLED)
 #include <dali/internal/graphics/common/egl-include.h>
@@ -159,12 +155,8 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
   }
   else
   {
-#ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
     mDisplay                   = NativeDisplayType(ecore_wl2_display_get(display));
-#else
-    mDisplay = reinterpret_cast<NativeDisplayType>(ecore_wl_display_get());
-#endif
   }
 }
 

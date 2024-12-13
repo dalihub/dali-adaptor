@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,7 @@
 #include <screen_connector_provider.h>
 #endif
 
-#ifdef ECORE_WAYLAND2
 #include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
-#else
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wayland.h>
-#endif
 
 #include <aul.h>
 #include <unistd.h>
@@ -142,13 +138,8 @@ void Adaptor::SurfaceInitialized()
   // Use strdup() in app_get_id(), so need to free memory
   if(appId)
   {
-#ifdef ECORE_WAYLAND2
     Ecore_Wl2_Window* ecoreWlWindow = AnyCast<Ecore_Wl2_Window*>(mWindows.front()->GetNativeHandle());
     screen_connector_provider_remote_enable(appId, ecore_wl2_window_surface_get(ecoreWlWindow));
-#else
-    Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>(mWindows.front()->GetNativeHandle());
-    screen_connector_provider_remote_enable(appId, ecore_wl_window_surface_get(ecoreWlWindow));
-#endif
     free(appId);
   }
 #endif

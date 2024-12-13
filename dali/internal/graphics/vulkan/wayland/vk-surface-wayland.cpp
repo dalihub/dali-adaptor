@@ -31,11 +31,8 @@
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
-#ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
-#else
-#include <Ecore_Wayland.h>
-#endif
+
 #pragma GCC diagnostic pop
 
 namespace Dali
@@ -44,22 +41,14 @@ namespace Graphics
 {
 namespace Vulkan
 {
-
 VkSurfaceWayland::VkSurfaceWayland(NativeWindowInterface& nativeWindow)
 : SurfaceFactory()
 {
-#ifdef ECORE_WAYLAND2
   Ecore_Wl2_Window* ecoreWl2Window = AnyCast<Ecore_Wl2_Window*>(nativeWindow.GetNativeWindow());
   w_surface                        = ecore_wl2_window_surface_get(ecoreWl2Window);
 
   Ecore_Wl2_Display* wl2_display = ecore_wl2_window_display_get(ecoreWl2Window);
   w_display                      = ecore_wl2_display_get(wl2_display);
-#else
-  Ecore_Wl_Window* ecoreWlWindow = AnyCast<Ecore_Wl_Window*>(nativeWindow.GetNativeWindow());
-
-  w_surface = ecore_wl_window_surface_get(ecoreWlWindow);
-  w_display = ecore_wl_display_get();
-#endif
 }
 
 VkSurfaceWayland::VkSurfaceWayland(::wl_display* display, ::wl_surface* surface)
