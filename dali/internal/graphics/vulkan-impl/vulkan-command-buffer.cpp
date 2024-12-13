@@ -177,7 +177,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   auto             renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
   auto             surface      = renderTarget->GetSurface();
   auto&            device       = mController.GetGraphicsDevice();
-  FramebufferImpl* framebuffer;
+  FramebufferImpl* framebuffer  = nullptr;
   RenderPassHandle renderPassImpl;
   if(surface)
   {
