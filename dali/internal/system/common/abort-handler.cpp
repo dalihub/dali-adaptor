@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <cstring>
 
+#include <dali/integration-api/debug.h>
+
 namespace Dali
 {
 namespace Internal
@@ -59,6 +61,7 @@ bool AbortHandler::AbortOnSignal(int signum)
 {
   bool status = false;
 
+  DALI_LOG_ERROR("AbortOnSignal comes %d\n", signum);
   if(signum < _NSIG)
   {
     SignalHandlerFuncPtr signalHandlerPrevious = signal(signum, &AbortHandler::SignalHandler);
@@ -74,6 +77,7 @@ bool AbortHandler::AbortOnSignal(int signum)
     }
   }
 #pragma GCC diagnostic pop
+  DALI_LOG_ERROR("status : %d, signal mask %x\n", status, mSignalMask);
   return status;
 }
 
@@ -83,6 +87,7 @@ void AbortHandler::SignalHandler(int signum)
   {
     if(gInstance->mCallback)
     {
+      DALI_LOG_ERROR("SignalHandler %d execute by abort handler\n", signum);
       CallbackBase::Execute(*gInstance->mCallback);
     }
   }

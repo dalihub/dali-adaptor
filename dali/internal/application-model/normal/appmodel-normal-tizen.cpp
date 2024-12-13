@@ -485,6 +485,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnCreate() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnCreate();
       mFramework->Create();
       return 0;
@@ -492,6 +493,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnTerminate() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnTerminate();
       auto* observer = &mFramework->GetObserver();
       observer->OnTerminate();
@@ -500,6 +502,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnPause() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnPause() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnPause();
       auto* observer = &mFramework->GetObserver();
       observer->OnPause();
@@ -508,6 +511,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnResume() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnResume() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnResume();
       auto* observer = &mFramework->GetObserver();
       observer->OnResume();
@@ -516,6 +520,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnControl(tizen_base::Bundle b) override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnControl(b);
 
       app_control_h appControl = nullptr;
@@ -548,6 +553,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     void OnLoopInit(int argc, char** argv) override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopInit() emitted", __MODULE__, __func__, __LINE__);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
       ecore_init();
@@ -563,6 +569,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     void OnLoopFinish() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopFinish() emitted", __MODULE__, __func__, __LINE__);
       ecore_shutdown();
 
       if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
@@ -580,17 +587,20 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     void OnLoopRun() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopRun() emitted", __MODULE__, __func__, __LINE__);
       ecore_main_loop_begin();
     }
 
     void OnLoopExit() override
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopExit() emitted", __MODULE__, __func__, __LINE__);
       ecore_main_loop_quit();
     }
 
   private:
     static void OnLanguageChanged(app_event_info_h event_info, void* user_data)
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -611,6 +621,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnRegionFormatChanged(app_event_info_h event_info, void* user_data)
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnRegionFormatChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -631,6 +642,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowBattery(app_event_info_h event_info, void* user_data)
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -650,6 +662,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowMemory(app_event_info_h event_info, void* user_data)
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -669,6 +682,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
     {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
