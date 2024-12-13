@@ -152,7 +152,11 @@ SyncPool::SyncObjectId SyncPool::AllocateSyncObject(const Context* writeContext,
 {
   auto agingSyncObject = std::make_unique<AgingSyncObject>(mController, writeContext, (syncContext == SyncContext::EGL));
 
-  auto syncPoolObjectId = mSyncObjectId++;
+  auto syncPoolObjectId = ++mSyncObjectId;
+  if(DALI_UNLIKELY(syncPoolObjectId == INVALID_SYNC_OBJECT_ID))
+  {
+    syncPoolObjectId = ++mSyncObjectId;
+  }
 
   // Take ownership of sync object
   mSyncObjects.insert(std::make_pair(syncPoolObjectId, std::move(agingSyncObject)));

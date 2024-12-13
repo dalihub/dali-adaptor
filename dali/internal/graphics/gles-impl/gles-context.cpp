@@ -923,11 +923,15 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
        */
       dependencyChecker.AddTextures(this, framebuffer);
     }
-  }
 
-  if(dependencyChecker.GetNativeTextureCount() > 0)
-  {
-    dependencyChecker.CreateNativeTextureSync(this);
+    if(dependencyChecker.GetNativeTextureCount() > 0)
+    {
+      dependencyChecker.MarkNativeTextureSyncContext(this);
+#ifndef DALI_PROFILE_TV
+      /// Only TV profile should not create egl sync object before eglSwapBuffers, due to DDK bug. 2024-12-13. eunkiki.hong
+      dependencyChecker.CreateNativeTextureSync(this);
+#endif
+    }
   }
 }
 

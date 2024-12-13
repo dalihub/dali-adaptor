@@ -55,6 +55,8 @@ class SyncPool
 public:
   using SyncObjectId = uint32_t;
 
+  static constexpr SyncObjectId INVALID_SYNC_OBJECT_ID = 0u;
+
   enum class SyncContext
   {
     EGL, ///< Use EGL sync when syncing between multiple contexts
@@ -77,27 +79,27 @@ public:
 
   /**
    * Check whether given object is synced in the CPU
-   * @param syncPoolObjectId The id of object to check synced.
+   * @param syncPoolObjectId The id of object to check synced. If it's invalid, return false immediately.
    * @return true if the sync object was signaled, false if it timed out
    */
   bool IsSynced(SyncObjectId syncPoolObjectId);
 
   /**
    * Wait on a sync object in any context in the GPU
-   * @param syncPoolObjectId The id of object to wait on.
+   * @param syncPoolObjectId The id of object to wait on. If it's invalid, do nothing.
    */
   void Wait(SyncObjectId syncPoolObjectId);
 
   /**
    * Wait on a sync object in any context in the CPU
-   * @param syncPoolObjectId The id of object to wait on.
+   * @param syncPoolObjectId The id of object to wait on. If it's invalid, return false immediately.
    * @return true if the sync object was signaled, false if it timed out
    */
   bool ClientWait(SyncObjectId syncPoolObjectId);
 
   /**
    * Delete the sync object if it's not needed.
-   * @param syncPoolObjectId The id of object to delete.
+   * @param syncPoolObjectId The id of object to delete. If it's invalid, do nothing.
    */
   void FreeSyncObject(SyncObjectId syncPoolObjectId);
 
@@ -168,7 +170,7 @@ private:
 
   EglGraphicsController& mController;
 
-  SyncObjectId mSyncObjectId{0u};
+  SyncObjectId mSyncObjectId{INVALID_SYNC_OBJECT_ID};
 };
 
 } // namespace GLES
