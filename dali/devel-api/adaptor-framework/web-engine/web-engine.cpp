@@ -642,4 +642,9 @@ void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin
   GetImplementation(*this).RegisterUserMediaPermissionRequestCallback(callback);
 }
 
+void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
+{
+  GetImplementation(*this).FeedMouseWheel(yDirection, step, x, y);
+}
+
 } // namespace Dali

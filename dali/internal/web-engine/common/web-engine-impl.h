@@ -622,6 +622,11 @@ public:
    */
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
 
+  /**
+   * @copydoc Dali::WebEngine::FeedMouseWheel()
+   */
+  void FeedMouseWheel(bool yDirection, int step, int x, int y);
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).

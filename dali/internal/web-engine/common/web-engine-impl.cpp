@@ -866,6 +866,10 @@ void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin
   mPlugin->RegisterUserMediaPermissionRequestCallback(callback);
 }
 
+void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
+{
+  mPlugin->FeedMouseWheel(yDirection, step, x, y);
+}
 
 } // namespace Adaptor
 } // namespace Internal

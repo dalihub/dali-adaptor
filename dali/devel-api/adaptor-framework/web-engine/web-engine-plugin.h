@@ -1010,6 +1010,16 @@ public:
    */
   virtual void RegisterUserMediaPermissionRequestCallback(WebEngineUserMediaPermissionRequestCallback callback) = 0;
 
+  /**
+   * @brief Feed mouse wheel event forcefully.
+   *
+   * @param[in] yDirection wheel event's y direction.
+   * @param[in] step step of wheel event.
+   * @param[in] x x value of wheel event.
+   * @param[in] y y value of wheel event.
+   */
+  virtual void FeedMouseWheel(bool yDirection, int step, int x, int y) = 0;
+
 };
 
 // specialization has to be done in the same namespace
