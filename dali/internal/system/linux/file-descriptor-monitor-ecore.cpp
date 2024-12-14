@@ -70,8 +70,8 @@ struct FileDescriptorMonitorEcore::Impl
 
     if(ecore_main_fd_handler_active_get(handler, ECORE_FD_ERROR))
     {
-      CallbackBase::Execute(*impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor);
       DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d\n", impl->mFileDescriptor);
+      CallbackBase::Execute(*impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor);
 
       return ECORE_CALLBACK_CANCEL;
     }
