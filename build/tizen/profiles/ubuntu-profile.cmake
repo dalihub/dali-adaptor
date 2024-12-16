@@ -82,12 +82,6 @@ IF( NOT thorvg_support)
     )
 ENDIF()
 
-IF( ECORE_WAYLAND2 )
-    SET( SOURCES ${SOURCES}
-      ${adaptor_window_system_ecore_wl2_src_files}
-    )
-ENDIF()
-
 IF( ENABLE_NETWORK_LOGGING )
     SET( SOURCES ${SOURCES}
           ${adaptor_performance_logging_src_files}

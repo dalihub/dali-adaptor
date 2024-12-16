@@ -21,13 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore_Input.h>
-
-#ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
-#else
-#include <Ecore_Wayland.h>
-#endif
-
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/adaptor-framework/key.h>
@@ -315,12 +309,7 @@ int GetWindowIdFromActor(Dali::Actor actor)
     if(DALI_LIKELY(sceneHolder))
     {
       Any nativeWindowHandle = sceneHolder.GetNativeHandle();
-
-#ifdef ECORE_WAYLAND2
-      windowId = ecore_wl2_window_id_get(AnyCast<Ecore_Wl2_Window*>(nativeWindowHandle));
-#else
-      windowId = ecore_wl_window_id_get(AnyCast<Ecore_Wl_Window*>(nativeWindowHandle));
-#endif
+      windowId               = ecore_wl2_window_id_get(AnyCast<Ecore_Wl2_Window*>(nativeWindowHandle));
     }
   }
 
