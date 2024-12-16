@@ -377,7 +377,7 @@ void GlWindowRenderThread::InitializeGraphics(EglGraphics* eglGraphics)
 
   // Create the EGL window
   Dali::Any window = mWindowBase->CreateWindow(mPositionSize.width, mPositionSize.height);
-  mEGLSurface      = eglImpl.CreateSurfaceWindow(window.Get<EGLNativeWindowType>(), mColorDepth);
+  mEGLSurface      = eglImpl.CreateSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(window.Get<void*>()), mColorDepth);
 }
 
 bool GlWindowRenderThread::RenderReady(uint64_t& timeToSleepUntil)
