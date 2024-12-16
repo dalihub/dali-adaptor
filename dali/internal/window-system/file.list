@@ -27,6 +27,7 @@ SET( adaptor_window_system_tizen_wayland_src_files
 
 # module: window-system, backend: tizen-wayland/egl
 SET( adaptor_window_system_tizen_wayland_egl_src_files
+    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-egl.cpp
     ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-factory-ecore-wl-egl.cpp
     ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-impl-ecore-wl-egl.cpp
     ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl-egl.cpp
@@ -35,6 +36,7 @@ SET( adaptor_window_system_tizen_wayland_egl_src_files
 
 # module: window-system, backend: tizen-wayland/vulkan
 SET( adaptor_window_system_tizen_wayland_vulkan_src_files
+    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-vulkan.cpp
     ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-factory-ecore-wl-vulkan.cpp
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2-vulkan.cpp
 )

@@ -18,17 +18,9 @@
  *
  */
 
-// EXTERNAL INCLUDES
-
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
-
-#if !defined(VULKAN_ENABLED)
-#include <dali/internal/graphics/gles/egl-graphics.h>
-using NativeDisplayType = EGLNativeDisplayType;
-#else
-using NativeDisplayType = Dali::Any;
-#endif
 
 namespace Dali
 {
@@ -48,13 +40,6 @@ public:
    * @brief Default constructor
    */
   DisplayConnectionEcoreWl();
-
-  /**
-   * @brief Create an initialized DisplayConnection.
-   *
-   * @return A handle to a newly allocated DisplayConnection resource.
-   */
-  static DisplayConnection* New();
 
 public:
   /**
@@ -90,20 +75,9 @@ public:
   // Undefined
   DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs) = delete;
 
-protected:
-  /**
-   * @brief Gets display connection for native surface
-   */
-  NativeDisplayType GetNativeDisplay();
-
-  /**
-   * @brief Release display connection for native surface
-   */
-  void ReleaseNativeDisplay();
-
 private:
-  NativeDisplayType                               mDisplay;     ///< Wayland-display for rendering
-  Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
+  wl_display*                               mDisplay;     ///< Wayland-display for rendering
+  Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
 };
 
 } // namespace Adaptor

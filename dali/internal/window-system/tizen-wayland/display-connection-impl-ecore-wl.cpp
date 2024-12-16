@@ -23,17 +23,10 @@
 #include <tbm_bufmgr.h>
 #include <tbm_dummy_display.h>
 
-#include <Ecore_Wl2.h>
+// INTERNAL HEADERS
+#include <dali/internal/window-system/tizen-wayland/display-connection-native-types.h>
 
-#if !defined(VULKAN_ENABLED)
-#include <dali/internal/graphics/common/egl-include.h>
-#endif
-
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 namespace
 {
@@ -54,6 +47,7 @@ struct NativeRenderSurfaceDisplayHolder
   {
     Initialize();
   }
+
   ~NativeRenderSurfaceDisplayHolder()
   {
     Destroy();
@@ -64,28 +58,16 @@ struct NativeRenderSurfaceDisplayHolder
     mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
     if(mBufMgr)
     {
-#ifdef VULKAN_ENABLED
-      // TODO: Fix this call for Vulkan
       mDisplay = tbm_dummy_display_create();
-#else
-      mDisplay = reinterpret_cast<NativeDisplayType>(tbm_dummy_display_create());
-#endif
     }
   }
   void Destroy()
   {
-#ifdef VULKAN_ENABLED
-    if(!mDisplay.Empty())
-    {
-      // TODO: Fix this call for Vulkan
-      tbm_dummy_display_destroy(mDisplay.Get<tbm_dummy_display*>());
-    }
-#else
     if(mDisplay)
     {
-      tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
+      tbm_dummy_display_destroy(mDisplay);
     }
-#endif
+
     if(mBufMgr)
     {
       tbm_bufmgr_deinit(mBufMgr);
@@ -94,10 +76,10 @@ struct NativeRenderSurfaceDisplayHolder
 
   tbm_bufmgr mBufMgr; ///< For creating tbm_dummy_display
 
-  NativeDisplayType mDisplay;
+  tbm_dummy_display* mDisplay;
 };
 
-static NativeDisplayType GetUniqueTbmDummyDisplay()
+static tbm_dummy_display* GetUniqueTbmDummyDisplay()
 {
   static NativeRenderSurfaceDisplayHolder sNativeRenderSurfaceDisplayHolder;
   if(sNativeRenderSurfaceDisplayHolder.mBufMgr == nullptr)
@@ -115,26 +97,13 @@ static NativeDisplayType GetUniqueTbmDummyDisplay()
 }
 } // namespace
 
-DisplayConnection* DisplayConnectionEcoreWl::New()
-{
-  DisplayConnection* pDisplayConnection(new DisplayConnectionEcoreWl());
-
-  return pDisplayConnection;
-}
-
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
-: mDisplay(NULL),
+: mDisplay(nullptr),
   mSurfaceType(Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
 {
 }
 
-DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
-{
-  if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
-  {
-    ReleaseNativeDisplay();
-  }
-}
+DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl() = default;
 
 Any DisplayConnectionEcoreWl::GetDisplay()
 {
@@ -151,31 +120,18 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
 
   if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
-    mDisplay = GetNativeDisplay();
+    mDisplay = static_cast<wl_display*>(GetUniqueTbmDummyDisplay());
   }
   else
   {
     Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
-    mDisplay                   = NativeDisplayType(ecore_wl2_display_get(display));
+    mDisplay                   = ecore_wl2_display_get(display);
   }
 }
 
 Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
 {
-  return Any(mDisplay);
+  return CastToNativeGraphicsType(mDisplay);
 }
 
-NativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
-{
-  return GetUniqueTbmDummyDisplay();
-}
-
-void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
-{
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor
