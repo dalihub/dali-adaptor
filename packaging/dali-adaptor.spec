@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.3.53
+Version:    2.3.54
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -93,13 +93,9 @@ BuildRequires:  pkgconfig(libwebpmux)
 %endif
 
 # We use ecore mainloop
-%if 0%{?tizen_version_major} >= 5
 BuildRequires:  pkgconfig(ecore-wl2)
 %if !0%{?enable_vulkan}
 BuildRequires:  pkgconfig(wayland-egl-tizen)
-%endif
-%else
-BuildRequires:  pkgconfig(ecore-wayland)
 %endif
 
 # We need tbm_surface in tizen 3.0 wayland
@@ -123,10 +119,7 @@ BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 BuildRequires:  pkgconfig(component-based-core-base)
 
-
-%if ( 0%{?tizen_version_major} == 6 && 0%{?tizen_version_minor} >= 5 ) || 0%{?tizen_version_major} >= 7
 BuildRequires:  pkgconfig(thorvg)
-%endif
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -279,24 +272,14 @@ LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl
 CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 %endif
 
-CFLAGS+=" -DWAYLAND"
-CXXFLAGS+=" -DWAYLAND"
+CFLAGS+=" -DWAYLAND -DEFL_BETA_API_SUPPORT"
+CXXFLAGS+=" -DWAYLAND -DEFL_BETA_API_SUPPORT"
 cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
 
 %if 0%{?enable_streamline}
 cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
 %else
 cmake_flags+=" -DENABLE_TRACE=ON"
-%endif
-
-# Use this conditional when Tizen version is 5.x or greater
-%if 0%{?tizen_version_major} >= 5
-CXXFLAGS+=" -DOVER_TIZEN_VERSION_5"
-
-# Need Ecore-Wayland2 when Tizen version is 5.x or greater
-CFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
-CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
-cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
 %endif
 
 # Use this conditional when Tizen version is 7.x or greater
@@ -307,6 +290,11 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
 # Use this conditional when Tizen version is 8.x or greater
 %if 0%{?tizen_version_major} >= 8
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
+%endif
+
+# Use this conditional when Tizen version is 9.x or greater
+%if 0%{?tizen_version_major} >= 9
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
 %endif
 
 %if 0%{?enable_debug}

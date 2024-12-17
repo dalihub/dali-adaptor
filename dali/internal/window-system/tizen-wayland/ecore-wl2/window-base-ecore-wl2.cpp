@@ -448,7 +448,7 @@ static Eina_Bool EcoreEventMouseButtonMove(void* data, int type, void* event)
   return ECORE_CALLBACK_PASS_ON;
 }
 
-#ifdef OVER_TIZEN_VERSION_8
+#ifdef OVER_TIZEN_VERSION_9
 /**
  * Called when a touch motion is received.
  */
@@ -461,7 +461,9 @@ static Eina_Bool EcoreEventMouseFrame(void* data, int type, void* event)
   }
   return ECORE_CALLBACK_PASS_ON;
 }
+#endif
 
+#ifdef OVER_TIZEN_VERSION_8
 /**
  * Called when a touch motion is received.
  */
@@ -1073,7 +1075,9 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   // Register pointer lock/unlock event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_POINTER_CONSTRAINTS, EcoreEventPointerConstraints, this));
+#endif
 
+#ifdef OVER_TIZEN_VERSION_9
   // Register mouse frame events
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_FRAME, EcoreEventMouseFrame, this));
 #endif
@@ -1442,7 +1446,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
   }
 }
 
-#ifdef OVER_TIZEN_VERSION_8
+#ifdef OVER_TIZEN_VERSION_9
 void WindowBaseEcoreWl2::OnMouseFrame(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Frame* MouseFrameEvent = static_cast<Ecore_Event_Mouse_Frame*>(event);
@@ -1453,7 +1457,9 @@ void WindowBaseEcoreWl2::OnMouseFrame(void* data, int type, void* event)
     mMouseFrameEventSignal.Emit();
   }
 }
+#endif
 
+#ifdef OVER_TIZEN_VERSION_8
 void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Relative_Move* relativeMoveEvent = static_cast<Ecore_Event_Mouse_Relative_Move*>(event);
@@ -1640,8 +1646,8 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 #endif
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.isRepeat = isRepeat;
-    keyEvent.windowId = GetNativeWindowId();
+    keyEvent.isRepeat    = isRepeat;
+    keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
@@ -1714,7 +1720,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
-    keyEvent.windowId = GetNativeWindowId();
+    keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
@@ -3837,49 +3843,77 @@ Any WindowBaseEcoreWl2::GetNativeBuffer() const
 
 bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_grab");
   Ecore_Wl2_Pointer_Boundary wlPointerBoundary = static_cast<Ecore_Wl2_Pointer_Boundary>(boundary);
   bool                       ret               = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_grab, window: [%p], boundary:[%d] flag [%d]\n", mEcoreWindow, wlPointerBoundary, ret);
+#else
+  bool ret = false;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_grab NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
   return ret;
 }
 
 bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_ungrab");
   bool ret = ecore_wl2_window_relative_motion_ungrab(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_ungrab, window: [%p], flag [%d]\n", mEcoreWindow, ret);
+#else
+  bool ret = false;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_ungrab NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
   return ret;
 }
 
 void WindowBaseEcoreWl2::SetBackgroundBlur(int blurRadius, int cornerRadius)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_set, window: [%p], blur radius [%d], corner radius[%d]\n", mEcoreWindow, blurRadius, cornerRadius);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_background_blur_set");
   ecore_wl2_window_background_blur_set(mEcoreWindow, blurRadius, cornerRadius, cornerRadius);
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 int WindowBaseEcoreWl2::GetBackgroundBlur()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_background_blur_get");
   int radius = ecore_wl2_window_background_blur_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_get, window: [%p], radius [%d]\n", mEcoreWindow, radius);
+#else
+  int radius = 0;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
   return radius;
 }
 
 void WindowBaseEcoreWl2::SetBehindBlur(int blurRadius)
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_set, window: [%p], blur radius [%d]\n", mEcoreWindow, blurRadius);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_blur_set");
   ecore_wl2_window_behind_blur_set(mEcoreWindow, blurRadius);
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 int WindowBaseEcoreWl2::GetBehindBlur()
 {
+#ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_blur_get");
   int radius = ecore_wl2_window_behind_blur_get(mEcoreWindow);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_get, window: [%p], radius [%d]\n", mEcoreWindow, radius);
+#else
+  int radius = 0;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
   return radius;
 }
 

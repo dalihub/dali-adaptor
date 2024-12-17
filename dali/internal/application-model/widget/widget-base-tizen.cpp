@@ -18,7 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/application-model/widget/widget-base-tizen.h>
 
-
 // INTERNAL INCLUDE
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
@@ -26,15 +25,15 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
+#include <dali/internal/system/tizen-wayland/widget-application-impl-tizen.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
-#include <dali/internal/system/tizen-wayland/widget-application-impl-tizen.h>
 
 // EXTERNAL INCLUDES
 #include <bundle.h>
-#include <widget_base.h>
 #include <dlog.h>
 #include <tizen.h>
+#include <widget_base.h>
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
@@ -44,7 +43,6 @@ namespace Internal
 {
 namespace
 {
-
 int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w, int h, void* classData)
 {
   char* id;
@@ -59,7 +57,6 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   {
     window = application->GetWidgetWindow();
     DALI_LOG_RELEASE_INFO("Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n", window, w, h, std::string(id).c_str());
-
   }
   else
   {
@@ -77,11 +74,7 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
 
   Any nativeHandle = window.GetNativeHandle();
 
-#ifdef ECORE_WAYLAND2
   Ecore_Wl2_Window* wlWindow = AnyCast<Ecore_Wl2_Window*>(nativeHandle);
-#else
-  Ecore_Wl_Window* wlWindow = AnyCast<Ecore_Wl_Window*>(nativeHandle);
-#endif
 
   widget_base_context_window_bind(instanceHandle, id, wlWindow);
   window.SetSize(Dali::Window::WindowSize(w, h));
@@ -218,10 +211,11 @@ int OnInstanceUpdate(widget_base_instance_h instanceHandle, bundle* content, int
 
   return 0;
 }
-}
+} // namespace
 namespace Adaptor
 {
-extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, void* data) {
+extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, void* data)
+{
   widget_base_class cls = widget_base_class_get_default();
   cls.ops.create        = OnInstanceInit;
   cls.ops.destroy       = OnInstanceDestroy;
@@ -233,11 +227,12 @@ extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, 
   widget_base_class_add(cls, widgetName, data);
 }
 
-extern "C" DALI_ADAPTOR_API void SetContentInfo(void* handle, bundle* bundleData) {
+extern "C" DALI_ADAPTOR_API void SetContentInfo(void* handle, bundle* bundleData)
+{
   widget_base_instance_h handle_instance = static_cast<widget_base_instance_h>(handle);
   //bundle* bundle = static_cast<bundle*>(bundleData);
   widget_base_context_set_content_info(handle_instance, bundleData);
 }
-}
-}
-}
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

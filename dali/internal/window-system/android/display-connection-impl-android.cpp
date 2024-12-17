@@ -18,13 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/window-system/android/display-connection-impl-android.h>
 
-// INTERNAL HEADERS
-#if !defined(VULKAN_ENABLED)
-#include <dali/internal/graphics/gles/egl-graphics.h>
-#endif
-
-// EXTERNAL HEADERS
-
 namespace Dali::Internal::Adaptor
 {
 DisplayConnection* DisplayConnectionAndroid::New()
@@ -48,11 +41,7 @@ Any DisplayConnectionAndroid::GetDisplay()
 
 Any DisplayConnectionAndroid::GetNativeGraphicsDisplay()
 {
-#if defined(VULKAN_ENABLED)
-  return {nullptr};
-#else
   return {mDisplay};
-#endif
 }
 
 void DisplayConnectionAndroid::ConsumeEvents()

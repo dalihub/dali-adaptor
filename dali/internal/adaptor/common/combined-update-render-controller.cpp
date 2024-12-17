@@ -174,10 +174,13 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mVsyncRender = environmentOptions.VsyncRenderRequired();
 
   mSleepTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::CombinedUpdateRenderController\n");
 }
 
 CombinedUpdateRenderController::~CombinedUpdateRenderController()
 {
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::~CombinedUpdateRenderController\n");
   LOG_EVENT_TRACE;
 
   Stop();
@@ -201,6 +204,8 @@ void CombinedUpdateRenderController::Initialize()
 
   // The Update/Render thread will now run and initialise the graphics interface etc. and will then wait for Start to be called
   // When this function returns, the application initialisation on the event thread should occur
+
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Initialize\n");
 }
 
 void CombinedUpdateRenderController::Start()

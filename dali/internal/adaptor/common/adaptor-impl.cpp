@@ -71,13 +71,6 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 
-#if defined(VULKAN_ENABLED)
-#else
-#include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
-#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
-#endif
-
 using Dali::TextAbstraction::FontClient;
 
 extern std::string GetSystemCachePath();
@@ -334,6 +327,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
 Adaptor::~Adaptor()
 {
+  DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
@@ -439,6 +433,8 @@ void Adaptor::Start()
   {
     mAddOnManager->Start();
   }
+
+  DALI_LOG_RELEASE_INFO("Adaptor::Start: Started\n");
 }
 
 // Dali::Internal::Adaptor::Adaptor::Pause

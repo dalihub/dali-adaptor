@@ -1,8 +1,5 @@
-#ifndef DALI_INTERNAL_ADAPTOR_TIZEN_WAYLAND_DALI_ECORE_WAYLAND_H
-#define DALI_INTERNAL_ADAPTOR_TIZEN_WAYLAND_DALI_ECORE_WAYLAND_H
-
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +15,14 @@
  *
  */
 
-#pragma GCC system_header
-#include <Ecore_Wayland.h>
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/native-image-surface-factory.h>
+#include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-#endif /* DALI_INTERNAL_ADAPTOR_TIZEN_WAYLAND_DALI_ECORE_WAYLAND_H */
+namespace Dali::Internal::Adaptor
+{
+std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
+{
+  return nullptr;
+}
+} // namespace Dali::Internal::Adaptor

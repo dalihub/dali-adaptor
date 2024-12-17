@@ -165,32 +165,6 @@ struct VulkanGraphicsController::Impl
     return true;
   }
 
-  void AcquireNextFramebuffer()
-  {
-    // @todo for all swapchains acquire new framebuffer
-    auto surface   = mGraphicsDevice->GetSurface(0u);
-    auto swapchain = mGraphicsDevice->GetSwapchainForSurfaceId(0u);
-
-    if(mGraphicsDevice->IsSurfaceResized())
-    {
-      swapchain->Invalidate();
-    }
-
-    swapchain->AcquireNextFramebuffer(true);
-
-    if(!swapchain->IsValid())
-    {
-      // make sure device doesn't do any work before replacing swapchain
-      mGraphicsDevice->DeviceWaitIdle();
-
-      // replace swapchain
-      swapchain = mGraphicsDevice->ReplaceSwapchainForSurface(surface, std::move(swapchain));
-
-      // get new valid framebuffer
-      swapchain->AcquireNextFramebuffer(true);
-    }
-  }
-
   bool EnableDepthStencilBuffer(const RenderTarget& renderTarget, bool enableDepth, bool enableStencil)
   {
     auto surface = static_cast<const Vulkan::RenderTarget*>(&renderTarget)->GetSurface();
@@ -586,7 +560,24 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mCapacity = 0;
-  mImpl->AcquireNextFramebuffer();
+}
+
+void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
+{
+  // Check if there is some extra information about used resources
+  // if so then apply optimizations
+
+  // update programs with descriptor pools
+  for(auto& binding : resourceBindings)
+  {
+    if(binding.type == ResourceType::PROGRAM)
+    {
+      auto programImpl = static_cast<Vulkan::Program*>(binding.programBinding->program)->GetImplementation();
+
+      // Pool index is returned and we may do something with it later (storing it per cmdbuf?)
+      [[maybe_unused]] auto poolIndex = programImpl->AddDescriptorPool(binding.programBinding->count, 3); // add new pool, limit pools to 3 per program
+    }
+  }
 }
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)

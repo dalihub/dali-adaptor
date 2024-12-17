@@ -17,28 +17,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
+#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl-egl.h>
 
-#if(!VULKAN_ENABLED)
-#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl.h>
-#else
-#include <dali/internal/window-system/common/native-image-surface-impl.h>
-#endif
-
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
 {
-#if(!VULKAN_ENABLED)
   return std::make_unique<Internal::Adaptor::NativeImageSurfaceEcoreWl>(queue);
-#else
-  return nullptr;
-#endif
 }
-
-} // namespace Adaptor
-} // namespace Internal
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

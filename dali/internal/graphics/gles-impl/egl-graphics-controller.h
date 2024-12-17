@@ -117,6 +117,11 @@ public:
   void FrameStart();
 
   /**
+   * @copydoc Dali::Graphics::SetResourceBindingHints()
+   */
+  void SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings) override;
+
+  /**
    * @copydoc Dali::Graphics::SubmitCommandBuffers()
    */
   void SubmitCommandBuffers(const SubmitInfo& submitInfo) override;

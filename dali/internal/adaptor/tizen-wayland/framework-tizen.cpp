@@ -310,6 +310,7 @@ FrameworkTizen::FrameworkTizen(Framework::Observer& observer, Framework::TaskObs
 
 FrameworkTizen::~FrameworkTizen()
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_FRAMEWORK_DESTROY");
   if(mRunning)
   {
     Quit();
@@ -320,6 +321,7 @@ FrameworkTizen::~FrameworkTizen()
 
 bool FrameworkTizen::Create()
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_FRAMEWORK_CREATE");
   mInitialised = true;
   mObserver.OnInit();
   return true;
@@ -342,6 +344,7 @@ void FrameworkTizen::Run()
 
 void FrameworkTizen::Quit()
 {
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_APPQUIT");
   mImpl->AppExit();
 }
 

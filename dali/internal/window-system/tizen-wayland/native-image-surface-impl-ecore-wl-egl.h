@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_H
+#ifndef DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
+#define DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -91,14 +91,12 @@ private:
 private:                                                           // Data
   std::unique_ptr<Dali::DisplayConnection>     mDisplayConnection; ///< The native display connection
   std::unique_ptr<Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
-#if(!VULKAN_ENABLED)
-  EglInterface* mEGL;
-  EGLSurface    mEGLSurface;
-  EGLContext    mEGLContext;
-#endif
-  ColorDepth          mColorDepth;
-  tbm_format          mTbmFormat;
-  tbm_surface_queue_h mTbmQueue;
+  EglInterface*                                mEGL;
+  EGLSurface                                   mEGLSurface;
+  EGLContext                                   mEGLContext;
+  ColorDepth                                   mColorDepth;
+  tbm_format                                   mTbmFormat;
+  tbm_surface_queue_h                          mTbmQueue;
 
   bool mDepth : 1;
   bool mStencil : 1;
@@ -110,4 +108,4 @@ private:                                                           // Data
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_H
+#endif // DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H

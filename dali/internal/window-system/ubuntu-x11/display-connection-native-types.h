@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
@@ -15,21 +17,18 @@
  *
  */
 
-#include <dali/internal/window-system/x11/display-connection-factory-x.h>
-#include <dali/internal/window-system/x11/display-connection-impl-x.h>
+// EXTERNAL INCLUDES
+#include <dali/public-api/object/any.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 namespace Dali::Internal::Adaptor
 {
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
-{
-  return Utils::MakeUnique<DisplayConnectionX11>();
-}
-
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
-{
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryX>();
-}
-
+/**
+ * Returns the Any cast of the given display to the native graphics type.
+ * @param display The X Display to cast
+ * @return The Any with the appropriate cast
+ */
+Any CastToNativeGraphicsType(XDisplay* display);
 } // namespace Dali::Internal::Adaptor
