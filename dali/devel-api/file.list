@@ -16,6 +16,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
@@ -55,7 +56,6 @@ SET( devel_api_src_files
 )
 
 SET( adaptor_devel_api_egl_src_files
-  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
 )
 
