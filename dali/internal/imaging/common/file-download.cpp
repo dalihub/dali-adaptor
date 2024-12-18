@@ -154,9 +154,35 @@ long GetCurloptVerboseMode()
   {
     auto verboseModeString = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_CURLOPT_VERBOSE_MODE);
     verboseMode            = verboseModeString ? (std::strtol(verboseModeString, nullptr, 10) > 0 ? 1 : 0) : 0;
+
+    // TODO : Until resolve some thread issue, let we don't mark it as true.
+    // mean, always ask from environment every time.
+    // verboseModeSetted = true;
   }
 
   return verboseMode;
+}
+
+/**
+ * @brief Get the Curlopt Maximum Redirection count value from environment.
+ *
+ * @return 5 if environment not defined. Otherwise, value from environment.
+ */
+long GetCurloptMaximumRedirectionCount()
+{
+  static long maxiumumRedirectionCount       = 5L;
+  static bool maxiumumRedirectionCountSetted = false;
+  if(DALI_UNLIKELY(!maxiumumRedirectionCountSetted))
+  {
+    auto maxiumumRedirectionCountString = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_CURLOPT_MAXREDIRS);
+    maxiumumRedirectionCount            = maxiumumRedirectionCountString ? (std::strtol(maxiumumRedirectionCountString, nullptr, 10)) : 5L;
+
+    // TODO : Until resolve some thread issue, let we don't mark it as true.
+    // mean, always ask from environment every time.
+    // maxiumumRedirectionCountSetted = true;
+  }
+
+  return maxiumumRedirectionCount;
 }
 
 /**
@@ -167,7 +193,9 @@ static Dali::TizenPlatform::Network::CurlEnvironment gCurlEnvironment;
 
 void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
 {
-  auto verboseMode = GetCurloptVerboseMode(); // 0 : off, 1 : on
+  const auto verboseMode = GetCurloptVerboseMode(); // 0 : off, 1 : on
+
+  const long maximumRedirectionCounts = GetCurloptMaximumRedirectionCount(); // 5 for default
 
   curl_easy_setopt(curlHandle, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, verboseMode);
@@ -180,7 +208,7 @@ void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
   curl_easy_setopt(curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY);
   curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L);
   curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
-  curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, 5L);
+  curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, maximumRedirectionCounts);
 
   if(verboseMode != 0)
   {

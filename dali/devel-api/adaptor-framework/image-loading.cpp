@@ -31,6 +31,22 @@ namespace
 // limit maximum image down load size to 50 MB
 const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
 
+std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t width)
+{
+  std::ostringstream oss;
+
+  for(size_t i = 0u; i < size; ++i)
+  {
+    if(i > 0u && (i % width) == 0u)
+    {
+      oss << '\n';
+    }
+    oss << ((data[i] >= 0x20 && data[i] < 0x80) ? static_cast<char>(data[i]) : '.');
+  }
+
+  return oss.str();
+}
+
 } // namespace
 
 Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
@@ -180,6 +196,8 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
         else
         {
           DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
+          DALI_LOG_WARNING("URL: %s\n", url.c_str());
+          DALI_LOG_WARNING("Downloaded data (prefix 512 bytes): %s\n", ConvertDataReadable(reinterpret_cast<uint8_t*>(dataBuffer.Begin()), std::min(0x200, blobSize), 0x40).c_str());
         }
       }
       else
