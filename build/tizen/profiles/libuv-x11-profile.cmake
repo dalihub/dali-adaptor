@@ -16,8 +16,6 @@ SET( SOURCES
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
-        ${adaptor_graphics_gles_src_files}
-        ${adaptor_graphics_x11_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_x11_src_files}
@@ -49,20 +47,19 @@ SET( SOURCES
 
 IF( ENABLE_VULKAN )
   SET(SOURCES ${SOURCES}
-    ${graphics_vulkan_src_files}
-    ${graphics_vulkan_x11_src_files}
-    ${adaptor_imaging_x11_src_files}
+    ${adaptor_graphics_vulkan_src_files}
+    ${adaptor_graphics_vulkan_x11_src_files}
+    ${adaptor_imaging_x11_vulkan_src_files}
+    ${adaptor_libraries_spirv_reflect_src_files}
     ${adaptor_window_system_x11_vulkan_src_files}
-    )
+  )
 ELSE()
   SET(SOURCES ${SOURCES}
     ${adaptor_devel_api_egl_src_files}
-
     ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_ubuntu_src_files}
-
+    ${adaptor_graphics_x11_src_files}
     ${adaptor_imaging_x11_egl_src_files}
-
     ${adaptor_window_system_x11_egl_src_files}
     ${adaptor_window_system_common_egl_src_files}
   )
