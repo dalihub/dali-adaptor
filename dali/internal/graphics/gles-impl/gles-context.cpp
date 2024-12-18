@@ -908,8 +908,6 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
     auto*              gl          = mImpl->GetGL();
     if(framebuffer && gl)
     {
-      gl->Flush();
-
       /* @todo Full dependency checking would need to store textures in Begin, and create
        * fence objects here; but we're going to draw all fbos on shared context in serial,
        * so no real need (yet). Might want to consider ensuring order of render passes,
@@ -923,11 +921,26 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
        */
       dependencyChecker.AddTextures(this, framebuffer);
     }
-  }
 
-  if(dependencyChecker.GetNativeTextureCount() > 0)
-  {
-    dependencyChecker.CreateNativeTextureSync(this);
+    if(dependencyChecker.GetNativeTextureCount() > 0)
+    {
+      dependencyChecker.MarkNativeTextureSyncContext(this);
+#ifndef DALI_PROFILE_TV
+      /// Only TV profile should not create egl sync object before eglSwapBuffers, due to DDK bug. 2024-12-13. eunkiki.hong
+      dependencyChecker.CreateNativeTextureSync(this);
+#endif
+    }
+
+    if(DALI_LIKELY(gl) &&
+       (framebuffer
+#ifndef DALI_PROFILE_TV
+        || (dependencyChecker.GetNativeTextureCount() > 0)
+#endif
+          ))
+    {
+      // Need to call glFlush or eglSwapBuffer after create sync object.
+      gl->Flush();
+    }
   }
 }
 
