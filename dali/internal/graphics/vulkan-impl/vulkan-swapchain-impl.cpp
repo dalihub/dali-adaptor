@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,15 +371,21 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   return mFramebuffers[mSwapchainImageIndex].get();
 }
 
-void Swapchain::Submit(CommandBufferImpl* commandBuffer)
+void Swapchain::Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends)
 {
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
 
+  std::vector<vk::Semaphore>          waitSemaphores{depends};
+  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+  waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
+  waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
+
   mQueue->Submit({Vulkan::SubmissionData{
-                   {swapchainBuffer->acquireNextImageSemaphore},
-                   {vk::PipelineStageFlagBits::eFragmentShader},
+                   waitSemaphores,
+                   waitDstStageMask,
                    {commandBuffer},
                    {swapchainBuffer->submitSemaphore}}},
                  swapchainBuffer->endOfFrameFence.get());

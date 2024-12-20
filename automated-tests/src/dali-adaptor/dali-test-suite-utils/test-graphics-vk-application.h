@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,12 +101,11 @@ private:
   void DoUpdate(uint32_t intervalMilliseconds, const char* location = NULL);
 
 protected:
-  TestPlatformAbstraction                     mPlatformAbstraction;
-  TestRenderController                        mRenderController;
-  TestVkAbstraction                           mVkAbstraction;
-  Graphics::VulkanGraphics                    mGraphics; // Use real vulkan graphics
-  Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
-  Dali::DisplayConnection*                    mDisplayConnection{nullptr};
+  TestPlatformAbstraction  mPlatformAbstraction;
+  TestRenderController     mRenderController;
+  TestVkAbstraction        mVkAbstraction;
+  Graphics::VulkanGraphics mGraphics; // Use real vulkan graphics
+  Dali::DisplayConnection* mDisplayConnection{nullptr};
 
   Integration::UpdateStatus mStatus;
   Integration::RenderStatus mRenderStatus;

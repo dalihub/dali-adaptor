@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,29 +107,37 @@ void RenderTarget::Submit(const CommandBuffer* cmdBuffer)
   auto& graphicsDevice = mController.GetGraphicsDevice();
   auto  surface        = GetSurface();
 
+  std::vector<vk::Semaphore> waitSemaphores;
+  for(auto renderTarget : mDependencies)
+  {
+    // Only use semaphore if dependency render target was submitted
+    // already this frame and not already waited on.
+    if(renderTarget->mSubmitted && !renderTarget->mSemaphoreWaited)
+    {
+      waitSemaphores.push_back(renderTarget->mSubmitSemaphore);
+      renderTarget->mSemaphoreWaited = true;
+    }
+  }
+  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
   if(surface)
   {
     auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
     auto swapchain = graphicsDevice.GetSwapchainForSurfaceId(surfaceId);
-    swapchain->Submit(cmdBuffer->GetImpl());
+    swapchain->Submit(cmdBuffer->GetImpl(), waitSemaphores);
   }
   else
   {
-    std::vector<vk::Semaphore> waitSemaphores;
-    for(auto renderTarget : mDependencies)
-    {
-      waitSemaphores.push_back(renderTarget->mSubmitSemaphore);
-    }
-
     std::vector<vk::Semaphore> signalSemaphores{mSubmitSemaphore};
     graphicsDevice.GetGraphicsQueue(0).Submit(
       {SubmissionData{
         waitSemaphores,
-        {vk::PipelineStageFlagBits::eFragmentShader},
+        waitDstStageMask,
         {cmdBuffer->GetImpl()},
         signalSemaphores}},
       nullptr);
   }
+  mSubmitted = true;
 }
 
 } // namespace Dali::Graphics::Vulkan

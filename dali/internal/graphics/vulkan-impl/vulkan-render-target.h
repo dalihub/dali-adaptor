@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,11 +109,17 @@ public:
   void ResetDependencies()
   {
     mDependencies.clear();
+    mSubmitted       = false;
+    mSemaphoreWaited = false;
   }
 
   void AddDependency(RenderTarget* dependency)
   {
-    mDependencies.push_back(dependency);
+    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
+    if(iter == mDependencies.end())
+    {
+      mDependencies.push_back(dependency);
+    }
   }
   void RemoveDependency(RenderTarget* dependency)
   {
@@ -124,9 +130,13 @@ public:
     }
   }
 
+  const std::vector<RenderTarget*>& GetDependencies() const;
+
 private:
-  vk::Semaphore              mSubmitSemaphore; ///< Signaled when the command buffer for this target is processed
-  std::vector<RenderTarget*> mDependencies;    ///< Render targets whose output is used as input to this task.
+  std::vector<RenderTarget*> mDependencies;     ///< Render targets whose output is used as input to this task.
+  vk::Semaphore              mSubmitSemaphore;  ///< Signaled when the command buffer for this target is processed
+  bool                       mSubmitted{false}; ///< Check if this render target was submitted this frame
+  bool                       mSemaphoreWaited{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

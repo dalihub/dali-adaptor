@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 namespace Dali::Graphics::Vulkan
 {
 // submission
-SubmissionData::SubmissionData(const std::vector<vk::Semaphore>&      waitSemaphores_,
-                               vk::PipelineStageFlags                 waitDestinationStageMask_,
-                               const std::vector<CommandBufferImpl*>& commandBuffers_,
-                               const std::vector<vk::Semaphore>&      signalSemaphores_)
+SubmissionData::SubmissionData(const std::vector<vk::Semaphore>&          waitSemaphores_,
+                               const std::vector<vk::PipelineStageFlags>& waitDestinationStageMask_,
+                               const std::vector<CommandBufferImpl*>&     commandBuffers_,
+                               const std::vector<vk::Semaphore>&          signalSemaphores_)
 : waitSemaphores(waitSemaphores_),
   waitDestinationStageMask(waitDestinationStageMask_),
   commandBuffers(commandBuffers_),
@@ -40,7 +40,7 @@ SubmissionData& SubmissionData::SetWaitSemaphores(const std::vector<vk::Semaphor
   return *this;
 }
 
-SubmissionData& SubmissionData::SetWaitDestinationStageMask(vk::PipelineStageFlags dstStageMask)
+SubmissionData& SubmissionData::SetWaitDestinationStageMask(const std::vector<vk::PipelineStageFlags>& dstStageMask)
 {
   waitDestinationStageMask = dstStageMask;
   return *this;
@@ -126,7 +126,7 @@ vk::Result Queue::Submit(const std::vector<SubmissionData>& submissionData, Fenc
     auto submitInfo = vk::SubmitInfo()
                         .setWaitSemaphoreCount(U32(subData.waitSemaphores.size()))
                         .setPWaitSemaphores(subData.waitSemaphores.data())
-                        .setPWaitDstStageMask(&subData.waitDestinationStageMask)
+                        .setPWaitDstStageMask(subData.waitDestinationStageMask.data())
                         .setCommandBufferCount(U32(subData.commandBuffers.size()))
                         .setPCommandBuffers(&commandBufferHandles[currentBufferIndex])
                         .setSignalSemaphoreCount(U32(subData.signalSemaphores.size()))

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,23 +33,23 @@ struct SubmissionData
 {
   SubmissionData() = default;
 
-  explicit SubmissionData(const std::vector<vk::Semaphore>&      waitSemaphores_,
-                          vk::PipelineStageFlags                 waitDestinationStageMask_,
-                          const std::vector<CommandBufferImpl*>& commandBuffers_,
-                          const std::vector<vk::Semaphore>&      signalSemaphores_);
+  explicit SubmissionData(const std::vector<vk::Semaphore>&          waitSemaphores_,
+                          const std::vector<vk::PipelineStageFlags>& waitDestinationStageMask_,
+                          const std::vector<CommandBufferImpl*>&     commandBuffers_,
+                          const std::vector<vk::Semaphore>&          signalSemaphores_);
 
   SubmissionData& SetWaitSemaphores(const std::vector<vk::Semaphore>& semaphores);
 
-  SubmissionData& SetWaitDestinationStageMask(vk::PipelineStageFlags dstStageMask);
+  SubmissionData& SetWaitDestinationStageMask(const std::vector<vk::PipelineStageFlags>& dstStageMask);
 
   SubmissionData& SetCommandBuffers(const std::vector<CommandBufferImpl*>& cmdBuffers);
 
   SubmissionData& SetSignalSemaphores(const std::vector<vk::Semaphore>& semaphores);
 
-  std::vector<vk::Semaphore>      waitSemaphores;
-  vk::PipelineStageFlags          waitDestinationStageMask;
-  std::vector<CommandBufferImpl*> commandBuffers;
-  std::vector<vk::Semaphore>      signalSemaphores;
+  std::vector<vk::Semaphore>          waitSemaphores;
+  std::vector<vk::PipelineStageFlags> waitDestinationStageMask;
+  std::vector<CommandBufferImpl*>     commandBuffers;
+  std::vector<vk::Semaphore>          signalSemaphores;
 };
 
 class Queue
