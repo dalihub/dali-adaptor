@@ -78,9 +78,14 @@ struct DALI_ADAPTOR_API Bridge
   virtual void RemoveAccessible(uint32_t actorId) = 0;
 
   /**
-   * @brief Gets the accessible object associated with given actor from the brige.
+   * @brief Gets the accessible object associated with given actor from the bridge.
    */
   virtual std::shared_ptr<Accessible> GetAccessible(Actor actor) const = 0;
+
+  /**
+   * @brief Gets the accessible object associated with given path from the bridge.
+   */
+  virtual std::shared_ptr<Accessible> GetAccessible(const std::string& path) const = 0;
 
   /**
    * @brief Returns true if GetChildren should include hidden objects; false otherwise.
@@ -585,7 +590,6 @@ struct DALI_ADAPTOR_API Bridge
 protected:
   struct Data
   {
-    std::unordered_set<const Accessible*> mKnownObjects;
     std::string                           mBusName;
     Bridge*                               mBridge = nullptr;
     Actor                                 mHighlightActor;

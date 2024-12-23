@@ -246,7 +246,12 @@ struct DummyBridge : Dali::Accessibility::Bridge
   std::shared_ptr<Accessible> GetAccessible(Actor actor) const override
   {
     return nullptr;
-  };
+  }
+
+  std::shared_ptr<Accessible> GetAccessible(const std::string& path) const override
+  {
+    return nullptr;
+  }
 
   bool ShouldIncludeHidden() const override
   {

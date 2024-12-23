@@ -38,7 +38,7 @@ namespace Dali::Accessibility
 class DALI_ADAPTOR_API Accessible
 {
 public:
-  virtual ~Accessible() noexcept;
+  virtual ~Accessible() noexcept = default;
 
   /**
    * @brief Gets accessibility name.
@@ -284,7 +284,7 @@ public:
   std::string DumpTree(DumpDetailLevel detailLevel);
 
 protected:
-  Accessible();
+  Accessible()                          = default;
   Accessible(const Accessible&)         = delete;
   Accessible(Accessible&&)              = delete;
   Accessible&                   operator=(const Accessible&) = delete;

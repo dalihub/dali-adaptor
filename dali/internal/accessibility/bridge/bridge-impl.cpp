@@ -122,6 +122,29 @@ public:
   }
 
   /**
+   * @copydoc Dali::Accessibility::Bridge::GetAccessible()
+   */
+  std::shared_ptr<Accessible> GetAccessible(const std::string& path) const override
+  {
+    try
+    {
+      uint32_t actorId = static_cast<uint32_t>(std::stoi(path));
+      auto     iter    = mAccessibles.find(actorId);
+      return iter != mAccessibles.end() ? iter->second : nullptr;
+    }
+    catch(const std::invalid_argument& ia)
+    {
+      // Handle invalid argument (e.g., non-numeric characters in the string)
+      throw std::runtime_error("Invalid argument: string is not a valid integer");
+    }
+    catch(const std::out_of_range& oor)
+    {
+      // Handle out of range (e.g., the number is too large for uint32_t)
+      throw std::runtime_error("Out of range: number is too large for uint32_t");
+    }
+  }
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::ShouldIncludeHidden()
    */
   bool ShouldIncludeHidden() const override
@@ -661,7 +684,7 @@ public:
   void SwitchBridge()
   {
     //If DBusClient is not ready, don't remove initialize timer.
-    if (mInitializeTimer && mInitializeTimer.IsRunning()) return;
+    if(mInitializeTimer && mInitializeTimer.IsRunning()) return;
 
     bool isScreenReaderEnabled = mIsScreenReaderEnabled && !mIsScreenReaderSuppressed;
 
