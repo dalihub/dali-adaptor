@@ -623,6 +623,16 @@ public:
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
 
   /**
+   * @copydoc Dali::WebEngine::RegisterDeviceConnectionChangedCallback()
+   */
+  void RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterDeviceListGetCallback()
+   */
+  void RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback);
+
+  /**
    * @copydoc Dali::WebEngine::FeedMouseWheel()
    */
   void FeedMouseWheel(bool yDirection, int step, int x, int y);

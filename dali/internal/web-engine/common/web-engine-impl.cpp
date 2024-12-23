@@ -866,6 +866,16 @@ void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin
   mPlugin->RegisterUserMediaPermissionRequestCallback(callback);
 }
 
+void WebEngine::RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback)
+{
+  mPlugin->RegisterDeviceConnectionChangedCallback(callback);
+}
+
+void WebEngine::RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback)
+{
+  mPlugin->RegisterDeviceListGetCallback(callback);
+}
+
 void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
 {
   mPlugin->FeedMouseWheel(yDirection, step, x, y);

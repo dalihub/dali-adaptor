@@ -642,6 +642,16 @@ void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin
   GetImplementation(*this).RegisterUserMediaPermissionRequestCallback(callback);
 }
 
+void WebEngine::RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback)
+{
+  GetImplementation(*this).RegisterDeviceConnectionChangedCallback(callback);
+}
+
+void WebEngine::RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback)
+{
+  GetImplementation(*this).RegisterDeviceListGetCallback(callback);
+}
+
 void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
 {
   GetImplementation(*this).FeedMouseWheel(yDirection, step, x, y);

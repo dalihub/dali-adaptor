@@ -883,6 +883,20 @@ public:
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
 
   /**
+   * @brief Register DeviceConnectionChanged callback.
+   *
+   * @param[in] callback The callback to be called for device connection changed event.
+   */
+  void RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback);
+
+  /**
+   * @brief Register DeviceListGet callback.
+   *
+   * @param[in] callback The callback to be called for getting device list.
+   */
+  void RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback);
+
+  /**
    * @brief Feed mouse wheel event forcefully.
    *
    * @param[in] yDirection wheel event's y direction.

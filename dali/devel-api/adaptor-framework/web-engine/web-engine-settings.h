@@ -422,6 +422,14 @@ public:
    *         @c IME_STYLE_DYNAMIC    dynamic IME style
    */
   virtual int GetImeStyle() const = 0;
+
+  /**
+   * @brief Sets default audio input device
+   *
+   * @param[in] deviceId default device ID
+   */
+  virtual void SetDefaultAudioInputDevice(const std::string& deviceId) const = 0;
+
 };
 
 } // namespace Dali

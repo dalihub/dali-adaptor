@@ -48,6 +48,7 @@ class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
 class WebEngineUserMediaPermissionRequest;
+class WebEngineDeviceListGet;
 
 /**
  * @brief WebEnginePlugin is an abstract interface, used by dali-adaptor to access WebEngine plugin.
@@ -220,6 +221,17 @@ public:
    * @brief The callback to be called when the web engine received a user media permission reqeust from user application.
    */
   using WebEngineUserMediaPermissionRequestCallback = std::function<void(Dali::WebEngineUserMediaPermissionRequest*, const std::string&)>;
+
+  /**
+   * @brief The callback to be called when the web engine received a device connection changed event.
+   */
+  using WebEngineDeviceConnectionChangedCallback = std::function<void(int32_t)>;
+
+  /**
+   * @brief The callback to be called when the web engine received a device list.
+   */
+  using WebEngineDeviceListGetCallback = std::function<void(Dali::WebEngineDeviceListGet*, int32_t)>;
+
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -1009,6 +1021,20 @@ public:
    * @param[in] callback The callback to be called for handling user media permission.
    */
   virtual void RegisterUserMediaPermissionRequestCallback(WebEngineUserMediaPermissionRequestCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when device connection changed.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterDeviceConnectionChangedCallback(WebEngineDeviceConnectionChangedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called to get device list.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterDeviceListGetCallback(WebEngineDeviceListGetCallback callback) = 0;
 
   /**
    * @brief Feed mouse wheel event forcefully.
