@@ -446,6 +446,7 @@ void NativeImageSourceTizen::DestroyResource()
   std::scoped_lock lock(mMutex);
   if(mEglImageKHR)
   {
+    DALI_ASSERT_DEBUG(mEglImageExtensions);
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
     mEglImageKHR = NULL;
@@ -459,7 +460,10 @@ void NativeImageSourceTizen::DestroyResource()
 
 uint32_t NativeImageSourceTizen::TargetTexture()
 {
-  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
+  if(DALI_LIKELY(mEglImageExtensions && mEglImageKHR))
+  {
+    mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
+  }
 
   return 0;
 }
@@ -471,8 +475,12 @@ void NativeImageSourceTizen::PrepareTexture()
   {
     // Destroy previous eglImage because use for new one.
     // if mEglImageKHR is not to be NULL here, it will not be updated with a new eglImage.
-    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
-    mEglImageKHR = NULL;
+    if(mEglImageKHR)
+    {
+      DALI_ASSERT_DEBUG(mEglImageExtensions);
+      mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
+      mEglImageKHR = NULL;
+    }
 
     if(CreateResource())
     {
