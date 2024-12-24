@@ -361,6 +361,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
   uint32_t currentSampler = 0;
   uint32_t currentElement = 0;
 
+  bool needDraw = true;
+
   // @warning Assume that binding.binding is strictly linear in the same order as mCurrentTextureBindings
   // elements. This avoids having to sort the bindings.
   for(const auto& binding : mImpl->mCurrentTextureBindings)
@@ -376,7 +378,11 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Texture may not have been initialized yet...(tbm_surface timing issue?)
     if(!texture->GetGLTexture())
     {
-      texture->InitializeResource();
+      if(DALI_UNLIKELY(!texture->InitializeResource()))
+      {
+        DALI_LOG_ERROR("[ERROR] NativeImage might invalid! Do not render it\n");
+        needDraw = false;
+      }
     }
 
     // Warning, this may cause glWaitSync to occur on the GPU, or glClientWaitSync to block the CPU.
@@ -478,70 +484,73 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
   const auto& ia = pipelineState.inputAssemblyState;
 
   // Resolve draw call
-  switch(drawCall.type)
+  if(DALI_LIKELY(needDraw))
   {
-    case DrawCallDescriptor::Type::DRAW:
+    switch(drawCall.type)
     {
-      mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
-                                                                mImpl->mGlStateCache.DepthBufferWriteEnabled(),
-                                                                mImpl->mGlStateCache.StencilBufferWriteEnabled());
-      // For GLES3+ we use VAO, for GLES2 internal cache
-      if(!hasGLES3)
+      case DrawCallDescriptor::Type::DRAW:
       {
-        mImpl->FlushVertexAttributeLocations();
-      }
+        mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                                  mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                                  mImpl->mGlStateCache.StencilBufferWriteEnabled());
+        // For GLES3+ we use VAO, for GLES2 internal cache
+        if(!hasGLES3)
+        {
+          mImpl->FlushVertexAttributeLocations();
+        }
 
-      if(drawCall.draw.instanceCount == 0)
-      {
-        gl->DrawArrays(GLESTopology(ia->topology),
-                       drawCall.draw.firstVertex,
-                       drawCall.draw.vertexCount);
+        if(drawCall.draw.instanceCount == 0)
+        {
+          gl->DrawArrays(GLESTopology(ia->topology),
+                        drawCall.draw.firstVertex,
+                        drawCall.draw.vertexCount);
+        }
+        else
+        {
+          gl->DrawArraysInstanced(GLESTopology(ia->topology),
+                                  drawCall.draw.firstVertex,
+                                  drawCall.draw.vertexCount,
+                                  drawCall.draw.instanceCount);
+        }
+        break;
       }
-      else
+      case DrawCallDescriptor::Type::DRAW_INDEXED:
       {
-        gl->DrawArraysInstanced(GLESTopology(ia->topology),
-                                drawCall.draw.firstVertex,
-                                drawCall.draw.vertexCount,
-                                drawCall.draw.instanceCount);
-      }
-      break;
-    }
-    case DrawCallDescriptor::Type::DRAW_INDEXED:
-    {
-      const auto& binding = mImpl->mCurrentIndexBufferBinding;
-      BindBuffer(GL_ELEMENT_ARRAY_BUFFER, binding.buffer->GetGLBuffer());
+        const auto& binding = mImpl->mCurrentIndexBufferBinding;
+        BindBuffer(GL_ELEMENT_ARRAY_BUFFER, binding.buffer->GetGLBuffer());
 
-      mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
-                                                                mImpl->mGlStateCache.DepthBufferWriteEnabled(),
-                                                                mImpl->mGlStateCache.StencilBufferWriteEnabled());
+        mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                                  mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                                  mImpl->mGlStateCache.StencilBufferWriteEnabled());
 
-      // For GLES3+ we use VAO, for GLES2 internal cache
-      if(!hasGLES3)
-      {
-        mImpl->FlushVertexAttributeLocations();
-      }
+        // For GLES3+ we use VAO, for GLES2 internal cache
+        if(!hasGLES3)
+        {
+          mImpl->FlushVertexAttributeLocations();
+        }
 
-      auto indexBufferFormat = GLIndexFormat(binding.format).format;
-      if(drawCall.drawIndexed.instanceCount == 0)
-      {
-        gl->DrawElements(GLESTopology(ia->topology),
-                         drawCall.drawIndexed.indexCount,
-                         indexBufferFormat,
-                         reinterpret_cast<void*>(binding.offset));
+        auto indexBufferFormat = GLIndexFormat(binding.format).format;
+        if(drawCall.drawIndexed.instanceCount == 0)
+        {
+          gl->DrawElements(GLESTopology(ia->topology),
+                          drawCall.drawIndexed.indexCount,
+                          indexBufferFormat,
+                          reinterpret_cast<void*>(binding.offset));
+        }
+        else
+        {
+          gl->DrawElementsInstanced(GLESTopology(ia->topology),
+                                    drawCall.drawIndexed.indexCount,
+                                    indexBufferFormat,
+                                    reinterpret_cast<void*>(binding.offset),
+                                    drawCall.drawIndexed.instanceCount);
+        }
+        break;
       }
-      else
+      case DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT:
       {
-        gl->DrawElementsInstanced(GLESTopology(ia->topology),
-                                  drawCall.drawIndexed.indexCount,
-                                  indexBufferFormat,
-                                  reinterpret_cast<void*>(binding.offset),
-                                  drawCall.drawIndexed.instanceCount);
+        break;
       }
-      break;
-    }
-    case DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT:
-    {
-      break;
     }
   }
 
