@@ -577,12 +577,6 @@ void Window::Show()
 
   mSurface->SetFullSwapNextFrame();
 
-  // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
-  {
-    mAdaptor->RequestUpdateOnce();
-  }
-
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Show(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
 }
 
@@ -771,12 +765,6 @@ void Window::SetSize(Dali::Window::WindowSize size)
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
-  {
-    mAdaptor->RequestUpdateOnce();
-  }
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -888,12 +876,6 @@ void Window::SetPositionSize(PositionSize positionSize)
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
-  {
-    mAdaptor->RequestUpdateOnce();
-  }
 }
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
@@ -1013,7 +995,7 @@ void Window::OnIconifyChanged(bool iconified)
   mSurface->SetFullSwapNextFrame();
 
   // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
+  if(DALI_LIKELY(mAdaptor) && !iconified)
   {
     mAdaptor->RequestUpdateOnce();
   }
@@ -1152,12 +1134,6 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
-  {
-    mAdaptor->RequestUpdateOnce();
-  }
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
@@ -1255,12 +1231,6 @@ void Window::OnResume()
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  // Need to update/render once if surface set full swaped after adaptor call ProcessCoreEvents().
-  if(DALI_LIKELY(mAdaptor))
-  {
-    mAdaptor->RequestUpdateOnce();
-  }
 }
 
 void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options)
