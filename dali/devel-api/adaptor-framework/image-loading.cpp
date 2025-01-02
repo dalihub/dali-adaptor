@@ -196,9 +196,12 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
         else
         {
           DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
+
+          auto prefixSize  = std::min(static_cast<decltype(blobSize)>(0x200), blobSize); // maximum 512 bytes.
+          auto errorString = ConvertDataReadable(reinterpret_cast<uint8_t*>(dataBuffer.Begin()), prefixSize, 0x40);
           DALI_LOG_WARNING("URL: %s\n", url.c_str());
-          DALI_LOG_WARNING("Downloaded data (prefix 512 bytes): %s\n", ConvertDataReadable(reinterpret_cast<uint8_t*>(dataBuffer.Begin()), std::min(0x200, blobSize), 0x40).c_str());
-        }
+          DALI_LOG_WARNING("Downloaded data (prefix %zu bytes of %zu bytes):\n", prefixSize, blobSize);
+          DALI_LOG_WARNING("%s\n", errorString.c_str());        }
       }
       else
       {
