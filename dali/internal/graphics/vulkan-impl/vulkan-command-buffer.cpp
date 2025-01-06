@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -178,10 +178,10 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   auto renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
   DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
 
-  auto             renderPass = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
-  auto             surface    = mRenderTarget->GetSurface();
-  auto&            device     = mController.GetGraphicsDevice();
-  FramebufferImpl* framebuffer  = nullptr;
+  auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
+  auto             surface     = mRenderTarget->GetSurface();
+  auto&            device      = mController.GetGraphicsDevice();
+  FramebufferImpl* framebuffer = nullptr;
   RenderPassHandle renderPassImpl;
   if(surface)
   {
@@ -330,9 +330,17 @@ void CommandBuffer::SetScissorTestEnable(bool value)
 
 void CommandBuffer::SetViewport(Viewport value)
 {
-  if(SetDynamicState(mDynamicState.viewport, value, DynamicStateMaskBits::VIEWPORT))
+  Viewport correctedValue = value;
+  auto     surface        = mRenderTarget->GetSurface();
+  if(!surface)
   {
-    mCommandBufferImpl->SetViewport(value);
+    correctedValue.height = -value.height;
+    correctedValue.y      = value.height;
+  }
+
+  if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
+  {
+    mCommandBufferImpl->SetViewport(correctedValue);
   }
 }
 
