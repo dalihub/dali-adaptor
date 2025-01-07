@@ -63,9 +63,7 @@ ELSE()
     ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_tizen_src_files}
     ${adaptor_imaging_tizen_egl_src_files}
-    ${adaptor_public_api_egl_src_files}
     ${adaptor_devel_api_egl_src_files}
-    ${adaptor_system_common_egl_src_files}
     ${adaptor_window_system_common_egl_src_files}
     ${adaptor_window_system_tizen_wayland_egl_src_files}
   )

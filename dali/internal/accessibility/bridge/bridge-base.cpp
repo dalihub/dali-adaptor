@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -332,20 +332,13 @@ Accessible* BridgeBase::Find(const std::string& path) const
     return &mApplication;
   }
 
-  void*              accessible;
-  std::istringstream tmp{path};
-  if(!(tmp >> accessible))
-  {
-    throw std::domain_error{"invalid path '" + path + "'"};
-  }
-
-  auto it = mData->mKnownObjects.find(static_cast<Accessible*>(accessible));
-  if(it == mData->mKnownObjects.end() || (!mApplication.mShouldIncludeHidden && (*it)->IsHidden()))
+  auto accessible = GetAccessible(path);
+  if(!accessible || (!mApplication.mShouldIncludeHidden && accessible->IsHidden()))
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }
 
-  return static_cast<Accessible*>(accessible);
+  return accessible.get();
 }
 
 Accessible* BridgeBase::Find(const Address& ptr) const

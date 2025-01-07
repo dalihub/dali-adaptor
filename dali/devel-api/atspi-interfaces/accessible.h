@@ -38,7 +38,7 @@ namespace Dali::Accessibility
 class DALI_ADAPTOR_API Accessible
 {
 public:
-  virtual ~Accessible() noexcept;
+  virtual ~Accessible() noexcept = default;
 
   /**
    * @brief Gets accessibility name.
@@ -269,8 +269,22 @@ public:
     return mSuppressedEvents;
   }
 
+  enum class DumpDetailLevel
+  {
+    DUMP_SHORT              = 0,
+    DUMP_SHORT_SHOWING_ONLY = 1,
+    DUMP_FULL               = 2,
+    DUMP_FULL_SHOWING_ONLY  = 3,
+  };
+
+  /**
+   * @brief Dumps tree structure of accessible objects starting from self.
+   * @param [in] detailLevel Detail level of dumped json output.
+   */
+  std::string DumpTree(DumpDetailLevel detailLevel);
+
 protected:
-  Accessible();
+  Accessible()                          = default;
   Accessible(const Accessible&)         = delete;
   Accessible(Accessible&&)              = delete;
   Accessible&                   operator=(const Accessible&) = delete;

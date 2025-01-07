@@ -58,13 +58,11 @@ IF( ENABLE_VULKAN )
     )
 ELSE()
   SET(SOURCES ${SOURCES}
-    ${adaptor_public_api_egl_src_files}
     ${adaptor_devel_api_egl_src_files}
     ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_ubuntu_src_files}
     ${adaptor_imaging_ubuntu_x11_src_files}
     ${adaptor_imaging_ubuntu_x11_egl_src_files}
-    ${adaptor_system_common_egl_src_files}
     ${adaptor_window_system_common_egl_src_files}
     ${adaptor_window_system_ubuntu_x11_egl_src_files}
     )

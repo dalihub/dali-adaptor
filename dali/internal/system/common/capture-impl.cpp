@@ -32,6 +32,7 @@
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {
@@ -41,8 +42,8 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK              = 1000;
-constexpr uint32_t        TIME_OUT_DURATION                            = 1000;
+static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK = 1000;
+constexpr uint32_t        TIME_OUT_DURATION               = 1000;
 } // namespace
 
 Capture::Capture()
@@ -77,6 +78,8 @@ Capture::~Capture()
 
 CapturePtr Capture::New()
 {
+  DALI_ASSERT_ALWAYS(Graphics::GetCurrentGraphicsBackend() == Graphics::Backend::GLES && "Only GLES Backend Supported");
+
   CapturePtr pWorker = new Capture();
 
   return pWorker;
@@ -84,6 +87,8 @@ CapturePtr Capture::New()
 
 CapturePtr Capture::New(Dali::CameraActor cameraActor)
 {
+  DALI_ASSERT_ALWAYS(Graphics::GetCurrentGraphicsBackend() == Graphics::Backend::GLES && "Only GLES Backend Supported");
+
   CapturePtr pWorker = new Capture(cameraActor);
 
   return pWorker;
@@ -160,8 +165,8 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource()
     Dali::PixelData pixelData = mRenderTask.GetRenderResult();
     if(pixelData)
     {
-      auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
-      NativeImageSourcePtr nativeImageSourcePtr = Dali::NativeImageSource::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImageSource::COLOR_DEPTH_32);  // Texture pixel format is RGBA8888
+      auto                 pixelDataBuffer      = Dali::Integration::GetPixelDataBuffer(pixelData);
+      NativeImageSourcePtr nativeImageSourcePtr = Dali::NativeImageSource::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImageSource::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
 
       if(Dali::DevelNativeImageSource::SetPixels(*nativeImageSourcePtr, pixelDataBuffer.buffer, pixelData.GetPixelFormat()))
       {

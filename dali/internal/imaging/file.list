@@ -66,10 +66,17 @@ SET( adaptor_imaging_ubuntu_x11_vulkan_src_files
 SET( adaptor_imaging_x11_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp
 )
+
+# module: imaging, backend: libuv-x11/glib / egl
 SET( adaptor_imaging_x11_egl_src_files
-    ${adaptor_imaging_dir}/x11/native-image-source-factory-x.cpp
+    ${adaptor_imaging_dir}/x11/native-image-source-factory-x-egl.cpp
     ${adaptor_imaging_dir}/x11/native-image-source-impl-x.cpp
     ${adaptor_imaging_dir}/x11/native-image-source-queue-impl-x.cpp
+)
+
+# module: imaging, backend: libuv-x11/glib / vulkan
+SET( adaptor_imaging_x11_vulkan_src_files
+    ${adaptor_imaging_dir}/x11/native-image-source-factory-x-vulkan.cpp
 )
 
 # module: imaging, backend: android

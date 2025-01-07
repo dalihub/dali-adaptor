@@ -110,20 +110,28 @@ public: ///< For NativeTexture dependency checker
   void DiscardNativeTexture(const Texture* texture);
 
   /**
-   * @brief Create Sync object for native images.
+   * @brief Mark that native images write context.
    * It will be called at EndRenderPass.
    */
-  void CreateNativeTextureSync(const Context* writeContext);
+  void MarkNativeTextureSyncContext(const Context* writeContext);
+
+  /**
+   * @brief Create Sync object for native images.
+   * It will be called after eglSwapBuffers.
+   */
+  void CreateNativeTextureSync(const Context* currentContext);
 
 private:
   using SyncObjectId = uint32_t; ///< Note : It should be matched with Dali::Graphics::GLES::SyncPool:SyncObjectId.
+
+  static constexpr SyncObjectId INVALID_SYNC_OBJECT_ID = 0u; ///< Note : It should be matched with Dali::Graphics::GLES::SyncPool:INVALID_SYNC_OBJECT_ID.
 
   struct FramebufferTextureDependency
   {
     std::vector<Texture*> textures;
     Context*              writeContext{nullptr};
     Framebuffer*          framebuffer{nullptr};
-    SyncObjectId          agingSyncObjectId{0u};
+    SyncObjectId          agingSyncObjectId{INVALID_SYNC_OBJECT_ID};
     bool                  syncing{false};
   };
   std::vector<FramebufferTextureDependency> mFramebufferTextureDependencies;
@@ -132,7 +140,7 @@ private:
   {
     std::unordered_set<const Texture*> textures;
     const Context*                     writeContext{nullptr};
-    SyncObjectId                       agingSyncObjectId{0u};
+    SyncObjectId                       agingSyncObjectId{INVALID_SYNC_OBJECT_ID};
     bool                               synced{false};
   };
   std::vector<NativeTextureDependency> mNativeTextureDependencies[2];

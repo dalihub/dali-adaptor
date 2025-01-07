@@ -1058,7 +1058,7 @@ bool WindowBaseX::IsBottom()
   return false;
 }
 
-Any WindowBaseX::GetNativeBuffer()
+Any WindowBaseX::GetNativeBuffer() const
 {
   return 0;
 }

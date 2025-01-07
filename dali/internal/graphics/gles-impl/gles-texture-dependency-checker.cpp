@@ -68,7 +68,7 @@ void TextureDependencyChecker::Reset()
 
   if(!mNativeTextureDependencies[0].empty() || !mNativeTextureDependencies[1].empty())
   {
-    DALI_ASSERT_ALWAYS(mIsFirstPreparedNativeTextureDependency && "CreateNativeTextureSync should be called before PostRender!");
+    DALI_ASSERT_ALWAYS(mIsFirstPreparedNativeTextureDependency && "MarkNativeTextureSyncContext should be called before PostRender!");
 
     // Remove all infomations about previous native textures
     for(auto& nativeTextureDependency : mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex])
@@ -128,7 +128,7 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
   if(dependencyIndex < mFramebufferTextureDependencies.size())
   {
     auto& textureDependency = mFramebufferTextureDependencies[dependencyIndex];
-    if(!textureDependency.syncing && textureDependency.writeContext != readContext)
+    if(!textureDependency.syncing && textureDependency.writeContext != readContext && textureDependency.agingSyncObjectId != INVALID_SYNC_OBJECT_ID)
     {
       // Needs syncing!
       textureDependency.syncing = true;
@@ -136,7 +136,13 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
       if(cpu)
       {
         DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert CPU WAIT");
-        mController.GetSyncPool().ClientWait(textureDependency.agingSyncObjectId);
+        const bool synced = mController.GetSyncPool().ClientWait(textureDependency.agingSyncObjectId);
+        if(DALI_LIKELY(synced))
+        {
+          // Object discarded, and will be free when write context be currnt.
+          mController.GetSyncPool().FreeSyncObject(textureDependency.agingSyncObjectId);
+          textureDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
+        }
       }
       else
       {
@@ -155,9 +161,9 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
     // TODO : Optimize here. For now, we don't have too much EndPass call. So just keep this logic.
     for(auto& nativeTextureDependency : mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex])
     {
-      if(nativeTextureDependency.synced)
+      if(nativeTextureDependency.synced || nativeTextureDependency.agingSyncObjectId == INVALID_SYNC_OBJECT_ID)
       {
-        // Fast-out if we know it is already synced
+        // Fast-out if we know it is already synced, or if there's no sync object.
         continue;
       }
 
@@ -169,10 +175,11 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
           DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
           nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObjectId);
 
-          if(DALI_LIKELY(nativeTextureDependency.synced) && readContext == nativeTextureDependency.writeContext)
+          if(DALI_LIKELY(nativeTextureDependency.synced))
           {
-            // We can free sync object immediatly if we are using same context.
+            // Object discarded, and will be free when write context be currnt.
             mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
+            nativeTextureDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
           }
         }
         else
@@ -242,7 +249,7 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
   }
 }
 
-void TextureDependencyChecker::CreateNativeTextureSync(const GLES::Context* writeContext)
+void TextureDependencyChecker::MarkNativeTextureSyncContext(const GLES::Context* writeContext)
 {
   if(mIsFirstPreparedNativeTextureDependency)
   {
@@ -256,9 +263,19 @@ void TextureDependencyChecker::CreateNativeTextureSync(const GLES::Context* writ
   {
     auto& nativeTextureDependency        = mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].back();
     nativeTextureDependency.writeContext = writeContext; // Store write context
+  }
+}
 
-    DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CreateNativeTextureSync() Allocating sync object\n");
-    nativeTextureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
+void TextureDependencyChecker::CreateNativeTextureSync(const GLES::Context* currentContext)
+{
+  // TODO : Optimize here. For now, we don't have too much EndPass call. So just keep this logic.
+  for(auto& nativeTextureDependency : mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex])
+  {
+    if(nativeTextureDependency.writeContext == currentContext && nativeTextureDependency.agingSyncObjectId == INVALID_SYNC_OBJECT_ID)
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CreateNativeTextureSync(%p) Allocating sync object\n", currentContext);
+      nativeTextureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(currentContext, SyncPool::SyncContext::EGL);
+    }
   }
 }
 

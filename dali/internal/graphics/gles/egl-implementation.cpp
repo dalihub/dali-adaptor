@@ -781,7 +781,8 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
 
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-      oss << "[display:" << mEglDisplay << "]";
+      oss << "[display:" << mEglDisplay << ",";
+      oss << "native:" << mEglNativeDisplay << "]";
     });
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateWindowSurface");
     mCurrentEglSurface = eglCreateWindowSurface(mEglDisplay, mEglConfig, mEglNativeWindow, NULL);
@@ -808,7 +809,8 @@ EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, Co
 
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
-      oss << "[display:" << mEglDisplay << "]";
+      oss << "[display:" << mEglDisplay << ",";
+      oss << "native:" << mCurrentEglNativePixmap << "]";
     });
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreatePixmapSurface");
     mCurrentEglSurface = eglCreatePixmapSurface(mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL);
