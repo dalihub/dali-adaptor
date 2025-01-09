@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,64 @@
 #include <dali/public-api/adaptor-framework/window.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/gl-window-impl.h>
-#include <dali/internal/window-system/common/orientation-impl.h>
+#include <dali/devel-api/common/addon-binder.h>
+#include <dali/internal/window-system/gl-window/gl-window-impl.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {
+using GlWindowImpl = Internal::Adaptor::GlWindow;
+
+namespace
+{
+const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_SO("libdali2-adaptor-gl-window-addon.so");
+const char* const DALI_ADAPTOR_GL_WINDOW_ADDON_NAME("AdaptorGlWindowAddOn");
+
+struct AdaptorGlWindowAddOn : public Dali::AddOn::AddOnBinder
+{
+  AdaptorGlWindowAddOn()
+  : Dali::AddOn::AddOnBinder(DALI_ADAPTOR_GL_WINDOW_ADDON_NAME, DALI_ADAPTOR_GL_WINDOW_ADDON_SO)
+  {
+  }
+
+  ~AdaptorGlWindowAddOn() = default;
+
+  ADDON_BIND_FUNCTION(GlWindowNew, GlWindow(PositionSize, const std::string&, const std::string&, bool));
+  ADDON_BIND_FUNCTION(GlWindowSetGraphicsConfig, void(GlWindowImpl&, bool, bool, int, GlWindow::GlesVersion));
+  ADDON_BIND_FUNCTION(GlWindowRaise, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowLower, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowActivate, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowShow, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowHide, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowGetSupportedAuxiliaryHintCount, unsigned int(const GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowGetSupportedAuxiliaryHint, std::string(const GlWindowImpl&, unsigned int));
+  ADDON_BIND_FUNCTION(GlWindowAddAuxiliaryHint, unsigned int(GlWindowImpl&, const std::string&, const std::string&));
+  ADDON_BIND_FUNCTION(GlWindowRemoveAuxiliaryHint, bool(GlWindowImpl&, unsigned int));
+  ADDON_BIND_FUNCTION(GlWindowSetAuxiliaryHintValue, bool(GlWindowImpl&, unsigned int, const std::string&));
+  ADDON_BIND_FUNCTION(GlWindowGetAuxiliaryHintValue, std::string(const GlWindowImpl&, unsigned int));
+  ADDON_BIND_FUNCTION(GlWindowGetAuxiliaryHintId, unsigned int(const GlWindowImpl&, const std::string&));
+  ADDON_BIND_FUNCTION(GlWindowSetInputRegion, void(GlWindowImpl&, const Rect<int>&));
+  ADDON_BIND_FUNCTION(GlWindowSetOpaqueState, void(GlWindowImpl&, bool));
+  ADDON_BIND_FUNCTION(GlWindowIsOpaqueState, bool(const GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowSetPositionSize, void(GlWindowImpl&, PositionSize));
+  ADDON_BIND_FUNCTION(GlWindowGetPositionSize, PositionSize(const GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowGetCurrentOrientation, WindowOrientation(const GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowSetAvailableOrientations, void(GlWindowImpl&, const Dali::Vector<WindowOrientation>&));
+  ADDON_BIND_FUNCTION(GlWindowSetPreferredOrientation, void(GlWindowImpl&, WindowOrientation));
+  ADDON_BIND_FUNCTION(GlWindowRegisterGlCallbacks, void(GlWindowImpl&, CallbackBase*, CallbackBase*, CallbackBase*));
+  ADDON_BIND_FUNCTION(GlWindowRenderOnce, void(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowSetRenderingMode, void(GlWindowImpl&, GlWindow::RenderingMode));
+  ADDON_BIND_FUNCTION(GlWindowGetRenderingMode, GlWindow::RenderingMode(const GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowFocusChangeSignal, GlWindow::FocusChangeSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowResizeSignal, GlWindow::ResizeSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowKeyEventSignal, GlWindow::KeyEventSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowTouchedSignal, GlWindow::TouchEventSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowVisibilityChangedSignal, GlWindow::VisibilityChangedSignalType&(GlWindowImpl&));
+};
+
+std::unique_ptr<AdaptorGlWindowAddOn> gAdaptorGlWindowAddOn;
+} // unnamed namespace
+
 GlWindow GlWindow::New()
 {
   PositionSize positionSize(0, 0, 0, 0);
@@ -36,30 +89,21 @@ GlWindow GlWindow::New()
 
 GlWindow GlWindow::New(PositionSize positionSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  GlWindow                     newWindow;
-  Internal::Adaptor::GlWindow* window = Internal::Adaptor::GlWindow::New(positionSize, name, className, isTransparent);
-  newWindow                           = GlWindow(window);
-
-  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
-  if(isAdaptorAvailable)
+  if(Graphics::GetCurrentGraphicsBackend() == Graphics::Backend::GLES)
   {
-    Dali::Adaptor&        adaptor = Internal::Adaptor::Adaptor::Get();
-    Dali::WindowContainer windows = adaptor.GetWindows();
-    if(!windows.empty())
+    if(!gAdaptorGlWindowAddOn)
     {
-      window->SetChild(windows[0]);
+      gAdaptorGlWindowAddOn.reset(new AdaptorGlWindowAddOn);
     }
+    DALI_ASSERT_ALWAYS(gAdaptorGlWindowAddOn && "Cannot load the GlWindow Addon\n");
+    return gAdaptorGlWindowAddOn->GlWindowNew(positionSize, name, className, isTransparent);
   }
-  return newWindow;
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
-GlWindow::GlWindow()
-{
-}
+GlWindow::GlWindow() = default;
 
-GlWindow::~GlWindow()
-{
-}
+GlWindow::~GlWindow() = default;
 
 GlWindow::GlWindow(const GlWindow& handle) = default;
 
@@ -71,152 +115,244 @@ GlWindow& GlWindow::operator=(GlWindow&& rhs) = default;
 
 void GlWindow::SetGraphicsConfig(bool depth, bool stencil, int msaa, GlesVersion version)
 {
-  GetImplementation(*this).SetGraphicsConfig(depth, stencil, msaa, version);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetGraphicsConfig(impl, depth, stencil, msaa, version);
+  }
 }
 
 void GlWindow::Raise()
 {
-  GetImplementation(*this).Raise();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowRaise(impl);
+  }
 }
 
 void GlWindow::Lower()
 {
-  GetImplementation(*this).Lower();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowLower(impl);
+  }
 }
 
 void GlWindow::Activate()
 {
-  GetImplementation(*this).Activate();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowActivate(impl);
+  }
 }
 
 void GlWindow::Show()
 {
-  GetImplementation(*this).Show();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowShow(impl);
+  }
 }
 
 void GlWindow::Hide()
 {
-  GetImplementation(*this).Hide();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowHide(impl);
+  }
 }
 
 unsigned int GlWindow::GetSupportedAuxiliaryHintCount() const
 {
-  return GetImplementation(*this).GetSupportedAuxiliaryHintCount();
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetSupportedAuxiliaryHintCount(impl) : 0u;
 }
 
 std::string GlWindow::GetSupportedAuxiliaryHint(unsigned int index) const
 {
-  return GetImplementation(*this).GetSupportedAuxiliaryHint(index);
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetSupportedAuxiliaryHint(impl, index) : "";
 }
 
 unsigned int GlWindow::AddAuxiliaryHint(const std::string& hint, const std::string& value)
 {
-  return GetImplementation(*this).AddAuxiliaryHint(hint, value);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowAddAuxiliaryHint(impl, hint, value) : 0u;
 }
 
 bool GlWindow::RemoveAuxiliaryHint(unsigned int id)
 {
-  return GetImplementation(*this).RemoveAuxiliaryHint(id);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowRemoveAuxiliaryHint(impl, id) : false;
 }
 
 bool GlWindow::SetAuxiliaryHintValue(unsigned int id, const std::string& value)
 {
-  return GetImplementation(*this).SetAuxiliaryHintValue(id, value);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowSetAuxiliaryHintValue(impl, id, value) : false;
 }
 
 std::string GlWindow::GetAuxiliaryHintValue(unsigned int id) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintValue(id);
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetAuxiliaryHintValue(impl, id) : "";
 }
 
 unsigned int GlWindow::GetAuxiliaryHintId(const std::string& hint) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintId(hint);
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetAuxiliaryHintId(impl, hint) : 0u;
 }
 
 void GlWindow::SetInputRegion(const Rect<int>& inputRegion)
 {
-  GetImplementation(*this).SetInputRegion(inputRegion);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetInputRegion(impl, inputRegion);
+  }
 }
 
 void GlWindow::SetOpaqueState(bool opaque)
 {
-  GetImplementation(*this).SetOpaqueState(opaque);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetOpaqueState(impl, opaque);
+  }
 }
 
 bool GlWindow::IsOpaqueState() const
 {
-  return GetImplementation(*this).IsOpaqueState();
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowIsOpaqueState(impl) : false;
 }
 
 void GlWindow::SetPositionSize(PositionSize positionSize)
 {
-  GetImplementation(*this).SetPositionSize(positionSize);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetPositionSize(impl, positionSize);
+  }
 }
 
 PositionSize GlWindow::GetPositionSize() const
 {
-  return GetImplementation(*this).GetPositionSize();
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetPositionSize(impl) : PositionSize{};
 }
 
 WindowOrientation GlWindow::GetCurrentOrientation() const
 {
-  return GetImplementation(*this).GetCurrentOrientation();
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetCurrentOrientation(impl) : WindowOrientation::PORTRAIT;
 }
 
 void GlWindow::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations)
 {
-  GetImplementation(*this).SetAvailableOrientations(orientations);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetAvailableOrientations(impl, orientations);
+  }
 }
 
 void GlWindow::SetPreferredOrientation(WindowOrientation orientation)
 {
-  GetImplementation(*this).SetPreferredOrientation(orientation);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetPreferredOrientation(impl, orientation);
+  }
 }
 
 void GlWindow::RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
 {
-  GetImplementation(*this).RegisterGlCallbacks(initCallback, renderFrameCallback, terminateCallback);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowRegisterGlCallbacks(impl, initCallback, renderFrameCallback, terminateCallback);
+  }
 }
 
 void GlWindow::RenderOnce()
 {
-  GetImplementation(*this).RenderOnce();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowRenderOnce(impl);
+  }
 }
 
 void GlWindow::SetRenderingMode(RenderingMode mode)
 {
-  GetImplementation(*this).SetRenderingMode(mode);
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    gAdaptorGlWindowAddOn->GlWindowSetRenderingMode(impl, mode);
+  }
 }
 
 GlWindow::RenderingMode GlWindow::GetRenderingMode() const
 {
-  return GetImplementation(*this).GetRenderingMode();
+  const GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetRenderingMode(impl) : RenderingMode::CONTINUOUS;
 }
 
 GlWindow::FocusChangeSignalType& GlWindow::FocusChangeSignal()
 {
-  return GetImplementation(*this).FocusChangeSignal();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    return gAdaptorGlWindowAddOn->GlWindowFocusChangeSignal(impl);
+  }
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
 GlWindow::ResizeSignalType& GlWindow::ResizeSignal()
 {
-  return GetImplementation(*this).ResizeSignal();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    return gAdaptorGlWindowAddOn->GlWindowResizeSignal(impl);
+  }
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
 GlWindow::KeyEventSignalType& GlWindow::KeyEventSignal()
 {
-  return GetImplementation(*this).KeyEventSignal();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    return gAdaptorGlWindowAddOn->GlWindowKeyEventSignal(impl);
+  }
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
 GlWindow::TouchEventSignalType& GlWindow::TouchedSignal()
 {
-  return GetImplementation(*this).TouchedSignal();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    return gAdaptorGlWindowAddOn->GlWindowTouchedSignal(impl);
+  }
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
 GlWindow::VisibilityChangedSignalType& GlWindow::VisibilityChangedSignal()
 {
-  return GetImplementation(*this).VisibilityChangedSignal();
+  GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
+  if(gAdaptorGlWindowAddOn)
+  {
+    return gAdaptorGlWindowAddOn->GlWindowVisibilityChangedSignal(impl);
+  }
+  DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
 GlWindow::GlWindow(Internal::Adaptor::GlWindow* window)

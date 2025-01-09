@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_COMMON_DISPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@ namespace Internal::Adaptor
 class DisplayConnection;
 }
 
-class DisplayConnection
+// Needs exporting as it's called by the Graphics Libraries
+class DALI_ADAPTOR_API DisplayConnection
 {
 public:
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,8 +128,10 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  mSurface                  = renderSurfaceFactory->CreateWindowRenderSurface(positionSize, surface, mIsTransparent);
-  mWindowSurface            = static_cast<WindowRenderSurface*>(mSurface.get());
+  DALI_ASSERT_DEBUG(renderSurfaceFactory && "Cannot create render surface factory\n");
+
+  mSurface       = renderSurfaceFactory->CreateWindowRenderSurface(positionSize, surface, mIsTransparent);
+  mWindowSurface = static_cast<WindowRenderSurface*>(mSurface.get());
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();

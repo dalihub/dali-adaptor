@@ -40,6 +40,7 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/mesh-builder.cpp
     dali-test-suite-utils/dali-test-suite-utils.cpp
     dali-test-suite-utils/test-actor-utils.cpp
+    dali-test-suite-utils/test-addon-manager.cpp
     dali-test-suite-utils/test-harness.cpp
     dali-test-suite-utils/test-application.cpp
     dali-test-suite-utils/test-gesture-generator.cpp
@@ -91,7 +92,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
   ${${CAPI_LIB}_LIBRARIES}
-  --coverage
+  -ldl --coverage
 )
 
 INSTALL(PROGRAMS ${EXEC_NAME}

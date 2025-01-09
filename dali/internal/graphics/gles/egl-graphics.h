@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ class EnvironmentOptions;
 class ConfigurationManager;
 class WindowBase;
 
-class EglGraphics : public Graphics::GraphicsInterface
+// Needs exporting as required by the GlWindow library
+class DALI_ADAPTOR_API EglGraphics : public Graphics::GraphicsInterface
 {
 public:
   /**

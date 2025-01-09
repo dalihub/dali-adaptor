@@ -49,8 +49,6 @@ SET( SOURCES
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_macos_src_files}
         ${static_libraries_libunibreak_src_files}
-        ${adaptor_devel_api_egl_src_files}
-        ${adaptor_window_system_common_egl_src_files}
 )
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )

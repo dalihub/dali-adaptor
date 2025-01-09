@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,8 +123,8 @@ Any NativeImageSurfaceEcoreWl::GetNativeRenderable()
 
 void NativeImageSurfaceEcoreWl::InitializeGraphics()
 {
-  std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(*(new EnvironmentOptions()));
-  auto                             graphicsFactory    = *graphicsFactoryPtr.get();
+  std::unique_ptr<EglGraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<EglGraphicsFactory>(*(new EnvironmentOptions()));
+  auto                                graphicsFactory    = *graphicsFactoryPtr.get();
 
   mGraphics        = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
   auto graphics    = mGraphics.get();

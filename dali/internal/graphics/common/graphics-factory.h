@@ -1,5 +1,4 @@
-#ifndef DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H
-#define DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H
+#pragma once
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -18,39 +17,11 @@
  *
  */
 
+// INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali::Internal::Adaptor
 {
-class DALI_ADAPTOR_API VulkanGraphicsFactory : public GraphicsFactoryInterface
-{
-public:
-  /**
-   * Constructor
-   */
-  explicit VulkanGraphicsFactory(EnvironmentOptions& environmentOptions);
-
-  /**
-   * Destructor
-   */
-  ~VulkanGraphicsFactory() override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
-   */
-  Graphics::GraphicsInterface& Create() override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
-   */
-  void Destroy() override;
-
-private:
-  EnvironmentOptions& mEnvironmentOptions;
-};
-
+extern std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions);
 } // namespace Dali::Internal::Adaptor
-
-#endif // DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H

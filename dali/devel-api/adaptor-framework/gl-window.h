@@ -2,7 +2,7 @@
 #define DALI_GL_WINDOW_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -471,7 +471,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by Dali::Application::GetGlWindow().
    * @param[in] GlWindow A pointer to the GlWindow
    */
-  explicit DALI_INTERNAL GlWindow(Internal::Adaptor::GlWindow* GlWindow);
+  explicit GlWindow(Internal::Adaptor::GlWindow* GlWindow);
   /// @endcond
 };
 

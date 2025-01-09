@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TIME_SERVICE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,11 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <stdint.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -34,8 +38,10 @@ namespace TimeService
  * @param[out]  timeInNanoseconds  The time in nanoseconds since the reference point.
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
+ *
+ * Needs exporting as required by the GlWindow library
  */
-void GetNanoseconds(uint64_t& timeInNanoseconds);
+void DALI_ADAPTOR_API GetNanoseconds(uint64_t& timeInNanoseconds);
 
 /**
  * @brief Get the monotonic time since the clock's epoch.
@@ -43,8 +49,10 @@ void GetNanoseconds(uint64_t& timeInNanoseconds);
  * @return The time in milliseconds since the reference point.
  *
  * @note The maximum value that can be returned is 0xFFFFFFFF which is 4,294,967,295. Therefore, this can overflow after approximately 49 days.
+ *
+ * Needs exporting as required by the GlWindow library
  */
-uint32_t GetMilliSeconds();
+uint32_t DALI_ADAPTOR_API GetMilliSeconds();
 
 /**
  * @brief Sleeps until the monotonic time specified since the clock's epoch.
@@ -54,8 +62,10 @@ uint32_t GetMilliSeconds();
  * @param[in]  timeInNanoseconds  The time to sleep until
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
+ *
+ * Needs exporting as required by the GlWindow library
  */
-void SleepUntil(uint64_t timeInNanoseconds);
+void DALI_ADAPTOR_API SleepUntil(uint64_t timeInNanoseconds);
 
 } // namespace TimeService
 

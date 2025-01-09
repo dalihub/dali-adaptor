@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_COMMON_WINDOW_SYSTEM_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
 #include <cstdint>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -60,8 +63,10 @@ void GetDpi(uint32_t& dpiHorizontal, uint32_t& dpiVertical);
 
 /**
  * @brief Get the screen size
+ *
+ * Needs exporting as it's called directly by the GlWindow library
  */
-void GetScreenSize(int32_t& width, int32_t& height);
+void DALI_ADAPTOR_API GetScreenSize(int32_t& width, int32_t& height);
 
 /**
  * @brief Update the screen size

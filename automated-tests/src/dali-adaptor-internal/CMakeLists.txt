@@ -92,9 +92,15 @@ INCLUDE_DIRECTORIES(
     ../dali-adaptor/dali-test-suite-utils
 )
 
+FIND_LIBRARY(GLES_GRAPHICS_LIB_FOUND NAMES dali2-adaptor-gles PATHS ${${CAPI_LIB}_LIBRARY_DIRS})
+IF(GLES_GRAPHICS_LIB_FOUND)
+    SET(GLES_GRAPHICS_LIB "-ldali2-adaptor-gles")
+ENDIF()
+
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
+    ${GLES_GRAPHICS_LIB}
     -lpthread --coverage -rdynamic
 )
 

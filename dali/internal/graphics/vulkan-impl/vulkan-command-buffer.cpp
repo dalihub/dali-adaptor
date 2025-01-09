@@ -179,7 +179,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
 
   auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
-  auto             surface     = mRenderTarget->GetSurface();
+  auto             surface     = renderTarget->GetSurface();
   auto&            device      = mController.GetGraphicsDevice();
   FramebufferImpl* framebuffer = nullptr;
   RenderPassHandle renderPassImpl;
@@ -228,10 +228,10 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   }
   else
   {
-    auto coreFramebuffer = mRenderTarget->GetFramebuffer();
+    auto coreFramebuffer = renderTarget->GetFramebuffer();
     framebuffer          = coreFramebuffer->GetImpl();
     renderPassImpl       = framebuffer->GetImplFromRenderPass(renderPass);
-    mController.AddTextureDependencies(mRenderTarget);
+    mController.AddTextureDependencies(renderTarget);
   }
 
   std::vector<vk::ClearValue> vkClearValues;

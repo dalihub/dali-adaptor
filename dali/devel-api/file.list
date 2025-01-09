@@ -26,6 +26,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/feedback-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/file-loader.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/file-stream.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-capabilities.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.cpp
@@ -53,10 +54,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-system-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-blur-info.cpp
-)
-
-SET( adaptor_devel_api_egl_src_files
-  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
 )
 
 SET( devel_api_adaptor_framework_header_files

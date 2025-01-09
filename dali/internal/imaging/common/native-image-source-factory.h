@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ public:
   virtual std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue) = 0;
 };
 
-extern std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory();
+// Needs exporting as it's called by the Graphics Libraries
+extern DALI_ADAPTOR_API std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory();
 
 } // namespace Adaptor
 } // namespace Internal

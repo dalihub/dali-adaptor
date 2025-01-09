@@ -15,43 +15,14 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
-
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory.h>
+#include <dali/internal/graphics/common/graphics-library.h>
 
 namespace Dali::Internal::Adaptor
 {
-namespace
+__attribute__((weak)) std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
-static AdaptorBuilder* gAdaptorBuilder = nullptr;
+  return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);
 }
-AdaptorBuilder& AdaptorBuilder::Get(EnvironmentOptions& environmentOptions)
-{
-  if(gAdaptorBuilder == nullptr)
-  {
-    gAdaptorBuilder = new AdaptorBuilder(environmentOptions);
-  }
-  return *gAdaptorBuilder;
-}
-
-void AdaptorBuilder::Finalize()
-{
-  delete gAdaptorBuilder;
-  gAdaptorBuilder = nullptr;
-}
-
-AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
-: mEnvironmentOptions(environmentOptions)
-{
-  // Construct Graphics Factory
-  mGraphicsFactory = CreateGraphicsFactory(environmentOptions);
-}
-
-GraphicsFactoryInterface& AdaptorBuilder::GetGraphicsFactory() const
-{
-  return *mGraphicsFactory;
-}
-
 } // namespace Dali::Internal::Adaptor

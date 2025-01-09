@@ -15,6 +15,10 @@ ARG_ENABLE( ENABLE_APPFW enable_appfw ${ENABLE_VAL} "Builds with Tizen App frame
 # Tizen Profile option
 ARG_ENABLE( ENABLE_PROFILE enable_profile "${ENABLE_VAL};UBUNTU" "Select the variant of tizen" )
 
+# Graphics Backend option
+ARG_ENABLE( ENABLE_GRAPHICS_BACKEND enable_graphics_backend "${ENABLE_VAL};DYNAMIC" "Select the graphics backend to use (DYNAMIC/GLES/VULKAN)" )
+ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build (Deprecated)") # Keep for backwards compatibility
+
 # Tizen Major version
 ARG_ENABLE( ENABLE_TIZEN_MAJOR_VERSION enable_tizen_major_version "${ENABLE_VAL};0" "Specify the Tizen Major version for backwards compatibility" )
 
@@ -25,23 +29,8 @@ ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
 ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether so file is renamed or not" )
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
 
-ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build")
-
-# force GLSLANG when Vulkan enabled
-IF( enable_vulkan )
-  SET(ENABLE_GLSLANG CACHE STRING "ON")
-  SET(ENABLE_GLSLANG  "ON")
-ENDIF()
-
-ARG_ENABLE( ENABLE_GLSLANG enable_glslang "${ENABLE_VAL}" "Enables Vulkan GLSLang")
-
 # help option
 ARG_ENABLE( PRINT_HELP print_help "${ENABLE_VAL}" "Prints help" )
-
-# If Vulkan is enabled GLSLang is used by default
-IF( ENABLE_VULKAN )
-  SET(enable_glslang ON)
-ENDIF()
 
 IF( print_help )
   MESSAGE( STATUS ${HELP_ENABLES} )
@@ -83,6 +72,24 @@ ELSE()
   SET( DEVICE_PROFILE 1 )
 ENDIF()
 
+IF( NOT enable_graphics_backend )
+  IF( ANDROID_PROFILE OR MACOS_PROFILE OR WINDOWS_PROFILE )
+    SET( enable_graphics_backend GLES )
+  ELSE()
+    SET( enable_graphics_backend DYNAMIC )
+  ENDIF()
+ENDIF()
+
+IF(enable_vulkan AND NOT ANDROID_PROFILE AND NOT MACOS_PROFILE AND NOT WINDOWS_PROFILE )
+  SET(enable_graphics_backend VULKAN)
+ENDIF()
+
+# Test for graphics backend and exit if something wrong
+SET( VALID_GRAPHICS_BACKENDS VULKAN GLES DYNAMIC)
+LIST( FIND VALID_GRAPHICS_BACKENDS ${enable_graphics_backend} RESULT_GRAPHICS_BACKEND )
+IF( RESULT_GRAPHICS_BACKEND EQUAL -1 )
+  MESSAGE( FATAL_ERROR "Invalid graphics backend!" )
+ENDIF()
 
 # TODO check what version we really need for Android
 IF( ANDROID_PROFILE )
@@ -151,14 +158,18 @@ CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
 
 CHECK_MODULE_AND_SET( THORVG thorvg thorvg_support )
 
-IF( ENABLE_VULKAN )
-  CHECK_MODULE_AND_SET( VULKAN vulkan [] )
-  CHECK_MODULE_AND_SET( GLSLANG glslang [] )
-  CHECK_MODULE_AND_SET( SPIRVTOOLS SPIRV-Tools [] )
+CHECK_MODULE_AND_SET( VULKAN vulkan VULKAN )
+IF(VULKAN_ENABLED)
+  CHECK_MODULE_AND_SET( GLSLANG glslang GLSLANG )
+  CHECK_MODULE_AND_SET( SPIRVTOOLS SPIRV-Tools SPIRVTOOLS )
 ELSE()
-  CHECK_MODULE_AND_SET( OPENGLES20 glesv2 [] )
-  CHECK_MODULE_AND_SET( EGL egl [] )
+  SET(GLSLANG_ENABLED OFF)
+  SET(SPIRVTOOLS_ENABLED OFF)
+  SET(enable_graphics_backend GLES)
 ENDIF()
+
+CHECK_MODULE_AND_SET( OPENGLES20 glesv2 [] )
+CHECK_MODULE_AND_SET( EGL egl [] )
 
 IF( thorvg_support )
   SET( THORVG_VERSION ${THORVG_VERSION_STRING} )
@@ -494,8 +505,8 @@ IF( WAYLAND )
     ${WAYLAND_LDFLAGS}
   )
 ENDIF()
-IF(enable_vulkan)
-  ADD_DEFINITIONS( -DVULKAN_ENABLED )
+
+IF(VULKAN_ENABLED)
   ADD_DEFINITIONS( -DVULKAN_HPP_NO_EXCEPTIONS )
 #gcc_flags = -Wno-return-local-addr -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override \
 #            -Wstack-usage=256 -Wunsafe-loop-optimizations -Wzero-as-null-pointer-constant -Wuseless-cast
@@ -525,31 +536,25 @@ IF(enable_vulkan)
   IF (HAVE_NO_CLASS_MEMACCESS)
     ADD_COMPILE_OPTIONS( $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>)
   ENDIF()
-  IF( enable_wayland )
-    ADD_DEFINITIONS( -DVULKAN_WITH_WAYLAND )
-  ELSEIF(X11_REQUIRED)
+  IF(X11_REQUIRED)
     SET(DALI_CFLAGS ${DALI_CFLAGS} ${XCB_CFLAGS} )
     SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${XCB_LDFLAGS} )
   ENDIF()
   SET(DALI_CFLAGS ${DALI_CFLAGS} ${VULKAN_CFLAGS} )
   SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${VULKAN_LDFLAGS} )
-ENDIF()
 
-IF(enable_glslang)
   # glsllang-dev package on Ubuntu seems to be broken and doesn't
   # provide valid cmake config files. On Tizen cmake files are valid
   # but there's no pkg-config files so we handle both ways of obtaining
   # package configuration.
   IF(NOT GLSLANG_LDFLAGS)
     FIND_PACKAGE(glslang)
-    SET(DALI_LDFLAGS ${DALI_LDFLAGS} glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits)
+    SET(GLSLANG_LDFLAGS glslang::glslang glslang::SPIRV glslang::glslang-default-resource-limits)
   ELSE()
     # On Ubuntu 22.04 glslang seems to be horribly broken, pc file doesn't include
     # all needed deps and SPIRV-Tools package is needed
-    SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${GLSLANG_LDFLAGS} -lSPIRV ${SPIRVTOOLS_LDFLAGS} -lglslang-default-resource-limits)
+    SET(GLSLANG_LDFLAGS ${GLSLANG_LDFLAGS} -lSPIRV ${SPIRVTOOLS_LDFLAGS} -lglslang-default-resource-limits)
   ENDIF()
-
-  SET(DALI_CFLAGS ${DALI_CFLAGS} ${GLSLANG_CFLAGS} )
 ENDIF()
 
 IF(LIBUV_X11_PROFILE)

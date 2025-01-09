@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_FACTORY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ public:
   virtual std::unique_ptr<WindowBase> CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent) = 0;
 };
 
-extern std::unique_ptr<WindowFactory> GetWindowFactory();
+// Needs exporting as it's called directly by the GlWindow library
+extern DALI_ADAPTOR_API std::unique_ptr<WindowFactory> GetWindowFactory();
 
 } // namespace Adaptor
 } // namespace Internal

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EVENT_HANDLER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,10 @@ class WindowRenderSurface;
  * to TouchEvents when it does receive them.
  *
  * These TouchEvents are then passed on to Core.
+ *
+ * Needs exporting as it's used by the GlWindow library
  */
-class EventHandler : public ConnectionTracker, public Dali::RefObject
+class DALI_ADAPTOR_API EventHandler : public ConnectionTracker, public Dali::RefObject
 {
 public:
   /**

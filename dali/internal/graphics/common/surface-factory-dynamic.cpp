@@ -15,36 +15,15 @@
  *
  */
 
-// HEADER
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
-
-// EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-library.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 
 namespace Dali::Graphics
 {
-namespace
+__attribute__((weak)) std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
 {
-Backend gCurrentGraphicsBackend = Backend::DEFAULT;
-}
-
-Backend GetCurrentGraphicsBackend()
-{
-  return gCurrentGraphicsBackend;
-}
-
-void SetGraphicsBackend(Backend backend)
-{
-  static bool setOnce = false;
-  if(!setOnce)
-  {
-    setOnce                 = true;
-    gCurrentGraphicsBackend = backend;
-  }
-  else if(backend != gCurrentGraphicsBackend)
-  {
-    DALI_LOG_ERROR("Graphics backend already set to: %s\n", gCurrentGraphicsBackend == Backend::GLES ? "GLES" : "VULKAN");
-  }
+  return Internal::Adaptor::GraphicsLibrary::CreateSurfaceFactory(nativeWindow);
 }
 
 } // namespace Dali::Graphics

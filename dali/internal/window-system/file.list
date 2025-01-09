@@ -11,9 +11,16 @@ SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/window-system.cpp
 )
 
-SET( adaptor_window_system_common_egl_src_files
-    ${adaptor_window_system_dir}/common/gl-window-impl.cpp
-    ${adaptor_window_system_dir}/common/gl-window-render-thread.cpp
+SET( adaptor_window_system_gl_window_src_files
+    ${adaptor_window_system_dir}/gl-window/gl-window-addon.cpp
+    ${adaptor_window_system_dir}/gl-window/gl-window-impl.cpp
+    ${adaptor_window_system_dir}/gl-window/gl-window-render-thread.cpp
+)
+
+# module: window-system, backend: common/dynamic
+SET( adaptor_window_system_common_dynamic_src_files
+    ${adaptor_window_system_dir}/common/native-image-surface-factory-dynamic.cpp
+    ${adaptor_window_system_dir}/common/render-surface-factory-dynamic.cpp
 )
 
 # module: window-system, backend: tizen-wayland
@@ -41,7 +48,17 @@ SET( adaptor_window_system_tizen_wayland_vulkan_src_files
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2-vulkan.cpp
 )
 
-# module: window-system, backend: libuv-x11
+# module: window-system, backend: tizen-wayland/dynamic
+SET( adaptor_window_system_tizen_wayland_dynamic_src_files
+    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-dynamic.cpp
+)
+
+# module: window-system, backend: tizen-wayland/graphics-library
+SET( adaptor_window_system_tizen_wayland_graphics_library_src_files
+    ${adaptor_window_system_dir}/tizen-wayland/graphics-library-functions-tizen-wayland.cpp
+)
+
+# module: window-system, backend: x11
 SET( adaptor_window_system_x11_src_files
     ${adaptor_window_system_dir}/x11/display-connection-factory-x.cpp
     ${adaptor_window_system_dir}/x11/display-connection-impl-x.cpp
@@ -52,17 +69,27 @@ SET( adaptor_window_system_x11_src_files
     ${adaptor_window_system_dir}/x11/window-system-x.cpp
 )
 
-# module: window-system, backend: libuv-x11/egl
+# module: window-system, backend: x11/egl
 SET( adaptor_window_system_x11_egl_src_files
     ${adaptor_window_system_dir}/x11/display-connection-native-types-egl.cpp
     ${adaptor_window_system_dir}/x11/pixmap-render-surface-x.cpp
     ${adaptor_window_system_dir}/x11/render-surface-factory-x-egl.cpp
 )
 
-# module: window-system, backend: libuv-x11/vulkan
+# module: window-system, backend: x11/vulkan
 SET( adaptor_window_system_x11_vulkan_src_files
     ${adaptor_window_system_dir}/x11/display-connection-native-types-vulkan.cpp
     ${adaptor_window_system_dir}/x11/render-surface-factory-x-vulkan.cpp
+)
+
+# module: window-system, backend: x11/dynamic
+SET( adaptor_window_system_x11_dynamic_src_files
+    ${adaptor_window_system_dir}/x11/display-connection-native-types-dynamic.cpp
+)
+
+# module: window-system, backend: x11/graphics-library
+SET( adaptor_window_system_x11_graphics_library_src_files
+    ${adaptor_window_system_dir}/x11/graphics-library-functions-x11.cpp
 )
 
 # module: window-system, backend: ubuntu-x11
@@ -88,6 +115,16 @@ SET( adaptor_window_system_ubuntu_x11_egl_src_files
 SET( adaptor_window_system_ubuntu_x11_vulkan_src_files
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-native-types-vulkan.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/render-surface-factory-ecore-x-vulkan.cpp
+)
+
+# module: window-system, backend: ubuntu-x11/dynamic
+SET( adaptor_window_system_ubuntu_x11_dynamic_src_files
+    ${adaptor_window_system_dir}/ubuntu-x11/display-connection-native-types-dynamic.cpp
+)
+
+# module: window-system, backend: ubuntu-x11/graphics-library
+SET( adaptor_window_system_ubuntu_x11_graphics_library_src_files
+    ${adaptor_window_system_dir}/ubuntu-x11/graphics-library-functions-ubuntu-x11.cpp
 )
 
 # module: window-system, backend: android

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/common/gl-window-impl.h>
+#include <dali/internal/window-system/gl-window/gl-window-impl.h>
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/gl-window.h>
@@ -37,6 +37,7 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/window-system/gl-window/gl-window-render-thread.h>
 
 namespace Dali
 {
@@ -792,8 +793,8 @@ void GlWindow::InitializeGraphics()
   if(!mIsEGLInitialized)
   {
     // Init Graphics
-    std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(mEnvironmentOptions);
-    auto                             graphicsFactory    = *graphicsFactoryPtr;
+    std::unique_ptr<EglGraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<EglGraphicsFactory>(mEnvironmentOptions);
+    auto                                graphicsFactory    = *graphicsFactoryPtr;
 
     mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
 

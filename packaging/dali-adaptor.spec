@@ -28,10 +28,6 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Requires:       giflib
 
-%if 0%{?enable_vulkan}
-Requires:  glslang
-%endif
-
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
 
@@ -70,14 +66,11 @@ BuildRequires:  fribidi-devel
 BuildRequires:  pkgconfig(capi-system-info)
 BuildRequires:  pkgconfig(capi-system-sensor)
 
-%if 0%{?enable_vulkan}
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  glslang-devel
 BuildRequires:  glslang
-%else
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(wayland-egl)
-%endif
 
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(input-method-client)
@@ -94,9 +87,7 @@ BuildRequires:  pkgconfig(libwebpmux)
 
 # We use ecore mainloop
 BuildRequires:  pkgconfig(ecore-wl2)
-%if !0%{?enable_vulkan}
 BuildRequires:  pkgconfig(wayland-egl-tizen)
-%endif
 
 # We need tbm_surface in tizen 3.0 wayland
 BuildRequires:  pkgconfig(libtbm)
@@ -128,6 +119,16 @@ Recommends: %{name}-profile_common = %{version}-%{release}
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
 platform abstraction and application shell
+
+###########################################
+# Vulkan Graphics Backend
+###########################################
+%package vulkan
+Summary:        The DALi Tizen Adaptor with the Vulkan library
+Requires:       %{name}
+Requires:       glslang
+%description vulkan
+The DALi Tizen Adaptor with the Vulkan library.
 
 ###########################################
 # Dali adapter for profiles
@@ -303,10 +304,6 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 
 %if 0%{?enable_logging}
 cmake_flags+=" -DENABLE_NETWORK_LOGGING=ON"
-%endif
-
-%if 0%{?enable_vulkan}
-cmake_flags+=" -DENABLE_VULKAN=ON"
 %endif
 
 libtoolize --force
@@ -614,10 +611,19 @@ exit 0
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
 %{_libdir}/libdali2-adaptor.so.2.0.0
+%{_libdir}/libdali2-adaptor-gles.so
+%{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
 %{_libdir}/libdali2-adaptor-application-widget.so*
 %{_libdir}/libdali2-adaptor-application-watch.so*
 %{_libdir}/libdali2-adaptor-application-component-based.so*
+
+#################################################
+
+%files vulkan
+%manifest dali-adaptor.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libdali2-adaptor-vulkan.so
 
 #################################################
 
