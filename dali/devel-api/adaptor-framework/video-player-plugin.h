@@ -332,6 +332,30 @@ public:
    *
    */
   virtual void SceneDisconnection() = 0;
+
+  /**
+   * @brief Sets auto rotation feature. If enabled, video will rotate automatically according to the video orientation.
+   * @param[in] enable Whether to enable auto rotation feature. Default value is false.
+   */
+  virtual void SetAutoRotationEnabled(bool enable) = 0;
+
+  /**
+   * @brief Checks whether auto rotation feature is enabled.
+   * @return True if auto rotation feature is enabled, otherwise false. Default value is false.
+   */
+  virtual bool IsAutoRotationEnabled() const = 0;
+
+  /**
+   * @brief Sets letter box feature. If enabled, the video will play in the video player's aspect ratio.
+   * @param[in] enable Whether to enable letter box feature. Default value is false.
+   */
+  virtual void SetLetterBoxEnabled(bool enable) = 0;
+
+  /**
+   * @brief Checks whether letter box feature is enabled.
+   * @return True if letter box feature is enabled, otherwise false. Default value is false.
+   */
+  virtual bool IsLetterBoxEnabled() const = 0;
 };
 
 } // namespace Dali
