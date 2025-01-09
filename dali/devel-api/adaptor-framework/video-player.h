@@ -340,6 +340,26 @@ public:
    */
   void LowerToBottom();
 
+  /**
+   * @brief Sets auto rotation feature. If enabled, video will rotate automatically according to the video orientation.
+   */
+  void SetAutoRotationEnabled(bool enable);
+
+  /**
+   * @brief Checks whether auto rotation feature is enabled.
+   */
+  bool IsAutoRotationEnabled() const;
+
+  /**
+   * @brief Sets letter box feature. If enabled, the video will play in the video player's aspect ratio.
+   */
+  void SetLetterBoxEnabled(bool enable);
+
+  /**
+   * @brief Checks whether letter box feature is enabled.
+   */
+  bool IsLetterBoxEnabled() const;
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor
