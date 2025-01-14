@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -395,8 +395,9 @@ void Texture::Bind(const TextureBinding& binding) const
 void Texture::Prepare()
 {
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
-  if(nativeImage)
+  if(nativeImage && !IsPrepared())
   {
+    mIsPrepared = true;
     nativeImage->PrepareTexture();
   }
 }
