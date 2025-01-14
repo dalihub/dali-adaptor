@@ -378,6 +378,16 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @copydoc Dali::WebEngine::SetImePositionAndAlignment()
+   */
+  bool SetImePositionAndAlignment(Dali::Vector2 position, int alignment);
+
+  /**
+   * @copydoc Dali::WebEngine::SetCursorThemeName()
+   */
+  void SetCursorThemeName(const std::string themeName);
+
+  /**
    * @copydoc Dali::WebEngine::SetPageZoomFactor()
    */
   void SetPageZoomFactor(float zoomFactor);

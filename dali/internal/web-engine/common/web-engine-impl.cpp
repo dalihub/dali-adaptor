@@ -596,6 +596,16 @@ void WebEngine::SetFocus(bool focused)
   mPlugin->SetFocus(focused);
 }
 
+bool WebEngine::SetImePositionAndAlignment(Dali::Vector2 position, int alignment)
+{
+  return mPlugin->SetImePositionAndAlignment(position, alignment);
+}
+
+void WebEngine::SetCursorThemeName(const std::string themeName)
+{
+  mPlugin->SetCursorThemeName(themeName);
+}
+
 void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
 {
   mPlugin->SetDocumentBackgroundColor(color);
