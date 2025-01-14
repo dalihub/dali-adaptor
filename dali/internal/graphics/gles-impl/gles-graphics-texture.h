@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_TEXTURE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,8 +105,30 @@ public:
    * and updates as appropriate.
    *
    * Gives the callback a chance to draw to the backing texture.
+   *
+   * @note This function has no effort if we call Prepare() before.
+   *       To make sure that the texture is prepared again, call ResetPrepare().
    */
   void Prepare();
+
+  /**
+   * @brief Makes sure that the texture need to be prepared again
+   */
+  void ResetPrepare()
+  {
+    mIsPrepared = false;
+  }
+
+  /**
+   * @brief Returns whether the texture call prepare or not.
+   * ResetPepare() will make this false again.
+   *
+   * @return True if prepare called. false otherwise.
+   */
+  [[nodiscard]] bool IsPrepared() const
+  {
+    return mIsPrepared;
+  }
 
   /**
    * @brief Returns the GL Target
@@ -187,6 +209,7 @@ private:
   uint32_t          mDependencyIndex{0xFFFFFFFF};
   void*             mGLOwnerContext{nullptr};
   bool              mIsCompressed{false};
+  bool              mIsPrepared{false};
 };
 
 } // namespace Dali::Graphics::GLES
