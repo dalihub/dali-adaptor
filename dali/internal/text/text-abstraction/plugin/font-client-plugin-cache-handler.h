@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_CACHE_HANDLER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ public: // Find & Cache
    * @param[in] fontDataBuffer A vector containing the font data to cache.
    * @param[in] dataSize The size of the font data to cache.
    */
-  void CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize);
+  void CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>&& fontDataBuffer, std::streampos& dataSize);
 
   /**
    * @brief Checks if FreeType face for the specified font path is cached.
@@ -475,8 +475,8 @@ public:                                    // Cache container list
 
   FontDescriptionSizeCacheContainer mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
-  std::unordered_map<std::string, std::pair<Dali::Vector<uint8_t>, std::streampos>> mFontDataCache; ///< Caches font data with each font path as the key, allowing faster loading of fonts later on.
-  std::unordered_map<std::string, FT_Face> mFontFTFaceCache; ///< Caches freetype font face for font pre-load.
+  std::unordered_map<std::string, std::pair<Dali::Vector<uint8_t>, std::streampos>> mFontDataCache;   ///< Caches font data with each font path as the key, allowing faster loading of fonts later on.
+  std::unordered_map<std::string, FT_Face>                                          mFontFTFaceCache; ///< Caches freetype font face for font pre-load.
 
   std::vector<EllipsisItem>         mEllipsisCache;     ///< Caches ellipsis glyphs for a particular point size.
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.

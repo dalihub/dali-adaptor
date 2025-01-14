@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 const float FROM_266        = 1.0f / 64.0f;
 const float POINTS_PER_INCH = 72.f;
 
-const uint32_t ELLIPSIS_CHARACTER = 0x2026;
+const uint32_t ELLIPSIS_CHARACTER     = 0x2026;
 const uint32_t CUSTOM_FONTS_MAX_COUNT = 10u;
 
 } // namespace
@@ -312,7 +312,7 @@ void FontClient::Plugin::CacheFontDataFromFile(const std::string& fontPath) cons
   }
 
   // Cache font data
-  mCacheHandler->CacheFontData(fontPath, fontDataBuffer, dataSize);
+  mCacheHandler->CacheFontData(fontPath, std::move(fontDataBuffer), dataSize);
 }
 
 void FontClient::Plugin::CacheFontFaceFromFile(const std::string& fontPath) const
