@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,15 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
 {
   bundle*     contentBundle;
   bundle_raw* contentBundleRaw = reinterpret_cast<bundle_raw*>(const_cast<char*>(contentInfo.c_str()));
-  int         len              = contentInfo.length();
-  contentBundle                = bundle_decode(contentBundleRaw, len);
+  uint32_t    len              = static_cast<uint32_t>(contentInfo.length());
+
+  if(DALI_UNLIKELY(contentBundleRaw == nullptr || len == 0u))
+  {
+    print_log(DLOG_ERROR, "DALI", "error : contentInfo was empty!\n");
+    return;
+  }
+
+  contentBundle = bundle_decode(contentBundleRaw, static_cast<int>(len));
 
   using SetContentInfoFunc = void (*)(void*, bundle*);
   SetContentInfoFunc setContentInfoFuncPtr;
@@ -78,7 +85,8 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "error : %s", dlerror());
+    print_log(DLOG_ERROR, "DALI", "error : %s\n", dlerror());
+    bundle_free(contentBundle);
     return;
   }
 

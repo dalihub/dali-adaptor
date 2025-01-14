@@ -43,6 +43,7 @@ namespace
 {
 constexpr const char* VALUE_FORMAT_KEY      = "value_format";
 constexpr const char* VALUE_FORMAT_TEXT_VAL = "text";
+constexpr const char* FORCE_CHILD_SEARCH_ATTR{"forceChildSearch"};
 
 bool SortVertically(Component* lhs, Component* rhs)
 {
@@ -441,7 +442,16 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
   auto rootComponent = dynamic_cast<Component*>(root);
   LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
 
-  if(rootComponent && !rootComponent->IsAccessibleContainingPoint(point, type))
+  bool        forceChildSearch     = false;
+  const auto& attributes           = root->GetAttributes();
+  auto        forceChildSearchAttr = attributes.find(FORCE_CHILD_SEARCH_ATTR);
+  if(forceChildSearchAttr != attributes.end())
+  {
+    forceChildSearch = std::atoi(forceChildSearchAttr->second.c_str()) == 1;
+    DALI_LOG_RELEASE_INFO("Force child search attr is set to %d.", forceChildSearch);
+  }
+
+  if(rootComponent && !forceChildSearch && !rootComponent->IsAccessibleContainingPoint(point, type))
   {
     return nullptr;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,13 @@ void ConvoluteAndTranspose(unsigned char*     inBuffer,
     }
     normalizeFactor += weightMatrix[index];
     index++;
+  }
+
+  if(normalizeFactor < Math::MACHINE_EPSILON_1)
+  {
+    DALI_LOG_ERROR("Blur radius is too small.\n");
+    delete[] weightMatrix;
+    return;
   }
 
   for(int i = 0; i < rows; i++)

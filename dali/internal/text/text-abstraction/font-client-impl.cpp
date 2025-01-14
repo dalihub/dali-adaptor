@@ -179,7 +179,6 @@ void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const Fon
     std::unique_lock<std::mutex> lock(gMutex);
     gPreCacheThreadReady = true;
     gPreCacheCond.notify_one();
-    lock.unlock();
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
@@ -196,7 +195,6 @@ void FontClient::PreLoadRun(const FontPathList& fontPathList, const FontPathList
     std::unique_lock<std::mutex> lock(gMutex);
     gPreLoadThreadReady = true;
     gPreLoadCond.notify_one();
-    lock.unlock();
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_RUN\n");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -651,7 +651,7 @@ bool FontClient::Plugin::CacheHandler::LoadFontDataFromFile(const std::string& f
   return false;
 }
 
-void FontClient::Plugin::CacheHandler::CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize)
+void FontClient::Plugin::CacheHandler::CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>&& fontDataBuffer, std::streampos& dataSize)
 {
   mFontDataCache[fontPath] = std::make_pair(std::move(fontDataBuffer), dataSize);
 }
