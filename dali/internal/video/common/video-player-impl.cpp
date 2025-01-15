@@ -388,6 +388,42 @@ void VideoPlayer::LowerToBottom()
     mPlugin->LowerToBottom();
   }
 }
+
+void VideoPlayer::SetAutoRotationEnabled(bool enable)
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SetAutoRotationEnabled(enable);
+  }
+}
+
+bool VideoPlayer::IsAutoRotationEnabled() const
+{
+  if(mPlugin != nullptr)
+  {
+    return mPlugin->IsAutoRotationEnabled();
+  }
+  return false;
+}
+
+void VideoPlayer::SetLetterBoxEnabled(bool enable)
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SetLetterBoxEnabled(enable);
+  }
+}
+
+bool VideoPlayer::IsLetterBoxEnabled() const
+{
+  if(mPlugin != nullptr)
+  {
+    return mPlugin->IsLetterBoxEnabled();
+  }
+  return false;
+}
+
+
 VideoPlayerPlugin* VideoPlayer::GetVideoPlayerPlugin()
 {
   return mPlugin;
