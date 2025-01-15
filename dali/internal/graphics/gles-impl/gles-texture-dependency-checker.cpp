@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,16 @@ void TextureDependencyChecker::Reset()
       mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
     }
     mNativeTextureDependencies[mPreviousNativeTextureDependencyIndex].clear();
+
+    // Reset all native texture's state as prepared.
+    // TODO : Is their any more good place to call this logic?
+    for(auto& nativeTextureDependency : mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex])
+    {
+      for(auto& texture : nativeTextureDependency.textures)
+      {
+        const_cast<GLES::Texture*>(texture)->ResetPrepare();
+      }
+    }
 
     mCurrentNativeTextureDependencyIndex = __sync_fetch_and_xor(&mPreviousNativeTextureDependencyIndex, 1);
   }
