@@ -94,9 +94,13 @@ struct BidirectionalSupport::Plugin
     {
       BidirectionalInfo* info = *it;
 
-      free(info->embeddedLevels);
-      free(info->characterTypes);
-      free(info->bracketTypes);
+      if(info != nullptr)
+      {
+        free(info->embeddedLevels);
+        free(info->characterTypes);
+        free(info->bracketTypes);
+      }
+
       delete info;
     }
   }
@@ -164,7 +168,20 @@ struct BidirectionalSupport::Plugin
 
       mFreeIndices.Remove(it);
 
-      *(mParagraphBidirectionalInfo.Begin() + index) = bidirectionalInfo;
+      if(*(mParagraphBidirectionalInfo.Begin() + index) == nullptr)
+      {
+        *(mParagraphBidirectionalInfo.Begin() + index) = bidirectionalInfo;
+      }
+      else
+      {
+        DALI_LOG_ERROR("Attempted to overwrite a non-null pointer value.");
+
+        free(bidirectionalInfo->bracketTypes);
+        free(bidirectionalInfo->embeddedLevels);
+        free(bidirectionalInfo->characterTypes);
+        delete bidirectionalInfo;
+        return 0;
+      }
     }
     else
     {
@@ -196,10 +213,10 @@ struct BidirectionalSupport::Plugin
       delete bidirectionalInfo;
 
       *it = NULL;
-    }
 
-    // Add the index to the free indices vector.
-    mFreeIndices.PushBack(bidiInfoIndex);
+      // Add the index to the free indices vector.
+      mFreeIndices.PushBack(bidiInfoIndex);
+    }
   }
 
   void Reorder(BidiInfoIndex   bidiInfoIndex,
