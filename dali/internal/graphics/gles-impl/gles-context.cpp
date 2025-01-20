@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -243,9 +243,9 @@ struct Context::Impl
   const GLES::PipelineImpl* mCurrentPipeline{nullptr}; ///< Currently bound pipeline
   const GLES::PipelineImpl* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
 
-  std::vector<Graphics::TextureBinding> mCurrentTextureBindings{};
-  std::vector<Graphics::SamplerBinding> mCurrentSamplerBindings{};
-  GLES::IndexBufferBindingDescriptor    mCurrentIndexBufferBinding{};
+  Dali::Vector<Graphics::TextureBinding> mCurrentTextureBindings{};
+
+  GLES::IndexBufferBindingDescriptor mCurrentIndexBufferBinding{};
 
   struct VertexBufferBinding
   {
@@ -257,8 +257,8 @@ struct Context::Impl
   std::vector<VertexBufferBindingDescriptor> mCurrentVertexBufferBindings{};
 
   // Currently bound UBOs (check if it's needed per program!)
-  std::vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
-  UniformBufferBindingDescriptor              mCurrentStandaloneUBOBinding{};
+  Dali::Vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
+  UniformBufferBindingDescriptor               mCurrentStandaloneUBOBinding{};
 
   // Current render pass and render target
   const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
@@ -372,6 +372,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       // Don't bind more textures than there are active samplers.
       break;
     }
+
+    DALI_ASSERT_DEBUG(binding.texture && "GLES::Texture not assigned!");
 
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
 
@@ -502,8 +504,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         if(drawCall.draw.instanceCount == 0)
         {
           gl->DrawArrays(GLESTopology(ia->topology),
-                        drawCall.draw.firstVertex,
-                        drawCall.draw.vertexCount);
+                         drawCall.draw.firstVertex,
+                         drawCall.draw.vertexCount);
         }
         else
         {
@@ -533,9 +535,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         if(drawCall.drawIndexed.instanceCount == 0)
         {
           gl->DrawElements(GLESTopology(ia->topology),
-                          drawCall.drawIndexed.indexCount,
-                          indexBufferFormat,
-                          reinterpret_cast<void*>(binding.offset));
+                           drawCall.drawIndexed.indexCount,
+                           indexBufferFormat,
+                           reinterpret_cast<void*>(binding.offset));
         }
         else
         {
@@ -566,19 +568,10 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
 
 void Context::BindTextures(const Graphics::TextureBinding* bindings, uint32_t count)
 {
-  // for each texture allocate slot
-  for(auto i = 0u; i < count; ++i)
-  {
-    auto& binding = bindings[i];
-
-    // Resize binding array if needed
-    if(mImpl->mCurrentTextureBindings.size() <= binding.binding)
-    {
-      mImpl->mCurrentTextureBindings.resize(binding.binding + 1);
-    }
-    // Store the binding details
-    mImpl->mCurrentTextureBindings[binding.binding] = binding;
-  }
+  // We can assume that bindings is sorted by binding number.
+  // So we can only copy the data
+  mImpl->mCurrentTextureBindings.Resize(count);
+  memcpy(mImpl->mCurrentTextureBindings.Begin(), bindings, sizeof(Graphics::TextureBinding) * count);
 }
 
 void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindings, uint32_t count)
@@ -621,21 +614,15 @@ void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindin
   {
     mImpl->mCurrentStandaloneUBOBinding = standaloneBindings;
   }
-
-  if(uboCount && uboCount > mImpl->mCurrentUBOBindings.size())
+  else
   {
-    mImpl->mCurrentUBOBindings.resize(uboCount);
+    mImpl->mCurrentStandaloneUBOBinding.buffer = nullptr;
   }
 
-  auto it = uboBindings;
-  for(auto i = 0u; i < uboCount; ++i)
-  {
-    if(it->buffer)
-    {
-      mImpl->mCurrentUBOBindings[i] = *it;
-    }
-    ++it;
-  }
+  // We can assume that bindings is sorted by binding number.
+  // So we can only copy the data
+  mImpl->mCurrentUBOBindings.Resize(uboCount);
+  memcpy(mImpl->mCurrentUBOBindings.Begin(), uboBindings, sizeof(UniformBufferBindingDescriptor) * uboCount);
 }
 
 void Context::ResolveBlendState()
@@ -772,7 +759,7 @@ void Context::ResolveUniformBuffers()
   {
     ResolveStandaloneUniforms();
   }
-  if(!mImpl->mCurrentUBOBindings.empty())
+  if(!mImpl->mCurrentUBOBindings.Empty())
   {
     ResolveGpuUniformBuffers();
   }
@@ -783,9 +770,12 @@ void Context::ResolveGpuUniformBuffers()
   if(auto* gl = mImpl->GetGL())
   {
     auto i = 0u;
-    for(auto& binding : mImpl->mCurrentUBOBindings)
+    for(const auto& binding : mImpl->mCurrentUBOBindings)
     {
-      gl->BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+      if(DALI_LIKELY(binding.buffer && binding.dataSize > 0u))
+      {
+        gl->BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+      }
     }
   }
 }
@@ -969,8 +959,8 @@ void Context::ReadPixels(uint8_t* buffer)
 
 void Context::ClearState()
 {
-  mImpl->mCurrentTextureBindings.clear();
-  mImpl->mCurrentUBOBindings.clear();
+  mImpl->mCurrentTextureBindings.Clear();
+  mImpl->mCurrentUBOBindings.Clear();
 }
 
 void Context::ColorMask(bool enabled)
@@ -1366,14 +1356,12 @@ void Context::ResetGLESState()
   mImpl->mGlStateCache.ResetBufferCache();
   mImpl->mGlStateCache.ResetTextureCache();
   mImpl->mCurrentPipeline = nullptr;
-  mImpl->mCurrentUBOBindings.clear();
-  mImpl->mCurrentTextureBindings.clear();
+
   mImpl->mCurrentVertexBufferBindings.clear();
   mImpl->mCurrentRenderTarget       = nullptr;
   mImpl->mCurrentRenderPass         = nullptr;
   mImpl->mVertexBuffersChanged      = true;
   mImpl->mCurrentIndexBufferBinding = {};
-  mImpl->mCurrentSamplerBindings    = {};
   mImpl->mProgramVAOCurrentState    = 0;
 
   ClearState();
