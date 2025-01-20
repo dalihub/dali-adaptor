@@ -205,6 +205,16 @@ bool InputMethodContext::IsTextPredictionAllowed() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).IsTextPredictionAllowed();
 }
 
+void InputMethodContext::SetFullScreenMode(bool fullScreen)
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetFullScreenMode(fullScreen);
+}
+
+bool InputMethodContext::IsFullScreenMode() const
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).IsFullScreenMode();
+}
+
 void InputMethodContext::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
 {
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelLanguage(language);
