@@ -40,6 +40,7 @@ constexpr unsigned int CHAR_ZWJ  = 0x200D; ///< Zero width joiner.
 constexpr unsigned int CHAR_LTRM = 0x200E; ///< Left to Right Mark.
 constexpr unsigned int CHAR_RTLM = 0x200F; ///< Right to Left Mark.
 constexpr unsigned int CHAR_TS   = 0x2009; ///< Thin Space.
+constexpr unsigned int CHAR_BOM  = 0xFEFF; ///< Byte Order Mark.
 
 // Latin script:   It contains punctuation characters and symbols which are not part of the latin script. https://en.wikipedia.org/wiki/Latin_script_in_Unicode
 // 0x0000 - 0x007f C0 Controls and Basic Latin
@@ -142,7 +143,7 @@ constexpr unsigned int CHAR_TS   = 0x2009; ///< Thin Space.
 // 0x0750 - 0x077f Arabic Supplement
 // 0x08A0 - 0x08ff Arabic Extended-A
 // 0xfb50 - 0xfdff Arabic Presentation Forms-A
-// 0xfe70 - 0xfeff Arabic Presentation Forms-B
+// 0xfe70 - 0xfefe Arabic Presentation Forms-B
 // 0x1ee00 - 0x1eeff Arabic Mathematical Alphabetic Symbols
 
 // CJK (Chinese, Japanese and Korean) and Vietnamese script.
@@ -1040,6 +1041,11 @@ bool IsThinSpace(Character character)
   return CHAR_TS == character;
 }
 
+bool IsByteOrderMark(Character character)
+{
+  return CHAR_BOM == character;
+}
+
 bool IsCommonScript(Character character)
 {
   return (IsWhiteSpace(character) ||
@@ -1049,7 +1055,8 @@ bool IsCommonScript(Character character)
           IsLeftToRightMark(character) ||
           IsRightToLeftMark(character) ||
           IsThinSpace(character) ||
-          IsNewParagraph(character));
+          IsNewParagraph(character)) ||
+          IsByteOrderMark(character);
 }
 
 bool HasLigatureMustBreak(Script script)
