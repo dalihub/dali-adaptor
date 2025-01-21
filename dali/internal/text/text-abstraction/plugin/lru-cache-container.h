@@ -109,14 +109,14 @@ public:
 
     // Move constructor & assign
     iterator(iterator&& rhs)
-    : owner(std::move(rhs.owner)),
+    : owner(rhs.owner),
       id(rhs.id)
     {
     }
 
     iterator& operator=(iterator&& rhs)
     {
-      this->owner = std::move(rhs.owner);
+      this->owner = rhs.owner;
       this->id    = rhs.id;
       return *this;
     }

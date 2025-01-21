@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,13 +276,11 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   auto& bindCmd = cmd.bindUniformBuffers;
 
   // temporary static set of binding slots (thread local)
-  static const auto MAX_UNIFORM_BUFFER_BINDINGS = 64; // TODO: this should be read from introspection
+  static constexpr auto MAX_UNIFORM_BUFFER_BINDINGS = 64; // TODO: this should be read from introspection
 
-  static const UniformBufferBindingDescriptor                     NULL_DESCRIPTOR{nullptr, 0, 0, 0, 0, false};
+  static constexpr UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0, 0, false};
   static thread_local std::vector<UniformBufferBindingDescriptor> sTempBindings(MAX_UNIFORM_BUFFER_BINDINGS, NULL_DESCRIPTOR);
-
-  // reset temp bindings
-  std::fill_n(sTempBindings.begin(), MAX_UNIFORM_BUFFER_BINDINGS, NULL_DESCRIPTOR);
+  static std::vector<bool>                                        sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, false);
 
   memset(&bindCmd.standaloneUniformsBufferBinding, 0, sizeof(UniformBufferBindingDescriptor));
 
@@ -293,7 +291,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   {
     if(binding.buffer)
     {
-      auto glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
+      const auto* glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
       if(glesBuffer->IsCPUAllocated()) // standalone uniforms
       {
         bindCmd.standaloneUniformsBufferBinding.buffer   = glesBuffer;
@@ -312,22 +310,41 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
         slot.blockIndex = 0;
         slot.emulated   = false;
 
+        sTempBindingsUsed[binding.binding] = true;
+
         maxBinding  = std::max(maxBinding, binding.binding);
         hasBindings = true;
       }
     }
   }
+
+  // reset unused bindings slots
+  for(auto i = 0u; i <= maxBinding; ++i)
+  {
+    if(sTempBindingsUsed[i])
+    {
+      sTempBindingsUsed[i] = false;
+    }
+    else
+    {
+      sTempBindings[i] = NULL_DESCRIPTOR;
+    }
+  }
+
   bindCmd.uniformBufferBindings      = nullptr;
   bindCmd.uniformBufferBindingsCount = 0u;
 
   // copy data
   if(hasBindings)
   {
-    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding + 1);
+    ++maxBinding;
+
+    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding);
     // copy
-    auto size = sizeof(UniformBufferBindingDescriptor) * (maxBinding + 1);
+    const auto size = sizeof(UniformBufferBindingDescriptor) * (maxBinding);
     if(!(size % sizeof(intptr_t)))
     {
+      // Use iteration hardly, to avoid SIGBUS... (SIGBUS occurs when accessing unaligned memory)
       auto* srcPtr = reinterpret_cast<intptr_t*>(&sTempBindings[0]);
       auto* dstPtr = reinterpret_cast<intptr_t*>(destBindings.Ptr());
       for(auto i = 0u; i < size / sizeof(intptr_t); ++i)
@@ -340,7 +357,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
       memcpy(destBindings.Ptr(), &sTempBindings[0], size);
     }
     bindCmd.uniformBufferBindings      = destBindings;
-    bindCmd.uniformBufferBindingsCount = maxBinding + 1;
+    bindCmd.uniformBufferBindingsCount = maxBinding;
   }
 }
 
@@ -409,7 +426,7 @@ void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 
 void CommandBuffer::ReadPixels(uint8_t* buffer)
 {
-  auto command = mCommandPool->AllocateCommand(CommandType::READ_PIXELS);
+  auto command                     = mCommandPool->AllocateCommand(CommandType::READ_PIXELS);
   command->readPixelsBuffer.buffer = buffer;
 }
 
