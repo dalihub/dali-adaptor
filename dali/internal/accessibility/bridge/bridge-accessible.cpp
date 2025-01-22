@@ -180,14 +180,14 @@ static bool IsObjectZeroSize(Component* obj)
 static bool IsVisibleInScrollableParent(Accessible* accessible)
 {
   auto scrollableParent = GetScrollableParent(accessible);
-  if (DALI_UNLIKELY(scrollableParent == nullptr))
+  if(DALI_UNLIKELY(scrollableParent == nullptr))
   {
     return true;
   }
 
   auto scrollableParentExtents = scrollableParent->GetExtents(CoordinateType::WINDOW);
   auto component = dynamic_cast<Component*>(accessible);
-  if (component && !scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
+  if(component && !scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
   {
     return false;
   }
@@ -195,7 +195,7 @@ static bool IsVisibleInScrollableParent(Accessible* accessible)
   return true;
 }
 
-static bool IsChildVisibleInScrollableParent(Accessible *start, Accessible *accessible)
+static bool IsChildVisibleInScrollableParent(Accessible* start, Accessible* accessible)
 {
   return IsVisibleInScrollableParent(start) || IsVisibleInScrollableParent(accessible);
 }
@@ -513,7 +513,7 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
 
     if(controledBy->IsProxy() || IsObjectAcceptable(controledBy))
     {
-      LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
+      LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
       return controledBy;
     }
   }
@@ -733,10 +733,19 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   if(component)
   {
     recurse = component->IsProxy();
-    if (recurse)
+    if(recurse)
     {
       Accessible* parent = component->GetParent();
-      deputy = IsObjectAcceptable(parent) ? parent : nullptr;
+      while(parent && parent != accessible && !deputy)
+      {
+        if(IsObjectAcceptable(parent))
+        {
+          deputy = parent;
+          LOG() << "deputy:    " << GetComponentInfo(dynamic_cast<Component*>(deputy));
+          break;
+        }
+        parent = parent->GetParent();
+      }
     }
   }
   return {component, recurse, deputy};
