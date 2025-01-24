@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,18 @@ struct SwapchainBuffer;
 class Swapchain
 {
 public:
+  /**
+   * @brief Create a new swapchain for the given surface.
+   *
+   * @param device The vulkan device
+   * @param presentationQueue The queue to use for presenting the swapchain
+   * @param oldSwapchain Any old swapchain we're recyclying
+   * @param surface The surface to create the swapchain images for
+   * @param requestedFormat The desired image format
+   * @param presentMode Usually eFifo or eMailbox
+   * @param[out] bufferCount Number of available swapchain buffers
+   * @return A new swapchain
+   */
   static Swapchain* NewSwapchain(
     Device&            device,
     Queue&             presentationQueue,
@@ -44,13 +56,13 @@ public:
     SurfaceImpl*       surface,
     vk::Format         requestedFormat,
     vk::PresentModeKHR presentMode,
-    uint32_t           bufferCount);
+    uint32_t&          bufferCount);
 
   Swapchain(Device& graphicsDevice, Queue& presentationQueue);
 
   ~Swapchain();
 
-  Swapchain(const Swapchain&) = delete;
+  Swapchain(const Swapchain&)            = delete;
   Swapchain& operator=(const Swapchain&) = delete;
 
   void Destroy();
@@ -140,7 +152,7 @@ private:
     SurfaceImpl*       surface,
     vk::Format         requestedFormat,
     vk::PresentModeKHR presentMode,
-    uint32_t           bufferCount);
+    uint32_t&          bufferCount);
 
 private:
   Device&      mGraphicsDevice;

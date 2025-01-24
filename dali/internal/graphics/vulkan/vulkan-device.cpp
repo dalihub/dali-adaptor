@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -360,10 +360,10 @@ Swapchain* Device::ReplaceSwapchainForSurface(SurfaceImpl* surface, Swapchain*&&
 Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
                                    vk::Format         requestedFormat,
                                    vk::PresentModeKHR presentMode,
-                                   uint32_t           bufferCount,
+                                   uint32_t&          bufferCount,
                                    Swapchain*&&       oldSwapchain)
 {
-  auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, bufferCount);
+  auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
 
   if(oldSwapchain)
   {
@@ -393,6 +393,36 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
   FramebufferAttachmentHandle empty;
   newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
   return newSwapchain;
+}
+
+void Device::AcquireNextImage()
+{
+  for(auto& s : mSurfaceMap)
+  {
+    auto swapchain = s.second.swapchain;
+    if(swapchain != nullptr)
+    {
+      FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);
+
+      // In case something went wrong we will try to replace swapchain once
+      // before calling it a day.
+      if(!framebuffer || !swapchain->IsValid())
+      {
+        // make sure device doesn't do any work before replacing swapchain
+        DeviceWaitIdle();
+
+        // replace swapchain (only once)
+        swapchain = ReplaceSwapchainForSurface(swapchain->GetSurface(), std::move(swapchain));
+
+        // get new valid framebuffer
+        if(swapchain)
+        {
+          framebuffer = swapchain->AcquireNextFramebuffer(true);
+        }
+        DALI_ASSERT_ALWAYS(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
+      }
+    }
+  }
 }
 
 vk::Result Device::Present(Queue& queue, vk::PresentInfoKHR presentInfo)
@@ -577,15 +607,20 @@ void Device::SurfaceResized(unsigned int width, unsigned int height)
   }
 }
 
-uint32_t Device::SwapBuffers()
+uint32_t Device::GetCurrentBufferIndex() const
 {
-  DeviceWaitIdle();
-  mCurrentBufferIndex = (mCurrentBufferIndex + 1) & 1;
   return mCurrentBufferIndex;
 }
 
-uint32_t Device::GetCurrentBufferIndex() const
+uint32_t Device::GetBufferCount() const
 {
+  return mBufferCount;
+}
+
+uint32_t Device::SwapBuffers()
+{
+  // Increase the current buffer index. This should match the number of swapchain images in the main window.
+  mCurrentBufferIndex = (mCurrentBufferIndex + 1) % mBufferCount;
   return mCurrentBufferIndex;
 }
 

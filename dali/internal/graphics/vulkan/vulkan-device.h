@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_DEVICE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,9 @@ public: // Create methods
 
   Swapchain* ReplaceSwapchainForSurface(SurfaceImpl* surface, Swapchain*&& oldSwapchain);
 
-  Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t bufferCount, Swapchain*&& oldSwapchain);
+  Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t& bufferCount, Swapchain*&& oldSwapchain);
+
+  void AcquireNextImage();
 
   vk::Result Present(Queue& queue, vk::PresentInfoKHR presentInfo);
   vk::Result QueueWaitIdle(Queue& queue);
@@ -117,6 +119,8 @@ public: // Getters
   Image* CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent);
 
   uint32_t GetCurrentBufferIndex() const;
+
+  uint32_t GetBufferCount() const;
 
   uint32_t SwapBuffers();
 
@@ -176,6 +180,7 @@ private: // Members
 
   Platform   mPlatform{Platform::UNDEFINED};
   uint32_t   mCurrentBufferIndex{0u};
+  uint32_t   mBufferCount{2};
   std::mutex mMutex;
 
   bool mHasDepth{false};

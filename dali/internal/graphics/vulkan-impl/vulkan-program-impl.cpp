@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,8 @@ struct ProgramImpl::Impl
     vk::DescriptorPool           vkPool;
   };
 
-  std::vector<DescriptorPool> poolList;
-  int32_t                     currentPoolIndex{-1};
+  std::vector<DescriptorPool> poolList;            ///< List of descriptor pools. Each element corresponds to overall bufferIndex.
+  uint32_t                    currentPoolIndex{0}; ///< Current pool index matches bufferIndex
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -262,22 +262,22 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
 
 [[nodiscard]] int ProgramImpl::AddDescriptorPool(uint32_t poolCapacity, uint32_t maxPoolCounts)
 {
-  auto& poolList  = mImpl->poolList;
-  auto& poolIndex = mImpl->currentPoolIndex;
-  poolIndex %= maxPoolCounts;
+  auto& poolList = mImpl->poolList;
 
   auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
   auto& allocator = gfxDevice.GetAllocator();
   auto  vkDevice  = gfxDevice.GetLogicalDevice();
 
-  if(poolCapacity != poolList.size())
+  uint32_t bufferIndex    = gfxDevice.GetCurrentBufferIndex();
+  mImpl->currentPoolIndex = bufferIndex % maxPoolCounts;
+
+  if(mImpl->currentPoolIndex >= poolList.size())
   {
-    poolList.resize(poolCapacity);
-    // should error if pool index exceeds pool capacity
+    poolList.resize(mImpl->currentPoolIndex + 1);
   }
 
   // round-robin the pool index
-  Impl::DescriptorPool& descriptorPool = mImpl->poolList[poolIndex];
+  Impl::DescriptorPool& descriptorPool = mImpl->poolList[mImpl->currentPoolIndex];
 
   // if pool exists at index...
   if(descriptorPool.vkPool)
@@ -286,13 +286,14 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
     if(descriptorPool.createInfo.maxSets >= poolCapacity)
     {
       vkDevice.resetDescriptorPool(descriptorPool.vkPool, vk::DescriptorPoolResetFlags{});
-      return poolIndex;
+      return mImpl->currentPoolIndex;
     }
 
-    // ... else, destroy vulkan object
+    // ... else, destroy vulkan object, and re-create it below
     vkDevice.destroyDescriptorPool(descriptorPool.vkPool, &allocator);
   }
 
+  // Create new descriptor pool for the required capacity
   descriptorPool.createInfo.setMaxSets(poolCapacity);
   std::vector<vk::DescriptorPoolSize> poolSizes;
 
@@ -321,7 +322,7 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
   // create pool
   VkAssert(vkDevice.createDescriptorPool(&descriptorPool.createInfo, &allocator, &descriptorPool.vkPool));
 
-  return poolIndex;
+  return mImpl->currentPoolIndex;
 }
 
 [[nodiscard]] vk::DescriptorSet ProgramImpl::AllocateDescriptorSet(int poolIndex)

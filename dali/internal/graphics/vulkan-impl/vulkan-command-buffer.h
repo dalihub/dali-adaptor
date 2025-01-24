@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -384,10 +384,7 @@ public: // API
    */
   RenderTarget* GetRenderTarget() const;
 
-  [[nodiscard]] CommandBufferImpl* GetImpl() const
-  {
-    return mCommandBufferImpl;
-  }
+  [[nodiscard]] CommandBufferImpl* GetImpl() const;
 
 private:
   static const DynamicStateMask INITIAL_DYNAMIC_MASK_VALUE{0xFFFFFFFF};
@@ -423,9 +420,9 @@ private:
     return false;
   }
 
-  CommandBufferImpl* mCommandBufferImpl;
-  RenderTarget*      mRenderTarget{nullptr};
-  Swapchain*         mLastSwapchain{nullptr};
+  std::vector<CommandBufferImpl*> mCommandBufferImpl; ///< There are as many elements as there are swapchain images
+  RenderTarget*                   mRenderTarget{nullptr};
+  Swapchain*                      mLastSwapchain{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan
