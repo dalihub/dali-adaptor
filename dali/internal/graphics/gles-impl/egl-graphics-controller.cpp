@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,8 @@
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
 #include <dali/internal/graphics/gles-impl/gles-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
-#include <dali/internal/graphics/gles/egl-sync-implementation.h>
-
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 #include <any>
 
@@ -234,11 +233,17 @@ void EglGraphicsController::SetResourceBindingHints(const std::vector<SceneResou
 
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
+  uint32_t totalNumCmds    = 0;
+  uint32_t totalNumBuffers = 0;
   for(auto& cmdbuf : submitInfo.cmdBuffer)
   {
     // Push command buffers
     auto* commandBuffer = static_cast<GLES::CommandBuffer*>(cmdbuf);
     mCapacity += commandBuffer->GetCapacity();
+    uint32_t              numCmds = 0;
+    [[maybe_unused]] auto cmdPtr  = commandBuffer->GetCommands(numCmds);
+    totalNumCmds += numCmds;
+    totalNumBuffers++;
     mCommandQueue.push(commandBuffer);
   }
 
@@ -893,6 +898,7 @@ void EglGraphicsController::ProcessCommandQueues()
   {
     auto cmdBuf = mCommandQueue.front();
     mCommandQueue.pop();
+
     DUMP_FRAME_COMMAND_BUFFER(cmdBuf);
     ProcessCommandBuffer(*cmdBuf);
   }

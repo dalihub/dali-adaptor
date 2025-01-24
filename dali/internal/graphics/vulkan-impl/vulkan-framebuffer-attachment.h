@@ -42,33 +42,42 @@ public:
    *
    * @param[in] imageView The imageview of the attachment
    * @param[in] clearColor The color used to clear this attachment during CLEAR_OP
+   * @param[in] description Expected Load/Store ops
    * @param[in] type The attachment type (usually COLOR or DEPTH_STENCIL)
    * @param[in] presentable Whether the attachment is presentable (changes final layout)
    */
-  FramebufferAttachment(std::unique_ptr<ImageView>& imageView,
-                        vk::ClearValue              clearColor,
-                        AttachmentType              type,
-                        bool                        presentable);
+  FramebufferAttachment(
+    std::unique_ptr<ImageView>&            imageView,
+    vk::ClearValue                         clearColor,
+    const Graphics::AttachmentDescription* description,
+    AttachmentType                         type,
+    bool                                   presentable);
 
   /**
    * Creates a new color attachment.
    *
    * @param[in] imageView The imageview of the attachment
    * @param[in] clearColorValue The color used to clear this attachment during CLEAR_OP
+   * @param[in] description Expected Load/Store ops
    * @param[in] presentable Whether the attachment is presentable (changes final layout)
    */
-  static FramebufferAttachment* NewColorAttachment(std::unique_ptr<ImageView>& imageView,
-                                                   vk::ClearColorValue         clearColorValue,
-                                                   bool                        presentable);
+  static FramebufferAttachment* NewColorAttachment(
+    std::unique_ptr<ImageView>&            imageView,
+    vk::ClearColorValue                    clearColorValue,
+    const Graphics::AttachmentDescription* description,
+    bool                                   presentable);
 
   /**
    * Creates a new depth attachment.
    *
    * @param[in] imageView The imageview of the attachment
    * @param[in] clearDepthStencilValue The value used to clear this attachment during CLEAR_OP
+   * @param[in] description Expected Load/Store ops
    */
-  static FramebufferAttachment* NewDepthAttachment(std::unique_ptr<ImageView>& imageView,
-                                                   vk::ClearDepthStencilValue  clearDepthStencilValue);
+  static FramebufferAttachment* NewDepthAttachment(
+    std::unique_ptr<ImageView>&            imageView,
+    vk::ClearDepthStencilValue             clearDepthStencilValue,
+    const Graphics::AttachmentDescription* description);
 
   [[nodiscard]] ImageView* GetImageView() const;
 
@@ -86,7 +95,8 @@ private:
   std::unique_ptr<ImageView> mImageView;
   vk::AttachmentDescription  mDescription;
   vk::ClearValue             mClearValue;
-  AttachmentType             mType{AttachmentType::UNDEFINED};
+
+  AttachmentType mType{AttachmentType::UNDEFINED};
 };
 
 using FramebufferAttachmentHandle = Vulkan::Handle<FramebufferAttachment>; // Can share attachments

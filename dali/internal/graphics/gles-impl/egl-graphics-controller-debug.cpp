@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,18 @@
 
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-render-target.h>
+
+#include <unistd.h>
 #include <cstdio>
+#include <filesystem>
 #include <queue>
 
 namespace Dali::Graphics
 {
 #if defined(DEBUG_ENABLED)
 const char* GRAPHICS_CMDBUF_OUTFILE_ENV = "GRAPHICS_CMDBUF_OUTFILE";
+const char* GRAPHICS_DUMP_TRIGGER_FILE  = "/tmp/dump_cmd_buf";
 
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {
@@ -88,10 +93,14 @@ std::string DumpStencilOp(Graphics::StencilOp stencilOp)
   return "UNKNOWN";
 }
 
-void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
+void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* commandBuffer)
 {
-  bool       first{true};
-  uint32_t   count   = 0u;
+  bool     first{true};
+  uint32_t count  = 0u;
+  FILE*    output = frameDump.output;
+
+  fprintf(output, "{ \"level\":\"%s\",\"cmds\":[\n", commandBuffer->GetCreateInfo().level == CommandBufferLevel::PRIMARY ? "PRIMARY" : "SECONDARY");
+
   const auto command = commandBuffer->GetCommands(count);
   for(auto i = 0u; i < count; ++i)
   {
@@ -141,12 +150,32 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
       }
       case GLES::CommandType::DRAW:
       {
-        fprintf(output, "{\"Cmd\":\"DRAW\"}\n");
+        fprintf(output,
+                "{\"Cmd\":\"DRAW\",\n"
+                " \"vertexCount\":%d,\n"
+                " \"instanceCount\":%d,\n"
+                " \"firstInstance\":%d,\n"
+                " \"firstVertex\":%d}\n",
+                cmd.draw.draw.vertexCount,
+                cmd.draw.draw.instanceCount,
+                cmd.draw.draw.firstInstance,
+                cmd.draw.draw.firstVertex);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED:
       {
-        fprintf(output, "{\"Cmd\":\"DRAW_INDEXED\"}\n");
+        fprintf(output,
+                "{\"Cmd\":\"DRAW_INDEXED\",\n"
+                " \"indexCount\":%d,\n"
+                " \"vertexOffset\":%d,\n"
+                " \"firstIndex\":%d,\n"
+                " \"firstInstance\":%d,\n"
+                " \"instanceCount\":%d}\n",
+                cmd.draw.drawIndexed.indexCount,
+                cmd.draw.drawIndexed.vertexOffset,
+                cmd.draw.drawIndexed.firstIndex,
+                cmd.draw.drawIndexed.firstInstance,
+                cmd.draw.drawIndexed.instanceCount);
         break;
       }
       case GLES::CommandType::DRAW_NATIVE:
@@ -156,7 +185,14 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
       }
       case GLES::CommandType::DRAW_INDEXED_INDIRECT:
       {
-        fprintf(output, "{\"Cmd\":\"DRAW_INDEXED_INDIRECT\"}\n");
+        fprintf(output,
+                "{\"Cmd\":\"DRAW_INDEXED_INDIRECT\",\n"
+                " \"offset\":%d,\n"
+                " \"drawCount\":%d,\n"
+                " \"stride\":%d}\n",
+                cmd.draw.drawIndexedIndirect.offset,
+                cmd.draw.drawIndexedIndirect.drawCount,
+                cmd.draw.drawIndexedIndirect.stride);
         break;
       }
       case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
@@ -266,6 +302,8 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
           fprintf(output, "[%f,%f,%f,%f]", value.color.r, value.color.g, value.color.b, value.color.a);
         }
         fprintf(output, "]\n}");
+
+        frameDump.renderTargets.insert(cmd.beginRenderPass.renderTarget);
         break;
       }
       case GLES::CommandType::END_RENDERPASS:
@@ -280,7 +318,11 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
       }
       case GLES::CommandType::PRESENT_RENDER_TARGET:
       {
-        fprintf(output, "{\"Cmd\":\"PRESENT_RENDER_TARGET\"}\n");
+        fprintf(output,
+                "{\"Cmd\":\"PRESENT_RENDER_TARGET\",\n"
+                "\"targetToPresent\":\"%p\"\n}\n",
+                cmd.presentRenderTarget.targetToPresent);
+        frameDump.renderTargets.insert(cmd.presentRenderTarget.targetToPresent);
         break;
       }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
@@ -295,33 +337,54 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
             fprintf(output, ", ");
           }
           firstBuf = false;
-          DumpCommandBuffer(output, buf);
+          DumpCommandBuffer(frameDump, buf);
         }
         fprintf(output, "]\n}");
         break;
       }
     }
   }
+  fprintf(output, "]}\n");
+}
+
+int CloseJson(FILE* fp)
+{
+  fflush(fp);
+  fclose(fp);
+  return 0;
 }
 
 GraphicsFrameDump::GraphicsFrameDump()
 : outputStream(nullptr, nullptr)
 {
-  const char* outfile = Dali::EnvironmentVariable::GetEnvironmentVariable(GRAPHICS_CMDBUF_OUTFILE_ENV);
-  if(outfile)
-  {
-    outputStream = UniqueFilePtr(std::fopen(outfile, "w"), std::fclose);
-    output       = outputStream.get();
-  }
-  if(!output)
-    output = stderr;
 }
 
 void GraphicsFrameDump::Start()
 {
   if(IsDumpFrame())
   {
-    if(!firstFrame)
+    if(!output && !outputStream)
+    {
+      const char* outfile = Dali::EnvironmentVariable::GetEnvironmentVariable(GRAPHICS_CMDBUF_OUTFILE_ENV);
+      if(outfile)
+      {
+        char* filename;
+        asprintf(&filename, "%s.%03d.json", outfile, fileCount);
+        outputStream = UniqueFilePtr(std::fopen(filename, "w"), CloseJson);
+        output       = outputStream.get();
+        free(filename);
+      }
+      if(!output)
+      {
+        output = stderr;
+      }
+    }
+
+    if(firstFrame)
+    {
+      fprintf(output, "{\"CommandQueueSubmission\":[\n");
+    }
+    else
     {
       fprintf(output, ", \n");
     }
@@ -341,8 +404,37 @@ void GraphicsFrameDump::DumpCommandBuffer(const GLES::CommandBuffer* cmdBuf)
       fprintf(output, ", \n");
     }
     firstBuffer = false;
-    fprintf(output, "[\n");
-    Graphics::DumpCommandBuffer(output, cmdBuf);
+    Graphics::DumpCommandBuffer(*this, cmdBuf);
+  }
+}
+
+void GraphicsFrameDump::DumpRenderTargets()
+{
+  if(!renderTargets.empty())
+  {
+    fprintf(output, ",\"RenderTargets\":[");
+    bool first = true;
+    for(auto renderTarget : renderTargets)
+    {
+      if(!first)
+      {
+        fprintf(output, ",");
+      }
+      first = false;
+
+      fprintf(output,
+              "{\n\"ptr\":\"%p\",\n"
+              "   \"surface\":\"%p\",\n"
+              "   \"framebuffer\":\"%p\",\n"
+              "   \"extent\":[%d, %d],\n"
+              "   \"preTransform\":\"%x\"\n}",
+              renderTarget,
+              renderTarget->GetCreateInfo().surface,
+              renderTarget->GetCreateInfo().framebuffer,
+              renderTarget->GetCreateInfo().extent.width,
+              renderTarget->GetCreateInfo().extent.height,
+              renderTarget->GetCreateInfo().preTransform);
+    }
     fprintf(output, "]\n");
   }
 }
@@ -353,7 +445,6 @@ void GraphicsFrameDump::End()
   {
     fprintf(output, "]}\n");
   }
-  firstBuffer  = true;
   dumpingFrame = false;
 }
 
@@ -363,10 +454,28 @@ bool GraphicsFrameDump::IsDumpFrame()
 
   frameCount++;
 
-  dump = (frameCount < NTH_FRAME);
-
-  // Or, could also use an enviroment variable as a trigger
-  // e.g. if getenv(X) is set, then start dumping again, and clear X.
+  if(frameCount < NTH_FRAME)
+  {
+    dump = true;
+  }
+  else if(frameCount == NTH_FRAME)
+  {
+    fprintf(output, "\n]\n");
+    DumpRenderTargets();
+    fprintf(output, "\n}\n");
+    fflush(output);
+    outputStream.reset();
+    output = nullptr;
+    renderTargets.clear();
+  }
+  else if(std::filesystem::exists(GRAPHICS_DUMP_TRIGGER_FILE))
+  {
+    fileCount++;
+    frameCount = 0;
+    firstFrame = true;
+    dump       = true;
+    unlink(GRAPHICS_DUMP_TRIGGER_FILE);
+  }
 
   return dump;
 }

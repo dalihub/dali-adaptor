@@ -26,8 +26,8 @@
 
 namespace Dali::Graphics::Vulkan
 {
-class RenderPass;
 class Device;
+class RenderPass;
 
 /**
  * FramebufferImpl encapsulates following objects:
@@ -110,7 +110,17 @@ public:
 
   [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
-  [[nodiscard]] RenderPassHandle GetImplFromRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
+  /**
+   * Add a renderpass (load/store ops) + Impl (vk wrapper) to the framebuffer.
+   *
+   * The handle may point to the renderpass used to create the framebuffer.
+   * @param[in] renderPass A renderpass object (load/store ops)
+   * @param[in] renderPassImpl The vulkan wrapper to an actual render pass generated using
+   * the renderPass ops and framebuffer attachments.
+   */
+  void AddRenderPass(Vulkan::RenderPass* renderPass, Vulkan::RenderPassHandle renderPassImpl);
+
+  [[nodiscard]] RenderPassHandle GetImplFromRenderPass(Vulkan::RenderPass* renderPass); // May mutate mRenderPasses
 
   [[nodiscard]] RenderPassHandle GetRenderPass(uint32_t index) const;
 

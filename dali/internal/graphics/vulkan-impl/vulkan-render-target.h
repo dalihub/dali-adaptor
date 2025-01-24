@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ namespace Dali::Graphics::Vulkan
 {
 class Framebuffer;
 class Surface;
+class CommandBuffer;
 
 using RenderTargetResource = Resource<Graphics::RenderTarget, Graphics::RenderTargetCreateInfo>;
 
@@ -100,6 +101,42 @@ public:
    * @return a matching render pass implementation from the current framebuffer
    */
   [[nodiscard]] Vulkan::RenderPassHandle GetRenderPass(const Graphics::RenderPass* renderPass) const;
+  /**
+   * Submit the command buffer to the graphics queue using the right sync.
+   */
+  void Submit(const CommandBuffer* commandBuffer);
+
+  void ResetDependencies()
+  {
+    mDependencies.clear();
+    mSubmitted       = false;
+    mSemaphoreWaited = false;
+  }
+
+  void AddDependency(RenderTarget* dependency)
+  {
+    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
+    if(iter == mDependencies.end())
+    {
+      mDependencies.push_back(dependency);
+    }
+  }
+  void RemoveDependency(RenderTarget* dependency)
+  {
+    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
+    if(iter != mDependencies.end())
+    {
+      mDependencies.erase(iter);
+    }
+  }
+
+  const std::vector<RenderTarget*>& GetDependencies() const;
+
+private:
+  std::vector<RenderTarget*> mDependencies;     ///< Render targets whose output is used as input to this task.
+  vk::Semaphore              mSubmitSemaphore;  ///< Signaled when the command buffer for this target is processed
+  bool                       mSubmitted{false}; ///< Check if this render target was submitted this frame
+  bool                       mSemaphoreWaited{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

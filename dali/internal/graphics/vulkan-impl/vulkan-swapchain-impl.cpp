@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -253,6 +253,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
     SharedAttachments attachments;
     attachments.emplace_back(FramebufferAttachment::NewColorAttachment(colorImageView,
                                                                        clearColor,
+                                                                       nullptr,
                                                                        true));
 
     std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)> framebuffer(
@@ -370,22 +371,24 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   return mFramebuffers[mSwapchainImageIndex].get();
 }
 
-void Swapchain::Submit(CommandBufferImpl* commandBuffer)
+void Swapchain::Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends)
 {
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
 
-  // @todo Should we allow multiple submits per swapchain per frame?
-  // If so, should change the fence, or at least wait for the fence
-  // prior to the reset above.
-  mGraphicsDevice.Submit(*mQueue,
-                         {Vulkan::SubmissionData{
-                           {swapchainBuffer->acquireNextImageSemaphore},
-                           {vk::PipelineStageFlagBits::eFragmentShader},
-                           {commandBuffer},
-                           {swapchainBuffer->submitSemaphore}}},
-                         swapchainBuffer->endOfFrameFence.get());
+  std::vector<vk::Semaphore>          waitSemaphores{depends};
+  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+  waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
+  waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
+
+  mQueue->Submit({Vulkan::SubmissionData{
+                   waitSemaphores,
+                   waitDstStageMask,
+                   {commandBuffer},
+                   {swapchainBuffer->submitSemaphore}}},
+                 swapchainBuffer->endOfFrameFence.get());
 }
 
 void Swapchain::Present()
@@ -465,7 +468,7 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
     auto depthClearValue       = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
     // A single depth attachment for the swapchain. Takes ownership of the image view
-    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue));
+    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue, nullptr));
   }
 
   // Before replacing framebuffers in the swapchain, wait until all is done

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -37,6 +39,12 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, V
     // Do creation stuff!
     //   Create Swapchain?!
   }
+  else
+  {
+    // Non-surface render targets use own semaphore to signal cmd buffer completion.
+    auto& graphicsDevice = controller.GetGraphicsDevice();
+    mSubmitSemaphore     = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
+  }
 }
 
 RenderTarget::~RenderTarget() = default;
@@ -48,11 +56,11 @@ void RenderTarget::DestroyResource()
 void RenderTarget::DiscardResource()
 {
   mController.DiscardResource(this);
+  mController.RemoveRenderTarget(this); // Remove from dependency graph
 
   // The surface context should be deleted now
   if(mCreateInfo.surface)
   {
-    //mController.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
     mCreateInfo.surface = nullptr;
   }
 }
@@ -92,6 +100,44 @@ Vulkan::RenderPassHandle RenderTarget::GetRenderPass(const Graphics::RenderPass*
   auto renderPass      = const_cast<Vulkan::RenderPass*>(static_cast<const Vulkan::RenderPass*>(gfxRenderPass));
   auto framebufferImpl = GetCurrentFramebufferImpl();
   return framebufferImpl->GetImplFromRenderPass(renderPass);
+}
+
+void RenderTarget::Submit(const CommandBuffer* cmdBuffer)
+{
+  auto& graphicsDevice = mController.GetGraphicsDevice();
+  auto  surface        = GetSurface();
+
+  std::vector<vk::Semaphore> waitSemaphores;
+  for(auto renderTarget : mDependencies)
+  {
+    // Only use semaphore if dependency render target was submitted
+    // already this frame and not already waited on.
+    if(renderTarget->mSubmitted && !renderTarget->mSemaphoreWaited)
+    {
+      waitSemaphores.push_back(renderTarget->mSubmitSemaphore);
+      renderTarget->mSemaphoreWaited = true;
+    }
+  }
+  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
+
+  if(surface)
+  {
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto swapchain = graphicsDevice.GetSwapchainForSurfaceId(surfaceId);
+    swapchain->Submit(cmdBuffer->GetImpl(), waitSemaphores);
+  }
+  else
+  {
+    std::vector<vk::Semaphore> signalSemaphores{mSubmitSemaphore};
+    graphicsDevice.GetGraphicsQueue(0).Submit(
+      {SubmissionData{
+        waitSemaphores,
+        waitDstStageMask,
+        {cmdBuffer->GetImpl()},
+        signalSemaphores}},
+      nullptr);
+  }
+  mSubmitted = true;
 }
 
 } // namespace Dali::Graphics::Vulkan

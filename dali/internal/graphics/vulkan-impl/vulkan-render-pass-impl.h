@@ -49,8 +49,10 @@ using RenderPassHandle = Handle<class RenderPassImpl>;
 class RenderPassImpl : public VkSharedResource
 {
 public:
-  struct CreateInfo
+  class CreateInfo
   {
+  public:
+    SharedAttachments                      attachmentHandles;
     std::vector<vk::AttachmentReference>   colorAttachmentReferences;
     vk::AttachmentReference                depthAttachmentReference;
     std::vector<vk::AttachmentDescription> attachmentDescriptions;
@@ -63,7 +65,12 @@ public:
                               const SharedAttachments&    colorAttachments,
                               FramebufferAttachmentHandle depthAttachment);
 
+  static RenderPassHandle New(Vulkan::Device&                   device,
+                              const RenderPassImpl::CreateInfo& createInfo);
+
   RenderPassImpl(Vulkan::Device& device, const SharedAttachments& colorAttachments, FramebufferAttachmentHandle depthAttachment);
+
+  RenderPassImpl(Vulkan::Device& device, const RenderPassImpl::CreateInfo& createInfo);
 
   ~RenderPassImpl();
 
@@ -71,7 +78,7 @@ public:
 
   vk::RenderPass GetVkHandle();
 
-  std::vector<vk::ImageView>& GetAttachments();
+  size_t GetAttachmentCount();
 
   bool HasDepthAttachment()
   {
@@ -83,19 +90,21 @@ public:
     return mCreateInfo;
   }
 
-private:
-  void CreateCompatibleCreateInfo(
-    const SharedAttachments&    colorAttachments,
-    FramebufferAttachmentHandle depthAttachment);
+  static void CreateCompatibleCreateInfo(
+    CreateInfo&                        createInfo,
+    const SharedAttachments&           colorAttachments,
+    const FramebufferAttachmentHandle& depthAttachment,
+    bool                               subpassForOffscreen);
 
-  void CreateRenderPass();
+private:
+  void       CreateRenderPass();
+  static int CreateSubPassDependencies(CreateInfo& createInfo, bool hasDepth, bool subpassForOffscreen);
 
 private:
-  Device*                    mGraphicsDevice;
-  CreateInfo                 mCreateInfo;
-  vk::RenderPass             mVkRenderPass;
-  std::vector<vk::ImageView> mAttachments{};
-  bool                       mHasDepthAttachment;
+  Device*        mGraphicsDevice;
+  CreateInfo     mCreateInfo;
+  vk::RenderPass mVkRenderPass;
+  bool           mHasDepthAttachment{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

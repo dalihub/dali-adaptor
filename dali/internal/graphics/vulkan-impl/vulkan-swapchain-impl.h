@@ -92,7 +92,7 @@ public:
   /**
    * Submits the given command buffer to the swapchain queue
    */
-  void Submit(CommandBufferImpl* commandBuffer);
+  void Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends);
 
   /**
    * Presents using default present queue, asynchronously
