@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   unsigned char* destBuffer       = buffer.GetBuffer();
 
   unsigned int destBytesPerPixel = Dali::Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
-  unsigned int srcStrideBytes    = mask.GetStride() * srcBytesPerPixel;
-  unsigned int destStrideBytes   = buffer.GetStride() * destBytesPerPixel;
+  unsigned int srcStrideBytes    = mask.GetStrideBytes();
+  unsigned int destStrideBytes   = buffer.GetStrideBytes();
 
   // if image is premultiplied, the other channels of the image need to multiply by alpha.
   if(buffer.IsAlphaPreMultiplied())
@@ -147,12 +147,12 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
 
   unsigned char* srcBuffer        = mask.GetBuffer();
   unsigned int   srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel(srcPixelFormat);
-  unsigned int   srcStrideBytes   = mask.GetStride() * srcBytesPerPixel;
+  unsigned int   srcStrideBytes   = mask.GetStrideBytes();
 
   // Set up source color offsets
   Dali::Pixel::Format srcColorPixelFormat   = buffer.GetPixelFormat();
   unsigned int        srcColorBytesPerPixel = Dali::Pixel::GetBytesPerPixel(srcColorPixelFormat);
-  unsigned int        srcColorStrideBytes   = buffer.GetStride() * srcColorBytesPerPixel;
+  unsigned int        srcColorStrideBytes   = buffer.GetStrideBytes();
 
   // Setup destination offsets
   Dali::Pixel::Format destPixelFormat     = Dali::Pixel::RGBA8888;
@@ -164,7 +164,7 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
   PixelBufferPtr newPixelBuffer  = PixelBuffer::New(buffer.GetWidth(), buffer.GetHeight(), destPixelFormat);
   unsigned char* destBuffer      = newPixelBuffer->GetBuffer();
   unsigned char* oldBuffer       = buffer.GetBuffer();
-  unsigned int   destStrideBytes = newPixelBuffer->GetStride() * destBytesPerPixel;
+  unsigned int   destStrideBytes = newPixelBuffer->GetStrideBytes();
 
   bool hasAlpha = Dali::Pixel::HasAlpha(buffer.GetPixelFormat());
 

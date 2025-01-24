@@ -427,10 +427,13 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
 
           if(frameBuffer != nullptr)
           {
-            Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
-            int32_t                           bufferSize  = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
-            Internal::Adaptor::PixelBufferPtr internal    = Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width, pixelFormat);
-            pixelBuffer                                   = Devel::PixelBuffer(internal.Get());
+            Pixel::Format  pixelFormat   = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
+            const uint32_t bytesPerPixel = Dali::Pixel::GetBytesPerPixel(pixelFormat);
+            int32_t        bufferSize    = width * height * bytesPerPixel;
+
+            Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width * bytesPerPixel, pixelFormat);
+
+            pixelBuffer = Devel::PixelBuffer(internal.Get());
           }
         }
       }
