@@ -29,6 +29,7 @@ class Device;
 class FenceImpl;
 class SurfaceImpl;
 class Queue;
+class SubmissionData;
 struct SwapchainBuffer;
 
 /**
@@ -62,7 +63,7 @@ public:
 
   ~Swapchain();
 
-  Swapchain(const Swapchain&)            = delete;
+  Swapchain(const Swapchain&) = delete;
   Swapchain& operator=(const Swapchain&) = delete;
 
   void Destroy();
@@ -105,6 +106,16 @@ public:
    * Submits the given command buffer to the swapchain queue
    */
   void Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends);
+
+  void CreateSubmissionData(
+    CommandBufferImpl*                   commandBuffer,
+    std::vector<vk::Semaphore>&          waitSemaphores,
+    std::vector<vk::PipelineStageFlags>& waitDstStageMask,
+    std::vector<SubmissionData>&         submissionData);
+
+  Queue* GetQueue();
+
+  FenceImpl* GetEndOfFrameFence();
 
   /**
    * Presents using default present queue, asynchronously

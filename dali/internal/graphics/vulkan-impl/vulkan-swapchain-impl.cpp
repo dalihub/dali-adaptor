@@ -164,8 +164,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -269,8 +268,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -323,7 +321,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d", int(mSwapchainImageIndex));
 
-  constexpr auto TIMEOUT = 1'000'000'000;
+  constexpr auto TIMEOUT = 1'000'000'000; //'
 
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
@@ -373,24 +371,31 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   return mFramebuffers[mSwapchainImageIndex].get();
 }
 
-void Swapchain::Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends)
+Queue* Swapchain::GetQueue()
+{
+  return mQueue;
+}
+
+FenceImpl* Swapchain::GetEndOfFrameFence()
+{
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  return swapchainBuffer->endOfFrameFence.get();
+}
+
+void Swapchain::CreateSubmissionData(
+  CommandBufferImpl*                   commandBuffer,
+  std::vector<vk::Semaphore>&          waitSemaphores,
+  std::vector<vk::PipelineStageFlags>& waitDstStageMask,
+  std::vector<SubmissionData>&         submissionData)
 {
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
 
-  std::vector<vk::Semaphore>          waitSemaphores{depends};
-  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
-
   waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
   waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
 
-  mQueue->Submit({Vulkan::SubmissionData{
-                   waitSemaphores,
-                   waitDstStageMask,
-                   {commandBuffer},
-                   {swapchainBuffer->submitSemaphore}}},
-                 swapchainBuffer->endOfFrameFence.get());
+  submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {commandBuffer}, {swapchainBuffer->submitSemaphore}});
 }
 
 void Swapchain::Present()

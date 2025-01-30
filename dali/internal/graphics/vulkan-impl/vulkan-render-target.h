@@ -30,6 +30,7 @@ namespace Dali::Graphics::Vulkan
 class Framebuffer;
 class Surface;
 class CommandBuffer;
+class SubmissionData;
 
 using RenderTargetResource = Resource<Graphics::RenderTarget, Graphics::RenderTargetCreateInfo>;
 
@@ -105,6 +106,8 @@ public:
    * Submit the command buffer to the graphics queue using the right sync.
    */
   void Submit(const CommandBuffer* commandBuffer);
+
+  void CreateSubmissionData(const CommandBuffer* cmdBuffer, std::vector<SubmissionData>& submissionData);
 
   void ResetDependencies()
   {
