@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,11 @@ public:
    * @param[in] externalImage  External image, or nullptr if not external
    */
   Image(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr);
+
+  /**
+   * @brief Destructor
+   */
+  ~Image();
 
   /**
    * Second stage initialization:
