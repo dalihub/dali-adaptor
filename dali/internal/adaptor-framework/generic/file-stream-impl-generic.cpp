@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 #include <fstream>
 
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -76,6 +79,7 @@ FileStream::Impl::~Impl()
     if(closeFailed)
     {
       DALI_LOG_WARNING("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
     mFile = nullptr;
@@ -132,6 +136,7 @@ std::iostream& FileStream::Impl::GetStream()
     if(!mFileStream.is_open())
     {
       DALI_LOG_WARNING("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
     return mFileStream;
   }
@@ -144,6 +149,7 @@ std::iostream& FileStream::Impl::GetStream()
                        static_cast<void*>(mBuffer),
                        static_cast<unsigned>(mDataSize),
                        openMode);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 
@@ -191,9 +197,8 @@ FILE* FileStream::Impl::GetFile()
     mFile = fopen(mFileName.c_str(), openMode);
     if(!mFile)
     {
-      char buf[512];
       DALI_LOG_ERROR("file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode);
-      DALI_LOG_ERROR("file open failed error : %s\n", strerror_r(errno, buf, 512));
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
   else if(mBuffer)
@@ -201,12 +206,11 @@ FILE* FileStream::Impl::GetFile()
     mFile = fmemopen(mBuffer, mDataSize, openMode);
     if(!mFile)
     {
-      char buf[512];
       DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
                      static_cast<void*>(mBuffer),
                      static_cast<unsigned>(mDataSize),
                      openMode);
-      DALI_LOG_ERROR("file open failed error : %s\n", strerror_r(errno, buf, 512));
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 
