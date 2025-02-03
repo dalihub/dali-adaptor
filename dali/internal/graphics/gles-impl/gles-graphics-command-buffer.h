@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,10 +98,10 @@ struct Command
    * @brief Copy constructor
    * @param[in] rhs Command
    */
-  Command(const Command& rhs)            = default;
+  Command(const Command& rhs) = default;
   Command& operator=(const Command& rhs) = default;
   Command(Command&& rhs) noexcept        = delete;
-  Command& operator=(Command&& rhs)      = delete;
+  Command& operator=(Command&& rhs) = delete;
 
   CommandType type{CommandType::FLUSH}; ///< Type of command
 
@@ -109,14 +109,14 @@ struct Command
   {
     struct
     {
-      IndirectPtr<Graphics::TextureBinding> textureBindings;
+      IndirectPtr<Graphics::TextureBinding> textureBindings; ///< Sorted by binding index.
       uint32_t                              textureBindingsCount;
     } bindTextures{};
 
     // BindSampler command
     struct
     {
-      IndirectPtr<Graphics::SamplerBinding> samplerBindings;
+      IndirectPtr<Graphics::SamplerBinding> samplerBindings; ///< Sorted by binding index.
       uint32_t                              samplerBindingsCount;
     } bindSamplers;
 
@@ -133,7 +133,7 @@ struct Command
 
     struct
     {
-      IndirectPtr<UniformBufferBindingDescriptor> uniformBufferBindings;
+      IndirectPtr<UniformBufferBindingDescriptor> uniformBufferBindings; ///< Sorted by binding index.
       uint32_t                                    uniformBufferBindingsCount;
       UniformBufferBindingDescriptor              standaloneUniformsBufferBinding{};
     } bindUniformBuffers;

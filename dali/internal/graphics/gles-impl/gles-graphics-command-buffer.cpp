@@ -280,7 +280,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
 
   static constexpr UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0, 0, false};
   static thread_local std::vector<UniformBufferBindingDescriptor> sTempBindings(MAX_UNIFORM_BUFFER_BINDINGS, NULL_DESCRIPTOR);
-  static std::vector<bool>                                        sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, false);
+  static thread_local std::vector<bool>                           sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, false);
 
   memset(&bindCmd.standaloneUniformsBufferBinding, 0, sizeof(UniformBufferBindingDescriptor));
 
@@ -340,22 +340,9 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
     ++maxBinding;
 
     auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding);
+
     // copy
-    const auto size = sizeof(UniformBufferBindingDescriptor) * (maxBinding);
-    if(!(size % sizeof(intptr_t)))
-    {
-      // Use iteration hardly, to avoid SIGBUS... (SIGBUS occurs when accessing unaligned memory)
-      auto* srcPtr = reinterpret_cast<intptr_t*>(&sTempBindings[0]);
-      auto* dstPtr = reinterpret_cast<intptr_t*>(destBindings.Ptr());
-      for(auto i = 0u; i < size / sizeof(intptr_t); ++i)
-      {
-        *dstPtr++ = *srcPtr++;
-      }
-    }
-    else
-    {
-      memcpy(destBindings.Ptr(), &sTempBindings[0], size);
-    }
+    memcpy(destBindings.Ptr(), &sTempBindings[0], sizeof(UniformBufferBindingDescriptor) * (maxBinding));
     bindCmd.uniformBufferBindings      = destBindings;
     bindCmd.uniformBufferBindingsCount = maxBinding;
   }
@@ -369,20 +356,41 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
-  auto  command                        = mCommandPool->AllocateCommand(CommandType::BIND_TEXTURES);
-  auto& bindTexturesCmd                = command->bindTextures;
-  bindTexturesCmd.textureBindings      = mCommandPool->Allocate<TextureBinding>(textureBindings.size());
-  bindTexturesCmd.textureBindingsCount = textureBindings.size();
-  memcpy(bindTexturesCmd.textureBindings.Ptr(), textureBindings.data(), sizeof(TextureBinding) * textureBindings.size());
+  auto  command         = mCommandPool->AllocateCommand(CommandType::BIND_TEXTURES);
+  auto& bindTexturesCmd = command->bindTextures;
+
+  if(textureBindings.empty())
+  {
+    bindTexturesCmd.textureBindings      = nullptr;
+    bindTexturesCmd.textureBindingsCount = 0u;
+  }
+  else
+  {
+    const uint32_t bindingCount = static_cast<uint32_t>(textureBindings.size());
+
+    auto destBindings = mCommandPool->Allocate<TextureBinding>(bindingCount);
+
+    // copy
+    memcpy(destBindings.Ptr(), textureBindings.data(), sizeof(TextureBinding) * (bindingCount));
+
+    bindTexturesCmd.textureBindings      = destBindings;
+    bindTexturesCmd.textureBindingsCount = bindingCount;
+
+    // Check binding is continuous, and throw exception for debug mode
+#if defined(DEBUG_ENABLED)
+    uint32_t lastBinding = 0u;
+    for(const auto& binding : textureBindings)
+    {
+      DALI_ASSERT_DEBUG(lastBinding == binding.binding && "Texture binding order not matched!");
+      ++lastBinding;
+    }
+#endif
+  }
 }
 
 void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
 {
-  auto  command                        = mCommandPool->AllocateCommand(CommandType::BIND_SAMPLERS);
-  auto& bindSamplersCmd                = command->bindSamplers;
-  bindSamplersCmd.samplerBindings      = mCommandPool->Allocate<SamplerBinding>(samplerBindings.size());
-  bindSamplersCmd.samplerBindingsCount = samplerBindings.size();
-  memcpy(bindSamplersCmd.samplerBindings.Ptr(), samplerBindings.data(), sizeof(TextureBinding) * samplerBindings.size());
+  // Unused in core
 }
 
 void CommandBuffer::BindPushConstants(void*    data,
