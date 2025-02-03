@@ -500,18 +500,18 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
 
   if(angle == 90)
   {
-    newX = size.GetWidth() - y;
+    newX = (size.GetWidth() - 1) - y;
     newY = x;
   }
   else if(angle == 180)
   {
-    newX = size.GetHeight() - x;
-    newY = size.GetWidth() - y;
+    newX = (size.GetHeight() - 1) - x;
+    newY = (size.GetWidth() - 1) - y;
   }
   else if(angle == 270)
   {
     newX = y;
-    newY = size.GetHeight() - x;
+    newY = (size.GetHeight() - 1) - x;
   }
   else
   {

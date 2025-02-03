@@ -551,24 +551,25 @@ Vector2 GlWindow::RecalculatePosition(const Vector2& position)
 {
   Vector2 convertedPosition;
 
+  // Note: We need to subtract 1 from width and height because the range of touch coordinates is from to width - 1 or height - 1
   switch(mTotalRotationAngle)
   {
     case 90:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.y;
       convertedPosition.y = position.x;
       break;
     }
     case 180:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.x;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.y;
       break;
     }
     case 270:
     {
       convertedPosition.x = position.y;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.x;
       break;
     }
     default:
