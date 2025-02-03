@@ -15,6 +15,7 @@
  */
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
+#include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -40,8 +41,6 @@ BufferImpl* BufferImpl::New(Device& device, size_t size, vk::SharingMode sharing
 
   auto bufferImpl = new BufferImpl(device, info);
 
-  VkAssert(device.GetLogicalDevice().createBuffer(&info, &device.GetAllocator(), &bufferImpl->mBuffer));
-
   bufferImpl->Initialize(memoryProperties);
 
   return bufferImpl;
@@ -61,31 +60,23 @@ BufferImpl::~BufferImpl()
 
 void BufferImpl::Initialize(vk::MemoryPropertyFlags memoryProperties)
 {
-  // Allocate
-  auto requirements    = mDevice.GetLogicalDevice().getBufferMemoryRequirements(mBuffer);
-  auto memoryTypeIndex = Device::GetMemoryIndex(mDevice.GetMemoryProperties(),
-                                                requirements.memoryTypeBits,
-                                                memoryProperties);
-
-  mMemory = std::make_unique<MemoryImpl>(mDevice, size_t(requirements.size), size_t(requirements.alignment), memoryProperties);
-
-  auto allocateInfo = vk::MemoryAllocateInfo{}
-                        .setMemoryTypeIndex(memoryTypeIndex)
-                        .setAllocationSize(requirements.size);
-
-  auto result = mMemory->Allocate(allocateInfo, mDevice.GetAllocator("DEVICEMEMORY"));
-
-  if(result != vk::Result::eSuccess)
+  auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+  if(vmaAllocator)
   {
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Unable to allocate memory for the buffer of size %d!", int(requirements.size));
+    // Create buffer with memory allocated and bound
+    auto vmaAllocInfo = ::vma::AllocationCreateInfo{}
+                          .setPreferredFlags(memoryProperties)
+                          .setFlags(::vma::AllocationCreateFlagBits::eHostAccessSequentialWrite)
+                          .setUsage(::vma::MemoryUsage::eAuto);
 
-    mMemory.reset();
-  }
+    mVmaAllocation = std::make_unique<::vma::Allocation>();
 
-  // Bind
-  if(mMemory)
-  {
-    VkAssert(mDevice.GetLogicalDevice().bindBufferMemory(mBuffer, mMemory->GetVkHandle(), 0));
+    // This creates the buffer, allocates appropriate memory for it, and binds the buffer with the memory.
+    ::vma::AllocationInfo allocationInfo;
+    VkAssert(vmaAllocator->createBuffer(&mInfo, &vmaAllocInfo, &mBuffer, mVmaAllocation.get(), &allocationInfo));
+
+    // Wrap the allocated memory so that we can map and unmap it.
+    mMemory = std::make_unique<MemoryImpl>(mDevice, memoryProperties, mVmaAllocation.get());
   }
 }
 
@@ -93,8 +84,12 @@ void BufferImpl::Destroy()
 {
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying buffer: %p\n", static_cast<VkBuffer>(mBuffer));
 
-  auto device = mDevice.GetLogicalDevice();
-  device.destroyBuffer(mBuffer, mDevice.GetAllocator());
+  auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+  if(vmaAllocator && mVmaAllocation)
+  {
+    vmaAllocator->destroyBuffer(mBuffer, *mVmaAllocation);
+    mVmaAllocation.reset(nullptr);
+  }
 
   mBuffer = nullptr;
   mMemory.reset();

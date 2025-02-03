@@ -36,6 +36,11 @@
 #include <mutex>
 #include <thread>
 
+namespace vma
+{
+class Allocator;
+}
+
 namespace Dali::Graphics::Vulkan
 {
 class RenderPassImpl;
@@ -99,6 +104,8 @@ public: // Getters
   vk::Instance GetInstance() const;
 
   const vk::AllocationCallbacks& GetAllocator(const char* tag = nullptr);
+
+  ::vma::Allocator* GetVulkanMemoryAllocator() const;
 
   Queue& GetGraphicsQueue(uint32_t index = 0u) const;
 
@@ -169,6 +176,8 @@ private: // Members
   vk::PhysicalDeviceMemoryProperties       mPhysicalDeviceMemoryProperties;
   vk::PhysicalDeviceFeatures               mPhysicalDeviceFeatures;
   std::unique_ptr<vk::AllocationCallbacks> mAllocator{nullptr};
+
+  std::unique_ptr<::vma::Allocator> mVmaAllocator{nullptr};
 
   std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
 

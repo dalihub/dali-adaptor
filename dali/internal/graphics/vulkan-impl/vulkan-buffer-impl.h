@@ -1,6 +1,6 @@
 #pragma once
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,11 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <cstdint>
+
+namespace vma
+{
+class Allocation;
+} // namespace vma
 
 namespace Dali::Graphics::Vulkan
 {
@@ -81,7 +86,7 @@ public:
    */
   void Destroy();
 
-  BufferImpl(const Buffer&)            = delete;
+  BufferImpl(const Buffer&) = delete;
   BufferImpl& operator=(const Buffer&) = delete;
 
   /**
@@ -103,20 +108,12 @@ private:
    */
   void Initialize(vk::MemoryPropertyFlags memoryProperties);
 
-  /**
-   * Destroys used Vulkan resource objects
-   * @param device Vulkan device
-   * @param buffer Vulkan buffer
-   * @param memory Vulkan device memory
-   * @param allocator Pointer to the Vulkan allocator callbacks
-   */
-  static void DestroyVulkanResources(vk::Device device, vk::Buffer buffer, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator);
-
 private:
-  Device&                     mDevice;
-  std::unique_ptr<MemoryImpl> mMemory;
-  vk::BufferCreateInfo        mInfo;
-  vk::Buffer                  mBuffer;
+  Device&                            mDevice;
+  std::unique_ptr<MemoryImpl>        mMemory;
+  vk::BufferCreateInfo               mInfo;
+  vk::Buffer                         mBuffer;
+  std::unique_ptr<::vma::Allocation> mVmaAllocation{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan

@@ -1243,8 +1243,18 @@ bool Texture::InitializeTexture()
                            .setTiling(mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal)
                            .setMipLevels(1);
 
+  vk::MemoryPropertyFlags memoryProperties{};
+  if(mDisableStagingBuffer)
+  {
+    memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
+  }
+  if(mTiling == Dali::Graphics::TextureTiling::LINEAR)
+    memoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+  else
+    memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
+
   // Create the image handle
-  mImage = Image::New(mDevice, imageCreateInfo);
+  mImage = Image::New(mDevice, imageCreateInfo, memoryProperties);
 
   if(!mImage)
   {
@@ -1263,18 +1273,6 @@ void Texture::InitializeImageView()
 {
   if(!mImageView)
   {
-    vk::MemoryPropertyFlags memoryProperties{};
-    if(mDisableStagingBuffer)
-    {
-      memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-    }
-    if(mTiling == Dali::Graphics::TextureTiling::LINEAR)
-      memoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-    else
-      memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-    mImage->AllocateAndBind(memoryProperties);
-
     // Create image view
     mImageView = ImageView::NewFromImage(mDevice, *mImage, mComponentMapping);
 

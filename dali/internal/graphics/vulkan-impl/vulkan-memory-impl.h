@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,19 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
+namespace vma
+{
+class Allocation;
+}
+
 namespace Dali::Graphics::Vulkan
 {
-
 class MemoryImpl
 {
 public:
-  MemoryImpl(Device& device, size_t memSize, size_t memAlign, vk::MemoryPropertyFlags memoryProperties);
+  MemoryImpl(Device& device, vk::MemoryPropertyFlags memoryProperties, ::vma::Allocation* vmaAllocation);
 
   ~MemoryImpl();
-
-  vk::Result Allocate(vk::MemoryAllocateInfo, const vk::AllocationCallbacks& allocator);
 
   template<class T>
   T* MapTyped()
@@ -39,7 +41,7 @@ public:
   }
 
   // No copy constructor or assignment operator
-  MemoryImpl(MemoryImpl&)            = delete;
+  MemoryImpl(MemoryImpl&) = delete;
   MemoryImpl& operator=(MemoryImpl&) = delete;
 
   void* Map();
@@ -52,14 +54,16 @@ public:
 
   [[nodiscard]] vk::DeviceMemory GetVkHandle() const;
 
+  vk::DeviceSize GetOffset() const;
+
 private:
   Device&                 mDevice;
   vk::DeviceMemory        deviceMemory;
-  size_t                  size;
-  size_t                  alignment;
+  vk::DeviceSize          offset;
   void*                   mappedPtr;
   size_t                  mappedSize;
   vk::MemoryPropertyFlags mMemoryProperties;
+  vma::Allocation*        mVmaAllocation{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan

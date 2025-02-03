@@ -26,6 +26,11 @@ namespace Dali::Graphics::Vulkan
 class Device;
 class MemoryImpl;
 
+namespace vma
+{
+class Allocation;
+}
+
 // @todo use ImageImpl to make naming convention consistent
 
 /**
@@ -34,7 +39,7 @@ class MemoryImpl;
 class Image
 {
 public:
-  static Image* New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo);
+  static Image* New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::MemoryPropertyFlags memoryProperties);
 
   /**
    * Create the wrapper object, either for the given vkImage, or as a new image
@@ -53,10 +58,12 @@ public:
 
   /**
    * Second stage initialization:
-   * Creates new VkImage with given specification, it doesn't
-   * bind the memory.
+   * Creates new VkImage with given specification, allocates memory for the image,
+   * and binds it.
+   *
+   * @param[in] memoryProperties The properties flags for the memory.
    */
-  void Initialize();
+  void Initialize(vk::MemoryPropertyFlags memoryProperties);
 
   /**
    * Destroys underlying Vulkan resources on the caller thread.
@@ -65,14 +72,6 @@ public:
    * image invalid.
    */
   void Destroy();
-
-  /**
-   * Allocate memory for the image and bind it.
-   * Kept separate from Initialize because reasons. ?!?!
-   *
-   * @param[in] memoryProperties The properties flags for the memory.
-   */
-  void AllocateAndBind(vk::MemoryPropertyFlags memoryProperties);
 
   /**
    * Returns underlying Vulkan object
@@ -163,13 +162,14 @@ public:
   }
 
 private:
-  Device&                     mDevice;
-  vk::ImageCreateInfo         mCreateInfo;
-  vk::Image                   mImage;
-  vk::ImageLayout             mImageLayout;
-  vk::ImageAspectFlags        mAspectFlags;
-  std::unique_ptr<MemoryImpl> mMemory;
-  bool                        mIsExternal;
+  Device&                            mDevice;
+  vk::ImageCreateInfo                mCreateInfo;
+  vk::Image                          mImage;
+  vk::ImageLayout                    mImageLayout;
+  vk::ImageAspectFlags               mAspectFlags;
+  std::unique_ptr<MemoryImpl>        mMemory;
+  bool                               mIsExternal;
+  std::unique_ptr<::vma::Allocation> mVmaAllocation{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan

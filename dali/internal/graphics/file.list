@@ -33,6 +33,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/common/shader-cache-path.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-impl.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-memory-allocation.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-graphics-controller.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-buffer.cpp
