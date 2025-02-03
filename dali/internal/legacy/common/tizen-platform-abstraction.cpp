@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -304,7 +305,7 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
     }
     else
     {
-      DALI_LOG_ERROR("std::ostream.write failed!\n");
+      DALI_LOG_ERROR("std::ostream.write failed! [numBytes:%d]\n", numBytes);
     }
   }
   else
@@ -314,13 +315,8 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
 
   if(!result)
   {
-    const int errorMessageMaxLength               = 128;
-    char      errorMessage[errorMessageMaxLength] = {}; // Initailze as null.
-
-    // Return type of stderror_r is different between system type. We should not use return value.
-    [[maybe_unused]] auto ret = strerror_r(errno, errorMessage, errorMessageMaxLength - 1);
-
-    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u, error message : [%s]\n", filename.c_str(), buffer, numBytes, errorMessage);
+    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u\n", filename.c_str(), buffer, numBytes);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   return result;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/system-error-print.h>
 
 // Sockets enums like INADDR_ANY use C-Casts
 #pragma GCC diagnostic push
@@ -64,6 +67,7 @@ Socket::Socket(Protocol protocol, int fileDescriptor)
     if(mSocketFileDescriptor == -1)
     {
       DALI_LOG_ERROR("Unable to create socket\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
   else
@@ -102,6 +106,7 @@ bool Socket::CloseSocket()
   if(ret == -1)
   {
     DALI_LOG_ERROR("Socket close failed\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   return true;
@@ -127,8 +132,8 @@ bool Socket::Bind(uint16_t port)
 
   if(ret == -1)
   {
-    char buf[512];
-    DALI_LOG_ERROR("bind failed for port %d %s \n", port, strerror_r(errno, buf, 512));
+    DALI_LOG_ERROR("Socket bind failed\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -149,6 +154,7 @@ bool Socket::Listen(int blacklog)
   if(ret == -1)
   {
     DALI_LOG_ERROR("Listen failed\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -173,6 +179,7 @@ SocketInterface* Socket::Accept() const
   if(clientFileDescriptor == -1)
   {
     DALI_LOG_ERROR("Accept failed\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return NULL;
   }
 
@@ -192,6 +199,7 @@ bool Socket::CreateQuitPipe()
     if(ret != 0)
     {
       DALI_LOG_ERROR("Pipe creation failed\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     mQuitPipeCreated = true;
@@ -233,6 +241,7 @@ SocketInterface::SelectReturn Socket::Select()
     if(ret == -1)
     {
       DALI_LOG_ERROR("select failed\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return ERROR;
     }
     else if(FD_ISSET(mQuitPipe[0], &readFileDescriptors))
@@ -259,6 +268,7 @@ void Socket::ExitSelect()
     if(ret < 1)
     {
       DALI_LOG_ERROR("ExitSelect failed!\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
     return;
   }
@@ -277,8 +287,7 @@ bool Socket::ReuseAddress(bool reUse)
   int ret = setsockopt(mSocketFileDescriptor, SOL_SOCKET, SO_REUSEADDR, &reUseInteger, sizeof(reUseInteger));
   if(ret == -1)
   {
-    char buf[512];
-    DALI_LOG_ERROR("SO_REUSEADDR option failed %s \n", strerror_r(errno, buf, 512));
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   return true;
@@ -301,6 +310,7 @@ bool Socket::SetBufferSize(SocketInterface::BufferType type, unsigned int size)
   if(ret == -1)
   {
     DALI_LOG_ERROR("SO_RCVBUF / SO_SNDBUF  option failed \n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   return true;
@@ -316,7 +326,15 @@ bool Socket::Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& by
     return false;
   }
 
-  bytesRead = static_cast<unsigned int>(read(mSocketFileDescriptor, buffer, bufferSizeInBytes));
+  int ret = read(mSocketFileDescriptor, buffer, bufferSizeInBytes);
+  if(ret == -1)
+  {
+    DALI_LOG_ERROR("Socket read error \n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
+    return false;
+  }
+
+  bytesRead = static_cast<unsigned int>(ret);
 
   return true;
 }
@@ -355,6 +373,7 @@ bool Socket::Write(const void* buffer, unsigned int bufferSizeInBytes)
     if(ret < 1)
     {
       DALI_LOG_ERROR("Socket writer error \n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     else
