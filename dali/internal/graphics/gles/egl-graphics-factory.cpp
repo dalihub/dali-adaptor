@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,12 @@
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-factory.h>
+#include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali
 {
@@ -27,17 +32,17 @@ namespace Internal
 {
 namespace Adaptor
 {
-GraphicsFactory::GraphicsFactory(EnvironmentOptions& environmentOptions)
+EglGraphicsFactory::EglGraphicsFactory(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions)
 {
 }
 
-GraphicsFactory::~GraphicsFactory()
+EglGraphicsFactory::~EglGraphicsFactory()
 {
   /* Deleted by Adaptor destructor */
 }
 
-Graphics::GraphicsInterface& GraphicsFactory::Create()
+Graphics::GraphicsInterface& EglGraphicsFactory::Create()
 {
   Graphics::GraphicsCreateInfo info{};
 
@@ -51,9 +56,15 @@ Graphics::GraphicsInterface& GraphicsFactory::Create()
   return *eglGraphicsInterface;
 }
 
-void GraphicsFactory::Destroy()
+void EglGraphicsFactory::Destroy()
 {
   /* Deleted by EglGraphics */
+}
+
+std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
+{
+  DALI_LOG_RELEASE_INFO("DALi Graphics Backend: GLES\n");
+  return Utils::MakeUnique<EglGraphicsFactory>(environmentOptions);
 }
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,10 +44,12 @@ class AdaptorInternalServices;
 
 /**
  * Window interface of render surface.
+ *
+ * Needs exporting as it's called by the Graphics Libraries
  */
-class WindowRenderSurface : public Dali::Integration::RenderSurfaceInterface,
-                            public ConnectionTracker,
-                            public Graphics::NativeWindowInterface
+class DALI_ADAPTOR_API WindowRenderSurface : public Dali::Integration::RenderSurfaceInterface,
+                                             public ConnectionTracker,
+                                             public Graphics::NativeWindowInterface
 {
 public:
   using RotationFinishedSignalType = Signal<void()>; ///<The signal of window rotation's finished.

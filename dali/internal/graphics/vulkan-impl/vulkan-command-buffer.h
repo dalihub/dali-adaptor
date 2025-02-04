@@ -25,6 +25,7 @@ namespace Dali::Graphics::Vulkan
 {
 class CommandBufferImpl;
 class Swapchain;
+class RenderTarget;
 
 using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
 
@@ -378,14 +379,12 @@ public: // VulkanResource API
 
 public: // API
   /**
-   * Get the last swapchain referenced by a BeginRenderPass command in this command buffer.
-   *
-   * @todo Should split the command buffer up into multiple buffers if there is more than one
-   * render target referenced in it.
+   * Get the last target referenced by a BeginRenderPass command in this command buffer.
+   * Core now splits up command buffers so that they contain 1 render target each.
    */
-  Swapchain* GetLastSwapchain() const;
+  RenderTarget* GetRenderTarget() const;
 
-  CommandBufferImpl* GetImpl() const
+  [[nodiscard]] CommandBufferImpl* GetImpl() const
   {
     return mCommandBufferImpl;
   }
@@ -425,6 +424,7 @@ private:
   }
 
   CommandBufferImpl* mCommandBufferImpl;
+  RenderTarget*      mRenderTarget{nullptr};
   Swapchain*         mLastSwapchain{nullptr};
 };
 

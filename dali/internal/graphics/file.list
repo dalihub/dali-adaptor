@@ -1,5 +1,17 @@
 
 # module: graphics, backend: gles
+SET( adaptor_graphics_common_dynamic_src_files
+    ${adaptor_graphics_dir}/common/graphics-factory-dynamic.cpp
+    ${adaptor_graphics_dir}/common/graphics-library.cpp
+    ${adaptor_graphics_dir}/common/surface-factory-dynamic.cpp
+)
+
+# module: graphics, library
+SET( adaptor_graphics_library_common_src_files
+    ${adaptor_graphics_dir}/common/graphics-library-functions.cpp
+)
+
+# module: graphics, backend: gles
 SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/egl-debug.cpp
     ${adaptor_graphics_dir}/gles/egl-implementation.cpp
@@ -50,6 +62,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture-dependency-checker.cpp
 )
 
 # module: graphics, backend: vulkan/x11

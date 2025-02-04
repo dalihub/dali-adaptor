@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/gl-window.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
+#include <test-addon-manager.h>
 
 using namespace Dali;
 
@@ -80,6 +81,9 @@ int UtcDaliGlWindowDestructorP(void)
 
 int UtcDaliGlWindowNew1(void)
 {
+  TestApplication application;
+  Test::AddOnManager::Initialize(); // GlWindow requires Gl Window addon so initialize the manager
+
   try
   {
     PositionSize   windowPosition(0, 0, 10, 10);
@@ -96,6 +100,9 @@ int UtcDaliGlWindowNew1(void)
 
 int UtcDaliGlWindowNew2(void)
 {
+  TestApplication application;
+  Test::AddOnManager::Initialize(); // GlWindow requires Gl Window addon so initialize the manager
+
   try
   {
     PositionSize   windowPosition(20, 10, 10, 10);

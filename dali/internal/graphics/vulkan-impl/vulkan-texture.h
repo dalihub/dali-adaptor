@@ -79,6 +79,11 @@ public:
 
   ImageView* GetImageView() const;
 
+  /**
+   * Create a new image view onto the image.
+   */
+  std::unique_ptr<ImageView> CreateImageView();
+
   SamplerImpl* GetSampler() const;
 
   // @todo Temporary. We need to use the newer APIs

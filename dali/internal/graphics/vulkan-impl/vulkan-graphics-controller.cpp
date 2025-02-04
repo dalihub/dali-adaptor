@@ -36,6 +36,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-texture-dependency-checker.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -151,7 +152,8 @@ using DepthStencilFlags = uint32_t;
 struct VulkanGraphicsController::Impl
 {
   explicit Impl(VulkanGraphicsController& controller)
-  : mGraphicsController(controller)
+  : mGraphicsController(controller),
+    mDependencyChecker(controller)
   {
   }
 
@@ -419,7 +421,7 @@ struct VulkanGraphicsController::Impl
         commandBuffer->End();
 
         // submit to the queue
-        mGraphicsDevice->Submit(mGraphicsDevice->GetTransferQueue(0u), {Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence.get());
+        mGraphicsDevice->GetTransferQueue(0u).Submit({Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence.get());
         fence->Wait();
         fence->Reset();
       }
@@ -514,6 +516,8 @@ struct VulkanGraphicsController::Impl
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
+  Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
+
   // used for texture<->buffer<->memory transfers
   std::vector<ResourceTransferRequest>     mResourceTransferRequests;
   std::recursive_mutex                     mResourceTransferMutex{};
@@ -559,6 +563,8 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 
 void VulkanGraphicsController::FrameStart()
 {
+  mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
+
   mImpl->mCapacity = 0;
 }
 
@@ -582,14 +588,17 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
-  // Figure out where to submit each command buffer.
+  SubmissionData submitData;
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
   {
-    auto cmdBuffer = static_cast<const CommandBuffer*>(gfxCmdBuffer);
-    auto swapchain = cmdBuffer->GetLastSwapchain();
-    if(swapchain)
+    auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
+    auto renderTarget = cmdBuffer->GetRenderTarget();
+    DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
+    if(renderTarget)
     {
-      swapchain->Submit(cmdBuffer->GetImpl());
+      // Currently, this will call vkQueueSubmit per cmd buf.
+      // @todo Roll up each into single submission for fewer calls to driver
+      renderTarget->Submit(cmdBuffer);
     }
   }
 
@@ -602,11 +611,14 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  auto surface   = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface();
-  auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
-
-  swapchain->Present();
+  auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface();
+  if(surface)
+  {
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
+    swapchain->Present();
+  }
+  // else no presentation required for framebuffer render target.
 }
 
 void VulkanGraphicsController::WaitIdle()
@@ -927,7 +939,9 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
 
 UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
-  return NewGraphicsObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+  auto renderTarget = NewGraphicsObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+  mImpl->mDependencyChecker.AddRenderTarget(CastObject<Vulkan::RenderTarget>(renderTarget.get()));
+  return renderTarget;
 }
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
@@ -955,7 +969,7 @@ UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const Graph
 
 UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer)
 {
-  return UniquePtr<Graphics::Framebuffer>{};
+  return NewGraphicsObject<Vulkan::Framebuffer>(framebufferCreateInfo, *this, std::move(oldFramebuffer));
 }
 
 UniquePtr<Graphics::Pipeline> VulkanGraphicsController::CreatePipeline(const Graphics::PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Graphics::Pipeline>&& oldPipeline)
@@ -1207,6 +1221,46 @@ const Matrix& VulkanGraphicsController::GetClipMatrix() const
     1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
   static const Matrix CLIP_MATRIX(CLIP_MATRIX_DATA);
   return CLIP_MATRIX;
+}
+
+void VulkanGraphicsController::AddTextureDependencies(RenderTarget* renderTarget)
+{
+  auto framebuffer = renderTarget->GetFramebuffer();
+  DALI_ASSERT_DEBUG(framebuffer);
+
+  for(auto attachment : framebuffer->GetCreateInfo().colorAttachments)
+  {
+    auto texture = CastObject<Vulkan::Texture>(attachment.texture);
+    mImpl->mDependencyChecker.AddTexture(texture, renderTarget);
+  }
+  auto depthAttachment = framebuffer->GetCreateInfo().depthStencilAttachment;
+  if(depthAttachment.depthTexture)
+  {
+    mImpl->mDependencyChecker.AddTexture(CastObject<Vulkan::Texture>(depthAttachment.depthTexture), renderTarget);
+  }
+  if(depthAttachment.stencilTexture)
+  {
+    mImpl->mDependencyChecker.AddTexture(CastObject<Vulkan::Texture>(depthAttachment.stencilTexture), renderTarget);
+  }
+}
+
+void VulkanGraphicsController::CheckTextureDependencies(
+  const std::vector<Graphics::TextureBinding>& textureBindings,
+  RenderTarget*                                renderTarget)
+{
+  for(auto& binding : textureBindings)
+  {
+    if(binding.texture)
+    {
+      auto texture = CastObject<const Vulkan::Texture>(binding.texture);
+      mImpl->mDependencyChecker.CheckNeedsSync(texture, renderTarget);
+    }
+  }
+}
+
+void VulkanGraphicsController::RemoveRenderTarget(RenderTarget* renderTarget)
+{
+  mImpl->mDependencyChecker.RemoveRenderTarget(renderTarget);
 }
 
 } // namespace Dali::Graphics::Vulkan

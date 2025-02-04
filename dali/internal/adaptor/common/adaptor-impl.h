@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,8 +152,10 @@ public:
 
   /**
    * @copydoc Dali::Adaptor::Get()
+   *
+   * Needs exporting as it's used by the GlWindow library
    */
-  static Dali::Adaptor& Get();
+  static DALI_ADAPTOR_API Dali::Adaptor& Get();
 
   /**
    * @copydoc Dali::Adaptor::IsAvailable()

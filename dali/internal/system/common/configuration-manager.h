@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 #include <memory>
 #include <string>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 class FileStream;
@@ -39,8 +42,10 @@ class ThreadController;
  * This class retrieves and caches the system configuration.
  * Some of the methods in this class can block system until GL has been initialized,
  * only at the first time the DALi application is launched in the system.
+ *
+ * Needs exporting as it's called by the Graphics Libraries
  */
-class ConfigurationManager
+class DALI_ADAPTOR_API ConfigurationManager
 {
 public:
   /**
@@ -105,22 +110,22 @@ public:
   // Deleted move assignment operator.
   ConfigurationManager& operator=(const ConfigurationManager&&) = delete;
 
-private:                                                                // Data
-  std::string        mSystemCacheFilePath;                              ///< The path of system cache file
-  Dali::Graphics::GraphicsInterface* mGraphics;                         ///< Graphics interface
-  ThreadController*  mThreadController;                                 ///< The thread controller
-  unsigned int       mMaxTextureSize;                                   ///< The largest texture that the GL can handle
-  unsigned int       mMaxCombinedTextureUnits;                          ///< The maximum number of combined texture units
-  unsigned int       mShaderLanguageVersion;                            ///< The shader language version that the system supports.
-  bool               mIsMultipleWindowSupported : 1;                    ///< Whether multiple window is supported by the GLES
-  bool               mIsAdvancedBlendEquationSupported : 1;             ///< Whether blend equation advanced (extension) is supported by the GLES
-  bool               mIsMultisampledRenderToTextureSupported : 1;       ///< Whether multisampled render to texture (extension) is supported by the GLES
-  bool               mMaxTextureSizeCached : 1;                         ///< Whether we have checked the maximum texture size
-  bool               mIsMultipleWindowSupportedCached : 1;              ///< Whether we have checked the support of multiple window
-  bool               mIsAdvancedBlendEquationSupportedCached : 1;       ///< Whether we have checked the support of blend equation advanced (extension)
-  bool               mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
-  bool               mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
-  bool               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
+private:                                                                                // Data
+  std::string                        mSystemCacheFilePath;                              ///< The path of system cache file
+  Dali::Graphics::GraphicsInterface* mGraphics;                                         ///< Graphics interface
+  ThreadController*                  mThreadController;                                 ///< The thread controller
+  unsigned int                       mMaxTextureSize;                                   ///< The largest texture that the GL can handle
+  unsigned int                       mMaxCombinedTextureUnits;                          ///< The maximum number of combined texture units
+  unsigned int                       mShaderLanguageVersion;                            ///< The shader language version that the system supports.
+  bool                               mIsMultipleWindowSupported : 1;                    ///< Whether multiple window is supported by the GLES
+  bool                               mIsAdvancedBlendEquationSupported : 1;             ///< Whether blend equation advanced (extension) is supported by the GLES
+  bool                               mIsMultisampledRenderToTextureSupported : 1;       ///< Whether multisampled render to texture (extension) is supported by the GLES
+  bool                               mMaxTextureSizeCached : 1;                         ///< Whether we have checked the maximum texture size
+  bool                               mIsMultipleWindowSupportedCached : 1;              ///< Whether we have checked the support of multiple window
+  bool                               mIsAdvancedBlendEquationSupportedCached : 1;       ///< Whether we have checked the support of blend equation advanced (extension)
+  bool                               mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
+  bool                               mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
+  bool                               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
 };
 
 } // namespace Internal::Adaptor

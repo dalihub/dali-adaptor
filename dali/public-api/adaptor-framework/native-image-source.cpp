@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,9 @@ NativeImageInterface::Extension* NativeImageSource::GetExtension()
 NativeImageSource::NativeImageSource(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSource)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl        = factory->CreateNativeImageSource(width, height, depth, nativeImageSource).release();
+  DALI_ASSERT_DEBUG(factory && "Unable to get NativeImageSourceFactory\n");
+
+  mImpl = factory->CreateNativeImageSource(width, height, depth, nativeImageSource).release();
 }
 
 NativeImageSource::~NativeImageSource()

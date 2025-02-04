@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/common/gl-window-impl.h>
+#include <dali/internal/window-system/gl-window/gl-window-impl.h>
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/gl-window.h>
@@ -37,6 +37,7 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/window-system/gl-window/gl-window-render-thread.h>
 
 namespace Dali
 {
@@ -551,24 +552,25 @@ Vector2 GlWindow::RecalculatePosition(const Vector2& position)
 {
   Vector2 convertedPosition;
 
+  // Note: We need to subtract 1 from width and height because the range of touch coordinates is from to width - 1 or height - 1
   switch(mTotalRotationAngle)
   {
     case 90:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.y;
       convertedPosition.y = position.x;
       break;
     }
     case 180:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.x;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.y;
       break;
     }
     case 270:
     {
       convertedPosition.x = position.y;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.x;
       break;
     }
     default:
@@ -792,8 +794,8 @@ void GlWindow::InitializeGraphics()
   if(!mIsEGLInitialized)
   {
     // Init Graphics
-    std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(mEnvironmentOptions);
-    auto                             graphicsFactory    = *graphicsFactoryPtr;
+    std::unique_ptr<EglGraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<EglGraphicsFactory>(mEnvironmentOptions);
+    auto                                graphicsFactory    = *graphicsFactoryPtr;
 
     mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
 

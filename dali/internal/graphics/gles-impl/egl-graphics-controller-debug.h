@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  */
 
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
+#include <unordered_set>
 
 namespace Dali::Graphics
 {
@@ -30,12 +31,14 @@ namespace Dali::Graphics
 struct GraphicsFrameDump
 {
   using UniqueFilePtr = std::unique_ptr<std::FILE, int (*)(std::FILE*)>;
-  UniqueFilePtr outputStream;
-  FILE*         output{nullptr};
-  bool          dumpingFrame{false};
-  bool          firstBuffer{true};
-  bool          firstFrame{true};
-  int           frameCount{0};
+  UniqueFilePtr                                 outputStream;
+  FILE*                                         output{nullptr};
+  bool                                          dumpingFrame{false};
+  bool                                          firstBuffer{true};
+  bool                                          firstFrame{true};
+  int                                           frameCount{0};
+  int                                           fileCount{1};
+  std::unordered_set<const GLES::RenderTarget*> renderTargets{};
 
   const int NTH_FRAME{10}; // dump first N "frames"
 
@@ -45,6 +48,7 @@ struct GraphicsFrameDump
   void Start();
   void End();
   void DumpCommandBuffer(const GLES::CommandBuffer* cmdBuf);
+  void DumpRenderTargets();
   bool IsDumpFrame();
 };
 #endif
@@ -75,4 +79,4 @@ struct GraphicsFrameDump
 
 } // namespace Dali::Graphics
 
-#endif //DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H
+#endif // DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H

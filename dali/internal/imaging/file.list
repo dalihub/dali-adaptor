@@ -28,6 +28,11 @@ SET( adaptor_imaging_common_egl_src_files
     ${adaptor_imaging_dir}/common/native-bitmap-buffer-impl.cpp
 )
 
+# module: imaging, backend: common/dynamic
+SET( adaptor_imaging_common_dynamic_src_files
+    ${adaptor_imaging_dir}/common/native-image-source-factory-dynamic.cpp
+)
+
 # module: imaging, backend: tizen
 SET( adaptor_imaging_tizen_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp

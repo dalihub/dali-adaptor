@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_SYSTEM_H
 
 /*
- * COPYRIGHT (c) 2023 Samsung Electronics Co., Ltd.
+ * COPYRIGHT (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ namespace Dali::Internal::Adaptor::WindowSystem
 {
 /**
  * Class to encapsulate the actual window system calls to X11
+ * Needs exporting as it's called by the graphics libraries
  */
-class WindowSystemX : public WindowSystemBase
+class DALI_ADAPTOR_API WindowSystemX : public WindowSystemBase
 {
 public:
   static Atom ATOM_WM_PROTOCOLS;
@@ -358,8 +359,9 @@ private:
 /**
  * Get the platform implementation of the window system
  * @return the platform implementation of the window system
+ * Needs exporting as it's called by the graphics libraries
  */
-WindowSystemX& GetImplementation();
+DALI_ADAPTOR_API WindowSystemX& GetImplementation();
 
 } // namespace Dali::Internal::Adaptor::WindowSystem
 

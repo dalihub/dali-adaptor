@@ -15,8 +15,10 @@ SET( SOURCES
     ${devel_api_src_files}
     ${adaptor_devel_api_text_abstraction_src_files}
     ${adaptor_graphics_common_src_files}
+    ${adaptor_graphics_common_dynamic_src_files}
     ${adaptor_haptics_common_src_files}
     ${adaptor_imaging_common_src_files}
+    ${adaptor_imaging_common_dynamic_src_files}
     ${adaptor_imaging_tizen_src_files}
     ${adaptor_input_common_src_files}
     ${adaptor_input_tizen_wayland_src_files}
@@ -40,8 +42,10 @@ SET( SOURCES
     ${adaptor_camera_common_src_files}
     ${adaptor_web_engine_common_src_files}
     ${adaptor_window_system_common_src_files}
+    ${adaptor_window_system_common_dynamic_src_files}
     ${adaptor_window_system_tizen_src_files}
     ${adaptor_window_system_tizen_wayland_src_files}
+    ${adaptor_window_system_tizen_wayland_dynamic_src_files}
     ${adaptor_trace_common_src_files}
     ${adaptor_thread_common_src_files}
     ${adaptor_thread_linux_src_files}
@@ -51,24 +55,29 @@ SET( SOURCES
     ${static_libraries_libunibreak_src_files}
 )
 
-IF( ENABLE_VULKAN )
-  SET(SOURCES ${SOURCES}
+# GLES Graphics Library
+SET(ADAPTOR_GRAPHICS_GLES_SOURCES
+    ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_tizen_src_files}
+    ${adaptor_imaging_tizen_egl_src_files}
+    ${adaptor_window_system_tizen_wayland_egl_src_files}
+    ${adaptor_graphics_library_common_src_files}
+    ${adaptor_window_system_tizen_wayland_graphics_library_src_files}
+)
+
+# Vulkan Graphics Library
+SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
     ${adaptor_graphics_vulkan_src_files}
     ${adaptor_graphics_vulkan_wayland_src_files}
     ${adaptor_imaging_tizen_vulkan_src_files}
     ${adaptor_libraries_spirv_reflect_src_files}
     ${adaptor_window_system_tizen_wayland_vulkan_src_files}
-  )
-ELSE()
-  SET(SOURCES ${SOURCES}
-    ${adaptor_graphics_gles_src_files}
-    ${adaptor_graphics_tizen_src_files}
-    ${adaptor_imaging_tizen_egl_src_files}
-    ${adaptor_devel_api_egl_src_files}
-    ${adaptor_window_system_common_egl_src_files}
-    ${adaptor_window_system_tizen_wayland_egl_src_files}
-  )
-ENDIF()
+    ${adaptor_graphics_library_common_src_files}
+    ${adaptor_window_system_tizen_wayland_graphics_library_src_files}
+)
+
+# GlWindow Addon
+SET( GL_WINDOW_ADDON_SOURCES ${adaptor_window_system_gl_window_src_files} )
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/window-system/common/gl-window-render-thread.h>
 
 namespace Dali
 {
@@ -43,6 +42,8 @@ class WindowBase;
 class GlWindow;
 using GlWindowPtr     = IntrusivePtr<GlWindow>;
 using EventHandlerPtr = IntrusivePtr<EventHandler>;
+
+class GlWindowRenderThread;
 
 /**
  * Window provides a surface to render onto with orientation.

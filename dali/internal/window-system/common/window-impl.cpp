@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,8 +128,10 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  mSurface                  = renderSurfaceFactory->CreateWindowRenderSurface(positionSize, surface, mIsTransparent);
-  mWindowSurface            = static_cast<WindowRenderSurface*>(mSurface.get());
+  DALI_ASSERT_DEBUG(renderSurfaceFactory && "Cannot create render surface factory\n");
+
+  mSurface       = renderSurfaceFactory->CreateWindowRenderSurface(positionSize, surface, mIsTransparent);
+  mWindowSurface = static_cast<WindowRenderSurface*>(mSurface.get());
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
@@ -1329,24 +1331,25 @@ Vector2 Window::RecalculatePosition(const Vector2& position)
 {
   Vector2 convertedPosition;
 
+  // Note: We need to subtract 1 from width and height because the range of touch coordinates is from to width - 1 or height - 1
   switch(mRotationAngle)
   {
     case 90:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.y;
       convertedPosition.y = position.x;
       break;
     }
     case 180:
     {
-      convertedPosition.x = static_cast<float>(mWindowWidth) - position.x;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.y;
+      convertedPosition.x = static_cast<float>(mWindowWidth - 1) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.y;
       break;
     }
     case 270:
     {
       convertedPosition.x = position.y;
-      convertedPosition.y = static_cast<float>(mWindowHeight) - position.x;
+      convertedPosition.y = static_cast<float>(mWindowHeight - 1) - position.x;
       break;
     }
     default:

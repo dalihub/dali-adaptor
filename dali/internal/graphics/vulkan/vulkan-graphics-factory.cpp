@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,18 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/vulkan/vulkan-graphics-impl.h>
+#include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali::Internal::Adaptor
 {
-GraphicsFactory::GraphicsFactory(EnvironmentOptions& environmentOptions)
+VulkanGraphicsFactory::VulkanGraphicsFactory(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions)
 {
 }
 
-GraphicsFactory::~GraphicsFactory() = default;
+VulkanGraphicsFactory::~VulkanGraphicsFactory() = default;
 
-Graphics::GraphicsInterface& GraphicsFactory::Create()
+Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
 {
   auto depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
 
@@ -67,8 +68,14 @@ Graphics::GraphicsInterface& GraphicsFactory::Create()
   return static_cast<Dali::Graphics::GraphicsInterface&>(*graphics);
 }
 
-void GraphicsFactory::Destroy()
+void VulkanGraphicsFactory::Destroy()
 {
+}
+
+std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
+{
+  DALI_LOG_RELEASE_INFO("DALi Graphics Backend: VULKAN\n");
+  return Utils::MakeUnique<VulkanGraphicsFactory>(environmentOptions);
 }
 
 } // namespace Dali::Internal::Adaptor

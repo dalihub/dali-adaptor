@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,10 @@ namespace Adaptor
 {
 /**
  * WindowBase interface
+ *
+ * Needs exporting as it's used by the GlWindow library
  */
-class WindowBase
+class DALI_ADAPTOR_API WindowBase
 {
 public:
   /**

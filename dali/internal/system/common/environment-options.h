@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,9 @@ class PerformanceInterface;
  * This class provides the environment options which define settings as well as
  * the ability to install a log function.
  *
+ * Needs exporting as it's called by the Graphics Libraries
  */
-class EnvironmentOptions : public Dali::LogFactoryInterface, public Dali::TraceFactoryInterface
+class DALI_ADAPTOR_API EnvironmentOptions : public Dali::LogFactoryInterface, public Dali::TraceFactoryInterface
 {
 public:
   /**

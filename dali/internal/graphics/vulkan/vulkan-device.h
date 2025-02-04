@@ -75,7 +75,6 @@ public: // Create methods
 
   Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t bufferCount, Swapchain*&& oldSwapchain);
 
-  vk::Result Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, FenceImpl* fence = nullptr);
   vk::Result Present(Queue& queue, vk::PresentInfoKHR presentInfo);
   vk::Result QueueWaitIdle(Queue& queue);
   vk::Result DeviceWaitIdle();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -80,15 +80,16 @@ void CommandBuffer::DiscardResource()
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
   mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
+  mRenderTarget     = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
+
   if(mCommandBufferImpl)
   {
     vk::CommandBufferInheritanceInfo inheritanceInfo{};
     if(info.renderPass)
     {
-      auto renderTarget                  = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
-      inheritanceInfo.renderPass         = renderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
+      inheritanceInfo.renderPass         = mRenderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
       inheritanceInfo.subpass            = 0;
-      inheritanceInfo.framebuffer        = renderTarget->GetCurrentFramebufferImpl()->GetVkHandle();
+      inheritanceInfo.framebuffer        = mRenderTarget->GetCurrentFramebufferImpl()->GetVkHandle();
       inheritanceInfo.queryFlags         = static_cast<vk::QueryControlFlags>(0);
       inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
     }
@@ -117,7 +118,7 @@ void CommandBuffer::Reset()
     mCommandBufferImpl->Reset();
   }
   mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
-  mLastSwapchain    = nullptr;
+  mRenderTarget     = nullptr;
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
@@ -155,6 +156,7 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
   mCommandBufferImpl->BindTextures(textureBindings);
+  mController.CheckTextureDependencies(textureBindings, mRenderTarget);
 }
 
 void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
@@ -173,11 +175,13 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                     Rect2D                         renderArea,
                                     const std::vector<ClearValue>& clearValues)
 {
-  auto             renderPass   = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
-  auto             renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
-  auto             surface      = renderTarget->GetSurface();
-  auto&            device       = mController.GetGraphicsDevice();
-  FramebufferImpl* framebuffer  = nullptr;
+  auto renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
+  DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
+
+  auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
+  auto             surface     = renderTarget->GetSurface();
+  auto&            device      = mController.GetGraphicsDevice();
+  FramebufferImpl* framebuffer = nullptr;
   RenderPassHandle renderPassImpl;
   if(surface)
   {
@@ -217,7 +221,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
       {
         framebuffer = swapchain->AcquireNextFramebuffer(true);
       }
-      assert(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
+      DALI_ASSERT_ALWAYS(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
     }
 
     renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
@@ -227,6 +231,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     auto coreFramebuffer = renderTarget->GetFramebuffer();
     framebuffer          = coreFramebuffer->GetImpl();
     renderPassImpl       = framebuffer->GetImplFromRenderPass(renderPass);
+    mController.AddTextureDependencies(renderTarget);
   }
 
   std::vector<vk::ClearValue> vkClearValues;
@@ -325,9 +330,17 @@ void CommandBuffer::SetScissorTestEnable(bool value)
 
 void CommandBuffer::SetViewport(Viewport value)
 {
-  if(SetDynamicState(mDynamicState.viewport, value, DynamicStateMaskBits::VIEWPORT))
+  Viewport correctedValue = value;
+  auto     surface        = mRenderTarget->GetSurface();
+  if(!surface)
   {
-    mCommandBufferImpl->SetViewport(value);
+    correctedValue.height = -value.height;
+    correctedValue.y      = value.height;
+  }
+
+  if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
+  {
+    mCommandBufferImpl->SetViewport(correctedValue);
   }
 }
 
@@ -420,9 +433,10 @@ void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
   }
 }
 
-Swapchain* CommandBuffer::GetLastSwapchain() const
+Vulkan::RenderTarget* CommandBuffer::GetRenderTarget() const
 {
-  return mLastSwapchain;
+  // Gets the render target from the Begin() cmd.
+  return mRenderTarget;
 }
 
 } // namespace Dali::Graphics::Vulkan

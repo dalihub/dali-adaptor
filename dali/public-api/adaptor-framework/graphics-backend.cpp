@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,7 @@ Backend gCurrentGraphicsBackend = Backend::DEFAULT;
 
 Backend GetCurrentGraphicsBackend()
 {
-// TODO: Remove below once we actually have it dynamic, but for now just use define
-//  return gCurrentGraphics;
-#if VULKAN_ENABLED
-  return Backend::VULKAN;
-#else
-  return Backend::GLES;
-#endif
+  return gCurrentGraphicsBackend;
 }
 
 void SetGraphicsBackend(Backend backend)
