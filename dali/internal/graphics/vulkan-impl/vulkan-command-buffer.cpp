@@ -84,6 +84,7 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
   mDynamicStateMask    = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
   mRenderTarget        = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size());
 
   if(mCommandBufferImpl[bufferIndex])
   {
@@ -110,10 +111,8 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 void CommandBuffer::End()
 {
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->End();
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  mCommandBufferImpl[bufferIndex]->End();
 }
 
 void CommandBuffer::Reset()
@@ -121,10 +120,9 @@ void CommandBuffer::Reset()
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Reset: ptr:%p bufferIndex=%d", this, bufferIndex);
 
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->Reset();
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  mCommandBufferImpl[bufferIndex]->Reset();
+
   mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
   mRenderTarget     = nullptr;
 }
@@ -140,10 +138,8 @@ void CommandBuffer::BindVertexBuffers(uint32_t                                  
   {
     buffers.push_back(ConstGraphicsCast<Buffer, Graphics::Buffer>(gfxBuffer)->GetImpl());
   }
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->BindVertexBuffers(firstBinding, buffers, offsets);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  mCommandBufferImpl[bufferIndex]->BindVertexBuffers(firstBinding, buffers, offsets);
 }
 
 void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& gfxBuffer,
@@ -151,51 +147,47 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& gfxBuffer,
                                     Format                  format)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
-    DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
-    mCommandBufferImpl[bufferIndex]->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
-  }
+  auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
+  DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
+
+  mCommandBufferImpl[bufferIndex]->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
 }
 
 void CommandBuffer::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
 
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->BindUniformBuffers(bindings);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->BindUniformBuffers(bindings);
 }
 
 void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->BindPipeline(&pipeline);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->BindPipeline(&pipeline);
 }
 
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->BindTextures(textureBindings);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->BindTextures(textureBindings);
+
   mController.CheckTextureDependencies(textureBindings, mRenderTarget);
 }
 
 void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->BindSamplers(samplerBindings);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->BindSamplers(samplerBindings);
 }
 
 void CommandBuffer::BindPushConstants(void*    data,
@@ -211,90 +203,87 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
 
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  auto renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
+  DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
+
+  auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
+  auto             surface     = mRenderTarget->GetSurface();
+  auto&            device      = mController.GetGraphicsDevice();
+  FramebufferImpl* framebuffer = nullptr;
+  RenderPassHandle renderPassImpl;
+  if(surface)
   {
-    auto renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
-    DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
-
-    auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
-    auto             surface     = mRenderTarget->GetSurface();
-    auto&            device      = mController.GetGraphicsDevice();
-    FramebufferImpl* framebuffer = nullptr;
-    RenderPassHandle renderPassImpl;
-    if(surface)
-    {
-      auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
-      auto surfaceId = window->GetSurfaceId();
-      auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
-      framebuffer    = swapchain->GetCurrentFramebuffer();
-      renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
-    }
-    else
-    {
-      auto framebufferHandle = mRenderTarget->GetFramebuffer();
-      framebuffer            = framebufferHandle->GetImpl();
-      renderPassImpl         = framebuffer->GetImplFromRenderPass(renderPass);
-      mController.AddTextureDependencies(renderTarget);
-    }
-
-    std::vector<vk::ClearValue> vkClearValues;
-
-    auto attachments = renderPass->GetCreateInfo().attachments;
-    if(attachments != nullptr &&
-       !attachments->empty()) // Can specify clear color even if load op is not clear.
-    {
-      for(auto clearValue : clearValues)
-      {
-        vk::ClearColorValue color;
-        color.float32[0] = clearValue.color.r;
-        color.float32[1] = clearValue.color.g;
-        color.float32[2] = clearValue.color.b;
-        color.float32[3] = clearValue.color.a;
-        vkClearValues.emplace_back(color);
-      }
-    }
-
-    mCommandBufferImpl[bufferIndex]->BeginRenderPass(vk::RenderPassBeginInfo{}
-                                                       .setFramebuffer(framebuffer->GetVkHandle())
-                                                       .setRenderPass(renderPassImpl->GetVkHandle())
-                                                       .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
-                                                       .setPClearValues(vkClearValues.data())
-                                                       .setClearValueCount(uint32_t(vkClearValues.size())),
-                                                     vk::SubpassContents::eSecondaryCommandBuffers);
+    auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
+    auto surfaceId = window->GetSurfaceId();
+    auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
+    framebuffer    = swapchain->GetCurrentFramebuffer();
+    renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
   }
+  else
+  {
+    auto framebufferHandle = mRenderTarget->GetFramebuffer();
+    framebuffer            = framebufferHandle->GetImpl();
+    renderPassImpl         = framebuffer->GetImplFromRenderPass(renderPass);
+    mController.AddTextureDependencies(renderTarget);
+  }
+
+  std::vector<vk::ClearValue> vkClearValues;
+
+  auto attachments = renderPass->GetCreateInfo().attachments;
+  if(attachments != nullptr &&
+     !attachments->empty()) // Can specify clear color even if load op is not clear.
+  {
+    for(auto clearValue : clearValues)
+    {
+      vk::ClearColorValue color;
+      color.float32[0] = clearValue.color.r;
+      color.float32[1] = clearValue.color.g;
+      color.float32[2] = clearValue.color.b;
+      color.float32[3] = clearValue.color.a;
+      vkClearValues.emplace_back(color);
+    }
+  }
+
+  mCommandBufferImpl[bufferIndex]->BeginRenderPass(vk::RenderPassBeginInfo{}
+                                                     .setFramebuffer(framebuffer->GetVkHandle())
+                                                     .setRenderPass(renderPassImpl->GetVkHandle())
+                                                     .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
+                                                     .setPClearValues(vkClearValues.data())
+                                                     .setClearValueCount(uint32_t(vkClearValues.size())),
+                                                   vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->EndRenderPass();
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->EndRenderPass();
 }
 
 void CommandBuffer::ReadPixels(uint8_t* buffer)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->ReadPixels(buffer);
-  }
+
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->ReadPixels(buffer);
 }
 
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& gfxCommandBuffers)
 {
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  std::vector<vk::CommandBuffer> vkCommandBuffers;
+  vkCommandBuffers.reserve(gfxCommandBuffers.size());
+  for(auto& gfxCmdBuf : gfxCommandBuffers)
   {
-    std::vector<vk::CommandBuffer> vkCommandBuffers;
-    vkCommandBuffers.reserve(gfxCommandBuffers.size());
-    for(auto& gfxCmdBuf : gfxCommandBuffers)
-    {
-      vkCommandBuffers.push_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
-    }
-    mCommandBufferImpl[bufferIndex]->ExecuteCommandBuffers(vkCommandBuffers);
+    vkCommandBuffers.push_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
   }
+  mCommandBufferImpl[bufferIndex]->ExecuteCommandBuffers(vkCommandBuffers);
 }
 
 void CommandBuffer::Draw(uint32_t vertexCount,
@@ -303,10 +292,9 @@ void CommandBuffer::Draw(uint32_t vertexCount,
                          uint32_t firstInstance)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void CommandBuffer::DrawIndexed(uint32_t indexCount,
@@ -316,10 +304,9 @@ void CommandBuffer::DrawIndexed(uint32_t indexCount,
                                 uint32_t firstInstance)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    mCommandBufferImpl[bufferIndex]->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  mCommandBufferImpl[bufferIndex]->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
@@ -328,11 +315,10 @@ void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
                                         uint32_t          stride)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    auto buffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer)->GetImpl();
-    mCommandBufferImpl[bufferIndex]->DrawIndexedIndirect(*buffer, offset, drawCount, stride);
-  }
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  auto buffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer)->GetImpl();
+  mCommandBufferImpl[bufferIndex]->DrawIndexedIndirect(*buffer, offset, drawCount, stride);
 }
 
 void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
@@ -342,14 +328,13 @@ void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
 void CommandBuffer::SetScissor(Rect2D value)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    // @todo Vulkan accepts array of scissors... add to API
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
-    if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
-    {
-      mCommandBufferImpl[bufferIndex]->SetScissor(value);
-    }
+  // @todo Vulkan accepts array of scissors... add to API
+
+  if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
+  {
+    mCommandBufferImpl[bufferIndex]->SetScissor(value);
   }
 }
 
@@ -370,12 +355,11 @@ void CommandBuffer::SetViewport(Viewport value)
   }
 
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
   {
-    if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
-    {
-      mCommandBufferImpl[bufferIndex]->SetViewport(correctedValue);
-    }
+    mCommandBufferImpl[bufferIndex]->SetViewport(correctedValue);
   }
 }
 
@@ -402,24 +386,22 @@ void CommandBuffer::ClearDepthBuffer()
 void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
   {
-    if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
-    {
-      mCommandBufferImpl[bufferIndex]->SetStencilTestEnable(stencilEnable);
-    }
+    mCommandBufferImpl[bufferIndex]->SetStencilTestEnable(stencilEnable);
   }
 }
 
 void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
+  if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
   {
-    if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
-    {
-      mCommandBufferImpl[bufferIndex]->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
-    }
+    mCommandBufferImpl[bufferIndex]->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
   }
 }
 
@@ -431,6 +413,8 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
                                     Graphics::StencilOp depthFailOp)
 {
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+
   if(SetDynamicState(mDynamicState.stencilCompareMask, compareMask, DynamicStateMaskBits::STENCIL_COMP_MASK))
   {
     mCommandBufferImpl[bufferIndex]->SetStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, compareMask);
@@ -456,36 +440,30 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
 void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
   {
-    if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
-    {
-      mCommandBufferImpl[bufferIndex]->SetDepthCompareOp(VkCompareOpType(compareOp).op);
-    }
+    mCommandBufferImpl[bufferIndex]->SetDepthCompareOp(VkCompareOpType(compareOp).op);
   }
 }
 
 void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
   {
-    if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
-    {
-      mCommandBufferImpl[bufferIndex]->SetDepthTestEnable(depthTestEnable);
-    }
+    mCommandBufferImpl[bufferIndex]->SetDepthTestEnable(depthTestEnable);
   }
 }
 
 void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
   {
-    if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
-    {
-      mCommandBufferImpl[bufferIndex]->SetDepthWriteEnable(depthWriteEnable);
-    }
+    mCommandBufferImpl[bufferIndex]->SetDepthWriteEnable(depthWriteEnable);
   }
 }
 
@@ -498,11 +476,8 @@ Vulkan::RenderTarget* CommandBuffer::GetRenderTarget() const
 [[nodiscard]] Vulkan::CommandBufferImpl* CommandBuffer::GetImpl() const
 {
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  if(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex])
-  {
-    return mCommandBufferImpl[bufferIndex];
-  }
-  return nullptr;
+  DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  return mCommandBufferImpl[bufferIndex];
 }
 
 } // namespace Dali::Graphics::Vulkan

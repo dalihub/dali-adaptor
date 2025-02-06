@@ -179,8 +179,9 @@ private:
    * FramebufferImpl object associated with the buffer
    */
   using OwnedFramebuffer = std::unique_ptr<FramebufferImpl, void (*)(FramebufferImpl*)>;
-  std::vector<OwnedFramebuffer> mFramebuffers;
-  std::unique_ptr<Image>        mDepthStencilBuffer;
+  std::vector<OwnedFramebuffer>       mFramebuffers;
+  std::vector<std::unique_ptr<Image>> mSwapchainImages;
+  std::unique_ptr<Image>              mDepthStencilBuffer;
 
   /**
    * Array of swapchain buffers

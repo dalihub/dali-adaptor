@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -543,7 +543,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     DALI_LOG_RELEASE_INFO("Window/Screen orientation ard changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
 
     Rect<int> surfaceSize = scene.GetCurrentSurfaceRect();
-    //update surface size
+    // update surface size
     mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
 
@@ -775,9 +775,8 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
   {
     Dali::Mutex::ScopedLock lock(mMutex);
 
-    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo) {
-      return callbackInfo->fileDescriptor == fileDescriptor;
-    });
+    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo)
+                                          { return callbackInfo->fileDescriptor == fileDescriptor; });
     if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
       callbackInfo = std::move(*frameCallbackInfo);

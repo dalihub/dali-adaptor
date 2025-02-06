@@ -23,6 +23,8 @@
 #include <dali/internal/system/common/configuration-manager.h>
 #include <vector>
 
+#include "dali/internal/window-system/common/window-render-surface.h"
+
 extern "C" std::vector<uint32_t> GraphicsGetBuiltinShader(const std::string& tag);
 
 namespace Dali
@@ -118,6 +120,12 @@ void VulkanGraphics::ActivateSurfaceContext(Dali::Integration::RenderSurfaceInte
 
 void VulkanGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
 {
+}
+
+void VulkanGraphics::AcquireNextImage(Integration::RenderSurfaceInterface* surface)
+{
+  auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+  mGraphicsDevice.AcquireNextImage(surfaceId);
 }
 
 void VulkanGraphics::PostRender()

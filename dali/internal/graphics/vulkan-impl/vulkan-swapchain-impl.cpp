@@ -164,8 +164,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -239,6 +238,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
 
   mFramebuffers.clear();
   mFramebuffers.reserve(images.size());
+  mSwapchainImages.clear();
+  mSwapchainImages.reserve(images.size());
 
   auto clearColor = vk::ClearColorValue{}.setFloat32({1.0f, 0.0f, 1.0f, 1.0f});
 
@@ -251,6 +252,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
     auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
                                                               mSwapchainCreateInfoKHR.imageFormat,
                                                               mSwapchainCreateInfoKHR.imageExtent);
+    mSwapchainImages.emplace_back(colorImage);
 
     std::unique_ptr<ImageView> colorImageView;
     colorImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
@@ -269,8 +271,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,6 +216,13 @@ public:
    * @param surfaceId The ID of the surface whose context we want to make current.
    */
   virtual void MakeContextCurrent(Graphics::SurfaceId surfaceId) = 0;
+
+  /**
+   * Acquire the next image to draw onto.
+   *
+   * @param surface The surface to acquire the next image for.
+   */
+  virtual void AcquireNextImage(Integration::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Inform graphics interface that all the surfaces have been rendered.

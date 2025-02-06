@@ -395,32 +395,29 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
   return newSwapchain;
 }
 
-void Device::AcquireNextImage()
+void Device::AcquireNextImage(SurfaceId surfaceId)
 {
-  for(auto& s : mSurfaceMap)
+  auto swapchain = mSurfaceMap[surfaceId].swapchain;
+  if(swapchain != nullptr)
   {
-    auto swapchain = s.second.swapchain;
-    if(swapchain != nullptr)
+    FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);
+
+    // In case something went wrong we will try to replace swapchain once
+    // before calling it a day.
+    if(!framebuffer || !swapchain->IsValid())
     {
-      FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);
+      // make sure device doesn't do any work before replacing swapchain
+      DeviceWaitIdle();
 
-      // In case something went wrong we will try to replace swapchain once
-      // before calling it a day.
-      if(!framebuffer || !swapchain->IsValid())
+      // replace swapchain (only once)
+      swapchain = ReplaceSwapchainForSurface(swapchain->GetSurface(), std::move(swapchain));
+
+      // get new valid framebuffer
+      if(swapchain)
       {
-        // make sure device doesn't do any work before replacing swapchain
-        DeviceWaitIdle();
-
-        // replace swapchain (only once)
-        swapchain = ReplaceSwapchainForSurface(swapchain->GetSurface(), std::move(swapchain));
-
-        // get new valid framebuffer
-        if(swapchain)
-        {
-          framebuffer = swapchain->AcquireNextFramebuffer(true);
-        }
-        DALI_ASSERT_ALWAYS(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
+        framebuffer = swapchain->AcquireNextFramebuffer(true);
       }
+      DALI_ASSERT_ALWAYS(framebuffer && "Replacing invalid swapchain unsuccessful! Goodbye!");
     }
   }
 }
