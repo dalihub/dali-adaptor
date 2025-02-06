@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2658,7 +2658,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   }
 
   // Variable skew offset
-  float offset = angleSinus * ((angleSinus > 0.f) ? static_cast<float>(widthIn - 1u) : -(static_cast<float>(widthIn) - static_cast<float>(widthOut)));
+  float offset = angleSinus * ((angleSinus > 0.f) ? (static_cast<float>(widthIn) - 1.0f) : -(static_cast<float>(widthIn) - static_cast<float>(widthOut)));
 
   uint32_t column = 0u;
   for(column = 0u; column < widthOut; ++column, offset -= angleSinus)
@@ -2695,7 +2695,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  offset = (angleSinus >= 0.f) ? -angleSinus * angleTangent * static_cast<float>(widthIn - 1u) : angleTangent * (static_cast<float>(widthIn - 1u) * -angleSinus + (1.f - static_cast<float>(heightOut)));
+  offset = (angleSinus >= 0.f) ? -angleSinus * angleTangent * (static_cast<float>(widthIn) - 1.0f) : angleTangent * ((static_cast<float>(widthIn) - 1.0f) * -angleSinus + (1.f - static_cast<float>(heightOut)));
 
   for(uint32_t y = 0u; y < heightOut; ++y, offset += angleTangent)
   {
