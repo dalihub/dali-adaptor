@@ -164,7 +164,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -268,7 +269,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -409,6 +411,7 @@ void Swapchain::Present()
   auto&              swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
   vk::PresentInfoKHR presentInfo{};
   vk::Result         result;
+
   presentInfo.setPImageIndices(&mSwapchainImageIndex)
     .setPResults(&result)
     .setPSwapchains(&mSwapchainKHR)
@@ -416,10 +419,10 @@ void Swapchain::Present()
     .setPWaitSemaphores(&swapchainBuffer->submitSemaphore)
     .setWaitSemaphoreCount(1);
 
-  mGraphicsDevice.Present(*mQueue, presentInfo);
+  vk::Result presentResult = mGraphicsDevice.Present(*mQueue, presentInfo);
 
   // handle error
-  if(presentInfo.pResults[0] != vk::Result::eSuccess)
+  if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
   {
     // invalidate swapchain
     if(result == vk::Result::eErrorOutOfDateKHR)

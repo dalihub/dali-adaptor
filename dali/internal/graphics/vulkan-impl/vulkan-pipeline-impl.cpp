@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,8 @@ inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& s
                   FloatToInt(state.minDepthBounds).v1 ^ FloatToInt(state.maxDepthBounds).v1;
 
   // hash front and back
-  auto HashStencilOpState = [](const vk::StencilOpState& sop) -> uint32_t {
+  auto HashStencilOpState = [](const vk::StencilOpState& sop) -> uint32_t
+  {
     return sop.reference ^ sop.writeMask ^ sop.compareMask ^ uint32_t(sop.compareOp) ^
            uint32_t(sop.passOp) ^ uint32_t(sop.depthFailOp) ^ uint32_t(sop.failOp);
   };
@@ -178,8 +179,8 @@ struct PipelineImpl::PipelineState
   RasterizationState rasterizationState;
   VertexInputState   vertexInputState;
   InputAssemblyState inputAssemblyState;
-  RenderTarget*      renderTarget;
-  PipelineCache*     pipelineCache{};
+  RenderTarget*      renderTarget{nullptr};
+  PipelineCache*     pipelineCache{nullptr};
 };
 
 PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, VulkanGraphicsController& controller, PipelineCache* pipelineCache)
@@ -385,7 +386,11 @@ void PipelineImpl::InitializePipeline()
   {
     fbImpl = framebuffer->GetImpl();
   }
-
+  else
+  {
+    // Can't really get here - render target has either framebuffer or surface.
+    return;
+  }
   auto renderPassCount = fbImpl->GetRenderPassCount();
   for(auto i = 0u; i < renderPassCount; ++i)
   {
@@ -456,7 +461,8 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
   std::transform(mCreateInfo.vertexInputState->bufferBindings.begin(),
                  mCreateInfo.vertexInputState->bufferBindings.end(),
                  std::back_inserter(bindings),
-                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription {
+                 [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription
+                 {
                    vk::VertexInputBindingDescription out;
                    out.setInputRate((in.inputRate == VertexInputRate::PER_VERTEX ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance));
                    out.setBinding(0u); // To be filled later using indices
@@ -474,7 +480,8 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
   std::transform(mCreateInfo.vertexInputState->attributes.begin(),
                  mCreateInfo.vertexInputState->attributes.end(),
                  std::back_inserter(attrs),
-                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription {
+                 [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription
+                 {
                    vk::VertexInputAttributeDescription out;
                    out.setBinding(in.binding);
                    out.setLocation(in.location);
@@ -630,9 +637,11 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
 {
   auto gfxRastState = mCreateInfo.rasterizationState;
 
-  out.setFrontFace([gfxRastState]() { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
+  out.setFrontFace([gfxRastState]()
+                   { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
 
-  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]() {
+  out.setPolygonMode([polygonMode = gfxRastState->polygonMode]()
+                     {
     switch(polygonMode)
     {
       case PolygonMode::FILL:
@@ -650,7 +659,8 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
     }
     return vk::PolygonMode{}; }());
 
-  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits {
+  out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits
+                  {
     switch(cullMode)
     {
       case CullMode::NONE:
@@ -715,7 +725,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 {
   auto in = mCreateInfo.colorBlendState;
 
-  auto ConvLogicOp = [](LogicOp in) {
+  auto ConvLogicOp = [](LogicOp in)
+  {
     switch(in)
     {
       case LogicOp::CLEAR:
@@ -786,7 +797,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::LogicOp{};
   };
 
-  auto ConvBlendOp = [](BlendOp in) {
+  auto ConvBlendOp = [](BlendOp in)
+  {
     switch(in)
     {
       case BlendOp::ADD:
@@ -873,7 +885,8 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
     return vk::BlendOp{};
   };
 
-  auto ConvBlendFactor = [](BlendFactor in) {
+  auto ConvBlendFactor = [](BlendFactor in)
+  {
     switch(in)
     {
       case BlendFactor::ZERO:

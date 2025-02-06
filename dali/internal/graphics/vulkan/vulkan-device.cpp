@@ -425,7 +425,7 @@ void Device::AcquireNextImage()
   }
 }
 
-vk::Result Device::Present(Queue& queue, vk::PresentInfoKHR presentInfo)
+vk::Result Device::Present(Queue& queue, vk::PresentInfoKHR& presentInfo)
 {
   auto lock(queue.Lock());
   return queue.Present(presentInfo);
