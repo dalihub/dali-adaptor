@@ -313,6 +313,15 @@ DALI_ADAPTOR_API bool HasLigatureMustBreak(Script script);
  */
 DALI_ADAPTOR_API Length GetNumberOfScripts();
 
+/**
+ * @brief Whether the character is a combining diacritical marks.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a combining diacritical marks.
+ */
+DALI_ADAPTOR_API bool IsCombiningDiacriticalMarks(Character character);
+
 } // namespace TextAbstraction
 
 } // namespace Dali

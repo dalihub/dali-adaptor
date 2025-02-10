@@ -239,6 +239,16 @@ constexpr unsigned int CHAR_BOM  = 0xFEFF; ///< Byte Order Mark.
 // 0xabc0 - 0xabff Meetei Mayek
 // 0xaae0 - 0xaaff Meetei Mayek Extensions
 
+// Inherited Script
+// Combining_Diacritical_Marks : https://en.wikipedia.org/wiki/Combining_Diacritical_Marks
+// 0x0300 - 0x036f
+// Many diacritics and non-spacing combining characters may be applied to characters from more than one script.
+// In these cases Unicode assigns them to the "inherited" script (ISO 15924 code Zinh),
+// which means that they have the same script class as the base character with which they combine,
+// and so in different contexts they may be treated as belonging to different scripts.
+// For example, U+0308  ̈  COMBINING DIAERESIS may combine either with U+0065 e LATIN SMALL LETTER E to create a Latin ë or with U+0435 е CYRILLIC SMALL LETTER IE for the Cyrillic ё.
+// In the former case, it inherits the Latin script of the base character, whereas in the latter case, it inherits the Cyrillic script of the base character.
+
 // The Emoji which map to standardized Unicode characters
 // 1. Emoticons ( 1F601 - 1F64F )
 // 2. Dingbats ( 2700 - 27BF )
@@ -1055,8 +1065,9 @@ bool IsCommonScript(Character character)
           IsLeftToRightMark(character) ||
           IsRightToLeftMark(character) ||
           IsThinSpace(character) ||
-          IsNewParagraph(character)) ||
-          IsByteOrderMark(character);
+          IsNewParagraph(character) ||
+          IsByteOrderMark(character) ||
+          IsCombiningDiacriticalMarks(character));
 }
 
 bool HasLigatureMustBreak(Script script)
@@ -1068,6 +1079,11 @@ bool HasLigatureMustBreak(Script script)
 Length GetNumberOfScripts()
 {
   return SYMBOLS_NSLCL + 1;
+}
+
+bool IsCombiningDiacriticalMarks(Character character)
+{
+  return character >= 0x0300 && character <= 0x036f;
 }
 
 } // namespace TextAbstraction
