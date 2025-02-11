@@ -74,7 +74,7 @@ SwapchainBuffer::~SwapchainBuffer()
 {
   // swapchain dies so make sure semaphore are not in use anymore
   auto result = graphicsDevice.GetLogicalDevice().waitIdle();
-  assert(result == vk::Result::eSuccess);
+  VkTest(result, vk::Result::eSuccess);
   graphicsDevice.GetLogicalDevice().destroySemaphore(acquireNextImageSemaphore, graphicsDevice.GetAllocator());
   graphicsDevice.GetLogicalDevice().destroySemaphore(submitSemaphore, graphicsDevice.GetAllocator());
 }

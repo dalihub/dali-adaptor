@@ -1466,7 +1466,8 @@ static int nsvg__parseRotate(float* xform, const char* str)
 
 static void nsvg__parseTransform(float* xform, const char* str)
 {
-	float t[6];
+	// Modified by Samsung to compile with -Werror flag. 2025-02-12. eunkiki.hong@samsung.com
+	float t[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	nsvg__xformIdentity(xform);
 	while (*str)
 	{

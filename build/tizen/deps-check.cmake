@@ -506,6 +506,13 @@ IF( WAYLAND )
   )
 ENDIF()
 
+# TODO: Clang is a lot more strict with warnings, we should address
+# those issues at some point.
+# Matches "Clang" or "AppleClang"
+IF( NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" )
+  ADD_COMPILE_OPTIONS(-Werror)
+ENDIF()
+
 IF(VULKAN_ENABLED)
   ADD_DEFINITIONS( -DVULKAN_HPP_NO_EXCEPTIONS )
 #gcc_flags = -Wno-return-local-addr -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override \
@@ -530,7 +537,7 @@ IF(VULKAN_ENABLED)
 #                           -Wno-weak-vtables
   # Warnings that cause issues with vulkan.hpp. Double check when we upgrade.
   ADD_COMPILE_OPTIONS($<$<COMPILE_LANGUAGE:CXX>:-Wno-init-list-lifetime>)
-  ADD_COMPILE_OPTIONS(-Werror -Wno-deprecated-declarations)
+  ADD_COMPILE_OPTIONS(-Wno-deprecated-declarations)
   INCLUDE(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG(-Wno-class-memaccess HAVE_NO_CLASS_MEMACCESS)
   IF (HAVE_NO_CLASS_MEMACCESS)
