@@ -96,7 +96,7 @@ void Image::Initialize(vk::MemoryPropertyFlags memoryProperties)
 
     // If the image is an attachment, prefer dedicated memory
     constexpr vk::ImageUsageFlags attachmentOnlyFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eDepthStencilAttachment;
-    if(mCreateInfo.usage & attachmentOnlyFlags)
+    if(mCreateInfo.usage & attachmentOnlyFlags || mCreateInfo.tiling == vk::ImageTiling::eOptimal)
     {
       vmaAllocInfo.setFlags(::vma::AllocationCreateFlagBits::eDedicatedMemory);
     }

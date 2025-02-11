@@ -72,6 +72,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-target.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-resource-transfer.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-shader.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-shader-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-spirv.cpp
