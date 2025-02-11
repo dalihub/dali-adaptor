@@ -509,6 +509,20 @@ public:
   bool IsTextPredictionAllowed() const;
 
   /**
+   * @brief Sets whether the IM context should be shown in fullscreen mode.
+   *
+   * @param[in] fullScreen Whether to fullscreen mode or not.
+   */
+  void SetFullScreenMode(bool fullScreen);
+
+  /**
+   * @brief Gets whether the IM context should be shown in fullscreen mode.
+   *
+   * @return Whether the IM fullscreen mode or not.
+   */
+  bool IsFullScreenMode() const;
+
+  /**
    * @brief Sets the language of the input panel.
    *
    * This method can be used when you want to show the English keyboard.

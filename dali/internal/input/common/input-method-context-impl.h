@@ -346,6 +346,21 @@ public:
   }
 
   /**
+   * @copydoc Dali::InputMethodContext::SetFullScreenMode()
+   */
+  virtual void SetFullScreenMode(bool fullScreen)
+  {
+  }
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsFullScreenMode()
+   */
+  virtual bool IsFullScreenMode() const
+  {
+    return false;
+  }
+
+  /**
    * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
    */
   virtual void SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
@@ -479,6 +494,7 @@ protected:
       SET_INPUT_PANEL_POSITION,
       SET_INPUT_PANEL_POSITION_ALIGN,
       SET_RETURN_KEY_STATE,
+      FULLSCREEN_MODE,
       MAX_COUNT
     };
   };

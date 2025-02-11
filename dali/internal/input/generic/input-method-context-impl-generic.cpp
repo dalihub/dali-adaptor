@@ -284,6 +284,18 @@ bool InputMethodContextGeneric::IsTextPredictionAllowed() const
   return false;
 }
 
+void InputMethodContextGeneric::SetFullScreenMode(bool prediction)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SetFullScreenMode\n");
+}
+
+bool InputMethodContextGeneric::IsFullScreenMode() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::IsFullScreenMode\n");
+
+  return false;
+}
+
 void InputMethodContextGeneric::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SetInputPanelLanguage\n");
