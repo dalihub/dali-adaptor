@@ -198,6 +198,11 @@ void Swapchain::CreateVkSwapchain(
 
 void Swapchain::Destroy()
 {
+  if(mDepthStencilBuffer)
+  {
+    mDepthStencilBuffer->Destroy();
+  }
+
   if(mSwapchainKHR)
   {
     auto device    = mGraphicsDevice.GetLogicalDevice();

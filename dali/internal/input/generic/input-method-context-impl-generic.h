@@ -251,6 +251,16 @@ public:
   bool IsTextPredictionAllowed() const override;
 
   /**
+   * @copydoc Dali::InputMethodContext::SetFullScreenMode()
+   */
+  void SetFullScreenMode(bool fullScreen) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsFullScreenMode()
+   */
+  bool IsFullScreenMode() const override;
+
+  /**
    * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
    */
   void SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language) override;

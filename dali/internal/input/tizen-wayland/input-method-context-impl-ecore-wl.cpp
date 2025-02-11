@@ -1155,6 +1155,31 @@ bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
   return prediction;
 }
 
+void InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetFullScreenMode\n");
+
+  if(mIMFContext)
+  {
+    Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
+    ecore_imf_context_input_hint_set(mIMFContext,
+                                     static_cast<Ecore_IMF_Input_Hints>(fullScreen ? (currentHint | ECORE_IMF_INPUT_HINT_FULLSCREEN_MODE) : (currentHint & ~ECORE_IMF_INPUT_HINT_FULLSCREEN_MODE)));
+  }
+
+  mBackupOperations[Operation::FULLSCREEN_MODE] = std::bind(&InputMethodContextEcoreWl::SetFullScreenMode, this, fullScreen);
+}
+
+bool InputMethodContextEcoreWl::IsFullScreenMode() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::IsFullScreenMode\n");
+  bool fullScreen = false;
+  if(mIMFContext)
+  {
+    fullScreen = ecore_imf_context_input_hint_get(mIMFContext) & ECORE_IMF_INPUT_HINT_FULLSCREEN_MODE;
+  }
+  return fullScreen;
+}
+
 void InputMethodContextEcoreWl::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLanguage\n");
