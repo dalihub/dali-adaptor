@@ -86,7 +86,7 @@ Swapchain* Swapchain::NewSwapchain(
   SurfaceImpl*       surface,
   vk::Format         requestedFormat,
   vk::PresentModeKHR presentMode,
-  uint32_t           bufferCount)
+  uint32_t&          bufferCount)
 {
   auto swapchain = new Swapchain(device, presentationQueue);
   swapchain->CreateVkSwapchain(oldSwapchain, surface, requestedFormat, presentMode, bufferCount);
@@ -110,7 +110,7 @@ void Swapchain::CreateVkSwapchain(
   SurfaceImpl*       surface,
   vk::Format         requestedFormat,
   vk::PresentModeKHR presentMode,
-  uint32_t           bufferCount)
+  uint32_t&          bufferCount)
 {
   mSurface = surface;
   vk::Format        swapchainImageFormat{};
@@ -164,7 +164,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -268,7 +269,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -325,6 +327,19 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
 
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
+  // First frames don't need waiting as they haven't been submitted
+  // yet. Note, that waiting on the fence without resetting it may
+  // cause a stall ( nvidia, ubuntu )
+  if(mFrameCounter >= mSwapchainBuffers.size())
+  {
+    vk::Result status = swapchainBuffer->endOfFrameFence->GetStatus();
+    if(status == vk::Result::eNotReady)
+    {
+      swapchainBuffer->endOfFrameFence->Wait();
+      swapchainBuffer->endOfFrameFence->Reset();
+    }
+  }
+
   auto result = device.acquireNextImageKHR(mSwapchainKHR,
                                            TIMEOUT,
                                            swapchainBuffer->acquireNextImageSemaphore,
@@ -354,24 +369,6 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
       assert(true && "AcquireNextImageKHR failed with error, cannot continue.");
     }
   }
-
-  // First frames don't need waiting as they haven't been submitted
-  // yet. Note, that waiting on the fence without resetting it may
-  // cause a stall ( nvidia, ubuntu )
-  if(mFrameCounter >= mSwapchainBuffers.size())
-  {
-    vk::Result status = swapchainBuffer->endOfFrameFence->GetStatus();
-    if(status == vk::Result::eNotReady)
-    {
-      swapchainBuffer->endOfFrameFence->Wait();
-      swapchainBuffer->endOfFrameFence->Reset();
-    }
-  }
-  else
-  {
-    mGraphicsDevice.DeviceWaitIdle();
-  }
-  // mGraphicsDevice.CollectGarbage();
 
   return mFramebuffers[mSwapchainImageIndex].get();
 }

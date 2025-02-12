@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,7 +219,8 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex) {
+      auto workerFunc = [&, size](auto workerIndex)
+      {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -309,7 +310,8 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool {
+        auto predicate = [&](auto& item) -> bool
+        {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -564,7 +566,8 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
-
+  // Wait for end of frame sync for this buffer, and get next swapchain image for each window.
+  mImpl->mGraphicsDevice->AcquireNextImage();
   mImpl->mCapacity = 0;
 }
 
@@ -611,11 +614,10 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface();
-  if(surface)
+  if(const auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
   {
-    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-    auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
+    const auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto       swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
     swapchain->Present();
   }
   // else no presentation required for framebuffer render target.
@@ -725,7 +727,8 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
+          {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -760,7 +763,8 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
+          {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -798,7 +802,8 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex) {
+    auto task     = [pUpdates](auto workerIndex)
+    {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -946,7 +951,8 @@ UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(c
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
-  return NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  auto commandBuffer = NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  return commandBuffer;
 }
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
