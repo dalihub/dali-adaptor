@@ -369,10 +369,13 @@ void GraphicsFrameDump::Start()
       if(outfile)
       {
         char* filename;
-        asprintf(&filename, "%s.%03d.json", outfile, fileCount);
-        outputStream = UniqueFilePtr(std::fopen(filename, "w"), CloseJson);
-        output       = outputStream.get();
-        free(filename);
+        int   numChars = asprintf(&filename, "%s.%03d.json", outfile, fileCount);
+        if(numChars > 0)
+        {
+          outputStream = UniqueFilePtr(std::fopen(filename, "w"), CloseJson);
+          output       = outputStream.get();
+          free(filename);
+        }
       }
       if(!output)
       {
