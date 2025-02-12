@@ -92,7 +92,7 @@ void Image::Destroy()
 {
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying image: %p\n", static_cast<VkImage>(mImage));
   auto device = mDevice.GetLogicalDevice();
-  if(mImage)
+  if(mImage && !mIsExternal)
   {
     device.destroyImage(mImage, mDevice.GetAllocator());
   }

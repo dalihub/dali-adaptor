@@ -75,7 +75,13 @@ public: // Create methods
 
   Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t& bufferCount, Swapchain*&& oldSwapchain);
 
-  void AcquireNextImage();
+  /**
+   * Ensures that the next available image is retrieved for drawing onto.
+   * Should only call this method if there is something to present, as this
+   * sets up a fence, and will cause a stall if nothing waits on it.
+   * @param surfaceId The id of the surface to get the next image for
+   */
+  void AcquireNextImage(SurfaceId surfaceId);
 
   vk::Result Present(Queue& queue, vk::PresentInfoKHR& presentInfo);
   vk::Result QueueWaitIdle(Queue& queue);
