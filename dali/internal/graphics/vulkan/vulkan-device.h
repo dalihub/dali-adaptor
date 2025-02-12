@@ -77,7 +77,7 @@ public: // Create methods
 
   void AcquireNextImage();
 
-  vk::Result Present(Queue& queue, vk::PresentInfoKHR presentInfo);
+  vk::Result Present(Queue& queue, vk::PresentInfoKHR& presentInfo);
   vk::Result QueueWaitIdle(Queue& queue);
   vk::Result DeviceWaitIdle();
 

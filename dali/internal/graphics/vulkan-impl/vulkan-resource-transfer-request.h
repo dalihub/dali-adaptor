@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,9 +63,9 @@ struct ResourceTransferRequest
 
   struct
   {
-    Image*          image;
-    vk::ImageLayout srcLayout;
-    vk::ImageLayout dstLayout;
+    Image*          image{nullptr};
+    vk::ImageLayout srcLayout{};
+    vk::ImageLayout dstLayout{};
   } imageLayoutTransitionInfo;
 
   struct
@@ -76,9 +76,9 @@ struct ResourceTransferRequest
   bool deferredTransferMode{true}; // Vulkan implementation prefers deferred mode
 
   // delete copy
-  ResourceTransferRequest(const ResourceTransferRequest&) = delete;
+  ResourceTransferRequest(const ResourceTransferRequest&)            = delete;
   ResourceTransferRequest& operator=(const ResourceTransferRequest&) = delete;
-  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj) = delete;
+  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj)  = delete;
 
   ResourceTransferRequest(ResourceTransferRequest&& obj)
   {

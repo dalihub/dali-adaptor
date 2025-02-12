@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
                                Integration::PartialUpdateAvailable       partialUpdateRequired)
 : GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, partialUpdateRequired),
-  mGraphicsController()
+  mGraphicsController(),
+  mMultiSamplingLevel(-1) // No multisampling
 {
 }
 

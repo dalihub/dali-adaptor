@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_TEXTURE_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,12 +185,12 @@ private:
   ImageView*   mImageView;
   SamplerImpl* mSampler;
 
-  uint32_t             mWidth;
-  uint32_t             mHeight;
-  vk::Format           mFormat;
+  uint32_t             mWidth{0u};
+  uint32_t             mHeight{0u};
+  vk::Format           mFormat{vk::Format::eUndefined};
   vk::Format           mConvertFromFormat{vk::Format::eUndefined};
-  vk::ImageUsageFlags  mUsage;
-  vk::ImageLayout      mLayout;
+  vk::ImageUsageFlags  mUsage{};
+  vk::ImageLayout      mLayout{};
   vk::ComponentMapping mComponentMapping{};
 
   bool                          mDisableStagingBuffer{false};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -372,7 +372,7 @@ void Reflection::BuildVertexAttributeReflection(SpvReflectShaderModule* spvModul
     attributeInfo.name     = attr->name;
     attributeInfo.format   = ToVertexInputAttributeFormat(attr->format);
 
-    if(attributeInfo.location >= 0)
+    if(attributeInfo.location != ERROR_ATTRIBUTE_NOT_FOUND)
     {
       if(maximumLocation < int(attributeInfo.location))
       {
