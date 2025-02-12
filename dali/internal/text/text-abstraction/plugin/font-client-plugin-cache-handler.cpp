@@ -563,7 +563,26 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
     ClearCharacterSet();
 
     // FcInitBringUptoDate did not seem to reload config file as was still getting old default font.
-    FcInitReinitialize();
+    // FcInitReinitialize resets global Fonconfig state and cache, which can cause race conditions or double free.
+    // FcInitLoadConfigAndFonts sets the current default configuration for the library, which is specific to the calling process.
+
+    FcConfig* newConfig = FcInitLoadConfigAndFonts();
+
+    if(newConfig)
+    {
+      for(auto &path: mCustomFontDirectories)
+      {
+        FcConfigAppFontAddDir(newConfig, reinterpret_cast<const FcChar8*>(path.c_str()));
+      }
+
+      FcConfigBuildFonts(newConfig);
+      FcConfigSetCurrent(newConfig);
+      FcConfigDestroy(newConfig);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Can't init font config library\n");
+    }
 
     FcPattern* matchPattern = FcPatternCreate(); // Creates a pattern that needs to be destroyed by calling FcPatternDestroy.
 
@@ -609,7 +628,7 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
       FcPatternDestroy(matchPattern);
     }
 
-    // Create again the character sets as they are not valid after FcInitReinitialize()
+    // Create again the character sets as they are not valid after FcInitLoadConfigAndFonts()
     CreateCharacterSet();
   }
 }

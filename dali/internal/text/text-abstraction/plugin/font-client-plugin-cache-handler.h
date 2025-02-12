@@ -483,6 +483,8 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
+  std::vector<std::string> mCustomFontDirectories;  ///< Cache custom font directories to recovery upon reinitialization.
+
 private:                                                 // Member value
   std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
 

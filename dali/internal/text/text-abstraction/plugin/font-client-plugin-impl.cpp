@@ -1076,6 +1076,11 @@ bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
       mCustomFonts.clear();
     }
     mCustomFonts.push_back(path);
+
+    if(mCacheHandler)
+    {
+      mCacheHandler->mCustomFontDirectories.push_back(path);
+    }
   }
   // nullptr as first parameter means the current configuration is used.
   return FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
