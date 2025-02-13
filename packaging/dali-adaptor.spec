@@ -298,6 +298,11 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
 %endif
 
+# Use this conditional when Tizen version is 10.x or greater
+%if 0%{?tizen_version_major} >= 10
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
+%endif
+
 %if 0%{?enable_debug}
 cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 %endif
