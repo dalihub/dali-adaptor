@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,10 +94,10 @@ public:
   {
   }
 
+  /// Worker thread and Event thread called. Mutex mMutex is locked
   bool LoadWebPInformation()
   {
     // Block to do not load this file again.
-    Mutex::ScopedLock lock(mMutex);
     if(DALI_UNLIKELY(mLoadSucceeded))
     {
       return mLoadSucceeded;
@@ -160,6 +160,7 @@ public:
     return mLoadSucceeded;
   }
 
+  /// Worker thread and Event thread called. Mutex mMutex is locked
   bool ReadWebPInformation()
   {
     mBufferSize = 0;
@@ -221,7 +222,11 @@ public:
           DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", sizeof(WebPByteType) * mBufferSize);
           return false;
         }
-        mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
+        if(DALI_UNLIKELY(fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp) != mBufferSize))
+        {
+          DALI_LOG_ERROR("Error read file\n");
+          return false;
+        }
         return true;
       }
       else
@@ -236,6 +241,7 @@ public:
     return false;
   }
 
+  /// Worker thread called, and Event thread called when destruction. Mutex mMutex is locked
   void ReleaseResource()
   {
 #ifdef DALI_WEBP_AVAILABLE
@@ -258,6 +264,7 @@ public:
       mBuffer = nullptr;
     }
 
+    // Make to load this file again.
     mLoadSucceeded = false;
   }
 
@@ -270,6 +277,7 @@ public:
 
   ~Impl()
   {
+    Mutex::ScopedLock lock(mMutex);
     ReleaseResource();
   }
 
@@ -279,11 +287,12 @@ public:
   int32_t               mLatestLoadedFrame{INITIAL_INDEX};
   uint32_t              mFrameCount;
   Mutex                 mMutex;
+
   // For the case the system doesn't support DALI_ANIMATED_WEBP_ENABLED
   unsigned char*  mBuffer;
   uint32_t        mBufferSize;
   ImageDimensions mImageSize;
-  bool            mLoadSucceeded;
+  bool            mLoadSucceeded; ///< Should be changed under mMutex
   bool            mIsAnimatedImage;
   bool            mIsLocalResource;
 
@@ -334,12 +343,15 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
   Dali::Devel::PixelBuffer pixelBuffer;
 
   // If WebP file is still not loaded, Load the information.
-  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
   {
-    if(DALI_UNLIKELY(!mImpl->LoadWebPInformation()))
+    Mutex::ScopedLock lock(mImpl->mMutex);
+    if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
     {
-      mImpl->ReleaseResource();
-      return pixelBuffer;
+      if(DALI_UNLIKELY(!mImpl->LoadWebPInformation()))
+      {
+        mImpl->ReleaseResource();
+        return pixelBuffer;
+      }
     }
   }
 
@@ -424,7 +436,10 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
       }
     }
     // The single frame resource should be released after loading.
-    mImpl->ReleaseResource();
+    {
+      Mutex::ScopedLock lock(mImpl->mMutex);
+      mImpl->ReleaseResource();
+    }
   }
 #endif
 
@@ -492,18 +507,26 @@ Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
 
 ImageDimensions WebPLoading::GetImageSize() const
 {
-  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  if(mImpl->mImageSize == ImageDimensions())
   {
-    mImpl->LoadWebPInformation();
+    Mutex::ScopedLock lock(mImpl->mMutex);
+    if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+    {
+      mImpl->LoadWebPInformation();
+    }
   }
   return mImpl->mImageSize;
 }
 
 uint32_t WebPLoading::GetImageCount() const
 {
-  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  if(mImpl->mFrameCount == 0u)
   {
-    mImpl->LoadWebPInformation();
+    Mutex::ScopedLock lock(mImpl->mMutex);
+    if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+    {
+      mImpl->LoadWebPInformation();
+    }
   }
   return mImpl->mFrameCount;
 }
@@ -522,11 +545,11 @@ uint32_t WebPLoading::GetFrameInterval(uint32_t frameIndex) const
   else
   {
     int32_t interval = 0u;
-    if(GetImageCount() == 1u)
+    if(mImpl->mFrameCount == 1u)
     {
       return 0u;
     }
-    else if(frameIndex + 1 == GetImageCount())
+    else if(frameIndex + 1 == mImpl->mFrameCount)
     {
       // For the interval between last frame and first frame, use last interval again.
       interval = mImpl->mTimeStamp[frameIndex] - mImpl->mTimeStamp[frameIndex - 1];
