@@ -657,4 +657,9 @@ void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
   GetImplementation(*this).FeedMouseWheel(yDirection, step, x, y);
 }
 
+void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
+{
+  GetImplementation(*this).SetVideoHole(enabled, isWaylandWindow);
+}
+
 } // namespace Dali

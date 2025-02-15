@@ -637,6 +637,11 @@ public:
    */
   void FeedMouseWheel(bool yDirection, int step, int x, int y);
 
+  /**
+   * @copydoc Dali::WebEngine::SetVideoHole()
+   */
+  void SetVideoHole(bool enabled, bool isWaylandWindow);
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).

@@ -1046,6 +1046,12 @@ public:
    */
   virtual void FeedMouseWheel(bool yDirection, int step, int x, int y) = 0;
 
+  /**
+   * @brief Enable video hole for a specific window type.
+   * @param[in] enabled True if enabled, false othewise.
+   * @param[in] isWaylandWindow True if wayland window, false if EFL window.
+   */
+  virtual void SetVideoHole(bool enabled, bool isWaylandWindow) = 0;
 };
 
 // specialization has to be done in the same namespace

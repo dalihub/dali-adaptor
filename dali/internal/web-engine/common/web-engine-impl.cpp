@@ -881,6 +881,11 @@ void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
   mPlugin->FeedMouseWheel(yDirection, step, x, y);
 }
 
+void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
+{
+  mPlugin->SetVideoHole(enabled, isWaylandWindow);
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
