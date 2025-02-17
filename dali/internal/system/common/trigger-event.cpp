@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
 
 namespace Dali
@@ -51,6 +52,7 @@ TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Option
   else
   {
     DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 }
 
@@ -81,6 +83,7 @@ void TriggerEvent::Trigger()
     if(size != sizeof(uint64_t))
     {
       DALI_LOG_ERROR("Unable to write to UpdateEvent File descriptor\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
   else
@@ -105,6 +108,7 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
   if(size != sizeof(uint64_t))
   {
     DALI_LOG_WARNING("Unable to read to UpdateEvent File descriptor\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   // Save value to prevent duplicate deletion

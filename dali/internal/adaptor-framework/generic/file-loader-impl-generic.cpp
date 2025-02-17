@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 #include <fstream>
 
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -69,6 +72,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     if(file.seekg(0, std::ios::beg).good() == false)
     {
       DALI_LOG_ERROR("Failed to seek the beginning of the file: \"%s\"\n", filename.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return errorCode;
     }
 
@@ -77,6 +81,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     if(file.read(reinterpret_cast<char*>(memblock.Begin()), fileSize).good() == false)
     {
       DALI_LOG_ERROR("Failed to read the file: \"%s\"\n", filename.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return errorCode;
     }
     file.close();
@@ -85,8 +90,8 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   }
   else
   {
-    char buf[512];
-    DALI_LOG_ERROR("file open failed for: \"%s\", error : %s\n", filename.c_str(), strerror_r(errno, buf, 512));
+    DALI_LOG_ERROR("file open failed for: \"%s\"\n", filename.c_str());
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   return errorCode;
@@ -101,6 +106,11 @@ std::streampos GetFileSize(const std::string& filename)
   {
     size = file.tellg();
     file.close();
+  }
+  else
+  {
+    DALI_LOG_ERROR("file open failed for: \"%s\"\n", filename.c_str());
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   return size;
