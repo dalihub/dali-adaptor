@@ -305,62 +305,41 @@ void Device::DestroySurface(Dali::Graphics::SurfaceId surfaceId)
   }
 }
 
-Swapchain* Device::CreateSwapchainForSurface(SurfaceImpl* surface)
+void Device::CreateSwapchainForSurface(SurfaceId surfaceId)
 {
-  DALI_ASSERT_DEBUG(surface && "Surface ptr must be allocated");
-
-  auto surfaceCapabilities = surface->GetCapabilities();
-
-  // TODO: propagate the format and presentation mode to higher layers to allow for more control?
-  //  @todo - for instance, Graphics::RenderTargetCreateInfo?!
-  Swapchain* swapchain = CreateSwapchain(surface,
-                                         vk::Format::eB8G8R8A8Unorm,
-                                         vk::PresentModeKHR::eFifo,
-                                         surfaceCapabilities.minImageCount,
-                                         nullptr);
-
   // store swapchain in the correct pair
-  for(auto&& val : mSurfaceMap)
+  if(auto match = mSurfaceMap.find(surfaceId); match != mSurfaceMap.end())
   {
-    if(val.second.surface == surface)
-    {
-      val.second.swapchain = swapchain;
-      break;
-    }
+    match->second.swapchain = CreateSwapchain(match->second.surface,
+                                              vk::Format::eB8G8R8A8Unorm,
+                                              vk::PresentModeKHR::eFifo,
+                                              nullptr);
   }
-
-  return swapchain;
+  else
+  {
+    DALI_LOG_ERROR("Can't find surface: %d\n", surfaceId);
+  }
 }
 
-Swapchain* Device::ReplaceSwapchainForSurface(SurfaceImpl* surface, Swapchain*&& oldSwapchain)
+Swapchain* Device::ReplaceSwapchainForSurface(SurfaceId surfaceId, Swapchain*&& oldSwapchain)
 {
-  auto surfaceCapabilities = surface->GetCapabilities();
-
-  mSurfaceResized = false;
-
-  auto swapchain = CreateSwapchain(surface,
-                                   vk::Format::eB8G8R8A8Unorm,
-                                   vk::PresentModeKHR::eFifo,
-                                   surfaceCapabilities.minImageCount,
-                                   std::move(oldSwapchain));
-
-  // store swapchain in the correct pair
-  for(auto&& val : mSurfaceMap)
+  if(auto match = mSurfaceMap.find(surfaceId); match != mSurfaceMap.end())
   {
-    if(val.second.surface == surface)
-    {
-      val.second.swapchain = swapchain;
-      break;
-    }
+    mSurfaceResized         = false;
+    match->second.swapchain = CreateSwapchain(match->second.surface,
+                                              vk::Format::eB8G8R8A8Unorm,
+                                              vk::PresentModeKHR::eFifo,
+                                              std::move(oldSwapchain));
+    return match->second.swapchain;
   }
 
-  return swapchain;
+  DALI_LOG_ERROR("Can't find surface: %d\n", surfaceId);
+  return nullptr;
 }
 
 Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
                                    vk::Format         requestedFormat,
                                    vk::PresentModeKHR presentMode,
-                                   uint32_t&          bufferCount,
                                    Swapchain*&&       oldSwapchain)
 {
   auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
@@ -379,8 +358,6 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
 
   if(oldSwapchain)
   {
-    // prevent destroying the swapchain as it is handled automatically
-    // during replacing the swapchain
     auto khr = oldSwapchain->GetVkHandle();
     oldSwapchain->SetVkHandle(nullptr);
     oldSwapchain->Destroy();
@@ -389,7 +366,6 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
     mLogicalDevice.destroySwapchainKHR(khr, *mAllocator);
   }
 
-  // @todo: Only create framebuffers if no "external" render passes.
   FramebufferAttachmentHandle empty;
   newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
   return newSwapchain;
@@ -410,8 +386,7 @@ void Device::AcquireNextImage(SurfaceId surfaceId)
       DeviceWaitIdle();
 
       // replace swapchain (only once)
-      swapchain = ReplaceSwapchainForSurface(swapchain->GetSurface(), std::move(swapchain));
-
+      swapchain = ReplaceSwapchainForSurface(surfaceId, std::move(swapchain));
       // get new valid framebuffer
       if(swapchain)
       {
@@ -489,8 +464,6 @@ Image* Device::CreateImageFromExternal(vk::Image externalImage, vk::Format image
                            .setMipLevels(1);
 
   return new Image(*this, imageCreateInfo, externalImage);
-
-  return nullptr;
 }
 
 // -------------------------------------------------------------------------------------------------------
@@ -521,9 +494,7 @@ Swapchain* Device::GetSwapchainForSurfaceId(Graphics::SurfaceId surfaceId)
 {
   if(surfaceId == 0)
   {
-    return mSurfaceMap.begin()
-      ->second
-      .swapchain;
+    return mSurfaceMap.begin()->second.swapchain;
   }
   return mSurfaceMap[surfaceId].swapchain;
 }

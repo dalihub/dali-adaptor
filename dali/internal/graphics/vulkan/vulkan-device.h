@@ -69,11 +69,9 @@ public: // Create methods
 
   void DestroySurface(Dali::Graphics::SurfaceId surfaceId);
 
-  Swapchain* CreateSwapchainForSurface(SurfaceImpl* surface);
+  void CreateSwapchainForSurface(Dali::Graphics::SurfaceId surfaceId);
 
-  Swapchain* ReplaceSwapchainForSurface(SurfaceImpl* surface, Swapchain*&& oldSwapchain);
-
-  Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t& bufferCount, Swapchain*&& oldSwapchain);
+  Swapchain* ReplaceSwapchainForSurface(Dali::Graphics::SurfaceId surfaceId, Swapchain*&& oldSwapchain);
 
   /**
    * Ensures that the next available image is retrieved for drawing onto.
@@ -159,6 +157,8 @@ private: // Methods
   std::vector<const char*> PrepareDefaultInstanceExtensions();
 
   void ReleaseCommandPools();
+
+  Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, Swapchain*&& oldSwapchain);
 
 private: // Members
   vk::PhysicalDevice mPhysicalDevice;

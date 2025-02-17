@@ -93,8 +93,7 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   auto surfaceId           = mGraphicsDevice.CreateSurface(*surfaceFactory, createInfo);
 
   // create swapchain for surface
-  auto surface = mGraphicsDevice.GetSurface(surfaceId);
-  mGraphicsDevice.CreateSwapchainForSurface(surface);
+  mGraphicsDevice.CreateSwapchainForSurface(surfaceId);
 
   return surfaceId;
 }

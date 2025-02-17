@@ -32,10 +32,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-namespace
-{
-const auto MAX_SWAPCHAIN_RESOURCE_BUFFERS = 2u;
-}
 
 /**
  * SwapchainBuffer stores all per-buffer data
@@ -144,7 +140,7 @@ void Swapchain::CreateVkSwapchain(
 
   // Determine the number of images
   if(surfaceCapabilities.minImageCount > 0 &&
-     bufferCount > surfaceCapabilities.minImageCount)
+     bufferCount != surfaceCapabilities.minImageCount)
   {
     bufferCount = surfaceCapabilities.minImageCount;
   }
@@ -164,7 +160,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -271,7 +268,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -315,7 +313,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // on swapchain first create sync primitives if not created yet
   if(mSwapchainBuffers.empty())
   {
-    mSwapchainBuffers.resize(MAX_SWAPCHAIN_RESOURCE_BUFFERS);
+    mSwapchainBuffers.resize(mSwapchainImages.size());
     for(auto& buffer : mSwapchainBuffers)
     {
       buffer.reset(new SwapchainBuffer(mGraphicsDevice));
