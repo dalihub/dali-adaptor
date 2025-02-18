@@ -102,10 +102,11 @@ Vulkan::RenderPassHandle RenderTarget::GetRenderPass(const Graphics::RenderPass*
   return framebufferImpl->GetImplFromRenderPass(renderPass);
 }
 
-void RenderTarget::Submit(const CommandBuffer* cmdBuffer)
+void RenderTarget::CreateSubmissionData(
+  const CommandBuffer*         cmdBuffer,
+  std::vector<SubmissionData>& submissionData)
 {
-  auto& graphicsDevice = mController.GetGraphicsDevice();
-  auto  surface        = GetSurface();
+  auto surface = GetSurface();
 
   std::vector<vk::Semaphore> waitSemaphores;
   for(auto renderTarget : mDependencies)
@@ -120,22 +121,15 @@ void RenderTarget::Submit(const CommandBuffer* cmdBuffer)
   }
   std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
-  if(surface)
+  if(!surface)
   {
-    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-    auto swapchain = graphicsDevice.GetSwapchainForSurfaceId(surfaceId);
-    swapchain->Submit(cmdBuffer->GetImpl(), waitSemaphores);
+    submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {cmdBuffer->GetImpl()}, {mSubmitSemaphore}});
   }
   else
   {
-    std::vector<vk::Semaphore> signalSemaphores{mSubmitSemaphore};
-    graphicsDevice.GetGraphicsQueue(0).Submit(
-      {SubmissionData{
-        waitSemaphores,
-        waitDstStageMask,
-        {cmdBuffer->GetImpl()},
-        signalSemaphores}},
-      nullptr);
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto swapchain = mController.GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
+    swapchain->CreateSubmissionData(cmdBuffer->GetImpl(), waitSemaphores, waitDstStageMask, submissionData);
   }
   mSubmitted = true;
 }

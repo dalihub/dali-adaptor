@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.4.5
+Version:    2.4.6
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -296,6 +296,11 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
 # Use this conditional when Tizen version is 9.x or greater
 %if 0%{?tizen_version_major} >= 9
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
+%endif
+
+# Use this conditional when Tizen version is 10.x or greater
+%if 0%{?tizen_version_major} >= 10
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
 %endif
 
 %if 0%{?enable_debug}

@@ -74,7 +74,7 @@ SwapchainBuffer::~SwapchainBuffer()
 {
   // swapchain dies so make sure semaphore are not in use anymore
   auto result = graphicsDevice.GetLogicalDevice().waitIdle();
-  assert(result == vk::Result::eSuccess);
+  VkTest(result, vk::Result::eSuccess);
   graphicsDevice.GetLogicalDevice().destroySemaphore(acquireNextImageSemaphore, graphicsDevice.GetAllocator());
   graphicsDevice.GetLogicalDevice().destroySemaphore(submitSemaphore, graphicsDevice.GetAllocator());
 }
@@ -86,7 +86,7 @@ Swapchain* Swapchain::NewSwapchain(
   SurfaceImpl*       surface,
   vk::Format         requestedFormat,
   vk::PresentModeKHR presentMode,
-  uint32_t           bufferCount)
+  uint32_t&          bufferCount)
 {
   auto swapchain = new Swapchain(device, presentationQueue);
   swapchain->CreateVkSwapchain(oldSwapchain, surface, requestedFormat, presentMode, bufferCount);
@@ -110,7 +110,7 @@ void Swapchain::CreateVkSwapchain(
   SurfaceImpl*       surface,
   vk::Format         requestedFormat,
   vk::PresentModeKHR presentMode,
-  uint32_t           bufferCount)
+  uint32_t&          bufferCount)
 {
   mSurface = surface;
   vk::Format        swapchainImageFormat{};
@@ -238,6 +238,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
 
   mFramebuffers.clear();
   mFramebuffers.reserve(images.size());
+  mSwapchainImages.clear();
+  mSwapchainImages.reserve(images.size());
 
   auto clearColor = vk::ClearColorValue{}.setFloat32({1.0f, 0.0f, 1.0f, 1.0f});
 
@@ -250,6 +252,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
     auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
                                                               mSwapchainCreateInfoKHR.imageFormat,
                                                               mSwapchainCreateInfoKHR.imageExtent);
+    mSwapchainImages.emplace_back(colorImage);
 
     std::unique_ptr<ImageView> colorImageView;
     colorImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
@@ -321,9 +324,22 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d", int(mSwapchainImageIndex));
 
-  constexpr auto TIMEOUT = 1'000'000'000;
+  constexpr auto TIMEOUT = 1'000'000'000; //'
 
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+
+  // First frames don't need waiting as they haven't been submitted
+  // yet. Note, that waiting on the fence without resetting it may
+  // cause a stall ( nvidia, ubuntu )
+  if(mFrameCounter >= mSwapchainBuffers.size())
+  {
+    vk::Result status = swapchainBuffer->endOfFrameFence->GetStatus();
+    if(status == vk::Result::eNotReady)
+    {
+      swapchainBuffer->endOfFrameFence->Wait();
+      swapchainBuffer->endOfFrameFence->Reset();
+    }
+  }
 
   auto result = device.acquireNextImageKHR(mSwapchainKHR,
                                            TIMEOUT,
@@ -355,45 +371,34 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
     }
   }
 
-  // First frames don't need waiting as they haven't been submitted
-  // yet. Note, that waiting on the fence without resetting it may
-  // cause a stall ( nvidia, ubuntu )
-  if(mFrameCounter >= mSwapchainBuffers.size())
-  {
-    vk::Result status = swapchainBuffer->endOfFrameFence->GetStatus();
-    if(status == vk::Result::eNotReady)
-    {
-      swapchainBuffer->endOfFrameFence->Wait();
-      swapchainBuffer->endOfFrameFence->Reset();
-    }
-  }
-  else
-  {
-    mGraphicsDevice.DeviceWaitIdle();
-  }
-  // mGraphicsDevice.CollectGarbage();
-
   return mFramebuffers[mSwapchainImageIndex].get();
 }
 
-void Swapchain::Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends)
+Queue* Swapchain::GetQueue()
+{
+  return mQueue;
+}
+
+FenceImpl* Swapchain::GetEndOfFrameFence()
+{
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  return swapchainBuffer->endOfFrameFence.get();
+}
+
+void Swapchain::CreateSubmissionData(
+  CommandBufferImpl*                   commandBuffer,
+  std::vector<vk::Semaphore>&          waitSemaphores,
+  std::vector<vk::PipelineStageFlags>& waitDstStageMask,
+  std::vector<SubmissionData>&         submissionData)
 {
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
 
-  std::vector<vk::Semaphore>          waitSemaphores{depends};
-  std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
-
   waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
   waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
 
-  mQueue->Submit({Vulkan::SubmissionData{
-                   waitSemaphores,
-                   waitDstStageMask,
-                   {commandBuffer},
-                   {swapchainBuffer->submitSemaphore}}},
-                 swapchainBuffer->endOfFrameFence.get());
+  submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {commandBuffer}, {swapchainBuffer->submitSemaphore}});
 }
 
 void Swapchain::Present()
@@ -407,6 +412,7 @@ void Swapchain::Present()
   auto&              swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
   vk::PresentInfoKHR presentInfo{};
   vk::Result         result;
+
   presentInfo.setPImageIndices(&mSwapchainImageIndex)
     .setPResults(&result)
     .setPSwapchains(&mSwapchainKHR)
@@ -414,10 +420,10 @@ void Swapchain::Present()
     .setPWaitSemaphores(&swapchainBuffer->submitSemaphore)
     .setWaitSemaphoreCount(1);
 
-  mGraphicsDevice.Present(*mQueue, presentInfo);
+  vk::Result presentResult = mGraphicsDevice.Present(*mQueue, presentInfo);
 
   // handle error
-  if(presentInfo.pResults[0] != vk::Result::eSuccess)
+  if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
   {
     // invalidate swapchain
     if(result == vk::Result::eErrorOutOfDateKHR)

@@ -129,6 +129,11 @@ std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
   {
     return std::string{shaderImpl->GetPreprocessedCode()};
   }
+
+  data.resize(shaderCreateInfo.sourceSize + 1);
+  std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
+  data[shaderCreateInfo.sourceSize] = 0;
+
   return {reinterpret_cast<char*>(&data[0]), shaderCreateInfo.sourceSize};
 }
 

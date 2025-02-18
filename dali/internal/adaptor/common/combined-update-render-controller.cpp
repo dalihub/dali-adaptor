@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -799,6 +799,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     //////////////////////////////
 
     graphics.FrameStart();
+
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
     if(mPreRenderCallback != NULL)
@@ -861,20 +862,22 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          mCore.PreRender(scene, mDamagedRects);
+          bool willRender = mCore.PreRender(scene, mDamagedRects);
+          if(willRender)
+          {
+            graphics.AcquireNextImage(windowSurface);
+          }
 
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
 
           Rect<int> clippingRect; // Empty for fbo rendering
 
-          // Switch to the context of the surface, merge damaged areas for previous frames
-          windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect); // Switch GL context
+          // Ensure surface can be drawn to; merge damaged areas for previous frames
+          windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
 
           // Render the surface
           mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
-
-          // Buffer swapping now happens when the surface render target is presented.
 
           // If surface is resized, the surface resized count is decreased.
           if(DALI_UNLIKELY(sceneSurfaceResized > 0u))

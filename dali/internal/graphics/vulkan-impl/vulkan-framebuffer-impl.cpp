@@ -179,7 +179,8 @@ FramebufferImpl* FramebufferImpl::New(
 {
   assert((!colorAttachments.empty() || depthAttachment) && "Cannot create framebuffer. Please provide at least one attachment");
 
-  auto              colorAttachmentsValid = true;
+  [[maybe_unused]] auto colorAttachmentsValid = true;
+
   SharedAttachments attachments;
   for(auto& attachment : colorAttachments)
   {

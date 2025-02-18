@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1159,6 +1159,7 @@ void InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetFullScreenMode\n");
 
+#ifdef OVER_TIZEN_VERSION_10
   if(mIMFContext)
   {
     Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
@@ -1167,16 +1168,24 @@ void InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
   }
 
   mBackupOperations[Operation::FULLSCREEN_MODE] = std::bind(&InputMethodContextEcoreWl::SetFullScreenMode, this, fullScreen);
+#else
+  DALI_LOG_ERROR("SetFullScreenMode NOT SUPPORT THIS TIZEN VERSION!\n");
+#endif
 }
 
 bool InputMethodContextEcoreWl::IsFullScreenMode() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::IsFullScreenMode\n");
   bool fullScreen = false;
+
+#ifdef OVER_TIZEN_VERSION_10
   if(mIMFContext)
   {
     fullScreen = ecore_imf_context_input_hint_get(mIMFContext) & ECORE_IMF_INPUT_HINT_FULLSCREEN_MODE;
   }
+#else
+  DALI_LOG_ERROR("IsFullScreenMode NOT SUPPORT THIS TIZEN VERSION!\n");
+#endif
   return fullScreen;
 }
 

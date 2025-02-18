@@ -122,6 +122,11 @@ public:
   void MakeContextCurrent(Graphics::SurfaceId surfaceId) override;
 
   /**
+   * @copydoc Graphics::GraphicsInterface::AcquireNextImage()
+   */
+  void AcquireNextImage(Integration::RenderSurfaceInterface* surface) override;
+
+  /**
    * This is called after all the surfaces have been rendered.
    *
    * @note This should not be called if uploading resource only without rendering any surface.

@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PROGRAM_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace Dali::Graphics::Vulkan
 class Reflection;
 
 /**
- * @brief Program implementation
+ * @brief Program implementation.
  *
  * Program implementation is owned only by the PipelineCache
  *
@@ -161,4 +161,4 @@ private:
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_GRAPHICS_VULKAN_PROGRAM_IMPL_H
+#endif // DALI_GRAPHICS_VULKAN_PROGRAM_IMPL_H

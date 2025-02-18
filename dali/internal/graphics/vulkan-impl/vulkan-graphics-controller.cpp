@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -588,17 +588,36 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
-  SubmissionData submitData;
+  std::vector<SubmissionData> submitData;
+
+  // Gather all command buffers targeting frame buffers into a single Submit request
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
   {
     auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
     auto renderTarget = cmdBuffer->GetRenderTarget();
     DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
-    if(renderTarget)
+    if(renderTarget && renderTarget->GetSurface() == nullptr)
     {
-      // Currently, this will call vkQueueSubmit per cmd buf.
-      // @todo Roll up each into single submission for fewer calls to driver
-      renderTarget->Submit(cmdBuffer);
+      renderTarget->CreateSubmissionData(cmdBuffer, submitData);
+    }
+  }
+  mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
+
+  // Submit each scene's cmd buffer separately, as these use EndOfFrameFence.
+  for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
+  {
+    auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
+    auto renderTarget = cmdBuffer->GetRenderTarget();
+    DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
+
+    if(renderTarget && renderTarget->GetSurface() != nullptr)
+    {
+      auto surface   = renderTarget->GetSurface();
+      auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+      auto swapchain = GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
+
+      renderTarget->CreateSubmissionData(cmdBuffer, submitData);
+      swapchain->GetQueue()->Submit(submitData, swapchain->GetEndOfFrameFence());
     }
   }
 
@@ -611,11 +630,10 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface();
-  if(surface)
+  if(const auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
   {
-    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-    auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
+    const auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto       swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
     swapchain->Present();
   }
   // else no presentation required for framebuffer render target.
@@ -860,6 +878,7 @@ void VulkanGraphicsController::UpdateTextures(
       // for memory, use staging buffer
       case Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA:
       {
+        break;
       }
       case Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY:
       {
@@ -946,7 +965,8 @@ UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(c
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
-  return NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  auto commandBuffer = NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  return commandBuffer;
 }
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)

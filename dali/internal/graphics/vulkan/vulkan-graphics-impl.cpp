@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@
 #include <dali/internal/system/common/configuration-manager.h>
 #include <vector>
 
+#include "dali/internal/window-system/common/window-render-surface.h"
+
 extern "C" std::vector<uint32_t> GraphicsGetBuiltinShader(const std::string& tag);
 
 namespace Dali
@@ -34,7 +36,8 @@ VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
                                Integration::PartialUpdateAvailable       partialUpdateRequired)
 : GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, partialUpdateRequired),
-  mGraphicsController()
+  mGraphicsController(),
+  mMultiSamplingLevel(-1) // No multisampling
 {
 }
 
@@ -117,6 +120,12 @@ void VulkanGraphics::ActivateSurfaceContext(Dali::Integration::RenderSurfaceInte
 
 void VulkanGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
 {
+}
+
+void VulkanGraphics::AcquireNextImage(Integration::RenderSurfaceInterface* surface)
+{
+  auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+  mGraphicsDevice.AcquireNextImage(surfaceId);
 }
 
 void VulkanGraphics::PostRender()
