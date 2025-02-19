@@ -79,6 +79,9 @@ public:
   std::thread mThread;
 };
 
+std::string gLocale;     // The current language. (e.g., "en")
+std::string gLocaleFull; // The current locale identifier. (e.g., "en_US")
+
 Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 
 FontThread                        gPreCacheThread;
@@ -316,6 +319,40 @@ void FontClient::JoinFontThreads()
     gPreLoadThread.mThread.join();
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad thread join\n");
   }
+}
+
+void FontClient::EnsureLocale()
+{
+  if(gLocale.empty() || gLocaleFull.empty())
+  {
+    const char *locale;
+    locale = setlocale(LC_MESSAGES, NULL);
+    if(locale)
+    {
+      SetLocale(locale);
+    }
+  }
+}
+
+const std::string& FontClient::GetLocale()
+{
+  return gLocale;
+}
+
+const std::string& FontClient::GetLocaleFull()
+{
+  return gLocaleFull;
+}
+
+void FontClient::SetLocale(const std::string& locale)
+{
+  std::scoped_lock lock(gMutex);
+
+  // To unify the tizen system locale and format, remove the string after the dot.
+  std::istringstream stringStreamFull(locale);
+  std::getline(stringStreamFull, gLocaleFull, '.');
+  std::istringstream stringStream(locale);
+  std::getline(stringStream, gLocale, '_');
 }
 
 void FontClient::ClearCache()

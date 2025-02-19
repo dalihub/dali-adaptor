@@ -379,6 +379,7 @@ void Adaptor::Start()
   mCore->Initialize();
 
   SetupSystemInformation();
+  TextAbstraction::EnsureLocale();
 
   // Start the callback manager
   mCallbackManager->Start();

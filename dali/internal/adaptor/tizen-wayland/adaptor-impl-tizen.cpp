@@ -55,6 +55,7 @@ static void OnSystemLanguageChanged(system_settings_key_e key, void* data)
   Adaptor* adaptor = static_cast<Adaptor*>(data);
   if(adaptor != NULL)
   {
+    TextAbstraction::SetLocale(locale);
     TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
     fontClient.ClearCacheOnLocaleChanged();
     fontClient.InitDefaultFontDescription();
