@@ -176,11 +176,7 @@ struct Shaping::Plugin
         hb_buffer_set_script(harfBuzzBuffer,
                              SCRIPT_TO_HARFBUZZ[script]); /* see hb-unicode.h */
 
-        char* currentLocale = setlocale(LC_MESSAGES, NULL);
-
-        std::istringstream stringStream(currentLocale);
-        std::string        localeString;
-        std::getline(stringStream, localeString, '_');
+        const std::string& localeString = TextAbstraction::GetLocale();
         hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), localeString.size()));
 
         /* Layout the text */

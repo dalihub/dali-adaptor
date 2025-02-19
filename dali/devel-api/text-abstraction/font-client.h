@@ -635,9 +635,39 @@ DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyLis
 DALI_ADAPTOR_API void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread, bool syncCreation);
 
 /**
-  * @brief Joins font threads, waiting for their execution to complete.
-  */
+ * @brief Joins font threads, waiting for their execution to complete.
+ */
 DALI_ADAPTOR_API void FontClientJoinFontThreads();
+
+/**
+ * @brief Ensure the locale of the font client.
+ * @note If there is no locale information, update it using setlocale().
+ */
+DALI_ADAPTOR_API void EnsureLocale();
+
+/**
+ * @brief Gets the current language.
+ *
+ * @note Returns the language code. (e.g., "en")
+ * @return The current language.
+ */
+DALI_ADAPTOR_API const std::string& GetLocale();
+
+/**
+ * @brief Gets the current locale identifier.
+ *
+ * @note Returns the locale identifier. (e.g., "en_US")
+ * @return The current locale identifier.
+ */
+DALI_ADAPTOR_API const std::string& GetLocaleFull();
+
+/**
+ * @brief Sets the current locale.
+ *
+ * @note Update language and locale identifier.
+ * @param[in] locale The current locale.
+ */
+DALI_ADAPTOR_API void SetLocale(const std::string& locale);
 
 } // namespace TextAbstraction
 
