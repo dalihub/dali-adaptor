@@ -48,34 +48,37 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data,
  *
  * @note Need to call FcPatternDestroy to free the resources.
  *
+ * @param[in] fontConfig A handle to a FontConfig library instance.
  * @param[in] fontDescription The font to cache.
  *
  * @return The pattern.
  */
-FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription);
+FcPattern* CreateFontFamilyPattern(FcConfig* fontConfig, const FontDescription& fontDescription);
 
 /**
  * @brief Creates a character set from a given font's @p description.
  *
  * @note Need to call FcCharSetDestroy to free the resources.
  *
+ * @param[in] fontConfig A handle to a FontConfig library instance.
  * @param[in] description The font's description.
  *
  * @return A character set.
  */
-FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description);
+FcCharSet* CreateCharacterSetFromDescription(FcConfig* fontConfig, const FontDescription& description);
 
 /**
  * @brief Gets the FontDescription which matches the given pattern.
  *
  * @note The reference counter of the @p characterSet has been increased. Call FcCharSetDestroy to decrease it.
  *
+ * @param[in] fontConfig A handle to a FontConfig library instance.
  * @param[in] pattern pattern to match against.
  * @param[out] fontDescription the resultant fontDescription that matched.
  * @param[out] characterSet The character set for that pattern.
  * @return true if match found.
  */
-bool MatchFontDescriptionToPattern(FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet);
+bool MatchFontDescriptionToPattern(FcConfig* fontConfig, FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet);
 
 /**
  * @brief Retrieves a font config object's value from a pattern.

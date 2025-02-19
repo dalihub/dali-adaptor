@@ -308,9 +308,9 @@ public: // Dali::TextAbstraction::FontClient
   bool AddCustomFontDirectory(const FontPath& path);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::ApplyCustomFontDirectories()
+   * @copydoc Dali::TextAbstraction::FontClient::GetCustomFontDirectories()
    */
-  void ApplyCustomFontDirectories();
+  const FontPathList& GetCustomFontDirectories();
 
 public: // Dali::TextAbstraction::Internal::FontClient
   /**
@@ -417,9 +417,6 @@ private:
 
   struct CacheHandler;
   CacheHandler* mCacheHandler; ///< Seperate cache for font data.
-
-  FontPathList mCustomFonts;
-  bool         mIsCustomFontsApplied : 1;
 };
 
 } // namespace Internal

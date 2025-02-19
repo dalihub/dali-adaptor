@@ -721,11 +721,11 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
   return mPlugin->AddCustomFontDirectory(path);
 }
 
-void FontClient::ApplyCustomFontDirectories()
+const FontPathList& FontClient::GetCustomFontDirectories()
 {
   CreatePlugin();
 
-  return mPlugin->ApplyCustomFontDirectories();
+  return mPlugin->GetCustomFontDirectories();
 }
 
 HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)

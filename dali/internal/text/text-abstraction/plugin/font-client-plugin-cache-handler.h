@@ -459,6 +459,7 @@ private:
   CacheHandler& operator=(const CacheHandler&) = delete;
 
 public:                                    // Cache container list
+  FcConfig*       mFontConfig;             ///< A handle to a FontConfig library instance.
   FontDescription mDefaultFontDescription; ///< Cached default font from the system
 
   FontList         mSystemFonts;              ///< Cached system fonts.
@@ -483,7 +484,7 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
-  std::vector<std::string> mCustomFontDirectories;  ///< Cache custom font directories to recovery upon reinitialization.
+  FontPathList mCustomFontDirectories;  ///< Cache custom font directories to recovery upon reinitialization.
 
 private:                                                 // Member value
   std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.

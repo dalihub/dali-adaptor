@@ -240,9 +240,7 @@ FontClient::Plugin::Plugin(unsigned int horizontalDpi,
   mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
   mCurrentMaximumBlockSizeFitInAtlas(TextAbstraction::FontClient::MAX_SIZE_FIT_IN_ATLAS),
   mVectorFontCache(nullptr),
-  mCacheHandler(new CacheHandler()),
-  mCustomFonts(),
-  mIsCustomFontsApplied(false)
+  mCacheHandler(new CacheHandler())
 {
   int error = FT_Init_FreeType(&mFreeTypeLibrary);
   if(FT_Err_Ok != error)
@@ -513,7 +511,7 @@ bool FontClient::Plugin::IsCharacterSupportedByFont(FontId fontId, Character cha
   auto fontCacheItem = const_cast<FontCacheItemInterface*>(GetCachedFontItem(fontId));
   if(fontCacheItem != nullptr)
   {
-    isSupported = fontCacheItem->IsCharacterSupported(character); // May cache
+    isSupported = fontCacheItem->IsCharacterSupported(mCacheHandler->mFontConfig, character); // May cache
   }
 
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  is supported : %s\n", (isSupported ? "true" : "false"));
@@ -1069,31 +1067,13 @@ FontDescription::Type FontClient::Plugin::GetFontType(FontId fontId) const
 
 bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
 {
-  if(!mIsCustomFontsApplied)
-  {
-    if(mCustomFonts.size() > CUSTOM_FONTS_MAX_COUNT)
-    {
-      mCustomFonts.clear();
-    }
-    mCustomFonts.push_back(path);
-
-    if(mCacheHandler)
-    {
-      mCacheHandler->mCustomFontDirectories.push_back(path);
-    }
-  }
-  // nullptr as first parameter means the current configuration is used.
-  return FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
+  mCacheHandler->mCustomFontDirectories.push_back(path);
+  return FcConfigAppFontAddDir(mCacheHandler->mFontConfig, reinterpret_cast<const FcChar8*>(path.c_str()));
 }
 
-void FontClient::Plugin::ApplyCustomFontDirectories()
+const FontPathList& FontClient::Plugin::GetCustomFontDirectories()
 {
-  for(const auto& path : mCustomFonts)
-  {
-    FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
-  }
-  mCustomFonts.clear();
-  mIsCustomFontsApplied = true;
+  return mCacheHandler->mCustomFontDirectories;
 }
 
 HarfBuzzFontHandle FontClient::Plugin::GetHarfBuzzFont(FontId fontId) const
@@ -1402,12 +1382,12 @@ bool FontClient::Plugin::IsScalable(const FontPath& path) const
 bool FontClient::Plugin::IsScalable(const FontDescription& fontDescription) const
 {
   // Create a font pattern.
-  FcPattern* fontFamilyPattern = CreateFontFamilyPattern(fontDescription); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern(mCacheHandler->mFontConfig, fontDescription); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match      = FcFontMatch(nullptr /* use default configure */, fontFamilyPattern, &result); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* match      = FcFontMatch(mCacheHandler->mFontConfig, fontFamilyPattern, &result); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
   bool       isScalable = false;
 
   if(match)
@@ -1463,12 +1443,12 @@ void FontClient::Plugin::GetFixedSizes(const FontDescription&   fontDescription,
                                        Vector<PointSize26Dot6>& sizes) const
 {
   // Create a font pattern.
-  FcPattern* fontFamilyPattern = CreateFontFamilyPattern(fontDescription); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* fontFamilyPattern = CreateFontFamilyPattern(mCacheHandler->mFontConfig, fontDescription); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   FcResult result = FcResultMatch;
 
   // match the pattern
-  FcPattern* match = FcFontMatch(nullptr /* use default configure */, fontFamilyPattern, &result); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* match = FcFontMatch(mCacheHandler->mFontConfig, fontFamilyPattern, &result); // Creates a font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   if(match)
   {
