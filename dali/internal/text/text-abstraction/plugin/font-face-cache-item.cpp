@@ -554,9 +554,10 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
 
 /**
  * Check if the character is supported by this font
+ * @param[in] fontConfig A handle to a FontConfig library instance.
  * @param[in] character The character to test
  */
-bool FontFaceCacheItem::IsCharacterSupported(Character character)
+bool FontFaceCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character character)
 {
   if(nullptr == mCharacterSet)
   {
@@ -580,7 +581,7 @@ bool FontFaceCacheItem::IsCharacterSupported(Character character)
       description.weight = FontWeight::BOLD;
     }
 
-    mCharacterSet = FcCharSetCopy(CreateCharacterSetFromDescription(description));
+    mCharacterSet = FcCharSetCopy(CreateCharacterSetFromDescription(fontConfig, description));
   }
 
   return FcCharSetHasChar(mCharacterSet, character);

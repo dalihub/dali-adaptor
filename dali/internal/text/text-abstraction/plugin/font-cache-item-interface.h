@@ -24,6 +24,7 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h> // for HarfBuzzFontHandle
 
 // EXTERNAL INCLUDES
+#include <fontconfig/fontconfig.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -66,9 +67,10 @@ struct FontCacheItemInterface
 
   /**
    * Check if the character is supported by this font
+   * @param[in] fontConfig A handle to a FontConfig library instance.
    * @param[in] character The character to test
    */
-  virtual bool IsCharacterSupported(Character character) = 0;
+  virtual bool IsCharacterSupported(FcConfig* fontConfig, Character character) = 0;
 
   /**
    * Get the point size of this font

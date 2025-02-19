@@ -355,7 +355,7 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data, FT_Bitmap& srcBitmap,
   }
 }
 
-FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription)
+FcPattern* CreateFontFamilyPattern(FcConfig* fontConfig, const FontDescription& fontDescription)
 {
   // create the cached font family lookup pattern
   // a pattern holds a set of names, each name refers to a property of the font
@@ -402,7 +402,7 @@ FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription)
   FcPatternAddInteger(fontFamilyPattern, FC_SLANT, slant);
 
   // modify the config, with the mFontFamilyPatterm
-  FcConfigSubstitute(nullptr /* use default configure */, fontFamilyPattern, FcMatchPattern);
+  FcConfigSubstitute(fontConfig, fontFamilyPattern, FcMatchPattern);
 
   // provide default values for unspecified properties in the font pattern
   // e.g. patterns without a specified style or weight are set to Medium
@@ -411,16 +411,16 @@ FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription)
   return fontFamilyPattern;
 }
 
-FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description)
+FcCharSet* CreateCharacterSetFromDescription(FcConfig* fontConfig, const FontDescription& description)
 {
   FcCharSet* characterSet = nullptr;
 
-  FcPattern* pattern = CreateFontFamilyPattern(description); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* pattern = CreateFontFamilyPattern(fontConfig, description); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
   if(nullptr != pattern)
   {
     FcResult   result = FcResultMatch;
-    FcPattern* match  = FcFontMatch(nullptr, pattern, &result); // FcFontMatch creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
+    FcPattern* match  = FcFontMatch(fontConfig, pattern, &result); // FcFontMatch creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
     FcPatternGetCharSet(match, FC_CHARSET, 0u, &characterSet);
 
@@ -432,12 +432,12 @@ FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description)
   return characterSet;
 }
 
-bool MatchFontDescriptionToPattern(FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet)
+bool MatchFontDescriptionToPattern(FcConfig* fontConfig, FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
 
   FcResult   result = FcResultMatch;
-  FcPattern* match  = FcFontMatch(nullptr /* use default configure */, pattern, &result); // Creates a new font pattern that needs to be destroyed by calling FcPatternDestroy.
+  FcPattern* match  = FcFontMatch(fontConfig, pattern, &result); // Creates a new font pattern that needs to be destroyed by calling FcPatternDestroy.
 
   const bool matched = nullptr != match;
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  pattern matched : %s\n", (matched ? "true" : "false"));
