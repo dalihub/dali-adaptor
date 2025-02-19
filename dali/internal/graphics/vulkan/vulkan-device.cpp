@@ -90,9 +90,14 @@ Device::~Device()
   // Wait for everything to finish on the GPU
   DeviceWaitIdle();
 
-  mSurfaceMap.clear();
-
   DALI_LOG_STREAM(gVulkanFilter, Debug::General, "DESTROYING GRAPHICS CONTEXT--------------------------------\n");
+
+  for(auto& surfaceSwapchain : mSurfaceMap)
+  {
+    surfaceSwapchain.second.swapchain->Destroy();
+    surfaceSwapchain.second.surface->Destroy();
+  }
+  mSurfaceMap.clear();
 
   SwapBuffers();
   ReleaseCommandPools();
@@ -296,12 +301,12 @@ Graphics::SurfaceId Device::CreateSurface(
 
 void Device::DestroySurface(Dali::Graphics::SurfaceId surfaceId)
 {
-  if(auto surface = GetSurface(surfaceId))
+  if(auto match = mSurfaceMap.find(surfaceId); match != mSurfaceMap.end())
   {
     DeviceWaitIdle();
-    auto swapchain = GetSwapchainForSurfaceId(surfaceId);
-    swapchain->Destroy();
-    surface->Destroy();
+    match->second.swapchain->Destroy();
+    match->second.surface->Destroy();
+    mSurfaceMap.erase(match);
   }
 }
 
