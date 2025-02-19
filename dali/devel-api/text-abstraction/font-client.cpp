@@ -368,6 +368,26 @@ void FontClientJoinFontThreads()
   Internal::FontClient::JoinFontThreads();
 }
 
+void EnsureLocale()
+{
+  Internal::FontClient::EnsureLocale();
+}
+
+const std::string& GetLocale()
+{
+  return Internal::FontClient::GetLocale();
+}
+
+const std::string& GetLocaleFull()
+{
+  return Internal::FontClient::GetLocaleFull();
+}
+
+void SetLocale(const std::string& locale)
+{
+  Internal::FontClient::SetLocale(locale);
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali
