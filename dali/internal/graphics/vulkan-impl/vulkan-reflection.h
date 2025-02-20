@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_REFLECTION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,16 +199,17 @@ public:
   [[nodiscard]] Graphics::ShaderLanguage GetLanguage() const override;
 
 public:
+  vk::PipelineLayout GetVkPipelineLayout() const;
+
+  const std::vector<vk::DescriptorSetLayout>& GetVkDescriptorSetLayouts() const;
+
+private:
   /**
    * @brief Build the reflection of vertex attributes
    */
   void BuildVertexAttributeReflection(SpvReflectShaderModule* spvModule);
 
   void BuildReflection();
-
-  vk::PipelineLayout GetVkPipelineLayout() const;
-
-  const std::vector<vk::DescriptorSetLayout>& GetVkDescriptorSetLayouts() const;
 
 protected:
   Reflection(Reflection&&) = default;

@@ -126,7 +126,11 @@ void Reflection::BuildReflection()
 
   // initialize list of samplers
   // NOTE: We support only COMBINED_IMAGE_SAMPLER type currently (regular sampler on the GLES side)
-  std::vector<UniformInfo> samplers;
+  mUniformOpaques.clear();
+
+  // Ensure to clear the layout list
+  mVkDescriptorSetLayoutCreateInfoList.clear();
+  mVkDescriptorSetLayoutBindingList.clear();
 
   // build descriptor set layout (currently, we support only one set!)
   std::unordered_map<uint32_t, vk::DescriptorSetLayoutCreateInfo*> boundSets;
@@ -147,8 +151,7 @@ void Reflection::BuildReflection()
     }
 
     // helper lambda if we need to check more types of pipeline stages in the future
-    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult
-    {
+    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult {
       if(stage == expectedStage)
       {
         if(!variable)
@@ -258,11 +261,14 @@ void Reflection::BuildReflection()
           out.bufferIndex   = blockIndex++; // TODO: do we need this for Vulkan?
           block.size += memb.padded_size;
         }
+
+        // Sort members by offset
+        std::sort(block.members.begin(), block.members.end(), [](auto& lhs, auto& rhs) { return lhs.offset < rhs.offset; });
       }
       else if(binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
       {
-        samplers.emplace_back();
-        auto uniformInfo          = &samplers.back();
+        mUniformOpaques.emplace_back();
+        auto uniformInfo          = &mUniformOpaques.back();
         uniformInfo->uniformClass = UniformClass::COMBINED_IMAGE_SAMPLER;
         uniformInfo->name         = binding->name;
         uniformInfo->offset       = 0;
@@ -271,19 +277,32 @@ void Reflection::BuildReflection()
       }
     }
 
-    if(!samplers.empty())
-    {
-      mUniformOpaques.insert(mUniformOpaques.end(), samplers.begin(), samplers.end());
-      // sort samplers by bindings
-      std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs)
-                { return lhs.binding < rhs.binding; });
-      for(auto i = 0u; i < mUniformOpaques.size(); ++i)
-      {
-        mUniformOpaques[i].location = i;
-      }
-    }
-
     spvReflectDestroyShaderModule(&module);
+  }
+
+  // Merge shared sampler bindings
+  if(!mUniformOpaques.empty())
+  {
+    // sort samplers by bindings, and erase duplicated bindings.
+    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
+    mUniformOpaques.erase(std::unique(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding == rhs.binding; }), mUniformOpaques.end());
+
+    // Apply location.
+    for(auto i = 0u; i < mUniformOpaques.size(); ++i)
+    {
+      mUniformOpaques[i].location = i;
+    }
+  }
+
+  // Merge shared UBO block bindings
+  // Note that 0'th ubo is standalone block, so need to ignore it.
+  if(mUniformBlocks.size() > 1u)
+  {
+    // sort blocks by bindings, and erase duplicated bindings.
+    std::sort(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
+
+    // @todo: Need to make compile error if uniform blocks with same binding has difference member infomations!
+    mUniformBlocks.erase(std::unique(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs) { return lhs.binding == rhs.binding; }), mUniformBlocks.end());
   }
 
   auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
