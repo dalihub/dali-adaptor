@@ -57,6 +57,8 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+namespace
+{
 class FontThread
 {
 /*
@@ -66,9 +68,7 @@ class FontThread
  * by calling the join method in the destructor of this class.
  */
 public:
-  FontThread()
-  {
-  }
+  FontThread() = default;
   ~FontThread()
   {
     if(mThread.joinable())
@@ -76,27 +76,28 @@ public:
       mThread.join();
     }
   }
-  std::thread mThread;
+  std::thread mThread{};
 };
 
 std::string gLocale;     // The current language. (e.g., "en")
 std::string gLocaleFull; // The current locale identifier. (e.g., "en_US")
 
-Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
-
-FontThread                        gPreCacheThread;
-FontThread                        gPreLoadThread;
+FontThread                        gPreCacheThread{};
+FontThread                        gPreLoadThread{};
 std::mutex                        gMutex;
 std::condition_variable           gPreCacheCond;
 std::condition_variable           gPreLoadCond;
-bool                              gPreCacheThreadReady;
-bool                              gPreLoadThreadReady;
+bool                              gPreCacheThreadReady = false;
+bool                              gPreLoadThreadReady = false;
 
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
  * if there is a pre-cache call from the user after the font client has been created. */
 bool gFontPreCacheAvailable = true;
 bool gFontPreLoadAvailable  = true;
+} // namespace
+
+Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 
 FontClient::FontClient()
 : mPlugin(nullptr),
