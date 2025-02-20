@@ -31,18 +31,26 @@ NativeImageSourcePtr NativeImageSource::New(uint32_t width, uint32_t height, Col
 {
   Any                  empty;
   NativeImageSourcePtr image = new NativeImageSource(width, height, depth, empty);
-  return image;
-}
-
-Any NativeImageSource::GetNativeImageSource()
-{
-  return mImpl->GetNativeImageSource();
+  if(image->mImpl)
+  {
+    return image;
+  }
+  return nullptr;
 }
 
 NativeImageSourcePtr NativeImageSource::New(Any nativeImageSource)
 {
   NativeImageSourcePtr image = new NativeImageSource(0, 0, COLOR_DEPTH_DEFAULT, nativeImageSource);
-  return image;
+  if(image->mImpl)
+  {
+    return image;
+  }
+  return nullptr;
+}
+
+Any NativeImageSource::GetNativeImageSource()
+{
+  return mImpl->GetNativeImageSource();
 }
 
 bool NativeImageSource::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
