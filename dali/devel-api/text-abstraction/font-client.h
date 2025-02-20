@@ -514,9 +514,11 @@ public:
   bool AddCustomFontDirectory(const FontPath& path);
 
   /**
-   * @brief Apply custom fonts directories
+   * @brief Gets the custom fonts directories.
+   *
+   * @return list of the custom font paths.
    */
-  void ApplyCustomFontDirectories();
+  const FontPathList& GetCustomFontDirectories();
 
   /**
    * @brief Creates and stores an embedded item and it's metrics.

@@ -332,9 +332,9 @@ public: // API for Dali::TextAbstraction::FontClient used.
   bool AddCustomFontDirectory(const FontPath& path);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::ApplyCustomFontDirectories()
+   * @copydoc Dali::TextAbstraction::FontClient::GetCustomFontDirectories()
    */
-  void ApplyCustomFontDirectories();
+  const FontPathList& GetCustomFontDirectories();
 
 public: // API for Dali::TextAbstraction::Internal::FontClient used.
   /**

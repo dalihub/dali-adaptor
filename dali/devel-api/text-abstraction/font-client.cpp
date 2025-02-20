@@ -298,9 +298,9 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
   return GetImplementation(*this).AddCustomFontDirectory(path);
 }
 
-void FontClient::ApplyCustomFontDirectories()
+const FontPathList& FontClient::GetCustomFontDirectories()
 {
-  GetImplementation(*this).ApplyCustomFontDirectories();
+  return GetImplementation(*this).GetCustomFontDirectories();
 }
 
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
