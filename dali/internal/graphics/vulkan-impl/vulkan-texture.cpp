@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -928,8 +928,7 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
     return false;
   }
 
-  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                         { return item.oldFormat == mConvertFromFormat; });
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == mConvertFromFormat; });
 
   // No suitable format, return empty array
   if(it == COLOR_CONVERSION_TABLE.end())
@@ -951,8 +950,7 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
     return false;
   }
 
-  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                         { return item.oldFormat == mConvertFromFormat; });
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == mConvertFromFormat; });
 
   // No suitable format, return empty array
   if(it == COLOR_CONVERSION_TABLE.end())
@@ -1017,6 +1015,22 @@ void Texture::CopyMemoryDirect(
     return;
   }
 
+  uint8_t* srcPtr = nullptr;
+  if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY)
+  {
+    srcPtr = reinterpret_cast<uint8_t*>(sourceInfo.memorySource.memory);
+  }
+  else if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA)
+  {
+    auto pixelBufferData = Dali::Integration::GetPixelDataBuffer(sourceInfo.pixelDataSource.pixelData);
+    srcPtr               = pixelBufferData.buffer + info.srcOffset;
+  }
+  else
+  {
+    // TODO: other sources NOT support yet.
+    return;
+  }
+
   // try to initialise resource
   InitializeImageView();
 
@@ -1041,17 +1055,6 @@ void Texture::CopyMemoryDirect(
   int  sizeInBytes  = int(formatInfo.blockSizeInBits / 8);
   auto dstRowLength = subresourceLayout.rowPitch;
   auto dstPtr       = ptr + int(dstRowLength) * info.dstOffset2D.y + sizeInBytes * info.dstOffset2D.x;
-
-  uint8_t* srcPtr = nullptr;
-  if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY)
-  {
-    srcPtr = reinterpret_cast<uint8_t*>(sourceInfo.memorySource.memory);
-  }
-  else if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA)
-  {
-    auto pixelBufferData = Dali::Integration::GetPixelDataBuffer(sourceInfo.pixelDataSource.pixelData);
-    srcPtr               = pixelBufferData.buffer + info.srcOffset;
-  }
 
   auto srcRowLength = int(info.srcExtent2D.width) * sizeInBytes;
 
@@ -1101,8 +1104,7 @@ vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
   // if format isn't supported, see whether suitable conversion is implemented
   if(!formatFlags)
   {
-    auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
-                           { return item.oldFormat == sourceFormat; });
+    auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == sourceFormat; });
 
     // No suitable format, return empty array
     if(it != COLOR_CONVERSION_TABLE.end())

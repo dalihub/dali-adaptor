@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,24 +108,32 @@ struct ShaderImpl::Impl
         const auto src    = !sourcePreprocessed.empty() ? reinterpret_cast<const char*>(sourcePreprocessed.data()) : reinterpret_cast<const char*>(createInfo.sourceData);
 
         // null-terminated char already included. So we should remove last character (null terminator) from size.
-        GLint size = (!sourcePreprocessed.empty() ? GLint(sourcePreprocessed.size()) : createInfo.sourceSize) - 1u;
+        GLint size = static_cast<GLint>(!sourcePreprocessed.empty() ? static_cast<uint32_t>(sourcePreprocessed.size()) : createInfo.sourceSize) - 1;
 
-        gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
-        gl->CompileShader(shader);
-
-        GLint status{0};
-        gl->GetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        if(status != GL_TRUE)
+        if(src != nullptr && size >= 0)
         {
-          char    output[4096];
-          GLsizei outputSize{0u};
-          gl->GetShaderInfoLog(shader, 4096, &outputSize, output);
-          DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
-          DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
-          gl->DeleteShader(shader);
+          gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
+          gl->CompileShader(shader);
+
+          GLint status{0};
+          gl->GetShaderiv(shader, GL_COMPILE_STATUS, &status);
+          if(status != GL_TRUE)
+          {
+            char    output[4096];
+            GLsizei outputSize{0u};
+            gl->GetShaderInfoLog(shader, 4096, &outputSize, output);
+            DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
+            DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
+            gl->DeleteShader(shader);
+            return false;
+          }
+          glShader = shader;
+        }
+        else
+        {
+          DALI_LOG_ERROR("glCompileShader() failed: source is nullptr, or size is negative! src : %p, size : %d\n", src, size);
           return false;
         }
-        glShader = shader;
       }
       return true;
     }

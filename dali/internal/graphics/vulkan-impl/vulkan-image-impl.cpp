@@ -121,8 +121,11 @@ void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
   if(result != vk::Result::eSuccess)
   {
     DALI_LOG_INFO(gVulkanFilter, Debug::General, "Unable to allocate memory for the image of size %d!", int(requirements.size));
+
+    mMemory.reset();
   }
-  else if(mMemory) // bind the allocated memory to the image
+
+  if(mMemory) // bind the allocated memory to the image
   {
     VkAssert(mDevice.GetLogicalDevice().bindImageMemory(mImage, mMemory->GetVkHandle(), 0));
   }
