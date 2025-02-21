@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_RESOURCE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,22 +53,32 @@ public:
    */
   virtual void DiscardResource() = 0;
 
+  virtual void InvokeDeleter() = 0;
+
+  [[nodiscard]] virtual const Graphics::AllocationCallbacks* GetAllocationCallbacks() const = 0;
+
   virtual ~ResourceBase() = default;
 };
 
+class ResourceWithoutDeleter : public ResourceBase
+{
+  [[nodiscard]] const Graphics::AllocationCallbacks* GetAllocationCallbacks() const override
+  {
+    return nullptr;
+  }
+
+  void InvokeDeleter() override
+  {
+    delete this;
+  }
+};
+
+/**
+ * Resource must implement GetAllocationCallbacks and InvokeDeleter.
+ */
 class ResourceWithDeleter : public ResourceBase
 {
 public:
-  /**
-   * @brief Get the allocation callbacks for this object
-   */
-  [[nodiscard]] virtual const Graphics::AllocationCallbacks* GetAllocationCallbacks() const = 0;
-
-  /**
-   * @brief Invoke the deleter of the derived type.
-   */
-  virtual void InvokeDeleter() = 0;
-
   ~ResourceWithDeleter() override = default;
 };
 
