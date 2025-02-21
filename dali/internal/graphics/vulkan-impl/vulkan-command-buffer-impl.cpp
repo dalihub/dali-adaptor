@@ -79,11 +79,16 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
   auto info = vk::CommandBufferBeginInfo{};
 
   static vk::CommandBufferInheritanceInfo defaultInheritanceInfo{};
-  defaultInheritanceInfo.pNext                = nullptr;
-  defaultInheritanceInfo.subpass              = 0;
-  defaultInheritanceInfo.occlusionQueryEnable = false;
-  defaultInheritanceInfo.queryFlags           = static_cast<vk::QueryControlFlags>(0);
-  defaultInheritanceInfo.pipelineStatistics   = static_cast<vk::QueryPipelineStatisticFlags>(0);
+  static bool                             init{false};
+  if(!init)
+  {
+    defaultInheritanceInfo.pNext                = nullptr;
+    defaultInheritanceInfo.subpass              = 0;
+    defaultInheritanceInfo.occlusionQueryEnable = false;
+    defaultInheritanceInfo.queryFlags           = static_cast<vk::QueryControlFlags>(0);
+    defaultInheritanceInfo.pipelineStatistics   = static_cast<vk::QueryPipelineStatisticFlags>(0);
+    init                                        = true;
+  }
 
   if(!inheritanceInfo)
   {
