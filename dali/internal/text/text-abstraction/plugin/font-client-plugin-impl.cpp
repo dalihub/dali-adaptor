@@ -1068,6 +1068,10 @@ FontDescription::Type FontClient::Plugin::GetFontType(FontId fontId) const
 bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
 {
   mCacheHandler->mCustomFontDirectories.push_back(path);
+  if(!mCacheHandler->mFontConfig)
+  {
+    return false;
+  }
   return FcConfigAppFontAddDir(mCacheHandler->mFontConfig, reinterpret_cast<const FcChar8*>(path.c_str()));
 }
 
