@@ -237,6 +237,11 @@ private:
    */
   void ClearState();
 
+  /**
+   * @brief Clear vertex buffer relative caches.
+   */
+  void ClearVertexBufferCache();
+
 private:
   struct Impl;
   std::unique_ptr<Impl> mImpl;
