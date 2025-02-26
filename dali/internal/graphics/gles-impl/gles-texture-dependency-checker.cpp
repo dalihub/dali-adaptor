@@ -231,11 +231,9 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
   {
     for(uint32_t nativeIndex = 0u; nativeIndex < 2u; ++nativeIndex)
     {
-      for(auto iter = mNativeTextureDependencies[nativeIndex].begin(); iter != mNativeTextureDependencies[nativeIndex].end();)
+      for(auto iter = mNativeTextureDependencies[nativeIndex].begin(); iter != mNativeTextureDependencies[nativeIndex].end(); ++iter)
       {
         auto& nativeTextureDependency = *iter;
-
-        bool isErased = false;
 
         auto jter = nativeTextureDependency.textures.find(texture);
         if(jter != nativeTextureDependency.textures.end())
@@ -243,16 +241,14 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
           nativeTextureDependency.textures.erase(jter);
           if(nativeTextureDependency.textures.empty())
           {
+            DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::DiscardNativeTexture() invalidate sync object\n");
             mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
-            iter = mNativeTextureDependencies[nativeIndex].erase(iter);
+            nativeTextureDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
+            nativeTextureDependency.synced            = true;
 
-            isErased = true;
+            // DevNote : Do not remove iter from mNativeTextureDependencies[nativeIndex].
+            // It might break logic if nativeIndex == mCurrentNativeTextureDependencyIndex
           }
-        }
-
-        if(!isErased)
-        {
-          ++iter;
         }
       }
     }
@@ -281,7 +277,9 @@ void TextureDependencyChecker::CreateNativeTextureSync(const GLES::Context* curr
   // TODO : Optimize here. For now, we don't have too much EndPass call. So just keep this logic.
   for(auto& nativeTextureDependency : mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex])
   {
-    if(nativeTextureDependency.writeContext == currentContext && nativeTextureDependency.agingSyncObjectId == INVALID_SYNC_OBJECT_ID)
+    if(nativeTextureDependency.writeContext == currentContext &&
+       DALI_LIKELY(!nativeTextureDependency.synced) &&
+       nativeTextureDependency.agingSyncObjectId == INVALID_SYNC_OBJECT_ID)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CreateNativeTextureSync(%p) Allocating sync object\n", currentContext);
       nativeTextureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(currentContext, SyncPool::SyncContext::EGL);
