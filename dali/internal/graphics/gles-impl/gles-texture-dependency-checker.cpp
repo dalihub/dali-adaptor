@@ -231,7 +231,7 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
   {
     for(uint32_t nativeIndex = 0u; nativeIndex < 2u; ++nativeIndex)
     {
-      for(auto iter = mNativeTextureDependencies[nativeIndex].begin(); iter != mNativeTextureDependencies[nativeIndex].end();)
+      for(auto iter = mNativeTextureDependencies[nativeIndex].begin(); iter != mNativeTextureDependencies[nativeIndex].end(); ++iter)
       {
         auto& nativeTextureDependency = *iter;
 
