@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,12 @@ public:
    * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
    */
   uint32_t GetStride() const;
+
+  /**
+   * @brief Gets the stride of the buffer in bytes.
+   * @return The stride of the buffer in bytes. 0 means the buffer is tightly packed.
+   */
+  uint32_t GetStrideBytes() const;
 
   /**
    * Get the pixel format
@@ -308,7 +314,7 @@ private:
   uint32_t      mBufferSize;  ///< Buffer sized in bytes
   uint32_t      mWidth;       ///< Buffer width in pixels
   uint32_t      mHeight;      ///< Buffer height in pixels
-  uint32_t      mStride;      ///< Buffer stride in bytes, 0 means the buffer is tightly packed
+  uint32_t      mStrideBytes; ///< Buffer stride in bytes, 0 means the buffer is tightly packed
   Pixel::Format mPixelFormat; ///< Pixel format
 
   bool mPreMultiplied : 1; ///< PreMultiplied

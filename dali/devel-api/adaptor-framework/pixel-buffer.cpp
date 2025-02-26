@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,11 @@ uint32_t PixelBuffer::GetHeight() const
 uint32_t PixelBuffer::GetStride() const
 {
   return GetImplementation(*this).GetStride();
+}
+
+uint32_t PixelBuffer::GetStrideBytes() const
+{
+  return GetImplementation(*this).GetStrideBytes();
 }
 
 Pixel::Format PixelBuffer::GetPixelFormat() const
