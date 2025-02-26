@@ -298,9 +298,9 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
   return GetImplementation(*this).AddCustomFontDirectory(path);
 }
 
-void FontClient::ApplyCustomFontDirectories()
+const FontPathList& FontClient::GetCustomFontDirectories()
 {
-  GetImplementation(*this).ApplyCustomFontDirectories();
+  return GetImplementation(*this).GetCustomFontDirectories();
 }
 
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
@@ -366,6 +366,26 @@ void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList&
 void FontClientJoinFontThreads()
 {
   Internal::FontClient::JoinFontThreads();
+}
+
+void EnsureLocale()
+{
+  Internal::FontClient::EnsureLocale();
+}
+
+const std::string& GetLocale()
+{
+  return Internal::FontClient::GetLocale();
+}
+
+const std::string& GetLocaleFull()
+{
+  return Internal::FontClient::GetLocaleFull();
+}
+
+void SetLocale(const std::string& locale)
+{
+  Internal::FontClient::SetLocale(locale);
 }
 
 } // namespace TextAbstraction

@@ -182,6 +182,7 @@ IF( ENABLE_PKG_CONFIGURE )
 ENDIF()
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/system-cache-path.in ${ADAPTOR_ROOT}/dali/internal/adaptor/common/system-cache-path.cpp @ONLY)
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/shader-cache-path.in ${ADAPTOR_ROOT}/dali/internal/graphics/common/shader-cache-path.cpp @ONLY)
 
 SET( THIRD_PARTY_WINDOWS_PLATFORM "" )
 IF( WIN32 )
@@ -431,6 +432,11 @@ ELSEIF( UNIX )
   SET( daliShaderbinCacheDir ${CMAKE_BINARY_DIR}/${dataReadOnlyDir}/core/shaderbin/)
   INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
 ENDIF()
+
+# Reset folder for shader
+SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
+file(REMOVE_RECURSE ${daliShaderCachedDir})
+INSTALL( DIRECTORY DESTINATION ${daliShaderCachedDir} )
 
 INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 

@@ -93,6 +93,27 @@ public: // API for Dali::TextAbstraction::FontClient used.
   static void JoinFontThreads();
 
   /**
+   * @brief Ensure the locale of the font client.
+   * @note If there is no locale information, update it using setlocale().
+   */
+  static void EnsureLocale();
+
+  /**
+   * @brief Gets the current language. (e.g., "en")
+   */
+  static const std::string& GetLocale();
+
+  /**
+   * @brief Gets the current locale identifier. (e.g., "en_US")
+   */
+  static const std::string& GetLocaleFull();
+
+  /**
+   * @brief Update language and locale identifier.
+   */
+  static void SetLocale(const std::string& locale);
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
    */
   void ClearCache();
@@ -311,9 +332,9 @@ public: // API for Dali::TextAbstraction::FontClient used.
   bool AddCustomFontDirectory(const FontPath& path);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::ApplyCustomFontDirectories()
+   * @copydoc Dali::TextAbstraction::FontClient::GetCustomFontDirectories()
    */
-  void ApplyCustomFontDirectories();
+  const FontPathList& GetCustomFontDirectories();
 
 public: // API for Dali::TextAbstraction::Internal::FontClient used.
   /**

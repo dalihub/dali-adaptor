@@ -19,12 +19,17 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/common/shader-parser.h>
+#include <dali/public-api/dali-adaptor-version.h>
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-shader.h"
 
 // EXTERNAL HEADERS
 #include <iostream>
+#include <filesystem>
+#include <unistd.h>
+#include <fstream>
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#ifdef GL_KHR_blend_equation_advanced\n"
@@ -38,6 +43,14 @@ static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
 #endif
+
+extern std::string GetSystemProgramBinaryPath();
+
+namespace
+{
+const char* VERSION_SEPARATOR = "-";
+const char* SHADER_SUFFIX     = ".shader";
+} // namespace
 
 namespace Dali::Graphics::GLES
 {
@@ -254,27 +267,42 @@ bool ProgramImpl::Create()
 
   DALI_LOG_DEBUG_INFO("Program[%s] create program id : %u\n", mImpl->name.c_str(), program);
 
+  mImpl->glProgram = program;
+
   const auto& info = mImpl->createInfo;
-
   Preprocess();
+  DALI_LOG_DEBUG_INFO("Program[%s] pre-process finish for program id : %u\n", mImpl->name.c_str(), program);
 
-  DALI_LOG_DEBUG_INFO("Program[%s] pre-process finishe for program id : %u\n", mImpl->name.c_str(), program);
+  auto cachedProgramBinary = false;
 
-  for(const auto& state : *info.shaderState)
+  if(IsEnableProgramBinary())
   {
-    const auto* shader = static_cast<const GLES::Shader*>(state.shader);
-
-    // Compile shader first (ignored when compiled)
-    if(shader->GetImplementation()->Compile())
-    {
-      auto shaderId = shader->GetImplementation()->GetGLShader();
-      DALI_LOG_DEBUG_INFO("Program[%s] attach shader : %u\n", mImpl->name.c_str(), shaderId);
-      gl->AttachShader(program, shaderId);
-    }
+    DALI_LOG_DEBUG_INFO("[Enable] Shader program binary, Try load program binary. \n");
+    cachedProgramBinary = LoadProgramBinary();
   }
 
-  DALI_LOG_DEBUG_INFO("Program[%s] call glLinkProgram\n", mImpl->name.c_str());
-  gl->LinkProgram(program);
+  if(!cachedProgramBinary)
+  {
+    for(const auto& state : *info.shaderState)
+    {
+      const auto* shader = static_cast<const GLES::Shader*>(state.shader);
+
+      // Compile shader first (ignored when compiled)
+      if(shader->GetImplementation()->Compile())
+      {
+        auto shaderId = shader->GetImplementation()->GetGLShader();
+        DALI_LOG_DEBUG_INFO("Program[%s] attach shader : %u\n", mImpl->name.c_str(), shaderId);
+        gl->AttachShader(program, shaderId);
+      }
+    }
+
+    DALI_LOG_DEBUG_INFO("Program[%s] call glLinkProgram\n", mImpl->name.c_str());
+    gl->LinkProgram(program);
+  }
+  else
+  {
+    DALI_LOG_DEBUG_INFO("ProgramBinary[%s] is already been created. Skip glCompile and glLink \n", mImpl->name.c_str());
+  }
 
   GLint status{0};
   gl->GetProgramiv(program, GL_LINK_STATUS, &status);
@@ -287,10 +315,14 @@ bool ProgramImpl::Create()
     // log on error
     DALI_LOG_ERROR("glLinkProgram[%s] failed:\n%s\n", mImpl->name.c_str(), output);
     gl->DeleteProgram(program);
+    mImpl->glProgram = 0u;
     return false;
   }
 
-  mImpl->glProgram = program;
+  if(IsEnableProgramBinary() && !cachedProgramBinary)
+  {
+    SaveProgramBinary();
+  }
 
   // Initialize reflection
   mImpl->reflection->BuildVertexAttributeReflection();
@@ -517,6 +549,190 @@ void ProgramImpl::BuildStandaloneUniformCache()
     }
     index++;
   }
+}
+
+bool ProgramImpl::IsEnableProgramBinary() const
+{
+  if(mImpl->controller.IsUsingProgramBinary())
+  {
+    if(!mImpl->name.empty())
+    {
+      return true;
+    }
+
+    // If the shader name is empty, it means that the shader is not an internally defined shader
+    DALI_LOG_DEBUG_INFO("[Enable] Shader program binary, but this shader can't be used ProgramBinary because the shader is not an internally defined shader.\n");
+  }
+
+  return false;
+}
+std::string ProgramImpl::GetProgramBinaryName()
+{
+  // Check shader with dali-version, name and total shader size
+  const auto& info = mImpl->createInfo;
+  uint32_t totalShaderSize = 0u;
+  for(const auto& state : *info.shaderState)
+  {
+    const auto* shader = static_cast<const GLES::Shader*>(state.shader);
+    totalShaderSize += shader->GetCreateInfo().sourceSize;
+  }
+
+  std::string programBinaryName = std::to_string(ADAPTOR_MAJOR_VERSION) + VERSION_SEPARATOR + std::to_string(ADAPTOR_MINOR_VERSION) + VERSION_SEPARATOR + std::to_string(ADAPTOR_MICRO_VERSION) + VERSION_SEPARATOR + mImpl->name + VERSION_SEPARATOR + std::to_string(totalShaderSize) + SHADER_SUFFIX;
+  return programBinaryName;
+}
+
+bool ProgramImpl::LoadProgramBinary()
+{
+  auto binaryShaderFilename = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+
+  bool result = false;
+  Dali::Vector<char> buffer;
+  result = Dali::FileLoader::ReadFile(binaryShaderFilename, buffer);
+
+  if(result)
+  {
+    if(buffer.Size() == 0)
+    {
+      DALI_LOG_ERROR("Can't load binary shader from file [%s]\n", binaryShaderFilename.c_str());
+      return false;
+    }
+
+    auto gl = mImpl->controller.GetGL();
+    if(!gl)
+    {
+      DALI_LOG_ERROR("Can't Get GL \n");
+      return false;
+    }
+
+    // if formatsLength is less than 0 or greater than 2, it is difficult to guarantee accurate operation.
+    // currently, we don't consider having multiple formats. so it is implemented to operate only when there is one format.
+    GLint formatsLength = -1;
+    gl->GetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &formatsLength);
+    if(formatsLength != 1)
+    {
+      DALI_LOG_ERROR("GL_NUM_PROGRAM_BINARY_FORMATS return invalid value : %d. Load failed \n", formatsLength);
+      return false;
+    }
+
+    std::vector<GLint> formats(formatsLength);
+    gl->GetIntegerv(GL_PROGRAM_BINARY_FORMATS, &formats[0]);
+    if(!formats[0])
+    {
+      DALI_LOG_ERROR("GL_PROGRAM_BINARY_FORMATS is failed \n");
+      return false;
+    }
+
+    gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), buffer.Size());
+
+    GLint status{0};
+    gl->GetProgramiv(mImpl->glProgram, GL_LINK_STATUS, &status);
+    if(status != GL_TRUE)
+    {
+      char    output[4096];
+      GLsizei size{0u};
+      gl->GetProgramInfoLog(mImpl->glProgram, 4096, &size, output);
+
+      // log on error
+      DALI_LOG_ERROR("glLinkProgram[%s] failed:\n%s. Need to re-compile shader\n", mImpl->name.c_str(), output);
+      return false;
+    }
+  }
+
+  return result;
+}
+
+void ProgramImpl::SaveProgramBinary()
+{
+  GLint binaryLength{0u};
+  GLint binarySize{0u};
+  GLenum format;
+  auto gl = mImpl->controller.GetGL();
+  if(!gl)
+  {
+    DALI_LOG_ERROR("Can't Get GL \n");
+    return;
+  }
+
+  gl->GetProgramiv(mImpl->glProgram, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
+  if(binaryLength == 0)
+  {
+    DALI_LOG_ERROR("GL_PROGRAM_BINARY_LENGTH is zero. maybe this device doesn't support glProgramBinary \n");
+    return;
+  }
+
+  std::vector<uint8_t> programBinary(binaryLength);
+  gl->GetProgramBinary(mImpl->glProgram, binaryLength, &binarySize, &format, programBinary.data());
+  if (binarySize != binaryLength)
+  {
+    DALI_LOG_ERROR("Program binary created but size mismatch %d != %d\n", binarySize, binaryLength);
+    return;
+  }
+
+  auto programBinaryName = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  auto programBinaryNameTemp = programBinaryName + std::to_string(getpid()) + ".tmp";
+  bool loaded = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
+  if(!loaded)
+  {
+    DALI_LOG_ERROR("Program binary save failed!! file = %s \n",programBinaryName.c_str());
+    return;
+  }
+
+  if(std::filesystem::exists(programBinaryName))
+  {
+    std::filesystem::remove(programBinaryNameTemp);
+  }
+  else
+  {
+    std::filesystem::rename(programBinaryNameTemp, programBinaryName);
+  }
+
+  DALI_LOG_DEBUG_INFO("ProgramBinary is saved [success:%d] file = %s buffer size = %d \n", loaded, programBinaryName.c_str(), binaryLength);
+}
+
+bool ProgramImpl::SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes)
+{
+  DALI_ASSERT_DEBUG(0 != filename.length());
+
+  bool result = false;
+
+  std::filebuf buf;
+  buf.open(filename.c_str(), std::ios::out | std::ios_base::trunc | std::ios::binary);
+  if(buf.is_open())
+  {
+    std::ostream stream(&buf);
+
+    // determine size of buffer
+    int length = static_cast<int>(numBytes);
+
+    // write contents of buffer to the file
+    stream.write(reinterpret_cast<const char*>(buffer), length);
+
+    if(!stream.bad())
+    {
+      result = true;
+    }
+    else
+    {
+      DALI_LOG_ERROR("std::ostream.write failed!\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("std::filebuf.open failed!\n");
+  }
+
+  if(!result)
+  {
+    const int errorMessageMaxLength               = 128;
+    char      errorMessage[errorMessageMaxLength] = {}; // Initailze as null.
+
+    // Return type of stderror_r is different between system type. We should not use return value.
+    [[maybe_unused]] auto ret = strerror_r(errno, errorMessage, errorMessageMaxLength - 1);
+
+    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u, error message : [%s]\n", filename.c_str(), buffer, numBytes, errorMessage);
+  }
+
+  return result;
 }
 
 Program::~Program()

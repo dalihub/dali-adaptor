@@ -123,7 +123,7 @@ void BitmapFontCacheItem::CreateBitmap(
   }
 }
 
-bool BitmapFontCacheItem::IsCharacterSupported(Character character)
+bool BitmapFontCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character character)
 {
   for(const auto& glyph : font.glyphs)
   {

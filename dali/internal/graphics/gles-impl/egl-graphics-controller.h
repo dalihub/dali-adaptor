@@ -840,6 +840,16 @@ public:
     return mCapacity;
   }
 
+  /**
+   * @brief Returns whether program binary is used or not
+   *
+   * @return True if program binary is used, false otherwise
+   */
+  bool IsUsingProgramBinary() const
+  {
+    return mUseProgramBinary;
+  }
+
   bool          HasClipMatrix() const override;
   const Matrix& GetClipMatrix() const override;
 
@@ -904,6 +914,7 @@ private:
 
   GLES::SyncPool mSyncPool;
   std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
+  bool           mUseProgramBinary{false};
 };
 
 } // namespace Graphics

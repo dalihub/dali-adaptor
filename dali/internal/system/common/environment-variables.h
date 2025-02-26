@@ -185,6 +185,8 @@ namespace Adaptor
 
 #define DALI_ENV_TRACE_ENABLE_PRINT_LOG "DALI_TRACE_ENABLE_PRINT_LOG"
 
+#define DALI_ENV_SHADER_USE_PROGRAM_BINARY "DALI_SHADER_USE_PROGRAM_BINARY"
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,19 +76,31 @@ struct ShaderImpl::Impl
     bool success = true;
     if(createInfo.sourceMode == ShaderSourceMode::TEXT)
     {
-      SPIRVGeneratorInfo info;
-      info.pipelineStage = createInfo.pipelineStage;
-      auto shaderCode    = std::string_view(reinterpret_cast<char*>(sourcePreprocessed.data()));
-      info.shaderCode    = shaderCode;
+      const auto src = !sourcePreprocessed.empty() ? reinterpret_cast<const char*>(sourcePreprocessed.data()) : reinterpret_cast<const char*>(createInfo.sourceData);
 
-      spirv = std::make_unique<SPIRVGenerator>(info);
+      // null-terminated char already included. So we should remove last character (null terminator) from size.
+      int32_t size = static_cast<int32_t>(!sourcePreprocessed.empty() ? static_cast<uint32_t>(sourcePreprocessed.size()) : createInfo.sourceSize) - 1;
 
-      spirv->Generate();
-      if(spirv->IsValid())
+      if(src != nullptr && size >= 0)
       {
-        // substitute data and size with compiled code
-        createInfo.sourceSize = spirv->Get().size() * 4u;
-        createInfo.sourceData = spirv->Get().data();
+        SPIRVGeneratorInfo info;
+        info.pipelineStage = createInfo.pipelineStage;
+        auto shaderCode    = std::string_view(src, size);
+        info.shaderCode    = shaderCode;
+
+        spirv = std::make_unique<SPIRVGenerator>(info);
+
+        spirv->Generate();
+        if(spirv->IsValid())
+        {
+          // substitute data and size with compiled code
+          createInfo.sourceSize = spirv->Get().size() * 4u;
+          createInfo.sourceData = spirv->Get().data();
+        }
+        else
+        {
+          success = false;
+        }
       }
       else
       {

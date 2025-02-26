@@ -89,7 +89,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   /**
    * @copydoc FontCacheItemInterface::IsCharacterSupported()
    */
-  bool IsCharacterSupported(Character character) override;
+  bool IsCharacterSupported(FcConfig* fontConfig, Character character) override;
 
   /**
    * @copydoc FontCacheItemInterface::GetPointSize()

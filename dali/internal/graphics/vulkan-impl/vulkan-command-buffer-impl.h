@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@ private:
   std::vector<DeferredUniformBinding> mDeferredUniformBindings;
 
   // Deferred pipeline to bind if dynamic states not supported
-  Vulkan::Pipeline* mDeferredPipelineToBind;
+  Vulkan::Pipeline* mDeferredPipelineToBind{nullptr};
 
   // Dynamic depth/stencil states for deferred pipeline binding if API < 1.3
   // TODO: check API version

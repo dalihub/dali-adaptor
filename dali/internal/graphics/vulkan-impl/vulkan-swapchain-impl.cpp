@@ -25,6 +25,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-common.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
@@ -32,10 +33,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-namespace
-{
-const auto MAX_SWAPCHAIN_RESOURCE_BUFFERS = 2u;
-}
 
 /**
  * SwapchainBuffer stores all per-buffer data
@@ -59,6 +56,7 @@ struct SwapchainBuffer
   std::unique_ptr<FenceImpl> endOfFrameFence;
 
   Device& graphicsDevice;
+  bool    submitted{false};
 };
 
 SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice_)
@@ -144,7 +142,7 @@ void Swapchain::CreateVkSwapchain(
 
   // Determine the number of images
   if(surfaceCapabilities.minImageCount > 0 &&
-     bufferCount > surfaceCapabilities.minImageCount)
+     bufferCount != surfaceCapabilities.minImageCount)
   {
     bufferCount = surfaceCapabilities.minImageCount;
   }
@@ -164,7 +162,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -219,7 +218,7 @@ void Swapchain::Destroy()
 
 void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
 {
-  assert(mSwapchainKHR && "Needs a swapchain before creating framebuffers");
+  DALI_ASSERT_ALWAYS(mSwapchainKHR && "Needs a swapchain before creating framebuffers");
 
   // pull images and create Framebuffers
   auto images              = VkAssert(mGraphicsDevice.GetLogicalDevice().getSwapchainImagesKHR(mSwapchainKHR));
@@ -271,7 +270,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -315,7 +315,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // on swapchain first create sync primitives if not created yet
   if(mSwapchainBuffers.empty())
   {
-    mSwapchainBuffers.resize(MAX_SWAPCHAIN_RESOURCE_BUFFERS);
+    mSwapchainBuffers.resize(mSwapchainImages.size());
     for(auto& buffer : mSwapchainBuffers)
     {
       buffer.reset(new SwapchainBuffer(mGraphicsDevice));
@@ -367,7 +367,8 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
     else // Only real error case
     {
       mIsValid = false;
-      assert(true && "AcquireNextImageKHR failed with error, cannot continue.");
+      DALI_LOG_DEBUG_INFO("Swapchain::AcquireNextFramebuffer() failed with result %s\n", vk::to_string(result));
+      DALI_ASSERT_ALWAYS(true && "AcquireNextImageKHR failed with error, cannot continue.");
     }
   }
 
@@ -394,6 +395,7 @@ void Swapchain::CreateSubmissionData(
   auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
+  swapchainBuffer->submitted = true;
 
   waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
   waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
@@ -404,39 +406,45 @@ void Swapchain::CreateSubmissionData(
 void Swapchain::Present()
 {
   // prevent from using invalid swapchain
-  if(!mIsValid)
+  if(!mIsValid || mSwapchainBuffers.empty())
   {
     return;
   }
 
-  auto&              swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
-  vk::PresentInfoKHR presentInfo{};
-  vk::Result         result;
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
 
-  presentInfo.setPImageIndices(&mSwapchainImageIndex)
-    .setPResults(&result)
-    .setPSwapchains(&mSwapchainKHR)
-    .setSwapchainCount(1)
-    .setPWaitSemaphores(&swapchainBuffer->submitSemaphore)
-    .setWaitSemaphoreCount(1);
-
-  vk::Result presentResult = mGraphicsDevice.Present(*mQueue, presentInfo);
-
-  // handle error
-  if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
+  // Only present if we've submitted work
+  if(swapchainBuffer->submitted)
   {
-    // invalidate swapchain
-    if(result == vk::Result::eErrorOutOfDateKHR)
+    vk::PresentInfoKHR presentInfo{};
+    vk::Result         result;
+
+    presentInfo.setPImageIndices(&mSwapchainImageIndex)
+      .setPResults(&result)
+      .setPSwapchains(&mSwapchainKHR)
+      .setSwapchainCount(1)
+      .setPWaitSemaphores(&swapchainBuffer->submitSemaphore)
+      .setWaitSemaphoreCount(1);
+
+    vk::Result presentResult = mGraphicsDevice.Present(*mQueue, presentInfo);
+
+    // handle error
+    if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
     {
-      mIsValid = false;
-    }
-    else
-    {
-      mIsValid = false;
-      assert(mIsValid);
+      // invalidate swapchain
+      if(result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+      {
+        mIsValid = false;
+      }
+      else
+      {
+        mIsValid = false;
+        DALI_LOG_DEBUG_INFO("Vulkan::Swapchain::Present() failed. presentResult:%s\n", vk::to_string(presentResult));
+        DALI_ASSERT_ALWAYS(mIsValid && "Present failed. Swapchain invalidated");
+      }
     }
   }
-
+  swapchainBuffer->submitted = false;
   mFrameCounter++;
 }
 

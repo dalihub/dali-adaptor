@@ -150,6 +150,39 @@ public:
   void BuildStandaloneUniformCache();
 
 private:
+  /**
+   * @brief Checks whether the program binary is enabled or not.
+   * @return true if the program binary is enabled, false otherwise.
+  */
+  bool IsEnableProgramBinary() const;
+
+  /**
+   * @brief Returns the path of the program binary file.
+   * @return The path of the program binary file as a string.
+   */
+  std::string GetProgramBinaryName();
+
+  /**
+   * @brief Loads the shader binary data from the file
+   * @return true if the shader binary data is loaded successfully, false otherwise.
+   */
+  bool LoadProgramBinary();
+
+  /**
+   * @brief Saves the shader binary data to a file.
+   */
+  void SaveProgramBinary();
+
+  /**
+   * @brief Save the binary data to a file.
+   * @param[in] filename The name of the file to save the binary data to.
+   * @param[in] buffer The buffer containing the binary data to save.
+   * @param[in] numBytes The number of bytes in the buffer.
+   * @return true if the binary data is saved successfully, false otherwise.
+   */
+  bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes);
+
+private:
   friend class Program;
 
   struct Impl;

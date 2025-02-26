@@ -995,11 +995,15 @@ void Context::ClearBuffer(uint32_t mask, bool forceClear)
 
 void Context::InvalidateDepthStencilBuffers()
 {
+#ifndef DALI_PROFILE_TV
   if(auto* gl = mImpl->GetGL())
   {
     GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
     gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
   }
+#else
+  // Since TV driver throw useless gles error when we invalidate GL_DEPTH and GL_STENCIL to framebuffer, let we don't invalidate framebuffer for TV. 2025-02-24 eunkiki.hong@samsung.com
+#endif
 }
 
 void Context::SetScissorTestEnabled(bool scissorEnabled)
