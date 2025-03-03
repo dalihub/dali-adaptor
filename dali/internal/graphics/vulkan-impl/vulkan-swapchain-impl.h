@@ -157,6 +157,8 @@ public:
     return mSurface;
   }
 
+  [[nodiscard]] uint32_t GetCurrentBufferIndex() const;
+
 private:
   void CreateVkSwapchain(
     vk::SwapchainKHR   oldSwapchain,
@@ -169,8 +171,6 @@ private:
   Device&      mGraphicsDevice;
   Queue*       mQueue;
   SurfaceImpl* mSurface{};
-
-  uint32_t mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   vk::SwapchainKHR           mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR{};
@@ -187,7 +187,8 @@ private:
    * Array of swapchain buffers
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
-  uint32_t                                      mFrameCounter{0u}; ///< Current frame number
+  uint32_t                                      mFrameCounter{0u};      ///< Current frame number
+  uint32_t                                      mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };

@@ -100,7 +100,6 @@ Device::~Device()
   }
   mSurfaceMap.clear();
 
-  SwapBuffers();
   ReleaseCommandPools();
 
   if(mVmaAllocator)
@@ -620,19 +619,18 @@ void Device::SurfaceResized(unsigned int width, unsigned int height)
 
 uint32_t Device::GetCurrentBufferIndex() const
 {
-  return mCurrentBufferIndex;
+  uint32_t bufferIndex = 0;
+  if(!mSurfaceMap.empty())
+  {
+    // Use the main window's buffer index.
+    bufferIndex = mSurfaceMap.begin()->second.swapchain->GetCurrentBufferIndex();
+  }
+  return bufferIndex;
 }
 
 uint32_t Device::GetBufferCount() const
 {
   return mBufferCount;
-}
-
-uint32_t Device::SwapBuffers()
-{
-  // Increase the current buffer index. This should match the number of swapchain images in the main window.
-  mCurrentBufferIndex = (mCurrentBufferIndex + 1) % mBufferCount;
-  return mCurrentBufferIndex;
 }
 
 void Device::CreateInstance(const std::vector<const char*>& extensions,

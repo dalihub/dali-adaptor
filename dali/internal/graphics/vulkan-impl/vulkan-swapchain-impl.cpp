@@ -33,7 +33,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-
 /**
  * SwapchainBuffer stores all per-buffer data
  */
@@ -162,8 +161,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -270,8 +268,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -306,7 +303,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // prevent from using invalid swapchain
   if(!mIsValid)
   {
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Attempt to present invalid/expired swapchain: %p\n", static_cast<VkSwapchainKHR>(mSwapchainKHR));
+    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Attempt to acquire from invalid/expired swapchain: %p\n", static_cast<VkSwapchainKHR>(mSwapchainKHR));
     return nullptr;
   }
 
@@ -326,7 +323,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
 
   constexpr auto TIMEOUT = 1'000'000'000; //'
 
-  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
 
   // First frames don't need waiting as they haven't been submitted
   // yet. Note, that waiting on the fence without resetting it may
@@ -382,7 +379,7 @@ Queue* Swapchain::GetQueue()
 
 FenceImpl* Swapchain::GetEndOfFrameFence()
 {
-  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
   return swapchainBuffer->endOfFrameFence.get();
 }
 
@@ -392,7 +389,7 @@ void Swapchain::CreateSubmissionData(
   std::vector<vk::PipelineStageFlags>& waitDstStageMask,
   std::vector<SubmissionData>&         submissionData)
 {
-  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
   swapchainBuffer->submitted = true;
@@ -403,6 +400,11 @@ void Swapchain::CreateSubmissionData(
   submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {commandBuffer}, {swapchainBuffer->submitSemaphore}});
 }
 
+uint32_t Swapchain::GetCurrentBufferIndex() const
+{
+  return mSwapchainBuffers.empty() ? 0 : mFrameCounter % mSwapchainBuffers.size();
+}
+
 void Swapchain::Present()
 {
   // prevent from using invalid swapchain
@@ -411,7 +413,9 @@ void Swapchain::Present()
     return;
   }
 
-  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+  auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Vulkan::Swapchain::Present() work submitted:%s\n", swapchainBuffer->submitted ? "True" : "False");
 
   // Only present if we've submitted work
   if(swapchainBuffer->submitted)

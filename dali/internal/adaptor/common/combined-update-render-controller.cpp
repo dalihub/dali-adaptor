@@ -862,7 +862,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          bool willRender = mCore.PreRender(scene, mDamagedRects);
+          bool willRender = mCore.PreRender(scene, mDamagedRects) || windowSurface->GetFullSwapNextFrame();
+          ;
           if(willRender)
           {
             graphics.AcquireNextImage(windowSurface);
@@ -871,13 +872,16 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
 
-          Rect<int> clippingRect; // Empty for fbo rendering
+          if(willRender)
+          {
+            Rect<int> clippingRect; // Empty for fbo rendering
 
-          // Ensure surface can be drawn to; merge damaged areas for previous frames
-          windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
+            // Ensure surface can be drawn to; merge damaged areas for previous frames
+            windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
 
-          // Render the surface
-          mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
+            // Render the surface (Present & SwapBuffers)
+            mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
+          }
 
           // If surface is resized, the surface resized count is decreased.
           if(DALI_UNLIKELY(sceneSurfaceResized > 0u))

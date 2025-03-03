@@ -423,6 +423,7 @@ private:
   std::vector<CommandBufferImpl*> mCommandBufferImpl; ///< There are as many elements as there are swapchain images
   RenderTarget*                   mRenderTarget{nullptr};
   Swapchain*                      mLastSwapchain{nullptr};
+  uint32_t                        mCmdCount{0u};
 };
 
 } // namespace Dali::Graphics::Vulkan

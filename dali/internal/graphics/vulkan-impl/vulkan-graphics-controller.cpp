@@ -220,8 +220,7 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex)
-      {
+      auto workerFunc = [&, size](auto workerIndex) {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -311,8 +310,7 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool
-        {
+        auto predicate = [&](auto& item) -> bool {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -531,8 +529,9 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
-
   mImpl->mCapacity = 0;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "FrameStart: bufferIndex:%u\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
   mImpl->mDiscardQueues.Resize(bufferCount);
@@ -559,6 +558,7 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
   std::vector<SubmissionData> submitData;
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
   // Gather all command buffers targeting frame buffers into a single Submit request
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
@@ -568,10 +568,14 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
     DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
     if(renderTarget && renderTarget->GetSurface() == nullptr)
     {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
       renderTarget->CreateSubmissionData(cmdBuffer, submitData);
     }
   }
-  mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
+  if(!submitData.empty())
+  {
+    mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
+  }
 
   // Submit each scene's cmd buffer separately, as these use EndOfFrameFence.
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
@@ -586,6 +590,7 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
       auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
       auto swapchain = GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
 
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: Surface CmdBuffer:%p\n", cmdBuffer->GetImpl());
       renderTarget->CreateSubmissionData(cmdBuffer, submitData);
       swapchain->GetQueue()->Submit(submitData, swapchain->GetEndOfFrameFence());
     }
@@ -600,11 +605,12 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  if(const auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
+  if(auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
   {
     const auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
     auto       swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
     swapchain->Present();
+    surface->PostRender();
   }
   // else no presentation required for framebuffer render target.
 }
@@ -714,8 +720,7 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
-          {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -750,8 +755,7 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
-          {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -789,8 +793,7 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex)
-    {
+    auto task     = [pUpdates](auto workerIndex) {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);

@@ -85,10 +85,11 @@ void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
   mRenderTarget        = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size());
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Begin: ptr:%p bufferIndex=%d\n", GetImpl(), bufferIndex);
+  mCmdCount++; // Debug info
 
   if(mCommandBufferImpl[bufferIndex])
   {
-    DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Begin: ptr:%p bufferIndex=%d", this, bufferIndex);
     vk::CommandBufferInheritanceInfo inheritanceInfo{};
     if(info.renderPass)
     {
@@ -112,19 +113,22 @@ void CommandBuffer::End()
 {
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::End: ptr:%p bufferIndex=%d\n", GetImpl(), bufferIndex);
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->End();
 }
 
 void CommandBuffer::Reset()
 {
   uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
-  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Reset: ptr:%p bufferIndex=%d", this, bufferIndex);
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Reset: ptr:%p bufferIndex=%d", GetImpl(), bufferIndex);
 
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
   mCommandBufferImpl[bufferIndex]->Reset();
 
   mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
   mRenderTarget     = nullptr;
+  mCmdCount         = 1;
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
@@ -139,6 +143,7 @@ void CommandBuffer::BindVertexBuffers(uint32_t                                  
     buffers.push_back(ConstGraphicsCast<Buffer, Graphics::Buffer>(gfxBuffer)->GetImpl());
   }
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->BindVertexBuffers(firstBinding, buffers, offsets);
 }
 
@@ -152,6 +157,7 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& gfxBuffer,
   auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
   DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
 }
 
@@ -169,6 +175,7 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->BindPipeline(&pipeline);
 }
 
@@ -179,6 +186,7 @@ void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindi
 
   mCommandBufferImpl[bufferIndex]->BindTextures(textureBindings);
 
+  mCmdCount++; // Debug info
   mController.CheckTextureDependencies(textureBindings, mRenderTarget);
 }
 
@@ -187,6 +195,7 @@ void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindi
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->BindSamplers(samplerBindings);
 }
 
@@ -246,6 +255,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     }
   }
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->BeginRenderPass(vk::RenderPassBeginInfo{}
                                                      .setFramebuffer(framebuffer->GetVkHandle())
                                                      .setRenderPass(renderPassImpl->GetVkHandle())
@@ -260,6 +270,7 @@ void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->EndRenderPass();
 }
 
@@ -269,6 +280,7 @@ void CommandBuffer::ReadPixels(uint8_t* buffer)
 
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->ReadPixels(buffer);
 }
 
@@ -283,6 +295,7 @@ void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuf
   {
     vkCommandBuffers.push_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
   }
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->ExecuteCommandBuffers(vkCommandBuffers);
 }
 
@@ -294,6 +307,7 @@ void CommandBuffer::Draw(uint32_t vertexCount,
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
@@ -306,6 +320,7 @@ void CommandBuffer::DrawIndexed(uint32_t indexCount,
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
@@ -318,6 +333,7 @@ void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
 
   auto buffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer)->GetImpl();
+  mCmdCount++; // Debug info
   mCommandBufferImpl[bufferIndex]->DrawIndexedIndirect(*buffer, offset, drawCount, stride);
 }
 
@@ -334,6 +350,7 @@ void CommandBuffer::SetScissor(Rect2D value)
 
   if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetScissor(value);
   }
 }
@@ -359,6 +376,7 @@ void CommandBuffer::SetViewport(Viewport value)
 
   if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetViewport(correctedValue);
   }
 }
@@ -390,6 +408,7 @@ void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 
   if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetStencilTestEnable(stencilEnable);
   }
 }
@@ -401,6 +420,7 @@ void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 
   if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
   }
 }
@@ -417,10 +437,12 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
 
   if(SetDynamicState(mDynamicState.stencilCompareMask, compareMask, DynamicStateMaskBits::STENCIL_COMP_MASK))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, compareMask);
   }
   if(SetDynamicState(mDynamicState.stencilReference, reference, DynamicStateMaskBits::STENCIL_REF))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, reference);
   }
 
@@ -429,6 +451,7 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
      SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL) ||
      SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetStencilOp(vk::StencilFaceFlagBits::eFrontAndBack,
                                                   VkStencilOpType(failOp).op,
                                                   VkStencilOpType(passOp).op,
@@ -443,6 +466,7 @@ void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
   if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetDepthCompareOp(VkCompareOpType(compareOp).op);
   }
 }
@@ -453,6 +477,7 @@ void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
   if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetDepthTestEnable(depthTestEnable);
   }
 }
@@ -463,6 +488,7 @@ void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size() && mCommandBufferImpl[bufferIndex]);
   if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
   {
+    mCmdCount++; // Debug info
     mCommandBufferImpl[bufferIndex]->SetDepthWriteEnable(depthWriteEnable);
   }
 }
