@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_BUFFER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ private:
   bool     mCpuAllocated{false};
   bool     mTransient{false};
 
-  bool mSetForGLRecycling{false}; ///< If flag set true the buffer will recycle
+  uint32_t mSetForGLRecyclingCount{0u}; ///< If value is not zero, the buffer will recycle
 };
 } // namespace GLES
 } // namespace Dali::Graphics
