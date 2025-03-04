@@ -273,11 +273,13 @@ Graphics::SurfaceId Device::CreateSurface(
   }
 
   // create surface from the factory
-  auto* surface = new SurfaceImpl(*this, vulkanSurfaceFactory->Create(mInstance, mAllocator.get()));
-  if(!surface->GetVkHandle())
+  auto surfaceVkHandle = vulkanSurfaceFactory->Create(mInstance, mAllocator.get());
+  if(!surfaceVkHandle)
   {
-    return -1;
+    return -1; // fail
   }
+
+  auto* surface = new SurfaceImpl(*this, surfaceVkHandle);
 
   // Find a device that can support this surface.
   CreateDevice(surface);
