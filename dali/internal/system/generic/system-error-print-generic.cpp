@@ -54,30 +54,37 @@ std::string ConvertResultToString(int /* not used */, const char* errorName)
 
 void PrintSystemError(const char* fileName, const char* functionName, const int lineNumber)
 {
-  std::ostringstream oss;
-
-  const static int         errorMessageMaxLength               = 128;
-  thread_local static char errorMessage[errorMessageMaxLength] = {}; // Initialze as null.
-
-  int copiedErrorNumber = errno;
-
-  auto reternValue = strerror_r(copiedErrorNumber, errorMessage, errorMessageMaxLength - 1);
-
-  if(DALI_LIKELY(fileName))
+  try
   {
-    oss << fileName << ": ";
+    std::ostringstream oss;
+
+    const static int         errorMessageMaxLength               = 128;
+    thread_local static char errorMessage[errorMessageMaxLength] = {}; // Initialze as null.
+
+    int copiedErrorNumber = errno;
+
+    auto reternValue = strerror_r(copiedErrorNumber, errorMessage, errorMessageMaxLength - 1);
+
+    if(DALI_LIKELY(fileName))
+    {
+      oss << fileName << ": ";
+    }
+    if(DALI_LIKELY(functionName))
+    {
+      oss << functionName << "";
+    }
+    oss << "(" << lineNumber << ") > ";
+
+    oss << "errno [" << copiedErrorNumber << "] ";
+    oss << ConvertResultToString(reternValue, static_cast<const char*>(&errorMessage[0])) << "\n";
+
+    std::string message = oss.str();
+    LogMessage(Dali::Integration::Log::DebugPriority::ERROR, message);
   }
-  if(DALI_LIKELY(functionName))
+  catch(const std::length_error& e)
   {
-    oss << functionName << "";
+    DALI_LOG_ERROR("length_error exception caught: %s", e.what());
   }
-  oss << "(" << lineNumber << ") > ";
-
-  oss << "errno [" << copiedErrorNumber << "] ";
-  oss << ConvertResultToString(reternValue, static_cast<const char*>(&errorMessage[0])) << "\n";
-
-  std::string message = oss.str();
-  LogMessage(Dali::Integration::Log::DebugPriority::ERROR, message);
 }
 
 } // namespace TizenPlatform
