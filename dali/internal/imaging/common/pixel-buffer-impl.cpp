@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,14 +57,14 @@ PixelBuffer::PixelBuffer(uint8_t*            buffer,
                          uint32_t            bufferSize,
                          uint32_t            width,
                          uint32_t            height,
-                         uint32_t            stride,
+                         uint32_t            strideBytes,
                          Dali::Pixel::Format pixelFormat)
 : mMetadata(),
   mBuffer(buffer),
   mBufferSize(bufferSize),
   mWidth(width),
   mHeight(height),
-  mStride(stride ? stride : width),
+  mStrideBytes(strideBytes ? strideBytes : (width * Dali::Pixel::GetBytesPerPixel(pixelFormat))),
   mPixelFormat(pixelFormat),
   mPreMultiplied(false)
 {
@@ -79,7 +79,9 @@ PixelBufferPtr PixelBuffer::New(uint32_t            width,
                                 uint32_t            height,
                                 Dali::Pixel::Format pixelFormat)
 {
-  uint32_t bufferSize = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+  const uint32_t bufferBytesPerPixel = Dali::Pixel::GetBytesPerPixel(pixelFormat);
+
+  uint32_t bufferSize = width * height * bufferBytesPerPixel;
   uint8_t* buffer     = NULL;
   if(bufferSize > 0)
   {
@@ -94,17 +96,17 @@ PixelBufferPtr PixelBuffer::New(uint32_t            width,
   }
   DALI_LOG_INFO(gPixelBufferFilter, Debug::Concise, "Allocated PixelBuffer of size %u\n", bufferSize);
 
-  return new PixelBuffer(buffer, bufferSize, width, height, width, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, width * bufferBytesPerPixel, pixelFormat);
 }
 
 PixelBufferPtr PixelBuffer::New(uint8_t*            buffer,
                                 uint32_t            bufferSize,
                                 uint32_t            width,
                                 uint32_t            height,
-                                uint32_t            stride,
+                                uint32_t            strideBytes,
                                 Dali::Pixel::Format pixelFormat)
 {
-  return new PixelBuffer(buffer, bufferSize, width, height, stride, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, strideBytes, pixelFormat);
 }
 
 Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer, bool releaseAfterUpload)
@@ -119,7 +121,7 @@ Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer, bool releaseAfter
                                                                       pixelBuffer.mBufferSize,
                                                                       pixelBuffer.mWidth,
                                                                       pixelBuffer.mHeight,
-                                                                      pixelBuffer.mStride,
+                                                                      pixelBuffer.mStrideBytes,
                                                                       pixelBuffer.mPixelFormat,
                                                                       Dali::PixelData::FREE);
   }
@@ -129,15 +131,15 @@ Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer, bool releaseAfter
                                      pixelBuffer.mBufferSize,
                                      pixelBuffer.mWidth,
                                      pixelBuffer.mHeight,
-                                     pixelBuffer.mStride,
+                                     pixelBuffer.mStrideBytes,
                                      pixelBuffer.mPixelFormat,
                                      Dali::PixelData::FREE);
   }
-  pixelBuffer.mBuffer     = NULL;
-  pixelBuffer.mWidth      = 0;
-  pixelBuffer.mHeight     = 0;
-  pixelBuffer.mBufferSize = 0;
-  pixelBuffer.mStride     = 0;
+  pixelBuffer.mBuffer      = NULL;
+  pixelBuffer.mWidth       = 0;
+  pixelBuffer.mHeight      = 0;
+  pixelBuffer.mBufferSize  = 0;
+  pixelBuffer.mStrideBytes = 0;
 
   return pixelData;
 }
@@ -154,7 +156,18 @@ uint32_t PixelBuffer::GetHeight() const
 
 uint32_t PixelBuffer::GetStride() const
 {
-  return mStride;
+  DALI_LOG_ERROR("GetStride() API deprecated! Use GetStrideBytes() instead\n");
+  const uint32_t bytesPerPixel = Dali::Pixel::GetBytesPerPixel(mPixelFormat);
+  if(DALI_UNLIKELY(bytesPerPixel == 0u))
+  {
+    return 0u;
+  }
+  return mStrideBytes / bytesPerPixel;
+}
+
+uint32_t PixelBuffer::GetStrideBytes() const
+{
+  return mStrideBytes;
 }
 
 Dali::Pixel::Format PixelBuffer::GetPixelFormat() const
@@ -192,7 +205,7 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
     memcpy(destBuffer, mBuffer, mBufferSize);
   }
 
-  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mStride, mPixelFormat, Dali::PixelData::FREE);
+  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mStrideBytes, mPixelFormat, Dali::PixelData::FREE);
   return pixelData;
 }
 
@@ -252,7 +265,7 @@ void PixelBuffer::TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer)
   mBufferSize    = pixelBuffer.mBufferSize;
   mWidth         = pixelBuffer.mWidth;
   mHeight        = pixelBuffer.mHeight;
-  mStride        = pixelBuffer.mStride;
+  mStrideBytes   = pixelBuffer.mStrideBytes;
   mPixelFormat   = pixelBuffer.mPixelFormat;
   mPreMultiplied = pixelBuffer.mPreMultiplied;
 
@@ -331,13 +344,13 @@ bool PixelBuffer::Rotate(Degree angle)
     return true;
   }
 
-  const unsigned int pixelSize = Pixel::GetBytesPerPixel(mPixelFormat);
+  const uint32_t pixelSize = Pixel::GetBytesPerPixel(mPixelFormat);
 
   uint8_t* pixelsOut = nullptr;
   Platform::RotateByShear(mBuffer,
                           mWidth,
                           mHeight,
-                          mStride,
+                          mStrideBytes,
                           pixelSize,
                           radians,
                           pixelsOut,
@@ -353,10 +366,10 @@ bool PixelBuffer::Rotate(Degree angle)
     ReleaseBuffer();
 
     // Set the new pixel buffer.
-    mBuffer     = pixelsOut;
-    pixelsOut   = nullptr;
-    mBufferSize = mWidth * mHeight * pixelSize;
-    mStride     = mWidth; // The buffer is tightly packed.
+    mBuffer      = pixelsOut;
+    pixelsOut    = nullptr;
+    mBufferSize  = mWidth * mHeight * pixelSize;
+    mStrideBytes = mWidth * pixelSize; // The buffer is tightly packed.
 
 #if defined(DEBUG_ENABLED)
     gPixelBufferAllocationTotal += mBufferSize;
@@ -397,18 +410,18 @@ void PixelBuffer::Crop(uint16_t x, uint16_t y, ImageDimensions cropDimensions)
 
 PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions)
 {
-  PixelBufferPtr outBuffer     = PixelBuffer::New(cropDimensions.GetWidth(), cropDimensions.GetHeight(), inBuffer.GetPixelFormat());
-  int            bytesPerPixel = Pixel::GetBytesPerPixel(inBuffer.mPixelFormat);
-  int            srcStride     = inBuffer.mStride * bytesPerPixel;
-  int            destStride    = cropDimensions.GetWidth() * bytesPerPixel; // The destination buffer is tightly packed
+  PixelBufferPtr outBuffer       = PixelBuffer::New(cropDimensions.GetWidth(), cropDimensions.GetHeight(), inBuffer.GetPixelFormat());
+  int            bytesPerPixel   = Pixel::GetBytesPerPixel(inBuffer.mPixelFormat);
+  int            srcStrideBytes  = inBuffer.mStrideBytes;
+  int            destStrideBytes = cropDimensions.GetWidth() * bytesPerPixel; // The destination buffer is tightly packed
 
   // Clamp crop to right edge
   if(x + cropDimensions.GetWidth() > inBuffer.mWidth)
   {
-    destStride = (inBuffer.mWidth - x) * bytesPerPixel;
+    destStrideBytes = (inBuffer.mWidth - x) * bytesPerPixel;
   }
 
-  int      srcOffset  = x * bytesPerPixel + y * srcStride;
+  int      srcOffset  = x * bytesPerPixel + y * srcStrideBytes;
   int      destOffset = 0;
   uint8_t* destBuffer = outBuffer->mBuffer;
 
@@ -420,9 +433,9 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
   }
   for(uint16_t row = y; row < endRow; ++row)
   {
-    memcpy(destBuffer + destOffset, inBuffer.mBuffer + srcOffset, destStride);
-    srcOffset += srcStride;
-    destOffset += destStride;
+    memcpy(destBuffer + destOffset, inBuffer.mBuffer + srcOffset, destStrideBytes);
+    srcOffset += srcStrideBytes;
+    destOffset += destStrideBytes;
   }
   return outBuffer;
 }
@@ -481,7 +494,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
      inBuffer.mPixelFormat == Pixel::RGBA8888 ||
      inBuffer.mPixelFormat == Pixel::BGRA8888)
   {
-    Dali::Internal::Platform::Resample(inBuffer.mBuffer, inDimensions, inBuffer.mStride, outBuffer->GetBuffer(), outDimensions, filterType, bytesPerPixel, hasAlpha);
+    Dali::Internal::Platform::Resample(inBuffer.mBuffer, inDimensions, inBuffer.mStrideBytes, outBuffer->GetBuffer(), outDimensions, filterType, bytesPerPixel, hasAlpha);
   }
   else
   {
@@ -520,7 +533,7 @@ void PixelBuffer::MultiplyColorByAlpha()
       DALI_ASSERT_DEBUG(bytesPerPixel > 0 && "Pixel format is invalid!");
 
       uint8_t*       pixel       = mBuffer;
-      const uint32_t strideBytes = mStride * bytesPerPixel;
+      const uint32_t strideBytes = mStrideBytes;
       const uint32_t widthBytes  = mWidth * bytesPerPixel;
 
       // Collect all valid channel list before lookup whole buffer
@@ -582,7 +595,7 @@ uint32_t PixelBuffer::GetBrightness() const
   if(bytesPerPixel && mWidth && mHeight)
   {
     uint8_t*       pixel       = mBuffer;
-    const uint32_t strideBytes = mStride * bytesPerPixel;
+    const uint32_t strideBytes = mStrideBytes;
     const uint32_t widthBytes  = mWidth * bytesPerPixel;
     const uint32_t bufferSize  = mWidth * mHeight;
 

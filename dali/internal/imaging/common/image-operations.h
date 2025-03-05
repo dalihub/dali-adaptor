@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,23 +136,23 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
  * @param[in,out] pixels The buffer both to read from and write the result to.
  * @param[in]     inputWidth The width of the input image.
  * @param[in]     inputHeight The height of the input image.
- * @param[in]     inputStride The stride of the input image.
+ * @param[in]     inputStrideBytes The stride bytes of the input image.
  * @param[in]     desiredWidth The width the client is requesting.
  * @param[in]     desiredHeight The height the client is requesting.
  * @param[out]    outWidth  The resulting width after downscaling.
  * @param[out]    outHeight The resulting height after downscaling.
- * @param[out]    outStride The resulting stride after downscaling.
+ * @param[out]    outStrideBytes The resulting stride bytes after downscaling.
  */
 void DownscaleInPlacePow2RGB888(uint8_t*         pixels,
                                 uint32_t         inputWidth,
                                 uint32_t         inputHeight,
-                                uint32_t         inputStride,
+                                uint32_t         inputStrideBytes,
                                 uint32_t         desiredWidth,
                                 uint32_t         desiredHeight,
                                 BoxDimensionTest dimensionTest,
                                 uint32_t&        outWidth,
                                 uint32_t&        outHeight,
-                                uint32_t&        outStride);
+                                uint32_t&        outStrideBytes);
 
 /**
  * @copydoc DownscaleInPlacePow2RGB888
@@ -160,13 +160,13 @@ void DownscaleInPlacePow2RGB888(uint8_t*         pixels,
 void DownscaleInPlacePow2RGBA8888(uint8_t*         pixels,
                                   uint32_t         inputWidth,
                                   uint32_t         inputHeight,
-                                  uint32_t         inputStride,
+                                  uint32_t         inputStrideBytes,
                                   uint32_t         desiredWidth,
                                   uint32_t         desiredHeight,
                                   BoxDimensionTest dimensionTest,
                                   uint32_t&        outWidth,
                                   uint32_t&        outHeight,
-                                  uint32_t&        outStride);
+                                  uint32_t&        outStrideBytes);
 
 /**
  * @copydoc DownscaleInPlacePow2RGB888
@@ -176,13 +176,13 @@ void DownscaleInPlacePow2RGBA8888(uint8_t*         pixels,
 void DownscaleInPlacePow2RGB565(uint8_t*         pixels,
                                 uint32_t         inputWidth,
                                 uint32_t         inputHeight,
-                                uint32_t         inputStride,
+                                uint32_t         inputStrideBytes,
                                 uint32_t         desiredWidth,
                                 uint32_t         desiredHeight,
                                 BoxDimensionTest dimensionTest,
                                 uint32_t&        outWidth,
                                 uint32_t&        outHeight,
-                                uint32_t&        outStride);
+                                uint32_t&        outStrideBytes);
 
 /**
  * @copydoc DownscaleInPlacePow2RGB888
@@ -192,13 +192,13 @@ void DownscaleInPlacePow2RGB565(uint8_t*         pixels,
 void DownscaleInPlacePow2ComponentPair(uint8_t*         pixels,
                                        uint32_t         inputWidth,
                                        uint32_t         inputHeight,
-                                       uint32_t         inputStride,
+                                       uint32_t         inputStrideBytes,
                                        uint32_t         desiredWidth,
                                        uint32_t         desiredHeight,
                                        BoxDimensionTest dimensionTest,
                                        uint32_t&        outWidth,
                                        uint32_t&        outHeight,
-                                       uint32_t&        outStride);
+                                       uint32_t&        outStrideBytes);
 
 /**
  * @copydoc DownscaleInPlacePow2RGB888
@@ -208,13 +208,13 @@ void DownscaleInPlacePow2ComponentPair(uint8_t*         pixels,
 void DownscaleInPlacePow2SingleBytePerPixel(uint8_t*         pixels,
                                             uint32_t         inputWidth,
                                             uint32_t         inputHeight,
-                                            uint32_t         inputStride,
+                                            uint32_t         inputStrideBytes,
                                             uint32_t         desiredWidth,
                                             uint32_t         desiredHeight,
                                             BoxDimensionTest dimensionTest,
                                             uint32_t&        outWidth,
                                             uint32_t&        outHeight,
-                                            uint32_t&        outStride);
+                                            uint32_t&        outStrideBytes);
 
 /**
  * @brief Rescales an input image into the exact output dimensions passed-in.
@@ -227,7 +227,7 @@ void DownscaleInPlacePow2SingleBytePerPixel(uint8_t*         pixels,
 void PointSample(const uint8_t* inPixels,
                  uint32_t       inputWidth,
                  uint32_t       inputHeight,
-                 uint32_t       inputStride,
+                 uint32_t       inputStrideBytes,
                  Pixel::Format  pixelFormat,
                  uint8_t*       outPixels,
                  uint32_t       desiredWidth,
@@ -241,7 +241,7 @@ void PointSample(const uint8_t* inPixels,
 void PointSample4BPP(const uint8_t* inPixels,
                      uint32_t       inputWidth,
                      uint32_t       inputHeight,
-                     uint32_t       inputStride,
+                     uint32_t       inputStrideBytes,
                      uint8_t*       outPixels,
                      uint32_t       desiredWidth,
                      uint32_t       desiredHeight);
@@ -254,7 +254,7 @@ void PointSample4BPP(const uint8_t* inPixels,
 void PointSample3BPP(const uint8_t* inPixels,
                      uint32_t       inputWidth,
                      uint32_t       inputHeight,
-                     uint32_t       inputStride,
+                     uint32_t       inputStrideBytes,
                      uint8_t*       outPixels,
                      uint32_t       desiredWidth,
                      uint32_t       desiredHeight);
@@ -267,7 +267,7 @@ void PointSample3BPP(const uint8_t* inPixels,
 void PointSample2BPP(const uint8_t* inPixels,
                      uint32_t       inputWidth,
                      uint32_t       inputHeight,
-                     uint32_t       inputStride,
+                     uint32_t       inputStrideBytes,
                      uint8_t*       outPixels,
                      uint32_t       desiredWidth,
                      uint32_t       desiredHeight);
@@ -280,7 +280,7 @@ void PointSample2BPP(const uint8_t* inPixels,
 void PointSample1BPP(const uint8_t* inPixels,
                      uint32_t       inputWidth,
                      uint32_t       inputHeight,
-                     uint32_t       inputStride,
+                     uint32_t       inputStrideBytes,
                      uint8_t*       outPixels,
                      uint32_t       desiredWidth,
                      uint32_t       desiredHeight);
@@ -295,7 +295,7 @@ void PointSample1BPP(const uint8_t* inPixels,
  */
 void LinearSample(const uint8_t* __restrict__ inPixels,
                   ImageDimensions inDimensions,
-                  uint32_t        inStride,
+                  uint32_t        inStrideBytes,
                   Pixel::Format   pixelFormat,
                   uint8_t* __restrict__ outPixels,
                   ImageDimensions outDimensions);
@@ -307,7 +307,7 @@ void LinearSample(const uint8_t* __restrict__ inPixels,
  */
 void LinearSample1BPP(const uint8_t* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
-                      uint32_t        inputStride,
+                      uint32_t        inputStrideBytes,
                       uint8_t* __restrict__ outPixels,
                       ImageDimensions desiredDimensions);
 
@@ -318,7 +318,7 @@ void LinearSample1BPP(const uint8_t* __restrict__ inPixels,
  */
 void LinearSample2BPP(const uint8_t* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
-                      uint32_t        inputStride,
+                      uint32_t        inputStrideBytes,
                       uint8_t* __restrict__ outPixels,
                       ImageDimensions desiredDimensions);
 
@@ -329,7 +329,7 @@ void LinearSample2BPP(const uint8_t* __restrict__ inPixels,
  */
 void LinearSampleRGB565(const uint8_t* __restrict__ inPixels,
                         ImageDimensions inputDimensions,
-                        uint32_t        inputStride,
+                        uint32_t        inputStrideBytes,
                         uint8_t* __restrict__ outPixels,
                         ImageDimensions desiredDimensions);
 
@@ -340,7 +340,7 @@ void LinearSampleRGB565(const uint8_t* __restrict__ inPixels,
  */
 void LinearSample3BPP(const uint8_t* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
-                      uint32_t        inputStride,
+                      uint32_t        inputStrideBytes,
                       uint8_t* __restrict__ outPixels,
                       ImageDimensions desiredDimensions);
 
@@ -352,7 +352,7 @@ void LinearSample3BPP(const uint8_t* __restrict__ inPixels,
  */
 void LinearSample4BPP(const uint8_t* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
-                      uint32_t        inputStride,
+                      uint32_t        inputStrideBytes,
                       uint8_t* __restrict__ outPixels,
                       ImageDimensions desiredDimensions);
 
@@ -364,14 +364,14 @@ void LinearSample4BPP(const uint8_t* __restrict__ inPixels,
  *
  * @param[in] inPixels Pointer to the input image buffer.
  * @param[in] inputDimensions The input dimensions of the image.
- * @param[in] inputStride The input stride of the image.
+ * @param[in] inputStrideBytes The input stride bytes of the image.
  * @param[in] pixelFormat The format of the image pointed at by pixels.
  * @param[out] outPixels Pointer to the output image buffer.
  * @param[in] desiredDimensions The output dimensions of the image.
  */
 void LanczosSample(const uint8_t* __restrict__ inPixels,
                    ImageDimensions inDimensions,
-                   uint32_t        inStride,
+                   uint32_t        inStrideBytes,
                    Pixel::Format   pixelFormat,
                    uint8_t* __restrict__ outPixels,
                    ImageDimensions outDimensions);
@@ -384,13 +384,13 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
  *
  * @param[in] inPixels Pointer to the input image buffer.
  * @param[in] inputDimensions The input dimensions of the image.
- * @param[in] inputStride The input stride of the image.
+ * @param[in] inputStrideBytes The input stride bytes of the image.
  * @param[out] outPixels Pointer to the output image buffer.
  * @param[in] desiredDimensions The output dimensions of the image.
  */
 void LanczosSample4BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
-                       uint32_t        inputStride,
+                       uint32_t        inputStrideBytes,
                        uint8_t* __restrict__ outPixels,
                        ImageDimensions desiredDimensions);
 
@@ -402,13 +402,13 @@ void LanczosSample4BPP(const uint8_t* __restrict__ inPixels,
  *
  * @param[in] inPixels Pointer to the input image buffer.
  * @param[in] inputDimensions The input dimensions of the image.
- * @param[in] inputStride The input stride of the image.
+ * @param[in] inputStrideBytes The input stride bytes of the image.
  * @param[out] outPixels Pointer to the output image buffer.
  * @param[in] desiredDimensions The output dimensions of the image.
  */
 void LanczosSample1BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
-                       uint32_t        inputStride,
+                       uint32_t        inputStrideBytes,
                        uint8_t* __restrict__ outPixels,
                        ImageDimensions desiredDimensions);
 
@@ -420,13 +420,13 @@ void LanczosSample1BPP(const uint8_t* __restrict__ inPixels,
  *
  * @param[in] inPixels Pointer to the input image buffer.
  * @param[in] inputDimensions The input dimensions of the image.
- * @param[in] inputStride The input stride of the image.
+ * @param[in] inputStrideBytes The input stride bytes of the image.
  * @param[out] outPixels Pointer to the output image buffer.
  * @param[in] desiredDimensions The output dimensions of the image.
  */
 void Resample(const uint8_t* __restrict__ inPixels,
               ImageDimensions inputDimensions,
-              uint32_t        inputStride,
+              uint32_t        inputStrideBytes,
               uint8_t* __restrict__ outPixels,
               ImageDimensions   desiredDimensions,
               Resampler::Filter filterType,
@@ -444,7 +444,7 @@ void Resample(const uint8_t* __restrict__ inPixels,
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
- * @param[in] strideIn The stride of the input buffer.
+ * @param[in] strideBytesIn The stride bytes of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[in] radians The rotation angle in radians.
  * @param[out] pixelsOut The rotated output buffer.
@@ -454,7 +454,7 @@ void Resample(const uint8_t* __restrict__ inPixels,
 void RotateByShear(const uint8_t* const pixelsIn,
                    uint32_t             widthIn,
                    uint32_t             heightIn,
-                   uint32_t             strideIn,
+                   uint32_t             strideBytesIn,
                    uint32_t             pixelSize,
                    float                radians,
                    uint8_t*&            pixelsOut,
@@ -473,7 +473,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
- * @param[in] strideIn The stride of the input buffer.
+ * @param[in] strideBytesIn The stride bytes of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[in] radians The shear angle in radians.
  * @param[out] pixelsOut The rotated output buffer.
@@ -483,7 +483,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 void HorizontalShear(const uint8_t* const pixelsIn,
                      uint32_t             widthIn,
                      uint32_t             heightIn,
-                     uint32_t             strideIn,
+                     uint32_t             strideBytesIn,
                      uint32_t             pixelSize,
                      float                radians,
                      uint8_t*&            pixelsOut,

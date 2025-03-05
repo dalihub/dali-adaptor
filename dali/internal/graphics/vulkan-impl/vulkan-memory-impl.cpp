@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,33 @@
  */
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
+#include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
 
 namespace Dali::Graphics::Vulkan
 {
-MemoryImpl::MemoryImpl(Device& device, size_t memSize, size_t memAlign, vk::MemoryPropertyFlags memoryProperties)
+MemoryImpl::MemoryImpl(Device& device, vk::MemoryPropertyFlags memoryProperties, ::vma::Allocation* vmaAllocation)
 : mDevice(device),
   deviceMemory(nullptr),
-  size(memSize),
-  alignment(memAlign),
+  offset(0u),
   mappedPtr(nullptr),
   mappedSize(0u),
-  mMemoryProperties(memoryProperties)
+  mMemoryProperties(memoryProperties),
+  mVmaAllocation(vmaAllocation)
 {
-}
+  ::vma::Allocator* vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+  if(vmaAllocator && mVmaAllocation)
+  {
+    ::vma::AllocationInfo allocationInfo;
+    vmaAllocator->getAllocationInfo(*mVmaAllocation, &allocationInfo);
 
-vk::Result MemoryImpl::Allocate(vk::MemoryAllocateInfo allocateInfo, const vk::AllocationCallbacks& allocator)
-{
-  auto result = mDevice.GetLogicalDevice().allocateMemory(&allocateInfo, &allocator, &deviceMemory);
-  return result;
+    deviceMemory = allocationInfo.deviceMemory;
+    offset       = allocationInfo.offset;
+    mappedPtr    = allocationInfo.pMappedData;
+  }
 }
 
 MemoryImpl::~MemoryImpl()
 {
-  // free memory
-  if(deviceMemory)
-  {
-    auto device    = mDevice.GetLogicalDevice();
-    auto allocator = &mDevice.GetAllocator();
-    device.freeMemory(deviceMemory, allocator);
-    deviceMemory = nullptr;
-  }
 }
 
 void* MemoryImpl::Map()
@@ -63,7 +60,19 @@ void* MemoryImpl::Map(uint32_t offset, uint32_t requestedMappedSize)
   {
     return mappedPtr;
   }
-  mappedPtr  = mDevice.GetLogicalDevice().mapMemory(deviceMemory, offset, requestedMappedSize ? requestedMappedSize : VK_WHOLE_SIZE).value;
+
+  if(mVmaAllocation)
+  {
+    // When you map memory with VMA, it maps the entire allocation.
+    auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+    if(vmaAllocator)
+    {
+      VkAssert(vmaAllocator->mapMemory(*mVmaAllocation, &mappedPtr));
+
+      mappedPtr = static_cast<uint8_t*>(mappedPtr) + offset;
+    }
+  }
+
   mappedSize = requestedMappedSize;
   return mappedPtr;
 }
@@ -72,7 +81,15 @@ void MemoryImpl::Unmap()
 {
   if(deviceMemory && mappedPtr)
   {
-    mDevice.GetLogicalDevice().unmapMemory(deviceMemory);
+    if(mVmaAllocation)
+    {
+      auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+      if(vmaAllocator)
+      {
+        vmaAllocator->unmapMemory(*mVmaAllocation);
+      }
+    }
+
     mappedPtr = nullptr;
   }
 }
@@ -82,18 +99,27 @@ void MemoryImpl::Flush()
   // Don't flush if we are using host coherent memory - it's un-necessary
   if((mMemoryProperties & vk::MemoryPropertyFlagBits::eHostCoherent) != vk::MemoryPropertyFlagBits::eHostCoherent)
   {
-    vk::Result result = mDevice.GetLogicalDevice().flushMappedMemoryRanges({vk::MappedMemoryRange{}
-                                                                              .setSize(mappedSize ? mappedSize : VK_WHOLE_SIZE)
-                                                                              .setMemory(deviceMemory)
-                                                                              .setOffset(0u)});
+    if(mVmaAllocation)
+    {
+      auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+      if(vmaAllocator)
+      {
+        vk::Result result = vmaAllocator->flushAllocation(*mVmaAllocation, 0u, mappedSize ? mappedSize : VK_WHOLE_SIZE);
 
-    DALI_ASSERT_ALWAYS(result == vk::Result::eSuccess); // If it's out of memory, may as well crash.
+        DALI_ASSERT_ALWAYS(result == vk::Result::eSuccess); // If it's out of memory, may as well crash.
+      }
+    }
   }
 }
 
 vk::DeviceMemory MemoryImpl::GetVkHandle() const
 {
   return deviceMemory;
+}
+
+vk::DeviceSize MemoryImpl::GetOffset() const
+{
+  return offset;
 }
 
 } // namespace Dali::Graphics::Vulkan

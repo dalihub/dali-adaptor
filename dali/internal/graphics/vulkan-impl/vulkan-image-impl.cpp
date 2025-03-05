@@ -19,6 +19,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
@@ -30,10 +31,10 @@ namespace Graphics
 {
 namespace Vulkan
 {
-Image* Image::New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo)
+Image* Image::New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::MemoryPropertyFlags memoryProperties)
 {
   auto image = new Image(graphicsDevice, createInfo, nullptr);
-  image->Initialize();
+  image->Initialize(memoryProperties);
   return image;
 }
 
@@ -83,52 +84,43 @@ Image::~Image()
   Destroy();
 }
 
-void Image::Initialize()
+void Image::Initialize(vk::MemoryPropertyFlags memoryProperties)
 {
-  VkAssert(mDevice.GetLogicalDevice().createImage(&mCreateInfo, &mDevice.GetAllocator("IMAGE"), &mImage));
+  ::vma::Allocator* vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+
+  if(vmaAllocator)
+  {
+    auto vmaAllocInfo = ::vma::AllocationCreateInfo{}
+                          .setPreferredFlags(memoryProperties)
+                          .setFlags(::vma::AllocationCreateFlagBits::eHostAccessSequentialWrite)
+                          .setUsage(::vma::MemoryUsage::eAuto);
+
+    mVmaAllocation = std::make_unique<::vma::Allocation>();
+    // This creates the image, allocates appropriate memory for it, and binds the buffer with the memory.
+    ::vma::AllocationInfo allocationInfo;
+    VkAssert(vmaAllocator->createImage(&mCreateInfo, &vmaAllocInfo, &mImage, mVmaAllocation.get(), &allocationInfo));
+
+    // Wrap the allocated memory so that we can map and unmap it.
+    mMemory = std::make_unique<MemoryImpl>(mDevice, memoryProperties, mVmaAllocation.get());
+  }
 }
 
 void Image::Destroy()
 {
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying image: %p\n", static_cast<VkImage>(mImage));
-  auto device = mDevice.GetLogicalDevice();
   if(mImage && !mIsExternal)
   {
-    device.destroyImage(mImage, mDevice.GetAllocator());
+    auto vmaAllocator = mDevice.GetVulkanMemoryAllocator();
+    if(vmaAllocator && mVmaAllocation)
+    {
+      // This destroys the image and frees the allocated memory.
+      vmaAllocator->destroyImage(mImage, *mVmaAllocation);
+      mVmaAllocation.reset(nullptr);
+    }
   }
+
   mImage = nullptr;
   mMemory.reset();
-}
-
-void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
-{
-  auto requirements    = mDevice.GetLogicalDevice().getImageMemoryRequirements(mImage);
-  auto memoryTypeIndex = Device::GetMemoryIndex(mDevice.GetMemoryProperties(),
-                                                requirements.memoryTypeBits,
-                                                memoryProperties);
-
-  mMemory = std::make_unique<MemoryImpl>(mDevice,
-                                         size_t(requirements.size),
-                                         size_t(requirements.alignment),
-                                         memoryProperties);
-
-  auto allocateInfo = vk::MemoryAllocateInfo{}
-                        .setMemoryTypeIndex(memoryTypeIndex)
-                        .setAllocationSize(requirements.size);
-
-  // allocate memory for the image
-  auto result = mMemory->Allocate(allocateInfo, mDevice.GetAllocator("DEVICEMEMORY"));
-  if(result != vk::Result::eSuccess)
-  {
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Unable to allocate memory for the image of size %d!", int(requirements.size));
-
-    mMemory.reset();
-  }
-
-  if(mMemory) // bind the allocated memory to the image
-  {
-    VkAssert(mDevice.GetLogicalDevice().bindImageMemory(mImage, mMemory->GetVkHandle(), 0));
-  }
 }
 
 vk::Image Image::GetVkHandle() const

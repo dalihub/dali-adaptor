@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PIPELINE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class PipelineCache;
 /**
  * @brief Pipeline class wraps the PipelineImpl
  */
-class Pipeline : public Graphics::Pipeline, public Vulkan::ResourceBase
+class Pipeline : public Graphics::Pipeline, public Vulkan::ResourceWithoutDeleter
 {
 public:
   Pipeline() = delete;

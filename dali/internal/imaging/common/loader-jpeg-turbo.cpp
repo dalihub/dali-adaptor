@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,7 +211,7 @@ public:
   }
 
   /// @brief Pointer to Pointer cast operator
-  operator T**()
+  operator T* *()
   {
     return &mRawPointer;
   }
@@ -921,7 +921,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
         pixelFormat = (i == 1 ? Pixel::CHROMINANCE_U : Pixel::CHROMINANCE_V);
       }
 
-      Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth, pixelFormat);
+      Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth * Pixel::GetBytesPerPixel(pixelFormat), pixelFormat);
       Dali::Devel::PixelBuffer          bitmap   = Devel::PixelBuffer(internal.Get());
       planes[i]                                  = buffer;
       pixelBuffers.push_back(bitmap);

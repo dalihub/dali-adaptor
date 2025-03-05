@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -281,8 +281,6 @@ public:
    * @param[in] resource The graphics resource to discard.
    */
   void DiscardResource(Vulkan::ResourceBase* resource);
-
-  void DiscardResource(Vulkan::ResourceWithDeleter* program);
 
   /**
    * @brief Maps memory associated with Buffer object

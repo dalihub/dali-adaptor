@@ -478,9 +478,7 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
                              .setInitialLayout(vk::ImageLayout::eUndefined)
                              .setSamples(vk::SampleCountFlagBits::e1);
 
-    mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo));
-
-    mDepthStencilBuffer->AllocateAndBind(vk::MemoryPropertyFlagBits::eDeviceLocal);
+    mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo, vk::MemoryPropertyFlagBits::eDeviceLocal));
 
     // create the depth stencil ImageView to be used within framebuffer
     auto depthStencilImageView = std::unique_ptr<ImageView>(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer));

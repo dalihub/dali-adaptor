@@ -26,8 +26,8 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-discard-queue.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline.h>
@@ -160,6 +160,7 @@ struct VulkanGraphicsController::Impl
   bool Initialize(Vulkan::Device& device)
   {
     mGraphicsDevice = &device;
+    mDiscardQueues.Initialize(device);
 
     // @todo Create pipeline cache & descriptor set allocator here
 
@@ -455,98 +456,28 @@ struct VulkanGraphicsController::Impl
     }
   }
 
-  template<class ResourceType>
-  void DiscardResource(std::vector<std::unique_ptr<std::queue<ResourceType*>>>& queue, ResourceType* resource)
-  {
-    uint32_t bufferIndex = mGraphicsDevice->GetCurrentBufferIndex();
-
-    // Ensure there is a discard queue for this buffer index
-    if(queue.size() < bufferIndex || !queue[bufferIndex])
-    {
-      for(auto i = 0u; i <= bufferIndex; ++i)
-      {
-        if(!queue[i])
-        {
-          queue[i] = std::make_unique<std::queue<ResourceType*>>();
-        }
-      }
-    }
-    queue[bufferIndex]->push(resource);
-  }
-
-  /**
-   * @brief Processes a discard queue for objects created with NewObject
-   *
-   * @param[in,out] queue Reference to the queue
-   */
-  template<class ResourceType>
-  void ProcessResourceDiscardQueue(std::queue<ResourceType*>* queue)
-  {
-    if(queue != nullptr)
-    {
-      while(!queue->empty())
-      {
-        auto* object = const_cast<ResourceType*>(queue->front());
-
-        // Destroy
-        object->DestroyResource();
-
-        auto* allocationCallbacks = object->GetAllocationCallbacks();
-        if(allocationCallbacks)
-        {
-          object->InvokeDeleter();
-          allocationCallbacks->freeCallback(object, allocationCallbacks->userData);
-        }
-        else
-        {
-          delete object;
-        }
-        queue->pop();
-      }
-    }
-  }
-
-  /**
-   * Processes a discard queue for direct instantiated objects
-   */
-  template<class ResourceType>
-  void ProcessDiscardQueue(std::queue<ResourceType*>* queue)
-  {
-    if(queue != nullptr)
-    {
-      while(!queue->empty())
-      {
-        auto* object = queue->front();
-
-        // Destroy
-        object->DestroyResource();
-        delete object;
-
-        queue->pop();
-      }
-    }
-  }
-
-  void GarbageCollect()
+  void GarbageCollect(bool allQueues)
   {
     // Only garbage collect from the oldest discard queue.
     auto bufferIndex = mGraphicsDevice->GetCurrentBufferIndex() + 1;
     bufferIndex %= mGraphicsDevice->GetBufferCount();
-    if(bufferIndex < mResourceDiscardQueues.size())
+    if(!allQueues)
     {
-      ProcessResourceDiscardQueue<ResourceWithDeleter>(mResourceDiscardQueues[bufferIndex].get());
+      mDiscardQueues.Process(bufferIndex);
     }
-    if(bufferIndex < mDiscardQueues.size())
+    else
     {
-      ProcessDiscardQueue<ResourceBase>(mDiscardQueues[bufferIndex].get());
+      for(uint32_t i = 0; i < mGraphicsDevice->GetBufferCount(); i++)
+      {
+        mDiscardQueues.Process(i);
+      }
     }
   }
 
   void Flush()
   {
     // Flush any outstanding queues.
-
-    GarbageCollect();
+    GarbageCollect(false);
   }
 
   VulkanGraphicsController& mGraphicsController;
@@ -558,10 +489,7 @@ struct VulkanGraphicsController::Impl
   std::vector<ResourceTransferRequest> mResourceTransferRequests;
   std::recursive_mutex                 mResourceTransferMutex{};
 
-  using DiscardQueues         = std::vector<std::unique_ptr<std::queue<ResourceBase*>>>;
-  using ResourceDiscardQueues = std::vector<std::unique_ptr<std::queue<ResourceWithDeleter*>>>;
-  DiscardQueues         mDiscardQueues;
-  ResourceDiscardQueues mResourceDiscardQueues;
+  DiscardQueues<ResourceBase> mDiscardQueues;
 
   std::unique_ptr<Vulkan::Buffer>       mTextureStagingBuffer{};
   Dali::SharedFuture                    mTextureStagingBufferFuture{};
@@ -586,7 +514,7 @@ VulkanGraphicsController::VulkanGraphicsController()
 
 VulkanGraphicsController::~VulkanGraphicsController()
 {
-  mImpl->GarbageCollect();
+  mImpl->GarbageCollect(true);
 }
 
 void VulkanGraphicsController::Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation,
@@ -607,12 +535,7 @@ void VulkanGraphicsController::FrameStart()
   mImpl->mCapacity = 0;
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
-  if(bufferCount > mImpl->mDiscardQueues.size())
-  {
-    mImpl->mDiscardQueues.resize(bufferCount);
-    mImpl->mResourceDiscardQueues.resize(bufferCount);
-    // Leave as unset uniq ptrs - discarding resource will allocate q as needed
-  }
+  mImpl->mDiscardQueues.Resize(bufferCount);
 }
 
 void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
@@ -706,6 +629,7 @@ void VulkanGraphicsController::Shutdown()
 
 void VulkanGraphicsController::Destroy()
 {
+  mImpl->Flush();
 }
 
 void VulkanGraphicsController::UpdateTextures(
@@ -989,7 +913,7 @@ bool VulkanGraphicsController::EnableDepthStencilBuffer(
 
 void VulkanGraphicsController::RunGarbageCollector(size_t numberOfDiscardedRenderers)
 {
-  mImpl->GarbageCollect();
+  mImpl->GarbageCollect(false);
 }
 
 void VulkanGraphicsController::DiscardUnusedResources()
@@ -999,7 +923,7 @@ void VulkanGraphicsController::DiscardUnusedResources()
 bool VulkanGraphicsController::IsDiscardQueueEmpty()
 {
   auto bufferIndex = mImpl->mGraphicsDevice->GetCurrentBufferIndex();
-  return mImpl->mResourceDiscardQueues[bufferIndex]->empty() && mImpl->mDiscardQueues[bufferIndex]->empty();
+  return mImpl->mDiscardQueues.IsEmpty(bufferIndex);
 }
 
 bool VulkanGraphicsController::IsDrawOnResumeRequired()
@@ -1071,12 +995,7 @@ UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const
 
 void VulkanGraphicsController::DiscardResource(ResourceBase* resource)
 {
-  mImpl->DiscardResource(mImpl->mDiscardQueues, resource);
-}
-
-void VulkanGraphicsController::DiscardResource(ResourceWithDeleter* resource)
-{
-  mImpl->DiscardResource(mImpl->mResourceDiscardQueues, resource);
+  mImpl->mDiscardQueues.Discard(resource);
 }
 
 UniquePtr<Graphics::Memory> VulkanGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)

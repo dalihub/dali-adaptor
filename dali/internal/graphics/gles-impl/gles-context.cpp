@@ -579,6 +579,7 @@ void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindi
   if(count > mImpl->mCurrentVertexBufferBindings.size())
   {
     mImpl->mCurrentVertexBufferBindings.resize(count);
+    mImpl->mVertexBuffersChanged = true;
   }
   // Copy only set slots
   auto toIter = mImpl->mCurrentVertexBufferBindings.begin();
@@ -963,6 +964,21 @@ void Context::ClearState()
   mImpl->mCurrentUBOBindings.Clear();
 }
 
+void Context::ClearVertexBufferCache()
+{
+  mImpl->mCurrentVertexBufferBindings.clear();
+  mImpl->mVertexBuffersChanged   = true;
+  mImpl->mProgramVAOCurrentState = 0;
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    if(!(mImpl->mController.GetGLESVersion() >= GLESVersion::GLES_30))
+    {
+      memset(&mImpl->mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mImpl->mGlStateCache.mVertexAttributeCachedState));
+      memset(&mImpl->mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mImpl->mGlStateCache.mVertexAttributeCurrentState));
+    }
+  }
+}
+
 void Context::ColorMask(bool enabled)
 {
   auto* gl = mImpl->GetGL();
@@ -1282,14 +1298,12 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
 
             // Do not delete vao now. (Since Context might not be current.)
             mImpl->mDiscardedVAOList.emplace_back(vao);
-            if(mImpl->mProgramVAOCurrentState == vao)
-            {
-              mImpl->mProgramVAOCurrentState = 0u;
-            }
           }
 
           // Clear cached Vertex buffer.
-          mImpl->mCurrentVertexBufferBindings.clear();
+          ClearVertexBufferCache();
+
+          mImpl->mGlStateCache.ResetBufferCache();
 
           mImpl->mProgramVAOMap.erase(iter);
         }
@@ -1361,14 +1375,12 @@ void Context::ResetGLESState()
   mImpl->mGlStateCache.ResetTextureCache();
   mImpl->mCurrentPipeline = nullptr;
 
-  mImpl->mCurrentVertexBufferBindings.clear();
   mImpl->mCurrentRenderTarget       = nullptr;
   mImpl->mCurrentRenderPass         = nullptr;
-  mImpl->mVertexBuffersChanged      = true;
   mImpl->mCurrentIndexBufferBinding = {};
-  mImpl->mProgramVAOCurrentState    = 0;
 
   ClearState();
+  ClearVertexBufferCache();
   mImpl->InitializeGlState();
 }
 

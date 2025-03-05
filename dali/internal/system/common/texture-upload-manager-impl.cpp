@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,13 +162,15 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
 
       Graphics::Texture* graphicsTexture = nullptr;
 
+      const Dali::Pixel::Format pixelFormat = pixelData.GetPixelFormat();
+
       {
         // We always need to create new one
         auto createInfo = Graphics::TextureCreateInfo();
         createInfo
           .SetTextureType(Dali::Graphics::ConvertTextureType(Dali::TextureType::TEXTURE_2D))
           .SetUsageFlags(static_cast<Graphics::TextureUsageFlags>(Graphics::TextureUsageFlagBits::SAMPLE))
-          .SetFormat(Dali::Graphics::ConvertPixelFormat(pixelData.GetPixelFormat()))
+          .SetFormat(Dali::Graphics::ConvertPixelFormat(pixelFormat))
           .SetSize({pixelData.GetWidth(), pixelData.GetHeight()})
           .SetLayout(Graphics::TextureLayout::LINEAR)
           .SetAllocationPolicy(Graphics::TextureAllocationPolicy::UPLOAD)
@@ -184,6 +186,8 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
       {
         Graphics::TextureUpdateInfo info{};
 
+        const uint32_t bytesPerPixel = Dali::Pixel::GetBytesPerPixel(pixelFormat);
+
         info.dstTexture   = graphicsTexture;
         info.dstOffset2D  = {0u, 0u};
         info.layer        = 0u;
@@ -192,8 +196,8 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
         info.srcExtent2D  = {pixelData.GetWidth(), pixelData.GetHeight()};
         info.srcOffset    = 0;
         info.srcSize      = Dali::Integration::GetPixelDataBuffer(pixelData).bufferSize;
-        info.srcStride    = pixelData.GetStride();
-        info.srcFormat    = Dali::Graphics::ConvertPixelFormat(pixelData.GetPixelFormat());
+        info.srcStride    = bytesPerPixel ? (pixelData.GetStrideBytes() / bytesPerPixel) : 0u; ///< Note : Graphics stride use pixel scale!
+        info.srcFormat    = Dali::Graphics::ConvertPixelFormat(pixelFormat);
 
         Graphics::TextureUpdateSourceInfo updateSourceInfo{};
         updateSourceInfo.sourceType                = Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA;

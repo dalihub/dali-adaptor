@@ -30,6 +30,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
+#include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
 #ifndef VK_KHR_XLIB_SURFACE_EXTENSION_NAME
@@ -101,6 +102,16 @@ Device::~Device()
 
   SwapBuffers();
   ReleaseCommandPools();
+
+  if(mVmaAllocator)
+  {
+    char* stats;
+    mVmaAllocator->buildStatsString(&stats, VK_TRUE);
+    DALI_LOG_STREAM(gVulkanFilter, Debug::General, stats);
+    mVmaAllocator->freeStatsString(stats);
+
+    mVmaAllocator->destroy();
+  }
 
   // We are done with all resources (technically... . If not we will get a ton of validation layer errors)
   // Kill the Vulkan logical device
@@ -194,6 +205,26 @@ void Device::CreateDevice(SurfaceImpl* surface)
       .setQueueCreateInfoCount(U32(queueInfos.size()));
 
     mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
+
+    // Vulkan memory allocator
+
+    auto allocatorInfo = ::vma::AllocatorCreateInfo{}
+                           .setInstance(mInstance)
+                           .setPhysicalDevice(mPhysicalDevice)
+                           .setDevice(mLogicalDevice)
+                           .setVulkanApiVersion(mPhysicalDevice.getProperties().apiVersion)
+                           .setPAllocationCallbacks(reinterpret_cast<vk::AllocationCallbacks*>(mAllocator.get()));
+
+    // Allow certain buffers/images to have dedicated memory allocations to
+    // improve performance on some GPUs.
+    allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eKhrDedicatedAllocation;
+
+    // Query for current memory usage and budget, which will probably be
+    // more accurate than an estimation
+    allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+
+    mVmaAllocator = std::make_unique<::vma::Allocator>();
+    VkAssert(::vma::createAllocator(&allocatorInfo, mVmaAllocator.get()));
   }
 
   // create Queue objects
@@ -242,11 +273,13 @@ Graphics::SurfaceId Device::CreateSurface(
   }
 
   // create surface from the factory
-  auto* surface = new SurfaceImpl(*this, vulkanSurfaceFactory->Create(mInstance, mAllocator.get()));
-  if(!surface->GetVkHandle())
+  auto surfaceVkHandle = vulkanSurfaceFactory->Create(mInstance, mAllocator.get());
+  if(!surfaceVkHandle)
   {
-    return -1;
+    return -1; // fail
   }
+
+  auto* surface = new SurfaceImpl(*this, surfaceVkHandle);
 
   // Find a device that can support this surface.
   CreateDevice(surface);
@@ -518,6 +551,11 @@ vk::Instance Device::GetInstance() const
 {
   return mInstance;
 }
+
+::vma::Allocator* Device::GetVulkanMemoryAllocator() const
+{
+  return mVmaAllocator.get();
+};
 
 Platform Device::GetDefaultPlatform() const
 {

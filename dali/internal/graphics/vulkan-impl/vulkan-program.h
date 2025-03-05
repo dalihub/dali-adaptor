@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PROGRAM_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class ProgramImpl;
  * within Graphics API is a set of shader stages linked together
  * so the reflection can do its work on it.
  */
-class Program : public Graphics::Program, public Vulkan::ResourceBase
+class Program : public Graphics::Program, public Vulkan::ResourceWithoutDeleter
 {
 public:
   /**
