@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -892,6 +892,8 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
             unsigned int       heightOut = data.height;
             const unsigned int pixelSize = Pixel::GetBytesPerPixel(data.format);
 
+            const unsigned int strideBytes = data.width * pixelSize;
+
             // If we need to decompress, create new memory and replace ownership.
             if(data.compressionType != TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION)
             {
@@ -917,7 +919,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
             Dali::Internal::Platform::RotateByShear(data.buffer,
                                                     data.width,
                                                     data.height,
-                                                    data.width,
+                                                    strideBytes,
                                                     pixelSize,
                                                     radians,
                                                     pixelsOut,
