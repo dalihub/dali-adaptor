@@ -90,17 +90,6 @@ public:
   // Undefined
   DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs) = delete;
 
-protected:
-  /**
-   * @brief Gets display connection for native surface
-   */
-  NativeDisplayType GetNativeDisplay();
-
-  /**
-   * @brief Release display connection for native surface
-   */
-  void ReleaseNativeDisplay();
-
 private:
   NativeDisplayType                               mDisplay;     ///< Wayland-display for rendering
   Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
