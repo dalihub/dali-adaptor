@@ -40,6 +40,8 @@ constexpr const char* KEY_TOOLKIT{"toolkit"};
 constexpr const char* KEY_VALUE{"value"};
 constexpr const char* KEY_CHILDREN{"children"};
 constexpr const char* VAL_TOOLKIT{"dali"};
+constexpr const char* KEY_APPNAME{"appname"};
+constexpr const char* KEY_PATH{"path"};
 
 // Function to escape special characters in a string
 std::string EscapeString(const std::string& input)
@@ -166,6 +168,7 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
     return {};
   }
 
+  const auto address   = node->GetAddress();
   const auto states    = node->GetStates();
   const bool isShowing = states[State::SHOWING];
   if(!isShowing && IncludeShowingOnly(detailLevel))
@@ -174,7 +177,9 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
   }
 
   std::ostringstream msg;
-  msg << "{ " << Quote(KEY_ROLE) << ": " << Quote(node->GetRoleName()) << ", "
+  msg << "{ " << Quote(KEY_APPNAME) << ": " << Quote(address.GetBus()) << ", "
+      << Quote(KEY_PATH) << ": " << Quote(ATSPI_PREFIX_PATH + address.GetPath()) << ", "
+      << Quote(KEY_ROLE) << ": " << Quote(node->GetRoleName()) << ", "
       << Quote(KEY_STATES) << ": " << states.GetRawData64();
 
   if(auto text = node->GetName(); !text.empty())
