@@ -244,9 +244,10 @@ void GlyphCacheManager::ResizeBitmapGlyph(
               else
               {
                 // Resize bitmap here.
+                const uint32_t inputStrideBytes = glyphData.mBitmap->width;
                 Dali::Internal::Platform::LanczosSample1BPP(glyphData.mBitmap->buffer,
                                                             inputDimensions,
-                                                            glyphData.mBitmap->width,
+                                                            inputStrideBytes,
                                                             desiredBuffer,
                                                             desiredDimensions);
               }
@@ -267,9 +268,10 @@ void GlyphCacheManager::ResizeBitmapGlyph(
               else
               {
                 // Resize bitmap here.
+                const uint32_t inputStrideBytes = glyphData.mBitmap->width << 2u;
                 Dali::Internal::Platform::LanczosSample4BPP(glyphData.mBitmap->buffer,
                                                             inputDimensions,
-                                                            glyphData.mBitmap->width,
+                                                            inputStrideBytes,
                                                             desiredBuffer,
                                                             desiredDimensions);
               }

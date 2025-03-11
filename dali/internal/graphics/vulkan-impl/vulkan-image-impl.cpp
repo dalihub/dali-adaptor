@@ -92,8 +92,18 @@ void Image::Initialize(vk::MemoryPropertyFlags memoryProperties)
   {
     auto vmaAllocInfo = ::vma::AllocationCreateInfo{}
                           .setPreferredFlags(memoryProperties)
-                          .setFlags(::vma::AllocationCreateFlagBits::eHostAccessSequentialWrite)
                           .setUsage(::vma::MemoryUsage::eAuto);
+
+    // If the image is an attachment, prefer dedicated memory
+    constexpr vk::ImageUsageFlags attachmentOnlyFlags = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    if(mCreateInfo.usage & attachmentOnlyFlags)
+    {
+      vmaAllocInfo.setFlags(::vma::AllocationCreateFlagBits::eDedicatedMemory);
+    }
+    else
+    {
+      vmaAllocInfo.setFlags(::vma::AllocationCreateFlagBits::eHostAccessSequentialWrite);
+    }
 
     mVmaAllocation = std::make_unique<::vma::Allocation>();
     // This creates the image, allocates appropriate memory for it, and binds the buffer with the memory.

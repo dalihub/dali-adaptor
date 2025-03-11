@@ -199,9 +199,11 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data, unsigned int srcWidth
       DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", bufferSize);
       return;
     }
+    const uint32_t srcStrideBytes = srcWidth * bytePerPixel;
+
     Dali::Internal::Platform::LanczosSample(srcBuffer,
                                             inputDimensions,
-                                            srcWidth,
+                                            srcStrideBytes,
                                             srcFormat,
                                             data.buffer,
                                             desiredDimensions);
@@ -269,6 +271,8 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data, FT_Bitmap& srcBitmap,
              *
              * This difference in some bitmaps' width causes an overlap of some glyphs. This is the reason why a shear operation is done here instead of relying on the experimental FT_GlyphSlot_Oblique() implementation.
              */
+            const uint32_t strideBytes = width;
+
             unsigned int widthOut  = 0u;
             unsigned int heightOut = 0u;
             uint8_t*     pixelsOut = nullptr;
@@ -276,7 +280,7 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data, FT_Bitmap& srcBitmap,
             Dali::Internal::Platform::HorizontalShear(pixelsIn,
                                                       width,
                                                       height,
-                                                      width,
+                                                      strideBytes,
                                                       1u,
                                                       -TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE,
                                                       pixelsOut,

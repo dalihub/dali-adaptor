@@ -7,6 +7,7 @@ SET( adaptor_text_common_src_files
     ${adaptor_text_dir}/text-abstraction/shaping-impl.cpp
     ${adaptor_text_dir}/text-abstraction/text-renderer-impl.cpp
     ${adaptor_text_dir}/text-abstraction/hyphenation-impl.cpp
+    ${adaptor_text_dir}/text-abstraction/icu-impl.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/bitmap-font-cache-item.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/embedded-item.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/font-client-utils.cpp
