@@ -454,10 +454,10 @@ vk::Result Device::DeviceWaitIdle()
 
 const vk::AllocationCallbacks& Device::GetAllocator(const char* tag)
 {
-  if(mAllocator)
-  {
-    // mAllocator->setPUserData( CreateMemoryAllocationTag( tag ) );
-  }
+  // if(mAllocator)
+  // {
+  //   mAllocator->setPUserData( CreateMemoryAllocationTag( tag ) );
+  // }
   return *mAllocator;
 }
 
