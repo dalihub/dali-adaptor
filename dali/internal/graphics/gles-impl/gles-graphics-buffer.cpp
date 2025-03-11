@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,11 +52,8 @@ Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphi
 
 bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 {
-  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
-  {
-    // Cannot recycle buffer if shutting down.
-    return false;
-  }
+  // Compare whether specs are same and the buffer is allocated
+  mSetForGLRecycling = false;
 
   // if different buffer spec, we need new buffer
   if(!(createInfo.size == mCreateInfo.size &&
@@ -77,20 +74,13 @@ bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::
   // Make sure the buffer will be reinitialized
   controller.AddBuffer(*this);
 
-  ++mSetForGLRecyclingCount;
+  mSetForGLRecycling = true;
 
   return true;
 }
 
 bool Buffer::InitializeResource()
 {
-  // Fast-skip multiple initialize resource
-  if(DALI_UNLIKELY(mSetForGLRecyclingCount > 1u))
-  {
-    --mSetForGLRecyclingCount;
-    return true;
-  }
-
   // CPU allocated uniform buffer is a special "compatibility" mode
   // for older GLES
   if(mCpuAllocated && !mTransient)
@@ -103,10 +93,7 @@ bool Buffer::InitializeResource()
   }
 
   // make sure recycling mode is disabled after (re)initializing resource
-  if(mSetForGLRecyclingCount)
-  {
-    --mSetForGLRecyclingCount;
-  }
+  mSetForGLRecycling = false;
   return true;
 }
 
@@ -117,7 +104,7 @@ void Buffer::InitializeCPUBuffer()
   const auto allocators = GetCreateInfo().allocationCallbacks;
 
   // Early out if we recycle the buffer
-  if(mBufferPtr && mSetForGLRecyclingCount)
+  if(mBufferPtr && mSetForGLRecycling)
   {
     return;
   }
@@ -151,7 +138,7 @@ void Buffer::InitializeGPUBuffer()
   }
 
   // If mBufferId is already set and we recycling the buffer (orphaning)
-  if(!mSetForGLRecyclingCount && !mBufferId)
+  if(!mSetForGLRecycling && !mBufferId)
   {
     gl->GenBuffers(1, &mBufferId);
   }
