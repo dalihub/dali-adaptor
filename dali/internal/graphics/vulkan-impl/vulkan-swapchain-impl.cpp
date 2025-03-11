@@ -407,6 +407,7 @@ uint32_t Swapchain::GetCurrentBufferIndex() const
 
 void Swapchain::Present()
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Vulkan::Swapchain::Present() valid:%s HaveBuffers:%s\n", mIsValid ? "True" : "False", mSwapchainBuffers.empty() ? "F" : "T");
   // prevent from using invalid swapchain
   if(!mIsValid || mSwapchainBuffers.empty())
   {

@@ -411,6 +411,9 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
 void Device::AcquireNextImage(SurfaceId surfaceId)
 {
   auto swapchain = mSurfaceMap[surfaceId].swapchain;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "swapchain::%p\n", swapchain);
+
   if(swapchain != nullptr)
   {
     FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);

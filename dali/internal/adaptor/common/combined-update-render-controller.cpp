@@ -862,8 +862,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          bool willRender = mCore.PreRender(scene, mDamagedRects) || windowSurface->GetFullSwapNextFrame();
-          ;
+          bool willRender = mCore.PreRender(scene, mDamagedRects);
+          bool fullSwap   = windowSurface->GetFullSwapNextFrame();
+          DALI_LOG_RELEASE_INFO("RenderThread: core.PreRender():%s  fullSwap:%s\n", willRender ? "T" : "F", fullSwap ? "T" : "F");
+          willRender |= fullSwap;
           if(willRender)
           {
             graphics.AcquireNextImage(windowSurface);
@@ -879,6 +881,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             // Ensure surface can be drawn to; merge damaged areas for previous frames
             windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
 
+            DALI_LOG_RELEASE_INFO("RenderThread: core.RenderScene() Render the surface\n");
             // Render the surface (Present & SwapBuffers)
             mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
           }

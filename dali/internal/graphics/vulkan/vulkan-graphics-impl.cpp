@@ -35,7 +35,7 @@ VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::DepthBufferAvailable         depthBufferAvailable,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
                                Integration::PartialUpdateAvailable       partialUpdateRequired)
-: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, partialUpdateRequired),
+: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/),
   mGraphicsController(),
   mMultiSamplingLevel(-1) // No multisampling
 {
@@ -56,7 +56,7 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 {
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
-  mPartialUpdateRequired = static_cast<Integration::PartialUpdateAvailable>(partialRendering);
+  mPartialUpdateRequired = Integration::PartialUpdateAvailable::FALSE; //static_cast<Integration::PartialUpdateAvailable>(partialRendering);
   mMultiSamplingLevel    = msaa;
   Initialize(displayConnection);
 }

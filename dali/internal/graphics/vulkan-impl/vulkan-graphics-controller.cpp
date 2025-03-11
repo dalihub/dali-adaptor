@@ -605,6 +605,8 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "RenderTarget:%p  Surface:%p\n", renderTarget, static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface());
+
   if(auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
   {
     const auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
