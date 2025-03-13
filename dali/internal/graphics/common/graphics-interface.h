@@ -357,6 +357,11 @@ public:
   virtual void FrameStart() = 0;
 
   /**
+   * @return true if any rendering data was presented
+   */
+  virtual bool DidPresent() = 0;
+
+  /**
    * Log any collected statistics
    */
   virtual void PostRenderDebug() = 0;

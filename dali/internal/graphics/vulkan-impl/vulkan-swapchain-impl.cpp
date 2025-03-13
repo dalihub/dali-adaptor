@@ -161,7 +161,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -268,7 +269,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
+      [](FramebufferImpl* framebuffer1)
+      {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -405,13 +407,15 @@ uint32_t Swapchain::GetCurrentBufferIndex() const
   return mSwapchainBuffers.empty() ? 0 : mFrameCounter % mSwapchainBuffers.size();
 }
 
-void Swapchain::Present()
+bool Swapchain::Present()
 {
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Vulkan::Swapchain::Present() valid:%s HaveBuffers:%s\n", mIsValid ? "True" : "False", mSwapchainBuffers.empty() ? "F" : "T");
+  bool presented = false;
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Vulkan::Swapchain::Present() valid:%s SwapchainBuffer count:%u\n", mIsValid ? "True" : "False", mSwapchainBuffers.size());
+
   // prevent from using invalid swapchain
   if(!mIsValid || mSwapchainBuffers.empty())
   {
-    return;
+    return presented;
   }
 
   auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
@@ -432,6 +436,7 @@ void Swapchain::Present()
       .setWaitSemaphoreCount(1);
 
     vk::Result presentResult = mGraphicsDevice.Present(*mQueue, presentInfo);
+    presented                = true;
 
     // handle error
     if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
@@ -451,6 +456,7 @@ void Swapchain::Present()
   }
   swapchainBuffer->submitted = false;
   mFrameCounter++;
+  return presented;
 }
 
 bool Swapchain::IsValid() const

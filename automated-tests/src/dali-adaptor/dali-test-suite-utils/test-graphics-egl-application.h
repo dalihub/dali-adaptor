@@ -292,6 +292,11 @@ public:
   {
   }
 
+  bool DidPresent() override
+  {
+    return true;
+  }
+
   void PostRenderDebug() override
   {
   }

@@ -862,11 +862,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          bool willRender = mCore.PreRender(scene, mDamagedRects);
-          bool fullSwap   = windowSurface->GetFullSwapNextFrame();
-          DALI_LOG_RELEASE_INFO("RenderThread: core.PreRender():%s  fullSwap:%s\n", willRender ? "T" : "F", fullSwap ? "T" : "F");
-          willRender |= fullSwap;
-          if(willRender)
+          bool willRender = mCore.PreRender(scene, mDamagedRects); // willRender is set if there are any render instructions with renderables
+          bool fullSwap   = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
+
+          LOG_RENDER_SCENE("RenderThread: core.PreRender():%s  fullSwap:%s\n",
+                           willRender ? "T" : "F",
+                           fullSwap ? "T" : "F");
+
+          if(willRender || fullSwap)
           {
             graphics.AcquireNextImage(windowSurface);
           }
@@ -874,6 +877,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
 
+          bool didRender = false;
           if(willRender)
           {
             Rect<int> clippingRect; // Empty for fbo rendering
@@ -881,9 +885,20 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             // Ensure surface can be drawn to; merge damaged areas for previous frames
             windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
 
-            DALI_LOG_RELEASE_INFO("RenderThread: core.RenderScene() Render the surface\n");
+            LOG_RENDER_SCENE("RenderThread: core.RenderScene() Render the surface\n");
+
             // Render the surface (Present & SwapBuffers)
             mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
+            didRender = graphics.DidPresent();
+
+            LOG_RENDER_SCENE("RenderThread: Surface%s presented\n", didRender ? "" : " NOT");
+          }
+
+          // If we weren't going to draw, but need to clear; OR
+          // we were going to draw but didn't, we have acquired the image, and must present.
+          if((!willRender && fullSwap) || (willRender && !didRender))
+          {
+            mCore.ClearScene(scene);
           }
 
           // If surface is resized, the surface resized count is decreased.
@@ -986,7 +1001,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if(mVsyncRender && 0u == renderToFboInterval)
     {
       TRACE_UPDATE_RENDER_SCOPE("DALI_UPDATE_RENDER_SLEEP");
-      // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
+      // Sleep until at least the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
       TimeService::SleepUntil(timeToSleepUntil);
     }
   }

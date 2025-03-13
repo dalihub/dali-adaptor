@@ -63,7 +63,7 @@ public:
 
   ~Swapchain();
 
-  Swapchain(const Swapchain&) = delete;
+  Swapchain(const Swapchain&)            = delete;
   Swapchain& operator=(const Swapchain&) = delete;
 
   void Destroy();
@@ -119,8 +119,9 @@ public:
 
   /**
    * Presents using default present queue, asynchronously
+   * @return true if something was presented to the surface, regardless of error
    */
-  void Present();
+  bool Present();
 
   /**
    * Returns true when swapchain expired

@@ -56,7 +56,7 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 {
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
-  mPartialUpdateRequired = Integration::PartialUpdateAvailable::FALSE; //static_cast<Integration::PartialUpdateAvailable>(partialRendering);
+  mPartialUpdateRequired = Integration::PartialUpdateAvailable::FALSE; // static_cast<Integration::PartialUpdateAvailable>(partialRendering);
   mMultiSamplingLevel    = msaa;
   Initialize(displayConnection);
 }
@@ -245,6 +245,11 @@ void VulkanGraphics::CacheConfigurations(Dali::Internal::Adaptor::ConfigurationM
 void VulkanGraphics::FrameStart()
 {
   mGraphicsController.FrameStart();
+}
+
+bool VulkanGraphics::DidPresent()
+{
+  return mGraphicsController.DidPresent();
 }
 
 void VulkanGraphics::PostRenderDebug()
