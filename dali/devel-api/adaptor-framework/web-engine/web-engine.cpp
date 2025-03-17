@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,9 +78,9 @@ WebEngine::WebEngine(const WebEngine& webEngine) = default;
 
 WebEngine& WebEngine::operator=(const WebEngine& webEngine) = default;
 
-WebEngine::WebEngine(WebEngine&& webEngine) = default;
+WebEngine::WebEngine(WebEngine&& webEngine) noexcept = default;
 
-WebEngine& WebEngine::operator=(WebEngine&& webEngine) = default;
+WebEngine& WebEngine::operator=(WebEngine&& webEngine) noexcept = default;
 
 WebEngine WebEngine::DownCast(BaseHandle handle)
 {

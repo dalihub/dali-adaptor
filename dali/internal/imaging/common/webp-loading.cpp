@@ -272,8 +272,8 @@ public:
 
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl&) = delete;
-  Impl(Impl&&)                 = default;
-  Impl& operator=(Impl&&) = default;
+  Impl(Impl&&) noexcept        = default;
+  Impl& operator=(Impl&&) noexcept = default;
 
   ~Impl()
   {

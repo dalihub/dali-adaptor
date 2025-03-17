@@ -103,7 +103,7 @@ public:
    * @SINCE_2_1.45
    * @param[in] handle A reference to the moved handle
    */
-  PixelBuffer(PixelBuffer&& handle);
+  PixelBuffer(PixelBuffer&& handle) noexcept;
 
   /**
    * @brief This move assignment operator is required for (smart) pointer semantics.
@@ -112,7 +112,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this object
    */
-  PixelBuffer& operator=(PixelBuffer&& rhs);
+  PixelBuffer& operator=(PixelBuffer&& rhs) noexcept;
 
   /**
    * Convert to a pixel data and release the pixelBuffer's object.

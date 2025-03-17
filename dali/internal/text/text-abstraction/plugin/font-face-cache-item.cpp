@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,9 +80,9 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
   static auto policyString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_RENDERED_GLYPH_COMPRESS_POLICY);
 
-  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S'   ? GlyphCacheManager::CompressionPolicyType::SPEED
-                                      : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
-                                                                                         : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
+                                                                                                                                          : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }
@@ -146,7 +146,7 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
 
 // Move constructor. font client plugin container may call this.
 // Note that we make nullptr of some reference sensitive values here.
-FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
+FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
   mFreeTypeFace       = rhs.mFreeTypeFace;

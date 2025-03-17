@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,9 @@ const Size FontClient::MAX_SIZE_FIT_IN_ATLAS(MAX_TEXT_ATLAS_WIDTH - PADDING_TEXT
 const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u; //Found this value from toolkit
 
 // For Debug
-static    bool     TEXT_PERFORMANCE_LOG_SET                = false;
-static    uint32_t TEXT_PERFORMANCE_LOG_THRESHOLD_TIME     = 0u;
-constexpr auto     TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_TEXT_PERFORMANCE_LOG_THRESHOLD_TIME";
+static bool     TEXT_PERFORMANCE_LOG_SET                = false;
+static uint32_t TEXT_PERFORMANCE_LOG_THRESHOLD_TIME     = 0u;
+constexpr auto  TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_TEXT_PERFORMANCE_LOG_THRESHOLD_TIME";
 
 uint32_t FontClient::GetPerformanceLogThresholdTime()
 {
@@ -62,10 +62,10 @@ uint32_t FontClient::GetPerformanceLogThresholdTime()
   if(!TEXT_PERFORMANCE_LOG_SET)
   {
     // Threshold time in miliseconds.
-    auto timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
-    time = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+    auto timeString                     = Dali::EnvironmentVariable::GetEnvironmentVariable(TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
+    time                                = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
     TEXT_PERFORMANCE_LOG_THRESHOLD_TIME = time;
-    TEXT_PERFORMANCE_LOG_SET = true;
+    TEXT_PERFORMANCE_LOG_SET            = true;
   }
   return time;
 }
@@ -112,9 +112,9 @@ FontClient::FontClient(const FontClient& handle) = default;
 
 FontClient& FontClient::operator=(const FontClient& handle) = default;
 
-FontClient::FontClient(FontClient&& handle) = default;
+FontClient::FontClient(FontClient&& handle) noexcept = default;
 
-FontClient& FontClient::operator=(FontClient&& handle) = default;
+FontClient& FontClient::operator=(FontClient&& handle) noexcept = default;
 
 void FontClient::ClearCache()
 {

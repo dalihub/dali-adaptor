@@ -212,8 +212,8 @@ private:
   void BuildReflection();
 
 protected:
-  Reflection(Reflection&&) = default;
-  Reflection& operator=(Reflection&&) = default;
+  Reflection(Reflection&&) noexcept = default;
+  Reflection& operator=(Reflection&&) noexcept = default;
 
 private:
   VulkanGraphicsController& mController; ///< The Graphics controller

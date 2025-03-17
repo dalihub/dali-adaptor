@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,9 @@ VideoPlayer::VideoPlayer(const VideoPlayer& player) = default;
 
 VideoPlayer& VideoPlayer::operator=(const VideoPlayer& player) = default;
 
-VideoPlayer::VideoPlayer(VideoPlayer&& player) = default;
+VideoPlayer::VideoPlayer(VideoPlayer&& player) noexcept = default;
 
-VideoPlayer& VideoPlayer::operator=(VideoPlayer&& player) = default;
+VideoPlayer& VideoPlayer::operator=(VideoPlayer&& player) noexcept = default;
 
 VideoPlayer VideoPlayer::DownCast(BaseHandle handle)
 {

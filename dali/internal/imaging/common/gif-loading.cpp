@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1575,8 +1575,8 @@ public:
   // Moveable but not copyable
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl&) = delete;
-  Impl(Impl&&)                 = default;
-  Impl& operator=(Impl&&) = default;
+  Impl(Impl&&) noexcept        = default;
+  Impl& operator=(Impl&&) noexcept = default;
 
   std::string     mUrl;
   LoaderInfo      loaderInfo;

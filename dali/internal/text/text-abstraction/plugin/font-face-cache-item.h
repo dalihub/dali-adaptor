@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
                     bool               hasColorTables);
 
   FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
-  FontFaceCacheItem(FontFaceCacheItem&& rhs);
+  FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept;
 
   ~FontFaceCacheItem();
 
