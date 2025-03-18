@@ -402,6 +402,16 @@ void WebEngine::SetFocus(bool focused)
   GetImplementation(*this).SetFocus(focused);
 }
 
+bool WebEngine::SetImePositionAndAlignment(Dali::Vector2 position, int alignment)
+{
+  return GetImplementation(*this).SetImePositionAndAlignment(position, alignment);
+}
+
+void WebEngine::SetCursorThemeName(const std::string themeName)
+{
+  GetImplementation(*this).SetCursorThemeName(themeName);
+}
+
 void WebEngine::SetPageZoomFactor(float zoomFactor)
 {
   GetImplementation(*this).SetPageZoomFactor(zoomFactor);
