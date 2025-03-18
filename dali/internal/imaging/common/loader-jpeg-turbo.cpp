@@ -893,6 +893,13 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
     {
       auto planeSize = tjPlaneSizeYUV(i, scaledPostXformWidth, 0, scaledPostXformHeight, chrominanceSubsampling);
 
+      if(DALI_UNLIKELY(planeSize == static_cast<decltype(planeSize)>(-1)))
+      {
+        DALI_LOG_ERROR("Plane image for %d'th tjPlaneSizeYUV failed! planeSize : %lu\n", i, planeSize);
+        pixelBuffers.clear();
+        return false;
+      }
+
       uint8_t* buffer = static_cast<uint8_t*>(malloc(planeSize));
       if(DALI_UNLIKELY(!buffer))
       {
@@ -919,6 +926,14 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
         height      = tjPlaneHeight(i, scaledPostXformHeight, chrominanceSubsampling);
         planeWidth  = width;
         pixelFormat = (i == 1 ? Pixel::CHROMINANCE_U : Pixel::CHROMINANCE_V);
+      }
+
+      if(DALI_UNLIKELY(width <= 0 || height <= 0 || planeWidth <= 0))
+      {
+        DALI_LOG_ERROR("Plane image for %d'th size invalid! width : %d, height : %d, planeWidth : %d\n", i, width, height, planeWidth);
+        pixelBuffers.clear();
+        free(buffer);
+        return false;
       }
 
       Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth * Pixel::GetBytesPerPixel(pixelFormat), pixelFormat);
