@@ -140,11 +140,11 @@ void Swapchain::CreateVkSwapchain(
   }
 
   // Determine the number of images
-  if(surfaceCapabilities.minImageCount > 0 &&
-     bufferCount != surfaceCapabilities.minImageCount)
+  if(surfaceCapabilities.minImageCount > 0)
   {
     bufferCount = surfaceCapabilities.minImageCount;
   }
+  mBufferCount = bufferCount;
 
   // Find the transformation of the surface
   vk::SurfaceTransformFlagBitsKHR preTransform;
@@ -161,8 +161,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -201,16 +200,18 @@ void Swapchain::Destroy()
     mDepthStencilBuffer->Destroy();
   }
 
+  mFramebuffers.clear();
+  mSwapchainBuffers.clear();
+  mSwapchainImages.clear();
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying SwapChain: %p\n", static_cast<VkSwapchainKHR>(mSwapchainKHR));
+
   if(mSwapchainKHR)
   {
     auto device    = mGraphicsDevice.GetLogicalDevice();
-    auto swapchain = mSwapchainKHR;
     auto allocator = &mGraphicsDevice.GetAllocator();
-    mFramebuffers.clear();
-    mSwapchainBuffers.clear();
 
-    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying SwapChain: %p\n", static_cast<VkSwapchainKHR>(swapchain));
-    device.destroySwapchainKHR(swapchain, allocator);
+    device.destroySwapchainKHR(mSwapchainKHR, allocator);
     mSwapchainKHR = nullptr;
   }
 }
@@ -241,6 +242,8 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
 
   auto clearColor = vk::ClearColorValue{}.setFloat32({1.0f, 0.0f, 1.0f, 1.0f});
 
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Num Images: %u\n", images.size());
+
   //
   // CREATE FRAMEBUFFERS
   //
@@ -269,8 +272,7 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1)
-      {
+      [](FramebufferImpl* framebuffer1) {
         framebuffer1->Destroy();
         delete framebuffer1;
       });
@@ -314,7 +316,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
   // on swapchain first create sync primitives if not created yet
   if(mSwapchainBuffers.empty())
   {
-    mSwapchainBuffers.resize(mSwapchainImages.size());
+    mSwapchainBuffers.resize(mBufferCount);
     for(auto& buffer : mSwapchainBuffers)
     {
       buffer.reset(new SwapchainBuffer(mGraphicsDevice));
@@ -347,6 +349,8 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
                                            &mSwapchainImageIndex);
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d", int(mSwapchainImageIndex));
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "acquireNextImageKHR result %s\n", vk::to_string(result).c_str());
 
   // swapchain either not optimal or expired, returning nullptr and
   // setting validity to false
@@ -404,7 +408,7 @@ void Swapchain::CreateSubmissionData(
 
 uint32_t Swapchain::GetCurrentBufferIndex() const
 {
-  return mSwapchainBuffers.empty() ? 0 : mFrameCounter % mSwapchainBuffers.size();
+  return mSwapchainBuffers.empty() ? 0 : mFrameCounter % mBufferCount;
 }
 
 bool Swapchain::Present()
@@ -503,11 +507,6 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
   mGraphicsDevice.DeviceWaitIdle();
 
   CreateFramebuffers(depthAttachment);
-}
-
-uint32_t Swapchain::GetImageCount() const
-{
-  return uint32_t(mFramebuffers.size());
 }
 
 } // namespace Dali::Graphics::Vulkan

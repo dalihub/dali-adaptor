@@ -144,12 +144,6 @@ public:
   void SetDepthStencil(vk::Format depthStencilFormat);
 
   /**
-   * Returns number of allocated swapchain images
-   * @return Number of swapchain images
-   */
-  [[nodiscard]] uint32_t GetImageCount() const;
-
-  /**
    * Returns surface associated with swapchain
    * @return Pointer to surface
    */
@@ -159,6 +153,11 @@ public:
   }
 
   [[nodiscard]] uint32_t GetCurrentBufferIndex() const;
+
+  [[nodiscard]] uint32_t GetBufferCount() const
+  {
+    return mBufferCount;
+  }
 
 private:
   void CreateVkSwapchain(
@@ -188,6 +187,7 @@ private:
    * Array of swapchain buffers
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
+  uint32_t                                      mBufferCount{2u};       ///< Minimum Number of swapchain buffers
   uint32_t                                      mFrameCounter{0u};      ///< Current frame number
   uint32_t                                      mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 

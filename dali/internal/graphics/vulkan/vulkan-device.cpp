@@ -381,6 +381,8 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
 {
   auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
 
+  DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new swapchain with buffer count: %u\n", mBufferCount);
+
   if(oldSwapchain)
   {
     for(auto&& i : mSurfaceMap)
@@ -417,6 +419,8 @@ void Device::AcquireNextImage(SurfaceId surfaceId)
   if(swapchain != nullptr)
   {
     FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "  framebuffer::%p  isValid:%s\n", framebuffer, swapchain->IsValid() ? "T" : "F");
 
     // In case something went wrong we will try to replace swapchain once
     // before calling it a day.
