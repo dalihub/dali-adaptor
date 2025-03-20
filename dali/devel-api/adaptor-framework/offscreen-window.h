@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_WINDOW_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public:
    *
    * @param [in] window A reference to the moved handle
    */
-  OffscreenWindow(OffscreenWindow&& window);
+  OffscreenWindow(OffscreenWindow&& window) noexcept;
 
   /**
    * @brief Move assignment operator
@@ -97,7 +97,7 @@ public:
    * @param [in] window A reference to the moved handle
    * @return A reference to this
    */
-  OffscreenWindow& operator=(OffscreenWindow&& window);
+  OffscreenWindow& operator=(OffscreenWindow&& window) noexcept;
 
   /**
    * @brief Destructor

@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ public:
    *
    * @param[in] handle A reference to the moved handle.
    */
-  FontClient(FontClient&& handle);
+  FontClient(FontClient&& handle) noexcept;
 
   /**
    * @brief This move assignment operator is required for (smart) pointer semantics.
@@ -163,7 +163,7 @@ public:
    * @param [in] handle  A reference to the moved handle.
    * @return A reference to this.
    */
-  FontClient& operator=(FontClient&& handle);
+  FontClient& operator=(FontClient&& handle) noexcept;
 
   ////////////////////////////////////////
   // Font management and validation.

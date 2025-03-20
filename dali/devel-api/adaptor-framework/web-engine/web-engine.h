@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public:
    *
    * @param[in] WebEngine WebEngine to move. The moved WebEngine will point at the same implementation
    */
-  WebEngine(WebEngine&& WebEngine);
+  WebEngine(WebEngine&& WebEngine) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -108,7 +108,7 @@ public:
    * @param[in] WebEngine The WebEngine to assign from.
    * @return The updated WebEngine.
    */
-  WebEngine& operator=(WebEngine&& WebEngine);
+  WebEngine& operator=(WebEngine&& WebEngine) noexcept;
 
   /**
    * @brief Downcast a handle to WebEngine handle.
@@ -866,7 +866,6 @@ public:
    * @param[in] callback The callback to be called for handling user media permission.
    */
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
-
 
 private: // Not intended for application developers
   /**

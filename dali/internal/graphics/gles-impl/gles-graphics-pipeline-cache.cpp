@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,8 +258,8 @@ struct PipelineCache::Impl
 
     ~CacheEntry() = default;
 
-    CacheEntry(CacheEntry&&) = default;
-    CacheEntry& operator=(CacheEntry&&) = default;
+    CacheEntry(CacheEntry&&) noexcept = default;
+    CacheEntry& operator=(CacheEntry&&) noexcept = default;
 
     UniquePtr<PipelineImpl> pipeline{nullptr};
     uint32_t                stateBitmask{0u};

@@ -2,7 +2,7 @@
 #define DALI_COLOR_CONTROLLER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public:
    * The move will point to the same implementation as the original.
    * @param[in]  colorController  The Color Controller to move from.
    */
-  ColorController(ColorController&& colorController);
+  ColorController(ColorController&& colorController) noexcept;
 
   /**
    * @brief This move assignment operator is required for (smart) pointer semantics.
@@ -80,7 +80,7 @@ public:
    * @param [in] rhs  A reference to the moved handle
    * @return A reference to this
    */
-  ColorController& operator=(ColorController&& rhs);
+  ColorController& operator=(ColorController&& rhs) noexcept;
 
   /**
    * @brief Retrieve the initialized instance of the ColorController.

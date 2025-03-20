@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ StyleMonitor::StyleMonitor(const StyleMonitor& monitor) = default;
 
 StyleMonitor& StyleMonitor::operator=(const StyleMonitor& monitor) = default;
 
-StyleMonitor::StyleMonitor(StyleMonitor&& monitor) = default;
+StyleMonitor::StyleMonitor(StyleMonitor&& monitor) noexcept = default;
 
-StyleMonitor& StyleMonitor::operator=(StyleMonitor&& monitor) = default;
+StyleMonitor& StyleMonitor::operator=(StyleMonitor&& monitor) noexcept = default;
 
 StyleMonitor StyleMonitor::StyleMonitor::Get()
 {

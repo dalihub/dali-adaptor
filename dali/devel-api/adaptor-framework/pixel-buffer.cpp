@@ -71,9 +71,9 @@ PixelBuffer::PixelBuffer(const PixelBuffer& handle) = default;
 
 PixelBuffer& PixelBuffer::operator=(const PixelBuffer& rhs) = default;
 
-PixelBuffer::PixelBuffer(PixelBuffer&& handle) = default;
+PixelBuffer::PixelBuffer(PixelBuffer&& handle) noexcept = default;
 
-PixelBuffer& PixelBuffer::operator=(PixelBuffer&& rhs) = default;
+PixelBuffer& PixelBuffer::operator=(PixelBuffer&& rhs) noexcept = default;
 
 uint32_t PixelBuffer::GetWidth() const
 {

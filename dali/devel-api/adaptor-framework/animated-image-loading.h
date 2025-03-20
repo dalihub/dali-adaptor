@@ -2,7 +2,7 @@
 #define DALI_ANIMATED_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/images/image-operations.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
@@ -100,7 +100,7 @@ public:
    *
    * @param[in] move The AnimatedImageLoading to move
    */
-  AnimatedImageLoading(AnimatedImageLoading&& move) = default;
+  AnimatedImageLoading(AnimatedImageLoading&& move) noexcept = default;
 
   /**
    * @brief Move assignment operator
@@ -108,7 +108,7 @@ public:
    * @param[in] rhs The AnimatedImageLoading to move
    * @return A reference to this
    */
-  AnimatedImageLoading& operator=(AnimatedImageLoading&& rhs) = default;
+  AnimatedImageLoading& operator=(AnimatedImageLoading&& rhs) noexcept = default;
 
   /**
    * @brief Destructor
@@ -127,8 +127,8 @@ public:
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
   Dali::Devel::PixelBuffer LoadFrame(uint32_t                 frameIndex,
-                                     ImageDimensions          size = ImageDimensions(),
-                                     Dali::FittingMode::Type  fittingMode = Dali::FittingMode::SCALE_TO_FILL,
+                                     ImageDimensions          size         = ImageDimensions(),
+                                     Dali::FittingMode::Type  fittingMode  = Dali::FittingMode::SCALE_TO_FILL,
                                      Dali::SamplingMode::Type samplingMode = Dali::SamplingMode::BOX_THEN_LINEAR);
 
   /**

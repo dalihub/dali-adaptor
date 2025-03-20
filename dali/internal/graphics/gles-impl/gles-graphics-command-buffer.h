@@ -100,7 +100,7 @@ struct Command
    */
   Command(const Command& rhs) = default;
   Command& operator=(const Command& rhs) = default;
-  Command(Command&& rhs) noexcept        = delete;
+  Command(Command&& rhs)                 = delete;
   Command& operator=(Command&& rhs) = delete;
 
   CommandType type{CommandType::FLUSH}; ///< Type of command

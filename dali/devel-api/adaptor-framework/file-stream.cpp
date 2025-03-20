@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ FileStream::FileStream(Dali::Vector<uint8_t>& buffer, size_t dataSize, uint8_t m
   mImpl.reset(new Impl(buffer, dataSize, mode));
 }
 
-FileStream::FileStream(FileStream&&) = default;
+FileStream::FileStream(FileStream&&) noexcept = default;
 
-FileStream& FileStream::operator=(FileStream&&) = default;
+FileStream& FileStream::operator=(FileStream&&) noexcept = default;
 
 FileStream::~FileStream() = default;
 
