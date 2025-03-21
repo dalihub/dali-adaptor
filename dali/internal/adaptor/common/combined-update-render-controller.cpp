@@ -865,6 +865,17 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           bool willRender = mCore.PreRender(scene, mDamagedRects); // willRender is set if there are any render instructions with renderables
           bool fullSwap   = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
 
+          Rect<int> clippingRect; // Empty for fbo rendering
+
+          // Ensure surface can be drawn to; merge damaged areas for previous frames
+          windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
+          if(mEnvironmentOptions.PartialUpdateRequired() && clippingRect.IsEmpty())
+          {
+            DALI_LOG_INFO(gLogFilter, Debug::General, "PartialUpdate and no clip\n");
+            DALI_LOG_DEBUG_INFO("ClippingRect was empty. Skip rendering\n");
+            willRender = false;
+          }
+
           LOG_RENDER_SCENE("RenderThread: core.PreRender():%s  fullSwap:%s\n",
                            willRender ? "T" : "F",
                            fullSwap ? "T" : "F");
@@ -880,11 +891,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           bool didRender = false;
           if(willRender)
           {
-            Rect<int> clippingRect; // Empty for fbo rendering
-
-            // Ensure surface can be drawn to; merge damaged areas for previous frames
-            windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
-
             LOG_RENDER_SCENE("RenderThread: core.RenderScene() Render the surface\n");
 
             // Render the surface (Present & SwapBuffers)
