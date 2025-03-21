@@ -1392,8 +1392,6 @@ void Context::ResetGLESState()
   mImpl->mGlStateCache.ResetTextureCache();
   mImpl->mCurrentPipeline = nullptr;
 
-  mImpl->mCurrentRenderTarget       = nullptr;
-  mImpl->mCurrentRenderPass         = nullptr;
   mImpl->mCurrentIndexBufferBinding = {};
 
   ClearState();
