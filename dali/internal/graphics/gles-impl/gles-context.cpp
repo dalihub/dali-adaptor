@@ -1403,8 +1403,6 @@ void Context::ResetGLESState()
   mImpl->mCurrentPipeline = nullptr;
   mImpl->mCurrentUBOBindings.clear();
   mImpl->mCurrentTextureBindings.clear();
-  mImpl->mCurrentRenderTarget       = nullptr;
-  mImpl->mCurrentRenderPass         = nullptr;
   mImpl->mCurrentIndexBufferBinding = {};
   mImpl->mCurrentSamplerBindings    = {};
 
