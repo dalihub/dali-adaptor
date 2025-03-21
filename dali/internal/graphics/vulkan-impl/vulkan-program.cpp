@@ -34,6 +34,7 @@ namespace Dali::Graphics::Vulkan
 Program::Program(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
 {
   mProgram = new ProgramImpl(createInfo, controller);
+  mProgram->Retain();
 }
 
 Program::~Program()
