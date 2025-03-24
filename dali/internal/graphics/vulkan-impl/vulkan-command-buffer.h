@@ -384,9 +384,17 @@ public: // API
    */
   RenderTarget* GetRenderTarget() const;
 
+  /**
+   * Get the implementation according to the current buffer index.
+   */
   [[nodiscard]] CommandBufferImpl* GetImpl() const;
 
 private:
+  /**
+   * Ensure that there are enough command buffers allocated.
+   */
+  void AllocateCommandBuffers();
+
   static const DynamicStateMask INITIAL_DYNAMIC_MASK_VALUE{0xFFFFFFFF};
 
   /** Struct that defines the current state */
@@ -423,6 +431,7 @@ private:
   std::vector<CommandBufferImpl*> mCommandBufferImpl; ///< There are as many elements as there are swapchain images
   RenderTarget*                   mRenderTarget{nullptr};
   Swapchain*                      mLastSwapchain{nullptr};
+  uint32_t                        mCmdCount{0u};
 };
 
 } // namespace Dali::Graphics::Vulkan

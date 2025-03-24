@@ -133,8 +133,6 @@ public: // Getters
 
   uint32_t GetBufferCount() const;
 
-  uint32_t SwapBuffers();
-
   const vk::PhysicalDeviceMemoryProperties& GetMemoryProperties() const
   {
     return mPhysicalDeviceMemoryProperties;
@@ -194,7 +192,6 @@ private: // Members
   Graphics::SurfaceId                                           mBaseSurfaceId{0u};
 
   Platform   mPlatform{Platform::UNDEFINED};
-  uint32_t   mCurrentBufferIndex{0u};
   uint32_t   mBufferCount{2};
   std::mutex mMutex;
 

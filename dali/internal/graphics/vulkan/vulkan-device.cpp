@@ -100,7 +100,6 @@ Device::~Device()
   }
   mSurfaceMap.clear();
 
-  SwapBuffers();
   ReleaseCommandPools();
 
   if(mVmaAllocator)
@@ -382,6 +381,8 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
 {
   auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
 
+  DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new swapchain with buffer count: %u\n", mBufferCount);
+
   if(oldSwapchain)
   {
     for(auto&& i : mSurfaceMap)
@@ -412,9 +413,14 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
 void Device::AcquireNextImage(SurfaceId surfaceId)
 {
   auto swapchain = mSurfaceMap[surfaceId].swapchain;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "swapchain::%p\n", swapchain);
+
   if(swapchain != nullptr)
   {
     FramebufferImpl* framebuffer = swapchain->AcquireNextFramebuffer(true);
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "  framebuffer::%p  isValid:%s\n", framebuffer, swapchain->IsValid() ? "T" : "F");
 
     // In case something went wrong we will try to replace swapchain once
     // before calling it a day.
@@ -620,19 +626,18 @@ void Device::SurfaceResized(unsigned int width, unsigned int height)
 
 uint32_t Device::GetCurrentBufferIndex() const
 {
-  return mCurrentBufferIndex;
+  uint32_t bufferIndex = 0;
+  if(!mSurfaceMap.empty())
+  {
+    // Use the main window's buffer index.
+    bufferIndex = mSurfaceMap.begin()->second.swapchain->GetCurrentBufferIndex();
+  }
+  return bufferIndex;
 }
 
 uint32_t Device::GetBufferCount() const
 {
   return mBufferCount;
-}
-
-uint32_t Device::SwapBuffers()
-{
-  // Increase the current buffer index. This should match the number of swapchain images in the main window.
-  mCurrentBufferIndex = (mCurrentBufferIndex + 1) % mBufferCount;
-  return mCurrentBufferIndex;
 }
 
 void Device::CreateInstance(const std::vector<const char*>& extensions,

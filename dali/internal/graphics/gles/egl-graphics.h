@@ -306,13 +306,18 @@ public:
   void FrameStart() override;
 
   /**
+   * @copydoc Dali::Graphics::GraphicsInterface::DidPresent()
+   */
+  bool DidPresent() override;
+
+  /**
    * @copydoc Dali::Graphics::GraphicsInterface::LogMemoryPools()
    */
   void LogMemoryPools() override;
 
 public:
   // Eliminate copy and assigned operations
-  EglGraphics(const EglGraphics& rhs) = delete;
+  EglGraphics(const EglGraphics& rhs)            = delete;
   EglGraphics& operator=(const EglGraphics& rhs) = delete;
 
 private:

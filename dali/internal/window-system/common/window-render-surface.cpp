@@ -775,8 +775,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
   {
     Dali::Mutex::ScopedLock lock(mMutex);
 
-    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo)
-                                          { return callbackInfo->fileDescriptor == fileDescriptor; });
+    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo) { return callbackInfo->fileDescriptor == fileDescriptor; });
     if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
       callbackInfo = std::move(*frameCallbackInfo);
@@ -893,8 +892,6 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
-  // @todo Need to do this differently as Vulkan does not need this; it's only required for GLES
-
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
      mFullSwapNextFrame)
   {

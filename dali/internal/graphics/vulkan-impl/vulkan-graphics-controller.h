@@ -451,9 +451,11 @@ public: // Other API
    */
   void RemoveRenderTarget(RenderTarget* renderTarget);
 
-public: // For debug
   void FrameStart();
 
+  bool DidPresent() const;
+
+public: // For debug
   std::size_t GetCapacity() const;
 
 private:

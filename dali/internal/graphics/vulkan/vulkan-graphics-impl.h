@@ -189,6 +189,11 @@ public: // Debug APIs
   void FrameStart() override;
 
   /**
+   * @copydoc GraphicsInterface::DidPresent()
+   */
+  bool DidPresent() override;
+
+  /**
    * Log frame statistics
    */
   void PostRenderDebug() override;

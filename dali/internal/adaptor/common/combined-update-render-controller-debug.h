@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ namespace
 #define DEBUG_LEVEL_UPDATE_RENDER Debug::General
 #define DEBUG_LEVEL_EVENT Debug::Concise
 
-Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THREAD_SYNC");
+Debug::Filter* gLogFilter            = Debug::Filter::New(Debug::NoLogging, false, "LOG_THREAD_SYNC");
+Debug::Filter* gLogRenderSceneFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_RENDER_SCENE");
 
 #define LOG_THREAD_SYNC(level, color, format, ...) \
   DALI_LOG_INFO(gLogFilter, level, "%s" format "%s\n", color, ##__VA_ARGS__, COLOR_CLEAR)
@@ -62,6 +63,9 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THR
   {                                                                                                                                  \
     LOG_THREAD_SYNC(Debug::Concise, color, "%s: " format, __FUNCTION__, ##__VA_ARGS__);                                              \
   }
+
+#define LOG_RENDER_SCENE(format, ...) \
+  DALI_LOG_INFO(gLogRenderSceneFilter, Debug::Verbose, "\033[97m" format "\033[0m", ##__VA_ARGS__)
 
 #elif defined(RELEASE_BUILD_LOGGING)
 
@@ -83,11 +87,14 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THR
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...) \
   Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s%s: " format "%s\n", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR)
 
+#define LOG_RENDER_SCENE(format, ...)
+
 #else
 
 #define LOG_THREAD_SYNC(level, color, format, ...)
 #define LOG_THREAD_SYNC_TRACE(color)
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...)
+#define LOG_RENDER_SCENE(format, ...)
 
 #endif // DEBUG_ENABLED
 
