@@ -110,7 +110,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mVectorFontId(0u),
   mFontId(0u),
   mIsFixedSizeBitmap(false),
-  mHasColorTables(false)
+  mHasColorTables(false),
+  mVariationsHash(0u)
 {
 }
 
@@ -124,7 +125,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      int                fixedSizeIndex,
                                      float              fixedWidth,
                                      float              fixedHeight,
-                                     bool               hasColorTables)
+                                     bool               hasColorTables,
+                                     std::size_t        variationsHash)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mGlyphCacheManager(glyphCacheManager),
@@ -140,7 +142,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mVectorFontId(0u),
   mFontId(0u),
   mIsFixedSizeBitmap(true),
-  mHasColorTables(hasColorTables)
+  mHasColorTables(hasColorTables),
+  mVariationsHash(variationsHash)
 {
 }
 
@@ -164,6 +167,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
   mFontId             = rhs.mFontId;
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
+  mVariationsHash     = rhs.mVariationsHash;
 
   rhs.mFreeTypeFace      = nullptr;
   rhs.mGlyphCacheManager = nullptr;

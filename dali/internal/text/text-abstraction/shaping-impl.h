@@ -59,7 +59,8 @@ public:
                const Character*       const text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script);
+               Script                       script,
+               Property::Map*               variationsMapPtr = nullptr);
 
   /**
    * @copydoc Dali::Shaping::GetGlyphs()

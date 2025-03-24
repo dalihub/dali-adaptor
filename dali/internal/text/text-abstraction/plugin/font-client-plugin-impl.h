@@ -43,6 +43,7 @@ class VectorFontCache;
 #include FT_GLYPH_H
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
+#include FT_MULTIPLE_MASTERS_H
 
 // forward declarations of font config types.
 struct _FcCharSet;
@@ -167,14 +168,16 @@ public: // Dali::TextAbstraction::FontClient
   FontId GetFontIdByPath(const FontPath& path,
                          PointSize26Dot6 requestedPointSize,
                          FaceIndex       faceIndex,
-                         bool            cacheDescription) const;
+                         bool            cacheDescription,
+                         Property::Map*  variationsMapPtr = nullptr) const;
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+   * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const FontDescription& preferredFontDescription, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex, Property::Map* variationsMapPtr )
    */
   FontId GetFontId(const FontDescription& fontDescription,
                    PointSize26Dot6        requestedPointSize,
-                   FaceIndex              faceIndex) const;
+                   FaceIndex              faceIndex           = 0u,
+                   Property::Map*         variationsMapPtr    = nullptr) const;
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const BitmapFont& bitmapFont )
@@ -370,13 +373,15 @@ private:
    * @param[in] requestedPointSize The requested point size.
    * @param[in] faceIndex A face index.
    * @param[in] cacheDescription Whether to cache the font description.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
    *
    * @return The font identifier.
    */
   FontId CreateFont(const FontPath& path,
                     PointSize26Dot6 requestedPointSize,
                     FaceIndex       faceIndex,
-                    bool            cacheDescription) const;
+                    bool            cacheDescription,
+                    Property::Map*  variationsMapPtr) const;
 
 
   /**

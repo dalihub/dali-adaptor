@@ -97,15 +97,19 @@ public: // Public struct
    */
   struct FontDescriptionSizeCacheKey
   {
+    FontDescriptionSizeCacheKey() = default;
+
     FontDescriptionSizeCacheKey(FontDescriptionId fontDescriptionId,
-                                PointSize26Dot6   requestedPointSize);
+                                PointSize26Dot6   requestedPointSize,
+                                std::size_t       variationsMapHash);
 
     FontDescriptionId fontDescriptionId;  ///< Index to the vector with font descriptions.
     PointSize26Dot6   requestedPointSize; ///< The font point size.
+    std::size_t       variationsMapHash;
 
     bool operator==(FontDescriptionSizeCacheKey const& rhs) const noexcept
     {
-      return fontDescriptionId == rhs.fontDescriptionId && requestedPointSize == rhs.requestedPointSize;
+      return fontDescriptionId == rhs.fontDescriptionId && requestedPointSize == rhs.requestedPointSize && variationsMapHash == rhs.variationsMapHash;
     }
   };
 
@@ -116,7 +120,7 @@ public: // Public struct
   {
     std::size_t operator()(FontDescriptionSizeCacheKey const& key) const noexcept
     {
-      return key.fontDescriptionId ^ key.requestedPointSize;
+      return key.fontDescriptionId ^ key.requestedPointSize ^ key.variationsMapHash;
     }
   };
 
@@ -317,11 +321,16 @@ public: // Find & Cache
    * @param[in] path Path to the font file name.
    * @param[in] requestedPointSize The font point size.
    * @param[in] faceIndex The face index.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
    * @param[out] fontId The font identifier.
    *
    * @return @e true if there triplet is found.
    */
-  bool FindFontByPath(const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex, FontId& fontId) const;
+  bool FindFontByPath(const FontPath& path,
+                      PointSize26Dot6 requestedPointSize,
+                      FaceIndex       faceIndex,
+                      Property::Map*  variationsMapPtr,
+                      FontId&         fontId) const;
 
   /**
    * @brief Finds in the cache a pair 'validated font identifier and font point size'.
@@ -330,21 +339,24 @@ public: // Find & Cache
    * @param[in] validatedFontId Index to the vector with font descriptions.
    * @param[in] requestedPointSize The font point size.
    * @param[out] fontCacheIndex The index of font cache identifier.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
    *
    * @return @e true if the pair is found.
    */
   bool FindFont(FontDescriptionId validatedFontId,
                 PointSize26Dot6   requestedPointSize,
-                FontCacheIndex&   fontCacheIndex);
+                FontCacheIndex&   fontCacheIndex,
+                Property::Map*    variationsMapPtr);
 
   /**
    * @brief Cache the font descpription size item.
    *
    * @param[in] fontDescriptionId FontDescriptionId of current font.
    * @param[in] requestedPointSize Size of current font.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
    * @param[in] fontCacheIndex Index of this font's cache.
    */
-  void CacheFontDescriptionSize(FontDescriptionId fontDescriptionId, PointSize26Dot6 requestedPointSize, FontCacheIndex fontCacheIndex);
+  void CacheFontDescriptionSize(FontDescriptionId fontDescriptionId, PointSize26Dot6 requestedPointSize, Property::Map* variationsMapPtr, FontCacheIndex fontCacheIndex);
 
   /**
    * @brief Cache the font face cache item.
@@ -361,9 +373,10 @@ public: // Find & Cache
    * @param[in] ftFace The FreeType face.
    * @param[in] fontId The font identifier.
    * @param[in] requestedPointSize The font point size.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
    * @param[in] path Path to the font file name.
    */
-  void CacheFontPath(FT_Face ftFace, FontId fontId, PointSize26Dot6 requestedPointSize, const FontPath& path);
+  void CacheFontPath(FT_Face ftFace, FontId fontId, PointSize26Dot6 requestedPointSize, Property::Map* variationsMapPtr, const FontPath& path);
 
   // Ellipsis
 
@@ -448,6 +461,44 @@ public: // Find & Cache
    */
   GlyphIndex CacheEmbeddedItem(EmbeddedItem&& embeddedItem);
 
+  /**
+   * @brief Checks FontIdCacheItem cached with the fontId.
+   *
+   * @param[in] fontId The fontId.
+   * @return true if FontIdCacheItem exists.
+   */
+  bool IsFontIdCacheItemExist(FontId fontId);
+
+  bool IsFontFaceCacheItemExist(FontCacheIndex fontCacheIndex);
+
+  /**
+   * @brief Find the FontIdCacheItem from fontId.
+   * @note Assert if the value is not found.
+   *
+   * @param[in] fontId The fontId.
+   * @return FontIdCacheItem found.
+   */
+  FontClient::Plugin::CacheHandler::FontIdCacheItem& FindFontIdCacheItem(FontId fontId);
+
+  /**
+   * @brief Find the FontFaceCacheItem from fontCacheIndex.
+   * @note Assert if the value is not found.
+   *
+   * @param[in] fontCacheIndex The fontCacheIndex.
+   * @return FontFaceCacheItem found.
+   */
+  FontFaceCacheItem& FindFontFaceCacheItem(FontCacheIndex fontCacheIndex);
+
+  /**
+   * @brief Find the BitmapFontCacheItem from fontCacheIndex.
+   * @note Assert if the value is not found.
+   *
+   * @param[in] fontCacheIndex The fontCacheIndex.
+   * @return BitmapFontCacheItem found.
+   */
+  BitmapFontCacheItem& FindBitmapFontCacheItem(FontCacheIndex fontCacheIndex);
+
+
 public: // Other public API
   GlyphCacheManager* GetGlyphCacheManager() const
   {
@@ -457,6 +508,9 @@ public: // Other public API
 private:
   CacheHandler(const CacheHandler&) = delete;
   CacheHandler& operator=(const CacheHandler&) = delete;
+
+  std::size_t mFontDescriptionSizeCacheMaxSize; ///< The maximum capacity of font description size cache.
+  using DescriptionCacheContainer = LRUCacheContainer<FontDescriptionSizeCacheKey, FontCacheIndex, FontDescriptionSizeCacheKeyHash>;
 
 public:                                    // Cache container list
   FcConfig*       mFontConfig;             ///< A handle to a FontConfig library instance.
@@ -468,19 +522,20 @@ public:                                    // Cache container list
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
-  std::vector<FontIdCacheItem>          mFontIdCache;          ///< Caches from FontId to FontCacheIndex.
-  std::vector<FontFaceCacheItem>        mFontFaceCache;        ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
+  std::unordered_map<FontId, FontIdCacheItem>             mFontIdCache;     ///< Caches from FontId to FontCacheIndex.
+  std::unordered_map<FontCacheIndex, FontFaceCacheItem>   mFontFaceCache;   ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
+  std::unordered_map<FontCacheIndex, BitmapFontCacheItem> mBitmapFontCache; ///< Stores bitmap fonts.
+
   std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
   FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
   CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
 
-  FontDescriptionSizeCacheContainer mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+  DescriptionCacheContainer mFontDescriptionSizeCache; ///< LRU Cache container of glyph
 
   std::unordered_map<std::string, std::pair<Dali::Vector<uint8_t>, std::streampos>> mFontDataCache;   ///< Caches font data with each font path as the key, allowing faster loading of fonts later on.
   std::unordered_map<std::string, FT_Face>                                          mFontFTFaceCache; ///< Caches freetype font face for font pre-load.
 
   std::vector<EllipsisItem>         mEllipsisCache;     ///< Caches ellipsis glyphs for a particular point size.
-  std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
@@ -495,6 +550,7 @@ private:                                                 // Member value
   FontDescriptionSizeCacheKey mLatestFoundCacheKey; ///< Latest found font description and id in FindFont()
   FontCacheIndex              mLatestFoundCacheIndex;
 
+  uint32_t mFontCacheCount;
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 };
 
