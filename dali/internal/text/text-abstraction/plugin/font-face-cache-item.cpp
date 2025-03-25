@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,9 +80,9 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
   static auto policyString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_RENDERED_GLYPH_COMPRESS_POLICY);
 
-  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S'   ? GlyphCacheManager::CompressionPolicyType::SPEED
-                                      : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
-                                                                                         : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
+                                                                                                                                          : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }
@@ -110,7 +110,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mVectorFontId(0u),
   mFontId(0u),
   mIsFixedSizeBitmap(false),
-  mHasColorTables(false)
+  mHasColorTables(false),
+  mVariationsHash(0u)
 {
 }
 
@@ -124,7 +125,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      int                fixedSizeIndex,
                                      float              fixedWidth,
                                      float              fixedHeight,
-                                     bool               hasColorTables)
+                                     bool               hasColorTables,
+                                     std::size_t        variationsHash)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mGlyphCacheManager(glyphCacheManager),
@@ -140,13 +142,14 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mVectorFontId(0u),
   mFontId(0u),
   mIsFixedSizeBitmap(true),
-  mHasColorTables(hasColorTables)
+  mHasColorTables(hasColorTables),
+  mVariationsHash(variationsHash)
 {
 }
 
 // Move constructor. font client plugin container may call this.
 // Note that we make nullptr of some reference sensitive values here.
-FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
+FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
   mFreeTypeFace       = rhs.mFreeTypeFace;
@@ -164,6 +167,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
   mFontId             = rhs.mFontId;
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
+  mVariationsHash     = rhs.mVariationsHash;
 
   rhs.mFreeTypeFace      = nullptr;
   rhs.mGlyphCacheManager = nullptr;

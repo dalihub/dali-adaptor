@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ public:
    *
    * @param[in] handle A reference to the moved handle.
    */
-  FontClient(FontClient&& handle);
+  FontClient(FontClient&& handle) noexcept;
 
   /**
    * @brief This move assignment operator is required for (smart) pointer semantics.
@@ -163,7 +163,7 @@ public:
    * @param [in] handle  A reference to the moved handle.
    * @return A reference to this.
    */
-  FontClient& operator=(FontClient&& handle);
+  FontClient& operator=(FontClient&& handle) noexcept;
 
   ////////////////////////////////////////
   // Font management and validation.
@@ -331,12 +331,14 @@ public:
    *                                     The font will be the closest match to @p preferredFontDescription.
    * @param[in] requestedPointSize The point size in 26.6 fractional points; the default point size is 12*64.
    * @param[in] faceIndex The index of the font face (optional).
+   * @param[in] variationsMapPtr The variations used in variable fonts (optional).
    *
    * @return A valid font identifier, or zero if no font is found.
    */
   FontId GetFontId(const FontDescription& preferredFontDescription,
                    PointSize26Dot6        requestedPointSize = DEFAULT_POINT_SIZE,
-                   FaceIndex              faceIndex          = 0);
+                   FaceIndex              faceIndex          = 0,
+                   Property::Map*         variationsMapPtr   = nullptr);
 
   /**
    * @brief Retrieves a unique font identifier for a given bitmap font.

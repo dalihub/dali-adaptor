@@ -36,6 +36,11 @@
 #include <map>
 #include <unordered_map>
 
+namespace
+{
+DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+}
+
 namespace Dali::Graphics::GLES
 {
 struct Context::Impl
@@ -1314,6 +1319,8 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
 
 void Context::PrepareForNativeRendering()
 {
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+
   // this should be pretty much constant
   auto display     = eglGetCurrentDisplay();
   auto drawSurface = eglGetCurrentSurface(EGL_DRAW);
@@ -1332,7 +1339,11 @@ void Context::PrepareForNativeRendering()
   if(!mImpl->mNativeDrawContext)
   {
     EGLint configId{0u};
-    eglQueryContext(display, mImpl->mController.GetSharedContext(), EGL_CONFIG_ID, &configId);
+
+    {
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQueryContext(Native)");
+      eglQueryContext(display, mImpl->mController.GetSharedContext(), EGL_CONFIG_ID, &configId);
+    }
 
     EGLint configAttribs[3];
     configAttribs[0] = EGL_CONFIG_ID;
@@ -1341,10 +1352,13 @@ void Context::PrepareForNativeRendering()
 
     EGLConfig config;
     EGLint    numConfigs;
-    if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE)
     {
-      DALI_LOG_ERROR("eglChooseConfig failed!\n");
-      return;
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglChooseConfig(Native)");
+      if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE)
+      {
+        DALI_LOG_ERROR("eglChooseConfig failed!\n");
+        return;
+      }
     }
 
     auto version = int(mImpl->mController.GetGLESVersion());
@@ -1356,17 +1370,20 @@ void Context::PrepareForNativeRendering()
     attribs.push_back(version % 10);
     attribs.push_back(EGL_NONE);
 
-    mImpl->mNativeDrawContext = eglCreateContext(display, config, mImpl->mController.GetSharedContext(), attribs.data());
-    if(mImpl->mNativeDrawContext == EGL_NO_CONTEXT)
     {
-      DALI_LOG_ERROR("eglCreateContext failed!\n");
-      return;
+      DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateContext(Native)");
+      mImpl->mNativeDrawContext = eglCreateContext(display, config, mImpl->mController.GetSharedContext(), attribs.data());
+      if(mImpl->mNativeDrawContext == EGL_NO_CONTEXT)
+      {
+        DALI_LOG_ERROR("eglCreateContext failed!\n");
+        return;
+      }
     }
   }
 
   eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
-  // make sure it's current window context
-  eglMakeCurrent(display, mImpl->mCacheDrawWriteSurface, mImpl->mCacheDrawReadSurface, mImpl->mCacheEGLGraphicsContext);
+
+  DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareForNativeRendering");
 }
 
 void Context::ResetGLESState()
@@ -1375,8 +1392,6 @@ void Context::ResetGLESState()
   mImpl->mGlStateCache.ResetTextureCache();
   mImpl->mCurrentPipeline = nullptr;
 
-  mImpl->mCurrentRenderTarget       = nullptr;
-  mImpl->mCurrentRenderPass         = nullptr;
   mImpl->mCurrentIndexBufferBinding = {};
 
   ClearState();
@@ -1386,6 +1401,7 @@ void Context::ResetGLESState()
 
 void Context::RestoreFromNativeRendering()
 {
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "RestoreFromNativeRendering");
   auto display = eglGetCurrentDisplay();
 
   // bring back original context

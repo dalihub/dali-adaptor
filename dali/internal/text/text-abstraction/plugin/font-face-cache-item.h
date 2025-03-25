@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,10 +59,11 @@ struct FontFaceCacheItem : public FontCacheItemInterface
                     int                fixedSizeIndex,
                     float              fixedWidth,
                     float              fixedHeight,
-                    bool               hasColorTables);
+                    bool               hasColorTables,
+                    std::size_t        variationsHash = 0u);
 
   FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
-  FontFaceCacheItem(FontFaceCacheItem&& rhs);
+  FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept;
 
   ~FontFaceCacheItem();
 
@@ -149,6 +150,7 @@ public:
   FontId          mFontId;                ///< Index to the vector with the cache of font's ids.
   bool            mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
   bool            mHasColorTables : 1;    ///< Whether the font has color tables.
+  std::size_t     mVariationsHash;
 };
 
 } // namespace Dali::TextAbstraction::Internal

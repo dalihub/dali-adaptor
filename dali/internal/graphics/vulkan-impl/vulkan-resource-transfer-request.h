@@ -76,11 +76,11 @@ struct ResourceTransferRequest
   bool deferredTransferMode{true}; // Vulkan implementation prefers deferred mode
 
   // delete copy
-  ResourceTransferRequest(const ResourceTransferRequest&)            = delete;
+  ResourceTransferRequest(const ResourceTransferRequest&) = delete;
   ResourceTransferRequest& operator=(const ResourceTransferRequest&) = delete;
-  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj)  = delete;
+  ResourceTransferRequest& operator=(ResourceTransferRequest&& obj) = delete;
 
-  ResourceTransferRequest(ResourceTransferRequest&& obj)
+  ResourceTransferRequest(ResourceTransferRequest&& obj) noexcept
   {
     requestType          = obj.requestType;
     deferredTransferMode = obj.deferredTransferMode;

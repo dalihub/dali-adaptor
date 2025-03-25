@@ -109,9 +109,9 @@ GlWindow::GlWindow(const GlWindow& handle) = default;
 
 GlWindow& GlWindow::operator=(const GlWindow& rhs) = default;
 
-GlWindow::GlWindow(GlWindow&& rhs) = default;
+GlWindow::GlWindow(GlWindow&& rhs) noexcept = default;
 
-GlWindow& GlWindow::operator=(GlWindow&& rhs) = default;
+GlWindow& GlWindow::operator=(GlWindow&& rhs) noexcept = default;
 
 void GlWindow::SetGraphicsConfig(bool depth, bool stencil, int msaa, GlesVersion version)
 {

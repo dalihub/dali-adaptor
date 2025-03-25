@@ -158,7 +158,7 @@ public:
    *
    * @param[in] rhs A reference to the moved handle
    */
-  GlWindow(GlWindow&& rhs);
+  GlWindow(GlWindow&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -166,7 +166,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  GlWindow& operator=(GlWindow&& rhs);
+  GlWindow& operator=(GlWindow&& rhs) noexcept;
 
   /**
    * @brief Sets graphics configuration for GlWindow

@@ -2,7 +2,7 @@
 #define DALI_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public: // Creation & Destruction
    * The move will point to the same implementation as the original.
    * @param[in]  monitor  The Style Monitor to move from.
    */
-  StyleMonitor(StyleMonitor&& monitor);
+  StyleMonitor(StyleMonitor&& monitor) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -91,7 +91,7 @@ public: // Creation & Destruction
    * @param[in]  monitor  The Style Monitor to move from.
    * @return reference to this object
    */
-  StyleMonitor& operator=(StyleMonitor&& monitor);
+  StyleMonitor& operator=(StyleMonitor&& monitor) noexcept;
 
   /**
    * @brief Retrieve the initialized instance of the StyleMonitor.
@@ -118,7 +118,6 @@ public: // Creation & Destruction
   static StyleMonitor DownCast(BaseHandle handle);
 
 public: // Style Information
-
   /**
    * @brief Ensure the font client has been created.
    *

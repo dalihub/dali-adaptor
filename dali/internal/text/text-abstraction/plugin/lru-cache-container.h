@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_LRU_CACHE_CONTAINER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public:
   LRUCacheContainer(LRUCacheContainer&& rhs)      = default;
 
   LRUCacheContainer& operator=(const LRUCacheContainer& rhs) = default;
-  LRUCacheContainer& operator=(LRUCacheContainer&& rhs) = default;
+  LRUCacheContainer& operator=(LRUCacheContainer&& rhs) noexcept = default;
 
 public:
   // Public struct area.
@@ -108,13 +108,13 @@ public:
     }
 
     // Move constructor & assign
-    iterator(iterator&& rhs)
+    iterator(iterator&& rhs) noexcept
     : owner(rhs.owner),
       id(rhs.id)
     {
     }
 
-    iterator& operator=(iterator&& rhs)
+    iterator& operator=(iterator&& rhs) noexcept
     {
       this->owner = rhs.owner;
       this->id    = rhs.id;

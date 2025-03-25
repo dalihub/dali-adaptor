@@ -63,7 +63,7 @@ public:
 
   ~Swapchain();
 
-  Swapchain(const Swapchain&) = delete;
+  Swapchain(const Swapchain&)            = delete;
   Swapchain& operator=(const Swapchain&) = delete;
 
   void Destroy();
@@ -119,8 +119,9 @@ public:
 
   /**
    * Presents using default present queue, asynchronously
+   * @return true if something was presented to the surface, regardless of error
    */
-  void Present();
+  bool Present();
 
   /**
    * Returns true when swapchain expired
@@ -143,18 +144,19 @@ public:
   void SetDepthStencil(vk::Format depthStencilFormat);
 
   /**
-   * Returns number of allocated swapchain images
-   * @return Number of swapchain images
-   */
-  [[nodiscard]] uint32_t GetImageCount() const;
-
-  /**
    * Returns surface associated with swapchain
    * @return Pointer to surface
    */
   [[nodiscard]] SurfaceImpl* GetSurface() const
   {
     return mSurface;
+  }
+
+  [[nodiscard]] uint32_t GetCurrentBufferIndex() const;
+
+  [[nodiscard]] uint32_t GetBufferCount() const
+  {
+    return mBufferCount;
   }
 
 private:
@@ -169,8 +171,6 @@ private:
   Device&      mGraphicsDevice;
   Queue*       mQueue;
   SurfaceImpl* mSurface{};
-
-  uint32_t mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   vk::SwapchainKHR           mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR{};
@@ -187,7 +187,9 @@ private:
    * Array of swapchain buffers
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
-  uint32_t                                      mFrameCounter{0u}; ///< Current frame number
+  uint32_t                                      mBufferCount{2u};       ///< Minimum Number of swapchain buffers
+  uint32_t                                      mFrameCounter{0u};      ///< Current frame number
+  uint32_t                                      mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
