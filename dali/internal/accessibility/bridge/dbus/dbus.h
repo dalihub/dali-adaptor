@@ -2731,7 +2731,17 @@ private:
     std::vector<std::function<void()>> destructors;
     ~DestructorObject()
     {
-      for(auto& a : destructors) a();
+      for(auto& destructor : destructors)
+      {
+        try
+        {
+          destructor();
+        }
+        catch(...)
+        {
+          // Do not throw exception at destructor.
+        }
+      }
     }
   };
 
