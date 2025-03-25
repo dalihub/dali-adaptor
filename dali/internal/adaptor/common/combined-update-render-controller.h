@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -280,12 +280,12 @@ private:
    * @param[in] vertexShader vertexShader need to precompile
    * @param[in] fragmentShader fragmentShader need to precompile
    * @param[in] shaderName the name of precompile shader (option)
-   */
+  */
   void PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName = "");
 
   /**
    * Cancel the precompile
-   */
+  */
   void CancelPreCompile();
 
   /**
@@ -347,7 +347,7 @@ private:
    */
   void PostRenderWaitForCompletion() override;
 
-private:                                  // Attributes
+private:
   FpsTracker         mFpsTracker;         ///< Object that tracks the FPS
   UpdateStatusLogger mUpdateStatusLogger; ///< Object that logs the update-status as required.
 

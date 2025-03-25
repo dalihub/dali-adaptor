@@ -35,7 +35,7 @@ VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::DepthBufferAvailable         depthBufferAvailable,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
                                Integration::PartialUpdateAvailable       partialUpdateRequired)
-: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/),
+: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, partialUpdateRequired),
   mGraphicsController(),
   mMultiSamplingLevel(-1) // No multisampling
 {
@@ -56,7 +56,7 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 {
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
-  mPartialUpdateRequired = Integration::PartialUpdateAvailable::FALSE; // static_cast<Integration::PartialUpdateAvailable>(partialRendering);
+  mPartialUpdateRequired = static_cast<Integration::PartialUpdateAvailable>(partialRendering);
   mMultiSamplingLevel    = msaa;
   Initialize(displayConnection);
 }
@@ -129,6 +129,7 @@ void VulkanGraphics::AcquireNextImage(Integration::RenderSurfaceInterface* surfa
 
 void VulkanGraphics::PostRender()
 {
+  mGraphicsDevice.SwapBuffers();
 }
 
 void VulkanGraphics::Shutdown()
@@ -166,10 +167,12 @@ void VulkanGraphics::SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>
 
 void VulkanGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
 {
+  // Swapchain update comes from a different place in Vulkan backend
 }
 
 void VulkanGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects)
 {
+  // Swapchain update comes from a different place in Vulkan backend
 }
 
 Dali::Graphics::Controller& VulkanGraphics::GetController()
@@ -245,11 +248,6 @@ void VulkanGraphics::CacheConfigurations(Dali::Internal::Adaptor::ConfigurationM
 void VulkanGraphics::FrameStart()
 {
   mGraphicsController.FrameStart();
-}
-
-bool VulkanGraphics::DidPresent()
-{
-  return mGraphicsController.DidPresent();
 }
 
 void VulkanGraphics::PostRenderDebug()

@@ -398,11 +398,6 @@ void EglGraphics::FrameStart()
   mGraphicsController.FrameStart();
 }
 
-bool EglGraphics::DidPresent()
-{
-  return true;
-}
-
 void EglGraphics::PostRenderDebug()
 {
   mGLES->PostRender();

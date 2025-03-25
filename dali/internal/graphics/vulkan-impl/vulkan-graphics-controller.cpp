@@ -503,7 +503,6 @@ struct VulkanGraphicsController::Impl
 
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
-  bool                                                                 mDidPresent{false};
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
@@ -532,18 +531,11 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
-  mImpl->mCapacity   = 0;
-  mImpl->mDidPresent = false;
 
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "FrameStart: bufferIndex:%u\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
+  mImpl->mCapacity = 0;
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
   mImpl->mDiscardQueues.Resize(bufferCount);
-}
-
-bool VulkanGraphicsController::DidPresent() const
-{
-  return mImpl->mDidPresent;
 }
 
 void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
@@ -567,7 +559,6 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
   std::vector<SubmissionData> submitData;
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
   // Gather all command buffers targeting frame buffers into a single Submit request
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
@@ -577,14 +568,10 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
     DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
     if(renderTarget && renderTarget->GetSurface() == nullptr)
     {
-      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
       renderTarget->CreateSubmissionData(cmdBuffer, submitData);
     }
   }
-  if(!submitData.empty())
-  {
-    mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
-  }
+  mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
 
   // Submit each scene's cmd buffer separately, as these use EndOfFrameFence.
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
@@ -599,7 +586,6 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
       auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
       auto swapchain = GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
 
-      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: Surface CmdBuffer:%p\n", cmdBuffer->GetImpl());
       renderTarget->CreateSubmissionData(cmdBuffer, submitData);
       swapchain->GetQueue()->Submit(submitData, swapchain->GetEndOfFrameFence());
     }
@@ -614,14 +600,11 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "RenderTarget:%p  Surface:%p\n", renderTarget, static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface());
-
-  if(auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
+  if(const auto surface = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface())
   {
     const auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
     auto       swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
-    mImpl->mDidPresent   = swapchain->Present();
-    surface->PostRender();
+    swapchain->Present();
   }
   // else no presentation required for framebuffer render target.
 }
