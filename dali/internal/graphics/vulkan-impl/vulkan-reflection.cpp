@@ -37,6 +37,11 @@ namespace
 Debug::Filter* gGraphicsReflectionLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_REFLECTION");
 #endif
 
+inline bool IsValidCString(const char* str)
+{
+  return str && str[0] != '\0';
+}
+
 } // namespace
 namespace Dali::Graphics::Vulkan
 {
@@ -242,9 +247,13 @@ void Reflection::BuildReflection()
         mUniformBlocks.emplace_back();
         auto& block         = mUniformBlocks.back();
         block.binding       = binding->binding;
-        block.name          = binding->name;
         block.descriptorSet = binding->set;
         block.size          = 0; // to be updated with members
+
+        // DALi's role! let we use the type of block, instead of it's name if name is null or empty.
+        block.name = IsValidCString(binding->name) ? binding->name
+                                                   : (binding->type_description && IsValidCString(binding->type_description->type_name)) ? binding->type_description->type_name
+                                                                                                                                         : "";
 
         block.members.resize(memberCount);
         for(auto i = 0u; i < memberCount; ++i)
