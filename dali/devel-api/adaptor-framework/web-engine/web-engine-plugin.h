@@ -67,11 +67,17 @@ public:
 
   // forward declaration.
   enum class ScrollEdge;
+  enum class OverScrolled;
 
   /**
    * @brief WebView callback related with scroll edge reached.
    */
   using WebEngineScrollEdgeReachedCallback = std::function<void(const ScrollEdge)>;
+
+  /**
+   * @brief WebView callback related with over scrolled.
+   */
+  using WebEngineOverScrolledCallback = std::function<void(const OverScrolled)>;
 
   /**
    * @brief WebView callback related with page url changed.
@@ -219,6 +225,17 @@ public:
     RIGHT,  ///< Right edge reached.
     TOP,    ///< Top edge reached.
     BOTTOM, ///< Bottom edge reached.
+  };
+
+  /**
+   * @brief Enumeration for the over scrolled.
+   */
+  enum class OverScrolled
+  {
+    LEFT,   ///< Left over scrolled.
+    RIGHT,  ///< Right over scrolled.
+    TOP,    ///< Top over scrolled.
+    BOTTOM, ///< Bottom over scrolled.
   };
 
   /**
@@ -837,6 +854,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterScrollEdgeReachedCallback(WebEngineScrollEdgeReachedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when over scrolled.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterOverScrolledCallback(WebEngineOverScrolledCallback callback) = 0;
 
   /**
    * @brief Callback to be called when url is changed.
