@@ -840,7 +840,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mCore.PreRender(renderStatus, mForceClear);
     TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
 
-    if((!uploadOnly && updateStatus.RendererAdded()) || surfaceResized)
+    if(!uploadOnly || surfaceResized)
     {
       // Go through each window
       windows.clear();
@@ -917,7 +917,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
     else
     {
-      DALI_LOG_RELEASE_INFO("DALI Rendering skip (upload only : %d, renderer added : %d)\n", uploadOnly, updateStatus.RendererAdded());
+      DALI_LOG_RELEASE_INFO("DALI Rendering skip (upload only)\n");
     }
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
