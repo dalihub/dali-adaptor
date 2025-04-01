@@ -809,7 +809,7 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
       // So set cacheDescription=false, that we don't call CacheFontPath().
       fontId = GetFontIdByPath(description.path, requestedPointSize, faceIndex, false, variationsMapPtr);
 
-      if(mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
+      if(fontId > 0u && mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
       {
         fontCacheIndex = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
         mCacheHandler->FindFontFaceCacheItem(fontCacheIndex).mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
