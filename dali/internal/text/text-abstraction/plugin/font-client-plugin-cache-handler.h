@@ -509,6 +509,7 @@ private:
   CacheHandler(const CacheHandler&) = delete;
   CacheHandler& operator=(const CacheHandler&) = delete;
 
+  std::size_t mFontDescriptionSizeCacheMaxSize; ///< The maximum capacity of font description size cache.
   using DescriptionCacheContainer = LRUCacheContainer<FontDescriptionSizeCacheKey, FontCacheIndex, FontDescriptionSizeCacheKeyHash>;
 
 public:                                    // Cache container list

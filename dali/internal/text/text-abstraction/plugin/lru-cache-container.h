@@ -545,7 +545,7 @@ private:
 
     CacheId     prev{CACHE_FOOTER_ID};
     CacheId     next{CACHE_HEADER_ID};
-    ElementType element{};
+    ElementType element;
 
     using CacheIdIterator = typename CacheIdContainer::iterator;
 
