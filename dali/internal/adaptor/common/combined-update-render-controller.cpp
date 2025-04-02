@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/scene-pre-render-status.h>
 #include <dali/integration-api/shader-integ.h>
 #include <dali/public-api/common/dali-common.h>
 #include <errno.h>
@@ -854,7 +855,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         if(scene && windowSurface)
         {
           TRACE_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
-          Integration::RenderStatus windowRenderStatus;
+          Integration::RenderStatus         windowRenderStatus;
+          Integration::ScenePreRenderStatus scenePreRenderStatus;
 
           const uint32_t sceneSurfaceResized = scene.GetSurfaceRectChangedCount();
 
@@ -862,25 +864,41 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          bool willRender = mCore.PreRender(scene, mDamagedRects); // willRender is set if there are any render instructions with renderables
-          bool fullSwap   = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
+          mCore.PreRenderScene(scene, scenePreRenderStatus, mDamagedRects);
+
+          const bool willRenderToScene  = scenePreRenderStatus.HasRenderInstructionToScene(); // willRenderToScene is set if there are any render instructions with renderables.
+          const bool hadRenderedToScene = scenePreRenderStatus.HadRenderInstructionToScene(); // and hadRenderedToScene is set if previous frame was.
+
+          // Need to present if previous frame had rendered to scene.
+          bool presentRequired = hadRenderedToScene || willRenderToScene;
 
           Rect<int> clippingRect; // Empty for fbo rendering
 
           // Ensure surface can be drawn to; merge damaged areas for previous frames
           windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
-          if(mEnvironmentOptions.PartialUpdateRequired() && clippingRect.IsEmpty())
+
+          if(graphics.GetPartialUpdateRequired() == Integration::PartialUpdateAvailable::TRUE && clippingRect.IsEmpty())
           {
             DALI_LOG_INFO(gLogFilter, Debug::General, "PartialUpdate and no clip\n");
             DALI_LOG_DEBUG_INFO("ClippingRect was empty. Skip rendering\n");
-            willRender = false;
+            presentRequired = false;
           }
 
-          LOG_RENDER_SCENE("RenderThread: core.PreRender():%s  fullSwap:%s\n",
-                           willRender ? "T" : "F",
+          const bool fullSwap = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
+
+          LOG_RENDER_SCENE("RenderThread: HadRender:%s WillRender:%s presentRequired:%s fullSwap:%s\n",
+                           hadRenderedToScene ? "T" : "F",
+                           willRenderToScene ? "T" : "F",
+                           presentRequired ? "T" : "F",
                            fullSwap ? "T" : "F");
 
-          if(willRender || fullSwap)
+          // Forcibly present to surface if fullSwap enabled.
+          if(fullSwap)
+          {
+            presentRequired |= fullSwap;
+          }
+
+          if(presentRequired)
           {
             graphics.AcquireNextImage(windowSurface);
           }
@@ -889,7 +907,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mCore.RenderScene(windowRenderStatus, scene, true);
 
           bool didRender = false;
-          if(willRender)
+          if(presentRequired)
           {
             LOG_RENDER_SCENE("RenderThread: core.RenderScene() Render the surface\n");
 
@@ -898,13 +916,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             didRender = graphics.DidPresent();
 
             LOG_RENDER_SCENE("RenderThread: Surface%s presented\n", didRender ? "" : " NOT");
-          }
 
-          // If we weren't going to draw, but need to clear; OR
-          // we were going to draw but didn't, we have acquired the image, and must present.
-          if((!willRender && fullSwap) || (willRender && !didRender))
-          {
-            mCore.ClearScene(scene);
+            // If we were going to draw but didn't, we have acquired the image, and must present.
+            if(!didRender)
+            {
+              mCore.ClearScene(scene);
+            }
           }
 
           // If surface is resized, the surface resized count is decreased.
