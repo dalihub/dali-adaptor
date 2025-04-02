@@ -5647,14 +5647,13 @@ private:
 #ifndef _VMA_STRING_BUILDER_FUNCTIONS
 void VmaStringBuilder::Add(const char* pStr)
 {
-    if (pStr == nullptr)
-        return;
-
     const size_t strLen = strlen(pStr);
-    const size_t oldCount = m_Data.size();
-
-    m_Data.resize(oldCount + strLen + 1);
-    memcpy(m_Data.data() + oldCount, pStr, strLen + 1);
+    if (strLen > 0)
+    {
+        const size_t oldCount = m_Data.size();
+        m_Data.resize(oldCount + strLen);
+        memcpy(m_Data.data() + oldCount, pStr, strLen);
+    }
 }
 
 void VmaStringBuilder::AddNumber(uint32_t num)
