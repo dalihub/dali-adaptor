@@ -526,6 +526,21 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @brief Set the style of IME.
+   * @param[in] position Position of IME.
+   * @param[in] alignment Alignment of IME.
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool SetImePositionAndAlignment(Dali::Vector2 position, int alignment);
+
+  /**
+   * @brief Set the theme name of cursor.
+   * @param[in] themeName The name of theme of cursor.
+   */
+  void SetCursorThemeName(const std::string themeName);
+
+  /**
    * @brief Enable/disable mouse events. The default is enabled.
    *
    * @param[in] enabled True if mouse events are enabled, false otherwise
