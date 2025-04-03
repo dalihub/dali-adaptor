@@ -596,6 +596,16 @@ void WebEngine::SetFocus(bool focused)
   mPlugin->SetFocus(focused);
 }
 
+bool WebEngine::SetImePositionAndAlignment(Dali::Vector2 position, int alignment)
+{
+  return mPlugin->SetImePositionAndAlignment(position, alignment);
+}
+
+void WebEngine::SetCursorThemeName(const std::string themeName)
+{
+  mPlugin->SetCursorThemeName(themeName);
+}
+
 void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
 {
   mPlugin->SetDocumentBackgroundColor(color);
@@ -856,6 +866,25 @@ void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin
   mPlugin->RegisterUserMediaPermissionRequestCallback(callback);
 }
 
+void WebEngine::RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback)
+{
+  mPlugin->RegisterDeviceConnectionChangedCallback(callback);
+}
+
+void WebEngine::RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback)
+{
+  mPlugin->RegisterDeviceListGetCallback(callback);
+}
+
+void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
+{
+  mPlugin->FeedMouseWheel(yDirection, step, x, y);
+}
+
+void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
+{
+  mPlugin->SetVideoHole(enabled, isWaylandWindow);
+}
 
 } // namespace Adaptor
 } // namespace Internal
