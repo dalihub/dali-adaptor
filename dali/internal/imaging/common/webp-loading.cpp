@@ -43,6 +43,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 typedef uint8_t WebPByteType;
 
@@ -209,9 +210,22 @@ public:
         if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
         {
           DALI_LOG_ERROR("Error seeking within file\n");
+          DALI_PRINT_SYSTEM_ERROR_LOG();
           return false;
         }
-        mBufferSize = ftell(fp);
+        long positionIndicator = ftell(fp);
+
+        if(positionIndicator > -1L)
+        {
+          mBufferSize = static_cast<uint32_t>(positionIndicator);
+        }
+
+        if(DALI_UNLIKELY(mBufferSize == 0u))
+        {
+          DALI_LOG_ERROR("Error: filesize is 0!\n");
+          DALI_PRINT_SYSTEM_ERROR_LOG();
+          return false;
+        }
       }
 
       if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
@@ -225,6 +239,7 @@ public:
         if(DALI_UNLIKELY(fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp) != mBufferSize))
         {
           DALI_LOG_ERROR("Error read file\n");
+          DALI_PRINT_SYSTEM_ERROR_LOG();
           return false;
         }
         return true;
@@ -232,6 +247,7 @@ public:
       else
       {
         DALI_LOG_ERROR("Error seeking within file\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
     else

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ void GetScreenSize(int32_t& width, int32_t& height)
   ANativeWindow* window = Dali::Integration::AndroidFramework::Get().GetApplicationWindow();
   width                 = ANativeWindow_getWidth(window);
   height                = ANativeWindow_getHeight(window);
-  DALI_LOG_WARNING("Native window width %d, height %d", width, height);
+  DALI_LOG_DEBUG_INFO("Native window width %d, height %d", width, height);
 }
 
 void UpdateScreenSize()

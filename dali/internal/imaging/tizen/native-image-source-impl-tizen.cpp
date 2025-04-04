@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ void NativeImageSourceTizen::Initialize()
     }
     default:
     {
-      DALI_LOG_WARNING("Wrong color depth.\n");
+      DALI_LOG_ERROR("Wrong color depth.\n");
       return;
     }
   }
@@ -328,7 +328,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
     return true;
   }
 
-  DALI_LOG_WARNING("TBM surface does not exist.\n");
+  DALI_LOG_ERROR("TBM surface does not exist.\n");
 
   width  = 0;
   height = 0;
@@ -376,7 +376,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
           {
             size_t sOffset  = c * inputBufferLinePixelSize;
             size_t dOffset  = c * 3;
-            size_t offset          = dOffset + r * stride;
+            size_t offset   = dOffset + r * stride;
             ptr[offset + 2] = *(bufptr + sOffset);
             ptr[offset + 1] = *(bufptr + sOffset + 1);
             ptr[offset]     = *(bufptr + sOffset + 2);
@@ -395,7 +395,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
           {
             size_t sOffset  = c * inputBufferLinePixelSize;
             size_t dOffset  = c * 4;
-            size_t offset          = dOffset + r * stride;
+            size_t offset   = dOffset + r * stride;
             ptr[offset + 3] = *(bufptr + sOffset);
             ptr[offset + 2] = *(bufptr + sOffset + 1);
             ptr[offset + 1] = *(bufptr + sOffset + 2);
@@ -415,7 +415,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
           {
             size_t sOffset  = c * inputBufferLinePixelSize;
             size_t dOffset  = c * 4;
-            size_t offset          = dOffset + r * stride;
+            size_t offset   = dOffset + r * stride;
             ptr[offset + 2] = *(bufptr + sOffset);
             ptr[offset + 1] = *(bufptr + sOffset + 1);
             ptr[offset]     = *(bufptr + sOffset + 2);
@@ -441,7 +441,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
     return true;
   }
 
-  DALI_LOG_WARNING("TBM surface does not exist.\n");
+  DALI_LOG_ERROR("TBM surface does not exist.\n");
 
   return false;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
       }
       default:
       {
-        DALI_LOG_WARNING("Pixmap has unsupported bit-depth for getting pixels: %u\n", pXImage->depth);
+        DALI_LOG_ERROR("Pixmap has unsupported bit-depth for getting pixels: %u\n", pXImage->depth);
       }
     }
   }

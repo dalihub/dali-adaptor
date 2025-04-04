@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/images/pixel.h>
 #include <cstring>
 
@@ -117,6 +118,7 @@ bool LoadAstcHeader(FILE* const filePointer, unsigned int& width, unsigned int& 
   const unsigned int readLength = sizeof(AstcFileHeader);
   if(DALI_UNLIKELY(fread(&fileHeader, 1, readLength, filePointer) != readLength))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -193,6 +195,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   if(DALI_UNLIKELY(fseek(filePointer, 0L, SEEK_END)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -200,12 +203,14 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   if(DALI_UNLIKELY(fileSize == -1L))
   {
     DALI_LOG_ERROR("Could not determine ASTC file size.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(filePointer, sizeof(AstcFileHeader), SEEK_SET)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -239,6 +244,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
     DALI_LOG_ERROR("Read of image pixel data failed. (required image bytes : %zu, actual read from file : %zu\n", imageByteCount, bytesRead);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 

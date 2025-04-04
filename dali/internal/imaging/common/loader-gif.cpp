@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <memory>
 
 // We need to check if giflib has the new open and close API (including error parameter).
@@ -85,8 +86,15 @@ const unsigned int INTERLACE_PAIR_TABLE_SIZE(sizeof(INTERLACE_PAIR_TABLE) / size
 /// Function used by Gif_Lib to read from the image file.
 int ReadDataFromGif(GifFileType* gifInfo, GifByteType* data, int length)
 {
-  FILE* fp = reinterpret_cast<FILE*>(gifInfo->UserData);
-  return fread(data, sizeof(GifByteType), length, fp);
+  FILE*     fp           = reinterpret_cast<FILE*>(gifInfo->UserData);
+  const int actualLength = fread(data, sizeof(GifByteType), length, fp);
+  if(DALI_UNLIKELY(actualLength != length))
+  {
+    DALI_LOG_ERROR("Error read bytes (required : %d, actual read : %d)\n", length, actualLength);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
+  }
+
+  return actualLength;
 }
 
 /// Loads the GIF Header.

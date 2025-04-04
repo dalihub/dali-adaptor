@@ -398,12 +398,12 @@ void InputMethodContextEcoreWl::CreateContext()
     }
     else
     {
-      DALI_LOG_WARNING("InputMethodContext Unable to get IMFContext\n");
+      DALI_LOG_ERROR("InputMethodContext Unable to get IMFContext (contextId:%p)\n", contextId);
     }
   }
   else
   {
-    DALI_LOG_WARNING("InputMethodContext Unable to get IMFContext\n");
+    DALI_LOG_ERROR("InputMethodContext Unable to get IMFContext (contextId:(null))\n");
   }
 }
 
@@ -893,7 +893,7 @@ Rect<int> InputMethodContextEcoreWl::GetInputMethodArea()
   }
   else
   {
-    DALI_LOG_WARNING("VKB Unable to get IMFContext so GetSize unavailable\n");
+    DALI_LOG_ERROR("VKB Unable to get IMFContext so GetSize unavailable\n");
     // return 0 as real size unknown.
   }
 
@@ -908,7 +908,7 @@ void InputMethodContextEcoreWl::ApplyOptions(const InputMethodOptions& options)
 
   if(mIMFContext == NULL)
   {
-    DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
+    DALI_LOG_ERROR("VKB Unable to excute ApplyOptions with Null ImfContext\n");
     return;
   }
 

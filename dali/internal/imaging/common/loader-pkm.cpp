@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/pixel-buffer-impl.h> ///< for Internal::Adaptor::PixelBuffer::New()
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -132,6 +133,7 @@ bool LoadPkmHeader(FILE* const filePointer, unsigned int& width, unsigned int& h
   const unsigned int readLength = sizeof(PkmFileHeader);
   if(DALI_UNLIKELY(fread(&fileHeader, 1, readLength, filePointer) != readLength))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -206,6 +208,7 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(fseek(filePointer, 0L, SEEK_END)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -213,12 +216,14 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(fileSize == -1L))
   {
     DALI_LOG_ERROR("Could not determine PKM file size.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(filePointer, sizeof(PkmFileHeader), SEEK_SET)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -252,6 +257,7 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
     DALI_LOG_ERROR("Read of image pixel data failed. (required image bytes : %zu, actual read from file : %zu\n", imageByteCount, bytesRead);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 

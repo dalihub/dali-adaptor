@@ -88,7 +88,7 @@ void TriggerEvent::Trigger()
   }
   else
   {
-    DALI_LOG_WARNING("Attempting to write to an invalid file descriptor\n");
+    DALI_LOG_ERROR("Attempting to write to an invalid file descriptor\n");
   }
 }
 
@@ -107,7 +107,7 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
   size = read(mFileDescriptor, &receivedData, sizeof(uint64_t));
   if(size != sizeof(uint64_t))
   {
-    DALI_LOG_WARNING("Unable to read to UpdateEvent File descriptor\n");
+    DALI_LOG_ERROR("Unable to read to UpdateEvent File descriptor\n");
     DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 

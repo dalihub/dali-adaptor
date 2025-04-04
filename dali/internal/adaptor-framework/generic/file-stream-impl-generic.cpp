@@ -78,7 +78,7 @@ FileStream::Impl::~Impl()
     const int closeFailed = fclose(mFile);
     if(closeFailed)
     {
-      DALI_LOG_WARNING("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
+      DALI_LOG_ERROR("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
@@ -135,7 +135,7 @@ std::iostream& FileStream::Impl::GetStream()
     mFileStream.open(mFileName, static_cast<std::ios_base::openmode>(openMode));
     if(!mFileStream.is_open())
     {
-      DALI_LOG_WARNING("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode);
+      DALI_LOG_ERROR("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode);
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
     return mFileStream;
@@ -145,10 +145,10 @@ std::iostream& FileStream::Impl::GetStream()
     mBufferStream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(mBuffer), static_cast<std::streamsize>(static_cast<size_t>(mDataSize)));
     if(!mBufferStream.rdbuf()->in_avail())
     {
-      DALI_LOG_WARNING("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
-                       static_cast<void*>(mBuffer),
-                       static_cast<unsigned>(mDataSize),
-                       openMode);
+      DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
+                     static_cast<void*>(mBuffer),
+                     static_cast<unsigned>(mDataSize),
+                     openMode);
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }

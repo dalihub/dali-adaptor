@@ -1,7 +1,7 @@
 #ifndef DALI_INTERNAL_PLATFORM_FILECLOSER_H
 #define DALI_INTERNAL_PLATFORM_FILECLOSER_H
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ protected: // prevent this class being directly instantiated
 
     if(mFile == 0)
     {
-      DALI_LOG_WARNING("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n", static_cast<void*>(buffer), static_cast<unsigned>(dataSize), mode);
+      DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n", static_cast<void*>(buffer), static_cast<unsigned>(dataSize), mode);
     }
   }
 
@@ -122,7 +122,7 @@ protected: // prevent this class being directly instantiated
 
       if(closeFailed)
       {
-        DALI_LOG_WARNING("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
+        DALI_LOG_ERROR("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
       }
       mFile = 0;
     }

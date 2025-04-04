@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -385,7 +385,7 @@ bool DownloadFile(CURL*                  curlHandle,
   }
   else if(DALI_UNLIKELY(dataSize == 0u))
   {
-    DALI_LOG_WARNING("Warning : Download data size is 0! url : %s\n", url.c_str());
+    DALI_LOG_ERROR("Warning : Download data size is 0! url : %s\n", url.c_str());
   }
   return true;
 }
@@ -415,7 +415,7 @@ bool DownloadRemoteFileIntoMemory(const std::string&     url,
 
   if(url.empty())
   {
-    DALI_LOG_WARNING("empty url requested \n");
+    DALI_LOG_ERROR("empty url requested \n");
     return false;
   }
 

@@ -41,6 +41,7 @@
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace
 {
@@ -106,7 +107,7 @@ static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
 
   if(DALI_UNLIKELY(chrominanceSubsampling >= TJ_NUMSAMP))
   {
-    DALI_LOG_WARNING("WARNING! Input subsampling value [%d] is bigger than turbojpeg library support [%d]\n", chrominanceSubsampling, TJ_NUMSAMP);
+    DALI_LOG_ERROR("WARNING! Input subsampling value [%d] is bigger than turbojpeg library support [%d]\n", chrominanceSubsampling, TJ_NUMSAMP);
   }
 
   return chrominanceSubsampling < TJ_NUMSAMP ? gSubsamplingFormatTable[chrominanceSubsampling] : false;
@@ -162,7 +163,7 @@ bool IsJpegDecodingFailed()
   }
   else
   {
-    DALI_LOG_WARNING("%s\n", errorString.c_str());
+    DALI_LOG_DEBUG_INFO("%s\n", errorString.c_str());
     return false;
   }
 }
@@ -670,6 +671,7 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking to end of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -683,12 +685,14 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
   if(DALI_UNLIKELY(0u == jpegBufferSize))
   {
     DALI_LOG_ERROR("Jpeg buffer size error\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -707,12 +711,14 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
   if(DALI_UNLIKELY(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize))
   {
     DALI_LOG_ERROR("Error on image file read.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -1177,7 +1183,7 @@ JpegTransform ConvertExifOrientation(ExifData* exifData)
       default:
       {
         // Try to keep loading the file, but let app developer know there was something fishy:
-        DALI_LOG_WARNING("Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.\n", entry);
+        DALI_LOG_DEBUG_INFO("Incorrect/Unknown Orientation setting found in EXIF header of JPEG image (%x). Orientation setting will be ignored.\n", entry);
         break;
       }
     }
@@ -1207,7 +1213,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
   tjscalingfactor* factors    = tjGetScalingFactors(&numFactors);
   if(DALI_UNLIKELY(factors == NULL))
   {
-    DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!\n");
+    DALI_LOG_DEBUG_INFO("TurboJpeg tjGetScalingFactors error!\n");
     success = false;
   }
   else
@@ -1319,6 +1325,7 @@ ExifHandle LoadExifData(FILE* fp)
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
   else
   {
@@ -1330,6 +1337,7 @@ ExifHandle LoadExifData(FILE* fp)
       int size = fread(dataBuffer, 1, sizeof(dataBuffer), fp);
       if(size <= 0)
       {
+        DALI_PRINT_SYSTEM_ERROR_LOG();
         break;
       }
       if(!exif_loader_write(exifLoader.get(), dataBuffer, size))
