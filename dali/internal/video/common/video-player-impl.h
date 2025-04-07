@@ -218,26 +218,6 @@ public:
   void LowerToBottom();
 
   /**
-   * @copydoc Dali::VideoPlayer::SetAutoRotationEnabled()
-   */
-  void SetAutoRotationEnabled(bool enable);
-
-  /**
-   * @copydoc Dali::VideoPlayer::IsAutoRotationEnabled() const
-   */
-  bool IsAutoRotationEnabled() const;
-
-  /**
-   * @copydoc Dali::VideoPlayer::SetLetterBoxEnabled()
-   */
-  void SetLetterBoxEnabled(bool enable);
-
-  /**
-   * @copydoc Dali::VideoPlayer::IsLetterBoxEnabled() const
-   */
-  bool IsLetterBoxEnabled() const;
-
-  /**
    * @brief Gets Video Player plugin
    * @SINCE_2_0.14
    * @return VideoPlayerPlugin pointer

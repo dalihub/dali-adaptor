@@ -237,24 +237,4 @@ void VideoPlayer::LowerToBottom()
   GetImplementation(*this).LowerToBottom();
 }
 
-void VideoPlayer::SetAutoRotationEnabled(bool enable)
-{
-  GetImplementation(*this).SetAutoRotationEnabled(enable);
-}
-
-bool VideoPlayer::IsAutoRotationEnabled() const
-{
-  return GetImplementation(*this).IsAutoRotationEnabled();
-}
-
-void VideoPlayer::SetLetterBoxEnabled(bool enable)
-{
-  GetImplementation(*this).SetLetterBoxEnabled(enable);
-}
-
-bool VideoPlayer::IsLetterBoxEnabled() const
-{
-  return GetImplementation(*this).IsLetterBoxEnabled();
-}
-
 } // namespace Dali
