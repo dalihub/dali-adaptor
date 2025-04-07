@@ -520,11 +520,6 @@ void WebEngine::RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngi
   GetImplementation(*this).RegisterScrollEdgeReachedCallback(callback);
 }
 
-void WebEngine::RegisterOverScrolledCallback(Dali::WebEnginePlugin::WebEngineOverScrolledCallback callback)
-{
-  GetImplementation(*this).RegisterOverScrolledCallback(callback);
-}
-
 void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback)
 {
   GetImplementation(*this).RegisterUrlChangedCallback(callback);
