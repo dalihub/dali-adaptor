@@ -65,7 +65,6 @@ public:
 
   /**
    * @brief Get items by index.
-   * @return Item corresponding to the index.
    */
   virtual void GetTypeAndConnect(int32_t* type, bool* connect, int index) = 0;
 
