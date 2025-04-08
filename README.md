@@ -166,7 +166,6 @@ meson setup builddir --buildtype custom --optimization s --prefix $DESKTOP_PREFI
 ninja -C builddir install
 ```
 
-
 #### thorvg Install check
 - See `$DESKTOP_PREFIX/lib` has `libthorvg.so` file
 - Check `-- ThorVG version` result at build summary.
@@ -174,4 +173,35 @@ ninja -C builddir install
   - `1.x.x` shown if you build thorvg at main branch.
   - `OFF` shown if you don't support thorvg.
 
+
+## Apendix : How to run Vulkan backend for Ubuntu
+
+### Environment setup
+- Need environment created using dali_env script in dali-core repository, with -v option
+```sh
+dali-core/build/scripts/dali_env -v -c
+dali-env/opt/bin/dali_env -s > setenv
+. setenv
+```
+
+- Success if you see `dali-env/vulkan/1.3.280.1/` directory exist.
+- Also, if `setenv` file has `export VULKAN_VERSION=1.3.280.1`, setting completed.
+
+### Build
+- Follow `Building for Ubuntu desktop` guides.
+- Check `-- Graphics Backend` result at build summary is `Dynamic (GLES/VULKAN)`
+
+### Execute
+- Set environment value for graphics backend
+```sh
+export DALI_GRAPHICS_BACKEND=VULKAN
+```
+
+- Execute DALi application, and check dali log print vulkan infomations. For example,
+```
+INFO: DALI: Vulkan information:
+  Vulkan version: 1.3.242
+  Device name:    NVIDIA GeForce GT 1030
+  Driver Version: 85edc040
+```
 
