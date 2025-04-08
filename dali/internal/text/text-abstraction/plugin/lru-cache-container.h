@@ -398,7 +398,7 @@ private:
    *
    * @param reserveSize Reserved size of cache.
    */
-  void InternalReserve(std::size_t reserveSize) noexcept
+  void InternalReserve(std::size_t reserveSize)
   {
     // Increase mData capacity
     if(reserveSize > mCacheMaxSize)
