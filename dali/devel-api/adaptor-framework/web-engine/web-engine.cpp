@@ -402,6 +402,16 @@ void WebEngine::SetFocus(bool focused)
   GetImplementation(*this).SetFocus(focused);
 }
 
+bool WebEngine::SetImePositionAndAlignment(Dali::Vector2 position, int alignment)
+{
+  return GetImplementation(*this).SetImePositionAndAlignment(position, alignment);
+}
+
+void WebEngine::SetCursorThemeName(const std::string themeName)
+{
+  GetImplementation(*this).SetCursorThemeName(themeName);
+}
+
 void WebEngine::SetPageZoomFactor(float zoomFactor)
 {
   GetImplementation(*this).SetPageZoomFactor(zoomFactor);
@@ -630,6 +640,26 @@ void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngine
 void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)
 {
   GetImplementation(*this).RegisterUserMediaPermissionRequestCallback(callback);
+}
+
+void WebEngine::RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback)
+{
+  GetImplementation(*this).RegisterDeviceConnectionChangedCallback(callback);
+}
+
+void WebEngine::RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback)
+{
+  GetImplementation(*this).RegisterDeviceListGetCallback(callback);
+}
+
+void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
+{
+  GetImplementation(*this).FeedMouseWheel(yDirection, step, x, y);
+}
+
+void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
+{
+  GetImplementation(*this).SetVideoHole(enabled, isWaylandWindow);
 }
 
 } // namespace Dali
