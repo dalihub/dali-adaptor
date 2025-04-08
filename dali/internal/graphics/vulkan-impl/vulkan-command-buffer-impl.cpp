@@ -517,35 +517,45 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
   auto& samplers   = reflection.GetSamplers();
 
   // Deferred texture bindings:
-  uint32_t binding = 1;
-  imageInfos.reserve(mDeferredTextureBindings.size() + 1);
-  for(auto& textureBinding : mDeferredTextureBindings)
+  if(!samplers.empty()) // Ignore any texture bindings if the program is not expecting them
   {
-    imageInfos.emplace_back();
-    imageInfos.back()
-      .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-      .setImageView(textureBinding.imageView)
-      .setSampler(textureBinding.sampler);
-
-    descriptorWrites.emplace_back();
+    imageInfos.reserve(samplers.size() + 1); // mDeferredTextureBindings.size() + 1);
     for(auto& info : samplers)
     {
-      if(info.location == textureBinding.binding)
+      bool     found   = false;
+      uint32_t binding = 1;
+      for(auto& textureBinding : mDeferredTextureBindings)
       {
-        binding = info.binding;
-        break;
+        if(info.location == textureBinding.binding)
+        {
+          found   = true;
+          binding = info.binding;
+          imageInfos.emplace_back();
+          imageInfos.back()
+            .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+            .setImageView(textureBinding.imageView)
+            .setSampler(textureBinding.sampler);
+          break;
+        }
+      }
+      if(found)
+      {
+        descriptorWrites.emplace_back();
+
+        descriptorWrites.back()
+          .setPImageInfo(&imageInfos.back())
+          .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+          .setDescriptorCount(1)
+          .setDstSet(descriptorSet)
+          .setDstBinding(binding)
+          .setDstArrayElement(0);
       }
     }
-
-    descriptorWrites.back()
-      .setPImageInfo(&imageInfos.back())
-      .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-      .setDescriptorCount(1)
-      .setDstSet(descriptorSet)
-      .setDstBinding(binding)
-      .setDstArrayElement(0);
   }
-  mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+  if(!descriptorWrites.empty())
+  {
+    mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+  }
 
   auto pipelineLayout = reflection.GetVkPipelineLayout();
 

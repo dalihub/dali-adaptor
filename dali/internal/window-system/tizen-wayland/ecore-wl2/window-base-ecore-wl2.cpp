@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3266,6 +3266,12 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
       int index = 0;
       EINA_LIST_FOREACH(keyList, l, listData)
       {
+        if(static_cast<Ecore_Wl2_Window_Keygrab_Info*>(listData)->key == NULL)
+        {
+          DALI_LOG_ERROR("input key list has null data!");
+          break;
+        }
+
         if(strcmp(static_cast<char*>(data), static_cast<Ecore_Wl2_Window_Keygrab_Info*>(listData)->key) == 0)
         {
           result[index] = false;

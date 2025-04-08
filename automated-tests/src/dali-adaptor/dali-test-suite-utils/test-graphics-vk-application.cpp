@@ -216,7 +216,10 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   mRenderStatus.SetNeedsUpdate(false);
   mRenderStatus.SetNeedsPostRender(false);
 
+  std::vector<Rect<int>> damagedRects;
+
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
+  mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
   mCore->PostRender();
@@ -231,7 +234,7 @@ bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMillis
   DoUpdate(intervalMilliseconds, location);
 
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
-  mCore->PreRender(mScene, damagedRects);
+  mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
 
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
@@ -270,8 +273,11 @@ bool TestGraphicsApplication::GetRenderNeedsPostRender()
 
 bool TestGraphicsApplication::RenderOnly()
 {
+  std::vector<Rect<int>> damagedRects;
+
   // Update Time values
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
+  mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
   mCore->PostRender();

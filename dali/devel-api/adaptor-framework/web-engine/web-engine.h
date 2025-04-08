@@ -526,6 +526,21 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @brief Set the style of IME.
+   * @param[in] position Position of IME.
+   * @param[in] alignment Alignment of IME.
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool SetImePositionAndAlignment(Dali::Vector2 position, int alignment);
+
+  /**
+   * @brief Set the theme name of cursor.
+   * @param[in] themeName The name of theme of cursor.
+   */
+  void SetCursorThemeName(const std::string themeName);
+
+  /**
    * @brief Enable/disable mouse events. The default is enabled.
    *
    * @param[in] enabled True if mouse events are enabled, false otherwise
@@ -866,6 +881,37 @@ public:
    * @param[in] callback The callback to be called for handling user media permission.
    */
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
+
+  /**
+   * @brief Register DeviceConnectionChanged callback.
+   *
+   * @param[in] callback The callback to be called for device connection changed event.
+   */
+  void RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback);
+
+  /**
+   * @brief Register DeviceListGet callback.
+   *
+   * @param[in] callback The callback to be called for getting device list.
+   */
+  void RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback);
+
+  /**
+   * @brief Feed mouse wheel event forcefully.
+   *
+   * @param[in] yDirection wheel event's y direction.
+   * @param[in] step step of wheel event.
+   * @param[in] x x value of wheel event.
+   * @param[in] y y value of wheel event.
+   */
+  void FeedMouseWheel(bool yDirection, int step, int x, int y);
+
+  /**
+   * @brief Enable video hole for a specific window type.
+   * @param[in] enabled True if enabled, false othewise.
+   * @param[in] isWaylandWindow True if wayland window, false if EFL window.
+   */
+  void SetVideoHole(bool enabled, bool isWaylandWindow);
 
 private: // Not intended for application developers
   /**

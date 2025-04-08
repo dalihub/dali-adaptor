@@ -20,6 +20,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/resource-policies.h>
+#include <dali/integration-api/scene-pre-render-status.h>
 #include <dali/integration-api/scene.h>
 #include <dali/integration-api/trace.h>
 
@@ -107,8 +108,9 @@ protected:
   Graphics::VulkanGraphics mGraphics; // Use real vulkan graphics
   Dali::DisplayConnection* mDisplayConnection{nullptr};
 
-  Integration::UpdateStatus mStatus;
-  Integration::RenderStatus mRenderStatus;
+  Integration::UpdateStatus         mStatus;
+  Integration::RenderStatus         mRenderStatus;
+  Integration::ScenePreRenderStatus mScenePreRenderStatus;
 
   Integration::Core*       mCore;
   Dali::Integration::Scene mScene;

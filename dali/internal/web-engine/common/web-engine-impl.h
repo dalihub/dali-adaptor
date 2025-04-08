@@ -378,6 +378,16 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @copydoc Dali::WebEngine::SetImePositionAndAlignment()
+   */
+  bool SetImePositionAndAlignment(Dali::Vector2 position, int alignment);
+
+  /**
+   * @copydoc Dali::WebEngine::SetCursorThemeName()
+   */
+  void SetCursorThemeName(const std::string themeName);
+
+  /**
    * @copydoc Dali::WebEngine::SetPageZoomFactor()
    */
   void SetPageZoomFactor(float zoomFactor);
@@ -611,6 +621,26 @@ public:
    * @copydoc Dali::WebEngine::RegisterUserMediaPermissionRequestCallback()
    */
   void RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterDeviceConnectionChangedCallback()
+   */
+  void RegisterDeviceConnectionChangedCallback(Dali::WebEnginePlugin::WebEngineDeviceConnectionChangedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterDeviceListGetCallback()
+   */
+  void RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDeviceListGetCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::FeedMouseWheel()
+   */
+  void FeedMouseWheel(bool yDirection, int step, int x, int y);
+
+  /**
+   * @copydoc Dali::WebEngine::SetVideoHole()
+   */
+  void SetVideoHole(bool enabled, bool isWaylandWindow);
 
 private:
   /**
