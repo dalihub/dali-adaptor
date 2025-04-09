@@ -111,8 +111,8 @@ void TextureUploadManager::RequestUpdateOnce()
 {
   if(Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_INFO(gTextureUploadManagerLogFilter, Debug::Concise, "RenderOnce requested\n");
-    Dali::Adaptor::Get().RenderOnce();
+    DALI_LOG_INFO(gTextureUploadManagerLogFilter, Debug::Concise, "UpdateOnce requested\n");
+    Dali::Adaptor::Get().UpdateOnce();
   }
 }
 
@@ -126,8 +126,9 @@ bool TextureUploadManager::ResourceUpload()
   RequestUploadQueue copiedRequestUploadQueue;
 
   {
-    Dali::Mutex::ScopedLock lock(mRequestMutex);
-    copiedRequestUploadQueue = std::move(mRequestUploadQueue);
+    Dali::Mutex::ScopedLock lock(mRequestMutex); // Worker-Update thread mutex
+
+    copiedRequestUploadQueue.swap(mRequestUploadQueue); // Move upload queue
   }
 
   // Upload.
