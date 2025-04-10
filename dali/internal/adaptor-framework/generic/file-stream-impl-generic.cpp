@@ -78,7 +78,7 @@ FileStream::Impl::~Impl()
     const int closeFailed = fclose(mFile);
     if(closeFailed)
     {
-      DALI_LOG_ERROR("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
+      DALI_LOG_ERROR("File close failed.\n");
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
