@@ -29,7 +29,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
@@ -76,6 +75,7 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
   assert(!mRecording && "CommandBufferImpl already is in the recording state");
   mDeferredPipelineToBind = nullptr;
   mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
+  mDynamicStateMask       = CommandBufferImpl::INITIAL_DYNAMIC_MASK_VALUE;
 
   auto info = vk::CommandBufferBeginInfo{};
 
@@ -118,11 +118,14 @@ void CommandBufferImpl::Reset()
 {
   assert(!mRecording && "Can't reset command buffer during recording!");
   assert(mCommandBuffer && "Invalid command buffer!");
+
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "this:%p Reset vk-handle: %p\n", this, mCommandBuffer);
   mCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
   mDeferredPipelineToBind = nullptr;
   mLastBoundPipeline      = VK_NULL_HANDLE;
   mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
   mColorWriteMask         = true;
+  mDynamicStateMask       = CommandBufferImpl::INITIAL_DYNAMIC_MASK_VALUE;
 }
 
 /** Free command buffer */
@@ -163,6 +166,26 @@ void CommandBufferImpl::BindVertexBuffers(
   mCommandBuffer.bindVertexBuffers(firstBinding, vkBuffers.size(), vkBuffers.data(), vkOffsets.data());
 }
 
+void CommandBufferImpl::BindVertexBuffers(
+  uint32_t                                          firstBinding,
+  const IndirectPtr<VertexBufferBindingDescriptor>& bindingPtr,
+  uint32_t                                          bindingCount)
+{
+  // update list of used resources and create an array of VkBuffers
+  std::vector<vk::Buffer>     vkBuffers;
+  std::vector<vk::DeviceSize> vkOffsets;
+  vkBuffers.reserve(bindingCount);
+  vkOffsets.reserve(bindingCount);
+
+  for(uint32_t i = 0u; i < bindingCount; ++i)
+  {
+    auto& binding = bindingPtr.At(i);
+    vkBuffers.emplace_back(const_cast<Buffer*>(binding.buffer)->GetImpl()->GetVkHandle());
+    vkOffsets.emplace_back(static_cast<vk::DeviceSize>(binding.offset));
+  }
+  mCommandBuffer.bindVertexBuffers(firstBinding, vkBuffers.size(), vkBuffers.data(), vkOffsets.data());
+}
+
 void CommandBufferImpl::BindIndexBuffer(
   BufferImpl& buffer,
   uint32_t    offset,
@@ -180,7 +203,6 @@ void CommandBufferImpl::BindIndexBuffer(
 
 void CommandBufferImpl::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
 {
-  // Needs descriptor set pools.
   bool standalone = true;
   for(const auto& uniformBinding : bindings)
   {
@@ -190,55 +212,80 @@ void CommandBufferImpl::BindUniformBuffers(const std::vector<UniformBufferBindin
       standalone = false;
       continue;
     }
-
-    auto buffer = const_cast<Vulkan::Buffer*>(static_cast<const Vulkan::Buffer*>(uniformBinding.buffer));
-
-    CommandBufferImpl::DeferredUniformBinding deferredUniformBinding{};
-    deferredUniformBinding.buffer  = buffer->GetImpl()->GetVkHandle();
-    deferredUniformBinding.offset  = uniformBinding.offset;
-    deferredUniformBinding.range   = uniformBinding.dataSize;
-    deferredUniformBinding.binding = uniformBinding.binding;
-
-    mDeferredUniformBindings.push_back(deferredUniformBinding);
+    BindUniformBuffer(uniformBinding);
   }
+}
+
+void CommandBufferImpl::BindUniformBuffers(const IndirectPtr<UniformBufferBindingDescriptor>& uniformBindingPtr, uint32_t count)
+{
+  mDeferredUniformBindingDescriptor      = uniformBindingPtr;
+  mDeferredUniformBindingDescriptorCount = count;
+}
+
+void CommandBufferImpl::BindUniformBuffer(const UniformBufferBinding& uniformBinding)
+{
+  auto buffer = const_cast<Vulkan::Buffer*>(static_cast<const Vulkan::Buffer*>(uniformBinding.buffer));
+
+  CommandBufferImpl::DeferredUniformBinding deferredUniformBinding{};
+  deferredUniformBinding.buffer  = buffer->GetImpl()->GetVkHandle();
+  deferredUniformBinding.offset  = uniformBinding.offset;
+  deferredUniformBinding.range   = uniformBinding.dataSize;
+  deferredUniformBinding.binding = uniformBinding.binding;
+
+  mDeferredUniformBindings.push_back(deferredUniformBinding);
 }
 
 void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
   for(const auto& textureBinding : textureBindings)
   {
-    auto texture     = const_cast<Vulkan::Texture*>(static_cast<const Vulkan::Texture*>(textureBinding.texture));
-    auto sampler     = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
-    auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetDefaultSampler();
-    auto vkSampler   = samplerImpl ? samplerImpl->GetVkHandle() : nullptr;
-    // @todo If there is still no sampler, fall back to default?
-    if(!vkSampler)
-    {
-      DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Concise, "No sampler for texture binding\n");
-    }
-
-    // Ensure native image is prepared
-    texture->PrepareTexture();
-
-    auto image     = texture->GetImage();
-    auto imageView = texture->GetImageView();
-
-    // test if image is valid, skip invalid image
-    if(!image || !image->GetVkHandle())
-    {
-      DALI_LOG_ERROR("CommandBufferImpl::BindTextures: image invalid, SKIP\n");
-      continue;
-    }
-
-    // Store: imageView, sampler & texture.binding for later use
-    // We don't know at this point what pipeline is bound (As dali-core
-    // binds the pipeline after calling this API)
-
-    mDeferredTextureBindings.emplace_back();
-    mDeferredTextureBindings.back().imageView = imageView->GetVkHandle();
-    mDeferredTextureBindings.back().sampler   = vkSampler;
-    mDeferredTextureBindings.back().binding   = textureBinding.binding; // zero indexed
+    BindTexture(textureBinding);
   }
+}
+
+void CommandBufferImpl::BindTextures(const IndirectPtr<TextureBinding>& textureBindingPtr, uint32_t count)
+{
+  // @todo Eliminate this copy - can pick up this ptr later.
+  for(uint32_t i = 0; i < count; ++i)
+  {
+    if(!BindTexture(textureBindingPtr.At(i)))
+      continue;
+  }
+}
+
+bool CommandBufferImpl::BindTexture(const TextureBinding& textureBinding)
+{
+  auto texture     = const_cast<Vulkan::Texture*>(static_cast<const Vulkan::Texture*>(textureBinding.texture));
+  auto sampler     = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
+  auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetDefaultSampler();
+  auto vkSampler   = samplerImpl ? samplerImpl->GetVkHandle() : nullptr;
+  // @todo If there is still no sampler, fall back to default?
+  if(!vkSampler)
+  {
+    DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Concise, "No sampler for texture binding\n");
+  }
+
+  // Ensure native image is prepared
+  texture->PrepareTexture();
+
+  auto image     = texture->GetImage();
+  auto imageView = texture->GetImageView();
+
+  // test if image is valid, skip invalid image
+  if(!image || !image->GetVkHandle())
+  {
+    return false;
+  }
+
+  // Store: imageView, sampler & texture.binding for later use
+  // We don't know at this point what pipeline is bound (As dali-core
+  // binds the pipeline after calling this API)
+
+  mDeferredTextureBindings.emplace_back();
+  mDeferredTextureBindings.back().imageView = imageView->GetVkHandle();
+  mDeferredTextureBindings.back().sampler   = vkSampler;
+  mDeferredTextureBindings.back().binding   = textureBinding.binding; // zero indexed
+  return true;
 }
 
 void CommandBufferImpl::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
@@ -271,12 +318,12 @@ void CommandBufferImpl::ReadPixels(uint8_t* buffer)
 }
 
 void CommandBufferImpl::PipelineBarrier(
-  vk::PipelineStageFlags               srcStageMask,
-  vk::PipelineStageFlags               dstStageMask,
-  vk::DependencyFlags                  dependencyFlags,
-  std::vector<vk::MemoryBarrier>       memoryBarriers,
-  std::vector<vk::BufferMemoryBarrier> bufferBarriers,
-  std::vector<vk::ImageMemoryBarrier>  imageBarriers)
+  vk::PipelineStageFlags                      srcStageMask,
+  vk::PipelineStageFlags                      dstStageMask,
+  vk::DependencyFlags                         dependencyFlags,
+  const std::vector<vk::MemoryBarrier>&       memoryBarriers,
+  const std::vector<vk::BufferMemoryBarrier>& bufferBarriers,
+  const std::vector<vk::ImageMemoryBarrier>&  imageBarriers)
 {
   mCommandBuffer.pipelineBarrier(srcStageMask,
                                  dstStageMask,
@@ -434,124 +481,173 @@ void CommandBufferImpl::DrawIndexedIndirect(BufferImpl& buffer,
   mCommandBuffer.drawIndexedIndirect(buffer.GetVkHandle(), static_cast<vk::DeviceSize>(offset), drawCount, stride);
 }
 
-void CommandBufferImpl::ExecuteCommandBuffers(std::vector<vk::CommandBuffer>& commandBuffers)
-{
-  mCommandBuffer.executeCommands(commandBuffers);
-}
-
 void CommandBufferImpl::SetScissor(Rect2D value)
 {
-  mCommandBuffer.setScissor(0, 1, reinterpret_cast<vk::Rect2D*>(&value));
+  if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
+  {
+    mCommandBuffer.setScissor(0, 1, reinterpret_cast<vk::Rect2D*>(&value));
+  }
 }
 
 void CommandBufferImpl::SetViewport(Viewport value)
 {
-  mCommandBuffer.setViewport(0, 1, reinterpret_cast<vk::Viewport*>(&value));
+  if(SetDynamicState(mDynamicState.viewport, value, DynamicStateMaskBits::VIEWPORT))
+  {
+    mCommandBuffer.setViewport(0, 1, reinterpret_cast<vk::Viewport*>(&value));
+  }
 }
 
 void CommandBufferImpl::SetStencilTestEnable(bool stencilEnable)
 {
-  mDepthStencilState.setStencilTestEnable(stencilEnable);
-  if(!stencilEnable)
+  if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
   {
-    // Reset
-    mStencilTestFrontState.setCompareMask(0x00);
-    mStencilTestFrontState.setWriteMask(0x00);
-    mStencilTestFrontState.setReference(0x00);
-    mStencilTestFrontState.setCompareOp(vk::CompareOp::eLess);
-    mStencilTestFrontState.setFailOp(vk::StencilOp::eKeep);
-    mStencilTestFrontState.setPassOp(vk::StencilOp::eKeep);
-    mStencilTestFrontState.setDepthFailOp(vk::StencilOp::eKeep);
+    mDepthStencilState.setStencilTestEnable(stencilEnable);
+    if(!stencilEnable)
+    {
+      // Reset
+      mStencilTestFrontState.setCompareMask(0x00);
+      mStencilTestFrontState.setWriteMask(0x00);
+      mStencilTestFrontState.setReference(0x00);
+      mStencilTestFrontState.setCompareOp(vk::CompareOp::eLess);
+      mStencilTestFrontState.setFailOp(vk::StencilOp::eKeep);
+      mStencilTestFrontState.setPassOp(vk::StencilOp::eKeep);
+      mStencilTestFrontState.setDepthFailOp(vk::StencilOp::eKeep);
 
-    mStencilTestBackState.setCompareMask(0x00);
-    mStencilTestBackState.setWriteMask(0x00);
-    mStencilTestBackState.setReference(0x00);
-    mStencilTestBackState.setCompareOp(vk::CompareOp::eLess);
-    mStencilTestBackState.setFailOp(vk::StencilOp::eKeep);
-    mStencilTestBackState.setPassOp(vk::StencilOp::eKeep);
-    mStencilTestBackState.setDepthFailOp(vk::StencilOp::eKeep);
-    mDepthStencilState.setFront(mStencilTestFrontState);
-    mDepthStencilState.setBack(mStencilTestBackState);
+      mStencilTestBackState.setCompareMask(0x00);
+      mStencilTestBackState.setWriteMask(0x00);
+      mStencilTestBackState.setReference(0x00);
+      mStencilTestBackState.setCompareOp(vk::CompareOp::eLess);
+      mStencilTestBackState.setFailOp(vk::StencilOp::eKeep);
+      mStencilTestBackState.setPassOp(vk::StencilOp::eKeep);
+      mStencilTestBackState.setDepthFailOp(vk::StencilOp::eKeep);
+      mDepthStencilState.setFront(mStencilTestFrontState);
+      mDepthStencilState.setBack(mStencilTestBackState);
+    }
   }
 }
 
-void CommandBufferImpl::SetStencilWriteMask(vk::StencilFaceFlags faceMask, uint32_t writeMask)
+void CommandBufferImpl::SetStencilWriteMask(uint32_t writeMask)
 {
-  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
-  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
-  mStencilTestStates[f].setWriteMask(writeMask);
-  mStencilTestStates[b].setWriteMask(writeMask);
+  if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
+  {
+    auto faceMask = vk::StencilFaceFlagBits::eFrontAndBack;
+    auto f        = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+    auto b        = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+    mStencilTestStates[f].setWriteMask(writeMask);
+    mStencilTestStates[b].setWriteMask(writeMask);
+  }
 }
 
-void CommandBufferImpl::SetStencilCompareMask(vk::StencilFaceFlags faceMask, uint32_t compareMask)
+void CommandBufferImpl::SetStencilCompareMask(uint32_t compareMask)
 {
-  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
-  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
-  mStencilTestStates[f].setCompareMask(compareMask);
-  mStencilTestStates[b].setCompareMask(compareMask);
+  if(SetDynamicState(mDynamicState.stencilCompareMask, compareMask, DynamicStateMaskBits::STENCIL_COMP_MASK))
+  {
+    auto faceMask = vk::StencilFaceFlagBits::eFrontAndBack;
+    auto f        = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+    auto b        = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+    mStencilTestStates[f].setCompareMask(compareMask);
+    mStencilTestStates[b].setCompareMask(compareMask);
+  }
 }
 
-void CommandBufferImpl::SetStencilReference(vk::StencilFaceFlags faceMask, uint32_t reference)
+void CommandBufferImpl::SetStencilReference(uint32_t reference)
 {
-  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
-  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
-  mStencilTestStates[f].setReference(reference);
-  mStencilTestStates[b].setReference(reference);
+  if(SetDynamicState(mDynamicState.stencilReference, reference, DynamicStateMaskBits::STENCIL_REF))
+  {
+    auto faceMask = vk::StencilFaceFlagBits::eFrontAndBack;
+    auto f        = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+    auto b        = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+    mStencilTestStates[f].setReference(reference);
+    mStencilTestStates[b].setReference(reference);
+  }
 }
 
-void CommandBufferImpl::SetStencilOp(vk::StencilFaceFlags faceMask, vk::StencilOp failOp, vk::StencilOp passOp, vk::StencilOp depthFailOp, vk::CompareOp compareOp)
+void CommandBufferImpl::SetStencilOp(
+  Graphics::StencilOp failOp,
+  Graphics::StencilOp passOp,
+  Graphics::StencilOp depthFailOp,
+  Graphics::CompareOp compareOp)
 {
-  auto f = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
-  auto b = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
-  mStencilTestStates[f].setFailOp(failOp);
-  mStencilTestStates[f].setDepthFailOp(depthFailOp);
-  mStencilTestStates[f].setPassOp(passOp);
-  mStencilTestStates[f].setCompareOp(compareOp);
-  mStencilTestStates[b].setFailOp(failOp);
-  mStencilTestStates[b].setDepthFailOp(depthFailOp);
-  mStencilTestStates[b].setPassOp(passOp);
-  mStencilTestStates[b].setCompareOp(compareOp);
+  int result = 0;
+  result |= SetDynamicState(mDynamicState.stencilFailOp, failOp, DynamicStateMaskBits::STENCIL_OP_FAIL);
+  result |= SetDynamicState(mDynamicState.stencilPassOp, passOp, DynamicStateMaskBits::STENCIL_OP_PASS);
+  result |= SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL);
+  result |= SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP);
+  if(result)
+  {
+    auto faceMask = vk::StencilFaceFlagBits::eFrontAndBack;
+    auto f        = faceMask & vk::StencilFaceFlagBits::eFront ? 1 : 0;
+    auto b        = faceMask & vk::StencilFaceFlagBits::eBack ? 2 : 0;
+
+    mStencilTestStates[f].setFailOp(VkStencilOpType(failOp).op);
+    mStencilTestStates[f].setDepthFailOp(VkStencilOpType(depthFailOp).op);
+    mStencilTestStates[f].setPassOp(VkStencilOpType(passOp).op);
+    mStencilTestStates[f].setCompareOp(VkCompareOpType(compareOp).op);
+    mStencilTestStates[b].setFailOp(VkStencilOpType(failOp).op);
+    mStencilTestStates[b].setDepthFailOp(VkStencilOpType(depthFailOp).op);
+    mStencilTestStates[b].setPassOp(VkStencilOpType(passOp).op);
+    mStencilTestStates[b].setCompareOp(VkCompareOpType(compareOp).op);
+  }
 }
 
 void CommandBufferImpl::SetDepthTestEnable(bool depthTestEnable)
 {
-  mDepthStencilState.setDepthTestEnable(depthTestEnable);
-  mDepthStencilState.setDepthBoundsTestEnable(false);
-  mDepthStencilState.setMinDepthBounds(0.0f);
-  mDepthStencilState.setMaxDepthBounds(1.0f);
+  if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
+  {
+    mDepthStencilState.setDepthTestEnable(depthTestEnable);
+    mDepthStencilState.setDepthBoundsTestEnable(false);
+    mDepthStencilState.setMinDepthBounds(0.0f);
+    mDepthStencilState.setMaxDepthBounds(1.0f);
+  }
 }
 
 void CommandBufferImpl::SetDepthWriteEnable(bool depthWriteEnable)
 {
-  mDepthStencilState.setDepthWriteEnable(depthWriteEnable);
+  if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
+  {
+    mDepthStencilState.setDepthWriteEnable(depthWriteEnable);
+  }
 }
 
-void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
+void CommandBufferImpl::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
-  mDepthStencilState.setDepthCompareOp(op);
+  if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
+  {
+    mDepthStencilState.setDepthCompareOp(VkCompareOpType(compareOp).op);
+  }
 }
 
 void CommandBufferImpl::SetColorMask(bool enable)
 {
-  mColorWriteMask = enable;
+  if(SetDynamicState(mDynamicState.colorWriteMask, enable, DynamicStateMaskBits::COLOR_WRITE_MASK))
+  {
+    mColorWriteMask = enable;
+  }
 }
 
 void CommandBufferImpl::SetColorBlendEnable(uint32_t attachment, bool enabled)
 {
-  // Store the deferred state
-  mDeferredColorBlendStates.emplace_back();
-  mDeferredColorBlendStates.back().attachment = attachment;
-  mDeferredColorBlendStates.back().enableSet = true;
-  mDeferredColorBlendStates.back().enable = enabled;
+
+  if(SetDynamicState(mDynamicState.colorBlendEnable, enabled, DynamicStateMaskBits::COLOR_BLEND_ENABLE))
+  {
+    // Store the deferred state
+    mDeferredColorBlendStates.emplace_back();
+    mDeferredColorBlendStates.back().attachment = attachment;
+    mDeferredColorBlendStates.back().enableSet = true;
+    mDeferredColorBlendStates.back().enable = enabled;
+  }
 }
 
 void CommandBufferImpl::SetColorBlendEquation(uint32_t attachment, const ColorBlendEquation& equation)
 {
-  // Store the deferred state
-  mDeferredColorBlendStates.emplace_back();
-  mDeferredColorBlendStates.back().attachment = attachment;
-  mDeferredColorBlendStates.back().equationSet = true;
-  mDeferredColorBlendStates.back().equation = equation;
+  if(SetDynamicState(mDynamicState.colorBlendEquation, equation, DynamicStateMaskBits::COLOR_BLEND_EQUATION))
+  {
+    // Store the deferred state
+    mDeferredColorBlendStates.emplace_back();
+    mDeferredColorBlendStates.back().attachment = attachment;
+    mDeferredColorBlendStates.back().equationSet = true;
+    mDeferredColorBlendStates.back().equation = equation;
+  }
 }
 
 void CommandBufferImpl::SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, BlendOp blendOp)
@@ -656,24 +752,53 @@ void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
   descriptorWrites.Clear();
 
   // Deferred uniform buffer bindings:
-  for(auto& uniformBinding : mDeferredUniformBindings)
+  if(!mDeferredUniformBindings.empty())
   {
-    auto bufferInfo = vk::DescriptorBufferInfo{}
-                        .setOffset(uniformBinding.offset)
-                        .setRange(uniformBinding.range)
-                        .setBuffer(uniformBinding.buffer);
-    bufferInfos.PushBack(bufferInfo);
+    for(auto& uniformBinding : mDeferredUniformBindings)
+    {
+      auto bufferInfo = vk::DescriptorBufferInfo{}
+                          .setOffset(uniformBinding.offset)
+                          .setRange(uniformBinding.range)
+                          .setBuffer(uniformBinding.buffer);
+      bufferInfos.PushBack(bufferInfo);
 
-    auto writeDescriptorSet = vk::WriteDescriptorSet{}
-                                .setPBufferInfo(&bufferInfos[bufferInfos.Size() - 1])
-                                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-                                .setDescriptorCount(1)
-                                .setDstSet(descriptorSet)
-                                .setDstBinding(uniformBinding.binding)
-                                .setDstArrayElement(0);
-    descriptorWrites.PushBack(writeDescriptorSet);
+      auto writeDescriptorSet = vk::WriteDescriptorSet{}
+                                  .setPBufferInfo(&bufferInfos[bufferInfos.Size() - 1])
+                                  .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                                  .setDescriptorCount(1)
+                                  .setDstSet(descriptorSet)
+                                  .setDstBinding(uniformBinding.binding)
+                                  .setDstArrayElement(0);
+      descriptorWrites.PushBack(writeDescriptorSet);
+    }
   }
+  else if(mDeferredUniformBindingDescriptorCount > 0)
+  {
+    for(uint32_t i = 0; i < mDeferredUniformBindingDescriptorCount; ++i)
+    {
+      auto&   binding = mDeferredUniformBindingDescriptor.At(i);
+      Buffer* buffer  = const_cast<Buffer*>(binding.buffer);
+      if(buffer)
+      {
+        BufferImpl* bufferImpl = buffer->GetImpl();
 
+        auto bufferInfo = vk::DescriptorBufferInfo{}
+                            .setOffset(binding.offset)
+                            .setRange(binding.dataSize)
+                            .setBuffer(bufferImpl->GetVkHandle());
+        bufferInfos.PushBack(bufferInfo);
+
+        auto writeDescriptorSet = vk::WriteDescriptorSet{}
+                                    .setPBufferInfo(&bufferInfos[bufferInfos.Size() - 1])
+                                    .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                                    .setDescriptorCount(1)
+                                    .setDstSet(descriptorSet)
+                                    .setDstBinding(binding.binding)
+                                    .setDstArrayElement(0);
+        descriptorWrites.PushBack(writeDescriptorSet);
+      }
+    }
+  }
   // Deferred texture bindings:
   if(!samplers.empty()) // Ignore any texture bindings if the program is not expecting them
   {

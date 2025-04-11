@@ -21,8 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-stored-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 // Vulkan headers for function pointer types
@@ -35,6 +35,30 @@ class Device;
 class CommandPool;
 class PipelineImpl;
 
+namespace DynamicStateMaskBits
+{
+const uint32_t SCISSOR               = 1 << 0;
+const uint32_t VIEWPORT              = 1 << 1;
+const uint32_t STENCIL_TEST          = 1 << 2;
+const uint32_t STENCIL_WRITE_MASK    = 1 << 3;
+const uint32_t STENCIL_COMP_MASK     = 1 << 4;
+const uint32_t STENCIL_REF           = 1 << 5;
+const uint32_t STENCIL_OP_FAIL       = 1 << 6;
+const uint32_t STENCIL_OP_DEPTH_FAIL = 1 << 7;
+const uint32_t STENCIL_OP_PASS       = 1 << 8;
+const uint32_t STENCIL_OP_COMP       = 1 << 9;
+const uint32_t DEPTH_TEST            = 1 << 10;
+const uint32_t DEPTH_WRITE           = 1 << 11;
+const uint32_t DEPTH_OP_COMP         = 1 << 12;
+const uint32_t COLOR_WRITE_MASK      = 1 << 13;
+const uint32_t COLOR_BLEND_ENABLE    = 1 << 14;
+const uint32_t COLOR_BLEND_EQUATION  = 1 << 15;
+}; // namespace DynamicStateMaskBits
+using DynamicStateMask = uint32_t;
+
+/**
+ * Wraps direct access to vulkan command buffer.
+ */
 class CommandBufferImpl
 {
   friend class CommandPool;
@@ -70,9 +94,22 @@ public:
     uint32_t                                firstBinding,
     const std::vector<Vulkan::BufferImpl*>& buffers,
     const std::vector<uint32_t>&            offsets);
+
+  void BindVertexBuffers(
+    uint32_t                                          firstBinding,
+    const IndirectPtr<VertexBufferBindingDescriptor>& bindingPtr,
+    uint32_t                                          bindingCount);
+
   void BindIndexBuffer(Vulkan::BufferImpl& buffer, uint32_t offset, Format format);
+
   void BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings);
+  void BindUniformBuffers(const IndirectPtr<UniformBufferBindingDescriptor>& bindings, uint32_t count);
+  void BindUniformBuffer(const UniformBufferBinding& binding);
+
   void BindTextures(const std::vector<TextureBinding>& textureBindings);
+  void BindTextures(const IndirectPtr<TextureBinding>& textureBindingPtr, uint32_t count);
+  bool BindTexture(const TextureBinding& textureBinding);
+
   void BindSamplers(const std::vector<SamplerBinding>& samplerBindings);
 
   /** Returns Vulkan object associated with the buffer */
@@ -100,12 +137,12 @@ public:
    */
   void ReadPixels(uint8_t* buffer);
 
-  void PipelineBarrier(vk::PipelineStageFlags               srcStageMask,
-                       vk::PipelineStageFlags               dstStageMask,
-                       vk::DependencyFlags                  dependencyFlags,
-                       std::vector<vk::MemoryBarrier>       memoryBarriers,
-                       std::vector<vk::BufferMemoryBarrier> bufferBarriers,
-                       std::vector<vk::ImageMemoryBarrier>  imageBarriers);
+  void PipelineBarrier(vk::PipelineStageFlags                      srcStageMask,
+                       vk::PipelineStageFlags                      dstStageMask,
+                       vk::DependencyFlags                         dependencyFlags,
+                       const std::vector<vk::MemoryBarrier>&       memoryBarriers,
+                       const std::vector<vk::BufferMemoryBarrier>& bufferBarriers,
+                       const std::vector<vk::ImageMemoryBarrier>&  imageBarriers);
 
   void CopyBufferToImage(Vulkan::BufferImpl* srcBuffer, Vulkan::Image* dstImage, vk::ImageLayout dstLayout, const std::vector<vk::BufferImageCopy>& regions);
 
@@ -115,14 +152,14 @@ public:
   void SetViewport(Viewport value);
 
   void SetStencilTestEnable(bool stencilEnable);
-  void SetStencilWriteMask(vk::StencilFaceFlags faceMask, uint32_t writeMask);
-  void SetStencilCompareMask(vk::StencilFaceFlags faceMask, uint32_t compareMask);
-  void SetStencilReference(vk::StencilFaceFlags faceMask, uint32_t reference);
-  void SetStencilOp(vk::StencilFaceFlags faceMask, vk::StencilOp failOp, vk::StencilOp passOp, vk::StencilOp depthFailOp, vk::CompareOp compareOp);
+  void SetStencilWriteMask(uint32_t writeMask);
+  void SetStencilCompareMask(uint32_t compareMask);
+  void SetStencilReference(uint32_t reference);
+  void SetStencilOp(Graphics::StencilOp failOp, Graphics::StencilOp passOp, Graphics::StencilOp depthFailOp, Graphics::CompareOp compareOp);
 
   void SetDepthTestEnable(bool depthTestEnable);
   void SetDepthWriteEnable(bool depthWriteEnable);
-  void SetDepthCompareOp(vk::CompareOp compareOp);
+  void SetDepthCompareOp(Graphics::CompareOp compareOp);
 
   void SetColorMask(bool colorWriteMask);
   void SetColorBlendEnable(uint32_t attachment, bool enabled);
@@ -153,8 +190,6 @@ public:
     uint32_t    offset,
     uint32_t    drawCount,
     uint32_t    stride);
-
-  void ExecuteCommandBuffers(std::vector<vk::CommandBuffer>& commandBuffers);
 
 private:
   /**
@@ -200,26 +235,75 @@ private: // Struct for deferring texture binding
   // Struct for deferring color blend state
   struct DeferredColorBlendState
   {
-    uint32_t attachment{0};
-    bool enableSet{false};
-    bool enable{false};
-    bool equationSet{false};
+    uint32_t           attachment{0};
+    bool               enableSet{false};
+    bool               enable{false};
+    bool               equationSet{false};
     ColorBlendEquation equation{};
-    bool advancedSet{false};
-    bool srcPremultiplied{false};
-    bool dstPremultiplied{false};
-    BlendOp blendOp{};
+    bool               advancedSet{false};
+    bool               srcPremultiplied{false};
+    bool               dstPremultiplied{false};
+    BlendOp            blendOp{};
   };
 
+private: // Struct for managing current state
+  static const DynamicStateMask INITIAL_DYNAMIC_MASK_VALUE{0xFFFFFFFF};
+
+  /** Struct that defines the current state */
+  struct DynamicState
+  {
+    Rect2D              scissor;
+    Viewport            viewport;
+    uint32_t            stencilWriteMask;
+    uint32_t            stencilReference;
+    uint32_t            stencilCompareMask;
+    Graphics::CompareOp stencilCompareOp;
+    Graphics::CompareOp depthCompareOp;
+    Graphics::StencilOp stencilFailOp;
+    Graphics::StencilOp stencilPassOp;
+    Graphics::StencilOp stencilDepthFailOp;
+    bool                stencilTest;
+    bool                depthTest;
+    bool                depthWrite;
+    bool                colorWriteMask{true};
+    bool                colorBlendEnable{false};
+    ColorBlendEquation  colorBlendEquation{};
+  } mDynamicState;
+  DynamicStateMask mDynamicStateMask{INITIAL_DYNAMIC_MASK_VALUE}; // If a bit is 1, next cmd will write, else check & write if different.
+
+  template<typename ValueType>
+  bool SetDynamicState(ValueType& oldValue, ValueType& newValue, uint32_t bit)
+  {
+    if(((mDynamicStateMask & bit) != 0) || oldValue != newValue)
+    {
+      oldValue = newValue;
+      mDynamicStateMask &= ~bit;
+      return true;
+    }
+    return false;
+  }
+  template<typename ValueType>
+  bool SetDynamicState(ValueType& oldValue, const ValueType& newValue, uint32_t bit)
+  {
+    if(((mDynamicStateMask & bit) != 0) || oldValue != newValue)
+    {
+      oldValue = newValue;
+      mDynamicStateMask &= ~bit;
+      return true;
+    }
+    return false;
+  }
 
 private:
-  CommandPool*                        mOwnerCommandPool;
-  Device*                             mGraphicsDevice;
-  uint32_t                            mPoolAllocationIndex;
-  vk::CommandBufferAllocateInfo       mAllocateInfo{};
-  std::vector<DeferredTextureBinding> mDeferredTextureBindings;
-  std::vector<DeferredUniformBinding> mDeferredUniformBindings;
-  std::vector<DeferredColorBlendState> mDeferredColorBlendStates;
+  CommandPool*                                mOwnerCommandPool;
+  Device*                                     mGraphicsDevice;
+  uint32_t                                    mPoolAllocationIndex;
+  vk::CommandBufferAllocateInfo               mAllocateInfo{};
+  std::vector<DeferredTextureBinding>         mDeferredTextureBindings;
+  std::vector<DeferredUniformBinding>         mDeferredUniformBindings;
+  std::vector<DeferredColorBlendState>        mDeferredColorBlendStates;
+  IndirectPtr<UniformBufferBindingDescriptor> mDeferredUniformBindingDescriptor;
+  uint32_t                                    mDeferredUniformBindingDescriptorCount;
 
   // Deferred pipeline to bind if dynamic states not supported
   Vulkan::Pipeline* mDeferredPipelineToBind{nullptr};
