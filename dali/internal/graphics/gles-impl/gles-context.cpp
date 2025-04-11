@@ -575,7 +575,7 @@ void Context::BindTextures(const Graphics::TextureBinding* bindings, uint32_t co
 {
   // We can assume that bindings is sorted by binding number.
   // So we can only copy the data
-  mImpl->mCurrentTextureBindings.Resize(count);
+  mImpl->mCurrentTextureBindings.ResizeUninitialized(count);
   memcpy(mImpl->mCurrentTextureBindings.Begin(), bindings, sizeof(Graphics::TextureBinding) * count);
 }
 
@@ -627,7 +627,7 @@ void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindin
 
   // We can assume that bindings is sorted by binding number.
   // So we can only copy the data
-  mImpl->mCurrentUBOBindings.Resize(uboCount);
+  mImpl->mCurrentUBOBindings.ResizeUninitialized(uboCount);
   memcpy(mImpl->mCurrentUBOBindings.Begin(), uboBindings, sizeof(UniformBufferBindingDescriptor) * uboCount);
 }
 
