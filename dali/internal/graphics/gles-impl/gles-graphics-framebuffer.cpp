@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 // Internal headers
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include "egl-graphics-controller.h"
+#include "gles-context.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -81,6 +82,13 @@ struct DEPTH_STENCIL_ATTACHMENT_TYPE
 
 } // anonymous namespace
 
+Context* Framebuffer::mSharedContext = nullptr;
+
+void Framebuffer::SetSharedContext(Context* context)
+{
+  mSharedContext = context;
+}
+
 Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : FramebufferResource(createInfo, controller)
 {
@@ -98,14 +106,16 @@ Framebuffer::~Framebuffer() = default;
 
 bool Framebuffer::InitializeResource()
 {
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-  if(gl && context && !mInitialized)
+  auto gl = mController.GetGL();
+  if(gl && mSharedContext && !mInitialized)
   {
+    DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is create at another context!");
     mInitialized = true;
 
-    context->GenFramebuffers(1, &mFramebufferId);
-    context->BindFrameBuffer(GL_FRAMEBUFFER, mFramebufferId);
+    gl->GenFramebuffers(1, &mFramebufferId);
+    // @todo: Error check if FramebufferId is 0
+
+    gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
 
     for(Graphics::ColorAttachment& attachment : mCreateInfo.colorAttachments)
     {
@@ -113,7 +123,7 @@ bool Framebuffer::InitializeResource()
     }
 
     // @todo is this per framebuffer, or more immediate state that needs setting when framebuffer changed?
-    context->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
+    gl->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
 
     // @todo Currently, we don't assume that GL_EXT_PACKED_DEPTH_STENCIL valid.
     // We will assume that stencilTexture / stencilBufferId always mean depth-stencil.
@@ -171,7 +181,18 @@ bool Framebuffer::InitializeResource()
       }
     }
 
-    context->BindFrameBuffer(GL_FRAMEBUFFER, 0);
+    gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Update framebuffer state cache here.
+    auto& glStateCache          = mSharedContext->GetGLStateCache();
+    auto& framebufferStateCache = glStateCache.mFrameBufferStateCache;
+
+    framebufferStateCache.FrameBufferCreated(mFramebufferId);
+    framebufferStateCache.SetCurrentFrameBuffer(mFramebufferId);
+    framebufferStateCache.DrawOperation(glStateCache.mColorMask,
+                                        glStateCache.DepthBufferWriteEnabled(),
+                                        glStateCache.StencilBufferWriteEnabled());
+    framebufferStateCache.SetCurrentFrameBuffer(0);
   }
 
   return mInitialized;
@@ -181,9 +202,8 @@ void Framebuffer::DestroyResource()
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    auto context = mController.GetCurrentContext();
-    auto gl      = mController.GetGL();
-    if(gl && context && mInitialized)
+    auto gl = mController.GetGL();
+    if(gl && mInitialized)
     {
       if(mDepthBufferId)
       {
@@ -194,7 +214,17 @@ void Framebuffer::DestroyResource()
         gl->DeleteRenderbuffers(1, &mStencilBufferId);
       }
 
-      context->DeleteFramebuffers(1, &mFramebufferId);
+      if(mFramebufferId != 0u)
+      {
+        gl->DeleteFramebuffers(1, &mFramebufferId);
+      }
+
+      if(mSharedContext)
+      {
+        // Update framebuffer state cache here.
+        auto& framebufferStateCache = mSharedContext->GetGLStateCache().mFrameBufferStateCache;
+        framebufferStateCache.FrameBufferDeleted(mFramebufferId);
+      }
 
       mFramebufferId = 0u;
       mInitialized   = false;
@@ -209,12 +239,15 @@ void Framebuffer::DiscardResource()
 
 void Framebuffer::Bind() const
 {
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-
-  if(gl && context)
+  auto gl = mController.GetGL();
+  if(gl && mSharedContext)
   {
-    context->BindFrameBuffer(GL_FRAMEBUFFER, mFramebufferId);
+    DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is bound to another context!");
+    gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
+
+    // Update framebuffer state cache here.
+    auto& framebufferStateCache = mSharedContext->GetGLStateCache().mFrameBufferStateCache;
+    framebufferStateCache.SetCurrentFrameBuffer(mFramebufferId);
   }
 }
 

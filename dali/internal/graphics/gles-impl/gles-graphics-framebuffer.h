@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_FRAMEBUFFER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,17 @@
 
 namespace Dali::Graphics::GLES
 {
+class Context;
 using FramebufferResource = Resource<Graphics::Framebuffer, Graphics::FramebufferCreateInfo>;
 
 class Framebuffer : public FramebufferResource
 {
 public:
+  /**
+   * @brief Set the shared context. All GLES::Framebuffer class will use given context.
+   */
+  static void SetSharedContext(Context* context);
+
   /**
    * @brief Constructor
    * @param[in] createInfo Valid createInfo structure
@@ -83,11 +89,14 @@ private:
   void AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId);
 
 private:
+  static Context* mSharedContext; ///< The bind available context
+
   uint32_t mFramebufferId{0u};
   uint32_t mDepthBufferId{0u};
   uint32_t mStencilBufferId{0u};
   uint32_t mMultisamples{1u};
-  bool     mInitialized{false};
+
+  bool mInitialized{false};
 };
 
 } // namespace Dali::Graphics::GLES

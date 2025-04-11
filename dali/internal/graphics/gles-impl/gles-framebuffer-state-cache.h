@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_FRAMEBUFFER_STATE_CACHE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,23 +56,21 @@ public:
 
   /**
    * @brief Set the current bound frame buffer
-   * @param[in] frameBufferId frame buffer id
+   * @param[in] framebufferId frame buffer id
    */
-  void SetCurrentFrameBuffer(GLuint frameBufferId);
+  void SetCurrentFrameBuffer(const GLuint framebufferId);
 
   /**
-   * @brief Called when frame buffers are deleted
-   * @param[in] count number of frame buffers
-   * @param[in] framebuffers array of frame buffer ids
+   * @brief Called when frame buffer is deleted
+   * @param[in] framebufferId frame buffer ids
    */
-  void FrameBuffersDeleted(GLsizei count, const GLuint* const frameBuffers);
+  void FrameBufferDeleted(const GLuint framebufferId);
 
   /**
-   * @brief Called when frame buffers are created
-   * @param[in] count number of frame buffers
-   * @param[in] framebuffers array of frame buffer ids
+   * @brief Called when frame buffer is created
+   * @param[in] framebufferId frame buffer id
    */
-  void FrameBuffersCreated(GLsizei count, const GLuint* const frameBuffers);
+  void FrameBufferCreated(const GLuint framebufferId);
 
   /**
    * @brief Draw operation performed on the current frame buffer
@@ -126,23 +124,17 @@ private:
 
   /**
    * @brief Helper
-   * @param[in] frameBufferId frame buffer id
+   * @param[in] framebufferId frame buffer id
    * @return pointer to  frame buffer state object ( NULL if it doesn't exist)
    */
-  FrameBufferState* GetFrameBufferState(GLuint frameBufferId);
-
-  /**
-   * @brief Helper to delete a frame buffer state object
-   * @param[in] frameBufferId frame buffer id
-   */
-  void DeleteFrameBuffer(GLuint frameBufferId);
+  FrameBufferState* GetFrameBufferState(GLuint framebufferId);
 
   FrameBufferStateCache(const FrameBufferStateCache&); ///< undefined copy constructor
 
   FrameBufferStateCache& operator=(const FrameBufferStateCache&); ///< undefined assignment operator
 
-private:                                        // data
-  FrameBufferStateVector mFrameBufferStates{};    ///< state of the frame buffers
+private:                                           // data
+  FrameBufferStateVector mFrameBufferStates{};     ///< state of the frame buffers
   GLuint                 mCurrentFrameBufferId{0}; ///< currently bound frame buffer
 };
 

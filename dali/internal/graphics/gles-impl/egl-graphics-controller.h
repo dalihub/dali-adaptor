@@ -2,7 +2,7 @@
 #define DALI_EGL_GRAPHICS_CONTROLLER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -507,6 +507,7 @@ public:
        !mTextureUpdateRequests.empty() ||
        !mTextureMipmapGenerationRequests.empty())
     {
+      // Must be ResourceContext as current if we have any resource creation.
       mGraphics->ActivateResourceContext();
     }
 
@@ -529,6 +530,7 @@ public:
     ResetBufferCache();
 
     // Process discards
+    // Note : we don't need to be ResourceContext when we destroy resources.
     ProcessDiscardQueues();
 
     // Flush pipeline cache to remove unused pipelines
