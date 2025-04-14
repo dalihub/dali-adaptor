@@ -555,13 +555,14 @@ bool ProgramImpl::IsEnableProgramBinary() const
 {
   if(mImpl->controller.IsUsingProgramBinary())
   {
-    if(!mImpl->name.empty())
+    const auto& info = mImpl->createInfo;
+    if(info.useFileCache)
     {
       return true;
     }
 
-    // If the shader name is empty, it means that the shader is not an internally defined shader
-    DALI_LOG_DEBUG_INFO("[Enable] Shader program binary, but this shader can't be used ProgramBinary because the shader is not an internally defined shader.\n");
+    // If the Hint of shader is not Shader::Hint::FILE_CACHE_SUPPORT, we can't enable program binary
+    DALI_LOG_DEBUG_INFO("[Enable] Shader program binary, but this shader[%s] cannot be use file caching. because Shader::Hint::FILE_CACHE_SUPPORT is not set \n", mImpl->name.c_str());
   }
 
   return false;
