@@ -25,7 +25,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/logging.h>
@@ -85,16 +84,37 @@ namespace
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 
 /**
+ * @brief Maximum size of face size cache.
+ */
+constexpr std::size_t DEFAULT_FACE_SIZE_CACHE_MAX         = 256u;
+constexpr std::size_t MINIMUM_SIZE_OF_FACE_SIZE_CACHE_MAX = 3u;
+
+/**
  * @brief Maximum size of glyph cache per each font face.
  */
-constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
+constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128u;
 constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
 
-constexpr std::size_t DEFAULT_DESCRIPTION_CACHE_MAX   = 1024;
-constexpr std::size_t MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX = 3;
+constexpr std::size_t DEFAULT_DESCRIPTION_CACHE_MAX         = 1024u;
+constexpr std::size_t MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX = 3u;
 
+constexpr auto MAX_NUMBER_OF_FACE_SIZE_CACHE_ENV = "DALI_FACE_SIZE_CACHE_MAX";
 constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
 constexpr auto MAX_NUMBER_OF_DESCRIPTION_CACHE_ENV = "DALI_DESCRIPTION_CACHE_MAX";
+
+
+/**
+ * @brief Get maximum size of face size cache size from environment.
+ * If not settuped, default as 256.
+ * @note This value fixed when we call it first time.
+ * @return The max size of face size cache.
+ */
+inline size_t GetMaxNumberOfFaceSizeCache()
+{
+  static auto numberString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_MAX_NUMBER_OF_FACE_SIZE_CACHE);
+  static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_FACE_SIZE_CACHE_MAX;
+  return (number < MINIMUM_SIZE_OF_FACE_SIZE_CACHE_MAX) ? MINIMUM_SIZE_OF_FACE_SIZE_CACHE_MAX : number;
+}
 
 /**
  * @brief Get maximum size of glyph cache size from environment.
@@ -306,11 +326,10 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mFontDescriptionCache(),
   mCharacterSetCache(),
   mFontDescriptionSizeCache(GetMaxNumberOfDescriptionCache()),
-  mFontDataCache(),
-  mFontFTFaceCache(),
   mEllipsisCache(),
   mEmbeddedItemCache(),
   mCustomFontDirectories(),
+  mFontFaceManager(new FontFaceManager(GetMaxNumberOfFaceSizeCache())),
   mGlyphCacheManager(new GlyphCacheManager(GetMaxNumberOfGlyphCache())),
   mLatestFoundFontDescription(),
   mLatestFoundFontDescriptionId(0u),
@@ -336,6 +355,9 @@ void FontClient::Plugin::CacheHandler::ClearCache()
   // delete cached glyph informations before clear mFontFaceCache.
   mGlyphCacheManager->ClearCache();
 
+  // delete cached face informations before clear mFontFaceCache.
+  mFontFaceManager->ClearCache();
+
   mDefaultFontDescription = FontDescription();
 
   mSystemFonts.clear();
@@ -360,13 +382,6 @@ void FontClient::Plugin::CacheHandler::ClearCache()
 
   mFontDescriptionSizeCache.Clear();
 
-  mFontDataCache.clear();
-  mFontDataCache.rehash(0);
-
-  ClearFTFaceFromFontFTFaceCache();
-  mFontFTFaceCache.clear();
-  mFontFTFaceCache.rehash(0);
-
   mEllipsisCache.clear();
   mPixelBufferCache.clear();
   mEmbeddedItemCache.clear();
@@ -383,6 +398,9 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
 {
   // delete cached glyph informations before clear mFontFaceCache.
   mGlyphCacheManager->ClearCache();
+
+  // delete cached face informations before clear mFontFaceCache.
+  mFontFaceManager->ClearCache();
 
   mDefaultFontDescription = FontDescription();
 
@@ -503,14 +521,6 @@ void FontClient::Plugin::CacheHandler::CreateCharacterSet()
         item.characterSets->PushBack(FcCharSetCopy(CreateCharacterSetFromDescription(mFontConfig, description)));
       }
     }
-  }
-}
-
-void FontClient::Plugin::CacheHandler::ClearFTFaceFromFontFTFaceCache()
-{
-  for(auto& item : mFontFTFaceCache)
-  {
-    FT_Done_Face(item.second);
   }
 }
 
@@ -654,64 +664,6 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
     // Create again the character sets as they are not valid after FcInitLoadConfigAndFonts()
     CreateCharacterSet();
   }
-}
-
-// Font
-
-bool FontClient::Plugin::CacheHandler::FindFontData(const std::string& fontPath) const
-{
-  auto it = mFontDataCache.find(fontPath);
-  if(it != mFontDataCache.end())
-  {
-    return true;
-  }
-
-  return false;
-}
-
-bool FontClient::Plugin::CacheHandler::FindFontData(const std::string& fontPath, uint8_t*& fontDataPtr, std::streampos& dataSize) const
-{
-  auto it = mFontDataCache.find(fontPath);
-  if(it != mFontDataCache.end())
-  {
-    fontDataPtr = it->second.first.Begin();
-    dataSize    = it->second.second;
-    return true;
-  }
-
-  return false;
-}
-
-bool FontClient::Plugin::CacheHandler::LoadFontDataFromFile(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize) const
-{
-  if(Dali::FileLoader::ReadFile(fontPath, dataSize, fontDataBuffer, Dali::FileLoader::BINARY))
-  {
-    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %zu, size : %ld, path : %s\n", fontDataBuffer.Size(), static_cast<long>(dataSize), fontPath.c_str());
-    return true;
-  }
-
-  return false;
-}
-
-void FontClient::Plugin::CacheHandler::CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>&& fontDataBuffer, std::streampos& dataSize)
-{
-  mFontDataCache[fontPath] = std::make_pair(std::move(fontDataBuffer), dataSize);
-}
-
-bool FontClient::Plugin::CacheHandler::FindFontFace(const std::string& fontPath) const
-{
-  auto it = mFontFTFaceCache.find(fontPath);
-  if(it != mFontFTFaceCache.end())
-  {
-    return true;
-  }
-
-  return false;
-}
-
-void FontClient::Plugin::CacheHandler::CacheFontFace(const std::string& fontPath, FT_Face ftFace)
-{
-  mFontFTFaceCache[fontPath] = std::move(ftFace);
 }
 
 // Validate
@@ -1027,7 +979,7 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
     FcCharSet* characterSet = nullptr;
     FcPatternGetCharSet(match, FC_CHARSET, 0u, &characterSet);
 
-    const FontCacheIndex fontCacheIndex          = FindFontIdCacheItem(fontId - 1u).index;
+    const FontCacheIndex fontCacheIndex                 = FindFontIdCacheItem(fontId - 1u).index;
     FindFontFaceCacheItem(fontCacheIndex).mCharacterSet = FcCharSetCopy(characterSet); // Increases the reference counter.
 
     // Destroys the created patterns.

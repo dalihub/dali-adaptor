@@ -182,6 +182,7 @@ SET( devel_api_text_abstraction_src_files
    ${adaptor_devel_api_dir}/text-abstraction/bidirectional-support.cpp
    ${adaptor_devel_api_dir}/text-abstraction/bitmap-font.cpp
    ${adaptor_devel_api_dir}/text-abstraction/font-client.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/font-file-manager.cpp
    ${adaptor_devel_api_dir}/text-abstraction/font-list.cpp
    ${adaptor_devel_api_dir}/text-abstraction/font-metrics.cpp
    ${adaptor_devel_api_dir}/text-abstraction/glyph-buffer-data.cpp
@@ -202,6 +203,7 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/bidirectional-support.h
    ${adaptor_devel_api_dir}/text-abstraction/bitmap-font.h
    ${adaptor_devel_api_dir}/text-abstraction/font-client.h
+   ${adaptor_devel_api_dir}/text-abstraction/font-file-manager.h
    ${adaptor_devel_api_dir}/text-abstraction/font-list.h
    ${adaptor_devel_api_dir}/text-abstraction/font-metrics.h
    ${adaptor_devel_api_dir}/text-abstraction/glyph-buffer-data.h

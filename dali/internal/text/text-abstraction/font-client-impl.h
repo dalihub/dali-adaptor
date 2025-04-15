@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-file-manager.h>
 
 struct FT_FaceRec_;
 
@@ -398,6 +399,8 @@ private:
 private:
   struct Plugin;
   Plugin* mPlugin;
+
+  TextAbstraction::FontFileManager mFontFileManager;
 
   // Allows DPI to be set without loading plugin
   unsigned int mDpiHorizontal;
