@@ -207,7 +207,7 @@ void WrapToCircularPath(cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstra
       }
       default:
       {
-        DALI_LOG_WARNING("Type of path not handled.\n");
+        DALI_LOG_ERROR("Type of path not handled.\n");
         // Nothing else to do.
         break;
       }

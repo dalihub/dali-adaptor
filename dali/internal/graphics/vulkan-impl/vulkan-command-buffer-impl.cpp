@@ -488,11 +488,15 @@ void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
 
 void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 {
+  auto& reflection = mCurrentProgram->GetReflection();
+  auto& samplers   = reflection.GetSamplers();
+
   std::vector<vk::DescriptorImageInfo>  imageInfos;
   std::vector<vk::DescriptorBufferInfo> bufferInfos;
   std::vector<vk::WriteDescriptorSet>   descriptorWrites;
 
   bufferInfos.reserve(mDeferredUniformBindings.size() + 1);
+  descriptorWrites.reserve(mDeferredUniformBindings.size() + samplers.size() + 1);
 
   // Deferred uniform buffer bindings:
   for(auto& uniformBinding : mDeferredUniformBindings)
@@ -513,13 +517,10 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
       .setDstArrayElement(0);
   }
 
-  auto& reflection = mCurrentProgram->GetReflection();
-  auto& samplers   = reflection.GetSamplers();
-
   // Deferred texture bindings:
   if(!samplers.empty()) // Ignore any texture bindings if the program is not expecting them
   {
-    imageInfos.reserve(samplers.size() + 1); // mDeferredTextureBindings.size() + 1);
+    imageInfos.reserve(samplers.size() + 1);
     for(auto& info : samplers)
     {
       bool     found   = false;

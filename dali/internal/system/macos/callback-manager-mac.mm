@@ -61,10 +61,10 @@ struct CallbackContainer final : public std::unordered_map<CallbackBase*, bool>
 
   ~CallbackContainer() { Clear(); }
 
-  void RemoveCallback(const_iterator item)
+  const_iterator RemoveCallback(const_iterator item)
   {
     delete item->first;
-    erase(item);
+    return erase(item);
   }
 
   bool RemoveCallback(CallbackBase *callback)
@@ -210,13 +210,16 @@ void CocoaCallbackManager::Impl::IdleEnterObserverCallback(
 {
   auto *pImpl = reinterpret_cast<Impl*>(info);
 
-  for (auto it(cbegin(pImpl->mIdleEntererCallbacks)),
-      e(cend(pImpl->mIdleEntererCallbacks)); it != e; ++it)
+  for (auto it(cbegin(pImpl->mIdleEntererCallbacks));
+       it != cend(pImpl->mIdleEntererCallbacks);)
   {
     if (!pImpl->mIdleEntererCallbacks.Execute(it).value_or(false))
     {
-      pImpl->mIdleEntererCallbacks.RemoveCallback(it);
+      it = pImpl->mIdleEntererCallbacks.RemoveCallback(it);
+      // Skip increment as we've just modified the container
+      continue;
     }
+    it++;
   }
 }
 

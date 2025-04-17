@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
@@ -84,6 +85,7 @@ inline bool ReadHeader(FILE* fp, T& header)
   // Load the information directly into our structure
   if(DALI_UNLIKELY(fread(&header, 1, readLength, fp) != readLength))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -144,6 +146,7 @@ bool DecodeRGB24V5(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB24V5 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -161,6 +164,7 @@ bool DecodeRGB24V5(FILE*          fp,
     if(DALI_UNLIKELY(fread(pixelsPtr, 1, rowStride, fp) != rowStride))
     {
       DALI_LOG_ERROR("Error reading the BMP image\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     for(std::uint32_t i = 0; i < rowStride; i += 3)
@@ -176,6 +180,7 @@ bool DecodeRGB24V5(FILE*          fp,
       if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_RGB24V5 padding\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
   }
@@ -211,6 +216,7 @@ bool DecodeBF32V4(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32V4 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -228,6 +234,7 @@ bool DecodeBF32V4(FILE*          fp,
     if(DALI_UNLIKELY(fread(pixelsPtr, 1, rowStride, fp) != rowStride))
     {
       DALI_LOG_ERROR("Error reading the BMP image\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     for(std::uint32_t i = 0; i < rowStride; i += 4)
@@ -242,6 +249,7 @@ bool DecodeBF32V4(FILE*          fp,
       if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_BITFIELDS32V4 padding\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
   }
@@ -277,6 +285,7 @@ bool DecodeBF32(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -297,6 +306,7 @@ bool DecodeBF32(FILE*          fp,
     if(DALI_UNLIKELY(fread(pixelsPtr, 1, rowStride, fp) != rowStride))
     {
       DALI_LOG_ERROR("Error reading the BMP image\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     for(std::uint32_t i = 0; i < rowStride; i += 4)
@@ -312,6 +322,7 @@ bool DecodeBF32(FILE*          fp,
       if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_BITFIELDS32 padding\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
   }
@@ -343,6 +354,7 @@ bool DecodeBF565(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking RGB565 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -364,6 +376,7 @@ bool DecodeBF565(FILE*          fp,
     }
     if(DALI_UNLIKELY(fread(pixelsPtr, 1, rowStride, fp) != rowStride))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
   }
@@ -397,6 +410,7 @@ bool DecodeBF555(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS555 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -412,6 +426,7 @@ bool DecodeBF555(FILE*          fp,
     rawPtr = &raw[0] + (j * rawStride);
     if(DALI_UNLIKELY(fread(rawPtr, 1, rawStride, fp) != rawStride))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
   }
@@ -466,6 +481,7 @@ bool DecodeRGB555(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB555 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -480,6 +496,7 @@ bool DecodeRGB555(FILE*          fp,
     rawPtr = &raw[0] + (j * rawStride);
     if(DALI_UNLIKELY(fread(rawPtr, 1, rawStride, fp) != rawStride))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
   }
@@ -532,6 +549,7 @@ bool DecodeRGB1(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB1 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -543,6 +561,7 @@ bool DecodeRGB1(FILE*          fp,
 
   if(DALI_UNLIKELY(fread(colorTable, 1, 8, fp) != 8))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -550,6 +569,7 @@ bool DecodeRGB1(FILE*          fp,
   {
     if(DALI_UNLIKELY(fread(&cmd, 1, 1, fp) != 1))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -624,6 +644,7 @@ bool DecodeRGB4(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB4 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -635,6 +656,7 @@ bool DecodeRGB4(FILE*          fp,
 
   if(DALI_UNLIKELY(fread(colorTable, 1, 64, fp) != 64))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -642,6 +664,7 @@ bool DecodeRGB4(FILE*          fp,
   {
     if(DALI_UNLIKELY(fread(&cmd, 1, 1, fp) != 1))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -700,6 +723,7 @@ bool DecodeRGB8(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB8 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -710,10 +734,12 @@ bool DecodeRGB8(FILE*          fp,
 
   if(DALI_UNLIKELY(fread(&colorTable[0], 1, 1024, fp) != 1024))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   if(DALI_UNLIKELY(fread(&colorIndex[0], 1, width * height, fp) != width * height))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   std::uint8_t ctIndex = 0;
@@ -782,11 +808,13 @@ bool DecodeRLE4(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RLE4 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fread(colorTable, 1, 64, fp) != 64))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -798,6 +826,7 @@ bool DecodeRLE4(FILE*          fp,
     }
     if(DALI_UNLIKELY(fread(cmd, 1, cmdStride, fp) != cmdStride))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
     if(cmd[0] == 0) // ESCAPE
@@ -815,6 +844,7 @@ bool DecodeRLE4(FILE*          fp,
           if(DALI_UNLIKELY(fread(cmd, 1, cmdStride, fp) != cmdStride))
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
+            DALI_PRINT_SYSTEM_ERROR_LOG();
             return false;
           }
           dx = cmd[0] & (0xFF);
@@ -834,6 +864,7 @@ bool DecodeRLE4(FILE*          fp,
           if(DALI_UNLIKELY(fread(&run[0], 1, bytesize, fp) != bytesize))
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
+            DALI_PRINT_SYSTEM_ERROR_LOG();
             return false;
           }
           if((x & 1) == 0)
@@ -944,11 +975,13 @@ bool DecodeRLE8(FILE*          fp,
   if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RLE8 data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fread(&colorTable[0], 1, 1024, fp) != 1024))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -966,6 +999,7 @@ bool DecodeRLE8(FILE*          fp,
     }
     if(DALI_UNLIKELY(fread(cmd, 1, cmdStride, fp) != cmdStride))
     {
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -984,6 +1018,7 @@ bool DecodeRLE8(FILE*          fp,
           if(DALI_UNLIKELY(fread(cmd, 1, cmdStride, fp) != cmdStride))
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
+            DALI_PRINT_SYSTEM_ERROR_LOG();
             return false;
           }
           dx = cmd[0] & (0xFF);
@@ -1001,6 +1036,7 @@ bool DecodeRLE8(FILE*          fp,
           if(DALI_UNLIKELY(fread(&run[0], 1, length, fp) != length))
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
+            DALI_PRINT_SYSTEM_ERROR_LOG();
             return false;
           }
 
@@ -1146,12 +1182,14 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       {
         if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(14 + infoHeader.infoHeaderSize + 1)), SEEK_SET)))
         {
+          DALI_PRINT_SYSTEM_ERROR_LOG();
           return false;
         }
 
         char mask;
         if(DALI_UNLIKELY(fread(&mask, 1, 1, fp) != 1))
         {
+          DALI_PRINT_SYSTEM_ERROR_LOG();
           return false;
         }
 
@@ -1346,6 +1384,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
           if(DALI_UNLIKELY(fread(pixelsIterator, 1, rowStride, fp) != rowStride))
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
+            DALI_PRINT_SYSTEM_ERROR_LOG();
             break;
           }
 
@@ -1381,6 +1420,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
             if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR))) // move past the padding.
             {
               DALI_LOG_ERROR("Error moving past BMP padding\n");
+              DALI_PRINT_SYSTEM_ERROR_LOG();
             }
           }
         }

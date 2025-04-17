@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <fstream>
-#include <string>
-#include <streambuf>
 #include <iostream>
+#include <streambuf>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
-
 /// Extends streambuf so that we can use the buffer in Dali::Vector
 class VectorStreamBuffer : public std::streambuf
 {
@@ -38,7 +38,7 @@ public:
   VectorStreamBuffer(char* buffer, size_t length)
   {
     char* begin = buffer;
-    char* end = begin + length;
+    char* end   = begin + length;
     setg(begin, begin, end);
     setp(begin, end);
   }
@@ -81,7 +81,7 @@ struct FileStream::Impl::PlatformSpecificImpl
   }
 
   std::unique_ptr<std::iostream> mVectorStream;
-  std::streambuf* mStreamBuffer{nullptr};
+  std::streambuf*                mStreamBuffer{nullptr};
 };
 
 FileStream::Impl::Impl(const std::string& filename, uint8_t mode)
@@ -137,7 +137,8 @@ FileStream::Impl::~Impl()
     const int closeFailed = fclose(mFile);
     if(closeFailed)
     {
-      DALI_LOG_WARNING("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
+      DALI_LOG_ERROR("File close failed.\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
     mFile = nullptr;
@@ -202,9 +203,9 @@ std::iostream& FileStream::Impl::GetStream()
     if(!(mMode & Dali::FileStream::WRITE) && !(mMode & Dali::FileStream::APPEND))
     {
       std::streampos fileSize;
-      if (ReadFile(mFileName, fileSize, mFileBuffer, (mMode & Dali::FileStream::BINARY) ? Dali::FileLoader::BINARY : Dali::FileLoader::TEXT))
+      if(ReadFile(mFileName, fileSize, mFileBuffer, (mMode & Dali::FileStream::BINARY) ? Dali::FileLoader::BINARY : Dali::FileLoader::TEXT))
       {
-        mBuffer = reinterpret_cast<uint8_t *>(&mFileBuffer[0]);
+        mBuffer   = reinterpret_cast<uint8_t*>(&mFileBuffer[0]);
         mDataSize = fileSize;
 
         // For some reason on Android, calling mBufferStream.rdbuf()->pubsetbuf(...) has no effect.
@@ -212,19 +213,21 @@ std::iostream& FileStream::Impl::GetStream()
 
         mPlatformSpecificImpl->mStreamBuffer = new VectorStreamBuffer(mFileBuffer);
         mPlatformSpecificImpl->mVectorStream.reset(new std::iostream(mPlatformSpecificImpl->mStreamBuffer));
-        if (!mPlatformSpecificImpl->mVectorStream->rdbuf()->in_avail())
+        if(!mPlatformSpecificImpl->mVectorStream->rdbuf()->in_avail())
         {
           DALI_LOG_ERROR(
             "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
-            static_cast<void *>(mBuffer),
+            static_cast<void*>(mBuffer),
             static_cast<unsigned>(mDataSize),
             static_cast<int>(openMode));
+          DALI_PRINT_SYSTEM_ERROR_LOG();
         }
         return *mPlatformSpecificImpl->mVectorStream.get();
       }
       else
       {
         DALI_LOG_ERROR("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), static_cast<int>(openMode));
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
     else
@@ -233,6 +236,7 @@ std::iostream& FileStream::Impl::GetStream()
       if(!mFileStream.is_open())
       {
         DALI_LOG_ERROR("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), static_cast<int>(openMode));
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
     return mFileStream;
@@ -249,6 +253,7 @@ std::iostream& FileStream::Impl::GetStream()
                      static_cast<void*>(mBuffer),
                      static_cast<unsigned>(mDataSize),
                      static_cast<int>(openMode));
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
     return *mPlatformSpecificImpl->mVectorStream.get();
   }
@@ -308,11 +313,13 @@ FILE* FileStream::Impl::GetFile()
                          static_cast<void*>(mBuffer),
                          static_cast<unsigned>(mDataSize),
                          openMode);
+          DALI_PRINT_SYSTEM_ERROR_LOG();
         }
       }
       else
       {
         DALI_LOG_ERROR("read file failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode);
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
     else
@@ -321,6 +328,7 @@ FILE* FileStream::Impl::GetFile()
       if(!mFile)
       {
         DALI_LOG_ERROR("file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode);
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
   }
@@ -333,6 +341,7 @@ FILE* FileStream::Impl::GetFile()
                      static_cast<void*>(mBuffer),
                      static_cast<unsigned>(mDataSize),
                      openMode);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 

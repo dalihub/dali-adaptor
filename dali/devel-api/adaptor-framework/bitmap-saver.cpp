@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ FileFormat GetFormatFromFileName(const std::string& filename)
 {
   if(filename.length() < 5)
   {
-    DALI_LOG_WARNING("Invalid (short) filename.\n");
+    DALI_LOG_ERROR("Invalid (short) filename.\n");
   }
   FileFormat format(INVALID_FORMAT);
 

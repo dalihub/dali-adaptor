@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/object/property-map.h>
 
 namespace Dali
@@ -195,13 +196,13 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
         }
         else
         {
-          DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
+          DALI_LOG_ERROR("Unable to decode bitmap supplied as in-memory blob.\n");
 
           auto prefixSize  = std::min(static_cast<decltype(blobSize)>(0x200), blobSize); // maximum 512 bytes.
           auto errorString = ConvertDataReadable(reinterpret_cast<uint8_t*>(dataBuffer.Begin()), prefixSize, 0x40);
-          DALI_LOG_WARNING("URL: %s\n", url.c_str());
-          DALI_LOG_WARNING("Downloaded data (prefix %zu bytes of %zu bytes):\n", prefixSize, blobSize);
-          DALI_LOG_WARNING("%s\n", errorString.c_str());
+          DALI_LOG_DEBUG_INFO("URL: %s\n", url.c_str());
+          DALI_LOG_DEBUG_INFO("Downloaded data (prefix %zu bytes of %zu bytes):\n", prefixSize, blobSize);
+          DALI_LOG_DEBUG_INFO("%s\n", errorString.c_str());
         }
       }
       else

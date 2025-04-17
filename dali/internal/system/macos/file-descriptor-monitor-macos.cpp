@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace Dali::Internal::Adaptor
 FileDescriptorMonitorMac::FileDescriptorMonitorMac(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 : FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
-  DALI_LOG_WARNING("Implementation missing for macOS");
+  DALI_LOG_WARNING_NOFN("Implementation missing for macOS");
 }
 
 FileDescriptorMonitorMac::~FileDescriptorMonitorMac()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -62,6 +63,7 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
   if(DALI_UNLIKELY(size != 8))
   {
     DALI_LOG_ERROR("fread failed\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 

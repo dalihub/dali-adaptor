@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
 #include <dali/internal/imaging/common/loader-wbmp.h>
 #include <dali/internal/imaging/common/loader-webp.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 using namespace Dali::Integration;
 
@@ -179,6 +180,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   if(read != MAGIC_LENGTH)
@@ -265,6 +267,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   return loaderFound;

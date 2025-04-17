@@ -123,7 +123,7 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer(const Integration:
     if(!result || !bitmap)
     {
       bitmap.Reset();
-      DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
+      DALI_LOG_ERROR("Unable to decode bitmap supplied as in-memory blob.\n");
     }
     else
     {

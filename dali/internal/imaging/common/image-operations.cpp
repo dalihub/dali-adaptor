@@ -988,7 +988,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
 
   if(desiredDimensions.GetWidth() < 1u || desiredDimensions.GetHeight() < 1u)
   {
-    DALI_LOG_WARNING("Image scaling aborted as desired dimensions too small (%u, %u).\n", desiredDimensions.GetWidth(), desiredDimensions.GetHeight());
+    DALI_LOG_ERROR("Image scaling aborted as desired dimensions too small (%u, %u).\n", desiredDimensions.GetWidth(), desiredDimensions.GetHeight());
   }
   else if(inputWidth != desiredDimensions.GetWidth() || inputHeight != desiredDimensions.GetHeight())
   {
@@ -1025,7 +1025,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       if((desiredWidth > MAXIMUM_TARGET_BITMAP_SIZE) || (desiredHeight > MAXIMUM_TARGET_BITMAP_SIZE) ||
          (columnsToPad > MAXIMUM_TARGET_BITMAP_SIZE) || (scanlinesToPad > MAXIMUM_TARGET_BITMAP_SIZE))
       {
-        DALI_LOG_WARNING("Image scaling aborted as final dimensions too large (%u, %u).\n", desiredWidth, desiredHeight);
+        DALI_LOG_ERROR("Image scaling aborted as final dimensions too large (%u, %u).\n", desiredWidth, desiredHeight);
         return bitmap;
       }
 

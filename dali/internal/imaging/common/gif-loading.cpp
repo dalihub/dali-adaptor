@@ -33,6 +33,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/images/pixel-data.h>
 
 #define IMG_TOO_BIG(w, h)                                                       \
@@ -306,6 +307,7 @@ bool LoaderInfo::FileData::LoadLocalFile()
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
     DALI_LOG_ERROR("Error seeking within file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -313,6 +315,7 @@ bool LoaderInfo::FileData::LoadLocalFile()
   if(DALI_UNLIKELY(length <= -1))
   {
     DALI_LOG_ERROR("Could not determine GIF file size.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -324,11 +327,20 @@ bool LoaderInfo::FileData::LoadLocalFile()
       DALI_LOG_ERROR("malloc is failed. request malloc size : %llu\n", sizeof(GifByteType) * static_cast<unsigned long long>(length));
       return false;
     }
-    length = fread(globalMap, sizeof(GifByteType), length, fp);
+    const long long bytesRead = fread(globalMap, sizeof(GifByteType), length, fp);
+
+    // Check the size of loaded data is what we expected.
+    if(DALI_UNLIKELY(bytesRead != length))
+    {
+      DALI_LOG_ERROR("Error read bytes (required : %lld, actual read : %lld)\n", length, bytesRead);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+      return false;
+    }
   }
   else
   {
     DALI_LOG_ERROR("Error seeking within file\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   return true;
@@ -361,18 +373,29 @@ bool LoaderInfo::FileData::LoadRemoteFile()
           }
           else
           {
-            length    = fread(globalMap, sizeof(GifByteType), blobSize, fp);
-            succeeded = true;
+            length = fread(globalMap, sizeof(GifByteType), blobSize, fp);
+            if(DALI_UNLIKELY(static_cast<long long>(static_cast<unsigned long long>(blobSize)) != length))
+            {
+              DALI_LOG_ERROR("Error read bytes (required : %zu, actual read : %lld)\n", blobSize, length);
+              DALI_PRINT_SYSTEM_ERROR_LOG();
+              length = 0;
+            }
+            else
+            {
+              succeeded = true;
+            }
           }
         }
         else
         {
           DALI_LOG_ERROR("Error seeking within file\n");
+          DALI_PRINT_SYSTEM_ERROR_LOG();
         }
       }
       else
       {
         DALI_LOG_ERROR("Error reading file\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
       }
     }
     else

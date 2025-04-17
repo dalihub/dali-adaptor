@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -130,6 +131,7 @@ bool LoadWbmpHeader(FILE* const fp, unsigned int& width, unsigned int& height, u
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   long positionIndicator = ftell(fp);
@@ -143,12 +145,14 @@ bool LoadWbmpHeader(FILE* const fp, unsigned int& width, unsigned int& height, u
   if(DALI_UNLIKELY(0u == fsize))
   {
     DALI_LOG_ERROR("Error: filesize is 0!\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   if(DALI_UNLIKELY(fsize <= 4))
@@ -177,7 +181,8 @@ bool LoadWbmpHeader(FILE* const fp, unsigned int& width, unsigned int& height, u
   map.ResizeUninitialized(fsize);
   if(DALI_UNLIKELY(fread(&map[0], 1, readDataSize, fp) != readDataSize))
   {
-    DALI_LOG_WARNING("image file read opeation error! fileSize : %u, readDataSize : %u\n", fsize, readDataSize);
+    DALI_LOG_ERROR("image file read opeation error! fileSize : %u, readDataSize : %u\n", fsize, readDataSize);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 

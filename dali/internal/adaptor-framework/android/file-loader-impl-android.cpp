@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -125,6 +126,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     else
     {
       DALI_LOG_ERROR("File not found %s\n", filename.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 
@@ -163,6 +165,7 @@ std::streampos GetFileSize(const std::string& filename)
     else
     {
       DALI_LOG_ERROR("File not found %s\n", filename.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 

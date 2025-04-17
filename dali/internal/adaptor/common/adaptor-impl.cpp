@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@
 #include <dali/internal/system/common/logging.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/system/common/performance-interface-factory.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/window-system/common/display-connection.h>
@@ -133,6 +134,8 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   Dali::Integration::Log::LogFunction logFunction(Dali::TizenPlatform::LogMessage);
   mEnvironmentOptions->SetLogFunction(logFunction);
   mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
+
+  DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -316,21 +319,27 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   std::string systemCachePath = GetSystemCachePath();
   if(!systemCachePath.empty())
   {
+    DALI_LOG_RELEASE_INFO("Check and create dali system cache directory: %s\n", systemCachePath.c_str());
     int dir_err = mkdir(systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating system cache directory: %s!\n", systemCachePath.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
     std::string shaderCachePath = GetProgramBinaryPath();
+    DALI_LOG_RELEASE_INFO("Check and create dali shader cache directory: %s\n", shaderCachePath.c_str());
     dir_err = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating shader cache directory: %s!\n", shaderCachePath.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
+
+  DALI_LOG_RELEASE_INFO("Adaptor::Initialize: Initialized\n");
 }
 
 Adaptor::~Adaptor()

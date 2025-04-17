@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -175,6 +176,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -189,12 +191,14 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   if(DALI_UNLIKELY(0u == fsize))
   {
     DALI_LOG_ERROR("Error ICO data size is zero!\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -206,7 +210,8 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   map.ResizeUninitialized(fsize);
   if(DALI_UNLIKELY(fread(&map[0], 1, fsize, fp) != fsize))
   {
-    DALI_LOG_WARNING("image file read opeation error!\n");
+    DALI_LOG_ERROR("image file read opeation error!\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -496,7 +501,7 @@ bool HandleBitsPerPixel(
 
     default:
     {
-      DALI_LOG_WARNING("Image file contains unsupported bits-per-pixel %d\n", bitcount);
+      DALI_LOG_ERROR("Image file contains unsupported bits-per-pixel %d\n", bitcount);
       return false;
     }
   }
@@ -652,7 +657,7 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
   if(diff_size)
   {
-    DALI_LOG_WARNING("Broken ICO file!\n");
+    DALI_LOG_ERROR("Broken ICO file!\n");
   }
 
   if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &word)))

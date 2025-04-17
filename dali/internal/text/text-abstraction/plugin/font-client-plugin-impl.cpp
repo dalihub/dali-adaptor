@@ -98,10 +98,10 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 /**
  * Conversion from Fractional26.6 to float
  */
-const float FROM_266        = 1.0f / 64.0f;
-const float POINTS_PER_INCH = 72.f;
+const float    FROM_266           = 1.0f / 64.0f;
+const float    POINTS_PER_INCH    = 72.f;
 const uint32_t FONT_AXIS_NAME_LEN = 4;
-const uint32_t FROM_16DOT16 = (1 << 16);
+const uint32_t FROM_16DOT16       = (1 << 16);
 
 const uint32_t ELLIPSIS_CHARACTER     = 0x2026;
 const uint32_t CUSTOM_FONTS_MAX_COUNT = 10u;
@@ -155,12 +155,12 @@ bool IsFitIntoAtlas(FT_Face& ftFace, int& error, const unsigned int& horizontalD
  */
 void ConvertTagToString(FT_ULong tag, char buffer[5])
 {
-    // the tag is same format as used in Harfbuzz.
-    buffer[0] = (tag >> 24) & 0xFF;
-    buffer[1] = (tag >> 16) & 0xFF;
-    buffer[2] = (tag >> 8) & 0xFF;
-    buffer[3] = tag & 0xFF;
-    buffer[4] = 0;
+  // the tag is same format as used in Harfbuzz.
+  buffer[0] = (tag >> 24) & 0xFF;
+  buffer[1] = (tag >> 16) & 0xFF;
+  buffer[2] = (tag >> 8) & 0xFF;
+  buffer[3] = tag & 0xFF;
+  buffer[4] = 0;
 }
 
 /**
@@ -474,8 +474,8 @@ void FontClient::Plugin::GetDescription(FontId           fontId,
       case FontDescription::FACE_FONT:
       {
         for(auto it = mCacheHandler->mFontDescriptionSizeCache.Begin();
-        it != mCacheHandler->mFontDescriptionSizeCache.End();
-        it++)
+            it != mCacheHandler->mFontDescriptionSizeCache.End();
+            it++)
         {
           const auto& item = mCacheHandler->mFontDescriptionSizeCache.GetElement(it);
           if(item == fontIdCacheItem.index)
@@ -491,8 +491,8 @@ void FontClient::Plugin::GetDescription(FontId           fontId,
       }
       case FontDescription::BITMAP_FONT:
       {
-        fontDescription.type   = FontDescription::BITMAP_FONT;
-        auto it = mCacheHandler->mBitmapFontCache.find(fontIdCacheItem.index);
+        fontDescription.type = FontDescription::BITMAP_FONT;
+        auto it              = mCacheHandler->mBitmapFontCache.find(fontIdCacheItem.index);
         if(it != mCacheHandler->mBitmapFontCache.end())
         {
           fontDescription.family = it->second.font.name;
@@ -612,9 +612,9 @@ FontId FontClient::Plugin::FindFontForCharacter(const FontList&         fontList
         {
           if(mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
           {
-            auto index = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
-            const FontFaceCacheItem& item = mCacheHandler->FindFontFaceCacheItem(index);
-            foundColor = item.mHasColorTables;
+            auto                     index = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
+            const FontFaceCacheItem& item  = mCacheHandler->FindFontFaceCacheItem(index);
+            foundColor                     = item.mHasColorTables;
           }
 
           DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  foundColor : %s\n", (foundColor ? "true" : "false"));
@@ -796,8 +796,7 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
   FontCacheIndex fontCacheIndex = 0u;
   // Check if exists a pair 'fontDescriptionId, requestedPointSize' in the cache.
 
-  if(!mCacheHandler->FindFont(fontDescriptionId, requestedPointSize, fontCacheIndex, variationsMapPtr)
-  || !mCacheHandler->IsFontFaceCacheItemExist(fontCacheIndex))
+  if(!mCacheHandler->FindFont(fontDescriptionId, requestedPointSize, fontCacheIndex, variationsMapPtr) || !mCacheHandler->IsFontFaceCacheItemExist(fontCacheIndex))
   {
     if(fontDescriptionId > 0u && fontDescriptionId <= mCacheHandler->mCharacterSetCache.Count())
     {
@@ -811,7 +810,7 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
 
       if(fontId > 0u && mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
       {
-        fontCacheIndex = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
+        fontCacheIndex                                                     = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
         mCacheHandler->FindFontFaceCacheItem(fontCacheIndex).mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
       }
 
@@ -930,8 +929,8 @@ bool FontClient::Plugin::GetVectorMetrics(GlyphInfo* array,
     FontId fontId = array[i].fontId;
     if(mCacheHandler->IsFontIdCacheItemExist(fontId - 1u))
     {
-      auto index = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
-      FontFaceCacheItem& font = mCacheHandler->FindFontFaceCacheItem(index);
+      auto               index = mCacheHandler->FindFontIdCacheItem(fontId - 1u).index;
+      FontFaceCacheItem& font  = mCacheHandler->FindFontFaceCacheItem(index);
 
       if(!font.mVectorFontId)
       {
@@ -1281,13 +1280,13 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       error = FT_Get_MM_Var(ftFace, &mm_var);
       if(FT_Err_Ok == error)
       {
-        FT_Fixed *coordinates = new FT_Fixed[mm_var->num_axis];
+        FT_Fixed* coordinates = new FT_Fixed[mm_var->num_axis];
         for(uint32_t axisIndex = 0; axisIndex < mm_var->num_axis; axisIndex++)
         {
           char stringTag[FONT_AXIS_NAME_LEN + 1];
           ConvertTagToString(mm_var->axis[axisIndex].tag, stringTag);
-          auto valuePtr = variationsMap.Find(stringTag);
-          float value   = 0.0f;
+          auto  valuePtr = variationsMap.Find(stringTag);
+          float value    = 0.0f;
 
           if(valuePtr != nullptr && valuePtr->Get(value))
           {
@@ -1370,7 +1369,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
 
         if(requestedPointSize != requestedPointSizeBackup)
         {
-          DALI_LOG_WARNING(" The requested-point-size : %d, is reduced to point-size : %d\n", requestedPointSizeBackup, requestedPointSize);
+          DALI_LOG_DEBUG_INFO(" The requested-point-size : %d, is reduced to point-size : %d\n", requestedPointSizeBackup, requestedPointSize);
         }
       }
       else

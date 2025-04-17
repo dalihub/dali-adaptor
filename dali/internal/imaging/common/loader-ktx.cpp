@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@
 #include <dali/internal/imaging/common/loader-ktx.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <cstring>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/internal/system/common/system-error-print.h>
 
 namespace Dali
 {
@@ -189,6 +192,7 @@ inline bool ReadHeader(FILE* filePointer, KtxFileHeader& header)
   // Load the information directly into our structure
   if(DALI_UNLIKELY(fread(&header, 1, readLength, filePointer) != readLength))
   {
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -506,7 +510,7 @@ bool LoadKtxHeader(FILE* const fp, unsigned int& width, unsigned int& height, Kt
   // Warn if there is space wasted in the file:
   if(fileHeader.bytesOfKeyValueData > 0U)
   {
-    DALI_LOG_WARNING("Loading of KTX file with key/value header data requested. This should be stripped in application asset/resource build.\n");
+    DALI_LOG_DEBUG_INFO("Loading of KTX file with key/value header data requested. This should be stripped in application asset/resource build.\n");
   }
 
   return headerIsValid;
@@ -551,6 +555,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(fseek(fp, (long int)(imageSizeOffset), SEEK_SET)))
   {
     DALI_LOG_ERROR("Seek past key/vals in KTX compressed bitmap file failed.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
@@ -559,6 +564,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(fread(&imageByteCount, 1, 4, fp) != 4))
   {
     DALI_LOG_ERROR("Read of image size failed.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
   // Sanity-check the image size:
@@ -601,6 +607,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
     DALI_LOG_ERROR("Read of image pixel data failed.\n");
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
