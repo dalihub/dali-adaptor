@@ -1146,11 +1146,9 @@ struct IndexBufferBindingDescriptor
 struct UniformBufferBindingDescriptor
 {
   const GLES::Buffer* buffer;
-  uint32_t            binding;
   uint32_t            offset;
   uint32_t            dataSize;
-  uint32_t            blockIndex;
-  bool                emulated; ///<true if UBO is emulated for old gfx API
+  uint32_t            binding;
 };
 
 /**
