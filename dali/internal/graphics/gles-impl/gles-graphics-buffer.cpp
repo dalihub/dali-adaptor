@@ -28,7 +28,9 @@
 namespace Dali::Graphics::GLES
 {
 Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-: BufferResource(createInfo, controller)
+: BufferResource(createInfo, controller),
+  mCpuAllocated(false),
+  mTransient(false)
 {
   // Check if buffer is CPU allocated
   if(((0 | BufferUsage::UNIFORM_BUFFER) & mCreateInfo.usage) &&
@@ -46,6 +48,17 @@ Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphi
     // buffer in this implementation
     mTransient = true;
   }
+
+  // Check the target enum for this buffer
+  if((0 | BufferUsage::UNIFORM_BUFFER) & mCreateInfo.usage)
+  {
+    mBufferTarget = GL_UNIFORM_BUFFER;
+  }
+  else if((0 | BufferUsage::INDEX_BUFFER) & mCreateInfo.usage)
+  {
+    mBufferTarget = GL_ELEMENT_ARRAY_BUFFER;
+  }
+  // else if((0 | BufferUsage::VERTEX_BUFFER) & mCreateInfo.usage) default enum : GL_ARRAY_BUFFER
 
   controller.AddBuffer(*this);
 }
@@ -155,8 +168,8 @@ void Buffer::InitializeGPUBuffer()
   {
     gl->GenBuffers(1, &mBufferId);
   }
-  context->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
-  gl->BufferData(GL_ARRAY_BUFFER, GLsizeiptr(mCreateInfo.size), nullptr, GL_STATIC_DRAW);
+  context->BindBuffer(mBufferTarget, mBufferId);
+  gl->BufferData(mBufferTarget, GLsizeiptr(mCreateInfo.size), nullptr, GL_STATIC_DRAW);
 }
 
 void Buffer::DestroyResource()

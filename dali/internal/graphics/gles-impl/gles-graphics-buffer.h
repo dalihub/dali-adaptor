@@ -21,9 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-buffer-create-info.h>
 #include <dali/graphics-api/graphics-buffer.h>
+#include <dali/graphics-api/graphics-command-buffer.h> ///< for Graphics::ClearValue
+#include <dali/graphics-api/graphics-types.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
+#include "gles-graphics-types.h" ///< for GLenum
 
 namespace Dali::Graphics
 {
@@ -78,6 +81,11 @@ public:
     return mCpuAllocated;
   }
 
+  [[nodiscard]] GLenum GetBufferTarget() const
+  {
+    return mBufferTarget;
+  }
+
 private:
   void InitializeCPUBuffer();
 
@@ -85,8 +93,9 @@ private:
 
   uint32_t mBufferId{};
   void*    mBufferPtr{nullptr}; // CPU allocated memory
-  bool     mCpuAllocated{false};
-  bool     mTransient{false};
+  GLenum   mBufferTarget{GL_ARRAY_BUFFER};
+  bool     mCpuAllocated : 1;
+  bool     mTransient : 1;
 
   uint32_t mSetForGLRecyclingCount{0u}; ///< If value is not zero, the buffer will recycle
 };
