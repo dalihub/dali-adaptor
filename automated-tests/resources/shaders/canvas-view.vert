@@ -9,7 +9,7 @@
 INPUT mediump vec2 aPosition;
 INPUT mediump vec2 aTexCoord;
 OUTPUT mediump vec2 vTexCoord;
-UNIFORM_BLOCK VertBlock
+UNIFORM_BLOCK UtcVertBlock
 {
   UNIFORM highp mat4 uMvpMatrix;
   UNIFORM highp vec3 uSize;

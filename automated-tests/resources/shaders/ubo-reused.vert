@@ -2,18 +2,18 @@ INPUT mediump vec2 aPosition;
 INPUT mediump vec2 aTexCoord;
 OUTPUT mediump vec2 vTexCoord;
 
-UNIFORM_BLOCK SharedBlock1
+UNIFORM_BLOCK UtcSharedBlock1
 {
   UNIFORM highp vec4 uOther;
 };
 
-UNIFORM_BLOCK VertBlock
+UNIFORM_BLOCK UtcVertBlock
 {
   UNIFORM highp mat4 uMvpMatrix;
   UNIFORM highp vec3 uSize;
 };
 
-UNIFORM_BLOCK SharedBlock0
+UNIFORM_BLOCK UtcSharedBlock0
 {
   UNIFORM highp vec4 uColor;
 };

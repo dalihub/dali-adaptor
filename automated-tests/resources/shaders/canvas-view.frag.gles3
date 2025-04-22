@@ -8,7 +8,7 @@
 #define texture2D texture
 #define texture2DLod textureLod
 #define textureCubeLod textureLod
-layout(std140) uniform FragBlock
+layout(std140) uniform UtcFragBlock
 {
  lowp vec4 uColor;
 };

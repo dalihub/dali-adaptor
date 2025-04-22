@@ -16,7 +16,7 @@ layout(location=0) out mediump vec2 vTexCoord;// some output
 layout(location=1) out medium vec2 vTexCoord2;// other output
 
 // Some vertex block
-layout(set=0, binding=0, std140) uniform VertBlock//block comment
+layout(set=0, binding=0, std140) uniform UtcVertBlock//block comment
 {
  highp mat4 uMvpMatrix;//comment0
  highp vec3 uSize;//comment1

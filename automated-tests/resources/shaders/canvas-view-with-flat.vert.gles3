@@ -12,7 +12,7 @@ in mediump vec2 aPosition;
 in mediump vec2 aTexCoord;
 out mediump vec2 vTexCoord;
 flat out mediump int vInteger;
-layout(std140) uniform VertBlock
+layout(std140) uniform UtcVertBlock
 {
  highp mat4 uMvpMatrix;
  highp vec3 uSize;
