@@ -11,7 +11,7 @@
 
 
 // Some amazing uniform block
-layout(set=0, binding=1, std140) uniform FragBlock// another breaking comment
+layout(set=0, binding=1, std140) uniform UtcFragBlock// another breaking comment
 {
  lowp vec4 uColor;// This is color (used to cause a parsing error!)
 };

@@ -9,7 +9,7 @@
 //@ignore:off
 
 // Some amazing uniform block
-UNIFORM_BLOCK FragBlock// another breaking comment
+UNIFORM_BLOCK UtcFragBlock// another breaking comment
 {
   UNIFORM lowp vec4 uColor;// This is color (used to cause a parsing error!)
 };

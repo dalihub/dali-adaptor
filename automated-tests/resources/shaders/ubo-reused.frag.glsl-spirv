@@ -8,12 +8,12 @@
 #define texture2D texture
 #define texture2DLod textureLod
 #define textureCubeLod textureLod
-layout(set=0, binding=2, std140) uniform SharedBlock0
+layout(set=0, binding=2, std140) uniform UtcSharedBlock0
 {
  highp vec4 uOther;
 };
 
-layout(set=0, binding=3, std140) uniform FragBlock
+layout(set=0, binding=3, std140) uniform UtcFragBlock
 {
  lowp vec4 uColor;
 };
@@ -22,7 +22,7 @@ layout(location = 0) in mediump vec2 vTexCoord;
 layout(binding = 4) uniform sampler2D sTexture;
 layout(binding = 5) uniform samplerCube sTextureCube;
 
-layout(set=0, binding=0, std140) uniform SharedBlock1
+layout(set=0, binding=0, std140) uniform UtcSharedBlock1
 {
  highp vec4 uColor;
 };
