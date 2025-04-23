@@ -278,9 +278,9 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   // temporary static set of binding slots (thread local)
   static constexpr auto MAX_UNIFORM_BUFFER_BINDINGS = 64; // TODO: this should be read from introspection
 
-  static constexpr UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0, 0, false};
+  static constexpr UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0};
   static thread_local std::vector<UniformBufferBindingDescriptor> sTempBindings(MAX_UNIFORM_BUFFER_BINDINGS, NULL_DESCRIPTOR);
-  static thread_local std::vector<bool>                           sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, false);
+  static thread_local std::vector<uint8_t>                        sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, 0);
 
   memset(&bindCmd.standaloneUniformsBufferBinding, 0, sizeof(UniformBufferBindingDescriptor));
 
@@ -294,21 +294,18 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
       const auto* glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
       if(glesBuffer->IsCPUAllocated()) // standalone uniforms
       {
-        bindCmd.standaloneUniformsBufferBinding.buffer   = glesBuffer;
-        bindCmd.standaloneUniformsBufferBinding.binding  = binding.binding;
-        bindCmd.standaloneUniformsBufferBinding.offset   = binding.offset;
-        bindCmd.standaloneUniformsBufferBinding.emulated = true;
+        bindCmd.standaloneUniformsBufferBinding.buffer  = glesBuffer;
+        bindCmd.standaloneUniformsBufferBinding.offset  = binding.offset;
+        bindCmd.standaloneUniformsBufferBinding.binding = binding.binding;
       }
       else // Bind regular UBO
       {
         auto& slot = sTempBindings[binding.binding];
 
-        slot.buffer     = glesBuffer;
-        slot.binding    = binding.binding;
-        slot.offset     = binding.offset;
-        slot.dataSize   = binding.dataSize;
-        slot.blockIndex = 0;
-        slot.emulated   = false;
+        slot.buffer   = glesBuffer;
+        slot.offset   = binding.offset;
+        slot.dataSize = binding.dataSize;
+        slot.binding  = binding.binding;
 
         sTempBindingsUsed[binding.binding] = true;
 

@@ -775,12 +775,11 @@ void Context::ResolveGpuUniformBuffers()
 {
   if(auto* gl = mImpl->GetGL())
   {
-    auto i = 0u;
     for(const auto& binding : mImpl->mCurrentUBOBindings)
     {
       if(DALI_LIKELY(binding.buffer && binding.dataSize > 0u))
       {
-        gl->BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+        gl->BindBufferRange(GL_UNIFORM_BUFFER, binding.binding, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
       }
     }
   }
