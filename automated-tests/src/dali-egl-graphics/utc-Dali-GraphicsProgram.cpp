@@ -16,11 +16,14 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <adaptor-environment-variable.h>
 
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-actor-utils.h>
 #include <test-graphics-egl-application.h>
 #include <test-graphics-sampler.h>
+
+#include "mesh-builder.h"
 
 using namespace Dali;
 
@@ -70,6 +73,39 @@ const std::string FRAG_SHADER_SOURCE2 =
   "{\n"
   "  gl_fragColor = texture2d(sTextures[0], vTexCoord) + lightDirection*texture2d(sTextures[2], vTexCoord);\n"
   "}\n";
+
+} // anonymous namespace
+
+namespace
+{
+  Actor CreateRenderablegActorWithShaderFileCaching(Texture texture, const std::string& vertexShader, const std::string& fragmentShader)
+{
+  // Create the geometry
+  Geometry geometry = CreateQuadGeometry();
+
+  // Create Shader
+  Shader shader = Shader::New(vertexShader, fragmentShader, Shader::Hint::FILE_CACHE_SUPPORT);
+
+  // Create renderer from geometry and material
+  Renderer renderer = Renderer::New(geometry, shader);
+
+  // Create actor and set renderer
+  Actor actor = Actor::New();
+  actor.AddRenderer(renderer);
+
+  // If we a texture, then create a texture-set and add to renderer
+  if(texture)
+  {
+    TextureSet textureSet = TextureSet::New();
+    textureSet.SetTexture(0u, texture);
+    renderer.SetTextures(textureSet);
+
+    // Set actor to the size of the texture if set
+    actor.SetProperty(Actor::Property::SIZE, Vector2(texture.GetWidth(), texture.GetHeight()));
+  }
+
+  return actor;
+}
 
 } // anonymous namespace
 
@@ -228,6 +264,41 @@ int UtcDaliGraphicsShaderNew02(void)
   // Should only be 4 shaders, not 8.
   DALI_TEST_EQUALS(glShaderTrace.CountMethod("CreateProgram"), 4, TEST_LOCATION);
   DALI_TEST_EQUALS(glShaderTrace.CountMethod("CreateShader"), 4, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliGraphicsShaderNewUsingProgramBinary(void)
+{
+  EnvironmentVariable::SetTestEnvironmentVariable("DALI_SHADER_USE_PROGRAM_BINARY","1");
+
+  TestGraphicsApplication app;
+  tet_infoline("UtcDaliProgram - Check programBinary functionality");
+
+  Texture diffuse = CreateTexture(TextureType::TEXTURE_2D, Pixel::RGBA8888, 16u, 16u);
+
+  // Creates 3 Dali::Shaders
+  Actor actor1 = CreateRenderablegActorWithShaderFileCaching(diffuse, VERT_SHADER_SOURCE, FRAG_SHADER_SOURCE);
+  Actor actor2 = CreateRenderablegActorWithShaderFileCaching(diffuse, VERT_SHADER_SOURCE, FRAG_SHADER_SOURCE);
+  Actor actor3 = CreateRenderablegActorWithShaderFileCaching(diffuse, VERT_SHADER_SOURCE, FRAG_SHADER_SOURCE);
+
+  app.GetScene().Add(actor1);
+  app.GetScene().Add(actor2);
+  app.GetScene().Add(actor3);
+
+  auto& gl            = app.GetGlAbstraction();
+  auto& glShaderTrace = gl.GetShaderTrace();
+  glShaderTrace.Enable(true);
+  glShaderTrace.EnableLogging(true);
+
+  gl.SetProgramBinaryLength(1); // Set ProgramBinaryLength for Test
+
+  app.SendNotification();
+  app.Render(16); // The above actors will get rendered and drawn once, only 1 program and 2 shaders should be created
+
+  DALI_TEST_EQUALS(glShaderTrace.CountMethod("CreateProgram"), 1, TEST_LOCATION);
+  DALI_TEST_EQUALS(glShaderTrace.CountMethod("CreateShader"), 2, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.GetProgramBinaryCalled(), true, TEST_LOCATION);
 
   END_TEST;
 }
