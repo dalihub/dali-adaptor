@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,37 +97,41 @@ GLbitfield FrameBufferStateCache::GetClearMask(GLbitfield mask, bool forceClear,
   return mask;
 }
 
-void FrameBufferStateCache::SetCurrentFrameBuffer(GLuint frameBufferId)
+void FrameBufferStateCache::SetCurrentFrameBuffer(const GLuint framebufferId)
 {
-  mCurrentFrameBufferId = frameBufferId;
+  mCurrentFrameBufferId = framebufferId;
 }
 
-void FrameBufferStateCache::FrameBuffersDeleted(GLsizei count, const GLuint* const frameBuffers)
+void FrameBufferStateCache::FrameBufferCreated(const GLuint framebufferId)
 {
-  for(GLsizei i = 0; i < count; ++i)
+  // check the frame buffer doesn't exist already
+  FrameBufferState* state = GetFrameBufferState(framebufferId);
+  if(state)
   {
-    DeleteFrameBuffer(frameBuffers[i]);
+    DALI_LOG_ERROR("FrameBuffer already exists%d \n", framebufferId);
+    // reset its state
+    state->mState = INITIAL_FRAMEBUFFER_STATE;
+    return;
   }
-}
-void FrameBufferStateCache::FrameBuffersCreated(GLsizei count, const GLuint* const frameBuffers)
-{
-  for(GLsizei i = 0; i < count; ++i)
-  {
-    // check the frame buffer doesn't exist already
-    GLuint id = frameBuffers[i];
 
-    FrameBufferState* state = GetFrameBufferState(id);
-    if(state)
+  FrameBufferState newFrameBuffer(framebufferId);
+  mFrameBufferStates.PushBack(newFrameBuffer);
+}
+
+void FrameBufferStateCache::FrameBufferDeleted(const GLuint framebufferId)
+{
+  FrameBufferStateVector::Iterator iter    = mFrameBufferStates.Begin();
+  FrameBufferStateVector::Iterator endIter = mFrameBufferStates.End();
+
+  for(; iter != endIter; ++iter)
+  {
+    if((*iter).mId == framebufferId)
     {
-      DALI_LOG_ERROR("FrameBuffer already exists%d \n", id);
-      // reset its state
-      state->mState = INITIAL_FRAMEBUFFER_STATE;
-      continue;
+      mFrameBufferStates.Erase(iter);
+      return;
     }
-
-    FrameBufferState newFrameBuffer(frameBuffers[i]);
-    mFrameBufferStates.PushBack(newFrameBuffer);
   }
+  DALI_LOG_ERROR("FrameBuffer not found %d \n", framebufferId);
 }
 
 void FrameBufferStateCache::DrawOperation(bool colorBuffer, bool depthBuffer, bool stencilBuffer)
@@ -161,8 +165,7 @@ void FrameBufferStateCache::Reset()
   mFrameBufferStates.Clear();
 
   // create the default frame buffer
-  GLuint id = 0; // 0 == default frame buffer id
-  FrameBuffersCreated(1, &id);
+  FrameBufferCreated(0);
 }
 
 void FrameBufferStateCache::SetClearState(FrameBufferState* state, GLbitfield mask)
@@ -184,33 +187,17 @@ void FrameBufferStateCache::SetClearState(FrameBufferState* state, GLbitfield ma
   }
 }
 
-FrameBufferStateCache::FrameBufferState* FrameBufferStateCache::GetFrameBufferState(GLuint frameBufferId)
+FrameBufferStateCache::FrameBufferState* FrameBufferStateCache::GetFrameBufferState(GLuint framebufferId)
 {
   for(FrameBufferStateVector::SizeType i = 0; i < mFrameBufferStates.Count(); ++i)
   {
     FrameBufferState& state = mFrameBufferStates[i];
-    if(state.mId == frameBufferId)
+    if(state.mId == framebufferId)
     {
       return &state;
     }
   }
   return nullptr;
-}
-
-void FrameBufferStateCache::DeleteFrameBuffer(GLuint frameBufferId)
-{
-  FrameBufferStateVector::Iterator iter    = mFrameBufferStates.Begin();
-  FrameBufferStateVector::Iterator endIter = mFrameBufferStates.End();
-
-  for(; iter != endIter; ++iter)
-  {
-    if((*iter).mId == frameBufferId)
-    {
-      mFrameBufferStates.Erase(iter);
-      return;
-    }
-  }
-  DALI_LOG_ERROR("FrameBuffer not found %d \n", frameBufferId);
 }
 
 } // namespace GLES

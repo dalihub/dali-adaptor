@@ -207,10 +207,6 @@ public:
    */
   bool BindBuffer(GLenum target, uint32_t bufferId);
 
-  void DrawBuffers(uint32_t count, const GLenum* buffers);
-  void BindFrameBuffer(GLenum target, uint32_t bufferId);
-  void GenFramebuffers(uint32_t count, uint32_t* framebuffers);
-  void DeleteFramebuffers(uint32_t count, uint32_t* framebuffers);
   void ColorMask(bool enabled);
   void ClearStencilBuffer();
   void ClearDepthBuffer();

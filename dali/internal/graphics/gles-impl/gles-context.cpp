@@ -823,7 +823,8 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   if(targetInfo.surface)
   {
     // Bind surface FB
-    BindFrameBuffer(GL_FRAMEBUFFER, 0);
+    gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+    mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(0);
   }
   else if(targetInfo.framebuffer)
   {
@@ -1211,47 +1212,6 @@ bool Context::BindBuffer(GLenum target, uint32_t bufferId)
     return true;
   }
   return false;
-}
-
-void Context::DrawBuffers(uint32_t count, const GLenum* buffers)
-{
-  if(auto* gl = mImpl->GetGL())
-  {
-    mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
-                                                              mImpl->mGlStateCache.DepthBufferWriteEnabled(),
-                                                              mImpl->mGlStateCache.StencilBufferWriteEnabled());
-
-    gl->DrawBuffers(count, buffers);
-  }
-}
-
-void Context::BindFrameBuffer(GLenum target, uint32_t bufferId)
-{
-  if(auto* gl = mImpl->GetGL())
-  {
-    mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(bufferId);
-
-    gl->BindFramebuffer(target, bufferId);
-  }
-}
-
-void Context::GenFramebuffers(uint32_t count, uint32_t* framebuffers)
-{
-  if(auto* gl = mImpl->GetGL())
-  {
-    gl->GenFramebuffers(count, framebuffers);
-    mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersCreated(count, framebuffers);
-  }
-}
-
-void Context::DeleteFramebuffers(uint32_t count, uint32_t* framebuffers)
-{
-  if(auto* gl = mImpl->GetGL())
-  {
-    mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersDeleted(count, framebuffers);
-
-    gl->DeleteFramebuffers(count, framebuffers);
-  }
 }
 
 GLStateCache& Context::GetGLStateCache()
