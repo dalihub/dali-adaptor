@@ -156,9 +156,9 @@ void Buffer::InitializeGPUBuffer()
     return;
   }
 
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-  if(!gl || !context)
+  auto* context = mController.GetCurrentContext();
+  auto* gl      = mController.GetGL();
+  if(DALI_UNLIKELY(!gl || !context))
   {
     return;
   }
@@ -193,8 +193,8 @@ void Buffer::DestroyResource()
   {
     if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
     {
-      auto gl = mController.GetGL();
-      if(gl)
+      auto* gl = mController.GetGL();
+      if(DALI_LIKELY(gl))
       {
         gl->DeleteBuffers(1, &mBufferId);
       }
@@ -209,9 +209,9 @@ void Buffer::DiscardResource()
 
 void Buffer::Bind(Graphics::BufferUsage bindingTarget) const
 {
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-  if(!gl || !context)
+  auto* context = mController.GetCurrentContext();
+  auto* gl      = mController.GetGL();
+  if(DALI_UNLIKELY(!gl || !context))
   {
     return;
   }

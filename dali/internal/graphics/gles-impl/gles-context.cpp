@@ -144,7 +144,7 @@ struct Context::Impl
   void InitializeGlState()
   {
     auto* gl = GetGL();
-    if(gl)
+    if(DALI_LIKELY(gl))
     {
       mGlStateCache.mClearColorSet        = false;
       mGlStateCache.mColorMask            = true;
@@ -193,7 +193,7 @@ struct Context::Impl
   void FlushVertexAttributeLocations()
   {
     auto* gl = GetGL();
-    if(gl)
+    if(DALI_LIKELY(gl))
     {
       for(unsigned int i = 0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i)
       {
@@ -225,7 +225,7 @@ struct Context::Impl
   void SetVertexAttributeLocation(unsigned int location, bool state)
   {
     auto* gl = GetGL();
-    if(gl)
+    if(DALI_LIKELY(gl))
     {
       if(location >= MAX_ATTRIBUTE_CACHE_SIZE)
       {
@@ -971,7 +971,7 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
   {
     GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
     auto*              gl          = mImpl->GetGL();
-    if(framebuffer && gl)
+    if(DALI_LIKELY(gl) && framebuffer)
     {
       /* @todo Full dependency checking would need to store textures in Begin, and create
        * fence objects here; but we're going to draw all fbos on shared context in serial,
@@ -1015,7 +1015,7 @@ void Context::ReadPixels(uint8_t* buffer)
   {
     GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
     auto*              gl          = mImpl->GetGL();
-    if(framebuffer && gl)
+    if(DALI_LIKELY(gl) && framebuffer)
     {
       gl->Finish(); // To guarantee ReadPixels.
       gl->ReadPixels(0, 0, framebuffer->GetCreateInfo().size.width, framebuffer->GetCreateInfo().size.height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -1052,7 +1052,7 @@ void Context::ClearUniformBufferCache()
 void Context::ColorMask(bool enabled)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && enabled != mImpl->mGlStateCache.mColorMask)
+  if(DALI_LIKELY(gl) && enabled != mImpl->mGlStateCache.mColorMask)
   {
     mImpl->mGlStateCache.mColorMask = enabled;
     gl->ColorMask(enabled, enabled, enabled, enabled);
@@ -1073,7 +1073,7 @@ void Context::ClearBuffer(uint32_t mask, bool forceClear)
 {
   mask     = mImpl->mGlStateCache.mFrameBufferStateCache.GetClearMask(mask, forceClear, mImpl->mGlStateCache.mScissorTestEnabled);
   auto* gl = mImpl->GetGL();
-  if(mask > 0 && gl)
+  if(DALI_LIKELY(gl) && mask > 0)
   {
     gl->Clear(mask);
   }
@@ -1082,7 +1082,8 @@ void Context::ClearBuffer(uint32_t mask, bool forceClear)
 void Context::InvalidateDepthStencilBuffers()
 {
 #ifndef DALI_PROFILE_TV
-  if(auto* gl = mImpl->GetGL())
+  auto* gl = mImpl->GetGL();
+  if(DALI_LIKELY(gl))
   {
     GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
     gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
@@ -1095,7 +1096,7 @@ void Context::InvalidateDepthStencilBuffers()
 void Context::SetScissorTestEnabled(bool scissorEnabled)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
+  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
   {
     mImpl->mGlStateCache.mScissorTestEnabled = scissorEnabled;
 
@@ -1113,7 +1114,7 @@ void Context::SetScissorTestEnabled(bool scissorEnabled)
 void Context::SetStencilTestEnable(bool stencilEnable)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && stencilEnable != mImpl->mGlStateCache.mStencilBufferEnabled)
+  if(DALI_LIKELY(gl) && stencilEnable != mImpl->mGlStateCache.mStencilBufferEnabled)
   {
     mImpl->mGlStateCache.mStencilBufferEnabled = stencilEnable;
 
@@ -1131,7 +1132,7 @@ void Context::SetStencilTestEnable(bool stencilEnable)
 void Context::StencilMask(uint32_t writeMask)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && writeMask != mImpl->mGlStateCache.mStencilMask)
+  if(DALI_LIKELY(gl) && writeMask != mImpl->mGlStateCache.mStencilMask)
   {
     mImpl->mGlStateCache.mStencilMask = writeMask;
 
@@ -1144,7 +1145,7 @@ void Context::StencilFunc(Graphics::CompareOp compareOp,
                           uint32_t            compareMask)
 {
   auto* gl = mImpl->GetGL();
-  if(gl &&
+  if(DALI_LIKELY(gl) &&
      (compareOp != mImpl->mGlStateCache.mStencilFunc ||
       reference != mImpl->mGlStateCache.mStencilFuncRef ||
       compareMask != mImpl->mGlStateCache.mStencilFuncMask))
@@ -1162,7 +1163,7 @@ void Context::StencilOp(Graphics::StencilOp failOp,
                         Graphics::StencilOp passOp)
 {
   auto* gl = mImpl->GetGL();
-  if(gl &&
+  if(DALI_LIKELY(gl) &&
      (failOp != mImpl->mGlStateCache.mStencilOpFail ||
       depthFailOp != mImpl->mGlStateCache.mStencilOpDepthFail ||
       passOp != mImpl->mGlStateCache.mStencilOpDepthPass))
@@ -1178,7 +1179,7 @@ void Context::StencilOp(Graphics::StencilOp failOp,
 void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && compareOp != mImpl->mGlStateCache.mDepthFunction)
+  if(DALI_LIKELY(gl) && compareOp != mImpl->mGlStateCache.mDepthFunction)
   {
     mImpl->mGlStateCache.mDepthFunction = compareOp;
 
@@ -1189,7 +1190,7 @@ void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
 void Context::SetDepthTestEnable(bool depthTestEnable)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && depthTestEnable != mImpl->mGlStateCache.mDepthBufferEnabled)
+  if(DALI_LIKELY(gl) && depthTestEnable != mImpl->mGlStateCache.mDepthBufferEnabled)
   {
     mImpl->mGlStateCache.mDepthBufferEnabled = depthTestEnable;
 
@@ -1207,7 +1208,7 @@ void Context::SetDepthTestEnable(bool depthTestEnable)
 void Context::SetDepthWriteEnable(bool depthWriteEnable)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && depthWriteEnable != mImpl->mGlStateCache.mDepthMaskEnabled)
+  if(DALI_LIKELY(gl) && depthWriteEnable != mImpl->mGlStateCache.mDepthMaskEnabled)
   {
     mImpl->mGlStateCache.mDepthMaskEnabled = depthWriteEnable;
 
@@ -1218,7 +1219,7 @@ void Context::SetDepthWriteEnable(bool depthWriteEnable)
 void Context::ActiveTexture(uint32_t textureBindingIndex)
 {
   auto* gl = mImpl->GetGL();
-  if(gl && mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
+  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
   {
     mImpl->mGlStateCache.mActiveTextureUnit = textureBindingIndex;
 
@@ -1230,7 +1231,7 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
 {
   uint32_t typeId = static_cast<uint32_t>(textureTypeId);
   auto*    gl     = mImpl->GetGL();
-  if(gl && mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
   {
     mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
 
@@ -1240,7 +1241,8 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
 
 void Context::GenerateMipmap(GLenum target)
 {
-  if(auto* gl = mImpl->GetGL())
+  auto* gl = mImpl->GetGL();
+  if(DALI_LIKELY(gl))
   {
     gl->GenerateMipmap(target);
   }
@@ -1248,7 +1250,8 @@ void Context::GenerateMipmap(GLenum target)
 
 bool Context::BindBuffer(GLenum target, uint32_t bufferId)
 {
-  if(auto* gl = mImpl->GetGL())
+  auto* gl = mImpl->GetGL();
+  if(DALI_LIKELY(gl))
   {
     switch(target)
     {
@@ -1310,7 +1313,7 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
 
   // Remove cached VAO map
   auto* gl = mImpl->GetGL();
-  if(gl)
+  if(DALI_LIKELY(gl))
   {
     const auto* program = pipeline->GetCreateInfo().programState->program;
     if(program)

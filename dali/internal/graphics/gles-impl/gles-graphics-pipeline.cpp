@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,8 @@ void PipelineImpl::Bind(const uint32_t glProgram) const
     return; // Early out if shutting down
   }
 
-  if(auto gl = GetController().GetGL())
+  auto* gl = GetController().GetGL();
+  if(DALI_LIKELY(gl))
   {
     gl->UseProgram(glProgram);
   }

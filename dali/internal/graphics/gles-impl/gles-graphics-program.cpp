@@ -151,13 +151,12 @@ bool ProgramImpl::Destroy()
 
   if(mImpl->glProgram)
   {
-    auto gl = mImpl->controller.GetGL();
-    if(!gl)
+    auto* gl = mImpl->controller.GetGL();
+    if(DALI_LIKELY(gl))
     {
-      return false;
+      gl->DeleteProgram(mImpl->glProgram);
+      return true;
     }
-    gl->DeleteProgram(mImpl->glProgram);
-    return true;
   }
   return false;
 }
@@ -165,7 +164,7 @@ bool ProgramImpl::Destroy()
 void ProgramImpl::Preprocess()
 {
   auto* gl               = mImpl->controller.GetGL();
-  bool  advancedBlending = !gl ? false : gl->IsAdvancedBlendEquationSupported();
+  bool  advancedBlending = DALI_LIKELY(gl) ? gl->IsAdvancedBlendEquationSupported() : false;
   // For now only Vertex and Fragment shader stages supported
   // and one per stage
   std::string  vertexString;
@@ -256,8 +255,8 @@ void ProgramImpl::Preprocess()
 bool ProgramImpl::Create()
 {
   // Create and link new program
-  auto gl = mImpl->controller.GetGL();
-  if(!gl)
+  auto* gl = mImpl->controller.GetGL();
+  if(DALI_UNLIKELY(!gl))
   {
     // Do nothing during shutdown
     return false;
@@ -415,7 +414,7 @@ void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
   }
 
   auto* gl = GetController().GetGL();
-  if(!gl)
+  if(DALI_UNLIKELY(!gl))
   {
     return; // Early out if no GL found
   }
@@ -597,8 +596,8 @@ bool ProgramImpl::LoadProgramBinary()
       return false;
     }
 
-    auto gl = mImpl->controller.GetGL();
-    if(!gl)
+    auto* gl = mImpl->controller.GetGL();
+    if(DALI_UNLIKELY(!gl))
     {
       DALI_LOG_ERROR("Can't Get GL \n");
       return false;
@@ -646,8 +645,8 @@ void ProgramImpl::SaveProgramBinary()
   GLint  binaryLength{0u};
   GLint  binarySize{0u};
   GLenum format;
-  auto   gl = mImpl->controller.GetGL();
-  if(!gl)
+  auto*  gl = mImpl->controller.GetGL();
+  if(DALI_UNLIKELY(!gl))
   {
     DALI_LOG_ERROR("Can't Get GL \n");
     return;

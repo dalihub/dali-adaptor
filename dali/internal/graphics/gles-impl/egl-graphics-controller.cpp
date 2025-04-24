@@ -478,8 +478,8 @@ MemoryRequirements EglGraphicsController::GetBufferMemoryRequirements(Buffer& bu
 {
   MemoryRequirements requirements{};
 
-  auto gl = GetGL();
-  if(gl)
+  auto* gl = GetGL();
+  if(DALI_LIKELY(gl))
   {
     GLint align;
     gl->GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &align);
