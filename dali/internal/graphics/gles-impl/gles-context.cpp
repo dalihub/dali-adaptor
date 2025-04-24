@@ -39,7 +39,22 @@
 namespace
 {
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
-}
+
+/**
+ * Memory compare working on 4-byte types. Since all types used in shaders are
+ * size of 4*N then no need for size and alignment checks.
+ */
+template<class A, class B>
+inline bool memcmp4(A* a, B* b, size_t size)
+{
+  auto* pa = reinterpret_cast<const uint32_t*>(a);
+  auto* pb = reinterpret_cast<const uint32_t*>(b);
+  size >>= 2;
+  while(size-- && *pa++ == *pb++)
+    ;
+  return (-1u == size);
+};
+} // namespace
 
 namespace Dali::Graphics::GLES
 {
@@ -78,7 +93,7 @@ struct Context::Impl
     }
 
     auto* gl = GetGL();
-    if(!gl) // early out if no gl
+    if(DALI_UNLIKELY(!gl)) // early out if no gl
     {
       return;
     }
@@ -234,6 +249,47 @@ struct Context::Impl
   }
 
   /**
+   * Prepare to buffer range cache for performance.
+   * We could skip various memory reserving when BindBufferRange called.
+   */
+  void PrepareBufferRangeCache(size_t maxBindings)
+  {
+    if(mUniformBufferBindingCache.Count() < maxBindings)
+    {
+      const auto oldCount = mUniformBufferBindingCache.Count();
+      mUniformBufferBindingCache.ResizeUninitialized(maxBindings);
+      for(auto i = oldCount; i < maxBindings; ++i)
+      {
+        mUniformBufferBindingCache[i].buffer = nullptr;
+      }
+    }
+  }
+
+  /**
+   * Binds and cache buffer ranges.
+   * Cache information 'MUST' be cleard when buffer pointer changed, or some programs invalidated.
+   */
+  void BindBufferRange(const UniformBufferBindingDescriptor& binding)
+  {
+    auto* gl = GetGL();
+    if(DALI_UNLIKELY(!gl)) // early out if no gl
+    {
+      return;
+    }
+
+    DALI_ASSERT_DEBUG(mUniformBufferBindingCache.Count() > binding.binding && "PrepareBufferRangeCache not called!");
+
+    auto& cachedBinding = mUniformBufferBindingCache[binding.binding];
+
+    if(!memcmp4(&cachedBinding, &binding, sizeof(UniformBufferBindingDescriptor)))
+    {
+      // Cache not hit. Update cache and call glBindBufferRange
+      memcpy(&cachedBinding, &binding, sizeof(UniformBufferBindingDescriptor));
+      gl->BindBufferRange(GL_UNIFORM_BUFFER, binding.binding, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+    }
+  }
+
+  /**
    * Get the pointer to the GL implementation
    * @return The GL implementation, nullptr if the context has not been created or shutting down
    */
@@ -265,6 +321,9 @@ struct Context::Impl
   Dali::Vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
   UniformBufferBindingDescriptor               mCurrentStandaloneUBOBinding{};
 
+  // Keep bind buffer range. Should be cleared if program changed.
+  Dali::Vector<UniformBufferBindingDescriptor> mUniformBufferBindingCache;
+
   // Current render pass and render target
   const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
   const GLES::RenderPass*   mCurrentRenderPass{nullptr};
@@ -272,7 +331,8 @@ struct Context::Impl
   // Each context must have own VAOs as they cannot be shared
   std::unordered_map<const GLES::ProgramImpl*, std::map<std::size_t, uint32_t>> mProgramVAOMap;              ///< GL program-VAO map
   uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
-  GLStateCache                                                                  mGlStateCache{};             ///< GL status cache
+
+  GLStateCache mGlStateCache{}; ///< GL status cache
 
   std::vector<Dali::GLuint> mDiscardedVAOList{};
 
@@ -304,7 +364,7 @@ Context::~Context()
 void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::TextureDependencyChecker& dependencyChecker)
 {
   auto* gl = mImpl->GetGL();
-  if(!gl) // Early out if no gl
+  if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
@@ -346,6 +406,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     {
       mImpl->mNewPipeline->Bind(newProgram->GetImplementation()->GetGlProgram());
       programChanged = true;
+
+      ClearUniformBufferCache();
     }
 
     // Blend state
@@ -643,7 +705,7 @@ void Context::ResolveBlendState()
   }
 
   auto* gl = mImpl->GetGL();
-  if(!gl) // Early out if no gl
+  if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
@@ -732,7 +794,7 @@ void Context::ResolveRasterizationState()
   }
 
   auto* gl = mImpl->GetGL();
-  if(!gl) // Early out if no gl
+  if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
@@ -773,14 +835,12 @@ void Context::ResolveUniformBuffers()
 
 void Context::ResolveGpuUniformBuffers()
 {
-  if(auto* gl = mImpl->GetGL())
+  mImpl->PrepareBufferRangeCache(mImpl->mCurrentUBOBindings.Count());
+  for(const auto& binding : mImpl->mCurrentUBOBindings)
   {
-    for(const auto& binding : mImpl->mCurrentUBOBindings)
+    if(DALI_LIKELY(binding.buffer && binding.dataSize > 0u))
     {
-      if(DALI_LIKELY(binding.buffer && binding.dataSize > 0u))
-      {
-        gl->BindBufferRange(GL_UNIFORM_BUFFER, binding.binding, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
-      }
+      mImpl->BindBufferRange(binding);
     }
   }
 }
@@ -815,7 +875,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
   auto* gl = mImpl->GetGL();
-  if(!gl) // Early out if no gl
+  if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
@@ -982,6 +1042,11 @@ void Context::ClearVertexBufferCache()
       memset(&mImpl->mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mImpl->mGlStateCache.mVertexAttributeCurrentState));
     }
   }
+}
+
+void Context::ClearUniformBufferCache()
+{
+  mImpl->mUniformBufferBindingCache.Clear();
 }
 
 void Context::ColorMask(bool enabled)
@@ -1265,9 +1330,8 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
           }
 
           // Clear cached Vertex buffer.
+          ResetBufferCache();
           ClearVertexBufferCache();
-
-          mImpl->mGlStateCache.ResetBufferCache();
 
           mImpl->mProgramVAOMap.erase(iter);
         }
@@ -1345,15 +1409,21 @@ void Context::PrepareForNativeRendering()
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareForNativeRendering");
 }
 
-void Context::ResetGLESState()
+void Context::ResetBufferCache()
 {
   mImpl->mGlStateCache.ResetBufferCache();
+  ClearUniformBufferCache();
+}
+
+void Context::ResetGLESState()
+{
   mImpl->mGlStateCache.ResetTextureCache();
   mImpl->mCurrentPipeline = nullptr;
 
   mImpl->mCurrentIndexBufferBinding = {};
 
   ClearState();
+  ResetBufferCache();
   ClearVertexBufferCache();
   mImpl->InitializeGlState();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@
 #include "gles-graphics-program.h"
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <dali/public-api/dali-adaptor-version.h>
-#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-shader.h"
 
 // EXTERNAL HEADERS
-#include <iostream>
-#include <filesystem>
 #include <unistd.h>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#ifdef GL_KHR_blend_equation_advanced\n"
@@ -344,7 +344,6 @@ bool ProgramImpl::Create()
   }
 
   // Set up uniform block bindings
-  auto binding    = 0u;
   auto blockCount = reflection->GetUniformBlockCount();
   for(uint32_t i = 1; i < blockCount; ++i) // Ignore emulated block at #0
   {
@@ -353,7 +352,7 @@ bool ProgramImpl::Create()
 
     // make binding point
     auto blockIndex = gl->GetUniformBlockIndex(program, uboInfo.name.c_str());
-    gl->UniformBlockBinding(program, blockIndex, binding++);
+    gl->UniformBlockBinding(program, blockIndex, uboInfo.binding);
   }
 
   return true;
@@ -570,8 +569,8 @@ bool ProgramImpl::IsEnableProgramBinary() const
 std::string ProgramImpl::GetProgramBinaryName()
 {
   // Check shader with dali-version, name and total shader size
-  const auto& info = mImpl->createInfo;
-  uint32_t totalShaderSize = 0u;
+  const auto& info            = mImpl->createInfo;
+  uint32_t    totalShaderSize = 0u;
   for(const auto& state : *info.shaderState)
   {
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);
@@ -586,7 +585,7 @@ bool ProgramImpl::LoadProgramBinary()
 {
   auto binaryShaderFilename = GetSystemProgramBinaryPath() + GetProgramBinaryName();
 
-  bool result = false;
+  bool               result = false;
   Dali::Vector<char> buffer;
   result = Dali::FileLoader::ReadFile(binaryShaderFilename, buffer);
 
@@ -644,10 +643,10 @@ bool ProgramImpl::LoadProgramBinary()
 
 void ProgramImpl::SaveProgramBinary()
 {
-  GLint binaryLength{0u};
-  GLint binarySize{0u};
+  GLint  binaryLength{0u};
+  GLint  binarySize{0u};
   GLenum format;
-  auto gl = mImpl->controller.GetGL();
+  auto   gl = mImpl->controller.GetGL();
   if(!gl)
   {
     DALI_LOG_ERROR("Can't Get GL \n");
@@ -663,18 +662,18 @@ void ProgramImpl::SaveProgramBinary()
 
   std::vector<uint8_t> programBinary(binaryLength);
   gl->GetProgramBinary(mImpl->glProgram, binaryLength, &binarySize, &format, programBinary.data());
-  if (binarySize != binaryLength)
+  if(binarySize != binaryLength)
   {
     DALI_LOG_ERROR("Program binary created but size mismatch %d != %d\n", binarySize, binaryLength);
     return;
   }
 
-  auto programBinaryName = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  auto programBinaryName     = GetSystemProgramBinaryPath() + GetProgramBinaryName();
   auto programBinaryNameTemp = programBinaryName + std::to_string(getpid()) + ".tmp";
-  bool loaded = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
+  bool loaded                = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
   if(!loaded)
   {
-    DALI_LOG_ERROR("Program binary save failed!! file = %s \n",programBinaryName.c_str());
+    DALI_LOG_ERROR("Program binary save failed!! file = %s \n", programBinaryName.c_str());
     return;
   }
 

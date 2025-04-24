@@ -1156,10 +1156,13 @@ void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
   {
     auto* texture = mTextureMipmapGenerationRequests.front();
 
-    mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
-    mCurrentContext->GenerateMipmap(texture->GetGlTarget());
+    if(mDiscardTextureSet.find(texture) == mDiscardTextureSet.end())
+    {
+      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
+      mCurrentContext->GenerateMipmap(texture->GetGlTarget());
 
-    mTextureMipmapGenerationRequests.pop();
+      mTextureMipmapGenerationRequests.pop();
+    }
   }
 }
 

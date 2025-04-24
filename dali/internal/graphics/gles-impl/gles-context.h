@@ -225,6 +225,8 @@ public:
   void SetDepthTestEnable(bool depthTestEnable);
   void SetDepthWriteEnable(bool depthWriteEnable);
 
+  void ResetBufferCache();
+
   void ResetGLESState();
 
 private:
@@ -237,6 +239,11 @@ private:
    * @brief Clear vertex buffer relative caches.
    */
   void ClearVertexBufferCache();
+
+  /**
+   * @brief Clear cached bind buffer state
+   */
+  void ClearUniformBufferCache();
 
 private:
   struct Impl;
