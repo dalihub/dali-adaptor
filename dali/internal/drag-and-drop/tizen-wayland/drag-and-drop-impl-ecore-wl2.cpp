@@ -492,8 +492,7 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
 {
   int screenWidth, screenHeight;
   Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
-  Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
-  int angle = windowImpl.GetCurrentWindowRotationAngle();
+  int angle = static_cast<int>(DevelWindow::GetCurrentOrientation(window));
   Dali::Window::WindowSize size = window.GetSize();
 
   int           newX, newY;

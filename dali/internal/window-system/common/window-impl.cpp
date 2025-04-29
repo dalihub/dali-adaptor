@@ -1673,16 +1673,6 @@ WindowBlurInfo Window::GetBlur() const
   return mBlurInfo;
 }
 
-int Window::GetCurrentWindowRotationAngle() const
-{
-  return mRotationAngle;
-}
-
-int Window::GetCurrentScreenRotationAngle() const
-{
-  return mWindowBase->GetScreenRotationAngle();
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

@@ -637,27 +637,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   WindowBlurInfo GetBlur() const;
 
-public: // It is only for window-impl. Need not public for the others.
-  /**
-   * @brief Gets current window rotation angle.
-   *
-   * Gets current window rotation's angle is related to window rotation
-   * It is just supported in window-impl
-   *
-   * @return A current window rotation's angle.
-   */
-  int GetCurrentWindowRotationAngle() const;
-
-  /**
-   * @brief Gets current screen rotation's angle.
-   *
-   * Gets current screen rotation's angle is related to screen rotation
-   * It is just supported in window-impl
-   *
-   * @return A current screen rotation's angle.
-   */
-  int GetCurrentScreenRotationAngle() const;
-
 private:
   /**
    * @brief Enumeration for orietation mode.
