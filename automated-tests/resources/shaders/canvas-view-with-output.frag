@@ -6,7 +6,7 @@
 #define OUT_COLOR gl_FragColor
 //@ignore:off
 
-UNIFORM_BLOCK FragBlock
+UNIFORM_BLOCK UtcFragBlock
 {
   UNIFORM lowp vec4 uColor;
 };

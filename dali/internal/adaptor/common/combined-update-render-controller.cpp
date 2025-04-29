@@ -662,8 +662,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             vertexShader   = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix()) + shaderRawData.vertexPrefix[i] + std::string(shaderRawData.vertexShader);
             fragmentShader = Dali::Integration::GenerateTaggedShaderPrefix(graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix()) + shaderRawData.fragmentPrefix[i] + std::string(shaderRawData.fragmentShader);
           }
-
-          PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < shaderRawData.shaderName.size() ? shaderRawData.shaderName[i] : "");
+          PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < shaderRawData.shaderName.size() ? shaderRawData.shaderName[i] : "", !shaderRawData.custom);
           DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], precompile shader [%u/%u] >> %s \n", i + 1u, numberOfPrecompiledShader, shaderRawData.shaderName.size() ? shaderRawData.shaderName[i].c_str() : "");
         }
 
@@ -1161,7 +1160,7 @@ void CombinedUpdateRenderController::SurfaceResized(uint32_t resizedCount)
   }
 }
 
-void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName)
+void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName, bool useFileCache)
 {
   auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
 
@@ -1202,7 +1201,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   auto createInfo = Graphics::ProgramCreateInfo();
   createInfo.SetShaderState(shaderStates);
   createInfo.SetName(shaderName);
-
+  createInfo.SetFileCaching(useFileCache);
   auto graphicsProgram = graphics.GetController().CreateProgram(createInfo, nullptr);
   ShaderPreCompiler::Get().AddPreCompiledProgram(std::move(graphicsProgram));
 }

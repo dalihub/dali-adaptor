@@ -11,7 +11,7 @@
 layout(location = 0) in mediump vec2 aPosition;
 layout(location = 1) in mediump vec2 aTexCoord;
 layout(location=0) out mediump vec2 vTexCoord;
-layout(set=0, binding=0, std140) uniform VertBlock
+layout(set=0, binding=0, std140) uniform UtcVertBlock
 {
  highp mat4 uMvpMatrix;
  highp vec3 uSize;

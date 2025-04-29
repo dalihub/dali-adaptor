@@ -1,10 +1,10 @@
 
-UNIFORM_BLOCK SharedBlock0
+UNIFORM_BLOCK UtcSharedBlock0
 {
   UNIFORM highp vec4 uOther;
 };
 
-UNIFORM_BLOCK FragBlock
+UNIFORM_BLOCK UtcFragBlock
 {
   UNIFORM lowp vec4 uColor;
 };
@@ -13,7 +13,7 @@ INPUT mediump vec2 vTexCoord;
 UNIFORM sampler2D sTexture;
 UNIFORM samplerCube sTextureCube;
 
-UNIFORM_BLOCK SharedBlock1
+UNIFORM_BLOCK UtcSharedBlock1
 {
   UNIFORM highp vec4 uColor;
 };

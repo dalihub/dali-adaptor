@@ -766,6 +766,11 @@ void WebEngine::RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngi
   mPlugin->RegisterScrollEdgeReachedCallback(callback);
 }
 
+void WebEngine::RegisterOverScrolledCallback(Dali::WebEnginePlugin::WebEngineOverScrolledCallback callback)
+{
+  mPlugin->RegisterOverScrolledCallback(callback);
+}
+
 void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback)
 {
   mPlugin->RegisterUrlChangedCallback(callback);

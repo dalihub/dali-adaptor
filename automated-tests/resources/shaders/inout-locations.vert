@@ -7,7 +7,7 @@ OUTPUT highp mat3 vMatrix;
 OUTPUT medium vec2 vTexCoord2;// other output
 
 // Some vertex block
-UNIFORM_BLOCK VertBlock//block comment
+UNIFORM_BLOCK UtcVertBlock//block comment
 {
   UNIFORM highp mat4 uMvpMatrix;//comment0
   UNIFORM highp vec3 uSize;//comment1

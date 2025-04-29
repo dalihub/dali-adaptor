@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,16 @@
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <sstream>
 
+// Happy trick for Tizen platform! since 2025-04-22. eunkiki.hong@samsung.com
+// Since uniform buffer reduce fps near 10% than before, let we ignore uniform block feature
+// except several default SharedUniformBlocks, like "VisualVertBlock".
+// If we resolve performance issue, please remove below code!
+#define IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES 1
+
+#if IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES
+#include <unordered_set>
+#endif
+
 namespace
 {
 const std::vector<std::string> MATRIX_DATA_TYPE_TOKENS{"mat3", "mat4", "mat2"};
@@ -31,6 +41,17 @@ inline bool IsWordChar(const char c)
          (c == '_') ||
          (c == '#');
 }
+
+#if IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES
+const std::unordered_set<std::string_view> gExceptUniformBlockNames{
+  "VisualVertBlock",         ///< Default VisualRenderer properties
+  "GaussianBlurSampleBlock", ///< GaussianBlur effects
+  "PunctualLightBlock",      ///< For Scene3D::Light
+  "SharedFragmentBlock",     ///< For uniform-blocks.example
+  "UtcVertBlock",            ///< For UTC
+  "UtcFragBlock",            ///< For UTC
+};
+#endif
 } // namespace
 
 namespace Dali::Internal::ShaderParser
@@ -488,8 +509,13 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
       }
       else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
-        ss << "layout(std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
-        gles3plus = true;
+#if IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES
+        if(gExceptUniformBlockNames.find(uniformBlockName) != gExceptUniformBlockNames.end())
+#endif
+        {
+          ss << "layout(std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          gles3plus = true;
+        }
       }
       if(gles3plus) // remove word UNIFORM for gles3+/spirv
       {
@@ -510,7 +536,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
         }
         ss << "};\n";
       }
-      else if(lang == OutputLanguage::GLSL_100_ES)
+      else
       {
         while(l.line.find('{') == std::string::npos)
         {
