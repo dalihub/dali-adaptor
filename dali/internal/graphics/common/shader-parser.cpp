@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,6 @@ inline bool IsWordChar(const char c)
          (c == '_') ||
          (c == '#');
 }
-
-// Happy trick for Tizen platform! since 2025-04-22. eunkiki.hong@samsung.com
-// Since uniform buffer reduce fps near 10% than before, let we ignore uniform block feature, instead of "VisualVertBlock"
-// If we resolve performance issue, please remove below code!
-#define IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES 1
 } // namespace
 
 namespace Dali::Internal::ShaderParser
@@ -493,13 +488,8 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
       }
       else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
-#if IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES
-        if(uniformBlockName == "VisualVertBlock")
-#endif
-        {
-          ss << "layout(std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
-          gles3plus = true;
-        }
+        ss << "layout(std140) uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+        gles3plus = true;
       }
       if(gles3plus) // remove word UNIFORM for gles3+/spirv
       {
@@ -520,7 +510,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
         }
         ss << "};\n";
       }
-      else
+      else if(lang == OutputLanguage::GLSL_100_ES)
       {
         while(l.line.find('{') == std::string::npos)
         {
