@@ -523,11 +523,17 @@ public:
     // Process main command queue
     ProcessCommandQueues();
 
-    // Reset texture cache in the contexts while destroying textures
-    ResetTextureCache();
+    if(!mDiscardTextureSet.empty())
+    {
+      // Reset texture cache in the contexts while destroying textures
+      ResetTextureCache();
+    }
 
-    // Reset buffer cache in the contexts while destroying buffers
-    ResetBufferCache();
+    if(!mDiscardBufferQueue.empty())
+    {
+      // Reset buffer cache in the contexts while destroying buffers
+      ResetBufferCache();
+    }
 
     // Process discards
     // Note : we don't need to be ResourceContext when we destroy resources.
@@ -764,14 +770,14 @@ public:
   {
     if(mContext)
     {
-      mContext->GetGLStateCache().ResetBufferCache();
+      mContext->ResetBufferCache();
     }
 
     for(auto& context : mSurfaceContexts)
     {
       if(context.second)
       {
-        context.second->GetGLStateCache().ResetBufferCache();
+        context.second->ResetBufferCache();
       }
     }
   }
@@ -873,8 +879,8 @@ private:
   Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
   Graphics::GraphicsInterface*              mGraphics{nullptr}; // Pointer to owning structure via interface.
 
-  std::queue<GLES::Texture*>         mCreateTextureQueue; ///< Create queue for texture resource
-  std::unordered_set<GLES::Texture*> mDiscardTextureSet;  ///< Discard queue for texture resource
+  std::queue<GLES::Texture*>               mCreateTextureQueue; ///< Create queue for texture resource
+  std::unordered_set<const GLES::Texture*> mDiscardTextureSet;  ///< Discard queue for texture resource
 
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource

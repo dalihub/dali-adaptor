@@ -106,8 +106,8 @@ Framebuffer::~Framebuffer() = default;
 
 bool Framebuffer::InitializeResource()
 {
-  auto gl = mController.GetGL();
-  if(gl && mSharedContext && !mInitialized)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl) && mSharedContext && !mInitialized)
   {
     DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is create at another context!");
     mInitialized = true;
@@ -202,8 +202,8 @@ void Framebuffer::DestroyResource()
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    auto gl = mController.GetGL();
-    if(gl && mInitialized)
+    auto* gl = mController.GetGL();
+    if(DALI_LIKELY(gl) && mInitialized)
     {
       if(mDepthBufferId)
       {
@@ -239,8 +239,8 @@ void Framebuffer::DiscardResource()
 
 void Framebuffer::Bind() const
 {
-  auto gl = mController.GetGL();
-  if(gl && mSharedContext)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl) && mSharedContext)
   {
     DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is bound to another context!");
     gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
@@ -253,8 +253,8 @@ void Framebuffer::Bind() const
 
 void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId)
 {
-  auto gl = mController.GetGL();
-  if(gl)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl))
   {
     auto graphicsTexture = static_cast<const GLES::Texture*>(texture);
     auto textarget       = (graphicsTexture->GetCreateInfo().textureType == Graphics::TextureType::TEXTURE_2D) ? graphicsTexture->GetGlTarget() : GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId;

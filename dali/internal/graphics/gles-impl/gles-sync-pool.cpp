@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ SyncPool::AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& cont
   }
   else
   {
-    auto gl = controller.GetGL();
-    if(gl)
+    auto* gl = controller.GetGL();
+    if(DALI_LIKELY(gl))
     {
       glSyncObject = gl->FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
@@ -61,8 +61,8 @@ SyncPool::AgingSyncObject::~AgingSyncObject()
     }
     else
     {
-      auto gl = controller.GetGL();
-      if(gl && glSyncObject != nullptr)
+      auto* gl = controller.GetGL();
+      if(DALI_LIKELY(gl) && glSyncObject != nullptr)
       {
         gl->DeleteSync(glSyncObject);
       }
@@ -83,8 +83,8 @@ bool SyncPool::AgingSyncObject::IsSynced()
   }
   else
   {
-    auto gl = controller.GetGL();
-    if(gl && glSyncObject)
+    auto* gl = controller.GetGL();
+    if(DALI_LIKELY(gl) && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::IsSynced(); glClientWaitSync 0ms\n");
       const GLuint64 TIMEOUT = 0; //0ms!
@@ -111,8 +111,8 @@ bool SyncPool::AgingSyncObject::ClientWait()
   }
   else
   {
-    auto gl = controller.GetGL();
-    if(gl && glSyncObject)
+    auto* gl = controller.GetGL();
+    if(DALI_LIKELY(gl) && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::ClientWait(); glClientWaitSync 1ms\n");
       const GLuint64 TIMEOUT = 1000000; //1ms!
@@ -137,8 +137,8 @@ void SyncPool::AgingSyncObject::Wait()
   }
   else
   {
-    auto gl = controller.GetGL();
-    if(gl && glSyncObject)
+    auto* gl = controller.GetGL();
+    if(DALI_LIKELY(gl) && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::Wait(); glWaitSync\n");
       gl->WaitSync(glSyncObject, 0, 0ull);

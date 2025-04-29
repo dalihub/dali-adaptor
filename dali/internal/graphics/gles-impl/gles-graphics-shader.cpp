@@ -54,9 +54,9 @@ struct ShaderImpl::Impl
 
   bool Compile()
   {
-    auto gl = controller.GetGL();
+    auto* gl = controller.GetGL();
 
-    if(!gl)
+    if(DALI_UNLIKELY(!gl))
     {
       return false;
     }
@@ -142,9 +142,9 @@ struct ShaderImpl::Impl
 
   void Destroy()
   {
-    auto gl = controller.GetGL();
+    auto* gl = controller.GetGL();
 
-    if(gl && glShader)
+    if(DALI_LIKELY(gl) && glShader)
     {
       gl->DeleteShader(glShader);
       glShader = 0;

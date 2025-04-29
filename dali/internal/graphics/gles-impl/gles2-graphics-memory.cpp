@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,8 @@ void Memory2::Unlock(bool flush)
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    if(auto gl = mController.GetGL())
+    auto* gl = mController.GetGL();
+    if(DALI_LIKELY(gl))
     {
       // for buffer...
       if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
