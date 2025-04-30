@@ -19,6 +19,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/plugin/font-cache-item-interface.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
 #include <dali/internal/text/text-abstraction/plugin/harfbuzz-proxy-font.h>
 
@@ -41,16 +42,21 @@ namespace Dali::TextAbstraction::Internal
  */
 struct FontFaceCacheItem : public FontCacheItemInterface
 {
-  FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
-                    FT_Face            ftFace,
-                    GlyphCacheManager* glyphCacheManager,
-                    const FontPath&    path,
-                    PointSize26Dot6    requestedPointSize,
-                    FaceIndex          face,
-                    const FontMetrics& metrics);
+  FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
+                    FT_Face                            ftFace,
+                    FontFaceManager*                   fontFaceManager,
+                    GlyphCacheManager*                 glyphCacheManager,
+                    const FontPath&                    path,
+                    PointSize26Dot6                    requestedPointSize,
+                    FaceIndex                          face,
+                    const FontMetrics&                 metrics,
+                    const std::size_t                  variationsHash,
+                    const std::vector<FT_Fixed>&       freeTypeCoords,
+                    const std::vector<hb_variation_t>& harfBuzzVariations);
 
   FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                     FT_Face            ftFace,
+                    FontFaceManager*   fontFaceManager,
                     GlyphCacheManager* glyphCacheManager,
                     const FontPath&    path,
                     PointSize26Dot6    requestedPointSize,
@@ -59,8 +65,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
                     int                fixedSizeIndex,
                     float              fixedWidth,
                     float              fixedHeight,
-                    bool               hasColorTables,
-                    std::size_t        variationsHash = 0u);
+                    bool               hasColorTables);
 
   FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
   FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept;
@@ -135,22 +140,25 @@ public:
   const FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
   FT_Face           mFreeTypeFace;    ///< The FreeType face.
 
+  FontFaceManager*                   mFontFaceManager;   ///< The reference of font face manager. Owned from font-client-plugin-cache-handler.
   GlyphCacheManager*                 mGlyphCacheManager; ///< The reference of Glyph cache manager. Owned from font-client-plugin-cache-handler.
   std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont; ///< The harfbuzz font. It will store harfbuzz relate data.
 
-  FontPath        mPath;                  ///< The path to the font file name.
-  PointSize26Dot6 mRequestedPointSize;    ///< The font point size.
-  FaceIndex       mFaceIndex;             ///< The face index.
-  FontMetrics     mMetrics;               ///< The font metrics.
-  _FcCharSet*     mCharacterSet;          ///< Pointer with the range of characters.
-  int             mFixedSizeIndex;        ///< Index to the fixed size table for the requested size.
-  float           mFixedWidthPixels;      ///< The height in pixels (fixed size bitmaps only)
-  float           mFixedHeightPixels;     ///< The height in pixels (fixed size bitmaps only)
-  unsigned int    mVectorFontId;          ///< The ID of the equivalent vector-based font
-  FontId          mFontId;                ///< Index to the vector with the cache of font's ids.
-  bool            mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
-  bool            mHasColorTables : 1;    ///< Whether the font has color tables.
-  std::size_t     mVariationsHash;
+  FontPath                    mPath;                  ///< The path to the font file name.
+  PointSize26Dot6             mRequestedPointSize;    ///< The font point size.
+  FaceIndex                   mFaceIndex;             ///< The face index.
+  FontMetrics                 mMetrics;               ///< The font metrics.
+  _FcCharSet*                 mCharacterSet;          ///< Pointer with the range of characters.
+  int                         mFixedSizeIndex;        ///< Index to the fixed size table for the requested size.
+  float                       mFixedWidthPixels;      ///< The height in pixels (fixed size bitmaps only)
+  float                       mFixedHeightPixels;     ///< The height in pixels (fixed size bitmaps only)
+  unsigned int                mVectorFontId;          ///< The ID of the equivalent vector-based font
+  FontId                      mFontId;                ///< Index to the vector with the cache of font's ids.
+  bool                        mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
+  bool                        mHasColorTables : 1;    ///< Whether the font has color tables.
+  std::size_t                 mVariationsHash;        ///< The hash of the variations to use key.
+  std::vector<FT_Fixed>       mFreeTypeCoords;        ///< The FreeType coordinates for the variations.
+  std::vector<hb_variation_t> mHarfBuzzVariations;    ///< The HarfBuzz variations data.
 };
 
 } // namespace Dali::TextAbstraction::Internal

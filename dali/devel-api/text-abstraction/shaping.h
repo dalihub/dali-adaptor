@@ -109,7 +109,6 @@ public:
    * @param[in] numberOfCharacters The number of characters to be shaped
    * @param[in] fontId The font to be used to shape the text.
    * @param[in] script The text's script.
-   * @param[in] variationsMapPtr The variations used in variable fonts.
    *
    * @return The size of the buffer required to get the shaped text.
    */
@@ -117,8 +116,7 @@ public:
                const Character*       const text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script,
-               Property::Map*               variationsMapPtr = nullptr);
+               Script                       script);
 
   /**
    * Gets the shaped text data.

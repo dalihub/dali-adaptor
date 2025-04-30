@@ -245,6 +245,32 @@ public:
   }
 
   /**
+   * @brief Pops key and element off the oldest used element.
+   * After pop, CacheId relative with this element cannot be used.
+   * Access by poped element's CacheId is Undefined Behavior.
+   *
+   * @return A copy of the key and element.
+   * @warning This method asserts if the container is empty.
+   */
+  std::pair<KeyType, ElementType> PopWithKey()
+  {
+    DALI_ASSERT_ALWAYS(!IsEmpty() && "Reading from empty container");
+
+    const CacheId id = mOldestId;
+    InternalPop(id);
+    InternalInsertAfterFooter(id);
+
+    --mNumberOfElements;
+
+    KeyType key = mData[id].cacheIdIterator->first;
+
+    // Erase cache id.
+    mCacheId.erase(mData[id].cacheIdIterator);
+
+    return std::make_pair(key, mData[id].element);
+  }
+
+  /**
    * @brief Get an element by the key. It will be marked as recent
    *
    * @param[in] key The key of element

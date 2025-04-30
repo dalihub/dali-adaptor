@@ -41,9 +41,12 @@ struct HarfBuzzProxyFont::Impl
    * @param[in] freeTypeFace The FreeType face.
    * @param[in] glyphCacheManager Glyph caching system for this harfbuzz font. It will be used as harfbuzz callback data.
    */
-  Impl(FT_Face freeTypeFace, GlyphCacheManager* glyphCacheManager)
+  Impl(FT_Face freeTypeFace, GlyphCacheManager* glyphCacheManager, PointSize26Dot6 requestedPointSize, const std::size_t variationsHash, const std::vector<hb_variation_t>& harfBuzzVariations)
   : mFreeTypeFace(freeTypeFace),
     mGlyphCacheManager(glyphCacheManager),
+    mRequestedPointSize(requestedPointSize),
+    mVariationsHash(variationsHash),
+    mHarfBuzzVariations(harfBuzzVariations),
     mHarfBuzzFont(nullptr)
   {
   }
@@ -75,16 +78,19 @@ private:
   void SetHarfBuzzFunctions();
 
 public:
-  FT_Face            mFreeTypeFace;      ///< The FreeType face. Owned from font-face-cache-item.
-  GlyphCacheManager* mGlyphCacheManager; ///< Glyph caching system for this harfbuzz font. Owned from font-client-plugin-cache-handler.
+  FT_Face                     mFreeTypeFace;       ///< The FreeType face. Owned from font-face-cache-item.
+  GlyphCacheManager*          mGlyphCacheManager;  ///< Glyph caching system for this harfbuzz font. Owned from font-client-plugin-cache-handler.
+  PointSize26Dot6             mRequestedPointSize; ///< The requested point size.
+  std::size_t                 mVariationsHash;     ///< The hash of the variations to use cache key.
+  std::vector<hb_variation_t> mHarfBuzzVariations; ///< The HarfBuzz variations data.
 
   hb_font_t* mHarfBuzzFont; ///< Harfbuzz font handle integrated with FT_Face.
 };
 
-HarfBuzzProxyFont::HarfBuzzProxyFont(FT_Face freeTypeFace, const PointSize26Dot6& requestedPointSize, const uint32_t& horizontalDpi, const uint32_t& verticalDpi, GlyphCacheManager* glyphCacheManager)
+HarfBuzzProxyFont::HarfBuzzProxyFont(FT_Face freeTypeFace, const PointSize26Dot6& requestedPointSize, const std::size_t variationsHash, const std::vector<hb_variation_t>& harfBuzzVariations, const uint32_t& horizontalDpi, const uint32_t& verticalDpi, GlyphCacheManager* glyphCacheManager)
 : mHorizontalDpi(horizontalDpi),
   mVerticalDpi(verticalDpi),
-  mImpl(new Impl(freeTypeFace, glyphCacheManager))
+  mImpl(new Impl(freeTypeFace, glyphCacheManager, requestedPointSize, variationsHash, harfBuzzVariations))
 {
   mImpl->CreateHarfBuzzFont(requestedPointSize, mHorizontalDpi, mVerticalDpi);
 }
@@ -126,7 +132,7 @@ static bool GetGlyphCacheData(void* font_data, const GlyphIndex& glyphIndex, Gly
   if(DALI_LIKELY(impl && impl->mGlyphCacheManager))
   {
     FT_Error error;
-    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(impl->mFreeTypeFace, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, glyphDataPtr, error);
+    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(impl->mFreeTypeFace, impl->mRequestedPointSize, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, impl->mVariationsHash, glyphDataPtr, error);
   }
   return false;
 }
@@ -377,15 +383,13 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
 
   if(mFreeTypeFace)
   {
-    // Before create hb_font_t, we must set FT_Char_Size
-    FT_Set_Char_Size(mFreeTypeFace,
-                     0u,
-                     FT_F26Dot6(requestedPointSize),
-                     horizontalDpi,
-                     verticalDpi);
-
     // Create font face with increase font face's reference.
     mHarfBuzzFont = hb_ft_font_create_referenced(mFreeTypeFace);
+
+    if(!mHarfBuzzVariations.empty())
+    {
+      hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), mHarfBuzzVariations.size());
+    }
 
     SetHarfBuzzFunctions();
 

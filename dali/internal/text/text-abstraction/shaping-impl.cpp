@@ -134,8 +134,7 @@ struct Shaping::Plugin
                const Character*       const text,
                Length                       numberOfCharacters,
                FontId                       fontId,
-               Script                       script,
-               Property::Map*               variationsMapPtr)
+               Script                       script)
   {
     // Clear previoursly shaped texts.
     mIndices.Clear();
@@ -182,55 +181,6 @@ struct Shaping::Plugin
 
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
-
-        /*
-         * This code has been stopped because the original issue was resolved by other modifications.
-         * Maybe the optimization code has resolved the original issue.
-
-         * The below code produce a noise (un-wanted glyph) when compine "Negative Squared Latin Capital Letter" with U+FE0E at the end of line.
-         * i.e: Like this text "&#x1f170;&#xfe0e;"
-         */
-        /*
-        //The invisible unicodes like U+FE0F and U+FE0E should be replaced by zero width glyph
-        //i.e: This text "&#x262a;&#xfe0f;&#xfe0f;&#xfe0f;&#x262a;&#xfe0f;" should be rendered as two adjacent glyphs.
-        if(TextAbstraction::IsOneOfEmojiScripts(script))
-        {
-          //TODO: check if this should be applied to all scripts
-          //Applied this only on EMOJI scripts to avoid compatibility issues with other scripts
-          hb_buffer_set_invisible_glyph(harfBuzzBuffer, TextAbstraction::GetUnicodeForInvisibleGlyph());
-        }
-        */
-
-        if(variationsMapPtr != nullptr)
-        {
-          Property::Map& variationsMap = *variationsMapPtr;
-
-          std::size_t axis_cnt = variationsMap.Count();
-          hb_variation_t *variations = new hb_variation_t[axis_cnt];
-          int valid_cnt = 0;
-
-          for(std::size_t index = 0; index < axis_cnt; index++)
-          {
-            const KeyValuePair& keyvalue = variationsMap.GetKeyValue(index);
-
-            if(keyvalue.first.type == Property::Key::STRING)
-            {
-              const std::string& key   = keyvalue.first.stringKey;
-              float              value = 0.0f;
-
-              if(key.length() == 4u && keyvalue.second.Get(value))
-              {
-                variations[valid_cnt].tag = HB_TAG(key[0], key[1], key[2], key[3]);
-                variations[valid_cnt].value = value;
-
-                ++valid_cnt;
-              }
-            }
-          }
-
-          hb_font_set_variations(harfBuzzFont, variations, valid_cnt);
-          delete[] variations;
-        }
 
         hb_shape(harfBuzzFont, harfBuzzBuffer, NULL, 0u);
 
@@ -400,8 +350,7 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                       const Character*       const text,
                       Length                       numberOfCharacters,
                       FontId                       fontId,
-                      Script                       script,
-                      Property::Map*               variationsMapPtr)
+                      Script                       script)
 {
   CreatePlugin();
 
@@ -409,8 +358,7 @@ Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
                         text,
                         numberOfCharacters,
                         fontId,
-                        script,
-                        variationsMapPtr);
+                        script);
 }
 
 void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,

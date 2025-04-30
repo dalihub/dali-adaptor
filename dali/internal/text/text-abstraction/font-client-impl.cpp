@@ -101,9 +101,12 @@ Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 
 FontClient::FontClient()
 : mPlugin(nullptr),
+  mFontFileManager(),
   mDpiHorizontal(0),
   mDpiVertical(0)
 {
+  // FontFileManager::Get() must be called from the main thread.
+  mFontFileManager = TextAbstraction::FontFileManager::Get();
 }
 
 FontClient::~FontClient()
@@ -741,7 +744,7 @@ void FontClient::CreatePlugin()
   std::scoped_lock lock(gMutex);
   if(!mPlugin)
   {
-    mPlugin = new Plugin(mDpiHorizontal, mDpiVertical);
+    mPlugin = new Plugin(mFontFileManager, mDpiHorizontal, mDpiVertical);
   }
 }
 

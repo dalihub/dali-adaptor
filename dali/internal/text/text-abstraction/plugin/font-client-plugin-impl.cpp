@@ -19,6 +19,7 @@
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
@@ -118,22 +119,16 @@ namespace
  * @brief Check if @p ftFace and @p requestedPointSize produces block that fit into atlas block
  *
  * @param[in/out] ftFace Face type object.
- * @param[in] horizontalDpi The horizontal dpi.
- * @param[in] verticalDpi The vertical dpi.
+ * @param[in] fontFaceManager The fotn face manager.
  * @param[in] maxSizeFitInAtlas The maximum size of block to fit into atlas
  * @param[in] requestedPointSize The requested point-size.
  * @return whether the  ftFace's block can fit into atlas
  */
-bool IsFitIntoAtlas(FT_Face& ftFace, int& error, const unsigned int& horizontalDpi, const unsigned int& verticalDpi, const Size& maxSizeFitInAtlas, const uint32_t& requestedPointSize)
+bool IsFitIntoAtlas(FT_Face& ftFace, FontFaceManager* fontFaceManager, int& error, const Size& maxSizeFitInAtlas, const uint32_t& requestedPointSize, const std::size_t variationsHash, const std::vector<FT_Fixed>& freeTypeCoords)
 {
   bool isFit = false;
 
-  error = FT_Set_Char_Size(ftFace,
-                           0,
-                           FT_F26Dot6(requestedPointSize),
-                           horizontalDpi,
-                           verticalDpi);
-
+  error = fontFaceManager->ActivateFace(ftFace, requestedPointSize, variationsHash, freeTypeCoords);
   if(error == FT_Err_Ok)
   {
     //Check width and height of block for requestedPointSize
@@ -148,39 +143,22 @@ bool IsFitIntoAtlas(FT_Face& ftFace, int& error, const unsigned int& horizontalD
 }
 
 /**
- * @brief Convert Freetype-type tag to string.
- *
- * @param[in] tag The Freetype variable tag.
- * @param[out] buffer The converted string tag.
- */
-void ConvertTagToString(FT_ULong tag, char buffer[5])
-{
-  // the tag is same format as used in Harfbuzz.
-  buffer[0] = (tag >> 24) & 0xFF;
-  buffer[1] = (tag >> 16) & 0xFF;
-  buffer[2] = (tag >> 8) & 0xFF;
-  buffer[3] = tag & 0xFF;
-  buffer[4] = 0;
-}
-
-/**
- * @brief Search on proper @p requestedPointSize that produces block that fit into atlas block considering on @p ftFace, @p horizontalDpi, and @p verticalDpi
+ * @brief Search on proper @p requestedPointSize that produces block that fit into atlas block considering on @p ftFace .
  *
  * @param[in/out] ftFace Face type object.
- * @param[in] horizontalDpi The horizontal dpi.
- * @param[in] verticalDpi The vertical dpi.
+ * @param[in] fontFaceManager The font face manager.
  * @param[in] maxSizeFitInAtlas The maximum size of block to fit into atlas
  * @param[in/out] requestedPointSize The requested point-size.
  * @return FreeType error code. 0 means success when requesting the nominal size (in points).
  */
-int SearchOnProperPointSize(FT_Face& ftFace, const unsigned int& horizontalDpi, const unsigned int& verticalDpi, const Size& maxSizeFitInAtlas, uint32_t& requestedPointSize)
+int SearchOnProperPointSize(FT_Face& ftFace, FontFaceManager* fontFaceManager, const Size& maxSizeFitInAtlas, uint32_t& requestedPointSize, const std::size_t variationsHash, const std::vector<FT_Fixed>& freeTypeCoords)
 {
   //To improve performance of sequential search. This code is applying Exponential search then followed by Binary search.
   const uint32_t& pointSizePerOneUnit = TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
   bool            canFitInAtlas;
   int             error; // FreeType error code.
 
-  canFitInAtlas = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+  canFitInAtlas = IsFitIntoAtlas(ftFace, fontFaceManager, error, maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
   if(FT_Err_Ok != error)
   {
     return error;
@@ -194,7 +172,7 @@ int SearchOnProperPointSize(FT_Face& ftFace, const unsigned int& horizontalDpi, 
     while(!canFitInAtlas && requestedPointSize > pointSizePerOneUnit * exponentialDecrement)
     {
       requestedPointSize -= (pointSizePerOneUnit * exponentialDecrement);
-      canFitInAtlas = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+      canFitInAtlas = IsFitIntoAtlas(ftFace, fontFaceManager, error, maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
       if(FT_Err_Ok != error)
       {
         return error;
@@ -222,7 +200,7 @@ int SearchOnProperPointSize(FT_Face& ftFace, const unsigned int& horizontalDpi, 
     while(minPointSize < maxPointSize)
     {
       requestedPointSize = ((maxPointSize / pointSizePerOneUnit - minPointSize / pointSizePerOneUnit) / 2) * pointSizePerOneUnit + minPointSize;
-      canFitInAtlas      = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+      canFitInAtlas      = IsFitIntoAtlas(ftFace, fontFaceManager, error, maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
       if(FT_Err_Ok != error)
       {
         return error;
@@ -250,9 +228,11 @@ int SearchOnProperPointSize(FT_Face& ftFace, const unsigned int& horizontalDpi, 
 
 } // namespace
 
-FontClient::Plugin::Plugin(unsigned int horizontalDpi,
+FontClient::Plugin::Plugin(TextAbstraction::FontFileManager fontFileManager,
+                           unsigned int horizontalDpi,
                            unsigned int verticalDpi)
 : mFreeTypeLibrary(nullptr),
+  mFontFileManager(fontFileManager),
   mDpiHorizontal(horizontalDpi),
   mDpiVertical(verticalDpi),
   mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
@@ -264,6 +244,13 @@ FontClient::Plugin::Plugin(unsigned int horizontalDpi,
   if(FT_Err_Ok != error)
   {
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FreeType Init error: %d\n", error);
+  }
+
+  mCacheHandler->mFontFaceManager->SetFontFileManager(fontFileManager);
+
+  if(horizontalDpi != 0u && verticalDpi != 0u)
+  {
+    mCacheHandler->mFontFaceManager->SetDpi(horizontalDpi, verticalDpi);
   }
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
@@ -281,6 +268,8 @@ FontClient::Plugin::~Plugin()
 #endif
 
   FT_Done_FreeType(mFreeTypeLibrary);
+
+  mFontFileManager.ClearCache();
 }
 
 void FontClient::Plugin::ClearCache() const
@@ -298,6 +287,8 @@ void FontClient::Plugin::SetDpi(unsigned int horizontalDpi,
 {
   mDpiHorizontal = horizontalDpi;
   mDpiVertical   = verticalDpi;
+
+  mCacheHandler->mFontFaceManager->SetDpi(horizontalDpi, verticalDpi);
 }
 
 void FontClient::Plugin::ResetSystemDefaults() const
@@ -305,68 +296,63 @@ void FontClient::Plugin::ResetSystemDefaults() const
   mCacheHandler->ResetSystemDefaults();
 }
 
-void FontClient::Plugin::CacheFontDataFromFile(const std::string& fontPath) const
+void FontClient::Plugin::CacheFontDataFromFile(const FontPath& fontPath) const
 {
   if(fontPath.empty())
   {
     return;
   }
 
-  if(mCacheHandler->FindFontData(fontPath))
+  if(mFontFileManager.FindFontFile(fontPath))
   {
-    // Font data is already cached, no need to reload
+    // Font file is already cached, no need to reload
     return;
   }
 
-  Dali::Vector<uint8_t> fontDataBuffer;
-  std::streampos        dataSize = 0;
-  if(!mCacheHandler->LoadFontDataFromFile(fontPath, fontDataBuffer, dataSize))
+  Dali::Vector<uint8_t> fontFileBuffer;
+  std::streampos        fileSize = 0;
+
+  if(!Dali::FileLoader::ReadFile(fontPath, fileSize, fontFileBuffer, Dali::FileLoader::BINARY))
   {
-    fontDataBuffer.Clear();
-    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font data : %s\n", fontPath.c_str());
+    fontFileBuffer.Clear();
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font file : %s\n", fontPath.c_str());
     return;
   }
 
-  // Cache font data
-  mCacheHandler->CacheFontData(fontPath, std::move(fontDataBuffer), dataSize);
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %zu, size : %ld, path : %s\n", fontFileBuffer.Size(), static_cast<long>(fileSize), fontPath.c_str());
+
+  // Cache font file
+  mFontFileManager.CacheFontFile(fontPath, std::move(fontFileBuffer), fileSize);
 }
 
-void FontClient::Plugin::CacheFontFaceFromFile(const std::string& fontPath) const
+void FontClient::Plugin::CacheFontFaceFromFile(const FontPath& fontPath) const
 {
   if(fontPath.empty())
   {
     return;
   }
 
-  if(mCacheHandler->FindFontFace(fontPath))
-  {
-    // Font face is already cached, no need to reload
-    return;
-  }
-
-  FT_Face ftFace;
-  int     error = FT_New_Face(mFreeTypeLibrary, fontPath.c_str(), 0, &ftFace);
+  FT_Face  ftFace;
+  FT_Error error = mCacheHandler->mFontFaceManager->LoadFace(mFreeTypeLibrary, fontPath, 0, ftFace);
   if(FT_Err_Ok != error)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font face : %s\n", fontPath.c_str());
     return;
   }
 
-  // Cache font face
-  mCacheHandler->CacheFontFace(fontPath, ftFace);
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font new face : %s\n", fontPath.c_str());
 }
 
 void FontClient::Plugin::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList) const
 {
-  for(const auto& fontPath : fontPathList)
-  {
-    CacheFontFaceFromFile(fontPath);
-  }
-
   for(const auto& memoryFontPath : memoryFontPathList)
   {
     CacheFontDataFromFile(memoryFontPath);
+  }
+
+  for(const auto& fontPath : fontPathList)
+  {
+    CacheFontFaceFromFile(fontPath);
   }
 }
 
@@ -1233,110 +1219,20 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
   FT_Face  ftFace;
   FT_Error error;
 
-  uint8_t*       fontDataPtr   = nullptr;
-  std::streampos dataSize      = 0;
-  bool           fontDataFound = mCacheHandler->FindFontData(path, fontDataPtr, dataSize);
-
-  if(fontDataFound)
-  {
-    // Create & cache new font face from pre-loaded font
-    error = FT_New_Memory_Face(mFreeTypeLibrary, reinterpret_cast<FT_Byte*>(fontDataPtr), static_cast<FT_Long>(dataSize), 0, &ftFace);
 #if defined(TRACE_ENABLED)
-    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
-    {
-      DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Memory_Face : %s\n", path.c_str());
-    }
-#endif
-  }
-  else
+  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
   {
-    // Create & cache new font face
-    error = FT_New_Face(mFreeTypeLibrary, path.c_str(), 0, &ftFace);
-#if defined(TRACE_ENABLED)
-    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
-    {
-      DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Face : %s\n", path.c_str());
-    }
-#endif
+    DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : %s\n", path.c_str());
   }
-
+#endif
+  error = mCacheHandler->mFontFaceManager->LoadFace(mFreeTypeLibrary, path, 0, ftFace);
   if(FT_Err_Ok == error)
   {
-    // Check if a font is scalable.
-    const bool isScalable           = (0 != (ftFace->face_flags & FT_FACE_FLAG_SCALABLE));
-    const bool hasFixedSizedBitmaps = (0 != (ftFace->face_flags & FT_FACE_FLAG_FIXED_SIZES)) && (0 != ftFace->num_fixed_sizes);
-    const bool hasColorTables       = (0 != (ftFace->face_flags & FT_FACE_FLAG_COLOR));
-
-    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "            isScalable : [%s]\n", (isScalable ? "true" : "false"));
-    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  hasFixedSizedBitmaps : [%s]\n", (hasFixedSizedBitmaps ? "true" : "false"));
-    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "        hasColorTables : [%s]\n", (hasColorTables ? "true" : "false"));
-
-    // Set Variable axes if applicable.
-    if(variationsMapPtr)
+    if(mCacheHandler->mFontFaceManager->IsBitmapFont(ftFace))
     {
-      Property::Map& variationsMap = *variationsMapPtr;
-
-      FT_MM_Var* mm_var;
-      error = FT_Get_MM_Var(ftFace, &mm_var);
+      const int fixedSizeIndex = mCacheHandler->mFontFaceManager->FindFixedSizeIndex(ftFace, requestedPointSize);
+      error                    = mCacheHandler->mFontFaceManager->SelectFixedSize(ftFace, requestedPointSize, fixedSizeIndex);
       if(FT_Err_Ok == error)
-      {
-        FT_Fixed* coordinates = new FT_Fixed[mm_var->num_axis];
-        for(uint32_t axisIndex = 0; axisIndex < mm_var->num_axis; axisIndex++)
-        {
-          char stringTag[FONT_AXIS_NAME_LEN + 1];
-          ConvertTagToString(mm_var->axis[axisIndex].tag, stringTag);
-          auto  valuePtr = variationsMap.Find(stringTag);
-          float value    = 0.0f;
-
-          if(valuePtr != nullptr && valuePtr->Get(value))
-          {
-            coordinates[axisIndex] = static_cast<FT_Fixed>(value * FROM_16DOT16);
-          }
-          else
-          {
-            // Set to default.
-            coordinates[axisIndex] = static_cast<FT_Fixed>(mm_var->axis[axisIndex].def);
-          }
-        }
-
-        FT_Set_Var_Design_Coordinates(ftFace, mm_var->num_axis, coordinates);
-        delete[] coordinates;
-      }
-    }
-
-    // Check to see if the font contains fixed sizes?
-    if(!isScalable && hasFixedSizedBitmaps)
-    {
-      PointSize26Dot6 actualPointSize = 0u;
-      int             fixedSizeIndex  = 0;
-      for(; fixedSizeIndex < ftFace->num_fixed_sizes; ++fixedSizeIndex)
-      {
-        const PointSize26Dot6 fixedSize = static_cast<PointSize26Dot6>(ftFace->available_sizes[fixedSizeIndex].size);
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  size index : %d, size : %d\n", fixedSizeIndex, fixedSize);
-
-        if(fixedSize >= requestedPointSize)
-        {
-          actualPointSize = fixedSize;
-          break;
-        }
-      }
-
-      if(0u == actualPointSize)
-      {
-        // The requested point size is bigger than the bigest fixed size.
-        fixedSizeIndex  = ftFace->num_fixed_sizes - 1;
-        actualPointSize = static_cast<PointSize26Dot6>(ftFace->available_sizes[fixedSizeIndex].size);
-      }
-
-      DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  size index : %d, actual size : %d\n", fixedSizeIndex, actualPointSize);
-
-      // Tell Freetype to use this size
-      error = FT_Select_Size(ftFace, fixedSizeIndex);
-      if(FT_Err_Ok != error)
-      {
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FreeType Select_Size error: %d\n", error);
-      }
-      else
       {
         FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
 
@@ -1346,17 +1242,32 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
                             static_cast<float>(ftFace->underline_position) * FROM_266,
                             static_cast<float>(ftFace->underline_thickness) * FROM_266);
 
-        const float fixedWidth  = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
-        const float fixedHeight = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
+        const float fixedWidth    = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
+        const float fixedHeight   = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
+        const bool hasColorTables = (0 != (ftFace->face_flags & FT_FACE_FLAG_COLOR));
 
         // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables, (variationsMapPtr ? variationsMapPtr->GetHash() : 0u));
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
 
         fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
+        mCacheHandler->mFontFaceManager->ReferenceFace(path);
+      }
+      else
+      {
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  FreeType Select_Size error: %d for pointSize %d\n", error, requestedPointSize);
       }
     }
     else
     {
+      std::size_t                 variationsHash = 0u;
+      std::vector<FT_Fixed>       freeTypeCoords;
+      std::vector<hb_variation_t> harfBuzzVariations;
+      if(variationsMapPtr)
+      {
+        variationsHash = variationsMapPtr->GetHash();
+        mCacheHandler->mFontFaceManager->BuildVariations(ftFace, variationsMapPtr, freeTypeCoords, harfBuzzVariations);
+      }
+
       if(mIsAtlasLimitationEnabled)
       {
         //There is limitation on block size to fit in predefined atlas size.
@@ -1365,7 +1276,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
         //Decrementing point-size until arriving to maximum allowed block size.
         auto        requestedPointSizeBackup = requestedPointSize;
         const Size& maxSizeFitInAtlas        = GetCurrentMaximumBlockSizeFitInAtlas();
-        error                                = SearchOnProperPointSize(ftFace, mDpiHorizontal, mDpiVertical, maxSizeFitInAtlas, requestedPointSize);
+        error                                = SearchOnProperPointSize(ftFace, mCacheHandler->GetFontFaceManager(), maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
 
         if(requestedPointSize != requestedPointSizeBackup)
         {
@@ -1374,11 +1285,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       }
       else
       {
-        error = FT_Set_Char_Size(ftFace,
-                                 0,
-                                 FT_F26Dot6(requestedPointSize),
-                                 mDpiHorizontal,
-                                 mDpiVertical);
+        error = mCacheHandler->mFontFaceManager->ActivateFace(ftFace, requestedPointSize, variationsHash, freeTypeCoords);
       }
 
       if(FT_Err_Ok == error)
@@ -1392,9 +1299,10 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
                             static_cast<float>(ftFace->underline_thickness) * FROM_266);
 
         // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics);
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, variationsHash, std::move(freeTypeCoords), std::move(harfBuzzVariations));
 
         fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
+        mCacheHandler->mFontFaceManager->ReferenceFace(path);
       }
       else
       {

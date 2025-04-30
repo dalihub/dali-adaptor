@@ -81,7 +81,7 @@ public: // Dali::TextAbstraction::FontClient
    * @param[in] horizontalDpi The horizontal dpi.
    * @param[in] verticalDpi The vertical dpi.
    */
-  Plugin(unsigned int horizontalDpi, unsigned int verticalDpi);
+  Plugin(TextAbstraction::FontFileManager fontFlieManager, unsigned int horizontalDpi, unsigned int verticalDpi);
 
   /**
    * Default destructor.
@@ -392,7 +392,7 @@ private:
    *
    * @param[in] fontPath The font path to cache the data for.
    */
-  void CacheFontDataFromFile(const std::string& fontPath) const;
+  void CacheFontDataFromFile(const FontPath& fontPath) const;
 
   /**
    * @brief Caches FreeType face for the specified font path if it is not already cached.
@@ -402,7 +402,7 @@ private:
    *
    * @param[in] fontPath The font path to cache the face for.
    */
-  void CacheFontFaceFromFile(const std::string& fontPath) const;
+  void CacheFontFaceFromFile(const FontPath& fontPath) const;
 
 private:
   Plugin(const Plugin&) = delete;
@@ -410,6 +410,8 @@ private:
 
 private:
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.
+
+  TextAbstraction::FontFileManager mFontFileManager; ///< A handle to FontFileManager.
 
   unsigned int mDpiHorizontal; ///< Horizontal dpi.
   unsigned int mDpiVertical;   ///< Vertical dpi.
