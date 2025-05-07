@@ -328,22 +328,9 @@ FT_Error FontFaceManager::SelectFixedSize(FT_Face ftFace, const PointSize26Dot6 
   return error;
 }
 
-void FontFaceManager::ClearCache(const std::size_t remainCount)
+void FontFaceManager::ClearCache()
 {
-  if(remainCount == 0u)
-  {
-    // Clear all cache.
-    mLRUFaceSizeCache.Clear();
-  }
-  else
-  {
-    // While the cache count is bigger than remainCount, remove oldest glyph.
-    while(mLRUFaceSizeCache.Count() > remainCount)
-    {
-      auto removedData = mLRUFaceSizeCache.Pop();
-      DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::FontFaceManager::ClearCache[%zu / %zu]. Remove oldest face size : %p\n", mLRUFaceSizeCache.Count(), remainCount, removedData->mFreeTypeSize);
-    }
-  }
+  mLRUFaceSizeCache.Clear();
 
   for(auto& item : mFreeTypeFaces)
   {

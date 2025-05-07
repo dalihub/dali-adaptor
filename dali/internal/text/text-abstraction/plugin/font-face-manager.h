@@ -282,10 +282,8 @@ public:
 
   /**
    * @brief Clear all cached face size informations.
-   *
-   * @param[in] remainCount The number of remained cache items after call this API. Default is 0, clear all items.
    */
-  void ClearCache(const std::size_t remainCount = 0u);
+  void ClearCache();
 
 private:
   TextAbstraction::FontFileManager               mFontFileManager; ///< Handle to the font file manager.
