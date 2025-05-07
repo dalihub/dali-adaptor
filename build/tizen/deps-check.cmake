@@ -288,6 +288,8 @@ ENDIF()
 
 IF( DESKTOP_PROFILE )
   SET( cachePath $ENV{HOME} )
+ELSEIF(ANDROID_PROFILE)
+  SET( cachePath ${CMAKE_INSTALL_PREFIX}/share/dali/.cache )
 ELSE()
   SET( cachePath /home/owner )
 ENDIF()
