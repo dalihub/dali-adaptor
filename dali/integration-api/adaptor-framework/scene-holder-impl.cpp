@@ -559,6 +559,15 @@ void SceneHolder::Reset()
   // First the touch event & related gesture events are queued
   mScene.QueueEvent(event);
 
+  // Any hover listeners should be told of the interruption.
+  Integration::HoverEvent hoverEvent;
+  Integration::Point      hoverPoint;
+  hoverPoint.SetState(PointState::INTERRUPTED);
+  hoverEvent.AddPoint(hoverPoint);
+
+  // First the hover event & related gesture events are queued
+  mScene.QueueEvent(hoverEvent);
+
   // Next the events are processed with a single call into Core
   mHandledMultiTouch = false;
   mPreviousType      = Integration::TouchEventCombiner::DISPATCH_NONE;
