@@ -24,6 +24,8 @@
 
 // EXTERNAL INCLUDES
 #include <memory> // for std::shared_ptr
+#include <map>
+#include <fontconfig/fontconfig.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -101,20 +103,24 @@ public:
    * @note Inputed glyph data pointer will be overwrited.
    *
    * @param[in] freeTypeFace The freetype face handle.
+   * @param[in] requestedPointSize The requested point size.
    * @param[in] index Index of glyph in this face.
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] variationsHash The hash of the variations to use key.
    * @param[out] glyphDataPtr Result of pointer of glyph load.
    * @param[out] error Error code during load glyph.
    * @return True if load successfully. False if something error occured.
    */
   bool GetGlyphCacheDataFromIndex(
-    const FT_Face      freeTypeFace,
-    const GlyphIndex   index,
-    const FT_Int32     flag,
-    const bool         isBoldRequired,
-    GlyphCacheDataPtr& glyphDataPtr,
-    FT_Error&          error);
+    const FT_Face         freeTypeFace,
+    const PointSize26Dot6 requestedPointSize,
+    const GlyphIndex      index,
+    const FT_Int32        flag,
+    const bool            isBoldRequired,
+    const std::size_t     variationsHash,
+    GlyphCacheDataPtr&    glyphDataPtr,
+    FT_Error&             error);
 
   /**
    * @brief Load GlyphCacheData from face. The result will not be cached.
@@ -140,36 +146,44 @@ public:
    * If glyph is not bitmap glyph, nothing happened.
    *
    * @param[in] freeTypeFace The freetype face handle.
+   * @param[in] requestedPointSize The requested point size.
    * @param[in] index Index of glyph in this face.
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] variationsHash The hash of the variations to use key.
    * @param[in] desiredWidth Desired width of bitmap.
    * @param[in] desiredHeight Desired height of bitmap.
    */
   void ResizeBitmapGlyph(
-    const FT_Face    freeTypeFace,
-    const GlyphIndex index,
-    const FT_Int32   flag,
-    const bool       isBoldRequired,
-    const uint32_t   desiredWidth,
-    const uint32_t   desiredHeight);
+    const FT_Face         freeTypeFace,
+    const PointSize26Dot6 requestedPointSize,
+    const GlyphIndex      index,
+    const FT_Int32        flag,
+    const bool            isBoldRequired,
+    const std::size_t     variationsHash,
+    const uint32_t        desiredWidth,
+    const uint32_t        desiredHeight);
 
   /**
    * @brief Cache rendered glyph bitmap. The result will change cached glyph information.
    * If glyph is not single color glyph, or we already cached buffer before, nothing happened.
    *
    * @param[in] freeTypeFace The freetype face handle.
+   * @param[in] requestedPointSize The requested point size.
    * @param[in] index Index of glyph in this face.
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] variationsHash The hash of the variations to use key.
    * @param[in] srcBitmap Rendered glyph bitmap.
    * @param[in] policy Compress behavior policy.
    */
   void CacheRenderedGlyphBuffer(
     const FT_Face               freeTypeFace,
+    const PointSize26Dot6       requestedPointSize,
     const GlyphIndex            index,
     const FT_Int32              flag,
     const bool                  isBoldRequired,
+    const std::size_t           variationsHash,
     const FT_Bitmap&            srcBitmap,
     const CompressionPolicyType policy);
 
@@ -197,28 +211,34 @@ private:
   {
     GlyphCacheKey()
     : mFreeTypeFace(nullptr),
+      mRequestedPointSize(0),
       mIndex(0u),
       mFlag(0),
-      mIsBoldRequired(false)
+      mIsBoldRequired(false),
+      mVariationsHash(0u)
     {
     }
 
-    GlyphCacheKey(const FT_Face freeTypeFace, const GlyphIndex index, const FT_Int32 flag, const bool boldRequired)
+    GlyphCacheKey(const FT_Face freeTypeFace, const PointSize26Dot6 requestedPointSize, const GlyphIndex index, const FT_Int32 flag, const bool boldRequired, const std::size_t variationsHash)
     : mFreeTypeFace(freeTypeFace),
+      mRequestedPointSize(requestedPointSize),
       mIndex(index),
       mFlag(flag),
-      mIsBoldRequired(boldRequired)
+      mIsBoldRequired(boldRequired),
+      mVariationsHash(variationsHash)
     {
     }
 
-    FT_Face    mFreeTypeFace;
-    GlyphIndex mIndex;
-    FT_Int32   mFlag;
-    bool       mIsBoldRequired : 1;
+    FT_Face         mFreeTypeFace;
+    PointSize26Dot6 mRequestedPointSize;
+    GlyphIndex      mIndex;
+    FT_Int32        mFlag;
+    bool            mIsBoldRequired : 1;
+    std::size_t     mVariationsHash;
 
     bool operator==(GlyphCacheKey const& rhs) const noexcept
     {
-      return mFreeTypeFace == rhs.mFreeTypeFace && mIndex == rhs.mIndex && mFlag == rhs.mFlag && mIsBoldRequired == rhs.mIsBoldRequired;
+      return mFreeTypeFace == rhs.mFreeTypeFace && mRequestedPointSize == rhs.mRequestedPointSize && mIndex == rhs.mIndex && mFlag == rhs.mFlag && mIsBoldRequired == rhs.mIsBoldRequired && mVariationsHash == rhs.mVariationsHash;
     }
   };
 
@@ -230,9 +250,11 @@ private:
     std::size_t operator()(GlyphCacheKey const& key) const noexcept
     {
       return static_cast<std::size_t>(reinterpret_cast<std::uintptr_t>(key.mFreeTypeFace)) ^
+             static_cast<std::size_t>(key.mRequestedPointSize) ^
              static_cast<std::size_t>(key.mIndex) ^
              static_cast<std::size_t>(key.mFlag) ^
-             (static_cast<std::size_t>(key.mIsBoldRequired) << 29);
+             (static_cast<std::size_t>(key.mIsBoldRequired) << 29) ^
+             key.mVariationsHash;
     }
   };
 

@@ -88,15 +88,20 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 }
 } // namespace
 
-FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
-                                     FT_Face            ftFace,
-                                     GlyphCacheManager* glyphCacheManager,
-                                     const FontPath&    path,
-                                     PointSize26Dot6    requestedPointSize,
-                                     FaceIndex          face,
-                                     const FontMetrics& metrics)
+FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
+                                     FT_Face                            ftFace,
+                                     FontFaceManager*                   fontFaceManager,
+                                     GlyphCacheManager*                 glyphCacheManager,
+                                     const FontPath&                    path,
+                                     PointSize26Dot6                    requestedPointSize,
+                                     FaceIndex                          face,
+                                     const FontMetrics&                 metrics,
+                                     const std::size_t                  variationsHash,
+                                     const std::vector<FT_Fixed>&       freeTypeCoords,
+                                     const std::vector<hb_variation_t>& harfBuzzVariations)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
+  mFontFaceManager(fontFaceManager),
   mGlyphCacheManager(glyphCacheManager),
   mHarfBuzzProxyFont(),
   mPath(path),
@@ -111,12 +116,15 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mFontId(0u),
   mIsFixedSizeBitmap(false),
   mHasColorTables(false),
-  mVariationsHash(0u)
+  mVariationsHash(variationsHash),
+  mFreeTypeCoords(freeTypeCoords),
+  mHarfBuzzVariations(harfBuzzVariations)
 {
 }
 
 FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
+                                     FontFaceManager*   fontFaceManager,
                                      GlyphCacheManager* glyphCacheManager,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,
@@ -125,10 +133,10 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      int                fixedSizeIndex,
                                      float              fixedWidth,
                                      float              fixedHeight,
-                                     bool               hasColorTables,
-                                     std::size_t        variationsHash)
+                                     bool               hasColorTables)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
+  mFontFaceManager(fontFaceManager),
   mGlyphCacheManager(glyphCacheManager),
   mHarfBuzzProxyFont(),
   mPath(path),
@@ -143,7 +151,9 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mFontId(0u),
   mIsFixedSizeBitmap(true),
   mHasColorTables(hasColorTables),
-  mVariationsHash(variationsHash)
+  mVariationsHash(0u),
+  mFreeTypeCoords(),
+  mHarfBuzzVariations()
 {
 }
 
@@ -153,6 +163,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
   mFreeTypeFace       = rhs.mFreeTypeFace;
+  mFontFaceManager    = rhs.mFontFaceManager;
   mGlyphCacheManager  = rhs.mGlyphCacheManager;
   mHarfBuzzProxyFont  = std::move(rhs.mHarfBuzzProxyFont);
   mPath               = std::move(rhs.mPath);
@@ -162,14 +173,20 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
   mCharacterSet       = rhs.mCharacterSet;
   mFixedSizeIndex     = rhs.mFixedSizeIndex;
   mFixedWidthPixels   = rhs.mFixedWidthPixels;
-  mFixedHeightPixels  = rhs.mFixedWidthPixels;
+  // Fixed height has been used as fixed width for a long time due to this typo.
+  // This fix may cause compatibility issue.
+  // mFixedHeightPixels  = rhs.mFixedWidthPixels;
+  mFixedHeightPixels  = rhs.mFixedHeightPixels;
   mVectorFontId       = rhs.mVectorFontId;
   mFontId             = rhs.mFontId;
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
   mVariationsHash     = rhs.mVariationsHash;
+  mFreeTypeCoords     = std::move(rhs.mFreeTypeCoords);
+  mHarfBuzzVariations = std::move(rhs.mHarfBuzzVariations);
 
   rhs.mFreeTypeFace      = nullptr;
+  rhs.mFontFaceManager   = nullptr;
   rhs.mGlyphCacheManager = nullptr;
 }
 
@@ -187,11 +204,13 @@ FontFaceCacheItem::~FontFaceCacheItem()
     mHarfBuzzProxyFont.reset();
   }
 
-  // Free face.
-  if(mFreeTypeFace)
+  if(mFontFaceManager)
   {
-    FT_Done_Face(mFreeTypeFace);
+    mFontFaceManager->ReleaseFace(mPath);
   }
+
+  mFreeTypeCoords.clear();
+  mHarfBuzzVariations.clear();
 }
 
 void FontFaceCacheItem::GetFontMetrics(FontMetrics& metrics, unsigned int dpiVertical) const
@@ -227,8 +246,13 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
   // Check to see if we should be loading a Fixed Size bitmap?
   if(mIsFixedSizeBitmap)
   {
-    FT_Select_Size(mFreeTypeFace, mFixedSizeIndex); ///< @todo: needs to be investigated why it's needed to select the size again.
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphDataPtr, error);
+    error = mFontFaceManager->SelectFixedSize(mFreeTypeFace, mRequestedPointSize, mFixedSizeIndex);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetGlyphMetrics. SelectFixedSize fail\n");
+    }
+
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, mVariationsHash, glyphDataPtr, error);
 
     if(FT_Err_Ok == error)
     {
@@ -272,7 +296,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
 
           // TODO : If dpiVertical value changed, this resize feature will be break down.
           // Otherwise, this glyph will be resized only one times.
-          mGlyphCacheManager->ResizeBitmapGlyph(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, static_cast<uint32_t>(glyphInfo.width), static_cast<uint32_t>(glyphInfo.height));
+          mGlyphCacheManager->ResizeBitmapGlyph(mFreeTypeFace, mRequestedPointSize, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, mVariationsHash, static_cast<uint32_t>(glyphInfo.width), static_cast<uint32_t>(glyphInfo.height));
         }
       }
     }
@@ -285,10 +309,16 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
   else
 #endif
   {
+    error = mFontFaceManager->ActivateFace(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mFreeTypeCoords);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetGlyphMetrics. ActivateFace fail\n");
+    }
+
     // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
     // i.e. with the SNum-3R font.
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, glyphDataPtr, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, mVariationsHash, glyphDataPtr, error);
 
     // Keep the width of the glyph before doing the software emboldening.
     // It will be used to calculate a scale factor to be applied to the
@@ -320,7 +350,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
       {
         // Get dummy glyph data without embolden.
         GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
-        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, dummyDataPtr, error))
+        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, mVariationsHash, dummyDataPtr, error))
         {
           // If the glyph is emboldened by software, the advance is multiplied by a
           // scale factor to make it slightly bigger.
@@ -375,17 +405,29 @@ void FontFaceCacheItem::CreateBitmap(
   // Check to see if this is fixed size bitmap
   if(mIsFixedSizeBitmap)
   {
+    error = mFontFaceManager->SelectFixedSize(mFreeTypeFace, mRequestedPointSize, mFixedSizeIndex);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. SelectFixedSize fail\n");
+    }
+
     loadFlag = FT_LOAD_COLOR;
   }
   else
 #endif
   {
+    error = mFontFaceManager->ActivateFace(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mFreeTypeCoords);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. ActivateFace fail\n");
+    }
+
     // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
     // i.e. with the SNum-3R font.
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
     loadFlag = FT_LOAD_NO_AUTOHINT;
   }
-  mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, glyphDataPtr, error);
+  mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash, glyphDataPtr, error);
 
   if(FT_Err_Ok == error)
   {
@@ -492,10 +534,10 @@ void FontFaceCacheItem::CreateBitmap(
           // Note : We will call this API once per each glyph.
           if(ableUseCachedRenderedGlyph)
           {
-            mGlyphCacheManager->CacheRenderedGlyphBuffer(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
+            mGlyphCacheManager->CacheRenderedGlyphBuffer(mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
 
             GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
-            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, dummyDataPtr, error);
+            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash, dummyDataPtr, error);
 
             if(DALI_LIKELY(FT_Err_Ok == error && dummyDataPtr->mRenderedBuffer))
             {
@@ -550,7 +592,7 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
   if(mHasColorTables)
   {
     GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, FT_LOAD_COLOR, false, dummyDataPtr, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, FT_LOAD_COLOR, false, mVariationsHash, dummyDataPtr, error);
   }
 #endif
   return FT_Err_Ok == error;
@@ -567,7 +609,6 @@ bool FontFaceCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character cha
   {
     // Create again the character set.
     // It can be null if the ResetSystemDefaults() method has been called.
-
     FontDescription description;
     description.path   = mPath;
     description.family = std::move(FontFamily(mFreeTypeFace->family_name));
@@ -606,7 +647,24 @@ HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontal
   // Create new harfbuzz font only first time or DPI changed.
   if(DALI_UNLIKELY(!mHarfBuzzProxyFont || mHarfBuzzProxyFont->mHorizontalDpi != horizontalDpi || mHarfBuzzProxyFont->mVerticalDpi != verticalDpi))
   {
-    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, horizontalDpi, verticalDpi, mGlyphCacheManager));
+    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mHarfBuzzVariations, horizontalDpi, verticalDpi, mGlyphCacheManager));
+  }
+
+  if(mIsFixedSizeBitmap)
+  {
+    FT_Error error = mFontFaceManager->SelectFixedSize(mFreeTypeFace, mRequestedPointSize, mFixedSizeIndex);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetHarfBuzzFont. SelectFixedSize fail\n");
+    }
+  }
+  else
+  {
+    FT_Error error = mFontFaceManager->ActivateFace(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mFreeTypeCoords);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
+    {
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetHarfBuzzFont. ActivateFace fail\n");
+    }
   }
   return mHarfBuzzProxyFont->GetHarfBuzzFont();
 }

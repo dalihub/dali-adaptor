@@ -128,11 +128,11 @@ bool Texture::InitializeResource()
 
 bool Texture::InitializeNativeImage()
 {
-  auto   context = mController.GetCurrentContext();
-  auto   gl      = mController.GetGL();
+  auto*  context = mController.GetCurrentContext();
+  auto*  gl      = mController.GetGL();
   GLuint texture{0};
 
-  if(!gl || !context)
+  if(DALI_UNLIKELY(!gl || !context))
   {
     // Do nothing during shutdown
     return false;
@@ -177,9 +177,9 @@ bool Texture::InitializeNativeImage()
 
 bool Texture::InitializeTexture()
 {
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-  if(!gl || !context)
+  auto* context = mController.GetCurrentContext();
+  auto* gl      = mController.GetGL();
+  if(DALI_UNLIKELY(!gl || !context))
   {
     // Do nothing during shutdown
     return false;
@@ -312,8 +312,8 @@ void Texture::DestroyResource()
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    auto gl = mController.GetGL();
-    if(!gl)
+    auto* gl = mController.GetGL();
+    if(DALI_UNLIKELY(!gl))
     {
       return;
     }
@@ -340,9 +340,9 @@ void Texture::DiscardResource()
 
 void Texture::Bind(const TextureBinding& binding) const
 {
-  auto context = mController.GetCurrentContext();
-  auto gl      = mController.GetGL();
-  if(!gl || !context)
+  auto* context = mController.GetCurrentContext();
+  auto* gl      = mController.GetGL();
+  if(DALI_UNLIKELY(!gl || !context))
   {
     // Do nothing during shutdown
     return;
@@ -431,8 +431,8 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
 
 void Texture::SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t value) const
 {
-  auto gl = mController.GetGL();
-  if(gl && cacheValue != value)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl) && cacheValue != value)
   {
     gl->TexParameteri(mGlTarget, param, value);
     cacheValue = value;

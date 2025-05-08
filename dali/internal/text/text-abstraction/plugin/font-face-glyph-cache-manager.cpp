@@ -49,17 +49,19 @@ GlyphCacheManager::~GlyphCacheManager()
 }
 
 bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
-  const FT_Face      freeTypeFace,
-  const GlyphIndex   index,
-  const FT_Int32     flag,
-  const bool         isBoldRequired,
-  GlyphCacheDataPtr& glyphDataPtr,
-  FT_Error&          error)
+  const FT_Face         freeTypeFace,
+  const PointSize26Dot6 requestedPointSize,
+  const GlyphIndex      index,
+  const FT_Int32        flag,
+  const bool            isBoldRequired,
+  const std::size_t     variationsHash,
+  GlyphCacheDataPtr&    glyphDataPtr,
+  FT_Error&             error)
 {
   // Append some error value here instead of FT_Err_Ok.
   error = static_cast<FT_Error>(-1);
 
-  const GlyphCacheKey key  = GlyphCacheKey(freeTypeFace, index, flag, isBoldRequired);
+  const GlyphCacheKey key  = GlyphCacheKey(freeTypeFace, requestedPointSize, index, flag, isBoldRequired, variationsHash);
   auto                iter = mLRUGlyphCache.Find(key);
 
   if(iter == mLRUGlyphCache.End())
@@ -202,12 +204,14 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
 }
 
 void GlyphCacheManager::ResizeBitmapGlyph(
-  const FT_Face    freeTypeFace,
-  const GlyphIndex index,
-  const FT_Int32   flag,
-  const bool       isBoldRequired,
-  const uint32_t   desiredWidth,
-  const uint32_t   desiredHeight)
+  const FT_Face         freeTypeFace,
+  const PointSize26Dot6 requestedPointSize,
+  const GlyphIndex      index,
+  const FT_Int32        flag,
+  const bool            isBoldRequired,
+  const std::size_t     variationsHash,
+  const uint32_t        desiredWidth,
+  const uint32_t        desiredHeight)
 {
   if(desiredWidth * desiredHeight <= 0)
   {
@@ -216,7 +220,7 @@ void GlyphCacheManager::ResizeBitmapGlyph(
   }
   FT_Error          error;
   GlyphCacheDataPtr glyphDataPtr;
-  if(GetGlyphCacheDataFromIndex(freeTypeFace, index, flag, isBoldRequired, glyphDataPtr, error))
+  if(GetGlyphCacheDataFromIndex(freeTypeFace, requestedPointSize, index, flag, isBoldRequired, variationsHash, glyphDataPtr, error))
   {
     GlyphCacheData& glyphData = *glyphDataPtr.get();
     if(DALI_LIKELY(glyphData.mIsBitmap && glyphData.mBitmap))
@@ -319,9 +323,11 @@ void GlyphCacheManager::ResizeBitmapGlyph(
 
 void GlyphCacheManager::CacheRenderedGlyphBuffer(
   const FT_Face               freeTypeFace,
+  const PointSize26Dot6       requestedPointSize,
   const GlyphIndex            index,
   const FT_Int32              flag,
   const bool                  isBoldRequired,
+  const std::size_t           variationsHash,
   const FT_Bitmap&            srcBitmap,
   const CompressionPolicyType policy)
 {
@@ -332,7 +338,7 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
   }
   FT_Error          error;
   GlyphCacheDataPtr glyphDataPtr;
-  if(GetGlyphCacheDataFromIndex(freeTypeFace, index, flag, isBoldRequired, glyphDataPtr, error))
+  if(GetGlyphCacheDataFromIndex(freeTypeFace, requestedPointSize, index, flag, isBoldRequired, variationsHash, glyphDataPtr, error))
   {
     GlyphCacheData& glyphData = *glyphDataPtr.get();
     if(DALI_LIKELY(!glyphData.mIsBitmap && glyphData.mRenderedBuffer == nullptr))

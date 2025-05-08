@@ -1151,6 +1151,9 @@ struct UniformBufferBindingDescriptor
   uint32_t            binding;
 };
 
+// Check the size of struct is times of 4, So we could use memcmp4
+static_assert(sizeof(UniformBufferBindingDescriptor) % 4 == 0);
+
 /**
  * @brief The descriptor of draw call
  */

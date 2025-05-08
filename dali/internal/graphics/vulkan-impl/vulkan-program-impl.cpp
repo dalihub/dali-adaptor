@@ -53,6 +53,19 @@ struct ProgramImpl::Impl
 
   ~Impl()
   {
+    // Tear down all VkDescriptorPool handles we ever created
+    auto& gfxDevice = controller.GetGraphicsDevice();
+    auto  vkDevice  = gfxDevice.GetLogicalDevice();
+    auto& allocator = gfxDevice.GetAllocator();
+
+    for(auto& descriptorPool : poolList)
+    {
+      if(descriptorPool.vkPool) // valid handle?
+      {
+        vkDevice.destroyDescriptorPool(descriptorPool.vkPool, &allocator);
+      }
+    }
+
     delete createInfo.shaderState;
   }
 
@@ -129,6 +142,7 @@ ProgramImpl::~ProgramImpl() = default;
 
 bool ProgramImpl::Destroy()
 {
+  mImpl.reset();
   return false;
 }
 

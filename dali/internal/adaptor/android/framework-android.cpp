@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -519,7 +519,7 @@ void FrameworkAndroid::Run()
       idleTimeout = mImpl->GetIdleTimeout();
     }
 
-    int id = ALooper_pollAll(idleTimeout, NULL, &events, (void**)&source);
+    int id = ALooper_pollOnce(idleTimeout, NULL, &events, (void**)&source);
 
     // Process the error.
     if(id == ALOOPER_POLL_ERROR)
@@ -675,7 +675,7 @@ struct UIThreadLoader::Impl
 {
   // Constructor
 
-  Impl(void *data)
+  Impl(void* data)
   {
   }
 

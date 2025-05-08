@@ -35,6 +35,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-vector.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gLogCmdBufferFilter;
@@ -491,36 +492,40 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
   auto& reflection = mCurrentProgram->GetReflection();
   auto& samplers   = reflection.GetSamplers();
 
-  std::vector<vk::DescriptorImageInfo>  imageInfos;
-  std::vector<vk::DescriptorBufferInfo> bufferInfos;
-  std::vector<vk::WriteDescriptorSet>   descriptorWrites;
+  static Dali::Vector<vk::DescriptorImageInfo>  imageInfos;
+  static Dali::Vector<vk::DescriptorBufferInfo> bufferInfos;
+  static Dali::Vector<vk::WriteDescriptorSet>   descriptorWrites;
 
-  bufferInfos.reserve(mDeferredUniformBindings.size() + 1);
-  descriptorWrites.reserve(mDeferredUniformBindings.size() + samplers.size() + 1);
+  bufferInfos.Reserve(mDeferredUniformBindings.size() + 1);
+  descriptorWrites.Reserve(mDeferredUniformBindings.size() + samplers.size() + 1);
+
+  imageInfos.Clear();
+  bufferInfos.Clear();
+  descriptorWrites.Clear();
 
   // Deferred uniform buffer bindings:
   for(auto& uniformBinding : mDeferredUniformBindings)
   {
-    bufferInfos.emplace_back();
-    bufferInfos.back()
-      .setOffset(uniformBinding.offset)
-      .setRange(uniformBinding.range)
-      .setBuffer(uniformBinding.buffer);
+    auto bufferInfo = vk::DescriptorBufferInfo{}
+                        .setOffset(uniformBinding.offset)
+                        .setRange(uniformBinding.range)
+                        .setBuffer(uniformBinding.buffer);
+    bufferInfos.PushBack(bufferInfo);
 
-    descriptorWrites.emplace_back();
-    descriptorWrites.back()
-      .setPBufferInfo(&bufferInfos.back())
-      .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-      .setDescriptorCount(1)
-      .setDstSet(descriptorSet)
-      .setDstBinding(uniformBinding.binding)
-      .setDstArrayElement(0);
+    auto writeDescriptorSet = vk::WriteDescriptorSet{}
+                                .setPBufferInfo(&bufferInfos[bufferInfos.Size() - 1])
+                                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                                .setDescriptorCount(1)
+                                .setDstSet(descriptorSet)
+                                .setDstBinding(uniformBinding.binding)
+                                .setDstArrayElement(0);
+    descriptorWrites.PushBack(writeDescriptorSet);
   }
 
   // Deferred texture bindings:
   if(!samplers.empty()) // Ignore any texture bindings if the program is not expecting them
   {
-    imageInfos.reserve(samplers.size() + 1);
+    imageInfos.Reserve(samplers.size() + 1);
     for(auto& info : samplers)
     {
       bool     found   = false;
@@ -531,31 +536,32 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
         {
           found   = true;
           binding = info.binding;
-          imageInfos.emplace_back();
-          imageInfos.back()
-            .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-            .setImageView(textureBinding.imageView)
-            .setSampler(textureBinding.sampler);
+
+          auto imageInfo = vk::DescriptorImageInfo{}
+                             .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                             .setImageView(textureBinding.imageView)
+                             .setSampler(textureBinding.sampler);
+          imageInfos.PushBack(imageInfo);
+
           break;
         }
       }
       if(found)
       {
-        descriptorWrites.emplace_back();
-
-        descriptorWrites.back()
-          .setPImageInfo(&imageInfos.back())
-          .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-          .setDescriptorCount(1)
-          .setDstSet(descriptorSet)
-          .setDstBinding(binding)
-          .setDstArrayElement(0);
+        auto writeDescriptorSet = vk::WriteDescriptorSet{}
+                                    .setPImageInfo(&imageInfos[imageInfos.Size() - 1])
+                                    .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                                    .setDescriptorCount(1)
+                                    .setDstSet(descriptorSet)
+                                    .setDstBinding(binding)
+                                    .setDstArrayElement(0);
+        descriptorWrites.PushBack(writeDescriptorSet);
       }
     }
   }
-  if(!descriptorWrites.empty())
+  if(!descriptorWrites.Empty())
   {
-    mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.Size()), &descriptorWrites[0], 0, nullptr);
   }
 
   auto pipelineLayout = reflection.GetVkPipelineLayout();

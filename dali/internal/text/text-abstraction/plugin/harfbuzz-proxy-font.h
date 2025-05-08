@@ -23,6 +23,7 @@
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
 
 // EXTERNAL INCLUDES
+#include <harfbuzz/hb-ft.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -44,7 +45,7 @@ public:
    * @param[in] verticalDpi Vertical DPI.
    * @param[in] glyphCacheManager Glyph caching system for this harfbuzz font. It will be used as harfbuzz callback data.
    */
-  HarfBuzzProxyFont(FT_Face freeTypeFace, const PointSize26Dot6& requestedPointSize, const uint32_t& horizontalDpi, const uint32_t& verticalDpi, GlyphCacheManager* glyphCacheManager);
+  HarfBuzzProxyFont(FT_Face freeTypeFace, const PointSize26Dot6& requestedPointSize, const std::size_t variationsHash, const std::vector<hb_variation_t>& harfBuzzVariations, const uint32_t& horizontalDpi, const uint32_t& verticalDpi, GlyphCacheManager* glyphCacheManager);
 
   // Destructor
   ~HarfBuzzProxyFont();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,8 +238,8 @@ void Reflection::BuildVertexAttributeReflection()
   GLenum type;
   char*  name;
 
-  auto gl = mController.GetGL();
-  if(!gl)
+  auto* gl = mController.GetGL();
+  if(DALI_UNLIKELY(!gl))
   {
     // Do nothing during shutdown
     return;
@@ -283,16 +283,16 @@ void Reflection::BuildVertexAttributeReflection()
 
 void Reflection::BuildUniformBlockReflection()
 {
-  auto  gl        = mController.GetGL();
-  auto  glProgram = mProgram.GetGlProgram();
-  char* name;
-  int   numUniformBlocks = 0;
-
-  if(!gl)
+  auto* gl = mController.GetGL();
+  if(DALI_UNLIKELY(!gl))
   {
     // Do nothing during shutdown
     return;
   }
+
+  auto  glProgram = mProgram.GetGlProgram();
+  char* name;
+  int   numUniformBlocks = 0;
 
   DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform block reflection for glProgram : %u\n", glProgram);
 
@@ -660,8 +660,8 @@ Graphics::ShaderLanguage Reflection::GetLanguage() const
 {
   auto version = Graphics::ShaderLanguage::GLSL_3_2;
 
-  auto gl = mController.GetGL();
-  if(!gl)
+  auto* gl = mController.GetGL();
+  if(DALI_UNLIKELY(!gl))
   {
     // Do nothing during shutdown
     return version;

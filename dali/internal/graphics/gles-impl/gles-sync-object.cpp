@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ void SyncObject::DestroyResource()
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    auto gl = mController.GetGL();
-    if(gl)
+    auto* gl = mController.GetGL();
+    if(DALI_LIKELY(gl))
     {
       gl->DeleteSync(mGlSyncObject);
     }
@@ -50,8 +50,8 @@ void SyncObject::DestroyResource()
 bool SyncObject::InitializeResource()
 {
   // Initialized not from a resource queue, but from a command.
-  auto gl = mController.GetGL();
-  if(gl)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl))
   {
     mGlSyncObject = gl->FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
   }
@@ -66,8 +66,8 @@ void SyncObject::DiscardResource()
 
 bool SyncObject::IsSynced()
 {
-  auto gl = mController.GetGL();
-  if(gl && mGlSyncObject)
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl) && mGlSyncObject)
   {
     GLenum result = gl->ClientWaitSync(mGlSyncObject, 0, 0ull);
     return result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED;

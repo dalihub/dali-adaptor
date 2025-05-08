@@ -317,10 +317,9 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
 {
   mCurrentContext->InvalidateDepthStencilBuffers();
 
-  auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
-  if(rt->GetCreateInfo().surface)
+  if(DALI_LIKELY(renderTarget) && renderTarget->GetCreateInfo().surface)
   {
-    auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
+    auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(renderTarget->GetCreateInfo().surface);
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
 
@@ -344,6 +343,10 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
       mGlAbstraction->Flush();
     }
 #endif
+  }
+  else
+  {
+    DALI_LOG_ERROR("ResolvePresentRenderTarget() failed! render target : %p\n", renderTarget);
   }
 }
 
@@ -478,8 +481,8 @@ MemoryRequirements EglGraphicsController::GetBufferMemoryRequirements(Buffer& bu
 {
   MemoryRequirements requirements{};
 
-  auto gl = GetGL();
-  if(gl)
+  auto* gl = GetGL();
+  if(DALI_LIKELY(gl))
   {
     GLint align;
     gl->GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &align);
@@ -1156,10 +1159,13 @@ void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
   {
     auto* texture = mTextureMipmapGenerationRequests.front();
 
-    mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
-    mCurrentContext->GenerateMipmap(texture->GetGlTarget());
+    if(mDiscardTextureSet.find(texture) == mDiscardTextureSet.end())
+    {
+      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
+      mCurrentContext->GenerateMipmap(texture->GetGlTarget());
 
-    mTextureMipmapGenerationRequests.pop();
+      mTextureMipmapGenerationRequests.pop();
+    }
   }
 }
 

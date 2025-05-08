@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,8 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    if(auto gl = mController.GetGL())
+    auto* gl = mController.GetGL();
+    if(DALI_LIKELY(gl))
     {
       if(mMapObjectType == MapObjectType::BUFFER)
       {
@@ -80,7 +81,8 @@ void Memory3::Unlock(bool flush)
 {
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
-    if(auto gl = mController.GetGL())
+    auto* gl = mController.GetGL();
+    if(DALI_LIKELY(gl))
     {
       if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
       {

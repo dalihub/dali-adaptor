@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_STATE_CACHE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <cstring> ///< for memset
 
 // INTERNAL INCLUDES
 #include "gles-framebuffer-state-cache.h"
@@ -49,13 +50,7 @@ struct GLStateCache
   {
     // reset the cached texture id's in case the driver re-uses them
     // when creating new textures
-    for(unsigned int i = 0; i < MAX_TEXTURE_UNITS; ++i)
-    {
-      for(unsigned int j = 0; j < MAX_TEXTURE_TARGET; ++j)
-      {
-        mBoundTextureId[i][j] = 0;
-      }
-    }
+    memset(&mBoundTextureId, 0, sizeof(mBoundTextureId));
   }
 
   /**

@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.4.16
+Version:    2.4.17
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -252,6 +252,7 @@ Feedback plugin to play haptic and audio feedback for Dali
 %define font_configuration_file  %TZ_SYS_ETC/fonts/conf.avail/99-slp.conf
 
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
+%define system_cache_dir  /home/owner/.cache/dali_common_caches/
 %define dali_plugin_sound_files  /plugins/sounds/
 
 ##############################
@@ -508,7 +509,9 @@ pushd %{_libdir}
 for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
 popd
 /sbin/ldconfig
-rm -rf /home/owner/.cache/dali_common_caches/shader/ # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
+rm -rf %{system_cache_dir}shader/  # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
+echo "%{version}" > %{user_shader_cache_dir}shader.versionstamp # RO version stamp
+echo "%{version}" > %{system_cache_dir}shader.versionstamp # RW version stamp
 exit 0
 
 %preun
