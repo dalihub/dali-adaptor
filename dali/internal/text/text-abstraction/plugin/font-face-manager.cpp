@@ -98,12 +98,12 @@ FT_Error FontFaceManager::LoadFace(const FT_Library& freeTypeLibrary, const Font
 
     if(fontFileFound)
     {
-      error = FT_New_Memory_Face(freeTypeLibrary, reinterpret_cast<FT_Byte*>(AnyCast<uint8_t*>(fontFilePtr)), static_cast<FT_Long>(fileSize), 0, &ftFace);
+      error = FT_New_Memory_Face(freeTypeLibrary, reinterpret_cast<FT_Byte*>(AnyCast<uint8_t*>(fontFilePtr)), static_cast<FT_Long>(fileSize), static_cast<FT_Long>(faceIndex), &ftFace);
       DALI_LOG_DEBUG_INFO("FontFaceManager, FT_New_Memory_Face : %s\n", fontPath.c_str());
     }
     else
     {
-      error = FT_New_Face(freeTypeLibrary, fontPath.c_str(), faceIndex, &ftFace);
+      error = FT_New_Face(freeTypeLibrary, fontPath.c_str(), static_cast<FT_Long>(faceIndex), &ftFace);
       DALI_LOG_DEBUG_INFO("FontFaceManager, FT_New_Face : %s\n", fontPath.c_str());
     }
 
@@ -182,7 +182,7 @@ void FontFaceManager::BuildVariations(FT_Face ftFace, const Property::Map* varia
       else
       {
         freeTypeCoords[axisIndex] = mm_var->axis[axisIndex].def;
-        value                     = freeTypeCoords[axisIndex] / FROM_16DOT16;
+        value                     = static_cast<float>(freeTypeCoords[axisIndex]) / static_cast<float>(FROM_16DOT16);
       }
 
       hb_variation_t harfBuzzVariation;
