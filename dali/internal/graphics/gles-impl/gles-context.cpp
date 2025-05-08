@@ -809,16 +809,16 @@ void Context::ResolveStandaloneUniforms()
 
 void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 {
+  auto& renderPass   = *renderPassBegin.renderPass;
+  auto& renderTarget = *renderPassBegin.renderTarget;
+
+  const auto& targetInfo = renderTarget.GetCreateInfo();
+
   auto* gl = mImpl->GetGL();
   if(!gl) // Early out if no gl
   {
     return;
   }
-
-  auto& renderPass   = *renderPassBegin.renderPass;
-  auto& renderTarget = *renderPassBegin.renderTarget;
-
-  const auto& targetInfo = renderTarget.GetCreateInfo();
 
   if(targetInfo.surface)
   {

@@ -317,9 +317,10 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
 {
   mCurrentContext->InvalidateDepthStencilBuffers();
 
-  if(DALI_LIKELY(renderTarget) && renderTarget->GetCreateInfo().surface)
+  auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
+  if(rt->GetCreateInfo().surface)
   {
-    auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(renderTarget->GetCreateInfo().surface);
+    auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
 
@@ -343,10 +344,6 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
       mGlAbstraction->Flush();
     }
 #endif
-  }
-  else
-  {
-    DALI_LOG_ERROR("ResolvePresentRenderTarget() failed! render target : %p\n", renderTarget);
   }
 }
 
