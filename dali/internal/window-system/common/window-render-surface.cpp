@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <unordered_set>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -44,6 +45,8 @@ namespace
 {
 const int   MINIMUM_DIMENSION_CHANGE(1); ///< Minimum change for window to be considered to have moved
 const float FULL_UPDATE_RATIO(0.8f);     ///< Force full update when the dirty area is larget than this ratio
+
+constexpr int LEGACY_LOGIC_THRESHOLD = 50; ///< Threshold of the number of dirty rects for legacy logic
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
@@ -97,54 +100,236 @@ using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int
 
 RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
 
-void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+void GetDamagedRangesInterval(const std::vector<Rect<int>>& damagedRects, const Rect<int32_t>& surfaceRect, std::vector<int>& xIntervals, std::vector<int>& yIntervals)
 {
-  const int n = damagedRects.size();
-  for(int i = 0; i < n - 1; i++)
+  static constexpr int RangeBegin = 0;
+  static constexpr int RangeEnd   = 1;
+  static_assert(RangeBegin < RangeEnd, "RangeBegin marker must be less than RangeEnd");
+
+  static std::vector<int> rectXPositions;
+  static std::vector<int> rectYPositions;
+
+  const uint32_t n = damagedRects.size();
+
+  rectXPositions.clear();
+  rectYPositions.clear();
+  rectXPositions.reserve(n * 2);
+  rectYPositions.reserve(n * 2);
+
+  const auto ClampAndEven = [&surfaceRect](int x, bool isYComponent, bool ceil)
   {
-    if(damagedRects[i].IsEmpty())
+    Dali::ClampInPlace<int>(x, isYComponent ? surfaceRect.y : surfaceRect.x, isYComponent ? surfaceRect.y + surfaceRect.height : surfaceRect.x + surfaceRect.width);
+    if(x & 1)
+    {
+      x += ceil ? 1 : -1;
+    }
+    return x;
+  };
+
+  for(uint32_t i = 0; i < n; i++)
+  {
+    if(DALI_UNLIKELY(damagedRects[i].IsEmpty()))
     {
       continue;
     }
 
-    for(int j = i + 1; j < n; j++)
+    // Encode each rect position with RangeBegin and RangeEnd (to reduce the sort time)
+
+    rectXPositions.emplace_back(ClampAndEven(damagedRects[i].x, false, false) | RangeBegin);
+    rectXPositions.emplace_back(ClampAndEven(damagedRects[i].x + damagedRects[i].width, false, true) | RangeEnd);
+
+    rectYPositions.emplace_back(ClampAndEven(damagedRects[i].y, true, false) | RangeBegin);
+    rectYPositions.emplace_back(ClampAndEven(damagedRects[i].y + damagedRects[i].height, true, true) | RangeEnd);
+  }
+  std::sort(rectXPositions.begin(), rectXPositions.end());
+  std::sort(rectYPositions.begin(), rectYPositions.end());
+
+  // Now we have the positions, we can create the new damaged rects by the intervals
+  // Even index is the start of the interval, odd index is the end of the interval. (To reduce the lower_bound compare time)
+  auto ReterieveInterval = [](const std::vector<int>& positionsInfos, std::vector<int>& intervals)
+  {
+    int xStart = 0;
+    int xEnd   = 0;
+    int xCount = 0;
+    for(const auto& positionInfo : positionsInfos)
     {
-      if(damagedRects[j].IsEmpty())
+      if((positionInfo & 1) == RangeBegin)
+      {
+        if(++xCount == 1)
+        {
+          xStart = positionInfo & ~RangeBegin;
+        }
+      }
+      else
+      {
+        if(--xCount == 0)
+        {
+          xEnd = positionInfo & ~RangeEnd;
+
+          // Check overflow happened
+          if(DALI_LIKELY(xStart < xEnd))
+          {
+            intervals.emplace_back(xStart);
+            intervals.emplace_back(xEnd);
+          }
+        }
+      }
+    }
+  };
+
+  ReterieveInterval(rectXPositions, xIntervals);
+  ReterieveInterval(rectYPositions, yIntervals);
+}
+
+void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+{
+  const uint32_t n = damagedRects.size();
+
+  if(n <= LEGACY_LOGIC_THRESHOLD)
+  {
+    for(uint32_t i = 0; i < n - 1; i++)
+    {
+      if(damagedRects[i].IsEmpty())
       {
         continue;
       }
 
-      if(damagedRects[i].Intersects(damagedRects[j]))
+      for(uint32_t j = i + 1; j < n; j++)
       {
-        damagedRects[i].Merge(damagedRects[j]);
-        damagedRects[j].width  = 0;
-        damagedRects[j].height = 0;
+        if(damagedRects[j].IsEmpty())
+        {
+          continue;
+        }
+
+        if(damagedRects[i].Intersects(damagedRects[j]))
+        {
+          damagedRects[i].Merge(damagedRects[j]);
+          damagedRects[j].width  = 0;
+          damagedRects[j].height = 0;
+        }
       }
     }
-  }
 
-  int j = 0;
-  for(int i = 0; i < n; i++)
-  {
-    if(!damagedRects[i].IsEmpty())
+    uint32_t j = 0;
+    for(uint32_t i = 0; i < n; i++)
     {
-      // Merge rects before rotate
-      if(mergingRect.IsEmpty())
+      if(!damagedRects[i].IsEmpty())
       {
-        mergingRect = damagedRects[i];
-      }
-      else
-      {
-        mergingRect.Merge(damagedRects[i]);
-      }
+        // Merge rects before rotate
+        if(mergingRect.IsEmpty())
+        {
+          mergingRect = damagedRects[i];
+        }
+        else
+        {
+          mergingRect.Merge(damagedRects[i]);
+        }
 
-      damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
+        damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
+      }
+    }
+
+    if(DALI_LIKELY(j != 0))
+    {
+      damagedRects.resize(j);
     }
   }
-
-  if(j != 0)
+  else
   {
-    damagedRects.resize(j);
+    // New logic for large number of dirty rects
+    // Time complexity is O(n log n) - sort 2 arrays which has 2*n elements + lower_bound 2 times for each rect
+    static std::vector<int> xIntervals;
+    static std::vector<int> yIntervals;
+
+    xIntervals.clear();
+    yIntervals.clear();
+    xIntervals.reserve(2 * n);
+    yIntervals.reserve(2 * n);
+
+    // Collect intervals for each axis
+    GetDamagedRangesInterval(damagedRects, surfaceRect, xIntervals, yIntervals);
+
+    if(DALI_UNLIKELY(xIntervals.size() == 0 || (xIntervals.size() & 1) || yIntervals.size() == 0 || (yIntervals.size() & 1)))
+    {
+      // Should never happen
+      DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
+      mergingRect = surfaceRect;
+      damagedRects.clear();
+      damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
+      return;
+    }
+
+    // Now we have the intervals, we can create the new damaged rects by the intervals
+    const uint32_t xIntervalCount = static_cast<uint32_t>(xIntervals.size());
+    const uint32_t yIntervalCount = static_cast<uint32_t>(yIntervals.size());
+
+    mergingRect.x      = xIntervals[0];
+    mergingRect.y      = yIntervals[0];
+    mergingRect.width  = xIntervals[xIntervalCount - 1u] - mergingRect.x;
+    mergingRect.height = yIntervals[yIntervalCount - 1u] - mergingRect.y;
+
+    // Special case for 2x2 intervals
+    if(xIntervalCount == 2 && yIntervalCount == 2)
+    {
+      // Only one rect
+      damagedRects.clear();
+      damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
+      return;
+    }
+
+    // Check if we already have the maximum number of damaged rects.
+    // Note that we need to guard integer overflow.
+    const uint32_t maximumDamagedRectsCount = (xIntervalCount / 2 <= n / (yIntervalCount / 2)) ? std::min(n, (xIntervalCount / 2) * (yIntervalCount / 2)) : n;
+
+    uint32_t newDamagedRectsCount = 0;
+
+    std::unordered_set<uint64_t> uniqueRectsIndexPairs;
+
+    for(uint32_t i = 0; i < n && newDamagedRectsCount < maximumDamagedRectsCount; i++)
+    {
+      if(DALI_UNLIKELY(damagedRects[i].IsEmpty()))
+      {
+        continue;
+      }
+
+      // Found given rect is in the intervals
+      const auto xIntervalIt = std::upper_bound(xIntervals.cbegin(), xIntervals.cend(), damagedRects[i].x);
+      const auto yIntervalIt = std::upper_bound(yIntervals.cbegin(), yIntervals.cend(), damagedRects[i].y);
+
+      if(DALI_UNLIKELY(xIntervalIt == xIntervals.cbegin() ||
+                       xIntervalIt == xIntervals.cend() ||
+                       yIntervalIt == yIntervals.cbegin() ||
+                       yIntervalIt == yIntervals.cend() ||
+                       ((xIntervalIt - xIntervals.cbegin()) & 1) == 0 ||
+                       ((yIntervalIt - yIntervals.cbegin()) & 1) == 0))
+      {
+        // Should never happen
+        DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
+        mergingRect = surfaceRect;
+        damagedRects.clear();
+        damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
+        return;
+      }
+
+      uint64_t indexPair = (static_cast<uint64_t>(xIntervalIt - xIntervals.cbegin()) << 32) | (yIntervalIt - yIntervals.cbegin());
+
+      if(uniqueRectsIndexPairs.find(indexPair) == uniqueRectsIndexPairs.cend())
+      {
+        // Found new rect
+        uniqueRectsIndexPairs.insert(indexPair);
+
+        auto& rect = damagedRects[newDamagedRectsCount];
+
+        rect.x      = *(xIntervalIt - 1);
+        rect.y      = *(yIntervalIt - 1);
+        rect.width  = (*(xIntervalIt)) - rect.x;
+        rect.height = (*(yIntervalIt)) - rect.y;
+
+        damagedRects[newDamagedRectsCount++] = RecalculateRect[orientation](rect, surfaceRect);
+      }
+    }
+
+    damagedRects.resize(newDamagedRectsCount);
   }
 }
 
