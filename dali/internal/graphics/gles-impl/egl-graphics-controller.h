@@ -922,7 +922,7 @@ private:
 
   GLES::SyncPool mSyncPool;
   std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
-  bool           mUseProgramBinary{true};
+  bool           mUseProgramBinary{false};
 };
 
 } // namespace Graphics
