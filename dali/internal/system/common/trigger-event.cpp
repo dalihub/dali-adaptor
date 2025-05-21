@@ -25,9 +25,11 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/system/common/unified-trigger-event-manager.h>
 
 namespace Dali
 {
@@ -35,24 +37,34 @@ namespace Internal
 {
 namespace Adaptor
 {
-TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
-: mFileDescriptorMonitor(),
+namespace
+{
+static uint32_t gUniqueEventId = 0u;
+}
+
+TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback, TriggerEventInterface::Options options)
+: mTriggerManager(manager),
   mCallback(callback),
-  mFileDescriptor(-1),
-  mOptions(options)
+  mId(++gUniqueEventId),
+  mOptions(options),
+  mFileDescriptorMonitor(),
+  mFileDescriptor(-1)
 {
   // Create accompanying file descriptor.
-  mFileDescriptor = eventfd(0, EFD_NONBLOCK);
-  if(mFileDescriptor >= 0)
+  if(mTriggerManager == nullptr)
   {
-    DALI_LOG_DEBUG_INFO("Create eventfd:%d\n", mFileDescriptor);
-    // Now Monitor the created event file descriptor
-    mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
-  }
-  else
-  {
-    DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
-    DALI_PRINT_SYSTEM_ERROR_LOG();
+    mFileDescriptor = eventfd(0, EFD_NONBLOCK);
+    if(mFileDescriptor >= 0)
+    {
+      DALI_LOG_DEBUG_INFO("Create TrigerEvent[%p] Id(%u), eventfd:%d option:%d\n", this, mId, mFileDescriptor, static_cast<int>(options));
+      // Now Monitor the created event file descriptor
+      mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
   }
 }
 
@@ -62,7 +74,7 @@ TriggerEvent::~TriggerEvent()
 
   if(mFileDescriptor >= 0)
   {
-    DALI_LOG_DEBUG_INFO("Close eventfd:%d\n", mFileDescriptor);
+    DALI_LOG_DEBUG_INFO("Delete TrigerEvent[%p] Id(%u), eventfd:%d\n", this, mId, mFileDescriptor);
     close(mFileDescriptor);
     mFileDescriptor = 0;
   }
@@ -72,7 +84,7 @@ void TriggerEvent::Trigger()
 {
   if(mFileDescriptor >= 0)
   {
-    DALI_LOG_DEBUG_INFO("Trigger fd:%d\n", mFileDescriptor);
+    DALI_LOG_DEBUG_INFO("Trigger TrigerEvent[%p] Id(%u), eventfd:%d\n", this, mId, mFileDescriptor);
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
@@ -86,6 +98,10 @@ void TriggerEvent::Trigger()
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
+  else if(mTriggerManager)
+  {
+    mTriggerManager->Trigger(this);
+  }
   else
   {
     DALI_LOG_ERROR("Attempting to write to an invalid file descriptor\n");
@@ -94,7 +110,6 @@ void TriggerEvent::Trigger()
 
 void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  DALI_LOG_DEBUG_INFO("Triggered fd:%d, mask:%x\n", mFileDescriptor, eventBitMask);
   if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
     DALI_ASSERT_ALWAYS(0 && "Trigger event file descriptor error");
@@ -102,13 +117,17 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
   }
 
   // Reading from the file descriptor resets the event counter, we can ignore the count.
-  uint64_t receivedData;
-  size_t   size;
-  size = read(mFileDescriptor, &receivedData, sizeof(uint64_t));
-  if(size != sizeof(uint64_t))
+  if(mFileDescriptor >= 0)
   {
-    DALI_LOG_ERROR("Unable to read to UpdateEvent File descriptor\n");
-    DALI_PRINT_SYSTEM_ERROR_LOG();
+    DALI_LOG_DEBUG_INFO("Triggered[%p] Id(%u), eventfd:%d mask:%x\n", this, mId, mFileDescriptor, eventBitMask);
+    uint64_t receivedData;
+    size_t   size;
+    size = read(mFileDescriptor, &receivedData, sizeof(uint64_t));
+    if(size != sizeof(uint64_t))
+    {
+      DALI_LOG_ERROR("Unable to read to UpdateEvent File descriptor\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
   }
 
   // Save value to prevent duplicate deletion
@@ -117,10 +136,10 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
   // Call the connected callback
   CallbackBase::Execute(*mCallback);
 
-  //check if we should delete ourselves after the trigger
+  // check if we should delete ourselves after the trigger
   if(options == TriggerEventInterface::DELETE_AFTER_TRIGGER)
   {
-    delete this;
+    Dali::TriggerEventFactory::DestroyTriggerEvent(this);
   }
 }
 

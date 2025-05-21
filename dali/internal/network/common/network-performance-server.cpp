@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ NetworkPerformanceServer::NetworkPerformanceServer(AdaptorInternalServices&  ada
   mClientCount(0),
   mLogFunctionInstalled(false)
 {
+  DALI_LOG_DEBUG_INFO("NetworkPerformanceServer Trigger Id(%d)\n", mTrigger->GetId());
 }
 
 NetworkPerformanceServer::~NetworkPerformanceServer()

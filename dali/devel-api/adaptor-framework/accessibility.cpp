@@ -516,6 +516,7 @@ public:
       mRenderNotification = std::unique_ptr<TriggerEventInterface>(
         TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
                                                 TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+      DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
     }
 
     if(enabled)
@@ -543,7 +544,8 @@ public:
 
 using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
 
-std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
+std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult
+{
   return {nullptr, true};
 };
 

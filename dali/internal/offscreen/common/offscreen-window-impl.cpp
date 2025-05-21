@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,7 @@ void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
   if(!mRenderNotification)
   {
     mRenderNotification = std::unique_ptr<TriggerEventInterface>(triggerEventFactory.CreateTriggerEvent(MakeCallback(this, &OffscreenWindow::OnPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
   }
 
   NativeRenderSurface* surface = GetNativeRenderSurface();

@@ -209,6 +209,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   }
 
   mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+  DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
 
   mDisplayConnection = Dali::DisplayConnection::New(defaultWindow->GetSurface()->GetSurfaceType());
 

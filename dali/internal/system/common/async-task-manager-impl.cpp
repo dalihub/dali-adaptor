@@ -492,7 +492,7 @@ private:
 
   private:
     // Delete copy operator.
-    CallbackData(const CallbackData& rhs) = delete;
+    CallbackData(const CallbackData& rhs)            = delete;
     CallbackData& operator=(const CallbackData& rhs) = delete;
 
   public:
@@ -620,7 +620,8 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
 }
 
 AsyncTaskManager::AsyncTaskManager()
-: mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]() { return TaskHelper(*this); }),
+: mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
+         { return TaskHelper(*this); }),
   mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),
@@ -628,6 +629,7 @@ AsyncTaskManager::AsyncTaskManager()
   mCacheImpl(new CacheImpl(*this)),
   mProcessorRegistered(false)
 {
+  DALI_LOG_DEBUG_INFO("AsyncTaskManager Trigger Id(%d)\n", mTrigger->GetId());
 }
 
 AsyncTaskManager::~AsyncTaskManager()

@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
  * limitations under the License.
  *
  */
+
+// EXTERNAL INCLUDES
+#include <cstdint> ///< for uint32_t
 
 namespace Dali
 {
@@ -44,6 +47,16 @@ public:
    * This can be called from one thread in order to wake up another thread.
    */
   virtual void Trigger() = 0;
+
+  /**
+   * Get the unique id of event.
+   *
+   * @return Id of this event trigger.
+   */
+  virtual uint32_t GetId() const
+  {
+    return 0u;
+  }
 
 protected:
   /**
