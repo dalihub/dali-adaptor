@@ -255,6 +255,17 @@ void Device::CreateDevice(SurfaceImpl* surface)
       // todo: present queue
     }
   }
+  if(mTransferQueues.empty() && (!mGraphicsQueues.empty() || !mComputeQueues.empty()))
+  {
+    if(!mGraphicsQueues.empty())
+    {
+      mTransferQueues.emplace_back(mGraphicsQueues.back());
+    }
+    else
+    {
+      mTransferQueues.emplace_back(mComputeQueues.back());
+    }
+  }
 
   // if( !mVulkanPipelineCache )
   // {
