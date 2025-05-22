@@ -80,7 +80,7 @@ bool RenderPassImpl::OnDestroy()
 
     mVkRenderPass = nullptr;
   }
-  return true;
+  return false;
 }
 
 vk::RenderPass RenderPassImpl::GetVkHandle()
