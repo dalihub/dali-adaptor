@@ -866,6 +866,24 @@ private:
    */
   void OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets);
 
+  /**
+   * @brief Window's position and size are updated.
+   * It is called when window's geometry is changed by display server or client.
+   *
+   * By server, the related events are window configure notification, window move completed and window resize completed event.
+   * When window configure notification event is emitted, window resize and move signals are emitted to application.
+   *
+   * When window move or resize completed event is emitted, window move or resize signal is emitted to application, too.
+   *
+   * By client, application calls SetPositionSize function.
+   * It means application requests to change window's geometry to display server.
+   * Window resize and move signals are emitted to application.
+   *
+   * @param[in] positionSize the updated window's position and size.
+   * @param[in] requestChangeGeometry the flag of whether requests to change window geometry to display server or just updating local geometry information.
+   */
+  void UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry);
+
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
