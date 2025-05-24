@@ -3362,7 +3362,8 @@ void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(!display)
   {
-    DALI_ASSERT_ALWAYS(0 && "Failed to get display");
+    DALI_LOG_ERROR("Failed to get display, then application will be exit");
+    exit(1);
   }
 
   {
