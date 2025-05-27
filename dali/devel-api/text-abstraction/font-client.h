@@ -507,6 +507,15 @@ public:
   bool IsColorGlyph(FontId fontId, GlyphIndex glyphIndex);
 
   /**
+   * @brief Whether the given glyph font is a color.
+   *
+   * @param[in] fontId The font id.
+   *
+   * @return @e true if the font is a color one.
+   */
+  bool IsColorFont(FontId fontId);
+
+  /**
    * @brief  Add custom fonts directory
    *
    * @param[in] path to the fonts directory

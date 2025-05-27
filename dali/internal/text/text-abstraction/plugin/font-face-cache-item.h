@@ -93,6 +93,11 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   bool IsColorGlyph(GlyphIndex glyphIndex) const override;
 
   /**
+   * @copydoc FontCacheItemInterface::IsColorFont()
+   */
+  bool IsColorFont() const override;
+
+  /**
    * @copydoc FontCacheItemInterface::IsCharacterSupported()
    */
   bool IsCharacterSupported(FcConfig* fontConfig, Character character) override;

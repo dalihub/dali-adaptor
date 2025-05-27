@@ -1061,6 +1061,12 @@ bool FontClient::Plugin::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex) cons
   return fontCacheItem && fontCacheItem->IsColorGlyph(glyphIndex);
 }
 
+bool FontClient::Plugin::IsColorFont(FontId fontId) const
+{
+  const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);
+  return fontCacheItem && fontCacheItem->IsColorFont();
+}
+
 FT_FaceRec_* FontClient::Plugin::GetFreetypeFace(FontId fontId) const
 {
   const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);

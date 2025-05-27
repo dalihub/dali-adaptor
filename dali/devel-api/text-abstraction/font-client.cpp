@@ -295,6 +295,11 @@ bool FontClient::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex)
   return GetImplementation(*this).IsColorGlyph(fontId, glyphIndex);
 }
 
+bool FontClient::IsColorFont(FontId fontId)
+{
+  return GetImplementation(*this).IsColorFont(fontId);
+}
+
 bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
   return GetImplementation(*this).AddCustomFontDirectory(path);

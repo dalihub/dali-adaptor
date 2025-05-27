@@ -266,6 +266,11 @@ public: // Dali::TextAbstraction::FontClient
   bool IsColorGlyph(FontId fontId, GlyphIndex glyphIndex) const;
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsColorFont()
+   */
+  bool IsColorFont(FontId fontId) const;
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateEmbeddedItem()
    */
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat) const;
