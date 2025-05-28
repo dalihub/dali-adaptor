@@ -47,7 +47,17 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, V
   }
 }
 
-RenderTarget::~RenderTarget() = default;
+RenderTarget::~RenderTarget()
+{
+  if(mSubmitSemaphore)
+  {
+    // Render target dies so make sure semaphore is not in use anymore
+    auto& gfxDevice = mController.GetGraphicsDevice();
+    auto  result    = gfxDevice.GetLogicalDevice().waitIdle();
+    VkTest(result, vk::Result::eSuccess);
+    gfxDevice.GetLogicalDevice().destroySemaphore(mSubmitSemaphore, gfxDevice.GetAllocator());
+  }
+}
 
 void RenderTarget::DestroyResource()
 {
