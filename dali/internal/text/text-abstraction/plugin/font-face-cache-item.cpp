@@ -598,6 +598,11 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
   return FT_Err_Ok == error;
 }
 
+bool FontFaceCacheItem::IsColorFont() const
+{
+  return mHasColorTables;
+}
+
 /**
  * Check if the character is supported by this font
  * @param[in] fontConfig A handle to a FontConfig library instance.

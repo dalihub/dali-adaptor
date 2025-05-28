@@ -289,6 +289,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
   bool IsColorGlyph(FontId fontId, GlyphIndex glyphIndex);
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsColorFont()
+   */
+  bool IsColorFont(FontId fontId);
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateEmbeddedItem()
    */
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat);

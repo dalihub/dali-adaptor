@@ -639,6 +639,13 @@ bool FontClient::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex)
   return mPlugin->IsColorGlyph(fontId, glyphIndex);
 }
 
+bool FontClient::IsColorFont(FontId fontId)
+{
+  CreatePlugin();
+
+  return mPlugin->IsColorFont(fontId);
+}
+
 GlyphIndex FontClient::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   CreatePlugin();

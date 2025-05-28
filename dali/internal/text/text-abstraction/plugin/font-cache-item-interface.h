@@ -66,6 +66,13 @@ struct FontCacheItemInterface
   virtual bool IsColorGlyph(GlyphIndex glyphIndex) const = 0;
 
   /**
+   * Return true if the font is colored
+   *
+   * @return true if the font is colored
+   */
+  virtual bool IsColorFont() const = 0;
+
+  /**
    * Check if the character is supported by this font
    * @param[in] fontConfig A handle to a FontConfig library instance.
    * @param[in] character The character to test
