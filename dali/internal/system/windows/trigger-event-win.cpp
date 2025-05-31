@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/windows/trigger-event.h>
+#include <dali/internal/system/windows/trigger-event-win.h>
 
 // EXTERNAL INCLUDES
 #include <unistd.h>
@@ -80,7 +80,7 @@ void TriggerEvent::Triggered()
   // Call the connected callback
   CallbackBase::Execute(*mCallback);
 
-  //check if we should delete ourselves after the trigger
+  // check if we should delete ourselves after the trigger
   if(mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
   {
     delete this;

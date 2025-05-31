@@ -140,8 +140,8 @@ SET( adaptor_system_windows_src_files
     ${adaptor_system_dir}/windows/system-factory-win.cpp
     ${adaptor_system_dir}/windows/system-settings-win.cpp
     ${adaptor_system_dir}/windows/timer-impl-win.cpp
-    ${adaptor_system_dir}/windows/trigger-event.cpp
-    ${adaptor_system_dir}/windows/trigger-event-factory.cpp
+    ${adaptor_system_dir}/windows/trigger-event-win.cpp
+    ${adaptor_system_dir}/windows/trigger-event-factory-win.cpp
     ${adaptor_system_dir}/windows/logging-win.cpp
     ${adaptor_system_dir}/windows/widget-application-impl-win.cpp
     ${adaptor_system_dir}/windows/widget-controller-win.cpp
@@ -151,14 +151,14 @@ SET( adaptor_system_windows_src_files
 SET( adaptor_system_macos_src_files
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/time-service.cpp
-    ${adaptor_system_dir}/common/trigger-event-factory.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/macos/file-descriptor-monitor-macos.cpp
     ${adaptor_system_dir}/macos/system-factory-mac.cpp
     ${adaptor_system_dir}/macos/system-settings-mac.cpp
     ${adaptor_system_dir}/macos/timer-impl-mac.cpp
-    ${adaptor_system_dir}/macos/trigger-event.mm
+    ${adaptor_system_dir}/macos/trigger-event-factory-mac.cpp
+    ${adaptor_system_dir}/macos/trigger-event-mac.mm
     ${adaptor_system_dir}/macos/callback-manager-mac.mm
     ${adaptor_system_dir}/macos/widget-application-impl-mac.cpp
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
