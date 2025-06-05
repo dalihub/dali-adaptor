@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@
 #include <string>
 #include <sstream>
 #include <type_traits>
-#include "trigger-event.h"
+
+#include <dali/internal/system/macos/trigger-event-mac.h>
 
 namespace
 {
@@ -79,10 +80,12 @@ private:
 std::atomic<uint64_t> TriggerEvent::Impl::mNameId{0};
 
 TriggerEvent::TriggerEvent(CallbackBase *callback, TriggerEventInterface::Options options)
-  : mCallback(callback)
-  , mImpl(std::make_unique<Impl>(MakeCallback(this, &TriggerEvent::Triggered), options))
+  : mCallback(callback),
+    mImpl(std::make_unique<Impl>(MakeCallback(this, &TriggerEvent::Triggered), options))
 {
 }
+
+TriggerEvent::~TriggerEvent() = default;
 
 void TriggerEvent::Trigger()
 {

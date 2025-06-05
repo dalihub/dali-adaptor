@@ -27,7 +27,7 @@ namespace Dali
 {
 const unsigned int ADAPTOR_MAJOR_VERSION = 2;
 const unsigned int ADAPTOR_MINOR_VERSION = 4;
-const unsigned int ADAPTOR_MICRO_VERSION = 19;
+const unsigned int ADAPTOR_MICRO_VERSION = 21;
 const char* const  ADAPTOR_BUILD_DATE    = __DATE__ " " __TIME__;
 
 #ifdef DEBUG_ENABLED

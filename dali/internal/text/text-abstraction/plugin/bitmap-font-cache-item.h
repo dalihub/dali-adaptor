@@ -70,6 +70,14 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   }
 
   /**
+   * @copydoc FontCacheItemInterface::IsColorFont()
+   */
+  bool IsColorFont() const override
+  {
+    return true;
+  }
+
+  /**
    * @copydoc FontCacheItemInterface::IsCharacterSupported()
    */
   bool IsCharacterSupported(FcConfig* fontConfig, Character character) override;

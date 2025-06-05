@@ -1936,6 +1936,9 @@ void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
     Dali::PositionSize orgPositionSize(movedDoneEvent->x, movedDoneEvent->y, movedDoneEvent->w, movedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
     Dali::Int32Pair    newPosition(newPositionSize.x, newPositionSize.y);
+
+    mWindowPositionSize.x = orgPositionSize.x;
+    mWindowPositionSize.y = orgPositionSize.y;
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMoveCompleted, window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
     mMoveCompletedSignal.Emit(newPosition);
   }
@@ -1949,6 +1952,9 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
     Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
     Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
+
+    mWindowPositionSize.width = orgPositionSize.width;
+    mWindowPositionSize.height = orgPositionSize.height;
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnResizeCompleted, window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
     mResizeCompletedSignal.Emit(newSize);
   }
@@ -3362,7 +3368,8 @@ void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(!display)
   {
-    DALI_ASSERT_ALWAYS(0 && "Failed to get display");
+    DALI_LOG_ERROR("Failed to get display, then application will be exit");
+    exit(1);
   }
 
   {

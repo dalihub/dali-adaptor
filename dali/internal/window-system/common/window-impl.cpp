@@ -820,64 +820,11 @@ PositionSize Window::GetPositionSize() const
 
 void Window::SetPositionSize(PositionSize positionSize)
 {
-  bool moved  = false;
-  bool resize = false;
-
-  PositionSize oldRect = GetPositionSize();
-  Dali::Window handle(this);
-
   SetUserGeometryPolicy();
 
-  if((oldRect.x != positionSize.x) || (oldRect.y != positionSize.y))
-  {
-    moved = true;
-  }
-
-  if((oldRect.width != positionSize.width) || (oldRect.height != positionSize.height))
-  {
-    resize = true;
-  }
-
-  if(moved || resize)
-  {
-    mWindowSurface->MoveResize(positionSize);
-  }
-
-  // When window is moved, emit Moved Signal
-  if(moved)
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Moved signal emit (%d, %d)\n", this, mNativeWindowId, positionSize.x, positionSize.y);
-    Dali::Window::WindowPosition position(positionSize.x, positionSize.y);
-    mMovedSignal.Emit(handle, position);
-  }
-
-  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if(resize)
-  {
-    Uint16Pair newSize(positionSize.width, positionSize.height);
-
-    mWindowWidth  = positionSize.width;
-    mWindowHeight = positionSize.height;
-
-    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
-
-    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
-
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resize signal emit [%d x %d]\n", this, mNativeWindowId, positionSize.width, positionSize.height);
-
-    mResizeSignal.Emit(handle, newSize);
-    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
-  }
-
-  if((moved || resize) && Dali::Accessibility::IsUp())
-  {
-    if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-    {
-      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
+  // It is asked by application to change window position and size.
+  // The related API is called to ask to display server in the backend.
+  UpdatePositionSize(positionSize, true);
 }
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
@@ -1079,63 +1026,9 @@ void Window::OnWindowRedrawRequest()
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 {
-  bool moved  = false;
-  bool resize = false;
-
-  Dali::Window handle(this);
-
-  PositionSize oldRect = GetPositionSize();
-  PositionSize newRect = positionSize;
-
-  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
-  {
-    moved = true;
-  }
-
-  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
-  {
-    resize = true;
-  }
-
-  if(moved || resize)
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), position or size is updated by server , (%d, %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.x, newRect.y, newRect.width, newRect.height);
-    mWindowSurface->UpdatePositionSize(positionSize);
-  }
-
-  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
-  {
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Moved signal emit (%d, %d)\n", this, mNativeWindowId, newRect.x, newRect.y);
-    Dali::Window::WindowPosition position(newRect.x, newRect.y);
-    mMovedSignal.Emit(handle, position);
-  }
-
-  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
-  {
-    Uint16Pair newSize(newRect.width, newRect.height);
-
-    mWindowWidth  = newRect.width;
-    mWindowHeight = newRect.height;
-
-    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
-
-    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
-
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
-    mResizeSignal.Emit(handle, newSize);
-    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
-  }
-
-  if((moved || resize) && Dali::Accessibility::IsUp())
-  {
-    if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-    {
-      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
+  // It is from configure notification event, window move/resize signal will be emit.
+  // Just Update position size in window render surface without emit move/resize signal.
+  UpdatePositionSize(positionSize, false);
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
@@ -1318,12 +1211,36 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
 void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)
 {
   Dali::Window handle(this);
+
+  PositionSize positionSize = GetPositionSize();
+  positionSize.x = position.GetX();
+  positionSize.y = position.GetY();
+
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window move completed, (%d, %d)\n",  this, mNativeWindowId, positionSize.x, positionSize.y);
+
+  // It is from window move completed event. This event is generated by displayer server
+  // Window move signal is emitted, too.
+  // Just Update position size in window render surface without emit move/resize signal.
+  UpdatePositionSize(positionSize, false);
+
   mMoveCompletedSignal.Emit(handle, position);
 }
 
 void Window::OnResizeCompleted(Dali::Window::WindowSize& size)
 {
   Dali::Window handle(this);
+
+  PositionSize positionSize = GetPositionSize();
+  positionSize.width = size.GetWidth();
+  positionSize.height = size.GetHeight();
+
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window resize completed, (%d x %d)\n",  this, mNativeWindowId, positionSize.width, positionSize.height);
+
+  // It is from window resized completed event. This event is generated by displayer server.
+  // Window resize signal is emitted, too.
+  // Just Update position size in window render surface without emit move/resize signal.
+  UpdatePositionSize(positionSize, false);
+
   mResizeCompletedSignal.Emit(handle, size);
 }
 
@@ -1682,6 +1599,77 @@ int Window::GetCurrentScreenRotationAngle() const
 {
   return mWindowBase->GetScreenRotationAngle();
 }
+
+void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry)
+{
+  bool moved  = false;
+  bool resize = false;
+
+  Dali::Window handle(this);
+
+  PositionSize oldRect = GetPositionSize();
+  PositionSize newRect = positionSize;
+
+  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
+  {
+    moved = true;
+  }
+
+  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
+  {
+    resize = true;
+  }
+
+  if(moved || resize)
+  {
+    if(requestChangeGeometry)
+    {
+      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), position or size is updated by Application , (%d, %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.x, newRect.y, newRect.width, newRect.height);
+      mWindowSurface->MoveResize(positionSize);
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), position or size is updated by server , (%d, %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.x, newRect.y, newRect.width, newRect.height);
+      mWindowSurface->UpdatePositionSize(positionSize);
+    }
+  }
+
+  if(moved)
+  {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Moved signal emit (%d, %d)\n", this, mNativeWindowId, newRect.x, newRect.y);
+    Dali::Window::WindowPosition position(newRect.x, newRect.y);
+    mMovedSignal.Emit(handle, position);
+  }
+
+  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if(resize)
+  {
+    Uint16Pair newSize(newRect.width, newRect.height);
+
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
+    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
+
+    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
+
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    mResizeSignal.Emit(handle, newSize);
+
+    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+  }
+
+  if((moved || resize) && Dali::Accessibility::IsUp())
+  {
+    if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
+    {
+      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+    }
+  }
+
+  mSurface->SetFullSwapNextFrame();
+}
+
 
 } // namespace Adaptor
 

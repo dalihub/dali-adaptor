@@ -314,7 +314,20 @@ uint32_t PipelineImpl::GetRefCount() const
   return 0; // mRefCount;
 }
 
-PipelineImpl::~PipelineImpl() = default;
+PipelineImpl::~PipelineImpl()
+{
+  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
+  for(auto& entry : mPipelineForDepthStateCache)
+  {
+    if(entry.pipeline)
+    {
+      vkDevice.destroyPipeline(entry.pipeline);
+      entry.pipeline = nullptr;
+    }
+  }
+
+  mPipelineForDepthStateCache.clear();
+}
 
 void PipelineImpl::InitializePipeline()
 {
