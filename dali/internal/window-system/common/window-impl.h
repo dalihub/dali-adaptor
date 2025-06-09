@@ -658,6 +658,15 @@ public: // It is only for window-impl. Need not public for the others.
    */
   int GetCurrentScreenRotationAngle() const;
 
+  /**
+   * @brief Sets user geometry flag when window's geometry is changed.
+   *
+   * Window is created with screen size or not.
+   * If window is created with screen size or the geometry is changed by user,
+   * client should inform to server setting user.geometry flag
+   */
+  void SetUserGeometryPolicy();
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -847,15 +856,6 @@ private:
    * @brief Check available window orientation for Available orientation.
    */
   bool IsOrientationAvailable(WindowOrientation orientation) const;
-
-  /**
-   * @brief Sets user geometry flag when window's geometry is changed.
-   *
-   * Window is created with screen size or not.
-   * If window is created with screen size or the geometry is changed by user,
-   * client should inform to server setting user.geometry flag
-   */
-  void SetUserGeometryPolicy();
 
   /**
    * @brief Called when window insets are changed by appearing or disappearing indicator, virtual keyboard, or clipboard.
