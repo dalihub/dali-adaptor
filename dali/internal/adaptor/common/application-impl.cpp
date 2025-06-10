@@ -212,6 +212,15 @@ Application::~Application()
 void Application::StoreWindowPositionSize(PositionSize positionSize)
 {
   mWindowPositionSize = positionSize;
+  DALI_LOG_RELEASE_INFO("Application::StoreWindowPositionSize, (%d,%d)(%d x %d)\n", mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+  if(mMainWindow)
+  {
+    if(mWindowPositionSize != PositionSize(0, 0, 0, 0))
+    {
+      Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(mMainWindow);
+      windowImpl.SetUserGeometryPolicy();
+    }
+  }
 }
 
 void Application::StoreFrontBufferRendering(bool enable)
