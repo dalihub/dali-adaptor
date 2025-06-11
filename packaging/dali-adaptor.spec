@@ -34,11 +34,17 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{mv_prj}" != "1"
 BuildRequires:  pkgconfig(capi-appfw-watch-application)
 BuildRequires:  pkgconfig(appcore-watch)
 %endif
+%endif
 
+# if 'mv_prj' is defined, this build targets the robot profile.
+%if "%{mv_prj}" != "1"
 BuildRequires:  pkgconfig(screen_connector_provider)
+%endif
+
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(ttrace)
@@ -93,11 +99,18 @@ BuildRequires:  pkgconfig(wayland-egl-tizen)
 BuildRequires:  pkgconfig(libtbm)
 
 # for the adaptor
-BuildRequires:  pkgconfig(app-core-ui-cpp)
-BuildRequires:  pkgconfig(appcore-widget-base)
-BuildRequires:  pkgconfig(bundle)
-BuildRequires:  pkgconfig(capi-appfw-app-common)
 BuildRequires:  pkgconfig(capi-appfw-app-control)
+BuildRequires:  pkgconfig(capi-appfw-app-common)
+BuildRequires:  pkgconfig(app-core-ui-cpp)
+BuildRequires:  pkgconfig(app-core-cpp)
+BuildRequires:  pkgconfig(appcore-common)
+
+%if "%{mv_prj}" != "1"
+BuildRequires:  pkgconfig(appcore-widget-base)
+BuildRequires:  pkgconfig(component-based-core-base)
+%endif
+
+BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
@@ -108,7 +121,6 @@ BuildRequires:  pkgconfig(eldbus)
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
-BuildRequires:  pkgconfig(component-based-core-base)
 
 BuildRequires:  pkgconfig(thorvg)
 
@@ -331,6 +343,13 @@ cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
 cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
 cmake_flags+=" -DENABLE_FEEDBACK=YES"
 cmake_flags+=" -DENABLE_APPMODEL=ON"
+
+%if "%{mv_prj}" != "1"
+cmake_flags+=" -DROBOT_PROFILE=NO"
+%else
+cmake_flags+=" -DROBOT_PROFILE=YES"
+%endif
+
 cmake_flags+=" -DENABLE_APPFW=YES"
 cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 
@@ -623,9 +642,12 @@ exit 0
 %{_libdir}/libdali2-adaptor-gles.so
 %{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
+
+%if "%{mv_prj}" != "1"
 %{_libdir}/libdali2-adaptor-application-widget.so*
 %{_libdir}/libdali2-adaptor-application-watch.so*
 %{_libdir}/libdali2-adaptor-application-component-based.so*
+%endif
 
 #################################################
 

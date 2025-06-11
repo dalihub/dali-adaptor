@@ -111,6 +111,14 @@ IF( COMPONENT_APPLICATION_SUPPORT )
     )
 ENDIF()
 
+IF( NOT ROBOT_PROFILE )
+    SET( SOURCES ${SOURCES}
+        ${adaptor_widget_public_api_src_files}
+        ${adaptor_system_tizen_wayland_widget_src_files}
+    )
+ENDIF()
+
+
 # Set the linker flags
 SET(REQUIRED_LIBS
   -lhyphen
