@@ -9,4 +9,4 @@ Description: DALi adaptor using ecore
 Version: ${apiversion}
 Requires: dali2-core
 Libs: -L${libdir} -ldali2-adaptor
-Cflags: -I${includedir}/dali
+Cflags: -I${includedir} -I${includedir}/dali
