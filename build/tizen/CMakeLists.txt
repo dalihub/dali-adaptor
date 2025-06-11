@@ -558,12 +558,7 @@ IF( enable_feedback )
 ENDIF()
 
 IF( ENABLE_APPMODEL )
-IF (ROBOT_PROFILE)
-  ADD_SUBDIRECTORY( application-normal-model )
-ELSE()
   ADD_SUBDIRECTORY( application-model )
-  ADD_SUBDIRECTORY( application-normal-model )
-ENDIF()
 ENDIF()
 
 #CLEAN_ARG_CACHE()
