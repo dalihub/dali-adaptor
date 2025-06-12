@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,10 @@
 
 namespace Dali::Internal
 {
-AddOnManagerLinux::AddOnManagerLinux() = default;
+AddOnManagerLinux::AddOnManagerLinux(int dlopenFlags)
+: mDlopenFlags(dlopenFlags)
+{
+}
 
 AddOnManagerLinux::~AddOnManagerLinux()
 {
@@ -110,7 +113,7 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
 
       // open lib, look for essential symbols. The libary is opened with RTLD_DEEPBIND flag
       // to make sure the local symbol table is going to be used during lookup first.
-      auto* handle = dlopen(fullPath.c_str(), RTLD_DEEPBIND | RTLD_LAZY);
+      auto* handle = dlopen(fullPath.c_str(), mDlopenFlags);
       if(handle)
       {
         // Addon Cache size should have increased by 1
@@ -231,7 +234,7 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
     const auto cacheCountBeforeLibraryLoad = mAddOnCache.size();
 
     // Attempt to load the library if not found in the cache
-    auto* handle = dlopen(libraryName.c_str(), RTLD_DEEPBIND | RTLD_LAZY);
+    auto* handle = dlopen(libraryName.c_str(), mDlopenFlags);
     if(handle)
     {
       // Addon Cache size should have increased by 1
