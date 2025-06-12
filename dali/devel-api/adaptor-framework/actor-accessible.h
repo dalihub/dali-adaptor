@@ -298,6 +298,7 @@ private:
   Dali::WeakHandle<Dali::Actor> mSelf;
   std::vector<Accessible*>      mChildren;
   bool                          mChildrenDirty;
+  bool                          mIsBeingDestroyed;
   const uint32_t                mActorId;
   std::map<State, int>          mLastEmittedState;
 };
