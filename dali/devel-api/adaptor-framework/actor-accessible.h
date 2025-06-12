@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACTOR_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,6 +250,11 @@ public:
    * @param[in] isRecursive If true, all children of the Accessibility object will also re-emit the states
    */
   void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive);
+
+  /**
+   * @brief Clears internal cache data on bridge down
+   */
+  void ClearCache();
 
 protected:
   Dali::Actor Self() const

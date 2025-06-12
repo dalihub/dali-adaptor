@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,6 +314,14 @@ public:
     mDirectReadingCallbacks.clear();
     mApplication.mChildren.clear();
     ClearTimer();
+
+    for(auto& [key, obj] : mAccessibles)
+    {
+      if(auto actorAccessible = std::dynamic_pointer_cast<ActorAccessible>(obj))
+      {
+        actorAccessible->ClearCache();
+      }
+    }
   }
 
   void ClearTimer()
