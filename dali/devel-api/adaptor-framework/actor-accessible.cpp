@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
+#include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/type-info.h>
 
 // INTERNAL INCLUDES
@@ -155,6 +156,12 @@ Dali::Rect<> ActorAccessible::GetExtents(CoordinateType type) const
   Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
   Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
 
+  if(Dali::EqualsZero(size.x) && Dali::EqualsZero(size.y) && CanAcceptZeroSize())
+  {
+    size.x = 1.f;
+    size.y = 1.f;
+  }
+
   if(type == CoordinateType::WINDOW)
   {
     return {position.x, position.y, size.x, size.y};
@@ -230,6 +237,11 @@ void ActorAccessible::UpdateChildren()
   });
   mChildren.erase(it, mChildren.end());
   mChildren.shrink_to_fit();
+}
+
+bool ActorAccessible::CanAcceptZeroSize() const
+{
+  return Self().GetLayer().GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D;
 }
 
 } // namespace Dali::Accessibility

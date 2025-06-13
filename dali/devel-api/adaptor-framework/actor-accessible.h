@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACTOR_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,11 @@ public:
    * @see DoGetChildren()
    */
   void OnChildrenChanged();
+
+  /**
+   * @brief Checks if the accessible object can be accepted even with zero size.
+   */
+  bool CanAcceptZeroSize() const;
 
 protected:
   Dali::Actor Self() const
