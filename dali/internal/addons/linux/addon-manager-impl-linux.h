@@ -1,7 +1,7 @@
 #ifndef DALI_ADDON_MANAGER_IMPL_LINUX
 #define DALI_ADDON_MANAGER_IMPL_LINUX
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,9 @@ class AddOnManagerLinux : public Internal::AddOnManager
 public:
   /**
    * @copydoc Dali::Internal::AddOnManager()
+   * @params[in] dlopenFlags The flags to pass to dlopen when opening an addon/library.
    */
-  AddOnManagerLinux();
+  AddOnManagerLinux(int dlopenFlags);
 
   /**
    * @copydoc Dali::Internal::~AddOnManager()
@@ -168,6 +169,7 @@ private:
 
   std::vector<AddOnCacheEntry> mAddOnCache;
   std::vector<std::string>     mAddOnNames;
+  int                          mDlopenFlags{0};
 };
 
 } // namespace Internal
