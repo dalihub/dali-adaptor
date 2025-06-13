@@ -16,7 +16,7 @@ ARG_ENABLE( ENABLE_APPFW enable_appfw ${ENABLE_VAL} "Builds with Tizen App frame
 ARG_ENABLE( ENABLE_PROFILE enable_profile "${ENABLE_VAL};UBUNTU" "Select the variant of tizen" )
 
 # Graphics Backend option
-ARG_ENABLE( ENABLE_GRAPHICS_BACKEND enable_graphics_backend "${ENABLE_VAL};DYNAMIC" "Select the graphics backend to use (DYNAMIC/GLES/VULKAN)" )
+ARG_ENABLE( ENABLE_GRAPHICS_BACKEND enable_graphics_backend "${ENABLE_VAL}" "Select the graphics backend to use (DYNAMIC/GLES/VULKAN)" )
 ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build (Deprecated)") # Keep for backwards compatibility
 
 # Tizen Major version
@@ -80,7 +80,7 @@ IF( NOT enable_graphics_backend )
   ENDIF()
 ENDIF()
 
-IF(enable_vulkan AND NOT ANDROID_PROFILE AND NOT MACOS_PROFILE AND NOT WINDOWS_PROFILE )
+IF(enable_vulkan AND NOT MACOS_PROFILE AND NOT WINDOWS_PROFILE )
   SET(enable_graphics_backend VULKAN)
 ENDIF()
 
@@ -162,9 +162,16 @@ IF(VULKAN_ENABLED)
   CHECK_MODULE_AND_SET( GLSLANG glslang GLSLANG )
   CHECK_MODULE_AND_SET( SPIRVTOOLS SPIRV-Tools SPIRVTOOLS )
 ELSE()
-  SET(GLSLANG_ENABLED OFF)
-  SET(SPIRVTOOLS_ENABLED OFF)
-  SET(enable_graphics_backend GLES)
+  FIND_PACKAGE(Vulkan)
+  IF(Vulkan_FOUND)
+    SET(VULKAN_ENABLED ON)
+    SET(GLSLANG_ENABLED ON)
+    SET(SPIRVTOOLS_ENABLED ON)
+  ELSE()
+    SET(GLSLANG_ENABLED OFF)
+    SET(SPIRVTOOLS_ENABLED OFF)
+    SET(enable_graphics_backend GLES)
+  ENDIF()
 ENDIF()
 
 CHECK_MODULE_AND_SET( OPENGLES20 glesv2 [] )
@@ -412,9 +419,15 @@ IF( ANDROID_PROFILE )
     z
     android
     log
-    EGL
-    GLESv3
   )
+
+  IF(NOT OPENGLES20_LDFLAGS)
+    SET(OPENGLES20_LDFLAGS GLESv3)
+  ENDIF()
+
+  IF(NOT EGL_LDFLAGS)
+    SET(EGL_LDFLAGS EGL)
+  ENDIF()
 ENDIF()
 
 
@@ -553,6 +566,11 @@ IF(VULKAN_ENABLED)
     SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${XCB_LDFLAGS} )
   ENDIF()
   SET(DALI_CFLAGS ${DALI_CFLAGS} ${VULKAN_CFLAGS} )
+
+  IF(NOT VULKAN_LDFLAGS)
+    SET(VULKAN_LDFLAGS vulkan)
+  ENDIF()
+
   SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${VULKAN_LDFLAGS} )
 
   # glsllang-dev package on Ubuntu seems to be broken and doesn't
