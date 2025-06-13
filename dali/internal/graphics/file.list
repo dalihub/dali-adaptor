@@ -78,11 +78,6 @@ SET( adaptor_graphics_vulkan_wayland_src_files
     ${adaptor_graphics_dir}/vulkan/wayland/vk-surface-wayland.cpp
 )
 
-# module: graphics, backend: vulkan/tizen
-SET( adaptor_graphics_vulkan_tizen_src_files
-    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-native-texture.cpp
-)
-
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
@@ -101,10 +96,15 @@ SET( adaptor_graphics_x11_src_files
     ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )
 
-# module: graphics, backend: android
-SET( adaptor_graphics_android_src_files
+# module: graphics, backend: android, egl
+SET( adaptor_graphics_egl_android_src_files
     ${adaptor_graphics_dir}/android/egl-image-extensions-android.cpp
     ${adaptor_graphics_dir}/android/egl-sync-implementation-android.cpp
+)
+
+# module: graphics, backend: android, vulkan
+SET( adaptor_graphics_vulkan_android_src_files
+    ${adaptor_graphics_dir}/vulkan/android/vk-surface-android.cpp
 )
 
 # module: graphics, backend: windows

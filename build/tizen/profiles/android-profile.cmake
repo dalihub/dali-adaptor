@@ -14,8 +14,6 @@ SET( SOURCES
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
-        ${adaptor_graphics_gles_src_files}
-        ${adaptor_graphics_android_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_android_src_files}
@@ -49,7 +47,23 @@ SET( SOURCES
         ${static_libraries_libunibreak_src_files}
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_android_src_files}
+        ${adaptor_graphics_gles_src_files}
+        ${adaptor_graphics_egl_android_src_files}
+        ${adaptor_imaging_egl_android_src_files}
 )
+
+#SET(ADAPTOR_GRAPHICS_GLES_SOURCES
+#        ${adaptor_graphics_gles_src_files}
+#        ${adaptor_graphics_egl_android_src_files}
+#        ${adaptor_imaging_egl_android_src_files}
+#)
+
+#SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
+#        ${adaptor_graphics_vulkan_src_files}
+#        ${adaptor_graphics_vulkan_android_src_files}
+#        ${adaptor_imaging_vulkan_android_src_files}
+#        ${adaptor_libraries_spirv_reflect_src_files}
+#)
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}

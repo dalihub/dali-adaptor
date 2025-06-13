@@ -45,6 +45,10 @@
 #define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
 #endif
 
+#ifndef VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+#endif
+
 #include <iostream>
 #include <utility>
 
@@ -873,6 +877,7 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
   bool xlibAvailable{false};
   bool xcbAvailable{false};
   bool waylandAvailable{false};
+  bool androidAvailable{false};
   bool debugReportExtensionAvailable{false};
 
   for(auto&& ext : availableExtensions.value)
@@ -889,6 +894,10 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
     else if(extensionName == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
     {
       waylandAvailable = true;
+    }
+    else if(extensionName == VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)
+    {
+      androidAvailable = true;
     }
     else if(extensionName == VK_EXT_DEBUG_REPORT_EXTENSION_NAME)
     {
@@ -919,6 +928,10 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
        */
     }
+    else if(platform == Platform::PLATFORM_ANDROID && androidAvailable)
+    {
+      extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+    }
   }
   else // try to determine the platform based on available extensions
   {
@@ -940,6 +953,11 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
        *  VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
        */
+    }
+    else if(androidAvailable)
+    {
+      mPlatform = Platform::PLATFORM_ANDROID;
+      extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
     }
     else
     {
