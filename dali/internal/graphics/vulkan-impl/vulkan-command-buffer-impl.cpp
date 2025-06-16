@@ -100,6 +100,8 @@ void CommandBufferImpl::Begin(vk::CommandBufferUsageFlags       usageFlags,
 
   VkAssert(mCommandBuffer.begin(info));
 
+  mLastBoundPipeline = VK_NULL_HANDLE;
+
   mRecording = true;
 }
 
@@ -118,6 +120,7 @@ void CommandBufferImpl::Reset()
   assert(mCommandBuffer && "Invalid command buffer!");
   mCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
   mDeferredPipelineToBind = nullptr;
+  mLastBoundPipeline      = VK_NULL_HANDLE;
   mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
 }
 
@@ -322,7 +325,11 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
 
     if(pipelineToBind)
     {
-      mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineToBind);
+      if(pipelineToBind != mLastBoundPipeline)
+      {
+        mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineToBind);
+        mLastBoundPipeline = pipelineToBind;
+      }
       mCurrentProgram = impl.GetProgram()->GetImplementation();
     }
     else
