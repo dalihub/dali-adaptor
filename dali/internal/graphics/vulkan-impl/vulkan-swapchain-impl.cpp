@@ -443,10 +443,10 @@ bool Swapchain::Present()
     presented                = true;
 
     // handle error
-    if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
+    if((presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess) && result != vk::Result::eSuboptimalKHR)
     {
       // invalidate swapchain
-      if(result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+      if(result == vk::Result::eErrorOutOfDateKHR)
       {
         mIsValid = false;
       }
