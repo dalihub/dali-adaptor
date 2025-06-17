@@ -256,6 +256,11 @@ public:
    */
   void ClearCache();
 
+  /**
+   * @brief Checks if the accessible object can be accepted even with zero size.
+   */
+  bool CanAcceptZeroSize() const;
+
 protected:
   Dali::Actor Self() const
   {

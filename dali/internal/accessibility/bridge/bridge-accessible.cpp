@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,7 +187,8 @@ static bool IsVisibleInScrollableParent(Accessible* accessible)
   }
 
   auto scrollableParentExtents = scrollableParent->GetExtents(CoordinateType::WINDOW);
-  auto component = dynamic_cast<Component*>(accessible);
+  auto component               = dynamic_cast<Component*>(accessible);
+
   if(component && !scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
   {
     return false;
@@ -516,18 +517,22 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
   }
 
   // When the layer is 3D behaviour, hit test algorithm needs to be used to find the correct actor. This is because the z-order is not considered in the normal way.
-  Dali::Actor layer = root->GetInternalActor().GetLayer();
-  if(layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
+  auto actor = root->GetInternalActor();
+  if(actor)
   {
-    Dali::HitTestAlgorithm::Results hitTestResults;
-    Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
-    if(hitTestResults.actor)
+    Dali::Actor layer = actor.GetLayer();
+    if(layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
     {
-      return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
-    }
-    else
-    {
-      return nullptr;
+      Dali::HitTestAlgorithm::Results hitTestResults;
+      Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
+      if(hitTestResults.actor)
+      {
+        return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
+      }
+      else
+      {
+        return nullptr;
+      }
     }
   }
 
