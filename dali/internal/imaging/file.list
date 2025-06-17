@@ -87,9 +87,18 @@ SET( adaptor_imaging_x11_vulkan_src_files
 # module: imaging, backend: android
 SET( adaptor_imaging_android_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp
+)
+
+# module: imaging, backend: android, egl
+SET( adaptor_imaging_egl_android_src_files
     ${adaptor_imaging_dir}/android/native-image-source-factory-android.cpp
     ${adaptor_imaging_dir}/android/native-image-source-impl-android.cpp
     ${adaptor_imaging_dir}/android/native-image-source-queue-impl-android.cpp
+)
+
+# module: imaging, backend: android, vulkan
+SET( adaptor_imaging_vulkan_android_src_files
+    ${adaptor_imaging_dir}/android/native-image-source-factory-android-vulkan.cpp
 )
 
 # module: imaging, backend: windows

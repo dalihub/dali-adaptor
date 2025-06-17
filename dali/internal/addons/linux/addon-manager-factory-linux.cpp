@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
  *
  */
 
+// INTERNAL INCLUDES
 #include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/linux/addon-manager-impl-linux.h>
+
+// EXTERNAL INCLUDES
+#include <dlfcn.h>
 
 namespace Dali
 {
@@ -24,7 +28,7 @@ namespace Internal
 {
 Integration::AddOnManager* AddOnManagerFactory::CreateAddOnManager()
 {
-  return new Dali::Adaptor::AddOnManager(new AddOnManagerLinux());
+  return new Dali::Adaptor::AddOnManager(new AddOnManagerLinux(RTLD_DEEPBIND | RTLD_LAZY));
 }
 
 } // namespace Internal

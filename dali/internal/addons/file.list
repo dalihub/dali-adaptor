@@ -7,19 +7,19 @@ SET( adaptor_addons_common_src_files
 # module: addons, backend: tizen
 SET( adaptor_addons_tizen_src_files
     ${adaptor_addons_dir}/linux/addon-manager-impl-linux.cpp
-    ${adaptor_addons_dir}/tizen/addon-manager-factory-tizen.cpp
+    ${adaptor_addons_dir}/linux/addon-manager-factory-linux.cpp
 )
 
-# module: addons, backend: ubuntu
+# module: addons, backend: ubuntu / libuv-x11
 SET( adaptor_addons_ubuntu_src_files
     ${adaptor_addons_dir}/linux/addon-manager-impl-linux.cpp
-    ${adaptor_addons_dir}/ubuntu/addon-manager-factory-ubuntu.cpp
+    ${adaptor_addons_dir}/linux/addon-manager-factory-linux.cpp
 )
 
-# module: addons, backend: libuv-x11
-SET( adaptor_addons_ubuntu_src_files
+# module: addons, backend: android
+SET( adaptor_addons_android_src_files
     ${adaptor_addons_dir}/linux/addon-manager-impl-linux.cpp
-    ${adaptor_addons_dir}/ubuntu/addon-manager-factory-ubuntu.cpp
+    ${adaptor_addons_dir}/android/addon-manager-factory-android.cpp
 )
 
 # module: addons, backend: dummy

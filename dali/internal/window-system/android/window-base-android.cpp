@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include <dali/internal/window-system/android/window-base-android.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -136,8 +135,6 @@ std::string WindowBaseAndroid::GetNativeWindowResourceId()
 
 Dali::Any WindowBaseAndroid::CreateWindow(int width, int height)
 {
-  // from eglplatform.h header
-  // typedef struct ANativeWindow* EGLNativeWindowType;
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Returns the window created for us.\n");
 
   auto window = static_cast<void*>(mWindow);

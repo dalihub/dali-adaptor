@@ -45,12 +45,17 @@
 #define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
 #endif
 
+#ifndef VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+#endif
+
 #include <iostream>
 #include <utility>
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gVulkanFilter = Debug::Filter::New(Debug::Concise, false, "LOG_VULKAN");
 #endif
+
 namespace
 {
 const uint32_t INVALID_MEMORY_INDEX = -1u;
@@ -252,6 +257,17 @@ void Device::CreateDevice(SurfaceImpl* surface)
       }
       mAllQueues.emplace_back(std::move(queueWrapper));
       // todo: present queue
+    }
+  }
+  if(mTransferQueues.empty() && (!mGraphicsQueues.empty() || !mComputeQueues.empty()))
+  {
+    if(!mGraphicsQueues.empty())
+    {
+      mTransferQueues.emplace_back(mGraphicsQueues.back());
+    }
+    else
+    {
+      mTransferQueues.emplace_back(mComputeQueues.back());
     }
   }
 
@@ -678,6 +694,8 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   auto devices = VkAssert(mInstance.enumeratePhysicalDevices());
   assert(!devices.empty() && "No Vulkan supported device found!");
 
+  DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Device count: %d\n", devices.size());
+
   // if only one, pick first
   mPhysicalDevice = nullptr;
   int gpuId       = 0;
@@ -762,11 +780,12 @@ std::vector<vk::DeviceQueueCreateInfo> Device::GetQueueCreateInfos()
 {
   std::vector<vk::DeviceQueueCreateInfo> queueInfos{};
 
-  constexpr uint8_t MAX_QUEUE_TYPES = 3;
+  constexpr uint8_t MAX_QUEUE_TYPES = 4;
 
   // find suitable family for each type of queue
-  auto familyIndexTypes = std::array<uint32_t, MAX_QUEUE_TYPES>{};
-  familyIndexTypes.fill(std::numeric_limits<uint32_t>::max());
+  auto           familyIndexTypes = std::array<uint32_t, MAX_QUEUE_TYPES>{};
+  const uint32_t UNFILLED         = std::numeric_limits<uint32_t>::max();
+  familyIndexTypes.fill(UNFILLED);
 
   // Device
   auto& graphicsFamily = familyIndexTypes[0];
@@ -777,23 +796,45 @@ std::vector<vk::DeviceQueueCreateInfo> Device::GetQueueCreateInfos()
   // Present
   auto& presentFamily = familyIndexTypes[2];
 
+  // Present
+  auto& computeFamily = familyIndexTypes[3];
+
   auto queueFamilyIndex = 0u;
   for(auto& prop : mQueueFamilyProperties)
   {
-    if((prop.queueFlags & vk::QueueFlagBits::eGraphics) && graphicsFamily == -1u)
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "QueuePropCount:%d  queueFlags:%0x\n", queueFamilyIndex, prop.queueFlags);
+
+    if((prop.queueFlags & vk::QueueFlagBits::eGraphics) && graphicsFamily == UNFILLED)
     {
       graphicsFamily = queueFamilyIndex;
       presentFamily  = queueFamilyIndex;
     }
-    if((prop.queueFlags & vk::QueueFlagBits::eTransfer) && transferFamily == -1u)
+    if((prop.queueFlags & vk::QueueFlagBits::eTransfer) && transferFamily == UNFILLED)
     {
       transferFamily = queueFamilyIndex;
+    }
+    if((prop.queueFlags & vk::QueueFlagBits::eCompute) && computeFamily == UNFILLED)
+    {
+      computeFamily = queueFamilyIndex;
     }
     ++queueFamilyIndex;
   }
 
-  assert(graphicsFamily != std::numeric_limits<uint32_t>::max() && "No queue family that supports graphics operations!");
-  assert(transferFamily != std::numeric_limits<uint32_t>::max() && "No queue family that supports transfer operations!");
+  // Reporting the transfer queue is OPTIONAL if the device supports graphics or compute queues.
+  if(transferFamily == UNFILLED)
+  {
+    if(graphicsFamily != UNFILLED)
+    {
+      transferFamily = graphicsFamily;
+    }
+    else if(computeFamily != UNFILLED)
+    {
+      transferFamily = computeFamily;
+    }
+  }
+
+  assert(graphicsFamily != UNFILLED && "No queue family that supports graphics operations!");
+  assert(transferFamily != UNFILLED && "No queue family that supports transfer operations!");
 
   // todo: we may require that the family must be same for all type of operations, it makes
   // easier to handle synchronisation related issues.
@@ -836,6 +877,7 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
   bool xlibAvailable{false};
   bool xcbAvailable{false};
   bool waylandAvailable{false};
+  bool androidAvailable{false};
   bool debugReportExtensionAvailable{false};
 
   for(auto&& ext : availableExtensions.value)
@@ -852,6 +894,10 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
     else if(extensionName == VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME)
     {
       waylandAvailable = true;
+    }
+    else if(extensionName == VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)
+    {
+      androidAvailable = true;
     }
     else if(extensionName == VK_EXT_DEBUG_REPORT_EXTENSION_NAME)
     {
@@ -882,6 +928,10 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
        */
     }
+    else if(platform == Platform::PLATFORM_ANDROID && androidAvailable)
+    {
+      extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+    }
   }
   else // try to determine the platform based on available extensions
   {
@@ -903,6 +953,11 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
        *  VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
        *  VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
        */
+    }
+    else if(androidAvailable)
+    {
+      mPlatform = Platform::PLATFORM_ANDROID;
+      extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
     }
     else
     {

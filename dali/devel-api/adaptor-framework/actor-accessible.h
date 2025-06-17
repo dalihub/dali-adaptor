@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACTOR_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,6 +251,11 @@ public:
    */
   void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive);
 
+  /**
+   * @brief Clears internal cache data on bridge down
+   */
+  void ClearCache();
+
 protected:
   Dali::Actor Self() const
   {
@@ -293,6 +298,7 @@ private:
   Dali::WeakHandle<Dali::Actor> mSelf;
   std::vector<Accessible*>      mChildren;
   bool                          mChildrenDirty;
+  bool                          mIsBeingDestroyed;
   const uint32_t                mActorId;
   std::map<State, int>          mLastEmittedState;
 };

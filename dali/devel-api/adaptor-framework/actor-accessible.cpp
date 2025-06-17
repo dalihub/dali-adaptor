@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,7 @@ ActorAccessible::ActorAccessible(Actor actor)
 : Dali::BaseObjectObserver(actor),
   mSelf(actor),
   mChildrenDirty{true}, // to trigger the initial UpdateChildren()
+  mIsBeingDestroyed{false},
   mActorId{static_cast<uint32_t>(actor.GetProperty<int>(Dali::Actor::Property::ID))}
 {
   // Select the right overload manually because Connect(this, &OnChildrenChanged) is ambiguous.
@@ -85,6 +86,7 @@ ActorAccessible::ActorAccessible(Actor actor)
 
 void ActorAccessible::ObjectDestroyed()
 {
+  mIsBeingDestroyed = true;
   Bridge::GetCurrentBridge()->RemoveAccessible(mActorId);
 }
 
@@ -257,6 +259,11 @@ void ActorAccessible::UpdateChildren()
 
 void ActorAccessible::EmitActiveDescendantChanged(Accessible* child)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitActiveDescendantChanged(this, child);
@@ -265,6 +272,11 @@ void ActorAccessible::EmitActiveDescendantChanged(Accessible* child)
 
 void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bool shouldEmit{false};
@@ -324,6 +336,11 @@ void ActorAccessible::EmitFocused(bool isFocused)
 
 void ActorAccessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
@@ -331,6 +348,11 @@ void ActorAccessible::EmitTextInserted(unsigned int position, unsigned int lengt
 }
 void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
@@ -338,6 +360,11 @@ void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length
 }
 void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitCursorMoved(this, cursorPosition);
@@ -346,6 +373,11 @@ void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
 
 void ActorAccessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
@@ -354,6 +386,11 @@ void ActorAccessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
 
 void ActorAccessible::EmitScrollStarted()
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitScrollStarted(this);
@@ -362,6 +399,11 @@ void ActorAccessible::EmitScrollStarted()
 
 void ActorAccessible::EmitScrollFinished()
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitScrollFinished(this);
@@ -370,6 +412,11 @@ void ActorAccessible::EmitScrollFinished()
 
 void ActorAccessible::Emit(WindowEvent event, unsigned int detail)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->Emit(this, event, detail);
@@ -377,6 +424,11 @@ void ActorAccessible::Emit(WindowEvent event, unsigned int detail)
 }
 void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     try
@@ -392,6 +444,11 @@ void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
 
 void ActorAccessible::EmitBoundsChanged(Rect<> rect)
 {
+  if(mIsBeingDestroyed)
+  {
+    return;
+  }
+
   if(auto bridgeData = GetBridgeData())
   {
     try
@@ -431,6 +488,11 @@ void ActorAccessible::NotifyAccessibilityStateChange(Dali::Accessibility::States
       }
     }
   }
+}
+
+void ActorAccessible::ClearCache()
+{
+  mLastEmittedState.clear();
 }
 
 } // namespace Dali::Accessibility

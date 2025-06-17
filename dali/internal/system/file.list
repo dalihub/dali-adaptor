@@ -54,6 +54,10 @@ SET( adaptor_system_tizen_wayland_src_files
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
+)
+
+# module: system, backend: tizen-wayland(widget)
+SET( adaptor_system_tizen_wayland_widget_src_files
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 )
