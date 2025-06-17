@@ -190,6 +190,8 @@ private:
   // Deferred pipeline to bind if dynamic states not supported
   Vulkan::Pipeline* mDeferredPipelineToBind{nullptr};
 
+  vk::Pipeline mLastBoundPipeline{}; /// The last bound pipeline
+
   // Dynamic depth/stencil states for deferred pipeline binding if API < 1.3
   // TODO: check API version
   vk::PipelineDepthStencilStateCreateInfo mDepthStencilState{};
