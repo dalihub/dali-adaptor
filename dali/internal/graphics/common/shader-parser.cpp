@@ -23,7 +23,10 @@
 // Since uniform buffer reduce fps near 10% than before, let we ignore uniform block feature
 // except several default SharedUniformBlocks, like "VisualVertBlock".
 // If we resolve performance issue, please remove below code!
+
+#ifdef _ARCH_ARM_ // Only do this for MALI driver.
 #define IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES 1
+#endif
 
 #if IGNORE_UNIFORM_BLOCKS_FOR_NORMAL_CASES
 #include <unordered_set>
@@ -31,6 +34,10 @@
 
 namespace
 {
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_SHADER_PARSER");
+#endif
+
 const std::vector<std::string> MATRIX_DATA_TYPE_TOKENS{"mat3", "mat4", "mat2"};
 
 inline bool IsWordChar(const char c)
@@ -869,6 +876,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       output[1] = std::move(program.fragmentShader.output);
     }
   }
+
+  DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: language: %s\n", parseInfo.language == OutputLanguage::GLSL_100_ES ? "GLSL_100_ES" : parseInfo.language == OutputLanguage::GLSL_3 ? "GLSL_3/300ES" : parseInfo.language == OutputLanguage::GLSL_310_ES ? "GLSL_310_ES" : parseInfo.language == OutputLanguage::GLSL_320_ES ? "GLSL_320_ES" : parseInfo.language == OutputLanguage::SPIRV_GLSL ? "SPIRV_GLSL" : "Unknown")
+  DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: outputVersion: %u\n\n", parseInfo.outputVersion);
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Output Vertex shader:\n%s", output[0].c_str());
+  DALI_LOG_INFO(gLogFilter, Debug::General, "Output Fragment shader:\n%s", output[1].c_str());
 }
 
 } // namespace Dali::Internal::ShaderParser
