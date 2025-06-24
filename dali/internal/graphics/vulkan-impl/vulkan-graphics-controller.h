@@ -39,6 +39,7 @@ class Surface;
 class Buffer;
 class Sampler;
 class Texture;
+class SamplerImpl;
 
 /**
  * Class to manage the vulkan graphics backend. This is the main object that clients interact
@@ -454,6 +455,8 @@ public: // Other API
   void FrameStart();
 
   bool DidPresent() const;
+
+  SamplerImpl* GetDefaultSampler();
 
 public: // For debug
   std::size_t GetCapacity() const;
