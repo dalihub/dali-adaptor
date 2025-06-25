@@ -370,7 +370,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
     else // Only real error case
     {
       mIsValid = false;
-      DALI_LOG_DEBUG_INFO("Swapchain::AcquireNextFramebuffer() failed with result %s\n", vk::to_string(result));
+      DALI_LOG_DEBUG_INFO("Swapchain::AcquireNextFramebuffer() failed with result %s\n", vk::to_string(result).c_str());
       DALI_ASSERT_ALWAYS(true && "AcquireNextImageKHR failed with error, cannot continue.");
     }
   }
@@ -443,17 +443,17 @@ bool Swapchain::Present()
     presented                = true;
 
     // handle error
-    if(presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess)
+    if((presentResult != vk::Result::eSuccess || presentInfo.pResults[0] != vk::Result::eSuccess) && result != vk::Result::eSuboptimalKHR)
     {
       // invalidate swapchain
-      if(result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+      if(result == vk::Result::eErrorOutOfDateKHR)
       {
         mIsValid = false;
       }
       else
       {
         mIsValid = false;
-        DALI_LOG_DEBUG_INFO("Vulkan::Swapchain::Present() failed. presentResult:%s\n", vk::to_string(presentResult));
+        DALI_LOG_DEBUG_INFO("Vulkan::Swapchain::Present() failed. presentResult:%s\n", vk::to_string(presentResult).c_str());
         DALI_ASSERT_ALWAYS(mIsValid && "Present failed. Swapchain invalidated");
       }
     }

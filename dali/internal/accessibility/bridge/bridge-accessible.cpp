@@ -19,6 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/events/hit-test-algorithm.h>
 #include <dali/public-api/math/math-utils.h>
 
 #include <algorithm>
@@ -404,6 +405,46 @@ static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible* chi
   return scrollableParentsOfChild;
 }
 
+bool IsActorAccessibleFunction(Dali::Actor actor, Dali::HitTestAlgorithm::TraverseType type)
+{
+  bool hittable = false;
+  switch(type)
+  {
+    case Dali::HitTestAlgorithm::CHECK_ACTOR:
+    {
+      // Check whether the actor is visible and not fully transparent.
+      if(actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) && actor.GetCurrentProperty<Dali::Vector4>(Dali::Actor::Property::WORLD_COLOR).a > 0.01f) // not FULLY_TRANSPARENT
+      {
+        if(actor)
+        {
+          if(auto accessible = Accessible::Get(actor))
+          {
+            auto states = accessible->GetStates();
+            if(states[State::HIGHLIGHTABLE])
+            {
+              hittable = true;
+            }
+          }
+        }
+      }
+      break;
+    }
+    case Dali::HitTestAlgorithm::DESCEND_ACTOR_TREE:
+    {
+      if(actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE)) // Actor is visible, if not visible then none of its children are visible.
+      {
+        hittable = true;
+      }
+      break;
+    }
+    default:
+    {
+      break;
+    }
+  }
+  return hittable;
+};
+
 } // anonymous namespace
 
 BridgeAccessible::BridgeAccessible()
@@ -472,6 +513,22 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
   if(!root || maxRecursionDepth == 0)
   {
     return nullptr;
+  }
+
+  // When the layer is 3D behaviour, hit test algorithm needs to be used to find the correct actor. This is because the z-order is not considered in the normal way.
+  Dali::Actor layer = root->GetInternalActor().GetLayer();
+  if(layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
+  {
+    Dali::HitTestAlgorithm::Results hitTestResults;
+    Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
+    if(hitTestResults.actor)
+    {
+      return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
+    }
+    else
+    {
+      return nullptr;
+    }
   }
 
   auto rootComponent = dynamic_cast<Component*>(root);
