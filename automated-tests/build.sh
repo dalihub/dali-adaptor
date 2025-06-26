@@ -44,7 +44,12 @@ function build
         if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
     fi
 
-    (cd build ; cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
+    CACHE_CPP='/usr/lib/ccache/g++' CACHE_CC='/usr/lib/ccache/gcc'
+    if [ -e $CACHE_CPP ] ; then
+        (cd build ; CXX=$CACHE_CPP CC=$CACHE_CC cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
+    else
+        (cd build ; cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
+    fi
 }
 
 # Query main build to determine if we are using vulkan or egl
