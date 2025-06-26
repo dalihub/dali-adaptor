@@ -79,6 +79,7 @@ TextureUploadManager::TextureUploadManager()
 : mGraphicsController{nullptr},
   mRenderTrigger(new EventThreadCallback(MakeCallback(this, &TextureUploadManager::RequestUpdateOnce)))
 {
+  DALI_LOG_DEBUG_INFO("TextureUploadManager Trigger Id(%d)\n", mRenderTrigger->GetId());
 }
 
 TextureUploadManager::~TextureUploadManager()
@@ -148,9 +149,8 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
 
   if(!queue.empty())
   {
-    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss) {
-      oss << "[upload request \'" << queue.size() << "\' images]";
-    });
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss)
+                                            { oss << "[upload request \'" << queue.size() << "\' images]"; });
 #ifdef TRACE_ENABLED
     uint32_t uploadedCount = 0u;
 #endif
@@ -221,9 +221,8 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
       submitInfo.flags = 0 | Graphics::SubmitFlagBits::FLUSH;
       mGraphicsController->SubmitCommandBuffers(submitInfo);
     }
-    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss) {
-      oss << "[uploaded : \'" << uploadedCount << "\']";
-    });
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss)
+                                          { oss << "[uploaded : \'" << uploadedCount << "\']"; });
   }
 
   return uploaded;

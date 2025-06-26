@@ -33,6 +33,7 @@ SET( adaptor_system_linux_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/glib/callback-manager-glib.cpp
@@ -50,6 +51,7 @@ SET( adaptor_system_tizen_wayland_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
@@ -73,6 +75,7 @@ SET( adaptor_system_ubuntu_x11_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
@@ -88,6 +91,7 @@ SET( adaptor_system_libuv_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/libuv/callback-manager-libuv.cpp
@@ -106,6 +110,7 @@ SET( adaptor_system_glib_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
     ${adaptor_system_dir}/glib/callback-manager-glib.cpp
@@ -124,6 +129,7 @@ SET( adaptor_system_android_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/unified-trigger-event-manager.cpp
     ${adaptor_system_dir}/android/callback-manager-android.cpp
     ${adaptor_system_dir}/android/file-descriptor-monitor-android.cpp
     ${adaptor_system_dir}/android/logging-android.cpp

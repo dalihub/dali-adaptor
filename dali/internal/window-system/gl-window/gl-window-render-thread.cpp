@@ -59,7 +59,7 @@ GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth
   mDepth(false),
   mStencil(false),
   mIsEGLInitialize(false),
-  mGLESVersion(30), //Default GLES version 30
+  mGLESVersion(30), // Default GLES version 30
   mMSAA(0),
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
@@ -169,6 +169,7 @@ void GlWindowRenderThread::RequestWindowRotate(int windowAngle)
   {
     mWindowRotationTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted),
                                                                                                             TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    DALI_LOG_DEBUG_INFO("mWindowRotationTrigger Trigger Id(%u)\n", mWindowRotationTrigger->GetId());
   }
 
   ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
