@@ -430,6 +430,14 @@ public:
    */
   virtual void SetDefaultAudioInputDevice(const std::string& deviceId) const = 0;
 
+  /**
+   * @brief Enables Drag&Drop or not
+   *
+   * @param[in] enable if true, to enable Drag&Drop
+   *       otherwise to disable
+   */
+  virtual void EnableDragAndDrop(bool enable) = 0;
+
 };
 
 } // namespace Dali
