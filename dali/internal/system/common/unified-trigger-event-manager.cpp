@@ -77,6 +77,7 @@ UnifiedTriggerEventManager::~UnifiedTriggerEventManager()
   {
     Dali::Mutex::ScopedLock mutexLock(mTriggerMutex);
     mTriggeredEvents.clear();
+    mFileDescriptorWritten = false;
   }
   mValidEventsId.clear();
 
@@ -133,14 +134,15 @@ void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType even
     Dali::Mutex::ScopedLock mutexLock(mTriggerMutex);
     // DevNote : Get triggered event after read fd.
     mTriggeredEvents.swap(triggeredEvents);
+    mFileDescriptorWritten = false;
   }
 
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_UNIFIED_TRIGGER", [&](std::ostringstream& oss)
-                                          { oss << "[" << triggeredEvents.size() << ", " << mValidEventsId.size() << ", " << discardedEvents.size() <<  "]"; });
+                                          { oss << "[" << triggeredEvents.size() << ", " << mValidEventsId.size() << ", " << discardedEvents.size() << "]"; });
   for(auto* triggerEvent : triggeredEvents)
   {
     // Check validation of trigger event.
-    if(DALI_LIKELY(mValidEventsId.find(triggerEvent->GetId()) != mValidEventsId.end()))
+    if(DALI_LIKELY(triggerEvent && mValidEventsId.find(triggerEvent->GetId()) != mValidEventsId.end()))
     {
       DALI_LOG_DEBUG_INFO("Triggered[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
       triggerEvent->Triggered(eventBitMask, fileDescriptor);
@@ -172,23 +174,34 @@ void UnifiedTriggerEventManager::Trigger(TriggerEvent* triggerEvent)
 
   if(DALI_LIKELY(mFileDescriptor >= 0))
   {
-    if(DALI_LIKELY(triggerEvent))
+    bool writeRequired = true;
     {
       Dali::Mutex::ScopedLock mutexLock(mTriggerMutex);
       // DevNote : Insert triggered event before write fd.
       mTriggeredEvents.insert(triggerEvent);
+      if(mFileDescriptorWritten)
+      {
+        writeRequired = false;
+      }
+      else
+      {
+        mFileDescriptorWritten = writeRequired = true;
+      }
     }
 
-    // Increment event counter by 1.
-    // Writing to the file descriptor triggers the Dispatch() method in the other thread
-    // (if in multi-threaded environment).
-    uint64_t data = 1;
-    int      size = write(mFileDescriptor, &data, sizeof(uint64_t));
-
-    if(size != sizeof(uint64_t))
+    if(writeRequired)
     {
-      DALI_LOG_ERROR("Unable to write to UpdateEvent File descriptor\n");
-      DALI_PRINT_SYSTEM_ERROR_LOG();
+      // Increment event counter by 1.
+      // Writing to the file descriptor triggers the Dispatch() method in the other thread
+      // (if in multi-threaded environment).
+      uint64_t data = 1;
+      int      size = write(mFileDescriptor, &data, sizeof(uint64_t));
+
+      if(size != sizeof(uint64_t))
+      {
+        DALI_LOG_ERROR("Unable to write to UpdateEvent File descriptor\n");
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+      }
     }
   }
 }
