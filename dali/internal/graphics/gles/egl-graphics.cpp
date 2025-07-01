@@ -40,7 +40,8 @@ EglGraphics::EglGraphics(
   Integration::StencilBufferAvailable stencilBufferRequired,
   Integration::PartialUpdateAvailable partialUpdateRequired)
 : GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired),
-  mMultiSamplingLevel(info.multiSamplingLevel)
+  mMultiSamplingLevel(info.multiSamplingLevel),
+  mForcePresentRequired(false)
 {
   if(environmentOptions.GetGlesCallTime() > 0)
   {
@@ -145,6 +146,7 @@ int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
     return 0;
   }
 
+  mForcePresentRequired = true; // Force present required after eglQuerySurface
   return mEglImplementation->GetBufferAge(search->second.surface);
 }
 
@@ -398,9 +400,17 @@ void EglGraphics::FrameStart()
   mGraphicsController.FrameStart();
 }
 
+bool EglGraphics::ForcePresentRequired()
+{
+  return mForcePresentRequired;
+}
+
 bool EglGraphics::DidPresent()
 {
-  return true;
+  const bool didPresent = mGraphicsController.DidPresent();
+  mGraphicsController.ResetDidPresent();
+  mForcePresentRequired = false;
+  return didPresent;
 }
 
 void EglGraphics::PostRenderDebug()

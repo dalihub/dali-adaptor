@@ -344,7 +344,8 @@ void WindowRenderSurface::CreateSurface()
     InitializeImeSurface();
   }
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: SurfaceId(%d) WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
+                        mSurfaceId,
                         mWindowBase->GetNativeWindowId(),
                         mPositionSize.width,
                         mPositionSize.height,
@@ -407,7 +408,7 @@ void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
     mPositionSize.x = positionSize.x;
     mPositionSize.y = positionSize.y;
 
-    DALI_LOG_RELEASE_INFO("Update Position by server (%d, %d)\n", mPositionSize.x, mPositionSize.y);
+    DALI_LOG_RELEASE_INFO("Update Position by server SurfaceId(%d) (%d, %d)\n", mSurfaceId, mPositionSize.x, mPositionSize.y);
   }
 }
 
@@ -416,7 +417,7 @@ void WindowRenderSurface::Move(Dali::PositionSize positionSize)
   mPositionSize.x = positionSize.x;
   mPositionSize.y = positionSize.y;
 
-  DALI_LOG_RELEASE_INFO("Update Position by client (%d, %d)\n", positionSize.x, positionSize.y);
+  DALI_LOG_RELEASE_INFO("Update Position by client SurfaceId(%d) (%d, %d)\n", mSurfaceId, positionSize.x, positionSize.y);
 
   mWindowBase->Move(positionSize);
 }
@@ -426,7 +427,7 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   mPositionSize.x = positionSize.x;
   mPositionSize.y = positionSize.y;
 
-  DALI_LOG_RELEASE_INFO("Update Position by client (%d, %d)\n", positionSize.x, positionSize.y);
+  DALI_LOG_RELEASE_INFO("Update Position by client SurfaceId(%d) (%d, %d)\n", mSurfaceId, positionSize.x, positionSize.y);
 
   mWindowBase->MoveResize(positionSize);
 }
@@ -541,14 +542,14 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
     totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
 
-    DALI_LOG_RELEASE_INFO("Window/Screen orientation ard changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
+    DALI_LOG_RELEASE_INFO("Window/Screen orientation are changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
 
     Rect<int> surfaceSize = scene.GetCurrentSurfaceRect();
     // update surface size
     mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
 
-    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d], IMEWindow [%d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, mIsImeWindowSurface);
+    DALI_LOG_RELEASE_INFO("Window is resizing, SurfaceId(%d) (%d, %d), [%d x %d], IMEWindow [%d]\n", mSurfaceId, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, mIsImeWindowSurface);
 
     // Window rotate or screen rotate
     if(mIsWindowOrientationChanging || isScreenOrientationChanging)

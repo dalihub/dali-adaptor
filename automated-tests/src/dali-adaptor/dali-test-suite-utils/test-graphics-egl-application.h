@@ -293,6 +293,11 @@ public:
   {
   }
 
+  bool ForcePresentRequired() override
+  {
+    return false;
+  }
+
   bool DidPresent() override
   {
     return true;

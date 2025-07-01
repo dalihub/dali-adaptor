@@ -45,7 +45,7 @@
 #include <any>
 
 // Uncomment the following define to turn on frame dumping
-//#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
+// #define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
 DUMP_FRAME_INIT();
 
@@ -185,7 +185,9 @@ bool EglGraphicsController::IsShuttingDown()
 
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
-  mSyncPool(*this)
+  mSyncPool(*this),
+  mUseProgramBinary(false),
+  mDidPresent(false)
 {
 }
 
@@ -322,6 +324,9 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(renderTarget->GetCreateInfo().surface);
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
+
+    // EGL always presents at eglSwapBuffer(), called at PostRender()
+    mDidPresent = true;
 
     // Delete discarded surface context sync objects, and create new syncfence for NativeImage texture.
     // NOTE : We can assume that surface context is become current now.
@@ -577,7 +582,8 @@ GLES::Context* EglGraphicsController::GetSurfaceContext(Dali::Integration::Rende
 {
   if(DALI_LIKELY(surface))
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& iter) { return (iter.first == surface); });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& iter)
+                             { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -666,7 +672,8 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
   auto       count    = 0u;
   const auto commands = commandBuffer.GetCommands(count);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) { oss << "[commandCount:" << count << "]"; });
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss)
+                                          { oss << "[commandCount:" << count << "]"; });
 
   for(auto i = 0u; i < count; ++i)
   {

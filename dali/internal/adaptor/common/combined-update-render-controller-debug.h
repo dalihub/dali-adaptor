@@ -31,7 +31,7 @@ namespace Adaptor
 namespace
 {
 // Uncomment next line for FULL logging of the ThreadSynchronization class in release mode
-//#define RELEASE_BUILD_LOGGING
+// #define RELEASE_BUILD_LOGGING
 
 #ifdef DEBUG_ENABLED
 
@@ -87,7 +87,8 @@ Debug::Filter* gLogRenderSceneFilter = Debug::Filter::New(Debug::NoLogging, fals
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...) \
   Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s%s: " format "%s\n", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR)
 
-#define LOG_RENDER_SCENE(format, ...)
+#define LOG_RENDER_SCENE(format, ...) \
+  Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "\033[97m" format "\033[0m", ##__VA_ARGS__)
 
 #else
 

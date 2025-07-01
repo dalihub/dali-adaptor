@@ -566,13 +566,17 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
-  mImpl->mCapacity   = 0;
-  mImpl->mDidPresent = false;
+  mImpl->mCapacity = 0;
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "FrameStart: bufferIndex:%u\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
   mImpl->mDiscardQueues.Resize(bufferCount);
+}
+
+void VulkanGraphicsController::ResetDidPresent()
+{
+  mImpl->mDidPresent = false;
 }
 
 bool VulkanGraphicsController::DidPresent() const

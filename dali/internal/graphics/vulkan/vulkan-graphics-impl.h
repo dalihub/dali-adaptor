@@ -182,17 +182,23 @@ public: // @todo Consider refactoring these methods out to GraphicsConfig
    */
   void CacheConfigurations(Dali::Internal::Adaptor::ConfigurationManager& configurationManager) override;
 
-public: // Debug APIs
+public: // Present APIs
   /**
-   * Initialize data for logging frame info
+   * @copydoc Dali::Graphics::GraphicsInterface::FrameStart()
    */
   void FrameStart() override;
 
   /**
-   * @copydoc GraphicsInterface::DidPresent()
+   * @copydoc Dali::Graphics::GraphicsInterface::ForcePresentRequired()
+   */
+  bool ForcePresentRequired() override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::DidPresent()
    */
   bool DidPresent() override;
 
+public: // Debug APIs
   /**
    * Log frame statistics
    */
