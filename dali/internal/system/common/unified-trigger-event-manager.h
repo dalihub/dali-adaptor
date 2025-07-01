@@ -83,13 +83,14 @@ private:
 private:
   std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;
 
-  std::unordered_set<uint32_t> mValidEventsId; ///< Keep Id only
+  std::unordered_set<uint32_t>      mValidEventsId; ///< Keep Id only
   std::unordered_set<TriggerEvent*> mDiscardedEvents;
 
   // Worker thread accessable data,
   int                               mFileDescriptor;
   Dali::Mutex                       mTriggerMutex; // Mutex for trigger
   std::unordered_set<TriggerEvent*> mTriggeredEvents;
+  bool                              mFileDescriptorWritten;
 };
 
 } // namespace Dali::Internal::Adaptor
