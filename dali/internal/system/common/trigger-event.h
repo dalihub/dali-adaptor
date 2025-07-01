@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRIGGER_EVENT_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,10 @@
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace Dali::Internal::Adaptor
 {
-namespace Internal
-{
-namespace Adaptor
-{
+class UnifiedTriggerEventManager;
+
 /**
  * The TriggerEvent class is used to send events between threads.  For example, this can be used
  * to wake up one thread from another thread.
@@ -51,24 +49,35 @@ public:
    * Creates an event file descriptor and starts a GSource which reads from the file
    * descriptor when there is data.
    *
+   * @param[in] manager The manager of this callback. nullptr if it have it's own trigger logic.
    * @param[in] callback The callback to call
    * @param[in] options Trigger event options.
    * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
+  TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback, TriggerEventInterface::Options options);
 
   /**
    * Destructor
    */
   ~TriggerEvent();
 
-public:
+public: /// Override TriggerEventInterface
   /**
    * Triggers the event.
    *
    * This can be called from one thread in order to wake up another thread.
    */
-  void Trigger();
+  void Trigger() override;
+
+  /**
+   * Get the unique id of event.
+   *
+   * @return Id of this event trigger.
+   */
+  uint32_t GetId() const override
+  {
+    return mId;
+  }
 
 private:
   /**
@@ -81,17 +90,21 @@ private:
 private:
   struct Source;
 
+  // Allow to call Triggered at UnifiedTriggerEventManager,
+  friend class UnifiedTriggerEventManager;
+
 private:
+  UnifiedTriggerEventManager* mTriggerManager;
+  CallbackBase*               mCallback;
+
+  const uint32_t                 mId;
+  TriggerEventInterface::Options mOptions;
+
+  // Be used only if manager is null.
   std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;
-  CallbackBase*                          mCallback;
   int                                    mFileDescriptor;
-  TriggerEventInterface::Options         mOptions;
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor
 
 #endif // DALI_INTERNAL_TRIGGER_EVENT_H

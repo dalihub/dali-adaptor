@@ -202,6 +202,11 @@ void WindowRenderSurface::Initialize(Any surface)
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
 
+  // Create frame rendered trigger.
+  mFrameRenderedTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
+                                                                                                         TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+  DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
+
   // Check screen rotation
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
   if(screenRotationAngle != 0)
@@ -242,6 +247,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
   {
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
                                                                                                         TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
 
   mPositionSize.x = positionSize.x;
@@ -505,11 +511,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     if(needFrameRenderedTrigger)
     {
-      if(!mFrameRenderedTrigger)
-      {
-        mFrameRenderedTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
-                                                                                                               TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-      }
       mFrameRenderedTrigger->Trigger();
     }
   }
@@ -706,6 +707,7 @@ void WindowRenderSurface::InitializeImeSurface()
     {
       mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
                                                                                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+      DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
     }
   }
 }
@@ -775,7 +777,8 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
   {
     Dali::Mutex::ScopedLock lock(mMutex);
 
-    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo) { return callbackInfo->fileDescriptor == fileDescriptor; });
+    auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo)
+                                          { return callbackInfo->fileDescriptor == fileDescriptor; });
     if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
       callbackInfo = std::move(*frameCallbackInfo);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,19 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/trigger-event.h>
+#include <dali/internal/system/common/unified-trigger-event-manager.h>
 
 namespace Dali
 {
 TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
 {
-  return new Internal::Adaptor::TriggerEvent(callback, options);
+  return Internal::Adaptor::UnifiedTriggerEventManager::Get().GenerateTriggerEvent(callback, options);
 }
 
 void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface)
 {
   Internal::Adaptor::TriggerEvent* triggerEvent(static_cast<Internal::Adaptor::TriggerEvent*>(triggerEventInterface));
-  delete triggerEvent;
+  Internal::Adaptor::UnifiedTriggerEventManager::Get().DiscardTriggerEvent(triggerEvent);
 }
 
 } // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_EVENT_THREAD_CALLBACK_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
+
+// EXTERNAL INCLUDES
+#include <cstdint> ///< for uint32_t
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -52,6 +55,13 @@ public:
    * The method can be used from worker threads to notify the main thread as main thread is running the event loop and thus cannot be blocked
    */
   void Trigger();
+
+  /**
+   * Get the unique id of event thread callback.
+   *
+   * @return Id of this event thread callback.
+   */
+  uint32_t GetId() const;
 
 private:
   // undefined copy constructor.

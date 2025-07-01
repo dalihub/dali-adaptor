@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
-#include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
 namespace Dali
@@ -160,6 +159,7 @@ void NativeRenderSurfaceEcoreWl::TriggerFrameRenderedCallback()
 void NativeRenderSurfaceEcoreWl::SetFrameRenderedCallback(CallbackBase* callback)
 {
   mFrameRenderedCallback = std::unique_ptr<EventThreadCallback>(new EventThreadCallback(callback));
+  DALI_LOG_DEBUG_INFO("SetFrameRenderedCallback Trigger Id(%d)\n", mFrameRenderedCallback->GetId());
 
   tbm_surface_queue_error_e result = tbm_surface_queue_add_acquirable_cb(mTbmQueue, TbmAcquirableCallback, this);
   if(result != TBM_ERROR_NONE)
