@@ -449,6 +449,16 @@ SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
 file(REMOVE_RECURSE ${daliShaderCachedDir})
 INSTALL( DIRECTORY DESTINATION ${daliShaderCachedDir} )
 
+# Reset folder for internal shader
+SET( daliInternalShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/internal/ )
+file(REMOVE_RECURSE ${daliInternalShaderCachedDir})
+INSTALL( DIRECTORY DESTINATION ${daliInternalShaderCachedDir} )
+
+# Reset folder for custom shader
+SET( daliCustomShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/custom/ )
+file(REMOVE_RECURSE ${daliCustomShaderCachedDir})
+INSTALL( DIRECTORY DESTINATION ${daliCustomShaderCachedDir} )
+
 INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 
 ########################################################################################

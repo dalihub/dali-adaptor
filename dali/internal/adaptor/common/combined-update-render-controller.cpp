@@ -1203,6 +1203,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   createInfo.SetShaderState(shaderStates);
   createInfo.SetName(shaderName);
   createInfo.SetFileCaching(useFileCache);
+  createInfo.SetInternal(useFileCache);
   auto graphicsProgram = graphics.GetController().CreateProgram(createInfo, nullptr);
   ShaderPreCompiler::Get().AddPreCompiledProgram(std::move(graphicsProgram));
 }

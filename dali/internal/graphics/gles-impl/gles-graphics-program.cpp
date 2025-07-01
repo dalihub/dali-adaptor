@@ -45,6 +45,7 @@ Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, 
 #endif
 
 extern std::string GetSystemProgramBinaryPath();
+extern std::string GetCustomProgramBinaryPath();
 
 namespace
 {
@@ -582,17 +583,26 @@ std::string ProgramImpl::GetProgramBinaryName()
 
 bool ProgramImpl::LoadProgramBinary()
 {
-  auto binaryShaderFilename = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  const auto& info = mImpl->createInfo;
+  std::string programBinaryName;
+  if(info.internal)
+  {
+    programBinaryName = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  }
+  else
+  {
+    programBinaryName = GetCustomProgramBinaryPath() + GetProgramBinaryName();
+  }
 
   bool               result = false;
   Dali::Vector<char> buffer;
-  result = Dali::FileLoader::ReadFile(binaryShaderFilename, buffer);
+  result = Dali::FileLoader::ReadFile(programBinaryName, buffer);
 
   if(result)
   {
     if(buffer.Size() == 0)
     {
-      DALI_LOG_ERROR("Can't load binary shader from file [%s]\n", binaryShaderFilename.c_str());
+      DALI_LOG_ERROR("Can't load binary shader from file [%s]\n", programBinaryName.c_str());
       return false;
     }
 
@@ -667,7 +677,18 @@ void ProgramImpl::SaveProgramBinary()
     return;
   }
 
-  auto programBinaryName     = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  const auto& info = mImpl->createInfo;
+  std::string programBinaryName;
+  if(info.internal)
+  {
+    programBinaryName = GetSystemProgramBinaryPath() + GetProgramBinaryName();
+  }
+  else
+  {
+    DALI_LOG_DEBUG_INFO("[Enable] Shader program binary, but this shader[%s] is not internal shader. so we save this shader user path %s \n", mImpl->name.c_str(), GetCustomProgramBinaryPath().c_str());
+    programBinaryName = GetCustomProgramBinaryPath() + GetProgramBinaryName();
+  }
+
   auto programBinaryNameTemp = programBinaryName + std::to_string(getpid()) + ".tmp";
   bool loaded                = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
   if(!loaded)
