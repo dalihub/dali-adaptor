@@ -84,7 +84,7 @@ public:
    */
   std::unique_ptr<ImageView> CreateImageView();
 
-  SamplerImpl* GetSampler() const;
+  SamplerImpl* GetDefaultSampler() const;
 
   // @todo Temporary. We need to use the newer APIs
   enum UpdateMode
@@ -181,9 +181,8 @@ private:
 private:
   Vulkan::Device& mDevice;
 
-  Image*       mImage;
-  ImageView*   mImageView;
-  SamplerImpl* mSampler;
+  Image*     mImage;
+  ImageView* mImageView;
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
