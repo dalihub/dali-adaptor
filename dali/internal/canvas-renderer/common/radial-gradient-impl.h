@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_RADIAL_GRADIENT_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -31,12 +35,37 @@ namespace Internal
 {
 namespace Adaptor
 {
+class RadialGradient;
+typedef IntrusivePtr<RadialGradient> RadialGradientPtr;
+
 /**
  * Dali internal RadialGradient.
  */
 class RadialGradient : public Internal::Adaptor::Gradient
 {
 public:
+  /**
+   * @brief Creates a RadialGradient object.
+   * @return A pointer to a newly allocated drawablegroup
+   */
+  static RadialGradientPtr New();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RadialGradient::SetBounds()
+   */
+  bool SetBounds(Vector2 centerPoint, float radius);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RadialGradient::SetBounds()
+   */
+  bool GetBounds(Vector2& centerPoint, float& radius) const;
+
+private:
+  RadialGradient(const RadialGradient&)       = delete;
+  RadialGradient& operator=(RadialGradient&)  = delete;
+  RadialGradient(RadialGradient&&)            = delete;
+  RadialGradient& operator=(RadialGradient&&) = delete;
+
   /**
    * @brief Constructor
    */
@@ -45,22 +74,18 @@ public:
   /**
    * @brief Destructor.
    */
-  ~RadialGradient() override;
+  virtual ~RadialGradient() override;
 
+private:
   /**
-   * @copydoc Dali::CanvasRenderer::RadialGradient::SetBounds()
+   * @brief Initializes member data.
    */
-  virtual bool SetBounds(Vector2 centerPoint, float radius);
+  void Initialize();
 
-  /**
-   * @copydoc Dali::CanvasRenderer::RadialGradient::SetBounds()
-   */
-  virtual bool GetBounds(Vector2& centerPoint, float& radius) const;
-
-  RadialGradient(const RadialGradient&) = delete;
-  RadialGradient& operator=(RadialGradient&) = delete;
-  RadialGradient(RadialGradient&&)           = delete;
-  RadialGradient& operator=(RadialGradient&&) = delete;
+private:
+#ifdef THORVG_SUPPORT
+  tvg::RadialGradient* mTvgRadialGradient;
+#endif
 };
 
 } // namespace Adaptor

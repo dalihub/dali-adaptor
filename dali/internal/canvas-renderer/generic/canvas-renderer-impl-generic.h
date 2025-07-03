@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GENERIC_CANVAS_RENDERER_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-object.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 
 namespace Dali
@@ -43,79 +41,40 @@ public:
    * @param[in] viewBox The viewBox of canvas.
    * @return A pointer to a newly allocated CanvasRenderer
    */
-  static CanvasRendererGeneric* New(const Vector2& viewBox);
+  static CanvasRendererPtr New(const Vector2& viewBox);
 
-  /**
-   * @copydoc Dali::CanvasRenderer::Commit()
-   */
-  bool Commit() override;
-
+protected:
   /**
    * @copydoc Dali::CanvasRenderer::GetRasterizedTexture()
    */
-  virtual Dali::Texture GetRasterizedTexture() override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::AddDrawable()
-   */
-  bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
-   */
-  virtual bool IsCanvasChanged() const;
+  Dali::Texture OnGetRasterizedTexture() override;
 
   /**
    * @copydoc Dali::CanvasRenderer::Rasterize()
    */
-  virtual bool Rasterize();
+  bool OnRasterize() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::RemoveDrawable()
+   * @copydoc CanvasRenderer::OnMakeTargetBuffer()
    */
-  bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
-   */
-  bool RemoveAllDrawables() override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::SetSize()
-   */
-  bool SetSize(Vector2 size) override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::GetSize()
-   */
-  Vector2 GetSize() const override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::SetViewBox()
-   */
-  bool SetViewBox(const Vector2& viewBox) override;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::GetViewBox()
-   */
-  const Vector2& GetViewBox() override;
+  void OnMakeTargetBuffer(const Vector2& size) override;
 
 private:
-  CanvasRendererGeneric()                             = delete;
-  CanvasRendererGeneric(const CanvasRendererGeneric&) = delete;
-  CanvasRendererGeneric& operator=(CanvasRendererGeneric&) = delete;
-  CanvasRendererGeneric(CanvasRendererGeneric&&)           = delete;
-  CanvasRendererGeneric& operator=(CanvasRendererGeneric&&) = delete;
-
   /**
-   * @brief Constructor
+   * @brief Constructor.
+   * @param[in] viewBox The viewBox of canvas.
    */
   CanvasRendererGeneric(const Vector2& viewBox);
 
   /**
    * @brief Destructor.
    */
-  virtual ~CanvasRendererGeneric() override;
+  virtual ~CanvasRendererGeneric() = default;
+
+private:
+#ifdef THORVG_SUPPORT
+  Devel::PixelBuffer mPixelBuffer;
+#endif
 };
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRADIENT_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -38,6 +41,57 @@ class Gradient : public Dali::BaseObject
 {
 public:
   /**
+   * @copydoc Dali::CanvasRenderer::Gradient::SetColorStops()
+   */
+  bool SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStops()
+   */
+  Dali::CanvasRenderer::Gradient::ColorStops GetColorStops() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::SetSpread()
+   */
+  bool SetSpread(Dali::CanvasRenderer::Gradient::Spread spread);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::GetSpread()
+   */
+  Dali::CanvasRenderer::Gradient::Spread GetSpread() const;
+
+  /**
+   * @brief Set a gradient object
+   * @param[in] object gradient object
+   */
+  void SetObject(const void* object);
+
+  /**
+   * @brief Returns a gradient object pointer.
+   * @return Returns a gradient object pointer.
+   */
+  void* GetObject() const;
+
+  /**
+   * @brief Set a changed state.
+   * @param[in] changed The state of changed.
+   */
+  void SetChanged(bool changed);
+
+  /**
+   * @brief Get a changed state.
+   * @return Returns state of changed.
+   */
+  bool GetChanged() const;
+
+private:
+  Gradient(const Gradient&)       = delete;
+  Gradient& operator=(Gradient&)  = delete;
+  Gradient(Gradient&&)            = delete;
+  Gradient& operator=(Gradient&&) = delete;
+
+protected:
+  /**
    * @brief Constructor
    */
   Gradient();
@@ -47,68 +101,11 @@ public:
    */
   virtual ~Gradient() override;
 
-  /**
-   * @brief Create factory item(implementation) object.
-   */
-  void Create();
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Gradient::SetColorStops()
-   */
-  virtual bool SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStops()
-   */
-  virtual Dali::CanvasRenderer::Gradient::ColorStops GetColorStops() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Gradient::SetSpread()
-   */
-  virtual bool SetSpread(Dali::CanvasRenderer::Gradient::Spread spread);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Gradient::GetSpread()
-   */
-  virtual Dali::CanvasRenderer::Gradient::Spread GetSpread() const;
-
-  /**
-   * @brief Set a gradient object
-   * @param[in] object gradient object
-   */
-  virtual void SetObject(const void* object);
-
-  /**
-   * @brief Returns a gradient object pointer.
-   * @return Returns a gradient object pointer.
-   */
-  virtual void* GetObject() const;
-
-  /**
-   * @brief Set a changed state.
-   * @param[in] changed The state of changed.
-   */
-  virtual void SetChanged(bool changed);
-
-  /**
-   * @brief Get a changed state.
-   * @return Returns state of changed.
-   */
-  virtual bool GetChanged() const;
-
-  /**
-   * @brief Returns a gradient's implements object pointer.
-   * @return Returns a gradient's implements object pointer.
-   */
-  Dali::Internal::Adaptor::Gradient* GetImplementation();
-
-  Gradient(const Gradient&) = delete;
-  Gradient& operator=(Gradient&) = delete;
-  Gradient(Gradient&&)           = delete;
-  Gradient& operator=(Gradient&&) = delete;
-
 private:
-  Dali::Internal::Adaptor::Gradient* mImpl = nullptr;
+  bool mChanged;
+#ifdef THORVG_SUPPORT
+  tvg::Fill* mTvgFill;
+#endif
 };
 
 } // namespace Adaptor

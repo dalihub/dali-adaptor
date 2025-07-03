@@ -1,105 +1,25 @@
+# module: canvas-renderer, backend: common
 
-# module: canvas-renderer, backend: generic (android, macos, window)
-SET( adaptor_canvas_renderer_generic_src_files
+SET( adaptor_canvas_renderer_common_src_files
     ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/gradient-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/linear-gradient-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/picture-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/radial-gradient-impl.cpp
+    ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
+)
+# module: canvas-renderer, backend: generic (android, macos, window, ubuntu)
+SET( adaptor_canvas_renderer_generic_src_files
+    ${adaptor_canvas_renderer_common_src_files}
     ${adaptor_canvas_renderer_dir}/generic/canvas-renderer-factory-generic.cpp
     ${adaptor_canvas_renderer_dir}/generic/canvas-renderer-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/shape-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/shape-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-group-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-group-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/gradient-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/gradient-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/linear-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/linear-gradient-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/linear-gradient-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/radial-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/radial-gradient-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/radial-gradient-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/picture-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/picture-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/picture-impl-generic.cpp
-)
-
-# module: canvas-renderer, backend: ubuntu
-SET( adaptor_canvas_renderer_ubuntu_src_files
-    ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/canvas-renderer-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/canvas-renderer-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/shape-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/shape-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-group-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-group-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/gradient-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/gradient-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/linear-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/linear-gradient-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/linear-gradient-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/radial-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/radial-gradient-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/radial-gradient-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/picture-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/picture-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/picture-impl-ubuntu.cpp
 )
 
 # module: canvas-renderer, backend: tizen (generic, ivi, mobile, tizen-post, tv, wearable)
 SET( adaptor_canvas_renderer_tizen_src_files
-    ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
+    ${adaptor_canvas_renderer_common_src_files}
     ${adaptor_canvas_renderer_dir}/tizen/canvas-renderer-factory-tizen.cpp
     ${adaptor_canvas_renderer_dir}/tizen/canvas-renderer-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/shape-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/shape-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-group-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-group-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/gradient-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/gradient-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/linear-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/linear-gradient-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/linear-gradient-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/radial-gradient-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/radial-gradient-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/radial-gradient-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/picture-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/picture-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/picture-impl-tizen.cpp
 )
