@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_SHADER_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/graphics-api/graphics-shader.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 // EXTERNAL INCLUDES
@@ -30,7 +31,10 @@
 
 namespace Dali::Graphics::Vulkan
 {
-class ShaderImpl
+class ShaderImpl;
+using ShaderHandle = Handle<class ShaderImpl>;
+
+class ShaderImpl : public VkSharedResource
 {
 public:
   /**
@@ -46,27 +50,9 @@ public:
   ~ShaderImpl();
 
   /**
-   * @brief Increases ref count
-   * @return ref count after increment
-   */
-  uint32_t Retain();
-
-  /**
-   * @brief Decreases refcount
-   * @return ref count after decrement
-   */
-  uint32_t Release();
-
-  /**
-   * @brief returns current ref count
-   * @return current ref count
-   */
-  [[nodiscard]] uint32_t GetRefCount() const;
-
-  /**
    * @brief Destroys Vulkan shader module
    */
-  void Destroy();
+  void DestroyShaderModule();
 
   /**
    * Whilst unreferenced, increase the flush count and return it

@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_SHADER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@
 #include <dali/graphics-api/graphics-shader-create-info.h>
 #include <dali/graphics-api/graphics-shader.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
-class ShaderImpl;
 class Shader : public Graphics::Shader
 {
 public:
@@ -34,7 +35,7 @@ public:
    *
    * @param[in] impl Pointer to valid implementation
    */
-  explicit Shader(ShaderImpl* impl); // TODO: this should be controlled by cache
+  explicit Shader(ShaderHandle impl); // TODO: this should be controlled by cache
 
   Shader(const Graphics::ShaderCreateInfo& createInfo, VulkanGraphicsController& controller);
 
@@ -43,10 +44,7 @@ public:
    */
   ~Shader() override;
 
-  [[nodiscard]] ShaderImpl* GetImplementation() const
-  {
-    return mShader;
-  }
+  [[nodiscard]] ShaderHandle GetImplementation() const;
 
   [[nodiscard]] const ShaderCreateInfo& GetCreateInfo() const;
 
@@ -57,7 +55,7 @@ public:
 
   bool operator==(const Vulkan::ShaderImpl* shaderImpl) const
   {
-    return (shaderImpl == mShader);
+    return (ShaderHandle(const_cast<Vulkan::ShaderImpl*>(shaderImpl)) == mShader);
   }
 
   bool operator!=(const Vulkan::Shader& shader) const
@@ -85,7 +83,7 @@ public:
   [[nodiscard]] uint32_t GetGLSLVersion() const;
 
 private:
-  ShaderImpl* mShader{nullptr};
+  ShaderHandle mShader{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan
