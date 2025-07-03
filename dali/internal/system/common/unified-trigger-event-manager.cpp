@@ -50,7 +50,8 @@ UnifiedTriggerEventManager::UnifiedTriggerEventManager()
   mValidEventsId(),
   mFileDescriptor(-1),
   mTriggerMutex{},
-  mTriggeredEvents()
+  mTriggeredEvents(),
+  mFileDescriptorWritten(false)
 {
   mFileDescriptor = eventfd(0, EFD_NONBLOCK);
   if(mFileDescriptor >= 0)
