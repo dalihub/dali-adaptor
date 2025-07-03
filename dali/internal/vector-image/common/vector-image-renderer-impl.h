@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_IMAGE_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#include <atomic>
 
 #ifdef THORVG_SUPPORT
 #include <thorvg.h>
@@ -78,9 +79,9 @@ public:
    */
   void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
-  VectorImageRenderer(const VectorImageRenderer&) = delete;
-  VectorImageRenderer& operator=(VectorImageRenderer&) = delete;
-  VectorImageRenderer(VectorImageRenderer&&)           = delete;
+  VectorImageRenderer(const VectorImageRenderer&)       = delete;
+  VectorImageRenderer& operator=(VectorImageRenderer&)  = delete;
+  VectorImageRenderer(VectorImageRenderer&&)            = delete;
   VectorImageRenderer& operator=(VectorImageRenderer&&) = delete;
 
 private:
@@ -110,6 +111,8 @@ private:
   Dali::Mutex mMutex{};          ///< The mutex
   uint32_t    mDefaultWidth{0};  ///< The default width of the file
   uint32_t    mDefaultHeight{0}; ///< The default height of the file
+
+  std::atomic_bool mIsLoaded{false}; ///< Indicates whether the image is loaded
 };
 
 } // namespace Adaptor
