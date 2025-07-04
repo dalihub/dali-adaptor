@@ -131,12 +131,16 @@ SET( adaptor_window_system_ubuntu_x11_graphics_library_src_files
 SET( adaptor_window_system_android_src_files
     ${adaptor_window_system_dir}/android/display-connection-factory-android.cpp
     ${adaptor_window_system_dir}/android/display-connection-impl-android.cpp
-    ${adaptor_window_system_dir}/android/render-surface-factory-android.cpp
     ${adaptor_window_system_dir}/android/window-base-android.cpp
     ${adaptor_window_system_dir}/android/window-factory-android.cpp
     ${adaptor_window_system_dir}/android/window-system-android.cpp
     ${adaptor_window_system_dir}/android/native-image-surface-factory-android.cpp
     ${adaptor_window_system_dir}/android/native-image-surface-impl-android.cpp
+)
+
+# module: window-system, backend: android/graphics-library
+SET( adaptor_window_system_android_graphics_backend_library_src_files
+    ${adaptor_window_system_dir}/android/render-surface-factory-android.cpp
 )
 
 # module: window-system, backend: windows

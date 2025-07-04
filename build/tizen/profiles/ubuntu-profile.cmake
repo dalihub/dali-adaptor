@@ -14,6 +14,7 @@ SET( SOURCES
         ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
         ${adaptor_graphics_common_dynamic_src_files}
+        ${adaptor_graphics_common_dynamic_unix_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_common_dynamic_src_files}
