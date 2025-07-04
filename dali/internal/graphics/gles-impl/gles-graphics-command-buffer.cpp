@@ -232,22 +232,86 @@ public:
   }
 };
 
+/**
+ * @brief Caches of GL state relative commands.
+ * It will be used to reduce duplicated GL state commands
+ */
+struct CommandBuffer::GlStateCommandCache
+{
+  GlStateCommandCache()
+  {
+    ResetCache();
+  }
+
+  ~GlStateCommandCache() = default;
+
+  void ResetCache()
+  {
+    mCachedFlags = 0u;
+  }
+
+  enum StateFlags
+  {
+    // boolean flags
+    SET_SCISSOR_TEST_ENABLE,
+    SET_COLOR_MASK,
+    SET_STENCIL_TEST_ENABLE,
+    SET_DEPTH_TEST_ENABLE,
+    SET_DEPTH_WRITE_ENABLE,
+
+    // uint32_t flags
+    SET_STENCIL_WRITE_MASK,
+    SET_STENCIL_STATE_COMPARE_OP,
+    SET_STENCIL_STATE_REFERENCE,
+    SET_STENCIL_STATE_COMPARE_MASK,
+    SET_STENCIL_STATE_FAIL_OP,
+    SET_STENCIL_STATE_PASS_OP,
+    SET_STENCIL_STATE_DEPTH_FAIL_OP,
+    SET_DEPTH_COMPARE_OP,
+
+    MAX_STATE_FLAGS,
+  };
+
+  static_assert(StateFlags::MAX_STATE_FLAGS <= sizeof(uint32_t) * 8);
+
+  /**
+   * @brief Checks if the input value matched with the flag is equal to the cached value.
+   * If the flag is not set in the cache, or the value is not equal to the cached value, return false.
+   * After the check, the value is cached.
+   */
+  [[nodiscard]] inline bool CheckValueEqualsAndCache(StateFlags flag, uint32_t value)
+  {
+    if((mCachedFlags & (1u << flag)) == 0u || mCachedValues[flag] != value)
+    {
+      mCachedFlags |= (1u << flag);
+      mCachedValues[flag] = value;
+      return false; // not equal
+    }
+    return true; // equal
+  }
+
+private:
+  uint32_t mCachedFlags{0u};
+  uint32_t mCachedValues[MAX_STATE_FLAGS]{0u};
+};
+
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller)
 : CommandBufferResource(createInfo, controller)
 {
-  mCommandPool = std::make_unique<CommandPool>(createInfo.fixedCapacity);
+  mCommandPool         = std::make_unique<CommandPool>(createInfo.fixedCapacity);
+  mGlStateCommandCache = std::make_unique<GlStateCommandCache>();
 }
 
 CommandBuffer::~CommandBuffer() = default;
 
 void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
 {
-  // Nothing to do for GL
+  mGlStateCommandCache->ResetCache();
 }
 
 void CommandBuffer::End()
 {
-  // Nothing to do for GL
+  mGlStateCommandCache->ResetCache();
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
@@ -421,12 +485,16 @@ void CommandBuffer::BeginRenderPass(
   cmd.beginRenderPass.clearValues = mCommandPool->Allocate<ClearValue>(clearValues.size());
   memcpy(cmd.beginRenderPass.clearValues.Ptr(), clearValues.data(), sizeof(ClearValue) * clearValues.size());
   cmd.beginRenderPass.clearValuesCount = clearValues.size();
+
+  mGlStateCommandCache->ResetCache(); // Reset GL state cache after begin render pass
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
   auto command                      = mCommandPool->AllocateCommand(CommandType::END_RENDERPASS);
   command->endRenderPass.syncObject = static_cast<GLES::SyncObject*>(syncObject);
+
+  mGlStateCommandCache->ResetCache(); // Reset GL state cache after end render pass
 }
 
 void CommandBuffer::ReadPixels(uint8_t* buffer)
@@ -499,11 +567,13 @@ void CommandBuffer::DrawNative(const DrawNativeInfo* drawNativeInfo)
   auto  command = mCommandPool->AllocateCommand(CommandType::DRAW_NATIVE);
   auto& cmd     = command->drawNative;
   memcpy(&cmd.drawNativeInfo, drawNativeInfo, sizeof(DrawNativeInfo));
+  mGlStateCommandCache->ResetCache(); // Reset GL state cache after draw native
 }
 
 void CommandBuffer::Reset()
 {
   mCommandPool->Rollback(false);
+  mGlStateCommandCache->ResetCache(); // Reset GL state cache
 }
 
 void CommandBuffer::SetScissor(Graphics::Rect2D value)
@@ -514,6 +584,11 @@ void CommandBuffer::SetScissor(Graphics::Rect2D value)
 
 void CommandBuffer::SetScissorTestEnable(bool value)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_SCISSOR_TEST_ENABLE, value))
+  {
+    return;
+  }
+
   auto command                = mCommandPool->AllocateCommand(CommandType::SET_SCISSOR_TEST);
   command->scissorTest.enable = value;
 }
@@ -531,6 +606,11 @@ void CommandBuffer::SetViewportEnable(bool value)
 
 void CommandBuffer::SetColorMask(bool enabled)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_COLOR_MASK, enabled))
+  {
+    return;
+  }
+
   auto command               = mCommandPool->AllocateCommand(CommandType::SET_COLOR_MASK);
   command->colorMask.enabled = enabled;
 }
@@ -542,12 +622,22 @@ void CommandBuffer::ClearStencilBuffer()
 
 void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_TEST_ENABLE, stencilEnable))
+  {
+    return;
+  }
+
   auto command                 = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_TEST_ENABLE);
   command->stencilTest.enabled = stencilEnable;
 }
 
 void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_WRITE_MASK, writeMask))
+  {
+    return;
+  }
+
   auto command                   = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_WRITE_MASK);
   command->stencilWriteMask.mask = writeMask;
 }
@@ -559,6 +649,18 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
                                     Graphics::StencilOp passOp,
                                     Graphics::StencilOp depthFailOp)
 {
+  // Need to call CheckValueEqualsAndCache for each values
+  bool isValueEqual = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_COMPARE_OP, (uint32_t)compareOp);
+  isValueEqual      = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_REFERENCE, reference) && isValueEqual;
+  isValueEqual      = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_COMPARE_MASK, compareMask) && isValueEqual;
+  isValueEqual      = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_FAIL_OP, (uint32_t)failOp) && isValueEqual;
+  isValueEqual      = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_PASS_OP, (uint32_t)passOp) && isValueEqual;
+  isValueEqual      = mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_STENCIL_STATE_DEPTH_FAIL_OP, (uint32_t)depthFailOp) && isValueEqual;
+  if(isValueEqual)
+  {
+    return;
+  }
+
   auto  command   = mCommandPool->AllocateCommand(CommandType::SET_STENCIL_STATE);
   auto& cmd       = command->stencilState;
   cmd.failOp      = failOp;
@@ -571,17 +673,32 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
 
 void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_DEPTH_COMPARE_OP, (uint32_t)compareOp))
+  {
+    return;
+  }
+
   auto command             = mCommandPool->AllocateCommand(CommandType::SET_DEPTH_COMPARE_OP);
   command->depth.compareOp = compareOp;
 }
 
 void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_DEPTH_TEST_ENABLE, depthTestEnable))
+  {
+    return;
+  }
+
   auto command               = mCommandPool->AllocateCommand(CommandType::SET_DEPTH_TEST_ENABLE);
   command->depth.testEnabled = depthTestEnable;
 }
 void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 {
+  if(mGlStateCommandCache->CheckValueEqualsAndCache(CommandBuffer::GlStateCommandCache::SET_DEPTH_WRITE_ENABLE, depthWriteEnable))
+  {
+    return;
+  }
+
   auto command                = mCommandPool->AllocateCommand(CommandType::SET_DEPTH_WRITE_ENABLE);
   command->depth.writeEnabled = depthWriteEnable;
 }
@@ -608,6 +725,7 @@ void CommandBuffer::DestroyResource()
     mCommandPool->Rollback(true); // Discard memory here!
   }
   mCommandPool.reset();
+  mGlStateCommandCache.reset();
 }
 
 bool CommandBuffer::InitializeResource()
