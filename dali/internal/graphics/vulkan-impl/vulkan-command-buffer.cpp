@@ -38,7 +38,7 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-const uint32_t EXCESS_BUFFER_COUNT = 4;
+const uint32_t EXCESS_BUFFER_COUNT = 8;
 
 template<typename VT, typename GT>
 VT* ConstGraphicsCast(const GT* object)
