@@ -1,4 +1,9 @@
 
+# module: graphics, common
+SET( adaptor_graphics_common_src_files
+    ${adaptor_graphics_dir}/common/graphics-backend-impl.cpp
+)
+
 # module: graphics, dynamic, common
 SET( adaptor_graphics_common_dynamic_src_files
     ${adaptor_graphics_dir}/common/graphics-factory-dynamic.cpp

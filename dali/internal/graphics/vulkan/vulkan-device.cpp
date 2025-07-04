@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/graphics/common/graphics-backend-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
@@ -49,6 +50,7 @@
 #define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 #endif
 
+// EXTERNAL INCLUDES
 #include <iostream>
 #include <utility>
 
@@ -760,6 +762,15 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
                                VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion),
                                (const char*)mPhysicalDeviceProperties.deviceName,
                                mPhysicalDeviceProperties.driverVersion);
+
+  std::ostringstream backendInformation;
+  backendInformation << "Vulkan Information:" << std::endl
+                     << "Version: " << VK_API_VERSION_MAJOR(mPhysicalDeviceProperties.apiVersion) << "."
+                     << VK_API_VERSION_MINOR(mPhysicalDeviceProperties.apiVersion) << "."
+                     << VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion) << std::endl
+                     << "Device Name: " << (const char*)mPhysicalDeviceProperties.deviceName << std::endl
+                     << "Driver Version: " << std::hex << mPhysicalDeviceProperties.driverVersion;
+  Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
 }
