@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
+#ifndef THORVG_SUPPORT
 const char* const UNITS("px");
+#endif
 
 // Type Registration
 Dali::BaseHandle Create()
@@ -77,10 +79,10 @@ VectorImageRenderer::~VectorImageRenderer()
   Mutex::ScopedLock lock(mMutex);
 #ifdef THORVG_SUPPORT
 
-  //NOTE: Initializer::term() will call clear() internally.
-  //However, due to the delete on mPicture, a crash occurs for the paint
-  //that has already been deleted in clear() of term().
-  //Therefore, it temporarily performs a non-free clear().
+  // NOTE: Initializer::term() will call clear() internally.
+  // However, due to the delete on mPicture, a crash occurs for the paint
+  // that has already been deleted in clear() of term().
+  // Therefore, it temporarily performs a non-free clear().
   mSwCanvas->clear(false);
 
   if(mPicture)
@@ -112,7 +114,7 @@ void VectorImageRenderer::Initialize()
 
   mSwCanvas = tvg::SwCanvas::gen();
   mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
-  mSwCanvas->reserve(1); //has one picture
+  mSwCanvas->reserve(1); // has one picture
 #else
   mRasterizer = nsvgCreateRasterizer();
 #endif
@@ -186,7 +188,6 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   mDefaultWidth  = static_cast<uint32_t>(w);
   mDefaultHeight = static_cast<uint32_t>(h);
 
-  return true;
 #else
   if(mParsedImage)
   {
@@ -210,18 +211,17 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 
   mDefaultWidth  = mParsedImage->width;
   mDefaultHeight = mParsedImage->height;
+#endif
+
+  DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Load success! DefaultSize [%u x %u] [%p]\n", mDefaultWidth, mDefaultHeight, this);
+  mIsLoaded.store(true);
 
   return true;
-#endif
 }
 
 bool VectorImageRenderer::IsLoaded() const
 {
-#ifdef THORVG_SUPPORT
-  return mPicture ? true : false;
-#else
-  return mParsedImage ? true : false;
-#endif
+  return mIsLoaded.load();
 }
 
 Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
@@ -314,8 +314,17 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 
 void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  width  = mDefaultWidth;
-  height = mDefaultHeight;
+  if(IsLoaded())
+  {
+    width  = mDefaultWidth;
+    height = mDefaultHeight;
+  }
+  else
+  {
+    DALI_LOG_ERROR("Image is not loaded yet. Default size will be set to 0x0\n");
+    width  = 0;
+    height = 0;
+  }
 }
 
 } // namespace Adaptor
