@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,27 +25,18 @@
 
 namespace Dali::Graphics::Vulkan
 {
-Shader::Shader(ShaderImpl* impl)
+Shader::Shader(ShaderHandle impl)
+: mShader(impl)
 {
-  mShader = impl;
-  mShader->Retain(); // TODO: we may not need it at all
 }
 
 Shader::Shader(const Graphics::ShaderCreateInfo& createInfo, VulkanGraphicsController& controller)
 {
-  mShader = new ShaderImpl(createInfo, controller);
+  mShader = ShaderHandle(new ShaderImpl(createInfo, controller));
 }
 
 Shader::~Shader()
 {
-  if(!mShader->Release())
-  {
-    // TODO: handle pipeline cache
-    //GetImplementation()->GetController().GetPipelineCache().MarkShaderCacheFlushRequired();
-  }
-
-  // No cache, delete implementation
-  delete mShader;
 }
 
 bool Shader::TryRecycle(const Graphics::ShaderCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -65,6 +56,11 @@ void Shader::DiscardResource()
 uint32_t Shader::GetGLSLVersion() const
 {
   return GetImplementation()->GetGLSLVersion();
+}
+
+[[nodiscard]] ShaderHandle Shader::GetImplementation() const
+{
+  return mShader;
 }
 
 } // namespace Dali::Graphics::Vulkan
