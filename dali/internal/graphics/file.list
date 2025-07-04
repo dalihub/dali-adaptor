@@ -1,9 +1,19 @@
 
-# module: graphics, backend: gles
+# module: graphics, dynamic, common
 SET( adaptor_graphics_common_dynamic_src_files
     ${adaptor_graphics_dir}/common/graphics-factory-dynamic.cpp
     ${adaptor_graphics_dir}/common/graphics-library.cpp
     ${adaptor_graphics_dir}/common/surface-factory-dynamic.cpp
+)
+
+# module: graphics, dynamic, backend: unix
+SET( adaptor_graphics_common_dynamic_unix_src_files
+    ${adaptor_graphics_dir}/unix/graphics-library-open-mode-unix.cpp
+)
+
+# module: graphics, dynamic, backend: android
+SET( adaptor_graphics_common_dynamic_android_src_files
+    ${adaptor_graphics_dir}/android/graphics-library-open-mode-android.cpp
 )
 
 # module: graphics, library

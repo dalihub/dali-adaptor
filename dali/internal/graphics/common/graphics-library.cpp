@@ -24,6 +24,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-library-open-mode.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 #include <dali/public-api/adaptor-framework/graphics-backend.h>
 
@@ -40,7 +41,7 @@ public:
   GraphicsLibrary()
   {
     mHandle = dlopen((Graphics::GetCurrentGraphicsBackend() == Graphics::Backend::GLES) ? DALI_ADAPTOR_GRAPHICS_GLES_SO : DALI_ADAPTOR_GRAPHICS_VULKAN_SO,
-                     RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
+                     GetLibraryOpenMode());
     if(!mHandle)
     {
       // The shared library failed to load

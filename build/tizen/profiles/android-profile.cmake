@@ -14,8 +14,11 @@ SET( SOURCES
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
+        ${adaptor_graphics_common_dynamic_src_files}
+        ${adaptor_graphics_common_dynamic_android_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
+        ${adaptor_imaging_common_dynamic_src_files}
         ${adaptor_imaging_android_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_input_generic_src_files}
@@ -39,6 +42,7 @@ SET( SOURCES
         ${adaptor_camera_common_src_files}
         ${adaptor_web_engine_common_src_files}
         ${adaptor_window_system_common_src_files}
+        ${adaptor_window_system_common_dynamic_src_files}
         ${adaptor_window_system_android_src_files}
         ${adaptor_trace_common_src_files}
         ${adaptor_thread_common_src_files}
@@ -53,6 +57,8 @@ SET(ADAPTOR_GRAPHICS_GLES_SOURCES
         ${adaptor_graphics_gles_src_files}
         ${adaptor_graphics_egl_android_src_files}
         ${adaptor_imaging_egl_android_src_files}
+        ${adaptor_graphics_library_common_src_files}
+        ${adaptor_window_system_android_graphics_backend_library_src_files}
 )
 
 SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
@@ -60,6 +66,8 @@ SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
         ${adaptor_graphics_vulkan_android_src_files}
         ${adaptor_imaging_vulkan_android_src_files}
         ${adaptor_libraries_spirv_reflect_src_files}
+        ${adaptor_graphics_library_common_src_files}
+        ${adaptor_window_system_android_graphics_backend_library_src_files}
 )
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
