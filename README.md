@@ -121,7 +121,7 @@ To build the repository enter the 'build/tizen' folder:
 ```
 Then run the following command to set up the build:
 ```zsh
-% cmake -DCMAKE_INSTALL_PREFIX=$DESKTOP_PREFIX -DCMAKE_TOOLCHAIN_FILE=$VCPKG_FOLDER/scripts/buildsystems/vcpkg.cmake -DINSTALL_CMAKE_MODULES=ON -DENABLE_PROFILE=MACOS -DPROFILE_LCASE=macos
+% cmake -DCMAKE_INSTALL_PREFIX=$DESKTOP_PREFIX -DCMAKE_TOOLCHAIN_FILE=$VCPKG_FOLDER/scripts/buildsystems/vcpkg.cmake -DINSTALL_CMAKE_MODULES=ON -DENABLE_PROFILE=MACOS -DPROFILE_LCASE=macos .
 ```
 If a Debug build is required, then add `-DCMAKE_BUILD_TYPE=Debug -DENABLE_DEBUG=ON`
 

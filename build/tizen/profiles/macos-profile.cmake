@@ -77,7 +77,11 @@ IF( ENABLE_TRACE )
 ENDIF()
 
 FIND_PACKAGE( curl REQUIRED )
-FIND_LIBRARY( EXIF_LIBRARY NAMES libexif REQUIRED )
+FIND_LIBRARY( EXIF_LIBRARY NAMES libexif )
+IF(NOT EXIF_LIBRARY)
+  PKG_CHECK_MODULES( libexif REQUIRED IMPORTED_TARGET libexif )
+  SET( EXIF_LIBRARY PkgConfig::libexif )
+ENDIF()
 
 FIND_PACKAGE( png REQUIRED )
 FIND_PACKAGE( gif REQUIRED )
@@ -89,7 +93,15 @@ FIND_PACKAGE( harfbuzz REQUIRED )
 FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi REQUIRED )
 
 FIND_PACKAGE( unofficial-angle REQUIRED )
-FIND_PACKAGE( unofficial-cairo REQUIRED )
+FIND_PACKAGE( unofficial-cairo )
+IF( unofficial-cairo_FOUND )
+  SET( CAIRO_LIBRARY unofficial::cairo::cairo )
+ELSE()
+  PKG_CHECK_MODULES( cairo REQUIRED IMPORTED_TARGET cairo )
+  SET( CAIRO_LIBRARY PkgConfig::cairo )
+  SET( CAIRO_LDFLAGS "")
+ENDIF()
+
 FIND_PACKAGE( dali2-core REQUIRED)
 
 FIND_PACKAGE( WebP REQUIRED )
@@ -111,6 +123,7 @@ SET(REQUIRED_LIBS
   ${GIF_LIBRARIES}
   ${FONTCONFIG_LDFLAGS}
   ${CAIRO_LDFLAGS}
+  ${CAIRO_LIBRARY}
   JPEG::JPEG
   ${TURBO_JPEG_LIBRARY}
   Freetype::Freetype
@@ -118,7 +131,6 @@ SET(REQUIRED_LIBS
   ${FRIBIDI_LIBRARY}
   unofficial::angle::libEGL
   unofficial::angle::libGLESv2
-  unofficial::cairo::cairo
   WebP::webp
   WebP::webpdemux
   dali2-core::dali2-core
