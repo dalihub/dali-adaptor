@@ -207,11 +207,17 @@ public:
    */
   bool BindBuffer(GLenum target, uint32_t bufferId);
 
+  /**
+   * @brief Invalidate Renderbuffer for given framebuffer if they using.
+   * Note : We should call this API before framebuffer unbind.
+   * @param[in] framebuffer The framebuffer to be invalidate
+   */
+  void InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer);
+
   void ColorMask(bool enabled);
   void ClearStencilBuffer();
   void ClearDepthBuffer();
   void ClearBuffer(uint32_t mask, bool forceClear);
-  void InvalidateDepthStencilBuffers();
   void SetScissorTestEnabled(bool scissorEnabled);
   void SetStencilTestEnable(bool stencilEnable);
   void StencilMask(uint32_t writeMask);
@@ -251,4 +257,4 @@ private:
 };
 } // namespace GLES
 } // namespace Dali::Graphics
-#endif //DALI_GRAPHICS_GLES_CONTEXT_H
+#endif // DALI_GRAPHICS_GLES_CONTEXT_H

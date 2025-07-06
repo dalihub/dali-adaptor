@@ -208,10 +208,12 @@ void Framebuffer::DestroyResource()
       if(mDepthBufferId)
       {
         gl->DeleteRenderbuffers(1, &mDepthBufferId);
+        mDepthBufferId = 0u;
       }
       if(mStencilBufferId)
       {
         gl->DeleteRenderbuffers(1, &mStencilBufferId);
+        mStencilBufferId = 0u;
       }
 
       if(mFramebufferId != 0u)
@@ -284,4 +286,4 @@ uint32_t Framebuffer::GetGlStencilBufferId() const
   return mStencilBufferId;
 }
 
-} //namespace Dali::Graphics::GLES
+} // namespace Dali::Graphics::GLES
