@@ -61,6 +61,16 @@ public:
 
   bool TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller) override;
 
+  [[nodiscard]] uint32_t GetBufferChangedCount() const
+  {
+    return mBufferChangedCount;
+  }
+
+  void IncreaseBufferChangedCount()
+  {
+    ++mBufferChangedCount;
+  }
+
   [[nodiscard]] uint32_t GetGLBuffer() const
   {
     return mBufferId;
@@ -97,6 +107,7 @@ private:
   bool     mCpuAllocated : 1;
   bool     mTransient : 1;
 
+  uint32_t mBufferChangedCount{0u};
   uint32_t mSetForGLRecyclingCount{0u}; ///< If value is not zero, the buffer will recycle
 };
 } // namespace GLES
