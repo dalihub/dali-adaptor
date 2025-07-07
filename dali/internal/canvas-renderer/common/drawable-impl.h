@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DRAWABLE_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -61,6 +64,119 @@ public:
 
 public:
   /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity()
+   */
+  bool SetOpacity(float opacity);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity()
+   */
+  float GetOpacity() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::Rotate()
+   */
+  bool Rotate(Degree degree);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::Scale()
+   */
+  bool Scale(float factor);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::Translate()
+   */
+  bool Translate(Vector2 translate);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::Transform()
+   */
+  bool Transform(const Dali::Matrix3& matrix);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox
+   */
+  Rect<float> GetBoundingBox() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetClipPath()
+   */
+  bool SetClipPath(Dali::CanvasRenderer::Drawable& clip);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetMask()
+   */
+  bool SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type);
+
+public:
+  /**
+   * @brief Returns a composition drawable object.
+   * @return Returns a composition drawable object.
+   */
+  Dali::CanvasRenderer::Drawable GetCompositionDrawable() const;
+
+  /**
+   * @brief Returns a composition type
+   * @return Returns a composition type
+   */
+  CompositionType GetCompositionType() const;
+
+  /**
+   * @brief Set whether this drawable object was added to other object(CanvasRenderer or DrawableGroup) or not.
+   * @param[in] added Ture if added, false otherwise.
+   */
+  void SetAdded(bool added);
+
+  /**
+   * @brief Returns whether this drawable object was added to another object(CanvasRenderer or DrawableGroup).
+   * @return Returns Ture if added, false otherwise.
+   */
+  bool IsAdded() const;
+
+  /**
+   * @brief Returns a drawable object pointer.
+   * @return Returns a drawable object pointer.
+   */
+  void* GetObject() const;
+
+  /**
+   * @brief Set a drawable object
+   * @param[in] object drawable object
+   */
+  void SetObject(const void* object);
+
+  /**
+   * @brief Set a changed state.
+   * @param[in] changed The state of changed.
+   */
+  void SetChanged(bool changed);
+
+  /**
+   * @brief Get a changed state.
+   * @return Returns state of changed.
+   */
+  bool GetChanged() const;
+
+  /**
+   * @brief Set drawable's type.
+   * @param[in] type Type of drawable.
+   */
+  void SetType(Types type);
+
+  /**
+   * @brief Get drawable's type.
+   * @return Returns type of drawable.
+   */
+  Types GetType() const;
+
+private:
+  Drawable(const Drawable&)       = delete;
+  Drawable& operator=(Drawable&)  = delete;
+  Drawable(Drawable&&)            = delete;
+  Drawable& operator=(Drawable&&) = delete;
+
+protected:
+  /**
    * @brief Constructor
    */
   Drawable();
@@ -70,129 +186,18 @@ public:
    */
   virtual ~Drawable() override;
 
-  /**
-   * @brief Create factory item(implementation) object.
-   */
-  void Create();
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity()
-   */
-  virtual bool SetOpacity(float opacity);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity()
-   */
-  virtual float GetOpacity() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Rotate()
-   */
-  virtual bool Rotate(Degree degree);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Scale()
-   */
-  virtual bool Scale(float factor);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Translate()
-   */
-  virtual bool Translate(Vector2 translate);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Transform()
-   */
-  virtual bool Transform(const Dali::Matrix3& matrix);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox
-   */
-  virtual Rect<float> GetBoundingBox() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::SetClipPath()
-   */
-  virtual bool SetClipPath(Dali::CanvasRenderer::Drawable& clip);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Drawable::SetMask()
-   */
-  virtual bool SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type);
-
-  /**
-   * @brief Returns a composition drawble object.
-   * @return Returns a composition drawble object.
-   */
-  virtual Dali::CanvasRenderer::Drawable GetCompositionDrawable() const;
-
-  /**
-   * @brief Returns a composition type
-   * @return Returns a composition type
-   */
-  virtual CompositionType GetCompositionType() const;
-
-  /**
-   * @brief Set whether this drawable object was added to other object(CanvasRenderer or DrawableGroup) or not.
-   * @param[in] added Ture if added, false otherwise.
-   */
-  virtual void SetAdded(bool added);
-
-  /**
-   * @brief Returns whether this drawable object was added to another object(CanvasRenderer or DrawableGroup).
-   * @return Returns Ture if added, false otherwise.
-   */
-  virtual bool IsAdded() const;
-
-  /**
-   * @brief Returns a drawable object pointer.
-   * @return Returns a drawable object pointer.
-   */
-  virtual void* GetObject() const;
-
-  /**
-   * @brief Set a drawable object
-   * @param[in] object drawable object
-   */
-  virtual void SetObject(const void* object);
-
-  /**
-   * @brief Set a changed state.
-   * @param[in] changed The state of changed.
-   */
-  virtual void SetChanged(bool changed);
-
-  /**
-   * @brief Get a changed state.
-   * @return Returns state of changed.
-   */
-  virtual bool GetChanged() const;
-
-  /**
-   * @brief Set drawable's type.
-   * @param[in] type Type of drawable.
-   */
-  virtual void SetType(Types type);
-
-  /**
-   * @brief Get drawable's type.
-   * @return Returns type of drawable.
-   */
-  virtual Types GetType() const;
-
-  /**
-   * @brief Returns a drawable's implements object pointer.
-   * @return Returns a drawable's implements object pointer.
-   */
-  Dali::Internal::Adaptor::Drawable* GetImplementation();
-
-  Drawable(const Drawable&) = delete;
-  Drawable& operator=(Drawable&) = delete;
-  Drawable(Drawable&&)           = delete;
-  Drawable& operator=(Drawable&&) = delete;
-
 private:
-  Dali::Internal::Adaptor::Drawable* mImpl = nullptr;
+  Dali::CanvasRenderer::Drawable mCompositionDrawable;
+
+  Drawable::Types           mType : 3;
+  Drawable::CompositionType mCompositionType : 3;
+
+  bool mAdded : 1;
+  bool mChanged : 1;
+
+#ifdef THORVG_SUPPORT
+  tvg::Paint* mTvgPaint;
+#endif
 };
 
 } // namespace Adaptor

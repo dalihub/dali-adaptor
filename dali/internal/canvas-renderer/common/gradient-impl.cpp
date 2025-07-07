@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,12 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/canvas-renderer/common/gradient-factory.h>
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
+
+// EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
+#include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace Dali
 {
@@ -25,101 +29,172 @@ namespace Internal
 {
 namespace Adaptor
 {
-Gradient::Gradient() = default;
+namespace // unnamed namespace
+{
+// Type Registration
+Dali::BaseHandle Create()
+{
+  return Dali::BaseHandle();
+}
+
+Dali::TypeRegistration type(typeid(Dali::CanvasRenderer::Gradient), typeid(Dali::BaseHandle), Create);
+
+} // unnamed namespace
+
+Gradient::Gradient()
+: mChanged(false)
+#ifdef THORVG_SUPPORT
+  ,
+  mTvgFill(nullptr)
+#endif
+{
+}
 
 Gradient::~Gradient()
 {
-  if(mImpl)
+#ifdef THORVG_SUPPORT
+  if(mTvgFill)
   {
-    delete mImpl;
+    delete mTvgFill;
   }
-}
-
-void Gradient::Create()
-{
-  if(!mImpl)
-  {
-    mImpl = Internal::Adaptor::GradientFactory::New();
-  }
+#endif
 }
 
 bool Gradient::SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops)
 {
-  if(!mImpl)
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
   {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
     return false;
   }
-  return mImpl->SetColorStops(colorStops);
+  SetChanged(true);
+
+  tvg::Fill::ColorStop* tvgColorStops = (tvg::Fill::ColorStop*)alloca(sizeof(tvg::Fill::ColorStop) * colorStops.Count());
+
+  for(unsigned int i = 0u; i < colorStops.Count(); ++i)
+  {
+    tvgColorStops[i].offset = colorStops[i].offset;
+    tvgColorStops[i].r      = colorStops[i].color.r * 255.0f;
+    tvgColorStops[i].g      = colorStops[i].color.g * 255.0f;
+    tvgColorStops[i].b      = colorStops[i].color.b * 255.0f;
+    tvgColorStops[i].a      = colorStops[i].color.a * 255.0f;
+  }
+
+  if(mTvgFill->colorStops(tvgColorStops, colorStops.Count()) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("SetColorStops() fail.\n");
+    return false;
+  }
+
+  return true;
+#else
+  return false;
+#endif
 }
 
 Dali::CanvasRenderer::Gradient::ColorStops Gradient::GetColorStops() const
 {
-  if(!mImpl)
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
   {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
     return Dali::CanvasRenderer::Gradient::ColorStops();
   }
-  return mImpl->GetColorStops();
+
+  const tvg::Fill::ColorStop* tvgColorStops = nullptr;
+  uint32_t                    count         = 0;
+
+  count = mTvgFill->colorStops(&tvgColorStops);
+  if(!tvgColorStops || count <= 0)
+  {
+    DALI_LOG_ERROR("GetColorStops() fail.\n");
+    return Dali::CanvasRenderer::Gradient::ColorStops();
+  }
+
+  Dali::CanvasRenderer::Gradient::ColorStops colorStops;
+
+  colorStops.Reserve(count);
+
+  for(unsigned int i = 0u; i < count; ++i)
+  {
+    Dali::CanvasRenderer::Gradient::ColorStop stop = {tvgColorStops[i].offset, Vector4(tvgColorStops[i].r / 255.0f, tvgColorStops[i].g / 255.0f, tvgColorStops[i].b / 255.0f, tvgColorStops[i].a / 255.0f)};
+
+    colorStops.PushBack(stop);
+  }
+  return colorStops;
+#else
+  return Dali::CanvasRenderer::Gradient::ColorStops();
+#endif
 }
 
 bool Gradient::SetSpread(Dali::CanvasRenderer::Gradient::Spread spread)
 {
-  if(!mImpl)
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
   {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
     return false;
   }
-  return mImpl->SetSpread(spread);
+  if(mTvgFill->spread(static_cast<tvg::FillSpread>(spread)) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("SetSpread() fail.\n");
+    return false;
+  }
+  SetChanged(true);
+
+  return true;
+#else
+  return false;
+#endif
 }
 
 Dali::CanvasRenderer::Gradient::Spread Gradient::GetSpread() const
 {
-  if(!mImpl)
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
   {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
     return Dali::CanvasRenderer::Gradient::Spread::PAD;
   }
-  return mImpl->GetSpread();
-}
 
-void* Gradient::GetObject() const
-{
-  if(!mImpl)
-  {
-    return nullptr;
-  }
-  return mImpl->GetObject();
+  tvg::FillSpread spread = mTvgFill->spread();
+
+  return static_cast<Dali::CanvasRenderer::Gradient::Spread>(spread);
+#else
+  return Dali::CanvasRenderer::Gradient::Spread::PAD;
+#endif
 }
 
 void Gradient::SetObject(const void* object)
 {
-  if(!mImpl)
+#ifdef THORVG_SUPPORT
+  if(object)
   {
-    return;
+    mTvgFill = static_cast<tvg::Fill*>(const_cast<void*>(object));
   }
-  mImpl->SetObject(object);
+#endif
+}
+
+void* Gradient::GetObject() const
+{
+#ifdef THORVG_SUPPORT
+  return static_cast<void*>(mTvgFill);
+#else
+  return nullptr;
+#endif
 }
 
 void Gradient::SetChanged(bool changed)
 {
-  if(!mImpl)
-  {
-    return;
-  }
-  mImpl->SetChanged(changed);
+  if(!mChanged && changed) Dali::Stage::GetCurrent().KeepRendering(0.0f);
+  mChanged = !!changed;
 }
 
 bool Gradient::GetChanged() const
 {
-  if(!mImpl)
-  {
-    return false;
-  }
-  return mImpl->GetChanged();
+  return mChanged;
 }
-
-Dali::Internal::Adaptor::Gradient* Gradient::GetImplementation()
-{
-  return mImpl;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

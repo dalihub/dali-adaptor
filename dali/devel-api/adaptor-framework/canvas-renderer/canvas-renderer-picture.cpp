@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
-#include <dali/internal/canvas-renderer/common/picture-factory.h>
 #include <dali/internal/canvas-renderer/common/picture-impl.h>
 
 namespace Dali
 {
 CanvasRenderer::Picture CanvasRenderer::Picture::New()
 {
-  return Picture(Internal::Adaptor::PictureFactory::New());
+  Internal::Adaptor::PicturePtr picture = Internal::Adaptor::Picture::New();
+  return Picture(picture.Get());
 }
 
 CanvasRenderer::Picture::Picture()

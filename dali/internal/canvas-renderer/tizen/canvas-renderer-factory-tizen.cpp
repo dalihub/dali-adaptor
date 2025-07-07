@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  *
  */
 
+// CLASS HEADER
 #include <dali/internal/canvas-renderer/tizen/canvas-renderer-impl-tizen.h>
+
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -25,9 +29,14 @@ namespace Adaptor
 {
 namespace CanvasRendererFactory
 {
-Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox)
+Dali::Internal::Adaptor::CanvasRendererPtr New(const Vector2& viewBox)
 {
+#ifdef THORVG_SUPPORT
   return Dali::Internal::Adaptor::CanvasRendererTizen::New(viewBox);
+#else
+  DALI_LOG_ERROR("CanvasRenderer is not supported!\n");
+  return nullptr;
+#endif
 }
 
 } // namespace CanvasRendererFactory

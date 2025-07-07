@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CANVAS_RENDERER_FACTORY_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 
 namespace Dali
 {
@@ -28,6 +29,7 @@ namespace Internal
 namespace Adaptor
 {
 class CanvasRenderer;
+typedef IntrusivePtr<CanvasRenderer> CanvasRendererPtr;
 
 namespace CanvasRendererFactory
 {
@@ -36,7 +38,7 @@ namespace CanvasRendererFactory
  * @param[in] viewBox The viewBox of canvas.
  * @return pointer to CanvasRenderer implementation instance
  */
-Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox);
+Dali::Internal::Adaptor::CanvasRendererPtr New(const Vector2& viewBox);
 
 } // namespace CanvasRendererFactory
 

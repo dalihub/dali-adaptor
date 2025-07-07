@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 #include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/canvas-renderer/common/linear-gradient-factory.h>
 #include <dali/internal/canvas-renderer/common/linear-gradient-impl.h>
 
 namespace Dali
 {
 CanvasRenderer::LinearGradient CanvasRenderer::LinearGradient::New()
 {
-  return LinearGradient(Internal::Adaptor::LinearGradientFactory::New());
+  Internal::Adaptor::LinearGradientPtr linearGradient = Internal::Adaptor::LinearGradient::New();
+  return LinearGradient(linearGradient.Get());
 }
 
 CanvasRenderer::LinearGradient::LinearGradient()

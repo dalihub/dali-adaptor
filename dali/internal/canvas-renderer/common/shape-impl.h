@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_SHAPE_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -32,12 +36,162 @@ namespace Internal
 {
 namespace Adaptor
 {
+class Shape;
+typedef IntrusivePtr<Shape> ShapePtr;
+
 /**
  * Dali internal Shape.
  */
 class Shape : public Internal::Adaptor::Drawable
 {
 public:
+  /**
+   * @brief Creates a Shape object.
+   * @return A pointer to a newly allocated shape
+   */
+  static ShapePtr New();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddRect()
+   */
+  bool AddRect(Rect<float> rect, Vector2 roundedCorner);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddCircle()
+   */
+  bool AddCircle(Vector2 center, Vector2 radius);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddArc()
+   */
+  bool AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo()
+   */
+  bool AddMoveTo(Vector2 point);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo()
+   */
+  bool AddLineTo(Vector2 line);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo()
+   */
+  bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::Close()
+   */
+  bool Close();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::ResetPath()
+   */
+  bool ResetPath();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor()
+   */
+  bool SetFillColor(Vector4 color);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
+   */
+  Vector4 GetFillColor() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillGradient()
+   */
+  bool SetFillGradient(Dali::CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetFillGradient() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
+   */
+  bool SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule()
+   */
+  Dali::CanvasRenderer::Shape::FillRule GetFillRule() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth()
+   */
+  bool SetStrokeWidth(float width);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth()
+   */
+  float GetStrokeWidth() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor()
+   */
+  bool SetStrokeColor(Vector4 color);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
+   */
+  Vector4 GetStrokeColor() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeGradient()
+   */
+  bool SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetStrokeGradient() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
+   */
+  bool SetStrokeDash(const Dali::Vector<float> dashPattern);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash()
+   */
+  Dali::Vector<float> GetStrokeDash() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap()
+   */
+  bool SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap()
+   */
+  Dali::CanvasRenderer::Shape::StrokeCap GetStrokeCap() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin()
+   */
+  bool SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin()
+   */
+  Dali::CanvasRenderer::Shape::StrokeJoin GetStrokeJoin() const;
+
+private:
+  Shape(const Shape&)       = delete;
+  Shape& operator=(Shape&)  = delete;
+  Shape(Shape&&)            = delete;
+  Shape& operator=(Shape&&) = delete;
+
   /**
    * @brief Constructor
    */
@@ -46,147 +200,20 @@ public:
   /**
    * @brief Destructor.
    */
-  ~Shape() override;
+  virtual ~Shape() override;
 
+private:
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddRect()
+   * @brief Initializes member data.
    */
-  virtual bool AddRect(Rect<float> rect, Vector2 roundedCorner);
+  void Initialize();
 
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCircle()
-   */
-  virtual bool AddCircle(Vector2 center, Vector2 radius);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddArc()
-   */
-  virtual bool AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo()
-   */
-  virtual bool AddMoveTo(Vector2 point);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo()
-   */
-  virtual bool AddLineTo(Vector2 line);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo()
-   */
-  virtual bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
-   */
-  virtual bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::Close()
-   */
-  virtual bool Close();
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::ResetPath()
-   */
-  virtual bool ResetPath();
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor()
-   */
-  virtual bool SetFillColor(Vector4 color);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
-   */
-  virtual Vector4 GetFillColor() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillGradient()
-   */
-  virtual bool SetFillGradient(Dali::CanvasRenderer::Gradient& gradient);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillGradient()
-   */
-  virtual Dali::CanvasRenderer::Gradient GetFillGradient() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
-   */
-  virtual bool SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule()
-   */
-  virtual Dali::CanvasRenderer::Shape::FillRule GetFillRule() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth()
-   */
-  virtual bool SetStrokeWidth(float width);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth()
-   */
-  virtual float GetStrokeWidth() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor()
-   */
-  virtual bool SetStrokeColor(Vector4 color);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
-   */
-  virtual Vector4 GetStrokeColor() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeGradient()
-   */
-  virtual bool SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeGradient()
-   */
-  virtual Dali::CanvasRenderer::Gradient GetStrokeGradient() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
-   */
-  virtual bool SetStrokeDash(const Dali::Vector<float> dashPattern);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash()
-   */
-  virtual Dali::Vector<float> GetStrokeDash() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap()
-   */
-  virtual bool SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap()
-   */
-  virtual Dali::CanvasRenderer::Shape::StrokeCap GetStrokeCap() const;
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin()
-   */
-  virtual bool SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin()
-   */
-  virtual Dali::CanvasRenderer::Shape::StrokeJoin GetStrokeJoin() const;
-
-  Shape(const Shape&) = delete;
-  Shape& operator=(Shape&) = delete;
-  Shape(Shape&&)           = delete;
-  Shape& operator=(Shape&&) = delete;
+private:
+  Dali::CanvasRenderer::Gradient mFillGradient;
+  Dali::CanvasRenderer::Gradient mStrokeGradient;
+#ifdef THORVG_SUPPORT
+  tvg::Shape* mTvgShape;
+#endif
 };
 
 } // namespace Adaptor

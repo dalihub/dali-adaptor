@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_LINEAR_GRADIENT_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -31,12 +35,37 @@ namespace Internal
 {
 namespace Adaptor
 {
+class LinearGradient;
+typedef IntrusivePtr<LinearGradient> LinearGradientPtr;
+
 /**
  * Dali internal LinearGradient.
  */
 class LinearGradient : public Internal::Adaptor::Gradient
 {
 public:
+  /**
+   * @brief Creates a LinearGradient object.
+   * @return A pointer to a newly allocated drawablegroup
+   */
+  static LinearGradientPtr New();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::LinearGradient::SetBounds()
+   */
+  bool SetBounds(Vector2 firstPoint, Vector2 SecondPoint);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::LinearGradient::SetBounds()
+   */
+  bool GetBounds(Vector2& firstPoint, Vector2& SecondPoint) const;
+
+private:
+  LinearGradient(const LinearGradient&)       = delete;
+  LinearGradient& operator=(LinearGradient&)  = delete;
+  LinearGradient(LinearGradient&&)            = delete;
+  LinearGradient& operator=(LinearGradient&&) = delete;
+
   /**
    * @brief Constructor
    */
@@ -45,22 +74,18 @@ public:
   /**
    * @brief Destructor.
    */
-  ~LinearGradient() override;
+  virtual ~LinearGradient() override;
 
+private:
   /**
-   * @copydoc Dali::CanvasRenderer::LinearGradient::SetBounds()
+   * @brief Initializes member data.
    */
-  virtual bool SetBounds(Vector2 firstPoint, Vector2 SecondPoint);
+  void Initialize();
 
-  /**
-   * @copydoc Dali::CanvasRenderer::LinearGradient::SetBounds()
-   */
-  virtual bool GetBounds(Vector2& firstPoint, Vector2& SecondPoint) const;
-
-  LinearGradient(const LinearGradient&) = delete;
-  LinearGradient& operator=(LinearGradient&) = delete;
-  LinearGradient(LinearGradient&&)           = delete;
-  LinearGradient& operator=(LinearGradient&&) = delete;
+private:
+#ifdef THORVG_SUPPORT
+  tvg::LinearGradient* mTvgLinearGradient;
+#endif
 };
 
 } // namespace Adaptor
