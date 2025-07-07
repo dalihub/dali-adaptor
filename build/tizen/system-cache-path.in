@@ -36,3 +36,15 @@ std::string GetProgramBinaryPath()
   std::string programBinaryPath = GetSystemCachePath() + "shader/";
   return programBinaryPath;
 }
+
+std::string GetInternalProgramBinaryCachePath()
+{
+  std::string internalProgramBinaryCachePath = GetProgramBinaryPath() + "internal/";
+  return internalProgramBinaryCachePath;
+}
+
+std::string GetCustomProgramBinaryCachePath()
+{
+  std::string customProgramBinaryCachePath = GetProgramBinaryPath() + "custom/";
+  return customProgramBinaryCachePath;
+}

@@ -76,6 +76,8 @@ using Dali::TextAbstraction::FontClient;
 
 extern std::string GetSystemCachePath();
 extern std::string GetProgramBinaryPath();
+extern std::string GetInternalProgramBinaryCachePath();
+extern std::string GetCustomProgramBinaryCachePath();
 
 namespace Dali::Internal::Adaptor
 {
@@ -328,13 +330,33 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
-    std::string shaderCachePath = GetProgramBinaryPath();
-    DALI_LOG_RELEASE_INFO("Check and create dali shader cache directory: %s\n", shaderCachePath.c_str());
+    std::string shaderCachePath= GetProgramBinaryPath();
     dir_err = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating shader cache directory: %s!\n", shaderCachePath.c_str());
       DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
+
+    if(!shaderCachePath.empty())
+    {
+      std::string internalShaderCachePath = GetInternalProgramBinaryCachePath();
+      DALI_LOG_RELEASE_INFO("Check and create dali internal shader cache directory: %s\n", internalShaderCachePath.c_str());
+      dir_err = mkdir(internalShaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      if(0 != dir_err && errno != EEXIST)
+      {
+        DALI_LOG_ERROR("Error creating dali internal shader directory: %s!\n", internalShaderCachePath.c_str());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+      }
+
+      std::string customShaderCachePath = GetCustomProgramBinaryCachePath();
+      DALI_LOG_RELEASE_INFO("Check and create dali custom shader cache directory: %s\n", customShaderCachePath.c_str());
+      dir_err = mkdir(customShaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+      if(0 != dir_err && errno != EEXIST)
+      {
+        DALI_LOG_ERROR("Error creating dali custom shader directory: %s!\n", customShaderCachePath.c_str());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+      }
     }
   }
 
