@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,19 +68,19 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   switch(level)
   {
     case Dali::Integration::Log::DEBUG: ///< Gray color
-      format = "\e[1;38;5;243mDEBUG:\e[21m %s: %s\e[0m";
+      format = "\e[1;38;5;243mDEBUG:\e[21;24m %s: %s\e[0m";
       break;
     case Dali::Integration::Log::INFO: ///< Green color
-      format = "\e[1;32mINFO:\e[21m %s: %s\e[0m";
+      format = "\e[1;32mINFO:\e[21;24m %s: %s\e[0m";
       break;
     case Dali::Integration::Log::WARNING: ///< Yellow color
-      format = "\e[1;33mWARN:\e[21m %s: %s\e[0m";
+      format = "\e[1;33mWARN:\e[21;24m %s: %s\e[0m";
       break;
     case Dali::Integration::Log::ERROR: ///< Bright Red color
-      format = "\e[1;91mERROR:\e[21m %s: %s\e[0m";
+      format = "\e[1;91mERROR:\e[21;24m %s: %s\e[0m";
       break;
     default:
-      format = ":\e[21m %s: %s\e[0m";
+      format = ":\e[21;24m %s: %s\e[0m";
       break;
   }
 
