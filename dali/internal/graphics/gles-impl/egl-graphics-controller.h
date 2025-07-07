@@ -558,6 +558,12 @@ public:
 
     // Process discards
     // Note : we don't need to be ResourceContext when we destroy resources.
+    //        Instead of Container objects : FBO and Program for our cases.
+    if(!mDiscardFramebufferQueue.empty() ||
+       !mDiscardProgramQueue.empty())
+    {
+      mGraphics->ActivateResourceContext();
+    }
     ProcessDiscardQueues();
 
     // Flush pipeline cache to remove unused pipelines
