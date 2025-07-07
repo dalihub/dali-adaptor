@@ -67,8 +67,7 @@ inline bool memcmp4(A* a, B* b, uint32_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++)
-    ;
+  while(size-- && *pa++ == *pb++);
   return (-1u == size);
 };
 
@@ -262,6 +261,15 @@ bool ProgramImpl::Create()
     // Do nothing during shutdown
     return false;
   }
+
+  auto* graphics = mImpl->controller.GetGraphicsInterface();
+  if(DALI_UNLIKELY(!graphics))
+  {
+    return false;
+  }
+
+  // Activate as resource context before create program.
+  graphics->ActivateResourceContext();
 
   auto program = gl->CreateProgram();
 
