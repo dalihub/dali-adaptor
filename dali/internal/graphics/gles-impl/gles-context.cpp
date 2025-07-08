@@ -50,8 +50,7 @@ inline bool memcmp4(A* a, B* b, size_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++)
-    ;
+  while(size-- && *pa++ == *pb++);
   return (-1u == size);
 };
 } // namespace
@@ -447,11 +446,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Texture may not have been initialized yet...(tbm_surface timing issue?)
     if(!texture->GetGLTexture())
     {
-      if(DALI_UNLIKELY(!texture->InitializeResource()))
-      {
-        DALI_LOG_ERROR("[ERROR] NativeImage might invalid! Do not render it\n");
-        needDraw = false;
-      }
+      DALI_LOG_ERROR("[ERROR] NativeImage is not initialized yet! Do not render it\n");
+      needDraw = false;
     }
 
     // Warning, this may cause glWaitSync to occur on the GPU, or glClientWaitSync to block the CPU.
