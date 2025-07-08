@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,11 +161,11 @@ bool GetCommandString(CommandId commandId, CommandString& commandString)
   {
     if(CommandLookup[i].cmdId == commandId)
     {
-      strncpy(commandString, CommandLookup[i].cmdString, strlen(CommandLookup[i].cmdString) + 1);
+      strncpy(commandString, CommandLookup[i].cmdString, std::min(size_t(MAX_COMMAND_STRING_LENGTH), strlen(CommandLookup[i].cmdString) + 1));
       return true;
     }
   }
-  strncpy(commandString, CommandLookup[UNKNOWN_COMMAND].cmdString, MAX_COMMAND_STRING_LENGTH);
+  strncpy(commandString, CommandLookup[CommandLookupLength - 1].cmdString, MAX_COMMAND_STRING_LENGTH);
   return false;
 }
 

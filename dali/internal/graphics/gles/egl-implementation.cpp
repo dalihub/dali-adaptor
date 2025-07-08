@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/graphics/common/graphics-backend-impl.h>
 #include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -243,6 +244,12 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
                                  versionStr,
                                  clientStr,
                                  extensionStr);
+    std::ostringstream backendInformation;
+    backendInformation << "EGL Information:" << std::endl
+                       << "Vendor: " << vendorStr << std::endl
+                       << "Version: " << versionStr << std::endl
+                       << "Client APIs: " << clientStr;
+    Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
   }
 
   return mGlesInitialized;

@@ -98,10 +98,10 @@ struct Command
    * @brief Copy constructor
    * @param[in] rhs Command
    */
-  Command(const Command& rhs) = default;
+  Command(const Command& rhs)            = default;
   Command& operator=(const Command& rhs) = default;
   Command(Command&& rhs)                 = delete;
-  Command& operator=(Command&& rhs) = delete;
+  Command& operator=(Command&& rhs)      = delete;
 
   CommandType type{CommandType::FLUSH}; ///< Type of command
 
@@ -456,6 +456,9 @@ public:
 
 private:
   std::unique_ptr<CommandPool> mCommandPool; ///< Pool of commands and transient memory
+
+  struct GlStateCommandCache;
+  std::unique_ptr<GlStateCommandCache> mGlStateCommandCache; ///< Stack of GL state caches
 };
 } // namespace Dali::Graphics::GLES
 

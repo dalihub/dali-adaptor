@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/actors/layer.h>
+#include <dali/public-api/object/type-info.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -198,6 +200,12 @@ Dali::Rect<> ActorAccessible::GetExtents(CoordinateType type) const
   bool        positionUsesAnchorPoint = actor.GetProperty<bool>(Actor::Property::POSITION_USES_ANCHOR_POINT);
   Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
   Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
+
+  if(Dali::EqualsZero(size.x) && Dali::EqualsZero(size.y) && CanAcceptZeroSize())
+  {
+    size.x = 1.f;
+    size.y = 1.f;
+  }
 
   if(type == CoordinateType::WINDOW)
   {
@@ -422,6 +430,7 @@ void ActorAccessible::Emit(WindowEvent event, unsigned int detail)
     bridgeData->mBridge->Emit(this, event, detail);
   }
 }
+
 void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
 {
   if(mIsBeingDestroyed)
@@ -493,6 +502,12 @@ void ActorAccessible::NotifyAccessibilityStateChange(Dali::Accessibility::States
 void ActorAccessible::ClearCache()
 {
   mLastEmittedState.clear();
+}
+
+bool ActorAccessible::CanAcceptZeroSize() const
+{
+  auto layer = Self().GetLayer();
+  return layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D;
 }
 
 } // namespace Dali::Accessibility

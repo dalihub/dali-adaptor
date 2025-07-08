@@ -34,6 +34,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture-dependency-checker.h>
@@ -157,6 +158,15 @@ struct VulkanGraphicsController::Impl
   {
   }
 
+  ~Impl()
+  {
+    if(mSamplerImpl)
+    {
+      mSamplerImpl->Destroy();
+      mSamplerImpl = nullptr;
+    }
+  }
+
   bool Initialize(Vulkan::Device& device)
   {
     mGraphicsDevice = &device;
@@ -220,8 +230,7 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex)
-      {
+      auto workerFunc = [&, size](auto workerIndex) {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -311,8 +320,7 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool
-        {
+        auto predicate = [&](auto& item) -> bool {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -480,6 +488,30 @@ struct VulkanGraphicsController::Impl
     GarbageCollect(false);
   }
 
+  SamplerImpl* GetDefaultSampler()
+  {
+    if(!mSamplerImpl)
+    {
+      // Create basic sampler to reuse for any texture
+      auto samplerCreateInfo = vk::SamplerCreateInfo()
+                                 .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+                                 .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+                                 .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
+                                 .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
+                                 .setCompareOp(vk::CompareOp::eNever)
+                                 .setMinFilter(vk::Filter::eLinear)
+                                 .setMagFilter(vk::Filter::eLinear)
+                                 .setMipmapMode(vk::SamplerMipmapMode::eLinear)
+                                 .setMaxAnisotropy(1.0f); // must be 1.0f when anisotropy feature isn't enabled
+
+      samplerCreateInfo.setBorderColor(vk::BorderColor::eFloatTransparentBlack);
+
+      mSamplerImpl.reset(SamplerImpl::New(*mGraphicsDevice, samplerCreateInfo));
+    }
+
+    return mSamplerImpl.get();
+  }
+
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
@@ -497,6 +529,8 @@ struct VulkanGraphicsController::Impl
   void*                                 mTextureStagingBufferMappedPtr{nullptr};
 
   ThreadPool mThreadPool;
+
+  std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
 
   DepthStencilFlags mDepthStencilBufferCurrentState{0u};
   DepthStencilFlags mDepthStencilBufferRequestedState{0u};
@@ -532,13 +566,17 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
 void VulkanGraphicsController::FrameStart()
 {
   mImpl->mDependencyChecker.Reset(); // Clean down the dependency graph.
-  mImpl->mCapacity   = 0;
-  mImpl->mDidPresent = false;
+  mImpl->mCapacity = 0;
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "FrameStart: bufferIndex:%u\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
   mImpl->mDiscardQueues.Resize(bufferCount);
+}
+
+void VulkanGraphicsController::ResetDidPresent()
+{
+  mImpl->mDidPresent = false;
 }
 
 bool VulkanGraphicsController::DidPresent() const
@@ -731,8 +769,7 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
-          {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -767,8 +804,7 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
-          {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -806,8 +842,7 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex)
-    {
+    auto task     = [pUpdates](auto workerIndex) {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -1268,6 +1303,11 @@ void VulkanGraphicsController::CheckTextureDependencies(
 void VulkanGraphicsController::RemoveRenderTarget(RenderTarget* renderTarget)
 {
   mImpl->mDependencyChecker.RemoveRenderTarget(renderTarget);
+}
+
+SamplerImpl* VulkanGraphicsController::GetDefaultSampler()
+{
+  return mImpl->GetDefaultSampler();
 }
 
 } // namespace Dali::Graphics::Vulkan

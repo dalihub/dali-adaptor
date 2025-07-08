@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
-#include <dali/internal/canvas-renderer/common/shape-factory.h>
 #include <dali/internal/canvas-renderer/common/shape-impl.h>
 
 namespace Dali
 {
 CanvasRenderer::Shape CanvasRenderer::Shape::New()
 {
-  return Shape(Internal::Adaptor::ShapeFactory::New());
+  Internal::Adaptor::ShapePtr shape = Internal::Adaptor::Shape::New();
+  return Shape(shape.Get());
 }
 
 CanvasRenderer::Shape::Shape()

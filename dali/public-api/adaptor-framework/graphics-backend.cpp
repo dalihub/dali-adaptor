@@ -21,12 +21,16 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-backend-impl.h>
+
 namespace Dali::Graphics
 {
 namespace
 {
-Backend gCurrentGraphicsBackend = Backend::DEFAULT;
-}
+Backend     gCurrentGraphicsBackend = Backend::DEFAULT;
+std::string gBackendInformation;
+} // namespace
 
 Backend GetCurrentGraphicsBackend()
 {
@@ -45,6 +49,11 @@ void SetGraphicsBackend(Backend backend)
   {
     DALI_LOG_ERROR("Graphics backend already set to: %s\n", gCurrentGraphicsBackend == Backend::GLES ? "GLES" : "VULKAN");
   }
+}
+
+const std::string& GetBackendInformation()
+{
+  return Internal::GetBackendInformation();
 }
 
 } // namespace Dali::Graphics

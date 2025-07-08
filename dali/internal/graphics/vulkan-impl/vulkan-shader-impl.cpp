@@ -160,7 +160,6 @@ struct ShaderImpl::Impl
   std::unique_ptr<SPIRVGenerator> spirv;
   vk::ShaderModule                shaderModule;
 
-  uint32_t refCount{0u};
   uint32_t flushCount{0u};  ///< Number of frames at refCount=0
   uint32_t glslVersion{0u}; ///< 0 - unknown, otherwise valid #version like 130, 300, etc.
 };
@@ -170,27 +169,12 @@ ShaderImpl::ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::V
   mImpl = std::make_unique<Impl>(controller, createInfo);
 }
 
-ShaderImpl::~ShaderImpl() = default;
-
-uint32_t ShaderImpl::Retain()
+ShaderImpl::~ShaderImpl()
 {
-  mImpl->flushCount = 0;
-  return ++mImpl->refCount;
+  DestroyShaderModule();
 }
 
-uint32_t ShaderImpl::Release()
-{
-  uint32_t remainingCount = --mImpl->refCount;
-  mImpl->flushCount       = 0;
-  return remainingCount;
-}
-
-[[nodiscard]] uint32_t ShaderImpl::GetRefCount() const
-{
-  return mImpl->refCount;
-}
-
-void ShaderImpl::Destroy()
+void ShaderImpl::DestroyShaderModule()
 {
   mImpl->Destroy();
   mImpl.reset();

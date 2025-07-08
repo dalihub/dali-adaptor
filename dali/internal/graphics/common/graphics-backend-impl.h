@@ -1,8 +1,7 @@
-#ifndef DALI_INTERNAL_PICTURE_FACTORY_H
-#define DALI_INTERNAL_PICTURE_FACTORY_H
+#pragma once
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +18,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
+#include <string>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
-{
-namespace PictureFactory
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
+namespace Dali::Graphics::Internal
 {
 /**
- * @brief Creates new instance of Picture implementation
- * @return pointer to Picture implementation instance
+ * @copydoc Dali::Graphics::GetBackendInformation()
  */
-Dali::Internal::Adaptor::Picture* New();
+const std::string& GetBackendInformation();
 
-} // namespace PictureFactory
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
-
-#endif // DALI_INTERNAL_PICTURE_FACTORY_H
+/**
+ * @brief To be called by the graphics backend to sets the backend information.
+ * @param[in] backendInformation A string representation of the graphics backend.
+ */
+DALI_ADAPTOR_API void SetBackendInformation(std::string&& backendInformation);
+} // namespace Dali::Graphics::Internal

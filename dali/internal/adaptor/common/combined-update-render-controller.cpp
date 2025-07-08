@@ -884,18 +884,27 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             presentRequired = false;
           }
 
-          const bool fullSwap = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
+          const bool fullSwap                = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
+          const bool graphicsPresentRequired = graphics.ForcePresentRequired();       // true if eglQuerySurface called (EGL) or false always (Vulkan)
 
-          LOG_RENDER_SCENE("RenderThread: HadRender:%s WillRender:%s presentRequired:%s fullSwap:%s\n",
+          LOG_RENDER_SCENE("RenderThread: HadRender:%s WillRender:%s presentRequired:%s fullSwap:%s graphicsPresentRequired:%s\n",
                            hadRenderedToScene ? "T" : "F",
                            willRenderToScene ? "T" : "F",
                            presentRequired ? "T" : "F",
-                           fullSwap ? "T" : "F");
+                           fullSwap ? "T" : "F",
+                           graphicsPresentRequired ? "T" : "F");
 
-          // Forcibly present to surface if fullSwap enabled.
-          if(fullSwap)
+          // Forcibly present to surface if fullSwap enabled, or graphics preset required.
+          // Note : We keep legacy behavior about presents
+          //  * windows[0] no renderer -> no eglSwapBuffer
+          //  * windows[0] no renderer windows[1] no renderer -> both no eglSwapBuffer
+          //  * windows[0] no renderer windows[1] yes renderer -> both eglSwapBuffer (background color show now)
+          //  * windows[0] yes renderer windows[1] no renderer -> both eglSwapBuffer (background color show now)
+          // To keep this logic, we should check renderer added at least once even if fullSwap is true!
+          if(!presentRequired && ((DALI_LIKELY(updateStatus.RendererAdded()) && fullSwap) || graphicsPresentRequired))
           {
-            presentRequired |= fullSwap;
+            LOG_RENDER_SCENE("RenderThread: request present forcibly\n");
+            presentRequired = true;
           }
 
           if(presentRequired)
@@ -1203,6 +1212,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   createInfo.SetShaderState(shaderStates);
   createInfo.SetName(shaderName);
   createInfo.SetFileCaching(useFileCache);
+  createInfo.SetInternal(useFileCache);
   auto graphicsProgram = graphics.GetController().CreateProgram(createInfo, nullptr);
   ShaderPreCompiler::Get().AddPreCompiledProgram(std::move(graphicsProgram));
 }

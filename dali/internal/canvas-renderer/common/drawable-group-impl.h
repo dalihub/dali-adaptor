@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DRAWABLE_GROUP_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
-#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
@@ -32,6 +36,9 @@ namespace Internal
 {
 namespace Adaptor
 {
+class DrawableGroup;
+typedef IntrusivePtr<DrawableGroup> DrawableGroupPtr;
+
 /**
  * Dali internal DrawableGroup.
  */
@@ -44,6 +51,39 @@ public:
   using DrawableVector = std::vector<Dali::CanvasRenderer::Drawable>;
 
   /**
+   * @brief Creates a DrawableGroup object.
+   * @return A pointer to a newly allocated drawablegroup
+   */
+  static DrawableGroupPtr New();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
+   */
+  bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveDrawable()
+   */
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable drawable);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
+   */
+  bool RemoveAllDrawables();
+
+  /**
+   * @brief Get list of drawables that added this group.
+   * @return Returns list of drawables.
+   */
+  DrawableVector GetDrawables() const;
+
+private:
+  DrawableGroup(const DrawableGroup&)       = delete;
+  DrawableGroup& operator=(DrawableGroup&)  = delete;
+  DrawableGroup(DrawableGroup&&)            = delete;
+  DrawableGroup& operator=(DrawableGroup&&) = delete;
+
+  /**
    * @brief Constructor
    */
   DrawableGroup();
@@ -51,33 +91,19 @@ public:
   /**
    * @brief Destructor.
    */
-  ~DrawableGroup() override;
+  virtual ~DrawableGroup() override;
 
+private:
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
+   * @brief Initializes member data.
    */
-  virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
+  void Initialize();
 
-  /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveDrawable()
-   */
-  virtual bool RemoveDrawable(Dali::CanvasRenderer::Drawable drawable);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
-   */
-  virtual bool RemoveAllDrawables();
-
-  /**
-   * @brief Get list of drawables that added this group.
-   * @return Returns list of drawables.
-   */
-  virtual DrawableVector GetDrawables() const;
-
-  DrawableGroup(const DrawableGroup&) = delete;
-  DrawableGroup& operator=(DrawableGroup&) = delete;
-  DrawableGroup(DrawableGroup&&)           = delete;
-  DrawableGroup& operator=(DrawableGroup&&) = delete;
+private:
+#ifdef THORVG_SUPPORT
+  tvg::Scene* mTvgScene;
+#endif
+  DrawableVector mDrawables;
 };
 
 } // namespace Adaptor

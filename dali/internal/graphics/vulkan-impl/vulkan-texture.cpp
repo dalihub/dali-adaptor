@@ -1125,7 +1125,6 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
   mDevice(controller.GetGraphicsDevice()),
   mImage(),
   mImageView(),
-  mSampler(),
   mTiling(TextureTiling::LINEAR)
 {
   // Check env variable in order to disable staging buffers
@@ -1174,11 +1173,6 @@ void Texture::DestroyResource()
   {
     mImage->Destroy();
     mImage = nullptr;
-  }
-  if(mSampler)
-  {
-    mSampler->Destroy();
-    mSampler = nullptr;
   }
 }
 
@@ -1275,22 +1269,6 @@ void Texture::InitializeImageView()
   {
     // Create image view
     mImageView = ImageView::NewFromImage(mDevice, *mImage, mComponentMapping);
-
-    // create basic sampler
-    auto samplerCreateInfo = vk::SamplerCreateInfo()
-                               .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
-                               .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
-                               .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
-                               .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
-                               .setCompareOp(vk::CompareOp::eNever)
-                               .setMinFilter(vk::Filter::eLinear)
-                               .setMagFilter(vk::Filter::eLinear)
-                               .setMipmapMode(vk::SamplerMipmapMode::eLinear)
-                               .setMaxAnisotropy(1.0f); // must be 1.0f when anisotropy feature isn't enabled
-
-    samplerCreateInfo.setBorderColor(vk::BorderColor::eFloatTransparentBlack);
-
-    mSampler = SamplerImpl::New(mDevice, samplerCreateInfo);
   }
 }
 
@@ -1315,9 +1293,9 @@ Vulkan::ImageView* Texture::GetImageView() const
   return mImageView;
 }
 
-Vulkan::SamplerImpl* Texture::GetSampler() const
+Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
 {
-  return mSampler;
+  return mController.GetDefaultSampler();
 }
 
 vk::Format Texture::ConvertApiToVk(Dali::Graphics::Format format)

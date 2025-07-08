@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PICTURE_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
@@ -31,12 +35,42 @@ namespace Internal
 {
 namespace Adaptor
 {
+class Picture;
+typedef IntrusivePtr<Picture> PicturePtr;
+
 /**
  * Dali internal Picture.
  */
 class Picture : public Internal::Adaptor::Drawable
 {
 public:
+  /**
+   * @brief Creates a Picture object.
+   * @return A pointer to a newly allocated picture
+   */
+  static PicturePtr New();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Picture::Load()
+   */
+  bool Load(const std::string& url);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Picture::SetSize()
+   */
+  bool SetSize(Vector2 size);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Picture::GetSize()
+   */
+  Vector2 GetSize() const;
+
+private:
+  Picture(const Picture&)       = delete;
+  Picture& operator=(Picture&)  = delete;
+  Picture(Picture&&)            = delete;
+  Picture& operator=(Picture&&) = delete;
+
   /**
    * @brief Constructor
    */
@@ -47,25 +81,16 @@ public:
    */
   ~Picture() override;
 
+private:
   /**
-   * @copydoc Dali::CanvasRenderer::Picture::Load()
+   * @brief Initializes member data.
    */
-  virtual bool Load(const std::string& url);
+  void Initialize();
 
-  /**
-   * @copydoc Dali::CanvasRenderer::Picture::SetSize()
-   */
-  virtual bool SetSize(Vector2 size);
-
-  /**
-   * @copydoc Dali::CanvasRenderer::Picture::GetSize()
-   */
-  virtual Vector2 GetSize() const;
-
-  Picture(const Picture&) = delete;
-  Picture& operator=(Picture&) = delete;
-  Picture(Picture&&)           = delete;
-  Picture& operator=(Picture&&) = delete;
+private:
+#ifdef THORVG_SUPPORT
+  tvg::Picture* mTvgPicture;
+#endif
 };
 
 } // namespace Adaptor

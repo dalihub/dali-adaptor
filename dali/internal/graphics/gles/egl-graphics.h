@@ -306,6 +306,11 @@ public:
   void FrameStart() override;
 
   /**
+   * @copydoc Dali::Graphics::GraphicsInterface::ForcePresentRequired()
+   */
+  bool ForcePresentRequired() override;
+
+  /**
    * @copydoc Dali::Graphics::GraphicsInterface::DidPresent()
    */
   bool DidPresent() override;
@@ -343,7 +348,8 @@ private:
   std::unique_ptr<EglImageExtensions>                        mEglImageExtensions; ///< EGL image extension
   std::unique_ptr<EglSyncImplementation>                     mEglSync;            ///< GlSyncAbstraction implementation for EGL
 
-  int mMultiSamplingLevel; ///< The multiple sampling level
+  int  mMultiSamplingLevel;   ///< The multiple sampling level
+  bool mForcePresentRequired; ///< Flag to force present
 };
 
 } // namespace Adaptor

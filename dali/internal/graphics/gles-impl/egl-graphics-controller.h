@@ -117,6 +117,27 @@ public:
   void FrameStart();
 
   /**
+   * @brief Reset the DidPresent flag to false at the start of each frame.
+   * It will be set to true when the render target is presented.
+   * More detail, EglGraphicsController::ResolvePresentRenderTarget() and RenderSurfaceInterface::PostRender().
+   */
+  void ResetDidPresent()
+  {
+    mDidPresent = false;
+  }
+
+  /**
+   * @brief Check if the render target was presented in the last frame.
+   * This is used to determine if the frame was successfully presented to the display.
+   *
+   * @return true if the render target was presented, false otherwise.
+   */
+  [[nodiscard]] inline bool DidPresent() const
+  {
+    return mDidPresent;
+  }
+
+  /**
    * @copydoc Dali::Graphics::SetResourceBindingHints()
    */
   void SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings) override;
@@ -537,6 +558,12 @@ public:
 
     // Process discards
     // Note : we don't need to be ResourceContext when we destroy resources.
+    //        Instead of Container objects : FBO and Program for our cases.
+    if(!mDiscardFramebufferQueue.empty() ||
+       !mDiscardProgramQueue.empty())
+    {
+      mGraphics->ActivateResourceContext();
+    }
     ProcessDiscardQueues();
 
     // Flush pipeline cache to remove unused pipelines
@@ -922,7 +949,9 @@ private:
 
   GLES::SyncPool mSyncPool;
   std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
-  bool           mUseProgramBinary{false};
+
+  bool mUseProgramBinary : 1;
+  bool mDidPresent : 1;
 };
 
 } // namespace Graphics

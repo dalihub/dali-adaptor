@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,16 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/generic/radial-gradient-impl-generic.h>
+// EXTERNAL INCLUDES
+#include <dlfcn.h>
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-library-open-mode.h>
+
+namespace Dali::Internal::Adaptor::GraphicsLibrary
 {
-namespace Internal
+int GetLibraryOpenMode()
 {
-namespace Adaptor
-{
-namespace RadialGradientFactory
-{
-Dali::Internal::Adaptor::RadialGradient* New()
-{
-  return Dali::Internal::Adaptor::RadialGradientGeneric::New();
+  return RTLD_NOW | RTLD_GLOBAL;
 }
-
-} // namespace RadialGradientFactory
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor::GraphicsLibrary

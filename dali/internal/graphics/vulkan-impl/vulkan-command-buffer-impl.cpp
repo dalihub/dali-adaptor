@@ -208,7 +208,7 @@ void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureB
   {
     auto texture     = static_cast<const Vulkan::Texture*>(textureBinding.texture);
     auto sampler     = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
-    auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetSampler();
+    auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetDefaultSampler();
     auto vkSampler   = samplerImpl ? samplerImpl->GetVkHandle() : nullptr;
     // @todo If there is still no sampler, fall back to default?
     if(!vkSampler)

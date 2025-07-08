@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CANVAS_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,19 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
+#include <dali/devel-api/threading/mutex.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/rendering/texture.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 namespace Dali
 {
@@ -32,6 +39,9 @@ namespace Internal
 {
 namespace Adaptor
 {
+class CanvasRenderer;
+typedef IntrusivePtr<CanvasRenderer> CanvasRendererPtr;
+
 /**
  * Dali internal CanvasRenderer.
  */
@@ -39,74 +49,145 @@ class CanvasRenderer : public Dali::BaseObject
 {
 public:
   /**
-   * @brief Constructor
-   */
-  CanvasRenderer();
-
-  /**
-   * @brief Destructor.
-   */
-  ~CanvasRenderer() override;
-
-  /**
    * @copydoc Dali::CanvasRenderer::Commit()
    */
-  virtual bool Commit();
+  bool Commit();
 
   /**
    * @copydoc Dali::CanvasRenderer::GetRasterizedTexture()
    */
-  virtual Dali::Texture GetRasterizedTexture();
+  Dali::Texture GetRasterizedTexture();
 
   /**
    * @copydoc Dali::CanvasRenderer::AddDrawable()
    */
-  virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
+  bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
    * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
    */
-  virtual bool IsCanvasChanged() const;
+  bool IsCanvasChanged() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::Rasterize()
    */
-  virtual bool Rasterize();
+  bool Rasterize();
 
   /**
    * @copydoc Dali::CanvasRenderer::RemoveDrawable()
    */
-  virtual bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable);
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
    * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
    */
-  virtual bool RemoveAllDrawables();
+  bool RemoveAllDrawables();
 
   /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
-  virtual bool SetSize(Vector2 size);
+  bool SetSize(Vector2 size);
 
   /**
    * @copydoc Dali::CanvasRenderer::GetSize()
    */
-  virtual Vector2 GetSize() const;
+  Vector2 GetSize() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::SetViewBox()
    */
-  virtual bool SetViewBox(const Vector2& viewBox);
+  bool SetViewBox(const Vector2& viewBox);
 
   /**
    * @copydoc Dali::CanvasRenderer::GetViewBox()
    */
-  virtual const Vector2& GetViewBox();
+  const Vector2& GetViewBox();
 
-  CanvasRenderer(const CanvasRenderer&) = delete;
-  CanvasRenderer& operator=(CanvasRenderer&) = delete;
-  CanvasRenderer(CanvasRenderer&&)           = delete;
+private:
+  CanvasRenderer()                            = delete;
+  CanvasRenderer(const CanvasRenderer&)       = delete;
+  CanvasRenderer& operator=(CanvasRenderer&)  = delete;
+  CanvasRenderer(CanvasRenderer&&)            = delete;
   CanvasRenderer& operator=(CanvasRenderer&&) = delete;
+
+  /**
+   * @brief Create and set target buffer
+   * @param[in] viewBox The size of buffer.
+   */
+  void MakeTargetBuffer(const Vector2& size);
+
+#ifdef THORVG_SUPPORT
+  /**
+   * @brief Get drawables changed status.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @return Returns whether drawables have changed.
+   */
+  bool HaveDrawablesChanged(const Dali::CanvasRenderer::Drawable& drawable) const;
+
+  /**
+   * @brief Update drawables changed status.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @param[in] changed The state of changed.
+   */
+  void UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable& drawable, bool changed);
+
+  /**
+   * @brief Push drawable object to parent.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @param[in] group The scene object of tvg that can be drawable group.
+   */
+  void PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawable, tvg::Scene* group);
+#endif
+
+protected:
+  /**
+   * @brief Constructor.
+   * @param[in] viewBox The viewBox of canvas.
+   */
+  CanvasRenderer(const Vector2& viewBox);
+
+  /**
+   * @brief Destructor.
+   */
+  virtual ~CanvasRenderer();
+
+  /**
+   * @brief Initializes member data.
+   * @param[in] viewBox The viewBox of canvas.
+   */
+  void Initialize(const Vector2& viewBox);
+
+protected: // Seperated by platforms
+  /**
+   * @copydoc Dali::CanvasRenderer::GetRasterizedTexture()
+   */
+  virtual Dali::Texture OnGetRasterizedTexture() = 0;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Rasterize()
+   */
+  virtual bool OnRasterize() = 0;
+
+  /**
+   * @copydoc CanvasRenderer::MakeTargetBuffer()
+   */
+  virtual void OnMakeTargetBuffer(const Vector2& size) = 0;
+
+protected:
+#ifdef THORVG_SUPPORT
+  Dali::Texture                  mRasterizedTexture;
+  Dali::Mutex                    mMutex;
+  std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
+  tvg::Scene*                    mTvgRoot;
+#endif
+  DrawableGroup::DrawableVector mDrawables;
+
+  Vector2 mSize;
+  Vector2 mViewBox;
+  bool    mChanged;
 };
 
 } // namespace Adaptor

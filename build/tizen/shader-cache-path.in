@@ -25,8 +25,17 @@
 std::string GetSystemProgramBinaryPath()
 {
 #if ANDROID
-  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/shader/";
+  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/shader/internal/";
 #else
-  return std::string( "@cachePath@/.cache/dali_common_caches/shader/" );
+  return std::string( "@cachePath@/.cache/dali_common_caches/shader/internal/" );
+#endif
+}
+
+std::string GetCustomProgramBinaryPath()
+{
+#if ANDROID
+  return Dali::Integration::AndroidFramework::Get().GetInternalDataPath() + "/dali_common_caches/shader/custom/";
+#else
+  return std::string( "@cachePath@/.cache/dali_common_caches/shader/custom/" );
 #endif
 }

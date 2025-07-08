@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,104 @@
 // CLASS HEADER
 #include <dali/internal/canvas-renderer/common/radial-gradient-impl.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/canvas-renderer/common/gradient-impl.h>
+
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
-RadialGradient::RadialGradient() = default;
-
-RadialGradient::~RadialGradient() = default;
-
-bool RadialGradient::SetBounds(const Vector2 centerPoint, float radius)
+namespace // unnamed namespace
 {
+// Type Registration
+Dali::BaseHandle Create()
+{
+  return Dali::CanvasRenderer::RadialGradient::New();
+}
+
+Dali::TypeRegistration type(typeid(Dali::CanvasRenderer::RadialGradient), typeid(Dali::CanvasRenderer::Gradient), Create);
+
+} // unnamed namespace
+
+RadialGradientPtr RadialGradient::New()
+{
+  auto* radialGradient = new RadialGradient();
+  radialGradient->Initialize();
+  return radialGradient;
+}
+
+RadialGradient::RadialGradient()
+#ifdef THORVG_SUPPORT
+: mTvgRadialGradient(nullptr)
+#endif
+{
+}
+
+RadialGradient::~RadialGradient()
+{
+}
+
+void RadialGradient::Initialize()
+{
+#ifdef THORVG_SUPPORT
+  mTvgRadialGradient = tvg::RadialGradient::gen().release();
+  if(!mTvgRadialGradient)
+  {
+    DALI_LOG_ERROR("RadialGradient is null [%p]\n", this);
+  }
+
+  Gradient::SetObject(static_cast<void*>(mTvgRadialGradient));
+#endif
+}
+
+bool RadialGradient::SetBounds(Vector2 centerPoint, float radius)
+{
+#ifdef THORVG_SUPPORT
+  if(!Gradient::GetObject() || !mTvgRadialGradient)
+  {
+    DALI_LOG_ERROR("RadialGradient is null\n");
+    return false;
+  }
+
+  if(mTvgRadialGradient->radial(centerPoint.x, centerPoint.y, radius) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("SetBounds() fail.\n");
+    return false;
+  }
+
+  Gradient::SetChanged(true);
+
+  return true;
+#else
   return false;
+#endif
 }
 
 bool RadialGradient::GetBounds(Vector2& centerPoint, float& radius) const
 {
+#ifdef THORVG_SUPPORT
+  if(!Gradient::GetObject() || !mTvgRadialGradient)
+  {
+    DALI_LOG_ERROR("RadialGradient is null\n");
+    return false;
+  }
+
+  if(mTvgRadialGradient->radial(&centerPoint.x, &centerPoint.y, &radius) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("GetBounds() fail.\n");
+    return false;
+  }
+
+  return true;
+#else
   return false;
+#endif
 }
 
 } // namespace Adaptor

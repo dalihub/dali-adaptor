@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,24 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/tizen/shape-impl-tizen.h>
+// HEADER
+#include <dali/internal/graphics/common/graphics-backend-impl.h>
 
-namespace Dali
+namespace Dali::Graphics::Internal
 {
-namespace Internal
+namespace
 {
-namespace Adaptor
-{
-namespace ShapeFactory
-{
-Dali::Internal::Adaptor::Shape* New()
-{
-  return Dali::Internal::Adaptor::ShapeTizen::New();
+std::string gBackendInformation;
 }
 
-} // namespace ShapeFactory
+const std::string& GetBackendInformation()
+{
+  return gBackendInformation;
+}
 
-} // namespace Adaptor
+void SetBackendInformation(std::string&& backendInformation)
+{
+  gBackendInformation = std::move(backendInformation);
+}
 
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Graphics::Internal

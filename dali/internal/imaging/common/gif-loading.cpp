@@ -1372,7 +1372,15 @@ bool WalkThroughGifRecords(
 
             if(lastPreservedFrame)
             {
-              memcpy(thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t));
+              if(DALI_LIKELY(lastPreservedFrame->data))
+              {
+                memcpy(thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t));
+              }
+              else
+              {
+                DALI_LOG_ERROR("LOAD_ERROR_LAST_PRESERVED_FRAME_HAVE_NO_DATA");
+                return false;
+              }
             }
           }
         }
@@ -1596,9 +1604,9 @@ public:
   }
 
   // Moveable but not copyable
-  Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
-  Impl(Impl&&) noexcept        = default;
+  Impl(const Impl&)                = delete;
+  Impl& operator=(const Impl&)     = delete;
+  Impl(Impl&&) noexcept            = default;
   Impl& operator=(Impl&&) noexcept = default;
 
   std::string     mUrl;

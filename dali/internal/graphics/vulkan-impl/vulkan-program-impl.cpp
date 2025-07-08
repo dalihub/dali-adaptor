@@ -77,6 +77,7 @@ struct ProgramImpl::Impl
   std::unique_ptr<Vulkan::Reflection> reflection{nullptr};
 
   std::vector<vk::PipelineShaderStageCreateInfo> mPipelineShaderStageCreateInfoList;
+  std::vector<ShaderHandle>                      mShaderList;
 
   struct DescriptorPool
   {
@@ -101,6 +102,10 @@ ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGr
     {
       auto shader     = static_cast<const Vulkan::Shader*>(state.shader);
       auto shaderImpl = shader->GetImplementation();
+
+      // Keep shader object alive
+      mImpl->mShaderList.push_back(shaderImpl);
+
       if(!shaderImpl->Compile())
       {
         DALI_LOG_ERROR("SPIRV Compilation failed!\n");

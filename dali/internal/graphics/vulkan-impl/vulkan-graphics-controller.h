@@ -39,6 +39,7 @@ class Surface;
 class Buffer;
 class Sampler;
 class Texture;
+class SamplerImpl;
 
 /**
  * Class to manage the vulkan graphics backend. This is the main object that clients interact
@@ -453,7 +454,22 @@ public: // Other API
 
   void FrameStart();
 
+  /**
+   * @brief Reset the DidPresent flag to false at the start of each frame.
+   * It will be set to true when the render target is presented.
+   * More detail, at VulkanGraphicsController::PresentRenderTarget(), swapchain present successfully.
+   */
+  void ResetDidPresent();
+
+  /**
+   * @brief Check if the render target was presented in the last frame.
+   * This is used to determine if the frame was successfully presented to the display.
+   *
+   * @return true if the render target was presented, false otherwise.
+   */
   bool DidPresent() const;
+
+  SamplerImpl* GetDefaultSampler();
 
 public: // For debug
   std::size_t GetCapacity() const;

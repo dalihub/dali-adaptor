@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +17,13 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/ubuntu/picture-impl-ubuntu.h>
-
-namespace Dali
+namespace Dali::Internal::Adaptor::GraphicsLibrary
 {
-namespace Internal
-{
-namespace Adaptor
-{
-namespace PictureFactory
-{
-Dali::Internal::Adaptor::Picture* New()
-{
-  return Dali::Internal::Adaptor::PictureUbuntu::New();
-}
+/**
+ * Retrieves the mode used for opening the graphics libraries
+ * @return The mode used to open the graphics libraries.
+ * @note This is required as it could be different on different platforms
+ */
+int GetLibraryOpenMode();
 
-} // namespace PictureFactory
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor::GraphicsLibrary

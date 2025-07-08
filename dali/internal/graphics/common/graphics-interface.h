@@ -357,7 +357,14 @@ public:
   virtual void FrameStart() = 0;
 
   /**
-   * @return true if any rendering data was presented
+   * @return true if rendering data need to be presented forcibly.
+   */
+  virtual bool ForcePresentRequired() = 0;
+
+  /**
+   * Get whether any rendering data was presented for the latest used RenderSurfaceInterface.
+   * @note This will reset the presented flag internally, so it should be called only once per each surface.
+   * @return true if any rendering data was presented for the latest used RenderSurfaceInterface.
    */
   virtual bool DidPresent() = 0;
 
