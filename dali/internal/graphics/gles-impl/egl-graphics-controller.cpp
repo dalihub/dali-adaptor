@@ -213,7 +213,7 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
   GLES::Framebuffer::SetSharedContext(mCurrentContext);
 
   static auto enableShaderUseProgramBinaryString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SHADER_USE_PROGRAM_BINARY);
-  mUseProgramBinary                              = enableShaderUseProgramBinaryString ? std::atoi(enableShaderUseProgramBinaryString) : false;
+  mUseProgramBinary                              = enableShaderUseProgramBinaryString ? std::atoi(enableShaderUseProgramBinaryString) : true; // change default
 }
 
 void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
