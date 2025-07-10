@@ -317,8 +317,6 @@ void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
 
 void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget)
 {
-  mCurrentContext->InvalidateDepthStencilBuffers();
-
   if(DALI_LIKELY(renderTarget) && renderTarget->GetCreateInfo().surface)
   {
     auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(renderTarget->GetCreateInfo().surface);

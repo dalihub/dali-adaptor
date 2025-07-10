@@ -50,8 +50,7 @@ inline bool memcmp4(A* a, B* b, size_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++)
-    ;
+  while(size-- && *pa++ == *pb++);
   return (-1u == size);
 };
 } // namespace
@@ -1006,6 +1005,11 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
       // Need to call glFlush or eglSwapBuffer after create sync object.
       gl->Flush();
     }
+
+    if(DALI_LIKELY(gl) && framebuffer)
+    {
+      InvalidateDepthStencilRenderBuffers(framebuffer);
+    }
   }
 }
 
@@ -1049,6 +1053,24 @@ void Context::ClearUniformBufferCache()
   mImpl->mUniformBufferBindingCache.Clear();
 }
 
+void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
+{
+  auto* gl = mImpl->GetGL();
+  if(DALI_LIKELY(gl && framebuffer))
+  {
+    if(framebuffer->GetGlStencilBufferId() != 0u)
+    {
+      GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
+      gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+    }
+    else if(framebuffer->GetGlDepthBufferId() != 0u)
+    {
+      GLenum attachment = GL_DEPTH;
+      gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachment);
+    }
+  }
+}
+
 void Context::ColorMask(bool enabled)
 {
   auto* gl = mImpl->GetGL();
@@ -1077,20 +1099,6 @@ void Context::ClearBuffer(uint32_t mask, bool forceClear)
   {
     gl->Clear(mask);
   }
-}
-
-void Context::InvalidateDepthStencilBuffers()
-{
-#ifndef DALI_PROFILE_TV
-  auto* gl = mImpl->GetGL();
-  if(DALI_LIKELY(gl))
-  {
-    GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
-    gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
-  }
-#else
-  // Since TV driver throw useless gles error when we invalidate GL_DEPTH and GL_STENCIL to framebuffer, let we don't invalidate framebuffer for TV. 2025-02-24 eunkiki.hong@samsung.com
-#endif
 }
 
 void Context::SetScissorTestEnabled(bool scissorEnabled)
