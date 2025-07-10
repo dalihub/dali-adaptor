@@ -347,7 +347,29 @@ void NativeImageSourceQueueTizen::DestroyResource()
 
 uint32_t NativeImageSourceQueueTizen::TargetTexture()
 {
-  return 0;
+  if(DALI_LIKELY(mEglImageExtensions))
+  {
+    if(mConsumeSurface)
+    {
+      auto iter = mEglImages.find(mConsumeSurface);
+      if(iter == mEglImages.end())
+      {
+        // Push the surface
+        tbm_surface_internal_ref(mConsumeSurface);
+
+        void* eglImageKHR = mEglImageExtensions->CreateImageKHR(reinterpret_cast<EGLClientBuffer>(mConsumeSurface));
+        mEglImageExtensions->TargetTextureKHR(eglImageKHR);
+
+        mEglImages.insert({mConsumeSurface, eglImageKHR});
+      }
+      else
+      {
+        mEglImageExtensions->TargetTextureKHR(iter->second);
+      }
+    }
+    return 0;
+  }
+  return 1; // error case
 }
 
 void NativeImageSourceQueueTizen::PrepareTexture()
@@ -389,25 +411,6 @@ void NativeImageSourceQueueTizen::PrepareTexture()
     {
       ResetEglImageList(false);
       mIsResized = false;
-    }
-
-    if(mConsumeSurface)
-    {
-      auto iter = mEglImages.find(mConsumeSurface);
-      if(iter == mEglImages.end())
-      {
-        // Push the surface
-        tbm_surface_internal_ref(mConsumeSurface);
-
-        void* eglImageKHR = mEglImageExtensions->CreateImageKHR(reinterpret_cast<EGLClientBuffer>(mConsumeSurface));
-        mEglImageExtensions->TargetTextureKHR(eglImageKHR);
-
-        mEglImages.insert({mConsumeSurface, eglImageKHR});
-      }
-      else
-      {
-        mEglImageExtensions->TargetTextureKHR(iter->second);
-      }
     }
   }
 

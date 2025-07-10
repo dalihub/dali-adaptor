@@ -32,8 +32,8 @@
 namespace
 {
 // These match the GL specification
-//const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
-//const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
+// const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
+// const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
 const int32_t GL_WRAP_DEFAULT = GL_CLAMP_TO_EDGE;
 
 // These are the Dali defaults
@@ -198,7 +198,7 @@ bool Texture::InitializeTexture()
       Graphics::GLES::GLTextureFormatType format(mCreateInfo.format);
 
       // TODO: find better condition, with this test the L8 doesn't work
-      if(1) //format.format && format.type)
+      if(1) // format.format && format.type)
       {
         // Bind texture
         gl->GenTextures(1, &texture);
@@ -395,10 +395,18 @@ void Texture::Bind(const TextureBinding& binding) const
 void Texture::Prepare()
 {
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
-  if(nativeImage && !IsPrepared())
+  if(nativeImage)
   {
-    mIsPrepared = true;
-    nativeImage->PrepareTexture();
+    if(!mIsPrepared)
+    {
+      mIsPrepared = true;
+      nativeImage->PrepareTexture();
+    }
+
+    // NOTE : We should call TargetTextureKHR per each context.
+    // TODO : Could we target texture only if context changed?
+    //        For now, their is no way to detect it as good way. So just call it always.
+    nativeImage->TargetTexture();
   }
 }
 
@@ -414,9 +422,8 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
     return false;
   }
 
-  auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item) {
-    return item.srcFormat == srcFormat && item.destFormat == destFormat;
-  });
+  auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item)
+                         { return item.srcFormat == srcFormat && item.destFormat == destFormat; });
 
   // No suitable format, return empty array
   if(it == GetColorConversionTable().end())

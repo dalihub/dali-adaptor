@@ -592,10 +592,7 @@ void NativeImageSourceTizen::PrepareTexture()
       mEglImageKHR = NULL;
     }
 
-    if(CreateResource())
-    {
-      TargetTexture();
-    }
+    CreateResource();
 
     mSetSource = false;
   }
