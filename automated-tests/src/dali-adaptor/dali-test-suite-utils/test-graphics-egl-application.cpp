@@ -218,6 +218,8 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
+
+  mGraphicsController.PostRender();
   mCore->PostRender();
 
   mFrame++;
@@ -239,6 +241,8 @@ bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& da
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
+
+  mGraphicsController.PostRender();
   mCore->PostRender();
 
   mFrame++;
@@ -276,6 +280,8 @@ bool TestGraphicsApplication::RenderOnly()
   mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
+
+  mGraphicsController.PostRender();
   mCore->PostRender();
 
   mFrame++;

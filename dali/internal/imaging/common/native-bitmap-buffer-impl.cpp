@@ -52,7 +52,7 @@ NativeBitmapBuffer::~NativeBitmapBuffer()
   delete mBuffer;
 }
 
-void NativeBitmapBuffer::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeBitmapBuffer::PrepareTexture()
 {
   DALI_ASSERT_ALWAYS(mBuffer);
   GLenum pixelFormat   = GL_RGBA;
@@ -62,12 +62,25 @@ void NativeBitmapBuffer::PrepareTexture()
 
   const uint8_t* buf = mBuffer->Read();
 
+  bool updated = false;
+
   if(buf && buf != mLastReadBuffer) // Prevent same buffer being uploaded multiple times
   {
     mLastReadBuffer = buf;
 
+    updated = true;
+
     // The active texture has already been set to a sampler and bound.
     mGlAbstraction->TexImage2D(GL_TEXTURE_2D, 0, pixelFormat, mWidth, mHeight, 0, pixelFormat, pixelDataType, buf);
+  }
+
+  if(DALI_LIKELY(mLastReadBuffer))
+  {
+    return updated ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+  }
+  else
+  {
+    return mGlAbstraction ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
   }
 }
 

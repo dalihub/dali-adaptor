@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
    */
-  void PrepareTexture() override;
+  Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
@@ -233,11 +233,13 @@ private:
   EglGraphics*                         mEglGraphics;                 ///< EGL Graphics
   EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
   std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
-  bool                                 mOwnTbmSurface : 1;           ///< Whether we created pixmap or not
-  bool                                 mBlendingRequired : 1;        ///< Whether blending is required
-  bool                                 mSetSource : 1;
-  bool                                 mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
-  bool                                 mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
+
+  bool mOwnTbmSurface : 1;    ///< Whether we created pixmap or not
+  bool mBlendingRequired : 1; ///< Whether blending is required
+  bool mEglImageChanged : 1;  ///< Whether EGLImage changed or not. Reset flag as false at PrepareTexture().
+  bool mSetSource : 1;
+  bool mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
+  bool mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
 };
 
 } // namespace Adaptor

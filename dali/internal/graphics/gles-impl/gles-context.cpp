@@ -35,10 +35,13 @@
 
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace
 {
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+
+constexpr uint32_t CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD = 100u;
 
 /**
  * Memory compare working on 4-byte types. Since all types used in shaders are
@@ -304,6 +307,7 @@ struct Context::Impl
   const GLES::PipelineImpl* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
 
   Dali::Vector<Graphics::TextureBinding> mCurrentTextureBindings{};
+  std::unordered_set<GLES::Texture*>     mPreparedNativeTextures{};
 
   GLES::IndexBufferBindingDescriptor mCurrentIndexBufferBinding{};
 
@@ -352,6 +356,8 @@ Context::Context(EglGraphicsController& controller, Integration::GlAbstraction* 
 
 Context::~Context()
 {
+  ClearCachedNativeTexture();
+
   // Destroy native rendering context if one exists
   if(mImpl->mNativeDrawContext)
   {
@@ -454,9 +460,17 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     dependencyChecker.CheckNeedsSync(this, texture, true);
     texture->Bind(binding);
 
-    if(texture->IsNativeTexture())
+    // Should call Prepare only if native texture resource created.
+    if(texture->GetGLTexture() && texture->IsNativeTexture())
     {
-      texture->Prepare();
+      if(DALI_UNLIKELY(!texture->PrepareNativeTexture(this)))
+      {
+        DALI_LOG_ERROR("[ERROR] NativeImage prepare failed! Do not render it\n");
+        needDraw = false;
+      }
+
+      // Must call it after Prepare(), and must cache even if prepare failed.
+      mImpl->mPreparedNativeTextures.insert(texture);
       dependencyChecker.MarkNativeTexturePrepared(texture);
     }
 
@@ -1008,6 +1022,12 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
       InvalidateDepthStencilRenderBuffers(framebuffer);
     }
   }
+
+  // Remove native texture list if it stored too many items.
+  if(DALI_UNLIKELY(mImpl->mPreparedNativeTextures.size() > CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD))
+  {
+    ClearCachedNativeTexture();
+  }
 }
 
 void Context::ReadPixels(uint8_t* buffer)
@@ -1048,6 +1068,16 @@ void Context::ClearVertexBufferCache()
 void Context::ClearUniformBufferCache()
 {
   mImpl->mUniformBufferBindingCache.Clear();
+}
+
+void Context::ClearCachedNativeTexture()
+{
+  DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
+  for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
+  {
+    nativeTexture->InvalidateCachedContext(this);
+  }
+  mImpl->mPreparedNativeTextures.clear();
 }
 
 void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
@@ -1348,6 +1378,14 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   }
 }
 
+void Context::InvalidateCachedNativeTexture(GLES::Texture* nativeTexture)
+{
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    mImpl->mPreparedNativeTextures.erase(nativeTexture);
+  }
+}
+
 void Context::PrepareForNativeRendering()
 {
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
@@ -1433,6 +1471,7 @@ void Context::ResetGLESState()
   ClearState();
   ResetBufferCache();
   ClearVertexBufferCache();
+  ClearCachedNativeTexture();
   mImpl->InitializeGlState();
 }
 

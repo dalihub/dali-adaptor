@@ -372,7 +372,7 @@ uint32_t NativeImageSourceQueueTizen::TargetTexture()
   return 1; // error case
 }
 
-void NativeImageSourceQueueTizen::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::PrepareTexture()
 {
   Dali::Mutex::ScopedLock lock(mMutex);
 
@@ -387,7 +387,7 @@ void NativeImageSourceQueueTizen::PrepareTexture()
       if(tbm_surface_queue_acquire(mTbmQueue, &mConsumeSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
       {
         DALI_LOG_ERROR("Failed to aquire a tbm_surface\n");
-        return;
+        return Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
       }
 
       if(oldSurface)
@@ -434,6 +434,15 @@ void NativeImageSourceQueueTizen::PrepareTexture()
 
     tbm_surface_queue_free_flush(mTbmQueue);
     mFreeRequest = false;
+  }
+
+  if(DALI_LIKELY(mConsumeSurface))
+  {
+    return updated ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+  }
+  else
+  {
+    return mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
   }
 }
 

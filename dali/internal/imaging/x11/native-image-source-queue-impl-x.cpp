@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,8 +94,9 @@ uint32_t NativeImageSourceQueueX::TargetTexture()
   return 0;
 }
 
-void NativeImageSourceQueueX::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueX::PrepareTexture()
 {
+  return Dali::NativeImageInterface::PrepareTextureResult::NOT_SUPPORTED;
 }
 
 bool NativeImageSourceQueueX::ApplyNativeFragmentShader(std::string& shader)

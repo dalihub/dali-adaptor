@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ NativeImageSourceWin::NativeImageSourceWin(uint32_t width, uint32_t height, Dali
   mPixmap(0),
   mBlendingRequired(false),
   mColorDepth(depth),
+  mEglImageChanged(false),
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
@@ -154,7 +155,8 @@ bool NativeImageSourceWin::CreateResource()
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mPixmap);
 
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageKHR     = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageChanged = true;
 
   return mEglImageKHR != NULL;
 }
@@ -163,7 +165,8 @@ void NativeImageSourceWin::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
-  mEglImageKHR = NULL;
+  mEglImageKHR     = NULL;
+  mEglImageChanged = true;
 
   if(mResourceDestructionCallback)
   {
@@ -178,8 +181,20 @@ uint32_t NativeImageSourceWin::TargetTexture()
   return 0;
 }
 
-void NativeImageSourceWin::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceWin::PrepareTexture()
 {
+  Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+  if(DALI_LIKELY(mEglImageKHR))
+  {
+    result           = mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mEglImageChanged = false;
+  }
+  else
+  {
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+  }
+
+  return result;
 }
 
 int NativeImageSourceWin::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const

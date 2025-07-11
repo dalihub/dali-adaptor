@@ -88,6 +88,7 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
   mResourceDestructionCallback(),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
+  mEglImageChanged(false),
   mSetSource(false),
   mIsBufferAcquired(false),
   mBackBufferEnabled(false)
@@ -547,6 +548,10 @@ bool NativeImageSourceTizen::CreateResource()
   {
     DALI_LOG_ERROR("Fail to CreateImageKHR\n");
   }
+  else
+  {
+    mEglImageChanged = true;
+  }
 
   return mEglImageKHR != NULL;
 }
@@ -560,6 +565,8 @@ void NativeImageSourceTizen::DestroyResource()
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
     mEglImageKHR = NULL;
+
+    mEglImageChanged = true;
   }
 
   if(mResourceDestructionCallback)
@@ -578,7 +585,7 @@ uint32_t NativeImageSourceTizen::TargetTexture()
   return 0;
 }
 
-void NativeImageSourceTizen::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizen::PrepareTexture()
 {
   std::scoped_lock lock(mMutex);
   if(mSetSource)
@@ -593,9 +600,20 @@ void NativeImageSourceTizen::PrepareTexture()
     }
 
     CreateResource();
-
-    mSetSource = false;
   }
+
+  Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+  if(DALI_LIKELY(mEglImageKHR))
+  {
+    result           = mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mEglImageChanged = false;
+  }
+  else
+  {
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+  }
+
+  return result;
 }
 
 bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader)

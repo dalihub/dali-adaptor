@@ -179,6 +179,13 @@ public:
   void InvalidateCachedPipeline(GLES::Pipeline* pipeline);
 
   /**
+   * @brief Invalidates the cached native texture whenever given context prepared before.
+   *
+   * @param[in] nativeTexture The native texture which might be cached in this context.
+   */
+  void InvalidateCachedNativeTexture(GLES::Texture* nativeTexture);
+
+  /**
    * @brief Sets up EGL context for native rendering
    *
    * - The native rendering uses dedicated context
@@ -250,6 +257,11 @@ private:
    * @brief Clear cached bind buffer state
    */
   void ClearUniformBufferCache();
+
+  /**
+   * @brief Clear cached native textures and notify to invalidate this context.
+   */
+  void ClearCachedNativeTexture();
 
 private:
   struct Impl;
