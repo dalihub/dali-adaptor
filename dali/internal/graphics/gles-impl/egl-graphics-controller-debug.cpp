@@ -159,7 +159,7 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
                 cmd.draw.draw.vertexCount,
                 cmd.draw.draw.instanceCount,
                 cmd.draw.draw.firstInstance,
-                cmd.draw.draw.firstVertex);
+                cmd.draw.firstOffset);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED:
@@ -169,12 +169,10 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
                 " \"indexCount\":%d,\n"
                 " \"vertexOffset\":%d,\n"
                 " \"firstIndex\":%d,\n"
-                " \"firstInstance\":%d,\n"
                 " \"instanceCount\":%d}\n",
                 cmd.draw.drawIndexed.indexCount,
                 cmd.draw.drawIndexed.vertexOffset,
-                cmd.draw.drawIndexed.firstIndex,
-                cmd.draw.drawIndexed.firstInstance,
+                cmd.draw.firstOffset,
                 cmd.draw.drawIndexed.instanceCount);
         break;
       }
@@ -190,7 +188,7 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
                 " \"offset\":%d,\n"
                 " \"drawCount\":%d,\n"
                 " \"stride\":%d}\n",
-                cmd.draw.drawIndexedIndirect.offset,
+                cmd.draw.firstOffset,
                 cmd.draw.drawIndexedIndirect.drawCount,
                 cmd.draw.drawIndexedIndirect.stride);
         break;
@@ -278,22 +276,23 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
 
       case GLES::CommandType::BEGIN_RENDERPASS:
       {
+        const GLES::BeginRenderPassDescriptor& descriptor = *(cmd.beginRenderPass.descriptor.Ptr());
         fprintf(output,
                 "{\"Cmd\":\"BEGIN_RENDER_PASS\",\n"
                 "\"renderTarget\":\"%p\",\n"
                 "\"renderPass\":\"%p\",\n"
                 "\"renderArea\":[%d,%d,%d,%d],\n",
-                cmd.beginRenderPass.renderTarget,
-                cmd.beginRenderPass.renderPass,
-                cmd.beginRenderPass.renderArea.x,
-                cmd.beginRenderPass.renderArea.y,
-                cmd.beginRenderPass.renderArea.width,
-                cmd.beginRenderPass.renderArea.height);
+                descriptor.renderTarget,
+                descriptor.renderPass,
+                descriptor.renderArea.x,
+                descriptor.renderArea.y,
+                descriptor.renderArea.width,
+                descriptor.renderArea.height);
         fprintf(output, "\"clearValues\":[");
         bool firstV = true;
-        for(auto i = 0u; i < cmd.beginRenderPass.clearValuesCount; ++i)
+        for(auto i = 0u; i < descriptor.clearValuesCount; ++i)
         {
-          auto value = cmd.beginRenderPass.clearValues.Ptr()[i];
+          auto value = descriptor.clearValues.Ptr()[i];
           if(!firstV)
           {
             fprintf(output, ",");
@@ -303,7 +302,7 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const GLES::CommandBuffer* 
         }
         fprintf(output, "]\n}");
 
-        frameDump.renderTargets.insert(cmd.beginRenderPass.renderTarget);
+        frameDump.renderTargets.insert(descriptor.renderTarget);
         break;
       }
       case GLES::CommandType::END_RENDERPASS:

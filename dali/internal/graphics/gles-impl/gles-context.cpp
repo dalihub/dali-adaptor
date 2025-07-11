@@ -43,6 +43,9 @@ DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRES
 
 constexpr uint32_t CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD = 100u;
 
+constexpr uint32_t CPU_ALLOCATED_UBO_INDEX       = 0u;
+constexpr uint32_t GPU_ALLOCATED_UBO_INDEX_BEGIN = 1u;
+
 /**
  * Memory compare working on 4-byte types. Since all types used in shaders are
  * size of 4*N then no need for size and alignment checks.
@@ -316,7 +319,6 @@ struct Context::Impl
 
   // Currently bound UBOs (check if it's needed per program!)
   Dali::Vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
-  UniformBufferBindingDescriptor               mCurrentStandaloneUBOBinding{};
 
   // Keep bind buffer range. Should be cleared if program changed.
   Dali::Vector<UniformBufferBindingDescriptor> mUniformBufferBindingCache;
@@ -575,13 +577,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         if(drawCall.draw.instanceCount == 0)
         {
           gl->DrawArrays(GLESTopology(ia->topology),
-                         drawCall.draw.firstVertex,
+                         drawCall.firstOffset,
                          drawCall.draw.vertexCount);
         }
         else
         {
           gl->DrawArraysInstanced(GLESTopology(ia->topology),
-                                  drawCall.draw.firstVertex,
+                                  drawCall.firstOffset,
                                   drawCall.draw.vertexCount,
                                   drawCall.draw.instanceCount);
         }
@@ -602,26 +604,78 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
           mImpl->FlushVertexAttributeLocations();
         }
 
-        auto indexBufferFormat = GLIndexFormat(binding.format).format;
+        auto     indexBufferFormat = GLIndexFormat(binding.format).format;
+        uint32_t offset            = binding.offset + drawCall.firstOffset; ///< Already byte value by buffer format at Render::Geometry
         if(drawCall.drawIndexed.instanceCount == 0)
         {
-          gl->DrawElements(GLESTopology(ia->topology),
-                           drawCall.drawIndexed.indexCount,
-                           indexBufferFormat,
-                           reinterpret_cast<void*>(binding.offset));
+          if(drawCall.drawIndexed.vertexOffset == 0)
+          {
+            gl->DrawElements(GLESTopology(ia->topology),
+                             drawCall.drawIndexed.indexCount,
+                             indexBufferFormat,
+                             reinterpret_cast<void*>(offset));
+          }
+          else
+          {
+            // // TODO : Implement DrawElementsBaseVertex here. Support over OpenGL ES 3.2
+            // gl->DrawElementsBaseVertex(GLESTopology(ia->topology),
+            //                            drawCall.drawIndexed.indexCount,
+            //                            indexBufferFormat,
+            //                            reinterpret_cast<void*>(offset),
+            //                            drawCall.drawIndexed.vertexOffset);
+          }
         }
         else
         {
-          gl->DrawElementsInstanced(GLESTopology(ia->topology),
-                                    drawCall.drawIndexed.indexCount,
-                                    indexBufferFormat,
-                                    reinterpret_cast<void*>(binding.offset),
-                                    drawCall.drawIndexed.instanceCount);
+          if(drawCall.drawIndexed.vertexOffset == 0)
+          {
+            gl->DrawElementsInstanced(GLESTopology(ia->topology),
+                                      drawCall.drawIndexed.indexCount,
+                                      indexBufferFormat,
+                                      reinterpret_cast<void*>(offset),
+                                      drawCall.drawIndexed.instanceCount);
+          }
+          else
+          {
+            // // TODO : Implement DrawElementsInstancedBaseVertex here. Support over OpenGL ES 3.2
+            // gl->DrawElementsInstancedBaseVertex(GLESTopology(ia->topology),
+            //                                     drawCall.drawIndexed.indexCount,
+            //                                     indexBufferFormat,
+            //                                     reinterpret_cast<void*>(offset),
+            //                                     drawCall.drawIndexed.instanceCount,
+            //                                     drawCall.drawIndexed.vertexOffset);
+          }
         }
         break;
       }
       case DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT:
       {
+        // // TODO : Implement DrawElementsIndirect here. Support over OpenGL ES 3.1
+        // BindBuffer(GL_DRAW_INDIRECT_BUFFER, drawCall.drawIndexedIndirect.buffer->GetGLBuffer());
+
+        // const auto& binding = mImpl->mCurrentIndexBufferBinding;
+        // BindBuffer(GL_ELEMENT_ARRAY_BUFFER, binding.buffer->GetGLBuffer());
+
+        // mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+        //                                                           mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+        //                                                           mImpl->mGlStateCache.StencilBufferWriteEnabled());
+
+        // // For GLES3+ we use VAO, for GLES2 internal cache
+        // if(!hasGLES3)
+        // {
+        //   mImpl->FlushVertexAttributeLocations();
+        // }
+
+        // auto indexBufferFormat = GLIndexFormat(binding.format).format;
+
+        // uint32_t offset = drawCall.drawIndexedIndirect.offset;
+        // for(uint32_t drawCount = 0u; drawCount < drawCall.drawIndexedIndirect.drawCount; ++drawCount)
+        // {
+        //   gl->DrawElementsIndirect(GLESTopology(ia->topology),
+        //                           indexBufferFormat,
+        //                           reinterpret_cast<void*>(offset));
+        //   offset += drawCall.drawIndexedIndirect.stride;
+        // }
         break;
       }
     }
@@ -679,18 +733,8 @@ void Context::BindPipeline(const GLES::Pipeline* newPipeline)
 }
 
 void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindings,
-                                 uint32_t                              uboCount,
-                                 const UniformBufferBindingDescriptor& standaloneBindings)
+                                 uint32_t                              uboCount)
 {
-  if(standaloneBindings.buffer)
-  {
-    mImpl->mCurrentStandaloneUBOBinding = standaloneBindings;
-  }
-  else
-  {
-    mImpl->mCurrentStandaloneUBOBinding.buffer = nullptr;
-  }
-
   // We can assume that bindings is sorted by binding number.
   // So we can only copy the data
   mImpl->mCurrentUBOBindings.ResizeUninitialized(uboCount);
@@ -849,21 +893,25 @@ void Context::ResolveRasterizationState()
 void Context::ResolveUniformBuffers()
 {
   // Resolve standalone uniforms if we have binding
-  if(mImpl->mCurrentStandaloneUBOBinding.buffer)
+  if(DALI_LIKELY(mImpl->mCurrentUBOBindings.Count() > CPU_ALLOCATED_UBO_INDEX))
   {
-    ResolveStandaloneUniforms();
-  }
-  if(!mImpl->mCurrentUBOBindings.Empty())
-  {
-    ResolveGpuUniformBuffers();
+    if(mImpl->mCurrentUBOBindings[CPU_ALLOCATED_UBO_INDEX].buffer)
+    {
+      ResolveStandaloneUniforms(mImpl->mCurrentUBOBindings[CPU_ALLOCATED_UBO_INDEX]);
+    }
+    if(mImpl->mCurrentUBOBindings.Count() >= GPU_ALLOCATED_UBO_INDEX_BEGIN)
+    {
+      ResolveGpuUniformBuffers(mImpl->mCurrentUBOBindings.Begin() + GPU_ALLOCATED_UBO_INDEX_BEGIN, mImpl->mCurrentUBOBindings.Count() - GPU_ALLOCATED_UBO_INDEX_BEGIN);
+    }
   }
 }
 
-void Context::ResolveGpuUniformBuffers()
+void Context::ResolveGpuUniformBuffers(const UniformBufferBindingDescriptor* uboBindingPtr, uint32_t uboCount)
 {
-  mImpl->PrepareBufferRangeCache(mImpl->mCurrentUBOBindings.Count());
-  for(const auto& binding : mImpl->mCurrentUBOBindings)
+  mImpl->PrepareBufferRangeCache(uboCount);
+  while(uboCount--)
   {
+    const auto& binding = *(uboBindingPtr++);
     if(DALI_LIKELY(binding.buffer && binding.dataSize > 0u))
     {
       mImpl->BindBufferRange(binding);
@@ -871,7 +919,7 @@ void Context::ResolveGpuUniformBuffers()
   }
 }
 
-void Context::ResolveStandaloneUniforms()
+void Context::ResolveStandaloneUniforms(const UniformBufferBindingDescriptor& standaloneUniformBinding)
 {
   // Find reflection for program
   const GLES::Program* program{nullptr};
@@ -887,7 +935,7 @@ void Context::ResolveStandaloneUniforms()
 
   if(program)
   {
-    const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
+    const auto ptr = reinterpret_cast<const char*>(standaloneUniformBinding.buffer->GetCPUAllocatedAddress()) + standaloneUniformBinding.offset;
     // Update program uniforms
     program->GetImplementation()->UpdateStandaloneUniformBlock(ptr);
   }

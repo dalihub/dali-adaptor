@@ -707,7 +707,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       case GLES::CommandType::BIND_UNIFORM_BUFFER:
       {
         auto& bindings = cmd.bindUniformBuffers;
-        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindingsCount ? bindings.uniformBufferBindings.Ptr() : nullptr, bindings.uniformBufferBindingsCount, bindings.standaloneUniformsBufferBinding);
+        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindingsCount ? bindings.uniformBufferBindings.Ptr() : nullptr, bindings.uniformBufferBindingsCount);
         break;
       }
       case GLES::CommandType::BIND_INDEX_BUFFER:
@@ -813,7 +813,8 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
 
       case GLES::CommandType::BEGIN_RENDERPASS:
       {
-        auto&       renderTarget = *cmd.beginRenderPass.renderTarget;
+        const auto& descriptor   = *(cmd.beginRenderPass.descriptor);
+        auto&       renderTarget = *(descriptor.renderTarget);
         const auto& targetInfo   = renderTarget.GetCreateInfo();
 
         if(targetInfo.surface)
@@ -827,7 +828,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
           mGraphics->ActivateResourceContext();
         }
 
-        mCurrentContext->BeginRenderPass(cmd.beginRenderPass);
+        mCurrentContext->BeginRenderPass(descriptor);
 
         break;
       }
@@ -877,7 +878,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
       case GLES::CommandType::DRAW_NATIVE:
       {
-        auto* info = &cmd.drawNative.drawNativeInfo;
+        auto* info = cmd.drawNative.drawNativeInfo.Ptr();
 
         // Skip rendering for OffsreenRendering, or gles2.0 case.
         // TODO : Allow it in future!

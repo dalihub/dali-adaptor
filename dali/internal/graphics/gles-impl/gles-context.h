@@ -103,10 +103,10 @@ public:
   /**
    * @brief Binds uniform buffers to the context
    *
-   * @param[in] uboBindings real UBO binfins
-   * @param[in] standaloneBindings emulated (legacy) UBO object
+   * @param[in] uboBindings UBO bindings include emulated (legacy) UBO object
+   * @param[in] uboCount The number of UBO binding include emulated (legacy) UBO object
    */
-  void BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindings, uint32_t uboCount, const UniformBufferBindingDescriptor& standaloneBindings);
+  void BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindings, uint32_t uboCount);
 
   /**
    * @brief Resolves blend state on the currently attached pipeline
@@ -126,12 +126,12 @@ public:
   /**
    * @brief Special usecase for legacy shaders, called by ResolveUniformBuffers()
    */
-  void ResolveStandaloneUniforms();
+  void ResolveStandaloneUniforms(const UniformBufferBindingDescriptor& standaloneUniformBinding);
 
   /**
    * @brief Resolves GPU-based uniform buffers
    */
-  void ResolveGpuUniformBuffers();
+  void ResolveGpuUniformBuffers(const UniformBufferBindingDescriptor* uboBindingPtr, uint32_t uboCount);
 
   /**
    * @brief Begins render pass for specified render target
