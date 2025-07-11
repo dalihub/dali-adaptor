@@ -186,6 +186,7 @@ bool EglGraphicsController::IsShuttingDown()
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
   mSyncPool(*this),
+  mResourceInitializeFailed(false),
   mUseProgramBinary(false),
   mDidPresent(false)
 {
@@ -612,6 +613,14 @@ void EglGraphicsController::AddFramebuffer(GLES::Framebuffer& framebuffer)
 void EglGraphicsController::ProcessDiscardQueues()
 {
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_DISCARD_QUEUE");
+
+  // Remove items which initialize failed and discard.
+  if(DALI_UNLIKELY(mResourceInitializeFailed))
+  {
+    InvalidateDiscardResourceSet(mDiscardTextureSet, mCreateTextureQueue);
+    InvalidateDiscardResourceQueue(mDiscardBufferQueue, mCreateBufferQueue);
+    InvalidateDiscardResourceQueue(mDiscardFramebufferQueue, mCreateFramebufferQueue);
+  }
 
   // Process textures
   ProcessDiscardSet<GLES::Texture>(mDiscardTextureSet);
