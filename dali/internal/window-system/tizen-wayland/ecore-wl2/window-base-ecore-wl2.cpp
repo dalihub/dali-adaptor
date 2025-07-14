@@ -3369,7 +3369,7 @@ void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
   if(!display)
   {
     DALI_LOG_ERROR("Failed to get display, then application will be exit");
-    exit(1);
+    exit(0);
   }
 
   {
