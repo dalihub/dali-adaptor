@@ -868,9 +868,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           const bool willRenderToScene  = scenePreRenderStatus.HasRenderInstructionToScene(); // willRenderToScene is set if there are any render instructions with renderables.
           const bool hadRenderedToScene = scenePreRenderStatus.HadRenderInstructionToScene(); // and hadRenderedToScene is set if previous frame was.
+          const bool isRenderingSkipped = scenePreRenderStatus.IsRenderingSkipped();
 
           // Need to present if previous frame had rendered to scene.
-          bool presentRequired = hadRenderedToScene || willRenderToScene;
+          bool presentRequired = !isRenderingSkipped && (hadRenderedToScene || willRenderToScene);
 
           Rect<int> clippingRect; // Empty for fbo rendering
 
@@ -900,8 +901,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           //  * windows[0] no renderer windows[1] no renderer -> both no eglSwapBuffer
           //  * windows[0] no renderer windows[1] yes renderer -> both eglSwapBuffer (background color show now)
           //  * windows[0] yes renderer windows[1] no renderer -> both eglSwapBuffer (background color show now)
-          // To keep this logic, we should check renderer added at least once even if fullSwap is true!
-          if(!presentRequired && ((DALI_LIKELY(updateStatus.RendererAdded()) && fullSwap) || graphicsPresentRequired))
+          // To keep this logic, we should check renderer added at least once, even if fullSwap is true!
+          //
+          // And also, if rendering skip was true, render instruction was not prepared. we should not present in this case.
+          if(!presentRequired && ((DALI_LIKELY(updateStatus.RendererAdded()) && !isRenderingSkipped && fullSwap) || graphicsPresentRequired))
           {
             LOG_RENDER_SCENE("RenderThread: request present forcibly\n");
             presentRequired = true;
