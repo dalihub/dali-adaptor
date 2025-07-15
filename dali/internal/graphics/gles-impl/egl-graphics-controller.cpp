@@ -879,6 +879,13 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       {
         auto* info = &cmd.drawNative.drawNativeInfo;
 
+        // Skip rendering for OffsreenRendering, or gles2.0 case.
+        // TODO : Allow it in future!
+        if(!info->glesNativeInfo.useOwnEglContext && mCurrentContext == mContext.get())
+        {
+          break;
+        }
+
         // ISOLATED execution mode will isolate GL graphics context from
         // DALi renderning pipeline which is the safest way of rendering
         // the 'injected' code.
