@@ -148,14 +148,17 @@ struct Context::Impl
     auto* gl = GetGL();
     if(DALI_LIKELY(gl))
     {
+      // TODO : We just need to invalidate cache, instead of reset them as default.
+      // InitializeGlState() Could be called by DrawNative case, which we should match as cached info and real gl state.
       mGlStateCache.mClearColorSet        = false;
       mGlStateCache.mColorMask            = true;
       mGlStateCache.mStencilMask          = 0xFF;
-      mGlStateCache.mBlendEnabled         = false;
       mGlStateCache.mDepthBufferEnabled   = false;
       mGlStateCache.mDepthMaskEnabled     = false;
       mGlStateCache.mScissorTestEnabled   = false;
       mGlStateCache.mStencilBufferEnabled = false;
+
+      mGlStateCache.mCullFaceMode = CullMode::NONE; // By default cullface is disabled, front face is set to CCW and cull face is set to back
 
       gl->Disable(GL_DITHER);
 
@@ -163,16 +166,7 @@ struct Context::Impl
       mGlStateCache.mBoundElementArrayBufferId = 0;
       mGlStateCache.mActiveTextureUnit         = 0;
 
-      mGlStateCache.mBlendFuncSeparateSrcRGB   = BlendFactor::ONE;
-      mGlStateCache.mBlendFuncSeparateDstRGB   = BlendFactor::ZERO;
-      mGlStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
-      mGlStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
-
-      // initial state is GL_FUNC_ADD for both RGB and Alpha blend modes
-      mGlStateCache.mBlendEquationSeparateModeRGB   = BlendOp::ADD;
-      mGlStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
-
-      mGlStateCache.mCullFaceMode = CullMode::NONE; // By default cullface is disabled, front face is set to CCW and cull face is set to back
+      mGlStateCache.mBlendStateCache.InvalidateCache();
 
       // Initialze vertex attribute cache
       memset(&mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mGlStateCache.mVertexAttributeCachedState));
@@ -705,125 +699,147 @@ void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindin
 
 void Context::ResolveBlendState()
 {
-  const auto& currentBlendState = mImpl->mCurrentPipeline ? mImpl->mCurrentPipeline->GetCreateInfo().colorBlendState : nullptr;
-  const auto& newBlendState     = mImpl->mNewPipeline->GetCreateInfo().colorBlendState;
-
-  // TODO: prevent leaking the state
-  if(!newBlendState)
-  {
-    return;
-  }
-
   auto* gl = mImpl->GetGL();
   if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
 
-  if(!currentBlendState || currentBlendState->blendEnable != newBlendState->blendEnable)
+  const auto& newBlendState   = mImpl->mNewPipeline->GetCreateInfo().colorBlendState;
+  auto&       blendStateCache = mImpl->mGlStateCache.mBlendStateCache;
+
+  // Update cache data only here.
+  if(newBlendState)
   {
-    if(newBlendState->blendEnable != mImpl->mGlStateCache.mBlendEnabled)
+    if(blendStateCache.mBlendEnabled != newBlendState->blendEnable)
     {
-      mImpl->mGlStateCache.mBlendEnabled = newBlendState->blendEnable;
-      newBlendState->blendEnable ? gl->Enable(GL_BLEND) : gl->Disable(GL_BLEND);
+      blendStateCache.mBlendEnabled = newBlendState->blendEnable;
+      blendStateCache.mBlendCacheChangedFlag |= BlendStateCache::BLEND_ENABLED_CHANGED;
+    }
+
+    // Only valid values are attached if blend enbled.
+    if(newBlendState->blendEnable)
+    {
+      BlendFactor newSrcRGB(newBlendState->srcColorBlendFactor);
+      BlendFactor newDstRGB(newBlendState->dstColorBlendFactor);
+      BlendFactor newSrcAlpha(newBlendState->srcAlphaBlendFactor);
+      BlendFactor newDstAlpha(newBlendState->dstAlphaBlendFactor);
+
+      if(blendStateCache.mBlendFuncSeparateSrcRGB != newSrcRGB ||
+         blendStateCache.mBlendFuncSeparateDstRGB != newDstRGB ||
+         blendStateCache.mBlendFuncSeparateSrcAlpha != newSrcAlpha ||
+         blendStateCache.mBlendFuncSeparateDstAlpha != newDstAlpha)
+      {
+        blendStateCache.mBlendFuncSeparateSrcRGB   = newSrcRGB;
+        blendStateCache.mBlendFuncSeparateDstRGB   = newDstRGB;
+        blendStateCache.mBlendFuncSeparateSrcAlpha = newSrcAlpha;
+        blendStateCache.mBlendFuncSeparateDstAlpha = newDstAlpha;
+        blendStateCache.mBlendCacheChangedFlag |= BlendStateCache::BLEND_FUNC_CHANGED;
+      }
+
+      if(blendStateCache.mBlendEquationSeparateModeRGB != newBlendState->colorBlendOp ||
+         blendStateCache.mBlendEquationSeparateModeAlpha != newBlendState->alphaBlendOp)
+      {
+        blendStateCache.mBlendEquationSeparateModeRGB   = newBlendState->colorBlendOp;
+        blendStateCache.mBlendEquationSeparateModeAlpha = newBlendState->alphaBlendOp;
+        blendStateCache.mBlendCacheChangedFlag |= BlendStateCache::BLEND_EQUATION_CHANGED;
+      }
     }
   }
 
-  if(!newBlendState->blendEnable)
+  // Call changed blend state to gl now.
+  if(blendStateCache.mBlendCacheChangedFlag & BlendStateCache::BLEND_ENABLED_CHANGED)
+  {
+    blendStateCache.mBlendCacheChangedFlag &= ~BlendStateCache::BLEND_ENABLED_CHANGED;
+    blendStateCache.mBlendEnabled ? gl->Enable(GL_BLEND) : gl->Disable(GL_BLEND);
+  }
+
+  if(!blendStateCache.mBlendEnabled) // Early out if blend disabled
   {
     return;
   }
 
-  BlendFactor newSrcRGB(newBlendState->srcColorBlendFactor);
-  BlendFactor newDstRGB(newBlendState->dstColorBlendFactor);
-  BlendFactor newSrcAlpha(newBlendState->srcAlphaBlendFactor);
-  BlendFactor newDstAlpha(newBlendState->dstAlphaBlendFactor);
-
-  if(!currentBlendState ||
-     currentBlendState->srcColorBlendFactor != newSrcRGB ||
-     currentBlendState->dstColorBlendFactor != newDstRGB ||
-     currentBlendState->srcAlphaBlendFactor != newSrcAlpha ||
-     currentBlendState->dstAlphaBlendFactor != newDstAlpha)
+  if(blendStateCache.mBlendCacheChangedFlag & BlendStateCache::BLEND_FUNC_CHANGED)
   {
-    if((mImpl->mGlStateCache.mBlendFuncSeparateSrcRGB != newSrcRGB) ||
-       (mImpl->mGlStateCache.mBlendFuncSeparateDstRGB != newDstRGB) ||
-       (mImpl->mGlStateCache.mBlendFuncSeparateSrcAlpha != newSrcAlpha) ||
-       (mImpl->mGlStateCache.mBlendFuncSeparateDstAlpha != newDstAlpha))
+    blendStateCache.mBlendCacheChangedFlag &= ~BlendStateCache::BLEND_FUNC_CHANGED;
+    if(blendStateCache.mBlendFuncSeparateSrcRGB == blendStateCache.mBlendFuncSeparateSrcAlpha &&
+       blendStateCache.mBlendFuncSeparateDstRGB == blendStateCache.mBlendFuncSeparateDstAlpha)
     {
-      mImpl->mGlStateCache.mBlendFuncSeparateSrcRGB   = newSrcRGB;
-      mImpl->mGlStateCache.mBlendFuncSeparateDstRGB   = newDstRGB;
-      mImpl->mGlStateCache.mBlendFuncSeparateSrcAlpha = newSrcAlpha;
-      mImpl->mGlStateCache.mBlendFuncSeparateDstAlpha = newDstAlpha;
-
-      if(newSrcRGB == newSrcAlpha && newDstRGB == newDstAlpha)
-      {
-        gl->BlendFunc(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB));
-      }
-      else
-      {
-        gl->BlendFuncSeparate(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB), GLBlendFunc(newSrcAlpha), GLBlendFunc(newDstAlpha));
-      }
+      gl->BlendFunc(GLBlendFunc(blendStateCache.mBlendFuncSeparateSrcRGB),
+                    GLBlendFunc(blendStateCache.mBlendFuncSeparateDstRGB));
+    }
+    else
+    {
+      gl->BlendFuncSeparate(GLBlendFunc(blendStateCache.mBlendFuncSeparateSrcRGB),
+                            GLBlendFunc(blendStateCache.mBlendFuncSeparateDstRGB),
+                            GLBlendFunc(blendStateCache.mBlendFuncSeparateSrcAlpha),
+                            GLBlendFunc(blendStateCache.mBlendFuncSeparateDstAlpha));
     }
   }
 
-  if(!currentBlendState ||
-     currentBlendState->colorBlendOp != newBlendState->colorBlendOp ||
-     currentBlendState->alphaBlendOp != newBlendState->alphaBlendOp)
+  if(blendStateCache.mBlendCacheChangedFlag & BlendStateCache::BLEND_EQUATION_CHANGED)
   {
-    if(mImpl->mGlStateCache.mBlendEquationSeparateModeRGB != newBlendState->colorBlendOp ||
-       mImpl->mGlStateCache.mBlendEquationSeparateModeAlpha != newBlendState->alphaBlendOp)
+    blendStateCache.mBlendCacheChangedFlag &= ~BlendStateCache::BLEND_EQUATION_CHANGED;
+    if(blendStateCache.mBlendEquationSeparateModeRGB == blendStateCache.mBlendEquationSeparateModeAlpha)
     {
-      mImpl->mGlStateCache.mBlendEquationSeparateModeRGB   = newBlendState->colorBlendOp;
-      mImpl->mGlStateCache.mBlendEquationSeparateModeAlpha = newBlendState->alphaBlendOp;
-
-      if(newBlendState->colorBlendOp == newBlendState->alphaBlendOp)
+      gl->BlendEquation(GLBlendOp(blendStateCache.mBlendEquationSeparateModeRGB));
+      if(blendStateCache.mBlendEquationSeparateModeRGB >= Graphics::ADVANCED_BLEND_OPTIONS_START)
       {
-        gl->BlendEquation(GLBlendOp(newBlendState->colorBlendOp));
-        if(newBlendState->colorBlendOp >= Graphics::ADVANCED_BLEND_OPTIONS_START)
-        {
-          gl->BlendBarrier();
-        }
+        gl->BlendBarrier();
       }
-      else
-      {
-        gl->BlendEquationSeparate(GLBlendOp(newBlendState->colorBlendOp), GLBlendOp(newBlendState->alphaBlendOp));
-      }
+    }
+    else
+    {
+      gl->BlendEquationSeparate(GLBlendOp(blendStateCache.mBlendEquationSeparateModeRGB),
+                                GLBlendOp(blendStateCache.mBlendEquationSeparateModeAlpha));
     }
   }
 }
 
 void Context::ResolveRasterizationState()
 {
-  const auto& currentRasterizationState = mImpl->mCurrentPipeline ? mImpl->mCurrentPipeline->GetCreateInfo().rasterizationState : nullptr;
-  const auto& newRasterizationState     = mImpl->mNewPipeline->GetCreateInfo().rasterizationState;
-
-  // TODO: prevent leaking the state
-  if(!newRasterizationState)
-  {
-    return;
-  }
-
   auto* gl = mImpl->GetGL();
   if(DALI_UNLIKELY(!gl)) // Early out if no gl
   {
     return;
   }
 
-  if(!currentRasterizationState ||
-     currentRasterizationState->cullMode != newRasterizationState->cullMode)
+  // DevNode : If mImpl->mCurrentPipeline == nullptr mean, this is the first states of render loop.
+  //           To make cull face cache works more effective, let we call glCullFace
+  //           At least 1 time for the first render loops.
+  const bool  forciblyCallCullFace  = mImpl->mCurrentPipeline == nullptr;
+  const auto& newRasterizationState = mImpl->mNewPipeline->GetCreateInfo().rasterizationState;
+
+  if(!newRasterizationState)
   {
-    if(mImpl->mGlStateCache.mCullFaceMode != newRasterizationState->cullMode)
+    // Should be call blend API at least once, to ensure that cache value is valid.
+    if(DALI_UNLIKELY(forciblyCallCullFace))
     {
-      mImpl->mGlStateCache.mCullFaceMode = newRasterizationState->cullMode;
-      if(newRasterizationState->cullMode == CullMode::NONE)
+      if(mImpl->mGlStateCache.mCullFaceMode == CullMode::NONE)
       {
         gl->Disable(GL_CULL_FACE);
       }
       else
       {
         gl->Enable(GL_CULL_FACE);
-        gl->CullFace(GLCullMode(newRasterizationState->cullMode));
+        gl->CullFace(GLCullMode(mImpl->mGlStateCache.mCullFaceMode));
       }
+    }
+    return;
+  }
+
+  if(forciblyCallCullFace ||
+     mImpl->mGlStateCache.mCullFaceMode != newRasterizationState->cullMode)
+  {
+    mImpl->mGlStateCache.mCullFaceMode = newRasterizationState->cullMode;
+    if(newRasterizationState->cullMode == CullMode::NONE)
+    {
+      gl->Disable(GL_CULL_FACE);
+    }
+    else
+    {
+      gl->Enable(GL_CULL_FACE);
+      gl->CullFace(GLCullMode(newRasterizationState->cullMode));
     }
   }
   // TODO: implement polygon mode (fill, line, points)

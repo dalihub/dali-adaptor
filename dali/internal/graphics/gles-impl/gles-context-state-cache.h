@@ -25,6 +25,7 @@
 #include <cstring> ///< for memset
 
 // INTERNAL INCLUDES
+#include "gles-blend-state-cache.h"
 #include "gles-framebuffer-state-cache.h"
 
 namespace Dali::Graphics
@@ -84,7 +85,6 @@ struct GLStateCache
   // glEnable/glDisable states
   bool   mColorMask{true};
   GLuint mStencilMask{0xFF};
-  bool   mBlendEnabled{false};
   bool   mDepthBufferEnabled{false};
   bool   mDepthMaskEnabled{false};
   bool   mScissorTestEnabled{false};
@@ -99,16 +99,6 @@ struct GLStateCache
   GLenum mActiveTextureUnit{MAX_TEXTURE_UNITS};
   GLuint mBoundTextureId[MAX_TEXTURE_UNITS][MAX_TEXTURE_TARGET]; ///< The ID passed to glBindTexture()
 
-  // glBlendFuncSeparate() state
-  BlendFactor mBlendFuncSeparateSrcRGB{BlendFactor::ONE};    ///< The srcRGB parameter passed to glBlendFuncSeparate()
-  BlendFactor mBlendFuncSeparateDstRGB{BlendFactor::ZERO};   ///< The dstRGB parameter passed to glBlendFuncSeparate()
-  BlendFactor mBlendFuncSeparateSrcAlpha{BlendFactor::ONE};  ///< The srcAlpha parameter passed to glBlendFuncSeparate()
-  BlendFactor mBlendFuncSeparateDstAlpha{BlendFactor::ZERO}; ///< The dstAlpha parameter passed to glBlendFuncSeparate()
-
-  // glBlendEquationSeparate state
-  BlendOp mBlendEquationSeparateModeRGB{BlendOp::ADD};   ///< Controls RGB blend mode
-  BlendOp mBlendEquationSeparateModeAlpha{BlendOp::ADD}; ///< Controls Alpha blend mode
-
   // glStencilFunc() and glStencilOp() state.
   CompareOp mStencilFunc{CompareOp::ALWAYS};
   GLuint    mStencilFuncRef{0};
@@ -117,7 +107,7 @@ struct GLStateCache
   StencilOp mStencilOpDepthFail{StencilOp::KEEP};
   StencilOp mStencilOpDepthPass{StencilOp::KEEP};
 
-  CompareOp mDepthFunction{CompareOp::LESS}; ///The depth function
+  CompareOp mDepthFunction{CompareOp::LESS}; /// The depth function
 
   Vector4 mClearColor{Color::WHITE}; ///< clear color. never used until it's been set by the user
 
@@ -127,6 +117,7 @@ struct GLStateCache
   bool mVertexAttributeCachedState[MAX_ATTRIBUTE_CACHE_SIZE];  ///< Value cache for Enable Vertex Attribute
   bool mVertexAttributeCurrentState[MAX_ATTRIBUTE_CACHE_SIZE]; ///< Current state on the driver for Enable Vertex Attribute
 
+  BlendStateCache       mBlendStateCache{};       ///< blend option cache.
   FrameBufferStateCache mFrameBufferStateCache{}; ///< frame buffer state cache
 };
 
