@@ -46,7 +46,7 @@ namespace
 const int   MINIMUM_DIMENSION_CHANGE(1); ///< Minimum change for window to be considered to have moved
 const float FULL_UPDATE_RATIO(0.8f);     ///< Force full update when the dirty area is larget than this ratio
 
-constexpr int LEGACY_LOGIC_THRESHOLD = 50; ///< Threshold of the number of dirty rects for legacy logic
+constexpr int MERGE_RECTS_LOGIC_THRESHOLD = 50; ///< Threshold of the number of dirty rects to switch between the legacy O(n^2) rectangle merging logic and O(n log n) interval-based approach.
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
@@ -100,31 +100,125 @@ using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int
 
 RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
 
+namespace DamagedRectUtils
+{
+/**
+ * @brief IntervalMarker enum to mark the beginning and end of a interval.
+ */
+enum IntervalMarker
+{
+  INTERVAL_BEGIN = 0, ///< Marker for the beginning of a interval
+  INTERVAL_END   = 1, ///< Marker for the end of a interval
+
+  INTERVAL_MARKER_MASK = 0x1 /// Mask to extract the interval marker from the position value
+};
+
+static_assert(IntervalMarker::INTERVAL_BEGIN < IntervalMarker::INTERVAL_END, "INTERVAL_BEGIN marker must be less than INTERVAL_END");
+
+/**
+ * @brief Helper function to get the interval is begin or end.
+ */
+constexpr IntervalMarker GetIntervalMarker(int positionInfo)
+{
+  return static_cast<IntervalMarker>(positionInfo & INTERVAL_MARKER_MASK);
+}
+
+/**
+ * @brief Helper function to set the interval as begin or end.
+ * Ensures interval endpoints are even for pixel alignment and to avoid rounding bias in repeated merges.
+ */
+constexpr int ClampAndEven(int x, int min, int max, bool ceil)
+{
+  Dali::ClampInPlace<int>(x, min, max);
+  if(x & 1)
+  {
+    x += ceil ? 1 : -1;
+  }
+  return x;
+}
+
+constexpr int MarkAsBegin(int positionInfo, int min, int max)
+{
+  return ClampAndEven(positionInfo, min, max, false) | INTERVAL_BEGIN;
+}
+
+constexpr int MarkAsEnd(int positionInfo, int min, int max)
+{
+  return ClampAndEven(positionInfo, min, max, true) | INTERVAL_END;
+}
+
+/**
+ * @brief Retrieve the marked intervals from the position infos which are not overlapping.
+ * The position infos should be sorted by IntervalMarker.
+ *
+ * @param[in] positionInfos The vector of position infos with IntervalMarker.
+ * @param[out] intervals The output vector for intervals.
+ */
+void RetrieveMarkedInterval(const std::vector<int>& positionInfos, std::vector<int>& intervals)
+{
+  int xStart = 0;
+  int xEnd   = 0;
+  int xCount = 0;
+  for(const auto& positionInfo : positionInfos)
+  {
+    if(GetIntervalMarker(positionInfo) == IntervalMarker::INTERVAL_BEGIN)
+    {
+      if(++xCount == 1)
+      {
+        xStart = positionInfo;
+      }
+    }
+    else
+    {
+      if(--xCount == 0)
+      {
+        xEnd = positionInfo;
+
+        // Check overflow happened
+        if(DALI_LIKELY(xStart < xEnd))
+        {
+          intervals.emplace_back(xStart);
+          intervals.emplace_back(xEnd);
+        }
+        else
+        {
+          DALI_LOG_ERROR("Integer overflow happend! (begin was INT_MIN, or end was INT_MAX). Just reset intervals and full-swap\n");
+          intervals.clear();
+        }
+      }
+    }
+  }
+}
+
+/**
+ * @brief Get the damaged ranges interval from the damaged rectangles.
+ * It will be used to get the dirty rects more efficiently when the number of damaged rects is large.
+ *
+ * The algorithm works as follows:
+ * 1. Clamp each intervals end point as even number.
+ *    For example, if the interval is [1, 3], it will be clamped to [0, 4]. [-7, -3] will be clamped to [-8, -2].
+ * 2. Use last bit of the position to mark the beginning and end of the interval.
+ *    After that we can know that even number is beginning of the interval, and odd number is the end of the interval.
+ *    For example, if the interval is [0, 4], it will be marked as [0, 5]. [-8, -2] will be marked as [-8, -1].
+ * 3. Sort the positions.
+ * 4. Now we can get the list of intervals that each others are not overlapping.
+ *
+ * @param[in] damagedRects The list of damaged rectangles.
+ * @param[in] surfaceRect The surface rectangle to which the damaged rectangles belong.
+ * @param[out] xIntervals The output vector for x axis intervals.
+ * @param[out] yIntervals The output vector for y axis intervals.
+ */
 void GetDamagedRangesInterval(const std::vector<Rect<int>>& damagedRects, const Rect<int32_t>& surfaceRect, std::vector<int>& xIntervals, std::vector<int>& yIntervals)
 {
-  static constexpr int RangeBegin = 0;
-  static constexpr int RangeEnd   = 1;
-  static_assert(RangeBegin < RangeEnd, "RangeBegin marker must be less than RangeEnd");
-
-  static std::vector<int> rectXPositions;
-  static std::vector<int> rectYPositions;
+  static std::vector<int> rectXPositionInfos;
+  static std::vector<int> rectYPositionInfos;
 
   const uint32_t n = damagedRects.size();
 
-  rectXPositions.clear();
-  rectYPositions.clear();
-  rectXPositions.reserve(n * 2);
-  rectYPositions.reserve(n * 2);
-
-  const auto ClampAndEven = [&surfaceRect](int x, bool isYComponent, bool ceil)
-  {
-    Dali::ClampInPlace<int>(x, isYComponent ? surfaceRect.y : surfaceRect.x, isYComponent ? surfaceRect.y + surfaceRect.height : surfaceRect.x + surfaceRect.width);
-    if(x & 1)
-    {
-      x += ceil ? 1 : -1;
-    }
-    return x;
-  };
+  rectXPositionInfos.clear();
+  rectYPositionInfos.clear();
+  rectXPositionInfos.reserve(n * 2);
+  rectYPositionInfos.reserve(n * 2);
 
   for(uint32_t i = 0; i < n; i++)
   {
@@ -133,203 +227,278 @@ void GetDamagedRangesInterval(const std::vector<Rect<int>>& damagedRects, const 
       continue;
     }
 
-    // Encode each rect position with RangeBegin and RangeEnd (to reduce the sort time)
+    // Encode each rect position with INTERVAL_BEGIN and INTERVAL_END (to reduce the sort time)
+    rectXPositionInfos.emplace_back(MarkAsBegin(damagedRects[i].x, surfaceRect.x, surfaceRect.x + surfaceRect.width));
+    rectXPositionInfos.emplace_back(MarkAsEnd(damagedRects[i].x + damagedRects[i].width, surfaceRect.x, surfaceRect.x + surfaceRect.width));
 
-    rectXPositions.emplace_back(ClampAndEven(damagedRects[i].x, false, false) | RangeBegin);
-    rectXPositions.emplace_back(ClampAndEven(damagedRects[i].x + damagedRects[i].width, false, true) | RangeEnd);
-
-    rectYPositions.emplace_back(ClampAndEven(damagedRects[i].y, true, false) | RangeBegin);
-    rectYPositions.emplace_back(ClampAndEven(damagedRects[i].y + damagedRects[i].height, true, true) | RangeEnd);
+    rectYPositionInfos.emplace_back(MarkAsBegin(damagedRects[i].y, surfaceRect.y, surfaceRect.y + surfaceRect.height));
+    rectYPositionInfos.emplace_back(MarkAsEnd(damagedRects[i].y + damagedRects[i].height, surfaceRect.y, surfaceRect.y + surfaceRect.height));
   }
-  std::sort(rectXPositions.begin(), rectXPositions.end());
-  std::sort(rectYPositions.begin(), rectYPositions.end());
 
-  // Now we have the positions, we can create the new damaged rects by the intervals
-  // Even index is the start of the interval, odd index is the end of the interval. (To reduce the lower_bound compare time)
-  auto ReterieveInterval = [](const std::vector<int>& positionsInfos, std::vector<int>& intervals)
-  {
-    int xStart = 0;
-    int xEnd   = 0;
-    int xCount = 0;
-    for(const auto& positionInfo : positionsInfos)
-    {
-      if((positionInfo & 1) == RangeBegin)
-      {
-        if(++xCount == 1)
-        {
-          xStart = positionInfo & ~RangeBegin;
-        }
-      }
-      else
-      {
-        if(--xCount == 0)
-        {
-          xEnd = positionInfo & ~RangeEnd;
+  // Sort the positions with IntervalMarker
+  std::sort(rectXPositionInfos.begin(), rectXPositionInfos.end());
+  std::sort(rectYPositionInfos.begin(), rectYPositionInfos.end());
 
-          // Check overflow happened
-          if(DALI_LIKELY(xStart < xEnd))
-          {
-            intervals.emplace_back(xStart);
-            intervals.emplace_back(xEnd);
-          }
-        }
-      }
-    }
-  };
-
-  ReterieveInterval(rectXPositions, xIntervals);
-  ReterieveInterval(rectYPositions, yIntervals);
+  // Now we have the positions with IntervalMarker, We can narrow down the candidates damage rects by interval.
+  // Even index is the start of the interval, odd index is the end of the interval. (To reduce the upper_bound compare time)
+  RetrieveMarkedInterval(rectXPositionInfos, xIntervals);
+  RetrieveMarkedInterval(rectYPositionInfos, yIntervals);
 }
 
-void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+/**
+ * @brief Merges intersecting rectangles and rotates them for large number of damaged rectscases.
+ * Time complexity is O(n log n) for sort, O(n * HashSet) for merging. Space complexity is O(n).
+ *
+ * The algorithm works as follows:
+ * 1. Collect all x and y intervals which could cover all damaged rectangles.
+ * 2. Create a new set of damaged rectangles by the intervals. Subset of this new set will contains original damaged rectangles.
+ * 3. Collect the new rectangles who are actually contains at least one of the original damaged rectangles.
+ *
+ * +--+  +---+     +-+ -- yIntervals[0]
+ * |  |  |*  |     |*|
+ * |  |  |  *|     | |
+ * +--+  +---+     +-+ -- yIntervals[1]
+ *
+ * +--+  +---+     +-+ -- yIntervals[2]
+ * | *|  | * |     | |
+ * |* |  |   |     | |
+ * +--+  +---+     +-+ -- yIntervals[3]
+ * |  |  |   |     | |
+ * |  xIntervals[1]| xIntervals[5]
+ * xIntervals[0]   xIntervals[4]
+ *       |   |
+ *       |   xIntervals[3]
+ *       xIntervals[2]
+ *
+ * Now the rectangles who actually contains the all input damaged rectangles collected only.
+ */
+void MergeIntersectingRectsAndRotateForLargeCase(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
 {
+  /**
+   * @brief Helper class to clean the damaged rects as surfaceRect on exit.
+   */
+  class DamagedRectsCleaner
+  {
+  public:
+    explicit DamagedRectsCleaner(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, const int orientation, const Rect<int>& surfaceRect)
+    : mMergingRect(mergingRect),
+      mDamagedRects(damagedRects),
+      mSurfaceRect(surfaceRect),
+      mOrientation(orientation),
+      mCleanOnReturn(true)
+    {
+    }
+
+    void CompleteWithoutError()
+    {
+      mCleanOnReturn = false;
+    }
+
+    ~DamagedRectsCleaner()
+    {
+      if(mCleanOnReturn)
+      {
+        mMergingRect = mSurfaceRect;
+        mDamagedRects.clear();
+        mDamagedRects.push_back(RecalculateRect[mOrientation](mMergingRect, mSurfaceRect));
+      }
+    }
+
+  private:
+    Rect<int>&              mMergingRect;
+    std::vector<Rect<int>>& mDamagedRects;
+    const Rect<int>         mSurfaceRect;
+    const int               mOrientation;
+    bool                    mCleanOnReturn;
+  };
+
+  DamagedRectsCleaner damagedRectCleaner(mergingRect, damagedRects, orientation, surfaceRect);
+
+  static std::vector<int> xIntervals;
+  static std::vector<int> yIntervals;
+
   const uint32_t n = damagedRects.size();
+  xIntervals.clear();
+  yIntervals.clear();
+  xIntervals.reserve(2 * n);
+  yIntervals.reserve(2 * n);
 
-  if(n <= LEGACY_LOGIC_THRESHOLD)
+  // Collect intervals for each axis
+  GetDamagedRangesInterval(damagedRects, surfaceRect, xIntervals, yIntervals);
+
+  // The number of Intervals should be even, because we have pairs of begin and end intervals.
+  // If the number of intervals is zero or odd, it means that there is an error in the input data.
+  if(DALI_UNLIKELY(xIntervals.size() == 0 || (xIntervals.size() & 1) || yIntervals.size() == 0 || (yIntervals.size() & 1)))
   {
-    for(uint32_t i = 0; i < n - 1; i++)
-    {
-      if(damagedRects[i].IsEmpty())
-      {
-        continue;
-      }
-
-      for(uint32_t j = i + 1; j < n; j++)
-      {
-        if(damagedRects[j].IsEmpty())
-        {
-          continue;
-        }
-
-        if(damagedRects[i].Intersects(damagedRects[j]))
-        {
-          damagedRects[i].Merge(damagedRects[j]);
-          damagedRects[j].width  = 0;
-          damagedRects[j].height = 0;
-        }
-      }
-    }
-
-    uint32_t j = 0;
-    for(uint32_t i = 0; i < n; i++)
-    {
-      if(!damagedRects[i].IsEmpty())
-      {
-        // Merge rects before rotate
-        if(mergingRect.IsEmpty())
-        {
-          mergingRect = damagedRects[i];
-        }
-        else
-        {
-          mergingRect.Merge(damagedRects[i]);
-        }
-
-        damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
-      }
-    }
-
-    if(DALI_LIKELY(j != 0))
-    {
-      damagedRects.resize(j);
-    }
+    // Should never happen
+    DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
+    return;
   }
-  else
+
+  if(DALI_UNLIKELY(xIntervals.size() > 0xFFFF || yIntervals.size() > 0xFFFF))
   {
-    // New logic for large number of dirty rects
-    // Time complexity is O(n log n) - sort 2 arrays which has 2*n elements + lower_bound 2 times for each rect
-    static std::vector<int> xIntervals;
-    static std::vector<int> yIntervals;
+    // If the number of intervals is too large, just full swap.
+    return;
+  }
 
-    xIntervals.clear();
-    yIntervals.clear();
-    xIntervals.reserve(2 * n);
-    yIntervals.reserve(2 * n);
+  // Now we have the intervals, we can create the new damaged rects by the intervals
+  const uint16_t xIntervalCount = static_cast<uint16_t>(xIntervals.size());
+  const uint16_t yIntervalCount = static_cast<uint16_t>(yIntervals.size());
 
-    // Collect intervals for each axis
-    GetDamagedRangesInterval(damagedRects, surfaceRect, xIntervals, yIntervals);
+  mergingRect.x      = xIntervals[0];
+  mergingRect.y      = yIntervals[0];
+  mergingRect.width  = xIntervals[xIntervalCount - 1u] - mergingRect.x;
+  mergingRect.height = yIntervals[yIntervalCount - 1u] - mergingRect.y;
 
-    if(DALI_UNLIKELY(xIntervals.size() == 0 || (xIntervals.size() & 1) || yIntervals.size() == 0 || (yIntervals.size() & 1)))
+  // Special case for 2x2 intervals
+  if(xIntervalCount == 2 && yIntervalCount == 2)
+  {
+    // Only one rect
+    damagedRects.clear();
+    damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
+
+    damagedRectCleaner.CompleteWithoutError();
+    return;
+  }
+
+  // Check if we already have the maximum number of damaged rects.
+  // Note that we need to guard integer overflow.
+  const uint32_t maximumDamagedRectsCount = std::min(static_cast<uint32_t>(n), static_cast<uint32_t>(xIntervalCount / 2) * static_cast<uint32_t>(yIntervalCount / 2));
+
+  uint32_t newDamagedRectsCount = 0;
+
+  std::unordered_set<uint32_t> uniqueRectsIndexPairs;
+
+  for(uint32_t i = 0; i < n && newDamagedRectsCount < maximumDamagedRectsCount; i++)
+  {
+    if(DALI_UNLIKELY(damagedRects[i].IsEmpty()))
+    {
+      continue;
+    }
+
+    // Found given rect is in the intervals
+    // Upper bound will return the end of interval.
+    const auto xIntervalIt = std::upper_bound(xIntervals.cbegin(), xIntervals.cend(), damagedRects[i].x);
+    const auto yIntervalIt = std::upper_bound(yIntervals.cbegin(), yIntervals.cend(), damagedRects[i].y);
+
+    if(DALI_UNLIKELY(xIntervalIt == xIntervals.cbegin() ||
+                     xIntervalIt == xIntervals.cend() ||
+                     yIntervalIt == yIntervals.cbegin() ||
+                     yIntervalIt == yIntervals.cend() ||
+                     GetIntervalMarker(xIntervalIt - xIntervals.cbegin()) != IntervalMarker::INTERVAL_END ||
+                     GetIntervalMarker(yIntervalIt - yIntervals.cbegin()) != IntervalMarker::INTERVAL_END))
     {
       // Should never happen
       DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
-      mergingRect = surfaceRect;
-      damagedRects.clear();
-      damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
       return;
     }
 
-    // Now we have the intervals, we can create the new damaged rects by the intervals
-    const uint32_t xIntervalCount = static_cast<uint32_t>(xIntervals.size());
-    const uint32_t yIntervalCount = static_cast<uint32_t>(yIntervals.size());
+    // Packing x and y intervals indices into a single 32-bit integer to use as a key for uniqueness check.
+    // Note that the number of xIntervals and yIntervals is limited to 0xFFFF, so we can safely use 32-bit integer.
+    uint32_t indexPair = (static_cast<uint32_t>(xIntervalIt - xIntervals.cbegin()) << 16) | (yIntervalIt - yIntervals.cbegin());
 
-    mergingRect.x      = xIntervals[0];
-    mergingRect.y      = yIntervals[0];
-    mergingRect.width  = xIntervals[xIntervalCount - 1u] - mergingRect.x;
-    mergingRect.height = yIntervals[yIntervalCount - 1u] - mergingRect.y;
-
-    // Special case for 2x2 intervals
-    if(xIntervalCount == 2 && yIntervalCount == 2)
+    if(uniqueRectsIndexPairs.find(indexPair) == uniqueRectsIndexPairs.cend())
     {
-      // Only one rect
-      damagedRects.clear();
-      damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
-      return;
+      // Found new rect
+      uniqueRectsIndexPairs.insert(indexPair);
+
+      auto& rect = damagedRects[newDamagedRectsCount];
+
+      rect.x      = *(xIntervalIt - 1);
+      rect.y      = *(yIntervalIt - 1);
+      rect.width  = (*(xIntervalIt)) - rect.x;
+      rect.height = (*(yIntervalIt)) - rect.y;
+
+      damagedRects[newDamagedRectsCount++] = RecalculateRect[orientation](rect, surfaceRect);
+    }
+  }
+
+  if(DALI_LIKELY(newDamagedRectsCount > 0))
+  {
+    // Everything is merged well.
+    damagedRects.resize(newDamagedRectsCount);
+
+    damagedRectCleaner.CompleteWithoutError();
+  }
+}
+
+/**
+ * @brief Merges intersecting rectangles and rotates them for small number of damaged rectscases.
+ * Time complexity is O(n^2) for merge. Space complexity is O(1) (no extra space used).
+ */
+void MergeIntersectingRectsAndRotateForSmallCase(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+{
+  uint32_t n = damagedRects.size();
+  for(uint32_t i = 0; i < n - 1; i++)
+  {
+    if(damagedRects[i].IsEmpty())
+    {
+      continue;
     }
 
-    // Check if we already have the maximum number of damaged rects.
-    // Note that we need to guard integer overflow.
-    const uint32_t maximumDamagedRectsCount = (xIntervalCount / 2 <= n / (yIntervalCount / 2)) ? std::min(n, (xIntervalCount / 2) * (yIntervalCount / 2)) : n;
-
-    uint32_t newDamagedRectsCount = 0;
-
-    std::unordered_set<uint64_t> uniqueRectsIndexPairs;
-
-    for(uint32_t i = 0; i < n && newDamagedRectsCount < maximumDamagedRectsCount; i++)
+    for(uint32_t j = i + 1; j < n; j++)
     {
-      if(DALI_UNLIKELY(damagedRects[i].IsEmpty()))
+      if(damagedRects[j].IsEmpty())
       {
         continue;
       }
 
-      // Found given rect is in the intervals
-      const auto xIntervalIt = std::upper_bound(xIntervals.cbegin(), xIntervals.cend(), damagedRects[i].x);
-      const auto yIntervalIt = std::upper_bound(yIntervals.cbegin(), yIntervals.cend(), damagedRects[i].y);
-
-      if(DALI_UNLIKELY(xIntervalIt == xIntervals.cbegin() ||
-                       xIntervalIt == xIntervals.cend() ||
-                       yIntervalIt == yIntervals.cbegin() ||
-                       yIntervalIt == yIntervals.cend() ||
-                       ((xIntervalIt - xIntervals.cbegin()) & 1) == 0 ||
-                       ((yIntervalIt - yIntervals.cbegin()) & 1) == 0))
+      if(damagedRects[i].Intersects(damagedRects[j]))
       {
-        // Should never happen
-        DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
-        mergingRect = surfaceRect;
-        damagedRects.clear();
-        damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
-        return;
-      }
+        damagedRects[i].Merge(damagedRects[j]);
+        std::swap(damagedRects[j], damagedRects[n - 1]); // Move the last rect to the current position
+        damagedRects.pop_back();                         // Remove the last rect
 
-      uint64_t indexPair = (static_cast<uint64_t>(xIntervalIt - xIntervals.cbegin()) << 32) | (yIntervalIt - yIntervals.cbegin());
-
-      if(uniqueRectsIndexPairs.find(indexPair) == uniqueRectsIndexPairs.cend())
-      {
-        // Found new rect
-        uniqueRectsIndexPairs.insert(indexPair);
-
-        auto& rect = damagedRects[newDamagedRectsCount];
-
-        rect.x      = *(xIntervalIt - 1);
-        rect.y      = *(yIntervalIt - 1);
-        rect.width  = (*(xIntervalIt)) - rect.x;
-        rect.height = (*(yIntervalIt)) - rect.y;
-
-        damagedRects[newDamagedRectsCount++] = RecalculateRect[orientation](rect, surfaceRect);
+        --n; // Reduce the number of damaged rects
+        --j; // Stay at the same position to check the new rect
       }
     }
+  }
 
-    damagedRects.resize(newDamagedRectsCount);
+  uint32_t j = 0;
+  for(uint32_t i = 0; i < n; i++)
+  {
+    if(!damagedRects[i].IsEmpty())
+    {
+      // Merge rects before rotate
+      if(mergingRect.IsEmpty())
+      {
+        mergingRect = damagedRects[i];
+      }
+      else
+      {
+        mergingRect.Merge(damagedRects[i]);
+      }
+
+      damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
+    }
+  }
+
+  if(DALI_LIKELY(j != 0))
+  {
+    damagedRects.resize(j);
+  }
+}
+} // namespace DamagedRectUtils
+
+/**
+ * @brief Reduce the number of damaged rectangles by merging intersecting rectangles and rotating them by orientation.
+ * We separate the logic for small and large number of damaged rectangles to optimize performance.
+ *
+ * @note MERGE_RECTS_LOGIC_THRESHOLD determines when to switch between the legacy O(n^2) rectangle merging logic and the newer, more efficient O(n log n) interval-based approach.
+ *
+ * For small numbers of rectangles (n <= MERGE_RECTS_LOGIC_THRESHOLD), the legacy approach is simple and incurs minimal overhead.
+ * For larger sets, the legacy approach becomes inefficient due to quadratic time complexity, so the interval-based method is used instead.
+ */
+void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+{
+  if(damagedRects.size() <= MERGE_RECTS_LOGIC_THRESHOLD)
+  {
+    DamagedRectUtils::MergeIntersectingRectsAndRotateForSmallCase(mergingRect, damagedRects, orientation, surfaceRect);
+  }
+  else
+  {
+    DamagedRectUtils::MergeIntersectingRectsAndRotateForLargeCase(mergingRect, damagedRects, orientation, surfaceRect);
   }
 }
 

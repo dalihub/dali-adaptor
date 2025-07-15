@@ -179,6 +179,13 @@ public:
   void InvalidateCachedPipeline(GLES::Pipeline* pipeline);
 
   /**
+   * @brief Invalidates the cached native texture whenever given context prepared before.
+   *
+   * @param[in] nativeTexture The native texture which might be cached in this context.
+   */
+  void InvalidateCachedNativeTexture(GLES::Texture* nativeTexture);
+
+  /**
    * @brief Sets up EGL context for native rendering
    *
    * - The native rendering uses dedicated context
@@ -207,11 +214,17 @@ public:
    */
   bool BindBuffer(GLenum target, uint32_t bufferId);
 
+  /**
+   * @brief Invalidate Renderbuffer for given framebuffer if they using.
+   * Note : We should call this API before framebuffer unbind.
+   * @param[in] framebuffer The framebuffer to be invalidate
+   */
+  void InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer);
+
   void ColorMask(bool enabled);
   void ClearStencilBuffer();
   void ClearDepthBuffer();
   void ClearBuffer(uint32_t mask, bool forceClear);
-  void InvalidateDepthStencilBuffers();
   void SetScissorTestEnabled(bool scissorEnabled);
   void SetStencilTestEnable(bool stencilEnable);
   void StencilMask(uint32_t writeMask);
@@ -245,10 +258,15 @@ private:
    */
   void ClearUniformBufferCache();
 
+  /**
+   * @brief Clear cached native textures and notify to invalidate this context.
+   */
+  void ClearCachedNativeTexture();
+
 private:
   struct Impl;
   std::unique_ptr<Impl> mImpl;
 };
 } // namespace GLES
 } // namespace Dali::Graphics
-#endif //DALI_GRAPHICS_GLES_CONTEXT_H
+#endif // DALI_GRAPHICS_GLES_CONTEXT_H

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
    */
-  void PrepareTexture() override;
+  Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
@@ -233,6 +233,7 @@ private:
   ::Pixmap                             mPixmap;                      ///< From Xlib
   bool                                 mBlendingRequired;            ///< Whether blending is required
   Dali::NativeImageSource::ColorDepth  mColorDepth;                  ///< color depth of image
+  bool                                 mEglImageChanged;             ///< Whether EGLImage changed or not. Reset flag as false at PrepareTexture().
   void*                                mEglImageKHR;                 ///< From EGL extension
   EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
   std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback

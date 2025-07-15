@@ -92,6 +92,7 @@ NativeImageSourceX::NativeImageSourceX(uint32_t width, uint32_t height, Dali::Na
   mPixmap(0),
   mBlendingRequired(false),
   mColorDepth(depth),
+  mEglImageChanged(false),
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
@@ -303,7 +304,8 @@ bool NativeImageSourceX::CreateResource()
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mPixmap);
 
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageKHR     = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageChanged = true;
 
   return mEglImageKHR != NULL;
 }
@@ -312,7 +314,8 @@ void NativeImageSourceX::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
-  mEglImageKHR = NULL;
+  mEglImageKHR     = NULL;
+  mEglImageChanged = true;
 
   if(mResourceDestructionCallback)
   {
@@ -327,8 +330,20 @@ uint32_t NativeImageSourceX::TargetTexture()
   return 0;
 }
 
-void NativeImageSourceX::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceX::PrepareTexture()
 {
+  Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+  if(DALI_LIKELY(mEglImageKHR))
+  {
+    result           = mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mEglImageChanged = false;
+  }
+  else
+  {
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+  }
+
+  return result;
 }
 
 int NativeImageSourceX::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const

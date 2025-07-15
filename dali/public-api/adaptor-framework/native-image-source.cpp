@@ -88,9 +88,9 @@ uint32_t NativeImageSource::TargetTexture()
   return mImpl->TargetTexture();
 }
 
-void NativeImageSource::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSource::PrepareTexture()
 {
-  mImpl->PrepareTexture();
+  return mImpl->PrepareTexture();
 }
 
 uint32_t NativeImageSource::GetWidth() const

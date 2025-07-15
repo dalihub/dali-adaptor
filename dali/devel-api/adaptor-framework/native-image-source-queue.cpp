@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t queueCount, uint3
 
 NativeImageSourceQueuePtr NativeImageSourceQueue::New(Any nativeImageSourceQueue)
 {
-  //ColorFormat will be ignored.
+  // ColorFormat will be ignored.
   NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, 0, ColorFormat::BGRA8888, nativeImageSourceQueue);
   if(image->mImpl)
   {
@@ -107,9 +107,9 @@ uint32_t NativeImageSourceQueue::TargetTexture()
   return mImpl->TargetTexture();
 }
 
-void NativeImageSourceQueue::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueue::PrepareTexture()
 {
-  mImpl->PrepareTexture();
+  return mImpl->PrepareTexture();
 }
 
 uint32_t NativeImageSourceQueue::GetQueueCount() const

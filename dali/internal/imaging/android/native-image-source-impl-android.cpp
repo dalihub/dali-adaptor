@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t heig
   mPixmap(NULL),
   mBlendingRequired(false),
   mColorDepth(depth),
+  mEglImageChanged(false),
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
@@ -175,14 +176,14 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t&
   uint32_t pixelBytes = GetBytesPerPixel(pixelFormat);
   if(bufferDescription.stride < (pixelBytes * bufferDescription.width))
   {
-    //On Android device, bufferDescription.stride doesn't seem to mean (width * pixelbytes)
-    //in an actual case, (AHardwareBuffer_Desc) bufferDescription = (width = 1080, height = 1060, layers = 1, format = 1, usage = 306, stride = 1088, rfu0 = 0, rfu1 = 0)
-    //deal with situation
+    // On Android device, bufferDescription.stride doesn't seem to mean (width * pixelbytes)
+    // in an actual case, (AHardwareBuffer_Desc) bufferDescription = (width = 1080, height = 1060, layers = 1, format = 1, usage = 306, stride = 1088, rfu0 = 0, rfu1 = 0)
+    // deal with situation
     uint32_t dstStride = pixelBytes * bufferDescription.width;
     uint32_t srcStride = pixelBytes * bufferDescription.stride;
     uint32_t size      = dstStride * bufferDescription.height;
     pixbuf.resize(size);
-    //copy each row over
+    // copy each row over
     const uint8_t* ptrSrc = reinterpret_cast<const uint8_t*>(buffer);
     uint8_t*       ptrDst = pixbuf.data();
     for(int y = 0; y < bufferDescription.height; y++, ptrSrc += srcStride, ptrDst += dstStride)
@@ -283,7 +284,8 @@ bool NativeImageSourceAndroid::CreateResource()
   }
 
   DALI_ASSERT_ALWAYS(eglBuffer);
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageKHR     = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  mEglImageChanged = true;
 
   return mEglImageKHR != NULL;
 }
@@ -292,7 +294,8 @@ void NativeImageSourceAndroid::DestroyResource()
 {
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
-  mEglImageKHR = NULL;
+  mEglImageKHR     = NULL;
+  mEglImageChanged = true;
 
   if(mResourceDestructionCallback)
   {
@@ -307,8 +310,20 @@ uint32_t NativeImageSourceAndroid::TargetTexture()
   return 0;
 }
 
-void NativeImageSourceAndroid::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceAndroid::PrepareTexture()
 {
+  Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+  if(DALI_LIKELY(mEglImageKHR))
+  {
+    result           = mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mEglImageChanged = false;
+  }
+  else
+  {
+    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
+  }
+
+  return result;
 }
 
 int NativeImageSourceAndroid::GetTextureTarget() const

@@ -532,6 +532,8 @@ public:
       mGraphics->ActivateResourceContext();
     }
 
+    mResourceInitializeFailed = false;
+
     // Process creations
     ProcessCreateQueues();
 
@@ -584,16 +586,22 @@ public:
   template<class T>
   void ProcessCreateQueue(T& queue)
   {
+    static T failedQueue; // Very very rarely used.
     while(!queue.empty())
     {
       auto* object = queue.front();
       queue.pop();
 
       // Initialize texture
-      if(!object->InitializeResource())
+      if(DALI_UNLIKELY(!object->InitializeResource()))
       {
-        // TODO: handle error
+        mResourceInitializeFailed = true;
+        failedQueue.push(object);
       }
+    }
+    if(DALI_UNLIKELY(mResourceInitializeFailed))
+    {
+      queue.swap(failedQueue);
     }
   }
 
@@ -709,6 +717,59 @@ public:
       }
       set.erase(iter);
     }
+  }
+
+  /**
+   * @brief Remove from create queue if some resource is in discard queue.
+   * This check up should be called only if InitializeResource failed - tbm_surface not prepared?
+   */
+  template<class T>
+  void InvalidateDiscardResourceQueue(T& discardQueue, T& createQueue)
+  {
+    T tempQueue;
+    while(!createQueue.empty())
+    {
+      auto* value = createQueue.front();
+      createQueue.pop();
+      // Queue don't have iterator. Just full search here.
+      bool found = false;
+      int  n     = discardQueue.size();
+      while(n-- != 0)
+      {
+        auto* discardedValue = discardQueue.front();
+        discardQueue.pop();
+        discardQueue.push(discardedValue);
+        if(discardedValue == value)
+        {
+          found = true;
+        }
+      }
+      if(!found)
+      {
+        tempQueue.push(value);
+      }
+    }
+    createQueue = tempQueue;
+  }
+
+  /**
+   * @brief Remove from create queue if some resource is in discard set.
+   * This check up should be called only if InitializeResource failed - tbm_surface not prepared?
+   */
+  template<class T, class U>
+  void InvalidateDiscardResourceSet(T& discardSet, U& createQueue)
+  {
+    U tempQueue;
+    while(!createQueue.empty())
+    {
+      auto* value = createQueue.front();
+      createQueue.pop();
+      if(discardSet.find(value) == discardSet.end())
+      {
+        tempQueue.push(value);
+      }
+    }
+    createQueue = tempQueue;
   }
 
   /**
@@ -950,6 +1011,7 @@ private:
   GLES::SyncPool mSyncPool;
   std::size_t    mCapacity{0u}; ///< Memory Usage (of command buffers)
 
+  bool mResourceInitializeFailed : 1;
   bool mUseProgramBinary : 1;
   bool mDidPresent : 1;
 };

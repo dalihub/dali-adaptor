@@ -106,12 +106,8 @@ void EglGraphics::AcquireNextImage(Integration::RenderSurfaceInterface* surface)
 
 void EglGraphics::PostRender()
 {
+  // Restore to resource context for mGraphicsController.PostRender()
   ActivateResourceContext();
-
-  if(mGraphicsController.GetCurrentContext())
-  {
-    mGraphicsController.GetCurrentContext()->InvalidateDepthStencilBuffers();
-  }
 
   mGraphicsController.PostRender();
 }

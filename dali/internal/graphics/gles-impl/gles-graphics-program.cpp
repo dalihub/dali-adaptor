@@ -67,8 +67,7 @@ inline bool memcmp4(A* a, B* b, uint32_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++)
-    ;
+  while(size-- && *pa++ == *pb++);
   return (-1u == size);
 };
 
@@ -262,6 +261,15 @@ bool ProgramImpl::Create()
     // Do nothing during shutdown
     return false;
   }
+
+  auto* graphics = mImpl->controller.GetGraphicsInterface();
+  if(DALI_UNLIKELY(!graphics))
+  {
+    return false;
+  }
+
+  // Activate as resource context before create program.
+  graphics->ActivateResourceContext();
 
   auto program = gl->CreateProgram();
 
@@ -597,6 +605,7 @@ bool ProgramImpl::LoadProgramBinary()
   bool               result = false;
   Dali::Vector<char> buffer;
   result = Dali::FileLoader::ReadFile(programBinaryName, buffer);
+  DALI_LOG_DEBUG_INFO("ReadFile result:%d, buffer.Size():%zu, Name[%s]\n\n", result, buffer.Size(), programBinaryName.c_str());
 
   if(result)
   {
@@ -642,7 +651,7 @@ bool ProgramImpl::LoadProgramBinary()
       gl->GetProgramInfoLog(mImpl->glProgram, 4096, &size, output);
 
       // log on error
-      DALI_LOG_ERROR("glLinkProgram[%s] failed:\n%s. Need to re-compile shader\n", mImpl->name.c_str(), output);
+      DALI_LOG_ERROR("glProgramBinary[%s] failed:\n%s. Need to re-compile shader\n", mImpl->name.c_str(), output);
       return false;
     }
   }

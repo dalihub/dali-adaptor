@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class NativeImageSource;
 }
-} // namespace DALI_INTERNAL
+} // namespace Internal DALI_INTERNAL
 
 class NativeImageSource;
 /**
@@ -66,9 +66,9 @@ class DALI_ADAPTOR_API NativeImageSource : public NativeImageInterface
 {
 public:
   /**
-    * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
-    * @SINCE_1_0.0
-    */
+   * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
+   * @SINCE_1_0.0
+   */
   enum ColorDepth
   {
     COLOR_DEPTH_DEFAULT, ///< Uses the current screen default depth (recommended) @SINCE_1_0.0
@@ -196,7 +196,7 @@ private: // native image
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
-  void PrepareTexture() override;
+  Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()

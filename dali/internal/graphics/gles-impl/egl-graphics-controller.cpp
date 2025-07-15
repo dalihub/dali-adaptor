@@ -186,6 +186,7 @@ bool EglGraphicsController::IsShuttingDown()
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
   mSyncPool(*this),
+  mResourceInitializeFailed(false),
   mUseProgramBinary(false),
   mDidPresent(false)
 {
@@ -317,8 +318,6 @@ void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
 
 void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget)
 {
-  mCurrentContext->InvalidateDepthStencilBuffers();
-
   if(DALI_LIKELY(renderTarget) && renderTarget->GetCreateInfo().surface)
   {
     auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(renderTarget->GetCreateInfo().surface);
@@ -615,6 +614,14 @@ void EglGraphicsController::ProcessDiscardQueues()
 {
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_DISCARD_QUEUE");
 
+  // Remove items which initialize failed and discard.
+  if(DALI_UNLIKELY(mResourceInitializeFailed))
+  {
+    InvalidateDiscardResourceSet(mDiscardTextureSet, mCreateTextureQueue);
+    InvalidateDiscardResourceQueue(mDiscardBufferQueue, mCreateBufferQueue);
+    InvalidateDiscardResourceQueue(mDiscardFramebufferQueue, mCreateFramebufferQueue);
+  }
+
   // Process textures
   ProcessDiscardSet<GLES::Texture>(mDiscardTextureSet);
 
@@ -871,6 +878,13 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       case GLES::CommandType::DRAW_NATIVE:
       {
         auto* info = &cmd.drawNative.drawNativeInfo;
+
+        // Skip rendering for OffsreenRendering, or gles2.0 case.
+        // TODO : Allow it in future!
+        if(!info->glesNativeInfo.useOwnEglContext && mCurrentContext == mContext.get())
+        {
+          break;
+        }
 
         // ISOLATED execution mode will isolate GL graphics context from
         // DALi renderning pipeline which is the safest way of rendering

@@ -32,13 +32,15 @@
 namespace
 {
 // These match the GL specification
-//const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
-//const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
+// const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
+// const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
 const int32_t GL_WRAP_DEFAULT = GL_CLAMP_TO_EDGE;
 
 // These are the Dali defaults
 const int32_t DALI_MINIFY_DEFAULT  = GL_LINEAR;
 const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
+
+constexpr uint32_t CLEAR_CACHED_CONTEXT_THRESHOLD = 100u;
 } // namespace
 
 namespace Dali::Graphics::GLES
@@ -198,7 +200,7 @@ bool Texture::InitializeTexture()
       Graphics::GLES::GLTextureFormatType format(mCreateInfo.format);
 
       // TODO: find better condition, with this test the L8 doesn't work
-      if(1) //format.format && format.type)
+      if(1) // format.format && format.type)
       {
         // Bind texture
         gl->GenTextures(1, &texture);
@@ -324,10 +326,13 @@ void Texture::DestroyResource()
       gl->DeleteTextures(1, &mTextureId);
     }
 
-    // TODO : Shouldn't we call DestroyResource even if shutting down?
-    // For now, we use EglExtensions API at DestroyResource. So just block for now.
     if(mCreateInfo.nativeImagePtr)
     {
+      // Invalidate given texture
+      ClearCachedContext();
+
+      // TODO : Shouldn't we call DestroyResource even if shutting down?
+      // For now, we use EglExtensions API at DestroyResource. So just block for now.
       mCreateInfo.nativeImagePtr->DestroyResource();
     }
   }
@@ -392,13 +397,64 @@ void Texture::Bind(const TextureBinding& binding) const
   }
 }
 
-void Texture::Prepare()
+bool Texture::PrepareNativeTexture(GLES::Context* prepareContext)
 {
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
-  if(nativeImage && !IsPrepared())
+  if(nativeImage)
   {
-    mIsPrepared = true;
-    nativeImage->PrepareTexture();
+    if(!mIsPrepared)
+    {
+      mIsPrepared        = true;
+      mLastPrepareResult = nativeImage->PrepareTexture();
+
+      if(DALI_UNLIKELY(mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MIN &&
+                       mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
+      {
+        DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", mLastPrepareResult);
+      }
+
+      // Clear target called context if image changed.
+      if(mLastPrepareResult == Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED)
+      {
+        // Remove cached info to contexts and invalidate this texture.
+        ClearCachedContext();
+      }
+    }
+
+    // NOTE : We should call TargetTextureKHR per each context.
+    if(mTargetCalledContext.find(prepareContext) == mTargetCalledContext.end())
+    {
+      mTargetCalledContext.insert(prepareContext);
+      nativeImage->TargetTexture();
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Do not call PrepareNativeTexture for standard textures\n");
+    mLastPrepareResult = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+  }
+
+  return mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR_MIN &&
+         mLastPrepareResult <= Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR_MAX;
+}
+
+void Texture::ResetPrepare()
+{
+  mIsPrepared        = false;
+  mLastPrepareResult = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+
+  // Remove context list if it stored too many items.
+  if(DALI_UNLIKELY(mTargetCalledContext.size() > CLEAR_CACHED_CONTEXT_THRESHOLD))
+  {
+    ClearCachedContext();
+  }
+}
+
+void Texture::InvalidateCachedContext(GLES::Context* invalidatedContext)
+{
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    mTargetCalledContext.erase(invalidatedContext);
   }
 }
 
@@ -414,9 +470,8 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
     return false;
   }
 
-  auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item) {
-    return item.srcFormat == srcFormat && item.destFormat == destFormat;
-  });
+  auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item)
+                         { return item.srcFormat == srcFormat && item.destFormat == destFormat; });
 
   // No suitable format, return empty array
   if(it == GetColorConversionTable().end())
@@ -437,6 +492,15 @@ void Texture::SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t
     gl->TexParameteri(mGlTarget, param, value);
     cacheValue = value;
   }
+}
+
+void Texture::ClearCachedContext()
+{
+  for(auto* context : mTargetCalledContext)
+  {
+    context->InvalidateCachedNativeTexture(this);
+  }
+  mTargetCalledContext.clear();
 }
 
 } // namespace Dali::Graphics::GLES

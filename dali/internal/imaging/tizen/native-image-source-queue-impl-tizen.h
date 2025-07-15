@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
-  void PrepareTexture() override;
+  Dali::NativeImageInterface::PrepareTextureResult PrepareTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetQueueCount()
