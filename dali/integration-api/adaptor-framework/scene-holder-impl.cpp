@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,8 @@ private: // Adaptor::LifeCycleObserver interface
   {
     mAdaptorStarted = true;
   };
-  void OnPause() override{};
-  void OnResume() override{};
+  void OnPause() override {};
+  void OnResume() override {};
   void OnStop() override
   {
     // Mark adaptor as stopped;
@@ -482,6 +482,9 @@ void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
     DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
     return;
   }
+
+  Vector2 convertedPosition = RecalculatePosition(point.GetScreenPosition());
+  point.SetScreenPosition(convertedPosition);
 
   Integration::HoverEvent hoverEvent;
 
