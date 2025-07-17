@@ -588,6 +588,7 @@ public:
   using CompletedTaskCacheContainer = std::unordered_map<const AsyncTask*, std::list<AsyncCompletedTaskContainer::iterator>>;
 
   TaskCacheContainer          mWaitingTasksCache;   ///< The cache of tasks and iterator for waiting to async process. Must be locked under mWaitingTasksMutex.
+  TaskCacheContainer          mNotReadyTasksCache;  ///< The cache of tasks and iterator for waiting for ready to async process. Must be locked under mWaitingTasksMutex.
   RunningTaskCacheContainer   mRunningTasksCache;   ///< The cache of tasks and iterator for running tasks. Must be locked under mRunningTasksMutex.
   CompletedTaskCacheContainer mCompletedTasksCache; ///< The cache of tasks and iterator for completed async process. Must be locked under mCompletedTasksMutex.
 };
@@ -653,6 +654,7 @@ AsyncTaskManager::~AsyncTaskManager()
   mCompletedTasks.clear();
 }
 
+/// Main + Worker thread called
 void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 {
   if(task)
@@ -660,27 +662,39 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
     // Lock while adding task to the queue
     Mutex::ScopedLock lock(mWaitingTasksMutex);
 
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AddTask [%p][%s]\n", task.Get(), GetTaskName(task));
+    // Keep this value as stack memory, for thread safety
+    const bool isReady = task->IsReady();
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AddTask [%p][%s], IsReady(%d)\n", task.Get(), GetTaskName(task), isReady);
 
-    // push back into waiting queue.
-    auto waitingIter = mWaitingTasks.insert(mWaitingTasks.end(), task);
-    CacheImpl::InsertTaskCache(mCacheImpl->mWaitingTasksCache, task, waitingIter);
-
-    if(task->GetPriorityType() == AsyncTask::PriorityType::HIGH)
+    if(DALI_LIKELY(isReady))
     {
-      // Increase the number of waiting tasks for high priority.
-      ++mWaitingHighProirityTaskCounts;
-    }
+      // push back into waiting queue.
+      auto waitingIter = mWaitingTasks.insert(mWaitingTasks.end(), task);
+      CacheImpl::InsertTaskCache(mCacheImpl->mWaitingTasksCache, task, waitingIter);
 
-    {
-      // For thread safety
-      Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
-
-      // Finish all Running threads are working
-      if(mRunningTasks.size() >= mTasks.GetElementCount())
+      if(task->GetPriorityType() == AsyncTask::PriorityType::HIGH)
       {
-        return;
+        // Increase the number of waiting tasks for high priority.
+        ++mWaitingHighProirityTaskCounts;
       }
+
+      {
+        // For thread safety
+        Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+
+        // Finish all Running threads are working
+        if(mRunningTasks.size() >= mTasks.GetElementCount())
+        {
+          return;
+        }
+      }
+    }
+    else
+    {
+      // push back into waiting queue.
+      auto notReadyIter = mNotReadyTasks.insert(mNotReadyTasks.end(), task);
+      CacheImpl::InsertTaskCache(mCacheImpl->mNotReadyTasksCache, task, notReadyIter);
+      return;
     }
   }
 
@@ -737,6 +751,18 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
           ++removedCount;
         }
         CacheImpl::EraseAllTaskCache(mCacheImpl->mWaitingTasksCache, task);
+      }
+
+      auto mapIter2 = mCacheImpl->mNotReadyTasksCache.find(task.Get());
+      if(mapIter2 != mCacheImpl->mNotReadyTasksCache.end())
+      {
+        for(auto& iterator : mapIter2->second)
+        {
+          DALI_ASSERT_DEBUG((*iterator) == task);
+          mNotReadyTasks.erase(iterator);
+          ++removedCount;
+        }
+        CacheImpl::EraseAllTaskCache(mCacheImpl->mNotReadyTasksCache, task);
       }
 
       if(!mWaitingTasks.empty())
@@ -810,6 +836,66 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
   }
 }
 
+/// Main + Worker thread called
+void AsyncTaskManager::NotifyToTaskReady(AsyncTaskPtr task)
+{
+  if(task)
+  {
+    // Lock while adding task to the queue
+    Mutex::ScopedLock lock(mWaitingTasksMutex);
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "NotifyToTaskReady [%p][%s]\n", task.Get(), GetTaskName(task));
+
+    auto mapIter = mCacheImpl->mNotReadyTasksCache.find(task.Get());
+    if(mapIter != mCacheImpl->mNotReadyTasksCache.end())
+    {
+      uint32_t removedCount = 0u;
+      for(auto& iterator : mapIter->second)
+      {
+        DALI_ASSERT_DEBUG((*iterator) == task);
+        mNotReadyTasks.erase(iterator);
+        ++removedCount;
+      }
+      CacheImpl::EraseAllTaskCache(mCacheImpl->mNotReadyTasksCache, task);
+
+      // push back into waiting queue.
+      while(removedCount > 0u)
+      {
+        --removedCount;
+        auto waitingIter = mWaitingTasks.insert(mWaitingTasks.end(), task);
+        CacheImpl::InsertTaskCache(mCacheImpl->mWaitingTasksCache, task, waitingIter);
+
+        if(task->GetPriorityType() == AsyncTask::PriorityType::HIGH)
+        {
+          // Increase the number of waiting tasks for high priority.
+          ++mWaitingHighProirityTaskCounts;
+        }
+      }
+    }
+    else
+    {
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Already ready. Ignore [%p][%s]\n", task.Get(), GetTaskName(task));
+      // Already waiting now. Ignore.
+      return;
+    }
+  }
+
+  {
+    Mutex::ScopedLock lock(mTasksMutex);
+    size_t            count = mTasks.GetElementCount();
+    size_t            index = 0;
+    while(index++ < count)
+    {
+      auto processHelperIt = mTasks.GetNext();
+      DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
+      if(processHelperIt->Request())
+      {
+        break;
+      }
+      // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
+    }
+  }
+}
+
 Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(CallbackBase* callback, Dali::AsyncTaskManager::CompletedCallbackTraceMask mask)
 {
   // mTasksCompletedImpl will take ownership of callback.
@@ -829,6 +915,19 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
 
         // Collect all tasks from waiting tasks
         for(auto& task : mWaitingTasks)
+        {
+          auto checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
+                           (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
+
+          if((checkMask & mask) == checkMask)
+          {
+            ++addedTaskCount;
+            mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
+          }
+        }
+
+        // Collect all tasks from not ready waiting tasks
+        for(auto& task : mNotReadyTasks)
         {
           auto checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
                            (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
@@ -1022,7 +1121,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
 
   for(auto iter = mWaitingTasks.begin(), endIter = mWaitingTasks.end(); iter != endIter; ++iter)
   {
-    if((*iter)->IsReady())
+    if(DALI_LIKELY((*iter)->IsReady()))
     {
       const auto priorityType  = (*iter)->GetPriorityType();
       bool       taskAvaliable = priorityType == AsyncTask::PriorityType::HIGH; // Task always valid if it's priority is high
@@ -1082,6 +1181,10 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
         }
         break;
       }
+    }
+    else
+    {
+      DALI_LOG_ERROR("Not ready task is in wating queue! Something wrong!\n");
     }
   }
 
