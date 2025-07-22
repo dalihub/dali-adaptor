@@ -3359,6 +3359,7 @@ void WindowBaseEcoreWl2::WindowRotationCompleted(int degree, int width, int heig
 void WindowBaseEcoreWl2::SetTransparency(bool transparent)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_alpha_set");
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetTransparency, ecore_wl2_window_alpha_set with transparent(%d)\n", transparent);
   ecore_wl2_window_alpha_set(mEcoreWindow, transparent);
 }
 

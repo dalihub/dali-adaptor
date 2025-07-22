@@ -867,6 +867,7 @@ void Window::SetTransparency(bool transparent)
     mIsTransparent = transparent;
     Window::SetBackgroundColor(mBackgroundColor);
   }
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetTransparency = %d\n", this, mNativeWindowId, transparent);  
   mWindowSurface->SetTransparency(mIsTransparent);
 }
 
