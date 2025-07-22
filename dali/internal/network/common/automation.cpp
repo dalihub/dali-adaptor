@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,10 @@
 using Dali::Matrix;
 using Dali::Matrix3;
 using Dali::Property;
+
+using Dali::DecoratedVisualRenderer;
+using Dali::Renderer;
+using Dali::VisualRenderer;
 
 namespace // un-named namespace
 {
@@ -393,11 +397,28 @@ std::string DumpJson(Dali::Actor actor, int level)
     for(unsigned int i = 0; i < actor.GetRendererCount(); ++i)
     {
       auto renderer = actor.GetRendererAt(i);
-      AppendRendererPropertyNameAndValue(renderer, i, "offset", msg);
-      AppendRendererPropertyNameAndValue(renderer, i, "size", msg);
-      AppendRendererPropertyNameAndValue(renderer, i, "offsetSizeMode", msg);
-      AppendRendererPropertyNameAndValue(renderer, i, "origin", msg);
-      AppendRendererPropertyNameAndValue(renderer, i, "anchorPoint", msg);
+      AppendRendererPropertyNameAndValue(renderer, i, "opacity", msg);
+      AppendRendererPropertyNameAndValue(renderer, i, "blendMode", msg);
+      if(auto visualRenderer = VisualRenderer::DownCast(renderer))
+      {
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOffset", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformSize", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOffsetSizeMode", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOrigin", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformAnchorPoint", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "extraSize", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "visualMixColor", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "visualPreMultipliedAlpha", msg);
+      }
+      if(auto decoratedRenderer = DecoratedVisualRenderer::DownCast(renderer))
+      {
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "cornerRadius", msg);
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "cornerRadiusPolicy", msg);
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "borderlineWidth", msg);
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "borderlineColor", msg);
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "blurRadius", msg);
+        AppendRendererPropertyNameAndValue(decoratedRenderer, i, "cornerSquareness", msg);
+      }
     }
   }
 
