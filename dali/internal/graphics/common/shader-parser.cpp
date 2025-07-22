@@ -55,6 +55,7 @@ const std::unordered_set<std::string_view> gExceptUniformBlockNames{
   "GaussianBlurSampleBlock", ///< GaussianBlur effects
   "PunctualLightBlock",      ///< For Scene3D::Light
   "SharedFragmentBlock",     ///< For uniform-blocks.example
+  "SharedVertexBlock",       ///< For instance-rendering.example
   "UtcVertBlock",            ///< For UTC
   "UtcFragBlock",            ///< For UTC
 };
@@ -487,7 +488,8 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
     bool blockReused  = false;
     if(!program.uniformBlocks.empty())
     {
-      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item) { return (item.first == uniformBlockName); });
+      auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
+                             { return (item.first == uniformBlockName); });
       if(it != program.uniformBlocks.end())
       {
         localBinding = (*it).second;
@@ -677,6 +679,17 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
         outString += "#define TEXTURE_CUBE texture\n";
         outString += "#define TEXTURE_LOD textureLod\n";
         outString += "#define TEXTURE_CUBE_LOD textureLod\n";
+        if(stage == ShaderStage::VERTEX)
+        {
+          if(language < OutputLanguage::GLSL_3_MAX)
+          {
+            outString += "#define INSTANCE_INDEX gl_InstanceID\n";
+          }
+          else
+          {
+            outString += "#define INSTANCE_INDEX gl_InstanceIndex\n";
+          }
+        }
 
         // redefine textureCube (if used in old GLSL2 style)
         // The old-style GLES2 shaders will be still compatible
@@ -877,7 +890,11 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     }
   }
 
-  DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: language: %s\n", parseInfo.language == OutputLanguage::GLSL_100_ES ? "GLSL_100_ES" : parseInfo.language == OutputLanguage::GLSL_3 ? "GLSL_3/300ES" : parseInfo.language == OutputLanguage::GLSL_310_ES ? "GLSL_310_ES" : parseInfo.language == OutputLanguage::GLSL_320_ES ? "GLSL_320_ES" : parseInfo.language == OutputLanguage::SPIRV_GLSL ? "SPIRV_GLSL" : "Unknown")
+  DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: language: %s\n", parseInfo.language == OutputLanguage::GLSL_100_ES ? "GLSL_100_ES" : parseInfo.language == OutputLanguage::GLSL_3      ? "GLSL_3/300ES"
+                                                                                                                                                  : parseInfo.language == OutputLanguage::GLSL_310_ES ? "GLSL_310_ES"
+                                                                                                                                                  : parseInfo.language == OutputLanguage::GLSL_320_ES ? "GLSL_320_ES"
+                                                                                                                                                  : parseInfo.language == OutputLanguage::SPIRV_GLSL  ? "SPIRV_GLSL"
+                                                                                                                                                                                                      : "Unknown")
   DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: outputVersion: %u\n\n", parseInfo.outputVersion);
   DALI_LOG_INFO(gLogFilter, Debug::General, "Output Vertex shader:\n%s", output[0].c_str());
   DALI_LOG_INFO(gLogFilter, Debug::General, "Output Fragment shader:\n%s", output[1].c_str());
