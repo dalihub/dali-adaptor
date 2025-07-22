@@ -135,7 +135,6 @@ struct Command
     {
       IndirectPtr<UniformBufferBindingDescriptor> uniformBufferBindings; ///< Sorted by binding index.
       uint32_t                                    uniformBufferBindingsCount;
-      UniformBufferBindingDescriptor              standaloneUniformsBufferBinding{};
     } bindUniformBuffers;
 
     struct
@@ -162,8 +161,10 @@ struct Command
       Graphics::Viewport region;
     } viewport;
 
-    struct BeginRenderPassDescriptor
-      beginRenderPass;
+    struct
+    {
+      IndirectPtr<GLES::BeginRenderPassDescriptor> descriptor;
+    } beginRenderPass;
 
     struct
     {
@@ -221,7 +222,7 @@ struct Command
 
     struct
     {
-      DrawNativeInfo drawNativeInfo;
+      IndirectPtr<Graphics::DrawNativeInfo> drawNativeInfo;
     } drawNative;
   };
 };
@@ -341,7 +342,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CommandBuffer::DrawNative
    */
-  void DrawNative(const DrawNativeInfo* drawNativeInfo) override;
+  void DrawNative(const Graphics::DrawNativeInfo* drawNativeInfo) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::Reset

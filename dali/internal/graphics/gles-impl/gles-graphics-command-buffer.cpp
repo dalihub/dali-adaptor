@@ -29,6 +29,12 @@
 
 namespace Dali::Graphics::GLES
 {
+namespace
+{
+constexpr uint32_t CPU_ALLOCATED_UBO_INDEX       = 0u;
+constexpr uint32_t GPU_ALLOCATED_UBO_INDEX_BEGIN = 1u;
+} // namespace
+
 class CommandPool
 {
   static constexpr uint32_t COMMAND_POOL_DEFAULT_INCREMENT = 1024 * 32 / sizeof(Command); // 32kb banks
@@ -342,70 +348,76 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   // temporary static set of binding slots (thread local)
   static constexpr auto MAX_UNIFORM_BUFFER_BINDINGS = 64; // TODO: this should be read from introspection
 
-  static constexpr UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0};
-  static thread_local std::vector<UniformBufferBindingDescriptor> sTempBindings(MAX_UNIFORM_BUFFER_BINDINGS, NULL_DESCRIPTOR);
-  static thread_local std::vector<uint8_t>                        sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS, 0);
-
-  memset(&bindCmd.standaloneUniformsBufferBinding, 0, sizeof(UniformBufferBindingDescriptor));
+  static constexpr GLES::UniformBufferBindingDescriptor                 NULL_DESCRIPTOR{nullptr, 0, 0, 0};
+  static thread_local std::vector<GLES::UniformBufferBindingDescriptor> sTempBindings(MAX_UNIFORM_BUFFER_BINDINGS + GPU_ALLOCATED_UBO_INDEX_BEGIN, NULL_DESCRIPTOR);
+  static thread_local std::vector<uint8_t>                              sTempBindingsUsed(MAX_UNIFORM_BUFFER_BINDINGS + GPU_ALLOCATED_UBO_INDEX_BEGIN, 0);
 
   // find max binding and standalone UBO
-  auto maxBinding  = 0u;
-  bool hasBindings = false;
+  auto maxBinding         = 0u;
+  bool hasBindings        = false;
+  bool standaloneUniforms = true; // Should assume that first binding must be standalone uniforms.
+
   for(const auto& binding : bindings)
   {
     if(binding.buffer)
     {
+      hasBindings            = true;
       const auto* glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
-      if(glesBuffer->IsCPUAllocated()) // standalone uniforms
+      if(standaloneUniforms) // standalone uniforms
       {
-        bindCmd.standaloneUniformsBufferBinding.buffer  = glesBuffer;
-        bindCmd.standaloneUniformsBufferBinding.offset  = binding.offset;
-        bindCmd.standaloneUniformsBufferBinding.binding = binding.binding;
+        auto& slot = sTempBindings[CPU_ALLOCATED_UBO_INDEX];
+
+        slot.buffer  = glesBuffer;
+        slot.offset  = binding.offset;
+        slot.binding = binding.binding;
+
+        sTempBindingsUsed[CPU_ALLOCATED_UBO_INDEX] = true;
       }
       else // Bind regular UBO
       {
-        auto& slot = sTempBindings[binding.binding];
+        auto& slot = sTempBindings[binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN];
 
         slot.buffer   = glesBuffer;
         slot.offset   = binding.offset;
         slot.dataSize = binding.dataSize;
         slot.binding  = binding.binding;
 
-        sTempBindingsUsed[binding.binding] = true;
+        sTempBindingsUsed[binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN] = true;
 
-        maxBinding  = std::max(maxBinding, binding.binding);
-        hasBindings = true;
+        maxBinding = std::max(maxBinding, binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN);
       }
     }
+    standaloneUniforms = false;
   }
 
-  // reset unused bindings slots
-  for(auto i = 0u; i <= maxBinding; ++i)
-  {
-    if(sTempBindingsUsed[i])
-    {
-      sTempBindingsUsed[i] = false;
-    }
-    else
-    {
-      sTempBindings[i] = NULL_DESCRIPTOR;
-    }
-  }
-
-  bindCmd.uniformBufferBindings      = nullptr;
-  bindCmd.uniformBufferBindingsCount = 0u;
-
-  // copy data
   if(hasBindings)
   {
     ++maxBinding;
 
-    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding);
+    // reset unused bindings slots
+    for(auto i = 0u; i < maxBinding; ++i)
+    {
+      if(sTempBindingsUsed[i])
+      {
+        sTempBindingsUsed[i] = false;
+      }
+      else
+      {
+        sTempBindings[i] = NULL_DESCRIPTOR;
+      }
+    }
+
+    auto destBindings = mCommandPool->Allocate<GLES::UniformBufferBindingDescriptor>(maxBinding);
 
     // copy
-    memcpy(destBindings.Ptr(), &sTempBindings[0], sizeof(UniformBufferBindingDescriptor) * (maxBinding));
+    memcpy(destBindings.Ptr(), &sTempBindings[0], sizeof(GLES::UniformBufferBindingDescriptor) * (maxBinding));
     bindCmd.uniformBufferBindings      = destBindings;
     bindCmd.uniformBufferBindingsCount = maxBinding;
+  }
+  else
+  {
+    bindCmd.uniformBufferBindings      = nullptr;
+    bindCmd.uniformBufferBindingsCount = 0u;
   }
 }
 
@@ -415,7 +427,7 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
   command->bindPipeline.pipeline = static_cast<const GLES::Pipeline*>(&pipeline);
 }
 
-void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
+void CommandBuffer::BindTextures(const std::vector<Graphics::TextureBinding>& textureBindings)
 {
   auto  command         = mCommandPool->AllocateCommand(CommandType::BIND_TEXTURES);
   auto& bindTexturesCmd = command->bindTextures;
@@ -429,10 +441,10 @@ void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindi
   {
     const uint32_t bindingCount = static_cast<uint32_t>(textureBindings.size());
 
-    auto destBindings = mCommandPool->Allocate<TextureBinding>(bindingCount);
+    auto destBindings = mCommandPool->Allocate<Graphics::TextureBinding>(bindingCount);
 
     // copy
-    memcpy(destBindings.Ptr(), textureBindings.data(), sizeof(TextureBinding) * (bindingCount));
+    memcpy(destBindings.Ptr(), textureBindings.data(), sizeof(Graphics::TextureBinding) * (bindingCount));
 
     bindTexturesCmd.textureBindings      = destBindings;
     bindTexturesCmd.textureBindingsCount = bindingCount;
@@ -471,20 +483,25 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
 }
 
 void CommandBuffer::BeginRenderPass(
-  Graphics::RenderPass*          renderPass,
-  Graphics::RenderTarget*        renderTarget,
-  Rect2D                         renderArea,
-  const std::vector<ClearValue>& clearValues)
+  Graphics::RenderPass*                    renderPass,
+  Graphics::RenderTarget*                  renderTarget,
+  Graphics::Rect2D                         renderArea,
+  const std::vector<Graphics::ClearValue>& clearValues)
 {
-  auto  command                    = mCommandPool->AllocateCommand(CommandType::BEGIN_RENDERPASS);
-  auto& cmd                        = *command;
-  cmd.beginRenderPass.renderPass   = static_cast<GLES::RenderPass*>(renderPass);
-  cmd.beginRenderPass.renderTarget = static_cast<GLES::RenderTarget*>(renderTarget);
-  cmd.beginRenderPass.renderArea   = renderArea;
+  auto  command                  = mCommandPool->AllocateCommand(CommandType::BEGIN_RENDERPASS);
+  auto& cmd                      = *command;
+  cmd.beginRenderPass.descriptor = mCommandPool->Allocate<GLES::BeginRenderPassDescriptor>(1);
 
-  cmd.beginRenderPass.clearValues = mCommandPool->Allocate<ClearValue>(clearValues.size());
-  memcpy(cmd.beginRenderPass.clearValues.Ptr(), clearValues.data(), sizeof(ClearValue) * clearValues.size());
-  cmd.beginRenderPass.clearValuesCount = clearValues.size();
+  auto& descriptor = *(cmd.beginRenderPass.descriptor);
+
+  descriptor.renderPass   = static_cast<GLES::RenderPass*>(renderPass);
+  descriptor.renderTarget = static_cast<GLES::RenderTarget*>(renderTarget);
+
+  descriptor.renderArea  = renderArea;
+  descriptor.clearValues = mCommandPool->Allocate<Graphics::ClearValue>(clearValues.size());
+  memcpy(descriptor.clearValues.Ptr(), clearValues.data(), sizeof(ClearValue) * clearValues.size());
+
+  descriptor.clearValuesCount = clearValues.size();
 
   mGlStateCommandCache->ResetCache(); // Reset GL state cache after begin render pass
 }
@@ -521,13 +538,14 @@ void CommandBuffer::Draw(
   uint32_t firstVertex,
   uint32_t firstInstance)
 {
-  auto  command          = mCommandPool->AllocateCommand(CommandType::DRAW);
-  auto& cmd              = command->draw;
-  cmd.type               = DrawCallDescriptor::Type::DRAW;
+  auto  command = mCommandPool->AllocateCommand(CommandType::DRAW);
+  auto& cmd     = command->draw;
+  cmd.type      = GLES::DrawCallDescriptor::Type::DRAW;
+
+  cmd.firstOffset        = firstVertex;
   cmd.draw.vertexCount   = vertexCount;
   cmd.draw.instanceCount = instanceCount;
   cmd.draw.firstInstance = firstInstance;
-  cmd.draw.firstVertex   = firstVertex;
 }
 
 void CommandBuffer::DrawIndexed(
@@ -537,14 +555,19 @@ void CommandBuffer::DrawIndexed(
   int32_t  vertexOffset,
   uint32_t firstInstance)
 {
-  auto  command                 = mCommandPool->AllocateCommand(CommandType::DRAW_INDEXED);
-  auto& cmd                     = command->draw;
-  cmd.type                      = DrawCallDescriptor::Type::DRAW_INDEXED;
-  cmd.drawIndexed.firstIndex    = firstIndex;
-  cmd.drawIndexed.firstInstance = firstInstance;
+  auto  command = mCommandPool->AllocateCommand(CommandType::DRAW_INDEXED);
+  auto& cmd     = command->draw;
+  cmd.type      = GLES::DrawCallDescriptor::Type::DRAW_INDEXED;
+
+  cmd.firstOffset               = firstIndex;
   cmd.drawIndexed.indexCount    = indexCount;
   cmd.drawIndexed.vertexOffset  = vertexOffset;
   cmd.drawIndexed.instanceCount = instanceCount;
+
+  if(firstInstance != 0u)
+  {
+    DALI_LOG_ERROR("FirstInstance not support in OpenGL ES! Call as normal DrawElements instead\n");
+  }
 }
 
 void CommandBuffer::DrawIndexedIndirect(
@@ -553,20 +576,24 @@ void CommandBuffer::DrawIndexedIndirect(
   uint32_t          drawCount,
   uint32_t          stride)
 {
-  auto  command                     = mCommandPool->AllocateCommand(CommandType::DRAW_INDEXED_INDIRECT);
-  auto& cmd                         = command->draw;
-  cmd.type                          = DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT;
+  auto  command = mCommandPool->AllocateCommand(CommandType::DRAW_INDEXED_INDIRECT);
+  auto& cmd     = command->draw;
+  cmd.type      = GLES::DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT;
+
+  cmd.firstOffset                   = offset;
   cmd.drawIndexedIndirect.buffer    = static_cast<const GLES::Buffer*>(&buffer);
-  cmd.drawIndexedIndirect.offset    = offset;
   cmd.drawIndexedIndirect.drawCount = drawCount;
   cmd.drawIndexedIndirect.stride    = stride;
 }
 
-void CommandBuffer::DrawNative(const DrawNativeInfo* drawNativeInfo)
+void CommandBuffer::DrawNative(const Graphics::DrawNativeInfo* drawNativeInfo)
 {
   auto  command = mCommandPool->AllocateCommand(CommandType::DRAW_NATIVE);
   auto& cmd     = command->drawNative;
-  memcpy(&cmd.drawNativeInfo, drawNativeInfo, sizeof(DrawNativeInfo));
+
+  cmd.drawNativeInfo = mCommandPool->Allocate<Graphics::DrawNativeInfo>(1);
+  memcpy(cmd.drawNativeInfo.Ptr(), drawNativeInfo, sizeof(Graphics::DrawNativeInfo));
+
   mGlStateCommandCache->ResetCache(); // Reset GL state cache after draw native
 }
 

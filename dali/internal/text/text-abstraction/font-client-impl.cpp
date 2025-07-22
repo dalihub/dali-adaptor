@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,34 +61,41 @@ namespace
 {
 class FontThread
 {
-/*
- * There are cases in the candidate process where the font thread is
- * no UI or when the font client is not used.
- * In such cases, we can ensure the join of the font thread
- * by calling the join method in the destructor of this class.
- */
+  /*
+   * There are cases in the candidate process where the font thread is
+   * no UI or when the font client is not used.
+   * In such cases, we can ensure the join of the font thread
+   * by calling the join method in the destructor of this class.
+   */
 public:
   FontThread() = default;
   ~FontThread()
   {
-    if(mThread.joinable())
+    try
     {
-      mThread.join();
+      if(mThread.joinable())
+      {
+        mThread.join();
+      }
+    }
+    catch(const std::exception& ex)
+    {
+      DALI_LOG_ERROR("Exception during thread join : %s\n", ex.what());
     }
   }
   std::thread mThread{};
 };
 
-std::string gLocale;     // The current language. (e.g., "en")
-std::string gLocaleFull; // The current locale identifier. (e.g., "en_US")
+static std::string gLocale;     // The current language. (e.g., "en")
+static std::string gLocaleFull; // The current locale identifier. (e.g., "en_US")
 
-FontThread                        gPreCacheThread{};
-FontThread                        gPreLoadThread{};
-std::mutex                        gMutex;
-std::condition_variable           gPreCacheCond;
-std::condition_variable           gPreLoadCond;
-bool                              gPreCacheThreadReady = false;
-bool                              gPreLoadThreadReady = false;
+static FontThread              gPreCacheThread{};
+static FontThread              gPreLoadThread{};
+static std::mutex              gMutex;
+static std::condition_variable gPreCacheCond;
+static std::condition_variable gPreLoadCond;
+static bool                    gPreCacheThreadReady = false;
+static bool                    gPreLoadThreadReady  = false;
 
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
@@ -246,7 +253,8 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
       std::unique_lock<std::mutex> lock(gMutex);
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
       gPreCacheThread.mThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
-      gPreCacheCond.wait_for(lock, timeout, []{return gPreCacheThreadReady;});
+      gPreCacheCond.wait_for(lock, timeout, []
+                             { return gPreCacheThreadReady; });
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
     }
     else
@@ -296,7 +304,8 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
       std::unique_lock<std::mutex> lock(gMutex);
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
       gPreLoadThread.mThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
-      gPreLoadCond.wait_for(lock, timeout, []{return gPreLoadThreadReady;});
+      gPreLoadCond.wait_for(lock, timeout, []
+                            { return gPreLoadThreadReady; });
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
     }
     else
@@ -329,7 +338,7 @@ void FontClient::EnsureLocale()
 {
   if(gLocale.empty() || gLocaleFull.empty())
   {
-    const char *locale;
+    const char* locale;
     locale = setlocale(LC_MESSAGES, NULL);
     if(locale)
     {

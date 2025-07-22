@@ -1169,8 +1169,6 @@ struct DrawCallDescriptor
     DRAW_INDEXED_INDIRECT,
   };
 
-  Type type{}; ///< Type of the draw call
-
   /**
    * Union contains data for all types of draw calls.
    */
@@ -1183,7 +1181,6 @@ struct DrawCallDescriptor
     {
       uint32_t vertexCount;
       uint32_t instanceCount;
-      uint32_t firstVertex;
       uint32_t firstInstance;
     } draw;
 
@@ -1194,9 +1191,8 @@ struct DrawCallDescriptor
     {
       uint32_t indexCount;
       uint32_t instanceCount;
-      uint32_t firstIndex;
       int32_t  vertexOffset;
-      uint32_t firstInstance;
+      // uint32_t firstInstance; ///< glDrawElementsInstancedBaseInstance not support in OpenGL ES
     } drawIndexed;
 
     /**
@@ -1205,11 +1201,13 @@ struct DrawCallDescriptor
     struct
     {
       const GLES::Buffer* buffer;
-      uint32_t            offset;
       uint32_t            drawCount;
       uint32_t            stride;
     } drawIndexedIndirect;
   };
+  // DevNote : Move 4 byte out of unions, so we could make sizeof(DrawCallDescriptor) <= 24 byte in 64bit.
+  uint32_t firstOffset{}; ///< firstVertex for Type::DRAW. firstIndex for Type::DRAW_INDEX, offset for Type::DRAW_INDEX_INDIRECT.
+  Type     type{};        ///< Type of the draw call
 };
 
 /**
@@ -1772,6 +1770,16 @@ struct IndirectPtr
     return *reinterpret_cast<T*>((reinterpret_cast<uint8_t*>(*base) + ptr));
   }
 
+  inline const T* operator->() const
+  {
+    return reinterpret_cast<const T*>((reinterpret_cast<const uint8_t*>(*base) + ptr));
+  }
+
+  inline const T& operator*() const
+  {
+    return *reinterpret_cast<const T*>((reinterpret_cast<const uint8_t*>(*base) + ptr));
+  }
+
   // Returns indirect pointer casted to requested type
   T* Ptr() const
   {
@@ -1807,4 +1815,4 @@ struct BeginRenderPassDescriptor
 
 } // namespace Dali::Graphics::GLES
 
-#endif //DALI_GRAPHICS_API_TYPES_H
+#endif // DALI_GRAPHICS_API_TYPES_H

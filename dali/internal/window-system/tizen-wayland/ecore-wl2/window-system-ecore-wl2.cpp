@@ -61,7 +61,7 @@ static bool    gGeometryHittest = false;
 void Initialize()
 {
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  if(frameworkFactory == nullptr || (frameworkFactory  && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_wl2_init();

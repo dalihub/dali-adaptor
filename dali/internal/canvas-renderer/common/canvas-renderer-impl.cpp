@@ -64,8 +64,15 @@ CanvasRenderer::~CanvasRenderer()
 #ifdef THORVG_SUPPORT
   mDrawables.clear();
 
-  // Terminate ThorVG Engine
-  tvg::Initializer::term(tvg::CanvasEngine::Sw);
+  try
+  {
+    // Terminate ThorVG Engine
+    tvg::Initializer::term(tvg::CanvasEngine::Sw);
+  }
+  catch(const std::exception& ex)
+  {
+    DALI_LOG_ERROR("Exception during tvg::Initializer::term(tvg::CanvasEngine::Sw)! : %s\n", ex.what());
+  }
 #endif
 }
 
@@ -390,14 +397,16 @@ void CanvasRenderer::UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable& draw
 
 void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawable, tvg::Scene* parent)
 {
-  Internal::Adaptor::Drawable& drawableImpl        = Dali::GetImplementation(drawable);
-  tvg::Paint*                  tvgDuplicatedObject = static_cast<tvg::Paint*>(drawableImpl.GetObject())->duplicate();
-  if(!tvgDuplicatedObject)
+  Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(drawable);
+  tvg::Paint*                  tvgObject    = static_cast<tvg::Paint*>(drawableImpl.GetObject());
+  if(DALI_UNLIKELY(!tvgObject))
   {
     DALI_LOG_ERROR("Invalid drawable object [%p]\n", this);
     return;
   }
-  Drawable::Types type = drawableImpl.GetType();
+
+  tvg::Paint*     tvgDuplicatedObject = tvgObject->duplicate();
+  Drawable::Types type                = drawableImpl.GetType();
 
   if(type == Drawable::Types::DRAWABLE_GROUP)
   {
@@ -414,15 +423,17 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
     // FillGradient
     Dali::CanvasRenderer::Shape&   shape        = static_cast<Dali::CanvasRenderer::Shape&>(drawable);
     Dali::CanvasRenderer::Gradient fillGradient = shape.GetFillGradient();
-    if(DALI_UNLIKELY(fillGradient))
+    if(fillGradient)
     {
-      Internal::Adaptor::Gradient& fillGradientImpl          = Dali::GetImplementation(fillGradient);
-      tvg::Fill*                   tvgDuplicatedFillGradient = static_cast<tvg::Fill*>(fillGradientImpl.GetObject())->duplicate();
-      if(!tvgDuplicatedFillGradient)
+      Internal::Adaptor::Gradient& fillGradientImpl = Dali::GetImplementation(fillGradient);
+      tvg::Fill*                   tvgFillGradient  = static_cast<tvg::Fill*>(fillGradientImpl.GetObject());
+      if(DALI_UNLIKELY(!tvgFillGradient))
       {
         DALI_LOG_ERROR("Invalid gradient object [%p]\n", this);
         return;
       }
+
+      tvg::Fill* tvgDuplicatedFillGradient = tvgFillGradient->duplicate();
       if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->fill(std::unique_ptr<tvg::Fill>(tvgDuplicatedFillGradient)) != tvg::Result::Success)
       {
         DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
@@ -432,15 +443,17 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
 
     // StrokeGradient
     Dali::CanvasRenderer::Gradient strokeGradient = shape.GetStrokeGradient();
-    if(DALI_UNLIKELY(strokeGradient))
+    if(strokeGradient)
     {
-      Internal::Adaptor::Gradient& strokeGradientImpl          = Dali::GetImplementation(strokeGradient);
-      tvg::Fill*                   tvgDuplicatedStrokeGradient = static_cast<tvg::Fill*>(strokeGradientImpl.GetObject())->duplicate();
-      if(!tvgDuplicatedStrokeGradient)
+      Internal::Adaptor::Gradient& strokeGradientImpl = Dali::GetImplementation(strokeGradient);
+      tvg::Fill*                   tvgStrokeGradient  = static_cast<tvg::Fill*>(strokeGradientImpl.GetObject());
+      if(DALI_UNLIKELY(!tvgStrokeGradient))
       {
         DALI_LOG_ERROR("Invalid gradient object [%p]\n", this);
         return;
       }
+
+      tvg::Fill* tvgDuplicatedStrokeGradient = tvgStrokeGradient->duplicate();
       if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->stroke(std::unique_ptr<tvg::Fill>(tvgDuplicatedStrokeGradient)) != tvg::Result::Success)
       {
         DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
@@ -450,31 +463,34 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
   }
 
   Dali::CanvasRenderer::Drawable compositeDrawable = drawableImpl.GetCompositionDrawable();
-  if(DALI_UNLIKELY(compositeDrawable))
+  if(compositeDrawable)
   {
     Internal::Adaptor::Drawable& compositeDrawableImpl = Dali::GetImplementation(compositeDrawable);
     tvg::Paint*                  tvgCompositeObject    = static_cast<tvg::Paint*>(compositeDrawableImpl.GetObject());
-    if(tvgCompositeObject)
+    if(DALI_UNLIKELY(!tvgCompositeObject))
     {
-      tvg::Paint*     tvgDuplicatedCompositeObject = tvgCompositeObject->duplicate();
-      Drawable::Types type                         = compositeDrawableImpl.GetType();
+      DALI_LOG_ERROR("Invalid composite drawable object [%p]\n", this);
+      return;
+    }
 
-      if(type == Drawable::Types::DRAWABLE_GROUP)
-      {
-        Dali::CanvasRenderer::DrawableGroup& compositeGroup             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(compositeDrawable);
-        Internal::Adaptor::DrawableGroup&    compositeDrawableGroupImpl = Dali::GetImplementation(compositeGroup);
-        DrawableGroup::DrawableVector        compositeDrawables         = compositeDrawableGroupImpl.GetDrawables();
-        for(auto& it : compositeDrawables)
-        {
-          PushDrawableToGroup(it, static_cast<tvg::Scene*>(tvgDuplicatedCompositeObject));
-        }
-      }
+    tvg::Paint*     tvgDuplicatedCompositeObject = tvgCompositeObject->duplicate();
+    Drawable::Types type                         = compositeDrawableImpl.GetType();
 
-      if(tvgDuplicatedObject->composite(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
+    if(type == Drawable::Types::DRAWABLE_GROUP)
+    {
+      Dali::CanvasRenderer::DrawableGroup& compositeGroup             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(compositeDrawable);
+      Internal::Adaptor::DrawableGroup&    compositeDrawableGroupImpl = Dali::GetImplementation(compositeGroup);
+      DrawableGroup::DrawableVector        compositeDrawables         = compositeDrawableGroupImpl.GetDrawables();
+      for(auto& it : compositeDrawables)
       {
-        DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
-        return;
+        PushDrawableToGroup(it, static_cast<tvg::Scene*>(tvgDuplicatedCompositeObject));
       }
+    }
+
+    if(tvgDuplicatedObject->composite(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
+    {
+      DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
+      return;
     }
   }
 
