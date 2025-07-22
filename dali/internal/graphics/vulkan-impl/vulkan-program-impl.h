@@ -143,14 +143,47 @@ public:
   bool GetParameter(uint32_t parameterId, void* out);
 
   /**
-   *
+   * @brief Add a descriptor pool
    * @param[in] poolCapacity the capacity of pool
-   * @param maxPoolCounts number of pools, last added pool will be removed
-   * @return index of descriptor pool or -1 if unable to create pool
    */
-  [[nodiscard]] int AddDescriptorPool(uint32_t poolCapacity, uint32_t maxPoolCounts);
+  void AddDescriptorPool(uint32_t poolCapacity);
 
-  [[nodiscard]] vk::DescriptorSet AllocateDescriptorSet(int poolIndex);
+  /**
+   * @brief Allocates descriptor sets for the current frame
+   * @param[in] frameIndex Current frame index
+   * @param[in] maxSetsPerFrame Maximum number of descriptor sets needed for this frame
+   * @return True on success
+   */
+  [[nodiscard]] bool AllocateDescriptorSetsForFrame(uint32_t frameIndex, uint32_t maxSetsPerFrame);
+
+  /**
+   * @brief Pre-allocate a batch of descriptor sets for the given descriptor pool in the given frame
+   * @param[in] frameIndex Index of the frame in flight
+   * @param[in] pool Descriptor pool
+   * @param[in] setCount Number of descriptor sets to allocate
+   */
+  void PreAllocateDescriptorSetsFromPool(uint32_t frameIndex, vk::DescriptorPool pool, uint32_t setCount);
+
+  /**
+   * @brief Grow the descriptor pool for a given frame and pre-allocate new sets
+   * @param[in] frameIndex Index of the frame in flight
+   * @param[in] newCapacity Desired new maximum sets for this frame
+   * @return True if pool was grown (or already large enough), false on failure
+   */
+  [[nodiscard]] bool GrowDescriptorPool(uint32_t frameIndex, uint32_t newCapacity);
+
+  /**
+   * @brief Gets the next available descriptor set for the current frame
+   * @param[in] frameIndex Current frame index
+   * @return Descriptor set handle or VK_NULL_HANDLE if none available
+   */
+  [[nodiscard]] vk::DescriptorSet GetNextDescriptorSetForFrame(uint32_t frameIndex);
+
+  /**
+   * @brief Resets descriptor sets for the frame so that they can be reused
+   * @param[in] frameIndex Frame index to reset
+   */
+  void ResetDescriptorSetsForFrame(uint32_t frameIndex);
 
 private:
   friend class Program;

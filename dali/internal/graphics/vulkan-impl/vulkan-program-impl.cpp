@@ -33,6 +33,11 @@
 extern Debug::Filter* gGraphicsProgramLogFilter;
 #endif
 
+namespace
+{
+const uint32_t MAX_POOL_CAPACITY = 8192u;
+} // Anonymous namespace
+
 namespace Dali::Graphics::Vulkan
 {
 struct ProgramImpl::Impl
@@ -58,15 +63,40 @@ struct ProgramImpl::Impl
     auto  vkDevice  = gfxDevice.GetLogicalDevice();
     auto& allocator = gfxDevice.GetAllocator();
 
-    for(auto& descriptorPool : poolList)
+    for(auto& frame : frameResources)
     {
-      if(descriptorPool.vkPool) // valid handle?
+      for(auto& pool : frame.descriptorPools)
       {
-        vkDevice.destroyDescriptorPool(descriptorPool.vkPool, &allocator);
+        vkDevice.destroyDescriptorPool(pool, &allocator);
       }
     }
 
     delete createInfo.shaderState;
+  }
+
+  std::vector<vk::DescriptorPoolSize> CalculatePoolSizes(uint32_t setCount)
+  {
+    // Build poolSizes from reflection
+    std::vector<vk::DescriptorPoolSize> poolSizes;
+    auto                                uniformBlockCount = reflection->GetUniformBlockCount() - 1; // skip GLES emulation
+    auto                                samplersCount     = reflection->GetSamplers().size();
+
+    if(uniformBlockCount)
+    {
+      vk::DescriptorPoolSize item;
+      item.setType(vk::DescriptorType::eUniformBuffer);
+      item.setDescriptorCount(uniformBlockCount * setCount);
+      poolSizes.emplace_back(item);
+    }
+    if(samplersCount)
+    {
+      vk::DescriptorPoolSize item;
+      item.setType(vk::DescriptorType::eCombinedImageSampler);
+      item.setDescriptorCount(samplersCount * setCount);
+      poolSizes.emplace_back(item);
+    }
+
+    return poolSizes;
   }
 
   VulkanGraphicsController& controller;
@@ -87,6 +117,16 @@ struct ProgramImpl::Impl
 
   std::vector<DescriptorPool> poolList;            ///< List of descriptor pools. Each element corresponds to overall bufferIndex.
   uint32_t                    currentPoolIndex{0}; ///< Current pool index matches bufferIndex
+
+  struct FrameResources
+  {
+    std::vector<vk::DescriptorPool> descriptorPools;    // List of descriptor pools
+    std::vector<vk::DescriptorSet>  freeSets;           // Available sets for use
+    std::vector<vk::DescriptorSet>  usedSets;           // Sets currently in use
+    uint32_t                        currentCapacity{0}; // Current pool capacity
+  };
+
+  std::vector<FrameResources> frameResources; ///< Per-frame resources
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
@@ -279,96 +319,158 @@ const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
   return mImpl->mPipelineShaderStageCreateInfoList;
 }
 
-[[nodiscard]] int ProgramImpl::AddDescriptorPool(uint32_t poolCapacity, uint32_t maxPoolCounts)
+void ProgramImpl::AddDescriptorPool(uint32_t initialCapacity)
 {
-  auto& poolList = mImpl->poolList;
+  auto& gfxDevice         = mImpl->controller.GetGraphicsDevice();
+  auto& allocator         = gfxDevice.GetAllocator();
+  auto  vkDevice          = gfxDevice.GetLogicalDevice();
+  auto  maxFramesInFlight = gfxDevice.GetBufferCount();
+
+  mImpl->frameResources.resize(maxFramesInFlight);
+
+  auto poolSizes = mImpl->CalculatePoolSizes(initialCapacity);
+
+  for(uint32_t i = 0; i < maxFramesInFlight; ++i)
+  {
+    auto& frame = mImpl->frameResources[i];
+
+    if(initialCapacity > frame.currentCapacity)
+    {
+      // Create new pool with initial capacity
+      vk::DescriptorPoolCreateInfo poolInfo;
+      poolInfo.setMaxSets(initialCapacity);
+      poolInfo.setPoolSizes(poolSizes);
+
+      vk::DescriptorPool newPool;
+      VkAssert(vkDevice.createDescriptorPool(&poolInfo, &allocator, &newPool));
+
+      frame.descriptorPools.push_back(newPool);
+      frame.currentCapacity += initialCapacity;
+
+      PreAllocateDescriptorSetsFromPool(i, newPool, initialCapacity);
+    }
+
+    ResetDescriptorSetsForFrame(i); // Prepare free set list
+  }
+}
+
+void ProgramImpl::PreAllocateDescriptorSetsFromPool(uint32_t frameIndex, vk::DescriptorPool pool, uint32_t setCount)
+{
+  if(frameIndex >= mImpl->frameResources.size())
+  {
+    return;
+  }
+
+  auto& frame     = mImpl->frameResources[frameIndex];
+  auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
+  auto  vkDevice  = gfxDevice.GetLogicalDevice();
+  auto& layouts   = GetReflection().GetVkDescriptorSetLayouts();
+
+  // Prepare layouts for batch allocation
+  std::vector<vk::DescriptorSetLayout> setLayouts(setCount, layouts[0]);
+
+  vk::DescriptorSetAllocateInfo allocInfo;
+  allocInfo.setDescriptorPool(pool);
+  allocInfo.setDescriptorSetCount(setCount);
+  allocInfo.setSetLayouts(setLayouts);
+
+  // Allocate all sets in one batch
+  std::vector<vk::DescriptorSet> newSets(setCount);
+  VkAssert(vkDevice.allocateDescriptorSets(&allocInfo, newSets.data()));
+
+  // Update free list to include all pre-allocated sets
+  frame.freeSets.insert(frame.freeSets.end(), newSets.begin(), newSets.end());
+}
+
+[[nodiscard]] bool ProgramImpl::GrowDescriptorPool(uint32_t frameIndex, uint32_t newCapacity)
+{
+  if(frameIndex >= mImpl->frameResources.size())
+  {
+    return false;
+  }
+
+  auto& frame = mImpl->frameResources[frameIndex];
+
+  uint32_t growSize = newCapacity - frame.currentCapacity;
+  if(growSize == 0 || newCapacity > MAX_POOL_CAPACITY)
+  {
+    return false;
+  }
 
   auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
   auto& allocator = gfxDevice.GetAllocator();
   auto  vkDevice  = gfxDevice.GetLogicalDevice();
 
-  uint32_t bufferIndex    = gfxDevice.GetCurrentBufferIndex();
-  mImpl->currentPoolIndex = bufferIndex % maxPoolCounts;
+  // Create descriptor pool sizes for new capacity
+  auto poolSizes = mImpl->CalculatePoolSizes(newCapacity);
 
-  if(mImpl->currentPoolIndex >= poolList.size())
-  {
-    poolList.resize(mImpl->currentPoolIndex + 1);
-  }
+  vk::DescriptorPoolCreateInfo poolInfo;
+  poolInfo.setMaxSets(growSize);
+  poolInfo.setPoolSizes(poolSizes);
 
-  // round-robin the pool index
-  Impl::DescriptorPool& descriptorPool = mImpl->poolList[mImpl->currentPoolIndex];
+  // Create new descriptor pool to meet the new capacity
+  vk::DescriptorPool newPool;
+  VkAssert(vkDevice.createDescriptorPool(&poolInfo, &allocator, &newPool));
 
-  // if pool exists at index...
-  if(descriptorPool.vkPool)
-  {
-    // ...try to reuse the pool
-    if(descriptorPool.createInfo.maxSets >= poolCapacity)
-    {
-      vkDevice.resetDescriptorPool(descriptorPool.vkPool, vk::DescriptorPoolResetFlags{});
-      return mImpl->currentPoolIndex;
-    }
+  frame.descriptorPools.push_back(newPool);
+  frame.currentCapacity += growSize;
 
-    // ... else, destroy vulkan object, and re-create it below
-    vkDevice.destroyDescriptorPool(descriptorPool.vkPool, &allocator);
-  }
+  // Pre-allocate all sets for the new capacity
+  PreAllocateDescriptorSetsFromPool(frameIndex, newPool, growSize);
 
-  // Create new descriptor pool for the required capacity
-  descriptorPool.createInfo.setMaxSets(poolCapacity);
-  std::vector<vk::DescriptorPoolSize> poolSizes;
-
-  // Note, first block is for gles emulation, so ignore it.
-  auto uniformBlockCount = GetReflection().GetUniformBlockCount() - 1;
-  auto samplersCount     = GetReflection().GetSamplers().size();
-
-  if(uniformBlockCount)
-  {
-    vk::DescriptorPoolSize item;
-    item.setType(vk::DescriptorType::eUniformBuffer);
-    item.setDescriptorCount(uniformBlockCount * poolCapacity);
-    poolSizes.emplace_back(item);
-  }
-  if(samplersCount) // For now, we use only combined image sampler type as 'sampler'
-  {
-    vk::DescriptorPoolSize item;
-    item.setType(vk::DescriptorType::eCombinedImageSampler);
-    item.setDescriptorCount(samplersCount * poolCapacity);
-    poolSizes.emplace_back(item);
-  }
-
-  // set sizes
-  descriptorPool.createInfo.setPoolSizes(poolSizes);
-
-  // create pool
-  VkAssert(vkDevice.createDescriptorPool(&descriptorPool.createInfo, &allocator, &descriptorPool.vkPool));
-
-  return mImpl->currentPoolIndex;
+  return true;
 }
 
-[[nodiscard]] vk::DescriptorSet ProgramImpl::AllocateDescriptorSet(int poolIndex)
+vk::DescriptorSet ProgramImpl::GetNextDescriptorSetForFrame(uint32_t frameIndex)
 {
-  // if pool index isn't specified, last added pool will be used
-  if(poolIndex < 0)
+  if(frameIndex >= mImpl->frameResources.size())
   {
-    poolIndex = mImpl->currentPoolIndex;
+    return VK_NULL_HANDLE;
   }
 
-  auto& poolList  = mImpl->poolList;
-  auto& gfxDevice = mImpl->controller.GetGraphicsDevice();
-  auto  vkDevice  = gfxDevice.GetLogicalDevice();
+  auto& frame = mImpl->frameResources[frameIndex];
 
-  vk::DescriptorSetAllocateInfo allocateInfo;
-  allocateInfo.setDescriptorPool(poolList[poolIndex].vkPool);
+  // Check if we need to grow the pool
+  if(frame.freeSets.empty())
+  {
+    // Grow the pool capacity by 50% each time
+    uint32_t newCapacity = std::min(static_cast<uint32_t>(frame.currentCapacity * 1.5), MAX_POOL_CAPACITY);
+    if(newCapacity > frame.currentCapacity)
+    {
+      if(!GrowDescriptorPool(frameIndex, newCapacity))
+      {
+        return VK_NULL_HANDLE;
+      }
+    }
+    else
+    {
+      return VK_NULL_HANDLE; // Hit maximum capacity
+    }
+  }
 
-  auto& layouts = GetReflection().GetVkDescriptorSetLayouts();
-  allocateInfo.setSetLayouts(layouts);
-  // TODO: making sure only first layout will be use.
-  // Reflection supports multiple sets but current architecture of Vulkan backend
-  // uses single set only per pipeline/program
-  allocateInfo.setDescriptorSetCount(1);
+  // Pop from free list
+  vk::DescriptorSet set = frame.freeSets.back();
+  frame.freeSets.pop_back();
+  frame.usedSets.push_back(set);
 
-  vk::DescriptorSet set;
-  VkAssert(vkDevice.allocateDescriptorSets(&allocateInfo, &set));
   return set;
+}
+
+void ProgramImpl::ResetDescriptorSetsForFrame(uint32_t frameIndex)
+{
+  if(frameIndex < mImpl->frameResources.size())
+  {
+    auto& frame = mImpl->frameResources[frameIndex];
+
+    // Refresh free/used lists (mark the descriptor sets available for reuse)
+    frame.freeSets.reserve(frame.currentCapacity);
+
+    for(auto& set : frame.usedSets)
+    {
+      frame.freeSets.push_back(set);
+    }
+    frame.usedSets.clear();
+  }
 }
 
 }; // namespace Dali::Graphics::Vulkan

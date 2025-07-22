@@ -123,6 +123,8 @@ public:
 
   void ResolveDeferredPipelineBinding();
 
+  void PrepareForDraw();
+
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
@@ -155,6 +157,12 @@ private:
    * Bind all deferred resources before drawing
    */
   void BindResources(vk::DescriptorSet set);
+
+  /**
+   * @brief Updates a descriptor set with specific resources
+   * @param[in] descriptorSet The descriptor set to update
+   */
+  void UpdateDescriptorSet(vk::DescriptorSet descriptorSet);
 
 private:
   // Constructor called by the CommandPool only
