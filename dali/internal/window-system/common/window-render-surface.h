@@ -27,14 +27,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/common/surface-factory.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 
 namespace Dali
 {
-class TriggerEventInterface;
-
 namespace Internal
 {
 namespace Adaptor
@@ -52,17 +51,17 @@ class DALI_ADAPTOR_API WindowRenderSurface : public Dali::Integration::RenderSur
                                              public Graphics::NativeWindowInterface
 {
 public:
-  using RotationFinishedSignalType = Signal<void()>; ///<The signal of window rotation's finished.
+  using RotationFinishedSignalType = Signal<void()>; ///< The signal of window rotation's finished.
   using OutputSignalType           = Signal<void()>;
   using DamagedRectsContainer      = std::vector<Rect<int>>;
 
   /**
-    * @brief Uses an window surface to render to.
-    *
-    * @param [in] positionSize the position and size of the surface
-    * @param [in] surface can be a window or pixmap.
-    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
-    */
+   * @brief Uses an window surface to render to.
+   *
+   * @param [in] positionSize the position and size of the surface
+   * @param [in] surface can be a window or pixmap.
+   * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+   */
   WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent = false);
 
   /**
@@ -360,32 +359,32 @@ private:
   using FrameCallbackInfoContainer = std::vector<std::unique_ptr<FrameCallbackInfo>>;
 
 private: // Data
-  Dali::DisplayConnection*               mDisplayConnection;
-  PositionSize                           mPositionSize; ///< Position
-  std::unique_ptr<WindowBase>            mWindowBase;
-  ThreadSynchronizationInterface*        mThreadSynchronization;
-  TriggerEventInterface*                 mRenderNotification; ///< Render notification trigger
-  std::unique_ptr<TriggerEventInterface> mPostRenderTrigger;  ///< Post render callback function
-  std::unique_ptr<TriggerEventInterface> mFrameRenderedTrigger;
-  Dali::Graphics::GraphicsInterface*     mGraphics;                     ///< Graphics interface
-  ColorDepth                             mColorDepth;                   ///< Color depth of surface (32 bit or 24 bit)
-  OutputSignalType                       mOutputTransformedSignal;      ///< The signal of screen rotation occurs
-  RotationFinishedSignalType             mWindowRotationFinishedSignal; ///< The signal of window rotation's finished
-  FrameCallbackInfoContainer             mFrameCallbackInfoContainer;
-  DamagedRectsContainer                  mBufferDamagedRects;
-  Dali::Mutex                            mMutex;
-  Graphics::SurfaceId                    mSurfaceId{Graphics::INVALID_SURFACE_ID};
-  int                                    mWindowRotationAngle;
-  int                                    mScreenRotationAngle;
-  uint32_t                               mDpiHorizontal;
-  uint32_t                               mDpiVertical;
-  std::vector<Rect<int>>                 mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
-  bool                                   mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
-  bool                                   mIsImeWindowSurface;
-  bool                                   mNeedWindowRotationAcknowledgement;
-  bool                                   mIsWindowOrientationChanging;
-  bool                                   mIsFrontBufferRendering;
-  bool                                   mIsFrontBufferRenderingChanged;
+  Dali::DisplayConnection*             mDisplayConnection;
+  PositionSize                         mPositionSize; ///< Position
+  std::unique_ptr<WindowBase>          mWindowBase;
+  ThreadSynchronizationInterface*      mThreadSynchronization;
+  TriggerEventInterface*               mRenderNotification; ///< Render notification trigger
+  TriggerEventFactory::TriggerEventPtr mPostRenderTrigger;  ///< Post render callback function
+  TriggerEventFactory::TriggerEventPtr mFrameRenderedTrigger;
+  Dali::Graphics::GraphicsInterface*   mGraphics;                     ///< Graphics interface
+  ColorDepth                           mColorDepth;                   ///< Color depth of surface (32 bit or 24 bit)
+  OutputSignalType                     mOutputTransformedSignal;      ///< The signal of screen rotation occurs
+  RotationFinishedSignalType           mWindowRotationFinishedSignal; ///< The signal of window rotation's finished
+  FrameCallbackInfoContainer           mFrameCallbackInfoContainer;
+  DamagedRectsContainer                mBufferDamagedRects;
+  Dali::Mutex                          mMutex;
+  Graphics::SurfaceId                  mSurfaceId{Graphics::INVALID_SURFACE_ID};
+  int                                  mWindowRotationAngle;
+  int                                  mScreenRotationAngle;
+  uint32_t                             mDpiHorizontal;
+  uint32_t                             mDpiVertical;
+  std::vector<Rect<int>>               mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
+  bool                                 mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
+  bool                                 mIsImeWindowSurface;
+  bool                                 mNeedWindowRotationAcknowledgement;
+  bool                                 mIsWindowOrientationChanging;
+  bool                                 mIsFrontBufferRendering;
+  bool                                 mIsFrontBufferRenderingChanged;
 
 }; // class WindowRenderSurface
 

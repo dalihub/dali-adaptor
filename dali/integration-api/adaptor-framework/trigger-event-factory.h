@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
+#include <memory> ///< for std::unique_ptr
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
@@ -35,14 +36,25 @@ class DALI_ADAPTOR_API TriggerEventFactory
 {
 public:
   /**
-   * @copydoc TriggerEventFactoryInterface::CreateTriggerEvent
-   */
-  static TriggerEventInterface* CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
-
-  /**
    * @copydoc TriggerEventFactoryInterface::DestroyTriggerEvent
    */
   static void DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface);
+
+  struct TriggerEventDeleter
+  {
+    TriggerEventDeleter() = default;
+
+    void operator()(Dali::TriggerEventInterface* object)
+    {
+      Dali::TriggerEventFactory::DestroyTriggerEvent(object);
+    }
+  };
+
+  using TriggerEventPtr = std::unique_ptr<TriggerEventInterface, TriggerEventDeleter>;
+  /**
+   * @copydoc TriggerEventFactoryInterface::CreateTriggerEvent
+   */
+  static TriggerEventPtr CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
 };
 
 } // namespace Dali

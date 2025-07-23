@@ -23,9 +23,9 @@
 
 namespace Dali
 {
-TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
 {
-  return new Internal::Adaptor::TriggerEvent(callback, options);
+  return TriggerEventFactory::TriggerEventPtr(new Internal::Adaptor::TriggerEvent(callback, options));
 }
 
 void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface)

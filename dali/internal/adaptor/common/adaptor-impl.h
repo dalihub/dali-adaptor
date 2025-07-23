@@ -480,7 +480,7 @@ public:
    */
   int32_t GetRenderThreadId() const;
 
-public: //AdaptorInternalServices
+public: // AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
@@ -625,7 +625,7 @@ private: // From Dali::Internal::Adaptor::DamageObserver
 
 private:
   // Undefined
-  Adaptor(const Adaptor&) = delete;
+  Adaptor(const Adaptor&)      = delete;
   Adaptor& operator=(Adaptor&) = delete;
 
 private:
@@ -730,28 +730,28 @@ private:                                          // Data
 
   TizenPlatform::TizenPlatformAbstraction* mPlatformAbstraction; ///< Platform abstraction
 
-  std::unique_ptr<CallbackManager> mCallbackManager;                       ///< Used to install callbacks
-  bool                             mNotificationOnIdleInstalled;           ///< whether the idle handler is installed to send an notification event
-  bool                             mRequiredIdleRepeat;                    ///< whether we need to repeat installed notification event in idle handler
-  TriggerEventInterface*           mNotificationTrigger;                   ///< Notification event trigger
-  FeedbackPluginProxy*             mDaliFeedbackPlugin;                    ///< Used to access feedback support
-  FeedbackController*              mFeedbackController;                    ///< Plays feedback effects for Dali-Toolkit UI Controls.
-  Dali::TtsPlayer                  mTtsPlayers[Dali::TtsPlayer::MODE_NUM]; ///< Provides TTS support
-  ObserverContainer                mObservers;                             ///< A list of adaptor observer pointers
-  EnvironmentOptions*              mEnvironmentOptions;                    ///< environment options
-  PerformanceInterface*            mPerformanceInterface;                  ///< Performance interface
-  KernelTrace                      mKernelTracer;                          ///< Kernel tracer
-  SystemTrace                      mSystemTracer;                          ///< System tracer
-  Devel::TextureUploadManager      mTextureUploadManager;                  ///< TextureUploadManager
-  ObjectProfiler*                  mObjectProfiler;                        ///< Tracks object lifetime for profiling
-  Dali::Timer                      mMemoryPoolTimer;                       ///< Logs memory pool capacity
-  SlotDelegate<Adaptor>            mMemoryPoolTimerSlotDelegate;
-  SocketFactory                    mSocketFactory;               ///< Socket factory
-  Mutex                            mMutex;                       ///< Mutex
-  ThreadMode                       mThreadMode;                  ///< The thread mode
-  const bool                       mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
-  bool                             mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
-  Dali::LayoutDirection::Type      mRootLayoutDirection;         ///< LayoutDirection of window
+  std::unique_ptr<CallbackManager>     mCallbackManager;                       ///< Used to install callbacks
+  bool                                 mNotificationOnIdleInstalled;           ///< whether the idle handler is installed to send an notification event
+  bool                                 mRequiredIdleRepeat;                    ///< whether we need to repeat installed notification event in idle handler
+  TriggerEventFactory::TriggerEventPtr mNotificationTrigger;                   ///< Notification event trigger
+  FeedbackPluginProxy*                 mDaliFeedbackPlugin;                    ///< Used to access feedback support
+  FeedbackController*                  mFeedbackController;                    ///< Plays feedback effects for Dali-Toolkit UI Controls.
+  Dali::TtsPlayer                      mTtsPlayers[Dali::TtsPlayer::MODE_NUM]; ///< Provides TTS support
+  ObserverContainer                    mObservers;                             ///< A list of adaptor observer pointers
+  EnvironmentOptions*                  mEnvironmentOptions;                    ///< environment options
+  PerformanceInterface*                mPerformanceInterface;                  ///< Performance interface
+  KernelTrace                          mKernelTracer;                          ///< Kernel tracer
+  SystemTrace                          mSystemTracer;                          ///< System tracer
+  Devel::TextureUploadManager          mTextureUploadManager;                  ///< TextureUploadManager
+  ObjectProfiler*                      mObjectProfiler;                        ///< Tracks object lifetime for profiling
+  Dali::Timer                          mMemoryPoolTimer;                       ///< Logs memory pool capacity
+  SlotDelegate<Adaptor>                mMemoryPoolTimerSlotDelegate;
+  SocketFactory                        mSocketFactory;               ///< Socket factory
+  Mutex                                mMutex;                       ///< Mutex
+  ThreadMode                           mThreadMode;                  ///< The thread mode
+  const bool                           mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
+  bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
+  Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 

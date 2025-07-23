@@ -24,20 +24,19 @@ namespace Dali
 {
 struct EventThreadCallback::Impl
 {
-  TriggerEventInterface* eventTrigger;
-  uint32_t               id;
+  Dali::TriggerEventFactory::TriggerEventPtr eventTrigger;
+  uint32_t                                   id;
 };
 
 EventThreadCallback::EventThreadCallback(CallbackBase* callback)
 : mImpl(new Impl())
 {
-  mImpl->eventTrigger = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+  mImpl->eventTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   mImpl->id           = mImpl->eventTrigger->GetId();
 }
 
 EventThreadCallback::~EventThreadCallback()
 {
-  TriggerEventFactory::DestroyTriggerEvent(mImpl->eventTrigger);
   delete mImpl;
 }
 

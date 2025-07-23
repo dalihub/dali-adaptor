@@ -101,7 +101,7 @@ void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
 
   if(!mRenderNotification)
   {
-    mRenderNotification = std::unique_ptr<TriggerEventInterface>(triggerEventFactory.CreateTriggerEvent(MakeCallback(this, &OffscreenWindow::OnPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mRenderNotification = std::move(triggerEventFactory.CreateTriggerEvent(MakeCallback(this, &OffscreenWindow::OnPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
     DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
   }
 

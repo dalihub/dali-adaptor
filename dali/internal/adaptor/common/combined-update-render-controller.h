@@ -30,6 +30,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/texture-upload-manager.h>
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/system/common/fps-tracker.h>
 #include <dali/internal/system/common/performance-interface.h>
@@ -39,7 +40,6 @@
 namespace Dali
 {
 class RenderSurfaceInterface;
-class TriggerEventInterface;
 
 namespace Internal
 {
@@ -358,13 +358,13 @@ private:                                  // Attributes
 
   ConditionalWait mUpdateRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
 
-  AdaptorInternalServices&  mAdaptorInterfaces;    ///< The adaptor internal interface
-  PerformanceInterface*     mPerformanceInterface; ///< The performance logging interface
-  Integration::Core&        mCore;                 ///< Dali core reference
-  const EnvironmentOptions& mEnvironmentOptions;   ///< Environment options
-  TriggerEventInterface&    mNotificationTrigger;  ///< Reference to notification event trigger
-  TriggerEventInterface*    mSleepTrigger;         ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
-  CallbackBase*             mPreRenderCallback;    ///< Used by Update/Render thread when PreRender is about to be called on graphics.
+  AdaptorInternalServices&             mAdaptorInterfaces;    ///< The adaptor internal interface
+  PerformanceInterface*                mPerformanceInterface; ///< The performance logging interface
+  Integration::Core&                   mCore;                 ///< Dali core reference
+  const EnvironmentOptions&            mEnvironmentOptions;   ///< Environment options
+  TriggerEventInterface&               mNotificationTrigger;  ///< Reference to notification event trigger
+  TriggerEventFactory::TriggerEventPtr mSleepTrigger;         ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
+  CallbackBase*                        mPreRenderCallback;    ///< Used by Update/Render thread when PreRender is about to be called on graphics.
 
   Dali::Devel::TextureUploadManager& mTextureUploadManager; ///< TextureUploadManager
 
