@@ -2,7 +2,7 @@
 #define DALI_ASYNC_TASK_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace Adaptor
 {
 class AsyncTaskManager;
 }
-} // namespace DALI_INTERNAL
+} // namespace Internal DALI_INTERNAL
 
 class AsyncTask;
 using AsyncTaskPtr = IntrusivePtr<AsyncTask>;
@@ -108,6 +108,13 @@ public:
   PriorityType GetPriorityType() const;
 
   /**
+   * Notify to task become ready.
+   * @note IsReady always return true before and after this API.
+   * @SINCE_2_4.29
+   */
+  void NotifyToReady();
+
+  /**
    * Destructor.
    * @SINCE_2_2.3
    */
@@ -124,7 +131,10 @@ public:
    * @SINCE_2_2.3
    * @return True if the task is ready to process.
    */
-  virtual bool IsReady() = 0;
+  virtual bool IsReady()
+  {
+    return true;
+  }
 
   /**
    * Get the name of this task if we setup.
@@ -191,6 +201,14 @@ public:
    * @param[in] task The task pointer.
    */
   void RemoveTask(AsyncTaskPtr task);
+
+  /**
+   * @brief Notify to task was ready, called by any thread.
+   *
+   * @SINCE_2_4.29
+   * @param[in] task The task pointer.
+   */
+  void NotifyToTaskReady(AsyncTaskPtr task);
 
 public:
   using TasksCompletedId = uint32_t;
