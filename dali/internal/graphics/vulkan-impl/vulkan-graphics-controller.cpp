@@ -235,7 +235,8 @@ struct VulkanGraphicsController::Impl
     if(!mTextureStagingBuffer ||
        mTextureStagingBuffer->GetImpl()->GetSize() < size)
     {
-      auto workerFunc = [&, size](auto workerIndex) {
+      auto workerFunc = [&, size](auto workerIndex)
+      {
         Graphics::BufferCreateInfo createInfo{};
         createInfo.SetSize(size)
           .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -325,7 +326,8 @@ struct VulkanGraphicsController::Impl
         }
         assert(image);
 
-        auto predicate = [&](auto& item) -> bool {
+        auto predicate = [&](auto& item) -> bool
+        {
           return image->GetVkHandle() == item.image.GetVkHandle();
         };
         auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -471,6 +473,11 @@ struct VulkanGraphicsController::Impl
 
   void GarbageCollect(bool allQueues)
   {
+    if(DALI_UNLIKELY(mGraphicsDevice == nullptr))
+    {
+      return;
+    }
+
     // Only garbage collect from the oldest discard queue.
     auto bufferIndex = mGraphicsDevice->GetCurrentBufferIndex() + 1;
     bufferIndex %= mGraphicsDevice->GetBufferCount();
@@ -778,7 +785,8 @@ void VulkanGraphicsController::UpdateTextures(
 
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
+          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
+          {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -813,7 +821,8 @@ void VulkanGraphicsController::UpdateTextures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread) {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
+          {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise` texture resources explicitly if they are not yet initialised
@@ -851,7 +860,8 @@ void VulkanGraphicsController::UpdateTextures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex) {
+    auto task     = [pUpdates](auto workerIndex)
+    {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);

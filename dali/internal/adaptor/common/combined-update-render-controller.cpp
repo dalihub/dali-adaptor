@@ -172,8 +172,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
     currentSurface->SetThreadSynchronization(*this);
   }
 
-  mVsyncRender = environmentOptions.VsyncRenderRequired();
-
   DALI_LOG_DEBUG_INFO("mSleepTrigger Trigger Id(%u)\n", mSleepTrigger->GetId());
 
   DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::CombinedUpdateRenderController\n");
@@ -461,6 +459,16 @@ void CombinedUpdateRenderController::AddSurface(Dali::Integration::RenderSurface
   }
 }
 
+void CombinedUpdateRenderController::UpdateEnvironmentOptions()
+{
+  LOG_EVENT_TRACE;
+  LOG_EVENT("Update environment options");
+
+  SetRenderRefreshRate(mEnvironmentOptions.GetRenderRefreshRate());
+  mFpsTracker.UpdateEnvironmentOptions(mEnvironmentOptions);
+  mUpdateStatusLogger.UpdateEnvironmentOptions(mEnvironmentOptions);
+}
+
 int32_t CombinedUpdateRenderController::GetThreadId() const
 {
   return mThreadId;
@@ -620,6 +628,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
   unsigned int       frameCount          = 0u;
+
+  mVsyncRender = mEnvironmentOptions.VsyncRenderRequired();
 
   DALI_LOG_RELEASE_INFO("END: DALI_RENDER_THREAD_INIT\n");
   if(!mDestroyUpdateRenderThread)

@@ -53,6 +53,8 @@
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Dali::Graphics::Internal::IsGraphicsBackendSet and etc
+#include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/callback-manager.h>
@@ -213,111 +215,12 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
 
-  mDisplayConnection = Dali::DisplayConnection::New(defaultWindow->GetSurface()->GetSurfaceType());
+  GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());
 
   mThreadController = new ThreadController(*this, *mEnvironmentOptions, mThreadMode);
 
   // Should be called after Core creation
-  if(mEnvironmentOptions->GetPanGestureLoggingLevel())
-  {
-    Integration::EnableProfiling(Dali::Integration::PROFILING_TYPE_PAN_GESTURE);
-  }
-  if(mEnvironmentOptions->GetPanGesturePredictionMode() >= 0)
-  {
-    Integration::SetPanGesturePredictionMode(mEnvironmentOptions->GetPanGesturePredictionMode());
-  }
-  if(mEnvironmentOptions->GetPanGesturePredictionAmount() >= 0)
-  {
-    Integration::SetPanGesturePredictionAmount(mEnvironmentOptions->GetPanGesturePredictionAmount());
-  }
-  if(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount() >= 0)
-  {
-    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount());
-  }
-  if(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount() >= 0)
-  {
-    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount());
-  }
-  if(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment() >= 0)
-  {
-    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment());
-  }
-  if(mEnvironmentOptions->GetPanGestureSmoothingMode() >= 0)
-  {
-    Integration::SetPanGestureSmoothingMode(mEnvironmentOptions->GetPanGestureSmoothingMode());
-  }
-  if(mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f)
-  {
-    Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
-  }
-  if(mEnvironmentOptions->GetPanGestureUseActualTimes() >= 0)
-  {
-    Integration::SetPanGestureUseActualTimes(mEnvironmentOptions->GetPanGestureUseActualTimes() == 0 ? true : false);
-  }
-  if(mEnvironmentOptions->GetPanGestureInterpolationTimeRange() >= 0)
-  {
-    Integration::SetPanGestureInterpolationTimeRange(mEnvironmentOptions->GetPanGestureInterpolationTimeRange());
-  }
-  if(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() >= 0)
-  {
-    Integration::SetPanGestureScalarOnlyPredictionEnabled(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() == 0 ? true : false);
-  }
-  if(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() >= 0)
-  {
-    Integration::SetPanGestureTwoPointPredictionEnabled(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() == 0 ? true : false);
-  }
-  if(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() >= 0)
-  {
-    Integration::SetPanGestureTwoPointInterpolatePastTime(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime());
-  }
-  if(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() >= 0.0f)
-  {
-    Integration::SetPanGestureTwoPointVelocityBias(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias());
-  }
-  if(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() >= 0.0f)
-  {
-    Integration::SetPanGestureTwoPointAccelerationBias(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias());
-  }
-  if(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() >= 0)
-  {
-    Integration::SetPanGestureMultitapSmoothingRange(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange());
-  }
-  if(mEnvironmentOptions->GetMinimumPanDistance() >= 0)
-  {
-    Integration::SetPanGestureMinimumDistance(mEnvironmentOptions->GetMinimumPanDistance());
-  }
-  if(mEnvironmentOptions->GetMinimumPanEvents() >= 0)
-  {
-    Integration::SetPanGestureMinimumPanEvents(mEnvironmentOptions->GetMinimumPanEvents());
-  }
-  if(mEnvironmentOptions->GetMinimumPinchDistance() >= 0)
-  {
-    Integration::SetPinchGestureMinimumDistance(mEnvironmentOptions->GetMinimumPinchDistance());
-  }
-  if(mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0)
-  {
-    Integration::SetPinchGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumPinchTouchEvents());
-  }
-  if(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0)
-  {
-    Integration::SetPinchGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart());
-  }
-  if(mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0)
-  {
-    Integration::SetRotationGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumRotationTouchEvents());
-  }
-  if(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0)
-  {
-    Integration::SetRotationGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart());
-  }
-  if(mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0)
-  {
-    Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
-  }
-  if(mEnvironmentOptions->GetTapMaximumAllowedTime() > 0)
-  {
-    Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
-  }
+  ApplyEventEnvironmentVariables();
 
   std::string systemCachePath = GetSystemCachePath();
   if(!systemCachePath.empty())
@@ -361,6 +264,10 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   }
 
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
+
+  // Initialize Core. Now we can create camera, rendertask, etc, and build scene tree.
+  DALI_LOG_RELEASE_INFO("Core::Initialize\n");
+  mCore->Initialize();
 
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize: Initialized\n");
 }
@@ -415,8 +322,6 @@ void Adaptor::Start()
   {
     return;
   }
-
-  mCore->Initialize();
 
   SetupSystemInformation();
   TextAbstraction::EnsureLocale();
@@ -937,6 +842,177 @@ void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)
   mUseRemoteSurface = useRemoteSurface;
 }
 
+void Adaptor::GenerateDisplayConnector(Dali::Integration::RenderSurfaceInterface::Type type)
+{
+  if(DALI_UNLIKELY(mDisplayConnection))
+  {
+    delete mDisplayConnection;
+  }
+  mDisplayConnection = Dali::DisplayConnection::New(type);
+}
+
+void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentOptions)
+{
+  switch(mState)
+  {
+    case READY:
+    case PAUSED_WHILE_INITIALIZING:
+    {
+      DALI_ASSERT_ALWAYS(mEnvironmentOptions->GetThreadingMode() == newEnvironmentOptions.GetThreadingMode() && "ThreadingMode changeness not supported now!");
+
+      // Try to set by environment variables first.
+      if(!Graphics::Internal::IsGraphicsBackendSet())
+      {
+        Graphics::SetGraphicsBackend(newEnvironmentOptions.GetGraphicsBackend());
+      }
+
+      // Forcibly recreate graphics if preferenced backend not matched as final backend.
+      const bool recreateGraphicsRequired = Graphics::Internal::IsGraphicsResetRequired();
+
+      const bool updateCoreRequired = (recreateGraphicsRequired ||
+                                       mEnvironmentOptions->GetRenderToFboInterval() != newEnvironmentOptions.GetRenderToFboInterval() ||
+                                       mEnvironmentOptions->PartialUpdateRequired() != newEnvironmentOptions.PartialUpdateRequired() ||
+                                       mEnvironmentOptions->DepthBufferRequired() != newEnvironmentOptions.DepthBufferRequired() ||
+                                       mEnvironmentOptions->StencilBufferRequired() != newEnvironmentOptions.StencilBufferRequired());
+
+      const bool updateGraphicsRequired = !recreateGraphicsRequired &&
+                                          (mEnvironmentOptions->GetMultiSamplingLevel() != newEnvironmentOptions.GetMultiSamplingLevel() ||
+                                           updateCoreRequired);
+
+      const bool updateThreadController = (mEnvironmentOptions->GetRenderRefreshRate() != newEnvironmentOptions.GetRenderRefreshRate() ||
+                                           mEnvironmentOptions->GetUpdateStatusLoggingFrequency() != newEnvironmentOptions.GetUpdateStatusLoggingFrequency() ||
+                                           mEnvironmentOptions->GetFrameRateLoggingFrequency() != newEnvironmentOptions.GetFrameRateLoggingFrequency());
+
+      const bool recreatePerformanceInterface = (mEnvironmentOptions->PerformanceServerRequired() != newEnvironmentOptions.PerformanceServerRequired() ||
+                                                 mEnvironmentOptions->GetNetworkControlMode() != newEnvironmentOptions.GetNetworkControlMode() ||
+                                                 mEnvironmentOptions->GetPerformanceStatsLoggingOptions() != newEnvironmentOptions.GetPerformanceStatsLoggingOptions() ||
+                                                 mEnvironmentOptions->GetPerformanceTimeStampOutput() != newEnvironmentOptions.GetPerformanceTimeStampOutput() ||
+                                                 mEnvironmentOptions->GetPerformanceStatsLoggingFrequency() != newEnvironmentOptions.GetPerformanceStatsLoggingFrequency());
+
+      const bool recreateObjectProfiler  = (mEnvironmentOptions->GetObjectProfilerInterval() != newEnvironmentOptions.GetObjectProfilerInterval());
+      const bool recreateMemoryPoolTimer = (mEnvironmentOptions->GetMemoryPoolInterval() != newEnvironmentOptions.GetMemoryPoolInterval());
+
+      DALI_LOG_DEBUG_INFO("UpdateEnvironmentOptions during initialize. Change? core : %d, graphics %d %d, thread %d, profiler %d %d %d\n", updateCoreRequired, recreateGraphicsRequired, updateGraphicsRequired, updateThreadController, recreatePerformanceInterface, recreateObjectProfiler, recreateMemoryPoolTimer);
+
+      // Note that we should "copy" the value of each environment here.
+      mEnvironmentOptions->CopyEnvironmentOptions(newEnvironmentOptions);
+
+      // Should be called after Core creation
+      ApplyEventEnvironmentVariables();
+
+      if(DALI_UNLIKELY(recreateGraphicsRequired))
+      {
+        DALI_LOG_RELEASE_INFO("Re-create Graphics here!\n");
+
+        mGraphics->Destroy();
+        mGraphics.reset();
+
+        // dlclose for previous loader and re-load if dynamic graphics backed case.
+        Dali::Internal::Adaptor::ResetGraphicsLibrary();
+
+        // Fix the graphics backend as current graphics now.
+        Graphics::Internal::GraphicsResetCompleted();
+
+        AdaptorBuilder& adaptorBuilder  = AdaptorBuilder::Get(*mEnvironmentOptions);
+        auto&           graphicsFactory = adaptorBuilder.GetGraphicsFactory();
+
+        mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
+
+        AdaptorBuilder::Finalize();
+      }
+
+      // Update core relative variables.
+      if(DALI_UNLIKELY(updateCoreRequired))
+      {
+        Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEFAULT;
+        if(0u != mEnvironmentOptions->GetRenderToFboInterval())
+        {
+          corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
+        }
+        if(Integration::DepthBufferAvailable::TRUE == mGraphics->GetDepthBufferRequired())
+        {
+          corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
+        }
+        if(Integration::StencilBufferAvailable::TRUE == mGraphics->GetStencilBufferRequired())
+        {
+          corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
+        }
+        if(Integration::PartialUpdateAvailable::TRUE == mGraphics->GetPartialUpdateRequired())
+        {
+          corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
+        }
+        mCore->ChangeCorePolicy(corePolicyFlags);
+
+        if(DALI_UNLIKELY(recreateGraphicsRequired))
+        {
+          mCore->ChangeGraphicsController(mGraphics->GetController());
+        }
+      }
+      if(DALI_UNLIKELY(updateGraphicsRequired))
+      {
+        // Update graphics relative variables.
+        auto depthBufferRequired   = (mEnvironmentOptions->DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
+        auto stencilBufferRequired = (mEnvironmentOptions->StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
+        auto partialUpdateRequired = (mEnvironmentOptions->PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
+
+        int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
+
+        mGraphics->UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+      }
+
+      if(DALI_UNLIKELY(updateThreadController))
+      {
+        mThreadController->UpdateEnvironmentOptions();
+      }
+
+      // TODO : Need to consider DALI_ENV_PRINT_LOG_LEVEL changed case. For now, we cannot change it at application side.
+      // TODO : Need to consider DALI_ENV_TRACE_ENABLE_PRINT_LOG changed case. For now, we cannot change it at application side.
+
+      if(DALI_UNLIKELY(recreatePerformanceInterface))
+      {
+        delete mPerformanceInterface;
+        mPerformanceInterface = nullptr;
+        if(mEnvironmentOptions->PerformanceServerRequired())
+        {
+          mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface(*this, *mEnvironmentOptions);
+        }
+
+        mEnvironmentOptions->CreateTraceManager(mPerformanceInterface);
+        mEnvironmentOptions->InstallTraceFunction(); // install tracing for main thread
+      }
+      if(DALI_UNLIKELY(recreateMemoryPoolTimer))
+      {
+        delete mObjectProfiler;
+        mObjectProfiler                 = nullptr;
+        const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
+        if(0u < timeInterval)
+        {
+          mObjectProfiler = new ObjectProfiler(mCore->GetObjectRegistry(), timeInterval);
+        }
+      }
+      if(DALI_UNLIKELY(recreateObjectProfiler))
+      {
+        mMemoryPoolTimer.Stop();
+        mMemoryPoolTimer.Reset();
+
+        const uint32_t poolTimeInterval = mEnvironmentOptions->GetMemoryPoolInterval();
+        if(0u < poolTimeInterval)
+        {
+          mMemoryPoolTimer = Dali::Timer::New(poolTimeInterval * 1000);
+          mMemoryPoolTimer.TickSignal().Connect(mMemoryPoolTimerSlotDelegate, &Adaptor::MemoryPoolTimeout);
+          mMemoryPoolTimer.Start();
+        }
+      }
+      break;
+    }
+    default:
+    {
+      DALI_LOG_ERROR("Update environment allow only for initialize timing! Ignore UpdateEnvironmentOptions()\n");
+      break;
+    }
+  }
+}
+
 void Adaptor::AddObserver(LifeCycleObserver& observer)
 {
   ObserverContainer::iterator match(find(mObservers.begin(), mObservers.end(), &observer));
@@ -1408,6 +1484,110 @@ bool Adaptor::MemoryPoolTimeout()
 {
   mCore->LogMemoryPools();
   return true; // Keep logging forever
+}
+
+void Adaptor::ApplyEventEnvironmentVariables()
+{
+  if(mEnvironmentOptions->GetPanGestureLoggingLevel())
+  {
+    Integration::EnableProfiling(Dali::Integration::PROFILING_TYPE_PAN_GESTURE);
+  }
+  if(mEnvironmentOptions->GetPanGesturePredictionMode() >= 0)
+  {
+    Integration::SetPanGesturePredictionMode(mEnvironmentOptions->GetPanGesturePredictionMode());
+  }
+  if(mEnvironmentOptions->GetPanGesturePredictionAmount() >= 0)
+  {
+    Integration::SetPanGesturePredictionAmount(mEnvironmentOptions->GetPanGesturePredictionAmount());
+  }
+  if(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount() >= 0)
+  {
+    Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount());
+  }
+  if(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount() >= 0)
+  {
+    Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount());
+  }
+  if(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment() >= 0)
+  {
+    Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment());
+  }
+  if(mEnvironmentOptions->GetPanGestureSmoothingMode() >= 0)
+  {
+    Integration::SetPanGestureSmoothingMode(mEnvironmentOptions->GetPanGestureSmoothingMode());
+  }
+  if(mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f)
+  {
+    Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
+  }
+  if(mEnvironmentOptions->GetPanGestureUseActualTimes() >= 0)
+  {
+    Integration::SetPanGestureUseActualTimes(mEnvironmentOptions->GetPanGestureUseActualTimes() == 0 ? true : false);
+  }
+  if(mEnvironmentOptions->GetPanGestureInterpolationTimeRange() >= 0)
+  {
+    Integration::SetPanGestureInterpolationTimeRange(mEnvironmentOptions->GetPanGestureInterpolationTimeRange());
+  }
+  if(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() >= 0)
+  {
+    Integration::SetPanGestureScalarOnlyPredictionEnabled(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() == 0 ? true : false);
+  }
+  if(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() >= 0)
+  {
+    Integration::SetPanGestureTwoPointPredictionEnabled(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() == 0 ? true : false);
+  }
+  if(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() >= 0)
+  {
+    Integration::SetPanGestureTwoPointInterpolatePastTime(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime());
+  }
+  if(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() >= 0.0f)
+  {
+    Integration::SetPanGestureTwoPointVelocityBias(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias());
+  }
+  if(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() >= 0.0f)
+  {
+    Integration::SetPanGestureTwoPointAccelerationBias(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias());
+  }
+  if(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() >= 0)
+  {
+    Integration::SetPanGestureMultitapSmoothingRange(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange());
+  }
+  if(mEnvironmentOptions->GetMinimumPanDistance() >= 0)
+  {
+    Integration::SetPanGestureMinimumDistance(mEnvironmentOptions->GetMinimumPanDistance());
+  }
+  if(mEnvironmentOptions->GetMinimumPanEvents() >= 0)
+  {
+    Integration::SetPanGestureMinimumPanEvents(mEnvironmentOptions->GetMinimumPanEvents());
+  }
+  if(mEnvironmentOptions->GetMinimumPinchDistance() >= 0)
+  {
+    Integration::SetPinchGestureMinimumDistance(mEnvironmentOptions->GetMinimumPinchDistance());
+  }
+  if(mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0)
+  {
+    Integration::SetPinchGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumPinchTouchEvents());
+  }
+  if(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0)
+  {
+    Integration::SetPinchGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart());
+  }
+  if(mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0)
+  {
+    Integration::SetRotationGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumRotationTouchEvents());
+  }
+  if(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0)
+  {
+    Integration::SetRotationGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart());
+  }
+  if(mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0)
+  {
+    Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
+  }
+  if(mEnvironmentOptions->GetTapMaximumAllowedTime() > 0)
+  {
+    Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
+  }
 }
 
 } // namespace Dali::Internal::Adaptor

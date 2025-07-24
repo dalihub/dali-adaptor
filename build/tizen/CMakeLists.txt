@@ -22,6 +22,8 @@ OPTION(ENABLE_TRACE             "Enable Trace" OFF)
 OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
 OPTION(CONFIGURE_AUTOMATED_TESTS "Configure automated tests" ON)
 
+OPTION(ENABLE_PREINITIALIZE_ADAPTOR "Enable PreInitialized Adaptor" OFF)
+
 # Include additional macros
 INCLUDE( common.cmake )
 
@@ -130,6 +132,10 @@ IF( ENABLE_TRACE OR ENABLE_TRACE_STREAMLINE )
   ENDIF()
 ELSE()
   SET(ENABLE_TRACE_STRING OFF)
+ENDIF()
+
+IF( ENABLE_PREINITIALIZE_ADAPTOR )
+  ADD_DEFINITIONS("-DPREINITIALIZE_ADAPTOR_CREATION_ENABLED")
 ENDIF()
 
 # Set up compiler flags and warnings
@@ -565,6 +571,7 @@ MESSAGE( STATUS "Enable AT-SPI:                    ${ENABLE_ATSPI}" )
 MESSAGE( STATUS "Enable AppModel:                  ${ENABLE_APPMODEL}" )
 MESSAGE( STATUS "Enable Trace:                     ${ENABLE_TRACE_STRING}" )
 MESSAGE( STATUS "Enable VConf:                     ${ENABLE_VCONF}" )
+MESSAGE( STATUS "Enable PreInitialized Adaptor:    ${ENABLE_PREINITIALIZE_ADAPTOR}" )
 MESSAGE( STATUS "GlWindow Addon:                   ${GLWINDOW_ADDON_ENABLED}")
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "ThorVG version:                   ${THORVG_VERSION}")

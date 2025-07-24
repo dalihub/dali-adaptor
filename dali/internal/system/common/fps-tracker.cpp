@@ -75,6 +75,17 @@ bool FpsTracker::Enabled() const
   return mFpsTrackingSeconds > 0.0f;
 }
 
+void FpsTracker::UpdateEnvironmentOptions(const EnvironmentOptions& environmentOptions)
+{
+  if(mFpsTrackingSeconds > 0.f)
+  {
+    OutputFPSRecord();
+    mFrameCount  = 0.f;
+    mElapsedTime = 0.f;
+  }
+  mFpsTrackingSeconds = fabsf(environmentOptions.GetFrameRateLoggingFrequency());
+}
+
 void FpsTracker::OutputFPSRecord()
 {
   float fps = mFrameCount / mElapsedTime;

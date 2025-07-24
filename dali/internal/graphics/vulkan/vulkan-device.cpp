@@ -96,7 +96,10 @@ Device::Device()
 Device::~Device()
 {
   // Wait for everything to finish on the GPU
-  DeviceWaitIdle();
+  if(DALI_LIKELY(mLogicalDevice))
+  {
+    DeviceWaitIdle();
+  }
 
   DALI_LOG_STREAM(gVulkanFilter, Debug::General, "DESTROYING GRAPHICS CONTEXT--------------------------------\n");
 

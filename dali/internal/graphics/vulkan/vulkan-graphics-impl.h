@@ -41,7 +41,8 @@ public:
   VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                  Integration::DepthBufferAvailable         depthBufferAvailable,
                  Integration::StencilBufferAvailable       stencilBufferRequired,
-                 Integration::PartialUpdateAvailable       partialUpdateRequired);
+                 Integration::PartialUpdateAvailable       partialUpdateRequired,
+                 int                                       multiSamplingLevel);
 
   ~VulkanGraphics();
 
@@ -225,7 +226,6 @@ private:
   Vulkan::Device                                 mGraphicsDevice;
   Vulkan::VulkanGraphicsController               mGraphicsController;
   Dali::Internal::Adaptor::ConfigurationManager* mConfigurationManager{nullptr};
-  int                                            mMultiSamplingLevel; ///< The multi-sampling level.
 };
 
 } // Namespace Dali::Graphics
