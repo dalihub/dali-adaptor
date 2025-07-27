@@ -2,7 +2,7 @@
 #define DALI_NATIVE_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-class TriggerEventInterface;
-
 /**
  * Native interface of render surface.
  */

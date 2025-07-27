@@ -167,8 +167,8 @@ void GlWindowRenderThread::RequestWindowRotate(int windowAngle)
 {
   if(!mWindowRotationTrigger)
   {
-    mWindowRotationTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted),
-                                                                                                            TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mWindowRotationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted),
+                                                                               TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
     DALI_LOG_DEBUG_INFO("mWindowRotationTrigger Trigger Id(%u)\n", mWindowRotationTrigger->GetId());
   }
 

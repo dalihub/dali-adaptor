@@ -99,12 +99,15 @@ TriggerEvent* UnifiedTriggerEventManager::GenerateTriggerEvent(CallbackBase* cal
 
 void UnifiedTriggerEventManager::DiscardTriggerEvent(TriggerEvent* triggerEvent)
 {
-  DALI_LOG_DEBUG_INFO("Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
-  mValidEventsId.erase(triggerEvent->GetId());
-  mDiscardedEvents.insert(triggerEvent);
+  if(DALI_LIKELY(triggerEvent))
+  {
+    DALI_LOG_DEBUG_INFO("Discard Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
+    mValidEventsId.erase(triggerEvent->GetId());
+    mDiscardedEvents.insert(triggerEvent);
 
-  // To make ensure to call Triggered callback
-  Trigger(nullptr);
+    // To make ensure to call Triggered callback
+    Trigger(nullptr);
+  }
 }
 
 void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)

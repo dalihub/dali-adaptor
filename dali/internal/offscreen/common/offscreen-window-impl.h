@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 namespace Dali
 {
 class Adaptor;
 class Layer;
 class NativeRenderSurface;
-class TriggerEventInterface;
 
 namespace Internal
 {
@@ -125,8 +125,8 @@ private:
   OffscreenWindow& operator=(OffscreenWindow&);
 
 private:
-  std::unique_ptr<TriggerEventInterface> mRenderNotification;
-  std::unique_ptr<CallbackBase>          mPostRenderCallback;
+  TriggerEventFactory::TriggerEventPtr mRenderNotification;
+  std::unique_ptr<CallbackBase>        mPostRenderCallback;
 };
 
 inline OffscreenWindow& GetImplementation(Dali::OffscreenWindow& offscreenWindow)
