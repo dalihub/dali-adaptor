@@ -106,7 +106,12 @@ void Memory3::Unlock(bool flush)
 
 void Memory3::Flush()
 {
-  // TODO:
+  // Notify to buffer that data has been changed.
+  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+  {
+    auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+    buffer->IncreaseBufferChangedCount();
+  }
 }
 
 } // namespace Dali::Graphics::GLES

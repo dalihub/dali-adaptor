@@ -120,6 +120,11 @@ public:
   void RemoveTask(AsyncTaskPtr task);
 
   /**
+   * @copydoc Dali::AsyncTaskManager::NotifyToTaskReady()
+   */
+  void NotifyToTaskReady(AsyncTaskPtr task);
+
+  /**
    * @copydoc Dali::AsyncTaskManager::SetCompletedCallback()
    */
   Dali::AsyncTaskManager::TasksCompletedId SetCompletedCallback(CallbackBase* callback, Dali::AsyncTaskManager::CompletedCallbackTraceMask mask);
@@ -202,7 +207,7 @@ private:
     bool Request();
 
   public:
-    TaskHelper(const TaskHelper&) = delete;
+    TaskHelper(const TaskHelper&)            = delete;
     TaskHelper& operator=(const TaskHelper&) = delete;
 
     TaskHelper(TaskHelper&& rhs) noexcept;
@@ -255,6 +260,7 @@ private:
   using AsyncCompletedTaskContainer = std::list<AsyncCompletedTaskPair>;
 
   AsyncTaskContainer          mWaitingTasks;   ///< The queue of the tasks waiting to async process. Must be locked under mWaitingTasksMutex.
+  AsyncTaskContainer          mNotReadyTasks;  ///< The queue of the tasks waiting for ready to async process. Must be locked under mWaitingTasksMutex.
   AsyncRunningTaskContainer   mRunningTasks;   ///< The queue of the running tasks. Must be locked under mRunningTasksMutex.
   AsyncCompletedTaskContainer mCompletedTasks; ///< The queue of the tasks with the async process. Must be locked under mCompletedTasksMutex.
 

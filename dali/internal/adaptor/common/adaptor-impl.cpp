@@ -210,7 +210,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
     mMemoryPoolTimer.Start();
   }
 
-  mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+  mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
 
   mDisplayConnection = Dali::DisplayConnection::New(defaultWindow->GetSurface()->GetSurfaceType());
@@ -330,8 +330,8 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
       DALI_PRINT_SYSTEM_ERROR_LOG();
     }
 
-    std::string shaderCachePath= GetProgramBinaryPath();
-    dir_err = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    std::string shaderCachePath = GetProgramBinaryPath();
+    dir_err                     = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating shader cache directory: %s!\n", shaderCachePath.c_str());
@@ -591,8 +591,7 @@ void Adaptor::Stop()
       Internal::Adaptor::ImageLoaderPluginProxy::Destroy();
     }
 
-    delete mNotificationTrigger;
-    mNotificationTrigger = NULL;
+    mNotificationTrigger.reset();
 
     mCallbackManager->Stop();
 

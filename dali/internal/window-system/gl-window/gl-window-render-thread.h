@@ -23,6 +23,7 @@
 #include <dali/devel-api/threading/thread.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -31,7 +32,6 @@
 namespace Dali
 {
 class Adaptor;
-class TriggerEventInterface;
 
 namespace Internal
 {
@@ -243,9 +243,9 @@ private:
   void PostRenderWaitForFinished();
 
 private:
-  Graphics::GraphicsInterface*           mGraphics; ///< Graphics interface
-  WindowBase*                            mWindowBase;
-  std::unique_ptr<TriggerEventInterface> mWindowRotationTrigger;
+  Graphics::GraphicsInterface*         mGraphics; ///< Graphics interface
+  WindowBase*                          mWindowBase;
+  TriggerEventFactory::TriggerEventPtr mWindowRotationTrigger;
 
   const Dali::LogFactoryInterface&   mLogFactory;
   const Dali::TraceFactoryInterface& mTraceFactory;

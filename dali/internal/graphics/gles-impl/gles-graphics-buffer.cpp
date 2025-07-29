@@ -115,6 +115,8 @@ bool Buffer::InitializeResource()
     InitializeGPUBuffer();
   }
 
+  IncreaseBufferChangedCount();
+
   // make sure recycling mode is disabled after (re)initializing resource
   if(mSetForGLRecyclingCount)
   {

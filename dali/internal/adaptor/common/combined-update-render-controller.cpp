@@ -133,7 +133,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mCore(adaptorInterfaces.GetCore()),
   mEnvironmentOptions(environmentOptions),
   mNotificationTrigger(adaptorInterfaces.GetProcessCoreEventsTrigger()),
-  mSleepTrigger(NULL),
+  mSleepTrigger(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER)),
   mPreRenderCallback(NULL),
   mTextureUploadManager(adaptorInterfaces.GetTextureUploadManager()),
   mUpdateRenderThread(NULL),
@@ -174,7 +174,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
 
   mVsyncRender = environmentOptions.VsyncRenderRequired();
 
-  mSleepTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
   DALI_LOG_DEBUG_INFO("mSleepTrigger Trigger Id(%u)\n", mSleepTrigger->GetId());
 
   DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::CombinedUpdateRenderController\n");
@@ -188,7 +187,6 @@ CombinedUpdateRenderController::~CombinedUpdateRenderController()
   Stop();
 
   delete mPreRenderCallback;
-  delete mSleepTrigger;
 }
 
 void CombinedUpdateRenderController::Initialize()

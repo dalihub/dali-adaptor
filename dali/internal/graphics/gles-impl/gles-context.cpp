@@ -82,21 +82,6 @@ struct Context::Impl
    */
   void BindProgramVAO(const GLES::ProgramImpl* program, const VertexInputState& vertexInputState)
   {
-    // Calculate attributes location hash unordered.
-    std::size_t hash = 0;
-    for(const auto& attr : vertexInputState.attributes)
-    {
-      // Make unordered hash value by location.
-      // Note : This hash function varified for locations only under < 20.
-      std::size_t salt = attr.location + 1;
-      hash += salt << (sizeof(std::size_t) * 6);
-      salt *= salt;
-      salt ^= attr.location;
-      hash += salt << (sizeof(std::size_t) * 4);
-      salt *= salt;
-      hash += salt;
-    }
-
     auto* gl = GetGL();
     if(DALI_UNLIKELY(!gl)) // early out if no gl
     {
@@ -109,16 +94,42 @@ struct Context::Impl
       mDiscardedVAOList.clear();
     }
 
+    // Calculate attributes location hash unordered.
+    AttributesHash hash = 0;
+    for(const auto& attr : vertexInputState.attributes)
+    {
+      // Make unordered hash value by location.
+      // Note : This hash function varified for locations only under < 20.
+      AttributesHash salt = attr.location + 1;
+      hash += salt << (sizeof(AttributesHash) * 6);
+      salt *= salt;
+      salt ^= attr.location;
+      hash += salt << (sizeof(AttributesHash) * 4);
+      salt *= salt;
+      hash += salt;
+    }
+
     auto iter = mProgramVAOMap.find(program);
     if(iter != mProgramVAOMap.end())
     {
       auto attributeIter = iter->second.find(hash);
       if(attributeIter != iter->second.end())
       {
-        if(mProgramVAOCurrentState != attributeIter->second)
+        if(mVertexBufferChangedCount != attributeIter->second.vertexBufferChangedCount)
         {
-          mProgramVAOCurrentState = attributeIter->second;
-          gl->BindVertexArray(attributeIter->second);
+          attributeIter->second.vertexBufferChangedCount = mVertexBufferChangedCount;
+          if(mProgramVAOCurrentState == attributeIter->second.vao)
+          {
+            // Note that we should unbound and rebound VAO if we want to set changed data buffer by glVertexAttribPointer
+            gl->BindVertexArray(0u);
+            mProgramVAOCurrentState = 0u;
+          }
+        }
+
+        if(mProgramVAOCurrentState != attributeIter->second.vao)
+        {
+          mProgramVAOCurrentState = attributeIter->second.vao;
+          gl->BindVertexArray(mProgramVAOCurrentState);
 
           // Binding VAO seems to reset the index buffer binding so the cache must be reset
           mGlStateCache.mBoundElementArrayBufferId = 0;
@@ -134,7 +145,7 @@ struct Context::Impl
     // Binding VAO seems to reset the index buffer binding so the cache must be reset
     mGlStateCache.mBoundElementArrayBufferId = 0;
 
-    mProgramVAOMap[program][hash] = vao;
+    mProgramVAOMap[program][hash] = {vao, mVertexBufferChangedCount};
     for(const auto& attr : vertexInputState.attributes)
     {
       gl->EnableVertexAttribArray(attr.location);
@@ -316,6 +327,8 @@ struct Context::Impl
 
   // Currently bound buffers
   std::vector<VertexBufferBindingDescriptor> mCurrentVertexBufferBindings{};
+  std::vector<uint32_t>                      mCurrentVertexBufferChangedCount{};
+  uint32_t                                   mVertexBufferChangedCount{0u}; ///< Increase if any of vertex buffer changed at BindVertexBuffer
 
   // Currently bound UBOs (check if it's needed per program!)
   Dali::Vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
@@ -328,8 +341,17 @@ struct Context::Impl
   const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 
   // Each context must have own VAOs as they cannot be shared
-  std::unordered_map<const GLES::ProgramImpl*, std::map<std::size_t, uint32_t>> mProgramVAOMap;              ///< GL program-VAO map
-  uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
+  struct VAOInformations
+  {
+    uint32_t vao;
+    uint32_t vertexBufferChangedCount; ///< Latest mVertexBufferChangedCount value if VAO bounded
+  };
+  using AttributesHash   = std::size_t;
+  using AttributesVAOMap = std::map<AttributesHash, VAOInformations>;
+  using ProgramVAOMap    = std::unordered_map<const GLES::ProgramImpl*, AttributesVAOMap>;
+
+  ProgramVAOMap mProgramVAOMap;              ///< GL program-VAO map
+  uint32_t      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
 
   GLStateCache mGlStateCache{}; ///< GL status cache
 
@@ -704,10 +726,14 @@ void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindi
   if(count > mImpl->mCurrentVertexBufferBindings.size())
   {
     mImpl->mCurrentVertexBufferBindings.resize(count);
+    mImpl->mCurrentVertexBufferChangedCount.resize(count, 0u);
     mImpl->mVertexBuffersChanged = true;
   }
+  bool bufferChanged = false;
+
   // Copy only set slots
-  auto toIter = mImpl->mCurrentVertexBufferBindings.begin();
+  auto toIter      = mImpl->mCurrentVertexBufferBindings.begin();
+  auto changedIter = mImpl->mCurrentVertexBufferChangedCount.begin();
   for(auto fromIter = bindings, end = bindings + count; fromIter != end; ++fromIter)
   {
     if(fromIter->buffer != nullptr)
@@ -715,9 +741,27 @@ void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindi
       if(toIter->buffer != fromIter->buffer || toIter->offset != fromIter->offset)
       {
         mImpl->mVertexBuffersChanged = true;
+        *toIter                      = *fromIter;
       }
-      *toIter++ = *fromIter;
+
+      // Check whether buffer data has been changed from latest bounded cases.
+      if(fromIter->buffer->GetBufferChangedCount() != *changedIter)
+      {
+        bufferChanged = true;
+        *changedIter  = fromIter->buffer->GetBufferChangedCount();
+      }
+      ++toIter;
+      ++changedIter;
     }
+  }
+
+  if(bufferChanged)
+  {
+    mImpl->mVertexBuffersChanged = true;
+
+    // Increate vertex buffer changed count.
+    // It will be used whetner we need to re-call VertexAttribPointer or not.
+    ++mImpl->mVertexBufferChangedCount;
   }
 }
 
@@ -1117,8 +1161,10 @@ void Context::ClearState()
 void Context::ClearVertexBufferCache()
 {
   mImpl->mCurrentVertexBufferBindings.clear();
+  mImpl->mCurrentVertexBufferChangedCount.clear();
   mImpl->mVertexBuffersChanged   = true;
   mImpl->mProgramVAOCurrentState = 0;
+  ++mImpl->mVertexBufferChangedCount;
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
     if(!(mImpl->mController.GetGLESVersion() >= GLESVersion::GLES_30))
@@ -1425,7 +1471,7 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
         {
           for(auto& attributeHashPair : iter->second)
           {
-            auto vao = attributeHashPair.second;
+            auto vao = attributeHashPair.second.vao;
 
             // Do not delete vao now. (Since Context might not be current.)
             mImpl->mDiscardedVAOList.emplace_back(vao);

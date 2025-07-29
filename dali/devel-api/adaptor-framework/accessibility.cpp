@@ -43,6 +43,7 @@
 #include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
@@ -349,8 +350,8 @@ namespace
 class AdaptorAccessible : public ActorAccessible
 {
 private:
-  std::unique_ptr<TriggerEventInterface> mRenderNotification{nullptr};
-  bool                                   mRoot{false};
+  Dali::TriggerEventFactory::TriggerEventPtr mRenderNotification{nullptr};
+  bool                                       mRoot{false};
 
 public:
   AdaptorAccessible(Dali::Actor actor, bool isRoot)
@@ -513,9 +514,8 @@ public:
 
     if(!mRenderNotification)
     {
-      mRenderNotification = std::unique_ptr<TriggerEventInterface>(
-        TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
-                                                TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+      mRenderNotification = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
+                                                                              TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
       DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
     }
 
