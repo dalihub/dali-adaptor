@@ -669,6 +669,21 @@ public:
    */
   virtual int GetBehindBlur() = 0;
 
+  /**
+   * @brief Gets the window insets for all parts of the system UI.
+   *
+   * @return The window insets from all parts.
+   */
+  virtual Extents GetInsets() = 0;
+
+  /**
+   * @brief Gets the combined window insets for the specified parts of the system UI.
+   *
+   * @param[in] insetsFlags A bitwise combination of WindowInsetsPartFlags values specifying which window insets parts to include.
+   * @return The combined window insets from the specified parts.
+   */
+  virtual Extents GetInsets(WindowInsetsPartFlags insetsFlags) = 0;
+
   // Signals
 
   /**

@@ -555,6 +555,16 @@ int WindowBaseAndroid::GetBehindBlur()
   return 0;
 }
 
+Extents WindowBaseAndroid::GetInsets()
+{
+  return Extents(0, 0, 0, 0);
+}
+
+Extents WindowBaseAndroid::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  return Extents(0, 0, 0, 0);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

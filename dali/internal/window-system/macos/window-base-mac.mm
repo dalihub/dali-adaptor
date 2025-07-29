@@ -866,6 +866,16 @@ int WindowBaseCocoa::GetBehindBlur()
   return 0;
 }
 
+Extents WindowBaseCocoa::GetInsets()
+{
+  return Extents(0, 0, 0, 0);
+}
+
+Extents WindowBaseCocoa::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  return Extents(0, 0, 0, 0);
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

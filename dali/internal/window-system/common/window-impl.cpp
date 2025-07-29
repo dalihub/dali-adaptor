@@ -1591,6 +1591,16 @@ WindowBlurInfo Window::GetBlur() const
   return mBlurInfo;
 }
 
+Extents Window::GetInsets()
+{
+  return mWindowBase->GetInsets();
+}
+
+Extents Window::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  return mWindowBase->GetInsets(insetsFlags);
+}
+
 int Window::GetCurrentWindowRotationAngle() const
 {
   return mRotationAngle;

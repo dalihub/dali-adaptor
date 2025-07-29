@@ -1091,6 +1091,16 @@ int WindowBaseX::GetBehindBlur()
   return 0;
 }
 
+Extents WindowBaseX::GetInsets()
+{
+  return Extents(0, 0, 0, 0);
+}
+
+Extents WindowBaseX::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  return Extents(0, 0, 0, 0);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

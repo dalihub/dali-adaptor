@@ -1157,6 +1157,16 @@ int WindowBaseEcoreX::GetBehindBlur()
   return 0;
 }
 
+Extents WindowBaseEcoreX::GetInsets()
+{
+  return Extents(0, 0, 0, 0);
+}
+
+Extents WindowBaseEcoreX::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  return Extents(0, 0, 0, 0);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
