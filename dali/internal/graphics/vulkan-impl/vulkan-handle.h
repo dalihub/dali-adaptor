@@ -149,9 +149,15 @@ Handle<T>& Handle<T>::operator=(Handle&& handle) noexcept
 template<class T>
 Handle<T>& Handle<T>::operator=(const Handle<T>& handle)
 {
-  if(handle.mObject != this)
+  if(this != &handle)
   {
+    if(mObject)
+    {
+      mObject->Release();
+    }
+
     mObject = handle.mObject;
+
     if(mObject)
     {
       mObject->Retain();
