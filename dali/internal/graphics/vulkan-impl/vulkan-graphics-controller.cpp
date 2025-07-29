@@ -48,6 +48,11 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
+namespace
+{
+const uint32_t INITIAL_POOL_CAPACITY = 32u;
+} // Anonymous namespace
+
 namespace Dali::Graphics::Vulkan
 {
 static bool TestCopyRectIntersection(const ResourceTransferRequest* srcRequest, const ResourceTransferRequest* currentRequest)
@@ -596,8 +601,12 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
     {
       auto programImpl = static_cast<Vulkan::Program*>(binding.programBinding->program)->GetImplementation();
 
-      // Pool index is returned and we may do something with it later (storing it per cmdbuf?)
-      [[maybe_unused]] auto poolIndex = programImpl->AddDescriptorPool(binding.programBinding->count, 3); // add new pool, limit pools to 3 per program
+      // Start with conservative estimate, will grow dynamically on demand
+      programImpl->AddDescriptorPool(INITIAL_POOL_CAPACITY);
+
+      // Reset for fresh frame (returns all sets to free list)
+      uint32_t frameIndex = mImpl->mGraphicsDevice->GetCurrentBufferIndex();
+      programImpl->ResetDescriptorSetsForFrame(frameIndex);
     }
   }
 }
