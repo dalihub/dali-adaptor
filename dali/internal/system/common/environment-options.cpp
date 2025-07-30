@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY        = 2;
-const int          DEFAULT_MULTI_SAMPLING_LEVEL            = 4;
+const int          DEFAULT_MULTI_SAMPLING_LEVEL            = -1;
 const bool         DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING   = true;
 const bool         DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
 const bool         DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;
@@ -601,8 +601,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_PREDICTION_AMOUNT, MinimumZero(mPanGesturePredictionAmount));
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, MinimumZero(mPanGestureMinPredictionAmount));
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT,
-                                  [&](int maxPredictionAmount)
-                                  {
+                                  [&](int maxPredictionAmount) {
                                     if(mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount)
                                     {
                                       // maximum amount should not be smaller than minimum amount
@@ -635,8 +634,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable(DALI_ENV_TAP_MAXIMUM_ALLOWED_TIME, mTapMaximumAllowedTime);
 
   SetFromEnvironmentVariable(DALI_GLES_CALL_TIME, mGlesCallTime);
-  SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate)
-                                  { mGlesCallAccumulate = glesCallAccumulate != 0; });
+  SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate) { mGlesCallAccumulate = glesCallAccumulate != 0; });
 
   int windowWidth(0), windowHeight(0);
   if(GetEnvironmentVariable(DALI_WINDOW_WIDTH, windowWidth) && GetEnvironmentVariable(DALI_WINDOW_HEIGHT, windowHeight))
@@ -648,8 +646,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable(DALI_WINDOW_CLASS_NAME, mWindowClassName);
 
   SetFromEnvironmentVariable<int>(DALI_THREADING_MODE,
-                                  [&](int threadingMode)
-                                  {
+                                  [&](int threadingMode) {
                                     switch(threadingMode)
                                     {
                                       case ThreadingMode::COMBINED_UPDATE_RENDER:
@@ -671,8 +668,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   mRenderToFboInterval = GetEnvironmentVariable(DALI_RENDER_TO_FBO, 0u);
 
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_DEPTH_BUFFER,
-                                  [&](int depthBufferRequired)
-                                  {
+                                  [&](int depthBufferRequired) {
                                     if(depthBufferRequired > 0)
                                     {
                                       mDepthBufferRequired   = false;
