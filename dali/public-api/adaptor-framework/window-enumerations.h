@@ -1,6 +1,9 @@
 #ifndef DALI_WINDOW_ENUMERATIONS_H
 #define DALI_WINDOW_ENUMERATIONS_H
 
+// EXTERNAL INCLUDES
+#include <type_traits>
+
 /*
  * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
@@ -157,6 +160,32 @@ enum class WindowBlurType
   BACKGROUND, ///< the window's background
   BEHIND,     ///< the window's behind except background
 };
+
+/**
+ * @brief Enumeration of window insets part flag.
+ */
+enum class WindowInsetsPartFlags
+{
+  NONE       = 0,
+  STATUS_BAR = 1 << 0, ///< Status bar
+  KEYBOARD   = 1 << 1, ///< Keyboard
+  CLIPBOARD  = 1 << 2, ///< Clipboard
+};
+
+inline WindowInsetsPartFlags operator|(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
+{
+  return static_cast<WindowInsetsPartFlags>(static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(a) | static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(b));
+}
+
+inline WindowInsetsPartFlags operator&(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
+{
+  return static_cast<WindowInsetsPartFlags>(static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(a) & static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(b));
+}
+
+inline bool HasFlag(WindowInsetsPartFlags value, WindowInsetsPartFlags flag)
+{
+  return static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(value & flag) != 0;
+}
 
 } // namespace Dali
 

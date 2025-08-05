@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-loader.h>
+#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/type-registry.h>
@@ -81,8 +82,16 @@ Dali::StyleMonitor StyleMonitor::Get()
 }
 
 StyleMonitor::StyleMonitor()
-: mDefaultFontSize(-1)
+: mDefaultFontSize(-1),
+  mEarlyThemeChanged(false),
+  mEarlyDefaultFontChanged(false),
+  mAdaptorInitialized(false)
 {
+  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
+  if(DALI_LIKELY(lifecycleController))
+  {
+    lifecycleController.InitSignal().Connect(this, &StyleMonitor::OnAdaptorInitialized);
+  }
 }
 
 StyleMonitor::~StyleMonitor()
@@ -91,7 +100,7 @@ StyleMonitor::~StyleMonitor()
 
 bool StyleMonitor::EnsureFontClientCreated()
 {
-  if(!mFontClient)
+  if(mAdaptorInitialized && !mFontClient)
   {
     mFontClient = TextAbstraction::FontClient::Get();
     GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
@@ -108,7 +117,11 @@ void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
   {
     case StyleChange::DEFAULT_FONT_CHANGE:
     {
-      if(EnsureFontClientCreated())
+      if(!mAdaptorInitialized)
+      {
+        mEarlyDefaultFontChanged = true;
+      }
+      else if(EnsureFontClientCreated())
       {
         mFontClient.ResetSystemDefaults();
         GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
@@ -119,7 +132,11 @@ void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
 
     case StyleChange::DEFAULT_FONT_SIZE_CHANGE:
     {
-      if(EnsureFontClientCreated())
+      if(!mAdaptorInitialized)
+      {
+        mEarlyDefaultFontChanged = true;
+      }
+      else if(EnsureFontClientCreated())
       {
         mDefaultFontSize = mFontClient.GetDefaultFontSize();
       }
@@ -128,6 +145,10 @@ void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
 
     case StyleChange::THEME_CHANGE:
     {
+      if(!mAdaptorInitialized)
+      {
+        mEarlyThemeChanged = true;
+      }
       break;
     }
   }
@@ -157,6 +178,10 @@ const std::string& StyleMonitor::GetTheme() const
 
 void StyleMonitor::SetTheme(const std::string& path)
 {
+  if(!mAdaptorInitialized)
+  {
+    mEarlyThemeChanged = true;
+  }
   mUserDefinedThemeFilePath = path;
   EmitStyleChangeSignal(StyleChange::THEME_CHANGE);
 }
@@ -174,6 +199,33 @@ bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& outpu
   }
 
   return retval;
+}
+
+bool StyleMonitor::ThemeChangedBeforeAdaptorInit() const
+{
+  return mEarlyThemeChanged;
+}
+
+void StyleMonitor::OnAdaptorInitialized()
+{
+  mAdaptorInitialized = true;
+  mEarlyThemeChanged  = false;
+  if(mEarlyDefaultFontChanged)
+  {
+    mEarlyDefaultFontChanged = false;
+    Dali::StyleMonitor handle(this);
+
+    if(EnsureFontClientCreated())
+    {
+      mFontClient.ResetSystemDefaults();
+      GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
+
+      mDefaultFontSize = mFontClient.GetDefaultFontSize();
+    }
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::StyleChanged::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str());
+    EmitStyleChangeSignal(StyleChange::DEFAULT_FONT_CHANGE);
+    EmitStyleChangeSignal(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
+  }
 }
 
 Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()

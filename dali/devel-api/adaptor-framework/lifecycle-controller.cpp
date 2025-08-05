@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,11 @@ LifecycleController LifecycleController::Get()
 
 LifecycleController::~LifecycleController()
 {
+}
+
+LifecycleController::LifecycleSignalType& LifecycleController::PreInitSignal()
+{
+  return GetImplementation(*this).PreInitSignal();
 }
 
 LifecycleController::LifecycleSignalType& LifecycleController::InitSignal()

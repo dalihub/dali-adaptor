@@ -3931,6 +3931,93 @@ int WindowBaseEcoreWl2::GetBehindBlur()
   return radius;
 }
 
+Extents WindowBaseEcoreWl2::GetInsets()
+{
+  return GetInsets(WindowInsetsPartFlags::STATUS_BAR | WindowInsetsPartFlags::KEYBOARD | WindowInsetsPartFlags::CLIPBOARD);
+}
+
+Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
+{
+  int left   = 0;
+  int right  = 0;
+  int top    = 0;
+  int bottom = 0;
+
+  int winX = mWindowPositionSize.x;
+  int winY = mWindowPositionSize.y;
+  int winW = mWindowPositionSize.width;
+  int winH = mWindowPositionSize.height;
+
+  int x = 0;
+  int y = 0;
+  int w = 0;
+  int h = 0;
+
+  if (insetsFlags == WindowInsetsPartFlags::NONE)
+  {
+    return Extents(left, right, top, bottom);
+  }
+
+  for (int i = 0; i < 3; i++)
+  {
+    if (i == 0)
+    {
+      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::STATUS_BAR) || ecore_wl2_window_indicator_state_get(mEcoreWindow) == ECORE_WL2_INDICATOR_STATE_OFF)
+      {
+        continue;
+      }
+      ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+    }
+    else if (i == 1)
+    {
+      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::KEYBOARD) || ecore_wl2_window_keyboard_state_get(mEcoreWindow) == ECORE_WL2_VIRTUAL_KEYBOARD_STATE_OFF)
+      {
+        continue;
+      }
+      ecore_wl2_window_keyboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+    }
+    else
+    {
+      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::CLIPBOARD) || ecore_wl2_window_clipboard_state_get(mEcoreWindow) == ECORE_WL2_CLIPBOARD_STATE_OFF)
+      {
+        continue;
+      }
+      ecore_wl2_window_clipboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+    }
+
+    if((x <= winX) && (x + w >= winX + winW))
+    {
+      if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
+      {
+        top         = y + h - winY;
+        winY       += top;
+        winH       -= top;
+      }
+      else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
+      {
+        bottom      = winY + winH - y;
+        winH       -= bottom;
+      }
+    }
+    else if((y <= winY) && (y + h >= winY + winH))
+    {
+      if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
+      {
+        left        = x + w - winX;
+        winX       += left;
+        winW       -= left;
+      }
+      else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
+      {
+        right       = winX + winW - x;
+        winW       -= right;
+      }
+    }
+  }
+
+  return Extents(left, right, top, bottom);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

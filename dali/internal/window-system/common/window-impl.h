@@ -637,6 +637,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   WindowBlurInfo GetBlur() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::GetInsets()
+   */
+  Extents GetInsets();
+
+  /**
+   * @copydoc Dali::DevelWindow::GetInsets(WindowInsetsPartFlags)
+   */
+  Extents GetInsets(WindowInsetsPartFlags insetsFlags);
+
 public: // It is only for window-impl. Need not public for the others.
   /**
    * @brief Gets current window rotation angle.

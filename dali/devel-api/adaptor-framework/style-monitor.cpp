@@ -84,6 +84,11 @@ bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& outpu
   return GetImplementation(*this).LoadThemeFile(filename, output);
 }
 
+bool StyleMonitor::ThemeChangedBeforeAdaptorInit() const
+{
+  return GetImplementation(*this).ThemeChangedBeforeAdaptorInit();
+}
+
 StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 {
   return GetImplementation(*this).StyleChangeSignal();

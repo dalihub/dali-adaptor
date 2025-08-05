@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,18 @@ void utc_dali_lifecycle_controller_cleanup(void)
 
 namespace
 {
+bool g_OnPreInitCalled         = false;
 bool g_OnInitCalled            = false;
 bool g_OnTerminateCalled       = false;
 bool g_OnPauseCalled           = false;
 bool g_OnResumeCalled          = false;
 bool g_OnResetCalled           = false;
 bool g_OnLanguageChangedCalled = false;
+
+void OnPreInit()
+{
+  g_OnPreInitCalled = true;
+}
 
 void OnInit()
 {
@@ -89,6 +95,24 @@ int UtcDaliLifecycleControllerGet(void)
 
   lifecycleController = LifecycleController::Get();
   DALI_TEST_CHECK(lifecycleController);
+
+  END_TEST;
+}
+
+int UtcDaliLifecycleControllerSignalPreInit(void)
+{
+  TestApplication app;
+  Application     application = Application::New();
+
+  DALI_TEST_CHECK(!g_OnPreInitCalled);
+
+  LifecycleController lifecycleController = LifecycleController::Get();
+
+  lifecycleController.PreInitSignal().Connect(&OnPreInit);
+
+  GetImplementation(lifecycleController).OnPreInit(application);
+
+  DALI_TEST_CHECK(g_OnPreInitCalled);
 
   END_TEST;
 }

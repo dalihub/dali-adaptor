@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,11 @@ public:
   // Signals
 
   /**
+   * @copydoc Dali::StyleMonitor::PreInitSignal()
+   */
+  Dali::LifecycleController::LifecycleSignalType& PreInitSignal();
+
+  /**
    * @copydoc Dali::StyleMonitor::InitSignal()
    */
   Dali::LifecycleController::LifecycleSignalType& InitSignal();
@@ -86,6 +91,14 @@ public:
   Dali::LifecycleController::LifecycleSignalType& LanguageChangedSignal();
 
 public:
+public:
+  /**
+   * Called when the framework will be initialised.
+   *
+   * @param[in] app The application instance
+   */
+  void OnPreInit(Dali::Application& app);
+
   /**
    * Called when the framework is initialised.
    *
@@ -136,6 +149,11 @@ protected:
 
 private:
   /**
+   * Emit the pre init signal.
+   */
+  void EmitPreInitSignal();
+
+  /**
    * Emit the init signal.
    */
   void EmitInitSignal();
@@ -167,6 +185,7 @@ private:
 
 private:
   // Signals
+  Dali::LifecycleController::LifecycleSignalType mPreInitSignal;
   Dali::LifecycleController::LifecycleSignalType mInitSignal;
   Dali::LifecycleController::LifecycleSignalType mTerminateSignal;
   Dali::LifecycleController::LifecycleSignalType mPauseSignal;

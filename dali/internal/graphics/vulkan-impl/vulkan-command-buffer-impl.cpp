@@ -339,21 +339,33 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
   }
 }
 
-void CommandBufferImpl::Draw(uint32_t vertexCount,
-                             uint32_t instanceCount,
-                             uint32_t firstVertex,
-                             uint32_t firstInstance)
+void CommandBufferImpl::PrepareForDraw()
 {
   ResolveDeferredPipelineBinding();
 
   if(mCurrentProgram)
   {
-    auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
+    uint32_t frameIndex = mGraphicsDevice->GetCurrentBufferIndex();
+
+    // Fetch next available descriptor set
+    vk::DescriptorSet set = mCurrentProgram->GetNextDescriptorSetForFrame(frameIndex);
     if(set)
     {
+      // Update and bind
+      UpdateDescriptorSet(set);
       BindResources(set);
     }
   }
+}
+
+void CommandBufferImpl::Draw(uint32_t vertexCount,
+                             uint32_t instanceCount,
+                             uint32_t firstVertex,
+                             uint32_t firstInstance)
+{
+  // Resolve pipeline binding and bind the appropriate descriptor set
+  PrepareForDraw();
+
   if(instanceCount == 0)
   {
     instanceCount = 1;
@@ -367,26 +379,15 @@ void CommandBufferImpl::DrawIndexed(uint32_t indexCount,
                                     int32_t  vertexOffset,
                                     uint32_t firstInstance)
 {
-  ResolveDeferredPipelineBinding();
+  // Resolve pipeline binding and bind the appropriate descriptor set
+  PrepareForDraw();
 
-  if(mCurrentProgram)
-  {
-    auto set = mCurrentProgram->AllocateDescriptorSet(-1); // allocate from recent pool
-    if(set)
-    {
-      BindResources(set);
-    }
-  }
-  // draw here
   if(instanceCount == 0)
   {
     instanceCount = 1;
   }
-  mCommandBuffer.drawIndexed(indexCount,
-                             instanceCount,
-                             firstIndex,
-                             static_cast<int32_t>(vertexOffset),
-                             firstInstance);
+
+  mCommandBuffer.drawIndexed(indexCount, instanceCount, firstIndex, static_cast<int32_t>(vertexOffset), firstInstance);
 }
 
 void CommandBufferImpl::DrawIndexedIndirect(BufferImpl& buffer,
@@ -394,6 +395,9 @@ void CommandBufferImpl::DrawIndexedIndirect(BufferImpl& buffer,
                                             uint32_t    drawCount,
                                             uint32_t    stride)
 {
+  // Resolve pipeline binding and bind the appropriate descriptor set
+  PrepareForDraw();
+
   mCommandBuffer.drawIndexedIndirect(buffer.GetVkHandle(), static_cast<vk::DeviceSize>(offset), drawCount, stride);
 }
 
@@ -497,6 +501,23 @@ void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
 void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 {
   auto& reflection = mCurrentProgram->GetReflection();
+
+  auto pipelineLayout = reflection.GetVkPipelineLayout();
+
+  mCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                    pipelineLayout,
+                                    0,
+                                    1,
+                                    &descriptorSet, // @note - old impl could use multiple sets (possibly)
+                                    0,
+                                    nullptr);
+  mDeferredTextureBindings.clear();
+  mDeferredUniformBindings.clear();
+}
+
+void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
+{
+  auto& reflection = mCurrentProgram->GetReflection();
   auto& samplers   = reflection.GetSamplers();
 
   static Dali::Vector<vk::DescriptorImageInfo>  imageInfos;
@@ -566,22 +587,11 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
       }
     }
   }
+
   if(!descriptorWrites.Empty())
   {
     mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.Size()), &descriptorWrites[0], 0, nullptr);
   }
-
-  auto pipelineLayout = reflection.GetVkPipelineLayout();
-
-  mCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                    pipelineLayout,
-                                    0,
-                                    1,
-                                    &descriptorSet, // @note - old impl could use multiple sets (possibly)
-                                    0,
-                                    nullptr);
-  mDeferredTextureBindings.clear();
-  mDeferredUniformBindings.clear();
 }
 
 } // namespace Vulkan

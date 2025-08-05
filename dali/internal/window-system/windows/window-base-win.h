@@ -570,6 +570,17 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
    */
   int GetBehindBlur() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
+   */
+  Extents GetInsets() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets(WindowInsetsPartFlags)
+   */
+  Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
+
 private:
   /**
    * Second stage initialization

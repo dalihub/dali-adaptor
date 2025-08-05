@@ -39,7 +39,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY        = 2;
-const int          DEFAULT_MULTI_SAMPLING_LEVEL            = 4;
+const int          DEFAULT_MULTI_SAMPLING_LEVEL            = -1;
 const bool         DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING   = true;
 const bool         DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
 const bool         DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;

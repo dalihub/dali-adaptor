@@ -518,6 +518,16 @@ public:
    */
   int GetBehindBlur() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
+   */
+  Extents GetInsets() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets(WindowInsetsPartFlags)
+   */
+  Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
+
 private:
   // Undefined
   WindowBaseCocoa(const WindowBaseCocoa&) = delete;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,18 @@ LifecycleController::LifecycleController()
 
 LifecycleController::~LifecycleController()
 {
+}
+Dali::LifecycleController::LifecycleSignalType& LifecycleController::PreInitSignal()
+{
+  return mPreInitSignal;
+}
+
+void LifecycleController::EmitPreInitSignal()
+{
+  if(!mPreInitSignal.Empty())
+  {
+    mPreInitSignal.Emit();
+  }
 }
 
 Dali::LifecycleController::LifecycleSignalType& LifecycleController::InitSignal()
@@ -139,6 +151,11 @@ void LifecycleController::EmitLanguageChangedSignal()
   {
     mLanguageChangedSignal.Emit();
   }
+}
+
+void LifecycleController::OnPreInit(Dali::Application& app)
+{
+  EmitPreInitSignal();
 }
 
 void LifecycleController::OnInit(Dali::Application& app)

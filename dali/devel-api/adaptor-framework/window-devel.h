@@ -762,6 +762,23 @@ DALI_ADAPTOR_API void SetBlur(Window window, const WindowBlurInfo& blurInfo);
   */
 DALI_ADAPTOR_API WindowBlurInfo GetBlur(Window window);
 
+/**
+ * @brief Gets the window insets for all parts of the system UI.
+ *
+ * @param[in] window The window instance.
+ * @return The window insets from all parts.
+ */
+DALI_ADAPTOR_API Extents GetInsets(Window window);
+
+/**
+ * @brief Gets the combined window insets for the specified parts of the system UI.
+ *
+ * @param[in] window The window instance.
+ * @param[in] insetsFlags A bitwise combination of WindowInsetsPartFlags values specifying which window insets parts to include.
+ * @return The combined window insets from the specified parts.
+ */
+DALI_ADAPTOR_API Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags);
+
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
