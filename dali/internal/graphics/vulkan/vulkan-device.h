@@ -47,10 +47,12 @@ class RenderPassImpl;
 class CommandPool;
 using CommandPoolMap = std::unordered_map<std::thread::id, CommandPool*>;
 
-struct SwapchainSurfacePair
+struct DeviceWindow
 {
-  Swapchain*   swapchain;
   SurfaceImpl* surface;
+  Swapchain*   swapchain;
+  // Logical Device
+  // Device Queues
 };
 
 class Device
@@ -167,29 +169,30 @@ private: // Methods
 
 private: // Members
   vk::PhysicalDevice mPhysicalDevice;
-  vk::Device         mLogicalDevice;
   vk::Instance       mInstance;
 
-  vk::PhysicalDeviceProperties             mPhysicalDeviceProperties;
-  vk::PhysicalDeviceMemoryProperties       mPhysicalDeviceMemoryProperties;
-  vk::PhysicalDeviceFeatures               mPhysicalDeviceFeatures;
+  vk::PhysicalDeviceProperties       mPhysicalDeviceProperties;
+  vk::PhysicalDeviceMemoryProperties mPhysicalDeviceMemoryProperties;
+  vk::PhysicalDeviceFeatures         mPhysicalDeviceFeatures;
+
+  vk::Device                               mLogicalDevice;
   std::unique_ptr<vk::AllocationCallbacks> mAllocator{nullptr};
 
   std::unique_ptr<::vma::Allocator> mVmaAllocator{nullptr};
 
   std::vector<vk::QueueFamilyProperties> mQueueFamilyProperties;
 
-  // Sets of queues
+  // Sets of queues (Per logical Device)
   std::vector<std::unique_ptr<Queue>> mAllQueues;
   std::vector<Queue*>                 mGraphicsQueues;
   std::vector<Queue*>                 mTransferQueues;
   std::vector<Queue*>                 mComputeQueues;
 
-  CommandPoolMap mCommandPools;
+  CommandPoolMap mCommandPools; // Per logical device...
 
-  std::unordered_map<Graphics::SurfaceId, SwapchainSurfacePair> mSurfaceMap;
-  bool                                                          mSurfaceResized{false};
-  Graphics::SurfaceId                                           mBaseSurfaceId{0u};
+  std::unordered_map<Graphics::SurfaceId, DeviceWindow> mSurfaceMap;
+  bool                                                  mSurfaceResized{false};
+  Graphics::SurfaceId                                   mBaseSurfaceId{0u};
 
   Platform   mPlatform{Platform::UNDEFINED};
   uint32_t   mBufferCount{2};

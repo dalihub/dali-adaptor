@@ -174,109 +174,111 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
     std::vector<const char*> extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-    /**
-     * @todo Check these exist before using them for native image:
-     * VK_KHR_SWAPCHAIN_EXTENSION_NAME
-     * VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME
-     * VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME
-     * VK_KHR_BIND_MEMORY_2_EXTENSION_NAME
-     * VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME
-     * VK_KHR_MAINTENANCE1_EXTENSION_NAME
-     * VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
-     * VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME
-     */
-
-    vk::PhysicalDeviceFeatures featuresToEnable{};
-
-    if(mPhysicalDeviceFeatures.fillModeNonSolid)
+    if(!mLogicalDevice)
     {
-      featuresToEnable.fillModeNonSolid = VK_TRUE;
-    }
+      /**
+       * @todo Check these exist before using them for native image:
+       * VK_KHR_SWAPCHAIN_EXTENSION_NAME
+       * VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME
+       * VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME
+       * VK_KHR_BIND_MEMORY_2_EXTENSION_NAME
+       * VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME
+       * VK_KHR_MAINTENANCE1_EXTENSION_NAME
+       * VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
+       * VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME
+       */
 
-    if(mPhysicalDeviceFeatures.textureCompressionASTC_LDR)
-    {
-      featuresToEnable.textureCompressionASTC_LDR = VK_TRUE;
-    }
+      vk::PhysicalDeviceFeatures featuresToEnable{};
 
-    if(mPhysicalDeviceFeatures.textureCompressionETC2)
-    {
-      featuresToEnable.textureCompressionETC2 = VK_TRUE;
-    }
-
-    auto info = vk::DeviceCreateInfo{};
-    info.setEnabledExtensionCount(U32(extensions.size()))
-      .setPpEnabledExtensionNames(extensions.data())
-      .setPEnabledFeatures(&featuresToEnable)
-      .setPQueueCreateInfos(queueInfos.data())
-      .setQueueCreateInfoCount(U32(queueInfos.size()));
-
-    mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
-
-    // Vulkan memory allocator
-
-    auto allocatorInfo = ::vma::AllocatorCreateInfo{}
-                           .setInstance(mInstance)
-                           .setPhysicalDevice(mPhysicalDevice)
-                           .setDevice(mLogicalDevice)
-                           .setPreferredLargeHeapBlockSize(1 * 1024 * 1024) // Default pool size (TODO: could potentially be configured per app)
-                           .setVulkanApiVersion(mPhysicalDevice.getProperties().apiVersion)
-                           .setPAllocationCallbacks(reinterpret_cast<vk::AllocationCallbacks*>(mAllocator.get()));
-
-    // Allow certain buffers/images to have dedicated memory allocations to
-    // improve performance on some GPUs.
-    allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eKhrDedicatedAllocation;
-
-    // Query for current memory usage and budget, which will probably be
-    // more accurate than an estimation
-    allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
-
-    mVmaAllocator = std::make_unique<::vma::Allocator>();
-    VkAssert(::vma::createAllocator(&allocatorInfo, mVmaAllocator.get()));
-  }
-
-  // create Queue objects
-  for(auto& queueInfo : queueInfos)
-  {
-    for(auto i = 0u; i < queueInfo.queueCount; ++i)
-    {
-      auto queue = mLogicalDevice.getQueue(queueInfo.queueFamilyIndex, i);
-
-      // based on family push queue instance into right array
-      auto flags        = mQueueFamilyProperties[queueInfo.queueFamilyIndex].queueFlags;
-      auto queueWrapper = std::unique_ptr<Queue>(new Queue(queue, queueInfo.queueFamilyIndex, i, flags));
-
-      if(flags & vk::QueueFlagBits::eGraphics)
+      if(mPhysicalDeviceFeatures.fillModeNonSolid)
       {
-        mGraphicsQueues.emplace_back(queueWrapper.get());
+        featuresToEnable.fillModeNonSolid = VK_TRUE;
       }
-      if(flags & vk::QueueFlagBits::eTransfer)
-      {
-        mTransferQueues.emplace_back(queueWrapper.get());
-      }
-      if(flags & vk::QueueFlagBits::eCompute)
-      {
-        mComputeQueues.emplace_back(queueWrapper.get());
-      }
-      mAllQueues.emplace_back(std::move(queueWrapper));
-      // todo: present queue
-    }
-  }
-  if(mTransferQueues.empty() && (!mGraphicsQueues.empty() || !mComputeQueues.empty()))
-  {
-    if(!mGraphicsQueues.empty())
-    {
-      mTransferQueues.emplace_back(mGraphicsQueues.back());
-    }
-    else
-    {
-      mTransferQueues.emplace_back(mComputeQueues.back());
-    }
-  }
 
-  // if( !mVulkanPipelineCache )
-  // {
-  //   mVulkanPipelineCache = mLogicalDevice.createPipelineCache( vk::PipelineCacheCreateInfo{}, GetAllocator() ).value;
-  // }
+      if(mPhysicalDeviceFeatures.textureCompressionASTC_LDR)
+      {
+        featuresToEnable.textureCompressionASTC_LDR = VK_TRUE;
+      }
+
+      if(mPhysicalDeviceFeatures.textureCompressionETC2)
+      {
+        featuresToEnable.textureCompressionETC2 = VK_TRUE;
+      }
+
+      auto info = vk::DeviceCreateInfo{};
+      info.setEnabledExtensionCount(U32(extensions.size()))
+        .setPpEnabledExtensionNames(extensions.data())
+        .setPEnabledFeatures(&featuresToEnable)
+        .setPQueueCreateInfos(queueInfos.data())
+        .setQueueCreateInfoCount(U32(queueInfos.size()));
+
+      mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
+
+      // Vulkan memory allocator
+
+      auto allocatorInfo = ::vma::AllocatorCreateInfo{}
+                             .setInstance(mInstance)
+                             .setPhysicalDevice(mPhysicalDevice)
+                             .setDevice(mLogicalDevice)
+                             .setPreferredLargeHeapBlockSize(1 * 1024 * 1024) // Default pool size (TODO: could potentially be configured per app)
+                             .setVulkanApiVersion(mPhysicalDevice.getProperties().apiVersion)
+                             .setPAllocationCallbacks(reinterpret_cast<vk::AllocationCallbacks*>(mAllocator.get()));
+
+      // Allow certain buffers/images to have dedicated memory allocations to
+      // improve performance on some GPUs.
+      allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eKhrDedicatedAllocation;
+
+      // Query for current memory usage and budget, which will probably be
+      // more accurate than an estimation
+      allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+
+      mVmaAllocator = std::make_unique<::vma::Allocator>();
+      VkAssert(::vma::createAllocator(&allocatorInfo, mVmaAllocator.get()));
+    }
+
+    // create Queue objects
+    for(auto& queueInfo : queueInfos)
+    {
+      for(auto i = 0u; i < queueInfo.queueCount; ++i)
+      {
+        auto queue = mLogicalDevice.getQueue(queueInfo.queueFamilyIndex, i);
+
+        // based on family push queue instance into right array
+        auto flags        = mQueueFamilyProperties[queueInfo.queueFamilyIndex].queueFlags;
+        auto queueWrapper = std::unique_ptr<Queue>(new Queue(queue, queueInfo.queueFamilyIndex, i, flags));
+
+        if(flags & vk::QueueFlagBits::eGraphics)
+        {
+          mGraphicsQueues.emplace_back(queueWrapper.get());
+        }
+        if(flags & vk::QueueFlagBits::eTransfer)
+        {
+          mTransferQueues.emplace_back(queueWrapper.get());
+        }
+        if(flags & vk::QueueFlagBits::eCompute)
+        {
+          mComputeQueues.emplace_back(queueWrapper.get());
+        }
+        mAllQueues.emplace_back(std::move(queueWrapper));
+        // todo: present queue
+      }
+    }
+    if(mTransferQueues.empty() && (!mGraphicsQueues.empty() || !mComputeQueues.empty()))
+    {
+      if(!mGraphicsQueues.empty())
+      {
+        mTransferQueues.emplace_back(mGraphicsQueues.back());
+      }
+      else
+      {
+        mTransferQueues.emplace_back(mComputeQueues.back());
+      }
+    }
+    // if( !mVulkanPipelineCache )
+    // {
+    //   mVulkanPipelineCache = mLogicalDevice.createPipelineCache( vk::PipelineCacheCreateInfo{}, GetAllocator() ).value;
+    // }
+  }
 }
 
 Graphics::SurfaceId Device::CreateSurface(
@@ -330,7 +332,7 @@ Graphics::SurfaceId Device::CreateSurface(
   // map surface to SurfaceId
   auto surfaceId = ++mBaseSurfaceId;
 
-  mSurfaceMap[surfaceId] = SwapchainSurfacePair{nullptr, surface};
+  mSurfaceMap[surfaceId] = DeviceWindow{surface, nullptr};
 
   if(createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_OPTIMAL ||
      createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL)
@@ -693,6 +695,10 @@ void Device::DestroyInstance()
 
 void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 {
+  if(mPhysicalDevice)
+  {
+    return;
+  }
   auto devices = VkAssert(mInstance.enumeratePhysicalDevices());
   assert(!devices.empty() && "No Vulkan supported device found!");
 
