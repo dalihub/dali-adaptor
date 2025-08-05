@@ -35,7 +35,7 @@ namespace Adaptor
 {
 class StyleMonitor;
 }
-} // namespace DALI_INTERNAL
+} // namespace Internal DALI_INTERNAL
 
 /**
  * @brief Monitors the platform for style changes.
@@ -166,6 +166,13 @@ public: // Style Information
    * @return true if the load is successful
    */
   bool LoadThemeFile(const std::string& filename, std::string& output);
+
+  /**
+   * @brief Whether style changed before adaptor initialized
+   * @note This flag will be reset after LifecycleController::PreInitSignal emit finished.
+   * @return True if style changed before adaptor initialized.
+   */
+  bool ThemeChangedBeforeAdaptorInit() const;
 
 public: // Signals
   /**

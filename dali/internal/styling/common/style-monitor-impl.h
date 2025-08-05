@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace Adaptor
  * This holds the platform's style information.
  * It provides a signal when any aspect of the default style changes on the device.
  */
-class StyleMonitor : public BaseObject
+class StyleMonitor : public BaseObject, public ConnectionTracker
 {
 public:
   // Creation & Destruction
@@ -97,12 +97,23 @@ public:
    */
   bool LoadThemeFile(const std::string& filename, std::string& output);
 
+  /**
+   * @copydoc Dali::StyleMonitor::StyleChangedBeforeAdaptorInit()
+   */
+  bool ThemeChangedBeforeAdaptorInit() const;
+
   // Signals
 
   /**
    * @copydoc Dali::StyleMonitor::StyleChangeSignal()
    */
   Dali::StyleMonitor::StyleChangeSignalType& StyleChangeSignal();
+
+private:
+  /**
+   * @brief Callbacks called when adaptor is initialized.
+   */
+  void OnAdaptorInitialized();
 
 protected:
   /**
@@ -125,6 +136,10 @@ private:
   std::string                 mDefaultFontStyle;         ///< The default font style
   std::string                 mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
   int                         mDefaultFontSize;          ///< The default accessibility font size e.g. 0 is smallest
+
+  bool mEarlyThemeChanged : 1;       ///< True if theme changed before adaptor initialized.
+  bool mEarlyDefaultFontChanged : 1; ///< True if default font changed before adaptor initialized.
+  bool mAdaptorInitialized : 1;
 };
 
 } // namespace Adaptor

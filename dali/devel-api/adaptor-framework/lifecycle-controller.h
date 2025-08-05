@@ -2,7 +2,7 @@
 #define DALI_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace Adaptor
 {
 class LifecycleController;
 }
-} // namespace DALI_INTERNAL
+} // namespace Internal DALI_INTERNAL
 
 /**
  * @brief Provides application lifecycle events.
@@ -90,6 +90,11 @@ public: // Creation & Destruction
   ~LifecycleController();
 
 public: // Signals
+  /**
+   * The user should connect to this signal before initialize their application.
+   */
+  LifecycleSignalType& PreInitSignal();
+
   /**
    * The user should connect to this signal to determine when they should initialise
    * their application.

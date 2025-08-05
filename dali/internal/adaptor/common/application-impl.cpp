@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,8 @@ void Application::PreInitialize(int* argc, char** argv[])
     {
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading\n");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
-      gPreInitializedApplication->mUIThreadLoader->Run([&]() { gPreInitializedApplication->CreateWindow(); });
+      gPreInitializedApplication->mUIThreadLoader->Run([&]()
+                                                       { gPreInitializedApplication->CreateWindow(); });
     }
     else
 #endif
@@ -411,9 +412,11 @@ void Application::OnInit()
   mAdaptor->Start();
   DALI_TRACE_END(gTraceFilter, "DALI_APP_ADAPTOR_START");
 
+  // Initialize StyleMonitor here.
+  Dali::StyleMonitor styleMonitor = Dali::StyleMonitor::Get();
   if(!mStylesheet.empty())
   {
-    Dali::StyleMonitor::Get().SetTheme(mStylesheet);
+    styleMonitor.SetTheme(mStylesheet);
   }
 
   // Wire up the LifecycleController
@@ -427,6 +430,10 @@ void Application::OnInit()
   LanguageChangedSignal().Connect(&GetImplementation(lifecycleController), &LifecycleController::OnLanguageChanged);
 
   Dali::Application application(this);
+
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_EMIT_PRE_INIT_SIGNAL");
+  GetImplementation(lifecycleController).OnPreInit(application);
+  DALI_TRACE_END(gTraceFilter, "DALI_APP_EMIT_PRE_INIT_SIGNAL");
 
   DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_EMIT_INIT_SIGNAL");
   mInitSignal.Emit(application);
