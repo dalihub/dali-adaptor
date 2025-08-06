@@ -47,6 +47,11 @@ void GetScreenSize(int32_t& width, int32_t& height)
   height = GetSystemMetrics(SM_CYSCREEN);
 }
 
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  return std::vector<Dali::ScreenInformation>();
+}
+
 void UpdateScreenSize()
 {
 }

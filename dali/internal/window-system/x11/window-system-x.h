@@ -19,6 +19,7 @@
 
 #include <X11/Xlib.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <climits>
 #include <cstdint>
 #include <string>
@@ -72,6 +73,14 @@ public:
    * Get the connected display
    */
   Dali::Any GetDisplay() override;
+
+  /**
+   * Get the list of screen informations for this window system.
+   * It is for multiple screen environment.
+   *
+   * @return The list of the screen information
+   */
+  std::vector<Dali::ScreenInformation> GetAvailableScreens() override;
 
   /**
    * Get the display for this specific implementation

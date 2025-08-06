@@ -1167,6 +1167,15 @@ Extents WindowBaseEcoreX::GetInsets(WindowInsetsPartFlags insetsFlags)
   return Extents(0, 0, 0, 0);
 }
 
+void WindowBaseEcoreX::SetScreen(const std::string& screenName)
+{
+}
+
+std::string WindowBaseEcoreX::GetScreen() const
+{
+  return std::string();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -757,6 +757,11 @@ void WindowSystemX::GetScreenSize(int& width, int& height)
   }
 }
 
+std::vector<Dali::ScreenInformation> WindowSystemX::GetAvailableScreens()
+{
+  return std::vector<Dali::ScreenInformation>();
+}
+
 WindowSystemBase::EventHandler* WindowSystemX::AddEventHandler(Event event, EventHandlerCallback callback, void* data)
 {
   return mImpl->AddEventHandler(event, callback, data);
@@ -1111,6 +1116,11 @@ void GetScreenSize(int& width, int& height)
   {
     gWindowSystem->GetScreenSize(width, height);
   }
+}
+
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  return std::vector<Dali::ScreenInformation>();
 }
 
 void UpdateScreenSize()

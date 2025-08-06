@@ -38,6 +38,11 @@ bool IsGeometryHittestEnabled()
   return Dali::Internal::Adaptor::WindowSystem::IsGeometryHittestEnabled();
 }
 
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  return Internal::Adaptor::WindowSystem::GetAvailableScreens();
+}
+
 } // namespace DevelWindowSystem
 
 } // namespace Dali

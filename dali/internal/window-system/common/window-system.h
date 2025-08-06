@@ -21,9 +21,12 @@
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/devel-api/adaptor-framework/screen-information.h>
 
 namespace Dali
 {
@@ -66,7 +69,15 @@ void GetDpi(uint32_t& dpiHorizontal, uint32_t& dpiVertical);
  *
  * Needs exporting as it's called directly by the GlWindow library
  */
-void DALI_ADAPTOR_API GetScreenSize(int32_t& width, int32_t& height);
+void GetScreenSize(int32_t& width, int32_t& height);
+
+/**
+ * Get the list of screen informations for this window system.
+ * It is for multiple screen environment.
+ *
+ * @return The list of the screen information
+ */
+std::vector<Dali::ScreenInformation> GetAvailableScreens();
 
 /**
  * @brief Update the screen size
@@ -203,6 +214,14 @@ public:
    * @param[out] height The height of the screen
    */
   virtual void GetScreenSize(int32_t& width, int32_t& height) = 0;
+
+  /**
+   * Get the list of screen informations for this window system.
+   * It is for multiple screen environment.
+   *
+   * @return The list of the screen information
+   */
+  virtual std::vector<Dali::ScreenInformation> GetAvailableScreens() = 0;
 };
 
 } // namespace Adaptor

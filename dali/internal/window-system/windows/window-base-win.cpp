@@ -796,6 +796,15 @@ Extents WindowBaseWin::GetInsets(WindowInsetsPartFlags insetsFlags)
   return Extents(0, 0, 0, 0);
 }
 
+void WindowBaseWin::SetScreen(const std::string& screenName)
+{
+}
+
+std::string WindowBaseWin::GetScreen() const
+{
+  return std::string();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
