@@ -219,6 +219,16 @@ void GetDeviceSubclass(Ecore_Device_Subclass ecoreDeviceSubclass, Device::Subcla
       deviceSubclass = Device::Subclass::VIRTUAL_KEYBOARD;
       break;
     }
+    case ECORE_DEVICE_SUBCLASS_VIRTUAL_REMOCON:
+    {
+      deviceSubclass = Device::Subclass::VIRTUAL_REMOCON;
+      break;
+    }
+    case ECORE_DEVICE_SUBCLASS_VIRTUAL_MOUSE:
+    {
+      deviceSubclass = Device::Subclass::VIRTUAL_MOUSE;
+      break;
+    }
     default:
     {
       deviceSubclass = Device::Subclass::NONE;
