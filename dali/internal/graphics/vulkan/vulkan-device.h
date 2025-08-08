@@ -78,7 +78,7 @@ public: // Create methods
 
   void CreateSwapchainForSurface(Dali::Graphics::SurfaceId surfaceId);
 
-  Swapchain* ReplaceSwapchainForSurface(Dali::Graphics::SurfaceId surfaceId, Swapchain*&& oldSwapchain);
+  Swapchain* ReplaceSwapchainForSurface(Dali::Graphics::SurfaceId surfaceId);
 
   /**
    * Ensures that the next available image is retrieved for drawing onto.

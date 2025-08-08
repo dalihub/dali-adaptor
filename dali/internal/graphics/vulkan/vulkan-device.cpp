@@ -382,11 +382,12 @@ void Device::CreateSwapchainForSurface(SurfaceId surfaceId)
   }
 }
 
-Swapchain* Device::ReplaceSwapchainForSurface(SurfaceId surfaceId, Swapchain*&& oldSwapchain)
+Swapchain* Device::ReplaceSwapchainForSurface(SurfaceId surfaceId)
 {
   if(auto match = mSurfaceMap.find(surfaceId); match != mSurfaceMap.end())
   {
     mSurfaceResized         = false;
+    auto oldSwapchain       = match->second.swapchain;
     match->second.swapchain = CreateSwapchain(match->second.surface,
                                               vk::Format::eB8G8R8A8Unorm,
                                               vk::PresentModeKHR::eFifo,
@@ -454,7 +455,7 @@ void Device::AcquireNextImage(SurfaceId surfaceId)
       DeviceWaitIdle();
 
       // replace swapchain (only once)
-      swapchain = ReplaceSwapchainForSurface(surfaceId, std::move(swapchain));
+      swapchain = ReplaceSwapchainForSurface(surfaceId);
       // get new valid framebuffer
       if(swapchain)
       {
