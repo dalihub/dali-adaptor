@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,11 @@ int32_t GetRenderThreadId(Application application)
 void FlushUpdateMessages(Application application)
 {
   Internal::Adaptor::GetImplementation(application).FlushUpdateMessages();
+}
+
+Dali::Window GetPreInitializeWindow()
+{
+  return Internal::Adaptor::Application::GetPreInitializeWindow();
 }
 
 } // namespace DevelApplication
