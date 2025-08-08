@@ -126,6 +126,16 @@ void Application::PreInitialize(int* argc, char** argv[])
   }
 }
 
+Dali::Window Application::GetPreInitializeWindow()
+{
+  Dali::Window result;
+  if(gPreInitializedApplication)
+  {
+    result = gPreInitializedApplication->GetWindow();
+  }
+  return result;
+}
+
 Application::Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData)
 : mInitSignal(),
   mTerminateSignal(),

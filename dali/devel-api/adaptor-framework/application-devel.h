@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 // EXTERNAL INCLUDES
@@ -32,19 +33,19 @@ namespace DevelApplication
 using CustomCommandReceivedSignalType = Signal<void(const std::string&)>; ///< Signal signature for CustomCommandReceivedSignal
 
 /**
-   * @brief This is the constructor for applications.
-   * Especially, it is for keyboard application.
-   * If you want to create Ime window, use this API with WindowType::IME.
-   *
-   * @param[in,out]  argc                A pointer to the number of arguments
-   * @param[in,out]  argv                A pointer to the argument list
-   * @param[in]      stylesheet          The path to user defined theme file
-   * @param[in]      windowMode          A member of WINDOW_MODE
-   * @param[in]      positionSize        A position and a size of the window
-   * @param[in]      type                It is window type for default window.
-   * @return A handle to the Application
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
-   */
+ * @brief This is the constructor for applications.
+ * Especially, it is for keyboard application.
+ * If you want to create Ime window, use this API with WindowType::IME.
+ *
+ * @param[in,out]  argc                A pointer to the number of arguments
+ * @param[in,out]  argv                A pointer to the argument list
+ * @param[in]      stylesheet          The path to user defined theme file
+ * @param[in]      windowMode          A member of WINDOW_MODE
+ * @param[in]      positionSize        A position and a size of the window
+ * @param[in]      type                It is window type for default window.
+ * @return A handle to the Application
+ * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
+ */
 DALI_ADAPTOR_API Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type);
 
 /**
@@ -66,9 +67,9 @@ DALI_ADAPTOR_API Application New(int* argc, char** argv[], const std::string& st
 DALI_ADAPTOR_API bool AddIdleWithReturnValue(Application application, CallbackBase* callback);
 
 /**
-* @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
-* @return The absolute path to the application's data directory
-*/
+ * @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
+ * @return The absolute path to the application's data directory
+ */
 DALI_ADAPTOR_API std::string GetDataPath();
 
 /**
@@ -111,6 +112,13 @@ DALI_ADAPTOR_API int32_t GetRenderThreadId(Application application);
  * @param application A handle to the Application
  */
 DALI_ADAPTOR_API void FlushUpdateMessages(Application application);
+
+/**
+ * @brief Get window from pre-initialized application.
+ * @note Only available pre-initialized application case. If application already created, it will return empty handle.
+ * @return Pre initialized window, or empty handle if no pre-initialized application exist.
+ */
+DALI_ADAPTOR_API Dali::Window GetPreInitializeWindow();
 
 } // namespace DevelApplication
 
