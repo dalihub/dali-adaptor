@@ -44,7 +44,7 @@ class TestGraphicsImpl : public Graphics::GraphicsInterface
 {
 public:
   TestGraphicsImpl()
-  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Integration::DepthBufferAvailable::TRUE, Integration::StencilBufferAvailable::TRUE, Integration::PartialUpdateAvailable::TRUE)
+  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Integration::DepthBufferAvailable::TRUE, Integration::StencilBufferAvailable::TRUE, Integration::PartialUpdateAvailable::TRUE, 4)
   {
   }
   virtual ~TestGraphicsImpl() = default;

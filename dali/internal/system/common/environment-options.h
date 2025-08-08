@@ -343,6 +343,14 @@ public:
    */
   bool VsyncRenderRequired() const;
 
+public:
+  /**
+   * @brief Copy environment varaibles from rhs.
+   * @param[in] rhs Envorinment options to get.
+   */
+  void CopyEnvironmentOptions(const EnvironmentOptions& rhs);
+
+private:
   /// Deleted copy constructor.
   EnvironmentOptions(const EnvironmentOptions&) = delete;
 

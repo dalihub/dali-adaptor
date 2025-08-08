@@ -296,6 +296,12 @@ cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
 cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
+%if 0%{?enable_preinitialize_adaptor}
+cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=ON"
+%else
+cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=OFF"
+%endif
+
 # Use this conditional when Tizen version is 7.x or greater
 %if 0%{?tizen_version_major} >= 7
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"

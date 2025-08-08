@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_FPS_TRACKER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,12 @@ public:
    * @return Whether FPS tracking is enabled.
    */
   bool Enabled() const;
+
+  /**
+   * @brief Update environment data.
+   * @param[in] environmentOptions environment options
+   */
+  void UpdateEnvironmentOptions(const EnvironmentOptions& environmentOptions);
 
 private:
   /**

@@ -50,7 +50,8 @@ public:
     const Graphics::GraphicsCreateInfo& info,
     Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
-    Integration::PartialUpdateAvailable partialUpdateRequired);
+    Integration::PartialUpdateAvailable partialUpdateRequired,
+    int                                 multiSamplingLevel);
 
   /**
    * Destructor
@@ -196,16 +197,6 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
-   * @copydoc Dali::Graphics::GraphicsInterface::GetDepthBufferRequired()
-   */
-  Integration::DepthBufferAvailable& GetDepthBufferRequired();
-
-  /**
-   * @copydoc Dali::Graphics::GraphicsInterface::GetStencilBufferRequired()
-   */
-  Integration::StencilBufferAvailable GetStencilBufferRequired();
-
-  /**
    * Gets the EGL image extension
    * @return The EGL image extension
    */
@@ -348,7 +339,6 @@ private:
   std::unique_ptr<EglImageExtensions>                        mEglImageExtensions; ///< EGL image extension
   std::unique_ptr<EglSyncImplementation>                     mEglSync;            ///< GlSyncAbstraction implementation for EGL
 
-  int  mMultiSamplingLevel;   ///< The multiple sampling level
   bool mForcePresentRequired; ///< Flag to force present
 };
 

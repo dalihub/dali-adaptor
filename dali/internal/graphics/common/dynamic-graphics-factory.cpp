@@ -21,6 +21,16 @@
 
 namespace Dali::Internal::Adaptor
 {
+__attribute__((weak)) Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
+{
+  return GraphicsLibrary::GetCurrentGraphicsLibraryBackend();
+}
+
+__attribute__((weak)) void ResetGraphicsLibrary()
+{
+  GraphicsLibrary::ResetGraphicsLibrary();
+}
+
 __attribute__((weak)) std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);

@@ -43,12 +43,14 @@ Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
   uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1u : 0u;
   depthStencilMask |= uint32_t(mEnvironmentOptions.DepthBufferRequired()) ? 1u << 1u : 0u;
 
+  int multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
+
   Graphics::GraphicsCreateInfo info{};
-  info.surfaceWidth       = 0; // Not needed initially.
-  info.surfaceHeight      = 0;
-  info.multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
-  info.depthStencilMode   = std::function<Graphics::DepthStencilMode()>(
-    [depthStencilMask]() {
+  info.surfaceWidth     = 0; // Not needed initially.
+  info.surfaceHeight    = 0;
+  info.depthStencilMode = std::function<Graphics::DepthStencilMode()>(
+    [depthStencilMask]()
+    {
       switch(depthStencilMask)
       {
         case 1:
@@ -64,12 +66,23 @@ Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
 
   info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Dali::Graphics::VulkanGraphics(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired);
+  auto graphics = new Dali::Graphics::VulkanGraphics(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
   return static_cast<Dali::Graphics::GraphicsInterface&>(*graphics);
 }
 
 void VulkanGraphicsFactory::Destroy()
 {
+}
+
+/// graphics-factory.h implemements
+Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
+{
+  return Dali::Graphics::Backend::VULKAN;
+}
+
+void ResetGraphicsLibrary()
+{
+  /* This function defined for dynamic library case. */
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)

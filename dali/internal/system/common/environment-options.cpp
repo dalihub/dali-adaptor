@@ -686,6 +686,65 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_VSYNC_RENDER, DisableIfNonZero(mVsyncRenderRequired));
 }
 
+void EnvironmentOptions::CopyEnvironmentOptions(const EnvironmentOptions& rhs)
+{
+  mWindowName      = rhs.mWindowName;
+  mWindowClassName = rhs.mWindowClassName;
+
+  mNetworkControl             = rhs.mNetworkControl;
+  mFpsFrequency               = rhs.mFpsFrequency;
+  mUpdateStatusFrequency      = rhs.mUpdateStatusFrequency;
+  mObjectProfilerInterval     = rhs.mObjectProfilerInterval;
+  mMemoryPoolInterval         = rhs.mMemoryPoolInterval;
+  mPerformanceStatsLevel      = rhs.mPerformanceStatsLevel;
+  mPerformanceStatsFrequency  = rhs.mPerformanceStatsFrequency;
+  mPerformanceTimeStampOutput = rhs.mPerformanceTimeStampOutput;
+  mPanGestureLoggingLevel     = rhs.mPanGestureLoggingLevel;
+
+  mWindowWidth         = rhs.mWindowWidth;
+  mWindowHeight        = rhs.mWindowHeight;
+  mRenderRefreshRate   = rhs.mRenderRefreshRate;
+  mMaxTextureSize      = rhs.mMaxTextureSize;
+  mRenderToFboInterval = rhs.mRenderToFboInterval;
+
+  mPanGesturePredictionMode              = rhs.mPanGesturePredictionMode;
+  mPanGesturePredictionAmount            = rhs.mPanGesturePredictionAmount;
+  mPanGestureMaxPredictionAmount         = rhs.mPanGestureMaxPredictionAmount;
+  mPanGestureMinPredictionAmount         = rhs.mPanGestureMinPredictionAmount;
+  mPanGesturePredictionAmountAdjustment  = rhs.mPanGesturePredictionAmountAdjustment;
+  mPanGestureSmoothingMode               = rhs.mPanGestureSmoothingMode;
+  mPanGestureSmoothingAmount             = rhs.mPanGestureSmoothingAmount;
+  mPanGestureUseActualTimes              = rhs.mPanGestureUseActualTimes;
+  mPanGestureInterpolationTimeRange      = rhs.mPanGestureInterpolationTimeRange;
+  mPanGestureScalarOnlyPredictionEnabled = rhs.mPanGestureScalarOnlyPredictionEnabled;
+  mPanGestureTwoPointPredictionEnabled   = rhs.mPanGestureTwoPointPredictionEnabled;
+  mPanGestureTwoPointInterpolatePastTime = rhs.mPanGestureTwoPointInterpolatePastTime;
+  mPanGestureTwoPointVelocityBias        = rhs.mPanGestureTwoPointVelocityBias;
+  mPanGestureTwoPointAccelerationBias    = rhs.mPanGestureTwoPointAccelerationBias;
+  mPanGestureMultitapSmoothingRange      = rhs.mPanGestureMultitapSmoothingRange;
+  mPanMinimumDistance                    = rhs.mPanMinimumDistance;
+  mPanMinimumEvents                      = rhs.mPanMinimumEvents;
+  mPinchMinimumDistance                  = rhs.mPinchMinimumDistance;
+  mPinchMinimumTouchEvents               = rhs.mPinchMinimumTouchEvents;
+  mPinchMinimumTouchEventsAfterStart     = rhs.mPinchMinimumTouchEventsAfterStart;
+  mRotationMinimumTouchEvents            = rhs.mRotationMinimumTouchEvents;
+  mRotationMinimumTouchEventsAfterStart  = rhs.mRotationMinimumTouchEventsAfterStart;
+  mLongPressMinimumHoldingTime           = rhs.mLongPressMinimumHoldingTime;
+  mTapMaximumAllowedTime                 = rhs.mTapMaximumAllowedTime;
+
+  mGlesCallTime       = rhs.mGlesCallTime;
+  mMultiSamplingLevel = rhs.mMultiSamplingLevel;
+
+  mThreadingMode   = rhs.mThreadingMode;
+  mGraphicsBackend = rhs.mGraphicsBackend;
+
+  mGlesCallAccumulate    = rhs.mGlesCallAccumulate;
+  mDepthBufferRequired   = rhs.mDepthBufferRequired;
+  mStencilBufferRequired = rhs.mStencilBufferRequired;
+  mPartialUpdateRequired = rhs.mPartialUpdateRequired;
+  mVsyncRenderRequired   = rhs.mVsyncRenderRequired;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

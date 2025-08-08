@@ -45,7 +45,8 @@ class RenderSurfaceInterface;
 namespace Internal::Adaptor
 {
 class ConfigurationManager;
-}
+class WindowBase;
+} // namespace Internal::Adaptor
 
 namespace Graphics
 {
@@ -98,7 +99,6 @@ struct GraphicsCreateInfo
   DepthStencilMode       depthStencilMode;
   SwapchainBufferingMode swapchainBufferingMode;
   ColorDepth             colorDepth;
-  int                    multiSamplingLevel;
 };
 
 /**
@@ -114,11 +114,13 @@ public:
     const GraphicsCreateInfo&           info,
     Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
-    Integration::PartialUpdateAvailable partialUpdateRequired)
+    Integration::PartialUpdateAvailable partialUpdateRequired,
+    int                                 multiSamplingLevel)
   : mCreateInfo(info),
     mDepthBufferRequired(depthBufferRequired),
     mStencilBufferRequired(stencilBufferRequired),
-    mPartialUpdateRequired(partialUpdateRequired)
+    mPartialUpdateRequired(partialUpdateRequired),
+    mMultiSamplingLevel(multiSamplingLevel)
   {
   }
 
@@ -177,11 +179,11 @@ public:
    * @return the Id of the graphics surface/swapchain pair.
    */
   virtual Graphics::SurfaceId CreateSurface(
-    Graphics::SurfaceFactory*      factory,
-    Internal::Adaptor::WindowBase* windowBase,
-    ColorDepth                     colorDepth,
-    int                            width,
-    int                            height) = 0;
+    Graphics::SurfaceFactory*            factory,
+    Dali::Internal::Adaptor::WindowBase* windowBase,
+    ColorDepth                           colorDepth,
+    int                                  width,
+    int                                  height) = 0;
 
   /**
    * Destroy the graphics surface and it's resources.
@@ -307,6 +309,27 @@ public:
   };
 
   /**
+   * Get level of anti-aliasing required (-1 = off)
+   * @return The level of multi sampling
+   */
+  const int GetMultiSamplingLevel() const
+  {
+    return mMultiSamplingLevel;
+  };
+
+  /**
+   * @brief Set the graphics requirements
+   * @note We must call this API before Initialize()
+   */
+  void UpdateGraphicsRequired(Integration::DepthBufferAvailable depth, Integration::StencilBufferAvailable stencil, Integration::PartialUpdateAvailable partial, int multiSamplingLevel)
+  {
+    mDepthBufferRequired   = depth;
+    mStencilBufferRequired = stencil;
+    mPartialUpdateRequired = partial;
+    mMultiSamplingLevel    = multiSamplingLevel;
+  }
+
+  /**
    * @return true if advanced blending options are supported
    */
   virtual bool IsAdvancedBlendEquationSupported() = 0;
@@ -383,6 +406,7 @@ protected:
   Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required
   Integration::StencilBufferAvailable mStencilBufferRequired; ///< Whether the stencil buffer is required
   Integration::PartialUpdateAvailable mPartialUpdateRequired; ///< Whether the partial update is required
+  int                                 mMultiSamplingLevel;    ///< The multiple sampling level
 };
 
 } // namespace Graphics

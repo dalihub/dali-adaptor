@@ -6,9 +6,9 @@ SET( adaptor_graphics_common_src_files
 
 # module: graphics, dynamic, common
 SET( adaptor_graphics_common_dynamic_src_files
-    ${adaptor_graphics_dir}/common/graphics-factory-dynamic.cpp
+    ${adaptor_graphics_dir}/common/dynamic-graphics-factory.cpp
+    ${adaptor_graphics_dir}/common/dynamic-surface-factory.cpp
     ${adaptor_graphics_dir}/common/graphics-library.cpp
-    ${adaptor_graphics_dir}/common/surface-factory-dynamic.cpp
 )
 
 # module: graphics, dynamic, backend: unix

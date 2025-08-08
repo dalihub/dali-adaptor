@@ -495,9 +495,10 @@ protected:
   void CreateWindow();
 
   /**
-   * Creates the adaptor
+   * Creates the adaptor.
+   * It should be called after main window created.
    */
-  void CreateAdaptor(AdaptorBuilder& adaptorBuilder);
+  void CreateAdaptor();
 
   /**
    * Quits from the main loop
@@ -508,6 +509,16 @@ protected:
    * Changes information of preInitialized window
    */
   void ChangePreInitializedWindowInfo();
+
+  /**
+   * @brief Get latest environment options and apply changeness
+   */
+  void UpdateEnvironmentOptions();
+
+  /**
+   * @brief Ensure to complete adaptor and window creation.
+   */
+  void CompleteAdaptorAndWindowCreate();
 
 private:
   AppSignalType                      mInitSignal;
