@@ -811,7 +811,7 @@ public:
     glShaderBinary(n, shaders, binaryformat, binary, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glShaderBinary shader : " << (n > 0 ? shaders[0] : 0) << "length : " << length; });
+                                                 { oss << "glShaderBinary shader : " << (n > 0 ? shaders[0] : 0) << " length : " << length; });
   }
 
   void ShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length) override
@@ -821,7 +821,7 @@ public:
     glShaderSource(shader, count, string, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glShaderSource shader : " << shader << "length : " << (count > 0 ? length[0] : 0); });
+                                                 { oss << "glShaderSource shader : " << shader << " length : " << (count > 0 ? length[0] : 0); });
   }
 
   void StencilFunc(GLenum func, GLint ref, GLuint mask) override
@@ -1543,7 +1543,7 @@ public:
     mImpl->GetProgramBinary(program, bufSize, length, binaryFormat, binary);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glProgramBinary program : " << program << "length : " << length; });
+                                                 { oss << "glProgramBinary program : " << program << " length : " << length; });
   }
 
   void ProgramBinary(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length) override
@@ -1553,7 +1553,7 @@ public:
     mImpl->ProgramBinary(program, binaryFormat, binary, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glProgramBinary program : " << program << "length : " << length; });
+                                                 { oss << "glProgramBinary program : " << program << " length : " << length; });
   }
 
   void ProgramParameteri(GLuint program, GLenum pname, GLint value) override

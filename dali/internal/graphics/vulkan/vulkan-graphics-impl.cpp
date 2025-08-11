@@ -160,12 +160,12 @@ void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16
   if(surface)
   {
     surface->Resize(size);
-  }
 
-  mGraphicsDevice.DeviceWaitIdle();
-  auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-  mGraphicsDevice.GetSurface(surfaceId)->UpdateSize(size.GetWidth(), size.GetHeight());
-  mGraphicsDevice.ReplaceSwapchainForSurface(surfaceId);
+    mGraphicsDevice.DeviceWaitIdle();
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    mGraphicsDevice.GetSurface(surfaceId)->UpdateSize(size.GetWidth(), size.GetHeight());
+    mGraphicsDevice.ReplaceSwapchainForSurface(surfaceId);
+  }
 }
 
 int VulkanGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)

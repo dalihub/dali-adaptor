@@ -29,14 +29,18 @@ static std::string AddLineNumbers(const char* src)
 {
   int                line = 1;
   std::ostringstream oss;
-  char               buffer[4096];
-  char*              copy = strncpy(buffer, src, 4096);
-  buffer[4095]            = '\0';
-  char* delim             = strtok(copy, "\n");
+
+  // Let we print 4096 prefix of shader codes.
+  char  buffer[4096];
+  char* copy    = strncpy(buffer, src, 4096);
+  char* nextPtr = nullptr;
+  buffer[4095]  = '\0';
+
+  char* delim = strtok_r(copy, "\n", &nextPtr);
   while(delim)
   {
     oss << std::setw(4) << line << "  " << delim << "\n";
-    delim = strtok(nullptr, "\n");
+    delim = strtok_r(nullptr, "\n", &nextPtr);
     ++line;
   }
   return oss.str();
@@ -68,7 +72,7 @@ struct ShaderImpl::Impl
     createInfo.sourceSize = dataSize;
   }
 
-  ~Impl(){};
+  ~Impl() {};
 
   bool Compile()
   {
