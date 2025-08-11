@@ -87,7 +87,7 @@ T VkAssert(const vk::ResultValue<T>& result, vk::Result expected = vk::Result::e
 {
   if(DALI_UNLIKELY(result.result != expected))
   {
-    DALI_LOG_ERROR("result : %d, expect : %d\n", static_cast<int>(result.result), static_cast<int>(expected));
+    DALI_LOG_ERROR("result : %d %s, expect : %d %s\n", static_cast<int>(result.result), vk::to_string(result.result).c_str(), static_cast<int>(expected), vk::to_string(expected).c_str());
     Dali::DaliPrintBackTrace();
   }
   assert(result.result == expected);
@@ -98,7 +98,7 @@ inline vk::Result VkAssert(vk::Result result, vk::Result expected = vk::Result::
 {
   if(DALI_UNLIKELY(result != expected))
   {
-    DALI_LOG_ERROR("result : %d, expect : %d\n", static_cast<int>(result), static_cast<int>(expected));
+    DALI_LOG_ERROR("result : %d %s, expect : %d %s\n", static_cast<int>(result), vk::to_string(result).c_str(), static_cast<int>(expected), vk::to_string(expected).c_str());
     Dali::DaliPrintBackTrace();
   }
   assert(result == expected);
