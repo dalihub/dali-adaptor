@@ -30,9 +30,9 @@ static std::string AddLineNumbers(const char* src)
   int                line = 1;
   std::ostringstream oss;
 
-  // Let we print 4096 prefix of shader codes.
+  // Let we print 4095 prefix of shader codes.
   char  buffer[4096];
-  char* copy    = strncpy(buffer, src, 4096);
+  char* copy    = strncpy(buffer, src, 4095);
   char* nextPtr = nullptr;
   buffer[4095]  = '\0';
 
