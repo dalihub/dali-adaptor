@@ -34,7 +34,9 @@
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
+#include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Dali::Graphics::Internal::IsGraphicsBackendSet and etc
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
+#include <dali/internal/graphics/common/graphics-factory.h> ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-settings.h>
@@ -106,6 +108,11 @@ void Application::PreInitialize(int* argc, char** argv[])
 
     Dali::TextAbstraction::FontClientPreInitialize();
     WindowData windowData;
+
+#ifdef DALI_PROFILE_UBUNTU
+    windowData.SetTransparency(false); ///< Transparent window is not supported in Ubuntu platform. Let we set to false by default.
+#endif
+
     gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, isUseUIThread, windowData);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
 
@@ -115,15 +122,36 @@ void Application::PreInitialize(int* argc, char** argv[])
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading\n");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
       gPreInitializedApplication->mUIThreadLoader->Run([&]()
-                                                       { gPreInitializedApplication->CreateWindow(); });
+                                                       {
+                                                         gPreInitializedApplication->CreateWindow();
+
+#ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+                                                         // Start Adaptor now...? TODO : Please check it is valid thread.
+                                                         // TODO : POC for create view at preinitialize timing.
+                                                         gPreInitializedApplication->CreateAdaptor();
+#endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+                                                       });
     }
     else
 #endif
     {
       DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED\n");
       gPreInitializedApplication->CreateWindow(); // Only create window
+#ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+      gPreInitializedApplication->CreateAdaptor();
+#endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
     }
   }
+}
+
+Dali::Window Application::GetPreInitializeWindow()
+{
+  Dali::Window result;
+  if(gPreInitializedApplication)
+  {
+    result = gPreInitializedApplication->GetWindow();
+  }
+  return result;
 }
 
 Application::Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData)
@@ -321,6 +349,15 @@ void Application::CreateWindow()
   }
   else
   {
+    // Get environments now, for check preference graphics backend when we create window.
+    if(!mEnvironmentOptions)
+    {
+      mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
+
+      // Backend could be changed.
+      Graphics::Internal::SetPreferredGraphicsBackend(mEnvironmentOptions->GetGraphicsBackend());
+    }
+
     // The position, size, window name, and frontbuffering of the pre-initialized application
     // will be updated in ChangePreInitializedWindowInfo() when the real application is launched.
     windowData.SetPositionSize(mWindowPositionSize);
@@ -334,10 +371,15 @@ void Application::CreateWindow()
   GetImplementation(mMainWindow).DeleteRequestSignal().Connect(mSlotDelegate, &Application::Quit);
 }
 
-void Application::CreateAdaptor(AdaptorBuilder& adaptorBuilder)
+void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS(mMainWindow && "Window required to create adaptor");
 
+  DALI_LOG_RELEASE_INFO("CreateAdaptor!\n");
+
+  DALI_ASSERT_ALWAYS(mEnvironmentOptions && "Should have environment options before create adaptor!");
+
+  auto& adaptorBuilder  = AdaptorBuilder::Get(*mEnvironmentOptions);
   auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder(&Dali::GetImplementation(mMainWindow));
@@ -345,6 +387,87 @@ void Application::CreateAdaptor(AdaptorBuilder& adaptorBuilder)
   mAdaptor = Adaptor::New(graphicsFactory, sceneHolder, mEnvironmentOptions.get());
 
   Adaptor::GetImplementation(*mAdaptor).SetUseRemoteSurface(mUseRemoteSurface);
+
+  // adaptorBuilder invalidate after now.
+  AdaptorBuilder::Finalize();
+}
+
+void Application::UpdateEnvironmentOptions()
+{
+  if(mLaunchpadState == Launchpad::NONE)
+  {
+    DALI_ASSERT_ALWAYS(!mEnvironmentOptions && "Should not call OnInit() multiple times");
+    mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
+  }
+  else if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
+  {
+    // PreInitialize case.
+    DALI_ASSERT_ALWAYS(mEnvironmentOptions && "Should have environment options at pre-initialized phase");
+
+    DALI_ASSERT_ALWAYS(mMainWindow && "Window required to create pre-initialized case");
+
+    // Compare with previous environment options, and replace it.
+    auto latestEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
+
+#ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+    DALI_LOG_RELEASE_INFO("pre-initialized Application with pre-initialized Adaptor\n");
+
+    auto& mainWindowImpl = GetImplementation(mMainWindow);
+    DALI_ASSERT_ALWAYS(mainWindowImpl.GetSurface() && "Surface should be initialized pre-initialized case");
+
+    if(DALI_UNLIKELY(mainWindowImpl.GetSurface()->GetSurfaceType() == Dali::Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE))
+    {
+      DALI_LOG_RELEASE_INFO("Re-create DisplayConnector by native render surface\n");
+      Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GenerateDisplayConnector(mainWindowImpl.GetSurface()->GetSurfaceType());
+    }
+
+    Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).UpdateEnvironmentOptions(*latestEnvironmentOptions);
+#else
+    mEnvironmentOptions->CopyEnvironmentOptions(*latestEnvironmentOptions);
+#endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+  }
+
+  // Call will be ignored if this function has already been called by the application.
+  if(!Graphics::Internal::IsGraphicsBackendSet())
+  {
+    Graphics::SetGraphicsBackend(mEnvironmentOptions->GetGraphicsBackend());
+  }
+
+  DALI_ASSERT_ALWAYS(!(mLaunchpadState == Launchpad::NONE && Graphics::Internal::IsGraphicsResetRequired()) && "Normal launch case should never call preferred graphics backend!");
+
+  // Reload graphics library if need
+  if(DALI_UNLIKELY(mLaunchpadState == Launchpad::PRE_INITIALIZED && Graphics::Internal::IsGraphicsResetRequired()))
+  {
+    // dlclose for previous loader and re-load if dynamic graphics backed case.
+    Dali::Internal::Adaptor::ResetGraphicsLibrary();
+
+    // Fix the graphics backend as current graphics now.
+    Graphics::Internal::GraphicsResetCompleted();
+  }
+}
+
+void Application::CompleteAdaptorAndWindowCreate()
+{
+  // If an application was pre-initialized, a window was made in advance
+  if(mLaunchpadState == Launchpad::NONE)
+  {
+    DALI_LOG_RELEASE_INFO("default Window is created in standalone\n");
+    CreateWindow();
+
+    CreateAdaptor();
+    DALI_LOG_RELEASE_INFO("Standalone Application with standalone Adaptor\n");
+  }
+  else if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
+  {
+#if !defined(PREINITIALIZE_ADAPTOR_CREATION_ENABLED)
+    // Must create adaptor before change pre-initialized windows
+    CreateAdaptor();
+
+    DALI_LOG_RELEASE_INFO("pre-initialized Application with standalone Adaptor\n");
+#endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+
+    ChangePreInitializedWindowInfo();
+  }
 }
 
 void Application::MainLoop()
@@ -382,30 +505,14 @@ void Application::QuitFromMainLoop()
 void Application::OnInit()
 {
   DALI_LOG_RELEASE_INFO("Application::OnInit\n");
-  mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
 
-  // Call will be ignored if this function has already been called by the application.
-  Graphics::SetGraphicsBackend(mEnvironmentOptions->GetGraphicsBackend());
+  // Let we get or update as latest environment options.
+  UpdateEnvironmentOptions();
 
   mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
 
-  auto& adaptorBuilder = AdaptorBuilder::Get(*mEnvironmentOptions);
-  // If an application was pre-initialized, a window was made in advance
-  if(mLaunchpadState == Launchpad::NONE)
-  {
-    DALI_LOG_RELEASE_INFO("default Window is created in standalone\n");
-    CreateWindow();
-  }
-
-  CreateAdaptor(adaptorBuilder);
-
-  // adaptorBuilder invalidate after now.
-  AdaptorBuilder::Finalize();
-
-  if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
-  {
-    ChangePreInitializedWindowInfo();
-  }
+  // Let we ensure that window and adaptor created now.
+  CompleteAdaptorAndWindowCreate();
 
   // Run the adaptor
   DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_ADAPTOR_START");

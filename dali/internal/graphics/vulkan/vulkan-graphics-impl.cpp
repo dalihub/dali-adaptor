@@ -34,10 +34,10 @@ namespace Graphics
 VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::DepthBufferAvailable         depthBufferAvailable,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
-                               Integration::PartialUpdateAvailable       partialUpdateRequired)
-: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/),
-  mGraphicsController(),
-  mMultiSamplingLevel(-1) // No multisampling
+                               Integration::PartialUpdateAvailable       partialUpdateRequired,
+                               int                                       multiSamplingLevel)
+: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/, multiSamplingLevel),
+  mGraphicsController()
 {
 }
 
@@ -54,10 +54,11 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 
 void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
 {
-  mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
-  mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
-  mPartialUpdateRequired = Integration::PartialUpdateAvailable::FALSE; // static_cast<Integration::PartialUpdateAvailable>(partialRendering);
-  mMultiSamplingLevel    = msaa;
+  GraphicsInterface::UpdateGraphicsRequired(static_cast<Integration::DepthBufferAvailable>(depth),
+                                            static_cast<Integration::StencilBufferAvailable>(stencil),
+                                            Integration::PartialUpdateAvailable::FALSE, // static_cast<Integration::PartialUpdateAvailable>(partialRendering),
+                                            msaa);
+
   Initialize(displayConnection);
 }
 
@@ -137,7 +138,11 @@ void VulkanGraphics::Shutdown()
 
 void VulkanGraphics::Destroy()
 {
-  mGraphicsController.RunGarbageCollector(0);
+  // Destroy only if Initialize called before.
+  if(DALI_LIKELY(mGraphicsDevice.GetInstance()))
+  {
+    mGraphicsController.RunGarbageCollector(0);
+  }
 }
 
 void VulkanGraphics::Pause()
@@ -152,7 +157,15 @@ void VulkanGraphics::Resume()
 
 void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
 {
-  // TODO: Need to consider how to resize the surface for vulkan
+  if(surface)
+  {
+    surface->Resize(size);
+
+    mGraphicsDevice.DeviceWaitIdle();
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    mGraphicsDevice.GetSurface(surfaceId)->UpdateSize(size.GetWidth(), size.GetHeight());
+    mGraphicsDevice.ReplaceSwapchainForSurface(surfaceId);
+  }
 }
 
 int VulkanGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)

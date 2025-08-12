@@ -41,6 +41,11 @@ UpdateStatusLogger::~UpdateStatusLogger()
 {
 }
 
+void UpdateStatusLogger::UpdateEnvironmentOptions(const EnvironmentOptions& environmentOptions)
+{
+  mStatusLogInterval = environmentOptions.GetUpdateStatusLoggingFrequency();
+}
+
 void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
 {
   if(mStatusLogInterval)

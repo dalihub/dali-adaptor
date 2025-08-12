@@ -365,6 +365,20 @@ public:
    */
   void SetUseRemoteSurface(bool useRemoteSurface);
 
+  /**
+   * @brief Generate display connector as input type.
+   * @note We should call this API before adaptor started.
+   * @param[in] type Type of render surface interface of main window
+   */
+  void GenerateDisplayConnector(Dali::Integration::RenderSurfaceInterface::Type type);
+
+  /**
+   * @brief Change environment value options as input.
+   * @note We should call this API before adaptor started.
+   * @param[in] newEnvironmentOptions Updated environment options
+   */
+  void UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentOptions);
+
 public:
   /**
    * Adds an adaptor observer so that we can observe the adaptor's lifetime events.
@@ -681,6 +695,12 @@ private:
    * Trigger to log the memory pools from Core and Adaptor
    */
   bool MemoryPoolTimeout();
+
+  /**
+   * @brief Update global environment variables raltive with events
+   * @note It should be called after core created.
+   */
+  void ApplyEventEnvironmentVariables();
 
 private:
   /**

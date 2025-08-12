@@ -38,9 +38,9 @@ EglGraphics::EglGraphics(
   const Graphics::GraphicsCreateInfo& info,
   Integration::DepthBufferAvailable   depthBufferRequired,
   Integration::StencilBufferAvailable stencilBufferRequired,
-  Integration::PartialUpdateAvailable partialUpdateRequired)
-: GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired),
-  mMultiSamplingLevel(info.multiSamplingLevel),
+  Integration::PartialUpdateAvailable partialUpdateRequired,
+  int                                 multiSamplingLevel)
+: GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel),
   mForcePresentRequired(false)
 {
   if(environmentOptions.GetGlesCallTime() > 0)
@@ -196,13 +196,12 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 
 void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
 {
-  mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
-  mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
-  mPartialUpdateRequired = static_cast<Integration::PartialUpdateAvailable>(partialRendering);
-  mMultiSamplingLevel    = msaa;
+  GraphicsInterface::UpdateGraphicsRequired(static_cast<Integration::DepthBufferAvailable>(depth),
+                                            static_cast<Integration::StencilBufferAvailable>(stencil),
+                                            static_cast<Integration::PartialUpdateAvailable>(partialRendering),
+                                            msaa);
 
-  EglInitialize();
-  InitializeGraphicsAPI(displayConnection);
+  Initialize(displayConnection);
 }
 
 void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
@@ -345,7 +344,11 @@ void EglGraphics::Shutdown()
 
 void EglGraphics::Destroy()
 {
-  mGraphicsController.Destroy();
+  // Destroy only if Initialize called before.
+  if(DALI_LIKELY(mEglImplementation))
+  {
+    mGraphicsController.Destroy();
+  }
 }
 
 Integration::GlAbstraction& EglGraphics::GetGlAbstraction() const

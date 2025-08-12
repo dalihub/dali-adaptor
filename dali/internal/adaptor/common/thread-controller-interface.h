@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,6 +133,11 @@ public:
    * @param surface new surface
    */
   virtual void AddSurface(Dali::Integration::RenderSurfaceInterface* surface) = 0;
+
+  /**
+   * @brief Notify to thread contoller that it's environment data updated.
+   */
+  virtual void UpdateEnvironmentOptions() = 0;
 
   /**
    * @brief Gets the thread id.

@@ -20,10 +20,32 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <iomanip>
 #include "egl-graphics-controller.h"
 
 namespace Dali::Graphics::GLES
 {
+static std::string AddLineNumbers(const char* src)
+{
+  int                line = 1;
+  std::ostringstream oss;
+
+  // Let we print 4095 prefix of shader codes.
+  char  buffer[4096];
+  char* copy    = strncpy(buffer, src, 4095);
+  char* nextPtr = nullptr;
+  buffer[4095]  = '\0';
+
+  char* delim = strtok_r(copy, "\n", &nextPtr);
+  while(delim)
+  {
+    oss << std::setw(4) << line << "  " << delim << "\n";
+    delim = strtok_r(nullptr, "\n", &nextPtr);
+    ++line;
+  }
+  return oss.str();
+}
+
 struct ShaderImpl::Impl
 {
   explicit Impl(Graphics::EglGraphicsController& _controller, const Graphics::ShaderCreateInfo& _createInfo)
@@ -50,7 +72,7 @@ struct ShaderImpl::Impl
     createInfo.sourceSize = dataSize;
   }
 
-  ~Impl(){};
+  ~Impl() {};
 
   bool Compile()
   {
@@ -122,7 +144,9 @@ struct ShaderImpl::Impl
             char    output[4096];
             GLsizei outputSize{0u};
             gl->GetShaderInfoLog(shader, 4096, &outputSize, output);
-            DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(src));
+
+            std::string withLines = AddLineNumbers(reinterpret_cast<const char*>(src));
+            DALI_LOG_ERROR("Code: \n%s\n", withLines.c_str());
             DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
             gl->DeleteShader(shader);
             return false;

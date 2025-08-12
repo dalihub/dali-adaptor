@@ -20,8 +20,13 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/environment-options.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali::Internal::Adaptor
 {
+extern Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend();
+
+extern void ResetGraphicsLibrary();
+
 extern std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions);
 } // namespace Dali::Internal::Adaptor

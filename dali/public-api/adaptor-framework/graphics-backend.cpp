@@ -26,34 +26,18 @@
 
 namespace Dali::Graphics
 {
-namespace
-{
-Backend     gCurrentGraphicsBackend = Backend::DEFAULT;
-std::string gBackendInformation;
-} // namespace
-
 Backend GetCurrentGraphicsBackend()
 {
-  return gCurrentGraphicsBackend;
+  return Internal::GetCurrentGraphicsBackend();
 }
 
 void SetGraphicsBackend(Backend backend)
 {
-  static bool setOnce = false;
-  if(!setOnce)
-  {
-    setOnce                 = true;
-    gCurrentGraphicsBackend = backend;
-  }
-  else if(backend != gCurrentGraphicsBackend)
-  {
-    DALI_LOG_ERROR("Graphics backend already set to: %s\n", gCurrentGraphicsBackend == Backend::GLES ? "GLES" : "VULKAN");
-  }
+  Internal::SetGraphicsBackend(backend);
 }
 
 const std::string& GetBackendInformation()
 {
   return Internal::GetBackendInformation();
 }
-
 } // namespace Dali::Graphics

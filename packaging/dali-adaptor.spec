@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.4.30
+Version:    2.4.31
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -301,6 +301,12 @@ cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
 cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
 %else
 cmake_flags+=" -DENABLE_TRACE=ON"
+%endif
+
+%if 0%{?enable_preinitialize_adaptor}
+cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=ON"
+%else
+cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=OFF"
 %endif
 
 # Use this conditional when Tizen version is 7.x or greater

@@ -156,6 +156,11 @@ public:
   void AddSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
+   * @copydoc ThreadControllerInterface::UpdateEnvironmentOptions()
+   */
+  void UpdateEnvironmentOptions() override;
+
+  /**
    * @copydoc ThreadControllerInterface::GetThreadId()
    */
   int32_t GetThreadId() const override;

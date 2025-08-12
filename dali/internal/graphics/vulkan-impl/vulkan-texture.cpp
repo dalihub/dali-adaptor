@@ -1219,7 +1219,7 @@ void Texture::SetFormatAndUsage()
 // uploaded at this point
 bool Texture::InitializeTexture()
 {
-  if(mImage)
+  if(mImage || (mWidth == 0 || mHeight == 0))
   {
     return false;
   }

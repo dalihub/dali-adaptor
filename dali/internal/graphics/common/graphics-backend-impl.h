@@ -21,10 +21,46 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali::Graphics::Internal
 {
+/**
+ * @copydoc Dali::Graphics::GetCurrentGraphicsBackend()
+ */
+Dali::Graphics::Backend GetCurrentGraphicsBackend();
+
+/**
+ * @copydoc Dali::Graphics::SetGraphicsBackend()
+ */
+void SetGraphicsBackend(Dali::Graphics::Backend backend);
+
+/**
+ * @brief Get whether graphics backend setter called or not.
+ * @return True if graphics backend setter called. False otherwise.
+ */
+bool IsGraphicsBackendSet();
+
+/**
+ * @brief Get whether we have to re-create graphics or not.
+ * It will true if preference backend is not matched with user-side call, or environment values.
+ * @return True if we have to re-create graphics. False otherwise.
+ */
+bool IsGraphicsResetRequired();
+
+/**
+ * @brief Mark as recreate graphics completed.
+ */
+void GraphicsResetCompleted();
+
+/**
+ * @brief Sets the preferred graphics backend. Should be called at PreInitialize case.
+ * GetCurrentGraphicsBackend() return as preferenced backend.
+ * @note If GraphicsBackend changed at application initialize time, IsGraphicsResetRequired() will return true.
+ */
+void SetPreferredGraphicsBackend(Backend preferenceBackend);
+
 /**
  * @copydoc Dali::Graphics::GetBackendInformation()
  */

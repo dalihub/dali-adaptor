@@ -28,9 +28,14 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali::Internal::Adaptor::GraphicsLibrary
 {
+Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend();
+
+void ResetGraphicsLibrary();
+
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions);
 
 std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory();

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,11 @@ public:
    * @copydoc Dali::DevelApplication::PreInitialize()
    */
   static void PreInitialize(int* argc, char** argv[]);
+
+  /**
+   * @copydoc Dali::DevelApplication::GetPreInitializeWindow()
+   */
+  static Dali::Window GetPreInitializeWindow();
 
 public:
   /**
@@ -490,9 +495,10 @@ protected:
   void CreateWindow();
 
   /**
-   * Creates the adaptor
+   * Creates the adaptor.
+   * It should be called after main window created.
    */
-  void CreateAdaptor(AdaptorBuilder& adaptorBuilder);
+  void CreateAdaptor();
 
   /**
    * Quits from the main loop
@@ -503,6 +509,16 @@ protected:
    * Changes information of preInitialized window
    */
   void ChangePreInitializedWindowInfo();
+
+  /**
+   * @brief Get latest environment options and apply changeness
+   */
+  void UpdateEnvironmentOptions();
+
+  /**
+   * @brief Ensure to complete adaptor and window creation.
+   */
+  void CompleteAdaptorAndWindowCreate();
 
 private:
   AppSignalType                      mInitSignal;
@@ -531,8 +547,8 @@ private:
 
   CommandLineOptions* mCommandLineOptions;
 
-  Dali::Adaptor*                           mAdaptor;
-  std::unique_ptr<EnvironmentOptions>      mEnvironmentOptions;
+  Dali::Adaptor*                      mAdaptor;
+  std::unique_ptr<EnvironmentOptions> mEnvironmentOptions;
 
   // The Main Window is that window created by the Application during initial startup
   // (previously this was the only window)

@@ -24,6 +24,9 @@
 #include <memory>
 #include <unordered_map>
 
+#include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-common.h>
+
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
@@ -82,12 +85,22 @@ using QueueRef = std::reference_wrapper<Queue>;
 template<typename T>
 T VkAssert(const vk::ResultValue<T>& result, vk::Result expected = vk::Result::eSuccess)
 {
+  if(DALI_UNLIKELY(result.result != expected))
+  {
+    DALI_LOG_ERROR("result : %d, expect : %d\n", static_cast<int>(result.result), static_cast<int>(expected));
+    Dali::DaliPrintBackTrace();
+  }
   assert(result.result == expected);
   return result.value;
 }
 
 inline vk::Result VkAssert(vk::Result result, vk::Result expected = vk::Result::eSuccess)
 {
+  if(DALI_UNLIKELY(result != expected))
+  {
+    DALI_LOG_ERROR("result : %d, expect : %d\n", static_cast<int>(result), static_cast<int>(expected));
+    Dali::DaliPrintBackTrace();
+  }
   assert(result == expected);
   return result;
 }

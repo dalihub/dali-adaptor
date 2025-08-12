@@ -48,7 +48,7 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
 const Graphics::GraphicsCreateInfo& TestGraphicsApplication::GetGraphicsCreateInfo(uint32_t width, uint32_t height)
 {
   static Graphics::GraphicsCreateInfo info{
-    480, 800, Graphics::DepthStencilMode::NONE, Graphics::SwapchainBufferingMode::OPTIMAL, ColorDepth::COLOR_DEPTH_24, 0};
+    480, 800, Graphics::DepthStencilMode::NONE, Graphics::SwapchainBufferingMode::OPTIMAL, ColorDepth::COLOR_DEPTH_24};
   info.surfaceWidth  = width;
   info.surfaceHeight = height;
   return info;

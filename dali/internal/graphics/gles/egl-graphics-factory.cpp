@@ -50,15 +50,26 @@ Graphics::GraphicsInterface& EglGraphicsFactory::Create()
   auto stencilBufferRequired = (mEnvironmentOptions.StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
   auto partialUpdateRequired = (mEnvironmentOptions.PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
 
-  info.multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
+  int multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
 
-  Graphics::GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions, info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired);
+  Graphics::GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions, info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
   return *eglGraphicsInterface;
 }
 
 void EglGraphicsFactory::Destroy()
 {
   /* Deleted by EglGraphics */
+}
+
+/// graphics-factory.h implemements
+Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
+{
+  return Dali::Graphics::Backend::GLES;
+}
+
+void ResetGraphicsLibrary()
+{
+  /* This function defined for dynamic library case. */
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)

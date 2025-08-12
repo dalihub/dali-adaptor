@@ -426,10 +426,14 @@ void PipelineImpl::InitializePipeline()
         // make it the right size
         mBlendStateAttachments.resize(attachmentCount);
 
-        // Fill with defaults
-        std::fill(mBlendStateAttachments.begin() + 1, mBlendStateAttachments.end(), mBlendStateAttachments[0]);
         const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->attachmentCount = attachmentCount;
         const_cast<vk::PipelineColorBlendStateCreateInfo*>(gfxPipelineInfo.pColorBlendState)->pAttachments    = mBlendStateAttachments.data();
+
+        // Fill with defaults
+        if(attachmentCount > 1u)
+        {
+          std::fill(mBlendStateAttachments.begin() + 1, mBlendStateAttachments.end(), mBlendStateAttachments[0]);
+        }
       }
       // This code must not run if Vulkan API version is < 1.3
       // We don't pass dynamic states anymore but neither any depth/stencil
