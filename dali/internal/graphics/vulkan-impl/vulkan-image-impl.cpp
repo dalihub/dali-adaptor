@@ -155,6 +155,18 @@ vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout newLayout) con
 
 vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const
 {
+  auto subResourceRange = vk::ImageSubresourceRange{}
+                            .setBaseMipLevel(0)
+                            .setLevelCount(1)
+                            .setBaseArrayLayer(0)
+                            .setLayerCount(1) // @todo is this right? Probably not.
+                            .setAspectMask(GetAspectFlags());
+
+  return CreateMemoryBarrier(oldLayout, newLayout, subResourceRange);
+}
+
+vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subResourceRange) const
+{
   // This function assumes that all images have 1 mip level and 1 layer
   // Should expand to handle any level/layer
   auto barrier = vk::ImageMemoryBarrier{}
@@ -163,9 +175,7 @@ vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout oldLayout, vk:
                    .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                    .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                    .setImage(GetVkHandle())
-                   .setSubresourceRange(vk::ImageSubresourceRange{}.setBaseMipLevel(0).setLevelCount(1).setBaseArrayLayer(0).setLayerCount(1));
-
-  barrier.subresourceRange.aspectMask = GetAspectFlags();
+                   .setSubresourceRange(subResourceRange);
 
   // The srcAccessMask of the image memory barrier shows which operation
   // must be completed using the old layout, before the transition to the

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,10 +55,15 @@ ImageView* ImageView::NewFromImage(
                             .setLevelCount(image.GetMipLevelCount())
                             .setLayerCount(image.GetLayerCount());
 
+  vk::ImageViewType viewType = vk::ImageViewType::e2D;
+  if(image.GetCreateInfo().flags & vk::ImageCreateFlagBits::eCubeCompatible)
+  {
+    viewType = vk::ImageViewType::eCube;
+  }
   auto imageView = New(device,
                        image,
                        {},
-                       vk::ImageViewType::e2D,
+                       viewType,
                        image.GetFormat(),
                        componentMapping,
                        subresourceRange,

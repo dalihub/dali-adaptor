@@ -1115,6 +1115,7 @@ bool Texture::InitializeTexture()
     return false;
   }
 
+  auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
   // create image
   auto imageCreateInfo = vk::ImageCreateInfo{}
                            .setFormat(mFormat)
@@ -1125,15 +1126,29 @@ bool Texture::InitializeTexture()
                            .setExtent({mWidth, mHeight, 1})
                            .setArrayLayers(1)
                            .setImageType(vk::ImageType::e2D)
-                           .setTiling(mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal)
+                           .setTiling(tiling)
                            .setMipLevels(1);
+
+  bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
+  if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
+  {
+    imageCreateInfo.setArrayLayers(6);
+    imageCreateInfo.setFlags(vk::ImageCreateFlagBits::eCubeCompatible);
+    imageCreateInfo.setInitialLayout(vk::ImageLayout::eUndefined);
+    imageCreateInfo.setTiling(vk::ImageTiling::eOptimal);
+    cpuVisible = false;
+  }
+  vk::ImageFormatProperties props;
+  auto                      result = mDevice.GetPhysicalDevice().getImageFormatProperties(mFormat, vk::ImageType::e2D, tiling, mUsage, imageCreateInfo.flags, &props);
+  VkTest(result, vk::Result::eSuccess);
 
   vk::MemoryPropertyFlags memoryProperties{};
   if(mDisableStagingBuffer)
   {
     memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
   }
-  if(mTiling == Dali::Graphics::TextureTiling::LINEAR)
+
+  if(cpuVisible)
     memoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
   else
     memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
@@ -1170,6 +1185,7 @@ std::unique_ptr<Vulkan::ImageView> Texture::CreateImageView()
     // Ensure we have initialized the image:
     InitializeImageView();
   }
+  //@todo: Can we just return mImageView? Why create 2nd?
   std::unique_ptr<Vulkan::ImageView> imageView(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping));
   return imageView;
 }

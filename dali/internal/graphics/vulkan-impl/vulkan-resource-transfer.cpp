@@ -534,22 +534,41 @@ void ResourceTransfer::CopyBufferAndTransition(
   commandBuffer->Begin(beginInfo);
 
   std::vector<vk::ImageMemoryBarrier> preLayoutBarriers;
-  preLayoutBarriers.emplace_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal));
+  if(layer == 0)
+  {
+    preLayoutBarriers.emplace_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal));
+  }
+  else
+  {
+    auto subResourceRange = vk::ImageSubresourceRange{}
+                              .setBaseMipLevel(0)
+                              .setLevelCount(1)
+                              .setBaseArrayLayer(layer)
+                              .setLayerCount(1)
+                              .setAspectMask(image.GetAspectFlags());
 
-  commandBuffer->GetImpl()->PipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, {}, {}, {}, preLayoutBarriers);
+    preLayoutBarriers.emplace_back(image.CreateMemoryBarrier(image.GetImageLayout(),
+                                                             vk::ImageLayout::eTransferDstOptimal,
+                                                             subResourceRange));
+  }
+  commandBuffer->GetImpl()->PipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+                                            vk::PipelineStageFlagBits::eTransfer,
+                                            {},
+                                            {},
+                                            {},
+                                            preLayoutBarriers);
 
-  vk::BufferImageCopy copyInfo{};
-  copyInfo
-    .setImageSubresource(vk::ImageSubresourceLayers{}
-                           .setBaseArrayLayer(layer)
-                           .setLayerCount(1)
-                           .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                           .setMipLevel(level))
-    .setImageOffset({textureOffset2D.x, textureOffset2D.y, 0})
-    .setImageExtent({extent2D.width, extent2D.height, 1})
-    .setBufferRowLength(0u)
-    .setBufferOffset(0)
-    .setBufferImageHeight(extent2D.height);
+  auto copyInfo = vk::BufferImageCopy{}
+                    .setImageSubresource(vk::ImageSubresourceLayers{}
+                                           .setBaseArrayLayer(layer)
+                                           .setLayerCount(1)
+                                           .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                           .setMipLevel(level))
+                    .setImageOffset({textureOffset2D.x, textureOffset2D.y, 0})
+                    .setImageExtent({extent2D.width, extent2D.height, 1})
+                    .setBufferRowLength(0u)
+                    .setBufferOffset(0)
+                    .setBufferImageHeight(extent2D.height);
 
   commandBuffer->GetImpl()->CopyBufferToImage(resourceTransfer.mTextureStagingBuffer->GetImpl(),
                                               &image,
@@ -557,8 +576,23 @@ void ResourceTransfer::CopyBufferAndTransition(
                                               {copyInfo});
 
   std::vector<vk::ImageMemoryBarrier> postLayoutBarriers;
-  postLayoutBarriers.emplace_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal));
+  if(layer == 0)
+  {
+    postLayoutBarriers.emplace_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal));
+  }
+  else
+  {
+    auto subResourceRange = vk::ImageSubresourceRange{}
+                              .setBaseMipLevel(0)
+                              .setLevelCount(1)
+                              .setBaseArrayLayer(layer)
+                              .setLayerCount(1)
+                              .setAspectMask(image.GetAspectFlags());
 
+    postLayoutBarriers.emplace_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal,
+                                                              vk::ImageLayout::eShaderReadOnlyOptimal,
+                                                              subResourceRange));
+  }
   commandBuffer->GetImpl()->PipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, postLayoutBarriers);
 
   commandBuffer->End();
@@ -801,9 +835,28 @@ void ResourceTransfer::ProcessResourceTransferRequests(bool immediateOnly)
     {
       auto& image = item.image;
       // add barrier
-      preLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal));
-      postLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal));
-      image.SetImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+      uint32_t layer{0u};
+      auto&    req = item.requestList.front().front();
+      if(req->requestType == TransferRequestType::BUFFER_TO_IMAGE)
+      {
+        layer = req->bufferToImageInfo.copyInfo.imageSubresource.baseArrayLayer;
+      }
+      if(layer == 0u)
+      {
+        preLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal));
+        postLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal));
+      }
+      else
+      {
+        auto subResourceRange = vk::ImageSubresourceRange{}
+                                  .setBaseMipLevel(0)
+                                  .setLevelCount(1)
+                                  .setBaseArrayLayer(layer)
+                                  .setLayerCount(1)
+                                  .setAspectMask(image.GetAspectFlags());
+        preLayoutBarriers.push_back(image.CreateMemoryBarrier(image.GetImageLayout(), vk::ImageLayout::eTransferDstOptimal, subResourceRange));
+        postLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, subResourceRange));
+      }
     }
 
     // Build command buffer for each image until reaching next sync point
