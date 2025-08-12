@@ -1335,20 +1335,21 @@ void Adaptor::RequestUpdateOnce()
 
 bool Adaptor::ProcessCoreEventsFromIdle()
 {
+  DALI_LOG_DEBUG_INFO("ProcessCoreEventsFromIdle\n");
+
   // Reset repeat idler flag.
   mRequiredIdleRepeat = false;
   ProcessCoreEvents();
 
-  // If someone request ProcessCoreEvents during above ProcessCoreEvents call, we might need to run idle one more times.
-  // Else, the idle handle automatically un-installs itself
-  mNotificationOnIdleInstalled = mRequiredIdleRepeat;
-
-  if(mRequiredIdleRepeat)
+  // If someone request ProcessCoreEvents during above ProcessCoreEvents call, we need to call ProcessCoreEvent one more times.
+  mNotificationOnIdleInstalled = false;
+  if(mRequiredIdleRepeat && DALI_LIKELY(mNotificationTrigger))
   {
     DALI_LOG_DEBUG_INFO("Required ProcessCoreEvents one more times\n");
+    mNotificationTrigger->Trigger();
   }
 
-  return mRequiredIdleRepeat;
+  return false;
 }
 
 Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow(Dali::Actor& actor)
