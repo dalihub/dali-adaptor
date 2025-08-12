@@ -25,10 +25,6 @@ namespace Dali::Internal::Adaptor::GraphicsLibrary
 {
 int GetLibraryOpenMode()
 {
-#ifdef ASAN_ENABLED
-  return RTLD_NOW | RTLD_GLOBAL;
-#else
   return RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND;
-#endif
 }
 } // namespace Dali::Internal::Adaptor::GraphicsLibrary

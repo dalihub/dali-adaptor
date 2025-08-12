@@ -327,7 +327,6 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
 CFLAGS+=" -fsanitize=address"
 CXXFLAGS+=" -fsanitize=address"
 LDFLAGS+=" -fsanitize=address"
-cmake_flags+=" -DENABLE_ASAN=ON"
 %endif
 
 %if 0%{?enable_debug}
