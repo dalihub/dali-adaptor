@@ -300,6 +300,14 @@ public:
   void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender);
 
   /**
+   * @brief Set the maximum value of frames per seconds.
+   * @note Each frame will render multiple of given maximum render frame rate.
+   * For example, if maximumRenderFrameRate = 50.0f, each elapse time could be 20ms, 40ms, 60ms, and so on.
+   * @param[in] maximumRenderFrameRate The maximum fps for this adaptor system.
+   */
+  void SetMaximumRenderFrameRate(float maximumRenderFrameRate);
+
+  /**
    * @brief The callback is called from the Update/Render thread prior to rendering.
    *
    * @param[in] callback The function to call

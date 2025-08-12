@@ -124,6 +124,11 @@ public:
   virtual void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender) = 0;
 
   /**
+   * @copydoc Dali::Adaptor::SetMaximumRenderFrameRate()
+   */
+  virtual void SetMaximumRenderFrameRate(float maximumRenderFrameRate) = 0;
+
+  /**
    * @copydoc Dali::Adaptor::SetPreRenderCallback()
    */
   virtual void SetPreRenderCallback(CallbackBase* callback) = 0;

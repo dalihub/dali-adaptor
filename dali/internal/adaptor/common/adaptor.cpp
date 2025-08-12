@@ -196,6 +196,11 @@ void Adaptor::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender)
   mImpl->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
+void Adaptor::SetMaximumRenderFrameRate(float maximumRenderFrameRate)
+{
+  mImpl->SetMaximumRenderFrameRate(maximumRenderFrameRate);
+}
+
 void Adaptor::SetPreRenderCallback(CallbackBase* callback)
 {
   mImpl->SetPreRenderCallback(callback);
