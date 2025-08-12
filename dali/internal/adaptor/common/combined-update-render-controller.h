@@ -146,6 +146,11 @@ public:
   void SetRenderRefreshRate(unsigned int numberOfFramesPerRender) override;
 
   /**
+   * @copydoc ThreadControllerInterface::SetMaximumFrameRate()
+   */
+  void SetMaximumRenderFrameRate(float maximumRenderFrameRate) override;
+
+  /**
    * @copydoc ThreadControllerInterface::SetPreRenderCallback
    */
   void SetPreRenderCallback(CallbackBase* callback) override;
@@ -215,6 +220,12 @@ private:
    * Will sleep when enough requests are made without any requests.
    */
   void ProcessSleepRequest();
+
+  /**
+   * Change default duration of each frames.
+   * Not protected by lock, but written to rarely so not worth adding a lock when reading.
+   */
+  void UpdateDefaultFrameDurations();
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // UpdateRenderThread
@@ -373,7 +384,8 @@ private:
   // TODO: mDefaultFrameDurationMilliseconds is defined as uint64_t, the only place where it is used, it is converted to an unsigned int!!!
   uint64_t mDefaultFrameDurationMilliseconds; ///< Default duration of a frame (used for predicting the time of the next frame). Not protected by lock, but written to rarely so not worth adding a lock when reading.
   uint64_t mDefaultFrameDurationNanoseconds;  ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
-  uint64_t mDefaultHalfFrameNanoseconds;      ///< Is half of mDefaultFrameDurationNanoseconds. Using a member variable avoids having to do the calculation every frame. Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  uint64_t mNumberOfFramesPerRender;          ///< The number of frames per each render.
+  float    mMaximumFramesPerRender;           ///< Maximum fps per each frames. It will be used for Vsync.
 
   uint32_t mUpdateRequestCount; ///< Count of update-requests we have received to ensure we do not go to sleep too early.
   uint32_t mRunning;            ///< Read and set on the event-thread only to state whether we are running.

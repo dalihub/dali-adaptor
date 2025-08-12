@@ -58,11 +58,6 @@ const float        NANOSECONDS_TO_SECOND(1e-9f);
 const unsigned int NANOSECONDS_PER_SECOND(1e+9);
 const unsigned int NANOSECONDS_PER_MILLISECOND(1e+6);
 
-// The following values will get calculated at compile time
-const float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
-const uint64_t DEFAULT_FRAME_DURATION_IN_MILLISECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* MILLISECONDS_PER_SECOND);
-const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
-
 /**
  * Handles the use case when an update-request is received JUST before we process a sleep-request. If we did not have an update-request count then
  * there is a danger that, on the event-thread we could have:
@@ -139,7 +134,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mDefaultFrameDelta(0.0f),
   mDefaultFrameDurationMilliseconds(0u),
   mDefaultFrameDurationNanoseconds(0u),
-  mDefaultHalfFrameNanoseconds(0u),
+  mNumberOfFramesPerRender(1u),
+  mMaximumFramesPerRender(60.0f),
   mUpdateRequestCount(0u),
   mRunning(FALSE),
   mVsyncRender(TRUE),
@@ -429,12 +425,17 @@ void CombinedUpdateRenderController::ResizeSurface()
 void CombinedUpdateRenderController::SetRenderRefreshRate(unsigned int numberOfFramesPerRender)
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
-  mDefaultFrameDelta                = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
-  mDefaultFrameDurationMilliseconds = uint64_t(numberOfFramesPerRender) * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
-  mDefaultFrameDurationNanoseconds  = uint64_t(numberOfFramesPerRender) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
-  mDefaultHalfFrameNanoseconds      = mDefaultFrameDurationNanoseconds / 2u;
+  mNumberOfFramesPerRender = numberOfFramesPerRender;
 
-  LOG_EVENT("mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds);
+  UpdateDefaultFrameDurations();
+}
+
+void CombinedUpdateRenderController::SetMaximumRenderFrameRate(float maximumRenderFrameRate)
+{
+  Dali::ClampInPlace(maximumRenderFrameRate, Dali::Math::MACHINE_EPSILON_10000, 6000.0f);
+  mMaximumFramesPerRender = maximumRenderFrameRate;
+
+  UpdateDefaultFrameDurations();
 }
 
 void CombinedUpdateRenderController::SetPreRenderCallback(CallbackBase* callback)
@@ -549,6 +550,22 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     mUpdateRenderThreadCanSleep = TRUE;
   }
+}
+
+void CombinedUpdateRenderController::UpdateDefaultFrameDurations()
+{
+  // Not protected by lock, but written to rarely so not worth adding a lock when reading
+  const float defaultFrameDurationInSeconds = 1.0f / mMaximumFramesPerRender;
+  const float defaultFrameDurationInMilliseconds = defaultFrameDurationInSeconds * MILLISECONDS_PER_SECOND;
+  const float defaultFrameDurationInNanoseconds = defaultFrameDurationInSeconds * NANOSECONDS_PER_SECOND;
+
+  mDefaultFrameDelta                = mNumberOfFramesPerRender * defaultFrameDurationInSeconds;
+  mDefaultFrameDurationMilliseconds = uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInMilliseconds;
+  mDefaultFrameDurationNanoseconds  = uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInNanoseconds;
+
+  DALI_LOG_RELEASE_INFO("Frame duration changed : %f fps, %u frame per render\n", mMaximumFramesPerRender, mNumberOfFramesPerRender);
+
+  LOG_EVENT("mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

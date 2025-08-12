@@ -789,6 +789,11 @@ void Adaptor::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender)
   mThreadController->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
+void Adaptor::SetMaximumRenderFrameRate(float maximumRenderFrameRate)
+{
+  mThreadController->SetMaximumRenderFrameRate(maximumRenderFrameRate);
+}
+
 Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 {
   DALI_ASSERT_DEBUG(mDisplayConnection && "Display connection not created");

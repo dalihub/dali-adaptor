@@ -324,6 +324,11 @@ public:
   void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender);
 
   /**
+   * @copydoc Dali::Adaptor::SetMaximumRenderFrameRate()
+   */
+  void SetMaximumRenderFrameRate(float maximumRenderFramerate);
+
+  /**
    * Return the PlatformAbstraction.
    * @return The PlatformAbstraction.
    */
