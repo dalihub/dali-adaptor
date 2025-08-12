@@ -54,6 +54,7 @@ const std::unordered_set<std::string_view> gExceptUniformBlockNames{
   "VisualVertBlock",         ///< Default VisualRenderer properties
   "GaussianBlurSampleBlock", ///< GaussianBlur effects
   "PunctualLightBlock",      ///< For Scene3D::Light
+  "ShadowVertBlock",         ///< For Scene3D::Light with Shadow
   "SharedFragmentBlock",     ///< For uniform-blocks.example
   "SharedVertexBlock",       ///< For instance-rendering.example
   "UtcVertBlock",            ///< For UTC
