@@ -1128,6 +1128,10 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
     if(DALI_LIKELY(gl) && framebuffer)
     {
       InvalidateDepthStencilRenderBuffers(framebuffer);
+
+      // Reset FBO bind after using.
+      gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+      mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(0);
     }
   }
 

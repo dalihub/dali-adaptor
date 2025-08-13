@@ -1079,6 +1079,8 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                                       srcBuffer);
             }
           }
+          // Reset texture bind after using.
+          mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), 0);
         }
 
         if(sourceBufferReleaseRequired && sourceBuffer != nullptr)
@@ -1185,6 +1187,8 @@ void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
     {
       mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
       mCurrentContext->GenerateMipmap(texture->GetGlTarget());
+      // Reset texture bind after using.
+      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), 0);
 
       mTextureMipmapGenerationRequests.pop();
     }

@@ -168,6 +168,7 @@ bool Texture::InitializeNativeImage()
     {
       mTextureId = texture;
     }
+    context->BindTexture(mGlTarget, GetTextureTypeId(), 0);
   }
   else
   {
@@ -242,6 +243,9 @@ bool Texture::InitializeTexture()
         SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
         SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
         SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
+
+        // Reset texture bind after using.
+        context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), 0);
       }
       break;
     }
@@ -299,6 +303,9 @@ bool Texture::InitializeTexture()
         mTextureId = texture;
 
         SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, GL_WRAP_DEFAULT);
+
+        // Reset texture bind after using.
+        context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), 0);
       }
       break;
     }
