@@ -178,7 +178,7 @@ struct Context::Impl
 
       mGlStateCache.mBoundArrayBufferId        = 0;
       mGlStateCache.mBoundElementArrayBufferId = 0;
-      mGlStateCache.mActiveTextureUnit         = 0;
+      mGlStateCache.mActiveTextureUnit         = MAX_TEXTURE_UNITS; // Set MAX_TEXTURE_UNITS for initialize state.
 
       mGlStateCache.mBlendStateCache.InvalidateCache();
 
