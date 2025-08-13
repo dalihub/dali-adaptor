@@ -1376,11 +1376,18 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
 {
   uint32_t typeId = static_cast<uint32_t>(textureTypeId);
   auto*    gl     = mImpl->GetGL();
-  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+  if(DALI_LIKELY(gl))
   {
-    mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
+    if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS)
+    {
+      gl->BindTexture(target, textureId);
+    }
+    else if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+    {
+      mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
 
-    gl->BindTexture(target, textureId);
+      gl->BindTexture(target, textureId);
+    }
   }
 }
 
