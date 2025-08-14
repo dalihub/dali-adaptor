@@ -224,7 +224,7 @@ void Device::CreateDevice(SurfaceImpl* surface)
                              .setPhysicalDevice(mPhysicalDevice)
                              .setDevice(mLogicalDevice)
                              .setPreferredLargeHeapBlockSize(1 * 1024 * 1024) // Default pool size (TODO: could potentially be configured per app)
-                             .setVulkanApiVersion(mPhysicalDevice.getProperties().apiVersion)
+                             .setVulkanApiVersion(VK_API_VERSION_1_3)         // This must match the API version used for creating Vulkan instance
                              .setPAllocationCallbacks(reinterpret_cast<vk::AllocationCallbacks*>(mAllocator.get()));
 
       // Allow certain buffers/images to have dedicated memory allocations to
