@@ -91,6 +91,7 @@ void Memory3::Unlock(bool flush)
         {
           gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
           gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
+          gl->BindBuffer(GL_COPY_WRITE_BUFFER, 0);
         }
       }
 

@@ -894,6 +894,11 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         {
           mCurrentContext->PrepareForNativeRendering();
         }
+        else
+        {
+          // Before native rendering reset all states and caches.
+          mCurrentContext->ResetGLESState(true);
+        }
 
         if(info->glesNativeInfo.eglSharedContextStoragePointer)
         {
@@ -908,14 +913,14 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
         else
         {
-          // After native rendering reset all states and caches.
+          // After native rendering reset all states and caches again.
           // This is going to be called only when DIRECT execution mode is used
           // and some GL states need to be reset.
           // This does not guarantee that after execution a custom GL code
           // the main rendering pipeline will work correctly and it's a responsibility
           // of developer to make sure the GL states are not interfering with main
           // rendering pipeline (by restoring/cleaning up GL states after drawing).
-          mCurrentContext->ResetGLESState();
+          mCurrentContext->ResetGLESState(true);
         }
         break;
       }

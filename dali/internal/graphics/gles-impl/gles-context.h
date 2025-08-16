@@ -238,9 +238,21 @@ public:
   void SetDepthTestEnable(bool depthTestEnable);
   void SetDepthWriteEnable(bool depthWriteEnable);
 
+  /**
+   * @brief Remove cached texture id and mark we should bind 0 at next frame.
+   */
+  void ResetTextureCache();
+
+  /**
+   * @brief Remove cached buffer id and mark we should bind buffers as 0 at next frame.
+   */
   void ResetBufferCache();
 
-  void ResetGLESState();
+  /**
+   * @brief Reset GLES default states
+   * @param[in] callGlFunction Call gl functions to match with cached state or not.
+   */
+  void ResetGLESState(bool callGlFunction = false);
 
 private:
   /**
