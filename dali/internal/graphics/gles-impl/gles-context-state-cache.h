@@ -37,6 +37,8 @@ namespace
 static constexpr unsigned int MAX_TEXTURE_UNITS        = 32; // As what is defined in gl-defines.h, which is more than DALi uses anyways
 static constexpr unsigned int MAX_TEXTURE_TARGET       = 4;  // We only support GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP and GL_TEXTURE_EXTERNAL_OES
 static constexpr unsigned int MAX_ATTRIBUTE_CACHE_SIZE = 8;  // Size of the VertexAttributeArray enables
+
+static constexpr uint32_t INVALID_GRAPHICS_RESOURCE_ID = -1;
 } // namespace
 
 /**
@@ -49,9 +51,9 @@ struct GLStateCache
    */
   void ResetTextureCache()
   {
-    // reset the cached texture id's in case the driver re-uses them
-    // when creating new textures
-    memset(&mBoundTextureId, 0, sizeof(mBoundTextureId));
+    // reset the cached texture id as INVALID_GRAPHICS_RESOURCE_ID
+    // in case the driver re-uses them when creating new textures
+    memset(&mBoundTextureId, 0xff, sizeof(mBoundTextureId));
   }
 
   /**
@@ -62,8 +64,8 @@ struct GLStateCache
     // reset the cached buffer id's
     // fixes problem where some drivers will a generate a buffer with the
     // same id, as the last deleted buffer id.
-    mBoundArrayBufferId        = 0;
-    mBoundElementArrayBufferId = 0;
+    mBoundArrayBufferId        = INVALID_GRAPHICS_RESOURCE_ID;
+    mBoundElementArrayBufferId = INVALID_GRAPHICS_RESOURCE_ID;
   }
 
   /**
@@ -92,8 +94,8 @@ struct GLStateCache
   bool   mClearColorSet{false};
 
   // glBindBuffer() state
-  GLuint mBoundArrayBufferId{0};        ///< The ID passed to glBindBuffer(GL_ARRAY_BUFFER)
-  GLuint mBoundElementArrayBufferId{0}; ///< The ID passed to glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
+  GLuint mBoundArrayBufferId{0u};        ///< The ID passed to glBindBuffer(GL_ARRAY_BUFFER)
+  GLuint mBoundElementArrayBufferId{0u}; ///< The ID passed to glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
 
   // glBindTexture() state
   GLenum mActiveTextureUnit{MAX_TEXTURE_UNITS};
