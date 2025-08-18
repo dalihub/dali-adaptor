@@ -222,9 +222,12 @@ struct Context::Impl
         }
       }
 
-      GLint maxTextures;
-      gl->GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
-      DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+      thread_local static GLint maxTextures = 0;
+      if(DALI_UNLIKELY(maxTextures == 0))
+      {
+        gl->GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
+        DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+      }
     }
   }
 
@@ -1261,12 +1264,15 @@ void Context::ClearUniformBufferCache()
 
 void Context::ClearCachedNativeTexture()
 {
-  DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
-  for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
+  if(DALI_UNLIKELY(!mImpl->mPreparedNativeTextures.empty()))
   {
-    nativeTexture->InvalidateCachedContext(this);
+    DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
+    for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
+    {
+      nativeTexture->InvalidateCachedContext(this);
+    }
+    mImpl->mPreparedNativeTextures.clear();
   }
-  mImpl->mPreparedNativeTextures.clear();
 }
 
 void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
