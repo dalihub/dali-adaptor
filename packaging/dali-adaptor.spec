@@ -535,8 +535,6 @@ for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf li
 popd
 /sbin/ldconfig
 rm -rf %{system_cache_dir}shader/  # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
-echo "%{version}" > %{user_shader_cache_dir}shader.versionstamp # RO version stamp
-echo "%{version}" > %{system_cache_dir}shader.versionstamp # RW version stamp
 exit 0
 
 %preun
