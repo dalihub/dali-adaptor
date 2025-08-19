@@ -159,6 +159,60 @@ void Device::CreateDevice(SurfaceImpl* surface)
 {
   PreparePhysicalDevice(surface);
 
+  // Determine required device extensions for native image support
+  std::vector<const char*> extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                      VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,        // For importing FD into Vulkan memory
+                                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,             // For binding multi-plane memory
+                                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, // For querying plane-specific requirements
+                                      VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,  // For hardware YUV->RGB conversion
+                                      VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME};        // For multi-format image views for multi-plane
+
+  // Query available extensions
+  auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
+
+  // Filter only those extensions actually supported by the device
+  std::vector<const char*> enabledExtensions;
+  for(auto const* extentionName : extensions)
+  {
+    bool found = false;
+
+    for(auto const& prop : availableExtensions)
+    {
+      if(std::strcmp(prop.extensionName, extentionName) == 0)
+      {
+        found = true;
+        break;
+      }
+    }
+
+    if(found)
+    {
+      enabledExtensions.push_back(extentionName);
+    }
+    else
+    {
+      DALI_LOG_WARNING("Vulkan extension %s not supported; native image support may be limited\n", extentionName);
+    }
+  }
+
+  auto deviceFeatures2 = mPhysicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2,
+                                                      vk::PhysicalDeviceSamplerYcbcrConversionFeatures>();
+
+  // Check whether samplerYcbcrConversion feature is supported
+  vk::PhysicalDeviceSamplerYcbcrConversionFeatures const& samplerYcbcrConversionFeatures =
+    deviceFeatures2.get<vk::PhysicalDeviceSamplerYcbcrConversionFeatures>();
+
+  if(samplerYcbcrConversionFeatures.samplerYcbcrConversion)
+  {
+    mIsKHRSamplerYCbCrConversionSupported = true;
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_KHR_sampler_ycbcr_conversion supported\n");
+  }
+  else
+  {
+    mIsKHRSamplerYCbCrConversionSupported = false;
+    DALI_LOG_WARNING("VK_KHR_sampler_ycbcr_conversion not supported; YUV formats unavailable\n");
+  }
+
   auto queueInfos = GetQueueCreateInfos();
   {
     auto maxQueueCountPerFamily = 0u;
@@ -175,22 +229,8 @@ void Device::CreateDevice(SurfaceImpl* surface)
       info.setPQueuePriorities(priorities.data());
     }
 
-    std::vector<const char*> extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
     if(!mLogicalDevice)
     {
-      /**
-       * @todo Check these exist before using them for native image:
-       * VK_KHR_SWAPCHAIN_EXTENSION_NAME
-       * VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME
-       * VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME
-       * VK_KHR_BIND_MEMORY_2_EXTENSION_NAME
-       * VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME
-       * VK_KHR_MAINTENANCE1_EXTENSION_NAME
-       * VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME
-       * VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME
-       */
-
       vk::PhysicalDeviceFeatures featuresToEnable{};
 
       if(mPhysicalDeviceFeatures.fillModeNonSolid)
@@ -209,8 +249,8 @@ void Device::CreateDevice(SurfaceImpl* surface)
       }
 
       auto info = vk::DeviceCreateInfo{};
-      info.setEnabledExtensionCount(U32(extensions.size()))
-        .setPpEnabledExtensionNames(extensions.data())
+      info.setEnabledExtensionCount(U32(enabledExtensions.size()))
+        .setPpEnabledExtensionNames(enabledExtensions.data())
         .setPEnabledFeatures(&featuresToEnable)
         .setPQueueCreateInfos(queueInfos.data())
         .setQueueCreateInfoCount(U32(queueInfos.size()));
