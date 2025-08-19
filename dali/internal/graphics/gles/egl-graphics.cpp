@@ -201,9 +201,7 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, b
                                             static_cast<Integration::PartialUpdateAvailable>(partialRendering),
                                             msaa);
 
-  // Do not initialize graphics controller for this case.
-  EglInitialize();
-  InitializeGraphicsAPI(displayConnection);
+  Initialize(displayConnection);
 }
 
 void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
