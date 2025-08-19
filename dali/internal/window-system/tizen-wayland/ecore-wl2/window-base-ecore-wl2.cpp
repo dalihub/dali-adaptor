@@ -1358,6 +1358,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
+    std::string deviceName = ecore_device_name_get(touchEvent->dev);
 
     PointState::Type state(PointState::DOWN);
 
@@ -1382,6 +1383,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
+    point.SetDeviceName(deviceName);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 
@@ -1404,6 +1406,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
+    std::string deviceName = ecore_device_name_get(touchEvent->dev);
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -1415,6 +1418,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
+    point.SetDeviceName(deviceName);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 
@@ -1437,6 +1441,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
+    std::string deviceName = ecore_device_name_get(touchEvent->dev);
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -1447,6 +1452,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
     point.SetAngle(Degree(touchEvent->multi.angle));
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
+    point.SetDeviceName(deviceName);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 

@@ -132,7 +132,7 @@ struct Context::Impl
           gl->BindVertexArray(mProgramVAOCurrentState);
 
           // Binding VAO seems to reset the index buffer binding so the cache must be reset
-          mGlStateCache.mBoundElementArrayBufferId = 0;
+          mGlStateCache.mBoundElementArrayBufferId = INVALID_GRAPHICS_RESOURCE_ID;
         }
         return;
       }
@@ -143,7 +143,7 @@ struct Context::Impl
     gl->BindVertexArray(vao);
 
     // Binding VAO seems to reset the index buffer binding so the cache must be reset
-    mGlStateCache.mBoundElementArrayBufferId = 0;
+    mGlStateCache.mBoundElementArrayBufferId = INVALID_GRAPHICS_RESOURCE_ID;
 
     mProgramVAOMap[program][hash] = {vao, mVertexBufferChangedCount};
     for(const auto& attr : vertexInputState.attributes)
@@ -157,7 +157,7 @@ struct Context::Impl
   /**
    * Sets the initial GL state.
    */
-  void InitializeGlState()
+  void InitializeGlState(bool callGlFunction)
   {
     auto* gl = GetGL();
     if(DALI_LIKELY(gl))
@@ -176,9 +176,12 @@ struct Context::Impl
 
       gl->Disable(GL_DITHER);
 
-      mGlStateCache.mBoundArrayBufferId        = 0;
-      mGlStateCache.mBoundElementArrayBufferId = 0;
-      mGlStateCache.mActiveTextureUnit         = 0;
+      mGlStateCache.mBoundArrayBufferId        = INVALID_GRAPHICS_RESOURCE_ID;
+      mGlStateCache.mBoundElementArrayBufferId = INVALID_GRAPHICS_RESOURCE_ID;
+      mGlStateCache.mActiveTextureUnit         = MAX_TEXTURE_UNITS; // Set MAX_TEXTURE_UNITS for initialize state.
+
+      // Initialize bound 2d texture cache as INVALID_GRAPHICS_RESOURCE_ID.
+      memset(&mGlStateCache.mBoundTextureId, 0xff, sizeof(mGlStateCache.mBoundTextureId));
 
       mGlStateCache.mBlendStateCache.InvalidateCache();
 
@@ -186,14 +189,45 @@ struct Context::Impl
       memset(&mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mGlStateCache.mVertexAttributeCachedState));
       memset(&mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mGlStateCache.mVertexAttributeCurrentState));
 
-      // Initialize bound 2d texture cache
-      memset(&mGlStateCache.mBoundTextureId, 0, sizeof(mGlStateCache.mBoundTextureId));
-
       mGlStateCache.mFrameBufferStateCache.Reset();
+      mProgramVAOCurrentState = 0u;
 
-      GLint maxTextures;
-      gl->GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
-      DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+      if(callGlFunction)
+      {
+        // Call default state gl calles immediately,
+        static const bool hasGLES3(mController.GetGLESVersion() >= GLESVersion::GLES_30);
+
+        gl->ColorMask(true, true, true, true);
+        gl->StencilMask(0xFF);
+        gl->Disable(GL_DEPTH_TEST);
+        gl->DepthMask(false);
+        gl->Disable(GL_SCISSOR_TEST);
+        gl->Disable(GL_STENCIL_TEST);
+
+        gl->Disable(GL_CULL_FACE);
+
+        gl->BindVertexArray(0);
+        BindBuffer(GL_ARRAY_BUFFER, 0);
+        BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        // BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+        // TODO : Should we call default blend operators here?
+
+        if(!hasGLES3)
+        {
+          for(uint32_t i = 0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i)
+          {
+            gl->DisableVertexAttribArray(i);
+          }
+        }
+      }
+
+      thread_local static GLint maxTextures = 0;
+      if(DALI_UNLIKELY(maxTextures == 0))
+      {
+        gl->GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
+        DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+      }
     }
   }
 
@@ -297,6 +331,50 @@ struct Context::Impl
       memcpy(&cachedBinding, &binding, sizeof(UniformBufferBindingDescriptor));
       gl->BindBufferRange(GL_UNIFORM_BUFFER, binding.binding, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
     }
+  }
+
+  bool BindBuffer(GLenum target, uint32_t bufferId)
+  {
+    auto* gl = GetGL();
+    if(DALI_LIKELY(gl))
+    {
+      switch(target)
+      {
+        case GL_ARRAY_BUFFER:
+        {
+          if(mGlStateCache.mBoundArrayBufferId == INVALID_GRAPHICS_RESOURCE_ID)
+          {
+            mGlStateCache.mBoundArrayBufferId = 0;
+            gl->BindBuffer(target, 0);
+          }
+          if(mGlStateCache.mBoundArrayBufferId == bufferId)
+          {
+            return false;
+          }
+          mGlStateCache.mBoundArrayBufferId = bufferId;
+          break;
+        }
+        case GL_ELEMENT_ARRAY_BUFFER:
+        {
+          if(mGlStateCache.mBoundElementArrayBufferId == INVALID_GRAPHICS_RESOURCE_ID)
+          {
+            mGlStateCache.mBoundElementArrayBufferId = 0;
+            gl->BindBuffer(target, 0);
+          }
+          if(mGlStateCache.mBoundElementArrayBufferId == bufferId)
+          {
+            return false;
+          }
+          mGlStateCache.mBoundElementArrayBufferId = bufferId;
+          break;
+        }
+      }
+
+      // Cache miss. Bind buffer.
+      gl->BindBuffer(target, bufferId);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -1128,6 +1206,10 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
     if(DALI_LIKELY(gl) && framebuffer)
     {
       InvalidateDepthStencilRenderBuffers(framebuffer);
+
+      // Reset FBO bind after using.
+      gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+      mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(0);
     }
   }
 
@@ -1182,12 +1264,15 @@ void Context::ClearUniformBufferCache()
 
 void Context::ClearCachedNativeTexture()
 {
-  DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
-  for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
+  if(DALI_UNLIKELY(!mImpl->mPreparedNativeTextures.empty()))
   {
-    nativeTexture->InvalidateCachedContext(this);
+    DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
+    for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
+    {
+      nativeTexture->InvalidateCachedContext(this);
+    }
+    mImpl->mPreparedNativeTextures.clear();
   }
-  mImpl->mPreparedNativeTextures.clear();
 }
 
 void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
@@ -1376,11 +1461,27 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
 {
   uint32_t typeId = static_cast<uint32_t>(textureTypeId);
   auto*    gl     = mImpl->GetGL();
-  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+  if(DALI_LIKELY(gl))
   {
-    mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
+    if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS)
+    {
+      gl->BindTexture(target, textureId);
+    }
+    else
+    {
+      if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] == INVALID_GRAPHICS_RESOURCE_ID)
+      {
+        mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = 0;
+        gl->BindTexture(target, 0);
+      }
 
-    gl->BindTexture(target, textureId);
+      if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+      {
+        mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
+
+        gl->BindTexture(target, textureId);
+      }
+    }
   }
 }
 
@@ -1395,36 +1496,7 @@ void Context::GenerateMipmap(GLenum target)
 
 bool Context::BindBuffer(GLenum target, uint32_t bufferId)
 {
-  auto* gl = mImpl->GetGL();
-  if(DALI_LIKELY(gl))
-  {
-    switch(target)
-    {
-      case GL_ARRAY_BUFFER:
-      {
-        if(mImpl->mGlStateCache.mBoundArrayBufferId == bufferId)
-        {
-          return false;
-        }
-        mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
-        break;
-      }
-      case GL_ELEMENT_ARRAY_BUFFER:
-      {
-        if(mImpl->mGlStateCache.mBoundElementArrayBufferId == bufferId)
-        {
-          return false;
-        }
-        mImpl->mGlStateCache.mBoundElementArrayBufferId = bufferId;
-        break;
-      }
-    }
-
-    // Cache miss. Bind buffer.
-    gl->BindBuffer(target, bufferId);
-    return true;
-  }
-  return false;
+  return mImpl->BindBuffer(target, bufferId);
 }
 
 GLStateCache& Context::GetGLStateCache()
@@ -1439,7 +1511,12 @@ void Context::GlContextCreated()
     mImpl->mGlContextCreated = true;
 
     // Set the initial GL state
-    mImpl->InitializeGlState();
+    mImpl->InitializeGlState(false);
+
+    // Reset as zero for first initialized case.
+    mImpl->mGlStateCache.mBoundArrayBufferId        = 0u;
+    mImpl->mGlStateCache.mBoundElementArrayBufferId = 0u;
+    memset(&mImpl->mGlStateCache.mBoundTextureId, 0x00, sizeof(mImpl->mGlStateCache.mBoundTextureId));
   }
 }
 
@@ -1565,24 +1642,30 @@ void Context::PrepareForNativeRendering()
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareForNativeRendering");
 }
 
+void Context::ResetTextureCache()
+{
+  mImpl->mGlStateCache.ResetTextureCache();
+}
+
 void Context::ResetBufferCache()
 {
   mImpl->mGlStateCache.ResetBufferCache();
   ClearUniformBufferCache();
 }
 
-void Context::ResetGLESState()
+void Context::ResetGLESState(bool callGlFunction)
 {
-  mImpl->mGlStateCache.ResetTextureCache();
-  mImpl->mCurrentPipeline = nullptr;
-
+  mImpl->mCurrentPipeline           = nullptr;
   mImpl->mCurrentIndexBufferBinding = {};
 
   ClearState();
+  ResetTextureCache();
   ResetBufferCache();
   ClearVertexBufferCache();
   ClearCachedNativeTexture();
-  mImpl->InitializeGlState();
+
+  // Note : Must call it end of this API, to ensure the gl call is matched with default states.
+  mImpl->InitializeGlState(callGlFunction);
 }
 
 void Context::RestoreFromNativeRendering()

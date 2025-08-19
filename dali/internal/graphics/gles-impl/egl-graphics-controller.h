@@ -839,14 +839,14 @@ public:
   {
     if(mContext)
     {
-      mContext->GetGLStateCache().ResetTextureCache();
+      mContext->ResetTextureCache();
     }
 
     for(auto& context : mSurfaceContexts)
     {
       if(context.second)
       {
-        context.second->GetGLStateCache().ResetTextureCache();
+        context.second->ResetTextureCache();
       }
     }
   }
