@@ -123,7 +123,7 @@ int NativeBitmapBuffer::GetTextureTarget() const
   return 0;
 }
 
-bool NativeBitmapBuffer::ApplyNativeFragmentShader(std::string& shader)
+bool NativeBitmapBuffer::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }

@@ -137,9 +137,9 @@ int NativeImageSourceQueue::GetTextureTarget() const
   return mImpl->GetTextureTarget();
 }
 
-bool NativeImageSourceQueue::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceQueue::ApplyNativeFragmentShader(std::string& shader, int count)
 {
-  return mImpl->ApplyNativeFragmentShader(shader);
+  return mImpl->ApplyNativeFragmentShader(shader, count);
 }
 
 const char* NativeImageSourceQueue::GetCustomSamplerTypename() const

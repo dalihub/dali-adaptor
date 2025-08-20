@@ -286,7 +286,7 @@ public:
     return mShadingLanguageVersion;
   }
 
-  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType);
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int count);
 
   /* OpenGL ES 2.0 */
 
@@ -1597,7 +1597,7 @@ public:
   /**
    * This function is static to make it easier testable
    */
-  static bool ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType);
+  static bool ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int count = 1);
 
 private:
   std::unique_ptr<GlesAbstraction> mImpl;

@@ -102,7 +102,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueAndroid::
   return Dali::NativeImageInterface::PrepareTextureResult::NOT_SUPPORTED;
 }
 
-bool NativeImageSourceQueueAndroid::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceQueueAndroid::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }
