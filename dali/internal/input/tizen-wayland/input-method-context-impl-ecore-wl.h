@@ -25,9 +25,11 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/property-array.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
+#include <queue>
 
 namespace Dali
 {
@@ -39,6 +41,72 @@ namespace Adaptor
 {
 class InputMethodContextEcoreWl : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
+public:
+enum class TxEventType : uint8_t
+{
+  COMMIT,
+  PREEDIT,
+  DELETE_SURROUNDING,
+  PRIVATE_COMMAND,
+  COMMIT_CONTENT,
+  SELECTION_SET
+};
+
+struct TxEvent
+{
+  TxEventType type;
+  void* data;
+  ImfContext* imfContext;
+  Dali::Property::Array eventValue;
+
+  static TxEvent Commit(void* data, ImfContext* imfContext, std::string commitText)
+  {
+    TxEvent e{TxEventType::COMMIT, data, imfContext};
+    e.eventValue.PushBack(commitText);
+    return e;
+  }
+
+  static TxEvent PreEdit(void* data, ImfContext* imfContext, std::string preEditString, int cursorPosition)
+  {
+    TxEvent e{TxEventType::PREEDIT, data, imfContext};
+    e.eventValue.PushBack(preEditString);
+    e.eventValue.PushBack(cursorPosition);
+    return e;
+  }
+
+  static TxEvent DeleteSurrounding(void* data, ImfContext* imfContext, int offset, int n_chars)
+  {
+    TxEvent e{TxEventType::DELETE_SURROUNDING, data, imfContext};
+    e.eventValue.PushBack(offset);
+    e.eventValue.PushBack(n_chars);
+    return e;
+  }
+
+  static TxEvent PrivateCommand(void* data, ImfContext* imfContext, std::string privateCommandSendEvent)
+  {
+    TxEvent e{TxEventType::PRIVATE_COMMAND, data, imfContext};
+    e.eventValue.PushBack(privateCommandSendEvent);
+    return e;
+  }
+
+  static TxEvent CommitContent(void* data, ImfContext* imfContext, std::string content_uri, std::string description, std::string mime_types)
+  {
+    TxEvent e{TxEventType::COMMIT_CONTENT, data, imfContext};
+    e.eventValue.PushBack(content_uri);
+    e.eventValue.PushBack(description);
+    e.eventValue.PushBack(mime_types);
+    return e;
+  }
+
+  static TxEvent SelectionSet(void* data, ImfContext* imfContext, int start, int end)
+  {
+    TxEvent e{TxEventType::SELECTION_SET, data, imfContext};
+    e.eventValue.PushBack(start);
+    e.eventValue.PushBack(end);
+    return e;
+  }
+};
+
 public:
   /**
    * @brief Creates a new InputMethodContext handle
@@ -135,6 +203,16 @@ public:
    * @copydoc Dali::InputMethodContext::SendSelectionSet()
    */
   void SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionStartReceived()
+   */
+  void TransactionStartReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionEndReceived()
+   */
+  void TransactionEndReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   // Cursor related
   /**
@@ -363,6 +441,9 @@ private:
   Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
 
   int mWindowId;
+
+  bool mTxCapturing : 1;
+  std::queue<TxEvent> mTxQueue;
 };
 
 } // namespace Adaptor

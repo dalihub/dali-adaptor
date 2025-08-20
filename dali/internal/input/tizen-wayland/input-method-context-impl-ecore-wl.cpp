@@ -299,6 +299,30 @@ void SelectionSet(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
   }
 }
 
+/**
+ * Called the input method start a composition transaction.
+ */
+void TransactionStart(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
+{
+  if(data)
+  {
+    InputMethodContextEcoreWl* inputMethodContext = static_cast<InputMethodContextEcoreWl*>(data);
+    inputMethodContext->TransactionStartReceived(data, imfContext, eventInfo);
+  }
+}
+
+/**
+ * Called when the input method ends a composition transaction.
+ */
+void TransactionEnd(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
+{
+  if(data)
+  {
+    InputMethodContextEcoreWl* inputMethodContext = static_cast<InputMethodContextEcoreWl*>(data);
+    inputMethodContext->TransactionEndReceived(data, imfContext, eventInfo);
+  }
+}
+
 int GetWindowIdFromActor(Dali::Actor actor)
 {
   int windowId = kUninitializedWindowId;
@@ -351,7 +375,8 @@ InputMethodContextEcoreWl::InputMethodContextEcoreWl(Dali::Actor actor)
   mSurroundingText(),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false),
-  mWindowId(GetWindowIdFromActor(actor))
+  mWindowId(GetWindowIdFromActor(actor)),
+  mTxCapturing(false)
 {
   ecore_imf_init();
 
@@ -431,6 +456,8 @@ void InputMethodContextEcoreWl::ConnectCallbacks()
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
 
     ecore_imf_context_input_panel_event_callback_add(mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT, InputPanelStateChangeCallback, this);
     ecore_imf_context_input_panel_event_callback_add(mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this);
@@ -453,6 +480,8 @@ void InputMethodContextEcoreWl::DisconnectCallbacks()
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand);
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent);
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_SELECTION_SET, SelectionSet);
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart);
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd);
 
     ecore_imf_context_input_panel_event_callback_del(mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT, InputPanelStateChangeCallback);
     ecore_imf_context_input_panel_event_callback_del(mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback);
@@ -526,7 +555,7 @@ void InputMethodContextEcoreWl::SetRestoreAfterFocusLost(bool toggle)
  * We are still predicting what the user is typing.  The latest string is what the InputMethodContext module thinks
  * the user wants to type.
  */
-void InputMethodContextEcoreWl::PreEditChanged(void*, ImfContext* imfContext, void* eventInfo)
+void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContext, void* eventInfo)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::PreEditChanged\n");
   auto context = static_cast<Ecore_IMF_Context*>(imfContext);
@@ -634,48 +663,62 @@ void InputMethodContextEcoreWl::PreEditChanged(void*, ImfContext* imfContext, vo
     }
   }
 
-  if(Dali::Adaptor::IsAvailable())
+  if(mTxCapturing)
   {
-    Dali::InputMethodContext            handle(this);
-    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
-    mEventSignal.Emit(handle, eventData);
-    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
-
-    if(callbackData.update)
+    mTxQueue.push(TxEvent::PreEdit(data, imfContext, preEditString, cursorPosition));
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
     {
-      SetCursorPosition(callbackData.cursorPosition);
-      SetSurroundingText(callbackData.currentText);
+      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
+      mEventSignal.Emit(handle, eventData);
+      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
-      NotifyCursorPosition();
-    }
+      if(callbackData.update)
+      {
+        SetCursorPosition(callbackData.cursorPosition);
+        SetSurroundingText(callbackData.currentText);
 
-    if(callbackData.preeditResetRequired)
-    {
-      Reset();
+        NotifyCursorPosition();
+      }
+
+      if(callbackData.preeditResetRequired)
+      {
+        Reset();
+      }
     }
   }
   free(preEditString);
 }
 
-void InputMethodContextEcoreWl::CommitReceived(void*, ImfContext* imfContext, void* eventInfo)
+void InputMethodContextEcoreWl::CommitReceived(void* data, ImfContext* imfContext, void* eventInfo)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::CommitReceived\n");
 
-  if(Dali::Adaptor::IsAvailable())
+  const std::string keyString(static_cast<char*>(eventInfo));
+
+  if(mTxCapturing)
   {
-    const std::string keyString(static_cast<char*>(eventInfo));
-
-    Dali::InputMethodContext            handle(this);
-    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
-    mEventSignal.Emit(handle, eventData);
-    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
-
-    if(callbackData.update)
+    mTxQueue.push(TxEvent::Commit(data, imfContext, keyString));
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
     {
-      SetCursorPosition(callbackData.cursorPosition);
-      SetSurroundingText(callbackData.currentText);
+      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+      mEventSignal.Emit(handle, eventData);
+      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
-      NotifyCursorPosition();
+      if(callbackData.update)
+      {
+        SetCursorPosition(callbackData.cursorPosition);
+        SetSurroundingText(callbackData.currentText);
+
+        NotifyCursorPosition();
+      }
     }
   }
 }
@@ -744,14 +787,21 @@ void InputMethodContextEcoreWl::DeleteSurrounding(void* data, ImfContext* imfCon
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::DeleteSurrounding\n");
 
-  if(Dali::Adaptor::IsAvailable())
-  {
-    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>(eventInfo);
+  Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>(eventInfo);
 
-    Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
-    Dali::InputMethodContext            handle(this);
-    mEventSignal.Emit(handle, imfData);
-    mKeyboardEventSignal.Emit(handle, imfData);
+  if(mTxCapturing)
+  {
+    mTxQueue.push(TxEvent::DeleteSurrounding(data, imfContext, deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars));
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
+    {
+      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
+      Dali::InputMethodContext            handle(this);
+      mEventSignal.Emit(handle, imfData);
+      mKeyboardEventSignal.Emit(handle, imfData);
+    }
   }
 }
 
@@ -762,14 +812,21 @@ void InputMethodContextEcoreWl::SendPrivateCommand(void* data, ImfContext* imfCo
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendPrivateCommand\n");
 
-  if(Dali::Adaptor::IsAvailable())
-  {
-    const char* privateCommandSendEvent = static_cast<const char*>(eventInfo);
+  const char* privateCommandSendEvent = static_cast<const char*>(eventInfo);
 
-    Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
-    Dali::InputMethodContext            handle(this);
-    mEventSignal.Emit(handle, imfData);
-    mKeyboardEventSignal.Emit(handle, imfData);
+  if(mTxCapturing)
+  {
+    mTxQueue.push(TxEvent::PrivateCommand(data, imfContext, privateCommandSendEvent));
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
+    {
+      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
+      Dali::InputMethodContext            handle(this);
+      mEventSignal.Emit(handle, imfData);
+      mKeyboardEventSignal.Emit(handle, imfData);
+    }
   }
 }
 
@@ -780,13 +837,24 @@ void InputMethodContextEcoreWl::SendCommitContent(void* data, ImfContext* imfCon
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent\n");
 
-  if(Dali::Adaptor::IsAvailable())
+  if(mTxCapturing)
   {
     Ecore_IMF_Event_Commit_Content* commitContent = static_cast<Ecore_IMF_Event_Commit_Content*>(eventInfo);
     if(commitContent)
     {
-      DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent commit content : %s, description : %s, mime type : %s\n", commitContent->content_uri, commitContent->description, commitContent->mime_types);
-      mContentReceivedSignal.Emit(commitContent->content_uri, commitContent->description, commitContent->mime_types);
+      mTxQueue.push(TxEvent::CommitContent(data, imfContext, commitContent->content_uri, commitContent->description, commitContent->mime_types));
+    }
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
+    {
+      Ecore_IMF_Event_Commit_Content* commitContent = static_cast<Ecore_IMF_Event_Commit_Content*>(eventInfo);
+      if(commitContent)
+      {
+        DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent commit content : %s, description : %s, mime type : %s\n", commitContent->content_uri, commitContent->description, commitContent->mime_types);
+        mContentReceivedSignal.Emit(commitContent->content_uri, commitContent->description, commitContent->mime_types);
+      }
     }
   }
 }
@@ -798,17 +866,158 @@ void InputMethodContextEcoreWl::SendSelectionSet(void* data, ImfContext* imfCont
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent\n");
 
-  if(Dali::Adaptor::IsAvailable())
+  if(mTxCapturing)
   {
     Ecore_IMF_Event_Selection* selection = static_cast<Ecore_IMF_Event_Selection*>(eventInfo);
     if(selection)
     {
-      DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendSelectionSet selection start index : %d, end index : %d\n", selection->start, selection->end);
-      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection->start, selection->end);
-      Dali::InputMethodContext            handle(this);
-      mEventSignal.Emit(handle, imfData);
-      mKeyboardEventSignal.Emit(handle, imfData);
+      mTxQueue.push(TxEvent::SelectionSet(data, imfContext, selection->start, selection->end));
     }
+  }
+  else
+  {
+    if(Dali::Adaptor::IsAvailable())
+    {
+      Ecore_IMF_Event_Selection* selection = static_cast<Ecore_IMF_Event_Selection*>(eventInfo);
+      if(selection)
+      {
+        DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendSelectionSet selection start index : %d, end index : %d\n", selection->start, selection->end);
+        Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection->start, selection->end);
+        Dali::InputMethodContext            handle(this);
+        mEventSignal.Emit(handle, imfData);
+        mKeyboardEventSignal.Emit(handle, imfData);
+      }
+    }
+  }
+}
+
+void InputMethodContextEcoreWl::TransactionStartReceived(void* data, ImfContext* imfContext, void* eventInfo)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::TransactionStartReceived\n");
+
+  mTxCapturing = true;
+}
+
+void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* imfContext, void* eventInfo)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::TransactionEndReceived\n");
+
+  mTxCapturing = false;
+
+  while(!mTxQueue.empty())
+  {
+    if(DALI_UNLIKELY(mTxCapturing))
+    {
+      DALI_LOG_ERROR("Transaction started during end event queueing!\n");
+      break;
+    }
+
+    TxEvent currentEvent = mTxQueue.front();
+
+    switch (currentEvent.type)
+    {
+      case TxEventType::COMMIT:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          const std::string keyString = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
+
+          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+          mEventSignal.Emit(handle, eventData);
+          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+
+          if(callbackData.update)
+          {
+            SetCursorPosition(callbackData.cursorPosition);
+            SetSurroundingText(callbackData.currentText);
+
+            NotifyCursorPosition();
+          }
+        }
+        break;
+      }
+      case TxEventType::PREEDIT:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          Dali::InputMethodContext            handle(this);
+          std::string                         preEditString = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
+          int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
+          mEventSignal.Emit(handle, eventData);
+          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+
+          if(callbackData.update)
+          {
+            SetCursorPosition(callbackData.cursorPosition);
+            SetSurroundingText(callbackData.currentText);
+
+            NotifyCursorPosition();
+          }
+
+          if(callbackData.preeditResetRequired)
+          {
+            Reset();
+          }
+        }
+        break;
+      }
+      case TxEventType::DELETE_SURROUNDING:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          int                                 offset = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), offset, n_chars);
+          Dali::InputMethodContext            handle(this);
+          mEventSignal.Emit(handle, imfData);
+          mKeyboardEventSignal.Emit(handle, imfData);
+        }
+        break;
+      }
+      case TxEventType::PRIVATE_COMMAND:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          const char* privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<std::string>().c_str();
+
+          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
+          Dali::InputMethodContext            handle(this);
+          mEventSignal.Emit(handle, imfData);
+          mKeyboardEventSignal.Emit(handle, imfData);
+        }
+        break;
+      }
+      case TxEventType::COMMIT_CONTENT:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          std::string content_uri = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
+          std::string description = currentEvent.eventValue.GetElementAt(1).Get<std::string>();
+          std::string mime_types = currentEvent.eventValue.GetElementAt(2).Get<std::string>();
+          mContentReceivedSignal.Emit(content_uri, description, mime_types);
+        }
+        break;
+      }
+      case TxEventType::SELECTION_SET:
+      {
+        if(Dali::Adaptor::IsAvailable())
+        {
+          int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                 end = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, start, end);
+          Dali::InputMethodContext            handle(this);
+          mEventSignal.Emit(handle, imfData);
+          mKeyboardEventSignal.Emit(handle, imfData);
+        }
+        break;
+      }
+      default:
+      break;
+    }
+
+    mTxQueue.pop();
   }
 }
 
