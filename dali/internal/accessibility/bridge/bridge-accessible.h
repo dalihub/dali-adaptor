@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,14 +259,6 @@ private:
    * @return The valid children
    */
   std::vector<Dali::Accessibility::Component*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
-
-  /**
-   * @brief Sorts children accessible based on the coordinates from top-left to bottom-right.
-   *
-   * @param[in,out] children Children accessible objects
-   * @return The sorted children
-   */
-  void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children);
 
   /**
    * @brief Gets the currently highlighted accessible.
