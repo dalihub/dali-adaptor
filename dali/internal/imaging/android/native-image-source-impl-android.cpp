@@ -331,7 +331,7 @@ int NativeImageSourceAndroid::GetTextureTarget() const
   return GL_TEXTURE_2D;
 }
 
-bool NativeImageSourceAndroid::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceAndroid::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }

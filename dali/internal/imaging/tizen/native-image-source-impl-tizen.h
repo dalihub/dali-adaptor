@@ -132,9 +132,9 @@ public:
   }
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string& shader)
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string& shader, int count)
    */
-  bool ApplyNativeFragmentShader(std::string& shader) override;
+  bool ApplyNativeFragmentShader(std::string& shader, int count) override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()

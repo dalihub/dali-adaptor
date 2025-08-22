@@ -229,7 +229,7 @@ std::string GlImplementation::GetFragmentShaderPrefix()
   return mFragmentShaderPrefix;
 }
 
-bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType)
+bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int count)
 {
   // Identify if it's a modern shader. Modern shader will dynamically apply GLSL version
   bool        hasGLSLVersionString = true;
@@ -292,20 +292,27 @@ bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstractio
 
   if(shader.find(customSamplerType) == std::string::npos)
   {
-    size_t pos = shader.find(DEFAULT_SAMPLER_TYPE);
-    if(pos != std::string::npos)
+    size_t pos = 0;
+    int replacedCount = 0;
+
+    while((pos = shader.find(DEFAULT_SAMPLER_TYPE, pos)) != std::string::npos)
     {
-      modified = true;
+      if(count >= 0 && replacedCount >= count)
+      {
+        break;
+      }
       shader.replace(pos, strlen(DEFAULT_SAMPLER_TYPE), customSamplerType);
+      pos += strlen(customSamplerType);
+      replacedCount++;
     }
   }
 
   return modified;
 }
 
-bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
+bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int count)
 {
-  return ApplyNativeFragmentShader(*this, shader, customSamplerType);
+  return ApplyNativeFragmentShader(*this, shader, customSamplerType, count);
 }
 
 } // namespace Adaptor

@@ -281,9 +281,9 @@ public:
     return mGLES->GetShadingLanguageVersion();
   }
 
-  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int count)
   {
-    return mGLES->ApplyNativeFragmentShader(shader, customSamplerType);
+    return mGLES->ApplyNativeFragmentShader(shader, customSamplerType, count);
   }
 
   /**

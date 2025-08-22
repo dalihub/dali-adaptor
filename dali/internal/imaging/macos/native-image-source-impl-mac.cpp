@@ -161,7 +161,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceCocoa::Prepare
   return Dali::NativeImageInterface::PrepareTextureResult::NOT_SUPPORTED;
 }
 
-bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }
