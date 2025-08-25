@@ -552,8 +552,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       needDraw = false;
     }
 
-    // Warning, this may cause glWaitSync to occur on the GPU, or glClientWaitSync to block the CPU.
-    dependencyChecker.CheckNeedsSync(this, texture, true);
+    // Warning, this may cause glWaitSync to occur on the GPU if texture is result of FBO,
+    // or glClientWaitSync to block the CPU if texture is NativeTexture which be used previous frame.
+    dependencyChecker.CheckNeedsSync(this, texture, false);
     texture->Bind(binding);
 
     // Should call Prepare only if native texture resource created.
