@@ -45,20 +45,6 @@ constexpr uint32_t CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD = 100u;
 
 constexpr uint32_t CPU_ALLOCATED_UBO_INDEX       = 0u;
 constexpr uint32_t GPU_ALLOCATED_UBO_INDEX_BEGIN = 1u;
-
-/**
- * Memory compare working on 4-byte types. Since all types used in shaders are
- * size of 4*N then no need for size and alignment checks.
- */
-template<class A, class B>
-inline bool memcmp4(A* a, B* b, size_t size)
-{
-  auto* pa = reinterpret_cast<const uint32_t*>(a);
-  auto* pb = reinterpret_cast<const uint32_t*>(b);
-  size >>= 2;
-  while(size-- && *pa++ == *pb++);
-  return (-1u == size);
-};
 } // namespace
 
 namespace Dali::Graphics::GLES
@@ -325,7 +311,7 @@ struct Context::Impl
 
     auto& cachedBinding = mUniformBufferBindingCache[binding.binding];
 
-    if(!memcmp4(&cachedBinding, &binding, sizeof(UniformBufferBindingDescriptor)))
+    if(cachedBinding.buffer != binding.buffer || cachedBinding.offset != binding.offset || cachedBinding.dataSize != binding.dataSize)
     {
       // Cache not hit. Update cache and call glBindBufferRange
       memcpy(&cachedBinding, &binding, sizeof(UniformBufferBindingDescriptor));
