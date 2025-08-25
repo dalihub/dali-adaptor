@@ -180,25 +180,15 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
       auto iter = nativeTextureDependency.textures.find(texture);
       if(iter != nativeTextureDependency.textures.end())
       {
-        if(cpu)
-        {
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
-          nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObjectId);
+        // Nativ texture only use cpu sync.
+        DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert CPU WAIT");
+        nativeTextureDependency.synced = mController.GetSyncPool().ClientWait(nativeTextureDependency.agingSyncObjectId);
 
-          if(DALI_LIKELY(nativeTextureDependency.synced))
-          {
-            // Object discarded, and will be free when write context be currnt.
-            mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
-            nativeTextureDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
-          }
-        }
-        else
+        if(DALI_LIKELY(nativeTextureDependency.synced))
         {
-          // Wait on the sync object in GPU. This will ensure that the writeContext completes its tasks prior
-          // to the sync point.
-          // However, this may instead timeout, and we can't tell the difference (at least, for glFenceSync)
-          DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync (for native) Insert GPU WAIT");
-          mController.GetSyncPool().Wait(nativeTextureDependency.agingSyncObjectId);
+          // Object discarded, and will be free when write context be currnt.
+          mController.GetSyncPool().FreeSyncObject(nativeTextureDependency.agingSyncObjectId);
+          nativeTextureDependency.agingSyncObjectId = INVALID_SYNC_OBJECT_ID;
         }
 
         nativeTextureDependency.textures.erase(iter);
