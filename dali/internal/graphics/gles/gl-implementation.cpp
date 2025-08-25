@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -292,8 +292,8 @@ bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstractio
 
   if(shader.find(customSamplerType) == std::string::npos)
   {
-    size_t pos = 0;
-    int replacedCount = 0;
+    size_t pos           = 0;
+    int    replacedCount = 0;
 
     while((pos = shader.find(DEFAULT_SAMPLER_TYPE, pos)) != std::string::npos)
     {
@@ -304,6 +304,7 @@ bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstractio
       shader.replace(pos, strlen(DEFAULT_SAMPLER_TYPE), customSamplerType);
       pos += strlen(customSamplerType);
       replacedCount++;
+      modified = true;
     }
   }
 
