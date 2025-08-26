@@ -93,12 +93,10 @@ struct KeyCodeMap
 };
 
 /**
- * Get the device name from the provided ecore key event
+ * Get the device name
  */
-void GetDeviceName(Ecore_Event_Key* keyEvent, std::string& result)
+void GetDeviceName(const char* ecoreDeviceName, std::string& result)
 {
-  const char* ecoreDeviceName = ecore_device_name_get(keyEvent->dev);
-
   if(ecoreDeviceName)
   {
     result = ecoreDeviceName;
@@ -1355,10 +1353,11 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
+    std::string            deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
-    std::string deviceName = ecore_device_name_get(touchEvent->dev);
+    GetDeviceName(ecore_device_name_get(touchEvent->dev), deviceName);
 
     PointState::Type state(PointState::DOWN);
 
@@ -1403,10 +1402,11 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
+    std::string            deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
-    std::string deviceName = ecore_device_name_get(touchEvent->dev);
+    GetDeviceName(ecore_device_name_get(touchEvent->dev), deviceName);
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -1438,10 +1438,11 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
+    std::string            deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
-    std::string deviceName = ecore_device_name_get(touchEvent->dev);
+    GetDeviceName(ecore_device_name_get(touchEvent->dev), deviceName);
 
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -1649,7 +1650,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
-    GetDeviceName(keyEvent, deviceName);
+    GetDeviceName(ecore_device_name_get(keyEvent->dev), deviceName);
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
@@ -1731,7 +1732,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
-    GetDeviceName(keyEvent, deviceName);
+    GetDeviceName(ecore_device_name_get(keyEvent->dev), deviceName);
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
