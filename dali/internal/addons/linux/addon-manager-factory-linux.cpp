@@ -28,7 +28,12 @@ namespace Internal
 {
 Integration::AddOnManager* AddOnManagerFactory::CreateAddOnManager()
 {
-  return new Dali::Adaptor::AddOnManager(new AddOnManagerLinux(RTLD_DEEPBIND | RTLD_LAZY));
+#ifdef ASAN_ENABLED
+  int dlOpenFlag = RTLD_LAZY;
+#else
+  int dlOpenFlag = RTLD_DEEPBIND | RTLD_LAZY;
+#endif
+  return new Dali::Adaptor::AddOnManager(new AddOnManagerLinux(dlOpenFlag));
 }
 
 } // namespace Internal

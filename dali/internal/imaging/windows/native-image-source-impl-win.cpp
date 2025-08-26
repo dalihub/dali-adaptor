@@ -255,7 +255,7 @@ void NativeImageSourceWin::GetPixmapDetails()
 {
 }
 
-bool NativeImageSourceWin::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceWin::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }

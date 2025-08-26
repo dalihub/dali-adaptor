@@ -123,7 +123,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::ApplyNativeFragmentShader()
    */
-  virtual bool ApplyNativeFragmentShader(std::string& shader) = 0;
+  virtual bool ApplyNativeFragmentShader(std::string& shader, int count) = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()

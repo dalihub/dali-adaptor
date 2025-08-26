@@ -43,9 +43,51 @@ using namespace Dali::Accessibility;
 
 namespace
 {
-constexpr const char* VALUE_FORMAT_KEY      = "value_format";
-constexpr const char* VALUE_FORMAT_TEXT_VAL = "text";
-constexpr const char* FORCE_CHILD_SEARCH_ATTR{"forceChildSearch"};
+constexpr const char* VALUE_FORMAT_KEY          = "value_format";
+constexpr const char* VALUE_FORMAT_TEXT_VAL     = "text";
+constexpr const char* FORCE_CHILD_SEARCH_ATTR   = "forceChildSearch";
+constexpr const char* COLLECTION_INDEX_ATTR     = "collection_index";
+constexpr const char* COLLECTION_CONTAINER_ATTR = "collection_container";
+
+// Comparison function for sorting by collection_index.
+// Items with collection_index come before those without.
+// If both have it, sorted by the integer value.
+bool SortByCollectionIndex(Component* lhs, Component* rhs)
+{
+  auto lhsAttr = lhs->GetAttributes();
+  auto rhsAttr = rhs->GetAttributes();
+
+  auto lhsCollectionIdxAttr = lhsAttr.find(COLLECTION_INDEX_ATTR);
+  auto rhsCollectionIdxAttr = rhsAttr.find(COLLECTION_INDEX_ATTR);
+
+  if(lhsCollectionIdxAttr != lhsAttr.end() && rhsCollectionIdxAttr != rhsAttr.end())
+  {
+    try
+    {
+      int lhsIndex = std::stoi(lhsCollectionIdxAttr->second);
+      int rhsIndex = std::stoi(rhsCollectionIdxAttr->second);
+      return lhsIndex < rhsIndex;
+    }
+    catch(const std::invalid_argument&)
+    {
+      return false; // Or some default handling
+    }
+    catch(const std::out_of_range&)
+    {
+      return false; // Or some default handling
+    }
+  }
+  else if(lhsCollectionIdxAttr != lhsAttr.end())
+  {
+    return true; // lhs has it, rhs doesn't
+  }
+  return false; // rhs has it or neither has it
+}
+
+void SortChildrenByCollectionIndex(std::vector<Dali::Accessibility::Component*>& children)
+{
+  std::sort(children.begin(), children.end(), SortByCollectionIndex);
+}
 
 bool IsSubWindow(Accessible* accessible)
 {
@@ -118,6 +160,48 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   }
 
   return lines;
+}
+
+void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children)
+{
+  if(children.empty())
+  {
+    return;
+  }
+
+  std::vector<Component*> sortedChildren;
+
+  std::sort(children.begin(), children.end(), &SortVertically);
+
+  for(auto& line : SplitLines(children))
+  {
+    std::sort(line.begin(), line.end(), &SortHorizontally);
+    sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
+  }
+
+  children = sortedChildren;
+}
+
+void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility::Component*>& children)
+{
+  if(!parent || children.empty())
+  {
+    return;
+  }
+
+  const auto& attributes                = parent->GetAttributes();
+  auto        collectionContainerAttrIt = attributes.find(COLLECTION_CONTAINER_ATTR);
+
+  if(collectionContainerAttrIt != attributes.end() && collectionContainerAttrIt->second == "true")
+  {
+    // If this object is a collection container, sort by collection index.
+    SortChildrenByCollectionIndex(children);
+  }
+  else
+  {
+    // Otherwise, sort by spatial position (top-left to bottom-right).
+    SortChildrenFromTopLeft(children);
+  }
 }
 
 static bool AcceptObjectCheckRelations(Component* obj)
@@ -351,27 +435,6 @@ static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, con
     }
   }
   return nullptr;
-}
-
-static bool CheckChainEndWithAttribute(Accessible* obj, unsigned char forward)
-{
-  if(!obj)
-  {
-    return false;
-  }
-
-  auto attrs = obj->GetAttributes();
-  for(auto& attr : attrs)
-  {
-    if(attr.first == "relation_chain_end")
-    {
-      if((attr.second == "prev,end" && forward == 0) || (attr.second == "next,end" && forward == 1) || attr.second == "prev,next,end")
-      {
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 static std::vector<Component*> GetScrollableParents(Accessible* accessible)
@@ -849,26 +912,6 @@ std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Acc
   return vec;
 }
 
-void BridgeAccessible::SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children)
-{
-  if(children.empty())
-  {
-    return;
-  }
-
-  std::vector<Component*> sortedChildren;
-
-  std::sort(children.begin(), children.end(), &SortVertically);
-
-  for(auto& line : SplitLines(children))
-  {
-    std::sort(line.begin(), line.end(), &SortHorizontally);
-    sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
-  }
-
-  children = sortedChildren;
-}
-
 template<class T>
 struct CycleDetection
 {
@@ -922,7 +965,7 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
   }
 
   auto children = GetValidChildren(parent->GetChildren(), start);
-  SortChildrenFromTopLeft(children);
+  ApplySortingToChildren(parent, children);
 
   unsigned int childrenCount = children.size();
   if(childrenCount == 0)
@@ -975,10 +1018,6 @@ Accessible* BridgeAccessible::FindNonDefunctSibling(bool& areAllChildrenVisited,
 
 Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* start, unsigned char forward, BridgeAccessible::NeighborSearchMode searchMode)
 {
-  if(start && CheckChainEndWithAttribute(start, forward))
-  {
-    return start;
-  }
   if(root && root->GetStates()[State::DEFUNCT])
   {
     return NULL;
@@ -1034,7 +1073,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     }
 
     auto children = GetValidChildren(node->GetChildren(), start);
-    SortChildrenFromTopLeft(children);
+    ApplySortingToChildren(node, children);
 
     // do accept:
     // 1. not start node

@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.4.32
+Version:    2.4.33
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -123,6 +123,13 @@ BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 
 BuildRequires:  pkgconfig(thorvg)
+
+# For ASAN test
+%if "%{vd_asan}" == "1" || "%{asan}" == "1"
+BuildRequires: asan-force-options
+BuildRequires: asan-build-env
+BuildRequires: libasan
+%endif
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
@@ -320,6 +327,13 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
 # Use this conditional when Tizen version is 10.x or greater
 %if 0%{?tizen_version_major} >= 10
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
+%endif
+
+%if "%{vd_asan}" == "1" || "%{asan}" == "1"
+CFLAGS+=" -fsanitize=address"
+CXXFLAGS+=" -fsanitize=address"
+LDFLAGS+=" -fsanitize=address"
+cmake_flags+=" -DENABLE_ASAN=ON"
 %endif
 
 %if 0%{?enable_debug}

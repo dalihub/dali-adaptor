@@ -107,6 +107,11 @@ void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender
   mThreadControllerInterface->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
+void ThreadController::SetMaximumRenderFrameRate(float maximumRenderFrameRate)
+{
+  mThreadControllerInterface->SetMaximumRenderFrameRate(maximumRenderFrameRate);
+}
+
 void ThreadController::SetPreRenderCallback(CallbackBase* callback)
 {
   mThreadControllerInterface->SetPreRenderCallback(callback);

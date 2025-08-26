@@ -115,7 +115,12 @@ int NativeImageSource::GetTextureTarget() const
 
 bool NativeImageSource::ApplyNativeFragmentShader(std::string& shader)
 {
-  return mImpl->ApplyNativeFragmentShader(shader);
+  return ApplyNativeFragmentShader(shader, 1);
+}
+
+bool NativeImageSource::ApplyNativeFragmentShader(std::string& shader, int count)
+{
+  return mImpl->ApplyNativeFragmentShader(shader, count);
 }
 
 const char* NativeImageSource::GetCustomSamplerTypename() const

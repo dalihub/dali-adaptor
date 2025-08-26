@@ -109,7 +109,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueX::Prepar
   return Dali::NativeImageInterface::PrepareTextureResult::NOT_SUPPORTED;
 }
 
-bool NativeImageSourceQueueX::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceQueueX::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }

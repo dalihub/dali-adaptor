@@ -384,7 +384,7 @@ int NativeImageSourceX::GetTextureTarget() const
   return GL_TEXTURE_2D;
 }
 
-bool NativeImageSourceX::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageSourceX::ApplyNativeFragmentShader(std::string& shader, int count)
 {
   return false;
 }
