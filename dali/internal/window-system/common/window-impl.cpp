@@ -644,9 +644,20 @@ unsigned int Window::GetAuxiliaryHintId(const std::string& hint) const
   return mWindowBase->GetAuxiliaryHintId(hint);
 }
 
+void Window::ResetInput(const Rect<int>& inputRegion)
+{
+  // when inputRegion is (-1, -1, 1, 1) which means reset input region.
+  if (inputRegion.x == -1 && inputRegion.y == -1 && inputRegion.width == 1 && inputRegion.height == 1)
+  {
+    // All touch events that were being input will be clear
+    Reset();
+  }
+}
+
 void Window::SetInputRegion(const Rect<int>& inputRegion)
 {
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetInputRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
+  ResetInput(inputRegion);
   mWindowBase->SetInputRegion(inputRegion);
 }
 
@@ -1489,6 +1500,7 @@ bool Window::IsFloatingModeEnabled()
 void Window::IncludeInputRegion(const Rect<int>& inputRegion)
 {
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IncludeInputRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
+  ResetInput(inputRegion);
   mWindowBase->IncludeInputRegion(inputRegion);
 }
 
