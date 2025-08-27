@@ -485,6 +485,11 @@ public:
       attributes["resID"]                         = windowImpl.GetNativeResourceId();
     }
 
+    if(mRoot && GetName() == "RootLayer")
+    {
+      attributes["reading_info_type"] = "none";
+    }
+
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
     attributes["class"] = type.GetName();
@@ -544,8 +549,7 @@ public:
 
 using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
 
-std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult
-{
+std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
   return {nullptr, true};
 };
 
