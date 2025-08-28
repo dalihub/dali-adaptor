@@ -127,10 +127,10 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mCore(adaptorInterfaces.GetCore()),
   mEnvironmentOptions(environmentOptions),
   mNotificationTrigger(adaptorInterfaces.GetProcessCoreEventsTrigger()),
-  mSleepTrigger(NULL),
-  mPreRenderCallback(NULL),
+  mSleepTrigger(nullptr),
+  mPreRenderCallback(nullptr),
   mTextureUploadManager(adaptorInterfaces.GetTextureUploadManager()),
-  mUpdateRenderThread(NULL),
+  mUpdateRenderThread(nullptr),
   mDefaultFrameDelta(0.0f),
   mDefaultFrameDurationMilliseconds(0u),
   mDefaultFrameDurationNanoseconds(0u),
@@ -147,7 +147,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mPendingRequestUpdate(FALSE),
   mUseElapsedTimeAfterWait(FALSE),
   mIsPreCompileCancelled(FALSE),
-  mNewSurface(NULL),
+  mNewSurface(nullptr),
   mDeletedSurface(nullptr),
   mPostRendering(FALSE),
   mSurfaceResized(0),
@@ -195,7 +195,7 @@ void CombinedUpdateRenderController::Initialize()
   // Create Update/Render Thread
   ConditionalWait::ScopedLock lock(mGraphicsInitializeWait);
   mUpdateRenderThread = new pthread_t();
-  int error           = pthread_create(mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this);
+  int error           = pthread_create(mUpdateRenderThread, nullptr, InternalUpdateRenderThreadEntryFunc, this);
   DALI_ASSERT_ALWAYS(!error && "Return code from pthread_create() when creating UpdateRenderThread");
 
   // The Update/Render thread will now run and initialise the graphics interface etc. and will then wait for Start to be called
@@ -289,10 +289,10 @@ void CombinedUpdateRenderController::Stop()
     LOG_EVENT("Destroying UpdateRenderThread");
 
     // wait for the thread to finish
-    pthread_join(*mUpdateRenderThread, NULL);
+    pthread_join(*mUpdateRenderThread, nullptr);
 
     delete mUpdateRenderThread;
-    mUpdateRenderThread = NULL;
+    mUpdateRenderThread = nullptr;
   }
 
   mRunning = FALSE;
@@ -818,13 +818,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     graphics.FrameStart();
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
-    if(mPreRenderCallback != NULL)
+    if(mPreRenderCallback != nullptr)
     {
       bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
       if(!keepCallback)
       {
         delete mPreRenderCallback;
-        mPreRenderCallback = NULL;
+        mPreRenderCallback = nullptr;
       }
     }
 
@@ -1085,9 +1085,13 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
 Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+  if(DALI_UNLIKELY(mNewSurface))
+  {
+    DALI_LOG_RELEASE_INFO("ShouldSurfaceBeReplaced\n");
+  }
 
   Dali::Integration::RenderSurfaceInterface* newSurface = mNewSurface;
-  mNewSurface                                           = NULL;
+  mNewSurface                                           = nullptr;
 
   return newSurface;
 }
@@ -1103,15 +1107,23 @@ Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::Shoul
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
-  Dali::Integration::RenderSurfaceInterface* deletedSurface = mDeletedSurface;
-  mDeletedSurface                                           = NULL;
+  if(DALI_UNLIKELY(mDeletedSurface))
+  {
+    DALI_LOG_RELEASE_INFO("ShouldSurfaceBeDeleted\n");
+  }
 
-  return deletedSurface;
+  // mDeletedSurface become nullptr at SurfaceDeleted(), end of UpdateRender loop.
+  return mDeletedSurface;
 }
 
 void CombinedUpdateRenderController::SurfaceDeleted()
 {
-  DALI_LOG_RELEASE_INFO("SurfaceDeleted\n");
+  {
+    ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+
+    DALI_LOG_RELEASE_INFO("SurfaceDeleted\n");
+    mDeletedSurface = nullptr;
+  }
   // Just increment the semaphore
   mSurfaceSemaphore.Release(1);
 }
