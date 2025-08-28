@@ -92,27 +92,27 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 {
   size_t length = 0;
 
-  if((leadByte & 0x80) == 0) //ASCII character (lead bit zero)
+  if((leadByte & 0x80) == 0) // ASCII character (lead bit zero)
   {
     length = 1;
   }
-  else if((leadByte & 0xe0) == 0xc0) //110x xxxx
+  else if((leadByte & 0xe0) == 0xc0) // 110x xxxx
   {
     length = 2;
   }
-  else if((leadByte & 0xf0) == 0xe0) //1110 xxxx
+  else if((leadByte & 0xf0) == 0xe0) // 1110 xxxx
   {
     length = 3;
   }
-  else if((leadByte & 0xf8) == 0xf0) //1111 0xxx
+  else if((leadByte & 0xf8) == 0xf0) // 1111 0xxx
   {
     length = 4;
   }
-  else if((leadByte & 0xfc) == 0xf8) //1111 10xx
+  else if((leadByte & 0xfc) == 0xf8) // 1111 10xx
   {
     length = 5;
   }
-  else if((leadByte & 0xfe) == 0xfc) //1111 110x
+  else if((leadByte & 0xfe) == 0xfc) // 1111 110x
   {
     length = 6;
   }
@@ -375,8 +375,8 @@ InputMethodContextEcoreWl::InputMethodContextEcoreWl(Dali::Actor actor)
   mSurroundingText(),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false),
-  mWindowId(GetWindowIdFromActor(actor)),
-  mTxCapturing(false)
+  mTxCapturing(false),
+  mWindowId(GetWindowIdFromActor(actor))
 {
   ecore_imf_init();
 
@@ -914,7 +914,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
 
     TxEvent currentEvent = mTxQueue.front();
 
-    switch (currentEvent.type)
+    switch(currentEvent.type)
     {
       case TxEventType::COMMIT:
       {
@@ -942,7 +942,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         if(Dali::Adaptor::IsAvailable())
         {
           Dali::InputMethodContext            handle(this);
-          std::string                         preEditString = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
+          std::string                         preEditString  = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
           int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
           mEventSignal.Emit(handle, eventData);
@@ -967,7 +967,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          int                                 offset = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                 offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
           int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), offset, n_chars);
           Dali::InputMethodContext            handle(this);
@@ -980,9 +980,9 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          const char* privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<std::string>().c_str();
+          std::string privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
 
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
+          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent.c_str(), 0, 0);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -993,10 +993,10 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          std::string content_uri = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
+          std::string contentUri  = currentEvent.eventValue.GetElementAt(0).Get<std::string>();
           std::string description = currentEvent.eventValue.GetElementAt(1).Get<std::string>();
-          std::string mime_types = currentEvent.eventValue.GetElementAt(2).Get<std::string>();
-          mContentReceivedSignal.Emit(content_uri, description, mime_types);
+          std::string mimeTypes   = currentEvent.eventValue.GetElementAt(2).Get<std::string>();
+          mContentReceivedSignal.Emit(contentUri, description, mimeTypes);
         }
         break;
       }
@@ -1005,7 +1005,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         if(Dali::Adaptor::IsAvailable())
         {
           int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
-          int                                 end = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          int                                 end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, start, end);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
@@ -1014,7 +1014,10 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         break;
       }
       default:
-      break;
+      {
+        // Do nothing
+        break;
+      }
     }
 
     mTxQueue.pop();
@@ -1327,7 +1330,7 @@ bool InputMethodContextEcoreWl::FilterEventKey(const Dali::KeyEvent& keyEvent)
   // If a device key then skip ecore_imf_context_filter_event.
   if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().c_str()))
   {
-    //check whether it's key down or key up event
+    // check whether it's key down or key up event
     if(keyEvent.GetState() == Dali::KeyEvent::DOWN)
     {
       eventHandled = ProcessEventKeyDown(keyEvent);
@@ -1550,8 +1553,8 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     ecoreKeyDownEvent.modifiers    = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
     ecoreKeyDownEvent.locks        = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
     ecoreKeyDownEvent.dev_name     = deviceName.c_str();
-    ecoreKeyDownEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       //ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-    ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); //ECORE_IMF_DEVICE_SUBCLASS_NONE;
+    ecoreKeyDownEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+    ecoreKeyDownEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
     ecoreKeyDownEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
 #endif                                                 // Since ecore_imf 1.22 version
@@ -1606,8 +1609,8 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     ecoreKeyUpEvent.modifiers    = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
     ecoreKeyUpEvent.locks        = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
     ecoreKeyUpEvent.dev_name     = deviceName.c_str();
-    ecoreKeyUpEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       //ECORE_IMF_DEVICE_CLASS_KEYBOARD;
-    ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); //ECORE_IMF_DEVICE_SUBCLASS_NONE;
+    ecoreKeyUpEvent.dev_class    = static_cast<Ecore_IMF_Device_Class>(integKeyEvent.deviceClass);       // ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+    ecoreKeyUpEvent.dev_subclass = static_cast<Ecore_IMF_Device_Subclass>(integKeyEvent.deviceSubclass); // ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 22)
     ecoreKeyUpEvent.keycode = integKeyEvent.keyCode; // Ecore_IMF_Event structure has added 'keycode' variable since ecore_imf 1.22 version.
 #endif                                               // Since ecore_imf 1.22 version
