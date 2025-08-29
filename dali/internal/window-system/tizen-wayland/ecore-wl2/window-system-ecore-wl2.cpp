@@ -56,35 +56,60 @@ namespace
 static int32_t gScreenWidth     = 0;
 static int32_t gScreenHeight    = 0;
 static bool    gGeometryHittest = false;
+static bool    gIsIntialized = false;
 } // unnamed namespace
 
 void Initialize()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-    ecore_wl2_init();
+    if(gIsIntialized == false)
+    {
+      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      if(!ecore_wl2_init())
+      {
+        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+        return;
+      }
+      gIsIntialized = true;
+    }
   }
 }
 
 void Shutdown()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
-    ecore_wl2_shutdown();
+    if(gIsIntialized)
+    {
+      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      ecore_wl2_shutdown();
+      gIsIntialized = false;
+    }
   }
 }
 
 void GetScreenSize(int32_t& width, int32_t& height)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     if(gScreenWidth == 0 || gScreenHeight == 0)
     {
+      if(gIsIntialized == false)
+      {
+        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+        if(!ecore_wl2_init())
+        {
+          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+          width = 0;
+          height = 0;
+          return;
+        }
+        gIsIntialized = true;
+      }
       Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
       if(display)
       {
@@ -111,8 +136,8 @@ void GetScreenSize(int32_t& width, int32_t& height)
 
 void UpdateScreenSize()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
     if(display)
@@ -134,8 +159,8 @@ void UpdateScreenSize()
 
 bool SetKeyboardRepeatInfo(float rate, float delay)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     return ecore_wl2_input_keyboard_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
@@ -145,8 +170,8 @@ bool SetKeyboardRepeatInfo(float rate, float delay)
 
 bool GetKeyboardRepeatInfo(float& rate, float& delay)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     double           rateVal, delayVal;
