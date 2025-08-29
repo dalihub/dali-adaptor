@@ -56,24 +56,15 @@ namespace
 static int32_t gScreenWidth     = 0;
 static int32_t gScreenHeight    = 0;
 static bool    gGeometryHittest = false;
-static bool    gIsIntialized = false;
 } // unnamed namespace
 
 void Initialize()
 {
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  if(frameworkFactory == nullptr || (frameworkFactory  && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
-    if(gIsIntialized == false)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-      if(!ecore_wl2_init())
-      {
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-        return;
-      }
-      gIsIntialized = true;
-    }
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    ecore_wl2_init();
   }
 }
 
@@ -82,12 +73,8 @@ void Shutdown()
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
-    if(gIsIntialized)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
-      ecore_wl2_shutdown();
-      gIsIntialized = false;
-    }
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    ecore_wl2_shutdown();
   }
 }
 
@@ -98,18 +85,6 @@ void GetScreenSize(int32_t& width, int32_t& height)
   {
     if(gScreenWidth == 0 || gScreenHeight == 0)
     {
-      if(gIsIntialized == false)
-      {
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-        if(!ecore_wl2_init())
-        {
-          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-          width = 0;
-          height = 0;
-          return;
-        }
-        gIsIntialized = true;
-      }
       Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
       if(display)
       {
