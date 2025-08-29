@@ -35,32 +35,41 @@ namespace Adaptor
 {
 std::unique_ptr<CallbackManager> SystemFactoryEcore::CreateCallbackManager()
 {
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
   {
     return Utils::MakeUnique<GlibCallbackManager>();
   }
-  return Utils::MakeUnique<EcoreCallbackManager>();
+  else
+  {
+    return Utils::MakeUnique<EcoreCallbackManager>();
+  }
 }
 
 std::unique_ptr<FileDescriptorMonitor> SystemFactoryEcore::CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
   {
     return Utils::MakeUnique<FileDescriptorMonitorGlib>(fileDescriptor, callback, eventBitmask);
   }
-  return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
+  else
+  {
+    return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
+  }
 }
 
 TimerPtr SystemFactoryEcore::CreateTimer(uint32_t milliSec)
 {
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
   {
     return TimerGlib::New(milliSec);
   }
-  return TimerEcore::New(milliSec);
+  else
+  {
+    return TimerEcore::New(milliSec);
+  }
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()
