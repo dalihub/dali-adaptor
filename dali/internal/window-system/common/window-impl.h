@@ -894,6 +894,13 @@ private:
    */
   void UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry);
 
+  /**
+  * @brief Reset input region when window insets are changed.
+  *
+  * @param[in] inputRegion the input region
+  */
+ void ResetInput(const Rect<int>& inputRegion);
+
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet

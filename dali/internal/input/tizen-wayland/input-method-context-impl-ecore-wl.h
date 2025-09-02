@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/property-array.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
+#include <queue>
 
 namespace Dali
 {
@@ -39,6 +41,72 @@ namespace Adaptor
 {
 class InputMethodContextEcoreWl : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
+public:
+  enum class TxEventType : uint8_t
+  {
+    COMMIT,
+    PREEDIT,
+    DELETE_SURROUNDING,
+    PRIVATE_COMMAND,
+    COMMIT_CONTENT,
+    SELECTION_SET
+  };
+
+  struct TxEvent
+  {
+    TxEventType           type;
+    void*                 data;
+    ImfContext*           imfContext;
+    Dali::Property::Array eventValue;
+
+    static TxEvent Commit(void* data, ImfContext* imfContext, std::string commitText)
+    {
+      TxEvent e{TxEventType::COMMIT, data, imfContext};
+      e.eventValue.PushBack(commitText);
+      return e;
+    }
+
+    static TxEvent PreEdit(void* data, ImfContext* imfContext, std::string preEditString, int cursorPosition)
+    {
+      TxEvent e{TxEventType::PREEDIT, data, imfContext};
+      e.eventValue.PushBack(preEditString);
+      e.eventValue.PushBack(cursorPosition);
+      return e;
+    }
+
+    static TxEvent DeleteSurrounding(void* data, ImfContext* imfContext, int offset, int n_chars)
+    {
+      TxEvent e{TxEventType::DELETE_SURROUNDING, data, imfContext};
+      e.eventValue.PushBack(offset);
+      e.eventValue.PushBack(n_chars);
+      return e;
+    }
+
+    static TxEvent PrivateCommand(void* data, ImfContext* imfContext, std::string privateCommandSendEvent)
+    {
+      TxEvent e{TxEventType::PRIVATE_COMMAND, data, imfContext};
+      e.eventValue.PushBack(privateCommandSendEvent);
+      return e;
+    }
+
+    static TxEvent CommitContent(void* data, ImfContext* imfContext, std::string contentUri, std::string description, std::string mimeTypes)
+    {
+      TxEvent e{TxEventType::COMMIT_CONTENT, data, imfContext};
+      e.eventValue.PushBack(contentUri);
+      e.eventValue.PushBack(description);
+      e.eventValue.PushBack(mimeTypes);
+      return e;
+    }
+
+    static TxEvent SelectionSet(void* data, ImfContext* imfContext, int start, int end)
+    {
+      TxEvent e{TxEventType::SELECTION_SET, data, imfContext};
+      e.eventValue.PushBack(start);
+      e.eventValue.PushBack(end);
+      return e;
+    }
+  };
+
 public:
   /**
    * @brief Creates a new InputMethodContext handle
@@ -122,8 +190,8 @@ public:
   void DeleteSurrounding(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   /**
-  * @copydoc Dali::InputMethodContext::SendPrivateCommand()
-  */
+   * @copydoc Dali::InputMethodContext::SendPrivateCommand()
+   */
   void SendPrivateCommand(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   /**
@@ -135,6 +203,16 @@ public:
    * @copydoc Dali::InputMethodContext::SendSelectionSet()
    */
   void SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionStartReceived()
+   */
+  void TransactionStartReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionEndReceived()
+   */
+  void TransactionEndReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   // Cursor related
   /**
@@ -163,23 +241,23 @@ public:
   const std::string& GetSurroundingText() const override;
 
   /**
-  * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
-  */
+   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
+   */
   void NotifyTextInputMultiLine(bool multiLine) override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetTextDirection()
-  */
+   * @copydoc Dali::InputMethodContext::GetTextDirection()
+   */
   Dali::InputMethodContext::TextDirection GetTextDirection() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetInputMethodArea()
-  */
+   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   */
   Dali::Rect<int> GetInputMethodArea() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::ApplyOptions()
-  */
+   * @copydoc Dali::InputMethodContext::ApplyOptions()
+   */
   void ApplyOptions(const InputMethodOptions& options) override;
 
   /**
@@ -311,11 +389,11 @@ private:
   bool ProcessEventKeyUp(const Dali::KeyEvent& keyEvent);
 
   /**
-  * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
-  * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
-  * @param[in] ecoreModifier the Ecore_Event_Modifier input.
-  * @return the Ecore_IMF_Keyboard_Modifiers output.
-  */
+   * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
+   * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
+   * @param[in] ecoreModifier the Ecore_Event_Modifier input.
+   * @return the Ecore_IMF_Keyboard_Modifiers output.
+   */
   Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier);
 
   /**
@@ -357,12 +435,16 @@ private:
   bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated ) after focus regained.
   bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
 
+  bool mTxCapturing : 1;
+
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
   InputMethodOptions                       mOptions;
 
   Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
 
   int mWindowId;
+
+  std::queue<TxEvent> mTxQueue;
 };
 
 } // namespace Adaptor

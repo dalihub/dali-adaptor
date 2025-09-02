@@ -370,6 +370,11 @@ protected:
    */
   ~SceneHolder() override;
 
+  /**
+   * Resets the event handling.
+   */
+  void Reset();
+
 private: // The following methods can be overridden if required
   /**
    * @brief Called by the base class to inform deriving classes that the adaptor has been set.
@@ -404,10 +409,6 @@ private: // The following methods can be overridden if required
   };
 
 private:
-  /**
-   * Resets the event handling.
-   */
-  void Reset();
 
   /**
    * Initializes the DPI for this object.

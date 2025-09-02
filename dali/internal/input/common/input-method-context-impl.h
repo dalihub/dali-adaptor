@@ -184,6 +184,20 @@ public:
   {
   }
 
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionStartReceived()
+   */
+  virtual void TransactionStartReceived(void* data, ImfContext* imfContext, void* eventInfo)
+  {
+  }
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionEndReceived()
+   */
+  virtual void TransactionEndReceived(void* data, ImfContext* imfContext, void* eventInfo)
+  {
+  }
+
   // Cursor related
   /**
    * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
