@@ -159,7 +159,7 @@ void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16
 {
   if(surface)
   {
-    surface->Resize(size);
+    // Don't call surface->Resize(size), as this is EGL specific. @todo Refactor
 
     mGraphicsDevice.DeviceWaitIdle();
     auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
