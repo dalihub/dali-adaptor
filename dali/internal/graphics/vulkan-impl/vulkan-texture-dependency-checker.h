@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include <dali/public-api/common/vector-wrapper.h>
 #include <cstdint>
+#include <unordered_map>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -26,13 +27,41 @@ class Texture;
 class RenderTarget;
 
 /**
- * Class to handle dependency checks between textures from different render targets.
+ * Class to handle dependency checks between textures from different
+ * render targets.
  *
- * When submitting a render target to generate a framebuffer attachment, the controller
- * will create a signal semaphore that is triggered once the command buffer has completed
- * execution.
- * The dependency checker ensures that any dependent render targets that use the attachment
- * texture listen to this semaphore on their cmd buffer submission.
+ * The dependency graph is held between this class and the render targets.
+ * This class holds a list of generators; each render target holds a list
+ * of dependent targets. The dependency graph is completely regenerated
+ * each frame. (Could be ignored if we know render instructions haven't
+ * changed this frame)
+ *
+ * There needs to be a barrier of some description between render
+ * targets that generate textures and render targets that consume the
+ * textures.  This checker ensures that each render target has a list
+ * of dependent render targets that it relies on; so that the chosen
+ * barrier can be invoked at the right time.
+ *
+ * Several mechanisms exist in Vulkan to set up different kinds of barrier:
+ *
+ * In the Submit queue, we can set up signal semaphores to signal when
+ * each submitted command buffer has been processed. We can also set up
+ * wait semaphores to delay processing other command buffers until
+ * their dependent semaphores have been signalled. This is the current
+ * implementation.
+ *
+ * Another possibility is to ensure that the texture draw has an image
+ * barrier between the ImageLayout::eColorAttachmentOptimal state and
+ * the ImageLayout::eShaderReadOnlyOptimal state. We can insert this
+ * barrier prior to the first draw call in a command buffer that
+ * utilizes this texture (we already delay binding textures until the
+ * draw call). Adding this barrier should be a matter of invoking
+ * Image::CreateMemoryBarrier in the
+ * CommandBufferImpl::PrepareForDraw().
+ *
+ * Further possibilities exist. We could use sub-passes and define
+ * appropriate barriers in there instead.(But, very complicated, and
+ * payoff may be minimal)
  */
 class TextureDependencyChecker
 {
@@ -54,14 +83,14 @@ public:
    * @param[in] texture The texture that's output by this render target
    * @param[in] renderTarget The render target that generates this texture
    */
-  void AddTexture(const Vulkan::Texture* texture, Vulkan::RenderTarget* renderTarget);
+  void AddTexture(Texture* texture, RenderTarget* renderTarget);
 
   /**
    * Check if the given texture needs syncing before being read. This will add any
    * existing dependencies to the given render target (will be used in command
    * submission to set up waiting semaphores)
    */
-  void CheckNeedsSync(const Vulkan::Texture* texture, Vulkan::RenderTarget* renderTarget);
+  void CheckNeedsSync(Texture* texture, RenderTarget* renderTarget);
 
   const uint32_t INVALID_DEPENDENCY_INDEX = 0xffffffff;
 
@@ -79,15 +108,16 @@ public:
   void RemoveRenderTarget(Vulkan::RenderTarget* renderTarget);
 
 private:
-  struct TextureDependency
+  VulkanGraphicsController& mController;
+  struct TextureGenerator
   {
-    const Vulkan::Texture* texture;
-    Vulkan::RenderTarget*  generator;
+    Vulkan::Texture*                   texture{nullptr};
+    std::vector<Vulkan::RenderTarget*> generators; // More than one generator might write to this texture per frame, this is in render instruction order (i.e. final render task order)
   };
-  VulkanGraphicsController&      mController;
-  std::vector<TextureDependency> mDependencies;
-  std::vector<RenderTarget*>     mRenderTargets; ///< Maintained list of all current render targets
-  uint32_t                       mCurrentIndex{0};
+  std::unordered_map<Vulkan::RenderTarget*, uint32_t> mLookupByRenderTarget; // Use indexed lookup into mTextureGenerators
+  std::unordered_map<Vulkan::Texture*, uint32_t>      mLookupByTexture;      // Use indexed lookup into mTextureGenerators
+  std::vector<TextureGenerator>                       mTextureGenerators;    // current set of textures & generating render targets
+  std::vector<Vulkan::RenderTarget*>                  mRenderTargets;        // set of all render targets that may consume textures.
 };
 
 } // namespace Dali::Graphics::Vulkan

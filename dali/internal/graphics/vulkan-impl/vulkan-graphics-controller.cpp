@@ -265,18 +265,16 @@ struct VulkanGraphicsController::Impl
 
   Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
 
-
   DiscardQueues<ResourceBase> mDiscardQueues;
 
-
   std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
-  DepthStencilFlags mDepthStencilBufferCurrentState{0u};
-  DepthStencilFlags mDepthStencilBufferRequestedState{0u};
+  DepthStencilFlags            mDepthStencilBufferCurrentState{0u};
+  DepthStencilFlags            mDepthStencilBufferRequestedState{0u};
 
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
   bool                                                                 mDidPresent{false};
-  ResourceTransfer mResourceTransfer;
+  ResourceTransfer                                                     mResourceTransfer;
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
@@ -477,7 +475,7 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
 UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
   auto renderTarget = NewGraphicsObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
-  mImpl->mDependencyChecker.AddRenderTarget(CastObject<Vulkan::RenderTarget>(renderTarget.get()));
+  //mImpl->mDependencyChecker.AddRenderTarget(CastObject<Vulkan::RenderTarget>(renderTarget.get()));
   return renderTarget;
 }
 
@@ -786,7 +784,7 @@ void VulkanGraphicsController::CheckTextureDependencies(
     if(binding.texture)
     {
       auto texture = CastObject<const Vulkan::Texture>(binding.texture);
-      mImpl->mDependencyChecker.CheckNeedsSync(texture, renderTarget);
+      mImpl->mDependencyChecker.CheckNeedsSync(const_cast<Texture*>(texture), renderTarget);
     }
   }
 }
