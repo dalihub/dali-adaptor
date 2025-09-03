@@ -102,6 +102,11 @@ void FrameBufferStateCache::SetCurrentFrameBuffer(const GLuint framebufferId)
   mCurrentFrameBufferId = framebufferId;
 }
 
+GLuint FrameBufferStateCache::GetCurrentFrameBuffer() const
+{
+  return mCurrentFrameBufferId;
+}
+
 void FrameBufferStateCache::FrameBufferCreated(const GLuint framebufferId)
 {
   // check the frame buffer doesn't exist already
