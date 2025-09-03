@@ -197,7 +197,17 @@ struct Context::Impl
         BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         // BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
-        // TODO : Should we call default blend operators here?
+        gl->BlendFunc(GLBlendFunc(BlendFactor::ONE), GLBlendFunc(BlendFactor::ZERO));
+        gl->BlendEquation(GLBlendOp(BlendOp::ADD));
+        gl->Disable(GL_BLEND);
+
+        // Actuall call blend equations. So reset cache flags and data
+        mGlStateCache.mBlendStateCache.mBlendFuncSeparateSrcRGB = mGlStateCache.mBlendStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
+        mGlStateCache.mBlendStateCache.mBlendFuncSeparateDstRGB = mGlStateCache.mBlendStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
+        mGlStateCache.mBlendStateCache.mBlendEquationSeparateModeRGB = mGlStateCache.mBlendStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
+
+        mGlStateCache.mBlendStateCache.mBlendEnabled          = false;
+        mGlStateCache.mBlendStateCache.mBlendCacheChangedFlag = BlendStateCache::BlendCacheChangedFlag::BLEND_CACHE_STABLE;
 
         if(!hasGLES3)
         {

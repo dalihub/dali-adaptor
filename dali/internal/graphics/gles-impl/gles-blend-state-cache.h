@@ -34,6 +34,8 @@ struct BlendStateCache
 {
   enum BlendCacheChangedFlag
   {
+    BLEND_CACHE_STABLE = 0,
+
     BLEND_ENABLED_CHANGED  = 1 << 0,
     BLEND_FUNC_CHANGED     = 1 << 1,
     BLEND_EQUATION_CHANGED = 1 << 2,
