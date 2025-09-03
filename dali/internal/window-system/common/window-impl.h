@@ -677,6 +677,25 @@ public: // It is only for window-impl. Need not public for the others.
    */
   void SetUserGeometryPolicy();
 
+  /**
+   * @brief Sets the screen for the window. It means the window is moved to the screen.
+   *
+   * This method sets the window to the specified screen.
+   * The window will be moved to the specified screen.
+   *
+   * @param[in] screenName The name of the screen to set.
+   */
+  void SetScreen(const std::string& screenName);
+
+  /**
+   * @brief Gets the screen that the window is included.
+   *
+   * This method returns the name of the screen where the window is currently displayed.
+   *
+   * @return The screen name.
+   */
+  std::string GetScreen() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -710,8 +729,9 @@ private:
    * @param[in] name The window title
    * @param[in] className The window class name
    * @param[in] type window's type. Refer the WindowType in window-enumerations.h.
+   * @param[in] screenName screen name to set current screen name if this string is not empty.
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type);
+  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName);
 
   /**
    * @brief Called when the window becomes iconified or deiconified.

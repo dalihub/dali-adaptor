@@ -170,6 +170,11 @@ public:
   void StoreFrontBufferRendering(bool enable);
 
   /**
+   * Stores the screen of the default window.
+   */
+  void StoreWindowScreen(const std::string& currentScreen);
+
+  /**
    * @copydoc Dali::DevelApplication::GetRenderThreadId()
    */
   int32_t GetRenderThreadId() const;
@@ -568,6 +573,7 @@ private:
   SlotDelegate<Application> mSlotDelegate;
 
   UIThreadLoader*       mUIThreadLoader;
+  std::string           mScreen; ///< Screen for the main window
   static ApplicationPtr gPreInitializedApplication;
 };
 

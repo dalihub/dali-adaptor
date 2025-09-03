@@ -20,9 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <cstdint>
+#include <string>
+#include <dali/public-api/common/vector-wrapper.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/devel-api/adaptor-framework/screen-information.h>
 
 namespace Dali
 {
@@ -51,6 +54,20 @@ DALI_ADAPTOR_API void SetGeometryHittestEnabled(bool enabled);
  * @return True if the scene using geometry event propagation touch and hover events.
  */
 DALI_ADAPTOR_API bool IsGeometryHittestEnabled();
+
+/**
+ * @brief Retrieves a list of all currently available screens.
+ *
+ * This function queries the window system for all connected and active screens,
+ * providing essential information for each. It is primarily intended for use
+ * in multi-screen environments where an application might need to manage
+ * windows across different displays.
+ *
+ * @return A std::vector containing Dali::ScreenInformation objects for each
+ * available screen. If no screens are available, the returned vector
+ * will be empty.
+ */
+DALI_ADAPTOR_API std::vector<Dali::ScreenInformation> GetAvailableScreens();
 
 } // namespace DevelWindowSystem
 

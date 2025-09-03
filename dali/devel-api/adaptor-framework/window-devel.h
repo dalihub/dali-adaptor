@@ -779,6 +779,25 @@ DALI_ADAPTOR_API Extents GetInsets(Window window);
  */
 DALI_ADAPTOR_API Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags);
 
+/**
+ * Set the screen for this window
+ *
+ * This method sets the window to the specified screen.
+ * The window will be moved to the specified screen.
+ *
+ * @param[in] window The window wants to change the screen.
+ * @param[in] screenName The name of the screen for this window
+ */
+DALI_ADAPTOR_API void SetScreen(Window window, const std::string& screenName);
+
+/**
+ * Get the screen of window.
+ * It is for multiple screen environment.
+ *
+ * @param[in] window The window instance
+ * @return The name of the screen as a string.
+ */
+DALI_ADAPTOR_API std::string  GetScreen(Window window);
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.

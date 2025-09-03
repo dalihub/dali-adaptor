@@ -581,6 +581,16 @@ public:
    */
   Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreen()
+   */
+  void SetScreen(const std::string& screenName) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreen()
+   */
+  std::string GetScreen() const override;
+
 private:
   /**
    * Second stage initialization

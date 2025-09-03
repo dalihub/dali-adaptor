@@ -876,6 +876,15 @@ Extents WindowBaseCocoa::GetInsets(WindowInsetsPartFlags insetsFlags)
   return Extents(0, 0, 0, 0);
 }
 
+void WindowBaseCocoa::SetScreen(const std::string& screenName)
+{
+}
+
+std::string WindowBaseCocoa::GetScreen() const
+{
+  return std::string();
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

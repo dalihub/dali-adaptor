@@ -53,6 +53,11 @@ void GetScreenSize(int32_t& width, int32_t& height)
   ecore_x_screen_size_get(ecore_x_default_screen_get(), &width, &height);
 }
 
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  return std::vector<Dali::ScreenInformation>();
+}
+
 void UpdateScreenSize()
 {
 }

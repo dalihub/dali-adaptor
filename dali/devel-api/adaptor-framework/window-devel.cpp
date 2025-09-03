@@ -435,6 +435,16 @@ Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags)
   return GetImplementation(window).GetInsets(insetsFlags);
 }
 
+void SetScreen(Window window, const std::string& screenName)
+{
+  GetImplementation(window).SetScreen(screenName);
+}
+
+std::string GetScreen(Window window)
+{
+  return GetImplementation(window).GetScreen();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

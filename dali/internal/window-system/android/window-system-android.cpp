@@ -21,6 +21,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
@@ -52,6 +53,11 @@ void GetScreenSize(int32_t& width, int32_t& height)
   width                 = ANativeWindow_getWidth(window);
   height                = ANativeWindow_getHeight(window);
   DALI_LOG_DEBUG_INFO("Native window width %d, height %d", width, height);
+}
+
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  return std::vector<Dali::ScreenInformation>();
 }
 
 void UpdateScreenSize()

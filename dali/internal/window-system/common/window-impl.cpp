@@ -67,7 +67,7 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
   Window* window                  = new Window();
   window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType());
+  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen());
   return window;
 }
 
@@ -124,7 +124,7 @@ Window::~Window()
   }
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type)
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName)
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
@@ -207,6 +207,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   {
     SetFrontBufferRendering(mIsFrontBufferRendering);
   }
+
+  SetScreen(screenName);
 }
 
 void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
@@ -1693,6 +1695,20 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
   mSurface->SetFullSwapNextFrame();
 }
 
+void Window::SetScreen(const std::string& screenName)
+{
+  if(screenName.empty())
+  {
+    DALI_LOG_ERROR("input Screen name is empty\n");
+    return;
+  }
+  mWindowBase->SetScreen(screenName);
+}
+
+std::string Window::GetScreen() const
+{
+  return mWindowBase->GetScreen();
+}
 
 } // namespace Adaptor
 

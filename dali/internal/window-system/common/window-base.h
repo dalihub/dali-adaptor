@@ -684,8 +684,26 @@ public:
    */
   virtual Extents GetInsets(WindowInsetsPartFlags insetsFlags) = 0;
 
-  // Signals
+  /**
+   * @brief Sets the screen for the window. It means the window is moved to the screen.
+   *
+   * This method sets the window to the specified screen.
+   * The window will be moved to the specified screen.
+   *
+   * @param[in] screenName The name of the screen to set.
+   */
+  virtual void SetScreen(const std::string& screenName) = 0;
 
+  /**
+   * @brief Gets the screen that the window is included.
+   *
+   * This method returns the name of the screen where the window is currently displayed.
+   *
+   * @return The screen name.
+   */
+  virtual std::string GetScreen() const = 0;
+
+  // Signals
   /**
    * @brief This signal is emitted when the window becomes iconified or deiconified.
    */

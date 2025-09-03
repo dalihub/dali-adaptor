@@ -922,6 +922,7 @@ const struct tizen_display_policy_listener tizenDisplayPolicyListener =
 WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mEcoreEventHandler(),
   mEcoreWindow(nullptr),
+  mScreen(nullptr),
   mWlSurface(nullptr),
   mWlInputPanel(nullptr),
   mWlOutput(nullptr),
@@ -1169,6 +1170,12 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::Initialize: %s\n", hint);
     }
+  }
+
+  if(!mScreen)
+  {
+    mScreen = ecore_wl2_window_screen_get(mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("ecore_wl2_window_screen_get: screen %p\n", mScreen);
   }
 }
 
@@ -1970,7 +1977,7 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
     Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
 
-    mWindowPositionSize.width = orgPositionSize.width;
+    mWindowPositionSize.width  = orgPositionSize.width;
     mWindowPositionSize.height = orgPositionSize.height;
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnResizeCompleted, window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
     mResizeCompletedSignal.Emit(newSize);
@@ -3208,9 +3215,8 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
-  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
-    oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]";
-  });
+  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
+                                               { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3271,9 +3277,8 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
-  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss) {
-    oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]";
-  });
+  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
+                                               { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3970,24 +3975,24 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
   int w = 0;
   int h = 0;
 
-  if (insetsFlags == WindowInsetsPartFlags::NONE)
+  if(insetsFlags == WindowInsetsPartFlags::NONE)
   {
     return Extents(left, right, top, bottom);
   }
 
-  for (int i = 0; i < 3; i++)
+  for(int i = 0; i < 3; i++)
   {
-    if (i == 0)
+    if(i == 0)
     {
-      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::STATUS_BAR) || ecore_wl2_window_indicator_state_get(mEcoreWindow) == ECORE_WL2_INDICATOR_STATE_OFF)
+      if(!HasFlag(insetsFlags, WindowInsetsPartFlags::STATUS_BAR) || ecore_wl2_window_indicator_state_get(mEcoreWindow) == ECORE_WL2_INDICATOR_STATE_OFF)
       {
         continue;
       }
       ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &x, &y, &w, &h);
     }
-    else if (i == 1)
+    else if(i == 1)
     {
-      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::KEYBOARD) || ecore_wl2_window_keyboard_state_get(mEcoreWindow) == ECORE_WL2_VIRTUAL_KEYBOARD_STATE_OFF)
+      if(!HasFlag(insetsFlags, WindowInsetsPartFlags::KEYBOARD) || ecore_wl2_window_keyboard_state_get(mEcoreWindow) == ECORE_WL2_VIRTUAL_KEYBOARD_STATE_OFF)
       {
         continue;
       }
@@ -3995,7 +4000,7 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
     }
     else
     {
-      if (!HasFlag(insetsFlags, WindowInsetsPartFlags::CLIPBOARD) || ecore_wl2_window_clipboard_state_get(mEcoreWindow) == ECORE_WL2_CLIPBOARD_STATE_OFF)
+      if(!HasFlag(insetsFlags, WindowInsetsPartFlags::CLIPBOARD) || ecore_wl2_window_clipboard_state_get(mEcoreWindow) == ECORE_WL2_CLIPBOARD_STATE_OFF)
       {
         continue;
       }
@@ -4006,33 +4011,86 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
     {
       if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
       {
-        top         = y + h - winY;
-        winY       += top;
-        winH       -= top;
+        top = y + h - winY;
+        winY += top;
+        winH -= top;
       }
       else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
       {
-        bottom      = winY + winH - y;
-        winH       -= bottom;
+        bottom = winY + winH - y;
+        winH -= bottom;
       }
     }
     else if((y <= winY) && (y + h >= winY + winH))
     {
       if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
       {
-        left        = x + w - winX;
-        winX       += left;
-        winW       -= left;
+        left = x + w - winX;
+        winX += left;
+        winW -= left;
       }
       else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
       {
-        right       = winX + winW - x;
-        winW       -= right;
+        right = winX + winW - x;
+        winW -= right;
       }
     }
   }
 
   return Extents(left, right, top, bottom);
+}
+
+void WindowBaseEcoreWl2::SetScreen(const std::string& screenName)
+{
+  Eina_List* screenList = nullptr;
+  Eina_List* l          = nullptr;
+  void*      screen     = nullptr;
+
+  Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
+  screenList                 = ecore_wl2_display_screens_get(display);
+  if(screenList)
+  {
+    EINA_LIST_FOREACH(screenList, l, screen)
+    {
+      const char* ecoreScreenName = ecore_wl2_screen_name_get(static_cast<Ecore_Wl2_Screen*>(screen));
+      if(!ecoreScreenName)
+      {
+        continue;
+      }
+      std::string gettingScreenName(ecoreScreenName);
+      DALI_LOG_RELEASE_INFO("input Screen Name: %s, get Screen Name: %s\n", screenName.c_str(), ecoreScreenName);
+      if(gettingScreenName == screenName)
+      {
+        DALI_LOG_RELEASE_INFO("ecore_wl2_screen_window_assign: screen %p, Screen Name: %s\n", screen, gettingScreenName.c_str());
+        ecore_wl2_screen_window_assign(static_cast<Ecore_Wl2_Screen*>(screen), mEcoreWindow);
+        mScreen = static_cast<Ecore_Wl2_Screen*>(screen);
+        break;
+      }
+    }
+  }
+}
+
+std::string WindowBaseEcoreWl2::GetScreen() const
+{
+  std::string screenName{};
+  if(!mScreen)
+  {
+    DALI_LOG_ERROR("Current screen is empty\n");
+    return screenName;
+  }
+
+  const char* ecoreScreenName = ecore_wl2_screen_name_get(mScreen);
+  if(ecoreScreenName)
+  {
+    screenName = ecoreScreenName;
+    DALI_LOG_RELEASE_INFO("Current screen : %s\n", ecoreScreenName);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Current screen name  is nullptr\n");
+  }
+
+  return screenName;
 }
 
 } // namespace Adaptor

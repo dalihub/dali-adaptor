@@ -23,6 +23,9 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/rect.h>
 #include <memory>
+#include <string>
+
+
 
 namespace Dali
 {
@@ -115,6 +118,26 @@ public:
    * @return whether front buffer rendering is enabled
    */
   bool GetFrontBufferRendering() const;
+
+/**
+ * @brief Sets the screen for the window
+ * It is base information from DevelWindowSystem::GetAvailableScreens
+ *
+ * This method sets the window to the specified screen.
+ * The window will be moved to the specified screen.
+ *
+ * @SINCE_2_4.35
+ * @param[in] screen The name of the screen to set
+ */
+  void SetScreen(const std::string& screen);
+
+  /**
+   * @brief Gets the screen
+   *
+   * @SINCE_2_4.35
+   * @return screen name
+   */
+  std::string GetScreen() const;
 
 private:
   struct Impl;

@@ -158,6 +158,9 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
 
     // Set front buffer rendering
     internal->StoreFrontBufferRendering(windowData.GetFrontBufferRendering());
+
+    // Set screen for default window
+    internal->StoreWindowScreen(windowData.GetScreen());
   }
   else
   {
