@@ -384,6 +384,11 @@ public:
    */
   void UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentOptions);
 
+  /**
+   * @brief Notify to Core that pre-initialized adaptor ready to used.
+   */
+  void PreInitializeAdaptorCompleted();
+
 public:
   /**
    * Adds an adaptor observer so that we can observe the adaptor's lifetime events.
