@@ -303,6 +303,9 @@ cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
 cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
+# Enable preinitialized adaptor as default if not defined
+%{!?enable_preinitialize_adaptor: %global enable_preinitialize_adaptor 1}
+
 %if 0%{?enable_preinitialize_adaptor}
 cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=ON"
 %else
