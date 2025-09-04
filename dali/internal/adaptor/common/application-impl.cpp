@@ -475,7 +475,10 @@ void Application::CompleteAdaptorAndWindowCreate()
   }
   else if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
   {
-#if !defined(PREINITIALIZE_ADAPTOR_CREATION_ENABLED)
+#ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+    // Send to Core that pre-initialized adaptor ready to used.
+    Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).PreInitializeAdaptorCompleted();
+#else
     // Must create adaptor before change pre-initialized windows
     CreateAdaptor();
 
