@@ -69,7 +69,7 @@ bool NativeImageSourceQueueAndroid::CanDequeueBuffer()
   return false;
 }
 
-uint8_t* NativeImageSourceQueueAndroid::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+uint8_t* NativeImageSourceQueueAndroid::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type)
 {
   return nullptr;
 }
@@ -77,6 +77,10 @@ uint8_t* NativeImageSourceQueueAndroid::DequeueBuffer(uint32_t& width, uint32_t&
 bool NativeImageSourceQueueAndroid::EnqueueBuffer(uint8_t* buffer)
 {
   return false;
+}
+
+void NativeImageSourceQueueAndroid::CancelDequeuedBuffer(uint8_t* buffer)
+{
 }
 
 void NativeImageSourceQueueAndroid::FreeReleasedBuffers()

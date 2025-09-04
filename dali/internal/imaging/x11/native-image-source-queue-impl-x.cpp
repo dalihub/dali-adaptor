@@ -66,7 +66,7 @@ bool NativeImageSourceQueueX::CanDequeueBuffer()
   return false;
 }
 
-uint8_t* NativeImageSourceQueueX::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+uint8_t* NativeImageSourceQueueX::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type)
 {
   return nullptr;
 }
@@ -74,6 +74,10 @@ uint8_t* NativeImageSourceQueueX::DequeueBuffer(uint32_t& width, uint32_t& heigh
 bool NativeImageSourceQueueX::EnqueueBuffer(uint8_t* buffer)
 {
   return false;
+}
+
+void NativeImageSourceQueueX::CancelDequeuedBuffer(uint8_t* buffer)
+{
 }
 
 void NativeImageSourceQueueX::FreeReleasedBuffers()
