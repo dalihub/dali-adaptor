@@ -197,7 +197,17 @@ struct Context::Impl
         BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         // BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
-        // TODO : Should we call default blend operators here?
+        gl->BlendFunc(GLBlendFunc(BlendFactor::ONE), GLBlendFunc(BlendFactor::ZERO));
+        gl->BlendEquation(GLBlendOp(BlendOp::ADD));
+        gl->Disable(GL_BLEND);
+
+        // Actuall call blend equations. So reset cache flags and data
+        mGlStateCache.mBlendStateCache.mBlendFuncSeparateSrcRGB = mGlStateCache.mBlendStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
+        mGlStateCache.mBlendStateCache.mBlendFuncSeparateDstRGB = mGlStateCache.mBlendStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
+        mGlStateCache.mBlendStateCache.mBlendEquationSeparateModeRGB = mGlStateCache.mBlendStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
+
+        mGlStateCache.mBlendStateCache.mBlendEnabled          = false;
+        mGlStateCache.mBlendStateCache.mBlendCacheChangedFlag = BlendStateCache::BlendCacheChangedFlag::BLEND_CACHE_STABLE;
 
         if(!hasGLES3)
         {
@@ -1215,8 +1225,23 @@ void Context::ReadPixels(uint8_t* buffer)
     auto*              gl          = mImpl->GetGL();
     if(DALI_LIKELY(gl) && framebuffer)
     {
+      auto latestBoundFrameBuffer = mImpl->mGlStateCache.mFrameBufferStateCache.GetCurrentFrameBuffer();
+
+      if(latestBoundFrameBuffer != framebuffer->GetGlFramebufferId())
+      {
+        // Bind again to read pixels
+        framebuffer->Bind();
+      }
+
       gl->Finish(); // To guarantee ReadPixels.
       gl->ReadPixels(0, 0, framebuffer->GetCreateInfo().size.width, framebuffer->GetCreateInfo().size.height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+      if(latestBoundFrameBuffer != framebuffer->GetGlFramebufferId())
+      {
+        // Restore FBO bind after using.
+        gl->BindFramebuffer(GL_FRAMEBUFFER, latestBoundFrameBuffer);
+        mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(latestBoundFrameBuffer);
+      }
     }
   }
 }

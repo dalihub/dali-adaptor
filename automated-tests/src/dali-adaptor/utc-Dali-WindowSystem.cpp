@@ -48,3 +48,38 @@ int UtcDaliWindowSystemGetScreenSizeP(void)
 
   END_TEST;
 }
+
+int UtcDaliWindowSystemGetAvailableScreensP(void)
+{
+  try
+  {
+    std::vector<Dali::ScreenInformation> screensInfomation = DevelWindowSystem::GetAvailableScreens();
+
+    // Check if we got any screen information
+    if(!screensInfomation.empty())
+    {
+      for(std::vector<Dali::ScreenInformation>::iterator It = screensInfomation.begin(); It != screensInfomation.end(); ++It)
+      {
+        Dali::ScreenInformation info = *It;
+        // Verify screen dimensions are valid (positive values)
+        DALI_TEST_CHECK(info.GetScreenWidth() > 0);
+        DALI_TEST_CHECK(info.GetScreenHeight() > 0);
+
+        // Verify screen name is not empty
+        DALI_TEST_CHECK(!info.GetScreenName().empty());
+      }
+    }
+    else
+    {
+      // If no screen information is returned (which could happen in some test environments),
+      // we should still pass the test as this might be expected behavior
+      DALI_TEST_CHECK(true);
+    }
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}

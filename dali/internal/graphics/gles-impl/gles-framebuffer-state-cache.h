@@ -61,6 +61,12 @@ public:
   void SetCurrentFrameBuffer(const GLuint framebufferId);
 
   /**
+   * @brief Get the current bound frame buffer
+   * @return frame buffer id
+   */
+  GLuint GetCurrentFrameBuffer() const;
+
+  /**
    * @brief Called when frame buffer is deleted
    * @param[in] framebufferId frame buffer ids
    */

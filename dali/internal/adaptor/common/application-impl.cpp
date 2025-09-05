@@ -179,7 +179,8 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mUseUiThread(useUiThread),
   mIsSystemInitialized(false),
   mSlotDelegate(this),
-  mUIThreadLoader(nullptr)
+  mUIThreadLoader(nullptr),
+  mScreen(windowData.GetScreen())
 {
   // Set mName from command-line args
   if(argc && (*argc > 0))
@@ -258,6 +259,20 @@ void Application::StoreFrontBufferRendering(bool enable)
   mIsMainWindowFrontBufferRendering = enable;
 }
 
+void Application::StoreWindowScreen(const std::string& screen)
+{
+  mScreen = screen;
+  if(!mScreen.empty())
+  {
+    DALI_LOG_RELEASE_INFO("Application::StoreWindowScreen, (%s)\n", mScreen.c_str());
+  }
+  if(mMainWindow)
+  {
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(mMainWindow);
+    windowImpl.SetScreen(mScreen);
+  }
+}
+
 void Application::ChangePreInitializedWindowInfo()
 {
   // Set window name
@@ -313,6 +328,7 @@ void Application::CreateWindow()
   windowData.SetTransparency(mMainWindowMode);
   windowData.SetWindowType(mDefaultWindowType);
   windowData.SetFrontBufferRendering(mIsMainWindowFrontBufferRendering);
+  windowData.SetScreen(mScreen);
 
   DALI_LOG_RELEASE_INFO("Create Default Window\n");
 
@@ -459,7 +475,10 @@ void Application::CompleteAdaptorAndWindowCreate()
   }
   else if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
   {
-#if !defined(PREINITIALIZE_ADAPTOR_CREATION_ENABLED)
+#ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
+    // Send to Core that pre-initialized adaptor ready to used.
+    Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).PreInitializeAdaptorCompleted();
+#else
     // Must create adaptor before change pre-initialized windows
     CreateAdaptor();
 

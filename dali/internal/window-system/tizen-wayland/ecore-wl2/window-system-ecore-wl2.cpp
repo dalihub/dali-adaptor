@@ -17,6 +17,7 @@
 
 // EXTERNAL_HEADERS
 #include <Ecore_Wl2.h>
+#include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
@@ -53,27 +54,44 @@ namespace WindowSystem
 {
 namespace
 {
-static int32_t gScreenWidth     = 0;
-static int32_t gScreenHeight    = 0;
-static bool    gGeometryHittest = false;
-static bool    gIsIntialized = false;
+static int32_t                              gScreenWidth     = 0;
+static int32_t                              gScreenHeight    = 0;
+static bool                                 gGeometryHittest = false;
+static bool                                 gIsIntialized    = false;
+static std::vector<Dali::ScreenInformation> gScreenList;
 } // unnamed namespace
+
+bool EcoreInitialize()
+{
+  if(gIsIntialized == false)
+  {
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    if(!ecore_wl2_init())
+    {
+      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      return false;
+    }
+    gIsIntialized = true;
+  }
+  return true;
+}
+
+void EcoreShutdown()
+{
+  if(gIsIntialized)
+  {
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    ecore_wl2_shutdown();
+    gIsIntialized = false;
+  }
+}
 
 void Initialize()
 {
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
-    if(gIsIntialized == false)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-      if(!ecore_wl2_init())
-      {
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-        return;
-      }
-      gIsIntialized = true;
-    }
+    EcoreInitialize();
   }
 }
 
@@ -82,12 +100,7 @@ void Shutdown()
   auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
   if(backend == FrameworkBackend::DEFAULT)
   {
-    if(gIsIntialized)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
-      ecore_wl2_shutdown();
-      gIsIntialized = false;
-    }
+    EcoreShutdown();
   }
 }
 
@@ -98,18 +111,13 @@ void GetScreenSize(int32_t& width, int32_t& height)
   {
     if(gScreenWidth == 0 || gScreenHeight == 0)
     {
-      if(gIsIntialized == false)
+      if(!EcoreInitialize())
       {
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-        if(!ecore_wl2_init())
-        {
-          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-          width = 0;
-          height = 0;
-          return;
-        }
-        gIsIntialized = true;
+        width  = 0;
+        height = 0;
+        return;
       }
+
       Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
       if(display)
       {
@@ -132,6 +140,66 @@ void GetScreenSize(int32_t& width, int32_t& height)
   }
   width  = gScreenWidth;
   height = gScreenHeight;
+}
+
+std::vector<Dali::ScreenInformation> GetAvailableScreens()
+{
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  {
+    if(!EcoreInitialize())
+    {
+      print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      gScreenList.clear();
+      return gScreenList;
+    }
+
+    Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
+    if(!display)
+    {
+      print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_display_connect()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      gScreenList.clear();
+      return gScreenList;
+    }
+
+    if(gScreenList.size() == 0)
+    {
+      Eina_List* ecoreScreenList = nullptr;
+      Eina_List* l               = nullptr;
+      void*      screen          = nullptr;
+
+      START_DURATION_CHECK();
+      ecoreScreenList = ecore_wl2_display_screens_get(display);
+      FINISH_DURATION_CHECK("ecore_wl2_display_screens_get");
+      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p", DALI_LOG_FORMAT_PREFIX_ARGS, ecoreScreenList);
+      if(ecoreScreenList)
+      {
+        EINA_LIST_FOREACH(ecoreScreenList, l, (screen))
+        {
+          int   width, height;
+          const char* ecoreScreenName = ecore_wl2_screen_name_get(static_cast<Ecore_Wl2_Screen*>(screen));
+          if(!ecoreScreenName)
+          {
+            print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "screen(%p) name is empty", DALI_LOG_FORMAT_PREFIX_ARGS, screen);
+            continue;
+          }
+          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen(%p) name: %s", DALI_LOG_FORMAT_PREFIX_ARGS, screen, ecoreScreenName);
+
+          ecore_wl2_screen_size_get(static_cast<Ecore_Wl2_Screen*>(screen), &width, &height);
+          if(width == 0 || height == 0)
+          {
+            print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "screen(%p) size 0, width(%d), height(%d) ", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
+            continue;
+          }
+
+          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen(%p) size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
+          gScreenList.push_back(Dali::ScreenInformation{std::string(ecoreScreenName), width, height});
+        }
+      }
+    }
+  }
+  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%d", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenList.size());
+  return gScreenList;
 }
 
 void UpdateScreenSize()

@@ -23,7 +23,7 @@ OPTION(ENABLE_TRACE             "Enable Trace" OFF)
 OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
 OPTION(CONFIGURE_AUTOMATED_TESTS "Configure automated tests" ON)
 
-OPTION(ENABLE_PREINITIALIZE_ADAPTOR "Enable PreInitialized Adaptor" OFF)
+OPTION(ENABLE_PREINITIALIZE_ADAPTOR "Enable PreInitialized Adaptor" ON)
 
 # Include additional macros
 INCLUDE( common.cmake )

@@ -897,7 +897,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       const bool recreateObjectProfiler  = (mEnvironmentOptions->GetObjectProfilerInterval() != newEnvironmentOptions.GetObjectProfilerInterval());
       const bool recreateMemoryPoolTimer = (mEnvironmentOptions->GetMemoryPoolInterval() != newEnvironmentOptions.GetMemoryPoolInterval());
 
-      DALI_LOG_DEBUG_INFO("UpdateEnvironmentOptions during initialize. Change? core : %d, graphics %d %d, thread %d, profiler %d %d %d\n", updateCoreRequired, recreateGraphicsRequired, updateGraphicsRequired, updateThreadController, recreatePerformanceInterface, recreateObjectProfiler, recreateMemoryPoolTimer);
+      DALI_LOG_DEBUG_INFO("UpdateEnvironmentOptions during initialize. %d, %d%d, %d, %d%d%d\n", updateCoreRequired, recreateGraphicsRequired, updateGraphicsRequired, updateThreadController, recreatePerformanceInterface, recreateObjectProfiler, recreateMemoryPoolTimer);
 
       // Note that we should "copy" the value of each environment here.
       mEnvironmentOptions->CopyEnvironmentOptions(newEnvironmentOptions);
@@ -1016,6 +1016,12 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       break;
     }
   }
+}
+
+void Adaptor::PreInitializeAdaptorCompleted()
+{
+  DALI_LOG_DEBUG_INFO("PreInitializeAdaptorCompleted\n");
+  mCore->PreInitializeCompleted();
 }
 
 void Adaptor::AddObserver(LifeCycleObserver& observer)

@@ -737,6 +737,16 @@ public:
    */
   Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreen()
+   */
+  void SetScreen(const std::string& screenName) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreen()
+   */
+  std::string GetScreen() const override;
+
 private:
   /**
    * Second stage initialization
@@ -777,6 +787,7 @@ private:
   typedef std::vector<std::pair<std::string, std::string> > AuxiliaryHints;
   Dali::Vector<Ecore_Event_Handler*>                        mEcoreEventHandler;
   Ecore_Wl2_Window*                                         mEcoreWindow;
+  Ecore_Wl2_Screen*                                         mScreen;
 
   wl_surface* mWlSurface;
 #ifdef OVER_TIZEN_VERSION_7
