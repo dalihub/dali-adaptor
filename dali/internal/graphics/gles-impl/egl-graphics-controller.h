@@ -951,6 +951,8 @@ public:
 
   uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;
 
+  bool IsCompatible(const Graphics::RenderTarget& renderTargetA, const Graphics::RenderTarget& renderTargetB, const Graphics::RenderPass& renderPassA, const Graphics::RenderPass& renderPassB) override;
+
 private:
   /**
    * Get the surface context
