@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_VIEW_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,11 @@ public:
    * @return
    */
   [[nodiscard]] vk::ImageAspectFlags GetImageAspectMask() const;
+
+  [[nodiscard]] const vk::ImageViewCreateInfo& GetCreateInfo() const
+  {
+    return mCreateInfo;
+  }
 
 private:
   Device&                 mDevice;

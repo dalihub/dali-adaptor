@@ -783,6 +783,11 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
+
+  std::ostringstream imageProps;
+  imageProps << "Device image properties:\n maxImageArrayLayers:" << mPhysicalDeviceProperties.limits.maxImageArrayLayers << "\n";
+
+  DALI_LOG_RELEASE_INFO(imageProps.str().c_str());
 }
 
 void Device::InitializePhysicalDeviceProperties()

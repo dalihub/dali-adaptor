@@ -136,34 +136,22 @@ public:
   bool TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer);
 
   /**
-   * @param[in] buffer The buffer to copy from
-   * @param[in] bufferOffset The start of the texture within the buffer
-   * @param[in] extent2D The size of the data
-   * @param[in] textureOffset2D
-   * @param[in] layer
-   * @param[in] level
-   * @param[in] flags
-   */
-  void CopyBuffer(
-    const Dali::Graphics::Buffer&      buffer,
-    uint32_t                           bufferOffset,
-    Dali::Graphics::Extent2D           extent2D,
-    Dali::Graphics::Offset2D           textureOffset2D,
-    uint32_t                           layer,
-    uint32_t                           level,
-    Dali::Graphics::TextureUpdateFlags flags);
+     * Tries to convert pixel data to the compatible format. The result is written into the specified memory area.
+     * The memory must be allocated and large enough to accomodate output data.
+     * @param pData  source data
+     * @param srcFormat The source format
+     * @param sizeInBytes  size of source data in bytes
+     * @param width width in pixels
+     * @param height height in pixels
+     * @param pOutputBuffer pointer to a valid output buffer
+     * @return True if conversion was successful
+     */
+  bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer);
 
-  /**
-   * Direct copy memory to memory, used when linear tiling is enabled. This function
-   * doesn't check if data is valid and doesn't perform format conversion.
-   * @param info
-   * @param sourceInfo
-   * @param keepMapped if true, the memory stays mapped after the call
-   */
-  void CopyMemoryDirect(
-    const Dali::Graphics::TextureUpdateInfo&       info,
-    const Dali::Graphics::TextureUpdateSourceInfo& sourceInfo,
-    bool                                           keepMapped);
+  Dali::Graphics::TextureTiling GetTiling() const
+  {
+    return mTiling;
+  }
 
 private:
   /**
@@ -189,7 +177,7 @@ private:
   vk::Format           mFormat{vk::Format::eUndefined};
   vk::Format           mConvertFromFormat{vk::Format::eUndefined};
   vk::ImageUsageFlags  mUsage{};
-  vk::ImageLayout      mLayout{};
+  vk::ImageLayout      mLayout{vk::ImageLayout::eUndefined};
   vk::ComponentMapping mComponentMapping{};
 
   bool                          mDisableStagingBuffer{false};

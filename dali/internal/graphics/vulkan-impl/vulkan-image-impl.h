@@ -104,6 +104,8 @@ public:
    */
   vk::ImageMemoryBarrier CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const;
 
+  vk::ImageMemoryBarrier CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subResourceRange) const;
+
   /**
    * Returns width in pixels
    * @return
@@ -159,6 +161,11 @@ public:
   [[nodiscard]] Vulkan::MemoryImpl* GetMemory() const
   {
     return mMemory.get();
+  }
+
+  [[nodiscard]] const vk::ImageCreateInfo& GetCreateInfo() const
+  {
+    return mCreateInfo;
   }
 
 private:

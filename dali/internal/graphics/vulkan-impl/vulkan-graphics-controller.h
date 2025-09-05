@@ -121,13 +121,6 @@ public:
                       const std::vector<TextureUpdateSourceInfo>& sourceList) override;
 
   /**
-   * Schedule (deferred: on worker thread / immediate: on this thread)
-   * a resource transfer.
-   * @param[in] transferRequest The requested resource transfer
-   */
-  void ScheduleResourceTransfer(ResourceTransferRequest&& transferRequest);
-
-  /**
    * Auto generates mipmaps for the texture
    * @param[in] texture The texture
    */

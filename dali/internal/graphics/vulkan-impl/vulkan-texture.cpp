@@ -965,133 +965,24 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
   return true;
 }
 
-void Texture::CopyBuffer(const Dali::Graphics::Buffer&      gfxBuffer,
-                         uint32_t                           bufferOffset,
-                         Dali::Graphics::Extent2D           extent2D,
-                         Dali::Graphics::Offset2D           textureOffset2D,
-                         uint32_t                           layer,
-                         uint32_t                           level,
-                         Dali::Graphics::TextureUpdateFlags flags)
+bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer)
 {
-  if(!mImageView)
+  auto convertFromFormat = ConvertApiToVkConst(srcFormat);
+  if(convertFromFormat != vk::Format::eUndefined)
   {
-    InitializeImageView();
-  }
+    auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) { return item.oldFormat == convertFromFormat; });
 
-  ResourceTransferRequest transferRequest(TransferRequestType::BUFFER_TO_IMAGE);
-
-  transferRequest.bufferToImageInfo.copyInfo
-    .setImageSubresource(vk::ImageSubresourceLayers{}
-                           .setBaseArrayLayer(layer)
-                           .setLayerCount(1)
-                           .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                           .setMipLevel(level))
-    .setImageOffset({textureOffset2D.x, textureOffset2D.y, 0})
-    .setImageExtent({extent2D.width, extent2D.height, 1})
-    .setBufferRowLength({0u})
-    .setBufferOffset({bufferOffset})
-    .setBufferImageHeight({extent2D.height});
-
-  auto& buffer                                = const_cast<Vulkan::Buffer&>(static_cast<const Vulkan::Buffer&>(gfxBuffer));
-  transferRequest.bufferToImageInfo.dstImage  = mImage;
-  transferRequest.bufferToImageInfo.srcBuffer = buffer.GetImpl();
-  transferRequest.deferredTransferMode        = true;
-
-  // schedule transfer
-  mController.ScheduleResourceTransfer(std::move(transferRequest));
-}
-
-void Texture::CopyMemoryDirect(
-  const Dali::Graphics::TextureUpdateInfo&       info,
-  const Dali::Graphics::TextureUpdateSourceInfo& sourceInfo,
-  bool                                           keepMapped)
-{
-  /**
-   * Early return if the texture doesn't use linear tiling and
-   * the memory isn't host writable.
-   */
-  if(mTiling != Dali::Graphics::TextureTiling::LINEAR)
-  {
-    return;
-  }
-
-  uint8_t* srcPtr = nullptr;
-  if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY)
-  {
-    srcPtr = reinterpret_cast<uint8_t*>(sourceInfo.memorySource.memory);
-  }
-  else if(sourceInfo.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA)
-  {
-    auto pixelBufferData = Dali::Integration::GetPixelDataBuffer(sourceInfo.pixelDataSource.pixelData);
-    srcPtr               = pixelBufferData.buffer + info.srcOffset;
-  }
-  else
-  {
-    // TODO: other sources NOT support yet.
-    return;
-  }
-
-  // try to initialise resource
-  InitializeImageView();
-
-  auto memory = mImage->GetMemory();
-
-  /**
-   * @todo: The texture modified frequently could stay mapped for longer
-   */
-  auto ptr = memory->MapTyped<char>();
-
-  /**
-   * Get subresource layout to find out the rowPitch size
-   */
-  auto subresourceLayout = mDevice.GetLogicalDevice().getImageSubresourceLayout(
-    mImage->GetVkHandle(),
-    vk::ImageSubresource{}
-      .setAspectMask(vk::ImageAspectFlagBits::eColor)
-      .setMipLevel(info.level)
-      .setArrayLayer(info.layer));
-
-  auto formatInfo   = Vulkan::GetFormatInfo(mImage->GetFormat());
-  int  sizeInBytes  = int(formatInfo.blockSizeInBits / 8);
-  auto dstRowLength = subresourceLayout.rowPitch;
-  auto dstPtr       = ptr + int(dstRowLength) * info.dstOffset2D.y + sizeInBytes * info.dstOffset2D.x;
-
-  auto srcRowLength = int(info.srcExtent2D.width) * sizeInBytes;
-
-  if(formatInfo.compressed)
-  {
-    std::copy(reinterpret_cast<const char*>(srcPtr), reinterpret_cast<const char*>(srcPtr) + info.srcSize, ptr);
-  }
-  else
-  {
-    /**
-     * Copy content line by line
-     */
-    for(auto i = 0u; i < info.srcExtent2D.height; ++i)
+    // No suitable format, return empty array
+    if(it != COLOR_CONVERSION_TABLE.end())
     {
-      std::copy(srcPtr, srcPtr + int(info.srcExtent2D.width) * sizeInBytes, dstPtr);
-      dstPtr += dstRowLength;
-      srcPtr += srcRowLength;
+      auto begin = reinterpret_cast<const uint8_t*>(pData);
+
+      it->pConversionWriteFunc(begin, sizeInBytes, width, height, 0u, pOutputBuffer);
+
+      return true;
     }
   }
-
-  if(!keepMapped)
-  {
-    // Unmap
-    memory->Unmap();
-
-    // ...and flush
-    memory->Flush();
-  }
-
-  ResourceTransferRequest transferRequest(TransferRequestType::LAYOUT_TRANSITION_ONLY);
-  transferRequest.imageLayoutTransitionInfo.image     = mImage;
-  transferRequest.imageLayoutTransitionInfo.srcLayout = mImage->GetImageLayout();
-  transferRequest.imageLayoutTransitionInfo.dstLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-  transferRequest.deferredTransferMode                = false;
-
-  // schedule transfer
-  mController.ScheduleResourceTransfer(std::move(transferRequest));
+  return false;
 }
 
 vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
@@ -1124,14 +1015,14 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
   mImage(),
-  mImageView(),
-  mTiling(TextureTiling::LINEAR)
+  mImageView()
 {
-  // Check env variable in order to disable staging buffers
+  // Check env variable in order to enable staging buffers
   auto var = getenv("DALI_DISABLE_TEXTURE_STAGING_BUFFERS");
   if(var && var[0] != '0')
   {
     mDisableStagingBuffer = true;
+    mTiling               = TextureTiling::LINEAR;
   }
 }
 
@@ -1224,6 +1115,7 @@ bool Texture::InitializeTexture()
     return false;
   }
 
+  auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
   // create image
   auto imageCreateInfo = vk::ImageCreateInfo{}
                            .setFormat(mFormat)
@@ -1234,15 +1126,29 @@ bool Texture::InitializeTexture()
                            .setExtent({mWidth, mHeight, 1})
                            .setArrayLayers(1)
                            .setImageType(vk::ImageType::e2D)
-                           .setTiling(mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal)
+                           .setTiling(tiling)
                            .setMipLevels(1);
+
+  bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
+  if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
+  {
+    imageCreateInfo.setArrayLayers(6);
+    imageCreateInfo.setFlags(vk::ImageCreateFlagBits::eCubeCompatible);
+    imageCreateInfo.setInitialLayout(vk::ImageLayout::eUndefined);
+    imageCreateInfo.setTiling(vk::ImageTiling::eOptimal);
+    cpuVisible = false;
+  }
+  vk::ImageFormatProperties props;
+  auto                      result = mDevice.GetPhysicalDevice().getImageFormatProperties(mFormat, vk::ImageType::e2D, tiling, mUsage, imageCreateInfo.flags, &props);
+  VkTest(result, vk::Result::eSuccess);
 
   vk::MemoryPropertyFlags memoryProperties{};
   if(mDisableStagingBuffer)
   {
     memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
   }
-  if(mTiling == Dali::Graphics::TextureTiling::LINEAR)
+
+  if(cpuVisible)
     memoryProperties |= vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
   else
     memoryProperties |= vk::MemoryPropertyFlagBits::eDeviceLocal;
@@ -1279,6 +1185,7 @@ std::unique_ptr<Vulkan::ImageView> Texture::CreateImageView()
     // Ensure we have initialized the image:
     InitializeImageView();
   }
+  //@todo: Can we just return mImageView? Why create 2nd?
   std::unique_ptr<Vulkan::ImageView> imageView(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping));
   return imageView;
 }
