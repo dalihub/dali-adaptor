@@ -146,7 +146,7 @@ Locale::Direction GetDirection(const std::string& locale)
 {
   Locale::Direction direction(Locale::LEFT_TO_RIGHT);
 
-  if(!locale.empty() && locale.size() >= 2)
+  if(!locale.empty() && locale.size() > 2)
   {
     for(const LocaleDirectionInfo* iter = &LOCALE_DIRECTION_LOOKUP_TABLE[0]; iter->locale; ++iter)
     {
