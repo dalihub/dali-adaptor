@@ -600,6 +600,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizen::Prepare
     }
 
     CreateResource();
+
+    mSetSource = false;
   }
 
   Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
