@@ -690,22 +690,25 @@ void ResourceTransfer::CopyMemoryDirect(
     srcPtr               = pixelBufferData.buffer + info.srcOffset;
   }
 
-  auto srcRowLength = int(info.srcExtent2D.width) * sizeInBytes;
-
-  if(formatInfo.compressed)
+  if(DALI_LIKELY(srcPtr))
   {
-    std::copy(reinterpret_cast<const char*>(srcPtr), reinterpret_cast<const char*>(srcPtr) + info.srcSize, ptr);
-  }
-  else
-  {
-    /**
-     * Copy content line by line
-     */
-    for(auto i = 0u; i < info.srcExtent2D.height; ++i)
+    if(formatInfo.compressed)
     {
-      std::copy(srcPtr, srcPtr + int(info.srcExtent2D.width) * sizeInBytes, dstPtr);
-      dstPtr += dstRowLength;
-      srcPtr += srcRowLength;
+      std::copy(reinterpret_cast<const char*>(srcPtr), reinterpret_cast<const char*>(srcPtr) + info.srcSize, ptr);
+    }
+    else
+    {
+      auto srcRowLength = int(info.srcExtent2D.width) * sizeInBytes;
+
+      /**
+       * Copy content line by line
+       */
+      for(auto i = 0u; i < info.srcExtent2D.height; ++i)
+      {
+        std::copy(srcPtr, srcPtr + int(info.srcExtent2D.width) * sizeInBytes, dstPtr);
+        dstPtr += dstRowLength;
+        srcPtr += srcRowLength;
+      }
     }
   }
 
