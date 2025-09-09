@@ -330,6 +330,9 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
 # Use this conditional when Tizen version is 10.x or greater
 %if 0%{?tizen_version_major} >= 10
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
+cmake_flags+=" -DENABLE_WARNING_TO_ERROR=ON"
+%else
+cmake_flags+=" -DENABLE_WARNING_TO_ERROR=OFF"
 %endif
 
 %if "%{vd_asan}" == "1" || "%{asan}" == "1"

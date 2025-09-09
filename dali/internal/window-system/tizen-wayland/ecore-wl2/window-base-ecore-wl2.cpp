@@ -922,7 +922,9 @@ const struct tizen_display_policy_listener tizenDisplayPolicyListener =
 WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mEcoreEventHandler(),
   mEcoreWindow(nullptr),
+#ifdef OVER_TIZEN_VERSION_10
   mScreen(nullptr),
+#endif
   mWlSurface(nullptr),
   mWlInputPanel(nullptr),
   mWlOutput(nullptr),
@@ -1172,11 +1174,13 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
     }
   }
 
+#ifdef OVER_TIZEN_VERSION_10
   if(!mScreen)
   {
     mScreen = ecore_wl2_window_screen_get(mEcoreWindow);
     DALI_LOG_RELEASE_INFO("ecore_wl2_window_screen_get: screen %p\n", mScreen);
   }
+#endif
 }
 
 Eina_Bool WindowBaseEcoreWl2::OnIconifyStateChanged(void* data, int type, void* event)
@@ -4042,6 +4046,7 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
 
 void WindowBaseEcoreWl2::SetScreen(const std::string& screenName)
 {
+#ifdef OVER_TIZEN_VERSION_10
   Eina_List* screenList = nullptr;
   Eina_List* l          = nullptr;
   void*      screen     = nullptr;
@@ -4068,11 +4073,15 @@ void WindowBaseEcoreWl2::SetScreen(const std::string& screenName)
       }
     }
   }
+#else
+  DALI_LOG_ERROR("Current platform not support ecore_wl2_display_screens_get()\n");
+#endif
 }
 
 std::string WindowBaseEcoreWl2::GetScreen() const
 {
   std::string screenName{};
+#ifdef OVER_TIZEN_VERSION_10
   if(!mScreen)
   {
     DALI_LOG_ERROR("Current screen is empty\n");
@@ -4089,6 +4098,9 @@ std::string WindowBaseEcoreWl2::GetScreen() const
   {
     DALI_LOG_ERROR("Current screen name  is nullptr\n");
   }
+#else
+  DALI_LOG_ERROR("Current platform not support ecore_wl2_screen_name_get()\n");
+#endif
 
   return screenName;
 }
