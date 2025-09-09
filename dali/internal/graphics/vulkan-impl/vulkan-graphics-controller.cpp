@@ -18,8 +18,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/pixel-data-integ.h>
-
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
@@ -34,6 +32,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
@@ -55,23 +54,6 @@ const uint32_t INITIAL_POOL_CAPACITY = 32u;
 
 namespace Dali::Graphics::Vulkan
 {
-static bool TestCopyRectIntersection(const ResourceTransferRequest* srcRequest, const ResourceTransferRequest* currentRequest)
-{
-  auto srcOffset = srcRequest->bufferToImageInfo.copyInfo.imageOffset;
-  auto srcExtent = srcRequest->bufferToImageInfo.copyInfo.imageExtent;
-
-  auto curOffset = currentRequest->bufferToImageInfo.copyInfo.imageOffset;
-  auto curExtent = currentRequest->bufferToImageInfo.copyInfo.imageExtent;
-
-  auto offsetX0 = std::min(srcOffset.x, curOffset.x);
-  auto offsetY0 = std::min(srcOffset.y, curOffset.y);
-  auto offsetX1 = std::max(srcOffset.x + int32_t(srcExtent.width), curOffset.x + int32_t(curExtent.width));
-  auto offsetY1 = std::max(srcOffset.y + int32_t(srcExtent.height), curOffset.y + int32_t(curExtent.height));
-
-  return ((offsetX1 - offsetX0) < (int32_t(srcExtent.width) + int32_t(curExtent.width)) &&
-          (offsetY1 - offsetY0) < (int32_t(srcExtent.height) + int32_t(curExtent.height)));
-}
-
 /**
  * @brief Custom deleter for all Graphics objects created
  * with use of the Controller.
@@ -159,7 +141,8 @@ struct VulkanGraphicsController::Impl
 {
   explicit Impl(VulkanGraphicsController& controller)
   : mGraphicsController(controller),
-    mDependencyChecker(controller)
+    mDependencyChecker(controller),
+    mResourceTransfer(controller)
   {
   }
 
@@ -176,10 +159,9 @@ struct VulkanGraphicsController::Impl
   {
     mGraphicsDevice = &device;
     mDiscardQueues.Initialize(device);
+    mResourceTransfer.Initialize();
 
     // @todo Create pipeline cache & descriptor set allocator here
-
-    mThreadPool.Initialize();
     return true;
   }
 
@@ -223,252 +205,6 @@ struct VulkanGraphicsController::Impl
       mDepthStencilBufferCurrentState = mDepthStencilBufferRequestedState;
     }
     return retval;
-  }
-
-  /**
-   * Mapping the staging buffer may take some time, so can delegate to a worker thread
-   * if necessary.
-   */
-  Dali::SharedFuture InitializeTextureStagingBuffer(uint32_t size, bool useWorkerThread)
-  {
-    // Check if we can reuse existing staging buffer for that frame
-    if(!mTextureStagingBuffer ||
-       mTextureStagingBuffer->GetImpl()->GetSize() < size)
-    {
-      auto workerFunc = [&, size](auto workerIndex)
-      {
-        Graphics::BufferCreateInfo createInfo{};
-        createInfo.SetSize(size)
-          .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
-        mTextureStagingBuffer.reset(static_cast<Vulkan::Buffer*>(mGraphicsController.CreateBuffer(createInfo, nullptr).release()));
-        MapTextureStagingBuffer();
-      };
-
-      if(useWorkerThread)
-      {
-        return mThreadPool.SubmitTask(0u, workerFunc);
-      }
-      else
-      {
-        workerFunc(0);
-      }
-    }
-    return {};
-  }
-
-  void MapTextureStagingBuffer()
-  {
-    // Write into memory in parallel
-    if(!mTextureStagingBufferMappedMemory)
-    {
-      auto          size = mTextureStagingBuffer->GetImpl()->GetSize();
-      MapBufferInfo mapInfo{mTextureStagingBuffer.get(), 0 | Graphics::MemoryUsageFlagBits::WRITE, 0, size};
-      mTextureStagingBufferMappedMemory = mGraphicsController.MapBufferRange(mapInfo);
-      mTextureStagingBufferMappedPtr    = mTextureStagingBufferMappedMemory->LockRegion(0, size);
-    }
-  }
-
-  void UnmapTextureStagingBuffer()
-  {
-    // Unmap memory
-    mTextureStagingBufferMappedPtr = nullptr;
-    mTextureStagingBufferMappedMemory.reset();
-  }
-
-  void ProcessResourceTransferRequests(bool immediateOnly = false)
-  {
-    std::lock_guard<std::recursive_mutex> lock(mResourceTransferMutex);
-    if(!mResourceTransferRequests.empty())
-    {
-      using ResourceTransferRequestList = std::vector<const ResourceTransferRequest*>;
-
-      /**
-       * Structure associating unique images and lists of transfer requests for which
-       * the key image is a destination. It contains separate lists of requests per image.
-       * Each list of requests groups non-intersecting copy operations into smaller batches.
-       */
-      struct ResourceTransferRequestPair
-      {
-        ResourceTransferRequestPair(Vulkan::Image& key)
-        : image(key),
-          requestList{{}}
-        {
-        }
-
-        Vulkan::Image&                           image;
-        std::vector<ResourceTransferRequestList> requestList;
-      };
-
-      // Map of all the requests where 'image' is a key.
-      std::vector<ResourceTransferRequestPair> requestMap;
-
-      auto highestBatchIndex = 1u;
-
-      // Collect all unique destination images and all transfer requests associated with them
-      for(const auto& req : mResourceTransferRequests)
-      {
-        Vulkan::Image* image{nullptr};
-        if(req.requestType == TransferRequestType::BUFFER_TO_IMAGE)
-        {
-          image = req.bufferToImageInfo.dstImage;
-        }
-        else if(req.requestType == TransferRequestType::IMAGE_TO_IMAGE)
-        {
-          image = req.imageToImageInfo.dstImage;
-        }
-        else if(req.requestType == TransferRequestType::USE_TBM_SURFACE)
-        {
-          image = req.useTBMSurfaceInfo.srcImage;
-        }
-        else if(req.requestType == TransferRequestType::LAYOUT_TRANSITION_ONLY)
-        {
-          image = req.imageLayoutTransitionInfo.image;
-        }
-        assert(image);
-
-        auto predicate = [&](auto& item) -> bool
-        {
-          return image->GetVkHandle() == item.image.GetVkHandle();
-        };
-        auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
-
-        if(it == requestMap.end())
-        {
-          // initialise new array
-          requestMap.emplace_back(*image);
-          it = requestMap.end() - 1;
-        }
-
-        auto& transfers = it->requestList;
-
-        // Compare with current transfer list whether there are any intersections
-        // with current image copy area. If intersection occurs, start new list
-        auto& currentList = transfers.back();
-
-        bool intersects(false);
-        for(auto& item : currentList)
-        {
-          // if area intersects create new list
-          if((intersects = TestCopyRectIntersection(item, &req)))
-          {
-            transfers.push_back({});
-            highestBatchIndex = std::max(highestBatchIndex, uint32_t(transfers.size()));
-            break;
-          }
-        }
-
-        // push request to the most recently created list
-        transfers.back().push_back(&req);
-      }
-
-      // For all unique images prepare layout transition barriers as all of them must be
-      // in eTransferDstOptimal layout
-      std::vector<vk::ImageMemoryBarrier> preLayoutBarriers;
-      std::vector<vk::ImageMemoryBarrier> postLayoutBarriers;
-      for(auto& item : requestMap)
-      {
-        auto& image = item.image;
-        // add barrier
-        preLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal));
-        postLayoutBarriers.push_back(image.CreateMemoryBarrier(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal));
-        image.SetImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
-      }
-
-      // Build command buffer for each image until reaching next sync point
-      Graphics::CommandBufferCreateInfo createInfo{};
-      createInfo.SetLevel(Graphics::CommandBufferLevel::PRIMARY);
-      auto gfxCommandBuffer = mGraphicsController.CreateCommandBuffer(createInfo, nullptr);
-      auto commandBuffer    = static_cast<Vulkan::CommandBuffer*>(gfxCommandBuffer.get());
-
-      // Fence between submissions
-      auto fence = FenceImpl::New(*mGraphicsDevice, {});
-
-      /**
-       * The loop iterates through requests for each unique image. It parallelizes
-       * transfers to images until end of data in the batch.
-       * After submitting copy commands the loop waits for the fence to be signalled
-       * and repeats recording for the next batch of transfer requests.
-       */
-      for(auto i = 0u; i < highestBatchIndex; ++i)
-      {
-        Graphics::CommandBufferBeginInfo beginInfo{0 | CommandBufferUsageFlagBits::ONE_TIME_SUBMIT};
-        commandBuffer->Begin(beginInfo);
-
-        // change image layouts only once
-        if(i == 0)
-        {
-          commandBuffer->GetImpl()->PipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe, vk::PipelineStageFlagBits::eTransfer, {}, {}, {}, preLayoutBarriers);
-        }
-
-        for(auto& item : requestMap)
-        {
-          auto& batchItem = item.requestList;
-          if(batchItem.size() <= i)
-          {
-            continue;
-          }
-
-          auto& requestList = batchItem[i];
-
-          // record all copy commands for this batch
-          for(auto& req : requestList)
-          {
-            if(req->requestType == TransferRequestType::BUFFER_TO_IMAGE)
-            {
-              commandBuffer->GetImpl()->CopyBufferToImage(req->bufferToImageInfo.srcBuffer,
-                                                          req->bufferToImageInfo.dstImage,
-                                                          vk::ImageLayout::eTransferDstOptimal,
-                                                          {req->bufferToImageInfo.copyInfo});
-            }
-            else if(req->requestType == TransferRequestType::IMAGE_TO_IMAGE)
-            {
-              commandBuffer->GetImpl()->CopyImage(req->imageToImageInfo.srcImage,
-                                                  vk::ImageLayout::eTransferSrcOptimal,
-                                                  req->imageToImageInfo.dstImage,
-                                                  vk::ImageLayout::eTransferDstOptimal,
-                                                  {req->imageToImageInfo.copyInfo});
-            }
-          }
-        }
-
-        // if this is the last batch restore original layouts
-        if(i == highestBatchIndex - 1)
-        {
-          commandBuffer->GetImpl()->PipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, postLayoutBarriers);
-        }
-        commandBuffer->End();
-
-        // submit to the queue
-        mGraphicsDevice->GetTransferQueue(0u).Submit({Vulkan::SubmissionData{{}, {}, {commandBuffer->GetImpl()}, {}}}, fence.get());
-        fence->Wait();
-        fence->Reset();
-      }
-
-      // Destroy staging resources immediately
-      for(auto& request : mResourceTransferRequests)
-      {
-        if(request.requestType == TransferRequestType::BUFFER_TO_IMAGE)
-        {
-          auto& buffer = request.bufferToImageInfo.srcBuffer;
-          // Do not destroy
-          if(buffer != mTextureStagingBuffer->GetImpl())
-          {
-            buffer->Destroy();
-          }
-        }
-        else if(request.requestType == TransferRequestType::IMAGE_TO_IMAGE)
-        {
-          auto& image = request.imageToImageInfo.srcImage;
-          if(image->GetVkHandle())
-          {
-            image->Destroy();
-          }
-        }
-      }
-
-      // Clear transfer queue
-      mResourceTransferRequests.clear();
-    }
   }
 
   void GarbageCollect(bool allQueues)
@@ -529,27 +265,18 @@ struct VulkanGraphicsController::Impl
 
   Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
 
-  // used for texture<->buffer<->memory transfers
-  std::vector<ResourceTransferRequest> mResourceTransferRequests;
-  std::recursive_mutex                 mResourceTransferMutex{};
 
   DiscardQueues<ResourceBase> mDiscardQueues;
 
-  std::unique_ptr<Vulkan::Buffer>       mTextureStagingBuffer{};
-  Dali::SharedFuture                    mTextureStagingBufferFuture{};
-  Graphics::UniquePtr<Graphics::Memory> mTextureStagingBufferMappedMemory{nullptr};
-  void*                                 mTextureStagingBufferMappedPtr{nullptr};
-
-  ThreadPool mThreadPool;
 
   std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
-
   DepthStencilFlags mDepthStencilBufferCurrentState{0u};
   DepthStencilFlags mDepthStencilBufferRequestedState{0u};
 
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
   bool                                                                 mDidPresent{false};
+  ResourceTransfer mResourceTransfer;
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
@@ -620,6 +347,9 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
+  // Ensure any outstanding image transfers are complete before submitting commands for rendering
+  mImpl->mResourceTransfer.WaitOnResourceTransferFutures();
+
   std::vector<SubmissionData> submitData;
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
@@ -707,265 +437,7 @@ void VulkanGraphicsController::UpdateTextures(
   const std::vector<Dali::Graphics::TextureUpdateInfo>&       updateInfoList,
   const std::vector<Dali::Graphics::TextureUpdateSourceInfo>& sourceList)
 {
-  using MemoryUpdateAndOffset = std::pair<const Dali::Graphics::TextureUpdateInfo*, uint32_t>;
-  std::vector<MemoryUpdateAndOffset> relevantUpdates{};
-
-  std::vector<Task> copyTasks{};
-
-  relevantUpdates.reserve(updateInfoList.size());
-  copyTasks.reserve(updateInfoList.size());
-
-  uint32_t totalStagingBufferSize{0u};
-
-  void* stagingBufferMappedPtr = nullptr;
-
-  std::vector<uint8_t*>        memoryDiscardQ;
-  std::vector<Dali::PixelData> pixelDataDiscardQ;
-
-  /**
-   * If a texture appears more than once we need to process it preserving the order
-   * of updates. It's necessary to make sure that all updates will run on
-   * the same thread.
-   */
-  struct TextureTask
-  {
-    TextureTask(const Dali::Graphics::TextureUpdateInfo* i, const Dali::Task& t)
-    : pInfo(i),
-      copyTask(t)
-    {
-    }
-    const Dali::Graphics::TextureUpdateInfo* pInfo;
-    Dali::Task                               copyTask;
-  };
-
-  std::map<Dali::Graphics::Texture*, std::vector<TextureTask>> updateMap;
-  for(auto& info : updateInfoList)
-  {
-    updateMap[info.dstTexture].emplace_back(&info, nullptr);
-  }
-
-  // make a copy of update info lists by storing additional information
-  for(auto& aTextureInfo : updateMap)
-  {
-    auto gfxTexture = aTextureInfo.first;
-    auto texture    = static_cast<Vulkan::Texture*>(gfxTexture);
-
-    for(auto& textureTask : aTextureInfo.second)
-    {
-      auto&       info   = *textureTask.pInfo;
-      const auto& source = sourceList[info.srcReference];
-      if(source.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY ||
-         source.sourceType == Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA)
-      {
-        uint8_t* sourcePtr = nullptr;
-        if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
-        {
-          sourcePtr = reinterpret_cast<uint8_t*>(source.memorySource.memory);
-          memoryDiscardQ.push_back(sourcePtr);
-        }
-        else
-        {
-          auto pixelBufferData = Dali::Integration::GetPixelDataBuffer(source.pixelDataSource.pixelData);
-
-          sourcePtr = pixelBufferData.buffer + info.srcOffset;
-          if(Dali::Integration::IsPixelDataReleaseAfterUpload(source.pixelDataSource.pixelData) &&
-             info.srcOffset == 0u)
-          {
-            pixelDataDiscardQ.push_back(source.pixelDataSource.pixelData);
-          }
-        }
-
-        auto sourceInfoPtr = &source;
-        auto pInfo         = textureTask.pInfo;
-
-        // If the destination texture supports direct write access, then we can
-        // schedule direct copy task and skip the GPU upload. The update
-        // should be fully complete.
-        auto destTexture = static_cast<Vulkan::Texture*>(info.dstTexture);
-
-        if(destTexture->GetProperties().directWriteAccessEnabled)
-        {
-          auto taskLambda = [pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
-          {
-            const auto& properties = texture->GetProperties();
-
-            if(properties.emulated)
-            {
-              std::vector<char> data;
-              auto              memoryRequirements = texture->GetMemoryRequirements();
-              data.resize(memoryRequirements.size);
-              texture->TryConvertPixelData(sourcePtr, pInfo->srcSize, pInfo->srcExtent2D.width, pInfo->srcExtent2D.height, &data[0]);
-
-              // substitute temporary source
-              Graphics::TextureUpdateSourceInfo newSource{};
-              newSource.sourceType          = Graphics::TextureUpdateSourceInfo::Type::MEMORY;
-              newSource.memorySource.memory = data.data();
-              texture->CopyMemoryDirect(*pInfo, newSource, false);
-            }
-            else
-            {
-              texture->CopyMemoryDirect(*pInfo, *sourceInfoPtr, false);
-            }
-          };
-          textureTask.copyTask = taskLambda;
-        }
-        else
-        {
-          const auto size          = destTexture->GetMemoryRequirements().size;
-          auto       currentOffset = totalStagingBufferSize;
-
-          relevantUpdates.emplace_back(&info, currentOffset);
-          totalStagingBufferSize += uint32_t(size);
-          auto ppStagingMemory = &stagingBufferMappedPtr; // this pointer will be set later!
-
-          // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
-          // at staging buffer right before executing tasks. The function will either perform direct copy
-          // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, texture](auto workerThread)
-          {
-            char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
-
-            // Try to initialise` texture resources explicitly if they are not yet initialised
-            texture->InitializeImageView();
-
-            // If texture is 'emulated' convert pixel data otherwise do direct copy
-            const auto& properties = texture->GetProperties();
-
-            if(properties.emulated)
-            {
-              texture->TryConvertPixelData(sourcePtr, pInfo->srcSize, pInfo->srcExtent2D.width, pInfo->srcExtent2D.height, &pStagingMemory[currentOffset]);
-            }
-            else
-            {
-              std::copy(sourcePtr, sourcePtr + pInfo->srcSize, &pStagingMemory[currentOffset]);
-            }
-          };
-
-          // Add task
-          textureTask.copyTask = taskLambda;
-          relevantUpdates.emplace_back(&info, currentOffset);
-        }
-      }
-      else
-      {
-        // for other source types offset within staging buffer doesn't matter
-        relevantUpdates.emplace_back(&info, 1u);
-      }
-    }
-  }
-
-  // Prepare one task per each texture to make sure sequential order of updates
-  // for the same texture.
-  // @todo: this step probably can be avoid in case of using optimal tiling!
-  for(auto& item : updateMap)
-  {
-    auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex)
-    {
-      for(auto& update : *pUpdates)
-      {
-        update.copyTask(workerIndex);
-      }
-    };
-    copyTasks.emplace_back(task);
-  }
-
-  // Allocate staging buffer for all updates using CPU memory
-  // as source. The staging buffer exists only for a time of 1 frame.
-  auto& threadPool = mImpl->mThreadPool;
-
-  // Make sure the Initialise() function is not busy with creating first staging buffer
-  if(mImpl->mTextureStagingBufferFuture)
-  {
-    mImpl->mTextureStagingBufferFuture->Wait();
-    mImpl->mTextureStagingBufferFuture.reset();
-  }
-
-  // Check whether we need staging buffer and if we can reuse existing staging buffer for that frame.
-  if(totalStagingBufferSize)
-  {
-    if(!mImpl->mTextureStagingBuffer ||
-       mImpl->mTextureStagingBuffer->GetImpl()->GetSize() < totalStagingBufferSize)
-    {
-      // Initialise new staging buffer. Since caller function is parallelized, initialisation
-      // stays on the caller thread.
-      mImpl->InitializeTextureStagingBuffer(totalStagingBufferSize, false);
-    }
-    mImpl->MapTextureStagingBuffer();
-  }
-
-  // Submit tasks
-  auto futures = threadPool.SubmitTasks(copyTasks, 100u);
-  futures->Wait();
-
-  mImpl->UnmapTextureStagingBuffer();
-
-  for(auto& pair : relevantUpdates)
-  {
-    auto&       info        = *pair.first;
-    const auto& source      = sourceList[info.srcReference];
-    auto        destTexture = static_cast<Vulkan::Texture*>(info.dstTexture);
-
-    switch(source.sourceType)
-    {
-      // directly copy buffer
-      case Dali::Graphics::TextureUpdateSourceInfo::Type::BUFFER:
-      {
-        destTexture->CopyBuffer(*source.bufferSource.buffer,
-                                info.srcOffset,
-                                info.srcExtent2D,
-                                info.dstOffset2D,
-                                info.layer, // layer
-                                info.level, // mipmap
-                                {});        // update mode, deprecated
-        break;
-      }
-      // for memory, use staging buffer
-      case Dali::Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA:
-      {
-        break;
-      }
-      case Dali::Graphics::TextureUpdateSourceInfo::Type::MEMORY:
-      {
-        auto memoryBufferOffset = pair.second;
-        destTexture->CopyBuffer(*mImpl->mTextureStagingBuffer,
-                                memoryBufferOffset,
-                                info.srcExtent2D,
-                                info.dstOffset2D,
-                                info.layer, // layer
-                                info.level, // mipmap
-                                {});        // update mode, deprecated
-        break;
-      }
-
-      case Dali::Graphics::TextureUpdateSourceInfo::Type::TEXTURE:
-        // Unsupported
-        break;
-    }
-  }
-
-  // Free source data
-  for(uint8_t* ptr : memoryDiscardQ)
-  {
-    free(reinterpret_cast<void*>(ptr));
-  }
-  for(PixelData pixelData : pixelDataDiscardQ)
-  {
-    Dali::Integration::ReleasePixelDataBuffer(pixelData);
-  }
-}
-
-void VulkanGraphicsController::ScheduleResourceTransfer(Vulkan::ResourceTransferRequest&& transferRequest)
-{
-  std::lock_guard<std::recursive_mutex> lock(mImpl->mResourceTransferMutex);
-  mImpl->mResourceTransferRequests.emplace_back(std::move(transferRequest));
-
-  // if we requested immediate upload then request will be processed instantly with skipping
-  // all the deferred update requests
-  if(!mImpl->mResourceTransferRequests.back().deferredTransferMode)
-  {
-    mImpl->ProcessResourceTransferRequests(true);
-  }
+  mImpl->mResourceTransfer.UpdateTextures(updateInfoList, sourceList);
 }
 
 void VulkanGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& texture)
