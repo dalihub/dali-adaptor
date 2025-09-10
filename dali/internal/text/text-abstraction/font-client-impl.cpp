@@ -94,8 +94,9 @@ static FontThread              gPreLoadThread{};
 static std::mutex              gMutex;
 static std::condition_variable gPreCacheCond;
 static std::condition_variable gPreLoadCond;
-static bool                    gPreCacheThreadReady = false;
-static bool                    gPreLoadThreadReady  = false;
+static bool                    gPreCacheThreadReady        = false;
+static bool                    gPreLoadThreadReady         = false;
+static bool                    gDesignCompatibilityEnabled = false;
 
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
@@ -366,6 +367,17 @@ void FontClient::SetLocale(const std::string& locale)
   std::getline(stringStreamFull, gLocaleFull, '.');
   std::istringstream stringStream(locale);
   std::getline(stringStream, gLocale, '_');
+}
+
+bool FontClient::DesignCompatibilityEnabled()
+{
+  return gDesignCompatibilityEnabled;
+}
+
+void FontClient::EnableDesignCompatibility()
+{
+  DALI_LOG_RELEASE_INFO("EnableDesignCompatibility\n");
+  gDesignCompatibilityEnabled = true;
 }
 
 void FontClient::ClearCache()

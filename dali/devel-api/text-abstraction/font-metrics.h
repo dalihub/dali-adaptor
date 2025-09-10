@@ -44,6 +44,25 @@ struct DALI_ADAPTOR_API FontMetrics
               float underlinePositionPixels,
               float underlineThicknessPixels);
 
+  /**
+   * @brief Adjust ascender/descender to enforce design line-height compatibility.
+   *
+   * Design tools are assumed to reference the font metric "height".
+   * The goal is to make (ascender - descender) equal to or less than height.
+   *
+   * Behavior:
+   * - Let lineHeight = (ascender - descender).
+   * - If lineHeight < height: keep as-is (no even enforcement).
+   * - If lineHeight == height:
+   *     - If lineHeight is odd, shrink by 1px via descender (+1).
+   *     - If even, no change.
+   * - If lineHeight > height:
+   *     - Clamp to the largest even value <= height.
+   *     - Apply 2px shrink as a pair (ascender -1, descender +1) per step,
+   *       and any remaining 1px via descender (+1).
+   */
+  void ApplyDesignLineHeightCompat();
+
   float ascender;           ///< The ascender in pixels.
   float descender;          ///< The descender in pixels.
   float height;             ///< The height in pixels.
