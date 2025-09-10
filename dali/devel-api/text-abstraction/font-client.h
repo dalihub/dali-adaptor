@@ -682,6 +682,23 @@ DALI_ADAPTOR_API const std::string& GetLocaleFull();
  */
 DALI_ADAPTOR_API void SetLocale(const std::string& locale);
 
+/**
+ * @brief Enable font specific design compatibility mode globally.
+ *
+ * When enabled, FontMetrics will adjust ascender/descender values at construction
+ * to ensure design compatibility rules.
+ *
+ * @note
+ * This is a one-way switch. Once enabled, it cannot be disabled again during the lifetime of the process.
+ * This function must be called before any text is rendered.
+ */
+DALI_ADAPTOR_API void EnableDesignCompatibility();
+
+/**
+ * @brief Whether DesignCompatibility is enabled or not.
+ */
+DALI_ADAPTOR_API bool DesignCompatibilityEnabled();
+
 } // namespace TextAbstraction
 
 } // namespace Dali
