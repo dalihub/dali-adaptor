@@ -130,7 +130,10 @@ void RenderTarget::CreateSubmissionData(
       renderTarget->mSemaphoreWaited = true;
     }
   }
-  submitSemaphores.emplace_back(mSubmitSemaphore);
+  if(mSubmitSemaphore)
+  {
+    submitSemaphores.emplace_back(mSubmitSemaphore);
+  }
 #endif
   std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
 

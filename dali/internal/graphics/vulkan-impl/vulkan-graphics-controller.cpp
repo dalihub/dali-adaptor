@@ -477,7 +477,7 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
 UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
   auto renderTarget = NewGraphicsObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
-  //mImpl->mDependencyChecker.AddRenderTarget(CastObject<Vulkan::RenderTarget>(renderTarget.get()));
+  mImpl->mDependencyChecker.AddRenderTarget(CastObject<Vulkan::RenderTarget>(renderTarget.get()));
   return renderTarget;
 }
 
