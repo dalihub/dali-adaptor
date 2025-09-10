@@ -374,6 +374,8 @@ public:
 
   uint32_t GetDeviceLimitation(Graphics::DeviceCapability capability) override;
 
+  bool IsCompatible(const Graphics::RenderTarget& gfxRenderTargetA, const Graphics::RenderTarget& gfxRenderTargetB, const Graphics::RenderPass& gfxRenderPassA, const Graphics::RenderPass& gfxRenderPassB) override;
+
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
   uint32_t    GetShaderLanguageVersion() override;

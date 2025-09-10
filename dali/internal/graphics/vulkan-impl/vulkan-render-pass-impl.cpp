@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,35 @@ vk::RenderPass RenderPassImpl::GetVkHandle()
 size_t RenderPassImpl::GetAttachmentCount()
 {
   return mHasDepthAttachment + mCreateInfo.colorAttachmentReferences.size();
+}
+
+bool RenderPassImpl::IsCompatible(RenderPassHandle rhs)
+{
+  if((mCreateInfo.colorAttachmentReferences.size() == rhs->mCreateInfo.colorAttachmentReferences.size()) &&
+     (mHasDepthAttachment == rhs->mHasDepthAttachment))
+  {
+    bool equal = true;
+    for(size_t i = 0; i < mCreateInfo.attachmentHandles.size(); ++i)
+    {
+      if(mCreateInfo.attachmentHandles[i]->GetType() != rhs->mCreateInfo.attachmentHandles[i]->GetType())
+      {
+        equal = false;
+        break;
+      }
+      if(mCreateInfo.attachmentHandles[i]->GetDescription().format != rhs->mCreateInfo.attachmentHandles[i]->GetDescription().format)
+      {
+        equal = false;
+        break;
+      }
+      if(mCreateInfo.attachmentHandles[i]->GetDescription().flags != rhs->mCreateInfo.attachmentHandles[i]->GetDescription().flags)
+      {
+        equal = false;
+        break;
+      }
+    }
+    return equal;
+  }
+  return false;
 }
 
 void RenderPassImpl::CreateCompatibleCreateInfo(

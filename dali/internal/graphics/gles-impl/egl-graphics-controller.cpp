@@ -1310,4 +1310,9 @@ uint32_t EglGraphicsController::GetDeviceLimitation(Dali::Graphics::DeviceCapabi
   return 0u;
 }
 
+bool EglGraphicsController::IsCompatible(const Graphics::RenderTarget& renderTargetA, const Graphics::RenderTarget& renderTargetB, const Graphics::RenderPass& renderPassA, const Graphics::RenderPass& renderPassB)
+{
+  return true;
+}
+
 } // namespace Dali::Graphics
