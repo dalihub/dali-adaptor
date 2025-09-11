@@ -74,6 +74,17 @@ public:
   };
 
   /**
+   * @brief Enumeration for buffer access types when dequeuing buffers from the queue.
+   * @note These values can be combined using bitwise OR to specify multiple access types.
+   *       For example: BufferAccessType::READ | BufferAccessType::WRITE
+   */
+  enum BufferAccessType
+  {
+    READ  = 0x01, ///< Read access to the buffer (can read buffer contents)
+    WRITE = 0x10  ///< Write access to the buffer (can modify buffer contents)
+  };
+
+  /**
    * @brief Creates a new NativeImageSourceQueue.
    *        Depending on hardware, the width and height may have to be a power of two.
    *        It will use 3, or defined by DALI_TBM_SURFACE_QUEUE_SIZE as default.
@@ -139,13 +150,26 @@ public:
    * @brief Dequeue buffer from the queue.
    *
    * Acquire buffer and information of the queue.
-   * it returns the information of the buffer.
-   * @param[out] width The width of buffer
-   * @param[out] height The height of buffer
-   * @param[out] stride The stride of buffer
-   * @return A pointer of buffer
+   * It returns the information of the buffer.
+   * @param[out] width The width of the buffer
+   * @param[out] height The height of the buffer
+   * @param[out] stride The stride of the buffer
+   * @return A pointer to the buffer
    */
   uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride);
+
+  /**
+   * @brief Dequeue buffer from the queue with specified access type.
+   *
+   * Acquire buffer and information of the queue with the specified buffer access type.
+   * It returns the information of the buffer.
+   * @param[out] width The width of the buffer
+   * @param[out] height The height of the buffer
+   * @param[out] stride The stride of the buffer
+   * @param[in] type The buffer access type (READ, WRITE, or READ|WRITE)
+   * @return A pointer to the buffer
+   */
+  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, BufferAccessType type);
 
   /**
    * @brief Enqueue buffer to the queue.
@@ -156,6 +180,15 @@ public:
    * @return True if success
    */
   bool EnqueueBuffer(uint8_t* buffer);
+
+  /**
+   * @brief Cancel dequeued buffer.
+   *
+   * Cancel a buffer that was previously dequeued but not enqueued.
+   * This releases the buffer back to the queue without processing it.
+   * @param[in] buffer A pointer to the buffer to cancel
+   */
+  void CancelDequeuedBuffer(uint8_t* buffer);
 
   /**
    * @brief Free all released buffers.
@@ -286,6 +319,17 @@ private:
   std::unique_ptr<Internal::Adaptor::NativeImageSourceQueue> mImpl; ///< Implementation pointer
   /// @endcond
 };
+
+/**
+ * @brief Bitwise OR operator for BufferAccessType.
+ * @param[in] lhs Left-hand side operand
+ * @param[in] rhs Right-hand side operand
+ * @return Combined buffer access type
+ */
+constexpr NativeImageSourceQueue::BufferAccessType operator|(NativeImageSourceQueue::BufferAccessType lhs, NativeImageSourceQueue::BufferAccessType rhs)
+{
+  return static_cast<NativeImageSourceQueue::BufferAccessType>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+}
 
 /**
  * @}

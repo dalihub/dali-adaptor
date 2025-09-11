@@ -79,12 +79,17 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::DequeueBuffer
    */
-  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) override;
+  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type) override;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
    */
   bool EnqueueBuffer(uint8_t* buffer) override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::CancelDequeuedBuffer
+   */
+  void CancelDequeuedBuffer(uint8_t* buffer) override;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
