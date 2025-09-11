@@ -96,6 +96,11 @@ Dali::Window GetPreInitializeWindow()
   return Internal::Adaptor::Application::GetPreInitializeWindow();
 }
 
+void SetApplicationLocale(Application application, const std::string &locale)
+{
+  Internal::Adaptor::GetImplementation(application).SetApplicationLocale(locale);
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

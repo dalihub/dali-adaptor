@@ -809,6 +809,11 @@ void Application::FlushUpdateMessages()
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
 }
 
+void Application::SetApplicationLocale(const std::string &locale)
+{
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).SetApplicationLocale(locale);
+}
+
 void Application::SetStyleSheet(const std::string& stylesheet)
 {
   mStylesheet = stylesheet;

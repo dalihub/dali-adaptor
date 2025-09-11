@@ -320,6 +320,12 @@ public:
    */
   void FlushUpdateMessages();
 
+  /**
+   * @brief Set the application's language independently of the system language.
+   * @param[in] locale Specifies the application's language and region in BCP 47 format (e.g., "en_US", "ko_KR").
+   */
+  void SetApplicationLocale(const std::string &locale);
+
 public: // Signals
   /**
    * @copydoc Dali::Application::InitSignal()
