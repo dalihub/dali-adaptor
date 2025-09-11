@@ -26,6 +26,8 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 
+#include <dali/devel-api/common/set-wrapper.h>
+
 namespace Dali::Graphics::Vulkan
 {
 class Framebuffer;
@@ -110,9 +112,12 @@ public:
 
   void CreateSubmissionData(const CommandBuffer* cmdBuffer, std::vector<SubmissionData>& submissionData);
 
+  using DependencyContainer = std::set<RenderTarget*>; ///< DevNote : Use std::set instead of std::unordered_set because we need to clear it every frame.
+
   void ResetDependencies()
   {
     mDependencies.clear();
+
     mSubmitted = false;
 #if defined(ENABLE_FBO_SEMAPHORE)
     mSemaphoreWaited = false;
@@ -121,25 +126,17 @@ public:
 
   void AddDependency(RenderTarget* dependency)
   {
-    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
-    if(iter == mDependencies.end())
-    {
-      mDependencies.push_back(dependency);
-    }
+    mDependencies.insert(dependency);
   }
   void RemoveDependency(RenderTarget* dependency)
   {
-    auto iter = std::find(mDependencies.begin(), mDependencies.end(), dependency);
-    if(iter != mDependencies.end())
-    {
-      mDependencies.erase(iter);
-    }
+    mDependencies.erase(dependency);
   }
 
-  const std::vector<RenderTarget*>& GetDependencies() const;
+  const DependencyContainer& GetDependencies() const;
 
 private:
-  std::vector<RenderTarget*> mDependencies; ///< Render targets whose output is used as input to this task.
+  DependencyContainer mDependencies; ///< Render targets whose output is used as input to this task.
 #if defined(ENABLE_FBO_SEMAPHORE)
   vk::Semaphore mSubmitSemaphore; ///< Signaled when the command buffer for this target is processed
   bool          mSemaphoreWaited{false};
