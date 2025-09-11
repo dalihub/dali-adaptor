@@ -572,7 +572,7 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
       controledBy = rootComponent;
     }
 
-    if(controledBy->IsProxy() || IsObjectAcceptable(controledBy))
+    if(controledBy->IsProxy() || (IsObjectAcceptable(controledBy) && controledBy->IsAccessibleContainingPoint(point, type)))
     {
       LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
       return controledBy;
