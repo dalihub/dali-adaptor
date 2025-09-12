@@ -1108,6 +1108,8 @@ void Adaptor::RequestUpdate()
 
 void Adaptor::RequestProcessEventsOnIdle()
 {
+  DALI_ASSERT_ALWAYS(gThreadLocalAdaptor && "RequestProcessEventsOnIdle Must be called at main thread!");
+
   // We want to run the processes even when paused
   if(STOPPED != mState)
   {
@@ -1417,7 +1419,7 @@ Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
   return registry;
 }
 
-void Adaptor::SetApplicationLocale(const std::string &locale)
+void Adaptor::SetApplicationLocale(const std::string& locale)
 {
   DALI_LOG_RELEASE_INFO("SetApplicationLocale:%s\n", locale.c_str());
   if(locale.empty())
@@ -1429,7 +1431,7 @@ void Adaptor::SetApplicationLocale(const std::string &locale)
   UpdateLocale(locale);
 }
 
-void Adaptor::UpdateLocale(const std::string &locale)
+void Adaptor::UpdateLocale(const std::string& locale)
 {
   TextAbstraction::SetLocale(locale);
   TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
