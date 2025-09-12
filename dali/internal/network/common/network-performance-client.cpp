@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,20 +244,23 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
 
     case PerformanceProtocol::DUMP_SCENE_GRAPH:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignDumpSceneCommand(); });
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
+      { callback->AssignDumpSceneCommand(); });
       break;
     }
 
     case PerformanceProtocol::SET_PROPERTIES:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignSetPropertyCommand(stringParam); });
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
+      { callback->AssignSetPropertyCommand(stringParam); });
       response = "Completed";
       break;
     }
 
     case PerformanceProtocol::CUSTOM_COMMAND:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignCustomCommand(std::move(stringParam)); });
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
+      { callback->AssignCustomCommand(std::move(stringParam)); });
       response = "Completed";
       break;
     }

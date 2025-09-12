@@ -119,7 +119,8 @@ bool SortHorizontally(Component* lhs, Component* rhs)
 std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& children)
 {
   // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool {
+  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool
+  {
     auto extents = child->GetExtents(CoordinateType::WINDOW);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
@@ -648,13 +649,15 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
   auto self                     = FindSelf();
-  auto findObjectByRelationType = [this, &self](RelationType relationType) {
+  auto findObjectByRelationType = [this, &self](RelationType relationType)
+  {
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
-                                 relations.end(),
-                                 [relationType](const Dali::Accessibility::Relation& relation) -> bool {
-                                   return relation.mRelationType == relationType;
-                                 });
+                                  relations.end(),
+                                  [relationType](const Dali::Accessibility::Relation& relation) -> bool
+     {
+      return relation.mRelationType == relationType;
+    });
     return relations.end() != relation && !relation->mTargets.empty() ? relation->mTargets.back() : nullptr;
   };
 

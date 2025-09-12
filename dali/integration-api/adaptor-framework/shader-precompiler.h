@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SHADER_PRECOMPILER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public:
    * @brief Check the feature of precompile is enabled or not
    *
    * @return true if the feature of precompile is enabled
-  */
+   */
   bool IsEnable() const;
 
   /**

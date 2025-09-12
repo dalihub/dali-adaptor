@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -645,7 +645,8 @@ struct WindowSystemX::Impl
   void DeleteEventHandler(WindowSystemBase::EventHandler* eventHandler)
   {
     int  id   = eventHandler->handlerId;
-    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemBase::EventHandler& eventHandler) { return eventHandler.handlerId == id; });
+    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemBase::EventHandler& eventHandler)
+    { return eventHandler.handlerId == id; });
     if(iter != mHandlers.end())
     {
       mHandlers.erase(iter);

@@ -104,7 +104,8 @@ bool BridgeBase::TickCoalescableMessages()
 void BridgeBase::UpdateRegisteredEvents()
 {
   using ReturnType = std::vector<std::tuple<std::string, std::string>>;
-  mRegistry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
+  mRegistry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg)
+  {
     if(!msg)
     {
       LOG() << "Get registered events failed";
@@ -159,11 +160,13 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 
   UpdateRegisteredEvents();
 
-  mRegistry.addSignal<void(void)>("EventListenerRegistered", [this](void) {
+  mRegistry.addSignal<void(void)>("EventListenerRegistered", [this](void)
+  {
     UpdateRegisteredEvents();
   });
 
-  mRegistry.addSignal<void(void)>("EventListenerDeregistered", [this](void) {
+  mRegistry.addSignal<void(void)>("EventListenerDeregistered", [this](void)
+  {
     UpdateRegisteredEvents();
   });
 
@@ -234,7 +237,8 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
 void BridgeBase::CompressDefaultLabels()
 {
   // Remove entries for objects which no longer exist
-  mDefaultLabels.remove_if([](const DefaultLabelType& label) {
+  mDefaultLabels.remove_if([](const DefaultLabelType& label)
+  {
     // Check 1) window's weak handle; 2) actor's weak handle
     return !label.first.GetBaseHandle() || !label.second.GetBaseHandle();
   });
@@ -251,7 +255,8 @@ void BridgeBase::RegisterDefaultLabel(Dali::Actor actor)
     return;
   }
 
-  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [&actor](const DefaultLabelType& label) {
+  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [&actor](const DefaultLabelType& label)
+  {
     auto actorHandle = label.second.GetBaseHandle();
     return actorHandle && actorHandle == actor;
   });
@@ -277,7 +282,8 @@ void BridgeBase::UnregisterDefaultLabel(Dali::Actor actor)
 {
   CompressDefaultLabels();
 
-  mDefaultLabels.remove_if([&actor](const DefaultLabelType& label) {
+  mDefaultLabels.remove_if([&actor](const DefaultLabelType& label)
+  {
     auto actorHandle = label.second.GetBaseHandle();
     return actorHandle && actorHandle == actor;
   });
@@ -299,7 +305,8 @@ Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
     return root;
   }
 
-  auto it = std::find_if(mDefaultLabels.rbegin(), mDefaultLabels.rend(), [&window](const DefaultLabelType& label) {
+  auto it = std::find_if(mDefaultLabels.rbegin(), mDefaultLabels.rend(), [&window](const DefaultLabelType& label)
+  {
     return window == label.first;
   });
 
@@ -383,13 +390,14 @@ auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType>>
   std::vector<CacheElementType> res;
 
   std::function<void(Accessible*)> proc =
-    [&](Accessible* item) {
-      res.emplace_back(std::move(CreateCacheElement(root)));
-      for(auto i = 0u; i < item->GetChildCount(); ++i)
-      {
-        proc(item->GetChildAtIndex(i));
-      }
-    };
+    [&](Accessible* item)
+  {
+    res.emplace_back(std::move(CreateCacheElement(root)));
+    for(auto i = 0u; i < item->GetChildCount(); ++i)
+    {
+      proc(item->GetChildAtIndex(i));
+    }
+  };
 
   return res;
 }

@@ -254,8 +254,8 @@ bool HandleExtensionRecordType(GifFileType* gifInfo)
   image.ExtensionBlockCount      = 1;
   int* extensionBlockTypePointer = &image.ExtensionBlocks->Function;
 #else
-  image.ExtensionBlocks = NULL;
-  image.ExtensionBlockCount = 0;
+  image.ExtensionBlocks          = NULL;
+  image.ExtensionBlockCount      = 0;
   int* extensionBlockTypePointer = &image.Function;
 #endif
 

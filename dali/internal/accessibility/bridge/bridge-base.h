@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -416,16 +416,17 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addMethod<DBus::ValueOrError<RET...>(ARGS...)>(
         funcName,
-        [=](ARGS... args) -> DBus::ValueOrError<RET...> {
-          try
-          {
-            return (self->*funcPtr)(std::move(args)...);
-          }
-          catch(std::domain_error& e)
-          {
-            return DBus::Error{e.what()};
-          }
-        });
+        [=](ARGS... args) -> DBus::ValueOrError<RET...>
+      {
+        try
+        {
+          return (self->*funcPtr)(std::move(args)...);
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      });
   }
 
   /**
@@ -438,16 +439,17 @@ public:
   {
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(funcName,
-                          [=]() -> DBus::ValueOrError<T> {
-                            try
-                            {
-                              return (self->*funcPtr)();
-                            }
-                            catch(std::domain_error& e)
-                            {
-                              return DBus::Error{e.what()};
-                            }
-                          },
+                          [=]() -> DBus::ValueOrError<T>
+      {
+        try
+        {
+          return (self->*funcPtr)();
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      },
                           {});
   }
 
@@ -460,7 +462,8 @@ public:
                                  void (SELF::*funcPtr)(T))
   {
     if(auto self = dynamic_cast<SELF*>(this))
-      desc.addProperty<T>(funcName, {}, [=](T t) -> DBus::ValueOrError<void> {
+      desc.addProperty<T>(funcName, {}, [=](T t) -> DBus::ValueOrError<void>
+      {
         try
         {
           (self->*funcPtr)(std::move(t));
@@ -485,27 +488,29 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(
         funcName,
-        [=]() -> DBus::ValueOrError<T> {
-          try
-          {
-            return (self->*funcPtrGet)();
-          }
-          catch(std::domain_error& e)
-          {
-            return DBus::Error{e.what()};
-          }
-        },
-        [=](T t) -> DBus::ValueOrError<void> {
-          try
-          {
-            (self->*funcPtrSet)(std::move(t));
-            return {};
-          }
-          catch(std::domain_error& e)
-          {
-            return DBus::Error{e.what()};
-          }
-        });
+        [=]() -> DBus::ValueOrError<T>
+      {
+        try
+        {
+          return (self->*funcPtrGet)();
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      },
+        [=](T t) -> DBus::ValueOrError<void>
+      {
+        try
+        {
+          (self->*funcPtrSet)(std::move(t));
+          return {};
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      });
   }
 
   /**
@@ -520,27 +525,29 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(
         funcName,
-        [=]() -> DBus::ValueOrError<T> {
-          try
-          {
-            return (self->*funcPtrGet)();
-          }
-          catch(std::domain_error& e)
-          {
-            return DBus::Error{e.what()};
-          }
-        },
-        [=](T t) -> DBus::ValueOrError<void> {
-          try
-          {
-            (self->*funcPtrSet)(std::move(t));
-            return {};
-          }
-          catch(std::domain_error& e)
-          {
-            return DBus::Error{e.what()};
-          }
-        });
+        [=]() -> DBus::ValueOrError<T>
+      {
+        try
+        {
+          return (self->*funcPtrGet)();
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      },
+        [=](T t) -> DBus::ValueOrError<void>
+      {
+        try
+        {
+          (self->*funcPtrSet)(std::move(t));
+          return {};
+        }
+        catch(std::domain_error& e)
+        {
+          return DBus::Error{e.what()};
+        }
+      });
   }
 
   /**

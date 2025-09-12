@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ANDROIDJNI_FRAMEWORK_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public:
 
 private:
   // Undefined
-  FrameworkAndroidJni(const FrameworkAndroidJni&) = delete;
+  FrameworkAndroidJni(const FrameworkAndroidJni&)      = delete;
   FrameworkAndroidJni& operator=(FrameworkAndroidJni&) = delete;
 
 private:

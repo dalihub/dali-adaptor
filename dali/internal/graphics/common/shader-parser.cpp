@@ -490,7 +490,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
     if(!program.uniformBlocks.empty())
     {
       auto it = std::find_if(program.uniformBlocks.begin(), program.uniformBlocks.end(), [&uniformBlockName](const std::pair<std::string, uint32_t>& item)
-                             { return (item.first == uniformBlockName); });
+      { return (item.first == uniformBlockName); });
       if(it != program.uniformBlocks.end())
       {
         localBinding = (*it).second;

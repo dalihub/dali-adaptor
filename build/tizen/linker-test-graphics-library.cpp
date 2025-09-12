@@ -33,13 +33,12 @@ public:
   }
 };
 
-extern "C"
-{
-  extern std::unique_ptr<Dali::Internal::Adaptor::GraphicsFactoryInterface> CreateGraphicsFactory(Dali::Internal::Adaptor::EnvironmentOptions& environmentOptions);
-  extern std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory>     GetRenderSurfaceFactory();
-  extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSourceFactory> GetNativeImageSourceFactory();
-  extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>       CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
-  extern std::unique_ptr<Dali::Graphics::SurfaceFactory>                    CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow);
+extern "C" {
+extern std::unique_ptr<Dali::Internal::Adaptor::GraphicsFactoryInterface> CreateGraphicsFactory(Dali::Internal::Adaptor::EnvironmentOptions& environmentOptions);
+extern std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory>     GetRenderSurfaceFactory();
+extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSourceFactory> GetNativeImageSourceFactory();
+extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>       CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
+extern std::unique_ptr<Dali::Graphics::SurfaceFactory>                    CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow);
 } // extern "C"
 
 int main(int argc, char** argv)

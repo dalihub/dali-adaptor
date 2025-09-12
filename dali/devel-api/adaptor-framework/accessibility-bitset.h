@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACCESSIBILITY_BITSET_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,8 @@ public:
   // Useful for deserializing DBus data that comes in as signed integers
   explicit BitSet(const std::array<std::int32_t, N>& array)
   {
-    std::transform(array.begin(), array.end(), mData.begin(), [](std::int32_t x) { return static_cast<ElementType>(x); });
+    std::transform(array.begin(), array.end(), mData.begin(), [](std::int32_t x)
+    { return static_cast<ElementType>(x); });
   }
 
   /**
@@ -224,7 +225,8 @@ public:
    */
   explicit operator bool() const
   {
-    return std::any_of(mData.begin(), mData.end(), [](ElementType s) { return s != 0u; });
+    return std::any_of(mData.begin(), mData.end(), [](ElementType s)
+    { return s != 0u; });
   }
 
   /**

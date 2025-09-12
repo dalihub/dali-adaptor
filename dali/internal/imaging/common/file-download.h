@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,10 +51,10 @@ public:
 
   // Moveable but not copyable
 
-  CurlEnvironment(const CurlEnvironment&) = delete;
+  CurlEnvironment(const CurlEnvironment&)            = delete;
   CurlEnvironment& operator=(const CurlEnvironment&) = delete;
   CurlEnvironment(CurlEnvironment&&)                 = default;
-  CurlEnvironment& operator=(CurlEnvironment&&) = default;
+  CurlEnvironment& operator=(CurlEnvironment&&)      = default;
 };
 
 /**

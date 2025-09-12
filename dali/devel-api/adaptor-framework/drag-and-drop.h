@@ -2,7 +2,7 @@
 #define DALI_DRAG_AND_DROP_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
 #include <functional>
@@ -36,7 +36,7 @@ namespace Adaptor
 {
 class DragAndDrop;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief Interface to the device's drag and drop.
@@ -52,10 +52,10 @@ public:
    */
   enum class SourceEventType
   {
-    START,   ///< Drag and drop is started.
-    CANCEL,  ///< Drag and drop is cancelled.
-    ACCEPT,  ///< Drag and drop is accepted.
-    FINISH   ///< Drag and drop is finished.
+    START,  ///< Drag and drop is started.
+    CANCEL, ///< Drag and drop is cancelled.
+    ACCEPT, ///< Drag and drop is accepted.
+    FINISH  ///< Drag and drop is finished.
   };
 
   /**
@@ -77,7 +77,7 @@ public:
     DragEvent()
     {
       this->mimeTypes = nullptr;
-      this->data = nullptr;
+      this->data      = nullptr;
     }
     DragEvent(DragType type, Dali::Vector2 position, const char** mimeTypes = nullptr, int mimeTypesSize = 0, char* data = nullptr)
     {
@@ -106,7 +106,7 @@ public:
     }
     void SetMimeTypes(const char** mimeTypes, int mimeTypeSize)
     {
-      this->mimeTypes = mimeTypes;
+      this->mimeTypes     = mimeTypes;
       this->mimeTypesSize = mimeTypeSize;
     }
     const char** GetMimeTypes()
@@ -139,47 +139,47 @@ public:
    */
   struct DragData
   {
-     void SetMimeTypes(const char** mimeTypes, int mimeTypesSize)
-     {
-      this->mimeTypes = mimeTypes;
+    void SetMimeTypes(const char** mimeTypes, int mimeTypesSize)
+    {
+      this->mimeTypes     = mimeTypes;
       this->mimeTypesSize = mimeTypesSize;
-     }
+    }
 
-     const char** GetMimeTypes() const
-     {
-       return mimeTypes;
-     }
+    const char** GetMimeTypes() const
+    {
+      return mimeTypes;
+    }
 
-     int GetMimeTypesSize() const
-     {
+    int GetMimeTypesSize() const
+    {
       return mimeTypesSize;
-     }
+    }
 
-     void SetDataSet(const char** dataSet, int dataSetSize)
-     {
-      this->dataSet = dataSet;
+    void SetDataSet(const char** dataSet, int dataSetSize)
+    {
+      this->dataSet     = dataSet;
       this->dataSetSize = dataSetSize;
-     }
+    }
 
-     const char** GetDataSet() const
-     {
-       return dataSet;
-     }
+    const char** GetDataSet() const
+    {
+      return dataSet;
+    }
 
-     int GetDataSetSize() const
-     {
+    int GetDataSetSize() const
+    {
       return dataSetSize;
-     }
+    }
 
   private:
-     const char**             mimeTypes{nullptr};///< The mime types of drag object.
-     int                      mimeTypesSize{0};  ///< The size of mime types.
-     const char**             dataSet{nullptr};  ///<The drag data set.
-     int                      dataSetSize{0};    ///<The size of data set.
+    const char** mimeTypes{nullptr}; ///< The mime types of drag object.
+    int          mimeTypesSize{0};   ///< The size of mime types.
+    const char** dataSet{nullptr};   ///<The drag data set.
+    int          dataSetSize{0};     ///<The size of data set.
   };
 
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
-  using SourceFunction = std::function<void(enum SourceEventType)>;
+  using SourceFunction      = std::function<void(enum SourceEventType)>;
 
   /**
    * @brief Create an uninitialized DragAndDrop.

@@ -20,8 +20,8 @@
 #include <dali/internal/window-system/common/window-system.h>
 
 // EXTERNAL_HEADERS
-#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/devel-api/adaptor-framework/screen-information.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>

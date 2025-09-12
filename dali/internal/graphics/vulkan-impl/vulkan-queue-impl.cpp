@@ -118,9 +118,10 @@ vk::Result Queue::Submit(const std::vector<SubmissionData>& submissionData, Fenc
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry) {
-                     return entry->GetVkHandle();
-                   });
+                   [&](CommandBufferImpl* entry)
+    {
+      return entry->GetVkHandle();
+    });
 
     // clang-format=off
     auto submitInfo = vk::SubmitInfo()

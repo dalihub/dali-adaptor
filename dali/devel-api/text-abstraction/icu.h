@@ -33,7 +33,7 @@ namespace Internal DALI_INTERNAL
 {
 class ICU;
 
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief To support ICU in dali. ICU, International Components for Unicode.

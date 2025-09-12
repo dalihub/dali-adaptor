@@ -20,8 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
-#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 
 namespace Dali::TextAbstraction::Internal
 {
@@ -435,7 +435,6 @@ public: // Find & Cache
    */
   BitmapFontCacheItem& FindBitmapFontCacheItem(FontCacheIndex fontCacheIndex);
 
-
 public: // Other public API
   FontFaceManager* GetFontFaceManager() const
   {
@@ -448,7 +447,7 @@ public: // Other public API
   }
 
 private:
-  CacheHandler(const CacheHandler&) = delete;
+  CacheHandler(const CacheHandler&)            = delete;
   CacheHandler& operator=(const CacheHandler&) = delete;
 
   using DescriptionCacheContainer = LRUCacheContainer<FontDescriptionSizeCacheKey, FontCacheIndex, FontDescriptionSizeCacheKeyHash>;
@@ -477,12 +476,11 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
-  FontPathList mCustomFontDirectories;  ///< Cache custom font directories to recovery upon reinitialization.
-  std::unique_ptr<FontFaceManager>   mFontFaceManager;   ///< The freetype font face manager. It will cache font face.
-  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
+  FontPathList                       mCustomFontDirectories; ///< Cache custom font directories to recovery upon reinitialization.
+  std::unique_ptr<FontFaceManager>   mFontFaceManager;       ///< The freetype font face manager. It will cache font face.
+  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager;     ///< The glyph cache manager. It will cache this face's glyphs.
 
-private:                                                 // Member value
-
+private:                                         // Member value
   FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()
   FontDescriptionId mLatestFoundFontDescriptionId;
 
@@ -490,7 +488,7 @@ private:                                                 // Member value
   FontCacheIndex              mLatestFoundCacheIndex;
 
   uint32_t mFontCacheCount;
-  bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
+  bool     mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 };
 
 } // namespace Dali::TextAbstraction::Internal

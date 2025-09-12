@@ -183,19 +183,18 @@ PerformanceInterface::ContextId StatContextManager::GetContextId(const char* nam
 {
   std::string match(name);
 
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
     StatContext* context = *it;
 
-    std::string contextName( context->GetName() );
-    if( contextName.compare(match) == 0 )
+    std::string contextName(context->GetName());
+    if(contextName.compare(match) == 0)
     {
       return context->GetId();
     }
   }
   return 0;
 }
-
 
 const char* StatContextManager::GetMarkerDescription(PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId) const
 {

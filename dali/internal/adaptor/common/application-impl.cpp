@@ -122,15 +122,15 @@ void Application::PreInitialize(int* argc, char** argv[])
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading\n");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
       gPreInitializedApplication->mUIThreadLoader->Run([&]()
-                                                       {
-                                                         gPreInitializedApplication->CreateWindow();
+      {
+        gPreInitializedApplication->CreateWindow();
 
 #ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
-                                                         // Start Adaptor now...? TODO : Please check it is valid thread.
-                                                         // TODO : POC for create view at preinitialize timing.
-                                                         gPreInitializedApplication->CreateAdaptor();
+        // Start Adaptor now...? TODO : Please check it is valid thread.
+        // TODO : POC for create view at preinitialize timing.
+        gPreInitializedApplication->CreateAdaptor();
 #endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
-                                                       });
+      });
     }
     else
 #endif
@@ -809,7 +809,7 @@ void Application::FlushUpdateMessages()
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
 }
 
-void Application::SetApplicationLocale(const std::string &locale)
+void Application::SetApplicationLocale(const std::string& locale)
 {
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).SetApplicationLocale(locale);
 }

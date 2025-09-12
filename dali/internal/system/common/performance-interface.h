@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_PERFORMANCE_INTERFACE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public:
   /**
    * Virtual destructor
    */
-  virtual ~PerformanceInterface(){};
+  virtual ~PerformanceInterface() {};
 
   /**
    * @brief Add a new context with a given name
@@ -123,7 +123,7 @@ public:
    * @param[in] name The name of the context
    * @return Return the unique id for this context
    */
-  virtual ContextId GetContextId( const char* name ) = 0;
+  virtual ContextId GetContextId(const char* name) = 0;
 
   /**
    * @brief Remove a context from use

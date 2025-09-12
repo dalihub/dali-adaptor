@@ -57,8 +57,8 @@ public:
 
   // Moveable but not copyable
   AnimatedImageLoading(const AnimatedImageLoading&);
-  AnimatedImageLoading& operator                        =(const AnimatedImageLoading&);
-  AnimatedImageLoading(AnimatedImageLoading&&) noexcept = default;
+  AnimatedImageLoading& operator=(const AnimatedImageLoading&);
+  AnimatedImageLoading(AnimatedImageLoading&&) noexcept            = default;
   AnimatedImageLoading& operator=(AnimatedImageLoading&&) noexcept = default;
 
   /**

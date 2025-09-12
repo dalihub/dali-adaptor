@@ -340,8 +340,8 @@ void PixmapRenderSurfaceEcoreX::CreateRenderable()
     Ecore_X_GC   gc;
     foreground = 0;
     gc         = ecore_x_gc_new(mX11Pixmaps[i],
-                        ECORE_X_GC_VALUE_MASK_FOREGROUND,
-                        &foreground);
+                                ECORE_X_GC_VALUE_MASK_FOREGROUND,
+                                &foreground);
 
     DALI_ASSERT_ALWAYS(gc && "CreateRenderable(): failed to get gc");
 

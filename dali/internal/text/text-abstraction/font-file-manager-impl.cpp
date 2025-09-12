@@ -87,7 +87,7 @@ struct FontFileManager::Plugin
 };
 
 FontFileManager::FontFileManager()
- : mPlugin(std::make_unique<Plugin>())
+: mPlugin(std::make_unique<Plugin>())
 {
 }
 

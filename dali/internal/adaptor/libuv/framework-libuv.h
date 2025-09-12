@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_LIBUV_FRAMEWORK_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public:
 
 private:
   // Undefined
-  FrameworkLibuv(const FrameworkLibuv&) = delete;
+  FrameworkLibuv(const FrameworkLibuv&)      = delete;
   FrameworkLibuv& operator=(FrameworkLibuv&) = delete;
 
 private: // impl members

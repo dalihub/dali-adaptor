@@ -188,7 +188,8 @@ public:
 
     ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, keyEvent.GetKeyName(), isText);
 
-    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply) {
+    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply)
+    {
       bool consumed = false;
 
       if(!reply)
@@ -218,13 +219,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         true);
+    }, true);
   }
 
   /**
@@ -237,13 +238,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         false);
+    }, false);
   }
 
   /**
@@ -256,13 +257,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         alsoNonDiscardable);
+    }, alsoNonDiscardable);
   }
 
   /**
@@ -275,7 +276,8 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
@@ -284,9 +286,7 @@ public:
       {
         mDirectReadingCallbacks.emplace(std::get<2>(msg), callback);
       }
-    },
-                                                                                                                            text,
-                                                                                                                            discardable);
+    }, text, discardable);
   }
 
   /**
@@ -428,7 +428,8 @@ public:
     mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
-    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
+    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState)
+    {
       auto it = mDirectReadingCallbacks.find(id);
       if(it != mDirectReadingCallbacks.end())
       {
@@ -714,7 +715,8 @@ public:
 
   void ReadIsEnabledProperty()
   {
-    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
+    {
       if(!msg)
       {
         DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
@@ -743,7 +745,8 @@ public:
 
   void ListenIsEnabledProperty()
   {
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res)
+    {
       mIsEnabled = res;
       SwitchBridge();
     });
@@ -763,7 +766,8 @@ public:
       return;
     }
 
-    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
+    {
       if(!msg)
       {
         DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
@@ -804,7 +808,8 @@ public:
 
   void ListenScreenReaderEnabledProperty()
   {
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res)
+    {
       mIsScreenReaderEnabled = res;
       EmitScreenReaderEnabledSignal();
       SwitchBridge();
@@ -929,7 +934,8 @@ public:
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
   {
-    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]() {
+    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]()
+    {
       auto client = CreateSocketClient(socket->GetAddress());
 
       client.method<void(std::int32_t, std::int32_t)>("SetOffset").asyncCall([](DBus::ValueOrError<void>) {}, x, y);

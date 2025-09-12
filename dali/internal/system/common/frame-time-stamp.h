@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_FRAME_TIME_STAMP_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,29 +36,29 @@ struct FrameTimeStamp
   static const unsigned int BUFFER_NOT_USED = 2; ///< no index buffer was used
 
   /**
-     * Constructor
-     */
+   * Constructor
+   */
   FrameTimeStamp();
 
   /**
-     * Constructor
-     * @param frame the frame number
-     * @param microseconds the time from a monotonic clock
-     * @param bufferIndex  double buffered index used for performing an update / render
-     */
+   * Constructor
+   * @param frame the frame number
+   * @param microseconds the time from a monotonic clock
+   * @param bufferIndex  double buffered index used for performing an update / render
+   */
   FrameTimeStamp(unsigned int frame, uint64_t microseconds, unsigned int bufferIndex = BUFFER_NOT_USED);
 
   /**
-     * Constructor
-     * @param bufferIndex  double buffered index used for performing an update / render
-     */
+   * Constructor
+   * @param bufferIndex  double buffered index used for performing an update / render
+   */
   FrameTimeStamp(unsigned int bufferIndex);
 
   /**
-     * @param start start time
-     * @param end end time
-     * @return difference in microseconds between two time stamps
-     */
+   * @param start start time
+   * @param end end time
+   * @return difference in microseconds between two time stamps
+   */
   static unsigned int MicrosecondDiff(const FrameTimeStamp& start, const FrameTimeStamp& end);
 
   unsigned int frame;        ///< Frame number ( not always available)

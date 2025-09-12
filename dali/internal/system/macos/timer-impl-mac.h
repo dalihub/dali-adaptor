@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SYSTEM_MACOS_TIMER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public:
 
 private: // Implementation
   // not implemented
-  TimerMac(const TimerMac&) = delete;
+  TimerMac(const TimerMac&)            = delete;
   TimerMac& operator=(const TimerMac&) = delete;
 
   /**

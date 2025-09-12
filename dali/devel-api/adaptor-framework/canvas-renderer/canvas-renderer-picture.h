@@ -2,7 +2,7 @@
 #define DALI_CANVAS_RENDERER_PICTURE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace Adaptor
 class CanvasRenderer;
 class Picture;
 } // namespace Adaptor
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief A class representing an image read in one of the supported formats: raw, svg, png and etc.

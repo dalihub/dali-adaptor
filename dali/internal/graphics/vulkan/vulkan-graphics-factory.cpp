@@ -50,19 +50,19 @@ Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
   info.surfaceHeight    = 0;
   info.depthStencilMode = std::function<Graphics::DepthStencilMode()>(
     [depthStencilMask]()
+  {
+    switch(depthStencilMask)
     {
-      switch(depthStencilMask)
-      {
-        case 1:
-        case 3:
-          return Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
-        case 2:
-          return Graphics::DepthStencilMode::DEPTH_OPTIMAL;
-        case 0:
-        default:
-          return Graphics::DepthStencilMode::NONE;
-      }
-    })();
+      case 1:
+      case 3:
+        return Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL;
+      case 2:
+        return Graphics::DepthStencilMode::DEPTH_OPTIMAL;
+      case 0:
+      default:
+        return Graphics::DepthStencilMode::NONE;
+    }
+  })();
 
   info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 

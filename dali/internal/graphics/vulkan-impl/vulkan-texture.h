@@ -136,16 +136,16 @@ public:
   bool TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer);
 
   /**
-     * Tries to convert pixel data to the compatible format. The result is written into the specified memory area.
-     * The memory must be allocated and large enough to accomodate output data.
-     * @param pData  source data
-     * @param srcFormat The source format
-     * @param sizeInBytes  size of source data in bytes
-     * @param width width in pixels
-     * @param height height in pixels
-     * @param pOutputBuffer pointer to a valid output buffer
-     * @return True if conversion was successful
-     */
+   * Tries to convert pixel data to the compatible format. The result is written into the specified memory area.
+   * The memory must be allocated and large enough to accomodate output data.
+   * @param pData  source data
+   * @param srcFormat The source format
+   * @param sizeInBytes  size of source data in bytes
+   * @param width width in pixels
+   * @param height height in pixels
+   * @param pOutputBuffer pointer to a valid output buffer
+   * @return True if conversion was successful
+   */
   bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer);
 
   Dali::Graphics::TextureTiling GetTiling() const

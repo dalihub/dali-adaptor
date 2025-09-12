@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -915,11 +915,11 @@ private:
   void UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry);
 
   /**
-  * @brief Reset input region when window insets are changed.
-  *
-  * @param[in] inputRegion the input region
-  */
- void ResetInput(const Rect<int>& inputRegion);
+   * @brief Reset input region when window insets are changed.
+   *
+   * @param[in] inputRegion the input region
+   */
+  void ResetInput(const Rect<int>& inputRegion);
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -1151,7 +1151,7 @@ private:
 
   Dali::KeyEvent mLastKeyEvent;
 
-  Vector4 mBackgroundColor;
+  Vector4              mBackgroundColor;
   Dali::WindowBlurInfo mBlurInfo;
 
   bool mIsTransparent : 1;

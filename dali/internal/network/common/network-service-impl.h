@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NETWORK_SERVICE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ using NetworkServicePtr = IntrusivePtr<NetworkService>;
 class NetworkService : public Dali::BaseObject
 {
 public:
-  NetworkService()                      = default;      ///< Constructor
-  ~NetworkService() override            = default;      ///< Default Destructor
-  NetworkService(const NetworkService&) = delete;       ///< Deleted copy constructor
-  NetworkService(NetworkService&&)      = delete;       ///< Deleted move constructor
-  NetworkService& operator=(NetworkService&) = delete;  ///< Deleted copy assignment operator
-  NetworkService& operator=(NetworkService&&) = delete; ///< Deleted move assignment operator
+  NetworkService()                            = default; ///< Constructor
+  ~NetworkService() override                  = default; ///< Default Destructor
+  NetworkService(const NetworkService&)       = delete;  ///< Deleted copy constructor
+  NetworkService(NetworkService&&)            = delete;  ///< Deleted move constructor
+  NetworkService& operator=(NetworkService&)  = delete;  ///< Deleted copy assignment operator
+  NetworkService& operator=(NetworkService&&) = delete;  ///< Deleted move assignment operator
 
   /**
    * @brief Retrieve the NetworkService Singleton.

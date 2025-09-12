@@ -2,7 +2,7 @@
 #define DALI_CLIPBOARD_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace Adaptor
 {
 class Clipboard;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief Interface to the device's clipboard.
@@ -72,8 +72,8 @@ public:
     }
 
   private:
-    const char* mimeType {nullptr}; ///< The mime type of clipboard data.
-    const char* data {nullptr};     ///< The clipboard data.
+    const char* mimeType{nullptr}; ///< The mime type of clipboard data.
+    const char* data{nullptr};     ///< The clipboard data.
   };
 
   /// @brief Data send completed signal.
@@ -176,9 +176,9 @@ public:
   void HideClipboard();
 
   /**
-  * @brief Retrieves the clipboard's visibility.
-  * @return bool true if the clipboard is visible.
-  */
+   * @brief Retrieves the clipboard's visibility.
+   * @return bool true if the clipboard is visible.
+   */
   bool IsVisible() const;
 };
 } // namespace Dali

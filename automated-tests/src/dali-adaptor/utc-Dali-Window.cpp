@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,24 +38,23 @@ intptr_t screenId = 0; // intptr_t has the same size as a pointer and is platfor
 
 } // unnamed namespace
 
-extern "C"
+extern "C" {
+Ecore_X_Screen* ecore_x_default_screen_get(void)
 {
-  Ecore_X_Screen* ecore_x_default_screen_get(void)
-  {
-    screenId += 8;
-    return (Ecore_X_Screen*)screenId;
-  }
+  screenId += 8;
+  return (Ecore_X_Screen*)screenId;
+}
 
-  void ecore_x_screen_size_get(const Ecore_X_Screen* screen, int* w, int* h)
-  {
-    *w = 100;
-    *h = 100;
-  }
+void ecore_x_screen_size_get(const Ecore_X_Screen* screen, int* w, int* h)
+{
+  *w = 100;
+  *h = 100;
+}
 
-  Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
-  {
-    return 0;
-  }
+Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
+{
+  return 0;
+}
 }
 
 int UtcDaliWindowConstructorP(void)

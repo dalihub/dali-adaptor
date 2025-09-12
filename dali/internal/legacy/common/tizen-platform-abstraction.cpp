@@ -208,7 +208,8 @@ uint32_t TizenPlatformAbstraction::StartTimer(uint32_t milliseconds, CallbackBas
 
 void TizenPlatformAbstraction::CancelTimer(uint32_t timerId)
 {
-  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&timerId](std::unique_ptr<TimerCallback>& timerCallbackPtr) {
+  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&timerId](std::unique_ptr<TimerCallback>& timerCallbackPtr)
+  {
     if(timerCallbackPtr->mIdNumber == timerId)
     {
       timerCallbackPtr->mTimer.Stop();
@@ -238,7 +239,8 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 {
   CallbackBase::Execute(*timerPtr.mCallback);
 
-  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&](std::unique_ptr<TimerCallback>& p) { return p.get() == &timerPtr; });
+  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&](std::unique_ptr<TimerCallback>& p)
+  { return p.get() == &timerPtr; });
 
   if(timerIter == std::end(mTimerPairsWaiting))
   {

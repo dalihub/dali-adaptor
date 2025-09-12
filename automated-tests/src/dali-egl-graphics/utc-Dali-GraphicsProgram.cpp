@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include <adaptor-environment-variable.h>
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
-#include <adaptor-environment-variable.h>
 
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-actor-utils.h>
@@ -78,7 +78,7 @@ const std::string FRAG_SHADER_SOURCE2 =
 
 namespace
 {
-  Actor CreateRenderablegActorWithShaderFileCaching(Texture texture, const std::string& vertexShader, const std::string& fragmentShader)
+Actor CreateRenderablegActorWithShaderFileCaching(Texture texture, const std::string& vertexShader, const std::string& fragmentShader)
 {
   // Create the geometry
   Geometry geometry = CreateQuadGeometry();
@@ -270,7 +270,7 @@ int UtcDaliGraphicsShaderNew02(void)
 
 int UtcDaliGraphicsShaderNewUsingProgramBinary(void)
 {
-  EnvironmentVariable::SetTestEnvironmentVariable("DALI_SHADER_USE_PROGRAM_BINARY","1");
+  EnvironmentVariable::SetTestEnvironmentVariable("DALI_SHADER_USE_PROGRAM_BINARY", "1");
 
   TestGraphicsApplication app;
   tet_infoline("UtcDaliProgram - Check programBinary functionality");

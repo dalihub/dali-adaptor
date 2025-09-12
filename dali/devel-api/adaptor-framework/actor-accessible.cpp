@@ -260,7 +260,8 @@ void ActorAccessible::UpdateChildren()
 
   // Erase-remove idiom
   // TODO (C++20): Replace with std::erase_if
-  auto it = std::remove_if(mChildren.begin(), mChildren.end(), [shouldIncludeHidden](const Accessible* child) { return !child || (!shouldIncludeHidden && child->IsHidden()); });
+  auto it = std::remove_if(mChildren.begin(), mChildren.end(), [shouldIncludeHidden](const Accessible* child)
+  { return !child || (!shouldIncludeHidden && child->IsHidden()); });
   mChildren.erase(it, mChildren.end());
   mChildren.shrink_to_fit();
 }

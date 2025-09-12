@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DATA_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@
 #include <dali/public-api/math/rect.h>
 #include <memory>
 #include <string>
-
-
 
 namespace Dali
 {
@@ -119,16 +117,16 @@ public:
    */
   bool GetFrontBufferRendering() const;
 
-/**
- * @brief Sets the screen for the window
- * It is base information from DevelWindowSystem::GetAvailableScreens
- *
- * This method sets the window to the specified screen.
- * The window will be moved to the specified screen.
- *
- * @SINCE_2_4.35
- * @param[in] screen The name of the screen to set
- */
+  /**
+   * @brief Sets the screen for the window
+   * It is base information from DevelWindowSystem::GetAvailableScreens
+   *
+   * This method sets the window to the specified screen.
+   * The window will be moved to the specified screen.
+   *
+   * @SINCE_2_4.35
+   * @param[in] screen The name of the screen to set
+   */
   void SetScreen(const std::string& screen);
 
   /**

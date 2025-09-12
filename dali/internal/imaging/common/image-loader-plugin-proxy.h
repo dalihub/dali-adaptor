@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_IMAGE_LOADING_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,18 +36,18 @@ using CreateImageLoaderPlugin  = Dali::ImageLoaderPlugin::CreateImageLoaderPlugi
 using DestroyImageLoaderPlugin = Dali::ImageLoaderPlugin::DestroyImageLoaderPlugin;
 
 /**
-  * @brief Initialize
-  */
+ * @brief Initialize
+ */
 void Initialize();
 
 /**
-  * @brief Destroy
-  */
+ * @brief Destroy
+ */
 void Destroy();
 
 /**
-  * @brief BitmapLoaderLookup
-  */
+ * @brief BitmapLoaderLookup
+ */
 const ImageLoader::BitmapLoader* BitmapLoaderLookup(const std::string& filename);
 
 } // namespace ImageLoaderPluginProxy

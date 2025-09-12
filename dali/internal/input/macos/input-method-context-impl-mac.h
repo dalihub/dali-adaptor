@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,23 +170,23 @@ public:
   const std::string& GetSurroundingText() const override;
 
   /**
-  * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
-  */
+   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
+   */
   void NotifyTextInputMultiLine(bool multiLine) override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetTextDirection()
-  */
+   * @copydoc Dali::InputMethodContext::GetTextDirection()
+   */
   Dali::InputMethodContext::TextDirection GetTextDirection() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetInputMethodArea()
-  */
+   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   */
   Dali::Rect<int> GetInputMethodArea() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::ApplyOptions()
-  */
+   * @copydoc Dali::InputMethodContext::ApplyOptions()
+   */
   void ApplyOptions(const InputMethodOptions& options) override;
 
   /**

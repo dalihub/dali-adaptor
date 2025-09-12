@@ -2,7 +2,7 @@
 #define DALI_DEVICE_STATUS_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,10 +75,10 @@ struct Orientation
    */
   enum Status
   {
-    ORIENTATION_0 = 0,       ///< The device is oriented in a natural position @SINCE_2_2.1
-    ORIENTATION_90 = 90,     ///< The device's left side is at the top @SINCE_2_2.1
-    ORIENTATION_180 = 180,   ///< The device is upside down @SINCE_2_2.1
-    ORIENTATION_270 = 270    ///< The device's right side is at the top @SINCE_2_2.1
+    ORIENTATION_0   = 0,   ///< The device is oriented in a natural position @SINCE_2_2.1
+    ORIENTATION_90  = 90,  ///< The device's left side is at the top @SINCE_2_2.1
+    ORIENTATION_180 = 180, ///< The device is upside down @SINCE_2_2.1
+    ORIENTATION_270 = 270  ///< The device's right side is at the top @SINCE_2_2.1
   };
 };
 

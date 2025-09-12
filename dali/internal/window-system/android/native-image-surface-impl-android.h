@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ANDROID_NATIVE_IMAGE_SURFACE_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ class NativeImageSurfaceAndroid : public Dali::Internal::Adaptor::NativeImageSur
 {
 public:
   /**
-    * @param [in] queue the NativeImageSourceQueue pointer
-    */
+   * @param [in] queue the NativeImageSourceQueue pointer
+   */
   NativeImageSurfaceAndroid(Dali::NativeImageSourceQueuePtr queue);
 
   /**

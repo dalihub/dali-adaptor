@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SYSTEM_WINDOWS_TIMER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public:
 
 private: // Implementation
   // not implemented
-  TimerWin(const TimerWin&) = delete;
+  TimerWin(const TimerWin&)            = delete;
   TimerWin& operator=(const TimerWin&) = delete;
 
   /**

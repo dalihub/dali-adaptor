@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_EGL_INTERFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,32 +41,32 @@ public:
   virtual bool ChooseConfig(bool isWindowType, ColorDepth depth) = 0;
 
   /**
-    * Create the OpenGL context.
-    * @return true if successful
-    */
+   * Create the OpenGL context.
+   * @return true if successful
+   */
   virtual bool CreateContext() = 0;
 
   /**
-    * Create the OpenGL context for the window.
-    * @return true if successful
+   * Create the OpenGL context for the window.
+   * @return true if successful
    */
   virtual bool CreateWindowContext(EGLContext& mEglContext) = 0;
 
   /**
-    * Create an OpenGL surface using a window
-    * @param window The window to create the surface on
-    * @param colorDepth Bit per pixel value (ex. 32 or 24)
-    * @return Handle to an on-screen EGL window surface (the requester has an ownership of this egl surface)
+   * Create an OpenGL surface using a window
+   * @param window The window to create the surface on
+   * @param colorDepth Bit per pixel value (ex. 32 or 24)
+   * @return Handle to an on-screen EGL window surface (the requester has an ownership of this egl surface)
    */
   virtual EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth) = 0;
 
   /**
-    * Destroy the OpenGL context.
+   * Destroy the OpenGL context.
    */
   virtual void DestroyContext(EGLContext& eglContext) = 0;
 
   /**
-    * Destroy the OpenGL surface.
+   * Destroy the OpenGL surface.
    */
   virtual void DestroySurface(EGLSurface& eglSurface) = 0;
 

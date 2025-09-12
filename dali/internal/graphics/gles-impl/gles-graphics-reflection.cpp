@@ -317,7 +317,8 @@ void Reflection::BuildUniformBlockReflection()
   }
 
   // Obtain all parameters for active uniforms
-  auto getActiveUniformParams = [gl, glProgram, uniformIndices](GLenum param) {
+  auto getActiveUniformParams = [gl, glProgram, uniformIndices](GLenum param)
+  {
     std::vector<GLint> params;
     params.resize(uniformIndices.size());
     gl->GetActiveUniformsiv(glProgram, uniformIndices.size(), uniformIndices.data(), param, params.data());
@@ -389,7 +390,8 @@ void Reflection::BuildUniformBlockReflection()
   uint32_t blockIndex = 0;
   for(auto& ubo : mUniformBlocks)
   {
-    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs) { return lhs.offset < rhs.offset; });
+    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs)
+    { return lhs.offset < rhs.offset; });
 
     if(blockIndex > 0)
     {
@@ -705,7 +707,8 @@ void Reflection::SortOpaques()
   ParseShaderSamplers(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
   ParseShaderSamplers(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
 
-  std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b) { return a.offset < b.offset; });
+  std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b)
+  { return a.offset < b.offset; });
 }
 
 } // namespace Dali::Graphics::GLES

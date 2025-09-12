@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,31 +234,31 @@ public:
   virtual const std::string& GetSurroundingText() const;
 
   /**
-  * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
-  */
+   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
+   */
   virtual void NotifyTextInputMultiLine(bool multiLine)
   {
   }
 
   /**
-  * @copydoc Dali::InputMethodContext::GetTextDirection()
-  */
+   * @copydoc Dali::InputMethodContext::GetTextDirection()
+   */
   virtual Dali::InputMethodContext::TextDirection GetTextDirection()
   {
     return Dali::InputMethodContext::TextDirection();
   }
 
   /**
-  * @copydoc Dali::InputMethodContext::GetInputMethodArea()
-  */
+   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   */
   virtual Dali::Rect<int> GetInputMethodArea()
   {
     return Dali::Rect<int>();
   }
 
   /**
-  * @copydoc Dali::InputMethodContext::ApplyOptions()
-  */
+   * @copydoc Dali::InputMethodContext::ApplyOptions()
+   */
   virtual void ApplyOptions(const InputMethodOptions& options)
   {
   }
@@ -488,7 +488,7 @@ public:
   ~InputMethodContext() override = default;
 
 private:
-  InputMethodContext(const InputMethodContext&) = delete;
+  InputMethodContext(const InputMethodContext&)      = delete;
   InputMethodContext& operator=(InputMethodContext&) = delete;
 
 protected:

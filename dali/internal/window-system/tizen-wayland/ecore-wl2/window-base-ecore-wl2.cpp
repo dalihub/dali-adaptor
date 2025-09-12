@@ -3220,7 +3220,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3282,7 +3282,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 

@@ -50,7 +50,7 @@ public:
   ~Reflection() override;
 
   // not copyable
-  Reflection(const Reflection&) = delete;
+  Reflection(const Reflection&)            = delete;
   Reflection& operator=(const Reflection&) = delete;
 
   /**
@@ -209,7 +209,7 @@ public:
       size(size),
       offset(offset),
       arraySize(arraySize),
-      type(type){};
+      type(type) {};
 
     uint32_t location;  ///< Location of uniform
     uint32_t size;      ///< size of uniform
@@ -246,7 +246,7 @@ public:
   void SortOpaques();
 
 protected:
-  Reflection(Reflection&&) noexcept = default;
+  Reflection(Reflection&&) noexcept            = default;
   Reflection& operator=(Reflection&&) noexcept = default;
 
 private:

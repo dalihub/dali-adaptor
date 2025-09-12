@@ -142,7 +142,7 @@ void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType even
   }
 
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_UNIFIED_TRIGGER", [&](std::ostringstream& oss)
-                                          { oss << "[" << triggeredEvents.size() << ", " << mValidEventsId.size() << ", " << discardedEvents.size() << "]"; });
+  { oss << "[" << triggeredEvents.size() << ", " << mValidEventsId.size() << ", " << discardedEvents.size() << "]"; });
   for(auto* triggerEvent : triggeredEvents)
   {
     // Check validation of trigger event.
@@ -157,7 +157,7 @@ void UnifiedTriggerEventManager::Triggered(FileDescriptorMonitor::EventType even
     }
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_UNIFIED_TRIGGER", [&](std::ostringstream& oss)
-                                        { oss << "[" << mValidEventsId.size() << ", " << mDiscardedEvents.size() << "]"; });
+  { oss << "[" << mValidEventsId.size() << ", " << mDiscardedEvents.size() << "]"; });
 
   for(auto* discardedEvent : discardedEvents)
   {

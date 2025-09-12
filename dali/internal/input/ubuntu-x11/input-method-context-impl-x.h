@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_X_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,23 +174,23 @@ public:
   const std::string& GetSurroundingText() const override;
 
   /**
-  * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
-  */
+   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
+   */
   void NotifyTextInputMultiLine(bool multiLine) override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetTextDirection()
-  */
+   * @copydoc Dali::InputMethodContext::GetTextDirection()
+   */
   Dali::InputMethodContext::TextDirection GetTextDirection() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::GetInputMethodArea()
-  */
+   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   */
   Dali::Rect<int> GetInputMethodArea() override;
 
   /**
-  * @copydoc Dali::InputMethodContext::ApplyOptions()
-  */
+   * @copydoc Dali::InputMethodContext::ApplyOptions()
+   */
   void ApplyOptions(const InputMethodOptions& options) override;
 
   /**
@@ -322,11 +322,11 @@ private:
   bool ProcessEventKeyUp(const Dali::KeyEvent& keyEvent);
 
   /**
-  * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
-  * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
-  * @param[in] ecoreModifier the Ecore_Event_Modifier input.
-  * @return the Ecore_IMF_Keyboard_Modifiers output.
-  */
+   * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
+   * This function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Modifiers enums.
+   * @param[in] ecoreModifier the Ecore_Event_Modifier input.
+   * @return the Ecore_IMF_Keyboard_Modifiers output.
+   */
   Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier);
 
   /**

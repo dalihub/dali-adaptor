@@ -622,7 +622,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
 
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
-         { return TaskHelper(*this); }),
+{ return TaskHelper(*this); }),
   mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),

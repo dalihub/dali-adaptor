@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GLES_ABSTRACTION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~GlesAbstraction(){};
+  virtual ~GlesAbstraction() {};
 
   virtual void ReadBuffer(GLenum mode) = 0;
 

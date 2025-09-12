@@ -112,8 +112,8 @@ protected: // prevent this class being directly instantiated
   }
 
   /**
-    * @brief Destroy the FileCloser and clean up its FILE*.
-    */
+   * @brief Destroy the FileCloser and clean up its FILE*.
+   */
   ~FileCloser()
   {
     if(mFile != 0)

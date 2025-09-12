@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ Adaptor& Adaptor::New(Window window)
 Adaptor& Adaptor::New(Window window, const Dali::Integration::RenderSurfaceInterface& surface)
 {
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
-  auto pSurface    = const_cast<Dali::Integration::RenderSurfaceInterface*>(&surface);
+  auto                            pSurface    = const_cast<Dali::Integration::RenderSurfaceInterface*>(&surface);
   Adaptor*                        adaptor     = Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(sceneHolder), pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
@@ -56,7 +56,7 @@ Adaptor& Adaptor::New(Dali::Integration::SceneHolder window)
 Adaptor& Adaptor::New(Dali::Integration::SceneHolder window, const Dali::Integration::RenderSurfaceInterface& surface)
 {
   Dali::Integration::RenderSurfaceInterface* pSurface = const_cast<Dali::Integration::RenderSurfaceInterface*>(&surface);
-  Adaptor*                      adaptor  = Internal::Adaptor::Adaptor::New(window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
+  Adaptor*                                   adaptor  = Internal::Adaptor::Adaptor::New(window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
 

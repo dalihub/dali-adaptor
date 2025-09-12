@@ -40,8 +40,8 @@ class UvCallbackManager : public CallbackManager
 {
 public:
   /**
-     * @brief constructor
-     */
+   * @brief constructor
+   */
   UvCallbackManager();
 
   /**
@@ -91,14 +91,14 @@ public:
 
 private:
   /**
-     * @brief Removes a single call back from the container
-     * Always called from main thread
-     * @param callbackData callback data
-     */
+   * @brief Removes a single call back from the container
+   * Always called from main thread
+   * @param callbackData callback data
+   */
   void RemoveCallbackFromContainer(CallbackData* callbackData);
 
   // Undefined
-  UvCallbackManager(const UvCallbackManager&) = delete;
+  UvCallbackManager(const UvCallbackManager&)      = delete;
   UvCallbackManager& operator=(UvCallbackManager&) = delete;
 
 private:

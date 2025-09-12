@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -373,9 +373,9 @@ FontId VectorFontCache::CreateFont(const string& url)
   // Create & cache new font face
   FT_Face face;
   int     error = FT_New_Face(mImpl->mFreeTypeLibrary,
-                          url.c_str(),
-                          0,
-                          &face);
+                              url.c_str(),
+                              0,
+                              &face);
 
   if(FT_Err_Ok == error)
   {

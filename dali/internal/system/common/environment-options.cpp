@@ -602,14 +602,14 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, MinimumZero(mPanGestureMinPredictionAmount));
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT,
                                   [&](int maxPredictionAmount)
-                                  {
-                                    if(mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount)
-                                    {
-                                      // maximum amount should not be smaller than minimum amount
-                                      maxPredictionAmount = mPanGestureMinPredictionAmount;
-                                    }
-                                    mPanGestureMaxPredictionAmount = maxPredictionAmount;
-                                  });
+  {
+    if(mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount)
+    {
+      // maximum amount should not be smaller than minimum amount
+      maxPredictionAmount = mPanGestureMinPredictionAmount;
+    }
+    mPanGestureMaxPredictionAmount = maxPredictionAmount;
+  });
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, MinimumZero(mPanGesturePredictionAmountAdjustment));
   SetFromEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, mPanGestureSmoothingMode);
   SetFromEnvironmentVariable<float>(DALI_ENV_PAN_SMOOTHING_AMOUNT, ClampBetweenZeroAndOne(mPanGestureSmoothingAmount));
@@ -636,7 +636,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
 
   SetFromEnvironmentVariable(DALI_GLES_CALL_TIME, mGlesCallTime);
   SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate)
-                                  { mGlesCallAccumulate = glesCallAccumulate != 0; });
+  { mGlesCallAccumulate = glesCallAccumulate != 0; });
 
   int windowWidth(0), windowHeight(0);
   if(GetEnvironmentVariable(DALI_WINDOW_WIDTH, windowWidth) && GetEnvironmentVariable(DALI_WINDOW_HEIGHT, windowHeight))
@@ -649,16 +649,16 @@ void EnvironmentOptions::ParseEnvironmentOptions()
 
   SetFromEnvironmentVariable<int>(DALI_THREADING_MODE,
                                   [&](int threadingMode)
-                                  {
-                                    switch(threadingMode)
-                                    {
-                                      case ThreadingMode::COMBINED_UPDATE_RENDER:
-                                      {
-                                        mThreadingMode = static_cast<ThreadingMode::Type>(threadingMode);
-                                        break;
-                                      }
-                                    }
-                                  });
+  {
+    switch(threadingMode)
+    {
+      case ThreadingMode::COMBINED_UPDATE_RENDER:
+      {
+        mThreadingMode = static_cast<ThreadingMode::Type>(threadingMode);
+        break;
+      }
+    }
+  });
 
   SetGraphicsBackendFromEnvironmentVariable(mGraphicsBackend);
 
@@ -672,13 +672,13 @@ void EnvironmentOptions::ParseEnvironmentOptions()
 
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_DEPTH_BUFFER,
                                   [&](int depthBufferRequired)
-                                  {
-                                    if(depthBufferRequired > 0)
-                                    {
-                                      mDepthBufferRequired   = false;
-                                      mStencilBufferRequired = false; // Disable stencil buffer as well
-                                    }
-                                  });
+  {
+    if(depthBufferRequired > 0)
+    {
+      mDepthBufferRequired   = false;
+      mStencilBufferRequired = false; // Disable stencil buffer as well
+    }
+  });
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_STENCIL_BUFFER, DisableIfNonZero(mStencilBufferRequired));
 
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_PARTIAL_UPDATE, DisableIfNonZero(mPartialUpdateRequired));

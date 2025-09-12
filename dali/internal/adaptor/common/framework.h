@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -359,7 +359,7 @@ private:
 
 private:
   // Undefined
-  Framework(const Framework&) = delete;
+  Framework(const Framework&)      = delete;
   Framework& operator=(Framework&) = delete;
 
 protected:
@@ -397,7 +397,7 @@ public:
 
 private:
   // Undefined
-  UIThreadLoader(const UIThreadLoader&) = delete;
+  UIThreadLoader(const UIThreadLoader&)      = delete;
   UIThreadLoader& operator=(UIThreadLoader&) = delete;
 
 private:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,25 +44,24 @@ bool          main_loop_can_run   = false;
 intptr_t      timerId             = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
 } // namespace
 
-extern "C"
+extern "C" {
+Ecore_Timer* ecore_timer_add(double        in,
+                             Ecore_Task_Cb func,
+                             const void*   data)
 {
-  Ecore_Timer* ecore_timer_add(double        in,
-                               Ecore_Task_Cb func,
-                               const void*   data)
-  {
-    ecore_timer_running = true;
-    timer_callback_func = func;
-    timer_callback_data = data;
-    timerId += 8;
-    return (Ecore_Timer*)timerId;
-  }
+  ecore_timer_running = true;
+  timer_callback_func = func;
+  timer_callback_data = data;
+  timerId += 8;
+  return (Ecore_Timer*)timerId;
+}
 
-  void* ecore_timer_del(Ecore_Timer* timer)
-  {
-    ecore_timer_running = false;
-    timer_callback_func = NULL;
-    return NULL;
-  }
+void* ecore_timer_del(Ecore_Timer* timer)
+{
+  ecore_timer_running = false;
+  timer_callback_func = NULL;
+  return NULL;
+}
 }
 
 namespace

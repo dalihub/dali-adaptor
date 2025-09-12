@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ANDROID_FRAMEWORK_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,10 +175,10 @@ public:
   virtual ~AndroidFramework();
 
   // Not copyable or movable
-  AndroidFramework(const AndroidFramework&) = delete;            ///< Deleted copy constructor
-  AndroidFramework(AndroidFramework&&)      = delete;            ///< Deleted move constructor
+  AndroidFramework(const AndroidFramework&)            = delete; ///< Deleted copy constructor
+  AndroidFramework(AndroidFramework&&)                 = delete; ///< Deleted move constructor
   AndroidFramework& operator=(const AndroidFramework&) = delete; ///< Deleted copy assignment operator
-  AndroidFramework& operator=(AndroidFramework&&) = delete;      ///< Deleted move assignment operator
+  AndroidFramework& operator=(AndroidFramework&&)      = delete; ///< Deleted move assignment operator
 
 private:
   AndroidFramework(Dali::Integration::AndroidFramework* androidFramework);

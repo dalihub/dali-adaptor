@@ -255,7 +255,7 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
       gPreCacheThread.mThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
       gPreCacheCond.wait_for(lock, timeout, []
-                             { return gPreCacheThreadReady; });
+      { return gPreCacheThreadReady; });
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
     }
     else
@@ -306,7 +306,7 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
       gPreLoadThread.mThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
       gPreLoadCond.wait_for(lock, timeout, []
-                            { return gPreLoadThreadReady; });
+      { return gPreLoadThreadReady; });
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
     }
     else

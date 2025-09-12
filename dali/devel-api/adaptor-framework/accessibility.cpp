@@ -549,7 +549,8 @@ public:
 
 using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
 
-std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
+std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult
+{
   return {nullptr, true};
 };
 

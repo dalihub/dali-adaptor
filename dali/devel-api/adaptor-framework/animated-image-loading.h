@@ -44,7 +44,7 @@ namespace Adaptor
 {
 class AnimatedImageLoading;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * Class to manage loading frames of an animated image in small chunks. Lazy initializes only when

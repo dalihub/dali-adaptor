@@ -25,8 +25,8 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/adaptor-framework/screen-information.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {

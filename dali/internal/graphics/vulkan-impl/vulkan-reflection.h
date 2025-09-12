@@ -56,7 +56,7 @@ public:
   ~Reflection() override;
 
   // not copyable
-  Reflection(const Reflection&) = delete;
+  Reflection(const Reflection&)            = delete;
   Reflection& operator=(const Reflection&) = delete;
 
   /**
@@ -212,7 +212,7 @@ private:
   void BuildReflection();
 
 protected:
-  Reflection(Reflection&&) noexcept = default;
+  Reflection(Reflection&&) noexcept            = default;
   Reflection& operator=(Reflection&&) noexcept = default;
 
 private:

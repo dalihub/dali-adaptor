@@ -24,32 +24,31 @@
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-extern "C"
+extern "C" {
+using namespace Dali::Internal::Adaptor;
+
+DALI_ADAPTOR_API std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
-  using namespace Dali::Internal::Adaptor;
+  return Dali::Internal::Adaptor::CreateGraphicsFactory(environmentOptions);
+}
 
-  DALI_ADAPTOR_API std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
-  {
-    return Dali::Internal::Adaptor::CreateGraphicsFactory(environmentOptions);
-  }
+DALI_ADAPTOR_API std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
+{
+  return Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+}
 
-  DALI_ADAPTOR_API std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
-  {
-    return Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  }
+DALI_ADAPTOR_API std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
+{
+  return Dali::Internal::Adaptor::GetNativeImageSourceFactory();
+}
 
-  DALI_ADAPTOR_API std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
-  {
-    return Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  }
+DALI_ADAPTOR_API std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
+{
+  return Dali::Internal::Adaptor::NativeImageSurfaceFactory::CreateNativeImageSurface(queue);
+}
 
-  DALI_ADAPTOR_API std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
-  {
-    return Dali::Internal::Adaptor::NativeImageSurfaceFactory::CreateNativeImageSurface(queue);
-  }
-
-  DALI_ADAPTOR_API std::unique_ptr<Dali::Graphics::SurfaceFactory> CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow)
-  {
-    return Dali::Graphics::SurfaceFactory::New(nativeWindow);
-  }
+DALI_ADAPTOR_API std::unique_ptr<Dali::Graphics::SurfaceFactory> CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow)
+{
+  return Dali::Graphics::SurfaceFactory::New(nativeWindow);
+}
 } // extern "C"

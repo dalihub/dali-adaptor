@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,8 @@ ShaderPreCompiler::ShaderPreCompiler()
 
 ShaderPreCompiler& ShaderPreCompiler::Get()
 {
-  std::call_once(mOnceFlag, []() { mInstance.reset(new ShaderPreCompiler); });
+  std::call_once(mOnceFlag, []()
+  { mInstance.reset(new ShaderPreCompiler); });
 
   return *(mInstance.get());
 }

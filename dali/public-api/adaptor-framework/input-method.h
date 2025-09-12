@@ -2,7 +2,7 @@
 #define DALI_INPUT_MEHTOD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,10 @@ namespace InputMethod
 namespace Category
 {
 /**
-* @brief Enumeration for Category type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for Category type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   PANEL_LAYOUT,    ///< Set Keyboard layout @SINCE_1_3.20
@@ -69,10 +69,10 @@ enum Type
 namespace PanelLayout
 {
 /**
-* @brief Enumeration for PanelLayout type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for PanelLayout type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   NORMAL,      ///< Default layout @SINCE_1_3.20
@@ -103,10 +103,10 @@ enum Type
 namespace ButtonAction
 {
 /**
-* @brief Enumeration for ButtonAction type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for ButtonAction type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   DEFAULT, ///< Default action @SINCE_1_3.20
@@ -130,10 +130,10 @@ enum Type
 namespace AutoCapital
 {
 /**
-* @brief Enumeration for AutoCapital type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for AutoCapital type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   NONE,         ///< No auto-capitalization when typing @SINCE_1_3.20
@@ -154,10 +154,10 @@ enum Type
 namespace NormalLayout
 {
 /**
-* @brief Enumeration for NormalLayout Variation type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for NormalLayout Variation type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   NORMAL,          ///< The plain normal layout @SINCE_1_3.20
@@ -175,10 +175,10 @@ enum Type
 namespace NumberOnlyLayout
 {
 /**
-* @brief Enumeration for NumberOnlyLayout Variation type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for NumberOnlyLayout Variation type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   NORMAL,                 ///< The plain normal number layout @SINCE_1_3.20
@@ -197,10 +197,10 @@ enum Type
 namespace PasswordLayout
 {
 /**
-* @brief Enumeration for PasswordLayout Variation type.
-*
-* @SINCE_1_3.20
-*/
+ * @brief Enumeration for PasswordLayout Variation type.
+ *
+ * @SINCE_1_3.20
+ */
 enum Type
 {
   NORMAL,          ///< The normal password layout @SINCE_1_3.20

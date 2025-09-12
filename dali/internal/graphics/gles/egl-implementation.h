@@ -68,25 +68,25 @@ public:
   bool InitializeGles(EGLNativeDisplayType display, bool isOwnSurface = true);
 
   /**
-    * Create the OpenGL context for the shared resource.
-    * @return true if successful
-    */
+   * Create the OpenGL context for the shared resource.
+   * @return true if successful
+   */
   bool CreateContext() override;
 
   /**
-    * Create the OpenGL context for the window.
-    * @return true if successful
-    */
+   * Create the OpenGL context for the window.
+   * @return true if successful
+   */
   bool CreateWindowContext(EGLContext& mEglContext) override;
 
   /**
-    * Destroy the OpenGL context.
-    */
+   * Destroy the OpenGL context.
+   */
   void DestroyContext(EGLContext& eglContext) override;
 
   /**
-    * Destroy the OpenGL surface.
-    */
+   * Destroy the OpenGL surface.
+   */
   void DestroySurface(EGLSurface& eglSurface) override;
 
   /**

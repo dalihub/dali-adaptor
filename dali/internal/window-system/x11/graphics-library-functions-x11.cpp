@@ -19,10 +19,9 @@
 #include <dali/internal/window-system/x11/display-connection-native-types.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-extern "C"
+extern "C" {
+DALI_ADAPTOR_API Dali::Any CastToNativeGraphicsType(void* display)
 {
-  DALI_ADAPTOR_API Dali::Any CastToNativeGraphicsType(void* display)
-  {
-    return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<::Display*>(display));
-  }
+  return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<::Display*>(display));
+}
 } // extern "C"

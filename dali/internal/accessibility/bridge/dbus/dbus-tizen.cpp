@@ -214,23 +214,24 @@ struct DefaultDBusWrapper : public DBusWrapper
     return std::make_shared<name##Impl>(const_cast<eldbus_name*>(v), std::forward<ARGS>(args)...); \
   }
 
-#define DEFINE_TYPE(name, eldbus_name, unref_call)                                     \
-  struct name##Impl : public name                                                      \
-  {                                                                                    \
-    eldbus_name* Value       = nullptr;                                                \
-    bool         EraseOnExit = false;                                                  \
-    name##Impl(eldbus_name* Value, bool EraseOnExit = false): Value(Value),            \
-                                                              EraseOnExit(EraseOnExit) \
-    {                                                                                  \
-    }                                                                                  \
-    ~name##Impl()                                                                      \
-    {                                                                                  \
-      if(EraseOnExit && Value)                                                         \
-      {                                                                                \
-        unref_call;                                                                    \
-      }                                                                                \
-    }                                                                                  \
-  };                                                                                   \
+#define DEFINE_TYPE(name, eldbus_name, unref_call)           \
+  struct name##Impl : public name                            \
+  {                                                          \
+    eldbus_name* Value       = nullptr;                      \
+    bool         EraseOnExit = false;                        \
+    name##Impl(eldbus_name* Value, bool EraseOnExit = false) \
+    : Value(Value),                                          \
+      EraseOnExit(EraseOnExit)                               \
+    {                                                        \
+    }                                                        \
+    ~name##Impl()                                            \
+    {                                                        \
+      if(EraseOnExit && Value)                               \
+      {                                                      \
+        unref_call;                                          \
+      }                                                      \
+    }                                                        \
+  };                                                         \
   DEFINE_GS(name, eldbus_name, unref_call)
 
   struct ConnectionImpl : public Connection
@@ -461,9 +462,10 @@ struct DefaultDBusWrapper : public DBusWrapper
   void eldbus_proxy_signal_handler_add_impl(const ProxyPtr& proxy, const std::string& member, const std::function<void(const MessagePtr&)>& cb) override
   {
     auto tmp = new std::function<void(const Eldbus_Message* msg)>{
-      [cb](const Eldbus_Message* msg) {
-        cb(create(msg, false));
-      }};
+      [cb](const Eldbus_Message* msg)
+    {
+      cb(create(msg, false));
+    }};
     auto handler = eldbus_proxy_signal_handler_add(get(proxy), member.c_str(), listenerCallback, tmp);
     if(handler)
     {
@@ -734,7 +736,8 @@ struct DefaultDBusWrapper : public DBusWrapper
     std::unordered_map<unsigned int, DBus::DBusInterfaceDescription::SignalInfo>  signalsMap;
 
     DBUS_DEBUG("interface %s path %s on bus %s", interfaceName.c_str(), pathName.c_str(), DBus::getConnectionName(connection).c_str());
-    auto makeArgInfo = [&](const std::vector<std::pair<std::string, std::string>>& input) {
+    auto makeArgInfo = [&](const std::vector<std::pair<std::string, std::string>>& input)
+    {
       argsInfos.push_back({});
       auto& dst = argsInfos.back();
       for(auto& s : input)
@@ -808,7 +811,8 @@ struct DefaultDBusWrapper : public DBusWrapper
     DALI_ASSERT_ALWAYS(v && "Eldbus register failed!");
     GlobalEntries::Get().Add(v, std::move(impl));
     DBUS_DEBUG("registering interface %p (%d)", v, fallback ? 1 : 0);
-    destructors.push_back([=]() {
+    destructors.push_back([=]()
+    {
       DBUS_DEBUG("unregistering interface %p", v);
       GlobalEntries::Get().Erase(v);
       eldbus_service_interface_unregister(v);
@@ -830,13 +834,14 @@ struct DefaultDBusWrapper : public DBusWrapper
   void add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const Eina_Value*)> cb) override
   {
     auto callbackLambdaPtr = new std::function<void(Eldbus_Proxy_Event_Property_Changed * epc)>{
-      [cb, name, interface](Eldbus_Proxy_Event_Property_Changed* ev) {
-        const char* ifc = eldbus_proxy_interface_get(ev->proxy);
-        if(ev->name && ev->name == name && ifc && interface == ifc)
-        {
-          cb(ev->value);
-        }
-      }};
+      [cb, name, interface](Eldbus_Proxy_Event_Property_Changed* ev)
+    {
+      const char* ifc = eldbus_proxy_interface_get(ev->proxy);
+      if(ev->name && ev->name == name && ifc && interface == ifc)
+      {
+        cb(ev->value);
+      }
+    }};
     auto p = get(proxy);
     eldbus_proxy_event_callback_add(p, ELDBUS_PROXY_EVENT_PROPERTY_CHANGED, listenerEventChangedCallback, callbackLambdaPtr);
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);

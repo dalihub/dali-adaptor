@@ -108,99 +108,98 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  enum gator_annotate_counter_class
-  {
-    ANNOTATE_DELTA = 1,
-    ANNOTATE_ABSOLUTE,
-    ANNOTATE_ACTIVITY,
-    ANNOTATE_INCIDENT
-  };
+enum gator_annotate_counter_class
+{
+  ANNOTATE_DELTA = 1,
+  ANNOTATE_ABSOLUTE,
+  ANNOTATE_ACTIVITY,
+  ANNOTATE_INCIDENT
+};
 
-  enum gator_annotate_display
-  {
-    ANNOTATE_AVERAGE = 1,
-    ANNOTATE_ACCUMULATE,
-    ANNOTATE_HERTZ,
-    ANNOTATE_MAXIMUM,
-    ANNOTATE_MINIMUM
-  };
+enum gator_annotate_display
+{
+  ANNOTATE_AVERAGE = 1,
+  ANNOTATE_ACCUMULATE,
+  ANNOTATE_HERTZ,
+  ANNOTATE_MAXIMUM,
+  ANNOTATE_MINIMUM
+};
 
-  enum gator_annotate_series_composition
-  {
-    ANNOTATE_STACKED = 1,
-    ANNOTATE_OVERLAY,
-    ANNOTATE_LOG10
-  };
+enum gator_annotate_series_composition
+{
+  ANNOTATE_STACKED = 1,
+  ANNOTATE_OVERLAY,
+  ANNOTATE_LOG10
+};
 
-  enum gator_annotate_rendering_type
-  {
-    ANNOTATE_FILL = 1,
-    ANNOTATE_LINE,
-    ANNOTATE_BAR
-  };
+enum gator_annotate_rendering_type
+{
+  ANNOTATE_FILL = 1,
+  ANNOTATE_LINE,
+  ANNOTATE_BAR
+};
 
-  void     gator_annotate_setup(void);
-  uint64_t gator_get_time(void);
-  void     gator_annotate_fork_child(void);
-  void     gator_annotate_flush(void);
-  void     gator_annotate_str(uint32_t channel, const char* str);
-  void     gator_annotate_color(uint32_t channel, uint32_t color, const char* str);
-  void     gator_annotate_name_channel(uint32_t channel, uint32_t group, const char* str);
-  void     gator_annotate_name_group(uint32_t group, const char* str);
-  void     gator_annotate_visual(const void* data, uint32_t length, const char* str);
-  void     gator_annotate_marker(const char* str);
-  void     gator_annotate_marker_color(uint32_t color, const char* str);
-  void     gator_annotate_counter(uint32_t                               id,
-                                  const char*                            title,
-                                  const char*                            name,
-                                  int                                    per_cpu,
-                                  enum gator_annotate_counter_class      counter_class,
-                                  enum gator_annotate_display            display,
-                                  const char*                            units,
-                                  uint32_t                               modifier,
-                                  enum gator_annotate_series_composition series_composition,
-                                  enum gator_annotate_rendering_type     rendering_type,
-                                  int                                    average_selection,
-                                  int                                    average_cores,
-                                  int                                    percentage,
-                                  size_t                                 activity_count,
-                                  const char* const*                     activities,
-                                  const uint32_t*                        activity_colors,
-                                  uint32_t                               cores,
-                                  uint32_t                               color,
-                                  const char*                            description);
-  void     gator_annotate_counter_value(uint32_t core, uint32_t id, int64_t value);
-  void     gator_annotate_counter_time_value(uint32_t core, uint32_t id, uint64_t time, int64_t value);
-  void     gator_annotate_activity_switch(uint32_t core, uint32_t id, uint32_t activity, uint32_t tid);
-  void     gator_cam_track(uint32_t view_uid, uint32_t track_uid, uint32_t parent_track, const char* name);
-  void     gator_cam_job(uint32_t        view_uid,
-                         uint32_t        job_uid,
-                         const char*     name,
-                         uint32_t        track,
-                         uint64_t        start_time,
-                         uint64_t        duration,
-                         uint32_t        color,
-                         uint32_t        primary_dependency,
-                         size_t          dependency_count,
-                         const uint32_t* dependencies);
-  void     gator_cam_job_start(uint32_t    view_uid,
-                               uint32_t    job_uid,
-                               const char* name,
-                               uint32_t    track,
-                               uint64_t    time,
-                               uint32_t    color);
-  void     gator_cam_job_set_dependencies(uint32_t        view_uid,
-                                          uint32_t        job_uid,
-                                          uint64_t        time,
-                                          uint32_t        primary_dependency,
-                                          size_t          dependency_count,
-                                          const uint32_t* dependencies);
-  void     gator_cam_job_stop(uint32_t view_uid, uint32_t job_uid, uint64_t time);
-  void     gator_cam_view_name(uint32_t view_uid, const char* name);
+void     gator_annotate_setup(void);
+uint64_t gator_get_time(void);
+void     gator_annotate_fork_child(void);
+void     gator_annotate_flush(void);
+void     gator_annotate_str(uint32_t channel, const char* str);
+void     gator_annotate_color(uint32_t channel, uint32_t color, const char* str);
+void     gator_annotate_name_channel(uint32_t channel, uint32_t group, const char* str);
+void     gator_annotate_name_group(uint32_t group, const char* str);
+void     gator_annotate_visual(const void* data, uint32_t length, const char* str);
+void     gator_annotate_marker(const char* str);
+void     gator_annotate_marker_color(uint32_t color, const char* str);
+void     gator_annotate_counter(uint32_t                               id,
+                                const char*                            title,
+                                const char*                            name,
+                                int                                    per_cpu,
+                                enum gator_annotate_counter_class      counter_class,
+                                enum gator_annotate_display            display,
+                                const char*                            units,
+                                uint32_t                               modifier,
+                                enum gator_annotate_series_composition series_composition,
+                                enum gator_annotate_rendering_type     rendering_type,
+                                int                                    average_selection,
+                                int                                    average_cores,
+                                int                                    percentage,
+                                size_t                                 activity_count,
+                                const char* const*                     activities,
+                                const uint32_t*                        activity_colors,
+                                uint32_t                               cores,
+                                uint32_t                               color,
+                                const char*                            description);
+void     gator_annotate_counter_value(uint32_t core, uint32_t id, int64_t value);
+void     gator_annotate_counter_time_value(uint32_t core, uint32_t id, uint64_t time, int64_t value);
+void     gator_annotate_activity_switch(uint32_t core, uint32_t id, uint32_t activity, uint32_t tid);
+void     gator_cam_track(uint32_t view_uid, uint32_t track_uid, uint32_t parent_track, const char* name);
+void     gator_cam_job(uint32_t        view_uid,
+                       uint32_t        job_uid,
+                       const char*     name,
+                       uint32_t        track,
+                       uint64_t        start_time,
+                       uint64_t        duration,
+                       uint32_t        color,
+                       uint32_t        primary_dependency,
+                       size_t          dependency_count,
+                       const uint32_t* dependencies);
+void     gator_cam_job_start(uint32_t    view_uid,
+                             uint32_t    job_uid,
+                             const char* name,
+                             uint32_t    track,
+                             uint64_t    time,
+                             uint32_t    color);
+void     gator_cam_job_set_dependencies(uint32_t        view_uid,
+                                        uint32_t        job_uid,
+                                        uint64_t        time,
+                                        uint32_t        primary_dependency,
+                                        size_t          dependency_count,
+                                        const uint32_t* dependencies);
+void     gator_cam_job_stop(uint32_t view_uid, uint32_t job_uid, uint64_t time);
+void     gator_cam_view_name(uint32_t view_uid, const char* name);
 
 #define ANNOTATE_DEFINE extern int gator_annotate_unused
 

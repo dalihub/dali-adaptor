@@ -40,10 +40,10 @@ const BidiDirection NEUTRAL       = 1u;
 const BidiDirection RIGHT_TO_LEFT = 2u;
 
 /**
-   * @param[in] paragraphDirection The FriBiDi paragraph's direction.
-   *
-   * @return Whether the paragraph is right to left.
-   */
+ * @param[in] paragraphDirection The FriBiDi paragraph's direction.
+ *
+ * @return Whether the paragraph is right to left.
+ */
 bool GetBidiParagraphDirection(FriBidiParType paragraphDirection)
 {
   switch(paragraphDirection)

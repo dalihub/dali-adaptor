@@ -47,7 +47,7 @@ protected:
   /**
    * Virtual protected destructor - no deletion through this interface
    */
-  virtual ~EglFactoryInterface(){};
+  virtual ~EglFactoryInterface() {};
 };
 
 } // namespace Adaptor

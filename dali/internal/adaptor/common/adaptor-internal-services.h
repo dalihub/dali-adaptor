@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,12 +119,12 @@ protected:
   /**
    * constructor
    */
-  AdaptorInternalServices(){};
+  AdaptorInternalServices() {};
 
   /**
    * virtual destructor
    */
-  virtual ~AdaptorInternalServices(){};
+  virtual ~AdaptorInternalServices() {};
 
   // Undefined copy constructor.
   AdaptorInternalServices(const AdaptorInternalServices&) = delete;

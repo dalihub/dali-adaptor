@@ -35,7 +35,7 @@ namespace Adaptor
 class ColorController;
 }
 
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * Color controller currently caches the changeable color table which updates with the theme change
@@ -106,14 +106,14 @@ public:
   bool RetrieveColor(const std::string& colorCode, Vector4& colorValue);
 
   /**
-    * @brief Retrieve the RGBA values by given the color code.
-    *
-    * @param[in] colorCode The color code string.
-    * @param[out] textColor The text color.
-    * @param[out] textOutlineColor The text outline color.
-    * @param[out] textShadowColor The text shadow color.
-    * @return true if the color code exists, otherwise false
-    */
+   * @brief Retrieve the RGBA values by given the color code.
+   *
+   * @param[in] colorCode The color code string.
+   * @param[out] textColor The text color.
+   * @param[out] textOutlineColor The text outline color.
+   * @param[out] textShadowColor The text shadow color.
+   * @return true if the color code exists, otherwise false
+   */
   bool RetrieveColor(const std::string& colorCode, Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor);
 
 public: // Not intended for application developers

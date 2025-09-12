@@ -150,7 +150,7 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
   if(!queue.empty())
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss)
-                                            { oss << "[upload request \'" << queue.size() << "\' images]"; });
+    { oss << "[upload request \'" << queue.size() << "\' images]"; });
 #ifdef TRACE_ENABLED
     uint32_t uploadedCount = 0u;
 #endif
@@ -222,7 +222,7 @@ bool TextureUploadManager::ProcessUploadQueue(RequestUploadQueue&& queue)
       mGraphicsController->SubmitCommandBuffers(submitInfo);
     }
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_WORKER_THREAD_RESOURCE_UPLOAD", [&](std::ostringstream& oss)
-                                          { oss << "[uploaded : \'" << uploadedCount << "\']"; });
+    { oss << "[uploaded : \'" << uploadedCount << "\']"; });
   }
 
   return uploaded;

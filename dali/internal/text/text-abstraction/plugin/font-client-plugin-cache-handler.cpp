@@ -98,10 +98,9 @@ constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
 constexpr std::size_t DEFAULT_DESCRIPTION_CACHE_MAX         = 1024u;
 constexpr std::size_t MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX = 3u;
 
-constexpr auto MAX_NUMBER_OF_FACE_SIZE_CACHE_ENV = "DALI_FACE_SIZE_CACHE_MAX";
-constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
+constexpr auto MAX_NUMBER_OF_FACE_SIZE_CACHE_ENV   = "DALI_FACE_SIZE_CACHE_MAX";
+constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV       = "DALI_GLYPH_CACHE_MAX";
 constexpr auto MAX_NUMBER_OF_DESCRIPTION_CACHE_ENV = "DALI_DESCRIPTION_CACHE_MAX";
-
 
 /**
  * @brief Get maximum size of face size cache size from environment.
@@ -390,7 +389,7 @@ void FontClient::Plugin::CacheHandler::ClearCache()
   mLatestFoundFontDescription.family.clear();
   mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0, 0u);
 
-  mFontCacheCount = 0u;
+  mFontCacheCount               = 0u;
   mDefaultFontDescriptionCached = false;
 }
 
@@ -436,7 +435,7 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
   mLatestFoundFontDescription.family.clear();
   mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0, 0u);
 
-  mFontCacheCount = 0u;
+  mFontCacheCount               = 0u;
   mDefaultFontDescriptionCached = false;
 }
 
@@ -607,7 +606,7 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
 
     if(mFontConfig)
     {
-      for(auto &path: mCustomFontDirectories)
+      for(auto& path : mCustomFontDirectories)
       {
         FcConfigAppFontAddDir(mFontConfig, reinterpret_cast<const FcChar8*>(path.c_str()));
       }
@@ -1092,7 +1091,7 @@ FontId FontClient::Plugin::CacheHandler::CacheBitmapFontCacheItem(BitmapFontCach
 
   // Cache the items.
   mBitmapFontCache.insert({mFontCacheCount, std::move(bitmapFontCacheItem)});
-  mFontIdCache.insert({mFontCacheCount,std::move(fontIdCacheItem)});
+  mFontIdCache.insert({mFontCacheCount, std::move(fontIdCacheItem)});
   ++mFontCacheCount;
 
   // Set the font id to be returned.

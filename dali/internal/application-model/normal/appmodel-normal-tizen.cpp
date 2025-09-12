@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -317,12 +317,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
         mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
-            auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
-            framework->GetObserver().OnMemoryLow(task->mNewMemoryStatus);
-            return G_SOURCE_REMOVE;
-          });
+          [](gpointer userData) -> gboolean
+        {
+          auto* task      = static_cast<Task*>(userData);
+          auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
+          framework->GetObserver().OnMemoryLow(task->mNewMemoryStatus);
+          return G_SOURCE_REMOVE;
+        });
         mFramework->GetTaskObserver().OnTaskMemoryLow(mNewMemoryStatus);
         AppCoreTaskBase::OnLowMemory(state);
       }
@@ -334,12 +335,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
         mNewDeviceOrientationStatus = AppCore::GetOrientationStatus(static_cast<app_device_orientation_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
-            auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
-            framework->GetObserver().OnDeviceOrientationChanged(task->mNewDeviceOrientationStatus);
-            return G_SOURCE_REMOVE;
-          });
+          [](gpointer userData) -> gboolean
+        {
+          auto* task      = static_cast<Task*>(userData);
+          auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
+          framework->GetObserver().OnDeviceOrientationChanged(task->mNewDeviceOrientationStatus);
+          return G_SOURCE_REMOVE;
+        });
 
         mFramework->GetTaskObserver().OnTaskDeviceOrientationChanged(mNewDeviceOrientationStatus);
 
@@ -351,12 +353,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
         mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
-            auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
-            framework->GetObserver().OnBatteryLow(task->mNewBatteryStatus);
-            return G_SOURCE_REMOVE;
-          });
+          [](gpointer userData) -> gboolean
+        {
+          auto* task      = static_cast<Task*>(userData);
+          auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
+          framework->GetObserver().OnBatteryLow(task->mNewBatteryStatus);
+          return G_SOURCE_REMOVE;
+        });
         mFramework->GetTaskObserver().OnTaskBatteryLow(mNewBatteryStatus);
         AppCoreTaskBase::OnLowBattery(state);
       }
@@ -369,12 +372,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
         print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 2", __MODULE__, __func__, __LINE__);
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
-            auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
-            framework->GetObserver().OnLanguageChanged();
-            return G_SOURCE_REMOVE;
-          });
+          [](gpointer userData) -> gboolean
+        {
+          auto* task      = static_cast<Task*>(userData);
+          auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
+          framework->GetObserver().OnLanguageChanged();
+          return G_SOURCE_REMOVE;
+        });
         print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 3", __MODULE__, __func__, __LINE__);
 
         mFramework->GetTaskObserver().OnTaskLanguageChanged();
@@ -391,12 +395,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
         mFramework->SetRegion(mNewRegion);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
-            auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
-            framework->GetObserver().OnRegionChanged();
-            return G_SOURCE_REMOVE;
-          });
+          [](gpointer userData) -> gboolean
+        {
+          auto* task      = static_cast<Task*>(userData);
+          auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
+          framework->GetObserver().OnRegionChanged();
+          return G_SOURCE_REMOVE;
+        });
 
         mFramework->GetTaskObserver().OnTaskRegionChanged();
         AppCoreTaskBase::OnRegionChanged(mNewRegion);

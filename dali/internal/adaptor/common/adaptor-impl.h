@@ -317,7 +317,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @brief Set the application's language independently of the system language.
    */
-  void SetApplicationLocale(const std::string &locale);
+  void SetApplicationLocale(const std::string& locale);
 
   /**
    * @brief Performs the necessary operations when the locale changes.
@@ -327,13 +327,13 @@ public: // AdaptorInternalServices implementation
    * Changes the root layout direction.
    * Emits the LocaleChangedSignal.
    */
-   void UpdateLocale(const std::string &locale);
+  void UpdateLocale(const std::string& locale);
 
   /**
    * @brief Whether the ApplicationLocale is used or not.
    * @return True if the ApplicationLocale is used.
    */
-   bool IsApplicationLocaleUsed();
+  bool IsApplicationLocaleUsed();
 
 public:
   /**

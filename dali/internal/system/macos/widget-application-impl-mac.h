@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_WIN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ protected:
    */
   virtual ~WidgetApplicationCocoa();
 
-  WidgetApplicationCocoa(const Application&) = delete;
+  WidgetApplicationCocoa(const Application&)      = delete;
   WidgetApplicationCocoa& operator=(Application&) = delete;
 };
 

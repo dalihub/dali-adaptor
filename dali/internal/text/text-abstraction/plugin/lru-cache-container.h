@@ -57,7 +57,7 @@ public:
   LRUCacheContainer(const LRUCacheContainer& rhs) = default;
   LRUCacheContainer(LRUCacheContainer&& rhs)      = default;
 
-  LRUCacheContainer& operator=(const LRUCacheContainer& rhs) = default;
+  LRUCacheContainer& operator=(const LRUCacheContainer& rhs)     = default;
   LRUCacheContainer& operator=(LRUCacheContainer&& rhs) noexcept = default;
 
 public:
