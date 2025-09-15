@@ -115,16 +115,6 @@ public: // API for Dali::TextAbstraction::FontClient used.
   static void SetLocale(const std::string& locale);
 
   /**
-   * @brief Whether DesignCompatibility is enabled or not.
-   */
-  static bool DesignCompatibilityEnabled();
-
-  /**
-   * @brief Enable font specific design compatibility.
-   */
-  static void EnableDesignCompatibility();
-
-  /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
    */
   void ClearCache();

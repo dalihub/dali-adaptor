@@ -395,16 +395,6 @@ void SetLocale(const std::string& locale)
   Internal::FontClient::SetLocale(locale);
 }
 
-void EnableDesignCompatibility()
-{
-  Internal::FontClient::EnableDesignCompatibility();
-}
-
-bool DesignCompatibilityEnabled()
-{
-  return Internal::FontClient::DesignCompatibilityEnabled();
-}
-
 } // namespace TextAbstraction
 
 } // namespace Dali
