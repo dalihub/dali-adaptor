@@ -44,26 +44,27 @@ namespace
 {
 static void OnSystemLanguageChanged(system_settings_key_e key, void* data)
 {
+  char* locale = NULL;
+  if(system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale) != SYSTEM_SETTINGS_ERROR_NONE ||
+     locale == NULL)
+  {
+    DALI_LOG_ERROR("DALI OnSystemLanguageChanged failed ");
+    return;
+  }
+
   Adaptor* adaptor = static_cast<Adaptor*>(data);
   if(adaptor != NULL)
   {
-    if(adaptor->IsApplicationLocaleUsed())
-    {
-      DALI_LOG_RELEASE_INFO("ApplicationLocaleUsed, return");
-      return;
-    }
+    TextAbstraction::SetLocale(locale);
+    TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
+    fontClient.ClearCacheOnLocaleChanged();
+    fontClient.InitDefaultFontDescription();
 
-    char* locale = NULL;
-    if(system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale) != SYSTEM_SETTINGS_ERROR_NONE ||
-       locale == NULL)
-    {
-      DALI_LOG_ERROR("DALI OnSystemLanguageChanged failed ");
-      return;
-    }
-
-    adaptor->UpdateLocale(locale);
-    free(locale);
+    adaptor->SetRootLayoutDirection(locale);
+    adaptor->LocaleChangedSignal().Emit(locale);
   }
+
+  free(locale);
 }
 
 } // namespace
