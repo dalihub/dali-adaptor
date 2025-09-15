@@ -423,6 +423,30 @@ bool VideoPlayer::IsLetterBoxEnabled() const
   return false;
 }
 
+void VideoPlayer::SetFrameInterpolationInterval(float intervalSeconds)
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SetFrameInterpolationInterval(intervalSeconds);
+  }
+}
+
+void VideoPlayer::EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr)
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->EnableOffscreenFrameRendering(useOffScreenFrame, previousFrameBufferNativeImageSourcePtr, currentFrameBufferNativeImageSourcePtr);
+  }
+}
+
+void VideoPlayer::SetVideoFrameBuffer(Dali::NativeImageSourcePtr source)
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SetVideoFrameBuffer(source);
+  }
+}
+
 VideoPlayerPlugin* VideoPlayer::GetVideoPlayerPlugin()
 {
   return mPlugin;

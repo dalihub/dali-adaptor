@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-sync-mode.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/object/base-handle.h>
 
-//INTERNAL INCLUDES
+// INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -369,6 +370,29 @@ public:
    * @brief Checks whether letter box feature is enabled.
    */
   bool IsLetterBoxEnabled() const;
+
+  /**
+   * @brief Sets the frame interpolation interval for smooth video playback.
+   * @SINCE_2_4.39
+   * @param[in] intervalSeconds The interpolation interval in seconds
+   */
+  void SetFrameInterpolationInterval(float intervalSeconds);
+
+  /**
+   * @brief Enables or disables offscreen frame rendering for video interpolation.
+   * @SINCE_2_4.39
+   * @param[in] useOffScreenFrame True to enable offscreen frame rendering, false to disable
+   * @param[in] previousFrameBufferNativeImageSourcePtr Native image source for previous frame buffer
+   * @param[in] currentFrameBufferNativeImageSourcePtr Native image source for current frame buffer
+   */
+  void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr);
+
+  /**
+   * @brief Sets the video frame buffer for rendering.
+   * @SINCE_2_4.39
+   * @param[in] source The video frame buffer source containing surface data
+   */
+  void SetVideoFrameBuffer(Dali::NativeImageSourcePtr source);
 
 private: // Not intended for application developers
   /**
