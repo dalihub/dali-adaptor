@@ -528,7 +528,11 @@ ENDIF()
 # those issues at some point.
 # Matches "Clang" or "AppleClang"
 IF( NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" )
-  ADD_COMPILE_OPTIONS(-Werror)
+  IF( ENABLE_WARNING_TO_ERROR )
+    ADD_COMPILE_OPTIONS(-Werror)
+  ENDIF()
+ELSE()
+  SET(ENABLE_WARNING_TO_ERROR "OFF" CACHE STRING "" )
 ENDIF()
 
 IF(VULKAN_ENABLED)

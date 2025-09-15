@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -787,13 +787,15 @@ private:
   typedef std::vector<std::pair<std::string, std::string> > AuxiliaryHints;
   Dali::Vector<Ecore_Event_Handler*>                        mEcoreEventHandler;
   Ecore_Wl2_Window*                                         mEcoreWindow;
-  Ecore_Wl2_Screen*                                         mScreen;
+#ifdef OVER_TIZEN_VERSION_10
+  Ecore_Wl2_Screen* mScreen;
+#endif
 
   wl_surface* mWlSurface;
 #ifdef OVER_TIZEN_VERSION_7
   zwp_input_panel_v1* mWlInputPanel;
 #else
-  wl_input_panel*         mWlInputPanel;
+  wl_input_panel* mWlInputPanel;
 #endif
   wl_output* mWlOutput;
 #ifdef OVER_TIZEN_VERSION_7

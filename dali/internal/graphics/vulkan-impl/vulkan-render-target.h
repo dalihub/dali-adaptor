@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-features.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
@@ -112,8 +113,10 @@ public:
   void ResetDependencies()
   {
     mDependencies.clear();
-    mSubmitted       = false;
+    mSubmitted = false;
+#if defined(ENABLE_FBO_SEMAPHORE)
     mSemaphoreWaited = false;
+#endif
   }
 
   void AddDependency(RenderTarget* dependency)
@@ -136,10 +139,12 @@ public:
   const std::vector<RenderTarget*>& GetDependencies() const;
 
 private:
-  std::vector<RenderTarget*> mDependencies;     ///< Render targets whose output is used as input to this task.
-  vk::Semaphore              mSubmitSemaphore;  ///< Signaled when the command buffer for this target is processed
-  bool                       mSubmitted{false}; ///< Check if this render target was submitted this frame
-  bool                       mSemaphoreWaited{false};
+  std::vector<RenderTarget*> mDependencies; ///< Render targets whose output is used as input to this task.
+#if defined(ENABLE_FBO_SEMAPHORE)
+  vk::Semaphore mSubmitSemaphore; ///< Signaled when the command buffer for this target is processed
+  bool          mSemaphoreWaited{false};
+#endif
+  bool mSubmitted{false}; ///< Check if this render target was submitted this frame
 };
 
 } // namespace Dali::Graphics::Vulkan

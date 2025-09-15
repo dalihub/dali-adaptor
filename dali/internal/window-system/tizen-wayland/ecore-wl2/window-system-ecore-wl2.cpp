@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,6 +144,7 @@ void GetScreenSize(int32_t& width, int32_t& height)
 
 std::vector<Dali::ScreenInformation> GetAvailableScreens()
 {
+#ifdef OVER_TIZEN_VERSION_10
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
@@ -176,7 +177,7 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
       {
         EINA_LIST_FOREACH(ecoreScreenList, l, (screen))
         {
-          int   width, height;
+          int         width, height;
           const char* ecoreScreenName = ecore_wl2_screen_name_get(static_cast<Ecore_Wl2_Screen*>(screen));
           if(!ecoreScreenName)
           {
@@ -199,6 +200,9 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
     }
   }
   print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%d", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenList.size());
+#else
+  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Not supported platform version", DALI_LOG_FORMAT_PREFIX_ARGS);
+#endif
   return gScreenList;
 }
 

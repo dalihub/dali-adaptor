@@ -79,12 +79,22 @@ bool NativeImageSourceQueue::CanDequeueBuffer()
 
 uint8_t* NativeImageSourceQueue::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
-  return mImpl->DequeueBuffer(width, height, stride);
+  return mImpl->DequeueBuffer(width, height, stride, BufferAccessType::WRITE);
+}
+
+uint8_t* NativeImageSourceQueue::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, BufferAccessType type)
+{
+  return mImpl->DequeueBuffer(width, height, stride, type);
 }
 
 bool NativeImageSourceQueue::EnqueueBuffer(uint8_t* buffer)
 {
   return mImpl->EnqueueBuffer(buffer);
+}
+
+void NativeImageSourceQueue::CancelDequeuedBuffer(uint8_t* buffer)
+{
+  mImpl->CancelDequeuedBuffer(buffer);
 }
 
 void NativeImageSourceQueue::FreeReleasedBuffers()

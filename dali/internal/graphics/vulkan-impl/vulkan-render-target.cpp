@@ -34,21 +34,19 @@ namespace Dali::Graphics::Vulkan
 RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, VulkanGraphicsController& controller)
 : RenderTargetResource(createInfo, controller)
 {
-  if(createInfo.surface)
-  {
-    // Do creation stuff!
-    //   Create Swapchain?!
-  }
-  else
+#if defined(ENABLE_FBO_SEMAPHORE)
+  if(!createInfo.surface)
   {
     // Non-surface render targets use own semaphore to signal cmd buffer completion.
     auto& graphicsDevice = controller.GetGraphicsDevice();
     mSubmitSemaphore     = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
   }
+#endif
 }
 
 RenderTarget::~RenderTarget()
 {
+#if defined(ENABLE_FBO_SEMAPHORE)
   if(mSubmitSemaphore)
   {
     // Render target dies so make sure semaphore is not in use anymore
@@ -57,6 +55,7 @@ RenderTarget::~RenderTarget()
     VkTest(result, vk::Result::eSuccess);
     gfxDevice.GetLogicalDevice().destroySemaphore(mSubmitSemaphore, gfxDevice.GetAllocator());
   }
+#endif
 }
 
 void RenderTarget::DestroyResource()
@@ -118,7 +117,9 @@ void RenderTarget::CreateSubmissionData(
 {
   auto surface = GetSurface();
 
-  std::vector<vk::Semaphore> waitSemaphores;
+  std::vector<vk::Semaphore> waitSemaphores;   // Remains empty if we're only using barriers
+  std::vector<vk::Semaphore> submitSemaphores; // Remains empty if we're only using barriers
+#if defined(ENABLE_FBO_SEMAPHORE)
   for(auto renderTarget : mDependencies)
   {
     // Only use semaphore if dependency render target was submitted
@@ -129,11 +130,16 @@ void RenderTarget::CreateSubmissionData(
       renderTarget->mSemaphoreWaited = true;
     }
   }
+  if(mSubmitSemaphore)
+  {
+    submitSemaphores.emplace_back(mSubmitSemaphore);
+  }
+#endif
   std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
   if(!surface)
   {
-    submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {cmdBuffer->GetImpl()}, {mSubmitSemaphore}});
+    submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {cmdBuffer->GetImpl()}, submitSemaphores});
   }
   else
   {

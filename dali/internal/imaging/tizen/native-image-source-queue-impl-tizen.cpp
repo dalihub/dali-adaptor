@@ -264,7 +264,7 @@ bool NativeImageSourceQueueTizen::CanDequeueBuffer()
   return false;
 }
 
-uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type)
 {
   Dali::Mutex::ScopedLock lock(mMutex);
   if(mTbmQueue == NULL)
@@ -280,8 +280,18 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     return NULL;
   }
 
+  int tbmOption = 0;
+  if(type & Dali::NativeImageSourceQueue::BufferAccessType::READ)
+  {
+    tbmOption |= TBM_OPTION_READ;
+  }
+  if(type & Dali::NativeImageSourceQueue::BufferAccessType::WRITE)
+  {
+    tbmOption |= TBM_OPTION_WRITE;
+  }
+
   tbm_surface_info_s info;
-  int                ret = tbm_surface_map(tbmSurface, TBM_OPTION_WRITE, &info);
+  int                ret = tbm_surface_map(tbmSurface, tbmOption, &info);
   if(ret != TBM_SURFACE_ERROR_NONE)
   {
     DALI_LOG_ERROR("tbm_surface_map is failed! [%d] [%p]\n", ret, tbmSurface);
@@ -322,6 +332,19 @@ bool NativeImageSourceQueueTizen::EnqueueBuffer(uint8_t* buffer)
     return true;
   }
   return false;
+}
+
+void NativeImageSourceQueueTizen::CancelDequeuedBuffer(uint8_t* buffer)
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  auto                    bufferInstance = mBuffers.find(buffer);
+  if(bufferInstance != mBuffers.end())
+  {
+    tbm_surface_internal_unref((*bufferInstance).second);
+    tbm_surface_unmap((*bufferInstance).second);
+    tbm_surface_queue_cancel_dequeue(mTbmQueue, (*bufferInstance).second);
+    mBuffers.erase(bufferInstance);
+  }
 }
 
 void NativeImageSourceQueueTizen::FreeReleasedBuffers()

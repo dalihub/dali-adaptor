@@ -43,6 +43,8 @@
 #include <queue>
 #include <unordered_map>
 
+#include "vulkan-framebuffer-impl.h"
+
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
 #endif
@@ -265,18 +267,16 @@ struct VulkanGraphicsController::Impl
 
   Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
 
-
   DiscardQueues<ResourceBase> mDiscardQueues;
 
-
   std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
-  DepthStencilFlags mDepthStencilBufferCurrentState{0u};
-  DepthStencilFlags mDepthStencilBufferRequestedState{0u};
+  DepthStencilFlags            mDepthStencilBufferCurrentState{0u};
+  DepthStencilFlags            mDepthStencilBufferRequestedState{0u};
 
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
   bool                                                                 mDidPresent{false};
-  ResourceTransfer mResourceTransfer;
+  ResourceTransfer                                                     mResourceTransfer;
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
@@ -592,6 +592,31 @@ const Graphics::Reflection& VulkanGraphicsController::GetProgramReflection(const
   return (static_cast<const Vulkan::Program*>(&program))->GetReflection();
 }
 
+bool VulkanGraphicsController::IsCompatible(
+  const Graphics::RenderTarget& gfxRenderTargetA, const Graphics::RenderTarget& gfxRenderTargetB, const Graphics::RenderPass& gfxRenderPassA, const Graphics::RenderPass& gfxRenderPassB)
+{
+  // If render target and render passes are compatible, we can re-use same pipeline.
+  auto renderTargetA = CastObject<const Vulkan::RenderTarget>(&gfxRenderTargetA);
+  auto renderTargetB = CastObject<const Vulkan::RenderTarget>(&gfxRenderTargetB);
+  auto fboA          = const_cast<Vulkan::Framebuffer*>(CastObject<Vulkan::Framebuffer>(renderTargetA->GetCreateInfo().framebuffer));
+  auto fboB          = const_cast<Vulkan::Framebuffer*>(CastObject<Vulkan::Framebuffer>(renderTargetB->GetCreateInfo().framebuffer));
+  auto renderPassA   = const_cast<Vulkan::RenderPass*>(CastObject<const Vulkan::RenderPass>(&gfxRenderPassA));
+  auto renderPassB   = const_cast<Vulkan::RenderPass*>(CastObject<const Vulkan::RenderPass>(&gfxRenderPassB));
+
+  if(fboA != nullptr && fboB != nullptr)
+  {
+    auto fboImplA        = fboA->GetImpl();
+    auto fboImplB        = fboB->GetImpl();
+    auto renderPassImplA = fboImplA->GetImplFromRenderPass(renderPassA);
+    auto renderPassImplB = fboImplB->GetImplFromRenderPass(renderPassB);
+    return renderPassImplA->IsCompatible(renderPassImplB);
+  }
+
+  auto surfaceA = renderTargetA->GetCreateInfo().surface;
+  auto surfaceB = renderTargetB->GetCreateInfo().surface;
+  return surfaceA == surfaceB;
+}
+
 bool VulkanGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
 {
   return true;
@@ -786,7 +811,7 @@ void VulkanGraphicsController::CheckTextureDependencies(
     if(binding.texture)
     {
       auto texture = CastObject<const Vulkan::Texture>(binding.texture);
-      mImpl->mDependencyChecker.CheckNeedsSync(texture, renderTarget);
+      mImpl->mDependencyChecker.CheckNeedsSync(const_cast<Texture*>(texture), renderTarget);
     }
   }
 }

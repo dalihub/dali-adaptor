@@ -1108,6 +1108,8 @@ void Adaptor::RequestUpdate()
 
 void Adaptor::RequestProcessEventsOnIdle()
 {
+  DALI_ASSERT_ALWAYS(gThreadLocalAdaptor && "RequestProcessEventsOnIdle Must be called at main thread!");
+
   // We want to run the processes even when paused
   if(STOPPED != mState)
   {
@@ -1417,6 +1419,34 @@ Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
   return registry;
 }
 
+void Adaptor::SetApplicationLocale(const std::string& locale)
+{
+  DALI_LOG_RELEASE_INFO("SetApplicationLocale:%s\n", locale.c_str());
+  if(locale.empty())
+  {
+    DALI_LOG_ERROR("Locale is empty\n");
+    return;
+  }
+  mApplicationLocaleUsed = true;
+  UpdateLocale(locale);
+}
+
+void Adaptor::UpdateLocale(const std::string& locale)
+{
+  TextAbstraction::SetLocale(locale);
+  TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
+  fontClient.ClearCacheOnLocaleChanged();
+  fontClient.InitDefaultFontDescription();
+
+  SetRootLayoutDirection(locale);
+  LocaleChangedSignal().Emit(locale);
+}
+
+bool Adaptor::IsApplicationLocaleUsed()
+{
+  return mApplicationLocaleUsed;
+}
+
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 : mResizedSignal(),
   mLanguageChangedSignal(),
@@ -1450,7 +1480,8 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mThreadMode(threadMode),
   mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
   mUseRemoteSurface(false),
-  mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT)
+  mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT),
+  mApplicationLocaleUsed(false)
 {
   DALI_ASSERT_ALWAYS(!IsAvailable() && "Cannot create more than one Adaptor per thread");
   mWindows.insert(mWindows.begin(), &Dali::GetImplementation(window));
