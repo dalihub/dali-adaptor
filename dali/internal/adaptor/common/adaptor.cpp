@@ -221,9 +221,9 @@ void Adaptor::NotifySceneCreated()
   mImpl->NotifySceneCreated();
 }
 
-void Adaptor::NotifyLanguageChanged()
+void Adaptor::NotifyLanguageChanged(const std::string& language)
 {
-  mImpl->NotifyLanguageChanged();
+  mImpl->NotifyLanguageChanged(language);
 }
 
 void Adaptor::FeedTouchPoint(TouchPoint& point, int timeStamp)

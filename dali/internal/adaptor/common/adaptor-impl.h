@@ -443,7 +443,7 @@ public:
   /**
    * @copydoc Dali::Adaptor::NotifyLanguageChanged()
    */
-  void NotifyLanguageChanged();
+  void NotifyLanguageChanged(const std::string& language);
 
   /**
    * Gets AppId of current application
@@ -803,7 +803,6 @@ private:                                          // Data
   const bool                           mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
-  bool                                 mApplicationLocaleUsed : 1;   ///< Whether the ApplicationLocale is used or not
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 

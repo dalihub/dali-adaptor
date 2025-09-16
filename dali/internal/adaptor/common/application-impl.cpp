@@ -652,7 +652,7 @@ void Application::OnAppControl(void* data)
 void Application::OnLanguageChanged()
 {
   DALI_LOG_RELEASE_INFO("Application::OnLanguageChanged\n");
-  mAdaptor->NotifyLanguageChanged();
+  mAdaptor->NotifyLanguageChanged(GetLanguage());
   Dali::Application application(this);
   mLanguageChangedSignal.Emit(application);
 }
