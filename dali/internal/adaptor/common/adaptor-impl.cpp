@@ -275,7 +275,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 Adaptor::~Adaptor()
 {
   DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
-  Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
   Stop();

@@ -58,9 +58,20 @@ struct DALI_ADAPTOR_API Bridge
   };
 
   /**
+   * @brief Constructor
+   */
+  Bridge()
+  {
+    mBridgeInitialized = true;
+  }
+
+  /**
    * @brief Destructor
    */
-  virtual ~Bridge() = default;
+  virtual ~Bridge()
+  {
+    mBridgeTerminated = true;
+  }
 
   /**
    * @brief Adds the accessible object associated with given actorId to the brige.
@@ -605,7 +616,9 @@ protected:
     ENABLED
   };
 
-  inline static AutoInitState mAutoInitState = AutoInitState::ENABLED;
+  inline static AutoInitState mAutoInitState     = AutoInitState::ENABLED;
+  inline static bool          mBridgeInitialized = false; ///< Become true if bridge creation API called at least 1 time.
+  inline static bool          mBridgeTerminated  = false; ///< Become false if bridge destruction API called at least 1 time.
 
   inline static Signal<void()> mEnabledSignal;
   inline static Signal<void()> mDisabledSignal;

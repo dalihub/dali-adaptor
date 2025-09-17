@@ -53,7 +53,6 @@ using namespace Dali::Accessibility;
 namespace // unnamed namespace
 {
 const int RETRY_INTERVAL = 1000;
-
 } // unnamed namespace
 
 /**
@@ -93,6 +92,10 @@ class BridgeImpl : public virtual BridgeBase,
 
 public:
   BridgeImpl() = default;
+  ~BridgeImpl()
+  {
+    TerminateInternal();
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::AddAccessible()
@@ -350,11 +353,16 @@ public:
       mForceUpTimer.Reset();
     }
   }
-
   /**
    * @copydoc Dali::Accessibility::Bridge::Terminate()
    */
   void Terminate() override
+  {
+    TerminateInternal();
+  }
+
+  // Seperated method that we can call at constructor/destructor (to avoid pure virtual method exception)
+  void TerminateInternal()
   {
     if(mData)
     {
@@ -991,7 +999,7 @@ private:
 
 namespace // unnamed namespace
 {
-bool INITIALIZED_BRIDGE = false;
+static bool INITIALIZED_BRIDGE = false;
 
 /**
  * @brief Creates BridgeImpl instance.
@@ -1009,6 +1017,7 @@ std::shared_ptr<Bridge> CreateBridge()
     const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
     if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
     {
+      DALI_LOG_DEBUG_INFO("AT-SPI Disabled. Return dummy instance\n");
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
@@ -1029,6 +1038,14 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 {
   static std::shared_ptr<Bridge> bridge;
 
+  // Guard rare case that call this API after Bridge destructor.
+  // (Since static bridge didn't be nullptr at static variables destroy case.)
+  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::mBridgeTerminated))
+  {
+    DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
+    return nullptr;
+  }
+
   if(bridge)
   {
     return bridge;
@@ -1046,6 +1063,7 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 
     return bridge;
   }
+  DALI_LOG_DEBUG_INFO("Bridge::DisableAutoInit() called. Return dummy instance\n");
 
   return Dali::Accessibility::DummyBridge::GetInstance();
 }
