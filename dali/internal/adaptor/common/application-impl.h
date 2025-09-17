@@ -26,6 +26,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/public-api/adaptor-framework/application.h>
 
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/environment-options.h>
@@ -577,6 +578,8 @@ private:
   bool             mIsSystemInitialized;
 
   SlotDelegate<Application> mSlotDelegate;
+
+  std::shared_ptr<Dali::Accessibility::Bridge> mAccessibilityBridge; ///< Ensure to keep ownership s.t. static bridge didn't destruct before application destroyed.
 
   UIThreadLoader*       mUIThreadLoader;
   std::string           mScreen; ///< Screen for the main window

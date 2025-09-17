@@ -25,7 +25,6 @@
 #include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -200,6 +199,8 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mFramework        = mFrameworkFactory->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
 
   mUseRemoteSurface = (applicationType == Framework::WATCH);
+
+  mAccessibilityBridge = Accessibility::Bridge::GetCurrentBridge();
 }
 
 Application::~Application()
@@ -512,7 +513,7 @@ void Application::Quit()
 void Application::QuitFromMainLoop()
 {
   DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
-  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+  mAccessibilityBridge->Terminate();
 
   mAdaptor->Stop();
 
@@ -604,7 +605,7 @@ void Application::OnTerminate()
 void Application::OnPause()
 {
   DALI_LOG_RELEASE_INFO("Application::OnPause\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationPaused();
+  mAccessibilityBridge->ApplicationPaused();
 
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
@@ -616,7 +617,7 @@ void Application::OnPause()
 void Application::OnResume()
 {
   DALI_LOG_RELEASE_INFO("Application::OnResume\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationResumed();
+  mAccessibilityBridge->ApplicationResumed();
 
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required

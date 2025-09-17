@@ -28,6 +28,7 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
@@ -804,6 +805,8 @@ private:                                          // Data
   bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
   bool                                 mApplicationLocaleUsed : 1;   ///< Whether the ApplicationLocale is used or not
+
+  std::shared_ptr<Dali::Accessibility::Bridge> mAccessibilityBridge; ///< Ensure to keep ownership s.t. static bridge didn't destruct before adaptor destroyed.
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 
