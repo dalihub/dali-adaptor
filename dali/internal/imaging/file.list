@@ -48,6 +48,7 @@ SET( adaptor_imaging_tizen_egl_src_files
 # module: imaging, backend: tizen/vulkan
 SET( adaptor_imaging_tizen_vulkan_src_files
     ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen-vulkan.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen-vulkan.cpp
 )
 
 # module: imaging, backend: ubuntu

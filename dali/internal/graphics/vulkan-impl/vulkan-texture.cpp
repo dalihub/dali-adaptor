@@ -28,8 +28,82 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+
+// EXTERNAL INCLUDES
+#include <errno.h>
+#include <tbm_bo.h>
+#include <tbm_surface.h>
+#include <tbm_surface_internal.h>
+#include <tbm_type_common.h>
+#include <unistd.h>
+#include <vulkan/vulkan.h>
+
+namespace
+{
+PFN_vkBindImageMemory2KHR             gPfnBindImageMemory2KHR             = nullptr;
+PFN_vkGetImageMemoryRequirements2KHR  gPfnGetImageMemoryRequirements2KHR  = nullptr;
+PFN_vkGetMemoryFdPropertiesKHR        gPfnGetMemoryFdPropertiesKHR        = nullptr;
+PFN_vkCreateSamplerYcbcrConversionKHR gPfnCreateSamplerYcbcrConversionKHR = nullptr;
+
+// clang-format off
+
+// TBM format to Vulkan format mapping
+const std::pair<tbm_format, vk::Format> FORMAT_MAPPING[] = {
+  {TBM_FORMAT_RGBA8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_BGRA8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_ARGB8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_NV12, vk::Format::eG8B8R82Plane420Unorm},
+  {TBM_FORMAT_NV21, vk::Format::eG8B8R82Plane420Unorm}
+};
+
+// YCbCr formats that need conversion
+const tbm_format YUV_FORMATS[] = {
+  TBM_FORMAT_NV12,
+  TBM_FORMAT_NV21
+};
+
+// Plane aspect flags for disjoint multi-plane binding
+const vk::ImageAspectFlagBits PLANE_ASPECT_FLAGS[] = {
+  vk::ImageAspectFlagBits::eMemoryPlane0EXT,
+  vk::ImageAspectFlagBits::eMemoryPlane1EXT,
+  vk::ImageAspectFlagBits::eMemoryPlane2EXT,
+  vk::ImageAspectFlagBits::eMemoryPlane3EXT
+};
+
+// clang-format on
+
+const int NUM_FORMATS_BLENDING_REQUIRED = 18;
+
+vk::Format GetVulkanFormat(tbm_format tbmFormat)
+{
+  for(const auto& mapping : FORMAT_MAPPING)
+  {
+    if(mapping.first == tbmFormat)
+    {
+      return mapping.second;
+    }
+  }
+
+  DALI_LOG_ERROR("Unsupported TBM format: %d\n", tbmFormat);
+  return vk::Format::eUndefined;
+}
+
+bool RequiresYcbcrConversion(tbm_format tbmFormat)
+{
+  for(const auto& format : YUV_FORMATS)
+  {
+    if(format == tbmFormat)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+} // namespace
 
 namespace Dali::Graphics::Vulkan
 {
@@ -1246,10 +1320,38 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
     mDisableStagingBuffer = true;
     mTiling               = TextureTiling::LINEAR;
   }
+
+  mIsNativeImage = (createInfo.nativeImagePtr != nullptr);
+  if(mIsNativeImage)
+  {
+    auto device = mDevice.GetLogicalDevice();
+
+    if(!gPfnBindImageMemory2KHR && !gPfnGetImageMemoryRequirements2KHR && !gPfnGetMemoryFdPropertiesKHR && !gPfnCreateSamplerYcbcrConversionKHR)
+    {
+      gPfnBindImageMemory2KHR = reinterpret_cast<PFN_vkBindImageMemory2KHR>(
+        device.getProcAddr("vkBindImageMemory2KHR"));
+
+      gPfnGetImageMemoryRequirements2KHR = reinterpret_cast<PFN_vkGetImageMemoryRequirements2KHR>(
+        device.getProcAddr("vkGetImageMemoryRequirements2KHR"));
+
+      gPfnGetMemoryFdPropertiesKHR = reinterpret_cast<PFN_vkGetMemoryFdPropertiesKHR>(
+        device.getProcAddr("vkGetMemoryFdPropertiesKHR"));
+
+      gPfnCreateSamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkCreateSamplerYcbcrConversionKHR>(
+        device.getProcAddr("vkCreateSamplerYcbcrConversionKHR"));
+    }
+  }
+
+  mSampler = controller.GetDefaultSampler();
 }
 
 Texture::~Texture()
 {
+  if(mIsNativeImage)
+  {
+    delete mSampler;
+  }
+
   delete mImageView;
   delete mImage;
 }
@@ -1263,7 +1365,9 @@ ResourceBase::InitializationResult Texture::InitializeResource()
     return InitializationResult::NOT_SUPPORTED;
   }
 
-  if(InitializeTexture())
+  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
+
+  if(initialized)
   {
     // force generating properties
     GetProperties();
@@ -1276,11 +1380,42 @@ ResourceBase::InitializationResult Texture::InitializeResource()
 
 void Texture::DestroyResource()
 {
+  if(mIsNativeImage)
+  {
+    // Destroy native image Vulkan resources.
+    mSampler->Destroy();
+    mSampler = nullptr;
+
+    auto device = mDevice.GetLogicalDevice();
+
+    if(mYcbcrConversion != VK_NULL_HANDLE)
+    {
+      device.destroySamplerYcbcrConversion(static_cast<vk::SamplerYcbcrConversion>(mYcbcrConversion));
+      mYcbcrConversion = VK_NULL_HANDLE;
+    }
+
+    for(auto& memory : mNativeMemories)
+    {
+      device.freeMemory(memory);
+    }
+
+    mNativeMemories.clear();
+
+    if(mNativeImage != VK_NULL_HANDLE)
+    {
+      device.destroyImage(mNativeImage);
+      mNativeImage = VK_NULL_HANDLE;
+    }
+
+    mPlaneFds.clear();
+  }
+
   if(mImageView)
   {
     mImageView->Destroy();
     mImageView = nullptr;
   }
+
   if(mImage)
   {
     mImage->Destroy();
@@ -1300,22 +1435,60 @@ void Texture::SetFormatAndUsage()
   mHeight   = uint32_t(size.height);
   mLayout   = vk::ImageLayout::eUndefined;
 
-  if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+  vk::Format format = vk::Format::eUndefined;
+
+  if(mIsNativeImage)
   {
-    mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    NativeImageInterfacePtr nativeImage       = mCreateInfo.nativeImagePtr;
+    Dali::Any               nativeImageSource = nativeImage->GetNativeImageHandle();
+
+    if(nativeImageSource.GetType() == typeid(tbm_surface_h))
+    {
+      tbm_surface_h tbmSurface = AnyCast<tbm_surface_h>(nativeImageSource);
+      if(tbm_surface_internal_is_valid(tbmSurface))
+      {
+        mTbmSurface = tbmSurface;
+
+        tbm_format tbmFormat = tbm_surface_get_format(tbmSurface);
+
+        format = GetVulkanFormat(tbmFormat);
+
+        mIsYUVFormat = RequiresYcbcrConversion(tbmFormat);
+
+        vk::ImageUsageFlags usage{};
+        if(mIsYUVFormat)
+        {
+          mUsage = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+        }
+        else
+        {
+          mUsage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+        }
+
+        mTiling = Dali::Graphics::TextureTiling::LINEAR;
+      }
+    }
   }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+  else
   {
-    mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
-  }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
-  {
-    mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
+    {
+      mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    }
+
+    format = ConvertApiToVk(mCreateInfo.format);
   }
 
-  auto format = ConvertApiToVk(mCreateInfo.format); // convert from R11G11B10 to eB10G11R11
   if(IsCompressed(mCreateInfo.format))
   {
     mFormat = ValidateCompressedFormat(format);
@@ -1331,6 +1504,89 @@ void Texture::SetFormatAndUsage()
     mConvertFromFormat = format;
   }
   mComponentMapping = GetVkComponentMapping(mCreateInfo.format);
+}
+
+bool Texture::InitializeNativeTexture()
+{
+  NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
+
+  tbm_surface_h tbmSurface;
+
+  if(!mTbmSurface)
+  {
+    DALI_LOG_ERROR("Invalid TBM surface\n");
+    return false;
+  }
+  else
+  {
+    tbmSurface = reinterpret_cast<tbm_surface_h>(mTbmSurface);
+    if(!tbm_surface_internal_is_valid(tbmSurface))
+    {
+      DALI_LOG_ERROR("Invalid TBM surface\n");
+      return false;
+    }
+  }
+
+  if(mFormat == vk::Format::eUndefined)
+  {
+    DALI_LOG_ERROR("Unsupported TBM forma\n");
+    return false;
+  }
+
+  bool created = nativeImage->CreateResource();
+
+  if(created)
+  {
+    // 1. Export plane file descriptors
+    if(!ExportPlaneFds())
+    {
+      DALI_LOG_ERROR("Failed to export plane FDs\n");
+      return false;
+    }
+
+    if(mIsYUVFormat && !mDevice.IsKHRSamplerYCbCrConversionSupported())
+    {
+      DALI_LOG_ERROR("SamplerYcbcrConversion feature required for YUV texture is not supported\n");
+      return false;
+    }
+
+    // 2. Create Vulkan image from external memory
+    if(!CreateNativeImage())
+    {
+      DALI_LOG_ERROR("Failed to create Vulkan image\n");
+      return false;
+    }
+
+    // 3. Create SamplerYcbcrConversion (if needed)
+    if(mIsYUVFormat)
+    {
+      if(!CreateYcbcrConversion())
+      {
+        DALI_LOG_ERROR("Failed to create Ycbcr Conversion\n");
+        return false;
+      }
+    }
+
+    // 4. Create image view for the imported image
+    if(!CreateNativeImageView())
+    {
+      DALI_LOG_ERROR("Failed to create image view\n");
+      return false;
+    }
+
+    // 5. Create sampler with optional YCbCr conversion
+    if(!CreateNativeSampler())
+    {
+      DALI_LOG_ERROR("Failed to create sampler\n");
+      return false;
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Native Image: InitializeNativeTexture, CreateResource() failed\n");
+  }
+
+  return created; // WARNING! May be false! Needs handling! (Well, initialized on bind)}
 }
 
 // creates image with pre-allocated memory and default sampler, no data
@@ -1436,7 +1692,7 @@ Vulkan::ImageView* Texture::GetImageView() const
 
 Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
 {
-  return mController.GetDefaultSampler();
+  return mSampler;
 }
 
 vk::Format Texture::ConvertApiToVk(Dali::Graphics::Format format)
@@ -1479,4 +1735,349 @@ const TextureProperties& Texture::GetProperties()
   return *mProperties;
 }
 
+uint32_t Texture::FindMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags flags) const
+{
+  auto memProperties = mDevice.GetMemoryProperties();
+
+  for(uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
+  {
+    if((typeBits & (1u << i)) &&
+       (memProperties.memoryTypes[i].propertyFlags & flags) == flags)
+    {
+      return i;
+    }
+  }
+
+  DALI_LOG_ERROR("Failed to find suitable memory type\n");
+  return 0;
+}
+
+bool Texture::ExportPlaneFds()
+{
+  if(!mTbmSurface)
+  {
+    return false;
+  }
+
+  tbm_surface_h      tbmSurface = reinterpret_cast<tbm_surface_h>(mTbmSurface);
+  tbm_surface_info_s tbmSurfaceInfo;
+
+  if(tbm_surface_get_info(tbmSurface, &tbmSurfaceInfo) != TBM_SURFACE_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("Failed to get TBM surface info\n");
+    return false;
+  }
+
+  int num_bos = tbm_surface_internal_get_num_bos(tbmSurface);
+  mPlaneFds.clear();
+
+  for(int i = 0; i < num_bos; ++i)
+  {
+    tbm_bo bo = tbm_surface_internal_get_bo(tbmSurface, i);
+    if(bo)
+    {
+      tbm_bo_handle handle = tbm_bo_get_handle(bo, TBM_DEVICE_3D);
+      if(handle.ptr)
+      {
+        int fd = static_cast<int>(handle.u32);
+        if(fd >= 0)
+        {
+          mPlaneFds.push_back(fd);
+        }
+        else
+        {
+          DALI_LOG_ERROR("Failed to get FD handle for plane %d\n", i);
+          return false;
+        }
+      }
+    }
+  }
+
+  return !mPlaneFds.empty();
+}
+
+vk::DeviceMemory Texture::ImportPlaneMemory(int fd)
+{
+  auto device = mDevice.GetLogicalDevice();
+
+  try
+  {
+    // Use lseek to get actual DMA buffer size
+    const off_t dma_buf_size = lseek(fd, 0, SEEK_END);
+    if(dma_buf_size < 0)
+    {
+      DALI_LOG_ERROR("Failed to get DMA buffer size for fd %d\n", fd);
+      return VK_NULL_HANDLE;
+    }
+
+    //Get memory properties from FD
+    auto memFdProps = VkMemoryFdPropertiesKHR{};
+
+    if(!gPfnGetMemoryFdPropertiesKHR || VK_SUCCESS != gPfnGetMemoryFdPropertiesKHR(device, VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT, fd, &memFdProps))
+    {
+      DALI_LOG_ERROR("VkMemoryFdPropertiesKHR failed\n");
+      return VK_NULL_HANDLE;
+    }
+
+    // Import memory with FD-specific memory type
+    auto importInfo = vk::ImportMemoryFdInfoKHR{}
+                        .setHandleType(vk::ExternalMemoryHandleTypeFlagBits::eDmaBufEXT)
+                        .setFd(fd);
+
+    auto allocInfo = vk::MemoryAllocateInfo{}
+                       .setPNext(&importInfo)
+                       .setAllocationSize(static_cast<vk::DeviceSize>(dma_buf_size))
+                       .setMemoryTypeIndex(FindMemoryType(memFdProps.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+
+    return device.allocateMemory(allocInfo).value;
+  }
+  catch(const std::system_error& e)
+  {
+    DALI_LOG_ERROR("Failed to import memory for fd %d: %s\n", fd, e.what());
+    return VK_NULL_HANDLE;
+  }
+}
+
+bool Texture::CreateNativeImage()
+{
+  try
+  {
+    auto device = mDevice.GetLogicalDevice();
+
+    // Create external memory image
+    auto extMemCreateInfo = vk::ExternalMemoryImageCreateInfo{}
+                              .setHandleTypes(vk::ExternalMemoryHandleTypeFlagBits::eDmaBufEXT);
+
+    auto imageCreateInfo = vk::ImageCreateInfo{}
+                             .setPNext(static_cast<void*>(&extMemCreateInfo))
+                             .setImageType(vk::ImageType::e2D)
+                             .setFormat(mFormat)
+                             .setExtent({mWidth, mHeight, 1})
+                             .setMipLevels(1)
+                             .setArrayLayers(1)
+                             .setSamples(vk::SampleCountFlagBits::e1)
+                             .setTiling(vk::ImageTiling::eLinear)
+                             .setUsage(mUsage)
+                             .setSharingMode(vk::SharingMode::eExclusive)
+                             .setInitialLayout(mIsYUVFormat ? vk::ImageLayout::ePreinitialized : vk::ImageLayout::eUndefined);
+
+    mNativeImage = device.createImage(imageCreateInfo).value;
+    mImage       = new Image(mDevice, imageCreateInfo, mNativeImage);
+
+    // Check for disjoint vs non-disjoint multi-plane layout
+    bool isDisjoint = false;
+    if(mPlaneFds.size() > 1)
+    {
+      for(size_t i = 1; i < mPlaneFds.size(); ++i)
+      {
+        if(mPlaneFds[i] != mPlaneFds[0])
+        {
+          isDisjoint = true;
+          break;
+        }
+      }
+    }
+
+    // Import memory for each plane
+    mNativeMemories.clear();
+
+    if(!isDisjoint && !mPlaneFds.empty())
+    {
+      // Single memory binding for non-disjoint or single-plane
+      auto memory = ImportPlaneMemory(mPlaneFds[0]);
+      if(memory == VK_NULL_HANDLE)
+      {
+        return false;
+      }
+
+      mNativeMemories.push_back(memory);
+      VkAssert(device.bindImageMemory(mNativeImage, memory, 0));
+    }
+    else if(isDisjoint)
+    {
+      tbm_surface_h      tbmSurface = reinterpret_cast<tbm_surface_h>(mTbmSurface);
+      tbm_surface_info_s tbmSurfaceInfo;
+
+      if(tbm_surface_get_info(tbmSurface, &tbmSurfaceInfo) != TBM_SURFACE_ERROR_NONE)
+      {
+        DALI_LOG_ERROR("Failed to get TBM surface info\n");
+        return false;
+      }
+
+      // Multi-plane binding with VkBindImageMemory2
+      std::vector<vk::BindImageMemoryInfo>      bindInfos;
+      std::vector<vk::BindImagePlaneMemoryInfo> planeInfos;
+
+      for(size_t i = 0; i < mPlaneFds.size(); ++i)
+      {
+        auto memory = ImportPlaneMemory(mPlaneFds[i]);
+        if(memory == VK_NULL_HANDLE)
+        {
+          return false;
+        }
+
+        mNativeMemories.push_back(memory);
+
+        // Setup plane binding info
+        planeInfos.emplace_back(vk::BindImagePlaneMemoryInfo{}
+                                  .setPlaneAspect(PLANE_ASPECT_FLAGS[i]));
+
+        bindInfos.emplace_back(vk::BindImageMemoryInfo{}
+                                 .setPNext(&planeInfos[i])
+                                 .setImage(mNativeImage)
+                                 .setMemory(memory)
+                                 .setMemoryOffset(tbmSurfaceInfo.planes[i].offset));
+      }
+
+      vk::Result result = device.bindImageMemory2(bindInfos);
+      if(result != vk::Result::eSuccess)
+      {
+        DALI_LOG_ERROR("vkBindImageMemory failed\n");
+        return false;
+      }
+    }
+
+    return true;
+  }
+  catch(const std::system_error& e)
+  {
+    DALI_LOG_ERROR("Failed to create Vulkan image: %s\n", e.what());
+    return false;
+  }
+}
+
+bool Texture::CreateYcbcrConversion()
+{
+  bool support_cosited_chroma_sampling = false;
+  bool support_linearfilter            = false;
+
+  // Check whether format is supported by the platform
+  auto formatProperties = mDevice.GetPhysicalDevice().getFormatProperties(mFormat);
+
+  if(!(formatProperties.linearTilingFeatures & vk::FormatFeatureFlagBits::eCositedChromaSamples) || !(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eCositedChromaSamples))
+  {
+    support_cosited_chroma_sampling = true;
+  }
+
+  if(formatProperties.linearTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageYcbcrConversionLinearFilter)
+  {
+    support_linearfilter = true;
+  }
+
+  // Create YCbCr conversion
+  auto conversionCreateInfo = vk::SamplerYcbcrConversionCreateInfo{}
+                                .setFormat(mFormat)
+                                .setYcbcrModel(vk::SamplerYcbcrModelConversion::eYcbcr709)
+                                .setYcbcrRange(vk::SamplerYcbcrRange::eItuFull)
+                                .setComponents(vk::ComponentMapping()
+                                                 .setR(vk::ComponentSwizzle::eIdentity)
+                                                 .setG(vk::ComponentSwizzle::eIdentity)
+                                                 .setB(vk::ComponentSwizzle::eIdentity)
+                                                 .setA(vk::ComponentSwizzle::eIdentity))
+                                .setXChromaOffset(support_cosited_chroma_sampling ? vk::ChromaLocation::eCositedEven : vk::ChromaLocation::eMidpoint)
+                                .setYChromaOffset(support_cosited_chroma_sampling ? vk::ChromaLocation::eCositedEven : vk::ChromaLocation::eMidpoint)
+                                .setChromaFilter(support_linearfilter ? vk::Filter::eLinear : vk::Filter::eNearest)
+                                .setForceExplicitReconstruction(false);
+
+  if(!gPfnCreateSamplerYcbcrConversionKHR || VK_SUCCESS != gPfnCreateSamplerYcbcrConversionKHR(mDevice.GetLogicalDevice(), reinterpret_cast<const VkSamplerYcbcrConversionCreateInfo*>(static_cast<const void*>(&conversionCreateInfo)), nullptr, &mYcbcrConversion))
+  {
+    DALI_LOG_ERROR("vkCreateSamplerYcbcrConversion failed\n");
+    return false;
+  }
+
+  return true;
+}
+
+bool Texture::CreateNativeImageView()
+{
+  try
+  {
+    auto viewInfo = vk::ImageViewCreateInfo{}
+                      .setImage(mNativeImage)
+                      .setViewType(vk::ImageViewType::e2D)
+                      .setFormat(mFormat)
+                      .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
+
+    // Chain YCbCr conversion info for YUV formats
+    if(mIsYUVFormat && mYcbcrConversion != VK_NULL_HANDLE)
+    {
+      mYcbcrConversionInfo = vk::SamplerYcbcrConversionInfo{}
+                               .setConversion(static_cast<vk::SamplerYcbcrConversion>(mYcbcrConversion));
+
+      viewInfo.setPNext(&mYcbcrConversionInfo)
+        .setComponents(vk::ComponentMapping()
+                         .setR(vk::ComponentSwizzle::eIdentity)
+                         .setG(vk::ComponentSwizzle::eIdentity)
+                         .setB(vk::ComponentSwizzle::eIdentity)
+                         .setA(vk::ComponentSwizzle::eIdentity));
+    }
+
+    mImageView = ImageView::New(mDevice, *mImage, viewInfo);
+
+    return true;
+  }
+  catch(const std::system_error& e)
+  {
+    DALI_LOG_ERROR("Failed to create image view: %s\n", e.what());
+    return false;
+  }
+}
+
+bool Texture::CreateNativeSampler()
+{
+  try
+  {
+    vk::SamplerCreateInfo samplerCreateInfo{};
+
+    if(mIsYUVFormat)
+    {
+      // Create sampler with YCbCr conversion
+      samplerCreateInfo = vk::SamplerCreateInfo{}
+                            .setPNext(static_cast<void*>(&mYcbcrConversionInfo))
+                            .setMagFilter(vk::Filter::eLinear)
+                            .setMinFilter(vk::Filter::eLinear)
+                            .setMipmapMode(vk::SamplerMipmapMode::eLinear)
+                            .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+                            .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+                            .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
+                            .setMipLodBias(0.0f)
+                            .setAnisotropyEnable(false)
+                            .setMaxAnisotropy(1.0f)
+                            .setCompareEnable(false)
+                            .setCompareOp(vk::CompareOp::eLessOrEqual)
+                            .setMinLod(0.0f)
+                            .setMaxLod(1.0f)
+                            .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
+                            .setUnnormalizedCoordinates(false);
+    }
+    else
+    {
+      const auto& properties = mDevice.GetPhysicalDeviceProperties();
+
+      // Create regular sampler for RGBA formats
+      samplerCreateInfo = vk::SamplerCreateInfo{}
+                            .setMagFilter(vk::Filter::eLinear)
+                            .setMinFilter(vk::Filter::eLinear)
+                            .setMipmapMode(vk::SamplerMipmapMode::eLinear)
+                            .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+                            .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+                            .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
+                            .setAnisotropyEnable(false)
+                            .setMaxAnisotropy(properties.limits.maxSamplerAnisotropy)
+                            .setCompareEnable(false)
+                            .setCompareOp(vk::CompareOp::eAlways)
+                            .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
+                            .setUnnormalizedCoordinates(false);
+    }
+
+    mSampler = SamplerImpl::New(mDevice, samplerCreateInfo);
+
+    return true;
+  }
+  catch(const std::system_error& e)
+  {
+    DALI_LOG_ERROR("Failed to create sampler: %s\n", e.what());
+    return false;
+  }
+}
 } // namespace Dali::Graphics::Vulkan

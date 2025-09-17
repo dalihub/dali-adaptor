@@ -23,6 +23,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <vulkan/vulkan.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -98,6 +99,8 @@ public:
 
   Dali::Graphics::MemoryRequirements GetMemoryRequirements() const;
 
+  bool InitializeNativeTexture();
+
   bool InitializeTexture();
 
   /**
@@ -171,11 +174,57 @@ private:
 
   vk::ComponentMapping GetVkComponentMapping(Dali::Graphics::Format format);
 
+  /**
+   * @brief Export DMA-BUF file descriptors from TBM surface.
+   * @return Whether the FD export is successful or not
+   */
+  bool ExportPlaneFds();
+
+  /**
+   * Create Vulkan image from external memory.
+   * @return Whether the image creation is successful or not
+   */
+  bool CreateNativeImage();
+
+  /**
+   * Create the YCbCr conversion
+   * @return Whether the YCbCr conversion creation is successful or not
+   */
+  bool CreateYcbcrConversion();
+
+  /**
+   * Create image view for the imported image.
+   * @return Whether the image view creation is successful or not
+   */
+  bool CreateNativeImageView();
+
+  /**
+   * Create sampler with optional YCbCr conversion.
+   * @return Whether the sampler creation is successful or not
+   */
+  bool CreateNativeSampler();
+
+  /**
+   * Find suitable memory type index.
+   * @param[in] typeBits Memory type requirements
+   * @param[in] flags Required memory properties
+   * @return Memory type index
+   */
+  uint32_t FindMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags flags) const;
+
+  /**
+   * Import DMA-BUF memory into Vulkan device memory.
+   * @param[in] fd The file descriptor
+   * @return The imported plane memory
+   */
+  vk::DeviceMemory ImportPlaneMemory(int fd);
+
 private:
   Vulkan::Device& mDevice;
 
-  Image*     mImage;
-  ImageView* mImageView;
+  Image*       mImage;
+  ImageView*   mImageView;
+  SamplerImpl* mSampler{nullptr};
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
@@ -190,6 +239,15 @@ private:
   Dali::Graphics::TextureTiling mTiling{Dali::Graphics::TextureTiling::OPTIMAL};
 
   std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
+
+  void*                          mTbmSurface{nullptr};
+  vk::Image                      mNativeImage{VK_NULL_HANDLE};
+  VkSamplerYcbcrConversion       mYcbcrConversion{VK_NULL_HANDLE}; ///< YCbCr conversion (if needed)
+  vk::SamplerYcbcrConversionInfo mYcbcrConversionInfo{};           ///< YCbCr conversion info
+  std::vector<vk::DeviceMemory>  mNativeMemories;                  ///< Device memories per plane
+  std::vector<int>               mPlaneFds;                        ///< FD handle per plane
+  bool                           mIsNativeImage{false};
+  bool                           mIsYUVFormat{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

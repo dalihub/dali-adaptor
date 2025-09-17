@@ -569,6 +569,7 @@ void ResourceTransfer::CopyBufferAndTransition(
                                             {},
                                             preLayoutBarriers);
 
+  //@todo: For native image with YUV format, we need to do this differently.
   auto copyInfo = vk::BufferImageCopy{}
                     .setImageSubresource(vk::ImageSubresourceLayers{}
                                            .setBaseArrayLayer(layer)
