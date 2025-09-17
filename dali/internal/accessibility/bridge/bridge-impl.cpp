@@ -53,7 +53,6 @@ using namespace Dali::Accessibility;
 namespace // unnamed namespace
 {
 const int RETRY_INTERVAL = 1000;
-
 } // unnamed namespace
 
 /**
@@ -93,6 +92,18 @@ class BridgeImpl : public virtual BridgeBase,
 
 public:
   BridgeImpl() = default;
+  ~BridgeImpl()
+  {
+    mBridgeTerminated = true;
+    try
+    {
+      TerminateInternal();
+    }
+    catch(...)
+    {
+      // Do nothing.
+    }
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::AddAccessible()
@@ -350,12 +361,24 @@ public:
       mForceUpTimer.Reset();
     }
   }
-
   /**
    * @copydoc Dali::Accessibility::Bridge::Terminate()
    */
   void Terminate() override
   {
+    TerminateInternal();
+  }
+
+  // Seperated method that we can call at constructor/destructor (to avoid pure virtual method exception)
+  void TerminateInternal()
+  {
+    if(DALI_UNLIKELY(mTerminateFunctionCalled))
+    {
+      // Skip terminate function if it called twice.
+      return;
+    }
+    mTerminateFunctionCalled = true;
+
     if(mData)
     {
       // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
@@ -368,10 +391,11 @@ public:
     }
     mAccessibles.clear();
     ForceDown();
-    if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
+    if((nullptr != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
     }
+    mIdleCallback              = nullptr;
     mAccessibilityStatusClient = {};
     mDbusServer                = {};
     mConnectionPtr             = {};
@@ -853,7 +877,7 @@ public:
     if(InitializeAccessibilityStatusClient())
     {
       ReadAndListenProperties();
-      mIdleCallback = NULL;
+      mIdleCallback = nullptr;
       return false;
     }
 
@@ -864,7 +888,7 @@ public:
     }
     mInitializeTimer.Start();
 
-    mIdleCallback = NULL;
+    mIdleCallback = nullptr;
     return false;
   }
 
@@ -883,7 +907,7 @@ public:
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-      if(NULL == mIdleCallback)
+      if(nullptr == mIdleCallback)
       {
         mIdleCallback = MakeCallback(this, &BridgeImpl::OnIdleSignal);
         if(DALI_UNLIKELY(!adaptor.AddIdle(mIdleCallback, true)))
@@ -993,11 +1017,13 @@ private:
 
     DBus::releaseBusName(mConnectionPtr, busName);
   }
+
+  bool mTerminateFunctionCalled{false};
 }; // BridgeImpl
 
 namespace // unnamed namespace
 {
-bool INITIALIZED_BRIDGE = false;
+static bool INITIALIZED_BRIDGE = false;
 
 /**
  * @brief Creates BridgeImpl instance.
@@ -1015,6 +1041,7 @@ std::shared_ptr<Bridge> CreateBridge()
     const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
     if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
     {
+      DALI_LOG_DEBUG_INFO("AT-SPI Disabled. Return dummy instance\n");
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
@@ -1035,6 +1062,14 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 {
   static std::shared_ptr<Bridge> bridge;
 
+  // Guard rare case that call this API after Bridge destructor.
+  // (Since static bridge didn't be nullptr at static variables destroy case.)
+  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::IsTerminated()))
+  {
+    DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
+    return nullptr;
+  }
+
   if(bridge)
   {
     return bridge;
@@ -1052,6 +1087,7 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 
     return bridge;
   }
+  DALI_LOG_DEBUG_INFO("Bridge::DisableAutoInit() called. Return dummy instance\n");
 
   return Dali::Accessibility::DummyBridge::GetInstance();
 }
