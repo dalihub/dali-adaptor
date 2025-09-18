@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_SYNC_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,23 @@ class EglSyncObject : public Integration::GraphicsSyncAbstraction::SyncObject
 {
 public:
   /**
+   * @brief EGL Sync object type
+   *
+   * Defines the type of EGL sync object that can be created. Different sync types
+   * provide different synchronization capabilities and are used for different
+   * synchronization scenarios.
+   */
+  enum class SyncType
+  {
+    FENCE_SYNC,       ///< Standard EGL fence sync for GPU-CPU synchronization within the same process
+    NATIVE_FENCE_SYNC ///< Native fence sync that supports cross-process synchronization via file descriptors
+  };
+
+public:
+  /**
    * Constructor
    */
-  EglSyncObject(EglImplementation& eglSyncImpl);
+  EglSyncObject(EglImplementation& eglSyncImpl, EglSyncObject::SyncType type);
 
   /**
    * Destructor
@@ -63,12 +77,24 @@ public:
    */
   void ClientWait() override;
 
+  /**
+   * Duplicates a native fence file descriptor from an EGLSync object.
+   *
+   * This method creates a duplicate of the native fence file descriptor associated
+   * with this EGL sync object. The native fence FD can be used to synchronize
+   * GPU operations across different processes or contexts.
+   *
+   * @return The duplicated native fence file descriptor, or -1 if the operation fails.
+   *         The caller is responsible for closing the returned file descriptor when
+   *         it is no longer needed.
+   */
+  int32_t DuplicateNativeFenceFD();
+
 private:
 #ifdef _ARCH_ARM_
   EGLSyncKHR mEglSync;
 #else
   EGLSync mEglSync;
-  int     mPollCounter; // Implementations without fence sync use a 3 frame counter
 #endif
   EglImplementation& mEglImplementation;
 };
@@ -108,6 +134,17 @@ public:
    * Destroy a sync object
    */
   void DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject) override;
+
+  /**
+   * Create a sync object with the specified type that can be polled.
+   *
+   * @param[in] type The type of sync object to create (FENCE_SYNC or NATIVE_FENCE_SYNC)
+   * @return Pointer to the created sync object, or nullptr if creation fails
+   *
+   * @note The caller is responsible for destroying the sync object using
+   *       DestroySyncObject() when it is no longer needed.
+   */
+  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject(EglSyncObject::SyncType type);
 
 private:
   /**

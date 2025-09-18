@@ -40,9 +40,8 @@ namespace Internal
 {
 namespace Adaptor
 {
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
 : mEglSync(NULL),
-  mPollCounter(3),
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
@@ -161,6 +160,11 @@ void EglSyncObject::ClientWait()
   DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
 }
 
+int32_t EglSyncObject::DuplicateNativeFenceFD()
+{
+  return -1;
+}
+
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(NULL),
   mSyncInitialized(false),
@@ -179,14 +183,19 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
 
 Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
 {
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  return new EglSyncObject(*mEglImplementation);
+  return CreateSyncObject(EglSyncObject::SyncType::FENCE_SYNC);
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
   delete static_cast<EglSyncObject*>(syncObject);
+}
+
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
+{
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  return new EglSyncObject(*mEglImplementation, type);
 }
 
 void EglSyncImplementation::InitializeEglSync()
