@@ -1266,8 +1266,10 @@ void Adaptor::NotifySceneCreated()
   }
 }
 
-void Adaptor::NotifyLanguageChanged()
+void Adaptor::NotifyLanguageChanged(const std::string& language)
 {
+  DALI_LOG_RELEASE_INFO("Adaptor::NotifyLanguageChanged: %s\n", language.c_str());
+  UpdateLocale(language);
   mLanguageChangedSignal.Emit(mAdaptor);
 }
 
@@ -1430,7 +1432,6 @@ void Adaptor::SetApplicationLocale(const std::string& locale)
     DALI_LOG_ERROR("Locale is empty\n");
     return;
   }
-  mApplicationLocaleUsed = true;
   UpdateLocale(locale);
 }
 
@@ -1443,11 +1444,6 @@ void Adaptor::UpdateLocale(const std::string& locale)
 
   SetRootLayoutDirection(locale);
   LocaleChangedSignal().Emit(locale);
-}
-
-bool Adaptor::IsApplicationLocaleUsed()
-{
-  return mApplicationLocaleUsed;
 }
 
 Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
@@ -1483,8 +1479,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mThreadMode(threadMode),
   mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
   mUseRemoteSurface(false),
-  mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT),
-  mApplicationLocaleUsed(false)
+  mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT)
 {
   DALI_ASSERT_ALWAYS(!IsAvailable() && "Cannot create more than one Adaptor per thread");
   mWindows.insert(mWindows.begin(), &Dali::GetImplementation(window));

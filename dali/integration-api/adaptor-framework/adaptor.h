@@ -356,7 +356,7 @@ public:
    * use app-core to receive language change notifications and should update Dali
    * by calling this method.
    */
-  void NotifyLanguageChanged();
+  void NotifyLanguageChanged(const std::string& language);
 
   /**
    * @brief Feed a touch point to the adaptor.

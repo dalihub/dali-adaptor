@@ -177,7 +177,7 @@ void OffscreenApplication::OnReset()
 
 void OffscreenApplication::OnLanguageChanged()
 {
-  mAdaptor->NotifyLanguageChanged();
+  mAdaptor->NotifyLanguageChanged(mFramework->GetLanguage());
 
   Dali::OffscreenApplication application(this);
   mLanguageChangedSignal.Emit();
