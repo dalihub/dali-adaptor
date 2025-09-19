@@ -508,48 +508,9 @@ bool IsActorAccessibleFunction(Dali::Actor actor, Dali::HitTestAlgorithm::Traver
     }
   }
   return hittable;
-};
-
-} // anonymous namespace
-
-BridgeAccessible::BridgeAccessible()
-{
 }
 
-void BridgeAccessible::RegisterInterfaces()
-{
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACCESSIBLE)};
-  AddGetPropertyToInterface(desc, "ChildCount", &BridgeAccessible::GetChildCount);
-  AddGetPropertyToInterface(desc, "Name", &BridgeAccessible::GetName);
-  AddGetPropertyToInterface(desc, "Description", &BridgeAccessible::GetDescription);
-  AddGetPropertyToInterface(desc, "Parent", &BridgeAccessible::GetParent);
-  AddFunctionToInterface(desc, "GetRole", &BridgeAccessible::GetRole);
-  AddFunctionToInterface(desc, "GetRoleName", &BridgeAccessible::GetRoleName);
-  AddFunctionToInterface(desc, "GetLocalizedRoleName", &BridgeAccessible::GetLocalizedRoleName);
-  AddFunctionToInterface(desc, "GetState", &BridgeAccessible::GetStates);
-  AddFunctionToInterface(desc, "GetAttributes", &BridgeAccessible::GetAttributes);
-  AddFunctionToInterface(desc, "GetInterfaces", &BridgeAccessible::GetInterfacesAsStrings);
-  AddFunctionToInterface(desc, "GetChildAtIndex", &BridgeAccessible::GetChildAtIndex);
-  AddFunctionToInterface(desc, "GetChildren", &BridgeAccessible::GetChildren);
-  AddFunctionToInterface(desc, "GetIndexInParent", &BridgeAccessible::GetIndexInParent);
-  AddFunctionToInterface(desc, "GetNavigableAtPoint", &BridgeAccessible::GetNavigableAtPoint);
-  AddFunctionToInterface(desc, "GetNeighbor", &BridgeAccessible::GetNeighbor);
-  AddFunctionToInterface(desc, "GetDefaultLabelInfo", &BridgeAccessible::GetDefaultLabelInfo);
-  AddFunctionToInterface(desc, "DoGesture", &BridgeAccessible::DoGesture);
-  AddFunctionToInterface(desc, "GetReadingMaterial", &BridgeAccessible::GetReadingMaterial);
-  AddFunctionToInterface(desc, "GetRelationSet", &BridgeAccessible::GetRelationSet);
-  AddFunctionToInterface(desc, "SetListenPostRender", &BridgeAccessible::SetListenPostRender);
-  AddFunctionToInterface(desc, "GetNodeInfo", &BridgeAccessible::GetNodeInfo);
-  AddFunctionToInterface(desc, "DumpTree", &BridgeAccessible::DumpTree);
-  mDbusServer.addInterface("/", desc, true);
-}
-
-Accessible* BridgeAccessible::FindSelf() const
-{
-  return FindCurrentObject();
-}
-
-Component* BridgeAccessible::GetObjectInRelation(Accessible* obj, RelationType relationType)
+Component* GetObjectInRelation(Accessible* obj, RelationType relationType)
 {
   if(!obj)
   {
@@ -573,7 +534,7 @@ Component* BridgeAccessible::GetObjectInRelation(Accessible* obj, RelationType r
   return nullptr;
 }
 
-Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth)
+Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
 {
   if(!root || maxRecursionDepth == 0)
   {
@@ -612,7 +573,9 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
     DALI_LOG_RELEASE_INFO("Force child search attr is set to %d.", forceChildSearch);
   }
 
-  if(rootComponent && !forceChildSearch && !rootComponent->IsAccessibleContainingPoint(point, type))
+  bool currentForceSearchActive = forceChildSearch || isForceSearchPropagated;
+
+  if(rootComponent && !currentForceSearchActive && !rootComponent->IsAccessibleContainingPoint(point, type))
   {
     return nullptr;
   }
@@ -621,7 +584,7 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
   for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
   {
     //check recursively all children first
-    auto result = CalculateNavigableAccessibleAtPoint(*childIt, point, type, maxRecursionDepth - 1);
+    auto result = CalculateNavigableAccessibleAtPoint(*childIt, point, type, maxRecursionDepth - 1, currentForceSearchActive);
     if(result)
     {
       return result;
@@ -637,13 +600,52 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
       controledBy = rootComponent;
     }
 
-    if(controledBy->IsProxy() || IsObjectAcceptable(controledBy))
+    if(controledBy->IsProxy() || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || controledBy->IsAccessibleContainingPoint(point, type))))
     {
       LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
       return controledBy;
     }
   }
   return nullptr;
+}
+
+} // anonymous namespace
+
+BridgeAccessible::BridgeAccessible()
+{
+}
+
+void BridgeAccessible::RegisterInterfaces()
+{
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACCESSIBLE)};
+  AddGetPropertyToInterface(desc, "ChildCount", &BridgeAccessible::GetChildCount);
+  AddGetPropertyToInterface(desc, "Name", &BridgeAccessible::GetName);
+  AddGetPropertyToInterface(desc, "Description", &BridgeAccessible::GetDescription);
+  AddGetPropertyToInterface(desc, "Parent", &BridgeAccessible::GetParent);
+  AddFunctionToInterface(desc, "GetRole", &BridgeAccessible::GetRole);
+  AddFunctionToInterface(desc, "GetRoleName", &BridgeAccessible::GetRoleName);
+  AddFunctionToInterface(desc, "GetLocalizedRoleName", &BridgeAccessible::GetLocalizedRoleName);
+  AddFunctionToInterface(desc, "GetState", &BridgeAccessible::GetStates);
+  AddFunctionToInterface(desc, "GetAttributes", &BridgeAccessible::GetAttributes);
+  AddFunctionToInterface(desc, "GetInterfaces", &BridgeAccessible::GetInterfacesAsStrings);
+  AddFunctionToInterface(desc, "GetChildAtIndex", &BridgeAccessible::GetChildAtIndex);
+  AddFunctionToInterface(desc, "GetChildren", &BridgeAccessible::GetChildren);
+  AddFunctionToInterface(desc, "GetIndexInParent", &BridgeAccessible::GetIndexInParent);
+  AddFunctionToInterface(desc, "GetNavigableAtPoint", &BridgeAccessible::GetNavigableAtPoint);
+  AddFunctionToInterface(desc, "GetNeighbor", &BridgeAccessible::GetNeighbor);
+  AddFunctionToInterface(desc, "GetDefaultLabelInfo", &BridgeAccessible::GetDefaultLabelInfo);
+  AddFunctionToInterface(desc, "DoGesture", &BridgeAccessible::DoGesture);
+  AddFunctionToInterface(desc, "GetReadingMaterial", &BridgeAccessible::GetReadingMaterial);
+  AddFunctionToInterface(desc, "GetRelationSet", &BridgeAccessible::GetRelationSet);
+  AddFunctionToInterface(desc, "SetListenPostRender", &BridgeAccessible::SetListenPostRender);
+  AddFunctionToInterface(desc, "GetNodeInfo", &BridgeAccessible::GetNodeInfo);
+  AddFunctionToInterface(desc, "DumpTree", &BridgeAccessible::DumpTree);
+  mDbusServer.addInterface("/", desc, true);
+}
+
+Accessible* BridgeAccessible::FindSelf() const
+{
+  return FindCurrentObject();
 }
 
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
@@ -856,7 +858,7 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   }
 
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
-  auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
+  auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH, false);
   bool recurse   = false;
   if(component)
   {

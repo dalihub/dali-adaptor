@@ -291,26 +291,6 @@ private:
    * @return The non defunct sibling accessible
    */
   Dali::Accessibility::Accessible* GetNextNonDefunctSibling(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* start, unsigned char forward);
-
-  /**
-   * @brief Gets Component object in relation.
-   * @param obj The accessible object to find component in its address
-   * @param relationType Accessibility::RelationType enum
-   * @return The Component object
-   */
-  Dali::Accessibility::Component* GetObjectInRelation(Dali::Accessibility::Accessible* obj, Dali::Accessibility::RelationType relationType);
-
-  /**
-   * @brief Calculates and gets Component object that can be navigable at given coordinates.
-   *
-   * This method calculates which Component should be addressed if user hits certain point in a screen.
-   * @param root The root node
-   * @param point The coordinate of a point
-   * @param type This type says if the coordinates of a point refer to the device screen or current window.
-   * @param maxRecursionDepth The maximum recursion depth count
-   * @return The Component object
-   */
-  Dali::Accessibility::Component* CalculateNavigableAccessibleAtPoint(Dali::Accessibility::Accessible* root, Dali::Accessibility::Point point, Dali::Accessibility::CoordinateType type, unsigned int maxRecursionDepth);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H
