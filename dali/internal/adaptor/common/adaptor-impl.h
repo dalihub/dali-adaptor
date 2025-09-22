@@ -28,7 +28,6 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
@@ -804,8 +803,6 @@ private:                                          // Data
   const bool                           mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
-
-  std::shared_ptr<Dali::Accessibility::Bridge> mAccessibilityBridge; ///< Ensure to keep ownership s.t. static bridge didn't destruct before adaptor destroyed.
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 

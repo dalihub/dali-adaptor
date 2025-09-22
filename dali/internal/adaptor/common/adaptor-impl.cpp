@@ -44,6 +44,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
@@ -139,8 +140,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
 
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
-
-  mAccessibilityBridge = Accessibility::Bridge::GetCurrentBridge();
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -276,10 +275,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 Adaptor::~Adaptor()
 {
   DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
-  if(DALI_LIKELY(mAccessibilityBridge.get()))
-  {
-    mAccessibilityBridge->Terminate();
-  }
 
   // Ensure stop status
   Stop();
@@ -335,8 +330,9 @@ void Adaptor::Start()
 
   // Initialize accessibility bridge after callback manager is started to use Idler callback
   auto appName = GetApplicationPackageName();
-  mAccessibilityBridge->SetApplicationName(appName);
-  mAccessibilityBridge->Initialize();
+  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
+  bridge->SetApplicationName(appName);
+  bridge->Initialize();
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
