@@ -220,7 +220,10 @@ public:
     {
       mIsEmbedded = false;
       mParent.SetAddress({});
-      Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(0, 0);
+      if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+      {
+        bridge->SetExtentsOffset(0, 0);
+      }
     }
   }
 
@@ -231,7 +234,10 @@ public:
       return;
     }
 
-    Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(x, y);
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->SetExtentsOffset(x, y);
+    }
   }
 
   // Component

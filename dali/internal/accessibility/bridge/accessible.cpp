@@ -267,8 +267,10 @@ std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
   auto handle = mBridgeData.lock();
   if(!handle)
   {
-    auto bridge = Bridge::GetCurrentBridge();
-    handle      = bridge->mData;
+    if(auto bridge = Bridge::GetCurrentBridge())
+    {
+      handle = bridge->mData;
+    }
   }
   return handle;
 }

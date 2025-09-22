@@ -194,7 +194,7 @@ struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
     signature<subtype>::get(iter, address);
 
     auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
-    if(currentBridge->GetBusName() != address.GetBus())
+    if(!currentBridge || currentBridge->GetBusName() != address.GetBus())
     {
       return false;
     }

@@ -330,9 +330,11 @@ void Adaptor::Start()
 
   // Initialize accessibility bridge after callback manager is started to use Idler callback
   auto appName = GetApplicationPackageName();
-  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
-  bridge->SetApplicationName(appName);
-  bridge->Initialize();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->SetApplicationName(appName);
+    bridge->Initialize();
+  }
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 

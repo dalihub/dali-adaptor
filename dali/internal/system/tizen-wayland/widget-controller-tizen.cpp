@@ -123,13 +123,15 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   mWindow   = window;
   mWidgetId = widgetId;
 
-  auto bridge           = Accessibility::Bridge::GetCurrentBridge();
-  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
 
-  // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
-  // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.
-  bridge->ApplicationResumed();
-  bridge->SetPreferredBusName(preferredBusName);
+    // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
+    // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.
+    bridge->ApplicationResumed();
+    bridge->SetPreferredBusName(preferredBusName);
+  }
 
   // Widget should not send window events (which could narrow down the navigation context)
   if(auto accessible = Accessibility::Accessible::Get(window.GetRootLayer()))

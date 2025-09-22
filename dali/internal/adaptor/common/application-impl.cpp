@@ -523,7 +523,10 @@ void Application::Quit()
 void Application::QuitFromMainLoop()
 {
   DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
-  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->Terminate();
+  }
 
   mAdaptor->Stop();
 
@@ -615,7 +618,10 @@ void Application::OnTerminate()
 void Application::OnPause()
 {
   DALI_LOG_RELEASE_INFO("Application::OnPause\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationPaused();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->ApplicationPaused();
+  }
 
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
@@ -627,7 +633,10 @@ void Application::OnPause()
 void Application::OnResume()
 {
   DALI_LOG_RELEASE_INFO("Application::OnResume\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationResumed();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->ApplicationResumed();
+  }
 
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required

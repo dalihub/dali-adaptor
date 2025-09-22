@@ -240,18 +240,19 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   }
 
   // Add Window to bridge for ATSPI
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
-
-  bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
-  bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
-
-  if(bridge->IsUp())
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
   {
-    OnAccessibilityEnabled();
-  }
-  else
-  {
-    OnAccessibilityDisabled();
+    bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
+    bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
+
+    if(bridge->IsUp())
+    {
+      OnAccessibilityEnabled();
+    }
+    else
+    {
+      OnAccessibilityDisabled();
+    }
   }
 
   if(mScene)
@@ -586,7 +587,10 @@ void Window::Show()
     mScene.Show();
 
     mVisibilityChangedSignal.Emit(handle, true);
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
+    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->WindowShown(handle);
+    }
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowShown();
@@ -611,7 +615,10 @@ void Window::Hide()
     mScene.Hide();
 
     mVisibilityChangedSignal.Emit(handle, false);
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
+    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->WindowHidden(handle);
+    }
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowHidden();
@@ -932,7 +939,10 @@ void Window::OnIconifyChanged(bool iconified)
       mScene.Hide();
 
       mVisibilityChangedSignal.Emit(handle, false);
-      bridge->WindowHidden(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowHidden(handle);
+      }
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowHidden();
@@ -940,7 +950,10 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(isActuallyChanged)
     {
-      bridge->WindowMinimized(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowMinimized(handle);
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -954,7 +967,10 @@ void Window::OnIconifyChanged(bool iconified)
       mScene.Show();
 
       mVisibilityChangedSignal.Emit(handle, true);
-      bridge->WindowShown(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowShown(handle);
+      }
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowShown();
@@ -962,7 +978,10 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(isActuallyChanged)
     {
-      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -989,12 +1008,18 @@ void Window::OnMaximizeChanged(bool maximized)
     if(maximized)
     {
       mMaximized = true;
-      bridge->WindowMaximized(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowMaximized(handle);
+      }
     }
     else
     {
       mMaximized = false;
-      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+      }
     }
   }
 }
@@ -1005,15 +1030,16 @@ void Window::OnFocusChanged(bool focusIn)
   mFocusChangeSignal.Emit(handle, focusIn);
 
   mSurface->SetFullSwapNextFrame();
-  auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
-
-  if(focusIn)
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
-    bridge->WindowFocused(handle);
-  }
-  else
-  {
-    bridge->WindowUnfocused(handle);
+    if(focusIn)
+    {
+      bridge->WindowFocused(handle);
+    }
+    else
+    {
+      bridge->WindowUnfocused(handle);
+    }
   }
 
   mFocused = focusIn;
@@ -1171,7 +1197,10 @@ void Window::OnAccessibilityEnabled()
   auto rootLayer = mScene.GetRootLayer();
   if(auto accessible = Accessibility::Accessible::Get(rootLayer))
   {
-    bridge->AddTopLevelWindow(accessible);
+    if(DALI_LIKELY(bridge))
+    {
+      bridge->AddTopLevelWindow(accessible);
+    }
   }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
 
@@ -1181,23 +1210,29 @@ void Window::OnAccessibilityEnabled()
   if(!mIsEmittedWindowCreatedEvent)
   {
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Created Event\n", this, mNativeWindowId);
-    bridge->WindowCreated(handle);
+    if(DALI_LIKELY(bridge))
+    {
+      bridge->WindowCreated(handle);
+    }
     mIsEmittedWindowCreatedEvent = true;
   }
 
-  if(IsVisible())
+  if(DALI_LIKELY(bridge))
   {
-    bridge->WindowShown(handle);
-
-    if(mFocused)
+    if(IsVisible())
     {
-      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
-      bridge->WindowFocused(handle);
+      bridge->WindowShown(handle);
+
+      if(mFocused)
+      {
+        DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
+        bridge->WindowFocused(handle);
+      }
     }
-  }
-  else
-  {
-    bridge->WindowHidden(handle);
+    else
+    {
+      bridge->WindowHidden(handle);
+    }
   }
 }
 
@@ -1212,7 +1247,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
 {
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
 
-  if(!bridge->IsUp() || keyEvent.IsNoInterceptModifier())
+  if(!bridge || !bridge->IsUp() || keyEvent.IsNoInterceptModifier())
   {
     DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
 

@@ -538,7 +538,10 @@ public:
   {
     try
     {
-      Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
+      if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+      {
+        bridge->EmitPostRender(shared_from_this());
+      }
     }
     catch(const std::bad_weak_ptr& e)
     {
