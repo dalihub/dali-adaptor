@@ -1116,16 +1116,19 @@ void Bridge::EnableAutoInit()
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
   auto bridge = Bridge::GetCurrentBridge();
-  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  if(DALI_LIKELY(bridge))
   {
-    bridge->AddTopLevelWindow(accessible);
-  }
-  bridge->SetApplicationName(applicationName);
-  bridge->Initialize();
+    if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+    {
+      bridge->AddTopLevelWindow(accessible);
+    }
+    bridge->SetApplicationName(applicationName);
+    bridge->Initialize();
 
-  if(window && window.IsVisible())
-  {
-    bridge->WindowShown(window);
+    if(window && window.IsVisible())
+    {
+      bridge->WindowShown(window);
+    }
   }
 }
 

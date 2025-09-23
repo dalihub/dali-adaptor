@@ -572,6 +572,10 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
   }
 
   auto bridge = Bridge::GetCurrentBridge();
+  if(DALI_UNLIKELY(!bridge))
+  {
+    return nullptr;
+  }
 
   // Try finding exsiting accessible object.
   auto accessible = bridge->GetAccessible(actor);
