@@ -15,6 +15,7 @@ SET(TC_SOURCES
     utc-Dali-EntityData.cpp
     utc-Dali-FontClient.cpp
     utc-Dali-GifLoader.cpp
+    utc-Dali-HeicLoader.cpp
     utc-Dali-IcoLoader.cpp
     utc-Dali-ImageOperations.cpp
     utc-Dali-Internal-PixelBuffer.cpp

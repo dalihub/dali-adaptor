@@ -23,6 +23,7 @@ SET( SOURCES
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_common_dynamic_src_files}
+        ${adaptor_imaging_heif_decoder_src_files}
         ${adaptor_imaging_x11_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_input_generic_src_files}

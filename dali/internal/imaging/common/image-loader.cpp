@@ -25,6 +25,7 @@
 #include <dali/internal/imaging/common/loader-astc.h>
 #include <dali/internal/imaging/common/loader-bmp.h>
 #include <dali/internal/imaging/common/loader-gif.h>
+#include <dali/internal/imaging/common/loader-heic.h>
 #include <dali/internal/imaging/common/loader-ico.h>
 #include <dali/internal/imaging/common/loader-jpeg.h>
 #include <dali/internal/imaging/common/loader-ktx.h>
@@ -75,7 +76,8 @@ enum FileFormats
   FORMAT_MAGIC_BYTE_COUNT,
 
   // formats after this one do not use magic bytes
-  FORMAT_WBMP = FORMAT_MAGIC_BYTE_COUNT,
+  FORMAT_HEIC = FORMAT_MAGIC_BYTE_COUNT,
+  FORMAT_WBMP,
   FORMAT_TOTAL_COUNT
 };
 
@@ -95,6 +97,7 @@ const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_CO
     {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader},
     {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader},
     {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader},
+    {0x0,                0x0,                LoadBitmapFromHeic, nullptr, LoadHeicHeader},
     {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader},
   };
 // clang-format on
@@ -122,6 +125,8 @@ constexpr FormatExtension FORMAT_EXTENSIONS[] =
     {".astc", FORMAT_ASTC},
     {".pkm",  FORMAT_PKM},
     {".ico",  FORMAT_ICO },
+    {".heic", FORMAT_HEIC},
+    {".heif", FORMAT_HEIC},
     {".wbmp", FORMAT_WBMP},
     {".svg",  FORMAT_UNSUPPORTED}, // SVG
     {".tvg",  FORMAT_UNSUPPORTED}, // ThorVG
