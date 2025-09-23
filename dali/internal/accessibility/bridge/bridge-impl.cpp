@@ -1042,7 +1042,7 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 
   // Guard rare case that call this API after Bridge destructor.
   // (Since static bridge didn't be nullptr at static variables destroy case.)
-  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::IsTerminated()))
+  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::mBridgeTerminated))
   {
     DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
     return nullptr;
