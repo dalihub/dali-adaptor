@@ -33,11 +33,6 @@
 extern Debug::Filter* gGraphicsProgramLogFilter;
 #endif
 
-namespace
-{
-const uint32_t MAX_POOL_CAPACITY = 8192u;
-} // Anonymous namespace
-
 namespace Dali::Graphics::Vulkan
 {
 struct ProgramImpl::Impl
@@ -392,7 +387,7 @@ void ProgramImpl::PreAllocateDescriptorSetsFromPool(uint32_t frameIndex, vk::Des
   auto& frame = mImpl->frameResources[frameIndex];
 
   uint32_t growSize = newCapacity - frame.currentCapacity;
-  if(growSize == 0 || newCapacity > MAX_POOL_CAPACITY)
+  if(growSize == 0)
   {
     return false;
   }
@@ -434,7 +429,7 @@ vk::DescriptorSet ProgramImpl::GetNextDescriptorSetForFrame(uint32_t frameIndex)
   if(frame.freeSets.empty())
   {
     // Grow the pool capacity by 50% each time
-    uint32_t newCapacity = std::min(static_cast<uint32_t>(frame.currentCapacity * 1.5), MAX_POOL_CAPACITY);
+    uint32_t newCapacity = static_cast<uint32_t>(frame.currentCapacity * 1.5);
     if(newCapacity > frame.currentCapacity)
     {
       if(!GrowDescriptorPool(frameIndex, newCapacity))
