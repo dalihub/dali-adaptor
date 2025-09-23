@@ -59,20 +59,15 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 Window* Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
 {
   Any surface;
-  return Window::New(surface, name, className, windowData, false);
+  return Window::New(surface, name, className, windowData);
 }
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData)
 {
-  return Window::New(surface, name, className, windowData, false);
-}
-
-Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
-{
   Window* window                  = new Window();
   window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen(), isUsePreLoader);
+  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen());
   return window;
 }
 
@@ -112,8 +107,7 @@ Window::Window()
   mIsWindowRotating(false),
   mIsEnabledUserGeometry(false),
   mIsEmittedWindowCreatedEvent(false),
-  mIsFrontBufferRendering(false),
-  mIsUsePreLoader(false)
+  mIsFrontBufferRendering(false)
 {
 }
 
@@ -130,7 +124,7 @@ Window::~Window()
   }
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName)
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
@@ -142,16 +136,14 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
 
-  // Set the flag of preloader is used.
-  mIsUsePreLoader = isUsePreLoader;
-
   // Set Window Type
   mWindowBase->SetType(type);
 
   // Initialize for Ime window type
   if(type == WindowType::IME)
   {
-    InitializeImeInfo();
+    mWindowBase->InitializeIme();
+    mWindowSurface->InitializeImeSurface();
   }
 
   // Connect signals
@@ -236,7 +228,8 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
-    InitializeImeInfo();
+    mWindowBase->InitializeIme();
+    mWindowSurface->InitializeImeSurface();
   }
 
   // Add Window to bridge for ATSPI
@@ -262,15 +255,9 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     mScene.SetNativeId(GetNativeId());
   }
 
-  // If this window is created by pre loader process, window show()'s calling should be delayed.
-  // Because detail window property is not decided yet in preloader.
-  // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
-  if(!mIsUsePreLoader)
-  {
-    // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
-    // The show must be called after the adaptor is initialized.
-    Show();
-  }
+  // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
+  // The show must be called after the adaptor is initialized.
+  Show();
 }
 
 void Window::OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
@@ -1721,13 +1708,6 @@ void Window::SetScreen(const std::string& screenName)
 std::string Window::GetScreen() const
 {
   return mWindowBase->GetScreen();
-}
-
-void Window::InitializeImeInfo()
-{
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), initialize ime window and surface\n", this, mNativeWindowId);
-  mWindowBase->InitializeIme();
-  mWindowSurface->InitializeImeSurface();
 }
 
 } // namespace Adaptor

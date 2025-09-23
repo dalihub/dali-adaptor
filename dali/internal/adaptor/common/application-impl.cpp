@@ -319,17 +319,6 @@ void Application::ChangePreInitializedWindowInfo()
 
   // Set front buffer rendering
   Dali::DevelWindow::SetFrontBufferRendering(mMainWindow, mIsMainWindowFrontBufferRendering);
-
-  // IME Keyboard window works with PreLoader,
-  // so Tizen IME window and surface should be initialized.
-  if(mMainWindow.GetType() == WindowType::IME)
-  {
-    DALI_LOG_RELEASE_INFO("Application::SetDefaultWindowType : window type is WindowType::IME\n");
-    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(mMainWindow);
-    windowImpl.InitializeImeInfo();
-  }
-
-  mMainWindow.Show();
 }
 
 void Application::CreateWindow()
