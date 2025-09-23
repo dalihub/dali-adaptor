@@ -175,6 +175,11 @@ Dali::Actor ActorAccessible::GetInternalActor() const
   return Self();
 }
 
+std::string ActorAccessible::GetStringProperty(std::string propertyName) const
+{
+  return {};
+}
+
 ComponentLayer ActorAccessible::GetLayer() const
 {
   return ComponentLayer::WINDOW;

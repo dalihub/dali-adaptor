@@ -640,6 +640,7 @@ void BridgeAccessible::RegisterInterfaces()
   AddFunctionToInterface(desc, "SetListenPostRender", &BridgeAccessible::SetListenPostRender);
   AddFunctionToInterface(desc, "GetNodeInfo", &BridgeAccessible::GetNodeInfo);
   AddFunctionToInterface(desc, "DumpTree", &BridgeAccessible::DumpTree);
+  AddFunctionToInterface(desc, "GetStringProperty", &BridgeAccessible::GetStringProperty);
   mDbusServer.addInterface("/", desc, true);
 }
 
@@ -1269,4 +1270,9 @@ DBus::ValueOrError<std::string> BridgeAccessible::DumpTree(Accessible::DumpDetai
 {
   DALI_LOG_RELEASE_INFO("####################### DumpTree #######################\n");
   return FindSelf()->DumpTree(detailLevel);
+}
+
+DBus::ValueOrError<std::string> BridgeAccessible::GetStringProperty(std::string key)
+{
+  return FindSelf()->GetStringProperty(key);
 }

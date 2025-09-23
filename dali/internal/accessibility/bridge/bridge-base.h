@@ -177,6 +177,11 @@ public:
     return {"", "root"};
   }
 
+  std::string GetStringProperty(std::string propertyName) const override
+  {
+    return {};
+  }
+
   // Application
 
   std::string GetToolkitName() const override
