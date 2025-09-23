@@ -268,7 +268,8 @@ void ResourceTransfer::UpdateWithFutures(
         if(destTexture->GetProperties().directWriteAccessEnabled)
         {
           ResourceTransfer* resourceTransfer = this;
-          auto              taskLambda       = [resourceTransfer, pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex) {
+          auto              taskLambda       = [resourceTransfer, pInfo, sourcePtr, sourceInfoPtr, texture](auto workerIndex)
+          {
             const auto& properties = texture->GetProperties();
 
             if(properties.emulated)
@@ -302,7 +303,8 @@ void ResourceTransfer::UpdateWithFutures(
           // The staging buffer is not allocated yet. The task knows pointer to the pointer which will point
           // at staging buffer right before executing tasks. The function will either perform direct copy
           // or will do suitable conversion if source format isn't supported and emulation is available.
-          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, sourceFormat, texture](auto workerThread) {
+          auto taskLambda = [ppStagingMemory, currentOffset, pInfo, sourcePtr, sourceFormat, texture](auto workerThread)
+          {
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise texture resources explicitly if they are not yet initialised
@@ -345,7 +347,8 @@ void ResourceTransfer::UpdateWithFutures(
   for(auto& item : updateMap)
   {
     auto pUpdates = &item.second;
-    auto task     = [pUpdates](auto workerIndex) {
+    auto task     = [pUpdates](auto workerIndex)
+    {
       for(auto& update : *pUpdates)
       {
         update.copyTask(workerIndex);
@@ -456,7 +459,8 @@ Dali::SharedFuture ResourceTransfer::InitializeTextureStagingBuffer(uint32_t siz
   if(!mTextureStagingBuffer ||
      mTextureStagingBuffer->GetImpl()->GetSize() < size)
   {
-    auto workerFunc = [&, size](auto workerIndex) {
+    auto workerFunc = [&, size](auto workerIndex)
+    {
       Graphics::BufferCreateInfo createInfo{};
       createInfo.SetSize(size)
         .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);
@@ -793,7 +797,8 @@ void ResourceTransfer::ProcessResourceTransferRequests(bool immediateOnly)
       }
       assert(image);
 
-      auto predicate = [&](auto& item) -> bool {
+      auto predicate = [&](auto& item) -> bool
+      {
         return image->GetVkHandle() == item.image.GetVkHandle();
       };
       auto it = std::find_if(requestMap.begin(), requestMap.end(), predicate);
@@ -963,7 +968,8 @@ void ResourceTransfer::ProcessResourceTransferRequests(bool immediateOnly)
 
 void ResourceTransfer::CreateTransferFutures()
 {
-  mTransferFutures.emplace_back(mThreadPool.SubmitTask(0, Task([this](uint32_t workerIndex) {
+  mTransferFutures.emplace_back(mThreadPool.SubmitTask(0, Task([this](uint32_t workerIndex)
+  {
     // execute all scheduled resource transfers
     ProcessResourceTransferRequests(); })));
 }

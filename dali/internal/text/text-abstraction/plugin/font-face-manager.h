@@ -30,8 +30,8 @@
 #include <unordered_map>
 
 #include <fontconfig/fontconfig.h>
-#include <harfbuzz/hb-ft.h>
 #include <ft2build.h>
+#include <harfbuzz/hb-ft.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_SIZES_H
@@ -52,7 +52,8 @@ public:
    * @brief Constructor for FontFaceManager.
    *
    * @param[in] maxNumberOfFaceSizeCache The maximum number of face size entries to cache.
-   */  FontFaceManager(std::size_t maxNumberOfFaceSizeCache);
+   */
+  FontFaceManager(std::size_t maxNumberOfFaceSizeCache);
 
   // Destructor
   ~FontFaceManager();
@@ -101,7 +102,7 @@ public:
 
   private:
     // Delete copy operations
-    FaceSizeCacheData(const FaceSizeCacheData&) = delete;
+    FaceSizeCacheData(const FaceSizeCacheData&)            = delete;
     FaceSizeCacheData& operator=(const FaceSizeCacheData&) = delete;
 
     void ReleaseData();

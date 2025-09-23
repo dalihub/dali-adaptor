@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,98 +37,98 @@ class CallbackManager
 {
 public:
   /**
-     * Virtual destructor
-     */
+   * Virtual destructor
+   */
   virtual ~CallbackManager()
   {
   }
 
   /**
-     * @brief Adds a @p callback to be run on idle.
-     * @note Must be called from the main thread only.
-     *
-     * Callbacks of the following types may be used:
-     * @code
-     *   void MyFunction();
-     * @endcode
-     * This callback will be deleted once it is called.
-     *
-     * @code
-     *   bool MyFunction();
-     * @endcode
-     * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
-     *
-     * @param[in] callback custom callback function.
-     * @param[in] hasReturnValue Sould be set to true if the callback function has a return value.
-     *
-     * @return true on success
-     */
+   * @brief Adds a @p callback to be run on idle.
+   * @note Must be called from the main thread only.
+   *
+   * Callbacks of the following types may be used:
+   * @code
+   *   void MyFunction();
+   * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @code
+   *   bool MyFunction();
+   * @endcode
+   * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
+   *
+   * @param[in] callback custom callback function.
+   * @param[in] hasReturnValue Sould be set to true if the callback function has a return value.
+   *
+   * @return true on success
+   */
   virtual bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) = 0;
 
   /**
-     * @brief Removes a previously added @p callback.
-     * @note Must be called from main thread only.
-     *
-     * Does nothing if the @p callback doesn't exist.
-     *
-     * @param[in] callback The callback to be removed.
-     */
+   * @brief Removes a previously added @p callback.
+   * @note Must be called from main thread only.
+   *
+   * Does nothing if the @p callback doesn't exist.
+   *
+   * @param[in] callback The callback to be removed.
+   */
   virtual void RemoveIdleCallback(CallbackBase* callback) = 0;
 
   /**
-     * @brief Processes the idle callbacks.
-     *
-     * @return whether a DALi callback has been processed.
-     */
+   * @brief Processes the idle callbacks.
+   *
+   * @return whether a DALi callback has been processed.
+   */
   virtual bool ProcessIdle() = 0;
 
   /**
-     * @brief Clears the container of callbacks.
-     */
+   * @brief Clears the container of callbacks.
+   */
   virtual void ClearIdleCallbacks() = 0;
 
   /**
-     * @brief Adds a @p callback to be run when entering an idle state.
-     * @note Must be called from the main thread only.
-     *
-     * A callback of the following type should be used:
-     * @code
-     *   bool MyFunction();
-     * @endcode
-     * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
-     *
-     * @param[in] callback custom callback function.
-     *
-     * @return true on success
-     */
+   * @brief Adds a @p callback to be run when entering an idle state.
+   * @note Must be called from the main thread only.
+   *
+   * A callback of the following type should be used:
+   * @code
+   *   bool MyFunction();
+   * @endcode
+   * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
+   *
+   * @param[in] callback custom callback function.
+   *
+   * @return true on success
+   */
   virtual bool AddIdleEntererCallback(CallbackBase* callback) = 0;
 
   /**
-     * @brief Removes a previously added the idle enterer callback.
-     * @note Must be called from main thread only.
-     *
-     * Does nothing if the @p callback doesn't exist.
-     *
-     * @param[in] callback The callback to be removed.
-     */
+   * @brief Removes a previously added the idle enterer callback.
+   * @note Must be called from main thread only.
+   *
+   * Does nothing if the @p callback doesn't exist.
+   *
+   * @param[in] callback The callback to be removed.
+   */
   virtual void RemoveIdleEntererCallback(CallbackBase* callback) = 0;
 
   /**
-     * Starts the callback manager.
-     */
+   * Starts the callback manager.
+   */
   virtual void Start() = 0;
 
   /**
-     * Stop the callback manager and can remove all pending callbacks synchronously.
-     * This call will synchronise with the main loop and not return
-     * until all call backs have been deleted.
-     */
+   * Stop the callback manager and can remove all pending callbacks synchronously.
+   * This call will synchronise with the main loop and not return
+   * until all call backs have been deleted.
+   */
   virtual void Stop() = 0;
 
 protected:
   /**
-     * constructor
-     */
+   * constructor
+   */
   CallbackManager()
   {
   }

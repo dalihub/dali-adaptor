@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SHAPING_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace Internal DALI_INTERNAL
 {
 class Shaping;
 
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief Shaping provides an interface to retrieve glyphs from complex text.
@@ -113,7 +113,7 @@ public:
    * @return The size of the buffer required to get the shaped text.
    */
   Length Shape(TextAbstraction::FontClient& fontClient,
-               const Character*       const text,
+               const Character* const       text,
                Length                       numberOfCharacters,
                FontId                       fontId,
                Script                       script);

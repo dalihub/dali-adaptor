@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_DEVICE_LIST_GET_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <list>
+#include <string>
 
 namespace Dali
 {
@@ -38,8 +38,8 @@ public:
   {
     std::string device_id;
     std::string label;
-    int32_t device_type;
-    bool connected;
+    int32_t     device_type;
+    bool        connected;
   };
 
   /**

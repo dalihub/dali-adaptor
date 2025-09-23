@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20227 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20257 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,8 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
       {
         auto&& countIter = std::find_if(mInstanceCountContainer.begin(),
                                         mInstanceCountContainer.end(),
-                                        [theType](const InstanceCountPair& instance) { return instance.first == theType; });
+                                        [theType](const InstanceCountPair& instance)
+        { return instance.first == theType; });
         if(countIter != mInstanceCountContainer.end())
         {
           (*countIter).second--;

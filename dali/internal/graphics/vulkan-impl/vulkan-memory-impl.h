@@ -41,7 +41,7 @@ public:
   }
 
   // No copy constructor or assignment operator
-  MemoryImpl(MemoryImpl&) = delete;
+  MemoryImpl(MemoryImpl&)            = delete;
   MemoryImpl& operator=(MemoryImpl&) = delete;
 
   void* Map();

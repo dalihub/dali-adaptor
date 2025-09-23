@@ -1029,7 +1029,8 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
         return bitmap;
       }
 
-      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP", [&](std::ostringstream& oss) {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP", [&](std::ostringstream& oss)
+      {
         oss << "[origin:" << inputWidth << "x" << inputHeight << " ";
         oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
         oss << "fittingMode:" << fittingMode << "]";
@@ -1151,7 +1152,8 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     (desiredWidth > 0.0f) && (desiredHeight > 0.0f) &&
     ((desiredWidth < bitmapWidth) || (desiredHeight < bitmapHeight)))
   {
-    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss) {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss)
+    {
       oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
       oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
       oss << "fittingMode:" << fittingMode << " ";
@@ -1202,7 +1204,8 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
       // The buffer is downscaled and it is tightly packed. We don't need to set a stride.
       outputBitmap = MakePixelBuffer(bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight);
     }
-    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss) {
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss)
+    {
       oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
       oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
       oss << "final:" << outputBitmap.GetWidth() << "x" << outputBitmap.GetHeight() << "]";

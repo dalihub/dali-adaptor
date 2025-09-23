@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ struct WindowData::Impl
   {
   }
 
-  Dali::Rect<int> mPositionSize;            ///< The position and size of the Window
-  bool            mIsTransparent;           ///< The transparency of the Window
-  WindowType      mWindowType;              ///< The window type of the Window
-  bool            mIsFrontBufferRendering;  ///< The front buffer rendering of the Window
-  std::string     mScreen;                  ///< The current screen for supporting multiple screen
+  Dali::Rect<int> mPositionSize;           ///< The position and size of the Window
+  bool            mIsTransparent;          ///< The transparency of the Window
+  WindowType      mWindowType;             ///< The window type of the Window
+  bool            mIsFrontBufferRendering; ///< The front buffer rendering of the Window
+  std::string     mScreen;                 ///< The current screen for supporting multiple screen
 };
 
 WindowData::WindowData()

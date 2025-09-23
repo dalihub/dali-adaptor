@@ -229,8 +229,8 @@ int SearchOnProperPointSize(FT_Face& ftFace, FontFaceManager* fontFaceManager, c
 } // namespace
 
 FontClient::Plugin::Plugin(TextAbstraction::FontFileManager fontFileManager,
-                           unsigned int horizontalDpi,
-                           unsigned int verticalDpi)
+                           unsigned int                     horizontalDpi,
+                           unsigned int                     verticalDpi)
 : mFreeTypeLibrary(nullptr),
   mFontFileManager(fontFileManager),
   mDpiHorizontal(horizontalDpi),
@@ -1248,9 +1248,9 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
                             static_cast<float>(ftFace->underline_position) * FROM_266,
                             static_cast<float>(ftFace->underline_thickness) * FROM_266);
 
-        const float fixedWidth    = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
-        const float fixedHeight   = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
-        const bool hasColorTables = (0 != (ftFace->face_flags & FT_FACE_FLAG_COLOR));
+        const float fixedWidth     = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
+        const float fixedHeight    = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
+        const bool  hasColorTables = (0 != (ftFace->face_flags & FT_FACE_FLAG_COLOR));
 
         // Create the FreeType font face item to cache.
         FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
@@ -1340,9 +1340,9 @@ bool FontClient::Plugin::IsScalable(const FontPath& path) const
 
   FT_Face ftFace = nullptr;
   int     error  = FT_New_Face(mFreeTypeLibrary,
-                          path.c_str(),
-                          0,
-                          &ftFace);
+                               path.c_str(),
+                               0,
+                               &ftFace);
   if(FT_Err_Ok != error)
   {
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::IsScalable. FreeType Cannot check font: %s\n", path.c_str());
@@ -1397,9 +1397,9 @@ void FontClient::Plugin::GetFixedSizes(const FontPath& path, Vector<PointSize26D
 
   FT_Face ftFace = nullptr;
   int     error  = FT_New_Face(mFreeTypeLibrary,
-                          path.c_str(),
-                          0,
-                          &ftFace);
+                               path.c_str(),
+                               0,
+                               &ftFace);
   if(FT_Err_Ok != error)
   {
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetFixedSizes. FreeType Cannot check font path : [%s]\n", path.c_str());

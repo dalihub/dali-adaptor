@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_PROGRAM_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ private:
   /**
    * @brief Checks whether the program binary is enabled or not.
    * @return true if the program binary is enabled, false otherwise.
-  */
+   */
   bool IsEnableProgramBinary() const;
 
   /**

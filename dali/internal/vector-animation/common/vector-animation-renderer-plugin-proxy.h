@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,10 +129,10 @@ public:
   VectorAnimationRendererPlugin::UploadCompletedSignalType& UploadCompletedSignal();
 
   // Not copyable or movable
-  VectorAnimationRendererPluginProxy(const VectorAnimationRendererPluginProxy&) = delete;            ///< Deleted copy constructor
-  VectorAnimationRendererPluginProxy(VectorAnimationRendererPluginProxy&&)      = delete;            ///< Deleted move constructor
+  VectorAnimationRendererPluginProxy(const VectorAnimationRendererPluginProxy&)            = delete; ///< Deleted copy constructor
+  VectorAnimationRendererPluginProxy(VectorAnimationRendererPluginProxy&&)                 = delete; ///< Deleted move constructor
   VectorAnimationRendererPluginProxy& operator=(const VectorAnimationRendererPluginProxy&) = delete; ///< Deleted copy assignment operator
-  VectorAnimationRendererPluginProxy& operator=(VectorAnimationRendererPluginProxy&&) = delete;      ///< Deleted move assignment operator
+  VectorAnimationRendererPluginProxy& operator=(VectorAnimationRendererPluginProxy&&)      = delete; ///< Deleted move assignment operator
 
 private:
   /**

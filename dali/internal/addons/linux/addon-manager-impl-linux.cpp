@@ -57,7 +57,8 @@ void AddOnManagerLinux::RegisterAddOnDispatchTable(const AddOnDispatchTable* dis
   mAddOnCache.back().GetAddOnInfo    = dispatchTable->GetAddOnInfo;
 
   auto& callbacks = mAddOnCache.back().lifecycleCallbacks;
-  auto  initEvent = [&callbacks](uint32_t event, void (*fn)()) {
+  auto  initEvent = [&callbacks](uint32_t event, void (*fn)())
+  {
     callbacks[event].function    = fn;
     callbacks[event].initialized = true;
   };
@@ -155,7 +156,8 @@ bool AddOnManagerLinux::GetAddOnInfo(const std::string& name, AddOnInfo& info)
     return false;
   }
 
-  auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [name](AddOnCacheEntry& item) {
+  auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [name](AddOnCacheEntry& item)
+  {
     return (item.info.name == name);
   });
 
@@ -189,7 +191,8 @@ std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns(const std::vector<
   {
     auto index = 0u;
     nameIndex++;
-    auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, name](AddOnCacheEntry& item) {
+    auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, name](AddOnCacheEntry& item)
+    {
       ++index;
       return (item.info.name == name);
     });
@@ -219,7 +222,8 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
   AddOnLibrary addOnLibrary = nullptr;
 
   auto index = 0u;
-  auto iter  = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, &addonName](AddOnCacheEntry& item) {
+  auto iter  = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, &addonName](AddOnCacheEntry& item)
+   {
     ++index;
     return (item.info.name == addonName);
   });

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CLIPBOARD_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ namespace Adaptor
  */
 class Clipboard : public Dali::BaseObject, public ConnectionTracker
 {
-const char* MIME_TYPE_TEXT_PLAIN = "text/plain;charset=utf-8";
-const char* MIME_TYPE_HTML       = "application/xhtml+xml";
-const char* MIME_TYPE_TEXT_URI   = "text/uri-list";
+  const char* MIME_TYPE_TEXT_PLAIN = "text/plain;charset=utf-8";
+  const char* MIME_TYPE_HTML       = "application/xhtml+xml";
+  const char* MIME_TYPE_TEXT_URI   = "text/uri-list";
 
 public:
   struct Impl;
@@ -91,7 +91,7 @@ public:
   /**
    * @copydoc Dali::Clipboard::GetData()
    */
-  uint32_t GetData(const std::string &mimeType);
+  uint32_t GetData(const std::string& mimeType);
 
   /**
    * @copydoc Dali::Clipboard::NumberOfClipboardItems()
@@ -109,8 +109,8 @@ public:
   void HideClipboard(bool skipFirstHide);
 
   /**
-  * @copydoc Dali::Clipboard::IsVisible()
-  */
+   * @copydoc Dali::Clipboard::IsVisible()
+   */
   bool IsVisible() const;
 
   /**

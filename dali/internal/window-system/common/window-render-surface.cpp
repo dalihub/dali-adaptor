@@ -1133,7 +1133,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
     Dali::Mutex::ScopedLock lock(mMutex);
 
     auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo)
-                                          { return callbackInfo->fileDescriptor == fileDescriptor; });
+    { return callbackInfo->fileDescriptor == fileDescriptor; });
     if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
       callbackInfo = std::move(*frameCallbackInfo);

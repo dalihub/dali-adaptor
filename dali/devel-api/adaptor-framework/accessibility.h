@@ -1,7 +1,7 @@
 #ifndef DALI_ATSPI_ACCESSIBILITY_H
 #define DALI_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -631,8 +631,8 @@ struct DALI_ADAPTOR_API Point
 };
 
 /**
-* @brief Helper class representing size of rectangle object with usage of two integer values
-*/
+ * @brief Helper class representing size of rectangle object with usage of two integer values
+ */
 struct DALI_ADAPTOR_API Size
 {
   int width  = 0;

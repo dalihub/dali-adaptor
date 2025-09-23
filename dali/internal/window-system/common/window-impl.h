@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,18 @@ public:
    * @return A newly allocated Window
    */
   static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData);
+
+  /**
+   * @brief Create a new Window. This should only be called once by the Application class
+   *
+   * @param[in] surface The surface used to render on.
+   * @param[in] name The window title
+   * @param[in] className The window class name
+   * @param[in] windowData The window data
+   * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
+   * @return A newly allocated Window
+   */
+  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader);
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -696,6 +708,12 @@ public: // It is only for window-impl. Need not public for the others.
    */
   std::string GetScreen() const;
 
+  /**
+   * @brief Initialize for Ime window and surface.
+   * It should be called when the window is only used for Ime keyboard window.
+   */
+  void InitializeImeInfo();
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -730,8 +748,9 @@ private:
    * @param[in] className The window class name
    * @param[in] type window's type. Refer the WindowType in window-enumerations.h.
    * @param[in] screenName screen name to set current screen name if this string is not empty.
+   * @param[in] isPreLoader The flag is whether this window is created by preloader process or not.
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName);
+  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isPreLoader);
 
   /**
    * @brief Called when the window becomes iconified or deiconified.
@@ -915,11 +934,11 @@ private:
   void UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry);
 
   /**
-  * @brief Reset input region when window insets are changed.
-  *
-  * @param[in] inputRegion the input region
-  */
- void ResetInput(const Rect<int>& inputRegion);
+   * @brief Reset input region when window insets are changed.
+   *
+   * @param[in] inputRegion the input region
+   */
+  void ResetInput(const Rect<int>& inputRegion);
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -1151,7 +1170,7 @@ private:
 
   Dali::KeyEvent mLastKeyEvent;
 
-  Vector4 mBackgroundColor;
+  Vector4              mBackgroundColor;
   Dali::WindowBlurInfo mBlurInfo;
 
   bool mIsTransparent : 1;
@@ -1165,6 +1184,7 @@ private:
   bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
+  bool mIsUsePreLoader : 1;              ///< The flag is whether is created by preloader process or not.
 };
 
 } // namespace Adaptor

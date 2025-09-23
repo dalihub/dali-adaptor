@@ -244,7 +244,7 @@ struct GifAccessor
   {
     if(gif)
     {
-#if(GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
       DGifCloseFile(gif, NULL);
 #else
       DGifCloseFile(gif);

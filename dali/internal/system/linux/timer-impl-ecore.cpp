@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,11 +178,13 @@ bool TimerEcore::Tick()
   // Override with new signal if used
   if(!mTickSignal.Empty())
   {
-    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss) {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
+    {
       oss << "[ecoreId:" << mImpl->mId << ", interval:" << mImpl->mInterval << "]";
     });
     retVal = mTickSignal.Emit();
-    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss) {
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
+    {
       oss << "[return:" << retVal << "]";
     });
 

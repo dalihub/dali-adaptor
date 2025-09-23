@@ -2,7 +2,7 @@
 #define APPMODEL_COMPONENT_BASED_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,26 +30,26 @@ namespace Adaptor
 class AppModelComponentBased
 {
 public: // Construction & Destruction
-  /**
-   * Constructor
-   */
-   AppModelComponentBased();
+        /**
+         * Constructor
+         */
+  AppModelComponentBased();
 
   /**
    * Destructor
    */
-   ~AppModelComponentBased();
+  ~AppModelComponentBased();
 
 public:
-    int AppMain(void* data);
-    void AppExit();
+  int  AppMain(void* data);
+  void AppExit();
 
 private: // impl members
   struct Impl;
   Impl* mImpl;
 };
-}
-}
-}
+} //namespace Adaptor
+} //namespace Internal
+} //namespace Dali
 
 #endif // APPMODEL_COMPONENT_BASED_H

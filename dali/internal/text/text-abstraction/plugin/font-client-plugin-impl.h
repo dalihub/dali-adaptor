@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,8 +176,8 @@ public: // Dali::TextAbstraction::FontClient
    */
   FontId GetFontId(const FontDescription& fontDescription,
                    PointSize26Dot6        requestedPointSize,
-                   FaceIndex              faceIndex           = 0u,
-                   Property::Map*         variationsMapPtr    = nullptr) const;
+                   FaceIndex              faceIndex        = 0u,
+                   Property::Map*         variationsMapPtr = nullptr) const;
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetFontId( const BitmapFont& bitmapFont )
@@ -388,7 +388,6 @@ private:
                     bool            cacheDescription,
                     Property::Map*  variationsMapPtr) const;
 
-
   /**
    * @brief Caches font data for the specified font path if it is not already cached.
    *
@@ -410,7 +409,7 @@ private:
   void CacheFontFaceFromFile(const FontPath& fontPath) const;
 
 private:
-  Plugin(const Plugin&) = delete;
+  Plugin(const Plugin&)            = delete;
   Plugin& operator=(const Plugin&) = delete;
 
 private:

@@ -53,7 +53,6 @@ using namespace Dali::Accessibility;
 namespace // unnamed namespace
 {
 const int RETRY_INTERVAL = 1000;
-
 } // unnamed namespace
 
 /**
@@ -93,6 +92,18 @@ class BridgeImpl : public virtual BridgeBase,
 
 public:
   BridgeImpl() = default;
+  ~BridgeImpl()
+  {
+    mBridgeTerminated = true;
+    try
+    {
+      TerminateInternal();
+    }
+    catch(...)
+    {
+      // Do nothing.
+    }
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::AddAccessible()
@@ -188,7 +199,8 @@ public:
 
     ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, keyEvent.GetKeyName(), isText);
 
-    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply) {
+    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply)
+    {
       bool consumed = false;
 
       if(!reply)
@@ -218,13 +230,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         true);
+    }, true);
   }
 
   /**
@@ -237,13 +249,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         false);
+    }, false);
   }
 
   /**
@@ -256,13 +268,13 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
-    },
-                                                                                         alsoNonDiscardable);
+    }, alsoNonDiscardable);
   }
 
   /**
@@ -275,7 +287,8 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg)
+    {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
@@ -284,9 +297,7 @@ public:
       {
         mDirectReadingCallbacks.emplace(std::get<2>(msg), callback);
       }
-    },
-                                                                                                                            text,
-                                                                                                                            discardable);
+    }, text, discardable);
   }
 
   /**
@@ -350,12 +361,24 @@ public:
       mForceUpTimer.Reset();
     }
   }
-
   /**
    * @copydoc Dali::Accessibility::Bridge::Terminate()
    */
   void Terminate() override
   {
+    TerminateInternal();
+  }
+
+  // Seperated method that we can call at constructor/destructor (to avoid pure virtual method exception)
+  void TerminateInternal()
+  {
+    if(DALI_UNLIKELY(mTerminateFunctionCalled))
+    {
+      // Skip terminate function if it called twice.
+      return;
+    }
+    mTerminateFunctionCalled = true;
+
     if(mData)
     {
       // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
@@ -368,10 +391,11 @@ public:
     }
     mAccessibles.clear();
     ForceDown();
-    if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
+    if((nullptr != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
     }
+    mIdleCallback              = nullptr;
     mAccessibilityStatusClient = {};
     mDbusServer                = {};
     mConnectionPtr             = {};
@@ -428,7 +452,8 @@ public:
     mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
-    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
+    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState)
+    {
       auto it = mDirectReadingCallbacks.find(id);
       if(it != mDirectReadingCallbacks.end())
       {
@@ -714,7 +739,8 @@ public:
 
   void ReadIsEnabledProperty()
   {
-    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
+    {
       if(!msg)
       {
         DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
@@ -743,7 +769,8 @@ public:
 
   void ListenIsEnabledProperty()
   {
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res)
+    {
       mIsEnabled = res;
       SwitchBridge();
     });
@@ -763,7 +790,8 @@ public:
       return;
     }
 
-    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
+    {
       if(!msg)
       {
         DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
@@ -804,7 +832,8 @@ public:
 
   void ListenScreenReaderEnabledProperty()
   {
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res)
+    {
       mIsScreenReaderEnabled = res;
       EmitScreenReaderEnabledSignal();
       SwitchBridge();
@@ -848,7 +877,7 @@ public:
     if(InitializeAccessibilityStatusClient())
     {
       ReadAndListenProperties();
-      mIdleCallback = NULL;
+      mIdleCallback = nullptr;
       return false;
     }
 
@@ -859,7 +888,7 @@ public:
     }
     mInitializeTimer.Start();
 
-    mIdleCallback = NULL;
+    mIdleCallback = nullptr;
     return false;
   }
 
@@ -878,7 +907,7 @@ public:
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-      if(NULL == mIdleCallback)
+      if(nullptr == mIdleCallback)
       {
         mIdleCallback = MakeCallback(this, &BridgeImpl::OnIdleSignal);
         if(DALI_UNLIKELY(!adaptor.AddIdle(mIdleCallback, true)))
@@ -929,7 +958,8 @@ public:
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
   {
-    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]() {
+    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]()
+    {
       auto client = CreateSocketClient(socket->GetAddress());
 
       client.method<void(std::int32_t, std::int32_t)>("SetOffset").asyncCall([](DBus::ValueOrError<void>) {}, x, y);
@@ -987,11 +1017,13 @@ private:
 
     DBus::releaseBusName(mConnectionPtr, busName);
   }
+
+  bool mTerminateFunctionCalled{false};
 }; // BridgeImpl
 
 namespace // unnamed namespace
 {
-bool INITIALIZED_BRIDGE = false;
+static bool INITIALIZED_BRIDGE = false;
 
 /**
  * @brief Creates BridgeImpl instance.
@@ -1009,6 +1041,7 @@ std::shared_ptr<Bridge> CreateBridge()
     const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
     if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
     {
+      DALI_LOG_DEBUG_INFO("AT-SPI Disabled. Return dummy instance\n");
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
@@ -1029,6 +1062,14 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 {
   static std::shared_ptr<Bridge> bridge;
 
+  // Guard rare case that call this API after Bridge destructor.
+  // (Since static bridge didn't be nullptr at static variables destroy case.)
+  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::IsTerminated()))
+  {
+    DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
+    return nullptr;
+  }
+
   if(bridge)
   {
     return bridge;
@@ -1046,6 +1087,7 @@ std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 
     return bridge;
   }
+  DALI_LOG_DEBUG_INFO("Bridge::DisableAutoInit() called. Return dummy instance\n");
 
   return Dali::Accessibility::DummyBridge::GetInstance();
 }
@@ -1074,16 +1116,19 @@ void Bridge::EnableAutoInit()
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
   auto bridge = Bridge::GetCurrentBridge();
-  if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+  if(DALI_LIKELY(bridge))
   {
-    bridge->AddTopLevelWindow(accessible);
-  }
-  bridge->SetApplicationName(applicationName);
-  bridge->Initialize();
+    if(auto accessible = Accessibility::Accessible::Get(rootLayer))
+    {
+      bridge->AddTopLevelWindow(accessible);
+    }
+    bridge->SetApplicationName(applicationName);
+    bridge->Initialize();
 
-  if(window && window.IsVisible())
-  {
-    bridge->WindowShown(window);
+    if(window && window.IsVisible())
+    {
+      bridge->WindowShown(window);
+    }
   }
 }
 

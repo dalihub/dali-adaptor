@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_GLYPH_CACHE_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 #include <dali/internal/text/text-abstraction/plugin/lru-cache-container.h>
 
 // EXTERNAL INCLUDES
-#include <memory> // for std::shared_ptr
-#include <map>
 #include <fontconfig/fontconfig.h>
+#include <map>
+#include <memory> // for std::shared_ptr
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -77,7 +77,7 @@ public:
 
   private:
     // Delete copy operations
-    GlyphCacheData(const GlyphCacheData&) = delete;
+    GlyphCacheData(const GlyphCacheData&)            = delete;
     GlyphCacheData& operator=(const GlyphCacheData&) = delete;
 
     /**

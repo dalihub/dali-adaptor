@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_VALUE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public:
    * @brief Gets the lowest possible value.
    *
    * @return The minimum value
-  */
+   */
   virtual double GetMinimum() const = 0;
 
   /**
@@ -51,7 +51,7 @@ public:
    * @see Value::GetMaximum()
    * @see Value::GetValueText()
    * @see Dali::Toolkit::DevelControl::AppendAccessibilityAttribute()
-  */
+   */
   virtual double GetCurrent() const = 0;
 
   /**
@@ -72,7 +72,7 @@ public:
    * @brief Gets the highest possible value.
    *
    * @return The highest value.
-  */
+   */
   virtual double GetMaximum() const = 0;
 
   /**
@@ -81,14 +81,14 @@ public:
    * @param[in] value The current value to set
    *
    * @return true if value could have been assigned, false otherwise
-  */
+   */
   virtual bool SetCurrent(double value) = 0;
 
   /**
    * @brief Gets the lowest increment that can be distinguished.
    *
    * @return The lowest increment
-  */
+   */
   virtual double GetMinimumIncrement() const = 0;
 
   /**

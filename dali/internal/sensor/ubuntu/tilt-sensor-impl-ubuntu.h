@@ -42,9 +42,9 @@ public:
   typedef Dali::TiltSensor::TiltedSignalType TiltedSignalType;
 
   /**
- * Public constructor
- * @return New instance of TiltSensorUbuntu
- */
+   * Public constructor
+   * @return New instance of TiltSensorUbuntu
+   */
   static TiltSensorUbuntu* New();
 
   /**
@@ -115,8 +115,8 @@ public:
 
 private:
   /**
- * Private constructor; see also TiltSensor::New()
- */
+   * Private constructor; see also TiltSensor::New()
+   */
   TiltSensorUbuntu();
 
   /**

@@ -478,7 +478,7 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
   }
 
   auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item)
-                         { return item.srcFormat == srcFormat && item.destFormat == destFormat; });
+  { return item.srcFormat == srcFormat && item.destFormat == destFormat; });
 
   // No suitable format, return empty array
   if(it == GetColorConversionTable().end())

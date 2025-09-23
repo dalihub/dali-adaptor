@@ -2,7 +2,7 @@
 #define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,11 +42,11 @@ class PixmapRenderSurfaceEcoreX : public PixmapRenderSurface
 {
 public:
   /**
-    * Uses an X11 surface to render to.
-    * @param [in] positionSize the position and size of the surface
-    * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
-    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
-    */
+   * Uses an X11 surface to render to.
+   * @param [in] positionSize the position and size of the surface
+   * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
+   * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+   */
   PixmapRenderSurfaceEcoreX(Dali::PositionSize positionSize, Any surface, bool isTransparent = false);
 
   /**

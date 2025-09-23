@@ -398,7 +398,7 @@ public:
     glCompileShader(shader);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glCompileShader shader id : " << shader; });
+    { oss << "glCompileShader shader id : " << shader; });
   }
 
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data) override
@@ -408,7 +408,7 @@ public:
     glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glCompressedTexImage2D size : " << width << " x " << height; });
+    { oss << "glCompressedTexImage2D size : " << width << " x " << height; });
   }
 
   void CompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data) override
@@ -418,7 +418,7 @@ public:
     glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glCompressedTexSubImage2D size : " << width << " x " << height; });
+    { oss << "glCompressedTexSubImage2D size : " << width << " x " << height; });
   }
 
   void CopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) override
@@ -761,7 +761,7 @@ public:
     glLinkProgram(program);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glLinkProgram program id : " << program; });
+    { oss << "glLinkProgram program id : " << program; });
   }
 
   void PixelStorei(GLenum pname, GLint param) override
@@ -781,7 +781,7 @@ public:
     glReadPixels(x, y, width, height, format, type, pixels);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glReadPixels size : (" << x << "," << y << ") " << width << "x" << height << ", format : " << format << ", type : " << type; });
+    { oss << "glReadPixels size : (" << x << "," << y << ") " << width << "x" << height << ", format : " << format << ", type : " << type; });
   }
 
   void ReleaseShaderCompiler(void) override
@@ -811,7 +811,7 @@ public:
     glShaderBinary(n, shaders, binaryformat, binary, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glShaderBinary shader : " << (n > 0 ? shaders[0] : 0) << " length : " << length; });
+    { oss << "glShaderBinary shader : " << (n > 0 ? shaders[0] : 0) << " length : " << length; });
   }
 
   void ShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length) override
@@ -821,7 +821,7 @@ public:
     glShaderSource(shader, count, string, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glShaderSource shader : " << shader << " length : " << (count > 0 ? length[0] : 0); });
+    { oss << "glShaderSource shader : " << shader << " length : " << (count > 0 ? length[0] : 0); });
   }
 
   void StencilFunc(GLenum func, GLint ref, GLuint mask) override
@@ -861,7 +861,7 @@ public:
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glTexImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type; });
+    { oss << "glTexImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type; });
   }
 
   void TexParameterf(GLenum target, GLenum pname, GLfloat param) override
@@ -891,7 +891,7 @@ public:
     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glTexSubImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type; });
+    { oss << "glTexSubImage2D size : " << width << " x " << height << ", format : " << format << ", type : " << type; });
   }
 
   void Uniform1f(GLint location, GLfloat x) override
@@ -1543,7 +1543,7 @@ public:
     mImpl->GetProgramBinary(program, bufSize, length, binaryFormat, binary);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glProgramBinary program : " << program << " length : " << length; });
+    { oss << "glProgramBinary program : " << program << " length : " << length; });
   }
 
   void ProgramBinary(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length) override
@@ -1553,7 +1553,7 @@ public:
     mImpl->ProgramBinary(program, binaryFormat, binary, length);
 
     DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
-                                                 { oss << "glProgramBinary program : " << program << " length : " << length; });
+    { oss << "glProgramBinary program : " << program << " length : " << length; });
   }
 
   void ProgramParameteri(GLuint program, GLenum pname, GLint value) override

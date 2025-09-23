@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SEGMENTATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace Internal DALI_INTERNAL
 {
 class Segmentation;
 
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 } // namespace TextAbstraction
 

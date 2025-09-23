@@ -2,7 +2,7 @@
 #define DALI_WINDOW_BLUR_INFO_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/dali-adaptor-common.h>
-
 
 namespace Dali
 {
@@ -141,15 +140,15 @@ public:
    */
   int GetCornerRadiusForBackground() const;
 
-  WindowBlurInfo(const WindowBlurInfo&)     = default;            ///< Default copy constructor
-  WindowBlurInfo(WindowBlurInfo&&) noexcept = default;            ///< Default move constructor
-  WindowBlurInfo& operator=(const WindowBlurInfo&) = default;     ///< Default copy assignment operator
+  WindowBlurInfo(const WindowBlurInfo&)                = default; ///< Default copy constructor
+  WindowBlurInfo(WindowBlurInfo&&) noexcept            = default; ///< Default move constructor
+  WindowBlurInfo& operator=(const WindowBlurInfo&)     = default; ///< Default copy assignment operator
   WindowBlurInfo& operator=(WindowBlurInfo&&) noexcept = default; ///< Default move assignment operator
 
 public:
   WindowBlurType windowBlurType;
-  int windowBlurRadius;
-  int backgroundCornerRadius;
+  int            windowBlurRadius;
+  int            backgroundCornerRadius;
 };
 
 } // namespace Dali

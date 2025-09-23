@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ECORE_X_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,24 +47,24 @@ namespace WindowInterface
 Ecore_X_Window GetWindow();
 
 /**
-  * Gets a specified X window property
-  * @param[in] property the required property id
-  * @param[in] xDataType the type
-  * @param[in] num the offset / index of the property
-  * @return string the property value
-  */
+ * Gets a specified X window property
+ * @param[in] property the required property id
+ * @param[in] xDataType the type
+ * @param[in] num the offset / index of the property
+ * @return string the property value
+ */
 std::string GetWindowProperty(Ecore_X_Atom property, Ecore_X_Atom* xDataType, unsigned int num);
 
 /**
-  * Send an X Event
-  * @param[in] display target display
-  * @param[in] window target window
-  * @param[in] propagate to propagate to other windows
-  * @parma[in] eventMask event mask
-  * @param[in] messageType Ecore_X_Atom message type
-  * @param[in] messageFormat format of message
-  * @param[in] msg message to send
-  */
+ * Send an X Event
+ * @param[in] display target display
+ * @param[in] window target window
+ * @param[in] propagate to propagate to other windows
+ * @parma[in] eventMask event mask
+ * @param[in] messageType Ecore_X_Atom message type
+ * @param[in] messageFormat format of message
+ * @param[in] msg message to send
+ */
 void SendXEvent(Ecore_X_Display* display, Ecore_X_Window window, bool propagate, long int eventMask, Ecore_X_Atom messageType, int messageFormat, const char* msg);
 
 } // namespace WindowInterface

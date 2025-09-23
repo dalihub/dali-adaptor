@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_STAT_CONTEXT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,15 +41,15 @@ class StatContext
 {
 public:
   /**
-     * @brief Constructor
-     *
-     * @param[in] id The ID to give the context
-     * @param[in] contextName Name of the context to print in console
-     * @param[in] contextType the type of events to filter ( e.g. event, update, render or custom)
-     * @param[in] logFrequencySeconds frequency to log in seconds
-     * @param[in] logInterface interface to log out to
-     *
-     */
+   * @brief Constructor
+   *
+   * @param[in] id The ID to give the context
+   * @param[in] contextName Name of the context to print in console
+   * @param[in] contextType the type of events to filter ( e.g. event, update, render or custom)
+   * @param[in] logFrequencySeconds frequency to log in seconds
+   * @param[in] logInterface interface to log out to
+   *
+   */
   StatContext(unsigned int                    id,
               const char* const               contextName,
               PerformanceMarker::MarkerFilter contextType,
@@ -57,74 +57,74 @@ public:
               StatContextLogInterface&        logInterface);
 
   /**
-     * @brief Non-virtual destructor, not intended as a base class
-     */
+   * @brief Non-virtual destructor, not intended as a base class
+   */
   ~StatContext();
 
   /**
-     * @return Return the context ID
-     */
+   * @return Return the context ID
+   */
   unsigned int GetId() const;
 
   /**
-     * @return the context name
-     */
+   * @return the context name
+   */
   const char* GetName() const;
 
   /**
-     *
-     * For logging we want to output the name of the context with either
-     * START / END appended to the end. E.g. MY_MARKER_START
-     * @param[in] type marker type, for a customer marker this will be either START or END
-     * @return the full description for a marker
-     */
+   *
+   * For logging we want to output the name of the context with either
+   * START / END appended to the end. E.g. MY_MARKER_START
+   * @param[in] type marker type, for a customer marker this will be either START or END
+   * @return the full description for a marker
+   */
   const char* GetMarkerDescription(PerformanceInterface::MarkerType type) const;
 
   /**
-     * @brief Set the frequency for logging
-     *
-     * @param[in] logFrequencySeconds The log frequency to set in seconds
-     */
+   * @brief Set the frequency for logging
+   *
+   * @param[in] logFrequencySeconds The log frequency to set in seconds
+   */
   void SetLogFrequency(unsigned int logFrequencySeconds);
 
   /**
-     * @brief enable/disable logging
-     *
-     * @param[in] enableLogging Flag to spePerformancecify enabling/disabling
-     */
+   * @brief enable/disable logging
+   *
+   * @param[in] enableLogging Flag to spePerformancecify enabling/disabling
+   */
   void EnableLogging(bool enableLogging);
 
   /**
-     * @brief  Process a custom marker from the application
-     *
-     * @param[in] marker The marker to log
-     */
+   * @brief  Process a custom marker from the application
+   *
+   * @param[in] marker The marker to log
+   */
   void ProcessCustomMarker(const PerformanceMarker& marker);
 
   /**
-     * @brief Process a internal marker from DALi (V_SYNC/ UPDATE /RENDER/ EVENT )
-     *
-     * @param[in] marker The marker to log
-     */
+   * @brief Process a internal marker from DALi (V_SYNC/ UPDATE /RENDER/ EVENT )
+   *
+   * @param[in] marker The marker to log
+   */
   void ProcessInternalMarker(const PerformanceMarker& marker);
 
 private:
   /**
-     * @brief Record marker
-     *
-     * @param[in] marker to record
-     */
+   * @brief Record marker
+   *
+   * @param[in] marker to record
+   */
   void RecordMarker(const PerformanceMarker& marker);
 
   /**
-     * @brief Called when V-SYNC occurs to indicate a frame tick
-     * @param[in] marker the marker containing a v-sync
-     */
+   * @brief Called when V-SYNC occurs to indicate a frame tick
+   * @param[in] marker the marker containing a v-sync
+   */
   void FrameTick(const PerformanceMarker& marker);
 
   /**
-     * @brief Helper to print to console
-     */
+   * @brief Helper to print to console
+   */
   void LogMarker();
 
 private:

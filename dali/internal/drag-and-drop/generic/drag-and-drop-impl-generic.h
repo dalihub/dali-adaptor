@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DRAG_AND_DROP_GENERIC_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,9 +92,9 @@ public:
   bool CalculateViewRegion(void* event) override;
 
 private:
-  DragAndDropGeneric(const DragAndDropGeneric&) = delete;
-  DragAndDropGeneric& operator=(DragAndDropGeneric&) = delete;
-  DragAndDropGeneric(DragAndDropGeneric&&) = delete;
+  DragAndDropGeneric(const DragAndDropGeneric&)       = delete;
+  DragAndDropGeneric& operator=(DragAndDropGeneric&)  = delete;
+  DragAndDropGeneric(DragAndDropGeneric&&)            = delete;
   DragAndDropGeneric& operator=(DragAndDropGeneric&&) = delete;
 
 public:

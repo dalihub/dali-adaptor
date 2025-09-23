@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ struct FrameworkGlib::Impl
   GMainContext* mContext{nullptr};
 
 private:
-  Impl(const Impl& impl) = delete;
+  Impl(const Impl& impl)            = delete;
   Impl& operator=(const Impl& impl) = delete;
 };
 

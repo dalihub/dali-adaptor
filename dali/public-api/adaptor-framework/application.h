@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class Application;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 /**
  * @brief An Application class object should be created by every application
  * that wishes to use Dali.

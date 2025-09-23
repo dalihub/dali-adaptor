@@ -582,7 +582,7 @@ GLES::Context* EglGraphicsController::GetSurfaceContext(Dali::Integration::Rende
   if(DALI_LIKELY(surface))
   {
     auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](const SurfaceContextPair& iter)
-                             { return (iter.first == surface); });
+    { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -680,7 +680,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
   const auto commands = commandBuffer.GetCommands(count);
 
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss)
-                                          { oss << "[commandCount:" << count << "]"; });
+  { oss << "[commandCount:" << count << "]"; });
 
   for(auto i = 0u; i < count; ++i)
   {

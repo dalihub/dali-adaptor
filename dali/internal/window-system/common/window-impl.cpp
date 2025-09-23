@@ -59,15 +59,20 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 Window* Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
 {
   Any surface;
-  return Window::New(surface, name, className, windowData);
+  return Window::New(surface, name, className, windowData, false);
 }
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData)
 {
+  return Window::New(surface, name, className, windowData, false);
+}
+
+Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
+{
   Window* window                  = new Window();
   window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen());
+  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen(), isUsePreLoader);
   return window;
 }
 
@@ -107,7 +112,8 @@ Window::Window()
   mIsWindowRotating(false),
   mIsEnabledUserGeometry(false),
   mIsEmittedWindowCreatedEvent(false),
-  mIsFrontBufferRendering(false)
+  mIsFrontBufferRendering(false),
+  mIsUsePreLoader(false)
 {
 }
 
@@ -124,7 +130,7 @@ Window::~Window()
   }
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName)
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
@@ -136,14 +142,16 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
 
+  // Set the flag of preloader is used.
+  mIsUsePreLoader = isUsePreLoader;
+
   // Set Window Type
   mWindowBase->SetType(type);
 
   // Initialize for Ime window type
   if(type == WindowType::IME)
   {
-    mWindowBase->InitializeIme();
-    mWindowSurface->InitializeImeSurface();
+    InitializeImeInfo();
   }
 
   // Connect signals
@@ -228,23 +236,23 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
-    mWindowBase->InitializeIme();
-    mWindowSurface->InitializeImeSurface();
+    InitializeImeInfo();
   }
 
   // Add Window to bridge for ATSPI
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
-
-  bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
-  bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
-
-  if(bridge->IsUp())
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
   {
-    OnAccessibilityEnabled();
-  }
-  else
-  {
-    OnAccessibilityDisabled();
+    bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
+    bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
+
+    if(bridge->IsUp())
+    {
+      OnAccessibilityEnabled();
+    }
+    else
+    {
+      OnAccessibilityDisabled();
+    }
   }
 
   if(mScene)
@@ -255,9 +263,15 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     mScene.SetNativeId(GetNativeId());
   }
 
-  // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
-  // The show must be called after the adaptor is initialized.
-  Show();
+  // If this window is created by pre loader process, window show()'s calling should be delayed.
+  // Because detail window property is not decided yet in preloader.
+  // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
+  if(!mIsUsePreLoader)
+  {
+    // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
+    // The show must be called after the adaptor is initialized.
+    Show();
+  }
 }
 
 void Window::OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
@@ -573,7 +587,10 @@ void Window::Show()
     mScene.Show();
 
     mVisibilityChangedSignal.Emit(handle, true);
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
+    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->WindowShown(handle);
+    }
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowShown();
@@ -598,7 +615,10 @@ void Window::Hide()
     mScene.Hide();
 
     mVisibilityChangedSignal.Emit(handle, false);
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
+    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->WindowHidden(handle);
+    }
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowHidden();
@@ -651,7 +671,7 @@ unsigned int Window::GetAuxiliaryHintId(const std::string& hint) const
 void Window::ResetInput(const Rect<int>& inputRegion)
 {
   // when inputRegion is (-1, -1, 1, 1) which means reset input region.
-  if (inputRegion.x == -1 && inputRegion.y == -1 && inputRegion.width == 1 && inputRegion.height == 1)
+  if(inputRegion.x == -1 && inputRegion.y == -1 && inputRegion.width == 1 && inputRegion.height == 1)
   {
     // All touch events that were being input will be clear
     Reset();
@@ -880,7 +900,7 @@ void Window::SetTransparency(bool transparent)
     mIsTransparent = transparent;
     Window::SetBackgroundColor(mBackgroundColor);
   }
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetTransparency = %d\n", this, mNativeWindowId, transparent);  
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetTransparency = %d\n", this, mNativeWindowId, transparent);
   mWindowSurface->SetTransparency(mIsTransparent);
 }
 
@@ -919,7 +939,10 @@ void Window::OnIconifyChanged(bool iconified)
       mScene.Hide();
 
       mVisibilityChangedSignal.Emit(handle, false);
-      bridge->WindowHidden(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowHidden(handle);
+      }
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowHidden();
@@ -927,7 +950,10 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(isActuallyChanged)
     {
-      bridge->WindowMinimized(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowMinimized(handle);
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -941,7 +967,10 @@ void Window::OnIconifyChanged(bool iconified)
       mScene.Show();
 
       mVisibilityChangedSignal.Emit(handle, true);
-      bridge->WindowShown(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowShown(handle);
+      }
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowShown();
@@ -949,7 +978,10 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(isActuallyChanged)
     {
-      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -976,12 +1008,18 @@ void Window::OnMaximizeChanged(bool maximized)
     if(maximized)
     {
       mMaximized = true;
-      bridge->WindowMaximized(handle);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowMaximized(handle);
+      }
     }
     else
     {
       mMaximized = false;
-      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+      if(DALI_LIKELY(bridge))
+      {
+        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+      }
     }
   }
 }
@@ -992,15 +1030,16 @@ void Window::OnFocusChanged(bool focusIn)
   mFocusChangeSignal.Emit(handle, focusIn);
 
   mSurface->SetFullSwapNextFrame();
-  auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
-
-  if(focusIn)
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
-    bridge->WindowFocused(handle);
-  }
-  else
-  {
-    bridge->WindowUnfocused(handle);
+    if(focusIn)
+    {
+      bridge->WindowFocused(handle);
+    }
+    else
+    {
+      bridge->WindowUnfocused(handle);
+    }
   }
 
   mFocused = focusIn;
@@ -1158,7 +1197,10 @@ void Window::OnAccessibilityEnabled()
   auto rootLayer = mScene.GetRootLayer();
   if(auto accessible = Accessibility::Accessible::Get(rootLayer))
   {
-    bridge->AddTopLevelWindow(accessible);
+    if(DALI_LIKELY(bridge))
+    {
+      bridge->AddTopLevelWindow(accessible);
+    }
   }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
 
@@ -1168,23 +1210,29 @@ void Window::OnAccessibilityEnabled()
   if(!mIsEmittedWindowCreatedEvent)
   {
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Created Event\n", this, mNativeWindowId);
-    bridge->WindowCreated(handle);
+    if(DALI_LIKELY(bridge))
+    {
+      bridge->WindowCreated(handle);
+    }
     mIsEmittedWindowCreatedEvent = true;
   }
 
-  if(IsVisible())
+  if(DALI_LIKELY(bridge))
   {
-    bridge->WindowShown(handle);
-
-    if(mFocused)
+    if(IsVisible())
     {
-      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
-      bridge->WindowFocused(handle);
+      bridge->WindowShown(handle);
+
+      if(mFocused)
+      {
+        DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
+        bridge->WindowFocused(handle);
+      }
     }
-  }
-  else
-  {
-    bridge->WindowHidden(handle);
+    else
+    {
+      bridge->WindowHidden(handle);
+    }
   }
 }
 
@@ -1199,14 +1247,15 @@ bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
 {
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
 
-  if(!bridge->IsUp() || keyEvent.IsNoInterceptModifier())
+  if(!bridge || !bridge->IsUp() || keyEvent.IsNoInterceptModifier())
   {
     DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
 
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) {
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
+  {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
@@ -1227,10 +1276,10 @@ void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)
   Dali::Window handle(this);
 
   PositionSize positionSize = GetPositionSize();
-  positionSize.x = position.GetX();
-  positionSize.y = position.GetY();
+  positionSize.x            = position.GetX();
+  positionSize.y            = position.GetY();
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window move completed, (%d, %d)\n",  this, mNativeWindowId, positionSize.x, positionSize.y);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window move completed, (%d, %d)\n", this, mNativeWindowId, positionSize.x, positionSize.y);
 
   // It is from window move completed event. This event is generated by displayer server
   // Window move signal is emitted, too.
@@ -1245,10 +1294,10 @@ void Window::OnResizeCompleted(Dali::Window::WindowSize& size)
   Dali::Window handle(this);
 
   PositionSize positionSize = GetPositionSize();
-  positionSize.width = size.GetWidth();
-  positionSize.height = size.GetHeight();
+  positionSize.width        = size.GetWidth();
+  positionSize.height       = size.GetHeight();
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window resize completed, (%d x %d)\n",  this, mNativeWindowId, positionSize.width, positionSize.height);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window resize completed, (%d x %d)\n", this, mNativeWindowId, positionSize.width, positionSize.height);
 
   // It is from window resized completed event. This event is generated by displayer server.
   // Window resize signal is emitted, too.
@@ -1708,6 +1757,13 @@ void Window::SetScreen(const std::string& screenName)
 std::string Window::GetScreen() const
 {
   return mWindowBase->GetScreen();
+}
+
+void Window::InitializeImeInfo()
+{
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), initialize ime window and surface\n", this, mNativeWindowId);
+  mWindowBase->InitializeIme();
+  mWindowSurface->InitializeImeSurface();
 }
 
 } // namespace Adaptor

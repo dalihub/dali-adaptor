@@ -538,7 +538,10 @@ public:
   {
     try
     {
-      Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
+      if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+      {
+        bridge->EmitPostRender(shared_from_this());
+      }
     }
     catch(const std::bad_weak_ptr& e)
     {
@@ -549,7 +552,8 @@ public:
 
 using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
 
-std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
+std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult
+{
   return {nullptr, true};
 };
 
@@ -568,6 +572,10 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
   }
 
   auto bridge = Bridge::GetCurrentBridge();
+  if(DALI_UNLIKELY(!bridge))
+  {
+    return nullptr;
+  }
 
   // Try finding exsiting accessible object.
   auto accessible = bridge->GetAccessible(actor);

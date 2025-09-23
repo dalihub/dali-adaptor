@@ -19,10 +19,9 @@
 #include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-extern "C"
+extern "C" {
+DALI_ADAPTOR_API Dali::Any CastToNativeGraphicsType(void* display)
 {
-  DALI_ADAPTOR_API Dali::Any CastToNativeGraphicsType(void* display)
-  {
-    return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<Dali::XDisplay*>(display));
-  }
+  return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<Dali::XDisplay*>(display));
+}
 } // extern "C"

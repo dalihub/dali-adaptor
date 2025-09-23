@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ void FontMetrics::ApplyDesignLineHeightCompat()
   int pairCount = shrinkAmount / 2;
   int residual  = shrinkAmount % 2;
 
-  ascenderPixels  -= pairCount;
+  ascenderPixels -= pairCount;
   descenderPixels += pairCount + residual;
 
   ascender  = static_cast<float>(ascenderPixels);

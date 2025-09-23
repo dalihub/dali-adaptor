@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_TIZEN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,12 +156,12 @@ protected:
    */
   virtual ~WidgetApplicationTizen();
 
-  WidgetApplicationTizen(const Application&) = delete;
+  WidgetApplicationTizen(const Application&)      = delete;
   WidgetApplicationTizen& operator=(Application&) = delete;
 
 private:
-  typedef std::pair<void*, Dali::Widget> WidgetInstancePair;
-  typedef std::vector<WidgetInstancePair>                 WidgetInstanceContainer;
+  typedef std::pair<void*, Dali::Widget>  WidgetInstancePair;
+  typedef std::vector<WidgetInstancePair> WidgetInstanceContainer;
 
   CreateWidgetFunctionContainer mCreateWidgetFunctionContainer;
   WidgetInstanceContainer       mWidgetInstanceContainer;

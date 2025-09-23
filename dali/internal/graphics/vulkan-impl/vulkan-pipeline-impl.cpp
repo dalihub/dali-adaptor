@@ -479,13 +479,13 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
                  mCreateInfo.vertexInputState->bufferBindings.end(),
                  std::back_inserter(bindings),
                  [](const VertexInputState::Binding& in) -> vk::VertexInputBindingDescription
-                 {
-                   vk::VertexInputBindingDescription out;
-                   out.setInputRate((in.inputRate == VertexInputRate::PER_VERTEX ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance));
-                   out.setBinding(0u); // To be filled later using indices
-                   out.setStride(in.stride);
-                   return out;
-                 });
+  {
+    vk::VertexInputBindingDescription out;
+    out.setInputRate((in.inputRate == VertexInputRate::PER_VERTEX ? vk::VertexInputRate::eVertex : vk::VertexInputRate::eInstance));
+    out.setBinding(0u); // To be filled later using indices
+    out.setStride(in.stride);
+    return out;
+  });
 
   // Assign bindings
   for(auto i = 0u; i < bindings.size(); ++i)
@@ -498,63 +498,63 @@ void PipelineImpl::InitializeVertexInputState(vk::PipelineVertexInputStateCreate
                  mCreateInfo.vertexInputState->attributes.end(),
                  std::back_inserter(attrs),
                  [](const VertexInputState::Attribute& in) -> vk::VertexInputAttributeDescription
-                 {
-                   vk::VertexInputAttributeDescription out;
-                   out.setBinding(in.binding);
-                   out.setLocation(in.location);
-                   out.setOffset(in.offset);
-                   VertexInputFormat format = in.format;
-                   switch(format)
-                   {
-                     case VertexInputFormat::FVECTOR2:
-                     {
-                       out.setFormat(vk::Format::eR32G32Sfloat);
-                       break;
-                     }
-                     case VertexInputFormat::FVECTOR3:
-                     {
-                       out.setFormat(vk::Format::eR32G32B32Sfloat);
-                       break;
-                     }
-                     case VertexInputFormat::FVECTOR4:
-                     {
-                       out.setFormat(vk::Format::eR32G32B32A32Sfloat);
-                       break;
-                     }
-                     case VertexInputFormat::IVECTOR2:
-                     {
-                       out.setFormat(vk::Format::eR32G32Sint);
-                       break;
-                     }
-                     case VertexInputFormat::IVECTOR3:
-                     {
-                       out.setFormat(vk::Format::eR32G32B32Sint);
-                       break;
-                     }
-                     case VertexInputFormat::IVECTOR4:
-                     {
-                       out.setFormat(vk::Format::eR32G32B32A32Sint);
-                       break;
-                     }
-                     case VertexInputFormat::FLOAT:
-                     {
-                       out.setFormat(vk::Format::eR32Sfloat);
-                       break;
-                     }
-                     case VertexInputFormat::INTEGER:
-                     {
-                       out.setFormat(vk::Format::eR32Sint);
-                       break;
-                     }
-                     case VertexInputFormat::UNDEFINED:
-                     default:
-                     {
-                       out.setFormat(vk::Format::eUndefined);
-                       DALI_LOG_ERROR("Vulkan vertex format undefined!\n");
-                     }
-                   };
-                   return out;
-                 });
+  {
+    vk::VertexInputAttributeDescription out;
+    out.setBinding(in.binding);
+    out.setLocation(in.location);
+    out.setOffset(in.offset);
+    VertexInputFormat format = in.format;
+    switch(format)
+    {
+      case VertexInputFormat::FVECTOR2:
+      {
+        out.setFormat(vk::Format::eR32G32Sfloat);
+        break;
+      }
+      case VertexInputFormat::FVECTOR3:
+      {
+        out.setFormat(vk::Format::eR32G32B32Sfloat);
+        break;
+      }
+      case VertexInputFormat::FVECTOR4:
+      {
+        out.setFormat(vk::Format::eR32G32B32A32Sfloat);
+        break;
+      }
+      case VertexInputFormat::IVECTOR2:
+      {
+        out.setFormat(vk::Format::eR32G32Sint);
+        break;
+      }
+      case VertexInputFormat::IVECTOR3:
+      {
+        out.setFormat(vk::Format::eR32G32B32Sint);
+        break;
+      }
+      case VertexInputFormat::IVECTOR4:
+      {
+        out.setFormat(vk::Format::eR32G32B32A32Sint);
+        break;
+      }
+      case VertexInputFormat::FLOAT:
+      {
+        out.setFormat(vk::Format::eR32Sfloat);
+        break;
+      }
+      case VertexInputFormat::INTEGER:
+      {
+        out.setFormat(vk::Format::eR32Sint);
+        break;
+      }
+      case VertexInputFormat::UNDEFINED:
+      default:
+      {
+        out.setFormat(vk::Format::eUndefined);
+        DALI_LOG_ERROR("Vulkan vertex format undefined!\n");
+      }
+    };
+    return out;
+  });
 
   mVertexInputAttributeDescriptionList = attrs;
   mVertexInputBindingDescriptionList   = bindings;
@@ -655,10 +655,10 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
   auto gfxRastState = mCreateInfo.rasterizationState;
 
   out.setFrontFace([gfxRastState]()
-                   { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
+  { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
 
   out.setPolygonMode([polygonMode = gfxRastState->polygonMode]()
-                     {
+  {
     switch(polygonMode)
     {
       case PolygonMode::FILL:
@@ -677,7 +677,7 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
     return vk::PolygonMode{}; }());
 
   out.setCullMode([cullMode = gfxRastState->cullMode]() -> vk::CullModeFlagBits
-                  {
+  {
     switch(cullMode)
     {
       case CullMode::NONE:

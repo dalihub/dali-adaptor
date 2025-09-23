@@ -19,8 +19,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/plugin/font-cache-item-interface.h>
-#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 #include <dali/internal/text/text-abstraction/plugin/harfbuzz-proxy-font.h>
 
 // EXTERNAL INCLUDES

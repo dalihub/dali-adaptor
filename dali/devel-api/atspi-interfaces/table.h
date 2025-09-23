@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_TABLE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,10 @@ public:
    */
   struct RowColumnSpanType
   {
-    int row;         ///< Row index
-    int column;      ///< Column index
-    int rowSpan;     ///< Row span
-    int columnSpan;  ///< Column span
+    int  row;        ///< Row index
+    int  column;     ///< Column index
+    int  rowSpan;    ///< Row span
+    int  columnSpan; ///< Column span
     bool isSelected; ///< Whether the cell is selected
     bool success;    ///< Whether other fields are meaningful
   };

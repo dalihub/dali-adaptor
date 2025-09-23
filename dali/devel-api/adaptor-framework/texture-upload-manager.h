@@ -2,7 +2,7 @@
 #define DALI_DEVEL_TEXTURE_UPLOAD_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ namespace Internal DALI_INTERNAL
 namespace Adaptor DALI_INTERNAL
 {
 class TextureUploadManager;
-} // namespace DALI_INTERNAL
-} // namespace DALI_INTERNAL
+} //namespace Adaptor DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 namespace Devel
 {

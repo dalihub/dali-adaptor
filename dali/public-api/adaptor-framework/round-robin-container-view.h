@@ -101,9 +101,9 @@ public:
   // default members
   ~RoundRobinContainerView() = default;
 
-  RoundRobinContainerView(const RoundRobinContainerView&) = delete;
-  RoundRobinContainerView& operator=(const RoundRobinContainerView&) = delete;
-  RoundRobinContainerView(RoundRobinContainerView&&) noexcept        = default;
+  RoundRobinContainerView(const RoundRobinContainerView&)                = delete;
+  RoundRobinContainerView& operator=(const RoundRobinContainerView&)     = delete;
+  RoundRobinContainerView(RoundRobinContainerView&&) noexcept            = default;
   RoundRobinContainerView& operator=(RoundRobinContainerView&&) noexcept = default;
 
 private:

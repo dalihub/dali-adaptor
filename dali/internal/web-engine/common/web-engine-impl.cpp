@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,17 +48,17 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
-static constexpr int32_t USE_ENVIRONMENT_VALUE = -1;
-static constexpr int32_t USE_CHROMIUM_WEB_ENGINE = 0;
-static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE = 1;
+static constexpr int32_t USE_ENVIRONMENT_VALUE          = -1;
+static constexpr int32_t USE_CHROMIUM_WEB_ENGINE        = 0;
+static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE    = 1;
 static constexpr int32_t DEFAULT_WEB_ENGINE_PLUGIN_TYPE = USE_ENVIRONMENT_VALUE;
-static int32_t webEnginePluginType = DEFAULT_WEB_ENGINE_PLUGIN_TYPE;
+static int32_t           webEnginePluginType            = DEFAULT_WEB_ENGINE_PLUGIN_TYPE;
 
-constexpr char const* const kPluginFullNamePrefix  = "libdali2-web-engine-";
-constexpr char const* const kPluginFullNamePostfix = "-plugin.so";
-constexpr char const* const kPluginFullNameDefault = "libdali2-web-engine-plugin.so";
+constexpr char const* const kPluginFullNamePrefix   = "libdali2-web-engine-";
+constexpr char const* const kPluginFullNamePostfix  = "-plugin.so";
+constexpr char const* const kPluginFullNameDefault  = "libdali2-web-engine-plugin.so";
 constexpr char const* const kPluginFullNameChromium = "libdali2-web-engine-chromium-plugin.so";
-constexpr char const* const kPluginFullNameLwe = "libdali2-web-engine-lwe-plugin.so";
+constexpr char const* const kPluginFullNameLwe      = "libdali2-web-engine-lwe-plugin.so";
 
 std::string MakePluginName(const char* environmentName)
 {
@@ -207,10 +207,10 @@ private:
     }
   }
 
-  WebEnginePluginObject(const WebEnginePluginObject&) = delete;
-  WebEnginePluginObject(WebEnginePluginObject&&)      = delete;
+  WebEnginePluginObject(const WebEnginePluginObject&)            = delete;
+  WebEnginePluginObject(WebEnginePluginObject&&)                 = delete;
   WebEnginePluginObject& operator=(const WebEnginePluginObject&) = delete;
-  WebEnginePluginObject& operator=(WebEnginePluginObject&&) = delete;
+  WebEnginePluginObject& operator=(WebEnginePluginObject&&)      = delete;
 
 private:
   bool mLoadSucceeded; ///< True if library loaded successfully. False otherwise.

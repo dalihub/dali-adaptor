@@ -89,7 +89,10 @@ ActorAccessible::ActorAccessible(Actor actor)
 void ActorAccessible::ObjectDestroyed()
 {
   mIsBeingDestroyed = true;
-  Bridge::GetCurrentBridge()->RemoveAccessible(mActorId);
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->RemoveAccessible(mActorId);
+  }
 }
 
 std::string ActorAccessible::GetName() const
@@ -256,13 +259,17 @@ void ActorAccessible::UpdateChildren()
   mChildren.clear();
   DoGetChildren(mChildren);
 
-  const bool shouldIncludeHidden = Bridge::GetCurrentBridge()->ShouldIncludeHidden();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    const bool shouldIncludeHidden = bridge->ShouldIncludeHidden();
 
-  // Erase-remove idiom
-  // TODO (C++20): Replace with std::erase_if
-  auto it = std::remove_if(mChildren.begin(), mChildren.end(), [shouldIncludeHidden](const Accessible* child) { return !child || (!shouldIncludeHidden && child->IsHidden()); });
-  mChildren.erase(it, mChildren.end());
-  mChildren.shrink_to_fit();
+    // Erase-remove idiom
+    // TODO (C++20): Replace with std::erase_if
+    auto it = std::remove_if(mChildren.begin(), mChildren.end(), [shouldIncludeHidden](const Accessible* child)
+    { return !child || (!shouldIncludeHidden && child->IsHidden()); });
+    mChildren.erase(it, mChildren.end());
+    mChildren.shrink_to_fit();
+  }
 }
 
 void ActorAccessible::EmitActiveDescendantChanged(Accessible* child)

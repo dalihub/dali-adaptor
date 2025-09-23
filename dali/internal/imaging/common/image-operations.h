@@ -48,7 +48,7 @@ enum BoxDimensionTest
  * @brief The integer dimensions of an image or a region of an image packed into
  *        16 bits per component.
  * @note  This can only be used for images of up to 65535 x 65535 pixels.
-  */
+ */
 typedef Uint16Pair ImageDimensions;
 
 /**

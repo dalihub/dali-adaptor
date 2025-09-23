@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,9 @@ Capture::Capture(const Capture& copy) = default;
 
 Capture& Capture::operator=(const Capture& rhs) = default;
 
-Capture::Capture(Capture&& rhs)noexcept = default;
+Capture::Capture(Capture&& rhs) noexcept = default;
 
-Capture& Capture::operator=(Capture&& rhs)noexcept = default;
+Capture& Capture::operator=(Capture&& rhs) noexcept = default;
 
 void Capture::Start(Actor source, const Vector2& position, const Vector2& size, const std::string& path, const Vector4& clearColor)
 {

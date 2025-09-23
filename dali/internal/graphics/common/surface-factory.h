@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_SURFACE_FACTORY_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ namespace Graphics
 class NativeWindowInterface
 {
 public:
-
   /**
    * @brief Get the native window handle
    * @return The native window handle
@@ -58,10 +57,10 @@ public:
    * Create a new surface factory
    * @param[in] renderSurface The render surface for which the surface factory will create a graphics surface.
    */
-  static std::unique_ptr<SurfaceFactory> New( NativeWindowInterface& renderSurface );
+  static std::unique_ptr<SurfaceFactory> New(NativeWindowInterface& renderSurface);
 
-  SurfaceFactory( const SurfaceFactory& ) = delete;
-  SurfaceFactory& operator=( const SurfaceFactory& ) = delete;
+  SurfaceFactory(const SurfaceFactory&)            = delete;
+  SurfaceFactory& operator=(const SurfaceFactory&) = delete;
 };
 
 } // Namespace Graphics

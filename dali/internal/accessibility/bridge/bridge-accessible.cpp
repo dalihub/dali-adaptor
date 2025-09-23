@@ -119,7 +119,8 @@ bool SortHorizontally(Component* lhs, Component* rhs)
 std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& children)
 {
   // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool {
+  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool
+  {
     auto extents = child->GetExtents(CoordinateType::WINDOW);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
@@ -507,7 +508,106 @@ bool IsActorAccessibleFunction(Dali::Actor actor, Dali::HitTestAlgorithm::Traver
     }
   }
   return hittable;
-};
+}
+
+Component* GetObjectInRelation(Accessible* obj, RelationType relationType)
+{
+  if(!obj)
+  {
+    return nullptr;
+  }
+
+  for(auto& relation : obj->GetRelationSet())
+  {
+    if(relation.mRelationType == relationType)
+    {
+      for(auto& target : relation.mTargets)
+      {
+        auto component = dynamic_cast<Component*>(target);
+        if(component)
+        {
+          return component;
+        }
+      }
+    }
+  }
+  return nullptr;
+}
+
+Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
+{
+  if(!root || maxRecursionDepth == 0)
+  {
+    return nullptr;
+  }
+
+  // When the layer is 3D behaviour, hit test algorithm needs to be used to find the correct actor. This is because the z-order is not considered in the normal way.
+  auto actor = root->GetInternalActor();
+  if(actor)
+  {
+    Dali::Actor layer = actor.GetLayer();
+    if(layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
+    {
+      Dali::HitTestAlgorithm::Results hitTestResults;
+      Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
+      if(hitTestResults.actor)
+      {
+        return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
+      }
+      else
+      {
+        return nullptr;
+      }
+    }
+  }
+
+  auto rootComponent = dynamic_cast<Component*>(root);
+  LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
+
+  bool        forceChildSearch     = false;
+  const auto& attributes           = root->GetAttributes();
+  auto        forceChildSearchAttr = attributes.find(FORCE_CHILD_SEARCH_ATTR);
+  if(forceChildSearchAttr != attributes.end())
+  {
+    forceChildSearch = std::atoi(forceChildSearchAttr->second.c_str()) == 1;
+    DALI_LOG_RELEASE_INFO("Force child search attr is set to %d.", forceChildSearch);
+  }
+
+  bool currentForceSearchActive = forceChildSearch || isForceSearchPropagated;
+
+  if(rootComponent && !currentForceSearchActive && !rootComponent->IsAccessibleContainingPoint(point, type))
+  {
+    return nullptr;
+  }
+
+  auto children = root->GetChildren();
+  for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
+  {
+    //check recursively all children first
+    auto result = CalculateNavigableAccessibleAtPoint(*childIt, point, type, maxRecursionDepth - 1, currentForceSearchActive);
+    if(result)
+    {
+      return result;
+    }
+  }
+
+  if(rootComponent)
+  {
+    //Found a candidate, all its children are already checked
+    auto controledBy = GetObjectInRelation(rootComponent, RelationType::CONTROLLED_BY);
+    if(!controledBy)
+    {
+      controledBy = rootComponent;
+    }
+
+    if(controledBy->IsProxy() || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || controledBy->IsAccessibleContainingPoint(point, type))))
+    {
+      LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
+      return controledBy;
+    }
+  }
+  return nullptr;
+}
 
 } // anonymous namespace
 
@@ -548,113 +648,18 @@ Accessible* BridgeAccessible::FindSelf() const
   return FindCurrentObject();
 }
 
-Component* BridgeAccessible::GetObjectInRelation(Accessible* obj, RelationType relationType)
-{
-  if(!obj)
-  {
-    return nullptr;
-  }
-
-  for(auto& relation : obj->GetRelationSet())
-  {
-    if(relation.mRelationType == relationType)
-    {
-      for(auto& target : relation.mTargets)
-      {
-        auto component = dynamic_cast<Component*>(target);
-        if(component)
-        {
-          return component;
-        }
-      }
-    }
-  }
-  return nullptr;
-}
-
-Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth)
-{
-  if(!root || maxRecursionDepth == 0)
-  {
-    return nullptr;
-  }
-
-  // When the layer is 3D behaviour, hit test algorithm needs to be used to find the correct actor. This is because the z-order is not considered in the normal way.
-  auto actor = root->GetInternalActor();
-  if(actor)
-  {
-    Dali::Actor layer = actor.GetLayer();
-    if(layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
-    {
-      Dali::HitTestAlgorithm::Results hitTestResults;
-      Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
-      if(hitTestResults.actor)
-      {
-        return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
-      }
-      else
-      {
-        return nullptr;
-      }
-    }
-  }
-
-  auto rootComponent = dynamic_cast<Component*>(root);
-  LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
-
-  bool        forceChildSearch     = false;
-  const auto& attributes           = root->GetAttributes();
-  auto        forceChildSearchAttr = attributes.find(FORCE_CHILD_SEARCH_ATTR);
-  if(forceChildSearchAttr != attributes.end())
-  {
-    forceChildSearch = std::atoi(forceChildSearchAttr->second.c_str()) == 1;
-    DALI_LOG_RELEASE_INFO("Force child search attr is set to %d.", forceChildSearch);
-  }
-
-  if(rootComponent && !forceChildSearch && !rootComponent->IsAccessibleContainingPoint(point, type))
-  {
-    return nullptr;
-  }
-
-  auto children = root->GetChildren();
-  for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
-  {
-    //check recursively all children first
-    auto result = CalculateNavigableAccessibleAtPoint(*childIt, point, type, maxRecursionDepth - 1);
-    if(result)
-    {
-      return result;
-    }
-  }
-
-  if(rootComponent)
-  {
-    //Found a candidate, all its children are already checked
-    auto controledBy = GetObjectInRelation(rootComponent, RelationType::CONTROLLED_BY);
-    if(!controledBy)
-    {
-      controledBy = rootComponent;
-    }
-
-    if(controledBy->IsProxy() || IsObjectAcceptable(controledBy))
-    {
-      LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
-      return controledBy;
-    }
-  }
-  return nullptr;
-}
-
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
   auto self                     = FindSelf();
-  auto findObjectByRelationType = [this, &self](RelationType relationType) {
+  auto findObjectByRelationType = [this, &self](RelationType relationType)
+  {
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
-                                 relations.end(),
-                                 [relationType](const Dali::Accessibility::Relation& relation) -> bool {
-                                   return relation.mRelationType == relationType;
-                                 });
+                                  relations.end(),
+                                  [relationType](const Dali::Accessibility::Relation& relation) -> bool
+     {
+      return relation.mRelationType == relationType;
+    });
     return relations.end() != relation && !relation->mTargets.empty() ? relation->mTargets.back() : nullptr;
   };
 
@@ -853,7 +858,7 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   }
 
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
-  auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
+  auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH, false);
   bool recurse   = false;
   if(component)
   {

@@ -894,12 +894,12 @@ bool InputMethodContextX::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)
     ecoreKeyDownEvent.locks     = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
 
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#if(ECORE_VERSION_MINOR >= 14)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyDownEvent.dev_name     = "";
     ecoreKeyDownEvent.dev_class    = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #endif // Since ecore_imf 1.14 version
-#if(ECORE_VERSION_MINOR >= 22)
+#if (ECORE_VERSION_MINOR >= 22)
     ecoreKeyDownEvent.keycode = integKeyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
@@ -954,10 +954,10 @@ bool InputMethodContextX::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent)
     ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
     ecoreKeyUpEvent.locks     = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#if(ECORE_VERSION_MINOR >= 14)
+#if (ECORE_VERSION_MINOR >= 14)
     ecoreKeyUpEvent.dev_name = "";
 #endif // Since ecore_imf 1.14 version
-#if(ECORE_VERSION_MINOR >= 22)
+#if (ECORE_VERSION_MINOR >= 22)
     ecoreKeyUpEvent.keycode = integKeyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1

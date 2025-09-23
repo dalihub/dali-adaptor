@@ -178,9 +178,9 @@ struct DBusWrapper
   };
   struct PropertyInfo
   {
-    CallId                                                                                               setterId, getterId;
-    std::string                                                                                          memberName, typeSignature;
-    std::function<std::string(const DBusWrapper::MessagePtr&src, const DBusWrapper::MessageIterPtr&dst)> getCallback, setCallback;
+    CallId                                                                                                 setterId, getterId;
+    std::string                                                                                            memberName, typeSignature;
+    std::function<std::string(const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& dst)> getCallback, setCallback;
   };
   struct SignalId
   {
@@ -465,17 +465,17 @@ class DBusClient;
 class DBusInterfaceDescription;
 
 /**
-   * @brief Formats debug message and calls debug printer (if any) with it
-   */
+ * @brief Formats debug message and calls debug printer (if any) with it
+ */
 void debugPrint(const char* file, size_t line, const char* format, ...);
 
 /**
-   * @brief Sets debug printer callback, which will be called with debug messages
-   *
-   * Callback will be called in various moments of DBus activity. First value passed to callback
-   * is pointer to text, second it's length. Text is ended with 0 (not counted towards it's size),
-   * user can safely printf it.
-   */
+ * @brief Sets debug printer callback, which will be called with debug messages
+ *
+ * Callback will be called in various moments of DBus activity. First value passed to callback
+ * is pointer to text, second it's length. Text is ended with 0 (not counted towards it's size),
+ * user can safely printf it.
+ */
 void setDebugPrinter(std::function<void(const char*, size_t)>);
 
 /**
@@ -506,51 +506,51 @@ struct Success
 };
 
 /**
-   * @brief Value representing data, that came from DBUS or error message
-   *
-   * Object of this class either helds series of values (of types ARGS...)
-   * or error message. This object will be true in boolean context, if has data
-   * and false, if an error occured.
-   * It's valid to create ValueOrError object with empty argument list or void:
-   * \code{.cpp}
-   * ValueOrError<> v1;
-   * ValueOrError<void> v2;
-   * \endcode
-   * Both mean the same - ValueOrError containing no real data and being a marker,
-   * wherever operation successed or failed and containing possible error message.
-   */
+ * @brief Value representing data, that came from DBUS or error message
+ *
+ * Object of this class either helds series of values (of types ARGS...)
+ * or error message. This object will be true in boolean context, if has data
+ * and false, if an error occured.
+ * It's valid to create ValueOrError object with empty argument list or void:
+ * \code{.cpp}
+ * ValueOrError<> v1;
+ * ValueOrError<void> v2;
+ * \endcode
+ * Both mean the same - ValueOrError containing no real data and being a marker,
+ * wherever operation successed or failed and containing possible error message.
+ */
 template<typename... ARGS>
 class ValueOrError
 {
 public:
   /**
-     * @brief Empty constructor. Valid only, if all ARGS types are default constructible.
-     */
+   * @brief Empty constructor. Valid only, if all ARGS types are default constructible.
+   */
   ValueOrError() = default;
 
   /**
-     * @brief Value constructor.
-     *
-     * This will be initialized as success with passed in values.
-     */
+   * @brief Value constructor.
+   *
+   * This will be initialized as success with passed in values.
+   */
   ValueOrError(ARGS... t)
   : value(std::move(t)...)
   {
   }
 
   /**
-     * @brief Alternative Value constructor.
-     *
-     * This will be initialized as success with passed in values.
-     */
+   * @brief Alternative Value constructor.
+   *
+   * This will be initialized as success with passed in values.
+   */
   ValueOrError(std::tuple<ARGS...> t)
   : value(std::move(t))
   {
   }
 
   /**
-     * @brief Error constructor. This will be initialized as failure with given error message.
-     */
+   * @brief Error constructor. This will be initialized as failure with given error message.
+   */
   ValueOrError(Error e)
   : error(std::move(e))
   {
@@ -558,34 +558,34 @@ public:
   }
 
   /**
-     * @brief bool operator.
-     *
-     * Returns true, if operation was successful (getValues member is callable), or false
-     * when operation failed (getError is callable).
-     */
+   * @brief bool operator.
+   *
+   * Returns true, if operation was successful (getValues member is callable), or false
+   * when operation failed (getError is callable).
+   */
   explicit operator bool() const
   {
     return error.message.empty();
   }
 
   /**
-     * @brief Returns error message object.
-     *
-     * Returns object containing error message associated with the failed operation.
-     * Only callable, if operation actually failed, otherwise will assert.
-     */
+   * @brief Returns error message object.
+   *
+   * Returns object containing error message associated with the failed operation.
+   * Only callable, if operation actually failed, otherwise will assert.
+   */
   const Error& getError() const
   {
     return error;
   }
 
   /**
-     * @brief Returns modifiable tuple of held data.
-     *
-     * Returns reference to the internal tuple containing held data.
-     * User can modify (or move) data safely.
-     * Only callable, if operation actually successed, otherwise will assert.
-     */
+   * @brief Returns modifiable tuple of held data.
+   *
+   * Returns reference to the internal tuple containing held data.
+   * User can modify (or move) data safely.
+   * Only callable, if operation actually successed, otherwise will assert.
+   */
   std::tuple<ARGS...>& getValues()
   {
     assert(*this);
@@ -593,11 +593,11 @@ public:
   }
 
   /**
-     * @brief Returns const tuple of held data.
-     *
-     * Returns const reference to the internal tuple containing held data.
-     * Only callable, if operation actually successed, otherwise will assert.
-     */
+   * @brief Returns const tuple of held data.
+   *
+   * Returns const reference to the internal tuple containing held data.
+   * Only callable, if operation actually successed, otherwise will assert.
+   */
   const std::tuple<ARGS...>& getValues() const
   {
     assert(*this);
@@ -688,14 +688,14 @@ protected:
 using ObjectPath = ObjectPath;
 
 /**
-   * @brief Class used to marshall DBUS's variant type
-   *
-   * Minimalistic class, that allows user to specify DBUS variant type
-   * as argument or return value. You need to pass real type hidden under variant as
-   * template type \b A. At this point library doesn't allow to expected one of few classes
-   * as return data in variant. So for example user can't specify method call, which on return
-   * expects DBUS variant holding either string or int.
-   */
+ * @brief Class used to marshall DBUS's variant type
+ *
+ * Minimalistic class, that allows user to specify DBUS variant type
+ * as argument or return value. You need to pass real type hidden under variant as
+ * template type \b A. At this point library doesn't allow to expected one of few classes
+ * as return data in variant. So for example user can't specify method call, which on return
+ * expects DBUS variant holding either string or int.
+ */
 template<typename A>
 struct EldbusVariant
 {
@@ -703,8 +703,8 @@ struct EldbusVariant
 };
 
 /**
-   * @brief Namespace for private, internal functions and classes
-   */
+ * @brief Namespace for private, internal functions and classes
+ */
 namespace detail
 {
 inline namespace strings
@@ -822,16 +822,16 @@ template<typename T>
 struct signature_helper
 {
   /**
-       * @brief Returns name of type marshalled, for informative purposes
-       */
+   * @brief Returns name of type marshalled, for informative purposes
+   */
   static constexpr std::string_view name()
   {
     return {T::name_v.data()};
   }
 
   /**
-       * @brief Returns DBUS' signature of type marshalled
-       */
+   * @brief Returns DBUS' signature of type marshalled
+   */
   static constexpr std::string_view sig()
   {
     return {T::sig_v.data()};
@@ -839,8 +839,8 @@ struct signature_helper
 };
 
 /**
-     * @brief Signature class for marshalling uint8 type.
-     */
+ * @brief Signature class for marshalling uint8 type.
+ */
 template<>
 struct signature<uint8_t> : signature_helper<signature<uint8_t>>
 {
@@ -848,16 +848,16 @@ struct signature<uint8_t> : signature_helper<signature<uint8_t>>
   static constexpr auto sig_v  = concat("y");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint8_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint8_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -865,8 +865,8 @@ struct signature<uint8_t> : signature_helper<signature<uint8_t>>
 };
 
 /**
-     * @brief Signature class for marshalling uint16 type.
-     */
+ * @brief Signature class for marshalling uint16 type.
+ */
 template<>
 struct signature<uint16_t> : signature_helper<signature<uint16_t>>
 {
@@ -874,16 +874,16 @@ struct signature<uint16_t> : signature_helper<signature<uint16_t>>
   static constexpr auto sig_v  = concat("q");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint16_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint16_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -891,8 +891,8 @@ struct signature<uint16_t> : signature_helper<signature<uint16_t>>
 };
 
 /**
-     * @brief Signature class for marshalling uint32 type.
-     */
+ * @brief Signature class for marshalling uint32 type.
+ */
 template<>
 struct signature<uint32_t> : signature_helper<signature<uint32_t>>
 {
@@ -900,16 +900,16 @@ struct signature<uint32_t> : signature_helper<signature<uint32_t>>
   static constexpr auto sig_v  = concat("u");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint32_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint32_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -917,8 +917,8 @@ struct signature<uint32_t> : signature_helper<signature<uint32_t>>
 };
 
 /**
-     * @brief Signature class for marshalling uint64 type.
-     */
+ * @brief Signature class for marshalling uint64 type.
+ */
 template<>
 struct signature<uint64_t> : signature_helper<signature<uint64_t>>
 {
@@ -926,16 +926,16 @@ struct signature<uint64_t> : signature_helper<signature<uint64_t>>
   static constexpr auto sig_v  = concat("t");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint64_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint64_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -943,8 +943,8 @@ struct signature<uint64_t> : signature_helper<signature<uint64_t>>
 };
 
 /**
-     * @brief Signature class for marshalling int16 type.
-     */
+ * @brief Signature class for marshalling int16 type.
+ */
 template<>
 struct signature<int16_t> : signature_helper<signature<int16_t>>
 {
@@ -952,16 +952,16 @@ struct signature<int16_t> : signature_helper<signature<int16_t>>
   static constexpr auto sig_v  = concat("n");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, int16_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int16_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -969,8 +969,8 @@ struct signature<int16_t> : signature_helper<signature<int16_t>>
 };
 
 /**
-     * @brief Signature class for marshalling int32 type.
-     */
+ * @brief Signature class for marshalling int32 type.
+ */
 template<>
 struct signature<int32_t> : signature_helper<signature<int32_t>>
 {
@@ -978,16 +978,16 @@ struct signature<int32_t> : signature_helper<signature<int32_t>>
   static constexpr auto sig_v  = concat("i");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, int32_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int32_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -995,8 +995,8 @@ struct signature<int32_t> : signature_helper<signature<int32_t>>
 };
 
 /**
-     * @brief Signature class for marshalling int64 type.
-     */
+ * @brief Signature class for marshalling int64 type.
+ */
 template<>
 struct signature<int64_t> : signature_helper<signature<int64_t>>
 {
@@ -1004,16 +1004,16 @@ struct signature<int64_t> : signature_helper<signature<int64_t>>
   static constexpr auto sig_v  = concat("x");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, int64_t v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int64_t& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -1021,8 +1021,8 @@ struct signature<int64_t> : signature_helper<signature<int64_t>>
 };
 
 /**
-     * @brief Signature class for marshalling double type.
-     */
+ * @brief Signature class for marshalling double type.
+ */
 template<>
 struct signature<double> : signature_helper<signature<double>>
 {
@@ -1030,24 +1030,24 @@ struct signature<double> : signature_helper<signature<double>>
   static constexpr auto sig_v  = concat("d");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, double v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, double& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, float& v2)
   {
     double v = 0;
@@ -1058,8 +1058,8 @@ struct signature<double> : signature_helper<signature<double>>
 };
 
 /**
-     * @brief Signature class for marshalling float type.
-     */
+ * @brief Signature class for marshalling float type.
+ */
 template<>
 struct signature<float> : signature_helper<signature<float>>
 {
@@ -1067,24 +1067,24 @@ struct signature<float> : signature_helper<signature<float>>
   static constexpr auto sig_v  = concat("f");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, float v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, double& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, float& v2)
   {
     double v = 0;
@@ -1095,8 +1095,8 @@ struct signature<float> : signature_helper<signature<float>>
 };
 
 /**
-     * @brief Signature class for marshalling boolean type.
-     */
+ * @brief Signature class for marshalling boolean type.
+ */
 template<>
 struct signature<bool> : signature_helper<signature<bool>>
 {
@@ -1104,16 +1104,16 @@ struct signature<bool> : signature_helper<signature<bool>>
   static constexpr auto sig_v  = concat("b");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, bool v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, bool& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -1127,16 +1127,16 @@ struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signat
   static constexpr auto sig_v  = signature<typename std::underlying_type<T>::type>::sig_v;
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, T v)
   {
     signature<typename std::underlying_type<T>::type>::set(iter, static_cast<int64_t>(v));
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, T& v)
   {
     typename std::underlying_type<T>::type q = 0;
@@ -1149,11 +1149,11 @@ struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signat
 };
 
 /**
-     * @brief Signature class for marshalling string type.
-     *
-     * Both (const) char * and std::string types are accepted as value to send.
-     * Only std::string is accepted as value to receive.
-     */
+ * @brief Signature class for marshalling string type.
+ *
+ * Both (const) char * and std::string types are accepted as value to send.
+ * Only std::string is accepted as value to receive.
+ */
 template<>
 struct signature<std::string> : signature_helper<signature<std::string>>
 {
@@ -1161,16 +1161,16 @@ struct signature<std::string> : signature_helper<signature<std::string>>
   static constexpr auto sig_v  = concat("s");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::string& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
@@ -1184,40 +1184,40 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
   static constexpr auto sig_v  = concat("o");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
   }
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const ObjectPath& v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const char* v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, ObjectPath& v)
   {
     return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::string& v)
   {
     ObjectPath q;
@@ -1228,11 +1228,11 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
 };
 
 /**
-     * @brief Signature class for marshalling (const) char * type.
-     *
-     * Both (const) char * and std::string types are accepted as value to send.
-     * You can't use (const) char * variable type to receive value.
-     */
+ * @brief Signature class for marshalling (const) char * type.
+ *
+ * Both (const) char * and std::string types are accepted as value to send.
+ * You can't use (const) char * variable type to receive value.
+ */
 template<>
 struct signature<char*> : signature_helper<signature<char*>>
 {
@@ -1240,16 +1240,16 @@ struct signature<char*> : signature_helper<signature<char*>>
   static constexpr auto sig_v  = concat("s");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const char* v)
   {
     DBUS_W->eldbus_message_iter_arguments_append_impl(iter, std::string{v});
@@ -1269,12 +1269,12 @@ struct signature_tuple_element_type_helper<0, A, ARGS...>
 };
 
 /**
-     * @brief Helper class to marshall tuples
-     *
-     * This class marshals all elements of the tuple value starting at the index INDEX
-     * and incrementing. This class recursively calls itself with increasing INDEX value
-     * until INDEX is equal to SIZE, where recursive calling ends.
-     */
+ * @brief Helper class to marshall tuples
+ *
+ * This class marshals all elements of the tuple value starting at the index INDEX
+ * and incrementing. This class recursively calls itself with increasing INDEX value
+ * until INDEX is equal to SIZE, where recursive calling ends.
+ */
 template<size_t INDEX, size_t SIZE, typename... ARGS>
 struct signature_tuple_helper : signature_helper<signature_tuple_helper<INDEX, SIZE, ARGS...>>
 {
@@ -1284,8 +1284,8 @@ struct signature_tuple_helper : signature_helper<signature_tuple_helper<INDEX, S
   static constexpr auto sig_v  = concat(signature<current_type>::sig_v, signature_tuple_helper<INDEX + 1, SIZE, ARGS...>::sig_v);
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
     signature<current_type>::set(iter, std::get<INDEX>(args));
@@ -1293,8 +1293,8 @@ struct signature_tuple_helper : signature_helper<signature_tuple_helper<INDEX, S
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::tuple<ARGS...>& args)
   {
     return signature<current_type>::get(iter, std::get<INDEX>(args)) &&
@@ -1303,11 +1303,11 @@ struct signature_tuple_helper : signature_helper<signature_tuple_helper<INDEX, S
 };
 
 /**
-     * @brief Helper class to marshall tuples
-     *
-     * This class marks end of the tuple marshalling. Members of this class are called
-     * when INDEX value is equal to SIZE.
-     */
+ * @brief Helper class to marshall tuples
+ *
+ * This class marks end of the tuple marshalling. Members of this class are called
+ * when INDEX value is equal to SIZE.
+ */
 template<size_t SIZE, typename... ARGS>
 struct signature_tuple_helper<SIZE, SIZE, ARGS...> : signature_helper<signature_tuple_helper<SIZE, SIZE, ARGS...>>
 {
@@ -1315,15 +1315,15 @@ struct signature_tuple_helper<SIZE, SIZE, ARGS...> : signature_helper<signature_
   static constexpr auto sig_v  = concat("");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::tuple<ARGS...>& args)
   {
     return true;
@@ -1331,11 +1331,11 @@ struct signature_tuple_helper<SIZE, SIZE, ARGS...> : signature_helper<signature_
 };
 
 /**
-     * @brief Signature class for marshalling tuple of values
-     *
-     * This class marshalls tuple of values. This represents
-     * DBUS struct typle, encoded with character 'r'
-     */
+ * @brief Signature class for marshalling tuple of values
+ *
+ * This class marshalls tuple of values. This represents
+ * DBUS struct typle, encoded with character 'r'
+ */
 template<typename... ARGS>
 struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<ARGS...>>>
 {
@@ -1343,8 +1343,8 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
   static constexpr auto sig_v  = concat("(", concat(signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::sig_v, ")"));
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
     auto entry = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'r', "");
@@ -1352,8 +1352,8 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::tuple<ARGS...>& args)
   {
     auto entry = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'r');
@@ -1363,16 +1363,16 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
 };
 
 /**
-     * @brief Signature class for marshalling ValueOrError template type
-     *
-     * ValueOrError template type is used to marshall list of values passed to
-     * DBUS (or received from) at the "top" level. For example ss(s) is represented as
-     * \code{.cpp} ValueOrError<std::string, std::string, std::tuple<std::string>> \endcode
-     * While (ss(s)) is represented as
-     * \code{.cpp} std::tuple<std::string, std::string, std::tuple<std::string>> \endcode
-     * or
-     * \code{.cpp} ValueOrError<std::tuple<std::string, std::string, std::tuple<std::string>>> \endcode
-     */
+ * @brief Signature class for marshalling ValueOrError template type
+ *
+ * ValueOrError template type is used to marshall list of values passed to
+ * DBUS (or received from) at the "top" level. For example ss(s) is represented as
+ * \code{.cpp} ValueOrError<std::string, std::string, std::tuple<std::string>> \endcode
+ * While (ss(s)) is represented as
+ * \code{.cpp} std::tuple<std::string, std::string, std::tuple<std::string>> \endcode
+ * or
+ * \code{.cpp} ValueOrError<std::tuple<std::string, std::string, std::tuple<std::string>>> \endcode
+ */
 template<typename... ARGS>
 struct signature<ValueOrError<ARGS...>> : signature_helper<signature<ValueOrError<ARGS...>>>
 {
@@ -1380,16 +1380,16 @@ struct signature<ValueOrError<ARGS...>> : signature_helper<signature<ValueOrErro
   static constexpr auto sig_v  = signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::sig_v;
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const ValueOrError<ARGS...>& args)
   {
     signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::set(iter, args.getValues());
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, ValueOrError<ARGS...>& args)
   {
     return signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::get(iter, args.getValues());
@@ -1397,8 +1397,8 @@ struct signature<ValueOrError<ARGS...>> : signature_helper<signature<ValueOrErro
 };
 
 /**
-     * @brief Signature class for marshalling ValueOrError<void> type
-     */
+ * @brief Signature class for marshalling ValueOrError<void> type
+ */
 template<>
 struct signature<ValueOrError<void>> : signature_helper<signature<ValueOrError<void>>>
 {
@@ -1406,15 +1406,15 @@ struct signature<ValueOrError<void>> : signature_helper<signature<ValueOrError<v
   static constexpr auto sig_v  = concat("");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const ValueOrError<void>& args)
   {
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, ValueOrError<void>& args)
   {
     return true;
@@ -1422,8 +1422,8 @@ struct signature<ValueOrError<void>> : signature_helper<signature<ValueOrError<v
 };
 
 /**
-     * @brief Signature class for marshalling ValueOrError<> type
-     */
+ * @brief Signature class for marshalling ValueOrError<> type
+ */
 template<>
 struct signature<ValueOrError<>> : signature_helper<signature<ValueOrError<>>>
 {
@@ -1431,15 +1431,15 @@ struct signature<ValueOrError<>> : signature_helper<signature<ValueOrError<>>>
   static constexpr auto sig_v  = concat("");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const ValueOrError<>& args)
   {
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, ValueOrError<>& args)
   {
     return true;
@@ -1447,8 +1447,8 @@ struct signature<ValueOrError<>> : signature_helper<signature<ValueOrError<>>>
 };
 
 /**
-     * @brief Signature class for marshalling pair of types
-     */
+ * @brief Signature class for marshalling pair of types
+ */
 template<typename A, typename B>
 struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
 {
@@ -1456,8 +1456,8 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
   static constexpr auto sig_v  = concat("(", concat(signature_tuple_helper<0, 2, A, B>::sig_v, ")"));
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::pair<A, B>& ab, bool dictionary = false)
   {
     auto entry = DBUS_W->eldbus_message_iter_container_new_impl(iter, dictionary ? 'e' : 'r', "");
@@ -1465,8 +1465,8 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::pair<A, B>& ab)
   {
     auto entry = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'r');
@@ -1488,10 +1488,10 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
 };
 
 /**
-     * @brief Signature class for marshalling std::vector template type
-     *
-     * This marshals container's content as DBUS a ascii character type code.
-     */
+ * @brief Signature class for marshalling std::vector template type
+ *
+ * This marshals container's content as DBUS a ascii character type code.
+ */
 template<typename A>
 struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
 {
@@ -1499,8 +1499,8 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
   static constexpr auto sig_v  = concat("a", signature<A>::sig_v);
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::vector<A>& v)
   {
     auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
@@ -1512,8 +1512,8 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::vector<A>& v)
   {
     auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
@@ -1528,10 +1528,10 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
 };
 
 /**
-     * @brief Signature class for marshalling std::array template type
-     *
-     * This marshals container's content as DBUS a ascii character type code.
-     */
+ * @brief Signature class for marshalling std::array template type
+ *
+ * This marshals container's content as DBUS a ascii character type code.
+ */
 template<typename A, size_t N>
 struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>>>
 {
@@ -1539,8 +1539,8 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
   static constexpr auto sig_v  = concat("a", signature<A>::sig_v);
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::array<A, N>& v)
   {
     auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
@@ -1552,8 +1552,8 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::array<A, N>& v)
   {
     auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
@@ -1569,10 +1569,10 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
 };
 
 /**
-     * @brief Signature class for marshalling EldbusVariant type
-     *
-     * This marshals variant's content as DBUS v ascii character type code.
-     */
+ * @brief Signature class for marshalling EldbusVariant type
+ *
+ * This marshals variant's content as DBUS v ascii character type code.
+ */
 template<typename A>
 struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>>>
 {
@@ -1580,16 +1580,16 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
   static constexpr auto sig_v  = concat("v");
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const EldbusVariant<A>& v)
   {
     set(iter, v.value);
   }
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const A& v)
   {
     auto var = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'v', std::string{signature<A>::sig()});
@@ -1597,8 +1597,8 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, EldbusVariant<A>& v)
   {
     auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'v');
@@ -1609,15 +1609,15 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
 };
 
 /**
-     * @brief Signature class for marshalling std::unordered_map template type
-     *
-     * This marshals container's content as DBUS {} ascii character type code.
-     * Note, that library doesnt check, if the key is basic type, as DBUS
-     * specification mandates.
-     * User can always exchange std::unordered_map for std::map and the reverse.
-     * User can receive such values as std::vector of std::pair<key, value> values.
-     * Order of such values is unspecified.
-     */
+ * @brief Signature class for marshalling std::unordered_map template type
+ *
+ * This marshals container's content as DBUS {} ascii character type code.
+ * Note, that library doesnt check, if the key is basic type, as DBUS
+ * specification mandates.
+ * User can always exchange std::unordered_map for std::map and the reverse.
+ * User can receive such values as std::vector of std::pair<key, value> values.
+ * Order of such values is unspecified.
+ */
 template<typename A, typename B>
 struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::unordered_map<A, B>>>
 {
@@ -1625,8 +1625,8 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
   static constexpr auto sig_v  = concat("a{", concat(signature_tuple_helper<0, 2, A, B>::sig_v, "}"));
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::unordered_map<A, B>& v)
   {
     auto sig = "{" + std::string{signature_tuple_helper<0, 2, A, B>::sig()} + "}";
@@ -1639,8 +1639,8 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::unordered_map<A, B>& v)
   {
     auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
@@ -1655,15 +1655,15 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
 };
 
 /**
-     * @brief Signature class for marshalling std::unordered_map template type
-     *
-     * This marshals container's content as DBUS {} ascii character type code.
-     * Note, that library doesnt check, if the key is basic type, as DBUS
-     * specification mandates.
-     * User can always exchange std::unordered_map for std::map and the reverse.
-     * User can receive such values as std::vector of std::pair<key, value> values.
-     * Order of such values is unspecified.
-     */
+ * @brief Signature class for marshalling std::unordered_map template type
+ *
+ * This marshals container's content as DBUS {} ascii character type code.
+ * Note, that library doesnt check, if the key is basic type, as DBUS
+ * specification mandates.
+ * User can always exchange std::unordered_map for std::map and the reverse.
+ * User can receive such values as std::vector of std::pair<key, value> values.
+ * Order of such values is unspecified.
+ */
 template<typename A, typename B>
 struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
 {
@@ -1671,8 +1671,8 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
   static constexpr auto sig_v  = concat("a{", concat(signature_tuple_helper<0, 2, A, B>::sig_v, "}"));
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::map<A, B>& v)
   {
     auto sig = "{" + std::string{signature_tuple_helper<0, 2, A, B>::sig()} + "}";
@@ -1685,8 +1685,8 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::map<A, B>& v)
   {
     auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
@@ -1700,8 +1700,8 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
 };
 
 /**
-     * @brief Signature helper class for marshalling const reference types
-     */
+ * @brief Signature helper class for marshalling const reference types
+ */
 template<typename A>
 struct signature<const A&> : signature_helper<signature<const A&>>
 {
@@ -1709,16 +1709,16 @@ struct signature<const A&> : signature_helper<signature<const A&>>
   static constexpr auto sig_v  = signature<A>::sig_v;
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const A& v)
   {
     signature<A>::set(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static void get(const DBusWrapper::MessageIterPtr& iter, A& v)
   {
     signature<A>::get(iter, v);
@@ -1726,8 +1726,8 @@ struct signature<const A&> : signature_helper<signature<const A&>>
 };
 
 /**
-     * @brief Signature helper class for marshalling reference types
-     */
+ * @brief Signature helper class for marshalling reference types
+ */
 template<typename A>
 struct signature<A&> : signature_helper<signature<A&>>
 {
@@ -1735,16 +1735,16 @@ struct signature<A&> : signature_helper<signature<A&>>
   static constexpr auto sig_v  = signature<A>::sig_v;
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const A& v)
   {
     signature<A>::set(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static void get(const DBusWrapper::MessageIterPtr& iter, A& v)
   {
     signature<A>::get(iter, v);
@@ -1752,8 +1752,8 @@ struct signature<A&> : signature_helper<signature<A&>>
 };
 
 /**
-     * @brief Signature helper class for marshalling const types
-     */
+ * @brief Signature helper class for marshalling const types
+ */
 template<typename A>
 struct signature<const A> : signature_helper<signature<const A>>
 {
@@ -1761,16 +1761,16 @@ struct signature<const A> : signature_helper<signature<const A>>
   static constexpr auto sig_v  = signature<A>::sig_v;
 
   /**
-       * @brief Marshals value v as marshalled type into message
-       */
+   * @brief Marshals value v as marshalled type into message
+   */
   static void set(const DBusWrapper::MessageIterPtr& iter, const A& v)
   {
     signature<A>::set(iter, v);
   }
 
   /**
-       * @brief Marshals value from marshalled type into variable v
-       */
+   * @brief Marshals value from marshalled type into variable v
+   */
   static void get(const DBusWrapper::MessageIterPtr& iter, A& v)
   {
     signature<A>::get(iter, v);
@@ -1884,7 +1884,8 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
   }
 
   detail::packValues(callId, msg, args...);
-  auto pending = DBUS_W->eldbus_proxy_send_impl(proxy, msg, [callback, callId, proxy](const DBusWrapper::MessagePtr& reply) {
+  auto pending = DBUS_W->eldbus_proxy_send_impl(proxy, msg, [callback, callId, proxy](const DBusWrapper::MessagePtr& reply)
+  {
     DBUS_DEBUG("call %d: calling done", callId.id);
     if(!reply)
     {
@@ -2057,12 +2058,12 @@ struct EldbusArgGenerator_ReturnType<void(ARGS...)>
 using ConnectionType = DBusWrapper::ConnectionType;
 
 /**
-   * @brief Class representing client's end of DBUS connection
-   *
-   * Allows calling (synchronous and asynchronous) methods on selected interface
-   * Allows (synchronous and asynchronous) setting / getting properties.
-   * Allows registering signals.
-   */
+ * @brief Class representing client's end of DBUS connection
+ *
+ * Allows calling (synchronous and asynchronous) methods on selected interface
+ * Allows (synchronous and asynchronous) setting / getting properties.
+ * Allows registering signals.
+ */
 class DBusClient
 {
   struct ConnectionInfo
@@ -2072,63 +2073,63 @@ class DBusClient
 
 public:
   /**
-     * @brief Default constructor, creates non-connected object.
-     */
+   * @brief Default constructor, creates non-connected object.
+   */
   DBusClient() = default;
 
   /**
-     * @brief Connects to dbus choosen by tp, using given arguments
-     *
-     * @param bus_name name of the bus to connect to
-     * @param path_name object's path
-     * @param interface_name interface name
-     */
+   * @brief Connects to dbus choosen by tp, using given arguments
+   *
+   * @param bus_name name of the bus to connect to
+   * @param path_name object's path
+   * @param interface_name interface name
+   */
   DBusClient(std::string busName_, std::string pathName_, std::string interfaceName_, ConnectionType tp);
 
   /**
-     * @brief Connects to dbus using connection conn
-     *
-     * @param bus_name name of the bus to connect to
-     * @param path_name object's path
-     * @param interface_name interface name
-     * @param conn connection object from getDBusConnectionByType call
-     */
+   * @brief Connects to dbus using connection conn
+   *
+   * @param bus_name name of the bus to connect to
+   * @param path_name object's path
+   * @param interface_name interface name
+   * @param conn connection object from getDBusConnectionByType call
+   */
   DBusClient(std::string busName_, std::string pathName_, std::string interfaceName_, const DBusWrapper::ConnectionPtr& conn = {});
 
   /**
-     * @brief Destructor object.
-     *
-     * All signals added will be disconnected.
-     * All asynchronous calls will be cancelled, their callback's will be called
-     * with failure message.
-     */
+   * @brief Destructor object.
+   *
+   * All signals added will be disconnected.
+   * All asynchronous calls will be cancelled, their callback's will be called
+   * with failure message.
+   */
   ~DBusClient()                 = default;
   DBusClient(const DBusClient&) = delete;
   DBusClient(DBusClient&&)      = default;
 
-  DBusClient& operator=(DBusClient&&) = default;
+  DBusClient& operator=(DBusClient&&)      = default;
   DBusClient& operator=(const DBusClient&) = delete;
 
   /**
-     * @brief bool operator
-     *
-     * Returns true, if object is connected to DBUS
-     */
+   * @brief bool operator
+   *
+   * Returns true, if object is connected to DBUS
+   */
   explicit operator bool() const
   {
     return bool(connectionState->proxy);
   }
 
   /**
-     * @brief Helper class for calling a method
-     *
-     * Template type T defines both arguments sent to the method
-     * and expected values. Receiving different values will be reported as
-     * error. For example:
-     * \code{.cpp} Method<int(float, float)> \endcode
-     * defines method, which takes two arguments (two floats) and return
-     * single value of type int.
-     */
+   * @brief Helper class for calling a method
+   *
+   * Template type T defines both arguments sent to the method
+   * and expected values. Receiving different values will be reported as
+   * error. For example:
+   * \code{.cpp} Method<int(float, float)> \endcode
+   * defines method, which takes two arguments (two floats) and return
+   * single value of type int.
+   */
   template<typename T>
   struct Method
   {
@@ -2139,13 +2140,13 @@ public:
     std::shared_ptr<ConnectionInfo> connectionInfo;
 
     /**
-       * @brief Executes synchronous call on DBUS's method
-       *
-       * The function returns ValueOrError<...> object, which
-       * contains either received values or error message.
-       *
-       * @param args arguments to pass to the method
-       */
+     * @brief Executes synchronous call on DBUS's method
+     *
+     * The function returns ValueOrError<...> object, which
+     * contains either received values or error message.
+     *
+     * @param args arguments to pass to the method
+     */
     template<typename... ARGS>
     RetType call(const ARGS&... args)
     {
@@ -2155,13 +2156,13 @@ public:
     }
 
     /**
-       * @brief Executes asynchronous call on DBUS's method
-       *
-       * The function calls callback with either received values or error message.
-       *
-       * @param callback callback functor, which will be called with return value(s) or error message
-       * @param args arguments to pass to the method
-       */
+     * @brief Executes asynchronous call on DBUS's method
+     *
+     * The function calls callback with either received values or error message.
+     *
+     * @param callback callback functor, which will be called with return value(s) or error message
+     * @param args arguments to pass to the method
+     */
     template<typename... ARGS>
     void asyncCall(std::function<void(RetType)> callback, const ARGS&... args)
     {
@@ -2172,12 +2173,12 @@ public:
   };
 
   /**
-     * @brief Helper class for calling a property
-     *
-     * Template type T defines type of the value hidden under property.
-     * Note, that library automatically wraps both sent and received value into
-     * DBUS's wrapper type.
-     */
+   * @brief Helper class for calling a property
+   *
+   * Template type T defines type of the value hidden under property.
+   * Note, that library automatically wraps both sent and received value into
+   * DBUS's wrapper type.
+   */
   template<typename T>
   struct Property
   {
@@ -2189,11 +2190,11 @@ public:
     std::shared_ptr<ConnectionInfo> connectionInfo;
 
     /**
-       * @brief executes synchronous get on property
-       *
-       * The function returns ValueOrError<...> object, which
-       * contains either received values or error message.
-       */
+     * @brief executes synchronous get on property
+     *
+     * The function returns ValueOrError<...> object, which
+     * contains either received values or error message.
+     */
     RetType get()
     {
       detail::CallId callId;
@@ -2205,17 +2206,18 @@ public:
     }
 
     /**
-       * @brief executes asynchronous get on property
-       *
-       * The function calls callback with either received values or error message.
-       *
-       * @param callback callback functor, which will be called with return value(s) or error message
-       */
+     * @brief executes asynchronous get on property
+     *
+     * The function calls callback with either received values or error message.
+     *
+     * @param callback callback functor, which will be called with return value(s) or error message
+     */
     void asyncGet(std::function<void(RetType)> callback)
     {
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Get", info, connectionInfo->interfaceName, propName);
-      auto cc = [callback](VariantRetType reply) {
+      auto cc = [callback](VariantRetType reply)
+      {
         if(reply)
           callback(std::move(std::get<0>(reply.getValues()).value));
         else
@@ -2225,11 +2227,11 @@ public:
     }
 
     /**
-       * @brief executes synchronous set on property
-       *
-       * The function returns ValueOrError<void> object, with
-       * possible error message.
-       */
+     * @brief executes synchronous set on property
+     *
+     * The function returns ValueOrError<void> object, with
+     * possible error message.
+     */
     ValueOrError<void> set(const T& r)
     {
       detail::CallId callId;
@@ -2239,12 +2241,12 @@ public:
     }
 
     /**
-       * @brief executes asynchronous get on property
-       *
-       * The function calls callback with either received values or error message.
-       *
-       * @param callback callback functor, which will be called with return value(s) or error message
-       */
+     * @brief executes asynchronous get on property
+     *
+     * The function calls callback with either received values or error message.
+     *
+     * @param callback callback functor, which will be called with return value(s) or error message
+     */
     void asyncSet(std::function<void(ValueOrError<void>)> callback, const T& r)
     {
       detail::CallId callId;
@@ -2255,12 +2257,12 @@ public:
   };
 
   /**
-     * @brief Constructs Property<...> object for calling properties
-     *
-     * The function constructs and returns proxy object for calling property.
-     *
-     * @param propName property name to set and / or query
-     */
+   * @brief Constructs Property<...> object for calling properties
+   *
+   * The function constructs and returns proxy object for calling property.
+   *
+   * @param propName property name to set and / or query
+   */
   template<typename PropertyType>
   Property<PropertyType> property(std::string propName)
   {
@@ -2268,12 +2270,12 @@ public:
   }
 
   /**
-     * @brief Constructs Method<...> object for calling methods
-     *
-     * The function constructs and returns proxy object for calling method.
-     *
-     * @param funcName function name to call
-     */
+   * @brief Constructs Method<...> object for calling methods
+   *
+   * The function constructs and returns proxy object for calling method.
+   *
+   * @param funcName function name to call
+   */
   template<typename MethodType>
   Method<MethodType> method(std::string funcName)
   {
@@ -2281,12 +2283,12 @@ public:
   }
 
   /**
-     * @brief Registers notification callback, when property has changed
-     *
-     * The callback will be called with new value, when property's value has changed.
-     * Note, that template type V must match expected type, otherwise undefined behavior will occur,
-     * there's no check for this.
-     */
+   * @brief Registers notification callback, when property has changed
+   *
+   * The callback will be called with new value, when property's value has changed.
+   * Note, that template type V must match expected type, otherwise undefined behavior will occur,
+   * there's no check for this.
+   */
   template<typename V>
   void addPropertyChangedEvent(std::string propertyName, std::function<void(V)> callback)
   {
@@ -2294,7 +2296,8 @@ public:
     detail::displayDebugCallInfoSignal(callId, propertyName, info, connectionInfo->interfaceName);
     DBUS_DEBUG("call %d: adding property", callId.id);
     auto& cI = this->connectionInfo;
-    DBUS_W->add_property_changed_event_listener_impl(connectionState->proxy, cI->interfaceName, propertyName, [callback](const _Eina_Value* newValue) {
+    DBUS_W->add_property_changed_event_listener_impl(connectionState->proxy, cI->interfaceName, propertyName, [callback](const _Eina_Value* newValue)
+    {
       V val = 0;
       if(!getFromEinaValue(newValue, &val))
       {
@@ -2306,21 +2309,22 @@ public:
   }
 
   /**
-     * @brief Registers callback on the DBUS' signal
-     *
-     * The function registers callback signalName. When signal comes, callback will be called.
-     * Callback object will exists as long as signal is registered. You can unregister signal
-     * by destroying DBusClient object.
-     *
-     * @param signalName name of the signal to register
-     * @param callback callback to call
-     */
+   * @brief Registers callback on the DBUS' signal
+   *
+   * The function registers callback signalName. When signal comes, callback will be called.
+   * Callback object will exists as long as signal is registered. You can unregister signal
+   * by destroying DBusClient object.
+   *
+   * @param signalName name of the signal to register
+   * @param callback callback to call
+   */
   template<typename SignalType>
   void addSignal(std::string signalName, std::function<SignalType> callback)
   {
     detail::CallId callId;
     detail::displayDebugCallInfoSignal(callId, signalName, info, connectionInfo->interfaceName);
-    DBUS_W->eldbus_proxy_signal_handler_add_impl(connectionState->proxy, signalName, [callId, callback, signalName](const DBusWrapper::MessagePtr& msg) -> void {
+    DBUS_W->eldbus_proxy_signal_handler_add_impl(connectionState->proxy, signalName, [callId, callback, signalName](const DBusWrapper::MessagePtr& msg) -> void
+    {
       std::string errname, aux;
       if(DBUS_W->eldbus_message_error_get_impl(msg, errname, aux))
       {
@@ -2356,9 +2360,9 @@ private:
 };
 
 /**
-   * @brief Helper class describing DBUS's server interface
-   *
-   */
+ * @brief Helper class describing DBUS's server interface
+ *
+ */
 class DBusInterfaceDescription
 {
   friend class DBusServer;
@@ -2370,30 +2374,30 @@ public:
   using SignalId     = DBusWrapper::SignalId;
 
   /**
-     * @brief Creates empty interface description with given name
-     *
-     * @param interfaceName name of the interface
-     */
+   * @brief Creates empty interface description with given name
+   *
+   * @param interfaceName name of the interface
+   */
   DBusInterfaceDescription(std::string interfaceName);
 
   /**
-     * @brief adds new, synchronous method to the interface
-     *
-     * When method memberName is called on DBUS, callback functor will be called
-     * with values received from DBUS. callback won't be called, if method was
-     * called with invalid signature. Value returned from functor (or error message)
-     * will be marshalled back to the caller.
-     *
-     * Template type T defines both arguments sent to the method
-     * and expected values. Receiving different values will be reported as
-     * error. For example:
-     * \code{.cpp} Method<int(float, float)> \endcode
-     * defines method, which takes two arguments (two floats) and return
-     * single value of type int.
-     *
-     * @param memberName name of the method
-     * @param callback functor, which will be called
-     */
+   * @brief adds new, synchronous method to the interface
+   *
+   * When method memberName is called on DBUS, callback functor will be called
+   * with values received from DBUS. callback won't be called, if method was
+   * called with invalid signature. Value returned from functor (or error message)
+   * will be marshalled back to the caller.
+   *
+   * Template type T defines both arguments sent to the method
+   * and expected values. Receiving different values will be reported as
+   * error. For example:
+   * \code{.cpp} Method<int(float, float)> \endcode
+   * defines method, which takes two arguments (two floats) and return
+   * single value of type int.
+   *
+   * @param memberName name of the method
+   * @param callback functor, which will be called
+   */
   template<typename T>
   void addMethod(const std::string& memberName, typename detail::dbus_interface_traits<T>::SyncCB callback)
   {
@@ -2410,21 +2414,21 @@ public:
   }
 
   /**
-     * @brief adds new, synchronous property to the interface
-     *
-     * When property memberName is called on DBUS, respective callback functor will be called
-     * with values received from DBUS. callback won't be called, if method was
-     * called with invalid signature. Value returned from functor (or error message)
-     * will be marshalled back to the caller.
-     *
-     * Template type T defines type of the value hidden under property.
-     * Note, that library automatically wraps both sent and received value into
-     * DBUS's wrapper type.
-     *
-     * @param memberName name of the method
-     * @param getter functor, which will be called when property is being read
-     * @param setter functor, which will be called when property is being set
-     */
+   * @brief adds new, synchronous property to the interface
+   *
+   * When property memberName is called on DBUS, respective callback functor will be called
+   * with values received from DBUS. callback won't be called, if method was
+   * called with invalid signature. Value returned from functor (or error message)
+   * will be marshalled back to the caller.
+   *
+   * Template type T defines type of the value hidden under property.
+   * Note, that library automatically wraps both sent and received value into
+   * DBUS's wrapper type.
+   *
+   * @param memberName name of the method
+   * @param getter functor, which will be called when property is being read
+   * @param setter functor, which will be called when property is being set
+   */
   template<typename T>
   void addProperty(const std::string& memberName, std::function<ValueOrError<T>()> getter, std::function<ValueOrError<void>(T)> setter)
   {
@@ -2437,7 +2441,8 @@ public:
       detail::CallId getterId;
       z.getterId = getterId;
       DBUS_DEBUG("call %d: property %s (get) type %s", getterId.id, memberName.c_str(), detail::signature<T>::name().data());
-      z.getCallback = [=](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& dst) -> std::string {
+      z.getCallback = [=](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& dst) -> std::string
+      {
         try
         {
           auto v = std::apply(getter, std::tuple<>{});
@@ -2465,7 +2470,8 @@ public:
       detail::CallId setterId;
       z.setterId = setterId;
       DBUS_DEBUG("call %d: property %s (set) type %s", setterId.id, memberName.c_str(), detail::signature<T>::name().data());
-      z.setCallback = [=](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& src_iter) -> std::string {
+      z.setCallback = [=](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& src_iter) -> std::string
+      {
         std::tuple<T> value;
         auto          src_signature = DBUS_W->eldbus_message_iter_signature_get_impl(src_iter);
         if(detail::signature<T>::get(src_iter, std::get<0>(value)))
@@ -2498,12 +2504,12 @@ public:
   }
 
   /**
-     * @brief adds new signal to the interface
-     *
-     * Template types ARGS defines values, which will be emited with the signal
-     *
-     * @param memberName name of the method
-     */
+   * @brief adds new signal to the interface
+   *
+   * Template types ARGS defines values, which will be emited with the signal
+   *
+   * @param memberName name of the method
+   */
   template<typename... ARGS>
   SignalId addSignal(const std::string& memberName)
   {
@@ -2528,7 +2534,8 @@ private:
                                                                                        typename detail::dbus_interface_traits<T>::SyncCB callback)
   {
     using VEArgs = typename detail::dbus_interface_traits<T>::VEArgs;
-    return [=](const DBusWrapper::MessagePtr& msg) -> DBusWrapper::MessagePtr {
+    return [=](const DBusWrapper::MessagePtr& msg) -> DBusWrapper::MessagePtr
+    {
       DBUS_DEBUG("call %d: entering", callId.id);
       DBusWrapper::MessagePtr ret  = {};
       auto                    args = detail::unpackValues<VEArgs>(callId, msg);
@@ -2576,73 +2583,73 @@ private:
 };
 
 /**
-   * @brief Class representing server's end of DBUS connection
-   *
-   * Allows listening (synchronously and asynchronously) on methods on selected interface
-   * Allows listening (synchronously and asynchronously) on setting / getting properties.
-   * Allows emiting signals.
-   */
+ * @brief Class representing server's end of DBUS connection
+ *
+ * Allows listening (synchronously and asynchronously) on methods on selected interface
+ * Allows listening (synchronously and asynchronously) on setting / getting properties.
+ * Allows emiting signals.
+ */
 class DBusServer
 {
 public:
   /**
-     * @brief Constructs non-connected dbus server.
-     */
+   * @brief Constructs non-connected dbus server.
+   */
   DBusServer() = default;
 
   /**
-     * @brief Constructs dbus server on either system or user dbus connection.
-     */
+   * @brief Constructs dbus server on either system or user dbus connection.
+   */
   DBusServer(ConnectionType tp);
 
   /**
-     * @brief Constructs dbus server on connection from getDBusConnectionByType
-     */
+   * @brief Constructs dbus server on connection from getDBusConnectionByType
+   */
   DBusServer(const DBusWrapper::ConnectionPtr& conn);
 
   /**
-     * @brief Destructor
-     *
-     * Destructor will properly destroy everything. Destructor will cancel
-     * pending replies.
-     */
+   * @brief Destructor
+   *
+   * Destructor will properly destroy everything. Destructor will cancel
+   * pending replies.
+   */
   ~DBusServer() = default;
 
   DBusServer(const DBusServer&) = delete;
   DBusServer(DBusServer&&)      = default;
 
-  DBusServer& operator=(DBusServer&&) = default;
+  DBusServer& operator=(DBusServer&&)      = default;
   DBusServer& operator=(const DBusServer&) = delete;
 
   /**
-     * @brief Registers interface on given path name
-     *
-     * @param pathName path object to register interface on.
-     * @param dscr
-     * @param fallback
-     */
+   * @brief Registers interface on given path name
+   *
+   * @param pathName path object to register interface on.
+   * @param dscr
+   * @param fallback
+   */
   void addInterface(const std::string& pathName, DBusInterfaceDescription& dscr, bool fallback = false);
 
   /**
-     * @brief Gets bus name of the current connection (must be connected)
-     */
+   * @brief Gets bus name of the current connection (must be connected)
+   */
   std::string getBusName() const;
 
   /**
-     * @brief Returns connection object for this dbus server object
-     *
-     * @return connection object
-     */
+   * @brief Returns connection object for this dbus server object
+   *
+   * @return connection object
+   */
   DBusWrapper::ConnectionPtr getConnection();
 
   /**
-     * @brief Emits signal
-     *
-     * Emits signal based only on data passed to the function
-     *
-     * @param signal identifier of the signal
-     * @param args values to emit
-     */
+   * @brief Emits signal
+   *
+   * Emits signal based only on data passed to the function
+   *
+   * @param signal identifier of the signal
+   * @param args values to emit
+   */
   template<typename... ARGS>
   void emit2(const std::string& path, const std::string& interfaceName, const std::string& signalName, const ARGS&... args)
   {
@@ -2653,52 +2660,52 @@ public:
   }
 
   /**
-     * @brief Returns current object path, when handling call to property / method
-     *
-     * User can call this function from inside callback used to handle property / method calls.
-     * It will retrieve object's path used in the call. Note, that in asynchronous handling
-     * of those calls user need to retrieve and store the current object / current connection
-     * as the value will change at the moment user's callback handling will exit. For example:
-     * \code{.cpp}
-     * DBusInterfaceDescription interface{"name"};
-     * auto handler_later = [](std::function<void(void)> done_cb) {
-     *   // process something later on
-     *   DBusServer::getCurrentObjectPath(); // this will return empty string
-     * };
-     * interface.addAsyncMethod<void()>("m", [=](std::function<void(void)> done_cb) {
-     *   DBusServer::getCurrentObjectPath(); // this will current object's path
-     *
-     *   // do some processing later on and call done_cb, when it's done
-     *   register_to_call_sometime_later_on(std::move(done_cb));
-     * };
-     * \endcode
-     */
+   * @brief Returns current object path, when handling call to property / method
+   *
+   * User can call this function from inside callback used to handle property / method calls.
+   * It will retrieve object's path used in the call. Note, that in asynchronous handling
+   * of those calls user need to retrieve and store the current object / current connection
+   * as the value will change at the moment user's callback handling will exit. For example:
+   * \code{.cpp}
+   * DBusInterfaceDescription interface{"name"};
+   * auto handler_later = [](std::function<void(void)> done_cb) {
+   *   // process something later on
+   *   DBusServer::getCurrentObjectPath(); // this will return empty string
+   * };
+   * interface.addAsyncMethod<void()>("m", [=](std::function<void(void)> done_cb) {
+   *   DBusServer::getCurrentObjectPath(); // this will current object's path
+   *
+   *   // do some processing later on and call done_cb, when it's done
+   *   register_to_call_sometime_later_on(std::move(done_cb));
+   * };
+   * \endcode
+   */
   static std::string getCurrentObjectPath()
   {
     return currentObjectPath;
   }
 
   /**
-     * @brief Returns current connection object, when handling call to property / method
-     *
-     * User can call this function from inside callback used to handle property / method calls.
-     * It will retrieve object's path used in the call. Note, that in asynchronous handling
-     * of those calls user need to retrieve and store the current object / current connection
-     * as the value will change at the moment user's callback handling will exit. For example:
-     * \code{.cpp}
-     * DBusInterfaceDescription interface{"name"};
-     * auto handler_later = [](std::function<void(void)> done_cb) {
-     *   // process something later on
-     *   DBusServer::getCurrentObjectPath(); // this will return empty string
-     * };
-     * interface.addAsyncMethod<void()>("m", [=](std::function<void(void)> done_cb) {
-     *   DBusServer::getCurrentObjectPath(); // this will current object's path
-     *
-     *   // do some processing later on and call done_cb, when it's done
-     *   register_to_call_sometime_later_on(std::move(done_cb));
-     * };
-     * \endcode
-     */
+   * @brief Returns current connection object, when handling call to property / method
+   *
+   * User can call this function from inside callback used to handle property / method calls.
+   * It will retrieve object's path used in the call. Note, that in asynchronous handling
+   * of those calls user need to retrieve and store the current object / current connection
+   * as the value will change at the moment user's callback handling will exit. For example:
+   * \code{.cpp}
+   * DBusInterfaceDescription interface{"name"};
+   * auto handler_later = [](std::function<void(void)> done_cb) {
+   *   // process something later on
+   *   DBusServer::getCurrentObjectPath(); // this will return empty string
+   * };
+   * interface.addAsyncMethod<void()>("m", [=](std::function<void(void)> done_cb) {
+   *   DBusServer::getCurrentObjectPath(); // this will current object's path
+   *
+   *   // do some processing later on and call done_cb, when it's done
+   *   register_to_call_sometime_later_on(std::move(done_cb));
+   * };
+   * \endcode
+   */
   static const DBusWrapper::ConnectionPtr& getCurrentConnection()
   {
     return currentConnection;
@@ -2720,8 +2727,8 @@ public:
     }
     CurrentObjectSetter(const CurrentObjectSetter&) = delete;
     CurrentObjectSetter(CurrentObjectSetter&&)      = delete;
-    void operator=(const CurrentObjectSetter&) = delete;
-    void operator=(CurrentObjectSetter&&) = delete;
+    void operator=(const CurrentObjectSetter&)      = delete;
+    void operator=(CurrentObjectSetter&&)           = delete;
   };
 
 private:

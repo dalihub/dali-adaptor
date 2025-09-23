@@ -156,7 +156,8 @@ void Reflection::BuildReflection()
     }
 
     // helper lambda if we need to check more types of pipeline stages in the future
-    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult {
+    auto CheckStageIfDone = [stage](auto expectedStage, auto& variable, const char* stageName) -> StageCheckResult
+    {
       if(stage == expectedStage)
       {
         if(!variable)
@@ -251,9 +252,9 @@ void Reflection::BuildReflection()
         block.size          = 0; // to be updated with members
 
         // DALi's role! let we use the type of block, instead of it's name if name is null or empty.
-        block.name = IsValidCString(binding->name) ? binding->name
-                                                   : (binding->type_description && IsValidCString(binding->type_description->type_name)) ? binding->type_description->type_name
-                                                                                                                                         : "";
+        block.name = IsValidCString(binding->name)                                                         ? binding->name
+                     : (binding->type_description && IsValidCString(binding->type_description->type_name)) ? binding->type_description->type_name
+                                                                                                           : "";
 
         block.members.resize(memberCount);
         for(auto i = 0u; i < memberCount; ++i)
@@ -272,7 +273,8 @@ void Reflection::BuildReflection()
         }
 
         // Sort members by offset
-        std::sort(block.members.begin(), block.members.end(), [](auto& lhs, auto& rhs) { return lhs.offset < rhs.offset; });
+        std::sort(block.members.begin(), block.members.end(), [](auto& lhs, auto& rhs)
+        { return lhs.offset < rhs.offset; });
       }
       else if(binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
       {
@@ -293,8 +295,11 @@ void Reflection::BuildReflection()
   if(!mUniformOpaques.empty())
   {
     // sort samplers by bindings, and erase duplicated bindings.
-    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
-    mUniformOpaques.erase(std::unique(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs) { return lhs.binding == rhs.binding; }), mUniformOpaques.end());
+    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs)
+    { return lhs.binding < rhs.binding; });
+    mUniformOpaques.erase(std::unique(mUniformOpaques.begin(), mUniformOpaques.end(), [](auto& lhs, auto& rhs)
+    { return lhs.binding == rhs.binding; }),
+                          mUniformOpaques.end());
 
     // Apply location.
     for(auto i = 0u; i < mUniformOpaques.size(); ++i)
@@ -308,10 +313,13 @@ void Reflection::BuildReflection()
   if(mUniformBlocks.size() > 1u)
   {
     // sort blocks by bindings, and erase duplicated bindings.
-    std::sort(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs) { return lhs.binding < rhs.binding; });
+    std::sort(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs)
+    { return lhs.binding < rhs.binding; });
 
     // @todo: Need to make compile error if uniform blocks with same binding has difference member infomations!
-    mUniformBlocks.erase(std::unique(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs) { return lhs.binding == rhs.binding; }), mUniformBlocks.end());
+    mUniformBlocks.erase(std::unique(mUniformBlocks.begin() + 1u, mUniformBlocks.end(), [](auto& lhs, auto& rhs)
+    { return lhs.binding == rhs.binding; }),
+                         mUniformBlocks.end());
   }
 
   auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();

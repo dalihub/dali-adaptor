@@ -360,11 +360,11 @@ namespace
 // Custom libpng write callbacks that buffer to a vector instead of a file:
 
 /**
-   * extern "C" linkage is used because this is a callback that we pass to a C
-   * library which is part of the underlying platform and so potentially compiled
-   * as C rather than C++.
-   * @see http://stackoverflow.com/a/2594222
-   * */
+ * extern "C" linkage is used because this is a callback that we pass to a C
+ * library which is part of the underlying platform and so potentially compiled
+ * as C rather than C++.
+ * @see http://stackoverflow.com/a/2594222
+ * */
 extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length)
 {
   DALI_ASSERT_DEBUG(png_ptr && data);

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_FRAME_TIME_STATS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,48 +52,48 @@ struct FrameTimeStats
   void StartTime(const FrameTimeStamp& timeStamp);
 
   /**
-    * Timer end time
-    * @param timeStamp time stamp
-    */
+   * Timer end time
+   * @param timeStamp time stamp
+   */
   void EndTime(const FrameTimeStamp& timeStamp);
 
   /**
-    * Reset all internal counters / state except total time.
-    */
+   * Reset all internal counters / state except total time.
+   */
   void Reset();
 
   /**
-    * @return maximum time in seconds
-    */
+   * @return maximum time in seconds
+   */
   float GetMaxTime() const;
 
   /**
-    * @return minimum time in seconds
-    */
+   * @return minimum time in seconds
+   */
   float GetMinTime() const;
 
   /**
-    * @return total time in second
-    */
+   * @return total time in second
+   */
   float GetTotalTime() const;
 
   /**
-    * Get how many times the timer has been started /stopped
-    */
+   * Get how many times the timer has been started /stopped
+   */
   unsigned int GetRunCount() const;
 
   /**
-    * Calculate the mean and standard deviation
-    *
-    * @param[out] mean The return mean value
-    * @param[out] standardDeviation The return standard deviation value
-    */
+   * Calculate the mean and standard deviation
+   *
+   * @param[out] mean The return mean value
+   * @param[out] standardDeviation The return standard deviation value
+   */
   void CalculateMean(float& meanOut, float& standardDeviationOut) const;
 
 private:
   /**
-    * internal time state.
-    */
+   * internal time state.
+   */
   enum TimeState
   {
     WAITING_FOR_START_TIME, ///< waiting for start time marker

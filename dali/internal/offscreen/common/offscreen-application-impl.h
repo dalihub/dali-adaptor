@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,10 +188,10 @@ private:
   void QuitFromMainLoop();
 
   // Undefined
-  OffscreenApplication(const OffscreenApplication&) = delete;
-  OffscreenApplication& operator=(OffscreenApplication&) = delete;
+  OffscreenApplication(const OffscreenApplication&)            = delete;
+  OffscreenApplication& operator=(OffscreenApplication&)       = delete;
   OffscreenApplication& operator=(const OffscreenApplication&) = delete;
-  OffscreenApplication& operator=(OffscreenApplication&&) = delete;
+  OffscreenApplication& operator=(OffscreenApplication&&)      = delete;
 
 private:
   std::unique_ptr<Dali::Adaptor>                               mAdaptor;

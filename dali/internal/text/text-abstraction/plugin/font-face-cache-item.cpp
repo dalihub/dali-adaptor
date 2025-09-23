@@ -80,9 +80,9 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
   static auto policyString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_RENDERED_GLYPH_COMPRESS_POLICY);
 
-  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
-                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
-                                                                                                                                          : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S'   ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                      : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
+                                                                                         : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }

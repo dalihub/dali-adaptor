@@ -78,18 +78,21 @@ std::string EscapeString(const std::string& input)
 }
 
 // Helper function to quote strings properly for JSON output format.
-const auto Quote = [](const std::string& input, bool escape = false) -> std::string {
+const auto Quote = [](const std::string& input, bool escape = false) -> std::string
+{
   std::string escapedQuote{ESCAPED_QUOTE};
   return escapedQuote + (escape ? EscapeString(input) : input) + ESCAPED_QUOTE;
 };
 
 // Helper function to check if we should include only showing nodes or not.
-const auto IncludeShowingOnly = [](Accessible::DumpDetailLevel detailLevel) -> bool {
+const auto IncludeShowingOnly = [](Accessible::DumpDetailLevel detailLevel) -> bool
+{
   return detailLevel == Accessible::DumpDetailLevel::DUMP_SHORT_SHOWING_ONLY || detailLevel == Accessible::DumpDetailLevel::DUMP_FULL_SHOWING_ONLY;
 };
 
 // Helper function to get type name from attributes map.
-const auto GetTypeString = [](const Attributes& attrs) -> std::string {
+const auto GetTypeString = [](const Attributes& attrs) -> std::string
+{
   std::ostringstream msg;
   if(auto iter = attrs.find("class"); iter != attrs.end())
   {
@@ -99,7 +102,8 @@ const auto GetTypeString = [](const Attributes& attrs) -> std::string {
 };
 
 // Helper function to get type name from attributes map.
-const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string {
+const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string
+{
   std::ostringstream msg;
   if(auto iter = attrs.find(KEY_AUTOMATION_ID); iter != attrs.end())
   {
@@ -109,7 +113,8 @@ const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string {
 };
 
 // Helper function to get screen coordinates as a string.
-const auto GetScreenCoordString = [](Accessible* node) -> std::string {
+const auto GetScreenCoordString = [](Accessible* node) -> std::string
+{
   std::ostringstream msg;
   auto*              component = Component::DownCast(node);
   if(component)
@@ -124,7 +129,8 @@ const auto GetScreenCoordString = [](Accessible* node) -> std::string {
 };
 
 // Helper function to get attributes map as a string.
-const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string {
+const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
+{
   std::ostringstream msg;
   for(const auto& iter : attrs)
   {
@@ -141,7 +147,8 @@ const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
 };
 
 // Helper function to get value interface properties as a string. If there is no value interface, it will try to get value text instead.
-const auto GetValueString = [](Accessible* node) -> std::string {
+const auto GetValueString = [](Accessible* node) -> std::string
+{
   std::ostringstream msg;
   auto*              valueInterface = Value::DownCast(node);
   if(valueInterface)
@@ -260,8 +267,10 @@ std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
   auto handle = mBridgeData.lock();
   if(!handle)
   {
-    auto bridge = Bridge::GetCurrentBridge();
-    handle      = bridge->mData;
+    if(auto bridge = Bridge::GetCurrentBridge())
+    {
+      handle = bridge->mData;
+    }
   }
   return handle;
 }

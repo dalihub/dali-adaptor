@@ -88,7 +88,7 @@ FT_Error FontFaceManager::LoadFace(const FT_Library& freeTypeLibrary, const Font
   if(iter != mFreeTypeFaces.end())
   {
     ftFace = iter->second.mFreeTypeFace;
-    error = FT_Err_Ok;
+    error  = FT_Err_Ok;
   }
   else
   {

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SYSTEM_ANDROID_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ private:
   void RemoveStandardCallback(CallbackData* callbackData);
 
   // Undefined
-  AndroidCallbackManager(const AndroidCallbackManager&) = delete;
+  AndroidCallbackManager(const AndroidCallbackManager&)      = delete;
   AndroidCallbackManager& operator=(AndroidCallbackManager&) = delete;
 
 private:

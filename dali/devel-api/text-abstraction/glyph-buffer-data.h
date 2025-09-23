@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_GLYPH_BUFFER_DATA_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,35 +31,35 @@ namespace Dali
 namespace TextAbstraction
 {
 /**
-  * @brief Struct used to retrieve the glyph's bitmap.
-  */
+ * @brief Struct used to retrieve the glyph's bitmap.
+ */
 struct DALI_ADAPTOR_API GlyphBufferData
 {
   /**
-    * @brief Constructor.
-    *
-    * Initializes struct members to their defaults.
-    */
+   * @brief Constructor.
+   *
+   * Initializes struct members to their defaults.
+   */
   GlyphBufferData();
 
   /**
-    * @brief Destructor.
-    */
+   * @brief Destructor.
+   */
   ~GlyphBufferData();
 
   /**
-    * @brief Move constructor.
-    *
-    * @param[in] rhs moved data.
-    */
+   * @brief Move constructor.
+   *
+   * @param[in] rhs moved data.
+   */
   GlyphBufferData(GlyphBufferData&& rhs) noexcept;
 
   /**
-    * @brief Move assign operator.
-    *
-    * @param[in] rhs moved data.
-    * @return A reference to this.
-    */
+   * @brief Move assign operator.
+   *
+   * @param[in] rhs moved data.
+   * @return A reference to this.
+   */
   GlyphBufferData& operator=(GlyphBufferData&& rhs) noexcept;
 
   // Compression method of buffer. Each buffer compressed line by line
@@ -73,41 +73,41 @@ struct DALI_ADAPTOR_API GlyphBufferData
   };
 
   /**
-    * @brief Helper static function to compress raw buffer from inBuffer to outBufferData.buffer.
-    * outBufferData will have it's own buffer.
-    *
-    * @pre outBufferData must not have it's own buffer.
-    * @param[in] inBuffer The input raw data.
-    * @param[in, out] outBufferData The output glyph buffer data.
-    * @return Size of compressed out buffer, Or 0 if compress failed.
-    */
+   * @brief Helper static function to compress raw buffer from inBuffer to outBufferData.buffer.
+   * outBufferData will have it's own buffer.
+   *
+   * @pre outBufferData must not have it's own buffer.
+   * @param[in] inBuffer The input raw data.
+   * @param[in, out] outBufferData The output glyph buffer data.
+   * @return Size of compressed out buffer, Or 0 if compress failed.
+   */
   static size_t Compress(const uint8_t* const inBuffer, GlyphBufferData& outBufferData);
 
   /**
-    * @brief Helper static function to decompress raw buffer from inBuffer to outBufferPtr.
-    * If outBuffer is nullptr, Do nothing.
-    *
-    * @pre outBuffer memory should be allocated.
-    * @param[in] inBufferData The input glyph buffer data.
-    * @param[in, out] outBuffer The output pointer of raw buffer data.
-    */
+   * @brief Helper static function to decompress raw buffer from inBuffer to outBufferPtr.
+   * If outBuffer is nullptr, Do nothing.
+   *
+   * @pre outBuffer memory should be allocated.
+   * @param[in] inBufferData The input glyph buffer data.
+   * @param[in, out] outBuffer The output pointer of raw buffer data.
+   */
   static void Decompress(const GlyphBufferData& inBufferData, uint8_t* outBuffer);
 
   /**
-    * @brief Special Helper static function to decompress raw buffer from inBuffer to outBuffer one scanline.
-    * After decompress one scanline successed, offset will be changed.
-    *
-    * @pre outBuffer memory should be allocated.
-    * @pre if inBufferData's compression type is RLE4, outBuffer memory should store the previous scanline data.
-    * @param[in] inBufferData The input glyph buffer data.
-    * @param[in, out] outBuffer The output pointer of raw buffer data.
-    * @param[in, out] offset The offset of input. It will be changed as next scanline's offset.
-    */
+   * @brief Special Helper static function to decompress raw buffer from inBuffer to outBuffer one scanline.
+   * After decompress one scanline successed, offset will be changed.
+   *
+   * @pre outBuffer memory should be allocated.
+   * @pre if inBufferData's compression type is RLE4, outBuffer memory should store the previous scanline data.
+   * @param[in] inBufferData The input glyph buffer data.
+   * @param[in, out] outBuffer The output pointer of raw buffer data.
+   * @param[in, out] offset The offset of input. It will be changed as next scanline's offset.
+   */
   static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
 
 private:
   // Delete copy operation.
-  GlyphBufferData(const GlyphBufferData& rhs) = delete;
+  GlyphBufferData(const GlyphBufferData& rhs)            = delete;
   GlyphBufferData& operator=(const GlyphBufferData& rhs) = delete;
 
 public:

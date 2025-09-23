@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ Shaping Shaping::New()
 }
 
 Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
-                      const Character*       const text,
+                      const Character* const       text,
                       Length                       numberOfCharacters,
                       FontId                       fontId,
                       Script                       script)

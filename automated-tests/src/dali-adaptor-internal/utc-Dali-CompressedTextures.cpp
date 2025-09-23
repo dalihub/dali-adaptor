@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,24 +41,24 @@ class KtxTestFixture
 {
 public:
   /**
-     * Constructor.
-     * Sets up the fixture.
-     */
+   * Constructor.
+   * Sets up the fixture.
+   */
   KtxTestFixture(void)
   {
   }
 
   /**
-     * Destructor.
-     */
+   * Destructor.
+   */
   ~KtxTestFixture()
   {
   }
 
   /**
-     * This struct contains any per-test parameters.
-     * This should be added to if more properties of a file/format should be tested.
-     */
+   * This struct contains any per-test parameters.
+   * This should be added to if more properties of a file/format should be tested.
+   */
   struct TestEntry
   {
     LoadFunctions loadFunctions;  ///< Used to parse the header of a given type of image.
@@ -80,18 +80,18 @@ private:
 
 public:
   /**
-     * Adds a test to be performed.
-     * @param[in] testEntry A TestEntry struct containing all the details to perform one test.
-     */
+   * Adds a test to be performed.
+   * @param[in] testEntry A TestEntry struct containing all the details to perform one test.
+   */
   void AddTest(TestEntry testEntry)
   {
     mTests.push_back(testEntry);
   }
 
   /**
-     * Runs all tests created with "AddTest".
-     * This will create failures upon failing tests.
-     */
+   * Runs all tests created with "AddTest".
+   * This will create failures upon failing tests.
+   */
   void RunTests()
   {
     for(TestContainer::iterator testIterator = mTests.begin(); testIterator != mTests.end(); ++testIterator)
@@ -104,9 +104,9 @@ public:
 
 private:
   /**
-     * Sets up, Runs and Closes-down an individual test.
-     * @param[in] testEntry A TestEntry struct containing all the details to perform one test.
-     */
+   * Sets up, Runs and Closes-down an individual test.
+   * @param[in] testEntry A TestEntry struct containing all the details to perform one test.
+   */
   void RunTest(const TestEntry& testEntry)
   {
     FILE*         fileDescriptor = fopen(testEntry.filename.c_str(), "rb");

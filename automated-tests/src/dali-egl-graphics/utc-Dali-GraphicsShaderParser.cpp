@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ static std::string LoadTextFile(std::string filename)
 {
   std::ifstream t(filename);
   std::string   str((std::istreambuf_iterator<char>(t)),
-                  std::istreambuf_iterator<char>());
+                    std::istreambuf_iterator<char>());
   return str;
 }
 

@@ -68,7 +68,7 @@ static bool gSubsamplingFormatTable[TJ_NUMSAMP] = {
 static bool gIsSubsamplingFormatTableInitialized = false;
 
 /** Transformations that can be applied to decoded pixels to respect exif orientation
-  *  codes in image headers */
+ *  codes in image headers */
 enum class JpegTransform
 {
   NONE,            //< no transformation 0th-Row = top & 0th-Column = left
@@ -82,9 +82,9 @@ enum class JpegTransform
 };
 
 /**
-  * @brief Error handling bookeeping for the JPEG Turbo library's
-  * setjmp/longjmp simulated exceptions.
-  */
+ * @brief Error handling bookeeping for the JPEG Turbo library's
+ * setjmp/longjmp simulated exceptions.
+ */
 struct JpegErrorState
 {
   struct jpeg_error_mgr errorManager;
@@ -114,9 +114,9 @@ static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
 }
 
 /**
-  * @brief Called by the JPEG library when it hits an error.
-  * We jump out of the library so our loader code can return an error.
-  */
+ * @brief Called by the JPEG library when it hits an error.
+ * We jump out of the library so our loader code can return an error.
+ */
 void JpegErrorHandler(j_common_ptr cinfo)
 {
   DALI_LOG_ERROR("JpegErrorHandler(): libjpeg-turbo fatal error in JPEG decoding.\n");
@@ -133,9 +133,9 @@ void JpegOutputMessageHandler(j_common_ptr cinfo)
 }
 
 /**
-  * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
-  * the JPEG to be displayed and fatal errors.
-  */
+ * LibJPEG Turbo tjDecompress2 API doesn't distinguish between errors that still allow
+ * the JPEG to be displayed and fatal errors.
+ */
 bool IsJpegErrorFatal(const std::string& errorMessage)
 {
   if((errorMessage.find("Corrupt JPEG data") != std::string::npos) ||
@@ -212,7 +212,7 @@ public:
   }
 
   /// @brief Pointer to Pointer cast operator
-  operator T* *()
+  operator T**()
   {
     return &mRawPointer;
   }

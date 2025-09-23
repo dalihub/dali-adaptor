@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_AUTOMATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,12 @@ void SetProperty(const std::string& message);
  */
 void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData);
 
-
 /**
  * @brief Sets a custom command.
  * No ClientSendDataInterface required, as no response is sent back
  * @param[in] message custom message
  */
 void SetCustomCommand(const std::string& message);
-
 
 } // namespace Automation
 

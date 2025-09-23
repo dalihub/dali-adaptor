@@ -122,75 +122,76 @@ void InitialiseStateCompareLookupTable()
 {
   GetStateCompareFuncTable().clear();
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // colorBlendState
-                                       {
-                                         const auto& lcb = *lhs->colorBlendState;
-                                         const auto& rcb = *rhs->colorBlendState;
-                                         return lcb.logicOpEnable == rcb.logicOpEnable &&
-                                                lcb.logicOp == rcb.logicOp &&
-                                                cmpf(lcb.blendConstants[0], rcb.blendConstants[0]) &&
-                                                cmpf(lcb.blendConstants[1], rcb.blendConstants[1]) &&
-                                                cmpf(lcb.blendConstants[2], rcb.blendConstants[2]) &&
-                                                cmpf(lcb.blendConstants[3], rcb.blendConstants[3]) &&
-                                                lcb.blendEnable == rcb.blendEnable &&
-                                                lcb.srcColorBlendFactor == rcb.srcColorBlendFactor &&
-                                                lcb.dstColorBlendFactor == rcb.dstColorBlendFactor &&
-                                                lcb.colorBlendOp == rcb.colorBlendOp &&
-                                                lcb.srcAlphaBlendFactor == rcb.srcAlphaBlendFactor &&
-                                                lcb.dstAlphaBlendFactor == rcb.dstAlphaBlendFactor &&
-                                                lcb.alphaBlendOp == rcb.alphaBlendOp &&
-                                                lcb.colorComponentWriteBits == rcb.colorComponentWriteBits;
-                                       });
+  {
+    const auto& lcb = *lhs->colorBlendState;
+    const auto& rcb = *rhs->colorBlendState;
+    return lcb.logicOpEnable == rcb.logicOpEnable &&
+           lcb.logicOp == rcb.logicOp &&
+           cmpf(lcb.blendConstants[0], rcb.blendConstants[0]) &&
+           cmpf(lcb.blendConstants[1], rcb.blendConstants[1]) &&
+           cmpf(lcb.blendConstants[2], rcb.blendConstants[2]) &&
+           cmpf(lcb.blendConstants[3], rcb.blendConstants[3]) &&
+           lcb.blendEnable == rcb.blendEnable &&
+           lcb.srcColorBlendFactor == rcb.srcColorBlendFactor &&
+           lcb.dstColorBlendFactor == rcb.dstColorBlendFactor &&
+           lcb.colorBlendOp == rcb.colorBlendOp &&
+           lcb.srcAlphaBlendFactor == rcb.srcAlphaBlendFactor &&
+           lcb.dstAlphaBlendFactor == rcb.dstAlphaBlendFactor &&
+           lcb.alphaBlendOp == rcb.alphaBlendOp &&
+           lcb.colorComponentWriteBits == rcb.colorComponentWriteBits;
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // viewport state
-                                       {
-                                         const auto& lvp = *lhs->viewportState;
-                                         const auto& rvp = *rhs->viewportState;
-                                         return lvp.viewport == rvp.viewport &&
-                                                lvp.scissor == rvp.scissor &&
-                                                lvp.scissorTestEnable == rvp.scissorTestEnable;
-                                       });
+  {
+    const auto& lvp = *lhs->viewportState;
+    const auto& rvp = *rhs->viewportState;
+    return lvp.viewport == rvp.viewport &&
+           lvp.scissor == rvp.scissor &&
+           lvp.scissorTestEnable == rvp.scissorTestEnable;
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // basePipeline
-                                       {
-                                         return lhs->basePipeline == rhs->basePipeline;
-                                       });
+  {
+    return lhs->basePipeline == rhs->basePipeline;
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // depthStencilState
-                                       {
-                                         const auto& lds = *lhs->depthStencilState;
-                                         const auto& rds = *rhs->depthStencilState;
-                                         return lds.depthTestEnable == rds.depthTestEnable &&
-                                                lds.depthWriteEnable == rds.depthWriteEnable &&
-                                                lds.depthCompareOp == rds.depthCompareOp &&
-                                                lds.stencilTestEnable == rds.stencilTestEnable &&
-                                                lds.front == rds.front &&
-                                                lds.back == rds.back;
-                                       });
+  {
+    const auto& lds = *lhs->depthStencilState;
+    const auto& rds = *rhs->depthStencilState;
+    return lds.depthTestEnable == rds.depthTestEnable &&
+           lds.depthWriteEnable == rds.depthWriteEnable &&
+           lds.depthCompareOp == rds.depthCompareOp &&
+           lds.stencilTestEnable == rds.stencilTestEnable &&
+           lds.front == rds.front &&
+           lds.back == rds.back;
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // rasterizationState
-                                       {
-                                         const auto& lrs = *lhs->rasterizationState;
-                                         const auto& rrs = *rhs->rasterizationState;
-                                         return lrs.cullMode == rrs.cullMode &&
-                                                lrs.polygonMode == rrs.polygonMode &&
-                                                lrs.frontFace == rrs.frontFace;
-                                       });
+  {
+    const auto& lrs = *lhs->rasterizationState;
+    const auto& rrs = *rhs->rasterizationState;
+    return lrs.cullMode == rrs.cullMode &&
+           lrs.polygonMode == rrs.polygonMode &&
+           lrs.frontFace == rrs.frontFace;
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // vertexInputState
-                                       {
-                                         const auto& lvi = *lhs->vertexInputState;
-                                         const auto& rvi = *rhs->vertexInputState;
-                                         return lvi.bufferBindings.size() == rvi.bufferBindings.size() &&
-                                                lvi.attributes.size() == rvi.attributes.size() &&
-                                                std::equal(lvi.bufferBindings.begin(), lvi.bufferBindings.end(), rvi.bufferBindings.begin(), [](const auto& lhs, const auto& rhs) {
-                                                  return operator==(lhs, rhs);
-                                                }) &&
-                                                std::equal(lvi.attributes.begin(), lvi.attributes.end(), rvi.attributes.begin(), [](const auto& lhs, const auto& rhs) {
-                                                  return operator==(lhs, rhs);
-                                                });
-                                       });
+  {
+    const auto& lvi = *lhs->vertexInputState;
+    const auto& rvi = *rhs->vertexInputState;
+    return lvi.bufferBindings.size() == rvi.bufferBindings.size() &&
+           lvi.attributes.size() == rvi.attributes.size() &&
+           std::equal(lvi.bufferBindings.begin(), lvi.bufferBindings.end(), rvi.bufferBindings.begin(), [](const auto& lhs, const auto& rhs)
+    {
+      return operator==(lhs, rhs);
+    }) && std::equal(lvi.attributes.begin(), lvi.attributes.end(), rvi.attributes.begin(), [](const auto& lhs, const auto& rhs)
+    {
+      return operator==(lhs, rhs);
+    });
+  });
   GetStateCompareFuncTable().push_back([](const auto* lhs, const auto* rhs) -> bool // inputAssemblyState
-                                       {
-                                         const auto& lia = *lhs->inputAssemblyState;
-                                         const auto& ria = *rhs->inputAssemblyState;
-                                         return lia.topology == ria.topology &&
-                                                lia.primitiveRestartEnable == ria.primitiveRestartEnable;
-                                       });
+  {
+    const auto& lia = *lhs->inputAssemblyState;
+    const auto& ria = *rhs->inputAssemblyState;
+    return lia.topology == ria.topology &&
+           lia.primitiveRestartEnable == ria.primitiveRestartEnable;
+  });
 }
 
 /**
@@ -258,7 +259,7 @@ struct PipelineCache::Impl
 
     ~CacheEntry() = default;
 
-    CacheEntry(CacheEntry&&) noexcept = default;
+    CacheEntry(CacheEntry&&) noexcept            = default;
     CacheEntry& operator=(CacheEntry&&) noexcept = default;
 
     UniquePtr<PipelineImpl> pipeline{nullptr};
@@ -389,8 +390,7 @@ ProgramImpl* PipelineCache::FindProgramImpl(const ProgramCreateInfo& info)
 
     int k = shaderImplsSize;
 
-    while(--k >= 0 && item.shaderWrappers[k]->GetImplementation() == shaderImpls[k])
-      ;
+    while(--k >= 0 && item.shaderWrappers[k]->GetImplementation() == shaderImpls[k]);
 
     if(k < 0)
     {
@@ -458,7 +458,8 @@ Graphics::UniquePtr<Graphics::Program> PipelineCache::GetProgram(const ProgramCr
     }
 
     // Sort ordered by GLES::ShaderImpl*.
-    std::sort(item.shaderWrappers.begin(), item.shaderWrappers.end(), [](const UniquePtr<GLES::Shader>& lhs, const UniquePtr<GLES::Shader>& rhs) { return lhs->GetImplementation() < rhs->GetImplementation(); });
+    std::sort(item.shaderWrappers.begin(), item.shaderWrappers.end(), [](const UniquePtr<GLES::Shader>& lhs, const UniquePtr<GLES::Shader>& rhs)
+    { return lhs->GetImplementation() < rhs->GetImplementation(); });
   }
 
   auto wrapper = MakeUnique<GLES::Program, CachedObjectDeleter<GLES::Program>>(cachedProgram);

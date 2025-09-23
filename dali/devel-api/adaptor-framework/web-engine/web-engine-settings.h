@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_SETTINGS_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -437,7 +437,6 @@ public:
    *       otherwise to disable
    */
   virtual void EnableDragAndDrop(bool enable) = 0;
-
 };
 
 } // namespace Dali

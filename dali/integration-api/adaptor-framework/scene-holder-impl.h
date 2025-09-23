@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/scene.h>
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/events/hover-event.h>
 #include <dali/public-api/events/touch-event.h>
-#include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/base-object.h>
 #include <atomic>
@@ -380,23 +380,23 @@ private: // The following methods can be overridden if required
    * @brief Called by the base class to inform deriving classes that the adaptor has been set.
    * @param[in] adaptor The adaptor
    */
-  virtual void OnAdaptorSet(Dali::Adaptor& adaptor){};
+  virtual void OnAdaptorSet(Dali::Adaptor& adaptor) {};
 
   /**
    * @brief Called by the base class to inform deriving classes that a new surface has been set.
    * @param[in] surface The new render surface
    */
-  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface){};
+  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface) {};
 
   /**
    * @brief Called by the base class to inform deriving classes that we are being paused.
    */
-  virtual void OnPause(){};
+  virtual void OnPause() {};
 
   /**
    * @brief Called by the base class to inform deriving classes that we are resuming from a paused state.
    */
-  virtual void OnResume(){};
+  virtual void OnResume() {};
 
   /**
    * Recalculate the position if required
@@ -409,7 +409,6 @@ private: // The following methods can be overridden if required
   };
 
 private:
-
   /**
    * Initializes the DPI for this object.
    */
@@ -429,7 +428,7 @@ protected:
   std::string              mName;  ///< The name of the SceneHolder
 
   std::unique_ptr<Dali::Integration::RenderSurfaceInterface> mSurface; ///< The window rendering surface
-  Adaptor*                                      mAdaptor; ///< The adaptor
+  Adaptor*                                                   mAdaptor; ///< The adaptor
 
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
 

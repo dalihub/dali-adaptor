@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BASE_SOCKET_FACTORY_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ public:
   virtual SocketInterface* NewSocket(SocketInterface::Protocol protocol) = 0;
 
   /**
-    * @brief destroy a socket
-    * @param[in] socket socket to destroy
-    */
+   * @brief destroy a socket
+   * @param[in] socket socket to destroy
+   */
   virtual void DestroySocket(SocketInterface* socket) = 0;
 
 protected:

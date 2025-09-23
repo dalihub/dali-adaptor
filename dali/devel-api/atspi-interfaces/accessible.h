@@ -284,11 +284,11 @@ public:
   std::string DumpTree(DumpDetailLevel detailLevel);
 
 protected:
-  Accessible()                          = default;
-  Accessible(const Accessible&)         = delete;
-  Accessible(Accessible&&)              = delete;
+  Accessible()                                               = default;
+  Accessible(const Accessible&)                              = delete;
+  Accessible(Accessible&&)                                   = delete;
   Accessible&                   operator=(const Accessible&) = delete;
-  Accessible&                   operator=(Accessible&&) = delete;
+  Accessible&                   operator=(Accessible&&)      = delete;
   std::shared_ptr<Bridge::Data> GetBridgeData() const;
 
   /**

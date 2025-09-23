@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <memory>
 #include <dali/public-api/events/gesture-enumerations.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
 #include <dali/devel-api/adaptor-framework/pointer-constraints-event.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/devel-api/adaptor-framework/window-blur-info.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
@@ -751,7 +751,7 @@ DALI_ADAPTOR_API bool RelativeMotionUnGrab(Window window);
  *
  * @param[in] window The window instance.
  * @param[in] blurInfo the window blur's informations.
-  */
+ */
 DALI_ADAPTOR_API void SetBlur(Window window, const WindowBlurInfo& blurInfo);
 
 /**
@@ -759,7 +759,7 @@ DALI_ADAPTOR_API void SetBlur(Window window, const WindowBlurInfo& blurInfo);
  *
  * @param[in] window The window instance.
  * @return Current window blur information.
-  */
+ */
 DALI_ADAPTOR_API WindowBlurInfo GetBlur(Window window);
 
 /**
@@ -797,7 +797,7 @@ DALI_ADAPTOR_API void SetScreen(Window window, const std::string& screenName);
  * @param[in] window The window instance
  * @return The name of the screen as a string.
  */
-DALI_ADAPTOR_API std::string  GetScreen(Window window);
+DALI_ADAPTOR_API std::string GetScreen(Window window);
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.

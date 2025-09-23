@@ -35,7 +35,7 @@ namespace Internal DALI_INTERNAL
 {
 class FontFileManager;
 
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief Read font files for freetype memory face use and store them in the cache.

@@ -480,7 +480,16 @@ constexpr uint8_t U5               = 5u;
 constexpr uint8_t U6               = 6u;
 constexpr uint8_t U0               = 0u;
 constexpr uint8_t UTF8_LENGTH[256] = {
-  U1, U1, U1, U1, U1, U1, U1, U1, U1, U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
   U1,
   U1,
   U1,

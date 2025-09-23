@@ -2,7 +2,7 @@
 #define DALI_CANVAS_RENDERER_DRAWABLE_GROUP_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace Adaptor
 class CanvasRenderer;
 class DrawableGroup;
 } // namespace Adaptor
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 /**
  * @brief A class that holds many Drawable object. As a whole they can be transformed, their transparency can be changed.

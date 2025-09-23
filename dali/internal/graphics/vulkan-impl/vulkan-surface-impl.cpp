@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,9 +89,9 @@ bool SurfaceImpl::GetSupportedFormats(
     auto iter = std::find_if(supportedFormats.begin(),
                              supportedFormats.end(),
                              [&](vk::SurfaceFormatKHR supportedFormat)
-                             {
-                               return requestedFormat == supportedFormat.format;
-                             });
+    {
+      return requestedFormat == supportedFormat.format;
+    });
     // If found assign it.
     if(iter != supportedFormats.end())
     {

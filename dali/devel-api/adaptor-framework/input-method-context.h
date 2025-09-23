@@ -2,7 +2,7 @@
 #define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace Adaptor
 {
 class InputMethodContext;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 class Actor;
 
@@ -161,7 +161,7 @@ public:
       cursorOffset(0),
       numberOfChars(0),
       startIndex(0),
-      endIndex(0){};
+      endIndex(0) {};
 
     /**
      * @brief Constructor
@@ -385,10 +385,10 @@ public:
   const std::string& GetSurroundingText() const;
 
   /**
- * @brief Notifies InputMethodContext that text input is set to multi line or not
- *
- * @param[in] multiLine True if multiline text input is used
- */
+   * @brief Notifies InputMethodContext that text input is set to multi line or not
+   *
+   * @param[in] multiLine True if multiline text input is used
+   */
   void NotifyTextInputMultiLine(bool multiLine);
 
   /**

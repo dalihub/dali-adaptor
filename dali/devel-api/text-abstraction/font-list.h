@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_FONT_LIST_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,17 @@ namespace Dali
 {
 namespace TextAbstraction
 {
-typedef std::string FontPath;
-typedef std::string FontFamily;
-typedef std::string FontStyle;
+typedef std::string             FontPath;
+typedef std::string             FontFamily;
+typedef std::string             FontStyle;
 typedef std::vector<FontFamily> FontFamilyList;
-typedef std::vector<FontPath> FontPathList;
+typedef std::vector<FontPath>   FontPathList;
 
 namespace FontWidth
 {
 /**
-   * @brief Enumeration type for the font's width
-   */
+ * @brief Enumeration type for the font's width
+ */
 enum Type
 {
   NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.
@@ -72,8 +72,8 @@ const char* const Name[] =
 namespace FontWeight
 {
 /**
-   * @brief Enumeration type for the font's weight
-   */
+ * @brief Enumeration type for the font's weight
+ */
 enum Type
 {
   NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.
@@ -116,8 +116,8 @@ const char* const Name[] =
 namespace FontSlant
 {
 /**
-   * @brief Enumeration type for the font's slant
-   */
+ * @brief Enumeration type for the font's slant
+ */
 enum Type
 {
   NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.

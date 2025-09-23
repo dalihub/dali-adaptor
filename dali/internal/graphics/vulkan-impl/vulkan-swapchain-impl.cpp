@@ -160,10 +160,11 @@ void Swapchain::CreateVkSwapchain(
 
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
-                            presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
-                              return presentMode == mode;
-                            });
+                                   presentModes.end(),
+                                   [&](vk::PresentModeKHR mode)
+         {
+    return presentMode == mode;
+  });
 
   if(found == presentModes.end())
   {
@@ -272,10 +273,11 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                            depthAttachment,
                            mSwapchainCreateInfoKHR.imageExtent.width,
                            mSwapchainCreateInfoKHR.imageExtent.height),
-      [](FramebufferImpl* framebuffer1) {
-        framebuffer1->Destroy();
-        delete framebuffer1;
-      });
+      [](FramebufferImpl* framebuffer1)
+    {
+      framebuffer1->Destroy();
+      delete framebuffer1;
+    });
     mFramebuffers.push_back(std::move(framebuffer));
 
     if(!compatibleRenderPass)

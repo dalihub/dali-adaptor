@@ -47,7 +47,7 @@ namespace Adaptor
 {
 class GlWindow;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 class TouchEvent;
 class KeyEvent;
@@ -320,12 +320,12 @@ public:
   WindowOrientation GetCurrentOrientation() const;
 
   /**
-    * @brief Sets available orientations of the window.
-    *
-    * This API is for setting several orientations one time.
-    *
-    * @param[in] orientations The available orientations list to add
-    */
+   * @brief Sets available orientations of the window.
+   *
+   * This API is for setting several orientations one time.
+   *
+   * @param[in] orientations The available orientations list to add
+   */
   void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
   /**

@@ -122,15 +122,15 @@ void Application::PreInitialize(int* argc, char** argv[])
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading\n");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
       gPreInitializedApplication->mUIThreadLoader->Run([&]()
-                                                       {
-                                                         gPreInitializedApplication->CreateWindow();
+      {
+        gPreInitializedApplication->CreateWindow();
 
 #ifdef PREINITIALIZE_ADAPTOR_CREATION_ENABLED
-                                                         // Start Adaptor now...? TODO : Please check it is valid thread.
-                                                         // TODO : POC for create view at preinitialize timing.
-                                                         gPreInitializedApplication->CreateAdaptor();
+        // Start Adaptor now...? TODO : Please check it is valid thread.
+        // TODO : POC for create view at preinitialize timing.
+        gPreInitializedApplication->CreateAdaptor();
 #endif // PREINITIALIZE_ADAPTOR_CREATION_ENABLED
-                                                       });
+      });
     }
     else
 #endif
@@ -319,6 +319,17 @@ void Application::ChangePreInitializedWindowInfo()
 
   // Set front buffer rendering
   Dali::DevelWindow::SetFrontBufferRendering(mMainWindow, mIsMainWindowFrontBufferRendering);
+
+  // IME Keyboard window works with PreLoader,
+  // so Tizen IME window and surface should be initialized.
+  if(mMainWindow.GetType() == WindowType::IME)
+  {
+    DALI_LOG_RELEASE_INFO("Application::SetDefaultWindowType : window type is WindowType::IME\n");
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(mMainWindow);
+    windowImpl.InitializeImeInfo();
+  }
+
+  mMainWindow.Show();
 }
 
 void Application::CreateWindow()
@@ -512,7 +523,10 @@ void Application::Quit()
 void Application::QuitFromMainLoop()
 {
   DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
-  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->Terminate();
+  }
 
   mAdaptor->Stop();
 
@@ -604,7 +618,10 @@ void Application::OnTerminate()
 void Application::OnPause()
 {
   DALI_LOG_RELEASE_INFO("Application::OnPause\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationPaused();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->ApplicationPaused();
+  }
 
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
@@ -616,7 +633,10 @@ void Application::OnPause()
 void Application::OnResume()
 {
   DALI_LOG_RELEASE_INFO("Application::OnResume\n");
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationResumed();
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->ApplicationResumed();
+  }
 
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required
@@ -652,7 +672,7 @@ void Application::OnAppControl(void* data)
 void Application::OnLanguageChanged()
 {
   DALI_LOG_RELEASE_INFO("Application::OnLanguageChanged\n");
-  mAdaptor->NotifyLanguageChanged();
+  mAdaptor->NotifyLanguageChanged(GetLanguage());
   Dali::Application application(this);
   mLanguageChangedSignal.Emit(application);
 }
@@ -809,7 +829,7 @@ void Application::FlushUpdateMessages()
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
 }
 
-void Application::SetApplicationLocale(const std::string &locale)
+void Application::SetApplicationLocale(const std::string& locale)
 {
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).SetApplicationLocale(locale);
 }

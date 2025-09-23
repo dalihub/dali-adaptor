@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ATSPI_ACCESSIBILITY_COMMON_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,10 +93,10 @@ class CurrentBridgePtr
     return bridge;
   }
   Dali::Accessibility::Bridge* mPrev;
-  CurrentBridgePtr(const CurrentBridgePtr&) = delete;
-  CurrentBridgePtr(CurrentBridgePtr&&)      = delete;
+  CurrentBridgePtr(const CurrentBridgePtr&)            = delete;
+  CurrentBridgePtr(CurrentBridgePtr&&)                 = delete;
   CurrentBridgePtr& operator=(const CurrentBridgePtr&) = delete;
-  CurrentBridgePtr& operator=(CurrentBridgePtr&&) = delete;
+  CurrentBridgePtr& operator=(CurrentBridgePtr&&)      = delete;
 
 public:
   CurrentBridgePtr(Dali::Accessibility::Bridge* bridge)
@@ -194,7 +194,7 @@ struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
     signature<subtype>::get(iter, address);
 
     auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
-    if(currentBridge->GetBusName() != address.GetBus())
+    if(!currentBridge || currentBridge->GetBusName() != address.GetBus())
     {
       return false;
     }

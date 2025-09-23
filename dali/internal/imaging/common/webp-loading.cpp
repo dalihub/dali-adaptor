@@ -286,9 +286,9 @@ public:
 
   // Moveable but not copyable
 
-  Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
-  Impl(Impl&&) noexcept        = default;
+  Impl(const Impl&)                = delete;
+  Impl& operator=(const Impl&)     = delete;
+  Impl(Impl&&) noexcept            = default;
   Impl& operator=(Impl&&) noexcept = default;
 
   ~Impl()

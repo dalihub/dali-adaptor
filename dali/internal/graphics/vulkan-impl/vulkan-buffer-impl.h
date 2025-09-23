@@ -86,7 +86,7 @@ public:
    */
   void Destroy();
 
-  BufferImpl(const Buffer&) = delete;
+  BufferImpl(const Buffer&)            = delete;
   BufferImpl& operator=(const Buffer&) = delete;
 
   /**

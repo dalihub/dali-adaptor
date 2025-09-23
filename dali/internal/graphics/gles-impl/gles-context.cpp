@@ -1119,9 +1119,9 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
       mImpl->mGlStateCache.mClearColorSet = true;
       mImpl->mGlStateCache.mClearColor    = Vector4(clearValues[0].color.r,
-                                                 clearValues[0].color.g,
-                                                 clearValues[0].color.b,
-                                                 clearValues[0].color.a);
+                                                    clearValues[0].color.g,
+                                                    clearValues[0].color.b,
+                                                    clearValues[0].color.a);
     }
   }
 
