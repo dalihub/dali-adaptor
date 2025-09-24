@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,106 +33,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-FramebufferAttachment* FramebufferAttachment::NewColorAttachment(
-  std::unique_ptr<ImageView>&            imageView,
-  vk::ClearColorValue                    clearColorValue,
-  const Graphics::AttachmentDescription* description,
-  bool                                   presentable)
-{
-  assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eColorAttachment);
-
-  auto attachment = new FramebufferAttachment(imageView,
-                                              clearColorValue,
-                                              description,
-                                              AttachmentType::COLOR,
-                                              presentable);
-  return attachment;
-}
-
-FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
-  std::unique_ptr<ImageView>&            imageView,
-  vk::ClearDepthStencilValue             clearDepthStencilValue,
-  const Graphics::AttachmentDescription* description)
-{
-  assert(imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eDepthStencilAttachment);
-
-  auto attachment = new FramebufferAttachment(imageView,
-                                              clearDepthStencilValue,
-                                              description,
-                                              AttachmentType::DEPTH_STENCIL,
-                                              false /* presentable */);
-
-  return attachment;
-}
-
-FramebufferAttachment::FramebufferAttachment(
-  std::unique_ptr<ImageView>&            imageView,
-  vk::ClearValue                         clearColor,
-  const Graphics::AttachmentDescription* description,
-  AttachmentType                         type,
-  bool                                   presentable)
-: mClearValue(clearColor),
-  mType(type)
-{
-  mImageView.swap(imageView);
-  auto image = mImageView->GetImage();
-
-  auto sampleCountFlags = image->GetSampleCount();
-
-  mDescription.setSamples(sampleCountFlags);
-  mDescription.setFormat(image->GetFormat());
-  mDescription.setInitialLayout(vk::ImageLayout::eUndefined);
-  if(description == nullptr)
-  {
-    mDescription.setLoadOp(vk::AttachmentLoadOp::eClear);
-    mDescription.setStoreOp(vk::AttachmentStoreOp::eStore);
-    mDescription.setStencilLoadOp(vk::AttachmentLoadOp::eClear);
-    mDescription.setStencilStoreOp(vk::AttachmentStoreOp::eStore);
-  }
-  else
-  {
-    mDescription.setLoadOp(VkLoadOpType(description->loadOp).loadOp);
-    mDescription.setStoreOp(VkStoreOpType(description->storeOp).storeOp);
-    mDescription.setStencilLoadOp(VkLoadOpType(description->stencilLoadOp).loadOp);
-    mDescription.setStencilStoreOp(VkStoreOpType(description->stencilStoreOp).storeOp);
-  }
-
-  if(type == AttachmentType::DEPTH_STENCIL)
-  {
-    mDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
-  }
-  else
-  {
-    mDescription.finalLayout = presentable ? vk::ImageLayout::ePresentSrcKHR : vk::ImageLayout::eShaderReadOnlyOptimal;
-  }
-}
-
-ImageView* FramebufferAttachment::GetImageView() const
-{
-  return mImageView.get();
-}
-
-const vk::AttachmentDescription& FramebufferAttachment::GetDescription() const
-{
-  return mDescription;
-}
-
-const vk::ClearValue& FramebufferAttachment::GetClearValue() const
-{
-  return mClearValue;
-}
-
-AttachmentType FramebufferAttachment::GetType() const
-{
-  return mType;
-}
-
-bool FramebufferAttachment::IsValid() const
-{
-  return mImageView != nullptr;
-}
-
-// FramebufferImpl -------------------------------
 
 FramebufferImpl* FramebufferImpl::New(
   Vulkan::Device&    device,
