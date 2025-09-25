@@ -1268,6 +1268,8 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
     mWindowPositionSize.width  = ev->w;
     mWindowPositionSize.height = ev->h;
 
+    ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+
     PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
 
     rotationEvent.x      = newPositionSize.x;
@@ -1276,6 +1278,8 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
     rotationEvent.height = newPositionSize.height;
 
     mRotationSignal.Emit(rotationEvent);
+
+    ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
   }
 }
 
