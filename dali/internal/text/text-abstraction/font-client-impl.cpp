@@ -770,6 +770,7 @@ HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)
 void FontClient::CreatePlugin()
 {
   std::scoped_lock lock(gMutex);
+  SetDpiFromWindowSystem();
   if(!mPlugin)
   {
     mPlugin = new Plugin(mFontFileManager, mDpiHorizontal, mDpiVertical);
