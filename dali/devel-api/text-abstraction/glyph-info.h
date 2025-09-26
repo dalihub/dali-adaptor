@@ -52,6 +52,7 @@ struct DALI_ADAPTOR_API GlyphInfo
   float      scaleFactor;          ///< The scaling applied (fixed-size fonts only)
   bool       isItalicRequired : 1; ///< Whether the italic style is required.
   bool       isBoldRequired : 1;   ///< Whether the bold style is required.
+  bool       isShaped : 1;         ///< Whether the glyph is shaped by HB.
 };
 
 } // namespace TextAbstraction
