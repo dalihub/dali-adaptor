@@ -332,21 +332,6 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     //        And also can asusme that ResolvePresentRenderTarget() will be called at most 1 times per each frame.
     const auto* currentSurfaceContext = GetSurfaceContext(surfaceInterface);
     mSyncPool.ProcessDiscardSyncObjects(currentSurfaceContext);
-
-#ifdef DALI_PROFILE_TV
-    /// Only TV profile should not create egl sync object before eglSwapBuffers, due to DDK bug. 2024-12-13. eunkiki.hong
-
-    // NOTE : We need to call eglCreateSyncKHR after eglSwapBuffer if that sync will not be used 'before' swap buffer.
-    //        Since given sync fence try to store rendering result of current frame which we usually don't need,
-    //        so GPU memory increased.
-    if(mTextureDependencyChecker.GetNativeTextureCount() > 0)
-    {
-      mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext);
-
-      // Need to call glFlush or eglSwapBuffer after create sync object.
-      mGlAbstraction->Flush();
-    }
-#endif
   }
   else
   {
@@ -356,18 +341,6 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
 
 void EglGraphicsController::PostRender()
 {
-#ifdef DALI_PROFILE_TV
-  /// Only TV profile should not create egl sync object before eglSwapBuffers, due to DDK bug. 2024-12-13. eunkiki.hong
-  // eglCreateSyncKHR for FBO case.
-  if(mTextureDependencyChecker.GetNativeTextureCount() > 0)
-  {
-    mTextureDependencyChecker.CreateNativeTextureSync(mCurrentContext);
-
-    // Need to call glFlush or eglSwapBuffer after create sync object.
-    mGlAbstraction->Flush();
-  }
-#endif
-
   mTextureDependencyChecker.Reset();
   mSyncPool.AgeSyncObjects();
 

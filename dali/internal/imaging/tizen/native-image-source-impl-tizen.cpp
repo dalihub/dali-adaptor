@@ -577,7 +577,7 @@ void NativeImageSourceTizen::DestroyResource()
 
 uint32_t NativeImageSourceTizen::TargetTexture()
 {
-  if(DALI_LIKELY(mEglImageExtensions && mEglImageKHR))
+  if(DALI_LIKELY(mEglImageExtensions && mEglImageKHR) && mEglImageChanged)
   {
     mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
   }
@@ -600,15 +600,13 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizen::Prepare
     }
 
     CreateResource();
-
-    mSetSource = false;
   }
 
   Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
   if(DALI_LIKELY(mEglImageKHR))
   {
-    result           = mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
-    mEglImageChanged = false;
+    result     = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mSetSource = false;
   }
   else
   {
@@ -825,6 +823,10 @@ void NativeImageSourceTizen::DestroyBackBuffer()
   }
 }
 
+void NativeImageSourceTizen::PostRender()
+{
+  mEglImageChanged = false;
+}
 } // namespace Adaptor
 
 } // namespace Internal

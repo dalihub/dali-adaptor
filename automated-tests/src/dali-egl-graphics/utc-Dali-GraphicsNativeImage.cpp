@@ -127,7 +127,7 @@ int UtcDaliGraphicsNativeImagePrepareReturnImageChanged(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 0, TEST_LOCATION); // Should not be called.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     callStack.Reset();
     textureCallStack.Reset();
@@ -141,7 +141,7 @@ int UtcDaliGraphicsNativeImagePrepareReturnImageChanged(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION); // Call 1 time due to image changed at prepare time.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     imageInterface->mPrepareTextureResult = Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
 
@@ -155,7 +155,7 @@ int UtcDaliGraphicsNativeImagePrepareReturnImageChanged(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 0, TEST_LOCATION); // Should not be called.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     Dali::UnparentAndReset(actor);
   }
@@ -218,7 +218,7 @@ int UtcDaliGraphicsNativeImagePrepareReturnError(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 0, TEST_LOCATION); // Should not be called.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     imageInterface->mPrepareTextureResult = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
 
@@ -355,7 +355,7 @@ int UtcDaliGraphicsNativeImageTargetFailed01(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 0, TEST_LOCATION); // Should not be called.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     Dali::UnparentAndReset(actor);
   }
@@ -487,7 +487,7 @@ int UtcDaliGraphicsNativeImageTargetFailed02(void)
     DALI_TEST_EQUALS(imageInterface->mExtensionDestroyCalls, 0, TEST_LOCATION);
 
     DALI_TEST_EQUALS(callStack.CountMethod("PrepareTexture"), 1, TEST_LOCATION);
-    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 0, TEST_LOCATION); // Should not be called.
+    DALI_TEST_EQUALS(callStack.CountMethod("TargetTexture"), 1, TEST_LOCATION);
 
     Dali::UnparentAndReset(actor);
   }

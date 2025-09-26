@@ -25,6 +25,7 @@
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
 #include <unordered_map>
+#include <utility>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
@@ -37,6 +38,7 @@ namespace Adaptor
 {
 class EglGraphics;
 class EglImageExtensions;
+class EglSyncObject;
 
 /**
  * Dali internal NativeImageSource.
@@ -187,6 +189,11 @@ public:
   }
 
   /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  void PostRender() override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
@@ -212,9 +219,38 @@ private:
 
   bool CheckBlending(int format);
 
+  /**
+   * @brief Creates a synchronization object for GPU-CPU synchronization.
+   *
+   * This method creates a sync object that can be used to synchronize between
+   * GPU and CPU operations. The sync object ensures that GPU operations have
+   * completed before CPU operations proceed.
+   * Note: The created sync object should be used by implementing classes to provide
+   * wait functionality that ensures proper synchronization between GPU and CPU.
+   *
+   * @return true if the sync object was created successfully, false otherwise
+   */
+  bool CreateSyncObject();
+
+  /**
+   * @brief Waits for the synchronization object to be signaled.
+   *
+   * This method blocks until the sync object is signaled, indicating that
+   * GPU operations have completed.
+   */
+  void WaitSync(tbm_surface_h surface);
+
 private:
+  enum class ImageState : uint8_t
+  {
+    INITIALIZED,
+    NOT_CHANGED,
+    CHANGED
+  };
+
   using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
   using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
+  using EglSyncContainer       = std::unordered_map<tbm_surface_h, std::pair<EglSyncObject*, int32_t>>;
 
   Dali::Mutex            mMutex;              ///< Mutex
   uint32_t               mQueueCount;         ///< queue count
@@ -224,12 +260,17 @@ private:
   tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
   SurfaceEglContainer    mEglImages;          ///< EGL Image map
   BufferSurfaceContainer mBuffers;            ///< Buffer map
+  EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
+  EglSyncContainer       mEglSyncDiscardList; ///< EGL sync object list to discard
   EglGraphics*           mEglGraphics;        ///< EGL Graphics
   EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
+  ImageState             mImageState;         ///< Image state
   bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
   bool                   mBlendingRequired;   ///< Whether blending is required
   bool                   mIsResized;          ///< Whether the size has changed
   bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
+  bool                   mNeedSync;           ///< Whether we need to create the egl sync object
+  bool                   mWaitInRenderThread; ///< Whether we wait for the sync to be signaled in the render thread
 };
 
 } // namespace Adaptor

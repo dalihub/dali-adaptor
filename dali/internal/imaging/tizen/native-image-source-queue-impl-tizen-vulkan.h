@@ -42,7 +42,7 @@ namespace Adaptor
  * @brief Surface reference management interface for external consumers
  *
  * This interface allows external components (like Vulkan textures) to manage
- * surface lifetimes. The NativeImageSourceQueue uses this to delay surface 
+ * surface lifetimes. The NativeImageSourceQueue uses this to delay surface
  * recycling until all references are released.
  */
 class NativeImageSurfaceReference
@@ -210,6 +210,13 @@ public:
   Rect<uint32_t> GetUpdatedArea() override
   {
     return Rect<uint32_t>{0, 0, mWidth, mHeight};
+  }
+
+  /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  void PostRender() override
+  {
   }
 
   /**

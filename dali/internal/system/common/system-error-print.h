@@ -19,6 +19,7 @@
  */
 
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -28,7 +29,7 @@ namespace TizenPlatform
  * @brief Print errno and the error message to Dali::TizenPlatform::LogMessage as error level.
  * Please use this function with DALI_PRINT_SYSTEM_ERROR_LOG macro
  */
-void PrintSystemError(const char* fileName, const char* functionName, const int lineNumber);
+DALI_ADAPTOR_API void PrintSystemError(const char* fileName, const char* functionName, const int lineNumber);
 
 } // namespace TizenPlatform
 

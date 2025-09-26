@@ -124,13 +124,6 @@ public:
   void ResetPrepare();
 
   /**
-   * @brief Invalidates the cached context which might prepared called.
-   *
-   * @param[in] invalidatedContext The invalidated context which might be cached in this texture.
-   */
-  void InvalidateCachedContext(GLES::Context* invalidatedContext);
-
-  /**
    * @brief Returns the GL Target
    * @return the Gl target
    */
@@ -192,12 +185,6 @@ public:
   }
 
 private:
-  /**
-   * @brief Clear cached context and notify to invalidate this texture.
-   */
-  void ClearCachedContext();
-
-private:
   mutable struct SamplerStateCache
   {
     uint32_t minFilter{0};
@@ -215,11 +202,7 @@ private:
   uint32_t          mDependencyIndex{0xFFFFFFFF};
   void*             mGLOwnerContext{nullptr};
 
-  std::unordered_set<GLES::Context*>               mTargetCalledContext; ///< Set of context that TargetTextureKHR called. Cleared if some context removed, or native image changed.
-  Dali::NativeImageInterface::PrepareTextureResult mLastPrepareResult{Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR};
-
   bool mIsCompressed{false};
-  bool mIsPrepared{false};
 };
 
 } // namespace Dali::Graphics::GLES
