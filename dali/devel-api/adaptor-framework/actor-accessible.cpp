@@ -298,6 +298,12 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
 
     switch(state)
     {
+      case State::CHECKED:
+      case State::SELECTED:
+      {
+        shouldEmit = true;
+        break;
+      }
       case State::SHOWING:
       {
         shouldEmit = ShouldEmitShowing(this, static_cast<bool>(newValue));
