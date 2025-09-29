@@ -534,11 +534,13 @@ protected:
 public: // For move pre-initialized informations.
   struct PreInitializeApplicationData
   {
-    Launchpad::State mLaunchpadState{Launchpad::NONE};
-    Dali::Window     mMainWindow{};
-    Dali::Adaptor*   mAdaptor{nullptr};
-    UIThreadLoader*  mUIThreadLoader{nullptr};
-    bool             mIsSystemInitialized{false};
+    Launchpad::State    mLaunchpadState{Launchpad::NONE};
+    Dali::Window        mMainWindow{};
+    Dali::Adaptor*      mAdaptor{nullptr};
+    UIThreadLoader*     mUIThreadLoader{nullptr};
+    EnvironmentOptions* mEnvironmentOptions{nullptr};
+    bool                mUseUiThread{false};
+    bool                mIsSystemInitialized{false};
   };
 
   /**
