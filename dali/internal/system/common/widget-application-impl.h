@@ -49,8 +49,9 @@ public:
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    * @param[in]  windowData   The window data
+   * @param[in,out] preInitializedApplication Pre-initialized application what we need to get pre-initialized window and adaptor. Reset reference after this function finished.
    */
-  static WidgetApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData);
+  static WidgetApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData, Internal::Adaptor::ApplicationPtr& preInitializedApplication);
 
 public:
   /**

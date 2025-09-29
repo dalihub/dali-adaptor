@@ -178,6 +178,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mDefaultWindowType(windowData.GetWindowType()),
   mUseUiThread(useUiThread),
   mIsSystemInitialized(false),
+  mIsPreInitializedDataReleased(false),
   mSlotDelegate(this),
   mUIThreadLoader(nullptr),
   mScreen(windowData.GetScreen())
@@ -205,11 +206,15 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
 Application::~Application()
 {
   DALI_LOG_RELEASE_INFO("Application::~Application\n");
-  SingletonService service = SingletonService::Get();
-  // Note this can be false i.e. if Application has never created a Core instance
-  if(service)
+  // Do not unregister singletone service if we release pre-initialized data
+  if(!mIsPreInitializedDataReleased)
   {
-    service.UnregisterAll();
+    SingletonService service = SingletonService::Get();
+    // Note this can be false i.e. if Application has never created a Core instance
+    if(service)
+    {
+      service.UnregisterAll();
+    }
   }
 
   if(mMainWindow)
@@ -501,6 +506,41 @@ void Application::CompleteAdaptorAndWindowCreate()
   }
 }
 
+Application::PreInitializeApplicationData Application::ReleasePreInitializedApplicationData()
+{
+  PreInitializeApplicationData data;
+  if(!mIsPreInitializedDataReleased && mLaunchpadState == Launchpad::PRE_INITIALIZED)
+  {
+    DALI_LOG_RELEASE_INFO("Application::ReleasePreInitializedApplicationData\n");
+
+    data.mLaunchpadState      = mLaunchpadState;
+    data.mMainWindow          = std::move(mMainWindow);
+    data.mAdaptor             = mAdaptor;
+    data.mUIThreadLoader      = mUIThreadLoader;
+    data.mIsSystemInitialized = mIsSystemInitialized;
+
+    mAdaptor             = nullptr;
+    mUIThreadLoader      = nullptr;
+    mIsSystemInitialized = false;
+
+    mIsPreInitializedDataReleased = true;
+  }
+  return data;
+}
+
+void Application::ApplyPreInitializedApplicationData(Application::PreInitializeApplicationData data)
+{
+  if(data.mLaunchpadState == Launchpad::PRE_INITIALIZED)
+  {
+    DALI_LOG_RELEASE_INFO("Application::ApplyPreInitializedApplicationData\n");
+    mLaunchpadState      = data.mLaunchpadState;
+    mMainWindow          = std::move(data.mMainWindow);
+    mAdaptor             = data.mAdaptor;
+    mUIThreadLoader      = data.mUIThreadLoader;
+    mIsSystemInitialized = data.mIsSystemInitialized;
+  }
+}
+
 void Application::MainLoop()
 {
   // Run the application
@@ -612,7 +652,10 @@ void Application::OnTerminate()
   if(mUseUiThread)
   {
     delete mAdaptor;
-    WindowSystem::Shutdown();
+    if(mIsSystemInitialized)
+    {
+      WindowSystem::Shutdown();
+    }
   }
 }
 

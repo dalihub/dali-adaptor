@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,21 @@ WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesh
 } // namespace WidgetApplicationFactory
 
 WidgetApplicationPtr WidgetApplication::New(
-  int*               argc,
-  char**             argv[],
-  const std::string& stylesheet,
-  const WindowData&  windowData)
+  int*                               argc,
+  char**                             argv[],
+  const std::string&                 stylesheet,
+  const WindowData&                  windowData,
+  Internal::Adaptor::ApplicationPtr& preInitializedApplication)
 {
   // WidgetApplicationPtr //widgetApplication( new WidgetApplication (argc, argv, stylesheet ) );
-  return WidgetApplicationFactory::Create(argc, argv, stylesheet, windowData);
+  auto widgetApplicationPtr = WidgetApplicationFactory::Create(argc, argv, stylesheet, windowData);
+  if(preInitializedApplication)
+  {
+    auto data = preInitializedApplication->ReleasePreInitializedApplicationData();
+    widgetApplicationPtr->ApplyPreInitializedApplicationData(std::move(data));
+    preInitializedApplication.Reset();
+  }
+  return widgetApplicationPtr;
 }
 
 WidgetApplication::WidgetApplication(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData)
