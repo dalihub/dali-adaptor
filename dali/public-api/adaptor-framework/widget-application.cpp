@@ -25,8 +25,12 @@ namespace Dali
 {
 WidgetApplication WidgetApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
+  // WidgetApplication can't use pre-initialized application.
+  // So get pre-initialized window / adaptor and reset it.
+  Internal::Adaptor::ApplicationPtr preInitializedApplication = Internal::Adaptor::Application::GetPreInitializedApplication();
+
   WindowData                              windowData;
-  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet, windowData);
+  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet, windowData, preInitializedApplication);
   return WidgetApplication(internal.Get());
 }
 

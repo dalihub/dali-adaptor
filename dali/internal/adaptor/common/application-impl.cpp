@@ -517,15 +517,11 @@ Application::PreInitializeApplicationData Application::ReleasePreInitializedAppl
     data.mMainWindow          = std::move(mMainWindow);
     data.mAdaptor             = mAdaptor;
     data.mUIThreadLoader      = mUIThreadLoader;
-    data.mEnvironmentOptions  = mEnvironmentOptions.release();
-    data.mUseUiThread         = mUseUiThread;
     data.mIsSystemInitialized = mIsSystemInitialized;
 
     mAdaptor             = nullptr;
     mUIThreadLoader      = nullptr;
-    mUseUiThread         = false;
     mIsSystemInitialized = false;
-    mEnvironmentOptions.reset();
 
     mIsPreInitializedDataReleased = true;
   }
@@ -541,8 +537,6 @@ void Application::ApplyPreInitializedApplicationData(Application::PreInitializeA
     mMainWindow          = std::move(data.mMainWindow);
     mAdaptor             = data.mAdaptor;
     mUIThreadLoader      = data.mUIThreadLoader;
-    mEnvironmentOptions  = std::unique_ptr<EnvironmentOptions>(data.mEnvironmentOptions);
-    mUseUiThread         = data.mUseUiThread;
     mIsSystemInitialized = data.mIsSystemInitialized;
   }
 }

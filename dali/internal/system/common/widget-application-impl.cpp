@@ -40,33 +40,19 @@ WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesh
 } // namespace WidgetApplicationFactory
 
 WidgetApplicationPtr WidgetApplication::New(
-  int*               argc,
-  char**             argv[],
-  const std::string& stylesheet,
-  const WindowData&  windowData)
+  int*                               argc,
+  char**                             argv[],
+  const std::string&                 stylesheet,
+  const WindowData&                  windowData,
+  Internal::Adaptor::ApplicationPtr& preInitializedApplication)
 {
-  bool                                                         preInitializedDataSetted = false;
-  Internal::Adaptor::Application::PreInitializeApplicationData preInitializedData;
-
-  // WidgetApplication can't use pre-initialized application.
-  // So get pre-initialized window / adaptor and reset it.
-  // Note tat we should reset pre-initialized application to remove abort handler.
-  Internal::Adaptor::ApplicationPtr preInitializedApplication = Internal::Adaptor::Application::GetPreInitializedApplication();
-
-  if(preInitializedApplication)
-  {
-    DALI_LOG_RELEASE_INFO("WidgetApplication willnot use pre-initialized application. Destroy it first.\n");
-    preInitializedData = preInitializedApplication->ReleasePreInitializedApplicationData();
-    preInitializedApplication.Reset();
-    preInitializedDataSetted = true;
-  }
-
   // WidgetApplicationPtr //widgetApplication( new WidgetApplication (argc, argv, stylesheet ) );
   auto widgetApplicationPtr = WidgetApplicationFactory::Create(argc, argv, stylesheet, windowData);
-
-  if(preInitializedDataSetted)
+  if(preInitializedApplication)
   {
-    widgetApplicationPtr->ApplyPreInitializedApplicationData(std::move(preInitializedData));
+    auto data = preInitializedApplication->ReleasePreInitializedApplicationData();
+    widgetApplicationPtr->ApplyPreInitializedApplicationData(std::move(data));
+    preInitializedApplication.Reset();
   }
   return widgetApplicationPtr;
 }
@@ -79,7 +65,6 @@ WidgetApplication::WidgetApplication(int* argc, char** argv[], const std::string
 
 WidgetApplication::~WidgetApplication()
 {
-  DALI_LOG_RELEASE_INFO("Application::~WidgetApplication\n");
 }
 
 void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction)
