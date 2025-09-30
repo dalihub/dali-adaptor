@@ -233,6 +233,11 @@ public:
   DBus::ValueOrError<void> SetListenPostRender(bool enabled);
 
   /**
+   * @copydoc Dali::Accessibility::Accessible::GetStringProperty()
+   */
+  DBus::ValueOrError<std::string> GetStringProperty(std::string propertyName);
+
+  /**
    * @brief Gets Node information of the self object.
    * @return Node information
    */

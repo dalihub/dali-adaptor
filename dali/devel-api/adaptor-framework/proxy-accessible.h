@@ -94,6 +94,11 @@ public:
     return static_cast<size_t>(-1);
   }
 
+  std::string GetStringProperty(std::string propertyName) const override
+  {
+    return {};
+  }
+
   Role GetRole() const override
   {
     return {};

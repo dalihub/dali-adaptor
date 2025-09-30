@@ -175,6 +175,11 @@ Dali::Actor ActorAccessible::GetInternalActor() const
   return Self();
 }
 
+std::string ActorAccessible::GetStringProperty(std::string propertyName) const
+{
+  return {};
+}
+
 ComponentLayer ActorAccessible::GetLayer() const
 {
   return ComponentLayer::WINDOW;
@@ -298,6 +303,12 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
 
     switch(state)
     {
+      case State::CHECKED:
+      case State::SELECTED:
+      {
+        shouldEmit = true;
+        break;
+      }
       case State::SHOWING:
       {
         shouldEmit = ShouldEmitShowing(this, static_cast<bool>(newValue));

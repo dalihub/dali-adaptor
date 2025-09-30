@@ -91,6 +91,11 @@ public:
   Dali::Actor GetInternalActor() const final;
 
   /**
+   * @copydoc Dali::Accessibility::Accessible::GetStringProperty()
+   */
+  std::string GetStringProperty(std::string propertyName) const override;
+
+  /**
    * @copydoc Dali::Accessibility::Component::GetLayer()
    */
   ComponentLayer GetLayer() const override;

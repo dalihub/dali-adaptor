@@ -216,6 +216,15 @@ public:
   virtual void SetListenPostRender(bool enabled);
 
   /**
+   * @brief Gets the stirng property.
+   *
+   * @param[in] propertyName The property name.
+   *
+   * @return The string property value. Empty string if property does not exist.
+   */
+  virtual std::string GetStringProperty(std::string propertyName) const = 0;
+
+  /**
    * @brief Gets all implemented interfaces.
    *
    * Override DoGetInterfaces() to customize the return value of this method.
