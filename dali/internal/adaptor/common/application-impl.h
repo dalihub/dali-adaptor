@@ -531,29 +531,6 @@ protected:
    */
   void CompleteAdaptorAndWindowCreate();
 
-public: // For move pre-initialized informations.
-  struct PreInitializeApplicationData
-  {
-    Launchpad::State mLaunchpadState{Launchpad::NONE};
-    Dali::Window     mMainWindow{};
-    Dali::Adaptor*   mAdaptor{nullptr};
-    UIThreadLoader*  mUIThreadLoader{nullptr};
-    bool             mIsSystemInitialized{false};
-  };
-
-  /**
-   * @brief Release pre-initialized data.
-   * @post Should call ApplyPreInitializedApplicationData().
-   * @note Only have effort if this application pre-initialized.
-   */
-  PreInitializeApplicationData ReleasePreInitializedApplicationData();
-
-  /**
-   * @brief Apply pre-initialized data from previous application.
-   * @note We MUST call this API before OnInit() API calls.
-   */
-  void ApplyPreInitializedApplicationData(PreInitializeApplicationData data);
-
 private:
   AppSignalType                      mInitSignal;
   AppSignalType                      mTerminateSignal;
@@ -598,7 +575,6 @@ private:
   bool             mUseRemoteSurface;
   bool             mUseUiThread;
   bool             mIsSystemInitialized;
-  bool             mIsPreInitializedDataReleased;
 
   SlotDelegate<Application> mSlotDelegate;
 

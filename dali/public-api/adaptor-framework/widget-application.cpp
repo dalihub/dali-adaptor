@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,15 @@ namespace Dali
 {
 WidgetApplication WidgetApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  // WidgetApplication can't use pre-initialized application.
-  // So get pre-initialized window / adaptor and reset it.
   Internal::Adaptor::ApplicationPtr preInitializedApplication = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if(preInitializedApplication)
+  {
+    // WidgetApplication can't use pre-initialized application. So reset it.
+    preInitializedApplication.Reset();
+  }
 
   WindowData                              windowData;
-  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet, windowData, preInitializedApplication);
+  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet, windowData);
   return WidgetApplication(internal.Get());
 }
 
