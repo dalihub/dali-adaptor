@@ -393,7 +393,8 @@ void Application::CreateWindow()
     // The position, size, window name, and frontbuffering of the pre-initialized application
     // will be updated in ChangePreInitializedWindowInfo() when the real application is launched.
     windowData.SetPositionSize(mWindowPositionSize);
-    window = Internal::Adaptor::Window::New("", "", windowData);
+    Any surface;
+    window = Internal::Adaptor::Window::New(surface, "", "", windowData, true);
   }
 
   mMainWindow = Dali::Window(window);
