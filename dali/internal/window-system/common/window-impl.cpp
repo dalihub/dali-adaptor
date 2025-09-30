@@ -144,7 +144,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // Set the flag of preloader is used.
   mIsUsePreLoader = isUsePreLoader;
-  DALI_LOG_RELEASE_INFO("Window::Initialize, isUsePreLoader(%d)\n", mIsUsePreLoader);
 
   // Set Window Type
   mWindowBase->SetType(type);
@@ -267,7 +266,6 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   // If this window is created by pre loader process, window show()'s calling should be delayed.
   // Because detail window property is not decided yet in preloader.
   // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
-  DALI_LOG_RELEASE_INFO("mIsUsePreLoader flag (%d)\n", mIsUsePreLoader);
   if(!mIsUsePreLoader)
   {
     // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
