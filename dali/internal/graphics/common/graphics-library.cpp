@@ -35,10 +35,10 @@ namespace
 const char* const DALI_ADAPTOR_GRAPHICS_GLES_SO("libdali2-adaptor-gles.so");
 const char* const DALI_ADAPTOR_GRAPHICS_VULKAN_SO("libdali2-adaptor-vulkan.so");
 
-struct GraphicsLibrary
+class DynamicGraphicsLibraryHandle : public Dali::Internal::Adaptor::GraphicsLibraryHandleBase
 {
 public:
-  GraphicsLibrary()
+  DynamicGraphicsLibraryHandle()
   {
     mBackend = Graphics::GetCurrentGraphicsBackend();
 
@@ -54,8 +54,14 @@ public:
     }
   }
 
-  ~GraphicsLibrary()
+  ~DynamicGraphicsLibraryHandle()
   {
+    if(DALI_LIKELY(mGraphics))
+    {
+      // Release graphics before dlclose()
+      mGraphics->Destroy();
+      mGraphics.reset();
+    }
     if(mHandle)
     {
       DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
@@ -67,14 +73,14 @@ public:
   Graphics::Backend mBackend{Graphics::Backend::DEFAULT};
   void*             mHandle{nullptr};
 };
-std::unique_ptr<GraphicsLibrary> gGraphicsLibraryHandle;
+std::shared_ptr<DynamicGraphicsLibraryHandle> gGraphicsLibraryHandle;
 
 template<typename FunctionSignature>
 FunctionSignature GetFunction(const char* const functionName)
 {
   if(DALI_UNLIKELY(!gGraphicsLibraryHandle))
   {
-    gGraphicsLibraryHandle.reset(new GraphicsLibrary);
+    gGraphicsLibraryHandle.reset(new DynamicGraphicsLibraryHandle);
   }
 
   if(DALI_LIKELY(gGraphicsLibraryHandle))
@@ -136,33 +142,41 @@ Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
   return Graphics::Backend::DEFAULT;
 }
 
-void ResetGraphicsLibrary()
+void ResetGraphicsLibrary(bool reload)
 {
   gGraphicsLibraryHandle.reset();
-  class DummyWindow : public Graphics::NativeWindowInterface
+  if(reload)
   {
-  public:
-    Any GetNativeWindow() override
+    class DummyWindow : public Graphics::NativeWindowInterface
     {
-      return {};
-    }
+    public:
+      Any GetNativeWindow() override
+      {
+        return {};
+      }
 
-    int GetNativeWindowId() override
-    {
-      return 0;
-    }
-  };
-  DummyWindow        dummyWindow;
-  EnvironmentOptions dummyEnvironmentOptions;
+      int GetNativeWindowId() override
+      {
+        return 0;
+      }
+    };
+    DummyWindow        dummyWindow;
+    EnvironmentOptions dummyEnvironmentOptions;
 
-  CallReturnValueFunction<std::unique_ptr<GraphicsFactoryInterface> (*)(EnvironmentOptions&), std::unique_ptr<GraphicsFactoryInterface>, EnvironmentOptions&>("CreateGraphicsFactory", true, dummyEnvironmentOptions);
-  CallReturnValueFunction<std::unique_ptr<RenderSurfaceFactory> (*)(), std::unique_ptr<RenderSurfaceFactory>>("GetRenderSurfaceFactory", true);
-  CallReturnValueFunction<std::unique_ptr<NativeImageSourceFactory> (*)(), std::unique_ptr<NativeImageSourceFactory>>("GetNativeImageSourceFactory", true);
-  CallReturnValueFunction<std::unique_ptr<Graphics::SurfaceFactory> (*)(Graphics::NativeWindowInterface&), std::unique_ptr<Graphics::SurfaceFactory>, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", true, dummyWindow);
-  CallReturnValueFunction<std::unique_ptr<NativeImageSurface> (*)(NativeImageSourceQueuePtr), std::unique_ptr<NativeImageSurface>, NativeImageSourceQueuePtr>("CreateNativeImageSurface", true, NativeImageSourceQueuePtr());
-  CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", true, nullptr);
+    CallReturnValueFunction<std::unique_ptr<GraphicsFactoryInterface> (*)(EnvironmentOptions&), std::unique_ptr<GraphicsFactoryInterface>, EnvironmentOptions&>("CreateGraphicsFactory", true, dummyEnvironmentOptions);
+    CallReturnValueFunction<std::unique_ptr<RenderSurfaceFactory> (*)(), std::unique_ptr<RenderSurfaceFactory>>("GetRenderSurfaceFactory", true);
+    CallReturnValueFunction<std::unique_ptr<NativeImageSourceFactory> (*)(), std::unique_ptr<NativeImageSourceFactory>>("GetNativeImageSourceFactory", true);
+    CallReturnValueFunction<std::unique_ptr<Graphics::SurfaceFactory> (*)(Graphics::NativeWindowInterface&), std::unique_ptr<Graphics::SurfaceFactory>, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", true, dummyWindow);
+    CallReturnValueFunction<std::unique_ptr<NativeImageSurface> (*)(NativeImageSourceQueuePtr), std::unique_ptr<NativeImageSurface>, NativeImageSourceQueuePtr>("CreateNativeImageSurface", true, NativeImageSourceQueuePtr());
+    CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", true, nullptr);
+  }
 
-  DALI_LOG_DEBUG_INFO("Reset graphics backend library done\n");
+  DALI_LOG_DEBUG_INFO("Reset graphics backend library done (reload : %d)\n", reload);
+}
+
+GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
+{
+  return std::static_pointer_cast<Dali::Internal::Adaptor::GraphicsLibraryHandleBase>(gGraphicsLibraryHandle);
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)

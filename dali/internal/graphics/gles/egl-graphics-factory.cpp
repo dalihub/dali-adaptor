@@ -67,14 +67,32 @@ Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
   return Dali::Graphics::Backend::GLES;
 }
 
-void ResetGraphicsLibrary()
+namespace
 {
-  /* This function defined for dynamic library case. */
+GraphicsLibraryHandlePtr gGraphicsLibraryHandle;
+} // namespace
+
+void ResetGraphicsLibrary(bool /* not used */)
+{
+  // This function should not be called for dynamic library case.
+  // TODO : How can we check it?
+  gGraphicsLibraryHandle.reset();
+}
+
+GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
+{
+  // This function should not be called for dynamic library case.
+  // TODO : How can we check it?
+  return gGraphicsLibraryHandle;
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   DALI_LOG_RELEASE_INFO("DALi Graphics Backend: GLES\n");
+  if(!gGraphicsLibraryHandle)
+  {
+    gGraphicsLibraryHandle.reset(new GraphicsLibraryHandleBase());
+  }
   return Utils::MakeUnique<EglGraphicsFactory>(environmentOptions);
 }
 

@@ -54,7 +54,7 @@
 #include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
 #include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Dali::Graphics::Internal::IsGraphicsBackendSet and etc
-#include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary
+#include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary and GetGraphicsLibraryHandle
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/callback-manager.h>
@@ -161,7 +161,10 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
   DALI_ASSERT_DEBUG(defaultWindow->GetSurface() && "Surface not initialized");
 
-  mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
+  // Keep reference of graphics library handle. (Note that we must hold the reference out of graphics library cpp files)
+  mGraphicsLibraryHandle = Dali::Internal::Adaptor::GetGraphicsLibraryHandle();
+  DALI_ASSERT_ALWAYS(mGraphicsLibraryHandle && "Graphics library not initialized yet!\n");
+  mGraphicsLibraryHandle->SetGraphicsInterface(std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create()));
 
   // Create the AddOnManager
   mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
@@ -171,22 +174,22 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   {
     corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
   }
-  if(Integration::DepthBufferAvailable::TRUE == mGraphics->GetDepthBufferRequired())
+  if(Integration::DepthBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetDepthBufferRequired())
   {
     corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
   }
-  if(Integration::StencilBufferAvailable::TRUE == mGraphics->GetStencilBufferRequired())
+  if(Integration::StencilBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetStencilBufferRequired())
   {
     corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
   }
-  if(Integration::PartialUpdateAvailable::TRUE == mGraphics->GetPartialUpdateRequired())
+  if(Integration::PartialUpdateAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetPartialUpdateRequired())
   {
     corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
   }
 
   mCore = Integration::Core::New(*this,
                                  *mPlatformAbstraction,
-                                 mGraphics->GetController(),
+                                 mGraphicsLibraryHandle->GetGraphicsInterface().GetController(),
                                  corePolicyFlags);
 
   // Create TextureUploadManager after mCore created
@@ -263,7 +266,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
     }
   }
 
-  mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
+  mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, &(mGraphicsLibraryHandle->GetGraphicsInterface()), mThreadController);
 
   // Initialize Core. Now we can create camera, rendertask, etc, and build scene tree.
   DALI_LOG_RELEASE_INFO("Core::Initialize\n");
@@ -302,7 +305,10 @@ Adaptor::~Adaptor()
 
   delete mPerformanceInterface;
 
-  mGraphics->Destroy();
+  mGraphicsLibraryHandle.reset();
+
+  // dlclose for previous library.
+  Dali::Internal::Adaptor::ResetGraphicsLibrary(false);
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
@@ -359,7 +365,7 @@ void Adaptor::Start()
   }
 
   // cache advanced blending and shader language version
-  mGraphics->CacheConfigurations(*mConfigurationManager);
+  mGraphicsLibraryHandle->GetGraphicsInterface().CacheConfigurations(*mConfigurationManager);
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
@@ -740,8 +746,8 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 
 Dali::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
-  DALI_ASSERT_DEBUG(mGraphics && "Graphics interface not created");
-  return *mGraphics;
+  DALI_ASSERT_DEBUG(mGraphicsLibraryHandle && "Graphics interface not created");
+  return mGraphicsLibraryHandle->GetGraphicsInterface();
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
@@ -836,9 +842,9 @@ Any Adaptor::GetGraphicsDisplay()
 {
   Any display;
 
-  if(mGraphics)
+  if(mGraphicsLibraryHandle)
   {
-    display = mGraphics->GetDisplay();
+    display = mGraphicsLibraryHandle->GetGraphicsInterface().GetDisplay();
   }
   return display;
 }
@@ -910,11 +916,12 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       {
         DALI_LOG_RELEASE_INFO("Re-create Graphics here!\n");
 
-        mGraphics->Destroy();
-        mGraphics.reset();
+        DALI_ASSERT_ALWAYS(mGraphicsLibraryHandle && (mGraphicsLibraryHandle.use_count() == 2) && "Someone try to hold graphics library! Only static and adaptor could hold this item!");
 
-        // dlclose for previous loader and re-load if dynamic graphics backed case.
-        Dali::Internal::Adaptor::ResetGraphicsLibrary();
+        mGraphicsLibraryHandle.reset();
+
+        // dlclose for previous library and re-load if dynamic graphics backed case.
+        Dali::Internal::Adaptor::ResetGraphicsLibrary(true);
 
         // Fix the graphics backend as current graphics now.
         Graphics::Internal::GraphicsResetCompleted();
@@ -922,7 +929,10 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         AdaptorBuilder& adaptorBuilder  = AdaptorBuilder::Get(*mEnvironmentOptions);
         auto&           graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
-        mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
+        // Keep reference of graphics library handle. (Note that we must hold the reference out of graphics library cpp files)
+        mGraphicsLibraryHandle = Dali::Internal::Adaptor::GetGraphicsLibraryHandle();
+        DALI_ASSERT_ALWAYS(mGraphicsLibraryHandle && "Graphics library not initialized yet!\n");
+        mGraphicsLibraryHandle->SetGraphicsInterface(std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create()));
 
         AdaptorBuilder::Finalize();
       }
@@ -935,15 +945,15 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         {
           corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
         }
-        if(Integration::DepthBufferAvailable::TRUE == mGraphics->GetDepthBufferRequired())
+        if(Integration::DepthBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetDepthBufferRequired())
         {
           corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
         }
-        if(Integration::StencilBufferAvailable::TRUE == mGraphics->GetStencilBufferRequired())
+        if(Integration::StencilBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetStencilBufferRequired())
         {
           corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
         }
-        if(Integration::PartialUpdateAvailable::TRUE == mGraphics->GetPartialUpdateRequired())
+        if(Integration::PartialUpdateAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetPartialUpdateRequired())
         {
           corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
         }
@@ -951,7 +961,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
 
         if(DALI_UNLIKELY(recreateGraphicsRequired))
         {
-          mCore->ChangeGraphicsController(mGraphics->GetController());
+          mCore->ChangeGraphicsController(mGraphicsLibraryHandle->GetGraphicsInterface().GetController());
         }
       }
       if(DALI_UNLIKELY(updateGraphicsRequired))
@@ -963,7 +973,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
 
         int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
 
-        mGraphics->UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
       }
 
       if(DALI_UNLIKELY(updateThreadController))
@@ -1452,7 +1462,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mState(READY),
   mCore(nullptr),
   mThreadController(nullptr),
-  mGraphics(nullptr),
+  mGraphicsLibraryHandle(nullptr),
   mDisplayConnection(nullptr),
   mWindows(),
   mConfigurationManager(nullptr),

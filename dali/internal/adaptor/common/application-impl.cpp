@@ -471,8 +471,8 @@ void Application::UpdateEnvironmentOptions()
   // Reload graphics library if need
   if(DALI_UNLIKELY(mLaunchpadState == Launchpad::PRE_INITIALIZED && Graphics::Internal::IsGraphicsResetRequired()))
   {
-    // dlclose for previous loader and re-load if dynamic graphics backed case.
-    Dali::Internal::Adaptor::ResetGraphicsLibrary();
+    // dlclose for previous library and re-load if dynamic graphics backed case.
+    Dali::Internal::Adaptor::ResetGraphicsLibrary(true);
 
     // Fix the graphics backend as current graphics now.
     Graphics::Internal::GraphicsResetCompleted();

@@ -26,9 +26,14 @@ __attribute__((weak)) Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
   return GraphicsLibrary::GetCurrentGraphicsLibraryBackend();
 }
 
-__attribute__((weak)) void ResetGraphicsLibrary()
+__attribute__((weak)) void ResetGraphicsLibrary(bool reload)
 {
-  GraphicsLibrary::ResetGraphicsLibrary();
+  GraphicsLibrary::ResetGraphicsLibrary(reload);
+}
+
+__attribute__((weak)) GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
+{
+  return GraphicsLibrary::GetGraphicsLibraryHandle();
 }
 
 __attribute__((weak)) std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
