@@ -675,7 +675,7 @@ int WindowBaseCocoa::GetWindowRotationAngle() const
   return 0;
 }
 
-int WindowBaseCocoa::GetScreenRotationAngle()
+int WindowBaseCocoa::GetScreenRotationAngle(const bool update)
 {
   return 0;
 }

@@ -68,7 +68,7 @@ public:
   typedef Signal<void(bool)>                                                           IconifySignalType;
   typedef Signal<void(bool)>                                                           MaximizeSignalType;
   typedef Signal<void(bool)>                                                           FocusSignalType;
-  typedef Signal<void()>                                                               OutputSignalType;
+  typedef Signal<void(int)>                                                            OutputSignalType;
   typedef Signal<void()>                                                               DeleteSignalType;
   typedef Signal<void(const DamageArea&)>                                              DamageSignalType;
   typedef Signal<void(const RotationEvent&)>                                           RotationSignalType;
@@ -375,9 +375,10 @@ public:
 
   /**
    * @brief Get the angle of screen rotation for the window
+   * @param[in] update The flag is true to get screen rotation angle from system.
    * @return The screen orientation
    */
-  virtual int GetScreenRotationAngle() = 0;
+  virtual int GetScreenRotationAngle(const bool update) = 0;
 
   /**
    * @brief Set the screen rotation angle of the window

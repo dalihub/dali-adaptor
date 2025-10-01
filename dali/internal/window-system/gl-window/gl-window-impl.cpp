@@ -465,9 +465,9 @@ void GlWindow::OnFocusChanged(bool focusIn)
   mFocusChangeSignal.Emit(handle, focusIn);
 }
 
-void GlWindow::OnOutputTransformed()
+void GlWindow::OnOutputTransformed(int screenRotationAngle)
 {
-  int newScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  int newScreenRotationAngle = screenRotationAngle;
   DALI_LOG_RELEASE_INFO("GlWindow::OnOutputTransformed(), screen rotation occurs, old[%d], new[%d\n", mScreenRotationAngle, newScreenRotationAngle);
 
   if(newScreenRotationAngle != mScreenRotationAngle)
@@ -824,7 +824,7 @@ void GlWindow::InitializeGraphics()
     mIsEGLInitialized = true;
 
     // Check screen rotation
-    int newScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+    int newScreenRotationAngle = mWindowBase->GetScreenRotationAngle(true);
     DALI_LOG_RELEASE_INFO("GlWindow::InitializeGraphics(), GetScreenRotationAngle(): %d\n", mScreenRotationAngle);
     if(newScreenRotationAngle != 0)
     {
