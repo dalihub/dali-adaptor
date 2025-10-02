@@ -228,20 +228,33 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     mController.AddTextureDependencies(renderTarget);
   }
 
-  std::vector<vk::ClearValue> vkClearValues;
+  // Use standalone buffer to avoid memory allocation.
+  static std::vector<vk::ClearValue> vkClearValues;
+
+  uint32_t clearValuesCount = 0u;
 
   auto attachments = renderPass->GetCreateInfo().attachments;
   if(attachments != nullptr &&
      !attachments->empty()) // Can specify clear color even if load op is not clear.
   {
-    for(auto clearValue : clearValues)
+    clearValuesCount = static_cast<uint32_t>(clearValues.size());
+    if(DALI_UNLIKELY(vkClearValues.size() < clearValuesCount))
+    {
+      vkClearValues.resize(clearValuesCount);
+    }
+    auto clearValuesIter    = clearValues.cbegin();
+    auto clearValuesEndIter = clearValues.cend();
+    for(auto vkClearValuesIter = vkClearValues.begin(); clearValuesIter != clearValuesEndIter;)
     {
       vk::ClearColorValue color;
+      const auto&         clearValue = *(clearValuesIter++);
+
       color.float32[0] = clearValue.color.r;
       color.float32[1] = clearValue.color.g;
       color.float32[2] = clearValue.color.b;
       color.float32[3] = clearValue.color.a;
-      vkClearValues.emplace_back(color);
+
+      *(vkClearValuesIter++) = color;
     }
   }
 
@@ -252,7 +265,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                        .setRenderPass(renderPassImpl->GetVkHandle())
                                        .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
                                        .setPClearValues(vkClearValues.data())
-                                       .setClearValueCount(uint32_t(vkClearValues.size())),
+                                       .setClearValueCount(clearValuesCount),
                                      vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
@@ -276,7 +289,7 @@ void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuf
   vkCommandBuffers.reserve(gfxCommandBuffers.size());
   for(auto& gfxCmdBuf : gfxCommandBuffers)
   {
-    vkCommandBuffers.push_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
+    vkCommandBuffers.emplace_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
   }
   mCmdCount++; // Debug info
   CommandBufferImpl* commandBufferImpl = GetImpl();
