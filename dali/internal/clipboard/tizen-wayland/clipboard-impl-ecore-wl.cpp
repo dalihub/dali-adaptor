@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <map>
 #include <unistd.h>
+#include <map>
 
 namespace Dali
 {
@@ -37,7 +37,7 @@ namespace
 {
 const char*    DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT("DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT");
 const uint32_t DEFAULT_MULTI_SELECTION_TIMEOUT = 500u;
-}
+} // namespace
 
 static Eina_Bool EcoreEventDataSend(void* data, int type, void* event);
 static Eina_Bool EcoreEventOfferDataReady(void* data, int type, void* event);
@@ -71,11 +71,11 @@ struct Clipboard::Impl
     }
 
     Eina_Array*  availableTypes = ecore_wl2_offer_mimes_get(offer);
-    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array *)availableTypes);
+    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array*)availableTypes);
 
     for(unsigned int i = 0; i < typeCount; ++i)
     {
-      char* availableType = (char*)eina_array_data_get((Eina_Array *)availableTypes, i);
+      char* availableType = (char*)eina_array_data_get((Eina_Array*)availableTypes, i);
       if(!mimeType.compare(availableType))
       {
         return true;
@@ -102,7 +102,7 @@ struct Clipboard::Impl
     mSetDatas[mimeType] = data;
 
     Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-    Ecore_Wl2_Input* input     = ecore_wl2_input_default_input_get(display);
+    Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
 
     uint32_t serial = ecore_wl2_dnd_selection_set(input, mimeTypes);
     DALI_LOG_RELEASE_INFO("selection_set success, serial:%u, type:%s, data:%s\n", serial, mimeType.c_str(), data.c_str());
@@ -113,9 +113,9 @@ struct Clipboard::Impl
     {
       // Checks whether there is an identical type requested from one source.
       bool typeExists = false;
-      for (const auto& type : mSetTypes)
+      for(const auto& type : mSetTypes)
       {
-        if (type == mimeType)
+        if(type == mimeType)
         {
           typeExists = true;
           break;
@@ -128,7 +128,7 @@ struct Clipboard::Impl
         // EcoreEventDataSend callback is called as many as the number of requested types.
         mSetTypes.push_back(mimeType);
 
-        size_t typeCount = mSetTypes.size();
+        size_t      typeCount = mSetTypes.size();
         const char* types[typeCount + 1];
         for(size_t i = 0; i < typeCount; i++)
         {
@@ -162,7 +162,7 @@ struct Clipboard::Impl
     return true;
   }
 
-  uint32_t GetData(const std::string &mimeType)
+  uint32_t GetData(const std::string& mimeType)
   {
     const char* type = mimeType.c_str();
     if(!type)
@@ -184,11 +184,11 @@ struct Clipboard::Impl
 
     Eina_Array*  availableTypes = ecore_wl2_offer_mimes_get(offer);
     char*        selectedType   = nullptr;
-    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array *)availableTypes);
+    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array*)availableTypes);
 
     for(unsigned int i = 0; i < typeCount && !selectedType; ++i)
     {
-      char* availableType = (char*)eina_array_data_get((Eina_Array *)availableTypes, i);
+      char* availableType = (char*)eina_array_data_get((Eina_Array*)availableTypes, i);
       if(!mimeType.compare(availableType))
       {
         selectedType = availableType;
@@ -201,7 +201,7 @@ struct Clipboard::Impl
       DALI_LOG_ERROR("no matching type, num of available types:%u, request type:%s\n", typeCount, mimeType.c_str());
       for(unsigned int i = 0; i < typeCount && !selectedType; ++i)
       {
-        DALI_LOG_ERROR("available type[%u]:%s\n", i, (char*)eina_array_data_get((Eina_Array *)availableTypes, i));
+        DALI_LOG_ERROR("available type[%u]:%s\n", i, (char*)eina_array_data_get((Eina_Array*)availableTypes, i));
       }
       return 0u;
     }
@@ -382,7 +382,7 @@ struct Clipboard::Impl
 
   void SelectionOffer(void* event)
   {
-    Ecore_Wl2_Event_Seat_Selection *ev = reinterpret_cast<Ecore_Wl2_Event_Seat_Selection*>(event);
+    Ecore_Wl2_Event_Seat_Selection* ev = reinterpret_cast<Ecore_Wl2_Event_Seat_Selection*>(event);
 
     if(ev == nullptr)
     {
@@ -443,27 +443,27 @@ struct Clipboard::Impl
   }
 
   uint32_t         mSerial{std::numeric_limits<uint32_t>::max()};
-  std::string      mLastType;  // mime type used in last copy.
-  Ecore_Wl2_Offer* mLastOffer; // offer used in last paste.
+  std::string      mLastType{};         // mime type used in last copy.
+  Ecore_Wl2_Offer* mLastOffer{nullptr}; // offer used in last paste.
 
   Ecore_Event_Handler* mSendHandler{nullptr};
   Ecore_Event_Handler* mReceiveHandler{nullptr};
   Ecore_Event_Handler* mSelectionHanlder{nullptr};
 
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal;
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
+  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
+  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 
-  uint32_t mDataId{0};
-  std::vector<uint32_t> mDataRequestIds;
-  std::map<uint32_t, std::pair<std::string, Ecore_Wl2_Offer*>> mDataRequestItems;
+  uint32_t                                                     mDataId{0};
+  std::vector<uint32_t>                                        mDataRequestIds{};
+  std::map<uint32_t, std::pair<std::string, Ecore_Wl2_Offer*>> mDataRequestItems{};
 
-  std::vector<std::string>           mSetTypes;              // types for the same source (one user copy).
-  std::map<std::string, std::string> mSetDatas;              // datas for the same source (one user copy), key is mime type, value is data.
-  std::vector<std::string>           mGetTypes;              // types requested to receive for the same offer.
-  std::map<uint32_t, uint32_t>       mReservedOfferReceives; // in order to process offer receive sequentially, key is current id, value is reserved id.
+  std::vector<std::string>           mSetTypes{};              // types for the same source (one user copy).
+  std::map<std::string, std::string> mSetDatas{};              // datas for the same source (one user copy), key is mime type, value is data.
+  std::vector<std::string>           mGetTypes{};              // types requested to receive for the same offer.
+  std::map<uint32_t, uint32_t>       mReservedOfferReceives{}; // in order to process offer receive sequentially, key is current id, value is reserved id.
 
-  Dali::Timer mMultiSelectionTimeoutTimer;
+  Dali::Timer mMultiSelectionTimeoutTimer{};
   bool        mMultiSelectionTimeout{false};
 };
 
@@ -495,7 +495,7 @@ Clipboard::Clipboard(Impl* impl)
 : mImpl(impl)
 {
   // Check environment variable for DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT
-  auto timeoutString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT);
+  auto     timeoutString         = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT);
   uint32_t multiSelectionTimeout = timeoutString ? static_cast<uint32_t>(std::atoi(timeoutString)) : DEFAULT_MULTI_SELECTION_TIMEOUT;
 
   DALI_LOG_RELEASE_INFO("multi-selection timeout set:%u\n", multiSelectionTimeout);
@@ -572,7 +572,7 @@ bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
   return mImpl->SetData(clipData);
 }
 
-uint32_t Clipboard::GetData(const std::string &mimeType)
+uint32_t Clipboard::GetData(const std::string& mimeType)
 {
   return mImpl->GetData(mimeType);
 }
