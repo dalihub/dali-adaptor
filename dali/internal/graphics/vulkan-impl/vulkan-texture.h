@@ -161,6 +161,7 @@ private:
    *         if not supported returns vk::Format::eUndefined
    */
   vk::Format ValidateFormat(vk::Format sourceFormat);
+  vk::Format ValidateCompressedFormat(vk::Format sourceFormat);
 
   vk::Format ConvertApiToVk(Dali::Graphics::Format format);
 

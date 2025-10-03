@@ -221,9 +221,18 @@ void ResourceTransfer::UpdateWithFutures(
   std::map<Dali::Graphics::Texture*, std::vector<TextureTask>> updateMap;
   for(auto& info : updateInfoList)
   {
-    updateMap[info.dstTexture].emplace_back(&info, nullptr);
+    // Only update valid textures
+    auto texture = static_cast<Vulkan::Texture*>(info.dstTexture);
+    if(texture->GetImage() != nullptr)
+    {
+      updateMap[info.dstTexture].emplace_back(&info, nullptr);
+    }
   }
 
+  if(updateMap.empty())
+  {
+    return;
+  }
   // make a copy of update info lists by storing additional information
   for(auto& aTextureInfo : updateMap)
   {
