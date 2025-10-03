@@ -90,6 +90,7 @@ auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& cont
   // Use allocator
   using Type = typename T::element_type;
   using UPtr = Dali::Graphics::UniquePtr<Type>;
+
   if(info.allocationCallbacks)
   {
     auto* memory = info.allocationCallbacks->allocCallback(
@@ -507,6 +508,7 @@ UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphic
 
 UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const Graphics::TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
 {
+  DALI_LOG_ERROR("VulkanGraphicsController::CreateTexture: textureCreateInfo.nativeImagePtr: %p, width: %u, height: %u\n", textureCreateInfo.nativeImagePtr, textureCreateInfo.nativeImagePtr ? textureCreateInfo.nativeImagePtr->GetWidth() : 0u, textureCreateInfo.nativeImagePtr ? textureCreateInfo.nativeImagePtr->GetHeight() : 0u);
   return NewGraphicsObject<Vulkan::Texture>(textureCreateInfo, *this, std::move(oldTexture));
 }
 

@@ -19,8 +19,8 @@
 #include <dali/internal/imaging/tizen/native-image-source-factory-tizen-vulkan.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/imaging/common/native-image-source-queue-impl.h>
 #include <dali/internal/imaging/tizen/native-image-source-impl-tizen-vulkan.h>
+#include <dali/internal/imaging/tizen/native-image-source-queue-impl-tizen-vulkan.h>
 
 namespace Dali
 {
@@ -36,7 +36,7 @@ std::unique_ptr<NativeImageSource> NativeImageSourceFactoryTizenVulkan::CreateNa
 
 std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryTizenVulkan::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  return nullptr;
+  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueTizenVulkan::New(queueCount, width, height, colorFormat, nativeImageSourceQueue));
 }
 
 // this should be created from somewhere

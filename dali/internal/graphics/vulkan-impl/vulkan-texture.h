@@ -33,6 +33,30 @@ class Image;
 class ImageView;
 class SamplerImpl;
 
+/**
+ * @brief Abstract interface for surface reference management
+ *
+ * This interface allows the Vulkan texture to manage surface lifetimes.
+ * The texture uses this to acquire/release references to surfaces it's using.
+ */
+class SurfaceReferenceManager
+{
+public:
+  virtual ~SurfaceReferenceManager() = default;
+
+  /**
+   * @brief Acquire a reference to a surface
+   * @param surface The surface handle (opaque pointer)
+   */
+  virtual void AcquireSurfaceReference(void* surface) = 0;
+
+  /**
+   * @brief Release a reference to a surface
+   * @param surface The surface handle (opaque pointer)
+   */
+  virtual void ReleaseSurfaceReference(void* surface) = 0;
+};
+
 using TextureResource = Resource<Graphics::Texture, Graphics::TextureCreateInfo>;
 
 class Texture : public TextureResource
@@ -102,6 +126,10 @@ public:
   bool InitializeNativeTexture();
 
   bool InitializeTexture();
+
+  bool Initialize();
+
+  void PrepareTexture();
 
   /**
    * Returns structure with texture properties
@@ -219,6 +247,27 @@ private:
    */
   vk::DeviceMemory ImportPlaneMemory(int fd);
 
+  /**
+   * @brief Release buffer object references of the current surface
+   */
+  void ReleaseSurfaceBufferObjectReferences();
+
+  /**
+   * @brief Acquire reference to current surface from native image source
+   */
+  void AcquireCurrentSurfaceReference();
+
+  /**
+   * @brief Release reference to current surface
+   */
+  void ReleaseCurrentSurfaceReference();
+
+  /**
+   * @brief Get surface reference manager from native image interface
+   * @return Pointer to surface reference manager or nullptr if not available
+   */
+  SurfaceReferenceManager* GetSurfaceReferenceManager() const;
+
 private:
   Vulkan::Device& mDevice;
 
@@ -246,8 +295,21 @@ private:
   vk::SamplerYcbcrConversionInfo mYcbcrConversionInfo{};           ///< YCbCr conversion info
   std::vector<vk::DeviceMemory>  mNativeMemories;                  ///< Device memories per plane
   std::vector<int>               mPlaneFds;                        ///< FD handle per plane
+  std::vector<void*>             mTbmBos;                          ///< TBM BO handles per plane
   bool                           mIsNativeImage{false};
   bool                           mIsYUVFormat{false};
+
+  enum class NativeImageType
+  {
+    NONE,
+    NATIVE_IMAGE_SOURCE,
+    NATIVE_IMAGE_SOURCE_QUEUE
+  };
+  NativeImageType mNativeImageType{NativeImageType::NONE};
+
+  // Surface reference management
+  void* mCurrentSurface{nullptr};    ///< Currently referenced surface
+  bool  mHasSurfaceReference{false}; ///< Whether we have acquired a surface reference
 };
 
 } // namespace Dali::Graphics::Vulkan

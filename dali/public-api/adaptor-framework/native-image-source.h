@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class NativeImageSource;
 }
-} // namespace Internal DALI_INTERNAL
+} // namespace DALI_INTERNAL
 
 class NativeImageSource;
 /**

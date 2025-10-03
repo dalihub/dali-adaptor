@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/pixel-data-integ.h>
 
@@ -31,9 +32,11 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 // EXTERNAL INCLUDES
 #include <errno.h>
+#include <fcntl.h>
 #include <tbm_bo.h>
 #include <tbm_surface.h>
 #include <tbm_surface_internal.h>
@@ -52,9 +55,16 @@ PFN_vkCreateSamplerYcbcrConversionKHR gPfnCreateSamplerYcbcrConversionKHR = null
 
 // TBM format to Vulkan format mapping
 const std::pair<tbm_format, vk::Format> FORMAT_MAPPING[] = {
-  {TBM_FORMAT_RGBA8888, vk::Format::eB8G8R8A8Unorm},
-  {TBM_FORMAT_BGRA8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_RGB888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_XRGB8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_RGBX8888, vk::Format::eB8G8R8A8Unorm},
   {TBM_FORMAT_ARGB8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_RGBA8888, vk::Format::eB8G8R8A8Unorm},
+  {TBM_FORMAT_BGR888, vk::Format::eR8G8B8A8Unorm},
+  {TBM_FORMAT_XBGR8888, vk::Format::eR8G8B8A8Unorm},
+  {TBM_FORMAT_BGRX8888, vk::Format::eR8G8B8A8Unorm},
+  {TBM_FORMAT_ABGR8888, vk::Format::eR8G8B8A8Unorm},
+  {TBM_FORMAT_BGRA8888, vk::Format::eR8G8B8A8Unorm},
   {TBM_FORMAT_NV12, vk::Format::eG8B8R82Plane420Unorm},
   {TBM_FORMAT_NV21, vk::Format::eG8B8R82Plane420Unorm}
 };
@@ -1310,8 +1320,10 @@ vk::Format Texture::ValidateCompressedFormat(vk::Format sourceFormat)
 Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
-  mImage(),
-  mImageView()
+  mImage(nullptr),
+  mImageView(nullptr),
+  mCurrentSurface(nullptr),
+  mHasSurfaceReference(false)
 {
   // Check env variable in order to enable staging buffers
   auto var = getenv("DALI_DISABLE_TEXTURE_STAGING_BUFFERS");
@@ -1322,6 +1334,23 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
   }
 
   mIsNativeImage = (createInfo.nativeImagePtr != nullptr);
+
+  if(mIsNativeImage)
+  {
+    if(dynamic_cast<Dali::NativeImageSource*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE;
+    }
+    else if(dynamic_cast<Dali::NativeImageSourceQueue*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE;
+    }
+  }
+
+  DALI_LOG_ERROR("Vulkan::Texture::Texture: createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr, mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
+
+  //  mIsNativeImage = true;
+
   if(mIsNativeImage)
   {
     auto device = mDevice.GetLogicalDevice();
@@ -1347,8 +1376,13 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 
 Texture::~Texture()
 {
+  DALI_LOG_ERROR("Vulkan::Texture::~Texture: mIsNativeImage: %d\n", mIsNativeImage);
   if(mIsNativeImage)
   {
+    // Release surface reference before destruction
+    ReleaseCurrentSurfaceReference();
+    DALI_LOG_ERROR("Texture::~Texture: Released surface reference\n");
+
     delete mSampler;
   }
 
@@ -1358,21 +1392,14 @@ Texture::~Texture()
 
 ResourceBase::InitializationResult Texture::InitializeResource()
 {
-  SetFormatAndUsage();
-
-  if(mFormat == vk::Format::eUndefined)
+  if(!mIsNativeImage || (mIsNativeImage && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE))
   {
-    return InitializationResult::NOT_SUPPORTED;
-  }
+    bool initialized = Initialize();
 
-  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
-
-  if(initialized)
-  {
-    // force generating properties
-    GetProperties();
-
-    return InitializationResult::INITIALIZED;
+    if(initialized)
+    {
+      return InitializationResult::INITIALIZED;
+    }
   }
 
   return InitializationResult::NOT_INITIALIZED_YET;
@@ -1380,8 +1407,13 @@ ResourceBase::InitializationResult Texture::InitializeResource()
 
 void Texture::DestroyResource()
 {
+  DALI_LOG_ERROR("Vulkan::Texture::DestroyResource: mIsNativeImage: %d\n", mIsNativeImage);
+
   if(mIsNativeImage)
   {
+    // Release surface reference before destroying resources
+    ReleaseCurrentSurfaceReference();
+
     // Destroy native image Vulkan resources.
     mSampler->Destroy();
     mSampler = nullptr;
@@ -1408,6 +1440,9 @@ void Texture::DestroyResource()
     }
 
     mPlaneFds.clear();
+
+    // Release any remaining BO references
+    ReleaseSurfaceBufferObjectReferences();
   }
 
   if(mImageView)
@@ -1428,6 +1463,30 @@ void Texture::DiscardResource()
   mController.DiscardResource(this);
 }
 
+bool Texture::Initialize()
+{
+  SetFormatAndUsage();
+
+  if(mFormat == vk::Format::eUndefined)
+  {
+    DALI_LOG_ERROR("Vulkan::Texture::InitializeResource: Invalid texture format\n", static_cast<int>(mFormat));
+    // not supported!
+    return false;
+  }
+
+  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
+
+  DALI_LOG_ERROR("Vulkan::Texture::InitializeResource: initialized: %d\n", initialized);
+
+  if(initialized)
+  {
+    // force generating properties
+    GetProperties();
+  }
+
+  return initialized;
+}
+
 void Texture::SetFormatAndUsage()
 {
   auto size = mCreateInfo.size;
@@ -1437,24 +1496,25 @@ void Texture::SetFormatAndUsage()
 
   vk::Format format = vk::Format::eUndefined;
 
+  DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: mIsNativeImage: %d\n", mIsNativeImage);
+
   if(mIsNativeImage)
   {
+    DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage for native image\n");
+
     NativeImageInterfacePtr nativeImage       = mCreateInfo.nativeImagePtr;
     Dali::Any               nativeImageSource = nativeImage->GetNativeImageHandle();
-
     if(nativeImageSource.GetType() == typeid(tbm_surface_h))
     {
       tbm_surface_h tbmSurface = AnyCast<tbm_surface_h>(nativeImageSource);
       if(tbm_surface_internal_is_valid(tbmSurface))
       {
-        mTbmSurface = tbmSurface;
+        DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: Valid TBM surface\n");
 
+        mTbmSurface          = tbmSurface;
         tbm_format tbmFormat = tbm_surface_get_format(tbmSurface);
-
-        format = GetVulkanFormat(tbmFormat);
-
-        mIsYUVFormat = RequiresYcbcrConversion(tbmFormat);
-
+        format               = GetVulkanFormat(tbmFormat);
+        mIsYUVFormat         = RequiresYcbcrConversion(tbmFormat);
         vk::ImageUsageFlags usage{};
         if(mIsYUVFormat)
         {
@@ -1464,13 +1524,24 @@ void Texture::SetFormatAndUsage()
         {
           mUsage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
         }
-
         mTiling = Dali::Graphics::TextureTiling::LINEAR;
+
+        DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage for native image: tbmFormat: %d, format: %d, mIsYUVFormat: %d\n", static_cast<int>(tbmFormat), static_cast<int>(format), mIsYUVFormat);
       }
+      else
+      {
+        DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: Invalid TBM surface\n");
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: nativeImageSource.GetType() != typeid(tbm_surface_h)\n");
     }
   }
   else
   {
+    DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage for NON-native image\n");
+
     if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
     {
       mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
@@ -1487,6 +1558,8 @@ void Texture::SetFormatAndUsage()
     }
 
     format = ConvertApiToVk(mCreateInfo.format);
+
+    DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage for NON-native image: mCreateInfo.format: %d, format: %d\n", static_cast<int>(mCreateInfo.format), static_cast<int>(format));
   }
 
   if(IsCompressed(mCreateInfo.format))
@@ -1499,6 +1572,9 @@ void Texture::SetFormatAndUsage()
   }
 
   mConvertFromFormat = vk::Format::eUndefined;
+
+  DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage ValidateFormat: format: %d, mFormat: %d\n", static_cast<int>(format), static_cast<int>(mFormat));
+
   if(format != mFormat)
   {
     mConvertFromFormat = format;
@@ -1508,6 +1584,36 @@ void Texture::SetFormatAndUsage()
 
 bool Texture::InitializeNativeTexture()
 {
+  DALI_LOG_ERROR("Vulkan::Texture::InitializeNativeTexture: BEGIN\n");
+
+  if(mNativeImage != VK_NULL_HANDLE || !mNativeMemories.empty())
+  {
+    DALI_LOG_ERROR("InitializeNativeTexture: Cleaning up old native image resources\n");
+
+    auto device = mDevice.GetLogicalDevice();
+
+    // Free old device memories
+    for(auto& memory : mNativeMemories)
+    {
+      DALI_LOG_ERROR("InitializeNativeTexture: Freeing old VkDeviceMemory %p\n",
+                     static_cast<VkDeviceMemory>(memory));
+      device.freeMemory(memory);
+    }
+    mNativeMemories.clear();
+
+    // Destroy old image
+    if(mNativeImage != VK_NULL_HANDLE)
+    {
+      DALI_LOG_ERROR("InitializeNativeTexture: Destroying old VkImage %p\n",
+                     static_cast<VkImage>(mNativeImage));
+      device.destroyImage(mNativeImage);
+      mNativeImage = VK_NULL_HANDLE;
+    }
+
+    // Release old BO references
+    ReleaseSurfaceBufferObjectReferences();
+  }
+
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
 
   tbm_surface_h tbmSurface;
@@ -1525,6 +1631,8 @@ bool Texture::InitializeNativeTexture()
       DALI_LOG_ERROR("Invalid TBM surface\n");
       return false;
     }
+
+    DALI_LOG_ERROR("Vulkan::Texture::TBM surface valid\n");
   }
 
   if(mFormat == vk::Format::eUndefined)
@@ -1533,20 +1641,31 @@ bool Texture::InitializeNativeTexture()
     return false;
   }
 
+  DALI_LOG_ERROR("Vulkan::Texture::native image vulkan format: %d\n", static_cast<int>(mFormat));
+
   bool created = nativeImage->CreateResource();
+
+  DALI_LOG_ERROR("Vulkan::Texture::native image CreateResource created: %d\n", created);
 
   if(created)
   {
+    // Acquire surface reference before using it
+    AcquireCurrentSurfaceReference();
+
     // 1. Export plane file descriptors
     if(!ExportPlaneFds())
     {
       DALI_LOG_ERROR("Failed to export plane FDs\n");
+      ReleaseCurrentSurfaceReference();
       return false;
     }
+
+    DALI_LOG_ERROR("Vulkan::Texture::native image ExportPlaneFds succeeded: mIsYUVFormat: %d\n", mIsYUVFormat);
 
     if(mIsYUVFormat && !mDevice.IsKHRSamplerYCbCrConversionSupported())
     {
       DALI_LOG_ERROR("SamplerYcbcrConversion feature required for YUV texture is not supported\n");
+      ReleaseCurrentSurfaceReference();
       return false;
     }
 
@@ -1554,8 +1673,11 @@ bool Texture::InitializeNativeTexture()
     if(!CreateNativeImage())
     {
       DALI_LOG_ERROR("Failed to create Vulkan image\n");
+      ReleaseCurrentSurfaceReference();
       return false;
     }
+
+    DALI_LOG_ERROR("Vulkan::Texture::CreateNativeImage succeeded\n");
 
     // 3. Create SamplerYcbcrConversion (if needed)
     if(mIsYUVFormat)
@@ -1563,6 +1685,7 @@ bool Texture::InitializeNativeTexture()
       if(!CreateYcbcrConversion())
       {
         DALI_LOG_ERROR("Failed to create Ycbcr Conversion\n");
+        ReleaseCurrentSurfaceReference();
         return false;
       }
     }
@@ -1571,15 +1694,21 @@ bool Texture::InitializeNativeTexture()
     if(!CreateNativeImageView())
     {
       DALI_LOG_ERROR("Failed to create image view\n");
+      ReleaseCurrentSurfaceReference();
       return false;
     }
+
+    DALI_LOG_ERROR("Vulkan::Texture::CreateNativeImageView succeeded\n");
 
     // 5. Create sampler with optional YCbCr conversion
     if(!CreateNativeSampler())
     {
       DALI_LOG_ERROR("Failed to create sampler\n");
+      ReleaseCurrentSurfaceReference();
       return false;
     }
+
+    DALI_LOG_ERROR("Vulkan::Texture::CreateNativeSampler succeeded\n");
   }
   else
   {
@@ -1754,95 +1883,248 @@ uint32_t Texture::FindMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags flag
 
 bool Texture::ExportPlaneFds()
 {
+  DALI_LOG_ERROR("=== ExportPlaneFds: BEGIN ===\n");
+
   if(!mTbmSurface)
   {
+    DALI_LOG_ERROR("ExportPlaneFds: mTbmSurface is NULL, returning false\n");
     return false;
   }
+
+  DALI_LOG_ERROR("ExportPlaneFds: Clearing old FD/BO containers - mPlaneFds.size()=%zu, mTbmBos.size()=%zu\n",
+                 mPlaneFds.size(),
+                 mTbmBos.size());
+
+  mPlaneFds.clear(); // clear any old, stale FDs
+  mTbmBos.clear();   // clear any old BO references
 
   tbm_surface_h      tbmSurface = reinterpret_cast<tbm_surface_h>(mTbmSurface);
   tbm_surface_info_s tbmSurfaceInfo;
 
+  DALI_LOG_ERROR("ExportPlaneFds: Getting TBM surface info for surface %p\n", tbmSurface);
+
   if(tbm_surface_get_info(tbmSurface, &tbmSurfaceInfo) != TBM_SURFACE_ERROR_NONE)
   {
-    DALI_LOG_ERROR("Failed to get TBM surface info\n");
+    DALI_LOG_ERROR("ExportPlaneFds: Failed to get TBM surface info\n");
     return false;
   }
 
   int num_bos = tbm_surface_internal_get_num_bos(tbmSurface);
-  mPlaneFds.clear();
+  DALI_LOG_ERROR("ExportPlaneFds: Found %d buffer objects\n", num_bos);
 
   for(int i = 0; i < num_bos; ++i)
   {
+    DALI_LOG_ERROR("ExportPlaneFds: Processing BO %d/%d\n", i + 1, num_bos);
+
     tbm_bo bo = tbm_surface_internal_get_bo(tbmSurface, i);
-    if(bo)
+    if(!bo)
     {
-      tbm_bo_handle handle = tbm_bo_get_handle(bo, TBM_DEVICE_3D);
-      if(handle.ptr)
-      {
-        int fd = static_cast<int>(handle.u32);
-        if(fd >= 0)
-        {
-          mPlaneFds.push_back(fd);
-        }
-        else
-        {
-          DALI_LOG_ERROR("Failed to get FD handle for plane %d\n", i);
-          return false;
-        }
-      }
+      DALI_LOG_ERROR("ExportPlaneFds: BO %d is NULL, skipping\n", i);
+      continue;
+    }
+
+    DALI_LOG_ERROR("ExportPlaneFds: BO %d pointer=%p\n", i, bo);
+
+    // Export original FD from TBM
+    int originalFd = tbm_bo_export_fd(bo);
+    DALI_LOG_ERROR("ExportPlaneFds: tbm_bo_export_fd(bo=%p) returned FD=%d\n", bo, originalFd);
+
+    if(originalFd < 0)
+    {
+      DALI_LOG_ERROR("ExportPlaneFds: Failed to export FD for BO %d (returned %d)\n", i, originalFd);
+      return false;
+    }
+
+    // Duplicate the FD
+    int dupFd = dup(originalFd);
+    DALI_LOG_ERROR("ExportPlaneFds: dup(%d) returned %d\n", originalFd, dupFd);
+
+    if(dupFd < 0)
+    {
+      DALI_LOG_ERROR("ExportPlaneFds: Failed to duplicate FD %d (errno=%d: %s)\n",
+                     originalFd,
+                     errno,
+                     strerror(errno));
+      close(originalFd); // Close the exported FD we won't use
+      return false;
+    }
+
+    // Close the original exported FD since we have a duplicate
+    DALI_LOG_ERROR("ExportPlaneFds: Closing original FD %d (we're using duplicate %d)\n",
+                   originalFd,
+                   dupFd);
+    close(originalFd);
+
+    // Keep TBM BO alive beyond Vulkan import
+    DALI_LOG_ERROR("ExportPlaneFds: Calling tbm_bo_ref(bo=%p)\n", bo);
+    tbm_bo_ref(bo);
+    mTbmBos.push_back(static_cast<void*>(bo));
+    DALI_LOG_ERROR("ExportPlaneFds: Added BO %p to mTbmBos (new size=%zu)\n", bo, mTbmBos.size());
+
+    mPlaneFds.push_back(dupFd);
+    DALI_LOG_ERROR("ExportPlaneFds: Added FD %d to mPlaneFds (new size=%zu)\n", dupFd, mPlaneFds.size());
+
+    // Verify the duplicated FD is valid
+    if(fcntl(dupFd, F_GETFD) == -1)
+    {
+      DALI_LOG_ERROR("ExportPlaneFds: WARNING - duplicated FD %d is already invalid after creation! errno=%d: %s\n",
+                     dupFd,
+                     errno,
+                     strerror(errno));
+    }
+    else
+    {
+      DALI_LOG_ERROR("ExportPlaneFds: Verified duplicated FD %d is valid\n", dupFd);
     }
   }
 
-  return !mPlaneFds.empty();
+  bool success = !mPlaneFds.empty();
+  DALI_LOG_ERROR("=== ExportPlaneFds: END - returning %s (exported %zu FDs) ===\n",
+                 success ? "TRUE" : "FALSE",
+                 mPlaneFds.size());
+
+  return success;
 }
 
 vk::DeviceMemory Texture::ImportPlaneMemory(int fd)
 {
+  DALI_LOG_ERROR("=== ImportPlaneMemory: BEGIN with FD=%d ===\n", fd);
+
+  // Validate file descriptor before use
+  if(fd < 0)
+  {
+    DALI_LOG_ERROR("ImportPlaneMemory: Invalid file descriptor: %d\n", fd);
+    return VK_NULL_HANDLE;
+  }
+
+  DALI_LOG_ERROR("ImportPlaneMemory: FD %d passed initial validation (>= 0)\n", fd);
+
+  // Use fcntl to check FD validity
+  int fcntl_result = fcntl(fd, F_GETFD);
+  if(fcntl_result == -1)
+  {
+    DALI_LOG_ERROR("ImportPlaneMemory: fcntl(F_GETFD) failed for FD %d - errno=%d: %s\n",
+                   fd,
+                   errno,
+                   strerror(errno));
+    return VK_NULL_HANDLE;
+  }
+
+  DALI_LOG_ERROR("ImportPlaneMemory: fcntl(F_GETFD) succeeded for FD %d (result=%d)\n",
+                 fd,
+                 fcntl_result);
+
   auto device = mDevice.GetLogicalDevice();
 
   try
   {
+    DALI_LOG_ERROR("ImportPlaneMemory: Getting DMA buffer size via lseek for FD %d\n", fd);
+
     // Use lseek to get actual DMA buffer size
     const off_t dma_buf_size = lseek(fd, 0, SEEK_END);
     if(dma_buf_size < 0)
     {
-      DALI_LOG_ERROR("Failed to get DMA buffer size for fd %d\n", fd);
+      DALI_LOG_ERROR("ImportPlaneMemory: lseek(SEEK_END) failed for FD %d - errno=%d: %s\n",
+                     fd,
+                     errno,
+                     strerror(errno));
       return VK_NULL_HANDLE;
     }
+
+    DALI_LOG_ERROR("ImportPlaneMemory: DMA buffer size for FD %d is %lld bytes\n",
+                   fd,
+                   (long long)dma_buf_size);
+
+    // Reset file offset
+    off_t seek_result = lseek(fd, 0, SEEK_SET);
+    DALI_LOG_ERROR("ImportPlaneMemory: lseek(SEEK_SET) returned %lld for FD %d\n",
+                   (long long)seek_result,
+                   fd);
 
     //Get memory properties from FD
-    auto memFdProps = VkMemoryFdPropertiesKHR{};
+    DALI_LOG_ERROR("ImportPlaneMemory: Calling vkGetMemoryFdPropertiesKHR for FD %d\n", fd);
+    auto memFdProps  = VkMemoryFdPropertiesKHR{};
+    memFdProps.sType = VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR;
 
-    if(!gPfnGetMemoryFdPropertiesKHR || VK_SUCCESS != gPfnGetMemoryFdPropertiesKHR(device, VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT, fd, &memFdProps))
+    if(!gPfnGetMemoryFdPropertiesKHR)
     {
-      DALI_LOG_ERROR("VkMemoryFdPropertiesKHR failed\n");
+      DALI_LOG_ERROR("ImportPlaneMemory: gPfnGetMemoryFdPropertiesKHR is NULL!\n");
       return VK_NULL_HANDLE;
     }
 
+    VkResult fdPropsResult = gPfnGetMemoryFdPropertiesKHR(device,
+                                                          VK_EXTERNAL_MEMORY_HANDLE_TYPE_DMA_BUF_BIT_EXT,
+                                                          fd,
+                                                          &memFdProps);
+
+    if(fdPropsResult != VK_SUCCESS)
+    {
+      DALI_LOG_ERROR("ImportPlaneMemory: vkGetMemoryFdPropertiesKHR failed for FD %d - result=%d\n",
+                     fd,
+                     fdPropsResult);
+      return VK_NULL_HANDLE;
+    }
+
+    DALI_LOG_ERROR("ImportPlaneMemory: vkGetMemoryFdPropertiesKHR succeeded for FD %d - memoryTypeBits=0x%x\n",
+                   fd,
+                   memFdProps.memoryTypeBits);
+
     // Import memory with FD-specific memory type
+    DALI_LOG_ERROR("ImportPlaneMemory: Creating import info for FD %d\n", fd);
     auto importInfo = vk::ImportMemoryFdInfoKHR{}
                         .setHandleType(vk::ExternalMemoryHandleTypeFlagBits::eDmaBufEXT)
                         .setFd(fd);
 
+    uint32_t memoryTypeIndex = FindMemoryType(memFdProps.memoryTypeBits,
+                                              vk::MemoryPropertyFlagBits::eHostVisible |
+                                                vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    DALI_LOG_ERROR("ImportPlaneMemory: Found memory type index %u for FD %d\n",
+                   memoryTypeIndex,
+                   fd);
+
     auto allocInfo = vk::MemoryAllocateInfo{}
                        .setPNext(&importInfo)
                        .setAllocationSize(static_cast<vk::DeviceSize>(dma_buf_size))
-                       .setMemoryTypeIndex(FindMemoryType(memFdProps.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+                       .setMemoryTypeIndex(memoryTypeIndex);
 
-    return device.allocateMemory(allocInfo).value;
+    DALI_LOG_ERROR("ImportPlaneMemory: Calling vkAllocateMemory for FD %d (size=%lld, typeIndex=%u)\n",
+                   fd,
+                   (long long)dma_buf_size,
+                   memoryTypeIndex);
+
+    vk::DeviceMemory memory = device.allocateMemory(allocInfo).value;
+
+    DALI_LOG_ERROR("=== ImportPlaneMemory: SUCCESS - FD %d imported to memory handle %p ===\n",
+                   fd,
+                   static_cast<VkDeviceMemory>(memory));
+
+    return memory;
   }
   catch(const std::system_error& e)
   {
-    DALI_LOG_ERROR("Failed to import memory for fd %d: %s\n", fd, e.what());
+    DALI_LOG_ERROR("ImportPlaneMemory: EXCEPTION caught for FD %d: %s\n", fd, e.what());
+    return VK_NULL_HANDLE;
+  }
+  catch(...)
+  {
+    DALI_LOG_ERROR("ImportPlaneMemory: UNKNOWN EXCEPTION caught for FD %d\n", fd);
     return VK_NULL_HANDLE;
   }
 }
 
 bool Texture::CreateNativeImage()
 {
+  DALI_LOG_ERROR("=== CreateNativeImage: BEGIN ===\n");
+
   try
   {
     auto device = mDevice.GetLogicalDevice();
+
+    DALI_LOG_ERROR("CreateNativeImage: Creating external memory image (format=%d, size=%ux%u)\n",
+                   static_cast<int>(mFormat),
+                   mWidth,
+                   mHeight);
 
     // Create external memory image
     auto extMemCreateInfo = vk::ExternalMemoryImageCreateInfo{}
@@ -1862,45 +2144,94 @@ bool Texture::CreateNativeImage()
                              .setInitialLayout(mIsYUVFormat ? vk::ImageLayout::ePreinitialized : vk::ImageLayout::eUndefined);
 
     mNativeImage = device.createImage(imageCreateInfo).value;
-    mImage       = new Image(mDevice, imageCreateInfo, mNativeImage);
+    DALI_LOG_ERROR("CreateNativeImage: Created VkImage handle %p\n", static_cast<VkImage>(mNativeImage));
+
+    mImage = new Image(mDevice, imageCreateInfo, mNativeImage);
+
+    DALI_LOG_ERROR("CreateNativeImage: Checking plane configuration - mPlaneFds.size()=%zu\n",
+                   mPlaneFds.size());
 
     // Check for disjoint vs non-disjoint multi-plane layout
     bool isDisjoint = false;
     if(mPlaneFds.size() > 1)
     {
+      DALI_LOG_ERROR("CreateNativeImage: Multiple planes detected, checking if disjoint\n");
       for(size_t i = 1; i < mPlaneFds.size(); ++i)
       {
+        DALI_LOG_ERROR("CreateNativeImage: Comparing FD[0]=%d with FD[%zu]=%d\n",
+                       mPlaneFds[0],
+                       i,
+                       mPlaneFds[i]);
         if(mPlaneFds[i] != mPlaneFds[0])
         {
           isDisjoint = true;
+          DALI_LOG_ERROR("CreateNativeImage: Detected disjoint memory layout\n");
           break;
         }
       }
     }
 
+    if(!isDisjoint)
+    {
+      DALI_LOG_ERROR("CreateNativeImage: Using non-disjoint/single-plane layout\n");
+    }
+
     // Import memory for each plane
     mNativeMemories.clear();
+    DALI_LOG_ERROR("CreateNativeImage: Cleared mNativeMemories\n");
 
     if(!isDisjoint && !mPlaneFds.empty())
     {
+      DALI_LOG_ERROR("CreateNativeImage: Single memory binding path - importing FD %d\n",
+                     mPlaneFds[0]);
+
+      // Verify FD is still valid before import
+      if(fcntl(mPlaneFds[0], F_GETFD) == -1)
+      {
+        DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d is INVALID before import! errno=%d: %s\n",
+                       mPlaneFds[0],
+                       errno,
+                       strerror(errno));
+        return false;
+      }
+
+      DALI_LOG_ERROR("CreateNativeImage: FD %d verified valid before import\n", mPlaneFds[0]);
+
       // Single memory binding for non-disjoint or single-plane
       auto memory = ImportPlaneMemory(mPlaneFds[0]);
       if(memory == VK_NULL_HANDLE)
       {
+        DALI_LOG_ERROR("CreateNativeImage: ImportPlaneMemory failed for FD %d\n", mPlaneFds[0]);
         return false;
       }
 
+      DALI_LOG_ERROR("CreateNativeImage: Successfully imported memory %p from FD %d\n",
+                     static_cast<VkDeviceMemory>(memory),
+                     mPlaneFds[0]);
+
       mNativeMemories.push_back(memory);
+      DALI_LOG_ERROR("CreateNativeImage: Added memory to mNativeMemories (size=%zu)\n",
+                     mNativeMemories.size());
+
+      DALI_LOG_ERROR("CreateNativeImage: Binding image to memory\n");
       VkAssert(device.bindImageMemory(mNativeImage, memory, 0));
+      DALI_LOG_ERROR("CreateNativeImage: Successfully bound image to memory\n");
+
+      // Close the duplicated FD after successful import
+      DALI_LOG_ERROR("CreateNativeImage: Closing duplicated FD %d\n", mPlaneFds[0]);
+      close(mPlaneFds[0]);
+      mPlaneFds.clear();
     }
     else if(isDisjoint)
     {
+      DALI_LOG_ERROR("CreateNativeImage: Disjoint multi-plane binding path\n");
+
       tbm_surface_h      tbmSurface = reinterpret_cast<tbm_surface_h>(mTbmSurface);
       tbm_surface_info_s tbmSurfaceInfo;
 
       if(tbm_surface_get_info(tbmSurface, &tbmSurfaceInfo) != TBM_SURFACE_ERROR_NONE)
       {
-        DALI_LOG_ERROR("Failed to get TBM surface info\n");
+        DALI_LOG_ERROR("CreateNativeImage: Failed to get TBM surface info\n");
         return false;
       }
 
@@ -1910,11 +2241,31 @@ bool Texture::CreateNativeImage()
 
       for(size_t i = 0; i < mPlaneFds.size(); ++i)
       {
+        DALI_LOG_ERROR("CreateNativeImage: Importing plane %zu FD %d\n", i, mPlaneFds[i]);
+
+        // Verify FD is still valid
+        if(fcntl(mPlaneFds[i], F_GETFD) == -1)
+        {
+          DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d for plane %zu is INVALID! errno=%d: %s\n",
+                         mPlaneFds[i],
+                         i,
+                         errno,
+                         strerror(errno));
+          return false;
+        }
+
         auto memory = ImportPlaneMemory(mPlaneFds[i]);
         if(memory == VK_NULL_HANDLE)
         {
+          DALI_LOG_ERROR("CreateNativeImage: Failed to import memory for plane %zu FD %d\n",
+                         i,
+                         mPlaneFds[i]);
           return false;
         }
+
+        DALI_LOG_ERROR("CreateNativeImage: Successfully imported memory %p for plane %zu\n",
+                       static_cast<VkDeviceMemory>(memory),
+                       i);
 
         mNativeMemories.push_back(memory);
 
@@ -1927,21 +2278,54 @@ bool Texture::CreateNativeImage()
                                  .setImage(mNativeImage)
                                  .setMemory(memory)
                                  .setMemoryOffset(tbmSurfaceInfo.planes[i].offset));
+
+        DALI_LOG_ERROR("CreateNativeImage: Created bind info for plane %zu (offset=%zu)\n",
+                       i,
+                       tbmSurfaceInfo.planes[i].offset);
       }
+
+      DALI_LOG_ERROR("CreateNativeImage: Binding %zu planes to image\n", bindInfos.size());
 
       vk::Result result = device.bindImageMemory2(bindInfos);
+
+      // Close all duplicated FDs after binding
+      for(size_t i = 0; i < mPlaneFds.size(); ++i)
+      {
+        DALI_LOG_ERROR("CreateNativeImage: Closing FD %d for plane %zu\n", mPlaneFds[i], i);
+        close(mPlaneFds[i]);
+      }
+      mPlaneFds.clear();
+
       if(result != vk::Result::eSuccess)
       {
-        DALI_LOG_ERROR("vkBindImageMemory failed\n");
+        DALI_LOG_ERROR("CreateNativeImage: vkBindImageMemory2 failed with result=%d\n",
+                       static_cast<int>(result));
+
+        // Release BO references after Vulkan import completes
+        ReleaseSurfaceBufferObjectReferences();
         return false;
       }
+
+      DALI_LOG_ERROR("CreateNativeImage: Successfully bound all planes\n");
     }
 
+    DALI_LOG_ERROR("=== CreateNativeImage: SUCCESS ===\n");
     return true;
   }
   catch(const std::system_error& e)
   {
-    DALI_LOG_ERROR("Failed to create Vulkan image: %s\n", e.what());
+    DALI_LOG_ERROR("CreateNativeImage: EXCEPTION - %s\n", e.what());
+
+    // Release BO references after Vulkan import completes
+    ReleaseSurfaceBufferObjectReferences();
+    return false;
+  }
+  catch(...)
+  {
+    DALI_LOG_ERROR("CreateNativeImage: UNKNOWN EXCEPTION\n");
+
+    // Release BO references after Vulkan import completes
+    ReleaseSurfaceBufferObjectReferences();
     return false;
   }
 }
@@ -2080,4 +2464,115 @@ bool Texture::CreateNativeSampler()
     return false;
   }
 }
+
+void Texture::PrepareTexture()
+{
+  DALI_LOG_ERROR("Texture::PrepareTexture: mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage && mNativeImageHandler && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE)
+  {
+    // Store current surface before calling PrepareTexture
+    void* oldSurface = mCurrentSurface;
+
+    // Call the native image's PrepareTexture
+    auto result = mCreateInfo.nativeImagePtr->PrepareTexture();
+
+    if(result == Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED)
+    {
+      // Release reference to old surface before reinitializing
+      if(oldSurface && mHasSurfaceReference)
+      {
+        ReleaseCurrentSurfaceReference();
+      }
+
+      // Reinitialize with new surface
+      bool initialized = Initialize();
+
+      if(initialized)
+      {
+        DALI_LOG_ERROR("Texture::PrepareTexture: Successfully reinitialized with new surface\n");
+      }
+      else
+      {
+        DALI_LOG_ERROR("Texture::PrepareTexture: Failed to reinitialize with new surface\n");
+      }
+    }
+  }
+}
+
+void Texture::ReleaseSurfaceBufferObjectReferences()
+{
+  for(auto bo : mTbmBos)
+  {
+    if(bo)
+    {
+      tbm_bo_unref(static_cast<tbm_bo>(bo));
+      DALI_LOG_ERROR("Texture::ReleaseSurfaceBufferObjectReferences: Released BO %p\n", bo);
+    }
+  }
+
+  mTbmBos.clear();
+}
+
+SurfaceReferenceManager* Texture::GetSurfaceReferenceManager() const
+{
+  if(!mCreateInfo.nativeImagePtr)
+  {
+    return nullptr;
+  }
+
+  auto extension = mCreateInfo.nativeImagePtr->GetExtension();
+
+  if(!extension)
+  {
+    // This native image type does not support extensions.
+    return nullptr;
+  }
+
+  return reinterpret_cast<SurfaceReferenceManager*>(extension);
+}
+
+void Texture::AcquireCurrentSurfaceReference()
+{
+  if(mCurrentSurface && mHasSurfaceReference)
+  {
+    // Already have reference
+    return;
+  }
+
+  if(!mTbmSurface)
+  {
+    return;
+  }
+
+  auto surfaceRefManager = GetSurfaceReferenceManager();
+  if(surfaceRefManager)
+  {
+    surfaceRefManager->AcquireSurfaceReference(mTbmSurface);
+    mCurrentSurface      = mTbmSurface;
+    mHasSurfaceReference = true;
+
+    DALI_LOG_ERROR("Texture::AcquireCurrentSurfaceReference: Acquired reference to surface %p\n", mTbmSurface);
+  }
+}
+
+void Texture::ReleaseCurrentSurfaceReference()
+{
+  if(!mCurrentSurface || !mHasSurfaceReference)
+  {
+    return;
+  }
+
+  auto surfaceRefManager = GetSurfaceReferenceManager();
+  if(surfaceRefManager)
+  {
+    surfaceRefManager->ReleaseSurfaceReference(mCurrentSurface);
+
+    DALI_LOG_ERROR("Texture::ReleaseCurrentSurfaceReference: Released reference to surface %p\n", mCurrentSurface);
+  }
+
+  mCurrentSurface      = nullptr;
+  mHasSurfaceReference = false;
+}
+
 } // namespace Dali::Graphics::Vulkan

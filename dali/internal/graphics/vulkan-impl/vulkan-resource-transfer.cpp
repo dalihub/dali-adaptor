@@ -233,6 +233,7 @@ void ResourceTransfer::UpdateWithFutures(
   {
     return;
   }
+
   // make a copy of update info lists by storing additional information
   for(auto& aTextureInfo : updateMap)
   {
