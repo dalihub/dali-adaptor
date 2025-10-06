@@ -1104,14 +1104,13 @@ Texture::~Texture()
   delete mImage;
 }
 
-bool Texture::InitializeResource()
+ResourceBase::InitializationResult Texture::InitializeResource()
 {
   SetFormatAndUsage();
 
   if(mFormat == vk::Format::eUndefined)
   {
-    // not supported!
-    return false;
+    return InitializationResult::NOT_SUPPORTED;
   }
 
   if(InitializeTexture())
@@ -1119,10 +1118,10 @@ bool Texture::InitializeResource()
     // force generating properties
     GetProperties();
 
-    return true;
+    return InitializationResult::INITIALIZED;
   }
 
-  return false;
+  return InitializationResult::NOT_INITIALIZED_YET;
 }
 
 void Texture::DestroyResource()

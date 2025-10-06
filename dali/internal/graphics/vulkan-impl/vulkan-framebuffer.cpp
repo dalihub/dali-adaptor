@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphics
 
 Framebuffer::~Framebuffer() = default;
 
-bool Framebuffer::InitializeResource()
+ResourceBase::InitializationResult Framebuffer::InitializeResource()
 {
   auto& device          = mController.GetGraphicsDevice();
   bool  firstRenderPass = true;
@@ -110,7 +110,7 @@ bool Framebuffer::InitializeResource()
     firstRenderPass = false;
   }
 
-  return true;
+  return InitializationResult::INITIALIZED;
 }
 
 void Framebuffer::DestroyResource()

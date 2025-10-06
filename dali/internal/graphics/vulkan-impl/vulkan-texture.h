@@ -45,7 +45,7 @@ public:
   /**
    * @copydoc Graphics::Vulkan::Resource::InitializeResource();
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @copydoc Graphics::Vulkan::Resource::DiscardResource();
