@@ -97,15 +97,18 @@ void TimerEcore::Start()
   {
     Stop();
   }
-  double interval = static_cast<double>(mImpl->mInterval) / 1000.0f;
-  mImpl->mId      = ecore_timer_add(interval, reinterpret_cast<Ecore_Task_Cb>(TimerSourceFunc), this);
+  if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+  {
+    double interval = static_cast<double>(mImpl->mInterval) / 1000.0f;
+    mImpl->mId      = ecore_timer_add(interval, reinterpret_cast<Ecore_Task_Cb>(TimerSourceFunc), this);
 
 #ifdef TRACE_ENABLED
-  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
-  {
-    DALI_LOG_DEBUG_INFO("Start ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
-  }
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Start ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+    }
 #endif
+  }
 }
 
 void TimerEcore::Stop()
@@ -129,7 +132,10 @@ void TimerEcore::Pause()
       DALI_LOG_DEBUG_INFO("Freeze ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
     }
 #endif
-    ecore_timer_freeze(mImpl->mId);
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+    {
+      ecore_timer_freeze(mImpl->mId);
+    }
   }
 }
 
@@ -146,7 +152,10 @@ void TimerEcore::Resume()
       DALI_LOG_DEBUG_INFO("Thaw ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
     }
 #endif
-    ecore_timer_thaw(mImpl->mId);
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+    {
+      ecore_timer_thaw(mImpl->mId);
+    }
   }
 }
 
@@ -175,33 +184,46 @@ bool TimerEcore::Tick()
 
   bool retVal(false);
 
-  // Override with new signal if used
-  if(!mTickSignal.Empty())
+  if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
   {
-    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
+    // Override with new signal if used
+    if(!mTickSignal.Empty())
     {
-      oss << "[ecoreId:" << mImpl->mId << ", interval:" << mImpl->mInterval << "]";
-    });
-    retVal = mTickSignal.Emit();
-    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
-    {
-      oss << "[return:" << retVal << "]";
-    });
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
+      {
+        oss << "[ecoreId:" << mImpl->mId << ", interval:" << mImpl->mInterval << "]";
+      });
+      retVal = mTickSignal.Emit();
+      DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss)
+      {
+        oss << "[return:" << retVal << "]";
+      });
 
-    // Timer stops if return value is false
-    if(retVal == false)
-    {
-      Stop();
+      // Timer stops if return value is false
+      if(retVal == false)
+      {
+        Stop();
+      }
+      else
+      {
+        retVal = true; // continue emission
+      }
     }
-    else
+    else // no callbacks registered
     {
-      retVal = true; // continue emission
+      // periodic timer is started but nobody listens, continue
+      retVal = true;
     }
   }
-  else // no callbacks registered
+  else
   {
-    // periodic timer is started but nobody listens, continue
-    retVal = true;
+    DALI_LOG_DEBUG_INFO("Tick signal comes after adaptor invalidated. Ignore tick callback.\n");
+#ifdef TRACE_ENABLED
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Invalidated ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+    }
+#endif
   }
 
   return retVal;
@@ -211,14 +233,16 @@ void TimerEcore::ResetTimerData()
 {
   if(mImpl->mId != NULL)
   {
-#ifdef TRACE_ENABLED
-    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
     {
-      DALI_LOG_DEBUG_INFO("Stop ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
-    }
+#ifdef TRACE_ENABLED
+      if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+      {
+        DALI_LOG_DEBUG_INFO("Stop ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+      }
 #endif
-
-    ecore_timer_del(mImpl->mId);
+      ecore_timer_del(mImpl->mId);
+    }
     mImpl->mId = NULL;
   }
 }
