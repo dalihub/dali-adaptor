@@ -24,6 +24,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Graphics::Internal::IsGraphicsBackendSet
 #include <dali/internal/graphics/common/graphics-library-open-mode.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 #include <dali/public-api/adaptor-framework/graphics-backend.h>
@@ -35,10 +36,10 @@ namespace
 const char* const DALI_ADAPTOR_GRAPHICS_GLES_SO("libdali2-adaptor-gles.so");
 const char* const DALI_ADAPTOR_GRAPHICS_VULKAN_SO("libdali2-adaptor-vulkan.so");
 
-class DynamicGraphicsLibraryHandle : public Dali::Internal::Adaptor::GraphicsLibraryHandleBase
+struct GraphicsLibrary
 {
 public:
-  DynamicGraphicsLibraryHandle()
+  GraphicsLibrary()
   {
     mBackend = Graphics::GetCurrentGraphicsBackend();
 
@@ -54,12 +55,21 @@ public:
     }
   }
 
-  ~DynamicGraphicsLibraryHandle()
+  ~GraphicsLibrary()
   {
     if(mHandle)
     {
-      DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
-      dlclose(mHandle);
+      // TODO : We have issue due to the static variable destruction order!
+      // Until fix it, just do not dlclose graphics so for pre-initialize case.
+      if(Graphics::Internal::IsGraphicsBackendSet())
+      {
+        DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
+        dlclose(mHandle);
+      }
+      else
+      {
+        DALI_LOG_DEBUG_INFO("[pre-initialize case] skip dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
+      }
     }
   }
 
@@ -67,14 +77,14 @@ public:
   Graphics::Backend mBackend{Graphics::Backend::DEFAULT};
   void*             mHandle{nullptr};
 };
-std::shared_ptr<DynamicGraphicsLibraryHandle> gGraphicsLibraryHandle;
+std::unique_ptr<GraphicsLibrary> gGraphicsLibraryHandle;
 
 template<typename FunctionSignature>
 FunctionSignature GetFunction(const char* const functionName)
 {
   if(DALI_UNLIKELY(!gGraphicsLibraryHandle))
   {
-    gGraphicsLibraryHandle.reset(new DynamicGraphicsLibraryHandle);
+    gGraphicsLibraryHandle.reset(new GraphicsLibrary);
   }
 
   if(DALI_LIKELY(gGraphicsLibraryHandle))
@@ -163,11 +173,6 @@ void ResetGraphicsLibrary()
   CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", true, nullptr);
 
   DALI_LOG_DEBUG_INFO("Reset graphics backend library done\n");
-}
-
-GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
-{
-  return std::static_pointer_cast<Dali::Internal::Adaptor::GraphicsLibraryHandleBase>(gGraphicsLibraryHandle);
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)

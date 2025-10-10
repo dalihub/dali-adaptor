@@ -34,7 +34,6 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/common/graphics-library-handle.h>
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/network/common/socket-factory.h>
 #include <dali/internal/system/common/core-event-interface.h>
@@ -774,10 +773,9 @@ private:                                          // Data
   Dali::Integration::Core* mCore;             ///< Dali Core
   ThreadController*        mThreadController; ///< Controls the threads
 
-  std::unique_ptr<Dali::Graphics::GraphicsInterface> mGraphics;              ///< Graphics interface
-  GraphicsLibraryHandlePtr                           mGraphicsLibraryHandle; ///< The graphics library handle (Just keep reference of library usage)
-  Dali::DisplayConnection*                           mDisplayConnection;     ///< Display connection
-  WindowContainer                                    mWindows;               ///< A container of all the Windows that are currently created
+  std::unique_ptr<Dali::Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
+  Dali::DisplayConnection*                           mDisplayConnection; ///< Display connection
+  WindowContainer                                    mWindows;           ///< A container of all the Windows that are currently created
 
   std::unique_ptr<ConfigurationManager> mConfigurationManager; ///< Configuration manager
 

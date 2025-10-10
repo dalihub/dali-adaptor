@@ -72,12 +72,6 @@ void ResetGraphicsLibrary()
   /* This function defined for dynamic library case. */
 }
 
-GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
-{
-  /* This function defined for dynamic library case. */
-  return nullptr;
-}
-
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   DALI_LOG_RELEASE_INFO("DALi Graphics Backend: GLES\n");

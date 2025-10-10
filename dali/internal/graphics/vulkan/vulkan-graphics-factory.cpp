@@ -20,7 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
-#include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/graphics/vulkan/vulkan-graphics-impl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
@@ -84,12 +83,6 @@ Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
 void ResetGraphicsLibrary()
 {
   /* This function defined for dynamic library case. */
-}
-
-GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
-{
-  /* This function defined for dynamic library case. */
-  return nullptr;
 }
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
