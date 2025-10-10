@@ -203,25 +203,27 @@ bool ActorAccessible::IsScrollable() const
 Dali::Rect<> ActorAccessible::GetExtents(CoordinateType type) const
 {
   Dali::Actor actor                   = Self();
-  auto extents = DevelActor::CalculateScreenExtents(actor);
+  Vector2     screenPosition          = actor.GetProperty<Vector2>(Actor::Property::SCREEN_POSITION);
+  Vector3     size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
+  bool        positionUsesAnchorPoint = actor.GetProperty<bool>(Actor::Property::POSITION_USES_ANCHOR_POINT);
+  Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
+  Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
 
-  if(Dali::EqualsZero(extents.width) && Dali::EqualsZero(extents.height) && CanAcceptZeroSize())
+  if(Dali::EqualsZero(size.x) && Dali::EqualsZero(size.y) && CanAcceptZeroSize())
   {
-    extents.width = 1.f;
-    extents.height = 1.f;
+    size.x = 1.f;
+    size.y = 1.f;
   }
-
-  auto rounded = Dali::Rect{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
 
   if(type == CoordinateType::WINDOW)
   {
-    return rounded;
+    return {position.x, position.y, size.x, size.y};
   }
   else // CoordinateType::SCREEN
   {
     auto window         = Dali::DevelWindow::Get(actor);
     auto windowPosition = window.GetPosition();
-    return {rounded.x + windowPosition.GetX(), rounded.y + windowPosition.GetY(), rounded.width, rounded.height};
+    return {position.x + windowPosition.GetX(), position.y + windowPosition.GetY(), size.x, size.y};
   }
 }
 
