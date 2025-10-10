@@ -483,6 +483,9 @@ void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
     return;
   }
 
+  Vector2 convertedPosition = RecalculatePosition(point.GetScreenPosition());
+  point.SetScreenPosition(convertedPosition);
+
   Integration::HoverEvent hoverEvent;
 
   // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
