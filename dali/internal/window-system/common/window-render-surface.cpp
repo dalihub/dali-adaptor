@@ -538,6 +538,7 @@ WindowRenderSurface::~WindowRenderSurface()
 {
 }
 
+// Initialize at constructor.
 void WindowRenderSurface::Initialize(Any surface)
 {
   // If width or height are zero, go full screen.
@@ -556,17 +557,24 @@ void WindowRenderSurface::Initialize(Any surface)
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
 
-  // Create frame rendered trigger.
-  mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
-                                                                            TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-  DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
-
   // Check screen rotation
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle(true);
   if(screenRotationAngle != 0)
   {
     DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", screenRotationAngle);
     OutputTransformed(screenRotationAngle);
+  }
+}
+
+// Initialize after Adaptor created. (Could be called multiple times)
+void WindowRenderSurface::Initialize()
+{
+  // Create frame rendered trigger.
+  if(!mFrameRenderedTrigger)
+  {
+    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
+                                                                              TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
   }
 }
 
@@ -866,7 +874,14 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     if(needFrameRenderedTrigger)
     {
-      mFrameRenderedTrigger->Trigger();
+      if(DALI_LIKELY(mFrameRenderedTrigger))
+      {
+        mFrameRenderedTrigger->Trigger();
+      }
+      else
+      {
+        DALI_LOG_ERROR("WindowRenderSurface::Initialize not called before! Rendered tigger ignored\n");
+      }
     }
   }
 
