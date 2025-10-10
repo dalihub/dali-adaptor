@@ -31,6 +31,11 @@ __attribute__((weak)) void ResetGraphicsLibrary()
   GraphicsLibrary::ResetGraphicsLibrary();
 }
 
+__attribute__((weak)) GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
+{
+  return GraphicsLibrary::GetGraphicsLibraryHandle();
+}
+
 __attribute__((weak)) std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);
