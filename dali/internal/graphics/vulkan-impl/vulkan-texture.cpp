@@ -577,7 +577,7 @@ constexpr vk::Format ConvertApiToVkConst(Dali::Graphics::Format format)
     }
     case Dali::Graphics::Format::R11G11B10_UFLOAT_PACK32:
     {
-      return vk::Format::eUndefined;
+      return vk::Format::eB10G11R11UfloatPack32;
     }
     case Dali::Graphics::Format::E5B9G9R9_UFLOAT_PACK32:
     {
@@ -959,12 +959,162 @@ inline void WriteRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t
   }
 }
 
+inline float decodePackedComponent(uint32_t value, int bits)
+{
+  if(value == 0)
+    return 0;
+  int exponentBits = (bits == 10) ? 5 : 6;
+  int mantissaBits = bits - exponentBits - 1;
+  int exponent     = (value >> mantissaBits) & ((1 << exponentBits) - 1);
+  int mantissa     = value & ((1 << mantissaBits) - 1);
+  if(exponent == 0)
+  {
+    return ldexpf((float)mantissa / (1 << mantissaBits), 1 - (1 << (exponentBits - 1)));
+  }
+  if(exponent == ((1 << exponentBits) - 1))
+  {
+    return mantissa ? NAN : INFINITY;
+  }
+
+  float significand = 1.0f + (float)mantissa / (1 << mantissaBits);
+  return ldexpf(significand, exponent - ((1 << exponentBits) - 1));
+}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
+inline uint16_t floatToHalf(float f)
+{
+  uint32_t x        = *((uint32_t*)&f);
+  uint32_t sign     = (x >> 31) & 0x01;
+  uint32_t exponent = (x >> 23) & 0xFF;
+  uint32_t mantissa = (x & 0x7FFF);
+  if(exponent == 0xff)
+  {
+    return (sign << 15) | (0x7c00) | (mantissa ? 1 : 0);
+  }
+  if(exponent == 0)
+  {
+    return sign << 15;
+  }
+  int newExp = exponent - 127 + 15;
+  if(newExp > 31)
+  {
+    return (sign << 15) | 0x7c00;
+  }
+  if(newExp <= 0)
+  {
+    return sign << 15;
+  }
+  uint32_t newMantissa = mantissa >> 13;
+  return (sign << 15) | (newExp << 10) | newMantissa;
+}
+#pragma GCC diagnostic pop
+
+inline std::vector<uint8_t> ConvertRGBPackedFloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  //@todo: use stride if non-zero
+  std::vector<uint8_t> rgbaBuffer{};
+
+  auto inData = reinterpret_cast<const uint8_t*>(pData);
+
+  rgbaBuffer.resize(width * height * 8);
+  auto outData = reinterpret_cast<uint16_t*>(rgbaBuffer.data());
+  auto outIdx  = 0u;
+  for(auto i = 0u; i < sizeInBytes; i += 4)
+  {
+    uint32_t packed = *reinterpret_cast<const uint32_t*>(inData + i);
+    uint32_t r      = (packed >> 0) & 0x7ff;
+    uint32_t g      = (packed >> 11) & 0x7ff;
+    uint32_t b      = (packed >> 22) & 0x3ff;
+    float    rf     = decodePackedComponent(r, 11);
+    float    gf     = decodePackedComponent(g, 11);
+    float    bf     = decodePackedComponent(b, 10);
+
+    outData[outIdx]     = floatToHalf(rf);
+    outData[outIdx + 1] = floatToHalf(gf);
+    outData[outIdx + 2] = floatToHalf(bf);
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+  return rgbaBuffer;
+}
+
+inline void WriteRGBPackedFloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint8_t*>(pData);
+  auto outData = reinterpret_cast<uint16_t*>(pOutput);
+  auto outIdx  = 0u;
+
+  for(auto i = 0u; i < sizeInBytes; i += 4)
+  {
+    uint32_t packed = *reinterpret_cast<const uint32_t*>(inData + i);
+    uint32_t r      = (packed >> 0) & 0x7ff;
+    uint32_t g      = (packed >> 11) & 0x7ff;
+    uint32_t b      = (packed >> 22) & 0x3ff;
+    float    rf     = decodePackedComponent(r, 11);
+    float    gf     = decodePackedComponent(g, 11);
+    float    bf     = decodePackedComponent(b, 10);
+
+    outData[outIdx]     = floatToHalf(rf);
+    outData[outIdx + 1] = floatToHalf(gf);
+    outData[outIdx + 2] = floatToHalf(bf);
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+}
+
+inline std::vector<uint8_t> ConvertRGB16FloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  //@todo: use stride if non-zero
+  std::vector<uint8_t> rgbaBuffer{};
+
+  auto inData = reinterpret_cast<const uint16_t*>(pData);
+
+  rgbaBuffer.resize(width * height * 4 * sizeof(uint16_t));
+  auto outData     = reinterpret_cast<uint16_t*>(rgbaBuffer.data());
+  auto outIdx      = 0u;
+  auto sizeInWords = sizeInBytes / 2;
+  for(auto i = 0u; i < sizeInWords; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+  return rgbaBuffer;
+}
+
+inline void WriteRGB16FloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint16_t*>(pData);
+  auto outData = reinterpret_cast<uint16_t*>(pOutput);
+  auto outIdx  = 0u;
+
+  auto sizeInWords = sizeInBytes / 2;
+  for(auto i = 0u; i < sizeInWords; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+}
+
 /**
  * Format conversion table
  */
 static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE =
   {
-    {vk::Format::eR8G8B8Unorm, vk::Format::eR8G8B8A8Unorm, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+    {vk::Format::eR8G8B8Unorm, vk::Format::eR8G8B8A8Unorm, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32},
+    {vk::Format::eB10G11R11UfloatPack32, vk::Format::eR16G16B16A16Sfloat, ConvertRGBPackedFloatToRGBA16, WriteRGBPackedFloatToRGBA16},
+    {vk::Format::eR16G16B16Sfloat, vk::Format::eR16G16B16A16Sfloat, ConvertRGB16FloatToRGBA16, WriteRGB16FloatToRGBA16}};
 
 /**
  * This function tests whether format is supported by the driver. If possible it applies
@@ -1046,7 +1196,7 @@ vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
   auto retval = vk::Format::eUndefined;
 
   // if format isn't supported, see whether suitable conversion is implemented
-  if(!formatFlags)
+  if(!formatFlags || sourceFormat == vk::Format::eB10G11R11UfloatPack32)
   {
     auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
     { return item.oldFormat == sourceFormat; });
@@ -1165,14 +1315,14 @@ void Texture::SetFormatAndUsage()
     mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
   }
 
-  auto format = ConvertApiToVk(mCreateInfo.format);
+  auto format = ConvertApiToVk(mCreateInfo.format); // convert from R11G11B10 to eB10G11R11
   if(IsCompressed(mCreateInfo.format))
   {
     mFormat = ValidateCompressedFormat(format);
   }
   else
   {
-    mFormat = ValidateFormat(format);
+    mFormat = ValidateFormat(format); // reconvert from eB10G11R11,astc, etc1 to eR16G16B16A16
   }
 
   mConvertFromFormat = vk::Format::eUndefined;
