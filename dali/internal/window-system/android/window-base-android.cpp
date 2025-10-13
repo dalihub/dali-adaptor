@@ -362,7 +362,7 @@ void WindowBaseAndroid::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVer
   dpiVertical   = density;
 }
 
-int WindowBaseAndroid::GetScreenRotationAngle()
+int WindowBaseAndroid::GetScreenRotationAngle(const bool update)
 {
   return 0;
 }

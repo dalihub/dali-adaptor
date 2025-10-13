@@ -520,7 +520,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
-  int GetScreenRotationAngle() override;
+  int GetScreenRotationAngle(const bool update) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
@@ -746,6 +746,19 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreen()
    */
   std::string GetScreen() const override;
+
+public:
+  /**
+   * @brief Update the screen rotation angle.
+   *
+   * This function checks if the output transform should be ignored.
+   * If not, it gets the output transform and calculates the new screen rotation angle.
+   * If the new angle is different from the current screen rotation angle, it updates the angle and returns true.
+   * Otherwise, it returns false.
+   *
+   * @return True if the screen rotation angle is changed, false otherwise.
+   */
+  bool UpdateScreenRotationAngle();
 
 private:
   /**

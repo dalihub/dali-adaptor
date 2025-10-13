@@ -562,11 +562,11 @@ void WindowRenderSurface::Initialize(Any surface)
   DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
 
   // Check screen rotation
-  int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  int screenRotationAngle = mWindowBase->GetScreenRotationAngle(true);
   if(screenRotationAngle != 0)
   {
-    OutputTransformed();
     DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", screenRotationAngle);
+    OutputTransformed(screenRotationAngle);
   }
 }
 
@@ -609,7 +609,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 
   mWindowBase->SetWindowRotationAngle(angle);
 
-  DALI_LOG_RELEASE_INFO("start window rotation angle = %d screen rotation = %d\n", angle, mScreenRotationAngle);
+  DALI_LOG_RELEASE_INFO("start window rotation angle = %d screen rotation = %d\n", angle, mWindowBase->GetScreenRotationAngle(false));
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -659,7 +659,7 @@ int WindowRenderSurface::GetSurfaceOrientation() const
 
 int WindowRenderSurface::GetScreenOrientation() const
 {
-  return mWindowBase->GetScreenRotationAngle();
+  return mWindowBase->GetScreenRotationAngle(false);
 }
 
 void WindowRenderSurface::InitializeGraphics()
@@ -1072,20 +1072,10 @@ void WindowRenderSurface::SetNeedsRotationCompletedAcknowledgement(bool needAckn
   mNeedWindowRotationAcknowledgement = needAcknowledgement;
 }
 
-void WindowRenderSurface::OutputTransformed()
+void WindowRenderSurface::OutputTransformed(int screenRotationAngle)
 {
-  int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
-
-  if(mScreenRotationAngle != screenRotationAngle)
-  {
-    mOutputTransformedSignal.Emit();
-
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: window = %d new screen angle = %d\n", mWindowRotationAngle, screenRotationAngle);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle);
-  }
+  DALI_LOG_RELEASE_INFO("Emit screen rotation signal to new screen angle = %d\n", screenRotationAngle);
+  mOutputTransformedSignal.Emit(screenRotationAngle);
 }
 
 void WindowRenderSurface::ProcessPostRender()

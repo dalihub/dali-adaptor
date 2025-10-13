@@ -775,8 +775,10 @@ private:
 
   /**
    * @brief Called when the output is transformed.
+   *
+   * @param screenRotationAngle The new screen rotation angle.
    */
-  void OnOutputTransformed();
+  void OnOutputTransformed(int screenRotationAngle);
 
   /**
    * @brief Called when the window receives a delete request.

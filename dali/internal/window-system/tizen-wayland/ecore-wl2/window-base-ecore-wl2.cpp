@@ -1240,11 +1240,12 @@ Eina_Bool WindowBaseEcoreWl2::OnOutputTransform(void* data, int type, void* even
 
   if(transformEvent->output == ecore_wl2_window_output_find(mEcoreWindow) && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window (%p) EcoreEventOutputTransform\n", mEcoreWindow);
-
-    mScreenRotationAngle = GetScreenRotationAngle();
-
-    mOutputTransformedSignal.Emit();
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
+    if(UpdateScreenRotationAngle())
+    {
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
+      mOutputTransformedSignal.Emit(mScreenRotationAngle);
+    }
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1256,11 +1257,12 @@ Eina_Bool WindowBaseEcoreWl2::OnIgnoreOutputTransform(void* data, int type, void
 
   if(ignoreTransformEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window (%p) EcoreEventIgnoreOutputTransform\n", mEcoreWindow);
-
-    mScreenRotationAngle = GetScreenRotationAngle();
-
-    mOutputTransformedSignal.Emit();
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
+    if(UpdateScreenRotationAngle())
+    {
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
+      mOutputTransformedSignal.Emit(mScreenRotationAngle);
+    }
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -2186,7 +2188,7 @@ std::string WindowBaseEcoreWl2::GetNativeWindowResourceId()
 
 Dali::Any WindowBaseEcoreWl2::CreateWindow(int width, int height)
 {
-  int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+  int totalAngle = (mWindowRotationAngle + GetScreenRotationAngle(false)) % 360;
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "wl_egl_window_create");
   if(totalAngle == 90 || totalAngle == 270)
@@ -3352,24 +3354,52 @@ int WindowBaseEcoreWl2::GetWindowRotationAngle() const
   return orientation;
 }
 
-int WindowBaseEcoreWl2::GetScreenRotationAngle()
+bool WindowBaseEcoreWl2::UpdateScreenRotationAngle()
 {
+  int  transform = 0, newAngle = 0;
+  bool isChanged = false;
   if(mSupportedPreProtation)
   {
-    DALI_LOG_RELEASE_INFO("Support PreRotation and return 0\n");
+    DALI_LOG_RELEASE_INFO("Support PreRotation, so return 0, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
     return 0;
   }
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetScreenRotationAngle");
-  int transform;
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::UpdateScreenRotationAngle");
   if(ecore_wl2_window_ignore_output_transform_get(mEcoreWindow))
   {
+    DALI_LOG_RELEASE_INFO("ecore_wl2_window_ignore_output_transform_get()'s return true and transform(0), Window(%p), WindowId(%d)\n", mEcoreWindow, this->GetNativeWindowId());
     transform = 0;
   }
   else
   {
     transform = ecore_wl2_output_transform_get(ecore_wl2_window_output_find(mEcoreWindow));
+    DALI_LOG_RELEASE_INFO("ecore_wl2_window_ignore_output_transform_get()'s return false and transform(%d), Window(%p), WindowId(%d)\n", transform, mEcoreWindow, GetNativeWindowId());
   }
-  mScreenRotationAngle = transform * 90;
+  newAngle = (transform * 90);
+  if(newAngle != mScreenRotationAngle)
+  {
+    DALI_LOG_RELEASE_INFO("Change Screen Rotation Angle, Pre(%d), New(%d), Window(%p), WindowId(%d)\n", mScreenRotationAngle, newAngle, mEcoreWindow, GetNativeWindowId());
+    mScreenRotationAngle = newAngle;
+    isChanged            = true;
+  }
+  DALI_LOG_RELEASE_INFO("UpdateScreenRotationAngle's (%d), isChanged(%d), Window(%p), WindowId(%d)\n", mScreenRotationAngle, isChanged, mEcoreWindow, GetNativeWindowId());
+  return isChanged;
+}
+
+int WindowBaseEcoreWl2::GetScreenRotationAngle(const bool update)
+{
+  if(mSupportedPreProtation)
+  {
+    DALI_LOG_RELEASE_INFO("Support PreRotation, so return 0, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
+    return 0;
+  }
+
+  if(update)
+  {
+    UpdateScreenRotationAngle();
+    DALI_LOG_RELEASE_INFO("ScreenRotationAngle (%d), Window(%p), WindowId(%d)\n", mScreenRotationAngle, mEcoreWindow, GetNativeWindowId());
+  }
+
   return mScreenRotationAngle;
 }
 
@@ -3411,6 +3441,7 @@ void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
   {
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_new");
     mEcoreWindow = ecore_wl2_window_new(display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+    DALI_LOG_RELEASE_INFO("ecore_wl2_window_new, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
   }
 
   if(mEcoreWindow == 0)

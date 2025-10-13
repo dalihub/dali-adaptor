@@ -1047,11 +1047,13 @@ void Window::OnFocusChanged(bool focusIn)
   mFocused = focusIn;
 }
 
-void Window::OnOutputTransformed()
+void Window::OnOutputTransformed(int screenRotationAngle)
 {
   PositionSize positionSize = GetPositionSize();
 
-  SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), mRotationAngle, mWindowBase->GetScreenRotationAngle());
+  DALI_LOG_RELEASE_INFO("Window Resize by screen rotation, screen angle = %d\n", screenRotationAngle);
+
+  SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), mRotationAngle, screenRotationAngle);
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
@@ -1148,7 +1150,7 @@ void Window::OnRotation(const RotationEvent& rotation)
 
   mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
 
-  SurfaceRotated(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight), mRotationAngle, mWindowBase->GetScreenRotationAngle());
+  SurfaceRotated(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight), mRotationAngle, mWindowBase->GetScreenRotationAngle(false));
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
@@ -1408,7 +1410,7 @@ WindowOrientation Window::GetCurrentOrientation() const
 
 int Window::GetPhysicalOrientation() const
 {
-  return (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
+  return (mRotationAngle + mWindowBase->GetScreenRotationAngle(false)) % 360;
 }
 
 void Window::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations)
@@ -1673,7 +1675,7 @@ int Window::GetCurrentWindowRotationAngle() const
 
 int Window::GetCurrentScreenRotationAngle() const
 {
-  return mWindowBase->GetScreenRotationAngle();
+  return mWindowBase->GetScreenRotationAngle(false);
 }
 
 void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestChangeGeometry)

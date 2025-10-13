@@ -493,7 +493,7 @@ void WindowBaseWin::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertica
   dpiVertical   = static_cast<int>(yres + 0.5f);
 }
 
-int WindowBaseWin::GetScreenRotationAngle()
+int WindowBaseWin::GetScreenRotationAngle(const bool update)
 {
   return 0;
 }

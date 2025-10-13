@@ -382,7 +382,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
-  int GetScreenRotationAngle() override;
+  int GetScreenRotationAngle(const bool update) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
