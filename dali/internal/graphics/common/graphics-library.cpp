@@ -24,6 +24,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Graphics::Internal::IsGraphicsBackendSet
 #include <dali/internal/graphics/common/graphics-library-open-mode.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 #include <dali/public-api/adaptor-framework/graphics-backend.h>
@@ -64,8 +65,17 @@ public:
     }
     if(mHandle)
     {
-      DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
-      dlclose(mHandle);
+      // TODO : We have issue due to the static variable destruction order!
+      // Until fix it, just do not dlclose graphics so for pre-initialize case.
+      if(Graphics::Internal::IsGraphicsBackendSet())
+      {
+        DALI_LOG_DEBUG_INFO("dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
+        dlclose(mHandle);
+      }
+      else
+      {
+        DALI_LOG_DEBUG_INFO("[pre-initialize case] skip dlclose for Graphics Backend : %s\n", mBackend == Graphics::Backend::GLES ? "GLES" : "VULKAN");
+      }
     }
   }
 
