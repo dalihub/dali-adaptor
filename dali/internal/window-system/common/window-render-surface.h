@@ -52,7 +52,6 @@ class DALI_ADAPTOR_API WindowRenderSurface : public Dali::Integration::RenderSur
 {
 public:
   using RotationFinishedSignalType = Signal<void()>; ///< The signal of window rotation's finished.
-  using OutputSignalType           = Signal<void()>;
   using DamagedRectsContainer      = std::vector<Rect<int>>;
 
   /**
@@ -162,7 +161,7 @@ public: // API
   /**
    * @brief This signal is emitted when the output is transformed.
    */
-  OutputSignalType& OutputTransformedSignal();
+  WindowBase::OutputSignalType& OutputTransformedSignal();
 
   /**
    * @brief This signal is emitted when a rotation job is finished.
@@ -285,8 +284,10 @@ private:
 
   /**
    * @brief Notify output is transformed.
+   *
+   * @param screenRotationAngle The new screen rotation angle.
    */
-  void OutputTransformed();
+  void OutputTransformed(int screenRotationAngle);
 
   /**
    * @brief Used as the callback for the post render.
@@ -368,7 +369,7 @@ private: // Data
   TriggerEventFactory::TriggerEventPtr mFrameRenderedTrigger;
   Dali::Graphics::GraphicsInterface*   mGraphics;                     ///< Graphics interface
   ColorDepth                           mColorDepth;                   ///< Color depth of surface (32 bit or 24 bit)
-  OutputSignalType                     mOutputTransformedSignal;      ///< The signal of screen rotation occurs
+  WindowBase::OutputSignalType         mOutputTransformedSignal;      ///< The signal of screen rotation occurs
   RotationFinishedSignalType           mWindowRotationFinishedSignal; ///< The signal of window rotation's finished
   FrameCallbackInfoContainer           mFrameCallbackInfoContainer;
   DamagedRectsContainer                mBufferDamagedRects;

@@ -859,7 +859,7 @@ int WindowBaseX::GetWindowRotationAngle() const
   return 0;
 }
 
-int WindowBaseX::GetScreenRotationAngle()
+int WindowBaseX::GetScreenRotationAngle(const bool update)
 {
   return 0;
 }

@@ -915,7 +915,7 @@ int WindowBaseEcoreX::GetWindowRotationAngle() const
   return 0;
 }
 
-int WindowBaseEcoreX::GetScreenRotationAngle()
+int WindowBaseEcoreX::GetScreenRotationAngle(const bool update)
 {
   return 0;
 }
