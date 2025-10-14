@@ -716,17 +716,8 @@ public:
 
   void SwitchBridge()
   {
-    if(DALI_UNLIKELY(mTerminateFunctionCalled))
-    {
-      // fast-out for terminate case.
-      return;
-    }
-
     //If DBusClient is not ready, don't remove initialize timer.
-    if(mInitializeTimer && mInitializeTimer.IsRunning())
-    {
-      return;
-    }
+    if(mInitializeTimer && mInitializeTimer.IsRunning()) return;
 
     bool isScreenReaderEnabled = mIsScreenReaderEnabled && !mIsScreenReaderSuppressed;
 
@@ -750,12 +741,6 @@ public:
   {
     mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
     {
-      if(DALI_UNLIKELY(mTerminateFunctionCalled))
-      {
-        // fast-out for terminate case.
-        return;
-      }
-
       if(!msg)
       {
         DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
@@ -807,12 +792,6 @@ public:
 
     mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg)
     {
-      if(DALI_UNLIKELY(mTerminateFunctionCalled))
-      {
-        // fast-out for terminate case.
-        return;
-      }
-
       if(!msg)
       {
         DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
