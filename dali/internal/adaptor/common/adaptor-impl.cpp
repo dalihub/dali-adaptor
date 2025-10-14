@@ -54,7 +54,7 @@
 #include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
 #include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Dali::Graphics::Internal::IsGraphicsBackendSet and etc
-#include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary and GetGraphicsLibraryHandle
+#include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/callback-manager.h>
@@ -162,9 +162,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   DALI_ASSERT_DEBUG(defaultWindow->GetSurface() && "Surface not initialized");
 
   mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
-
-  // Keep reference of graphics library handle. (Note that we must hold the reference out of graphics library cpp files)
-  mGraphicsLibraryHandle = Dali::Internal::Adaptor::GetGraphicsLibraryHandle();
 
   // Create the AddOnManager
   mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
@@ -305,14 +302,7 @@ Adaptor::~Adaptor()
 
   delete mPerformanceInterface;
 
-  if(DALI_LIKELY(mGraphics))
-  {
-    mGraphics->Destroy();
-    mGraphics.reset();
-  }
-
-  // Release reference of graphics library handle after graphics destroy.
-  mGraphicsLibraryHandle.reset();
+  mGraphics->Destroy();
 
   // uninstall it on this thread (main actor thread)
   Dali::Integration::Log::UninstallLogFunction();
@@ -920,14 +910,8 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       {
         DALI_LOG_RELEASE_INFO("Re-create Graphics here!\n");
 
-        if(DALI_LIKELY(mGraphics))
-        {
-          mGraphics->Destroy();
-        }
+        mGraphics->Destroy();
         mGraphics.reset();
-
-        // Release reference of graphics library handle after graphics destroy.
-        mGraphicsLibraryHandle.reset();
 
         // dlclose for previous loader and re-load if dynamic graphics backed case.
         Dali::Internal::Adaptor::ResetGraphicsLibrary();
@@ -939,9 +923,6 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         auto&           graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
         mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
-
-        // Keep reference of graphics library handle. (Note that we must hold the reference out of graphics library cpp files)
-        mGraphicsLibraryHandle = Dali::Internal::Adaptor::GetGraphicsLibraryHandle();
 
         AdaptorBuilder::Finalize();
       }

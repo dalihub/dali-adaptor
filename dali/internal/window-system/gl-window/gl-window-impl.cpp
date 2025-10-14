@@ -114,10 +114,9 @@ GlWindow::~GlWindow()
     mGlWindowRenderThread->Join();
   }
 
-  if(mIsEGLInitialized && DALI_LIKELY(mGraphics))
+  if(mIsEGLInitialized)
   {
     mGraphics->Destroy();
-    mIsEGLInitialized = false;
   }
 }
 
