@@ -267,4 +267,19 @@ bool VideoPlayer::IsLetterBoxEnabled() const
   return GetImplementation(*this).IsLetterBoxEnabled();
 }
 
+void VideoPlayer::SetFrameInterpolationInterval(float intervalSeconds)
+{
+  GetImplementation(*this).SetFrameInterpolationInterval(intervalSeconds);
+}
+
+void VideoPlayer::EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr)
+{
+  GetImplementation(*this).EnableOffscreenFrameRendering(useOffScreenFrame, previousFrameBufferNativeImageSourcePtr, currentFrameBufferNativeImageSourcePtr);
+}
+
+void VideoPlayer::SetVideoFrameBuffer(Dali::NativeImageSourcePtr source)
+{
+  GetImplementation(*this).SetVideoFrameBuffer(source);
+}
+
 } // namespace Dali

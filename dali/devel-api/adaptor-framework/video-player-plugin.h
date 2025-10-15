@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -356,6 +357,42 @@ public:
    * @return True if letter box feature is enabled, otherwise false. Default value is false.
    */
   virtual bool IsLetterBoxEnabled() const = 0;
+
+  /**
+   * @brief Sets the frame interpolation interval for smooth video playback.
+   *
+   * This method sets the target duration for frame interpolation in seconds.
+   * The video player will use this interval to smoothly interpolate between video frames.
+   *
+   * @SINCE_2_4.39
+   * @param[in] intervalSeconds The interpolation interval in seconds
+   */
+  virtual void SetFrameInterpolationInterval(float intervalSeconds) = 0;
+
+  /**
+   * @brief Enables or disables offscreen frame rendering for video interpolation.
+   *
+   * This method enables offscreen frame rendering which allows for smooth frame interpolation
+   * between previous and current video frames. When enabled, it creates two native image sources
+   * for storing previous and current frames respectively.
+   *
+   * @SINCE_2_4.39
+   * @param[in] useOffScreenFrame True to enable offscreen frame rendering, false to disable
+   * @param[in] previousFrameBufferNativeImageSourcePtr Native image source for previous frame buffer
+   * @param[in] currentFrameBufferNativeImageSourcePtr Native image source for current frame buffer
+   */
+  virtual void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr) = 0;
+
+  /**
+   * @brief Sets the video frame buffer for rendering.
+   *
+   * This method updates the video frame buffer with new video frame data.
+   * The source should contain the video frame surface (e.g., tbm_surface) for rendering.
+   *
+   * @SINCE_2_4.39
+   * @param[in] source The video frame buffer source containing surface data
+   */
+  virtual void SetVideoFrameBuffer(Dali::NativeImageSourcePtr source) = 0;
 };
 
 } // namespace Dali
