@@ -1343,6 +1343,13 @@ bool Texture::InitializeTexture()
   }
 
   auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
+
+  mMaxMipMapLevel = 1;
+  if(mCreateInfo.mipMapFlag == TextureMipMapFlag::ENABLED)
+  {
+    // Mip levels: bit width of dims-3; so should cap at 4x4.
+    mMaxMipMapLevel = std::min(1.0f, logf(std::max(1u, std::min(mWidth, mHeight))) / logf(2.0f) - 3);
+  }
   // create image
   auto imageCreateInfo = vk::ImageCreateInfo{}
                            .setFormat(mFormat)
@@ -1354,7 +1361,7 @@ bool Texture::InitializeTexture()
                            .setArrayLayers(1)
                            .setImageType(vk::ImageType::e2D)
                            .setTiling(tiling)
-                           .setMipLevels(1);
+                           .setMipLevels(mMaxMipMapLevel);
 
   bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
   if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
