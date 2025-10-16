@@ -285,6 +285,11 @@ void SceneHolder::CreateRenderTarget()
   mScene.SetSurfaceRenderTarget(rtInfo);
 }
 
+void SceneHolder::RequestFullUpdate()
+{
+  mScene.RequestFullUpdate();
+}
+
 void SceneHolder::Pause()
 {
   Reset();
@@ -294,6 +299,8 @@ void SceneHolder::Pause()
 
 void SceneHolder::Resume()
 {
+  RequestFullUpdate();
+
   Reset();
 
   OnResume();
