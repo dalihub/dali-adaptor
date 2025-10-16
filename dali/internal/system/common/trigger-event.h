@@ -25,12 +25,11 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/common/unified-trigger-event-manager.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali::Internal::Adaptor
 {
-class UnifiedTriggerEventManager;
-
 /**
  * The TriggerEvent class is used to send events between threads.  For example, this can be used
  * to wake up one thread from another thread.
@@ -79,6 +78,17 @@ public: /// Override TriggerEventInterface
     return mId;
   }
 
+public:
+  /**
+   * @brief Get the UnifiedTriggerEventManager handle for this trigger.
+   */
+  Dali::UnifiedTriggerEventManager GetUnifiedTriggerEventManager() const;
+
+  /**
+   * @brief Remove the reference of UnifiedTriggerEventManager handle.
+   */
+  void ResetUnifiedTriggerEventManager();
+
 private:
   /**
    * @brief Called when our event file descriptor has been written to.
@@ -94,8 +104,8 @@ private:
   friend class UnifiedTriggerEventManager;
 
 private:
-  UnifiedTriggerEventManager* mTriggerManager;
-  CallbackBase*               mCallback;
+  Dali::UnifiedTriggerEventManager mTriggerManager;
+  CallbackBase*                    mCallback;
 
   const uint32_t                 mId;
   TriggerEventInterface::Options mOptions;
