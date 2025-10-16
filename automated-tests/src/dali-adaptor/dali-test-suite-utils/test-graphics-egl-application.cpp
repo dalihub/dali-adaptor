@@ -17,6 +17,7 @@
 
 #include "test-graphics-egl-application.h"
 #include <test-graphics-sync-impl.h>
+#include "dali-test-suite-utils.h"
 
 namespace Dali
 {
@@ -191,7 +192,7 @@ void TestGraphicsApplication::DoUpdate(uint32_t intervalMilliseconds, const char
      mRenderStatus.NeedsUpdate() == false &&
      !GetRenderController().WasCalled(TestRenderController::RequestUpdateFunc))
   {
-    fprintf(stderr, "WARNING - Update not required :%s\n", location == NULL ? "NULL" : location);
+    tet_printf("WARNING - Update not required :%s\n", location == NULL ? "NULL" : location);
   }
 
   uint32_t nextVSyncTime  = mLastVSyncTime + intervalMilliseconds;
@@ -240,7 +241,14 @@ bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMillis
 bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
-  mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
+  if(!clippingRect.IsEmpty())
+  {
+    mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
+  }
+  else
+  {
+    tet_printf("INFO - damagedRect is empty!\n");
+  }
 
   mGraphicsController.PostRender();
   mCore->PostRender();
