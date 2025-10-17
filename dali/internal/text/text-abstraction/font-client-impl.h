@@ -74,7 +74,7 @@ public: // API for Dali::TextAbstraction::FontClient used.
   /**
    * @brief This is used to creates a global font client and pre-caches the FontConfig.
    */
-  static void PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool syncCreation);
+  static void PreCacheRun(Dali::TextAbstraction::FontClient fontClient, const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool syncCreation);
 
   /**
    * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
@@ -86,7 +86,7 @@ public: // API for Dali::TextAbstraction::FontClient used.
   /**
    * @brief This is used to creates a global font client and pre-loads the FreeType font face.
    */
-  static void PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool syncCreation);
+  static void PreLoadRun(Dali::TextAbstraction::FontClient fontClient, const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool syncCreation);
 
   /**
    * @brief Joins font threads, waiting for their execution to complete.
@@ -419,9 +419,6 @@ private:
   // Allows DPI to be set without loading plugin
   unsigned int mDpiHorizontal;
   unsigned int mDpiVertical;
-
-  static Dali::TextAbstraction::FontClient gPreCreatedFontClient;
-
 }; // class FontClient
 
 } // namespace Internal
