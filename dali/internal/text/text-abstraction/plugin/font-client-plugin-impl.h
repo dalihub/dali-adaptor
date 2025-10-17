@@ -339,12 +339,17 @@ public: // Dali::TextAbstraction::Internal::FontClient
   /**
    * @copydoc Dali::TextAbstraction::Internal::FontClient::FontPreCache()
    */
-  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const;
+  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, const bool syncCreation) const;
 
   /**
    * @copydoc Dali::TextAbstraction::Internal::FontClient::FontPreLoad()
    */
-  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList) const;
+  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, const bool syncCreation) const;
+
+  /**
+   * @copydoc Dali::TextAbstraction::Internal::FontClient::RequestPreProcessAbort()
+   */
+  void RequestPreProcessAbort();
 
 private:
   /**
@@ -420,6 +425,7 @@ private:
   unsigned int mDpiHorizontal; ///< Horizontal dpi.
   unsigned int mDpiVertical;   ///< Vertical dpi.
 
+  bool    mPreProcessAbortRequested : 1;      ///< Whether a pre-process abort has been requested or not.
   bool    mIsAtlasLimitationEnabled : 1;      ///< Whether the validation on maximum atlas block size, then reduce block size to fit into it is enabled or not.
   Vector2 mCurrentMaximumBlockSizeFitInAtlas; ///< The current maximum size (width, height) of text-atlas-block.
 
