@@ -96,6 +96,7 @@ static FontThread              gPreLoadThread{};  ///< Must be changed under gPr
 static std::mutex              gMutex;
 static std::condition_variable gPreCacheCond;
 static std::condition_variable gPreLoadCond;
+static bool                    gPreProcessSyncCreation     = true;
 static bool                    gPreCacheThreadReady        = false;
 static bool                    gPreLoadThreadReady         = false;
 static bool                    gDesignCompatibilityEnabled = false;
@@ -215,7 +216,7 @@ void FontClient::PreCacheRun(Dali::TextAbstraction::FontClient fontClient, const
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
-  GetImplementation(fontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+  GetImplementation(fontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
 }
 
@@ -231,7 +232,7 @@ void FontClient::PreLoadRun(Dali::TextAbstraction::FontClient fontClient, const 
   }
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_RUN\n");
-  GetImplementation(fontClient).FontPreLoad(fontPathList, memoryFontPathList);
+  GetImplementation(fontClient).FontPreLoad(fontPathList, memoryFontPathList, syncCreation);
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_RUN\n");
 }
 
@@ -258,7 +259,8 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
     gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
   }
 
-  gFontPreCacheAvailable = false;
+  gFontPreCacheAvailable  = false;
+  gPreProcessSyncCreation = syncCreation ? gPreProcessSyncCreation : false;
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache fallbackFamilyList : %zu\n", fallbackFamilyList.size());
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache extraFamilyList    : %zu\n", extraFamilyList.size());
@@ -287,7 +289,7 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
   }
   else
   {
-    GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+    GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
   }
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache request done\n");
 }
@@ -315,7 +317,8 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
     gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
   }
 
-  gFontPreLoadAvailable = false;
+  gFontPreLoadAvailable   = false;
+  gPreProcessSyncCreation = syncCreation ? gPreProcessSyncCreation : false;
 
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient Font PreLoad fontPathList       : %zu\n", fontPathList.size());
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient Font PreLoad memoryFontPathList : %zu\n", memoryFontPathList.size());
@@ -343,7 +346,7 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
   }
   else
   {
-    GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList);
+    GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList, syncCreation);
   }
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad request done\n");
 }
@@ -355,6 +358,15 @@ void FontClient::JoinFontThreads()
 
   gFontPreCacheAvailable = false;
   gFontPreLoadAvailable  = false;
+
+  if(!gPreProcessSyncCreation)
+  {
+    if(gPreCreatedFontClient)
+    {
+      GetImplementation(gPreCreatedFontClient).RequestPreProcessAbort();
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient JoinFontThreads pre-process abort requested\n");
+    }
+  }
 
   if(gPreCacheThread.mThread.joinable())
   {
@@ -484,18 +496,18 @@ void FontClient::GetDefaultFonts(FontList& defaultFonts)
   mPlugin->GetDefaultFonts(defaultFonts);
 }
 
-void FontClient::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
+void FontClient::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, const bool syncCreation)
 {
   CreatePlugin();
 
-  mPlugin->FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+  mPlugin->FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
 }
 
-void FontClient::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList)
+void FontClient::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, const bool syncCreation)
 {
   CreatePlugin();
 
-  mPlugin->FontPreLoad(fontPathList, memoryFontPathList);
+  mPlugin->FontPreLoad(fontPathList, memoryFontPathList, syncCreation);
 }
 
 void FontClient::InitDefaultFontDescription()
@@ -801,6 +813,13 @@ HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)
 
   return mPlugin->GetHarfBuzzFont(fontId);
 }
+
+void FontClient::RequestPreProcessAbort()
+{
+  CreatePlugin();
+
+  mPlugin->RequestPreProcessAbort();
+};
 
 void FontClient::CreatePlugin()
 {

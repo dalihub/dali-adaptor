@@ -386,8 +386,10 @@ public: // API for Dali::TextAbstraction::Internal::FontClient used.
    * @param[in] fallbackFamilyList A list of fallback font families to be pre-cached.
    * @param[in] extraFamilyList A list of additional font families to be pre-cached.
    * @param[in] localeFamily A locale font family to be pre-cached.
+   * @param[in] syncCreation If true, all requested precache tasks will be performed (candidate process) even if a precache join is requested.
+   * If false, the precache task will be stopped and returned when a precache join is requested. This prevents main thread block.
    */
-  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily);
+  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, const bool syncCreation);
 
   /**
    * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
@@ -395,10 +397,17 @@ public: // API for Dali::TextAbstraction::Internal::FontClient used.
    * @param[in] fontPathList A list of font paths to be pre-loaded.
    * @param[in] memoryFontPathList A list of memory font paths to be pre-loaded.
    * @param[in] useThread True if the font client should create thread and perform font pre-loading, false otherwise.
+   * @param[in] syncCreation If true, all requested preload tasks will be performed (candidate process) even if a preload join is requested.
+   * If false, the preload task will be stopped and returned when a preload join is requested. This prevents main thread block.
    */
-  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList);
+  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, const bool syncCreation);
 
 private:
+  /**
+   * @brief Requests to abort all pre-processing tasks such as PreLoad and PreCache.
+   */
+  void RequestPreProcessAbort();
+
   /**
    * Helper for lazy initialization.
    */
