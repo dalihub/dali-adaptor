@@ -95,8 +95,6 @@ NativeImageSourceQueueTizenVulkan::NativeImageSourceQueueTizenVulkan(uint32_t qu
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::NativeImageSourceQueueTizenVulkan: %p\n", this);
-
   mTbmQueue = GetSurfaceFromAny(nativeImageSourceQueue);
 
   if(mTbmQueue != nullptr)
@@ -110,7 +108,6 @@ NativeImageSourceQueueTizenVulkan::NativeImageSourceQueueTizenVulkan(uint32_t qu
 
 NativeImageSourceQueueTizenVulkan::~NativeImageSourceQueueTizenVulkan()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::~NativeImageSourceQueueTizenVulkan: %p\n", this);
   if(mOwnTbmQueue)
   {
     if(mTbmQueue != nullptr)
@@ -122,7 +119,6 @@ NativeImageSourceQueueTizenVulkan::~NativeImageSourceQueueTizenVulkan()
 
 void NativeImageSourceQueueTizenVulkan::Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat)
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::Initialize\n");
   if(mWidth == 0 || mHeight == 0)
   {
     return;
@@ -233,7 +229,6 @@ void NativeImageSourceQueueTizenVulkan::SetSize(uint32_t width, uint32_t height)
 
 void NativeImageSourceQueueTizenVulkan::IgnoreSourceImage()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::IgnoreSourceImage\n");
   Dali::Mutex::ScopedLock lock(mMutex);
   tbm_surface_h           surface;
 
@@ -264,7 +259,6 @@ bool NativeImageSourceQueueTizenVulkan::CanDequeueBuffer()
 
 uint8_t* NativeImageSourceQueueTizenVulkan::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type)
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::DequeueBuffer\n");
   Dali::Mutex::ScopedLock lock(mMutex);
   if(mTbmQueue == nullptr)
   {
@@ -320,7 +314,6 @@ uint8_t* NativeImageSourceQueueTizenVulkan::DequeueBuffer(uint32_t& width, uint3
 
 bool NativeImageSourceQueueTizenVulkan::EnqueueBuffer(uint8_t* buffer)
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::EnqueueBuffer\n");
   Dali::Mutex::ScopedLock lock(mMutex);
   auto                    bufferInstance = mBuffers.find(buffer);
   if(bufferInstance != mBuffers.end())
@@ -336,7 +329,6 @@ bool NativeImageSourceQueueTizenVulkan::EnqueueBuffer(uint8_t* buffer)
 
 void NativeImageSourceQueueTizenVulkan::CancelDequeuedBuffer(uint8_t* buffer)
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::CancelDequeuedBuffer\n");
   Dali::Mutex::ScopedLock lock(mMutex);
   auto                    bufferInstance = mBuffers.find(buffer);
   if(bufferInstance != mBuffers.end())
@@ -350,21 +342,17 @@ void NativeImageSourceQueueTizenVulkan::CancelDequeuedBuffer(uint8_t* buffer)
 
 void NativeImageSourceQueueTizenVulkan::FreeReleasedBuffers()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::FreeReleasedBuffers\n");
   Dali::Mutex::ScopedLock lock(mMutex);
   mFreeRequest = true;
 }
 
 bool NativeImageSourceQueueTizenVulkan::CreateResource()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::CreateResource\n");
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::CreateResource\n");
   return true;
 }
 
 void NativeImageSourceQueueTizenVulkan::DestroyResource()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::DestroyResource\n");
   Dali::Mutex::ScopedLock lock(mMutex);
 
   ResetSurfaceList(true);
@@ -372,14 +360,11 @@ void NativeImageSourceQueueTizenVulkan::DestroyResource()
 
 uint32_t NativeImageSourceQueueTizenVulkan::TargetTexture()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::TargetTexture\n");
   return 0;
 }
 
 Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizenVulkan::PrepareTexture()
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::PrepareTexture\n");
-
   Dali::Mutex::ScopedLock lock(mMutex);
 
   // Clean up pending releases first
@@ -481,8 +466,6 @@ bool NativeImageSourceQueueTizenVulkan::SourceChanged() const
 
 void NativeImageSourceQueueTizenVulkan::ResetSurfaceList(bool releaseConsumeSurface)
 {
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::ResetSurfaceList: releaseConsumeSurface: %d\n", releaseConsumeSurface);
-
   // When Tbm surface queue is reset(resized), the surface acquired before reset() is still valid, not the others.
   // We can still use the acquired surface so that we will release it as the oldSurface in PrepareTexture() when the next surface is ready.
   if(releaseConsumeSurface && mConsumeSurface)
@@ -526,10 +509,6 @@ void NativeImageSourceQueueTizenVulkan::AcquireSurfaceReference(void* surface)
   auto& surfaceRef = GetOrCreateSurfaceRef(tbmSurface);
   surfaceRef.refCount++;
   surfaceRef.lastUsed = std::chrono::steady_clock::now();
-
-  DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::AcquireSurfaceReference: surface=%p, refCount=%d\n",
-                 surface,
-                 surfaceRef.refCount.load());
 }
 
 void NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference(void* surface)
@@ -545,10 +524,6 @@ void NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference(void* surface)
     auto& surfaceRef  = *it->second;
     int   newRefCount = --surfaceRef.refCount;
 
-    DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference: surface=%p, refCount=%d\n",
-                   surface,
-                   newRefCount);
-
     if(newRefCount <= 0)
     {
       // Check if this surface is in pending release list
@@ -561,8 +536,6 @@ void NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference(void* surface)
         // Safe to release now
         tbm_surface_queue_release(mTbmQueue, tbmSurface);
         mPendingRelease.erase(pendingIt);
-
-        DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference: Released surface=%p immediately\n", surface);
       }
 
       mSurfaceRefs.erase(it);
@@ -577,17 +550,11 @@ void NativeImageSourceQueueTizenVulkan::ScheduleSurfaceForDelayedRelease(tbm_sur
   {
     // Surface is still referenced, add to pending release
     mPendingRelease.push_back({surface, std::chrono::steady_clock::now()});
-
-    DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::ScheduleSurfaceForDelayedRelease: surface=%p scheduled for delayed release, refCount=%d\n",
-                   surface,
-                   it->second->refCount.load());
   }
   else
   {
     // Safe to release immediately
     tbm_surface_queue_release(mTbmQueue, surface);
-
-    DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::ScheduleSurfaceForDelayedRelease: surface=%p released immediately\n", surface);
   }
 }
 
@@ -611,11 +578,6 @@ void NativeImageSourceQueueTizenVulkan::CleanupPendingReleases()
       {
         mSurfaceRefs.erase(surfaceRefIt);
       }
-
-      DALI_LOG_ERROR("NativeImageSourceQueueTizenVulkan::CleanupPendingReleases: Released surface=%p (canRelease=%d, timedOut=%d)\n",
-                     surface,
-                     canRelease,
-                     timedOut);
 
       it = mPendingRelease.erase(it);
     }

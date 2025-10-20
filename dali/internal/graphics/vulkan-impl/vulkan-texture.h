@@ -21,9 +21,9 @@
 #include <dali/graphics-api/graphics-texture.h>
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
-#include <vulkan/vulkan.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -202,72 +202,6 @@ private:
 
   vk::ComponentMapping GetVkComponentMapping(Dali::Graphics::Format format);
 
-  /**
-   * @brief Export DMA-BUF file descriptors from TBM surface.
-   * @return Whether the FD export is successful or not
-   */
-  bool ExportPlaneFds();
-
-  /**
-   * Create Vulkan image from external memory.
-   * @return Whether the image creation is successful or not
-   */
-  bool CreateNativeImage();
-
-  /**
-   * Create the YCbCr conversion
-   * @return Whether the YCbCr conversion creation is successful or not
-   */
-  bool CreateYcbcrConversion();
-
-  /**
-   * Create image view for the imported image.
-   * @return Whether the image view creation is successful or not
-   */
-  bool CreateNativeImageView();
-
-  /**
-   * Create sampler with optional YCbCr conversion.
-   * @return Whether the sampler creation is successful or not
-   */
-  bool CreateNativeSampler();
-
-  /**
-   * Find suitable memory type index.
-   * @param[in] typeBits Memory type requirements
-   * @param[in] flags Required memory properties
-   * @return Memory type index
-   */
-  uint32_t FindMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags flags) const;
-
-  /**
-   * Import DMA-BUF memory into Vulkan device memory.
-   * @param[in] fd The file descriptor
-   * @return The imported plane memory
-   */
-  vk::DeviceMemory ImportPlaneMemory(int fd);
-
-  /**
-   * @brief Release buffer object references of the current surface
-   */
-  void ReleaseSurfaceBufferObjectReferences();
-
-  /**
-   * @brief Acquire reference to current surface from native image source
-   */
-  void AcquireCurrentSurfaceReference();
-
-  /**
-   * @brief Release reference to current surface
-   */
-  void ReleaseCurrentSurfaceReference();
-
-  /**
-   * @brief Get surface reference manager from native image interface
-   * @return Pointer to surface reference manager or nullptr if not available
-   */
-  SurfaceReferenceManager* GetSurfaceReferenceManager() const;
-
 private:
   Vulkan::Device& mDevice;
 
@@ -289,15 +223,8 @@ private:
 
   std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
 
-  void*                          mTbmSurface{nullptr};
-  vk::Image                      mNativeImage{VK_NULL_HANDLE};
-  VkSamplerYcbcrConversion       mYcbcrConversion{VK_NULL_HANDLE}; ///< YCbCr conversion (if needed)
-  vk::SamplerYcbcrConversionInfo mYcbcrConversionInfo{};           ///< YCbCr conversion info
-  std::vector<vk::DeviceMemory>  mNativeMemories;                  ///< Device memories per plane
-  std::vector<int>               mPlaneFds;                        ///< FD handle per plane
-  std::vector<void*>             mTbmBos;                          ///< TBM BO handles per plane
-  bool                           mIsNativeImage{false};
-  bool                           mIsYUVFormat{false};
+  bool mIsNativeImage{false};
+  bool mIsYUVFormat{false};
 
   enum class NativeImageType
   {
@@ -307,9 +234,11 @@ private:
   };
   NativeImageType mNativeImageType{NativeImageType::NONE};
 
-  // Surface reference management
-  void* mCurrentSurface{nullptr};    ///< Currently referenced surface
-  bool  mHasSurfaceReference{false}; ///< Whether we have acquired a surface reference
+  // Native image handler and resources
+  std::unique_ptr<VulkanNativeImageHandler> mNativeImageHandler;         ///< Handler for native image operations
+  std::unique_ptr<NativeImageResources>     mNativeResources;            ///< Native image resources
+  void*                                     mCurrentSurface{nullptr};    ///< Currently referenced surface
+  bool                                      mHasSurfaceReference{false}; ///< Whether we have acquired a surface reference
 };
 
 } // namespace Dali::Graphics::Vulkan

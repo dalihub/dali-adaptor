@@ -31,7 +31,6 @@ namespace Adaptor
 std::unique_ptr<NativeImageSource> NativeImageSourceFactoryTizenVulkan::CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
   return std::unique_ptr<NativeImageSource>(NativeImageSourceTizenVulkan::New(width, height, depth, nativeImageSource));
-  //  return nullptr;
 }
 
 std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryTizenVulkan::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
