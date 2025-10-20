@@ -685,10 +685,12 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
           if(language < OutputLanguage::GLSL_3_MAX)
           {
             outString += "#define INSTANCE_INDEX gl_InstanceID\n";
+            outString += "#define VERTEX_INDEX gl_VertexID\n";
           }
           else
           {
             outString += "#define INSTANCE_INDEX gl_InstanceIndex\n";
+            outString += "#define VERTEX_INDEX gl_VertexIndex\n";
           }
         }
 
