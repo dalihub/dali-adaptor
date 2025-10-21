@@ -153,6 +153,11 @@ public:
   Vector4 GetBackgroundColor() const;
 
   /**
+   * @brief Request to scene full update next render time.
+   */
+  void RequestFullUpdate();
+
+  /**
    * @brief Pause the rendering of the scene holder.
    */
   void Pause();

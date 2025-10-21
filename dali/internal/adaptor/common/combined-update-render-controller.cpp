@@ -927,8 +927,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             presentRequired = false;
           }
 
-          const bool fullSwap                = windowSurface->GetFullSwapNextFrame(); // true on Resize|set bg color
-          const bool graphicsPresentRequired = graphics.ForcePresentRequired();       // true if eglQuerySurface called (EGL) or false always (Vulkan)
+          const bool fullSwap                = windowSurface->IsFullSwapRequired(); // true on Resize|set bg color
+          const bool graphicsPresentRequired = graphics.ForcePresentRequired();     // true if eglQuerySurface called (EGL) or false always (Vulkan)
 
           LOG_RENDER_SCENE("RenderThread: HadRender:%s WillRender:%s presentRequired:%s fullSwap:%s graphicsPresentRequired:%s\n",
                            hadRenderedToScene ? "T" : "F",
@@ -964,6 +964,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           if(presentRequired)
           {
             LOG_RENDER_SCENE("RenderThread: core.RenderScene() Render the surface\n");
+
+            if(fullSwap)
+            {
+              clippingRect = Rect<int>();
+            }
 
             // Render the surface (Present & SwapBuffers)
             mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);

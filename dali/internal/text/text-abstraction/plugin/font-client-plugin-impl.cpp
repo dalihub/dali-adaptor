@@ -235,6 +235,7 @@ FontClient::Plugin::Plugin(TextAbstraction::FontFileManager fontFileManager,
   mFontFileManager(fontFileManager),
   mDpiHorizontal(horizontalDpi),
   mDpiVertical(verticalDpi),
+  mPreProcessAbortRequested(false),
   mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
   mCurrentMaximumBlockSizeFitInAtlas(TextAbstraction::FontClient::MAX_SIZE_FIT_IN_ATLAS),
   mVectorFontCache(nullptr),
@@ -343,28 +344,50 @@ void FontClient::Plugin::CacheFontFaceFromFile(const FontPath& fontPath) const
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font new face : %s\n", fontPath.c_str());
 }
 
-void FontClient::Plugin::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList) const
+void FontClient::Plugin::RequestPreProcessAbort()
+{
+  mPreProcessAbortRequested = true;
+}
+
+void FontClient::Plugin::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, const bool syncCreation) const
 {
   for(const auto& memoryFontPath : memoryFontPathList)
   {
+    if(mPreProcessAbortRequested && !syncCreation)
+    {
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad aborted\n");
+      return;
+    }
     CacheFontDataFromFile(memoryFontPath);
   }
 
   for(const auto& fontPath : fontPathList)
   {
+    if(mPreProcessAbortRequested && !syncCreation)
+    {
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad aborted\n");
+      return;
+    }
     CacheFontFaceFromFile(fontPath);
   }
 }
 
-void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const
+void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, const bool syncCreation) const
 {
   mCacheHandler->InitDefaultFontDescription();
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreCache default font description initialized\n");
 
   FontFamilyList familyList;
   familyList.reserve(extraFamilyList.size() + 1);
 
   for(const auto& fallbackFont : fallbackFamilyList)
   {
+    if(mPreProcessAbortRequested && !syncCreation)
+    {
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreCache aborted\n");
+      return;
+    }
+
     FontList*         fontList          = nullptr;
     CharacterSetList* characterSetList  = nullptr;
     FontDescriptionId fontDescriptionId = 0u;
@@ -408,6 +431,7 @@ void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, 
         familyList.erase(it);
       }
     }
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreCache fallback list cached : %s\n", fallbackFont.c_str());
   }
 }
 

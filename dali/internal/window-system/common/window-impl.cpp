@@ -235,6 +235,12 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler = EventHandlerPtr(new EventHandler(mWindowSurface->GetWindowBase(), *mAdaptor));
   mEventHandler->AddObserver(*this);
 
+  // Second phase initialize after adaptor set.
+  if(DALI_LIKELY(mWindowSurface))
+  {
+    mWindowSurface->Initialize();
+  }
+
   if(mWindowBase->GetType() == WindowType::IME)
   {
     InitializeImeInfo();
@@ -279,6 +285,10 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 void Window::OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mWindowSurface = static_cast<WindowRenderSurface*>(surface);
+  if(DALI_LIKELY(mWindowSurface && mAdaptor))
+  {
+    mWindowSurface->Initialize();
+  }
 }
 
 void Window::SetClass(std::string name, std::string className)

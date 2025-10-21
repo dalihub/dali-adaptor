@@ -89,7 +89,7 @@ public:
     mGraphics(nullptr),
     mDisplayConnection(nullptr),
     mScene(),
-    mFullSwapNextFrame(true),
+    mFullSwapFlag(1u),
     mDepthBufferRequired(Integration::DepthBufferAvailable::FALSE),
     mStencilBufferRequired(Integration::StencilBufferAvailable::FALSE)
   {
@@ -246,16 +246,30 @@ public:
   }
 
   /**
-   * @brief Forces full surface swap next frame, resets current partial update state.
+   * @brief Forces full surface swap next 2 frames, resets current partial update state.
+   * @note Could be called at main thread.
    */
   void SetFullSwapNextFrame()
   {
-    mFullSwapNextFrame = true;
+    mFullSwapFlag = 3u;
   }
 
-  bool GetFullSwapNextFrame() const
+  /**
+   * @brief Forces full surface swap current frames, resets current partial update state.
+   * @note Should be called at render thread.
+   */
+  void SetFullSwapCurrentFrame()
   {
-    return mFullSwapNextFrame;
+    mFullSwapFlag |= 1u;
+  }
+
+  /**
+   * @brief Get whether full surface swap required current frames.
+   * @return True if full surface swap required.
+   */
+  bool IsFullSwapRequired() const
+  {
+    return mFullSwapFlag;
   }
 
 private:
@@ -274,7 +288,11 @@ protected:
   Dali::Graphics::GraphicsInterface*                mGraphics;
   Dali::DisplayConnection*                          mDisplayConnection;
   WeakHandle<Dali::Integration::Scene>              mScene;
-  bool                                              mFullSwapNextFrame; ///< Whether the full surface swap is required
+
+  //
+  // NOTE: cannot use booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
+  //
+  volatile unsigned int mFullSwapFlag; ///< Whether the full surface swap is required.
 
 private:
   Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required

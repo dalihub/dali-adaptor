@@ -29,6 +29,7 @@
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/system/common/unified-trigger-event-manager-impl.h>
 #include <dali/internal/system/common/unified-trigger-event-manager.h>
 
 namespace Dali
@@ -51,7 +52,7 @@ TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* ca
   mFileDescriptor(-1)
 {
   // Create accompanying file descriptor.
-  if(mTriggerManager == nullptr)
+  if(manager == nullptr)
   {
     mFileDescriptor = eventfd(0, EFD_NONBLOCK);
     if(mFileDescriptor >= 0)
@@ -100,12 +101,22 @@ void TriggerEvent::Trigger()
   }
   else if(mTriggerManager)
   {
-    mTriggerManager->Trigger(this);
+    GetImplementation(mTriggerManager).Trigger(this);
   }
   else
   {
     DALI_LOG_ERROR("Attempting to write to an invalid file descriptor\n");
   }
+}
+
+Dali::UnifiedTriggerEventManager TriggerEvent::GetUnifiedTriggerEventManager() const
+{
+  return mTriggerManager;
+}
+
+void TriggerEvent::ResetUnifiedTriggerEventManager()
+{
+  mTriggerManager.Reset();
 }
 
 void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)

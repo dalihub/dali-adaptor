@@ -1301,6 +1301,7 @@ void Adaptor::RenderOnce()
     for(auto&& iter : mWindows)
     {
       iter->GetSurface()->SetFullSwapNextFrame();
+      iter->RequestFullUpdate();
     }
 
     mThreadController->RequestUpdateOnce(updateMode);
