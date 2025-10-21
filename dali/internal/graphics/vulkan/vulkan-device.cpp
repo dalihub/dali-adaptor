@@ -55,6 +55,7 @@
 #endif
 
 // EXTERNAL INCLUDES
+#include <signal.h>
 #include <iostream>
 #include <utility>
 
@@ -817,7 +818,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   }
   else // otherwise look for one which is a graphics device
   {
-    auto vkSurface = surface->GetVkHandle();
+    auto vkSurface = surface ? surface->GetVkHandle() : nullptr;
 
     for(auto& device : devices)
     {
@@ -839,10 +840,24 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
           if(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
           {
             VkBool32 presentSupported = false;
-            auto     result           = device.getSurfaceSupportKHR(queueIndex, vkSurface, &presentSupported);
-            if((result == vk::Result::eSuccess) && presentSupported)
+            if(vkSurface)
             {
+              auto result = device.getSurfaceSupportKHR(queueIndex, vkSurface, &presentSupported);
+              if((result == vk::Result::eSuccess) && presentSupported)
+              {
+                mPhysicalDevice = device;
+                break;
+              }
+            }
+            else if(!surface)
+            {
+              // Don't care about present. Use the first device
               mPhysicalDevice = device;
+              break;
+            }
+            else
+            {
+              // Choose first graphics queue
               break;
             }
           }

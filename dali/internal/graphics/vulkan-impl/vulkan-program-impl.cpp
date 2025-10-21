@@ -149,7 +149,7 @@ ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGr
     }
   }
 
-  if(success)
+  if(success) // or binary
   {
     // Build reflection
     mImpl->reflection = std::make_unique<Vulkan::Reflection>(*this, controller);
@@ -197,11 +197,19 @@ bool ProgramImpl::Preprocess()
   const Vulkan::Shader* vsh = nullptr;
   const Vulkan::Shader* fsh = nullptr;
 
-  const auto& info = mImpl->createInfo;
+  const auto& info        = mImpl->createInfo;
+  int         binaryCount = 0;
 
   for(const auto& state : *info.shaderState)
   {
     const auto* shader = static_cast<const Vulkan::Shader*>(state.shader);
+    if(shader->GetCreateInfo().sourceMode == ShaderSourceMode::BINARY)
+    {
+      DALI_LOG_ERROR("Shader stage is in binary mode. Skip pre-processing\n");
+      ++binaryCount;
+      continue;
+    }
+
     if(state.pipelineStage == PipelineStage::VERTEX_SHADER)
     {
       // Only TEXT source mode can be processed
@@ -218,7 +226,7 @@ bool ProgramImpl::Preprocess()
     {
       // no valid stream to push
       currentString = nullptr;
-      DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!");
+      DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!\n");
     }
 
     // Check if stream valid
@@ -226,10 +234,6 @@ bool ProgramImpl::Preprocess()
     {
       *currentString = std::string(reinterpret_cast<const char*>(shader->GetCreateInfo().sourceData),
                                    shader->GetCreateInfo().sourceSize);
-    }
-    else
-    {
-      DALI_LOG_ERROR("Preprocessing of binary shaders isn't allowed!");
     }
   }
 
@@ -256,11 +260,12 @@ bool ProgramImpl::Preprocess()
 
     return true;
   }
-  else
+  else if(binaryCount < 2)
   {
-    DALI_LOG_ERROR("Preprocessing shader code failed!");
+    DALI_LOG_ERROR("Preprocessing shader code failed!\n");
     return false;
   }
+  return true;
 }
 
 bool ProgramImpl::Create()

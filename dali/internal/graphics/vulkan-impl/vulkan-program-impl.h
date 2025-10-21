@@ -67,7 +67,8 @@ public:
   bool Create();
 
   /**
-   * @brief Preprocesses shaders
+   * @brief Preprocesses text shaders; skips over binary shaders
+   * @return False if text shaders failed to be parsed, true otherwise.
    */
   bool Preprocess();
 

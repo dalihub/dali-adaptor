@@ -30,7 +30,7 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
 : mGraphics(GetGraphicsCreateInfo(surfaceWidth, surfaceHeight),
             Integration::DepthBufferAvailable::FALSE,
             Integration::StencilBufferAvailable::FALSE,
-            Integration::PartialUpdateAvailable::FALSE),
+            Integration::PartialUpdateAvailable::FALSE, 0),
   mCore(NULL),
   mSurfaceWidth(surfaceWidth),
   mSurfaceHeight(surfaceHeight),
@@ -73,6 +73,7 @@ void TestGraphicsApplication::CreateCore()
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
   mDisplayConnection   = DisplayConnection::New();
   mGraphics.Initialize(*mDisplayConnection);
+  mGraphics.GetDevice().CreateDevice(nullptr);
 
   Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
   if(mPartialUpdateEnabled)

@@ -30,6 +30,7 @@
 
 // EXTERNAL INCLUDES
 #include <third-party/SPIRV-Reflect/spirv_reflect.h>
+#include <stack>
 
 namespace
 {
@@ -251,25 +252,28 @@ void Reflection::BuildReflection()
         block.descriptorSet = binding->set;
         block.size          = 0; // to be updated with members
 
-        // DALi's role! let we use the type of block, instead of it's name if name is null or empty.
+        // DALi's role! let's use the type of block, instead of its name if name is null or empty.
         block.name = IsValidCString(binding->name)                                                         ? binding->name
                      : (binding->type_description && IsValidCString(binding->type_description->type_name)) ? binding->type_description->type_name
                                                                                                            : "";
 
+        std::vector<FullyQualifiedMember> flattenedStructs;
+        ParseUniformBlockVariables(members, memberCount, flattenedStructs);
+        memberCount = flattenedStructs.size();
         block.members.resize(memberCount);
         for(auto i = 0u; i < memberCount; ++i)
         {
           auto& out         = block.members[i];
-          auto& memb        = members[i];
-          out.name          = memb.name;
+          auto& member      = *flattenedStructs[i].member;
+          out.name          = flattenedStructs[i].name;
           out.location      = 0;
-          out.offset        = memb.offset;
-          out.elementStride = memb.array.dims_count ? memb.array.stride : 0;
-          out.matrixStride  = memb.numeric.matrix.stride; // will be zero for non-matrix
-          out.elementCount  = memb.array.dims[0];         // will be zero for non-array
+          out.offset        = flattenedStructs[i].offset;
+          out.elementStride = member.array.dims_count ? member.array.stride : 0;
+          out.matrixStride  = member.numeric.matrix.stride; // will be zero for non-matrix
+          out.elementCount  = member.array.dims[0];         // will be zero for non-array
           out.uniformClass  = UniformClass::UNIFORM_BUFFER;
           out.bufferIndex   = blockIndex++; // TODO: do we need this for Vulkan?
-          block.size += memb.padded_size;
+          block.size += member.padded_size;
         }
 
         // Sort members by offset
@@ -372,6 +376,85 @@ void Reflection::BuildReflection()
   mVkPipelineLayout = pipelineLayout;
 
   // Destroy descriptor set layouts
+}
+
+void Reflection::ParseUniformBlockVariables(struct ::SpvReflectBlockVariable* members, uint32_t memberCount, std::vector<FullyQualifiedMember>& flattenedStructs)
+{
+  struct Node
+  {
+    struct SpvReflectBlockVariable* member;
+    std::string                     prefix;
+    uint32_t                        offset;
+  };
+
+  // Each member is a tree node. If memb.member_count > 0, it has child elements.
+  //                             If memb.array.dim_count > 0 it's an array
+  // Push root nodes onto stack.
+  // While stack !empty
+  //   pop topmost
+  //     if isArray()
+  //       if element.member_count > 0
+  //         push each member
+  //       else push element
+  //     if member_count > 0
+  //       push each member
+  std::stack<Node> stack;
+
+  for(auto i = 0u; i < memberCount; ++i)
+  {
+    stack.push({&members[i], "", 0u});
+  }
+  while(!stack.empty())
+  {
+    Node current = stack.top();
+    stack.pop();
+    std::string name = current.prefix.empty() ? current.member->name : current.prefix + "." + current.member->name;
+
+    auto currentOffset = current.offset + current.member->offset;
+    if(current.member->array.dims_count > 0) // Array
+    {
+      auto elementSize = current.member->array.stride;
+      if(current.member->array.dims_count > 1)
+      {
+        DALI_LOG_ERROR("Currently only 1D uniform arrays are supported");
+        continue;
+      }
+      auto arrayLength = current.member->array.dims[0];
+      if(current.member->member_count > 0) // Array of Struct
+      {
+        for(auto idx = 0u; idx < arrayLength; ++idx)
+        {
+          uint32_t    elementOffset = currentOffset + (idx * elementSize);
+          std::string prefix        = name + "[" + std::to_string(idx) + "]";
+
+          for(auto elementIdx = 0u; elementIdx < current.member->member_count; ++elementIdx)
+          {
+            //auto offset = elementOffset + current.member->members[elementIdx].offset;
+            stack.push(Node{&current.member->members[elementIdx], prefix, elementOffset});
+          }
+        }
+      }
+      else // Array of single elements
+      {
+        flattenedStructs.emplace_back(FullyQualifiedMember{current.member, name, currentOffset, arrayLength});
+      }
+    }
+    else if(current.member->member_count > 0)
+    {
+      for(auto i = 0u; i < current.member->member_count; ++i)
+      {
+        stack.push(Node{&current.member->members[i], name, current.member->absolute_offset});
+      }
+    }
+    else //if(current.member->member_count == 0)
+    {
+      flattenedStructs.emplace_back(FullyQualifiedMember{current.member, name, currentOffset, 0u});
+    }
+  }
+  std::sort(flattenedStructs.begin(), flattenedStructs.end(), [](auto& lhs, auto& rhs)
+  {
+    return lhs.offset < rhs.offset;
+  });
 }
 
 vk::PipelineLayout Reflection::GetVkPipelineLayout() const
