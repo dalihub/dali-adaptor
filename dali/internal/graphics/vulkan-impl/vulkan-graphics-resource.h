@@ -29,6 +29,14 @@ class VulkanGraphicsController;
  */
 class ResourceBase
 {
+public: // Types
+  enum class InitializationResult
+  {
+    NOT_SUPPORTED,
+    INITIALIZED,
+    NOT_INITIALIZED_YET
+  };
+
 public:
   /**
    * @brief Destroys resource
@@ -44,9 +52,10 @@ public:
    * This function must be implemented by the derived class.
    * It should initialize all necessary GL resources.
    *
-   * @return True on success
+   * @return on success, either INITIALIZED or NOT_INITIALIZED_YET
+   * if it's lazily created on use.
    */
-  virtual bool InitializeResource() = 0;
+  virtual InitializationResult InitializeResource() = 0;
 
   /**
    * @brief Discards resource by adding it to the discard queue

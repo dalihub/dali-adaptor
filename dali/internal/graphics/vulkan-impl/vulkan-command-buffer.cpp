@@ -62,9 +62,9 @@ void CommandBuffer::DestroyResource()
   mCommandBufferImpl.clear();
 }
 
-bool CommandBuffer::InitializeResource()
+ResourceBase::InitializationResult CommandBuffer::InitializeResource()
 {
-  return true;
+  return InitializationResult::INITIALIZED;
 }
 
 void CommandBuffer::DiscardResource()

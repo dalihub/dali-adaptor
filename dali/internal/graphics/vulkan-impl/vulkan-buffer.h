@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_BUFFER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public:
   /**
    * @copydoc Graphics::Vulkan::Resource::InitializeResource();
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @return false - Vulkan should always allocate GPU buffers

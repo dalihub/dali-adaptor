@@ -54,10 +54,10 @@ public:
    *
    * @return True on success
    */
-  bool InitializeResource() override
+  InitializationResult InitializeResource() override
   {
     // There is no graphic resource here. return true.
-    return true;
+    return InitializationResult::INITIALIZED;
   }
 
   /**

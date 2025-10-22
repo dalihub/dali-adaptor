@@ -120,8 +120,8 @@ auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& cont
     // Create brand-new object
     UPtr gfxObject(new VKType(info, controller), GraphicsDeleter<VKType>());
     // @todo Consider using create queues?
-    bool succeeded = static_cast<VKType*>(gfxObject.get())->InitializeResource();
-    if(!succeeded)
+    ResourceBase::InitializationResult result = static_cast<VKType*>(gfxObject.get())->InitializeResource();
+    if(result == ResourceBase::InitializationResult::NOT_SUPPORTED)
     {
       DALI_LOG_ERROR("Vulkan resource failed to initialize.");
     }

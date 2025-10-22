@@ -45,7 +45,7 @@ public:
   /**
    * @copydoc Graphics::Vulkan::Resource::InitializeResource();
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @copydoc Graphics::Vulkan::Resource::DiscardResource();
@@ -152,6 +152,10 @@ public:
   {
     return mTiling;
   }
+  uint32_t GetMipLevelCount()
+  {
+    return mMaxMipMapLevel;
+  }
 
 private:
   /**
@@ -175,6 +179,7 @@ private:
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
+  uint32_t             mMaxMipMapLevel{1u};
   vk::Format           mFormat{vk::Format::eUndefined};
   vk::Format           mConvertFromFormat{vk::Format::eUndefined};
   vk::ImageUsageFlags  mUsage{};
