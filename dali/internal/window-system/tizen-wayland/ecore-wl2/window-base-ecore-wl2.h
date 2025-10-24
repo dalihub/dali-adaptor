@@ -789,6 +789,27 @@ private:
    */
   PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
 
+  /**
+   * @brief Transforms input region coordinates according to window rotation angle for Wayland window system.
+   * 
+   * This function is essential for proper input event handling when the window is rotated.
+   * It converts input region coordinates from the application's current orientation to
+   * the native Wayland system coordinates, ensuring that touch and mouse events are
+   * correctly mapped to the intended input areas regardless of window rotation.
+   * 
+   * The coordinate transformation accounts for the current window rotation angle.
+   * 
+   * This transformation is crucial for:
+   * - Input region setting (SetInputRegion)
+   * - Input region inclusion (IncludeInputRegion) 
+   * - Input region exclusion (ExcludeInputRegion)
+   * 
+   * @param[in] rect The input region rectangle in current window orientation coordinates.
+   * @param[in] surfaceSize The surface dimensions containing width and height for transformation calculations.
+   * @return Rect<int> The transformed input region rectangle in system coordinates.
+   */
+  Rect<int> RecalculateInputRect(const Rect<int>& rect, const Rect<int>& surfaceSize);
+
 protected:
   // Undefined
   WindowBaseEcoreWl2(const WindowBaseEcoreWl2&) = delete;
