@@ -55,7 +55,7 @@ public:
    *
    * @return True on success
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @brief Called when UniquePtr<> on client-side dies

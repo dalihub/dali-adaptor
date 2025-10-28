@@ -507,7 +507,7 @@ void Adaptor::Stop()
 
     mCallbackManager->Stop();
 
-    mCore->UnregisterProcessors();
+    GetCore().SceneDestroyed();
 
     RemoveSystemInformation();
 

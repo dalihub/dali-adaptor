@@ -223,7 +223,7 @@ void ResourceTransfer::UpdateWithFutures(
   {
     // Only update valid textures
     auto texture = static_cast<Vulkan::Texture*>(info.dstTexture);
-    if(texture->GetImage() != nullptr)
+    if(texture->GetImage() != nullptr && (info.level == 0 || info.level < texture->GetMipLevelCount()))
     {
       updateMap[info.dstTexture].emplace_back(&info, nullptr);
     }

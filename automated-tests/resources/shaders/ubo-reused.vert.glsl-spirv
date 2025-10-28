@@ -5,6 +5,7 @@ layout(location = 0) in mediump vec2 aPosition;
 #define TEXTURE_LOD textureLod
 #define TEXTURE_CUBE_LOD textureLod
 #define INSTANCE_INDEX gl_InstanceIndex
+#define VERTEX_INDEX gl_VertexIndex
 #define textureCube texture
 #define texture2D texture
 #define texture2DLod textureLod
