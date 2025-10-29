@@ -655,12 +655,6 @@ GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character, Character varia
 
 HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi)
 {
-  // Create new harfbuzz font only first time or DPI changed.
-  if(DALI_UNLIKELY(!mHarfBuzzProxyFont || mHarfBuzzProxyFont->mHorizontalDpi != horizontalDpi || mHarfBuzzProxyFont->mVerticalDpi != verticalDpi))
-  {
-    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mHarfBuzzVariations, horizontalDpi, verticalDpi, mGlyphCacheManager));
-  }
-
   if(mIsFixedSizeBitmap)
   {
     FT_Error error = mFontFaceManager->SelectFixedSize(mFreeTypeFace, mRequestedPointSize, mFixedSizeIndex);
@@ -677,6 +671,16 @@ HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontal
       DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GetHarfBuzzFont. ActivateFace fail\n");
     }
   }
+
+  // Create new harfbuzz font only first time or DPI changed.
+  if(DALI_UNLIKELY(!mHarfBuzzProxyFont || mHarfBuzzProxyFont->mHorizontalDpi != horizontalDpi || mHarfBuzzProxyFont->mVerticalDpi != verticalDpi))
+  {
+    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, mVariationsHash, mHarfBuzzVariations, horizontalDpi, verticalDpi, mGlyphCacheManager));
+  }
+
+  // Should be called after changing the size or variation-axis settings on the FT_Face. (ActivateFace/SelectFixedSize)
+  mHarfBuzzProxyFont->FontChanged();
+
   return mHarfBuzzProxyFont->GetHarfBuzzFont();
 }
 
