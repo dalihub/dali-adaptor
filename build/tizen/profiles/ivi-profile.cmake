@@ -74,6 +74,7 @@ SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
     ${adaptor_window_system_tizen_wayland_vulkan_src_files}
     ${adaptor_graphics_library_common_src_files}
     ${adaptor_window_system_tizen_wayland_graphics_library_src_files}
+    ${adaptor_graphics_vulkan_native_image_tizen_src_files}
 )
 
 # GlWindow Addon
@@ -119,4 +120,3 @@ IF( NOT ROBOT_PROFILE )
         ${adaptor_system_tizen_wayland_widget_src_files}
     )
 ENDIF()
-

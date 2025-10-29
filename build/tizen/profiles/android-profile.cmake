@@ -68,6 +68,7 @@ SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
         ${adaptor_libraries_spirv_reflect_src_files}
         ${adaptor_graphics_library_common_src_files}
         ${adaptor_window_system_android_graphics_backend_library_src_files}
+        ${adaptor_graphics_vulkan_native_image_generic_src_files}
 )
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )

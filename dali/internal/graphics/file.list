@@ -87,34 +87,29 @@ SET( adaptor_graphics_vulkan_src_files
 # module: graphics, backend: vulkan/x11
 SET( adaptor_graphics_vulkan_x11_src_files
     ${adaptor_graphics_dir}/vulkan/x11/vk-surface-xlib2xcb.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
 )
 
 # module: graphics, backend: vulkan/wayland
 SET( adaptor_graphics_vulkan_wayland_src_files
     ${adaptor_graphics_dir}/vulkan/wayland/vk-surface-wayland.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-tizen.cpp
 )
 
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
     ${adaptor_graphics_dir}/tizen/egl-sync-implementation-tizen.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-tizen.cpp
 )
 
 # module: graphics, backend: ubuntu
 SET( adaptor_graphics_ubuntu_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
     ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
 )
 
 # module: graphics, backend: libuv-x11
 SET( adaptor_graphics_x11_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
     ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
 )
 
 # module: graphics, backend: android, egl
@@ -126,7 +121,6 @@ SET( adaptor_graphics_egl_android_src_files
 # module: graphics, backend: android, vulkan
 SET( adaptor_graphics_vulkan_android_src_files
     ${adaptor_graphics_dir}/vulkan/android/vk-surface-android.cpp
-    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
 )
 
 # module: graphics, backend: windows
@@ -139,6 +133,16 @@ SET( adaptor_graphics_windows_src_files
 SET( adaptor_graphics_macos_src_files
     ${adaptor_graphics_dir}/macos/egl-image-extensions.cpp
     ${adaptor_graphics_dir}/macos/egl-sync-implementation-macos.cpp
+)
+
+# Vulkan native image specific (non-tizen)
+SET( adaptor_graphics_vulkan_native_image_generic_src_files
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
+)
+
+# Vulkan native image specific (tizen only)
+SET( adaptor_graphics_vulkan_native_image_tizen_src_files
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-tizen.cpp
 )
 
 # include GLES implementation
