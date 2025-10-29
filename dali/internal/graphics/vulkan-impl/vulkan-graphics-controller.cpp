@@ -355,10 +355,12 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
   // Ensure any outstanding image transfers are complete before submitting commands for rendering
   mImpl->mResourceTransfer.WaitOnResourceTransferFutures();
 
-  std::vector<SubmissionData> submitData;
+  std::vector<SubmissionData> fboSubmitData;
+  std::vector<SubmissionData> surfaceSubmitData;
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
   // Gather all command buffers targeting frame buffers into a single Submit request
+  RenderTarget* currentRenderSurface = nullptr;
   for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
   {
     auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
@@ -367,31 +369,35 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
     if(renderTarget && renderTarget->GetSurface() == nullptr)
     {
       DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
-      renderTarget->CreateSubmissionData(cmdBuffer, submitData);
+      renderTarget->CreateSubmissionData(cmdBuffer, fboSubmitData);
     }
-  }
-  if(!submitData.empty())
-  {
-    mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(submitData, nullptr);
-  }
-
-  // Submit each scene's cmd buffer separately, as these use EndOfFrameFence.
-  for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
-  {
-    auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
-    auto renderTarget = cmdBuffer->GetRenderTarget();
-    DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
-
-    if(renderTarget && renderTarget->GetSurface() != nullptr)
+    else
     {
-      auto surface   = renderTarget->GetSurface();
-      auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-      auto swapchain = GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
-
-      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: Surface CmdBuffer:%p\n", cmdBuffer->GetImpl());
-      renderTarget->CreateSubmissionData(cmdBuffer, submitData);
-      swapchain->GetQueue()->Submit(submitData, swapchain->GetEndOfFrameFence());
+      if(currentRenderSurface == nullptr)
+      {
+        currentRenderSurface = renderTarget;
+      }
+      else
+      {
+        DALI_ASSERT_DEBUG(currentRenderSurface == renderTarget);
+      }
+      renderTarget->CreateSubmissionData(cmdBuffer, surfaceSubmitData);
     }
+  }
+  if(!fboSubmitData.empty())
+  {
+    mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(fboSubmitData, nullptr);
+  }
+
+  if(!surfaceSubmitData.empty())
+  {
+    auto surface   = currentRenderSurface->GetSurface();
+    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
+
+    swapchain->UpdateSubmissionData(surfaceSubmitData);
+
+    swapchain->GetQueue()->Submit(surfaceSubmitData, swapchain->GetEndOfFrameFence());
   }
 
   // If flush bit set, flush all pending tasks
