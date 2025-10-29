@@ -17,17 +17,6 @@
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
-
-// EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
-#include <vulkan/vulkan.h>
-
 namespace Dali::Graphics::Vulkan
 {
 /**

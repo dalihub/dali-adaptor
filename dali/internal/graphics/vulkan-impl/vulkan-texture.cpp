@@ -34,9 +34,6 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
-// EXTERNAL INCLUDES
-#include <vulkan/vulkan.h>
-
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
 #endif
