@@ -33,7 +33,6 @@
 #include <tbm_surface_internal.h>
 #include <tbm_type_common.h>
 #include <unistd.h>
-#include <vulkan/vulkan.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
@@ -610,7 +609,7 @@ void VulkanNativeImageHandlerTizen::ResetNativeResources(Device& device, std::un
   }
 
   // Destroy old image
-  if(resources->nativeImage != VK_NULL_HANDLE)
+  if(resources->nativeImage)
   {
     DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "ResetNativeResources: Destroying old VkImage %p\n", static_cast<VkImage>(resources->nativeImage));
 
@@ -837,7 +836,7 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
 
     // Single memory binding for non-disjoint or single-plane
     auto memory = ImportPlaneMemory(device, planeFds[0]);
-    if(memory == VK_NULL_HANDLE)
+    if(!memory)
     {
       DALI_LOG_ERROR("CreateNativeImage: ImportPlaneMemory failed for FD %d\n", planeFds[0]);
       DALI_PRINT_SYSTEM_ERROR_LOG();
@@ -880,7 +879,7 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
       }
 
       auto memory = ImportPlaneMemory(device, planeFds[i]);
-      if(memory == VK_NULL_HANDLE)
+      if(!memory)
       {
         DALI_LOG_ERROR("CreateNativeImage: Failed to import memory for plane %zu FD %d\n", i, planeFds[i]);
         DALI_PRINT_SYSTEM_ERROR_LOG();
