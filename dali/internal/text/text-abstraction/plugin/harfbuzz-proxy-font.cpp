@@ -71,6 +71,12 @@ public:
    */
   void CreateHarfBuzzFont(const PointSize26Dot6& requestedPointSize, const uint32_t& horizontalDpi, const uint32_t& verticalDpi);
 
+  /**
+   * Refreshes the state of font when the underlying FT_Face has changed.
+   * This function should be called after changing the size or variation-axis settings on the FT_Face.
+   */
+  void FontChanged();
+
 private:
   /**
    * @brief Register harfbuzz callback functions into current harfbuzz font.
@@ -110,6 +116,14 @@ HarfBuzzFontHandle HarfBuzzProxyFont::GetHarfBuzzFont() const
     return static_cast<HarfBuzzFontHandle>(mImpl->mHarfBuzzFont);
   }
   return nullptr;
+}
+
+void HarfBuzzProxyFont::FontChanged() const
+{
+  if(mImpl)
+  {
+    mImpl->FontChanged();
+  }
 }
 
 // Collection of harfbuzz custom callback functions.
@@ -386,6 +400,9 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
     // Create font face with increase font face's reference.
     mHarfBuzzFont = hb_ft_font_create_referenced(mFreeTypeFace);
 
+    // This flag should be the same as the flag used by GetGlyphCacheData.
+    hb_ft_font_set_load_flags(mHarfBuzzFont, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING);
+
     if(!mHarfBuzzVariations.empty())
     {
       hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), mHarfBuzzVariations.size());
@@ -405,6 +422,14 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
   else
   {
     DALI_LOG_ERROR("ERROR! freetype face is null! something unknown problem occured.");
+  }
+}
+
+void HarfBuzzProxyFont::Impl::FontChanged()
+{
+  if(mHarfBuzzFont)
+  {
+    hb_ft_font_changed(mHarfBuzzFont);
   }
 }
 
