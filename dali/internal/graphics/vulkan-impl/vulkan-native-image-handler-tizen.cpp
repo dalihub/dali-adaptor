@@ -24,8 +24,9 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 
+#include <dali/internal/system/common/system-error-print.h>
+
 // EXTERNAL INCLUDES
-#include <errno.h>
 #include <fcntl.h>
 #include <tbm_bo.h>
 #include <tbm_surface.h>
@@ -661,6 +662,7 @@ bool VulkanNativeImageHandlerTizen::ExportPlaneFds(std::vector<int>& planeFds, s
     if(originalFd < 0)
     {
       DALI_LOG_ERROR("ExportPlaneFds: Failed to export FD for BO %d (returned %d)\n", i, originalFd);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -669,10 +671,8 @@ bool VulkanNativeImageHandlerTizen::ExportPlaneFds(std::vector<int>& planeFds, s
 
     if(dupFd < 0)
     {
-      DALI_LOG_ERROR("ExportPlaneFds: Failed to duplicate FD %d (errno=%d: %s)\n",
-                     originalFd,
-                     errno,
-                     strerror(errno));
+      DALI_LOG_ERROR("ExportPlaneFds: Failed to duplicate FD %d\n", originalFd);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       close(originalFd); // Close the exported FD we won't use
       return false;
     }
@@ -689,10 +689,8 @@ bool VulkanNativeImageHandlerTizen::ExportPlaneFds(std::vector<int>& planeFds, s
     // Verify the duplicated FD is valid
     if(fcntl(dupFd, F_GETFD) == -1)
     {
-      DALI_LOG_ERROR("ExportPlaneFds: WARNING - duplicated FD %d is already invalid after creation! errno=%d: %s\n",
-                     dupFd,
-                     errno,
-                     strerror(errno));
+      DALI_LOG_ERROR("ExportPlaneFds: WARNING - duplicated FD %d is already invalid after creation!\n", dupFd);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
     }
   }
 
@@ -712,10 +710,8 @@ vk::DeviceMemory VulkanNativeImageHandlerTizen::ImportPlaneMemory(Device& device
   int fcntl_result = fcntl(fd, F_GETFD);
   if(fcntl_result == -1)
   {
-    DALI_LOG_ERROR("ImportPlaneMemory: fcntl(F_GETFD) failed for FD %d - errno=%d: %s\n",
-                   fd,
-                   errno,
-                   strerror(errno));
+    DALI_LOG_ERROR("ImportPlaneMemory: fcntl(F_GETFD) failed for FD %d\n", fd);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return VK_NULL_HANDLE;
   }
 
@@ -725,10 +721,8 @@ vk::DeviceMemory VulkanNativeImageHandlerTizen::ImportPlaneMemory(Device& device
   const off_t dma_buf_size = lseek(fd, 0, SEEK_END);
   if(dma_buf_size < 0)
   {
-    DALI_LOG_ERROR("ImportPlaneMemory: lseek(SEEK_END) failed for FD %d - errno=%d: %s\n",
-                   fd,
-                   errno,
-                   strerror(errno));
+    DALI_LOG_ERROR("ImportPlaneMemory: lseek(SEEK_END) failed for FD %d\n", fd);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return VK_NULL_HANDLE;
   }
 
@@ -752,9 +746,8 @@ vk::DeviceMemory VulkanNativeImageHandlerTizen::ImportPlaneMemory(Device& device
 
   if(fdPropsResult != VK_SUCCESS)
   {
-    DALI_LOG_ERROR("ImportPlaneMemory: vkGetMemoryFdPropertiesKHR failed for FD %d - result=%d\n",
-                   fd,
-                   fdPropsResult);
+    DALI_LOG_ERROR("ImportPlaneMemory: vkGetMemoryFdPropertiesKHR failed for FD %d - result=%d\n", fd, fdPropsResult);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
     return VK_NULL_HANDLE;
   }
 
@@ -837,10 +830,8 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
     // Verify FD is still valid before import
     if(fcntl(planeFds[0], F_GETFD) == -1)
     {
-      DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d is INVALID before import! errno=%d: %s\n",
-                     planeFds[0],
-                     errno,
-                     strerror(errno));
+      DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d is INVALID before import!\n", planeFds[0]);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -849,6 +840,7 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
     if(memory == VK_NULL_HANDLE)
     {
       DALI_LOG_ERROR("CreateNativeImage: ImportPlaneMemory failed for FD %d\n", planeFds[0]);
+      DALI_PRINT_SYSTEM_ERROR_LOG();
       return false;
     }
 
@@ -882,20 +874,16 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
       // Verify FD is still valid
       if(fcntl(planeFds[i], F_GETFD) == -1)
       {
-        DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d for plane %zu is INVALID! errno=%d: %s\n",
-                       planeFds[i],
-                       i,
-                       errno,
-                       strerror(errno));
+        DALI_LOG_ERROR("CreateNativeImage: ERROR - FD %d for plane %zu is INVALID!\n", planeFds[i], i);
+        DALI_PRINT_SYSTEM_ERROR_LOG();
         return false;
       }
 
       auto memory = ImportPlaneMemory(device, planeFds[i]);
       if(memory == VK_NULL_HANDLE)
       {
-        DALI_LOG_ERROR("CreateNativeImage: Failed to import memory for plane %zu FD %d\n",
-                       i,
-                       planeFds[i]);
+        DALI_LOG_ERROR("CreateNativeImage: Failed to import memory for plane %zu FD %d\n", i, planeFds[i]);
+        DALI_PRINT_SYSTEM_ERROR_LOG();
         return false;
       }
 

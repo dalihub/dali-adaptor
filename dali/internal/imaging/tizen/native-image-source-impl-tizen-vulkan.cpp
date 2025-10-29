@@ -608,6 +608,7 @@ Any NativeImageSourceTizenVulkan::GetNativeImageHandle() const
 
 bool NativeImageSourceTizenVulkan::SourceChanged() const
 {
+  std::scoped_lock lock(mMutex);
   if(mTbmBackSurface)
   {
     return mUpdatedArea.IsEmpty() ? false : true;
@@ -761,6 +762,7 @@ void NativeImageSourceTizenVulkan::SetResourceDestructionCallback(EventThreadCal
 
 void NativeImageSourceTizenVulkan::EnableBackBuffer(bool enable)
 {
+  std::scoped_lock lock(mMutex);
   if(enable != mBackBufferEnabled)
   {
     mBackBufferEnabled = enable;

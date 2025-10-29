@@ -638,6 +638,7 @@ Any NativeImageSourceTizen::GetNativeImageHandle() const
 
 bool NativeImageSourceTizen::SourceChanged() const
 {
+  std::scoped_lock lock(mMutex);
   if(mTbmBackSurface)
   {
     return mUpdatedArea.IsEmpty() ? false : true;
@@ -788,6 +789,7 @@ void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback*
 
 void NativeImageSourceTizen::EnableBackBuffer(bool enable)
 {
+  std::scoped_lock lock(mMutex);
   if(enable != mBackBufferEnabled)
   {
     mBackBufferEnabled = enable;

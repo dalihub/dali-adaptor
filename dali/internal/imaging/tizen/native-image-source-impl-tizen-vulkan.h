@@ -235,7 +235,6 @@ private:
   tbm_surface_h                       mTbmSurface;     ///< TBM surface
   tbm_surface_h                       mTbmBackSurface; ///< Back buffer
   tbm_format                          mTbmFormat;      ///< TBM format
-  tbm_surface_info_s                  mTbmSurfaceInfo; ///< TBM surface info
 
   std::vector<int> mPlaneFds; ///< DMA-BUF file descriptors per plane
 
