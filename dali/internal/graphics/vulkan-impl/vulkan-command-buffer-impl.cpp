@@ -335,6 +335,30 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
     {
       if(pipelineToBind != mLastBoundPipeline)
       {
+        // Check if this pipeline uses advanced blending and insert blend barrier if needed
+        const auto& pipelineCreateInfo = mDeferredPipelineToBind->GetCreateInfo();
+        if(pipelineCreateInfo.colorBlendState && pipelineCreateInfo.colorBlendState->blendEnable)
+        {
+          auto blendOp = pipelineCreateInfo.colorBlendState->colorBlendOp;
+
+          if(blendOp >= Graphics::ADVANCED_BLEND_OPTIONS_START)
+          {
+            // Insert blend barrier for advanced blending operations
+            // This is equivalent to glBlendBarrier() in GLES
+            vk::MemoryBarrier memoryBarrier{
+              vk::AccessFlagBits::eColorAttachmentWrite,
+              vk::AccessFlagBits::eColorAttachmentRead};
+
+            mCommandBuffer.pipelineBarrier(
+              vk::PipelineStageFlagBits::eColorAttachmentOutput,
+              vk::PipelineStageFlagBits::eColorAttachmentOutput,
+              vk::DependencyFlags{},
+              memoryBarrier,
+              nullptr,
+              nullptr);
+          }
+        }
+
         mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineToBind);
         mLastBoundPipeline = pipelineToBind;
       }
