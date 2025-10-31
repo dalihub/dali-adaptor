@@ -90,7 +90,11 @@ public:
     uint32_t bufferIndex = mDevice->GetCurrentBufferIndex();
 
     // Ensure there is a discard queue for this buffer index
-    if(mQueues.size() < bufferIndex || !mQueues[bufferIndex])
+    if(DALI_UNLIKELY(mQueues.size() <= bufferIndex))
+    {
+      Resize(bufferIndex + 1);
+    }
+    if(!mQueues[bufferIndex])
     {
       for(auto i = 0u; i <= bufferIndex; ++i)
       {
