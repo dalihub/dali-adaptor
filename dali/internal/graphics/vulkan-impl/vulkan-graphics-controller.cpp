@@ -365,8 +365,13 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
   {
     auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
     auto renderTarget = cmdBuffer->GetRenderTarget();
-    DALI_ASSERT_DEBUG(renderTarget && "Cmd buffer has no render target set.");
-    if(renderTarget && renderTarget->GetSurface() == nullptr)
+
+    if(!renderTarget)
+    {
+      DALI_LOG_ERROR("Cmd buffer has no render target set.");
+      continue;
+    }
+    if(renderTarget->GetSurface() == nullptr)
     {
       DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
       renderTarget->CreateSubmissionData(cmdBuffer, fboSubmitData);
