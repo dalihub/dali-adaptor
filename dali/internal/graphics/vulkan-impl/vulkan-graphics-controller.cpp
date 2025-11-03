@@ -728,6 +728,40 @@ void VulkanGraphicsController::SetIsAdvancedBlendEquationSupported(bool isSuppor
   mImpl->mIsAdvancedBlendEquationCached    = true;
 }
 
+uint32_t VulkanGraphicsController::GetMaxTextureSize()
+{
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "GetMaxTextureSize: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  // Query max texture size from Vulkan physical device properties
+  const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+  return properties.limits.maxImageDimension2D;
+}
+
+uint32_t VulkanGraphicsController::GetMaxCombinedTextureUnits()
+{
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "GetMaxCombinedTextureUnits: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  // Query max combined texture units from Vulkan physical device properties
+  const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+  return properties.limits.maxPerStageDescriptorSamplers;
+}
+
 uint32_t VulkanGraphicsController::GetShaderLanguageVersion()
 {
   return 4;
