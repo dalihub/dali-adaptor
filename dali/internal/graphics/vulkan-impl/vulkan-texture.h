@@ -103,6 +103,7 @@ public:
   Image* GetImage() const;
 
   ImageView* GetImageView() const;
+  ImageView* GetImageView(uint32_t layer) const;
 
   /**
    * Create a new image view onto the image.
@@ -131,6 +132,10 @@ public:
 
   void PrepareTexture();
 
+  bool InitializeTextureArray(uint32_t arrayLayers);
+
+  bool InitializeFromTexture(Texture* texture, uint32_t layer);
+
   /**
    * Returns structure with texture properties
    * @return The reference to immutable TextureProperties object
@@ -138,10 +143,11 @@ public:
   const Dali::Graphics::TextureProperties& GetProperties();
 
   /**
-   * Initialises resources like memory, image view and samplers for previously
-   * initialised image object. Used when lazy allocation is needed.
+   * Initialises image views for the image. If there are multiple layers
+   * and this is a color attachment type, then generate an image view per
+   * layer, as we are batching FBOs.
    */
-  void InitializeImageView();
+  void InitializeImageViews();
 
   /**
    * Tries to convert pixel data to the compatible format. As result it returns new buffer.
@@ -183,6 +189,14 @@ public:
   {
     return mTiling;
   }
+  uint32_t GetWidth() const
+  {
+    return mWidth;
+  }
+  uint32_t GetHeight() const
+  {
+    return mHeight;
+  }
   uint32_t GetMipLevelCount()
   {
     return mMaxMipMapLevel;
@@ -205,9 +219,9 @@ private:
 private:
   Vulkan::Device& mDevice;
 
-  Image*       mImage;
-  ImageView*   mImageView;
-  SamplerImpl* mSampler{nullptr};
+  Image*                  mImage;
+  std::vector<ImageView*> mImageViews;
+  SamplerImpl*            mSampler{nullptr};
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
@@ -222,9 +236,9 @@ private:
   Dali::Graphics::TextureTiling mTiling{Dali::Graphics::TextureTiling::OPTIMAL};
 
   std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
-
-  bool mIsNativeImage{false};
-  bool mIsYUVFormat{false};
+  uint32_t                                           mArrayLayers{0u};
+  bool                                               mIsNativeImage{false};
+  bool                                               mIsYUVFormat{false};
 
   enum class NativeImageType
   {

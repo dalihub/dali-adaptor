@@ -48,17 +48,27 @@ ImageView* ImageView::NewFromImage(
   const Image&                image,
   const vk::ComponentMapping& componentMapping)
 {
+  return NewFromImage(device, image, componentMapping, 0);
+}
+
+ImageView* ImageView::NewFromImage(
+  Device&                     device,
+  const Image&                image,
+  const vk::ComponentMapping& componentMapping,
+  uint32_t                    baseArrayLayer)
+{
   auto subresourceRange = vk::ImageSubresourceRange{}
                             .setAspectMask(image.GetAspectFlags())
-                            .setBaseArrayLayer(0)
+                            .setBaseArrayLayer(baseArrayLayer)
                             .setBaseMipLevel(0)
                             .setLevelCount(image.GetMipLevelCount())
-                            .setLayerCount(image.GetLayerCount());
+                            .setLayerCount(1);
 
   vk::ImageViewType viewType = vk::ImageViewType::e2D;
   if(image.GetCreateInfo().flags & vk::ImageCreateFlagBits::eCubeCompatible)
   {
-    viewType = vk::ImageViewType::eCube;
+    viewType                    = vk::ImageViewType::eCube;
+    subresourceRange.layerCount = image.GetLayerCount();
   }
   auto imageView = New(device,
                        image,

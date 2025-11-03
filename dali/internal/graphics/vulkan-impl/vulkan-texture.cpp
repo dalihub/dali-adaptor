@@ -1244,7 +1244,6 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
   mImage(nullptr),
-  mImageView(nullptr),
   mNativeImageHandler(VulkanNativeImageHandler::CreateHandler()),
   mCurrentSurface(nullptr),
   mHasSurfaceReference(false)
@@ -1296,8 +1295,7 @@ Texture::~Texture()
     delete mSampler;
   }
 
-  delete mImageView;
-  delete mImage;
+  Texture::DestroyResource();
 }
 
 ResourceBase::InitializationResult Texture::InitializeResource()
@@ -1336,10 +1334,13 @@ void Texture::DestroyResource()
     mNativeImageHandler->DestroyNativeResources(mDevice, std::move(mNativeResources));
   }
 
-  if(mImageView)
+  if(!mImageViews.empty())
   {
-    mImageView->Destroy();
-    mImageView = nullptr;
+    for(auto& imageView : mImageViews)
+    {
+      imageView->Destroy();
+    }
+    mImageViews.clear();
   }
 
   if(mImage)
@@ -1479,9 +1480,9 @@ bool Texture::InitializeNativeTexture()
     if(mNativeResources)
     {
       // Update texture state from native resources
-      mImage     = mNativeResources->image;
-      mImageView = mNativeResources->imageView;
-      mSampler   = mNativeResources->sampler;
+      mImage = mNativeResources->image;
+      mImageViews.emplace_back(mNativeResources->imageView);
+      mSampler = mNativeResources->sampler;
 
       // Mark that we have a surface reference (acquired in handler)
       mHasSurfaceReference = true;
@@ -1507,6 +1508,15 @@ bool Texture::InitializeTexture()
     return false;
   }
 
+  if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
+  {
+    return InitializeTextureArray(6);
+  }
+  return InitializeTextureArray(1);
+}
+
+bool Texture::InitializeTextureArray(uint32_t arrayLayers)
+{
   auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
 
   mMaxMipMapLevel = 1;
@@ -1523,15 +1533,14 @@ bool Texture::InitializeTexture()
                            .setSharingMode(vk::SharingMode::eExclusive)
                            .setUsage(mUsage)
                            .setExtent({mWidth, mHeight, 1})
-                           .setArrayLayers(1)
+                           .setArrayLayers(arrayLayers)
                            .setImageType(vk::ImageType::e2D)
                            .setTiling(tiling)
                            .setMipLevels(mMaxMipMapLevel);
-
+  mArrayLayers    = arrayLayers;
   bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
   if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
   {
-    imageCreateInfo.setArrayLayers(6);
     imageCreateInfo.setFlags(vk::ImageCreateFlagBits::eCubeCompatible);
     imageCreateInfo.setInitialLayout(vk::ImageLayout::eUndefined);
     imageCreateInfo.setTiling(vk::ImageTiling::eOptimal);
@@ -1563,30 +1572,29 @@ bool Texture::InitializeTexture()
   // Non sampled image will be lazily initialised
   if(!(mUsage & vk::ImageUsageFlagBits::eTransferDst))
   {
-    InitializeImageView();
+    InitializeImageViews();
   }
   return true;
 }
 
-void Texture::InitializeImageView()
+void Texture::InitializeImageViews()
 {
-  if(!mImageView)
+  if(mImageViews.empty())
   {
-    // Create image view
-    mImageView = ImageView::NewFromImage(mDevice, *mImage, mComponentMapping);
-  }
-}
+    uint32_t arrayCount = mArrayLayers;
 
-std::unique_ptr<Vulkan::ImageView> Texture::CreateImageView()
-{
-  if(!mImageView)
-  {
-    // Ensure we have initialized the image:
-    InitializeImageView();
+    if(mArrayLayers == 6 && mCreateInfo.textureType == TextureType::TEXTURE_CUBEMAP)
+    {
+      // Only create 1 image view for cube maps
+      arrayCount = 1;
+    }
+
+    for(auto layer = 0u; layer < arrayCount; ++layer)
+    {
+      // Create image view
+      mImageViews.emplace_back(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping, layer));
+    }
   }
-  //@todo: Can we just return mImageView? Why create 2nd?
-  std::unique_ptr<Vulkan::ImageView> imageView(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping));
-  return imageView;
 }
 
 Vulkan::Image* Texture::GetImage() const
@@ -1596,9 +1604,15 @@ Vulkan::Image* Texture::GetImage() const
 
 Vulkan::ImageView* Texture::GetImageView() const
 {
-  return mImageView;
+  return GetImageView(0);
 }
 
+ImageView* Texture::GetImageView(uint32_t layer) const
+{
+  DALI_ASSERT_DEBUG(!mImageViews.empty() && layer < mImageViews.size());
+
+  return mImageViews[layer];
+}
 Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
 {
   return mSampler;

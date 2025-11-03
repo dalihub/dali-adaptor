@@ -255,13 +255,11 @@ void Swapchain::CreateFramebuffers(FramebufferAttachmentHandle depthAttachment)
                                                               mSwapchainCreateInfoKHR.imageFormat,
                                                               mSwapchainCreateInfoKHR.imageExtent);
     mSwapchainImages.emplace_back(colorImage);
-
-    std::unique_ptr<ImageView> colorImageView;
-    colorImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
+    mImageViews.emplace_back(ImageView::NewFromImage(mGraphicsDevice, *colorImage));
 
     // A new color attachment for each framebuffer
     SharedAttachments attachments;
-    attachments.emplace_back(FramebufferAttachment::NewColorAttachment(colorImageView,
+    attachments.emplace_back(FramebufferAttachment::NewColorAttachment(mImageViews.back().get(),
                                                                        clearColor,
                                                                        nullptr,
                                                                        true));
@@ -493,11 +491,11 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
     mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo, vk::MemoryPropertyFlagBits::eDeviceLocal));
 
     // create the depth stencil ImageView to be used within framebuffer
-    auto depthStencilImageView = std::unique_ptr<ImageView>(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer));
-    auto depthClearValue       = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
+    mDepthStencilImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer.get()));
+    auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
-    // A single depth attachment for the swapchain. Takes ownership of the image view
-    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(depthStencilImageView, depthClearValue, nullptr));
+    // A single depth attachment for the swapchain.
+    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(mDepthStencilImageView.get(), depthClearValue, nullptr));
   }
 
   // Before replacing framebuffers in the swapchain, wait until all is done

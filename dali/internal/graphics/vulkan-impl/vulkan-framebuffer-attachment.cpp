@@ -22,7 +22,7 @@
 namespace Dali::Graphics::Vulkan
 {
 FramebufferAttachment* FramebufferAttachment::NewColorAttachment(
-  std::unique_ptr<ImageView>&            imageView,
+  ImageView*                             imageView,
   vk::ClearColorValue                    clearColorValue,
   const Graphics::AttachmentDescription* description,
   bool                                   presentable)
@@ -38,7 +38,7 @@ FramebufferAttachment* FramebufferAttachment::NewColorAttachment(
 }
 
 FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
-  std::unique_ptr<ImageView>&            imageView,
+  ImageView*                             imageView,
   vk::ClearDepthStencilValue             clearDepthStencilValue,
   const Graphics::AttachmentDescription* description)
 {
@@ -54,7 +54,7 @@ FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
 }
 
 FramebufferAttachment::FramebufferAttachment(
-  std::unique_ptr<ImageView>&            imageView,
+  ImageView*                             imageView,
   vk::ClearValue                         clearColor,
   const Graphics::AttachmentDescription* description,
   AttachmentType                         type,
@@ -62,7 +62,7 @@ FramebufferAttachment::FramebufferAttachment(
 : mClearValue(clearColor),
   mType(type)
 {
-  mImageView.swap(imageView);
+  mImageView = imageView;
   auto image = mImageView->GetImage();
 
   auto sampleCountFlags = image->GetSampleCount();
@@ -97,7 +97,7 @@ FramebufferAttachment::FramebufferAttachment(
 
 ImageView* FramebufferAttachment::GetImageView() const
 {
-  return mImageView.get();
+  return mImageView;
 }
 
 const vk::AttachmentDescription& FramebufferAttachment::GetDescription() const
