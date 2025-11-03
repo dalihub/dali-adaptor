@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/thread-controller.h>
+#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {
@@ -42,6 +43,7 @@ const char* DALI_ENV_MULTIPLE_WINDOW_SUPPORT            = "DALI_ENV_MULTIPLE_WIN
 const char* DALI_BLEND_EQUATION_ADVANCED_SUPPORT        = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
 const char* DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT = "DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT";
 const char* DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
+const char* DALI_GRAPHICS_BACKEND_TYPE                  = "DALI_GRAPHICS_BACKEND_TYPE";
 
 } // unnamed namespace
 
@@ -62,6 +64,11 @@ ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics
   mShaderLanguageVersionCached(false),
   mMaxCombinedTextureUnitsCached(false)
 {
+  // First, read the cached graphics backend from the config file
+  RetrieveKeysFromConfigFile(mSystemCacheFilePath);
+
+  // Check for backend switching and handle it during initialization
+  CheckAndHandleBackendSwitch();
 }
 
 ConfigurationManager::~ConfigurationManager()
@@ -123,6 +130,11 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
         std::getline(subStream, value);
         mIsMultipleWindowSupported       = std::atoi(value.c_str());
         mIsMultipleWindowSupportedCached = true;
+      }
+      else if(name == DALI_GRAPHICS_BACKEND_TYPE)
+      {
+        std::getline(subStream, value);
+        mCachedGraphicsBackend = value;
       }
     }
   }
@@ -335,6 +347,87 @@ bool ConfigurationManager::IsMultisampledRenderToTextureSupported()
   }
 
   return mIsMultisampledRenderToTextureSupported;
+}
+
+std::string ConfigurationManager::GetCurrentGraphicsBackendString() const
+{
+  Graphics::Backend currentBackend = Graphics::GetCurrentGraphicsBackend();
+
+  switch(currentBackend)
+  {
+    case Graphics::Backend::GLES:
+      return "GLES";
+    case Graphics::Backend::VULKAN:
+      return "VULKAN";
+    default:
+      return "GLES"; // Default fallback
+  }
+}
+
+void ConfigurationManager::CheckAndHandleBackendSwitch()
+{
+  std::string currentBackend = GetCurrentGraphicsBackendString();
+
+  // If we have a cached backend and it's different from current, clear the cache
+  if(!mCachedGraphicsBackend.empty() && mCachedGraphicsBackend != currentBackend)
+  {
+    DALI_LOG_WARNING("Graphics backend switched from %s to %s, clearing configuration cache\n",
+                     mCachedGraphicsBackend.c_str(),
+                     currentBackend.c_str());
+    ClearConfigurationCache();
+
+    // Save the new graphics backend type to the configuration file
+    SaveCurrentGraphicsBackend();
+  }
+  else if(mCachedGraphicsBackend.empty())
+  {
+    // If no cached backend exists (first run), save the current backend type
+    SaveCurrentGraphicsBackend();
+  }
+
+  // Update the cached backend type
+  mCachedGraphicsBackend = currentBackend;
+}
+
+void ConfigurationManager::ClearConfigurationCache()
+{
+  // Reset all cached flags
+  mMaxTextureSizeCached                         = false;
+  mMaxCombinedTextureUnitsCached                = false;
+  mShaderLanguageVersionCached                  = false;
+  mIsMultipleWindowSupportedCached              = false;
+  mIsAdvancedBlendEquationSupportedCached       = false;
+  mIsMultisampledRenderToTextureSupportedCached = false;
+
+  // Reset cached values to defaults
+  mMaxTextureSize                         = 0u;
+  mMaxCombinedTextureUnits                = 0u;
+  mShaderLanguageVersion                  = 0u;
+  mIsMultipleWindowSupported              = true;
+  mIsAdvancedBlendEquationSupported       = true;
+  mIsMultisampledRenderToTextureSupported = true;
+
+  // Delete the cache file
+  if(std::remove(mSystemCacheFilePath.c_str()) != 0)
+  {
+    DALI_LOG_WARNING("Failed to remove cache file: %s\n", mSystemCacheFilePath.c_str());
+  }
+}
+
+void ConfigurationManager::SaveCurrentGraphicsBackend()
+{
+  std::string currentBackend = GetCurrentGraphicsBackendString();
+
+  Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
+  std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
+  if(stream.is_open())
+  {
+    stream << DALI_GRAPHICS_BACKEND_TYPE << " " << currentBackend << std::endl;
+  }
+  else
+  {
+    DALI_LOG_ERROR("Fail to open file for saving graphics backend: %s\n", mSystemCacheFilePath.c_str());
+  }
 }
 
 } // namespace Adaptor
