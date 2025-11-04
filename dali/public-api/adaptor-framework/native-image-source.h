@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class NativeImageSource;
 }
-} // namespace Internal DALI_INTERNAL
+} // namespace DALI_INTERNAL
 
 class NativeImageSource;
 /**
@@ -222,6 +222,11 @@ private: // native image
    * @copydoc Dali::NativeImageInterface::GetUpdatedArea()
    */
   Rect<uint32_t> GetUpdatedArea() override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  void PostRender() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()

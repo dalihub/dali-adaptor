@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_VULKAN_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-factory.h>
-#include <dali/internal/imaging/common/native-image-source-impl.h>
-#include <dali/internal/imaging/common/native-image-source-queue-impl.h>
 
 namespace Dali
 {

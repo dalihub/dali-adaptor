@@ -391,21 +391,16 @@ FenceImpl* Swapchain::GetEndOfFrameFence()
   return swapchainBuffer->endOfFrameFence.get();
 }
 
-void Swapchain::CreateSubmissionData(
-  CommandBufferImpl*                   commandBuffer,
-  std::vector<vk::Semaphore>&          waitSemaphores,
-  std::vector<vk::PipelineStageFlags>& waitDstStageMask,
-  std::vector<SubmissionData>&         submissionData)
+void Swapchain::UpdateSubmissionData(std::vector<SubmissionData>& submissionData)
 {
   auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
 
   swapchainBuffer->endOfFrameFence->Reset();
   swapchainBuffer->submitted = true;
 
-  waitSemaphores.push_back(swapchainBuffer->acquireNextImageSemaphore);
-  waitDstStageMask.push_back(vk::PipelineStageFlagBits::eFragmentShader);
-
-  submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {commandBuffer}, {swapchainBuffer->submitSemaphore}});
+  submissionData.front().waitSemaphores.emplace_back(swapchainBuffer->acquireNextImageSemaphore);
+  submissionData.front().waitDestinationStageMask.emplace_back(vk::PipelineStageFlagBits::eFragmentShader);
+  submissionData.back().signalSemaphores.emplace_back(swapchainBuffer->submitSemaphore);
 }
 
 uint32_t Swapchain::GetCurrentBufferIndex() const

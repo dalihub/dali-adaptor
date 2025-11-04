@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -112,23 +113,29 @@ FileDescriptorMonitorEcore::FileDescriptorMonitorEcore(int fileDescriptor, Callb
     DALI_ASSERT_ALWAYS(0 && "Invalid File descriptor");
     return;
   }
-
-  int events = 0;
-  if(eventBitmask & FD_READABLE)
+  if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
   {
-    events = ECORE_FD_READ;
+    int events = 0;
+    if(eventBitmask & FD_READABLE)
+    {
+      events = ECORE_FD_READ;
+    }
+    if(eventBitmask & FD_WRITABLE)
+    {
+      events |= ECORE_FD_WRITE;
+    }
+    mImpl->mEventsToMonitor = events;
+    mImpl->mHandler         = ecore_main_fd_handler_add(fileDescriptor, static_cast<Ecore_Fd_Handler_Flags>(events), &Impl::EventDispatch, mImpl, NULL, NULL);
   }
-  if(eventBitmask & FD_WRITABLE)
+  else
   {
-    events |= ECORE_FD_WRITE;
+    DALI_LOG_DEBUG_INFO("ecore_main_fd_handler_add comes after adaptor invalidated. Ignore\n");
   }
-  mImpl->mEventsToMonitor = events;
-  mImpl->mHandler         = ecore_main_fd_handler_add(fileDescriptor, static_cast<Ecore_Fd_Handler_Flags>(events), &Impl::EventDispatch, mImpl, NULL, NULL);
 }
 
 FileDescriptorMonitorEcore::~FileDescriptorMonitorEcore()
 {
-  if(mImpl->mHandler)
+  if(DALI_LIKELY(Dali::Adaptor::IsAvailable() && mImpl) && mImpl->mHandler)
   {
     try
     {

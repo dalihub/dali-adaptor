@@ -62,9 +62,9 @@ void CommandBuffer::DestroyResource()
   mCommandBufferImpl.clear();
 }
 
-bool CommandBuffer::InitializeResource()
+ResourceBase::InitializationResult CommandBuffer::InitializeResource()
 {
-  return true;
+  return InitializationResult::INITIALIZED;
 }
 
 void CommandBuffer::DiscardResource()
@@ -335,13 +335,29 @@ void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
 void CommandBuffer::SetScissor(Rect2D value)
 {
   // @todo Vulkan accepts array of scissors... add to API
+  Rect2D correctedValue = value;
 
-  if(SetDynamicState(mDynamicState.scissor, value, DynamicStateMaskBits::SCISSOR))
+  // First, invert the Y coord. But, only for surface, as we've flipped
+  // viewport coordinate system for framebuffers, below, and only if it's
+  // smaller than current height of render target (which implies it's been
+  // set in Layer API to crop, rather than set to viewport if no clip, as
+  // per render-algorithms)
+  if(mRenderTarget && mRenderTarget->GetSurface() != nullptr)
+  {
+    // Origin is in GL coords (bottom left)
+    auto height = mRenderTarget->GetCreateInfo().extent.height;
+    if(correctedValue.height < height)
+    {
+      correctedValue.y = height - value.y - value.height;
+    }
+  }
+
+  if(SetDynamicState(mDynamicState.scissor, correctedValue, DynamicStateMaskBits::SCISSOR))
   {
     mCmdCount++; // Debug info
 
     CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetScissor(value);
+    commandBufferImpl->SetScissor(correctedValue);
   }
 }
 
@@ -354,13 +370,16 @@ void CommandBuffer::SetScissorTestEnable(bool value)
 void CommandBuffer::SetViewport(Viewport value)
 {
   Viewport correctedValue = value;
-  auto     surface        = mRenderTarget->GetSurface();
+
+  // "UnCorrect" framebuffer's viewport (it's wrong way up in GLES backend, so
+  // API "InvertYAxis()" exists in DALI. But that's not used for surface, and we don't want to
+  // change apps).
+  auto surface = mRenderTarget->GetSurface();
   if(!surface)
   {
     correctedValue.height = -value.height;
     correctedValue.y      = value.height;
   }
-
   if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
   {
     mCmdCount++; // Debug info

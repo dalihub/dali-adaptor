@@ -20,6 +20,7 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/internal/graphics/common/shader-parser.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/dali-adaptor-version.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-reflection.h"
@@ -752,13 +753,8 @@ bool ProgramImpl::SaveFile(const std::string& filename, const unsigned char* buf
 
   if(!result)
   {
-    const int errorMessageMaxLength               = 128;
-    char      errorMessage[errorMessageMaxLength] = {}; // Initailze as null.
-
-    // Return type of stderror_r is different between system type. We should not use return value.
-    [[maybe_unused]] auto ret = strerror_r(errno, errorMessage, errorMessageMaxLength - 1);
-
-    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u, error message : [%s]\n", filename.c_str(), buffer, numBytes, errorMessage);
+    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u\n", filename.c_str(), buffer, numBytes);
+    DALI_PRINT_SYSTEM_ERROR_LOG();
   }
 
   return result;

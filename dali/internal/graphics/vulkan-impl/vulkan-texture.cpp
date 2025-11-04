@@ -18,18 +18,25 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/pixel-data-integ.h>
-
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
 
 namespace Dali::Graphics::Vulkan
 {
@@ -577,7 +584,7 @@ constexpr vk::Format ConvertApiToVkConst(Dali::Graphics::Format format)
     }
     case Dali::Graphics::Format::R11G11B10_UFLOAT_PACK32:
     {
-      return vk::Format::eUndefined;
+      return vk::Format::eB10G11R11UfloatPack32;
     }
     case Dali::Graphics::Format::E5B9G9R9_UFLOAT_PACK32:
     {
@@ -959,12 +966,162 @@ inline void WriteRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t
   }
 }
 
+inline float decodePackedComponent(uint32_t value, int bits)
+{
+  if(value == 0)
+    return 0;
+  int exponentBits = (bits == 10) ? 5 : 6;
+  int mantissaBits = bits - exponentBits - 1;
+  int exponent     = (value >> mantissaBits) & ((1 << exponentBits) - 1);
+  int mantissa     = value & ((1 << mantissaBits) - 1);
+  if(exponent == 0)
+  {
+    return ldexpf((float)mantissa / (1 << mantissaBits), 1 - (1 << (exponentBits - 1)));
+  }
+  if(exponent == ((1 << exponentBits) - 1))
+  {
+    return mantissa ? NAN : INFINITY;
+  }
+
+  float significand = 1.0f + (float)mantissa / (1 << mantissaBits);
+  return ldexpf(significand, exponent - ((1 << exponentBits) - 1));
+}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
+inline uint16_t floatToHalf(float f)
+{
+  uint32_t x        = *((uint32_t*)&f);
+  uint32_t sign     = (x >> 31) & 0x01;
+  uint32_t exponent = (x >> 23) & 0xFF;
+  uint32_t mantissa = (x & 0x7FFF);
+  if(exponent == 0xff)
+  {
+    return (sign << 15) | (0x7c00) | (mantissa ? 1 : 0);
+  }
+  if(exponent == 0)
+  {
+    return sign << 15;
+  }
+  int newExp = exponent - 127 + 15;
+  if(newExp > 31)
+  {
+    return (sign << 15) | 0x7c00;
+  }
+  if(newExp <= 0)
+  {
+    return sign << 15;
+  }
+  uint32_t newMantissa = mantissa >> 13;
+  return (sign << 15) | (newExp << 10) | newMantissa;
+}
+#pragma GCC diagnostic pop
+
+inline std::vector<uint8_t> ConvertRGBPackedFloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  //@todo: use stride if non-zero
+  std::vector<uint8_t> rgbaBuffer{};
+
+  auto inData = reinterpret_cast<const uint8_t*>(pData);
+
+  rgbaBuffer.resize(width * height * 8);
+  auto outData = reinterpret_cast<uint16_t*>(rgbaBuffer.data());
+  auto outIdx  = 0u;
+  for(auto i = 0u; i < sizeInBytes; i += 4)
+  {
+    uint32_t packed = *reinterpret_cast<const uint32_t*>(inData + i);
+    uint32_t r      = (packed >> 0) & 0x7ff;
+    uint32_t g      = (packed >> 11) & 0x7ff;
+    uint32_t b      = (packed >> 22) & 0x3ff;
+    float    rf     = decodePackedComponent(r, 11);
+    float    gf     = decodePackedComponent(g, 11);
+    float    bf     = decodePackedComponent(b, 10);
+
+    outData[outIdx]     = floatToHalf(rf);
+    outData[outIdx + 1] = floatToHalf(gf);
+    outData[outIdx + 2] = floatToHalf(bf);
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+  return rgbaBuffer;
+}
+
+inline void WriteRGBPackedFloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint8_t*>(pData);
+  auto outData = reinterpret_cast<uint16_t*>(pOutput);
+  auto outIdx  = 0u;
+
+  for(auto i = 0u; i < sizeInBytes; i += 4)
+  {
+    uint32_t packed = *reinterpret_cast<const uint32_t*>(inData + i);
+    uint32_t r      = (packed >> 0) & 0x7ff;
+    uint32_t g      = (packed >> 11) & 0x7ff;
+    uint32_t b      = (packed >> 22) & 0x3ff;
+    float    rf     = decodePackedComponent(r, 11);
+    float    gf     = decodePackedComponent(g, 11);
+    float    bf     = decodePackedComponent(b, 10);
+
+    outData[outIdx]     = floatToHalf(rf);
+    outData[outIdx + 1] = floatToHalf(gf);
+    outData[outIdx + 2] = floatToHalf(bf);
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+}
+
+inline std::vector<uint8_t> ConvertRGB16FloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  //@todo: use stride if non-zero
+  std::vector<uint8_t> rgbaBuffer{};
+
+  auto inData = reinterpret_cast<const uint16_t*>(pData);
+
+  rgbaBuffer.resize(width * height * 4 * sizeof(uint16_t));
+  auto outData     = reinterpret_cast<uint16_t*>(rgbaBuffer.data());
+  auto outIdx      = 0u;
+  auto sizeInWords = sizeInBytes / 2;
+  for(auto i = 0u; i < sizeInWords; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+  return rgbaBuffer;
+}
+
+inline void WriteRGB16FloatToRGBA16(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint16_t*>(pData);
+  auto outData = reinterpret_cast<uint16_t*>(pOutput);
+  auto outIdx  = 0u;
+
+  auto sizeInWords = sizeInBytes / 2;
+  for(auto i = 0u; i < sizeInWords; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = floatToHalf(1.0f);
+
+    outIdx += 4;
+  }
+}
+
 /**
  * Format conversion table
  */
 static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE =
   {
-    {vk::Format::eR8G8B8Unorm, vk::Format::eR8G8B8A8Unorm, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+    {vk::Format::eR8G8B8Unorm, vk::Format::eR8G8B8A8Unorm, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32},
+    {vk::Format::eB10G11R11UfloatPack32, vk::Format::eR16G16B16A16Sfloat, ConvertRGBPackedFloatToRGBA16, WriteRGBPackedFloatToRGBA16},
+    {vk::Format::eR16G16B16Sfloat, vk::Format::eR16G16B16A16Sfloat, ConvertRGB16FloatToRGBA16, WriteRGB16FloatToRGBA16}};
 
 /**
  * This function tests whether format is supported by the driver. If possible it applies
@@ -1046,7 +1203,7 @@ vk::Format Texture::ValidateFormat(vk::Format sourceFormat)
   auto retval = vk::Format::eUndefined;
 
   // if format isn't supported, see whether suitable conversion is implemented
-  if(!formatFlags)
+  if(!formatFlags || sourceFormat == vk::Format::eB10G11R11UfloatPack32)
   {
     auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item)
     { return item.oldFormat == sourceFormat; });
@@ -1086,8 +1243,11 @@ vk::Format Texture::ValidateCompressedFormat(vk::Format sourceFormat)
 Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
-  mImage(),
-  mImageView()
+  mImage(nullptr),
+  mImageView(nullptr),
+  mNativeImageHandler(VulkanNativeImageHandler::CreateHandler()),
+  mCurrentSurface(nullptr),
+  mHasSurfaceReference(false)
 {
   // Check env variable in order to enable staging buffers
   auto var = getenv("DALI_DISABLE_TEXTURE_STAGING_BUFFERS");
@@ -1096,42 +1256,92 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
     mDisableStagingBuffer = true;
     mTiling               = TextureTiling::LINEAR;
   }
+
+  mIsNativeImage = (createInfo.nativeImagePtr != nullptr);
+  if(mIsNativeImage)
+  {
+    if(dynamic_cast<Dali::NativeImageSource*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE;
+    }
+    else if(dynamic_cast<Dali::NativeImageSourceQueue*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE;
+    }
+  }
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr, mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
+
+  mSampler = controller.GetDefaultSampler();
 }
 
 Texture::~Texture()
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage)
+  {
+    // Release surface reference before destruction
+    if(mNativeImageHandler)
+    {
+      NativeTextureData textureData;
+      textureData.surfaceHandle       = mCurrentSurface;
+      textureData.currentSurface      = mCurrentSurface;
+      textureData.hasSurfaceReference = mHasSurfaceReference;
+
+      mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Released surface reference\n");
+    }
+
+    delete mSampler;
+  }
+
   delete mImageView;
   delete mImage;
 }
 
-bool Texture::InitializeResource()
+ResourceBase::InitializationResult Texture::InitializeResource()
 {
-  SetFormatAndUsage();
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "InitializeResource\n");
 
-  if(mFormat == vk::Format::eUndefined)
+  if(!mIsNativeImage || (mIsNativeImage && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE))
   {
-    // not supported!
-    return false;
+    if(Initialize())
+    {
+      return InitializationResult::INITIALIZED;
+    }
   }
 
-  if(InitializeTexture())
-  {
-    // force generating properties
-    GetProperties();
-
-    return true;
-  }
-
-  return false;
+  return InitializationResult::NOT_INITIALIZED_YET;
 }
 
 void Texture::DestroyResource()
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "DestroyResource: mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage && mNativeImageHandler)
+  {
+    // Release surface reference before destroying resources
+    NativeTextureData textureData;
+    textureData.surfaceHandle       = mCurrentSurface;
+    textureData.currentSurface      = mCurrentSurface;
+    textureData.hasSurfaceReference = mHasSurfaceReference;
+
+    mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+
+    mHasSurfaceReference = false;
+    mCurrentSurface      = nullptr;
+
+    // Destroy native image resources
+    mNativeImageHandler->DestroyNativeResources(mDevice, std::move(mNativeResources));
+  }
+
   if(mImageView)
   {
     mImageView->Destroy();
     mImageView = nullptr;
   }
+
   if(mImage)
   {
     mImage->Destroy();
@@ -1144,6 +1354,30 @@ void Texture::DiscardResource()
   mController.DiscardResource(this);
 }
 
+bool Texture::Initialize()
+{
+  SetFormatAndUsage();
+
+  if(mFormat == vk::Format::eUndefined)
+  {
+    DALI_LOG_ERROR("Vulkan::Texture::InitializeResource: Invalid texture format\n", static_cast<int>(mFormat));
+    // not supported!
+    return false;
+  }
+
+  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "InitializeResource: initialized: %d\n", initialized);
+
+  if(initialized)
+  {
+    // force generating properties
+    GetProperties();
+  }
+
+  return initialized;
+}
+
 void Texture::SetFormatAndUsage()
 {
   auto size = mCreateInfo.size;
@@ -1151,37 +1385,117 @@ void Texture::SetFormatAndUsage()
   mHeight   = uint32_t(size.height);
   mLayout   = vk::ImageLayout::eUndefined;
 
-  if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+  vk::Format format = vk::Format::eUndefined;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage: mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage && mNativeImageHandler)
   {
-    mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    NativeTextureData textureData = mNativeImageHandler->SetFormatAndUsage(mCreateInfo, mDevice);
+    if(textureData.isValid)
+    {
+      mFormat         = textureData.format;
+      mUsage          = textureData.usage;
+      mTiling         = textureData.tiling;
+      mIsYUVFormat    = textureData.isYUVFormat;
+      mCurrentSurface = textureData.surfaceHandle;
+      format          = mFormat;
+    }
+    else
+    {
+      DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: Handler returned invalid data\n");
+      mFormat = vk::Format::eUndefined;
+    }
   }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+  else
   {
-    mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
-  }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
-  {
-    mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image\n");
+
+    if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
+    {
+      mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    }
+
+    format = ConvertApiToVk(mCreateInfo.format);
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image: mCreateInfo.format: %d, format: %d\n", static_cast<int>(mCreateInfo.format), static_cast<int>(format));
   }
 
-  auto format = ConvertApiToVk(mCreateInfo.format);
   if(IsCompressed(mCreateInfo.format))
   {
     mFormat = ValidateCompressedFormat(format);
   }
   else
   {
-    mFormat = ValidateFormat(format);
+    mFormat = ValidateFormat(format); // reconvert from eB10G11R11,astc, etc1 to eR16G16B16A16
   }
 
   mConvertFromFormat = vk::Format::eUndefined;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage ValidateFormat: format: %d, mFormat: %d\n", static_cast<int>(format), static_cast<int>(mFormat));
+
   if(format != mFormat)
   {
     mConvertFromFormat = format;
   }
   mComponentMapping = GetVkComponentMapping(mCreateInfo.format);
+}
+
+bool Texture::InitializeNativeTexture()
+{
+  if(mNativeImageHandler)
+  {
+    NativeTextureData textureData;
+    textureData.surfaceHandle       = mCurrentSurface;
+    textureData.format              = mFormat;
+    textureData.usage               = mUsage;
+    textureData.tiling              = mTiling;
+    textureData.isYUVFormat         = mIsYUVFormat;
+    textureData.isValid             = true;
+    textureData.currentSurface      = mCurrentSurface;
+    textureData.hasSurfaceReference = mHasSurfaceReference;
+
+    if(mNativeResources)
+    {
+      // Clean up old native image resources
+      mNativeImageHandler->ResetNativeResources(mDevice, std::move(mNativeResources));
+    }
+
+    mNativeResources = mNativeImageHandler->InitializeNativeTexture(mCreateInfo, mDevice, mWidth, mHeight, textureData);
+
+    mCurrentSurface      = textureData.surfaceHandle;
+    mHasSurfaceReference = textureData.hasSurfaceReference;
+
+    if(mNativeResources)
+    {
+      // Update texture state from native resources
+      mImage     = mNativeResources->image;
+      mImageView = mNativeResources->imageView;
+      mSampler   = mNativeResources->sampler;
+
+      // Mark that we have a surface reference (acquired in handler)
+      mHasSurfaceReference = true;
+      mCurrentSurface      = textureData.surfaceHandle;
+
+      return true;
+    }
+    else
+    {
+      // Initialization failed, ensure we don't have a surface reference
+      mHasSurfaceReference = false;
+    }
+  }
+  return false;
 }
 
 // creates image with pre-allocated memory and default sampler, no data
@@ -1194,6 +1508,13 @@ bool Texture::InitializeTexture()
   }
 
   auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
+
+  mMaxMipMapLevel = 1;
+  if(mCreateInfo.mipMapFlag == TextureMipMapFlag::ENABLED)
+  {
+    // Mip levels: bit width of dims-3; so should cap at 4x4.
+    mMaxMipMapLevel = std::min(1.0f, logf(std::max(1u, std::min(mWidth, mHeight))) / logf(2.0f) - 3);
+  }
   // create image
   auto imageCreateInfo = vk::ImageCreateInfo{}
                            .setFormat(mFormat)
@@ -1205,7 +1526,7 @@ bool Texture::InitializeTexture()
                            .setArrayLayers(1)
                            .setImageType(vk::ImageType::e2D)
                            .setTiling(tiling)
-                           .setMipLevels(1);
+                           .setMipLevels(mMaxMipMapLevel);
 
   bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
   if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
@@ -1280,7 +1601,7 @@ Vulkan::ImageView* Texture::GetImageView() const
 
 Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
 {
-  return mController.GetDefaultSampler();
+  return mSampler;
 }
 
 vk::Format Texture::ConvertApiToVk(Dali::Graphics::Format format)
@@ -1321,6 +1642,56 @@ const TextureProperties& Texture::GetProperties()
     mProperties->nativeHandle             = 0; //@todo change to Dali::Any, and pass vkImage handle
   }
   return *mProperties;
+}
+
+void Texture::PrepareTexture()
+{
+  if(mIsNativeImage && mNativeImageHandler && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "PrepareTexture for native image\n");
+
+    // Store current surface before calling PrepareTexture
+    void* oldSurface = mCurrentSurface;
+
+    // Call the native image's PrepareTexture
+    auto result = mCreateInfo.nativeImagePtr->PrepareTexture();
+
+    if(result == Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED)
+    {
+      // Release reference to old surface before reinitializing
+      if(oldSurface)
+      {
+        NativeTextureData textureData;
+        textureData.surfaceHandle       = mCurrentSurface;
+        textureData.currentSurface      = mCurrentSurface;
+        textureData.hasSurfaceReference = mHasSurfaceReference;
+
+        mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+
+        mHasSurfaceReference = false;
+        mCurrentSurface      = nullptr;
+      }
+
+      // Surface changed, need to reinitialize with new surface
+      SetFormatAndUsage();
+
+      if(mFormat != vk::Format::eUndefined)
+      {
+        bool initialized = InitializeNativeTexture();
+        if(initialized)
+        {
+          // force generating properties
+          GetProperties();
+
+          DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "PrepareTexture: Successfully reinitialized with new surface\n");
+        }
+        else
+        {
+          DALI_LOG_ERROR("Texture::PrepareTexture: Failed to reinitialize with new surface\n");
+        }
+      }
+    }
+  }
 }
 
 } // namespace Dali::Graphics::Vulkan

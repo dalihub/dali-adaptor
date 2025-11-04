@@ -185,6 +185,13 @@ public:
     return Rect<uint32_t>{0, 0, mWidth, mHeight};
   }
 
+  /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  void PostRender() override
+  {
+  }
+
 private:
   /**
    * Private constructor; @see NativeImageSourceQueue::New()

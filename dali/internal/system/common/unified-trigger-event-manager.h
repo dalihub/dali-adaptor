@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 #include <memory>
 #include <unordered_set>
@@ -29,70 +30,66 @@
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 
-namespace Dali::Internal::Adaptor
+namespace Dali
 {
-class TriggerEvent;
+namespace Internal::Adaptor
+{
+class UnifiedTriggerEventManager;
+} // namespace Internal::Adaptor
 
 /**
- * The Controller for trigger events. It has one global static fd, and invoke
- * after collect each EventTrigger's trigger called.
+ * @brief Handle of UnifiedTriggerEventManager.
  */
-class UnifiedTriggerEventManager
+class UnifiedTriggerEventManager : public BaseHandle
 {
 public:
-  static UnifiedTriggerEventManager& Get();
-
-public:
   /**
-   * @brief Generate new trigger events that unified tirgger event manager could control.
+   * @brief Constructor
+   */
+  UnifiedTriggerEventManager() = default;
+
+  /**
+   * @brief Copy constructor.
    *
-   * @param[in] callback Callback when event triggerd
-   * @param[in] options Additional option flags for trigger
-   * @return New generated event trigger pointer.
+   * @param[in] copy The UnifiedTriggerEventManager to copy
    */
-  TriggerEvent* GenerateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
+  UnifiedTriggerEventManager(const UnifiedTriggerEventManager& copy) = default;
 
   /**
-   * @brief Discard trigger events. This will be deleted at the end of Triggered() API.
+   * @brief Assignment operator
    *
-   * @param[in] triggerEvent Discarded trigger event
+   * @param[in] rhs The UnifiedTriggerEventManager to copy
+   * @return A reference to this
    */
-  void DiscardTriggerEvent(TriggerEvent* triggerEvent);
+  UnifiedTriggerEventManager& operator=(const UnifiedTriggerEventManager& rhs) = default;
 
-public:
   /**
-   * Triggers the event.
+   * @brief Move constructor.
    *
-   * This can be called from various threads in order to wake up another thread.
-   * @param[in] triggerEvent Trigger events that want to trigger.
+   * @param[in] move The UnifiedTriggerEventManager to move
    */
-  void Trigger(TriggerEvent* triggerEvent);
+  UnifiedTriggerEventManager(UnifiedTriggerEventManager&& move) noexcept = default;
 
-private:
-  UnifiedTriggerEventManager();
-  ~UnifiedTriggerEventManager();
-
-private:
   /**
-   * @brief Called when our event file descriptor has been written to.
-   * @param[in] eventBitMask bit mask of events that occured on the file descriptor
-   * @param[in] fileDescriptor The file descriptor
+   * @brief Move assignment operator
+   *
+   * @param[in] rhs The UnifiedTriggerEventManager to move
+   * @return A reference to this
    */
-  void Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor);
+  UnifiedTriggerEventManager& operator=(UnifiedTriggerEventManager&& rhs) noexcept = default;
 
-private:
-  std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;
+  /**
+   * @brief Destructor
+   */
+  ~UnifiedTriggerEventManager() = default;
 
-  std::unordered_set<uint32_t>      mValidEventsId; ///< Keep Id only
-  std::unordered_set<TriggerEvent*> mDiscardedEvents;
-
-  // Worker thread accessable data,
-  int                               mFileDescriptor;
-  Dali::Mutex                       mTriggerMutex; // Mutex for trigger
-  std::unordered_set<TriggerEvent*> mTriggeredEvents;
-  bool                              mFileDescriptorWritten;
+public: // Not intended for application developers
+  /**
+   * @brief This constructor is used internally to create a handle from an object pointer.
+   * @param [in] lifecycleController A pointer to the internal UnifiedTriggerEventManager.
+   */
+  explicit UnifiedTriggerEventManager(Internal::Adaptor::UnifiedTriggerEventManager* unifiedTriggerEventManager);
 };
-
-} // namespace Dali::Internal::Adaptor
+} // namespace Dali
 
 #endif // DALI_INTERNAL_UNIFIED_TRIGGER_EVENT_MANAGER_H

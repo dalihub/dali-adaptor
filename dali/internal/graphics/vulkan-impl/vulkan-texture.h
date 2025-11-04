@@ -21,6 +21,7 @@
 #include <dali/graphics-api/graphics-texture.h>
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
@@ -31,6 +32,30 @@ class Memory;
 class Image;
 class ImageView;
 class SamplerImpl;
+
+/**
+ * @brief Abstract interface for surface reference management
+ *
+ * This interface allows the Vulkan texture to manage surface lifetimes.
+ * The texture uses this to acquire/release references to surfaces it's using.
+ */
+class SurfaceReferenceManager
+{
+public:
+  virtual ~SurfaceReferenceManager() = default;
+
+  /**
+   * @brief Acquire a reference to a surface
+   * @param surface The surface handle (opaque pointer)
+   */
+  virtual void AcquireSurfaceReference(void* surface) = 0;
+
+  /**
+   * @brief Release a reference to a surface
+   * @param surface The surface handle (opaque pointer)
+   */
+  virtual void ReleaseSurfaceReference(void* surface) = 0;
+};
 
 using TextureResource = Resource<Graphics::Texture, Graphics::TextureCreateInfo>;
 
@@ -45,7 +70,7 @@ public:
   /**
    * @copydoc Graphics::Vulkan::Resource::InitializeResource();
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @copydoc Graphics::Vulkan::Resource::DiscardResource();
@@ -98,7 +123,13 @@ public:
 
   Dali::Graphics::MemoryRequirements GetMemoryRequirements() const;
 
+  bool InitializeNativeTexture();
+
   bool InitializeTexture();
+
+  bool Initialize();
+
+  void PrepareTexture();
 
   /**
    * Returns structure with texture properties
@@ -152,6 +183,10 @@ public:
   {
     return mTiling;
   }
+  uint32_t GetMipLevelCount()
+  {
+    return mMaxMipMapLevel;
+  }
 
 private:
   /**
@@ -170,11 +205,13 @@ private:
 private:
   Vulkan::Device& mDevice;
 
-  Image*     mImage;
-  ImageView* mImageView;
+  Image*       mImage;
+  ImageView*   mImageView;
+  SamplerImpl* mSampler{nullptr};
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
+  uint32_t             mMaxMipMapLevel{1u};
   vk::Format           mFormat{vk::Format::eUndefined};
   vk::Format           mConvertFromFormat{vk::Format::eUndefined};
   vk::ImageUsageFlags  mUsage{};
@@ -185,6 +222,23 @@ private:
   Dali::Graphics::TextureTiling mTiling{Dali::Graphics::TextureTiling::OPTIMAL};
 
   std::unique_ptr<Dali::Graphics::TextureProperties> mProperties;
+
+  bool mIsNativeImage{false};
+  bool mIsYUVFormat{false};
+
+  enum class NativeImageType
+  {
+    NONE,
+    NATIVE_IMAGE_SOURCE,
+    NATIVE_IMAGE_SOURCE_QUEUE
+  };
+  NativeImageType mNativeImageType{NativeImageType::NONE};
+
+  // Native image handler and resources
+  std::unique_ptr<VulkanNativeImageHandler> mNativeImageHandler;         ///< Handler for native image operations
+  std::unique_ptr<NativeImageResources>     mNativeResources;            ///< Native image resources
+  void*                                     mCurrentSurface{nullptr};    ///< Currently referenced surface
+  bool                                      mHasSurfaceReference{false}; ///< Whether we have acquired a surface reference
 };
 
 } // namespace Dali::Graphics::Vulkan

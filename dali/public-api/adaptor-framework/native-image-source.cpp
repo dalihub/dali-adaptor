@@ -143,6 +143,11 @@ Rect<uint32_t> NativeImageSource::GetUpdatedArea()
   return mImpl->GetUpdatedArea();
 }
 
+void NativeImageSource::PostRender()
+{
+  mImpl->PostRender();
+}
+
 NativeImageInterface::Extension* NativeImageSource::GetExtension()
 {
   return mImpl->GetNativeImageInterfaceExtension();

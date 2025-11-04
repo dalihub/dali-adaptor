@@ -5,6 +5,7 @@
 #define TEXTURE_LOD textureLod
 #define TEXTURE_CUBE_LOD textureLod
 #define INSTANCE_INDEX gl_InstanceID
+#define VERTEX_INDEX gl_VertexID
 #define textureCube texture
 #define texture2D texture
 #define texture2DLod textureLod

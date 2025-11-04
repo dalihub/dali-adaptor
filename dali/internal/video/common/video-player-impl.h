@@ -238,6 +238,38 @@ public:
   bool IsLetterBoxEnabled() const;
 
   /**
+   * @brief Sets the frame interpolation interval for smooth video playback.
+   *
+   * The interpolation factor will progress from 0.0 to 1.0 over this duration.
+   * This interval is applied after the next call to SetVideoFrameBuffer.
+   *
+   * @param[in] intervalSeconds The interpolation interval in seconds
+   */
+  void SetFrameInterpolationInterval(float intervalSeconds);
+
+  /**
+   * @brief Enables or disables offscreen frame rendering for video interpolation.
+   *
+   * When enabled, the video player will use offscreen rendering for frame interpolation,
+   * which can improve visual quality for certain video content.
+   *
+   * @param[in] useOffScreenFrame True to enable offscreen frame rendering, false to disable
+   * @param[in] previousFrameBufferNativeImageSourcePtr Native image source for previous frame buffer
+   * @param[in] currentFrameBufferNativeImageSourcePtr Native image source for current frame buffer
+   */
+  void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr);
+
+  /**
+   * @brief Sets the video frame buffer for rendering.
+   *
+   * This method sets the native image source that will be used as the frame buffer
+   * for video rendering. The frame buffer contains the surface data for video playback.
+   *
+   * @param[in] source The video frame buffer source containing surface data
+   */
+  void SetVideoFrameBuffer(Dali::NativeImageSourcePtr source);
+
+  /**
    * @brief Gets Video Player plugin
    * @SINCE_2_0.14
    * @return VideoPlayerPlugin pointer

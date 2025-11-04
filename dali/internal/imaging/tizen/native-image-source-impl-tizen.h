@@ -162,6 +162,11 @@ public:
   Rect<uint32_t> GetUpdatedArea() override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  void PostRender() override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override

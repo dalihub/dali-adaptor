@@ -538,6 +538,7 @@ WindowRenderSurface::~WindowRenderSurface()
 {
 }
 
+// Initialize at constructor.
 void WindowRenderSurface::Initialize(Any surface)
 {
   // If width or height are zero, go full screen.
@@ -556,17 +557,24 @@ void WindowRenderSurface::Initialize(Any surface)
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
 
-  // Create frame rendered trigger.
-  mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
-                                                                            TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-  DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
-
   // Check screen rotation
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle(true);
   if(screenRotationAngle != 0)
   {
     DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", screenRotationAngle);
     OutputTransformed(screenRotationAngle);
+  }
+}
+
+// Initialize after Adaptor created. (Could be called multiple times)
+void WindowRenderSurface::Initialize()
+{
+  // Create frame rendered trigger.
+  if(!mFrameRenderedTrigger)
+  {
+    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
+                                                                              TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
   }
 }
 
@@ -866,7 +874,14 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     if(needFrameRenderedTrigger)
     {
-      mFrameRenderedTrigger->Trigger();
+      if(DALI_LIKELY(mFrameRenderedTrigger))
+      {
+        mFrameRenderedTrigger->Trigger();
+      }
+      else
+      {
+        DALI_LOG_ERROR("WindowRenderSurface::Initialize not called before! Rendered tigger ignored\n");
+      }
     }
   }
 
@@ -933,7 +948,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     mGraphics->Resize(this, size);
 
-    SetFullSwapNextFrame();
+    SetFullSwapCurrentFrame();
   }
 
   // When mIsFrontBufferRendering is not equal to mWindowBase's
@@ -941,7 +956,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
   {
     mIsFrontBufferRenderingChanged = false;
     mWindowBase->SetWindowFrontBufferMode(mIsFrontBufferRendering);
-    SetFullSwapNextFrame();
+    SetFullSwapCurrentFrame();
   }
 
   SetBufferDamagedRects(damagedRects, clippingRect);
@@ -1148,6 +1163,10 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
   int32_t   orientation = 0;
 
+  // Clear damage rect list first.
+  // DevNote : Empty damaged rect mark as full-swap at SwapBuffer time
+  mDamagedRects.clear();
+
   Dali::Integration::Scene scene = mScene.GetHandle();
   if(scene)
   {
@@ -1161,7 +1180,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   }
 
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
-     mFullSwapNextFrame)
+     IsFullSwapRequired())
   {
     InsertRects(mBufferDamagedRects, surfaceRect);
     clippingRect = surfaceRect;
@@ -1172,8 +1191,6 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   {
     // Empty damaged rect. We don't need rendering
     clippingRect = Rect<int>();
-    // Clean up current damanged rects.
-    mDamagedRects.clear();
     return;
   }
 
@@ -1212,6 +1229,9 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   {
     // The buffer age is too old. Need full update.
     clippingRect = surfaceRect;
+
+    // Clean up current damanged rects. (specialized case for full-swap)
+    mDamagedRects.clear();
     return;
   }
 
@@ -1219,6 +1239,9 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   {
     // clipping area too big or doesn't intersect surface rect
     clippingRect = surfaceRect;
+
+    // Clean up current damanged rects. (specialized case for full-swap)
+    mDamagedRects.clear();
     return;
   }
 
@@ -1240,27 +1263,14 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
+  // Aging full-swap flags.
+  mFullSwapFlag >>= 1u;
+
+  // Specialize that damagedRects is empty.
+  // Note that we cannot use mFullSwapFlag here, since full swap could be changed between PreRender~PostRender.
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
-     mFullSwapNextFrame)
+     damagedRects.empty())
   {
-    mFullSwapNextFrame = false;
-    mGraphics->SwapBuffers(mSurfaceId);
-    return;
-  }
-
-  mFullSwapNextFrame = false;
-
-  Rect<int32_t>            surfaceRect;
-  Dali::Integration::Scene scene = mScene.GetHandle();
-  if(scene)
-  {
-    surfaceRect = scene.GetCurrentSurfaceRect();
-  }
-
-  if(!damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
-  {
-    // In normal cases, WindowRenderSurface::SwapBuffers() will not be called if mergedRects.size() is 0.
-    // For exceptional cases, swap full area.
     mGraphics->SwapBuffers(mSurfaceId);
   }
   else

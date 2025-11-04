@@ -204,9 +204,11 @@ void CommandBufferImpl::BindUniformBuffers(const std::vector<UniformBufferBindin
 
 void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
+  DALI_LOG_ERROR("CommandBufferImpl::BindTextures BEGIN: textureBindings: %lu\n", textureBindings.size());
+
   for(const auto& textureBinding : textureBindings)
   {
-    auto texture     = static_cast<const Vulkan::Texture*>(textureBinding.texture);
+    auto texture     = const_cast<Vulkan::Texture*>(static_cast<const Vulkan::Texture*>(textureBinding.texture));
     auto sampler     = const_cast<Vulkan::Sampler*>(static_cast<const Vulkan::Sampler*>(textureBinding.sampler));
     auto samplerImpl = sampler ? sampler->GetImpl() : texture->GetDefaultSampler();
     auto vkSampler   = samplerImpl ? samplerImpl->GetVkHandle() : nullptr;
@@ -216,12 +218,16 @@ void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureB
       DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Concise, "No sampler for texture binding\n");
     }
 
+    // Ensure native image is prepared
+    texture->PrepareTexture();
+
     auto image     = texture->GetImage();
     auto imageView = texture->GetImageView();
 
     // test if image is valid, skip invalid image
     if(!image || !image->GetVkHandle())
     {
+      DALI_LOG_ERROR("CommandBufferImpl::BindTextures: image invalid, SKIP\n");
       continue;
     }
 
@@ -234,6 +240,8 @@ void CommandBufferImpl::BindTextures(const std::vector<TextureBinding>& textureB
     mDeferredTextureBindings.back().sampler   = vkSampler;
     mDeferredTextureBindings.back().binding   = textureBinding.binding; // zero indexed
   }
+
+  DALI_LOG_ERROR("CommandBufferImpl::BindTextures END: mDeferredTextureBindings: %lu\n", mDeferredTextureBindings.size());
 }
 
 void CommandBufferImpl::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
@@ -341,6 +349,8 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
 
 void CommandBufferImpl::PrepareForDraw()
 {
+  DALI_LOG_ERROR("CommandBufferImpl::PrepareForDraw\n");
+
   ResolveDeferredPipelineBinding();
 
   if(mCurrentProgram)
@@ -363,6 +373,8 @@ void CommandBufferImpl::Draw(uint32_t vertexCount,
                              uint32_t firstVertex,
                              uint32_t firstInstance)
 {
+  DALI_LOG_ERROR("CommandBufferImpl::Draw\n");
+
   // Resolve pipeline binding and bind the appropriate descriptor set
   PrepareForDraw();
 
@@ -553,6 +565,8 @@ void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
   // Deferred texture bindings:
   if(!samplers.empty()) // Ignore any texture bindings if the program is not expecting them
   {
+    DALI_LOG_ERROR("CommandBufferImpl::UpdateDescriptorSet: mDeferredTextureBindings: %lu\n", mDeferredTextureBindings.size());
+
     imageInfos.Reserve(samplers.size() + 1);
     for(auto& info : samplers)
     {
@@ -560,6 +574,12 @@ void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
       uint32_t binding = 1;
       for(auto& textureBinding : mDeferredTextureBindings)
       {
+        if(!textureBinding.imageView)
+        {
+          DALI_LOG_ERROR("CommandBufferImpl::UpdateDescriptorSet: imageView invalid, SKIP!!!!!!!!!!!!!!!!!\n");
+          continue;
+        }
+
         if(info.location == textureBinding.binding)
         {
           found   = true;
@@ -590,6 +610,7 @@ void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
 
   if(!descriptorWrites.Empty())
   {
+    DALI_LOG_ERROR("CommandBufferImpl::UpdateDescriptorSet: updateDescriptorSets\n");
     mGraphicsDevice->GetLogicalDevice().updateDescriptorSets(uint32_t(descriptorWrites.Size()), &descriptorWrites[0], 0, nullptr);
   }
 }

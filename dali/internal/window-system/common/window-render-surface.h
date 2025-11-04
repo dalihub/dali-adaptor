@@ -68,6 +68,12 @@ public:
    */
   virtual ~WindowRenderSurface();
 
+  /**
+   * @brief Second phase initialize after adaptor created
+   * @note Could be called multiple times
+   */
+  void Initialize();
+
 public: // API
   /**
    * @brief Get the native window handle

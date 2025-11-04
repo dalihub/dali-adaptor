@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,9 +56,9 @@ Pipeline::Pipeline(const Graphics::PipelineCreateInfo& createInfo, VulkanGraphic
   mPipeline = std::make_unique<PipelineImpl>(createInfo, controller, pipelineCache);
 }
 
-bool Pipeline::InitializeResource()
+ResourceBase::InitializationResult Pipeline::InitializeResource()
 {
-  return true;
+  return InitializationResult::INITIALIZED;
 }
 
 void Pipeline::DiscardResource()

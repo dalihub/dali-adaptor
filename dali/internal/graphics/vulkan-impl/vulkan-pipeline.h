@@ -84,7 +84,7 @@ public:
   /**
    * @brief Initialize the resource
    */
-  bool InitializeResource() override;
+  InitializationResult InitializeResource() override;
 
   /**
    * @brief trigger discard

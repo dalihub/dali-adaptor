@@ -146,6 +146,11 @@ public:
   virtual Rect<uint32_t> GetUpdatedArea() = 0;
 
   /**
+   * @copydoc Dali::NativeImageInterface::PostRender()
+   */
+  virtual void PostRender() = 0;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;
