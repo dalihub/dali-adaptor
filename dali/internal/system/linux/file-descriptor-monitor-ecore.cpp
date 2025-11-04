@@ -64,42 +64,50 @@ struct FileDescriptorMonitorEcore::Impl
    */
   static Eina_Bool EventDispatch(void* data, Ecore_Fd_Handler* handler)
   {
-    Impl* impl = reinterpret_cast<Impl*>(data);
-
-    // if we want read events, check to see if a read event is available
-    int type = FileDescriptorMonitor::FD_NO_EVENT;
-
-    if(ecore_main_fd_handler_active_get(handler, ECORE_FD_ERROR))
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
     {
-      DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d\n", impl->mFileDescriptor);
-      CallbackBase::Execute(*impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor);
+      Impl* impl = reinterpret_cast<Impl*>(data);
 
+      // if we want read events, check to see if a read event is available
+      int type = FileDescriptorMonitor::FD_NO_EVENT;
+
+      if(ecore_main_fd_handler_active_get(handler, ECORE_FD_ERROR))
+      {
+        DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d\n", impl->mFileDescriptor);
+        CallbackBase::Execute(*impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor);
+
+        return ECORE_CALLBACK_CANCEL;
+      }
+
+      if(impl->mEventsToMonitor & ECORE_FD_READ)
+      {
+        if(ecore_main_fd_handler_active_get(handler, ECORE_FD_READ))
+        {
+          type = FileDescriptorMonitor::FD_READABLE;
+        }
+      }
+      // check if we want write events
+      if(impl->mEventsToMonitor & ECORE_FD_WRITE)
+      {
+        if(ecore_main_fd_handler_active_get(handler, ECORE_FD_WRITE))
+        {
+          type |= FileDescriptorMonitor::FD_WRITABLE;
+        }
+      }
+
+      // if there is an event, execute the callback
+      if(type != FileDescriptorMonitor::FD_NO_EVENT)
+      {
+        CallbackBase::Execute(*impl->mCallback, static_cast<FileDescriptorMonitor::EventType>(type), impl->mFileDescriptor);
+      }
+
+      return ECORE_CALLBACK_RENEW;
+    }
+    else
+    {
+      DALI_LOG_DEBUG_INFO("FD dispatch signal comes after adaptor invalidated. Ignore dispatch callback.\n");
       return ECORE_CALLBACK_CANCEL;
     }
-
-    if(impl->mEventsToMonitor & ECORE_FD_READ)
-    {
-      if(ecore_main_fd_handler_active_get(handler, ECORE_FD_READ))
-      {
-        type = FileDescriptorMonitor::FD_READABLE;
-      }
-    }
-    // check if we want write events
-    if(impl->mEventsToMonitor & ECORE_FD_WRITE)
-    {
-      if(ecore_main_fd_handler_active_get(handler, ECORE_FD_WRITE))
-      {
-        type |= FileDescriptorMonitor::FD_WRITABLE;
-      }
-    }
-
-    // if there is an event, execute the callback
-    if(type != FileDescriptorMonitor::FD_NO_EVENT)
-    {
-      CallbackBase::Execute(*impl->mCallback, static_cast<FileDescriptorMonitor::EventType>(type), impl->mFileDescriptor);
-    }
-
-    return ECORE_CALLBACK_RENEW;
   }
 };
 
