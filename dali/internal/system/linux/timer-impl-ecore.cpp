@@ -37,16 +37,30 @@ namespace Adaptor
 // LOCAL STUFF
 namespace
 {
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TIMER_PERFORMANCE_MARKER, false);
+
 Eina_Bool TimerSourceFunc(void* data)
 {
   TimerEcore* timer = static_cast<TimerEcore*>(data);
 
-  bool keepRunning = timer->Tick();
+  if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+  {
+    bool keepRunning = timer->Tick();
 
-  return keepRunning ? EINA_TRUE : EINA_FALSE;
+    return keepRunning ? EINA_TRUE : EINA_FALSE;
+  }
+  else
+  {
+    DALI_LOG_DEBUG_INFO("Tick signal comes after adaptor invalidated. Ignore tick callback.\n");
+#ifdef TRACE_ENABLED
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Invalidated timer : %p\n", timer);
+    }
+#endif
+    return EINA_FALSE;
+  }
 }
-
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TIMER_PERFORMANCE_MARKER, false);
 } // unnamed namespace
 
 /**
