@@ -115,8 +115,6 @@ void RenderTarget::CreateSubmissionData(
   const CommandBuffer*         cmdBuffer,
   std::vector<SubmissionData>& submissionData)
 {
-  auto surface = GetSurface();
-
   std::vector<vk::Semaphore> waitSemaphores;   // Remains empty if we're only using barriers
   std::vector<vk::Semaphore> submitSemaphores; // Remains empty if we're only using barriers
 #if defined(ENABLE_FBO_SEMAPHORE)
@@ -136,17 +134,7 @@ void RenderTarget::CreateSubmissionData(
   }
 #endif
   std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};
-
-  if(!surface)
-  {
-    submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {cmdBuffer->GetImpl()}, submitSemaphores});
-  }
-  else
-  {
-    auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
-    auto swapchain = mController.GetGraphicsDevice().GetSwapchainForSurfaceId(surfaceId);
-    swapchain->CreateSubmissionData(cmdBuffer->GetImpl(), waitSemaphores, waitDstStageMask, submissionData);
-  }
+  submissionData.emplace_back(SubmissionData{waitSemaphores, waitDstStageMask, {cmdBuffer->GetImpl()}, submitSemaphores});
   mSubmitted = true;
 }
 

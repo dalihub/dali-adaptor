@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
-#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
+#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_VULKAN_H
+#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_VULKAN_H
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -22,10 +22,12 @@
 #include <dali/devel-api/common/map-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/images/native-image-interface.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
+#include <atomic>
+#include <chrono>
 #include <unordered_map>
-#include <utility>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
@@ -36,18 +38,40 @@ namespace Internal
 {
 namespace Adaptor
 {
-class EglGraphics;
-class EglImageExtensions;
-class EglSyncObject;
+/**
+ * @brief Surface reference management interface for external consumers
+ *
+ * This interface allows external components (like Vulkan textures) to manage
+ * surface lifetimes. The NativeImageSourceQueue uses this to delay surface
+ * recycling until all references are released.
+ */
+class NativeImageSurfaceReference
+{
+public:
+  virtual ~NativeImageSurfaceReference() = default;
+
+  /**
+   * @brief Called when a surface reference is acquired by an external consumer
+   * @param surface The TBM surface handle
+   */
+  virtual void AcquireSurfaceReference(void* surface) = 0;
+
+  /**
+   * @brief Called when a surface reference is released by an external consumer
+   * @param surface The TBM surface handle
+   */
+  virtual void ReleaseSurfaceReference(void* surface) = 0;
+};
 
 /**
- * Dali internal NativeImageSource.
+ * Dali internal NativeImageSourceQueue.
  */
-class NativeImageSourceQueueTizen : public Internal::Adaptor::NativeImageSourceQueue
+class NativeImageSourceQueueTizenVulkan : public Internal::Adaptor::NativeImageSourceQueue,
+                                          public NativeImageSurfaceReference
 {
 public:
   /**
-   * Create a new NativeImageSourceQueueTizen internally.
+   * Create a new NativeImageSourceQueueTizenVulkan internally.
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
@@ -56,7 +80,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  static NativeImageSourceQueueTizenVulkan* New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -101,7 +125,7 @@ public:
   /**
    * destructor
    */
-  ~NativeImageSourceQueueTizen() override;
+  ~NativeImageSourceQueueTizenVulkan() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource
@@ -191,15 +215,29 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::PostRender()
    */
-  void PostRender() override;
+  void PostRender() override
+  {
+  }
 
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
   {
-    return nullptr;
+    return reinterpret_cast<NativeImageInterface::Extension*>(static_cast<NativeImageSurfaceReference*>(this));
   }
+
+  // NativeImageSurfaceReference implementation
+
+  /**
+   * @copydoc NativeImageSurfaceReference::AcquireSurfaceReference()
+   */
+  void AcquireSurfaceReference(void* surface) override;
+
+  /**
+   * @copydoc NativeImageSurfaceReference::ReleaseSurfaceReference()
+   */
+  void ReleaseSurfaceReference(void* surface) override;
 
 private:
   /**
@@ -209,68 +247,74 @@ private:
    * @param[in] height The height of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Any nativeImageSourceQueue);
+  NativeImageSourceQueueTizenVulkan(uint32_t queueCount, uint32_t width, uint32_t height, Any nativeImageSourceQueue);
 
   void Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat);
 
-  void ResetEglImageList(bool releaseConsumeSurface);
+  void ResetSurfaceList(bool releaseConsumeSurface);
 
   tbm_surface_queue_h GetSurfaceFromAny(Any source) const;
 
   bool CheckBlending(int format);
 
-  /**
-   * @brief Creates a synchronization object for GPU-CPU synchronization.
-   *
-   * This method creates a sync object that can be used to synchronize between
-   * GPU and CPU operations. The sync object ensures that GPU operations have
-   * completed before CPU operations proceed.
-   * Note: The created sync object should be used by implementing classes to provide
-   * wait functionality that ensures proper synchronization between GPU and CPU.
-   *
-   * @return true if the sync object was created successfully, false otherwise
-   */
-  bool CreateSyncObject();
-
-  /**
-   * @brief Waits for the synchronization object to be signaled.
-   *
-   * This method blocks until the sync object is signaled, indicating that
-   * GPU operations have completed.
-   */
-  void WaitSync(tbm_surface_h surface);
-
 private:
-  enum class ImageState : uint8_t
+  struct SurfaceReferenceData
   {
-    INITIALIZED,
-    NOT_CHANGED,
-    CHANGED
+    std::atomic<int>                      refCount{0};
+    std::chrono::steady_clock::time_point lastUsed;
+    tbm_surface_h                         surface{nullptr};
+
+    SurfaceReferenceData(tbm_surface_h surf)
+    : lastUsed(std::chrono::steady_clock::now()),
+      surface(surf)
+    {
+    }
   };
 
-  using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
-  using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
-  using EglSyncContainer       = std::unordered_map<tbm_surface_h, std::pair<EglSyncObject*, int32_t>>;
+  struct PendingRelease
+  {
+    tbm_surface_h                         surface;
+    std::chrono::steady_clock::time_point timestamp;
+  };
 
-  Dali::Mutex            mMutex;              ///< Mutex
-  uint32_t               mQueueCount;         ///< queue count
-  uint32_t               mWidth;              ///< image width
-  uint32_t               mHeight;             ///< image height
-  tbm_surface_queue_h    mTbmQueue;           ///< Tbm surface queue handle
-  tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
-  SurfaceEglContainer    mEglImages;          ///< EGL Image map
-  BufferSurfaceContainer mBuffers;            ///< Buffer map
-  EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
-  EglSyncContainer       mEglSyncDiscardList; ///< EGL sync object list to discard
-  EglGraphics*           mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
-  ImageState             mImageState;         ///< Image state
-  bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                   mBlendingRequired;   ///< Whether blending is required
-  bool                   mIsResized;          ///< Whether the size has changed
-  bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
-  bool                   mNeedSync;           ///< Whether we need to create the egl sync object
-  bool                   mWaitInRenderThread; ///< Whether we wait for the sync to be signaled in the render thread
+  /**
+   * @brief Schedule a surface for delayed release
+   * @param surface The surface to be released when safe
+   */
+  void ScheduleSurfaceForDelayedRelease(tbm_surface_h surface);
+
+  /**
+   * @brief Clean up surfaces that are no longer referenced
+   */
+  void CleanupPendingReleases();
+
+  /**
+   * @brief Get or create surface reference entry
+   * @param surface The TBM surface handle
+   * @return Reference to surface reference data
+   */
+  struct SurfaceReferenceData& GetOrCreateSurfaceRef(tbm_surface_h surface);
+
+private:
+  using SurfaceContainer       = std::vector<tbm_surface_h>;
+  using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
+
+  Dali::Mutex            mMutex;            ///< Mutex
+  uint32_t               mQueueCount;       ///< queue count
+  uint32_t               mWidth;            ///< image width
+  uint32_t               mHeight;           ///< image height
+  tbm_surface_queue_h    mTbmQueue;         ///< Tbm surface queue handle
+  tbm_surface_h          mConsumeSurface;   ///< The current tbm surface
+  SurfaceContainer       mSurfaces;         ///< Surface container
+  BufferSurfaceContainer mBuffers;          ///< Buffer map
+  bool                   mOwnTbmQueue;      ///< Whether we created tbm queue
+  bool                   mBlendingRequired; ///< Whether blending is required
+  bool                   mIsResized;        ///< Whether the size has changed
+  bool                   mFreeRequest;      ///< Whether it is requested to free the released buffers
+
+  // Surface reference management
+  std::unordered_map<tbm_surface_h, std::unique_ptr<SurfaceReferenceData>> mSurfaceRefs;
+  std::vector<PendingRelease>                                              mPendingRelease;
 };
 
 } // namespace Adaptor
@@ -279,4 +323,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
+#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_VULKAN_H

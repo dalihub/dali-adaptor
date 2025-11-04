@@ -335,9 +335,6 @@ void Texture::DestroyResource()
 
     if(mCreateInfo.nativeImagePtr)
     {
-      // Invalidate given texture
-      ClearCachedContext();
-
       // TODO : Shouldn't we call DestroyResource even if shutting down?
       // For now, we use EglExtensions API at DestroyResource. So just block for now.
       mCreateInfo.nativeImagePtr->DestroyResource();
@@ -409,59 +406,31 @@ bool Texture::PrepareNativeTexture(GLES::Context* prepareContext)
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
   if(nativeImage)
   {
-    if(!mIsPrepared)
+    Dali::NativeImageInterface::PrepareTextureResult result = nativeImage->PrepareTexture();
+
+    if(DALI_UNLIKELY(result >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MIN &&
+                     result >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
     {
-      mIsPrepared        = true;
-      mLastPrepareResult = nativeImage->PrepareTexture();
-
-      if(DALI_UNLIKELY(mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MIN &&
-                       mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
-      {
-        DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", mLastPrepareResult);
-      }
-
-      // Clear target called context if image changed.
-      if(mLastPrepareResult == Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED)
-      {
-        // Remove cached info to contexts and invalidate this texture.
-        ClearCachedContext();
-      }
+      DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", result);
+      return false;
     }
 
-    // NOTE : We should call TargetTextureKHR per each context.
-    if(mTargetCalledContext.find(prepareContext) == mTargetCalledContext.end())
-    {
-      mTargetCalledContext.insert(prepareContext);
-      nativeImage->TargetTexture();
-    }
+    nativeImage->TargetTexture();
   }
   else
   {
     DALI_LOG_ERROR("Do not call PrepareNativeTexture for standard textures\n");
-    mLastPrepareResult = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
+    return false;
   }
 
-  return mLastPrepareResult >= Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR_MIN &&
-         mLastPrepareResult <= Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR_MAX;
+  return true;
 }
 
 void Texture::ResetPrepare()
 {
-  mIsPrepared        = false;
-  mLastPrepareResult = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
-
-  // Remove context list if it stored too many items.
-  if(DALI_UNLIKELY(mTargetCalledContext.size() > CLEAR_CACHED_CONTEXT_THRESHOLD))
+  if(mCreateInfo.nativeImagePtr)
   {
-    ClearCachedContext();
-  }
-}
-
-void Texture::InvalidateCachedContext(GLES::Context* invalidatedContext)
-{
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
-  {
-    mTargetCalledContext.erase(invalidatedContext);
+    mCreateInfo.nativeImagePtr->PostRender();
   }
 }
 
@@ -499,15 +468,6 @@ void Texture::SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t
     gl->TexParameteri(mGlTarget, param, value);
     cacheValue = value;
   }
-}
-
-void Texture::ClearCachedContext()
-{
-  for(auto* context : mTargetCalledContext)
-  {
-    context->InvalidateCachedNativeTexture(this);
-  }
-  mTargetCalledContext.clear();
 }
 
 } // namespace Dali::Graphics::GLES

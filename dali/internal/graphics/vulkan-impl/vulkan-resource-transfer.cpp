@@ -233,6 +233,7 @@ void ResourceTransfer::UpdateWithFutures(
   {
     return;
   }
+
   // make a copy of update info lists by storing additional information
   for(auto& aTextureInfo : updateMap)
   {
@@ -569,6 +570,7 @@ void ResourceTransfer::CopyBufferAndTransition(
                                             {},
                                             preLayoutBarriers);
 
+  //@todo: For native image with YUV format, we need to do this differently.
   auto copyInfo = vk::BufferImageCopy{}
                     .setImageSubresource(vk::ImageSubresourceLayers{}
                                            .setBaseArrayLayer(layer)

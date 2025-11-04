@@ -60,6 +60,12 @@ public:
    */
   HarfBuzzFontHandle GetHarfBuzzFont() const;
 
+  /**
+   * Refreshes the state of font when the underlying FT_Face has changed.
+   * This function should be called after changing the size or variation-axis settings on the FT_Face.
+   */
+  void FontChanged() const;
+
 private:
   // Private API area.
   HarfBuzzProxyFont()                             = delete; // Do not use default construct

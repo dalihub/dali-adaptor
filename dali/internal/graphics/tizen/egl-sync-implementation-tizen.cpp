@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 
-#ifdef _ARCH_ARM_
+#if defined(_ARCH_ARM_) || defined(__aarch64__)
 
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
@@ -37,7 +37,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/common/system-error-print.h>
 
-#ifdef _ARCH_ARM_
+#if defined(_ARCH_ARM_) || defined(__aarch64__)
 
 namespace
 {
@@ -64,7 +64,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-#ifdef _ARCH_ARM_
+#if defined(_ARCH_ARM_) || defined(__aarch64__)
 
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
 : mEglSync(NULL),

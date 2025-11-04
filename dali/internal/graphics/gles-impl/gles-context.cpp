@@ -389,7 +389,6 @@ struct Context::Impl
   const GLES::PipelineImpl* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
 
   Dali::Vector<Graphics::TextureBinding> mCurrentTextureBindings{};
-  std::unordered_set<GLES::Texture*>     mPreparedNativeTextures{};
 
   GLES::IndexBufferBindingDescriptor mCurrentIndexBufferBinding{};
 
@@ -448,8 +447,6 @@ Context::Context(EglGraphicsController& controller, Integration::GlAbstraction* 
 
 Context::~Context()
 {
-  ClearCachedNativeTexture();
-
   // Destroy native rendering context if one exists
   if(mImpl->mNativeDrawContext)
   {
@@ -563,7 +560,6 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       }
 
       // Must call it after Prepare(), and must cache even if prepare failed.
-      mImpl->mPreparedNativeTextures.insert(texture);
       dependencyChecker.MarkNativeTexturePrepared(texture);
     }
 
@@ -1178,42 +1174,16 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
        * textures.
        */
       dependencyChecker.AddTextures(this, framebuffer);
-    }
 
-    if(dependencyChecker.GetNativeTextureCount() > 0)
-    {
-      dependencyChecker.MarkNativeTextureSyncContext(this);
-#ifndef DALI_PROFILE_TV
-      /// Only TV profile should not create egl sync object before eglSwapBuffers, due to DDK bug. 2024-12-13. eunkiki.hong
-      dependencyChecker.CreateNativeTextureSync(this);
-#endif
-    }
-
-    if(DALI_LIKELY(gl) &&
-       (framebuffer
-#ifndef DALI_PROFILE_TV
-        || (dependencyChecker.GetNativeTextureCount() > 0)
-#endif
-          ))
-    {
       // Need to call glFlush or eglSwapBuffer after create sync object.
       gl->Flush();
-    }
 
-    if(DALI_LIKELY(gl) && framebuffer)
-    {
       InvalidateDepthStencilRenderBuffers(framebuffer);
 
       // Reset FBO bind after using.
       gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
       mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(0);
     }
-  }
-
-  // Remove native texture list if it stored too many items.
-  if(DALI_UNLIKELY(mImpl->mPreparedNativeTextures.size() > CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD))
-  {
-    ClearCachedNativeTexture();
   }
 }
 
@@ -1272,19 +1242,6 @@ void Context::ClearVertexBufferCache()
 void Context::ClearUniformBufferCache()
 {
   mImpl->mUniformBufferBindingCache.Clear();
-}
-
-void Context::ClearCachedNativeTexture()
-{
-  if(DALI_UNLIKELY(!mImpl->mPreparedNativeTextures.empty()))
-  {
-    DALI_LOG_DEBUG_INFO("Context[%p] call ClearCachedNativeTexture : %zu\n", this, mImpl->mPreparedNativeTextures.size());
-    for(auto* nativeTexture : mImpl->mPreparedNativeTextures)
-    {
-      nativeTexture->InvalidateCachedContext(this);
-    }
-    mImpl->mPreparedNativeTextures.clear();
-  }
 }
 
 void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
@@ -1577,14 +1534,6 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   }
 }
 
-void Context::InvalidateCachedNativeTexture(GLES::Texture* nativeTexture)
-{
-  if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
-  {
-    mImpl->mPreparedNativeTextures.erase(nativeTexture);
-  }
-}
-
 void Context::PrepareForNativeRendering()
 {
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
@@ -1674,7 +1623,6 @@ void Context::ResetGLESState(bool callGlFunction)
   ResetTextureCache();
   ResetBufferCache();
   ClearVertexBufferCache();
-  ClearCachedNativeTexture();
 
   // Note : Must call it end of this API, to ensure the gl call is matched with default states.
   mImpl->InitializeGlState(callGlFunction);

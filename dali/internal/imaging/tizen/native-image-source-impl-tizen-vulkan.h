@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
-#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
+#ifndef DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_VULKAN_H
+#define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_VULKAN_H
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -19,14 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <hardware_buffer.h>
+#include <dali/public-api/common/dali-vector.h>
+#include <tbm_surface.h>
+#include <memory>
+#include <mutex>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/graphics-interface.h>
-
-#include <dali/public-api/adaptor-framework/native-image-source.h>
-
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/imaging/common/native-image-source-impl.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -34,13 +35,10 @@ namespace Internal
 {
 namespace Adaptor
 {
-class EglGraphics;
-class EglImageExtensions;
-
 /**
- * Dali internal NativeImageSource.
+ * Implementation of NativeImageSource for single TBM surface buffer that is imported into Vulkan.
  */
-class NativeImageSourceAndroid : public Internal::Adaptor::NativeImageSource
+class NativeImageSourceTizenVulkan : public Internal::Adaptor::NativeImageSource
 {
 public:
   /**
@@ -49,13 +47,14 @@ public:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] depth color depth of the image.
-   * @param[in] nativeImageSource contains either: Android hardware buffer or is empty
+   * @param[in] nativeImageSource contains tbm_surface_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceAndroid* New(uint32_t                            width,
-                                       uint32_t                            height,
-                                       Dali::NativeImageSource::ColorDepth depth,
-                                       Any                                 nativeImageSource);
+  static NativeImageSourceTizenVulkan* New(uint32_t                            width,
+                                           uint32_t                            height,
+                                           Dali::NativeImageSource::ColorDepth depth,
+                                           Any                                 nativeImageSource);
+
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
@@ -84,7 +83,7 @@ public:
   /**
    * destructor
    */
-  ~NativeImageSourceAndroid() override;
+  ~NativeImageSourceTizenVulkan() override;
 
   /**
    * @copydoc Dali::NativeImageSource::CreateResource()
@@ -131,43 +130,34 @@ public:
   }
 
   /**
-   * @copydoc Dali::NativeImageSource::GetTargetTexture()
-   */
-  int GetTextureTarget() const override;
-
-  /**
-   * @copydoc Dali::NativeImageSource::ApplyNativeFragmentShader()
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string& shader, int count)
    */
   bool ApplyNativeFragmentShader(std::string& shader, int count) override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()
+   * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
    */
   const char* GetCustomSamplerTypename() const override;
 
   /**
-   * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
+   * @copydoc Dali::NativeImageInterface::GetTextureTarget()
    */
-  Any GetNativeImageHandle() const override
-  {
-    return GetNativeImageSource();
-  }
+  int GetTextureTarget() const override;
 
   /**
-   * @copydoc Dali::NativeImageSource::SourceChanged()
+   * @copydoc Dali::NativeImageInterface::GetNativeImageHandle()
    */
-  bool SourceChanged() const override
-  {
-    return true;
-  }
+  Any GetNativeImageHandle() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::SourceChanged()
+   */
+  bool SourceChanged() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetUpdatedArea()
    */
-  Rect<uint32_t> GetUpdatedArea() override
-  {
-    return Rect<uint32_t>{0, 0, mWidth, mHeight};
-  }
+  Rect<uint32_t> GetUpdatedArea() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PostRender()
@@ -210,43 +200,54 @@ private:
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] colour depth of the image.
-   * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
+   * @param[in] nativeImageSource contains either tbm_surface_h or is empty
    */
-  NativeImageSourceAndroid(uint32_t                            width,
-                           uint32_t                            height,
-                           Dali::NativeImageSource::ColorDepth depth,
-                           Any                                 nativeImageSource);
+  NativeImageSourceTizenVulkan(uint32_t                            width,
+                               unsigned int                        height,
+                               Dali::NativeImageSource::ColorDepth depth,
+                               Any                                 nativeImageSource);
 
   /**
-   * 2nd phase construction.
+   * @brief Initialize TBM surface from parameters or Any object.
    */
   void Initialize();
 
-  /**
-   * Gets the pixmap from the Any parameter
-   * @param pixmap contains either: pixmap of type Android hardware buffer or empty
-   * @return pixmap pixmap
-   */
-  void* GetPixmapFromAny(Any pixmap) const;
+  tbm_surface_h GetSurfaceFromAny(Any source) const;
+
+  bool CheckBlending(tbm_format format);
+
+  void DestroySurface();
 
   /**
-   * Given an existing pixmap, the function uses Android hardware buffer API to find
-   * the width, heigth and depth of that pixmap.
+   * @brief Create back buffer
    */
-  void GetPixmapDetails();
+  void CreateBackBuffer();
+
+  /**
+   * @brief Destroy back buffer
+   */
+  void DestroyBackBuffer();
 
 private:
-  uint32_t                             mWidth;                       ///< image width
-  uint32_t                             mHeight;                      ///< image heights
-  bool                                 mOwnPixmap;                   ///< Whether we created pixmap or not
-  AHardwareBuffer*                     mPixmap;                      ///<
-  bool                                 mBlendingRequired;            ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth  mColorDepth;                  ///< color depth of image
-  bool                                 mEglImageChanged;             ///< Whether EGLImage changed or not. Reset flag as false at PrepareTexture().
-  void*                                mEglImageKHR;                 ///< From EGL extension
-  EglGraphics*                         mEglGraphics;                 ///< EGL Graphics
-  EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
+  uint32_t                            mWidth;          ///< Image width
+  uint32_t                            mHeight;         ///< Image height
+  Dali::NativeImageSource::ColorDepth mColorDepth;     ///< Color depth of image
+  tbm_surface_h                       mTbmSurface;     ///< TBM surface
+  tbm_surface_h                       mTbmBackSurface; ///< Back buffer
+  tbm_format                          mTbmFormat;      ///< TBM format
+
+  std::vector<int> mPlaneFds; ///< DMA-BUF file descriptors per plane
+
+  Rect<uint32_t>     mUpdatedArea{}; ///< Updated area
+  mutable std::mutex mMutex;
+
   std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
+  bool                                 mOwnTbmSurface : 1;           ///< Whether we created pixmap or not
+  bool                                 mBlendingRequired : 1;        ///< Whether blending is required
+  bool                                 mSetSource : 1;
+  bool                                 mResourceCreated : 1;   ///< Resource creation state
+  bool                                 mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
+  bool                                 mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
 };
 
 } // namespace Adaptor
@@ -255,4 +256,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
+#endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_VULKAN_H

@@ -107,11 +107,7 @@ public:
    */
   void Submit(CommandBufferImpl* commandBuffer, const std::vector<vk::Semaphore>& depends);
 
-  void CreateSubmissionData(
-    CommandBufferImpl*                   commandBuffer,
-    std::vector<vk::Semaphore>&          waitSemaphores,
-    std::vector<vk::PipelineStageFlags>& waitDstStageMask,
-    std::vector<SubmissionData>&         submissionData);
+  void UpdateSubmissionData(std::vector<SubmissionData>& submissionData);
 
   Queue* GetQueue();
 

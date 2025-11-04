@@ -147,6 +147,11 @@ public: // Getters
 
   const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const;
 
+  bool IsKHRSamplerYCbCrConversionSupported() const
+  {
+    return mIsKHRSamplerYCbCrConversionSupported;
+  }
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -200,6 +205,8 @@ private: // Members
 
   bool mHasDepth{false};
   bool mHasStencil{false};
+
+  bool mIsKHRSamplerYCbCrConversionSupported{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

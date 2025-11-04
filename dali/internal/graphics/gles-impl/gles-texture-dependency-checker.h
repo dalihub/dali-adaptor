@@ -2,7 +2,7 @@
 #define DALI_GLES_TEXTURE_DEPENDENCY_CHECKER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,10 +49,7 @@ class TextureDependencyChecker
 {
 public:
   explicit TextureDependencyChecker(EglGraphicsController& controller)
-  : mController(controller),
-    mCurrentNativeTextureDependencyIndex(0u),
-    mPreviousNativeTextureDependencyIndex(1u),
-    mIsFirstPreparedNativeTextureDependency(true)
+  : mController(controller)
   {
   }
 
@@ -89,14 +86,6 @@ public:
     return mFramebufferTextureDependencies.size();
   }
 
-  /**
-   * Get the number of (offscreen) textures for dependency checking
-   */
-  size_t GetNativeTextureCount() const
-  {
-    return mNativeTextureDependencies[mCurrentNativeTextureDependencyIndex].size();
-  }
-
 public: ///< For NativeTexture dependency checker
   /**
    * @brief Add prepared native image texture to dependency list
@@ -108,18 +97,6 @@ public: ///< For NativeTexture dependency checker
    * It will be called at discarding texture.
    */
   void DiscardNativeTexture(const Texture* texture);
-
-  /**
-   * @brief Mark that native images write context.
-   * It will be called at EndRenderPass.
-   */
-  void MarkNativeTextureSyncContext(const Context* writeContext);
-
-  /**
-   * @brief Create Sync object for native images.
-   * It will be called after eglSwapBuffers.
-   */
-  void CreateNativeTextureSync(const Context* currentContext);
 
 private:
   using SyncObjectId = uint32_t; ///< Note : It should be matched with Dali::Graphics::GLES::SyncPool:SyncObjectId.
@@ -136,21 +113,9 @@ private:
   };
   std::vector<FramebufferTextureDependency> mFramebufferTextureDependencies;
 
-  struct NativeTextureDependency
-  {
-    std::unordered_set<const Texture*> textures;
-    const Context*                     writeContext{nullptr};
-    SyncObjectId                       agingSyncObjectId{INVALID_SYNC_OBJECT_ID};
-    bool                               synced{false};
-  };
-  std::vector<NativeTextureDependency> mNativeTextureDependencies[2];
+  std::vector<const Texture*> mNativeTextureDependencies;
 
   EglGraphicsController& mController;
-
-  uint32_t mCurrentNativeTextureDependencyIndex;  // 0 or 1, toggled every frame
-  uint32_t mPreviousNativeTextureDependencyIndex; // 0 or 1, toggled every frame
-
-  bool mIsFirstPreparedNativeTextureDependency : 1;
 };
 
 } // namespace GLES

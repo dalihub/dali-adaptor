@@ -111,6 +111,7 @@ TestGraphicsApplication::~TestGraphicsApplication()
   mGraphicsController.Shutdown();
   Dali::Integration::Log::UninstallLogFunction();
   delete mCore;
+  delete mDisplayConnection;
 }
 
 void TestGraphicsApplication::LogContext(bool start, const char* tag, const char* message)

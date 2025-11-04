@@ -16,20 +16,34 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/imaging/tizen/native-image-source-impl-tizen.h>
+#include <dali/internal/imaging/tizen/native-image-source-impl-tizen-vulkan.h>
 
 // EXTERNAL INCLUDES
+#include <errno.h>
+#include <tbm_bo.h>
+#include <tbm_surface.h>
+#include <tbm_surface_internal.h>
+#include <tbm_type_common.h>
+#include <unistd.h>
+#include <vulkan/vulkan.h>
+
+#ifdef EXPORT_API
+#undef EXPORT_API
+#endif
+
+#ifndef DRM_FORMAT_MOD_LINEAR
+#define DRM_FORMAT_MOD_LINEAR 0
+#endif
+
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/gl-defines.h>
+#include <dali/integration-api/pixel-data-integ.h>
 #include <tbm_surface_internal.h>
 #include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali
 {
@@ -39,8 +53,6 @@ namespace Adaptor
 {
 namespace
 {
-const char* SAMPLER_TYPE = "samplerExternalOES";
-
 // clang-format off
 tbm_format FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
@@ -61,9 +73,9 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceTizen* NativeImageSourceTizen::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+NativeImageSourceTizenVulkan* NativeImageSourceTizenVulkan::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  NativeImageSourceTizen* image = new NativeImageSourceTizen(width, height, depth, nativeImageSource);
+  NativeImageSourceTizenVulkan* image = new NativeImageSourceTizenVulkan(width, height, depth, nativeImageSource);
   DALI_ASSERT_DEBUG(image && "NativeImageSource allocation failed.");
 
   if(image)
@@ -74,33 +86,27 @@ NativeImageSourceTizen* NativeImageSourceTizen::New(uint32_t width, uint32_t hei
   return image;
 }
 
-NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+NativeImageSourceTizenVulkan::NativeImageSourceTizenVulkan(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 : mWidth(width),
   mHeight(height),
-  mTbmSurface(NULL),
-  mTbmBackSurface(NULL),
-  mTbmFormat(0),
   mColorDepth(depth),
+  mTbmSurface(nullptr),
+  mTbmBackSurface(nullptr),
+  mTbmFormat(0),
   mMutex(),
-  mEglImageKHR(NULL),
-  mEglGraphics(NULL),
-  mEglImageExtensions(NULL),
   mResourceDestructionCallback(),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
-  mEglImageChanged(false),
   mSetSource(false),
+  mResourceCreated(false),
   mIsBufferAcquired(false),
   mBackBufferEnabled(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  mEglGraphics  = static_cast<EglGraphics*>(graphics);
-
   mTbmSurface = GetSurfaceFromAny(nativeImageSource);
 
-  if(mTbmSurface != NULL)
+  if(mTbmSurface != nullptr)
   {
     tbm_surface_internal_ref(mTbmSurface);
     mBlendingRequired = CheckBlending(tbm_surface_get_format(mTbmSurface));
@@ -109,9 +115,9 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
   }
 }
 
-void NativeImageSourceTizen::Initialize()
+void NativeImageSourceTizenVulkan::Initialize()
 {
-  if(mTbmSurface != NULL || mWidth == 0 || mHeight == 0)
+  if(mTbmSurface != nullptr || mWidth == 0 || mHeight == 0)
   {
     return;
   }
@@ -153,7 +159,7 @@ void NativeImageSourceTizen::Initialize()
     }
     default:
     {
-      DALI_LOG_ERROR("Wrong color depth.\n");
+      DALI_LOG_WARNING("Wrong color depth.\n");
       return;
     }
   }
@@ -169,11 +175,11 @@ void NativeImageSourceTizen::Initialize()
   mOwnTbmSurface = true;
 }
 
-tbm_surface_h NativeImageSourceTizen::GetSurfaceFromAny(Any source) const
+tbm_surface_h NativeImageSourceTizenVulkan::GetSurfaceFromAny(Any source) const
 {
   if(source.Empty())
   {
-    return NULL;
+    return nullptr;
   }
 
   if(source.GetType() == typeid(tbm_surface_h))
@@ -182,11 +188,12 @@ tbm_surface_h NativeImageSourceTizen::GetSurfaceFromAny(Any source) const
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
-void NativeImageSourceTizen::DestroySurface()
+// TbmOffscreenTexture::freeTextureData
+void NativeImageSourceTizenVulkan::DestroySurface()
 {
   if(mTbmSurface)
   {
@@ -206,26 +213,26 @@ void NativeImageSourceTizen::DestroySurface()
     {
       tbm_surface_internal_unref(mTbmSurface);
     }
-    mTbmSurface = NULL;
+    mTbmSurface = nullptr;
 
     DestroyBackBuffer();
   }
 }
 
-NativeImageSourceTizen::~NativeImageSourceTizen()
+NativeImageSourceTizenVulkan::~NativeImageSourceTizenVulkan()
 {
   DestroySurface();
 }
 
-Any NativeImageSourceTizen::GetNativeImageSource() const
+Any NativeImageSourceTizenVulkan::GetNativeImageSource() const
 {
   return Any(mTbmSurface);
 }
 
-bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizenVulkan::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   std::scoped_lock lock(mMutex);
-  if(mTbmSurface != NULL)
+  if(mTbmSurface != nullptr)
   {
     tbm_surface_info_s surface_info;
 
@@ -337,10 +344,10 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
   return false;
 }
 
-bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
+bool NativeImageSourceTizenVulkan::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
 {
   std::scoped_lock lock(mMutex);
-  if(mTbmSurface != NULL)
+  if(mTbmSurface != nullptr)
   {
     tbm_surface_info_s surface_info;
 
@@ -359,7 +366,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
 
     tbm_format format = surface_info.format;
     uint32_t   stride = surface_info.planes[0].stride;
-    uint8_t*   ptr    = surface_info.planes[0].ptr;
+    uint8_t*   ptr    = static_cast<uint8_t*>(surface_info.planes[0].ptr);
 
     size_t lineSize;
     size_t inputBufferLinePixelSize = Dali::Pixel::GetBytesPerPixel(pixelFormat);
@@ -447,7 +454,7 @@ bool NativeImageSourceTizen::SetPixels(uint8_t* pixbuf, const Pixel::Format& pix
   return false;
 }
 
-void NativeImageSourceTizen::SetSource(Any source)
+void NativeImageSourceTizenVulkan::SetSource(Any source)
 {
   std::scoped_lock lock(mMutex);
 
@@ -456,7 +463,7 @@ void NativeImageSourceTizen::SetSource(Any source)
   mOwnTbmSurface = false;
   mTbmSurface    = GetSurfaceFromAny(source);
 
-  if(mTbmSurface != NULL)
+  if(mTbmSurface != nullptr)
   {
     mSetSource = true;
     tbm_surface_internal_ref(mTbmSurface);
@@ -472,7 +479,7 @@ void NativeImageSourceTizen::SetSource(Any source)
   }
 }
 
-bool NativeImageSourceTizen::IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth)
+bool NativeImageSourceTizenVulkan::IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth)
 {
   uint32_t*  formats;
   uint32_t   formatNum;
@@ -523,51 +530,32 @@ bool NativeImageSourceTizen::IsColorDepthSupported(Dali::NativeImageSource::Colo
   return false;
 }
 
-bool NativeImageSourceTizen::CreateResource()
-{
-  // If an EGL image exists, use it as it is without creating it.
-  if(mEglImageKHR != NULL)
-  {
-    return true;
-  }
-
-  // casting from an unsigned int to a void *, which should then be cast back
-  // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = mTbmBackSurface ? reinterpret_cast<EGLClientBuffer>(mTbmBackSurface) : reinterpret_cast<EGLClientBuffer>(mTbmSurface);
-  if(!eglBuffer || !tbm_surface_internal_is_valid(mTbmSurface))
-  {
-    DALI_LOG_ERROR("Invalid surface\n");
-    return false;
-  }
-
-  mEglImageExtensions = mEglGraphics->GetImageExtensions();
-  DALI_ASSERT_DEBUG(mEglImageExtensions);
-
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
-  if(!mEglImageKHR)
-  {
-    DALI_LOG_ERROR("Fail to CreateImageKHR\n");
-  }
-  else
-  {
-    mEglImageChanged = true;
-  }
-
-  return mEglImageKHR != NULL;
-}
-
-void NativeImageSourceTizen::DestroyResource()
+bool NativeImageSourceTizenVulkan::CreateResource()
 {
   std::scoped_lock lock(mMutex);
-  if(mEglImageKHR)
+
+  if(mResourceCreated || !mTbmSurface)
   {
-    DALI_ASSERT_DEBUG(mEglImageExtensions);
-    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
-
-    mEglImageKHR = NULL;
-
-    mEglImageChanged = true;
+    return mResourceCreated;
   }
+
+  // Get TBM surface format for mapping
+  mTbmFormat = tbm_surface_get_format(mTbmSurface);
+
+  mResourceCreated = true;
+  return mResourceCreated;
+}
+
+void NativeImageSourceTizenVulkan::DestroyResource()
+{
+  std::scoped_lock lock(mMutex);
+
+  if(!mResourceCreated)
+  {
+    return;
+  }
+
+  mResourceCreated = false;
 
   if(mResourceDestructionCallback)
   {
@@ -575,68 +563,50 @@ void NativeImageSourceTizen::DestroyResource()
   }
 }
 
-uint32_t NativeImageSourceTizen::TargetTexture()
+uint32_t NativeImageSourceTizenVulkan::TargetTexture()
 {
-  if(DALI_LIKELY(mEglImageExtensions && mEglImageKHR) && mEglImageChanged)
-  {
-    mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
-  }
+  // Not used in Vulkan backend
 
   return 0;
 }
 
-Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizen::PrepareTexture()
+Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizenVulkan::PrepareTexture()
 {
   std::scoped_lock lock(mMutex);
+
   if(mSetSource)
   {
-    // Destroy previous eglImage because use for new one.
-    // if mEglImageKHR is not to be NULL here, it will not be updated with a new eglImage.
-    if(mEglImageKHR)
-    {
-      DALI_ASSERT_DEBUG(mEglImageExtensions);
-      mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
-      mEglImageKHR = NULL;
-    }
-
     CreateResource();
-  }
-
-  Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
-  if(DALI_LIKELY(mEglImageKHR))
-  {
-    result     = mSetSource ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
     mSetSource = false;
   }
-  else
-  {
-    result = mEglImageExtensions ? Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_GRAPHICS : Dali::NativeImageInterface::PrepareTextureResult::NOT_INITIALIZED_IMAGE;
-  }
 
-  return result;
+  // For single buffer, always return IMAGE_CHANGED
+  return NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED;
 }
 
-bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceTizenVulkan::ApplyNativeFragmentShader(std::string& shader, int count)
 {
-  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE, count);
+  // Not used in Vulkan backend
+  return false;
 }
 
-const char* NativeImageSourceTizen::GetCustomSamplerTypename() const
+const char* NativeImageSourceTizenVulkan::GetCustomSamplerTypename() const
 {
-  return SAMPLER_TYPE;
+  return nullptr;
 }
 
-int NativeImageSourceTizen::GetTextureTarget() const
+int NativeImageSourceTizenVulkan::GetTextureTarget() const
 {
-  return GL_TEXTURE_EXTERNAL_OES;
+  // Not used in Vulkan backend
+  return 0;
 }
 
-Any NativeImageSourceTizen::GetNativeImageHandle() const
+Any NativeImageSourceTizenVulkan::GetNativeImageHandle() const
 {
   return GetNativeImageSource();
 }
 
-bool NativeImageSourceTizen::SourceChanged() const
+bool NativeImageSourceTizenVulkan::SourceChanged() const
 {
   std::scoped_lock lock(mMutex);
   if(mTbmBackSurface)
@@ -646,11 +616,11 @@ bool NativeImageSourceTizen::SourceChanged() const
   return true;
 }
 
-Rect<uint32_t> NativeImageSourceTizen::GetUpdatedArea()
+Rect<uint32_t> NativeImageSourceTizenVulkan::GetUpdatedArea()
 {
   std::scoped_lock lock(mMutex);
   Rect<uint32_t>   updatedArea{0, 0, mWidth, mHeight};
-  if(!mUpdatedArea.IsEmpty() && mTbmSurface != NULL && mTbmBackSurface != NULL)
+  if(!mUpdatedArea.IsEmpty() && mTbmSurface != nullptr && mTbmBackSurface != nullptr)
   {
     updatedArea = mUpdatedArea;
 
@@ -695,7 +665,7 @@ Rect<uint32_t> NativeImageSourceTizen::GetUpdatedArea()
   return updatedArea;
 }
 
-bool NativeImageSourceTizen::CheckBlending(tbm_format format)
+bool NativeImageSourceTizenVulkan::CheckBlending(tbm_format format)
 {
   if(mTbmFormat != format)
   {
@@ -713,10 +683,10 @@ bool NativeImageSourceTizen::CheckBlending(tbm_format format)
   return mBlendingRequired;
 }
 
-uint8_t* NativeImageSourceTizen::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+uint8_t* NativeImageSourceTizenVulkan::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   mMutex.lock(); // We don't use std::scoped_lock here
-  if(mTbmSurface != NULL)
+  if(mTbmSurface != nullptr)
   {
     tbm_surface_info_s info;
 
@@ -728,7 +698,7 @@ uint8_t* NativeImageSourceTizen::AcquireBuffer(uint32_t& width, uint32_t& height
       height = 0;
 
       mMutex.unlock();
-      return NULL;
+      return nullptr;
     }
     tbm_surface_internal_ref(mTbmSurface);
     mIsBufferAcquired = true;
@@ -741,13 +711,14 @@ uint8_t* NativeImageSourceTizen::AcquireBuffer(uint32_t& width, uint32_t& height
     return info.planes[0].ptr;
   }
   mMutex.unlock();
-  return NULL;
+  return nullptr;
 }
 
-bool NativeImageSourceTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
+bool NativeImageSourceTizenVulkan::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
   bool ret = false;
-  if(mTbmSurface != NULL)
+
+  if(mTbmSurface != nullptr)
   {
     if(mTbmBackSurface)
     {
@@ -773,21 +744,23 @@ bool NativeImageSourceTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
     {
       DALI_LOG_ERROR("Fail to unmap tbm_surface\n");
     }
+
     tbm_surface_internal_unref(mTbmSurface);
     mIsBufferAcquired = false;
   }
+
   // Unlock the mutex locked by AcquireBuffer.
   mMutex.unlock();
   return ret;
 }
 
-void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceTizenVulkan::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
   std::scoped_lock lock(mMutex);
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
 }
 
-void NativeImageSourceTizen::EnableBackBuffer(bool enable)
+void NativeImageSourceTizenVulkan::EnableBackBuffer(bool enable)
 {
   std::scoped_lock lock(mMutex);
   if(enable != mBackBufferEnabled)
@@ -805,7 +778,7 @@ void NativeImageSourceTizen::EnableBackBuffer(bool enable)
   }
 }
 
-void NativeImageSourceTizen::CreateBackBuffer()
+void NativeImageSourceTizenVulkan::CreateBackBuffer()
 {
   if(!mTbmBackSurface && mTbmSurface)
   {
@@ -813,7 +786,7 @@ void NativeImageSourceTizen::CreateBackBuffer()
   }
 }
 
-void NativeImageSourceTizen::DestroyBackBuffer()
+void NativeImageSourceTizenVulkan::DestroyBackBuffer()
 {
   if(mTbmBackSurface)
   {
@@ -821,14 +794,10 @@ void NativeImageSourceTizen::DestroyBackBuffer()
     {
       DALI_LOG_ERROR("Failed to destroy tbm_surface\n");
     }
-    mTbmBackSurface = NULL;
+    mTbmBackSurface = nullptr;
   }
 }
 
-void NativeImageSourceTizen::PostRender()
-{
-  mEglImageChanged = false;
-}
 } // namespace Adaptor
 
 } // namespace Internal

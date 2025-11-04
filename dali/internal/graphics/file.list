@@ -135,5 +135,15 @@ SET( adaptor_graphics_macos_src_files
     ${adaptor_graphics_dir}/macos/egl-sync-implementation-macos.cpp
 )
 
+# Vulkan native image specific (non-tizen)
+SET( adaptor_graphics_vulkan_native_image_generic_src_files
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-generic.cpp
+)
+
+# Vulkan native image specific (tizen only)
+SET( adaptor_graphics_vulkan_native_image_tizen_src_files
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-native-image-handler-tizen.cpp
+)
+
 # include GLES implementation
 # TODO: the implementaion should probably be dependent on the build flags

@@ -91,7 +91,7 @@ public:
   int32_t DuplicateNativeFenceFD();
 
 private:
-#ifdef _ARCH_ARM_
+#if defined(_ARCH_ARM_) || defined(__aarch64__)
   EGLSyncKHR mEglSync;
 #else
   EGLSync mEglSync;

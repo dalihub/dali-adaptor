@@ -18,18 +18,25 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/pixel-data-integ.h>
-
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-sampler-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
 
 namespace Dali::Graphics::Vulkan
 {
@@ -1236,8 +1243,11 @@ vk::Format Texture::ValidateCompressedFormat(vk::Format sourceFormat)
 Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
-  mImage(),
-  mImageView()
+  mImage(nullptr),
+  mImageView(nullptr),
+  mNativeImageHandler(VulkanNativeImageHandler::CreateHandler()),
+  mCurrentSurface(nullptr),
+  mHasSurfaceReference(false)
 {
   // Check env variable in order to enable staging buffers
   auto var = getenv("DALI_DISABLE_TEXTURE_STAGING_BUFFERS");
@@ -1246,29 +1256,60 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
     mDisableStagingBuffer = true;
     mTiling               = TextureTiling::LINEAR;
   }
+
+  mIsNativeImage = (createInfo.nativeImagePtr != nullptr);
+  if(mIsNativeImage)
+  {
+    if(dynamic_cast<Dali::NativeImageSource*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE;
+    }
+    else if(dynamic_cast<Dali::NativeImageSourceQueue*>(createInfo.nativeImagePtr.Get()))
+    {
+      mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE;
+    }
+  }
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr, mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
+
+  mSampler = controller.GetDefaultSampler();
 }
 
 Texture::~Texture()
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage)
+  {
+    // Release surface reference before destruction
+    if(mNativeImageHandler)
+    {
+      NativeTextureData textureData;
+      textureData.surfaceHandle       = mCurrentSurface;
+      textureData.currentSurface      = mCurrentSurface;
+      textureData.hasSurfaceReference = mHasSurfaceReference;
+
+      mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Released surface reference\n");
+    }
+
+    delete mSampler;
+  }
+
   delete mImageView;
   delete mImage;
 }
 
 ResourceBase::InitializationResult Texture::InitializeResource()
 {
-  SetFormatAndUsage();
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "InitializeResource\n");
 
-  if(mFormat == vk::Format::eUndefined)
+  if(!mIsNativeImage || (mIsNativeImage && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE))
   {
-    return InitializationResult::NOT_SUPPORTED;
-  }
-
-  if(InitializeTexture())
-  {
-    // force generating properties
-    GetProperties();
-
-    return InitializationResult::INITIALIZED;
+    if(Initialize())
+    {
+      return InitializationResult::INITIALIZED;
+    }
   }
 
   return InitializationResult::NOT_INITIALIZED_YET;
@@ -1276,11 +1317,31 @@ ResourceBase::InitializationResult Texture::InitializeResource()
 
 void Texture::DestroyResource()
 {
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "DestroyResource: mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage && mNativeImageHandler)
+  {
+    // Release surface reference before destroying resources
+    NativeTextureData textureData;
+    textureData.surfaceHandle       = mCurrentSurface;
+    textureData.currentSurface      = mCurrentSurface;
+    textureData.hasSurfaceReference = mHasSurfaceReference;
+
+    mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+
+    mHasSurfaceReference = false;
+    mCurrentSurface      = nullptr;
+
+    // Destroy native image resources
+    mNativeImageHandler->DestroyNativeResources(mDevice, std::move(mNativeResources));
+  }
+
   if(mImageView)
   {
     mImageView->Destroy();
     mImageView = nullptr;
   }
+
   if(mImage)
   {
     mImage->Destroy();
@@ -1293,6 +1354,30 @@ void Texture::DiscardResource()
   mController.DiscardResource(this);
 }
 
+bool Texture::Initialize()
+{
+  SetFormatAndUsage();
+
+  if(mFormat == vk::Format::eUndefined)
+  {
+    DALI_LOG_ERROR("Vulkan::Texture::InitializeResource: Invalid texture format\n", static_cast<int>(mFormat));
+    // not supported!
+    return false;
+  }
+
+  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "InitializeResource: initialized: %d\n", initialized);
+
+  if(initialized)
+  {
+    // force generating properties
+    GetProperties();
+  }
+
+  return initialized;
+}
+
 void Texture::SetFormatAndUsage()
 {
   auto size = mCreateInfo.size;
@@ -1300,22 +1385,52 @@ void Texture::SetFormatAndUsage()
   mHeight   = uint32_t(size.height);
   mLayout   = vk::ImageLayout::eUndefined;
 
-  if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+  vk::Format format = vk::Format::eUndefined;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage: mIsNativeImage: %d\n", mIsNativeImage);
+
+  if(mIsNativeImage && mNativeImageHandler)
   {
-    mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    NativeTextureData textureData = mNativeImageHandler->SetFormatAndUsage(mCreateInfo, mDevice);
+    if(textureData.isValid)
+    {
+      mFormat         = textureData.format;
+      mUsage          = textureData.usage;
+      mTiling         = textureData.tiling;
+      mIsYUVFormat    = textureData.isYUVFormat;
+      mCurrentSurface = textureData.surfaceHandle;
+      format          = mFormat;
+    }
+    else
+    {
+      DALI_LOG_ERROR("Vulkan::Texture::SetFormatAndUsage: Handler returned invalid data\n");
+      mFormat = vk::Format::eUndefined;
+    }
   }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+  else
   {
-    mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
-    mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
-  }
-  else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
-  {
-    mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image\n");
+
+    if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
+    {
+      mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
+      mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+    }
+    else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
+    {
+      mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+    }
+
+    format = ConvertApiToVk(mCreateInfo.format);
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image: mCreateInfo.format: %d, format: %d\n", static_cast<int>(mCreateInfo.format), static_cast<int>(format));
   }
 
-  auto format = ConvertApiToVk(mCreateInfo.format); // convert from R11G11B10 to eB10G11R11
   if(IsCompressed(mCreateInfo.format))
   {
     mFormat = ValidateCompressedFormat(format);
@@ -1326,11 +1441,61 @@ void Texture::SetFormatAndUsage()
   }
 
   mConvertFromFormat = vk::Format::eUndefined;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage ValidateFormat: format: %d, mFormat: %d\n", static_cast<int>(format), static_cast<int>(mFormat));
+
   if(format != mFormat)
   {
     mConvertFromFormat = format;
   }
   mComponentMapping = GetVkComponentMapping(mCreateInfo.format);
+}
+
+bool Texture::InitializeNativeTexture()
+{
+  if(mNativeImageHandler)
+  {
+    NativeTextureData textureData;
+    textureData.surfaceHandle       = mCurrentSurface;
+    textureData.format              = mFormat;
+    textureData.usage               = mUsage;
+    textureData.tiling              = mTiling;
+    textureData.isYUVFormat         = mIsYUVFormat;
+    textureData.isValid             = true;
+    textureData.currentSurface      = mCurrentSurface;
+    textureData.hasSurfaceReference = mHasSurfaceReference;
+
+    if(mNativeResources)
+    {
+      // Clean up old native image resources
+      mNativeImageHandler->ResetNativeResources(mDevice, std::move(mNativeResources));
+    }
+
+    mNativeResources = mNativeImageHandler->InitializeNativeTexture(mCreateInfo, mDevice, mWidth, mHeight, textureData);
+
+    mCurrentSurface      = textureData.surfaceHandle;
+    mHasSurfaceReference = textureData.hasSurfaceReference;
+
+    if(mNativeResources)
+    {
+      // Update texture state from native resources
+      mImage     = mNativeResources->image;
+      mImageView = mNativeResources->imageView;
+      mSampler   = mNativeResources->sampler;
+
+      // Mark that we have a surface reference (acquired in handler)
+      mHasSurfaceReference = true;
+      mCurrentSurface      = textureData.surfaceHandle;
+
+      return true;
+    }
+    else
+    {
+      // Initialization failed, ensure we don't have a surface reference
+      mHasSurfaceReference = false;
+    }
+  }
+  return false;
 }
 
 // creates image with pre-allocated memory and default sampler, no data
@@ -1436,7 +1601,7 @@ Vulkan::ImageView* Texture::GetImageView() const
 
 Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
 {
-  return mController.GetDefaultSampler();
+  return mSampler;
 }
 
 vk::Format Texture::ConvertApiToVk(Dali::Graphics::Format format)
@@ -1477,6 +1642,56 @@ const TextureProperties& Texture::GetProperties()
     mProperties->nativeHandle             = 0; //@todo change to Dali::Any, and pass vkImage handle
   }
   return *mProperties;
+}
+
+void Texture::PrepareTexture()
+{
+  if(mIsNativeImage && mNativeImageHandler && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "PrepareTexture for native image\n");
+
+    // Store current surface before calling PrepareTexture
+    void* oldSurface = mCurrentSurface;
+
+    // Call the native image's PrepareTexture
+    auto result = mCreateInfo.nativeImagePtr->PrepareTexture();
+
+    if(result == Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED)
+    {
+      // Release reference to old surface before reinitializing
+      if(oldSurface)
+      {
+        NativeTextureData textureData;
+        textureData.surfaceHandle       = mCurrentSurface;
+        textureData.currentSurface      = mCurrentSurface;
+        textureData.hasSurfaceReference = mHasSurfaceReference;
+
+        mNativeImageHandler->ReleaseCurrentSurfaceReference(textureData, mCreateInfo.nativeImagePtr);
+
+        mHasSurfaceReference = false;
+        mCurrentSurface      = nullptr;
+      }
+
+      // Surface changed, need to reinitialize with new surface
+      SetFormatAndUsage();
+
+      if(mFormat != vk::Format::eUndefined)
+      {
+        bool initialized = InitializeNativeTexture();
+        if(initialized)
+        {
+          // force generating properties
+          GetProperties();
+
+          DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "PrepareTexture: Successfully reinitialized with new surface\n");
+        }
+        else
+        {
+          DALI_LOG_ERROR("Texture::PrepareTexture: Failed to reinitialize with new surface\n");
+        }
+      }
+    }
+  }
 }
 
 } // namespace Dali::Graphics::Vulkan

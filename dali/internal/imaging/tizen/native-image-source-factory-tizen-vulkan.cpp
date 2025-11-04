@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@
 // CLASS HEADER
 #include <dali/internal/imaging/tizen/native-image-source-factory-tizen-vulkan.h>
 
+// INTERNAL HEADERS
+#include <dali/internal/imaging/tizen/native-image-source-impl-tizen-vulkan.h>
+#include <dali/internal/imaging/tizen/native-image-source-queue-impl-tizen-vulkan.h>
+
 namespace Dali
 {
 namespace Internal
@@ -26,12 +30,12 @@ namespace Adaptor
 {
 std::unique_ptr<NativeImageSource> NativeImageSourceFactoryTizenVulkan::CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  return nullptr;
+  return std::unique_ptr<NativeImageSource>(NativeImageSourceTizenVulkan::New(width, height, depth, nativeImageSource));
 }
 
 std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryTizenVulkan::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  return nullptr;
+  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueTizenVulkan::New(queueCount, width, height, colorFormat, nativeImageSourceQueue));
 }
 
 // this should be created from somewhere
