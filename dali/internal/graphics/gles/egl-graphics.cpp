@@ -401,6 +401,11 @@ void EglGraphics::FrameStart()
   mGraphicsController.FrameStart();
 }
 
+void EglGraphics::RenderStart()
+{
+  // Do nothing
+}
+
 bool EglGraphics::ForcePresentRequired()
 {
   return mForcePresentRequired;

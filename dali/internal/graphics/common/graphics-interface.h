@@ -380,6 +380,11 @@ public:
   virtual void FrameStart() = 0;
 
   /**
+   * Signal that PreRender has completed.
+   */
+  virtual void RenderStart() = 0;
+
+  /**
    * @return true if rendering data need to be presented forcibly.
    */
   virtual bool ForcePresentRequired() = 0;

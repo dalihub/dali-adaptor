@@ -82,6 +82,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture-array.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture-dependency-checker.cpp
 )
 

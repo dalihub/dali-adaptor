@@ -38,7 +38,10 @@ Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphics
 {
 }
 
-Framebuffer::~Framebuffer() = default;
+Framebuffer::~Framebuffer()
+{
+  DestroyResource();
+}
 
 ResourceBase::InitializationResult Framebuffer::InitializeResource()
 {
@@ -114,10 +117,17 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
 
 void Framebuffer::DestroyResource()
 {
+  if(mFramebufferImpl != nullptr)
+  {
+    mFramebufferImpl->Destroy();
+    delete mFramebufferImpl;
+  }
+  mFramebufferImpl = nullptr;
 }
 
 void Framebuffer::DiscardResource()
 {
+  mController.DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::Vulkan

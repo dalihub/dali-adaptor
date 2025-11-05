@@ -204,6 +204,7 @@ void Swapchain::Destroy()
   mFramebuffers.clear();
   mSwapchainBuffers.clear();
   mSwapchainImages.clear();
+  mImageViews.clear();
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying SwapChain: %p\n", static_cast<VkSwapchainKHR>(mSwapchainKHR));
 

@@ -127,7 +127,7 @@ ImageView::~ImageView()
 
 void ImageView::Destroy()
 {
-  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying ImageView: %p\n", static_cast<VkImageView>(mImageView));
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying ImageView(%p): vkImage:%p\n", this, static_cast<VkImageView>(mImageView));
   auto device = mDevice.GetLogicalDevice();
   device.destroyImageView(mImageView, mDevice.GetAllocator());
 }

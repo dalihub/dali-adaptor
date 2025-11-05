@@ -253,6 +253,11 @@ void VulkanGraphics::FrameStart()
   mGraphicsController.FrameStart();
 }
 
+void VulkanGraphics::RenderStart()
+{
+  mGraphicsController.RenderStart();
+}
+
 bool VulkanGraphics::ForcePresentRequired()
 {
   return false; // Vulkan does not have a force present requirement.

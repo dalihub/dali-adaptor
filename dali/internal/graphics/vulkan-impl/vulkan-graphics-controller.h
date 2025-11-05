@@ -39,6 +39,7 @@ class Surface;
 class Buffer;
 class Sampler;
 class Texture;
+class TextureArray;
 class SamplerImpl;
 
 /**
@@ -447,7 +448,15 @@ public: // Other API
    */
   void RemoveRenderTarget(RenderTarget* renderTarget);
 
+  /**
+   * Inform controller when a frame is about to start. This indicates start of Render, before msg processing
+   */
   void FrameStart();
+
+  /**
+   * Inform controller when rendering is about to start. This is called between Core::PreRender and Core::RenderScene.
+   */
+  void RenderStart();
 
   /**
    * @brief Reset the DidPresent flag to false at the start of each frame.
@@ -465,6 +474,14 @@ public: // Other API
   bool DidPresent() const;
 
   SamplerImpl* GetDefaultSampler();
+
+  /**
+   * Remove the texture array and destroy its resources. This should only be called after
+   * the last ref has been removed.
+   *
+   * @param textureArray The texture to remove
+   */
+  void RemoveTextureArray(TextureArray* textureArray);
 
   /**
    * Check whether advanced blending is supported
