@@ -479,6 +479,18 @@ public: // Other API
   void SetIsAdvancedBlendEquationSupported(bool isSupported);
 
   /**
+   * Get the maximum texture size
+   * @return Maximum texture size
+   */
+  uint32_t GetMaxTextureSize();
+
+  /**
+   * Get the maximum number of combined texture units
+   * @return Maximum number of combined texture units
+   */
+  uint32_t GetMaxCombinedTextureUnits();
+
+  /**
    * Notify that the logical device has been created
    * This should be called when Vulkan::Device::CreateDevice() completes
    */

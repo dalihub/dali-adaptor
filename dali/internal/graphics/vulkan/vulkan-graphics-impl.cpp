@@ -223,20 +223,12 @@ bool VulkanGraphics::IsResourceContextSupported()
 }
 uint32_t VulkanGraphics::GetMaxTextureSize()
 {
-  if(mConfigurationManager)
-  {
-    return mConfigurationManager->GetMaxTextureSize();
-  }
-  return 0;
+  return mGraphicsController.GetMaxTextureSize();
 }
 
 uint32_t VulkanGraphics::GetMaxCombinedTextureUnits()
 {
-  if(mConfigurationManager)
-  {
-    return mConfigurationManager->GetMaxCombinedTextureUnits();
-  }
-  return 8;
+  return mGraphicsController.GetMaxCombinedTextureUnits();
 }
 
 uint8_t VulkanGraphics::GetMaxTextureSamples()
