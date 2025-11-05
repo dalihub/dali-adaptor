@@ -466,6 +466,24 @@ public: // Other API
 
   SamplerImpl* GetDefaultSampler();
 
+  /**
+   * Check whether advanced blending is supported
+   * @return Whether advanced blending is supported
+   */
+  bool IsAdvancedBlendEquationSupported();
+
+  /**
+   * Set the cached advanced blending support status
+   * @param[in] isSupported Whether advanced blending is supported
+   */
+  void SetIsAdvancedBlendEquationSupported(bool isSupported);
+
+  /**
+   * Notify that the logical device has been created
+   * This should be called when Vulkan::Device::CreateDevice() completes
+   */
+  void NotifyLogicalDeviceCreated();
+
 public: // For debug
   std::size_t GetCapacity() const;
 
@@ -474,8 +492,6 @@ private:
    * Flush all outstanding queues.
    */
   void Flush();
-
-  bool IsAdvancedBlendEquationSupported();
 
   struct Impl;
   std::unique_ptr<Impl> mImpl;

@@ -93,6 +93,9 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   createInfo.colorDepth    = colorDepth;
   auto surfaceId           = mGraphicsDevice.CreateSurface(*surfaceFactory, createInfo);
 
+  // Notify that logical device has been created
+  mGraphicsController.NotifyLogicalDeviceCreated();
+
   // create swapchain for surface
   mGraphicsDevice.CreateSwapchainForSurface(surfaceId);
 
@@ -197,11 +200,7 @@ Vulkan::Device& VulkanGraphics::GetDevice()
 
 bool VulkanGraphics::IsAdvancedBlendEquationSupported()
 {
-  if(mConfigurationManager)
-  {
-    return mConfigurationManager->IsAdvancedBlendEquationSupported();
-  }
-  return false;
+  return mGraphicsController.IsAdvancedBlendEquationSupported();
 }
 
 bool VulkanGraphics::IsMultisampledRenderToTextureSupported()
@@ -253,6 +252,8 @@ uint32_t VulkanGraphics::GetShaderLanguageVersion()
 void VulkanGraphics::CacheConfigurations(Dali::Internal::Adaptor::ConfigurationManager& configurationManager)
 {
   mConfigurationManager = &configurationManager;
+
+  mGraphicsController.SetIsAdvancedBlendEquationSupported(configurationManager.IsAdvancedBlendEquationSupported());
 }
 
 void VulkanGraphics::FrameStart()

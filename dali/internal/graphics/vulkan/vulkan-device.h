@@ -152,6 +152,16 @@ public: // Getters
     return mIsKHRSamplerYCbCrConversionSupported;
   }
 
+  bool IsAdvancedBlendingSupported() const
+  {
+    return mIsAdvancedBlendingSupported;
+  }
+
+  bool IsAdvancedBlendingAllOperationsSupported() const
+  {
+    return mIsAdvancedBlendingAllOperationsSupported;
+  }
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -207,6 +217,8 @@ private: // Members
   bool mHasStencil{false};
 
   bool mIsKHRSamplerYCbCrConversionSupported{false};
+  bool mIsAdvancedBlendingSupported{false};
+  bool mIsAdvancedBlendingAllOperationsSupported{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

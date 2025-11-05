@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
@@ -284,6 +285,13 @@ struct VulkanGraphicsController::Impl
   ResourceTransfer                                                     mResourceTransfer;
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
+
+  // Logical device creation synchronization
+  Dali::ConditionalWait mLogicalDeviceCreatedWaitCondition;
+  bool                  mIsLogicalDeviceCreated{false};
+
+  bool mIsAdvancedBlendEquationSupported{false};
+  bool mIsAdvancedBlendEquationCached{false};
 };
 
 VulkanGraphicsController::VulkanGraphicsController()
@@ -693,8 +701,31 @@ bool VulkanGraphicsController::IsBlendEquationSupported(DevelBlendEquation::Type
 
 bool VulkanGraphicsController::IsAdvancedBlendEquationSupported()
 {
-  //@todo Implement this!
-  return false;
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated && !mImpl->mIsAdvancedBlendEquationCached)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "IsAdvancedBlendEquationSupported: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  if(mImpl->mIsAdvancedBlendEquationCached)
+  {
+    return mImpl->mIsAdvancedBlendEquationSupported;
+  }
+  else
+  {
+    auto& device = mImpl->mGraphicsDevice;
+    return device && device->IsAdvancedBlendingSupported();
+  }
+}
+
+void VulkanGraphicsController::SetIsAdvancedBlendEquationSupported(bool isSupported)
+{
+  mImpl->mIsAdvancedBlendEquationSupported = isSupported;
+  mImpl->mIsAdvancedBlendEquationCached    = true;
 }
 
 uint32_t VulkanGraphicsController::GetShaderLanguageVersion()
@@ -777,6 +808,16 @@ Graphics::UniquePtr<Graphics::Texture> VulkanGraphicsController::ReleaseTextureF
 void VulkanGraphicsController::Flush()
 {
   mImpl->Flush();
+}
+
+void VulkanGraphicsController::NotifyLogicalDeviceCreated()
+{
+  // Signal that logical device is created
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    mImpl->mIsLogicalDeviceCreated = true;
+    mImpl->mLogicalDeviceCreatedWaitCondition.Notify(lock);
+  }
 }
 
 std::size_t VulkanGraphicsController::GetCapacity() const
