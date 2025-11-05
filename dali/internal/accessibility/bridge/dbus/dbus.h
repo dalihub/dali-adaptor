@@ -49,7 +49,7 @@ struct ObjectPath
   std::string value;
 };
 
-struct DALI_ADAPTOR_API DBusWrapper
+struct DBusWrapper
 {
   virtual ~DBusWrapper() = default;
 
@@ -138,6 +138,7 @@ struct DALI_ADAPTOR_API DBusWrapper
         free(p);
       }
     };
+
     std::vector<std::unique_ptr<char, char_ptr_deleter>> storage;
 
     const char* add(const char* txt)
@@ -489,7 +490,7 @@ enum class ErrorType
 struct Error
 {
   std::string message;
-  ErrorType errorType{ErrorType::DEFAULT};
+  ErrorType   errorType{ErrorType::DEFAULT};
 
   Error() = default;
   Error(std::string msg, ErrorType errorType = ErrorType::DEFAULT)
@@ -714,33 +715,70 @@ using char_array = std::array<char, N>;
 constexpr char* xcopy_n(const char* src, size_t n, char* dst)
 {
   for(std::size_t i = 0; i < n; ++i)
+  {
     dst[i] = src[i];
+  }
 
   return dst + n;
 }
 
-template<std::size_t N>
-constexpr std::size_t xlen(const char (&)[N])
+template<std::size_t L, std::size_t R>
+constexpr char_array<L + R - 1> concat_internal(const char_array<L> lhs, const char_array<R> rhs)
 {
-  return N - 1;
-}
-
-template<std::size_t N>
-constexpr std::size_t xlen(const char_array<N>&)
-{
-  return N - 1;
-}
-
-template<typename... Args>
-constexpr auto concat(const Args&... args)
-{
-  char_array<(1U + ... + xlen(args))> arr{};
-  char*                               ptr = arr.data();
+  char_array<L + R - 1> arr{};
+  char*                 ptr = arr.data();
 
   if constexpr(!arr.empty())
-    ((ptr = xcopy_n(std::data(args), xlen(args), ptr)), ...);
+  {
+    ptr  = xcopy_n(std::data(lhs), L - 1, ptr);
+    ptr  = xcopy_n(std::data(rhs), R - 1, ptr);
+    *ptr = 0;
+  }
 
   return arr;
+}
+template<std::size_t L>
+constexpr char_array<L> convert_internal(const char (&str)[L])
+{
+  char_array<L> arr{};
+  char*         ptr = arr.data();
+
+  if constexpr(!arr.empty())
+  {
+    ptr = xcopy_n(std::data(str), L, ptr);
+  }
+
+  return arr;
+}
+template<std::size_t L, std::size_t R>
+constexpr char_array<L + R - 1> concat(const char_array<L> lhs, const char_array<R> rhs)
+{
+  return concat_internal(lhs, rhs);
+}
+template<std::size_t L, std::size_t R>
+constexpr char_array<L + R - 1> concat(const char (&lhs)[L], const char_array<R> rhs)
+{
+  return concat_internal(convert_internal(lhs), rhs);
+}
+template<std::size_t L, std::size_t R>
+constexpr char_array<L + R - 1> concat(const char_array<L> lhs, const char (&rhs)[R])
+{
+  return concat_internal(lhs, convert_internal(rhs));
+}
+template<std::size_t L, std::size_t R>
+constexpr char_array<L + R - 1> concat(const char (&lhs)[L], const char (&rhs)[R])
+{
+  return concat_internal(convert_internal(lhs), convert_internal(rhs));
+}
+template<std::size_t L>
+constexpr char_array<L> concat(const char (&str)[L])
+{
+  return convert_internal(str);
+}
+template<std::size_t L>
+constexpr char_array<L> concat(const char_array<L> str)
+{
+  return str;
 }
 
 template<std::size_t... Digits>
@@ -1026,7 +1064,7 @@ template<>
 struct signature<float> : signature_helper<signature<float>>
 {
   static constexpr auto name_v = concat("float");
-  static constexpr auto sig_v  = concat("d");
+  static constexpr auto sig_v  = concat("f");
 
   /**
        * @brief Marshals value v as marshalled type into message
@@ -1242,7 +1280,7 @@ struct signature_tuple_helper : signature_helper<signature_tuple_helper<INDEX, S
 {
   using current_type = typename signature_tuple_element_type_helper<INDEX, ARGS...>::type;
 
-  static constexpr auto name_v = concat(signature<current_type>::name_v, ", ", signature_tuple_helper<INDEX + 1, SIZE, ARGS...>::name_v);
+  static constexpr auto name_v = concat(signature<current_type>::name_v, concat(", ", signature_tuple_helper<INDEX + 1, SIZE, ARGS...>::name_v));
   static constexpr auto sig_v  = concat(signature<current_type>::sig_v, signature_tuple_helper<INDEX + 1, SIZE, ARGS...>::sig_v);
 
   /**
@@ -1301,8 +1339,8 @@ struct signature_tuple_helper<SIZE, SIZE, ARGS...> : signature_helper<signature_
 template<typename... ARGS>
 struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<ARGS...>>>
 {
-  static constexpr auto name_v = concat("tuple<", signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::name_v, ">");
-  static constexpr auto sig_v  = concat("(", signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::sig_v, ")");
+  static constexpr auto name_v = concat("tuple<", concat(signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::name_v, ">"));
+  static constexpr auto sig_v  = concat("(", concat(signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::sig_v, ")"));
 
   /**
        * @brief Marshals value v as marshalled type into message
@@ -1338,7 +1376,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
 template<typename... ARGS>
 struct signature<ValueOrError<ARGS...>> : signature_helper<signature<ValueOrError<ARGS...>>>
 {
-  static constexpr auto name_v = concat("ValueOrError<", signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::name_v, ">");
+  static constexpr auto name_v = concat("ValueOrError<", concat(signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::name_v, ">"));
   static constexpr auto sig_v  = signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::sig_v;
 
   /**
@@ -1414,8 +1452,8 @@ struct signature<ValueOrError<>> : signature_helper<signature<ValueOrError<>>>
 template<typename A, typename B>
 struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
 {
-  static constexpr auto name_v = concat("pair<", signature_tuple_helper<0, 2, A, B>::name_v, ">");
-  static constexpr auto sig_v  = concat("(", signature_tuple_helper<0, 2, A, B>::sig_v, ")");
+  static constexpr auto name_v = concat("pair<", concat(signature_tuple_helper<0, 2, A, B>::name_v, ">"));
+  static constexpr auto sig_v  = concat("(", concat(signature_tuple_helper<0, 2, A, B>::sig_v, ")"));
 
   /**
        * @brief Marshals value v as marshalled type into message
@@ -1457,7 +1495,7 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
 template<typename A>
 struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
 {
-  static constexpr auto name_v = concat("vector<", signature<A>::name_v, ">");
+  static constexpr auto name_v = concat("vector<", concat(signature<A>::name_v, ">"));
   static constexpr auto sig_v  = concat("a", signature<A>::sig_v);
 
   /**
@@ -1497,7 +1535,7 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
 template<typename A, size_t N>
 struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>>>
 {
-  static constexpr auto name_v = concat("array<", signature<A>::name_v, ", ", to_string<N>::value, ">");
+  static constexpr auto name_v = concat("array<", concat(signature<A>::name_v, concat(", ", concat(to_string<N>::value, ">"))));
   static constexpr auto sig_v  = concat("a", signature<A>::sig_v);
 
   /**
@@ -1538,7 +1576,7 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
 template<typename A>
 struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>>>
 {
-  static constexpr auto name_v = concat("variant<", signature<A>::name_v, ">");
+  static constexpr auto name_v = concat("variant<", concat(signature<A>::name_v, ">"));
   static constexpr auto sig_v  = concat("v");
 
   /**
@@ -1583,8 +1621,8 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
 template<typename A, typename B>
 struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::unordered_map<A, B>>>
 {
-  static constexpr auto name_v = concat("unordered_map<", signature<A>::name_v, ", ", signature<B>::name_v, ">");
-  static constexpr auto sig_v  = concat("a{", signature_tuple_helper<0, 2, A, B>::sig_v, "}");
+  static constexpr auto name_v = concat("unordered_map<", concat(signature<A>::name_v, concat(", ", concat(signature<B>::name_v, ">"))));
+  static constexpr auto sig_v  = concat("a{", concat(signature_tuple_helper<0, 2, A, B>::sig_v, "}"));
 
   /**
        * @brief Marshals value v as marshalled type into message
@@ -1629,8 +1667,8 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
 template<typename A, typename B>
 struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
 {
-  static constexpr auto name_v = concat("map<", signature<A>::name_v, ", ", signature<B>::name_v, ">");
-  static constexpr auto sig_v  = concat("a{", signature_tuple_helper<0, 2, A, B>::sig_v, "}");
+  static constexpr auto name_v = concat("map<", concat(signature<A>::name_v, concat(", ", concat(signature<B>::name_v, ">"))));
+  static constexpr auto sig_v  = concat("a{", concat(signature_tuple_helper<0, 2, A, B>::sig_v, "}"));
 
   /**
        * @brief Marshals value v as marshalled type into message
@@ -1667,7 +1705,7 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
 template<typename A>
 struct signature<const A&> : signature_helper<signature<const A&>>
 {
-  static constexpr auto name_v = concat("const ", signature<A>::name_v, "&");
+  static constexpr auto name_v = concat("const ", concat(signature<A>::name_v, "&"));
   static constexpr auto sig_v  = signature<A>::sig_v;
 
   /**
