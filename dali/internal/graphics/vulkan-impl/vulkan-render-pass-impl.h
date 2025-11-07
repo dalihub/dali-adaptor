@@ -57,7 +57,7 @@ public:
     vk::AttachmentReference                depthAttachmentReference;
     std::vector<vk::AttachmentDescription> attachmentDescriptions;
     vk::SubpassDescription                 subpassDesc;
-    std::array<vk::SubpassDependency, 2>   subpassDependencies;
+    std::array<vk::SubpassDependency, 3>   subpassDependencies;
     vk::RenderPassCreateInfo               createInfo;
   };
 

@@ -348,7 +348,7 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
             mCommandBuffer.pipelineBarrier(
               vk::PipelineStageFlagBits::eColorAttachmentOutput,
               vk::PipelineStageFlagBits::eColorAttachmentOutput,
-              vk::DependencyFlags{},
+              vk::DependencyFlagBits::eByRegion,
               memoryBarrier,
               nullptr,
               nullptr);
