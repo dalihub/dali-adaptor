@@ -667,14 +667,22 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
   for(auto&& iter : mEglSyncObjects)
   {
     mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-    close(iter.second.second);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
   }
   mEglSyncObjects.clear();
 
   for(auto&& iter : mEglSyncDiscardList)
   {
     mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-    close(iter.second.second);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
   }
   mEglSyncDiscardList.clear();
 }
