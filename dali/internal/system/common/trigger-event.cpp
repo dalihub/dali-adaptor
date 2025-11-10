@@ -114,9 +114,13 @@ Dali::UnifiedTriggerEventManager TriggerEvent::GetUnifiedTriggerEventManager() c
   return mTriggerManager;
 }
 
-void TriggerEvent::ResetUnifiedTriggerEventManager()
+void TriggerEvent::Discard()
 {
+  // Remove reference count of unified trigger event manager
   mTriggerManager.Reset();
+
+  delete mCallback;
+  mCallback = nullptr;
 }
 
 void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
@@ -145,7 +149,10 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
   TriggerEventInterface::Options options = mOptions;
 
   // Call the connected callback
-  CallbackBase::Execute(*mCallback);
+  if(DALI_LIKELY(mCallback))
+  {
+    CallbackBase::Execute(*mCallback);
+  }
 
   // check if we should delete ourselves after the trigger
   if(options == TriggerEventInterface::DELETE_AFTER_TRIGGER)
