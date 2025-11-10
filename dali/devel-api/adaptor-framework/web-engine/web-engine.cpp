@@ -26,6 +26,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-context-menu.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-file-chooser-request.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-http-auth-handler.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-load-error.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-policy-decision.h>
@@ -640,6 +641,11 @@ void WebEngine::RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngin
 void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback)
 {
   GetImplementation(*this).RegisterWebAuthResponseCallback(callback);
+}
+
+void WebEngine::RegisterFileChooserRequestedCallback(Dali::WebEnginePlugin::WebEngineFileChooserRequestedCallback callback)
+{
+  GetImplementation(*this).RegisterFileChooserRequestedCallback(callback);
 }
 
 void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)

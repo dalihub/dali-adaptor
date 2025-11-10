@@ -867,20 +867,28 @@ public:
   void WebAuthenticationCancel();
 
   /**
-   * @brief Get a plain text of current web page asynchronously.
+   * @brief Register WebAuthDisplayQR callback.
    *
-   * @param[in] callback The callback function called asynchronously.
+   * @param[in] callback The callback function called when QR auth display is requested.
 
    */
   void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
 
   /**
-   * @brief Get a plain text of current web page asynchronously.
+   * @brief Register WebAuthResponse callback.
    *
-   * @param[in] callback The callback function called asynchronously.
+   * @param[in] callback The callback function called when auth is responsed.
 
    */
   void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
+
+  /**
+   * @brief Register FileChooserRequest callback.
+   *
+   * @param[in] callback The callback function called when file chooser is requested.
+
+   */
+  void RegisterFileChooserRequestedCallback(Dali::WebEnginePlugin::WebEngineFileChooserRequestedCallback callback);
 
   /**
    * @brief Register UserMediaPermissionRequest callback.
