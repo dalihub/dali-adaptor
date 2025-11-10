@@ -817,12 +817,23 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
   double minimumValue     = 0.0;
+  std::string currentValueText;
   if(valueInterface)
   {
     currentValue     = valueInterface->GetCurrent();
+    currentValueText = valueInterface->GetValueText();
     minimumIncrement = valueInterface->GetMinimumIncrement();
     maximumValue     = valueInterface->GetMaximum();
     minimumValue     = valueInterface->GetMinimum();
+  }
+  else
+  {
+    // value text support outside of IAtspiValue interface
+    currentValueText = self->GetValue();
+    if(!currentValueText.empty())
+    {
+      attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
+    }
   }
 
   return {
@@ -836,7 +847,8 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
     currentValue,
     minimumIncrement,
     maximumValue,
-    minimumValue};
+    minimumValue,
+    currentValueText};
 }
 
 DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime)
