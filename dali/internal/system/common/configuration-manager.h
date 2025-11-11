@@ -110,6 +110,28 @@ public:
   // Deleted move assignment operator.
   ConfigurationManager& operator=(const ConfigurationManager&&) = delete;
 
+private:
+  /**
+   * @brief Get the current graphics backend type as a string
+   * @return The graphics backend type as string ("GLES" or "VULKAN")
+   */
+  std::string GetCurrentGraphicsBackendString() const;
+
+  /**
+   * @brief Check if graphics backend has switched and clear cache if needed
+   */
+  void CheckAndHandleBackendSwitch();
+
+  /**
+   * @brief Clear the cached configuration file
+   */
+  void ClearConfigurationCache();
+
+  /**
+   * @brief Save the current graphics backend type to configuration file
+   */
+  void SaveCurrentGraphicsBackend();
+
 private:                                                                                // Data
   std::string                        mSystemCacheFilePath;                              ///< The path of system cache file
   Dali::Graphics::GraphicsInterface* mGraphics;                                         ///< Graphics interface
@@ -126,6 +148,7 @@ private:                                                                        
   bool                               mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
   bool                               mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
   bool                               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
+  std::string                        mCachedGraphicsBackend;                            ///< The graphics backend type that was cached ("GLES" or "VULKAN")
 };
 
 } // namespace Internal::Adaptor

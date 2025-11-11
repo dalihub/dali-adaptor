@@ -128,8 +128,8 @@ void UnifiedTriggerEventManager::DiscardTriggerEvent(TriggerEvent* triggerEvent)
     // To make ensure to call Triggered callback
     Trigger(nullptr);
 
-    // Remove reference count of unified trigger event manager now.
-    triggerEvent->ResetUnifiedTriggerEventManager();
+    // Discard the trigger event
+    triggerEvent->Discard();
   }
 }
 

@@ -103,7 +103,8 @@ public:
     double,                                         // current value
     double,                                         // minimum increment
     double,                                         // maximum value
-    double                                          // minimum value
+    double,                                         // minimum value
+    std::string                                     // formatted current value
     >;
 
   using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
