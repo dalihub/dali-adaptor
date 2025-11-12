@@ -866,6 +866,11 @@ void WebEngine::RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngine
   mPlugin->RegisterWebAuthResponseCallback(callback);
 }
 
+void WebEngine::RegisterFileChooserRequestedCallback(Dali::WebEnginePlugin::WebEngineFileChooserRequestedCallback callback)
+{
+  mPlugin->RegisterFileChooserRequestedCallback(callback);
+}
+
 void WebEngine::RegisterUserMediaPermissionRequestCallback(Dali::WebEnginePlugin::WebEngineUserMediaPermissionRequestCallback callback)
 {
   mPlugin->RegisterUserMediaPermissionRequestCallback(callback);

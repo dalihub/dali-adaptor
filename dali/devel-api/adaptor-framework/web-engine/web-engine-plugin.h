@@ -47,6 +47,7 @@ class WebEnginePolicyDecision;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
+class WebEngineFileChooserRequest;
 class WebEngineUserMediaPermissionRequest;
 class WebEngineDeviceListGet;
 
@@ -222,6 +223,11 @@ public:
    * @brief WebView callback informs browser app that the passkey registration and authentication has been successful and app can close QR popup.
    */
   using WebEngineWebAuthResponseCallback = std::function<void(void)>;
+
+  /**
+   * @brief The callback to be called when file chooser is requested.
+   */
+  using WebEngineFileChooserRequestedCallback = std::function<void(std::unique_ptr<Dali::WebEngineFileChooserRequest>)>;
 
   /**
    * @brief The callback to be called when the web engine received a user media permission reqeust from user application.
@@ -1037,6 +1043,13 @@ public:
    * @param[in] callback The callback informs browser app that the passkey registration and authentication has been successful and app can close QR popup.
    */
   virtual void RegisterWebAuthResponseCallback(WebEngineWebAuthResponseCallback callback) = 0;
+
+  /**
+   * @brief Register FileChooserRequest callback.
+   *
+   * @param[in] callback The callback to be called when file chooser is requested.
+   */
+  virtual void RegisterFileChooserRequestedCallback(WebEngineFileChooserRequestedCallback callback) = 0;
 
   /**
    * @brief Register UserMediaPermissionRequest callback.
