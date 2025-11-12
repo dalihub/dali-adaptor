@@ -91,6 +91,13 @@ public:
   void FreeReleasedBuffers() override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::SetQueueUsageHint
+   */
+  void SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType type) override
+  {
+  }
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueX() override;

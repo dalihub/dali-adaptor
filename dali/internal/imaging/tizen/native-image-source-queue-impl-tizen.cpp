@@ -104,7 +104,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mIsResized(false),
   mFreeRequest(false),
   mNeedSync(false),
-  mWaitInRenderThread(true)
+  mWaitInWorkerThread(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -330,7 +330,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     mBuffers.insert({buffer, tbmSurface});
   }
 
-  if(!mWaitInRenderThread)
+  if(mWaitInWorkerThread)
   {
     WaitSync(tbmSurface);
   }
@@ -370,6 +370,11 @@ void NativeImageSourceQueueTizen::FreeReleasedBuffers()
 {
   Dali::Mutex::ScopedLock lock(mMutex);
   mFreeRequest = true;
+}
+
+void NativeImageSourceQueueTizen::SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType type)
+{
+  mWaitInWorkerThread = (type == Dali::NativeImageSourceQueue::QueueUsageType::ENQUEUE_DEQUEUE) ? true : false;
 }
 
 bool NativeImageSourceQueueTizen::CreateResource()
@@ -438,13 +443,18 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   }
   mEglSyncDiscardList.clear();
 
-  if(mWaitInRenderThread)
+  if(!mWaitInWorkerThread)
   {
     for(auto&& iter : mEglSyncObjects)
     {
       iter.second.first->ClientWait();
 
       mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
+
+      if(iter.second.second != -1)
+      {
+        close(iter.second.second);
+      }
     }
     mEglSyncObjects.clear();
   }
@@ -466,11 +476,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
       if(tbm_surface_internal_is_valid(oldSurface))
       {
-        if(oldSurface == mConsumeSurface)
-        {
-          // Mark to make a sync object
-          mNeedSync = true;
-        }
+        // Mark to make a sync object
+        mNeedSync = true;
 
         tbm_surface_queue_release(mTbmQueue, oldSurface);
       }
@@ -568,10 +575,10 @@ bool NativeImageSourceQueueTizen::CreateSyncObject()
   }
 
   int32_t fenceFd = syncObject->DuplicateNativeFenceFD();
-  if(fenceFd != -1)
+  if(fenceFd == -1)
   {
-    // We will wait for the sync object to be signaled in the worker thread
-    mWaitInRenderThread = false;
+    // We can't wait for the sync object to be signaled in the worker thread
+    mWaitInWorkerThread = false;
   }
 
   //TODO: Do we need this?
@@ -631,9 +638,10 @@ void NativeImageSourceQueueTizen::WaitSync(tbm_surface_h surface)
 
 void NativeImageSourceQueueTizen::PostRender()
 {
-  if(mNeedSync)
+  // Create the sync object when we change the egl image
+  // We need the sync every frame if we should wait in the render thread
+  if(mNeedSync || !mWaitInWorkerThread)
   {
-    // Create the sync object when we change the egl image
     CreateSyncObject();
 
     mNeedSync = false;
@@ -667,14 +675,22 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
   for(auto&& iter : mEglSyncObjects)
   {
     mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-    close(iter.second.second);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
   }
   mEglSyncObjects.clear();
 
   for(auto&& iter : mEglSyncDiscardList)
   {
     mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-    close(iter.second.second);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
   }
   mEglSyncDiscardList.clear();
 }
