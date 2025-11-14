@@ -757,8 +757,7 @@ vk::DeviceMemory VulkanNativeImageHandlerTizen::ImportPlaneMemory(Device& device
 
   uint32_t memoryTypeIndex = FindMemoryType(device,
                                             memFdProps.memoryTypeBits,
-                                            vk::MemoryPropertyFlagBits::eHostVisible |
-                                              vk::MemoryPropertyFlagBits::eHostCoherent);
+                                            static_cast<vk::MemoryPropertyFlags>(0));
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "ImportPlaneMemory: Found memory type index %u for FD %d\n", memoryTypeIndex, fd);
 
@@ -784,8 +783,73 @@ bool VulkanNativeImageHandlerTizen::CreateNativeImage(std::unique_ptr<NativeImag
   auto extMemCreateInfo = vk::ExternalMemoryImageCreateInfo{}
                             .setHandleTypes(vk::ExternalMemoryHandleTypeFlagBits::eDmaBufEXT);
 
+  // Mali GPUs require explicit DRM format modifier information when creating images
+  // from external memory (DMA-BUF)
+
+  // Query DRM format modifier properties for the format
+  auto modProps                         = vk::DrmFormatModifierPropertiesListEXT{};
+  modProps.sType                        = vk::StructureType::eDrmFormatModifierPropertiesListEXT;
+  modProps.pNext                        = nullptr;
+  modProps.pDrmFormatModifierProperties = nullptr;
+
+  auto formatProps  = vk::FormatProperties2KHR{};
+  formatProps.sType = vk::StructureType::eFormatProperties2KHR;
+  formatProps.pNext = &modProps;
+
+  auto physicalDevice = device.GetPhysicalDevice();
+
+  // Get the count of available DRM format modifiers
+  physicalDevice.getFormatProperties2(format, &formatProps);
+
+  // Allocate memory for modifier properties based on the count
+  std::vector<vk::DrmFormatModifierPropertiesEXT> modifiers(modProps.drmFormatModifierCount);
+  modProps.pDrmFormatModifierProperties = modifiers.data();
+
+  // Get the actual modifier properties data
+  physicalDevice.getFormatProperties2(format, &formatProps);
+
+  // Find modifier with value 0
+  vk::DrmFormatModifierPropertiesEXT fmodifier{};
+  bool                               foundModifier = false;
+  for(uint32_t i = 0; i < modProps.drmFormatModifierCount; ++i)
+  {
+    if(modifiers[i].drmFormatModifier == 0)
+    {
+      fmodifier     = modifiers[i];
+      foundModifier = true;
+      break;
+    }
+  }
+
+  if(!foundModifier)
+  {
+    DALI_LOG_ERROR("CreateNativeImage: Failed to find DRM format modifier with value 0\n");
+    return false;
+  }
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateNativeImage: Found DRM format modifier: %d\n", fmodifier.drmFormatModifier);
+
+  // Setup plane layout with proper row pitch alignment (expected by Mali GPU)
+  constexpr uint32_t                 MEM_ALIGN = 64;
+  std::vector<vk::SubresourceLayout> planeLayouts(1);
+  planeLayouts[0].offset     = 0;
+  planeLayouts[0].rowPitch   = ((static_cast<uint64_t>(width) * 4 + MEM_ALIGN - 1) / MEM_ALIGN) * MEM_ALIGN;
+  planeLayouts[0].size       = 0;
+  planeLayouts[0].arrayPitch = 0;
+  planeLayouts[0].depthPitch = 0;
+
+  // Create DRM format modifier info
+  auto drmFormatModifierInfo = vk::ImageDrmFormatModifierExplicitCreateInfoEXT{}
+                                 .setPNext(nullptr)
+                                 .setDrmFormatModifier(fmodifier.drmFormatModifier)
+                                 .setDrmFormatModifierPlaneCount(1)
+                                 .setPPlaneLayouts(planeLayouts.data());
+
+  // Chain the structures: external_image_create_info -> drm_format_modifier_info
+  drmFormatModifierInfo.setPNext(&extMemCreateInfo);
+
   auto imageCreateInfo = vk::ImageCreateInfo{}
-                           .setPNext(static_cast<void*>(&extMemCreateInfo))
+                           .setPNext(static_cast<void*>(&drmFormatModifierInfo))
                            .setImageType(vk::ImageType::e2D)
                            .setFormat(format)
                            .setExtent({width, height, 1})
