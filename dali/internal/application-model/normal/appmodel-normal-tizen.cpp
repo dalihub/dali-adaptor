@@ -709,12 +709,6 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     {
       if(bundleData == nullptr)
       {
-        DALI_LOG_ERROR("bundleData is nullptr");
-        return;
-      }
-      if(framework == nullptr)
-      {
-        DALI_LOG_ERROR("framework is nullptr");
         return;
       }
 
