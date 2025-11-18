@@ -102,6 +102,11 @@ void NativeImageSourceQueue::FreeReleasedBuffers()
   mImpl->FreeReleasedBuffers();
 }
 
+void NativeImageSourceQueue::SetQueueUsageHint(QueueUsageType type)
+{
+  mImpl->SetQueueUsageHint(type);
+}
+
 bool NativeImageSourceQueue::CreateResource()
 {
   return mImpl->CreateResource();

@@ -2581,10 +2581,58 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
 void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
 #ifdef OVER_TIZEN_VERSION_8
-  DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
+  unsigned int transformedNumCols = numCols;
+  unsigned int transformedNumRows = numRows;
+  unsigned int transformedColumn = column;
+  unsigned int transformedRow = row;
+  unsigned int transformedColSpan = colSpan;
+  unsigned int transformedRowSpan = rowSpan;
+
+  int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+
+  // Apply rotation transformation to layout parameters
+  switch(totalAngle)
+  {
+    case 90:
+    {
+      transformedNumCols = numRows;
+      transformedNumRows = numCols;
+      transformedColumn = row;
+      transformedRow = (numCols - 1) - column - colSpan + 1;
+      transformedColSpan = rowSpan;
+      transformedRowSpan = colSpan;
+      break;
+    }
+    case 180:
+    {
+      transformedColumn = (numCols - 1) - column - colSpan + 1;
+      transformedRow = (numRows - 1) - row - rowSpan + 1;
+      break;
+    }
+    case 270:
+    {
+      transformedNumCols = numRows;
+      transformedNumRows = numCols;
+      transformedColumn = (numRows - 1) - row - rowSpan + 1;
+      transformedRow = column;
+      transformedColSpan = rowSpan;
+      transformedRowSpan = colSpan;
+      break;
+    }
+    case 0:
+    default:
+    {
+      break;
+    }
+  }
+
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, original: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n",
+                       numCols, numRows, column, row, colSpan, rowSpan);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, transformed: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d], rotation[%d]\n",
+                       transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
-  ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
+  ecore_wl2_window_layout_set(mEcoreWindow, transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan);
 #endif
 }
 

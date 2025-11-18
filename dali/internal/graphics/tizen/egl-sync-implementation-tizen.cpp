@@ -71,7 +71,7 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType
   mEglImplementation(eglImpl)
 {
   EGLDisplay display  = mEglImplementation.GetDisplay();
-  EGLenum    syncType = (type == SyncType::FENCE_SYNC) ? EGL_SYNC_FENCE_KHR : EGL_SYNC_NATIVE_FENCE_ANDROID;
+  EGLenum    syncType = (eglDupNativeFenceFDANDROID && type == SyncType::NATIVE_FENCE_SYNC) ? EGL_SYNC_NATIVE_FENCE_ANDROID : EGL_SYNC_FENCE_KHR;
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   mEglSync = eglCreateSyncKHR(display, syncType, NULL);
@@ -192,8 +192,6 @@ int32_t EglSyncObject::DuplicateNativeFenceFD()
 {
   if(mEglSync != NULL && eglDupNativeFenceFDANDROID)
   {
-    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglDupNativeFenceFDANDROID\n");
-
     DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     int32_t fenceFd = eglDupNativeFenceFDANDROID(mEglImplementation.GetDisplay(), mEglSync);
     DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDupNativeFenceFDANDROID");
