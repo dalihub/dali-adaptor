@@ -32,6 +32,7 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
@@ -124,9 +125,12 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
 
 NativeImageSourceQueueTizen::~NativeImageSourceQueueTizen()
 {
-  if(mOwnTbmQueue)
+  // Remove from counter before destroying queue
+  if(mTbmQueue)
   {
-    if(mTbmQueue != NULL)
+    TbmSurfaceCounter::GetInstance().RemoveNativeImageSourceQueue(mQueueCount);
+
+    if(mOwnTbmQueue)
     {
       tbm_surface_queue_destroy(mTbmQueue);
     }
@@ -203,6 +207,9 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
 
     mOwnTbmQueue = true;
   }
+
+  // Add to counter for newly created tbm_queue
+  TbmSurfaceCounter::GetInstance().AddNativeImageSourceQueue(mQueueCount);
 }
 
 tbm_surface_queue_h NativeImageSourceQueueTizen::GetSurfaceFromAny(Any source) const

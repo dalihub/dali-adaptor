@@ -30,6 +30,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 
 namespace Dali
 {
@@ -111,7 +112,15 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
 
 void NativeImageSourceTizen::Initialize()
 {
-  if(mTbmSurface != NULL || mWidth == 0 || mHeight == 0)
+  if(mWidth == 0 || mHeight == 0)
+  {
+    return;
+  }
+
+  // Add to counter for external tbm_surface
+  TbmSurfaceCounter::GetInstance().AddNativeImageSource();
+
+  if(mTbmSurface != NULL)
   {
     return;
   }
@@ -209,6 +218,8 @@ void NativeImageSourceTizen::DestroySurface()
     mTbmSurface = NULL;
 
     DestroyBackBuffer();
+
+    TbmSurfaceCounter::GetInstance().RemoveNativeImageSource();
   }
 }
 
@@ -458,6 +469,8 @@ void NativeImageSourceTizen::SetSource(Any source)
 
   if(mTbmSurface != NULL)
   {
+    TbmSurfaceCounter::GetInstance().AddNativeImageSource();
+
     mSetSource = true;
     tbm_surface_internal_ref(mTbmSurface);
     mBlendingRequired = CheckBlending(tbm_surface_get_format(mTbmSurface));
@@ -810,6 +823,7 @@ void NativeImageSourceTizen::CreateBackBuffer()
   if(!mTbmBackSurface && mTbmSurface)
   {
     mTbmBackSurface = tbm_surface_create(mWidth, mHeight, tbm_surface_get_format(mTbmSurface));
+    TbmSurfaceCounter::GetInstance().AddBackBufferSurface();
   }
 }
 
@@ -822,6 +836,8 @@ void NativeImageSourceTizen::DestroyBackBuffer()
       DALI_LOG_ERROR("Failed to destroy tbm_surface\n");
     }
     mTbmBackSurface = NULL;
+
+    TbmSurfaceCounter::GetInstance().RemoveBackBufferSurface();
   }
 }
 
