@@ -199,7 +199,7 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
       }
     }
   }
-  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%d", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenList.size());
+  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenList.size());
 #else
   print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Not supported platform version", DALI_LOG_FORMAT_PREFIX_ARGS);
 #endif

@@ -56,14 +56,14 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   if(application->GetWidgetCount() == 0)
   {
     window = application->GetWidgetWindow();
-    DALI_LOG_RELEASE_INFO("Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n", window, w, h, std::string(id).c_str());
+    DALI_LOG_RELEASE_INFO("Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n", &window, w, h, std::string(id).c_str());
   }
   else
   {
     window = Dali::Window::New(PositionSize(0, 0, w, h), "", false);
     if(window)
     {
-      DALI_LOG_RELEASE_INFO("Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", window, application->GetWidgetCount(), w, h, std::string(id).c_str());
+      DALI_LOG_RELEASE_INFO("Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", &window, application->GetWidgetCount(), w, h, std::string(id).c_str());
     }
     else
     {
