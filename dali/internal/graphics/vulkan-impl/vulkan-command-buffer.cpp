@@ -218,6 +218,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
     auto surfaceId = window->GetSurfaceId();
     auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
     framebuffer    = swapchain->GetCurrentFramebuffer();
+    renderArea.y   = framebuffer->GetHeight() - renderArea.y - renderArea.height;
     renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
   }
   else
@@ -263,7 +264,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
   commandBufferImpl->BeginRenderPass(vk::RenderPassBeginInfo{}
                                        .setFramebuffer(framebuffer->GetVkHandle())
                                        .setRenderPass(renderPassImpl->GetVkHandle())
-                                       .setRenderArea({{0, 0}, {renderArea.width, renderArea.height}})
+                                       .setRenderArea({{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}})
                                        .setPClearValues(vkClearValues.data())
                                        .setClearValueCount(clearValuesCount),
                                      vk::SubpassContents::eSecondaryCommandBuffers);
@@ -379,6 +380,10 @@ void CommandBuffer::SetViewport(Viewport value)
   {
     correctedValue.height = -value.height;
     correctedValue.y      = value.height;
+  }
+  else
+  {
+    correctedValue.y = mRenderTarget->GetSurface()->GetPositionSize().height - correctedValue.height - correctedValue.y;
   }
   if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
   {
