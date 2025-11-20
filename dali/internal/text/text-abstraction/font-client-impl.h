@@ -353,6 +353,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
    */
   const FontPathList& GetCustomFontDirectories();
 
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::CustomFontAddedSignal()
+   */
+  CustomFontAddedSignalType& CustomFontAddedSignal();
+
 public: // API for Dali::TextAbstraction::Internal::FontClient used.
   /**
    * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
@@ -428,6 +433,9 @@ private:
   // Allows DPI to be set without loading plugin
   unsigned int mDpiHorizontal;
   unsigned int mDpiVertical;
+
+  // Signal emitted when custom font directory is added
+  CustomFontAddedSignalType mCustomFontAddedSignal;
 }; // class FontClient
 
 } // namespace Internal

@@ -310,6 +310,11 @@ const FontPathList& FontClient::GetCustomFontDirectories()
   return GetImplementation(*this).GetCustomFontDirectories();
 }
 
+CustomFontAddedSignalType& FontClient::CustomFontAddedSignal()
+{
+  return GetImplementation(*this).CustomFontAddedSignal();
+}
+
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   return GetImplementation(*this).CreateEmbeddedItem(description, pixelFormat);
