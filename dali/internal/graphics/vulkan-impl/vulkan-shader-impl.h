@@ -25,9 +25,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
-
-// EXTERNAL INCLUDES
-#include <vulkan/vulkan.hpp>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 namespace Dali::Graphics::Vulkan
 {

@@ -18,10 +18,6 @@
  *
  */
 
-#ifndef VULKAN_HPP_NO_EXCEPTIONS
-#define VULKAN_HPP_NO_EXCEPTIONS
-#endif
-
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/common/graphics-interface.h>

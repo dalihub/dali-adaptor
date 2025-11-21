@@ -25,11 +25,11 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
 // EXTERNAL INCLUDES
 #include <third-party/SPIRV-Reflect/spirv_reflect.h>
-#include <vulkan/vulkan.hpp>
 
 namespace
 {
