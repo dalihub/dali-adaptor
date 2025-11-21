@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <dali/graphics-api/graphics-command-buffer-create-info.h>
 #include <dali/graphics-api/graphics-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -28,6 +29,10 @@ class Swapchain;
 class RenderTarget;
 
 using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
+
+// Constants for blend state support
+constexpr uint32_t MAX_COLOR_ATTACHMENTS = 4;
+
 
 namespace DynamicStateMaskBits
 {
@@ -44,6 +49,8 @@ const uint32_t STENCIL_OP_COMP       = 1 << 9;
 const uint32_t DEPTH_TEST            = 1 << 10;
 const uint32_t DEPTH_WRITE           = 1 << 11;
 const uint32_t DEPTH_OP_COMP         = 1 << 12;
+const uint32_t COLOR_BLEND_ENABLE    = 1 << 13;
+const uint32_t COLOR_BLEND_EQUATION  = 1 << 14;
 }; // namespace DynamicStateMaskBits
 using DynamicStateMask = uint32_t;
 
@@ -342,6 +349,47 @@ public:
    */
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
+  /**
+   * @brief Enables or disables color blending for the specified attachment
+   *
+   * @param[in] attachment The color attachment index
+   * @param[in] enabled True to enable blending, false to disable
+   */
+  void SetColorBlendEnable(uint32_t attachment, bool enabled) override;
+
+  /**
+   * @brief Sets the color blend equation for the specified attachment
+   *
+   * @param[in] attachment The color attachment index
+   * @param[in] srcColorBlendFactor Source color blend factor
+   * @param[in] dstColorBlendFactor Destination color blend factor
+   * @param[in] colorBlendOp Color blend operation
+   * @param[in] srcAlphaBlendFactor Source alpha blend factor
+   * @param[in] dstAlphaBlendFactor Destination alpha blend factor
+   * @param[in] alphaBlendOp Alpha blend operation
+   */
+  void SetColorBlendEquation(uint32_t attachment,
+                             Graphics::BlendFactor srcColorBlendFactor,
+                             Graphics::BlendFactor dstColorBlendFactor,
+                             Graphics::BlendOp colorBlendOp,
+                             Graphics::BlendFactor srcAlphaBlendFactor,
+                             Graphics::BlendFactor dstAlphaBlendFactor,
+                             Graphics::BlendOp alphaBlendOp) override;
+
+  /**
+   * @brief Sets the advanced color blend equation for the specified attachment
+   *
+   * @param[in] attachment The color attachment index
+   * @param[in] srcPremultiplied Source premultiplied
+   * @param[in] dstPremultiplied Destination premultiplied
+   * @param[in] blendOverlap Blend overlap
+   * @param[in] blendOp Blend operation
+   */
+  void SetColorBlendAdvanced(uint32_t attachment,
+                             bool srcPremultiplied,
+                             bool dstPremultiplied,
+                             Graphics::BlendOp blendOp) override;
+
 public: // VulkanResource API
   /**
    * @brief Called when GL resources are destroyed
@@ -413,6 +461,8 @@ private:
     bool                stencilTest;
     bool                depthTest;
     bool                depthWrite;
+    bool                colorBlendEnable{false};
+    ColorBlendEquation  colorBlendEquation{};
   } mDynamicState;
   DynamicStateMask mDynamicStateMask{INITIAL_DYNAMIC_MASK_VALUE}; // If a bit is 1, next cmd will write, else check & write if different.
 

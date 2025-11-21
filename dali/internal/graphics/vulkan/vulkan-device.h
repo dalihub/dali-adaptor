@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_DEVICE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,6 +160,11 @@ public: // Getters
     return mIsAdvancedBlendingAllOperationsSupported;
   }
 
+  bool IsExtendedDynamicState3Supported() const
+  {
+    return mIsExtendedDynamicState3Supported;
+  }
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -217,6 +222,7 @@ private: // Members
   bool mIsKHRSamplerYCbCrConversionSupported{false};
   bool mIsAdvancedBlendingSupported{false};
   bool mIsAdvancedBlendingAllOperationsSupported{false};
+  bool mIsExtendedDynamicState3Supported{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

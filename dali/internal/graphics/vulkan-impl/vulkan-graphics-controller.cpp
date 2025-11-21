@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-cache-manager.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
@@ -503,6 +504,8 @@ struct VulkanGraphicsController::Impl
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
+  std::unique_ptr<Vulkan::PipelineCacheManager> mPipelineCacheManager{nullptr};
+
   Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
   std::vector<Vulkan::Texture*>    mDeferredTextures;
   DiscardQueues<ResourceBase>      mDiscardQueues;
@@ -575,6 +578,19 @@ void VulkanGraphicsController::ResetDidPresent()
 bool VulkanGraphicsController::DidPresent() const
 {
   return mImpl->mDidPresent;
+}
+
+void VulkanGraphicsController::CreatePipelineCacheManager()
+{
+  if(!mImpl->mPipelineCacheManager)
+  {
+    mImpl->mPipelineCacheManager = std::make_unique<Vulkan::PipelineCacheManager>(mImpl->mGraphicsController);
+  }
+}
+
+PipelineCacheManager* VulkanGraphicsController::GetPipelineCacheManager()
+{
+  return mImpl->mPipelineCacheManager.get();
 }
 
 void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneResourceBinding>& resourceBindings)
@@ -913,6 +929,22 @@ uint32_t VulkanGraphicsController::GetDeviceLimitation(Graphics::DeviceCapabilit
     const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
     return properties.limits.minUniformBufferOffsetAlignment;
   }
+
+  if(capability == DeviceCapability::SUPPORTED_DYNAMIC_STATES)
+  {
+    uint32_t dynamicStateBits = PipelineDynamicStateBits::VIEWPORT_BIT |
+                                PipelineDynamicStateBits::SCISSOR_BIT;
+
+    if(mImpl->mGraphicsDevice->IsAdvancedBlendingSupported() &&
+       mImpl->mGraphicsDevice->IsExtendedDynamicState3Supported())
+    {
+      dynamicStateBits |= PipelineDynamicStateBits::COLOR_BLEND_ENABLE_BIT |
+                          PipelineDynamicStateBits::COLOR_BLEND_EQUATION_BIT;
+    }
+
+    return dynamicStateBits;
+  }
+
   return 0;
 }
 

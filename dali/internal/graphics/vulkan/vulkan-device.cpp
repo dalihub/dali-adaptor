@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,7 +171,9 @@ void Device::CreateDevice(SurfaceImpl* surface)
                                       VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, // For querying plane-specific requirements
                                       VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,  // For hardware YUV->RGB conversion
                                       VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,         // For multi-format image views for multi-plane
-                                      VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME}; // For advanced blending operations
+                                      VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,  // For advanced blending operations
+                                      VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME, // For pipeline creation feedback
+                                      VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME};  // For dynamic color blend advanced
 
   // Query available extensions
   auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
@@ -209,7 +211,8 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
   auto deviceFeatures2 = mPhysicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2,
                                                       vk::PhysicalDeviceSamplerYcbcrConversionFeatures,
-                                                      vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>();
+                                                      vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT,
+                                                      vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>();
 
   // Check whether samplerYcbcrConversion feature is supported
   vk::PhysicalDeviceSamplerYcbcrConversionFeatures const& samplerYcbcrConversionFeatures =
@@ -306,6 +309,8 @@ void Device::CreateDevice(SurfaceImpl* surface)
         .setPQueueCreateInfos(queueInfos.data())
         .setQueueCreateInfoCount(U32(queueInfos.size()));
 
+      void* pNextChain = nullptr;
+
       if(mIsAdvancedBlendingSupported)
       {
         // Enable advanced blending features if supported
@@ -313,8 +318,34 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
         DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "advancedBlendCoherentOperations: %s\n", advancedBlendFeatures.advancedBlendCoherentOperations ? "TRUE" : "FALSE");
 
-        info.setPNext(&advancedBlendFeatures);
+        advancedBlendFeatures.pNext = pNextChain;
+        pNextChain = &advancedBlendFeatures;
       }
+
+      // Check for VK_EXT_extended_dynamic_state3
+      bool hasExtendedDynamicState3 = false;
+      for(const auto* ext : enabledExtensions)
+      {
+        if(strcmp(ext, VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME) == 0)
+        {
+          hasExtendedDynamicState3 = true;
+          break;
+        }
+      }
+
+      if(hasExtendedDynamicState3)
+      {
+        auto& extendedDynamicState3Features = deviceFeatures2.get<vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>();
+        if(extendedDynamicState3Features.extendedDynamicState3ColorBlendAdvanced)
+        {
+          DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "extendedDynamicState3ColorBlendAdvanced supported and enabled\n");
+          mIsExtendedDynamicState3Supported   = true;
+          extendedDynamicState3Features.pNext = pNextChain;
+          pNextChain                          = &extendedDynamicState3Features;
+        }
+      }
+
+      info.setPNext(pNextChain);
 
       mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
 
