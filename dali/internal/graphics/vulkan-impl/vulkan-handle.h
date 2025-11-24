@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_HANDLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <atomic>
+#include <cstdint>
+#include <utility>
 
 namespace Dali::Graphics::Vulkan
 {

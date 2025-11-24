@@ -883,6 +883,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mCore.PreRender(renderStatus, mForceClear);
     TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
 
+    graphics.RenderStart();
+
     if((!uploadOnly && updateStatus.RendererAdded()) || surfaceResized)
     {
       // Go through each window
