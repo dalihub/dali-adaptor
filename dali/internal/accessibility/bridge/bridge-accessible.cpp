@@ -600,7 +600,8 @@ Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, Co
       controledBy = rootComponent;
     }
 
-    if(controledBy->IsProxy() || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || controledBy->IsAccessibleContainingPoint(point, type))))
+    auto isContainingPoint = controledBy->IsAccessibleContainingPoint(point, type);
+    if((controledBy->IsProxy() && isContainingPoint) || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || isContainingPoint)))
     {
       LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
       return controledBy;
