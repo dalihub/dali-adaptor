@@ -308,10 +308,9 @@ void Device::CreateDevice(SurfaceImpl* surface)
       if(mIsAdvancedBlendingSupported)
       {
         // Enable advanced blending features if supported
-        auto& advancedBlendFeatures = const_cast<vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT&>(
-          deviceFeatures2.get<vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>());
+        auto& advancedBlendFeatures = deviceFeatures2.get<vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>();
 
-        advancedBlendFeatures.advancedBlendCoherentOperations = VK_TRUE;
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "advancedBlendCoherentOperations: %s\n", advancedBlendFeatures.advancedBlendCoherentOperations ? "TRUE" : "FALSE");
 
         info.setPNext(&advancedBlendFeatures);
       }
