@@ -213,6 +213,47 @@ void RenderPassImpl::CreateCompatibleCreateInfo(
     .setPDependencies(createInfo.subpassDependencies.data());
 }
 
+void RenderPassImpl::CreateMatchingInfo(
+  RenderPassHandle  renderPassImpl,
+  AttachmentLoadOp  loadOp,
+  AttachmentStoreOp storeOp,
+  CreateInfo&       createInfo)
+{
+  auto rhs = renderPassImpl->GetCreateInfo();
+
+  for(auto& attachmentHandle : rhs.attachmentHandles)
+  {
+    createInfo.attachmentHandles.push_back(attachmentHandle);
+  }
+  for(auto& colorAttachment : rhs.colorAttachmentReferences)
+  {
+    createInfo.colorAttachmentReferences.push_back(colorAttachment);
+  }
+  createInfo.depthAttachmentReference = rhs.depthAttachmentReference;
+  for(auto description : rhs.attachmentDescriptions)
+  {
+    description.loadOp         = VkLoadOpType(loadOp).loadOp;
+    description.storeOp        = VkStoreOpType(storeOp).storeOp;
+    description.stencilLoadOp  = VkLoadOpType(loadOp).loadOp;
+    description.stencilStoreOp = VkStoreOpType(storeOp).storeOp;
+    if(loadOp == Graphics::AttachmentLoadOp::LOAD)
+    {
+      description.initialLayout = description.finalLayout;
+    }
+    createInfo.attachmentDescriptions.push_back(description);
+  }
+
+  createInfo.subpassDesc         = rhs.subpassDesc;
+  createInfo.subpassDependencies = rhs.subpassDependencies;
+  createInfo.createInfo
+    .setAttachmentCount(U32(createInfo.attachmentDescriptions.size()))
+    .setPAttachments(createInfo.attachmentDescriptions.data())
+    .setPSubpasses(&createInfo.subpassDesc)
+    .setSubpassCount(1)
+    .setDependencyCount(createInfo.subpassDependencies.size())
+    .setPDependencies(createInfo.subpassDependencies.data());
+}
+
 void RenderPassImpl::CreateRenderPass()
 {
   mVkRenderPass = VkAssert(mGraphicsDevice->GetLogicalDevice().createRenderPass(mCreateInfo.createInfo, mGraphicsDevice->GetAllocator()));

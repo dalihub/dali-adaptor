@@ -289,9 +289,12 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
     }
   }
 
-  // @todo create new render pass from existing + load/store op, add it to mRenderPasses, and return it.
+  RenderPassImpl::CreateInfo createInfo;
+  RenderPassImpl::CreateMatchingInfo(mRenderPasses[0].renderPassImpl, matchLoadOp, matchStoreOp, createInfo);
+  auto renderPassImpl = RenderPassHandle(RenderPassImpl::New(*mGraphicsDevice, createInfo));
+  mRenderPasses.emplace_back(RenderPassMapElement{renderPass, renderPassImpl});
 
-  return mRenderPasses[0].renderPassImpl;
+  return renderPassImpl;
 }
 
 void FramebufferImpl::AddRenderPass(RenderPass* renderPass, Vulkan::RenderPassHandle renderPassImpl)

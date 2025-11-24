@@ -98,6 +98,12 @@ public:
     const FramebufferAttachmentHandle& depthAttachment,
     bool                               subpassForOffscreen);
 
+  static void CreateMatchingInfo(
+    RenderPassHandle  renderPassImpl,
+    AttachmentLoadOp  loadOp,
+    AttachmentStoreOp storeOp,
+    CreateInfo&       createInfo);
+
 private:
   void       CreateRenderPass();
   static int CreateSubPassDependencies(CreateInfo& createInfo, bool hasDepth, bool subpassForOffscreen);
