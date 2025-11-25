@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PIPELINE_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
 namespace Dali::Graphics::Vulkan
@@ -103,6 +104,48 @@ public:
   vk::Pipeline CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState);
 
 private:
+  /**
+   * @brief Validates render pass compatibility
+   *
+   * This function checks if the current cached render pass is compatible with the
+   * current framebuffer, and remove incompatible pipelines from the caches.
+   */
+  void ValidateRenderPassCompatibility();
+
+  /**
+   * @brief Gets the current render pass implementation from the render target
+   * @return Handle to the current render pass implementation, or empty handle if not available
+   */
+  RenderPassHandle GetCurrentRenderPassImpl();
+
+  /**
+   * @brief Clears the pipeline caches
+   *
+   * This function destroys all pipelines in both the depth state cache and main pipeline cache,
+   */
+  void ClearPipelineCaches();
+
+  /**
+   * @brief Removes pipelines with incompatible render passes from the cache
+   *
+   * This function selectively removes only pipelines that are incompatible with the specified
+   * render pass, preserving compatible pipelines for better performance.
+   * @param[in] currentRenderPass The render pass to check compatibility against
+   */
+  void RemoveIncompatiblePipelines(RenderPassHandle currentRenderPass);
+
+  /**
+   * @brief Finds an existing pipeline that matches the specified depth state and render pass
+   *
+   * This function searches both the depth state cache and main pipeline cache to find
+   * a reusable pipeline that matches the given depth state and is compatible with the
+   * current render pass.
+   * @param[in] dsState The depth stencil state to match
+   * @param[in] currentRenderPassImpl The current render pass implementation
+   * @return Found pipeline, or nullptr if no matching pipeline exists
+   */
+  vk::Pipeline FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, RenderPassHandle currentRenderPassImpl);
+
   void InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out);
   void InitializeInputAssemblyState(vk::PipelineInputAssemblyStateCreateInfo& out) const;
   void InitializeViewportState(vk::PipelineViewportStateCreateInfo& out);
@@ -159,10 +202,12 @@ private:
 
   struct RenderPassPipelinePair
   {
-    Graphics::RenderPass* renderPass;
-    vk::Pipeline          pipeline;
+    RenderPassHandle renderPass;
+    vk::Pipeline     pipeline;
   };
 
+  // Main pipeline cache for render pass compatibility checking
+  // Stores pipelines with their associated render passes for reuse when render passes are compatible
   std::vector<RenderPassPipelinePair> mVkPipelines;
 
   vk::GraphicsPipelineCreateInfo           mVkPipelineCreateInfo{};
@@ -182,6 +227,8 @@ private:
     vk::Pipeline                            pipeline;
   };
 
+  // Depth state cache for fast hash lookups during frequent depth state switching
+  // Stores pipelines with their depth state hash for quick reuse when the same depth state is needed
   std::vector<DepthStatePipelineHashed> mPipelineForDepthStateCache;
 };
 
