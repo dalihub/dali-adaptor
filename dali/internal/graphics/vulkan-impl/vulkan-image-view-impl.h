@@ -34,6 +34,8 @@ public:
 
   static ImageView* NewFromImage(Device& device, const Image& image, const vk::ComponentMapping& componentMapping);
 
+  static ImageView* NewFromImage(Device& device, const Image& image, const vk::ComponentMapping& componentMapping, uint32_t baseArrayLayer);
+
   static ImageView* New(Device& device, const Image& image, const vk::ImageViewCreateInfo& createInfo);
 
   static ImageView* New(

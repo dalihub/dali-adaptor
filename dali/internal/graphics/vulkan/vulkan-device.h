@@ -18,10 +18,6 @@
  *
  */
 
-#ifndef VULKAN_HPP_NO_EXCEPTIONS
-#define VULKAN_HPP_NO_EXCEPTIONS
-#endif
-
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
@@ -30,7 +26,9 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
+// EXTERNAL INCLUDES
 #include <functional>
 #include <map>
 #include <mutex>

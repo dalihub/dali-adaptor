@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <memory>
-#include <vulkan/vulkan.hpp>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
@@ -28,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali::Graphics::Vulkan

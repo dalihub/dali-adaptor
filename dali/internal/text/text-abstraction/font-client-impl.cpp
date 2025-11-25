@@ -797,7 +797,15 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
   CreatePlugin();
 
-  return mPlugin->AddCustomFontDirectory(path);
+  bool result = mPlugin->AddCustomFontDirectory(path);
+
+  // Emit signal if font directory was successfully added
+  if(result)
+  {
+    mCustomFontAddedSignal.Emit(path);
+  }
+
+  return result;
 }
 
 const FontPathList& FontClient::GetCustomFontDirectories()
@@ -805,6 +813,11 @@ const FontPathList& FontClient::GetCustomFontDirectories()
   CreatePlugin();
 
   return mPlugin->GetCustomFontDirectories();
+}
+
+CustomFontAddedSignalType& FontClient::CustomFontAddedSignal()
+{
+  return mCustomFontAddedSignal;
 }
 
 HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)

@@ -297,6 +297,11 @@ public:
   void FrameStart() override;
 
   /**
+   * @copydoc Dali::Graphics::GraphicsInterface::RenderStart()
+   */
+  void RenderStart() override;
+
+  /**
    * @copydoc Dali::Graphics::GraphicsInterface::ForcePresentRequired()
    */
   bool ForcePresentRequired() override;

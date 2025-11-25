@@ -26,6 +26,8 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -39,6 +41,9 @@ namespace Internal DALI_INTERNAL
 {
 class FontClient;
 }
+
+// Signal type declarations
+using CustomFontAddedSignalType = Signal<void(const std::string&)>;
 
 /**
  * @brief FontClient provides access to font information and resources.
@@ -530,6 +535,15 @@ public:
    * @return list of the custom font paths.
    */
   const FontPathList& GetCustomFontDirectories();
+
+  /**
+   * @brief Signal emitted when a custom font directory is successfully added.
+   *
+   * The signal signature is: void CustomFontAddedSignal(const std::string& path)
+   *
+   * @return The signal to connect to.
+   */
+  CustomFontAddedSignalType& CustomFontAddedSignal();
 
   /**
    * @brief Creates and stores an embedded item and it's metrics.

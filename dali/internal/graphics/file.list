@@ -58,6 +58,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-pool-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-fence-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-attachment.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-view-impl.cpp
@@ -81,6 +82,7 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-sampler-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture-array.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-texture-dependency-checker.cpp
 )
 

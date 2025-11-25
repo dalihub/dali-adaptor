@@ -23,10 +23,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-types.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 // EXTERNAL_INCLUDES
 #include <unordered_set>
-#include <vulkan/vulkan.hpp>
 
 struct SpvReflectShaderModule;
 namespace Dali::Graphics

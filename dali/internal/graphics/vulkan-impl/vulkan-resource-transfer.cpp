@@ -131,7 +131,7 @@ void ResourceTransfer::UpdateSerially(
         InitializeTextureStagingBuffer(stagingBufferSize, false);
         DALI_ASSERT_ALWAYS(mTextureStagingBufferMappedPtr != nullptr);
 
-        texture->InitializeImageView();
+        texture->InitializeImageViews();
         const auto& properties = texture->GetProperties();
 
         if(properties.emulated)
@@ -318,7 +318,7 @@ void ResourceTransfer::UpdateWithFutures(
             char* pStagingMemory = reinterpret_cast<char*>(*ppStagingMemory);
 
             // Try to initialise texture resources explicitly if they are not yet initialised
-            texture->InitializeImageView();
+            texture->InitializeImageViews();
 
             // If texture is 'emulated' convert pixel data otherwise do direct copy
             const auto& properties = texture->GetProperties();
@@ -527,7 +527,7 @@ void ResourceTransfer::CopyBufferAndTransition(
 {
   if(!destTexture.GetImageView())
   {
-    destTexture.InitializeImageView();
+    destTexture.InitializeImageViews();
   }
 
   auto& graphicsController = resourceTransfer.GetController();
@@ -627,7 +627,7 @@ void ResourceTransfer::CopyBuffer(
 {
   if(!destTexture.GetImageView())
   {
-    destTexture.InitializeImageView();
+    destTexture.InitializeImageViews();
   }
 
   ResourceTransferRequest transferRequest(TransferRequestType::BUFFER_TO_IMAGE);
@@ -670,7 +670,7 @@ void ResourceTransfer::CopyMemoryDirect(
   }
 
   // try to initialise resource
-  destTexture.InitializeImageView();
+  destTexture.InitializeImageViews();
 
   auto& device = resourceTransfer.GetDevice();
   auto  image  = destTexture.GetImage();

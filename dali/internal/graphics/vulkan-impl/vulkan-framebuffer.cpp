@@ -38,7 +38,10 @@ Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphics
 {
 }
 
-Framebuffer::~Framebuffer() = default;
+Framebuffer::~Framebuffer()
+{
+  DestroyResource();
+}
 
 ResourceBase::InitializationResult Framebuffer::InitializeResource()
 {
@@ -66,8 +69,7 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
       DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() &&
                         "Render pass attachment descriptions out of range");
 
-      // FramebufferAttachment takes ownership of the image view. So, create new view onto the image.
-      std::unique_ptr<ImageView> imageView = graphicsTexture->CreateImageView();
+      auto imageView = graphicsTexture->GetImageView();
       colorAttachments.emplace_back(FramebufferAttachment::NewColorAttachment(imageView, clearColor, &attachmentDescriptions[attachmentDescriptionIndex++], false));
     }
 
@@ -79,16 +81,16 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
     {
       DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() && "Render pass attachment descriptions out of range");
 
-      auto                       depthTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.depthTexture);
-      std::unique_ptr<ImageView> imageView    = depthTexture->CreateImageView();
-      depthStencilAttachment                  = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
+      auto       depthTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.depthTexture);
+      ImageView* imageView    = depthTexture->GetImageView();
+      depthStencilAttachment  = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
     }
     else if(mCreateInfo.depthStencilAttachment.stencilTexture)
     {
       DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() && "Render pass attachment descriptions out of range");
-      auto                       stencilTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.stencilTexture);
-      std::unique_ptr<ImageView> imageView      = stencilTexture->CreateImageView();
-      depthStencilAttachment                    = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
+      auto       stencilTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.stencilTexture);
+      ImageView* imageView      = stencilTexture->GetImageView();
+      depthStencilAttachment    = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
     }
 
     RenderPassImpl::CreateInfo createInfo;
@@ -115,10 +117,17 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
 
 void Framebuffer::DestroyResource()
 {
+  if(mFramebufferImpl != nullptr)
+  {
+    mFramebufferImpl->Destroy();
+    delete mFramebufferImpl;
+  }
+  mFramebufferImpl = nullptr;
 }
 
 void Framebuffer::DiscardResource()
 {
+  mController.DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::Vulkan

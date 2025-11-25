@@ -20,10 +20,10 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-program-create-info.h>
 #include <dali/graphics-api/graphics-program.h>
-#include <vulkan/vulkan.hpp>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 namespace Dali::Graphics::Vulkan
 {
