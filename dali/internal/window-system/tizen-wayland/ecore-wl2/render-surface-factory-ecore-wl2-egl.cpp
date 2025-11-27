@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/offscreen/egl/offscreen-render-surface-egl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -42,6 +43,11 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreWl2::CreatePixmapR
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
   return Utils::MakeUnique<NativeRenderSurfaceEcoreWl>(surfaceSize, surface, isTransparent);
+}
+
+std::unique_ptr<OffscreenRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateOffscreenRenderSurface()
+{
+  return Utils::MakeUnique<OffscreenRenderSurfaceEgl>();
 }
 
 // this should be created from somewhere

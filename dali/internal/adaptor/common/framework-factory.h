@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_FACTORY_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,12 @@ public:
   virtual ~FrameworkFactory() = default;
 
   virtual std::unique_ptr<Framework> CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) = 0;
-  virtual FrameworkBackend           GetFrameworkBackend() const
+
+  virtual void SetFrameworkBackend(FrameworkBackend backend)
+  {
+  }
+
+  virtual FrameworkBackend GetFrameworkBackend() const
   {
     return FrameworkBackend::DEFAULT;
   }

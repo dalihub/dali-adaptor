@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,10 @@
 
 namespace Dali
 {
-OffscreenApplication OffscreenApplication::New(uint16_t width, uint16_t height, bool isTranslucent, OffscreenApplication::RenderMode renderMode)
+OffscreenApplication OffscreenApplication::New(int* argc, char** argv[], FrameworkBackend framework, RenderMode renderMode)
 {
-  Dali::Any                                    surface;
-  IntrusivePtr<Internal::OffscreenApplication> impl = Internal::OffscreenApplication::New(width, height, surface, isTranslucent, renderMode);
-
-  OffscreenApplication offscreenApplication = OffscreenApplication(impl.Get());
-
-  return offscreenApplication;
-}
-
-OffscreenApplication OffscreenApplication::New(Dali::Any surface, OffscreenApplication::RenderMode renderMode)
-{
-  IntrusivePtr<Internal::OffscreenApplication> impl = Internal::OffscreenApplication::New(0, 0, surface, false, renderMode);
+  // Now we don't use command line args
+  IntrusivePtr<Internal::Adaptor::OffscreenApplication> impl = Internal::Adaptor::OffscreenApplication::New(framework, renderMode);
 
   OffscreenApplication offscreenApplication = OffscreenApplication(impl.Get());
 
@@ -48,64 +39,33 @@ OffscreenApplication::OffscreenApplication(const OffscreenApplication& offscreen
 
 OffscreenApplication& OffscreenApplication::operator=(const OffscreenApplication& offscreenApplication) = default;
 
+OffscreenApplication::OffscreenApplication(OffscreenApplication&& rhs) noexcept = default;
+
+OffscreenApplication& OffscreenApplication::operator=(OffscreenApplication&& rhs) noexcept = default;
+
 OffscreenApplication::~OffscreenApplication() = default;
 
-void OffscreenApplication::MainLoop()
+void OffscreenApplication::Start()
 {
-  Internal::GetImplementation(*this).MainLoop();
+  Internal::Adaptor::GetImplementation(*this).Start();
 }
 
-void OffscreenApplication::Quit()
+void OffscreenApplication::Terminate()
 {
-  Internal::GetImplementation(*this).Quit();
+  Internal::Adaptor::GetImplementation(*this).Terminate();
 }
 
-Dali::OffscreenWindow OffscreenApplication::GetWindow()
+OffscreenWindow OffscreenApplication::GetWindow()
 {
-  return Internal::GetImplementation(*this).GetWindow();
+  return Internal::Adaptor::GetImplementation(*this).GetWindow();
 }
 
 void OffscreenApplication::RenderOnce()
 {
-  Internal::GetImplementation(*this).RenderOnce();
+  Internal::Adaptor::GetImplementation(*this).RenderOnce();
 }
 
-Any OffscreenApplication::GetFrameworkContext() const
-{
-  return Internal::GetImplementation(*this).GetFrameworkContext();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::InitSignal()
-{
-  return Internal::GetImplementation(*this).InitSignal();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::TerminateSignal()
-{
-  return Internal::GetImplementation(*this).TerminateSignal();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::PauseSignal()
-{
-  return Internal::GetImplementation(*this).PauseSignal();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::ResumeSignal()
-{
-  return Internal::GetImplementation(*this).ResumeSignal();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::ResetSignal()
-{
-  return Internal::GetImplementation(*this).ResetSignal();
-}
-
-OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::LanguageChangedSignal()
-{
-  return Internal::GetImplementation(*this).LanguageChangedSignal();
-}
-
-OffscreenApplication::OffscreenApplication(Internal::OffscreenApplication* offscreenApplication)
+OffscreenApplication::OffscreenApplication(Internal::Adaptor::OffscreenApplication* offscreenApplication)
 : BaseHandle(offscreenApplication)
 {
 }

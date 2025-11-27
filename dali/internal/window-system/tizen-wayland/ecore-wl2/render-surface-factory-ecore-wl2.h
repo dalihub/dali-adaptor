@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL2_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ public:
   std::unique_ptr<PixmapRenderSurface> CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent = false) override;
 
   std::unique_ptr<NativeRenderSurface> CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent = false) override;
+
+  std::unique_ptr<OffscreenRenderSurface> CreateOffscreenRenderSurface() override;
 };
 
 } // namespace Adaptor

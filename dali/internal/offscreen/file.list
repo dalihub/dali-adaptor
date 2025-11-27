@@ -3,3 +3,12 @@ SET( adaptor_offscreen_common_src_files
     ${adaptor_offscreen_dir}/common/offscreen-application-impl.cpp
     ${adaptor_offscreen_dir}/common/offscreen-window-impl.cpp
 )
+
+SET( adaptor_offscreen_egl_src_files
+    ${adaptor_offscreen_dir}/egl/offscreen-render-surface-egl.cpp
+)
+
+SET( adaptor_offscreen_vulkan_src_files
+    ${adaptor_offscreen_dir}/vulkan/offscreen-render-surface-vulkan.cpp
+)
+

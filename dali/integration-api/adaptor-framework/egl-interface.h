@@ -50,7 +50,7 @@ public:
    * Create the OpenGL context for the window.
    * @return true if successful
    */
-  virtual bool CreateWindowContext(EGLContext& mEglContext) = 0;
+  virtual bool CreateWindowContext(EGLContext& eglContext) = 0;
 
   /**
    * Create an OpenGL surface using a window

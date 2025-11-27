@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/internal/offscreen/common/offscreen-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include "window-render-surface-cocoa.h"
@@ -55,6 +56,11 @@ RenderSurfaceFactoryCocoa::CreateNativeRenderSurface(
   bool        isTransparent)
 {
   return std::unique_ptr<NativeRenderSurface>(nullptr);
+}
+
+std::unique_ptr<OffscreenRenderSurface> RenderSurfaceFactoryCocoa::CreateOffscreenRenderSurface()
+{
+  return std::unique_ptr<OffscreenRenderSurface>(nullptr);
 }
 
 // this should be created from somewhere

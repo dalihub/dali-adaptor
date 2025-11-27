@@ -19,30 +19,47 @@
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 
 // EXTENRAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 
 namespace Dali
 {
-OffscreenWindow OffscreenWindow::New(uint16_t width, uint16_t height, bool isTranslucent)
+OffscreenWindow OffscreenWindow::New()
 {
-  Any                                     surface;
-  IntrusivePtr<Internal::OffscreenWindow> impl   = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
-  OffscreenWindow                         window = OffscreenWindow(impl.Get());
-  impl->Initialize(false);
+  OffscreenWindow newWindow;
 
-  return window;
-}
+  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
+  bool       isNewWindowAllowed = false;
 
-OffscreenWindow OffscreenWindow::New(Any surface)
-{
-  IntrusivePtr<Internal::OffscreenWindow> impl   = Internal::OffscreenWindow::New(0, 0, surface, false);
-  OffscreenWindow                         window = OffscreenWindow(impl.Get());
-  impl->Initialize(false);
+  if(isAdaptorAvailable)
+  {
+    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
+  }
 
-  return window;
+  if(isNewWindowAllowed)
+  {
+    IntrusivePtr<Internal::Adaptor::OffscreenWindow> window = Internal::Adaptor::OffscreenWindow::New();
+
+    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window.Get());
+
+    if(isAdaptorAvailable)
+    {
+      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
+    }
+    newWindow = OffscreenWindow(window.Get());
+  }
+  else
+  {
+    DALI_LOG_ERROR("This device can't support multiple windows.\n");
+  }
+
+  return newWindow;
 }
 
 OffscreenWindow::OffscreenWindow() = default;
@@ -57,67 +74,52 @@ OffscreenWindow& OffscreenWindow::operator=(OffscreenWindow&& window) noexcept =
 
 OffscreenWindow::~OffscreenWindow() = default;
 
+void OffscreenWindow::SetNativeImage(NativeImageSourcePtr nativeImage)
+{
+  Internal::Adaptor::GetImplementation(*this).SetNativeImage(nativeImage);
+}
+
 void OffscreenWindow::Add(Actor actor)
 {
-  Internal::GetImplementation(*this).Add(actor);
+  Internal::Adaptor::GetImplementation(*this).Add(actor);
 }
 
 void OffscreenWindow::Remove(Actor actor)
 {
-  Internal::GetImplementation(*this).Remove(actor);
+  Internal::Adaptor::GetImplementation(*this).Remove(actor);
 }
 
 void OffscreenWindow::SetBackgroundColor(const Vector4& color)
 {
-  Internal::GetImplementation(*this).SetBackgroundColor(color);
+  Internal::Adaptor::GetImplementation(*this).SetBackgroundColor(color);
 }
 
 Vector4 OffscreenWindow::GetBackgroundColor() const
 {
-  return Internal::GetImplementation(*this).GetBackgroundColor();
+  return Internal::Adaptor::GetImplementation(*this).GetBackgroundColor();
 }
 
 Layer OffscreenWindow::GetRootLayer() const
 {
-  return Internal::GetImplementation(*this).GetRootLayer();
-}
-
-uint32_t OffscreenWindow::GetLayerCount() const
-{
-  return Internal::GetImplementation(*this).GetLayerCount();
-}
-
-Layer OffscreenWindow::GetLayer(uint32_t depth) const
-{
-  return Internal::GetImplementation(*this).GetLayer(depth);
+  return Internal::Adaptor::GetImplementation(*this).GetRootLayer();
 }
 
 OffscreenWindow::WindowSize OffscreenWindow::GetSize() const
 {
-  return Internal::GetImplementation(*this).GetSize();
+  return Internal::Adaptor::GetImplementation(*this).GetSize();
 }
 
-Any OffscreenWindow::GetNativeHandle() const
+void OffscreenWindow::AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback)
 {
-  return Internal::GetImplementation(*this).GetNativeHandle();
+  Internal::Adaptor::GetImplementation(*this).AddPostRenderSyncCallback(std::move(callback));
 }
 
-Uint16Pair OffscreenWindow::GetDpi() const
+void OffscreenWindow::AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase> callback)
 {
-  return Internal::GetImplementation(*this).GetDpi();
+  Internal::Adaptor::GetImplementation(*this).AddPostRenderAsyncCallback(std::move(callback));
 }
 
-void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
-{
-  Internal::GetImplementation(*this).SetPostRenderCallback(callback);
-}
-
-void OffscreenWindow::SetFrameRenderedCallback(CallbackBase* callback)
-{
-  Internal::GetImplementation(*this).SetFrameRenderedCallback(callback);
-}
-
-OffscreenWindow::OffscreenWindow(Internal::OffscreenWindow* window)
+OffscreenWindow::OffscreenWindow(Internal::Adaptor::OffscreenWindow* window)
 : BaseHandle(window)
 {
 }

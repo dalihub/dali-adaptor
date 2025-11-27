@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/internal/offscreen/vulkan/offscreen-render-surface-vulkan.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -39,6 +40,11 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreX::CreatePixmapRen
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreX::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
   return nullptr;
+}
+
+std::unique_ptr<OffscreenRenderSurface> RenderSurfaceFactoryEcoreX::CreateOffscreenRenderSurface()
+{
+  return Utils::MakeUnique<OffscreenRenderSurfaceVulkan>();
 }
 
 // this should be created from somewhere
