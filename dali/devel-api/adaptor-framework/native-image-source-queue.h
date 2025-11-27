@@ -85,6 +85,14 @@ public:
   };
 
   /**
+   * @brief Enumeration for queue usage types.
+   */
+  enum QueueUsageType
+  {
+    ENQUEUE_DEQUEUE = 0x01 ///< Enqueue and dequeue operations will be used
+  };
+
+  /**
    * @brief Creates a new NativeImageSourceQueue.
    *        Depending on hardware, the width and height may have to be a power of two.
    *        It will use 3, or defined by DALI_TBM_SURFACE_QUEUE_SIZE as default.
@@ -194,6 +202,16 @@ public:
    * @brief Free all released buffers.
    */
   void FreeReleasedBuffers();
+
+  /**
+   * @brief Sets a hint for queue usage type.
+   *
+   * Call this method to specify what type of queue operations will be used.
+   * This hint allows the implementation to prepare appropriate queue management.
+   * @param[in] type The queue usage type
+   * @note This should be called before DequeueBuffer and EnqueueBuffer.
+   */
+  void SetQueueUsageHint(QueueUsageType type);
 
   /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()

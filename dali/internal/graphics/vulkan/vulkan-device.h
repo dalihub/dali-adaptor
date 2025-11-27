@@ -18,10 +18,6 @@
  *
  */
 
-#ifndef VULKAN_HPP_NO_EXCEPTIONS
-#define VULKAN_HPP_NO_EXCEPTIONS
-#endif
-
 // INTERNAL INCLUDES
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
@@ -30,7 +26,9 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
+// EXTERNAL INCLUDES
 #include <functional>
 #include <map>
 #include <mutex>
@@ -152,6 +150,16 @@ public: // Getters
     return mIsKHRSamplerYCbCrConversionSupported;
   }
 
+  bool IsAdvancedBlendingSupported() const
+  {
+    return mIsAdvancedBlendingSupported;
+  }
+
+  bool IsAdvancedBlendingAllOperationsSupported() const
+  {
+    return mIsAdvancedBlendingAllOperationsSupported;
+  }
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -207,6 +215,8 @@ private: // Members
   bool mHasStencil{false};
 
   bool mIsKHRSamplerYCbCrConversionSupported{false};
+  bool mIsAdvancedBlendingSupported{false};
+  bool mIsAdvancedBlendingAllOperationsSupported{false};
 };
 
 } // namespace Dali::Graphics::Vulkan

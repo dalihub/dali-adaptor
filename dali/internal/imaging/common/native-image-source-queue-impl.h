@@ -84,6 +84,11 @@ public:
   virtual void FreeReleasedBuffers() = 0;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::SetQueueUsageHint
+   */
+  virtual void SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType type) = 0;
+
+  /**
    * destructor
    */
   virtual ~NativeImageSourceQueue() = default;

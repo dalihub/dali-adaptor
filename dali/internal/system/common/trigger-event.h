@@ -85,9 +85,9 @@ public:
   Dali::UnifiedTriggerEventManager GetUnifiedTriggerEventManager() const;
 
   /**
-   * @brief Remove the reference of UnifiedTriggerEventManager handle.
+   * @brief Discard the trigger event.
    */
-  void ResetUnifiedTriggerEventManager();
+  void Discard();
 
 private:
   /**

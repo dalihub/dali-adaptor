@@ -213,6 +213,47 @@ void RenderPassImpl::CreateCompatibleCreateInfo(
     .setPDependencies(createInfo.subpassDependencies.data());
 }
 
+void RenderPassImpl::CreateMatchingInfo(
+  RenderPassHandle  renderPassImpl,
+  AttachmentLoadOp  loadOp,
+  AttachmentStoreOp storeOp,
+  CreateInfo&       createInfo)
+{
+  auto rhs = renderPassImpl->GetCreateInfo();
+
+  for(auto& attachmentHandle : rhs.attachmentHandles)
+  {
+    createInfo.attachmentHandles.push_back(attachmentHandle);
+  }
+  for(auto& colorAttachment : rhs.colorAttachmentReferences)
+  {
+    createInfo.colorAttachmentReferences.push_back(colorAttachment);
+  }
+  createInfo.depthAttachmentReference = rhs.depthAttachmentReference;
+  for(auto description : rhs.attachmentDescriptions)
+  {
+    description.loadOp         = VkLoadOpType(loadOp).loadOp;
+    description.storeOp        = VkStoreOpType(storeOp).storeOp;
+    description.stencilLoadOp  = VkLoadOpType(loadOp).loadOp;
+    description.stencilStoreOp = VkStoreOpType(storeOp).storeOp;
+    if(loadOp == Graphics::AttachmentLoadOp::LOAD)
+    {
+      description.initialLayout = description.finalLayout;
+    }
+    createInfo.attachmentDescriptions.push_back(description);
+  }
+
+  createInfo.subpassDesc         = rhs.subpassDesc;
+  createInfo.subpassDependencies = rhs.subpassDependencies;
+  createInfo.createInfo
+    .setAttachmentCount(U32(createInfo.attachmentDescriptions.size()))
+    .setPAttachments(createInfo.attachmentDescriptions.data())
+    .setPSubpasses(&createInfo.subpassDesc)
+    .setSubpassCount(1)
+    .setDependencyCount(createInfo.subpassDependencies.size())
+    .setPDependencies(createInfo.subpassDependencies.data());
+}
+
 void RenderPassImpl::CreateRenderPass()
 {
   mVkRenderPass = VkAssert(mGraphicsDevice->GetLogicalDevice().createRenderPass(mCreateInfo.createInfo, mGraphicsDevice->GetAllocator()));
@@ -233,18 +274,27 @@ int RenderPassImpl::CreateSubPassDependencies(CreateInfo& createInfo, bool hasDe
         .setSrcAccessMask(vk::AccessFlagBits::eNone)
         .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite),
       vk::SubpassDependency{}
+        .setSrcSubpass(0) // Self-dependency for subpass 0 to allow pipeline barriers within the same subpass
+        .setDstSubpass(0)
+        .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+        .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+        .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+        .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead)
+        .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
+      vk::SubpassDependency{}
         .setSrcSubpass(0)
         .setDstSubpass(vk::SubpassExternal)
         .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests)
         .setDstStageMask(vk::PipelineStageFlagBits::eFragmentShader)
         .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
         .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)};
-    dependencyCount = 2;
+
+    dependencyCount = 3;
   }
   else // Subpass for swapchain
   {
-    // Creating 2 subpass dependencies using VK_SUBPASS_EXTERNAL to leverage the implicit image layout
-    // transitions provided by the driver
+    // Creating 3 subpass dependencies using VK_SUBPASS_EXTERNAL to leverage the implicit image layout
+    // transitions provided by the driver, plus self-dependency for blend barrier
     vk::AccessFlags        accessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite);
     vk::PipelineStageFlags stageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
     if(hasDepth)
@@ -255,23 +305,31 @@ int RenderPassImpl::CreateSubPassDependencies(CreateInfo& createInfo, bool hasDe
 
     createInfo.subpassDependencies = {
       vk::SubpassDependency{}
-        .setSrcSubpass(VK_SUBPASS_EXTERNAL)
+        .setSrcSubpass(vk::SubpassExternal)
         .setDstSubpass(0)
         .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
         .setDstStageMask(stageMask)
         .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
         .setDstAccessMask(accessMask)
         .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
-
+      vk::SubpassDependency{}
+        .setSrcSubpass(0) // Self-dependency for subpass 0 to allow pipeline barriers within the same subpass
+        .setDstSubpass(0)
+        .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+        .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+        .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+        .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead)
+        .setDependencyFlags(vk::DependencyFlagBits::eByRegion),
       vk::SubpassDependency{}
         .setSrcSubpass(0)
-        .setDstSubpass(VK_SUBPASS_EXTERNAL)
+        .setDstSubpass(vk::SubpassExternal)
         .setSrcStageMask(stageMask)
         .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
         .setSrcAccessMask(accessMask)
         .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
         .setDependencyFlags(vk::DependencyFlagBits::eByRegion)};
-    dependencyCount = 2;
+
+    dependencyCount = 3;
   }
   return dependencyCount;
 }

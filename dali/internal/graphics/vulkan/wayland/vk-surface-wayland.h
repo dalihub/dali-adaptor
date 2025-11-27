@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_VKSURFACEWAYLAND_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,8 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
-
-// EXTERNAL INCLUDES
-#include <vulkan/vulkan.hpp>
 
 namespace Dali
 {

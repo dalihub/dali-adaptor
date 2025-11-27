@@ -99,6 +99,11 @@ public:
   void FreeReleasedBuffers() override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::SetQueueUsageHint
+   */
+  void SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType type) override;
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueTizen() override;
@@ -270,7 +275,7 @@ private:
   bool                   mIsResized;          ///< Whether the size has changed
   bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
   bool                   mNeedSync;           ///< Whether we need to create the egl sync object
-  bool                   mWaitInRenderThread; ///< Whether we wait for the sync to be signaled in the render thread
+  bool                   mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
 };
 
 } // namespace Adaptor

@@ -32,6 +32,7 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
@@ -104,7 +105,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mIsResized(false),
   mFreeRequest(false),
   mNeedSync(false),
-  mWaitInRenderThread(true)
+  mWaitInWorkerThread(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -124,9 +125,12 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
 
 NativeImageSourceQueueTizen::~NativeImageSourceQueueTizen()
 {
-  if(mOwnTbmQueue)
+  // Remove from counter before destroying queue
+  if(mTbmQueue)
   {
-    if(mTbmQueue != NULL)
+    TbmSurfaceCounter::GetInstance().RemoveNativeImageSourceQueue(mQueueCount);
+
+    if(mOwnTbmQueue)
     {
       tbm_surface_queue_destroy(mTbmQueue);
     }
@@ -203,6 +207,9 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
 
     mOwnTbmQueue = true;
   }
+
+  // Add to counter for newly created tbm_queue
+  TbmSurfaceCounter::GetInstance().AddNativeImageSourceQueue(mQueueCount);
 }
 
 tbm_surface_queue_h NativeImageSourceQueueTizen::GetSurfaceFromAny(Any source) const
@@ -330,7 +337,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     mBuffers.insert({buffer, tbmSurface});
   }
 
-  if(!mWaitInRenderThread)
+  if(mWaitInWorkerThread)
   {
     WaitSync(tbmSurface);
   }
@@ -370,6 +377,11 @@ void NativeImageSourceQueueTizen::FreeReleasedBuffers()
 {
   Dali::Mutex::ScopedLock lock(mMutex);
   mFreeRequest = true;
+}
+
+void NativeImageSourceQueueTizen::SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType type)
+{
+  mWaitInWorkerThread = (type == Dali::NativeImageSourceQueue::QueueUsageType::ENQUEUE_DEQUEUE) ? true : false;
 }
 
 bool NativeImageSourceQueueTizen::CreateResource()
@@ -438,13 +450,18 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   }
   mEglSyncDiscardList.clear();
 
-  if(mWaitInRenderThread)
+  if(!mWaitInWorkerThread)
   {
     for(auto&& iter : mEglSyncObjects)
     {
       iter.second.first->ClientWait();
 
       mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
+
+      if(iter.second.second != -1)
+      {
+        close(iter.second.second);
+      }
     }
     mEglSyncObjects.clear();
   }
@@ -466,11 +483,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
       if(tbm_surface_internal_is_valid(oldSurface))
       {
-        if(oldSurface == mConsumeSurface)
-        {
-          // Mark to make a sync object
-          mNeedSync = true;
-        }
+        // Mark to make a sync object
+        mNeedSync = true;
 
         tbm_surface_queue_release(mTbmQueue, oldSurface);
       }
@@ -568,10 +582,10 @@ bool NativeImageSourceQueueTizen::CreateSyncObject()
   }
 
   int32_t fenceFd = syncObject->DuplicateNativeFenceFD();
-  if(fenceFd != -1)
+  if(fenceFd == -1)
   {
-    // We will wait for the sync object to be signaled in the worker thread
-    mWaitInRenderThread = false;
+    // We can't wait for the sync object to be signaled in the worker thread
+    mWaitInWorkerThread = false;
   }
 
   //TODO: Do we need this?
@@ -631,9 +645,10 @@ void NativeImageSourceQueueTizen::WaitSync(tbm_surface_h surface)
 
 void NativeImageSourceQueueTizen::PostRender()
 {
-  if(mNeedSync)
+  // Create the sync object when we change the egl image
+  // We need the sync every frame if we should wait in the render thread
+  if(mNeedSync || !mWaitInWorkerThread)
   {
-    // Create the sync object when we change the egl image
     CreateSyncObject();
 
     mNeedSync = false;

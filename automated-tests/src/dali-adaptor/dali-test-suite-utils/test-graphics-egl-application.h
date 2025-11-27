@@ -293,6 +293,10 @@ public:
   {
   }
 
+  void RenderStart() override
+  {
+  }
+
   bool ForcePresentRequired() override
   {
     return false;

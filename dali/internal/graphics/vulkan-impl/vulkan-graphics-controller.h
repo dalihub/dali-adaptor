@@ -39,6 +39,7 @@ class Surface;
 class Buffer;
 class Sampler;
 class Texture;
+class TextureArray;
 class SamplerImpl;
 
 /**
@@ -447,7 +448,15 @@ public: // Other API
    */
   void RemoveRenderTarget(RenderTarget* renderTarget);
 
+  /**
+   * Inform controller when a frame is about to start. This indicates start of Render, before msg processing
+   */
   void FrameStart();
+
+  /**
+   * Inform controller when rendering is about to start. This is called between Core::PreRender and Core::RenderScene.
+   */
+  void RenderStart();
 
   /**
    * @brief Reset the DidPresent flag to false at the start of each frame.
@@ -466,6 +475,44 @@ public: // Other API
 
   SamplerImpl* GetDefaultSampler();
 
+  /**
+   * Remove the texture array and destroy its resources. This should only be called after
+   * the last ref has been removed.
+   *
+   * @param textureArray The texture to remove
+   */
+  void RemoveTextureArray(TextureArray* textureArray);
+
+  /**
+   * Check whether advanced blending is supported
+   * @return Whether advanced blending is supported
+   */
+  bool IsAdvancedBlendEquationSupported();
+
+  /**
+   * Set the cached advanced blending support status
+   * @param[in] isSupported Whether advanced blending is supported
+   */
+  void SetIsAdvancedBlendEquationSupported(bool isSupported);
+
+  /**
+   * Get the maximum texture size
+   * @return Maximum texture size
+   */
+  uint32_t GetMaxTextureSize();
+
+  /**
+   * Get the maximum number of combined texture units
+   * @return Maximum number of combined texture units
+   */
+  uint32_t GetMaxCombinedTextureUnits();
+
+  /**
+   * Notify that the logical device has been created
+   * This should be called when Vulkan::Device::CreateDevice() completes
+   */
+  void NotifyLogicalDeviceCreated();
+
 public: // For debug
   std::size_t GetCapacity() const;
 
@@ -474,8 +521,6 @@ private:
    * Flush all outstanding queues.
    */
   void Flush();
-
-  bool IsAdvancedBlendEquationSupported();
 
   struct Impl;
   std::unique_ptr<Impl> mImpl;

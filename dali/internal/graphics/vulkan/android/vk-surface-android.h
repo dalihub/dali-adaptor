@@ -19,11 +19,11 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
 // EXTERNAL INCLUDES
 #include <android_native_app_glue.h>
-#include <vulkan/vulkan.hpp>
 
 namespace Dali
 {

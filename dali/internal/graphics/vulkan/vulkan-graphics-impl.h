@@ -188,6 +188,10 @@ public: // Present APIs
    * @copydoc Dali::Graphics::GraphicsInterface::FrameStart()
    */
   void FrameStart() override;
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::RenderStart()
+   */
+  void RenderStart() override;
 
   /**
    * @copydoc Dali::Graphics::GraphicsInterface::ForcePresentRequired()

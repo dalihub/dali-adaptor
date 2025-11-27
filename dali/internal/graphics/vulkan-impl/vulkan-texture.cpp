@@ -1244,7 +1244,6 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 : Resource(createInfo, controller),
   mDevice(controller.GetGraphicsDevice()),
   mImage(nullptr),
-  mImageView(nullptr),
   mNativeImageHandler(VulkanNativeImageHandler::CreateHandler()),
   mCurrentSurface(nullptr),
   mHasSurfaceReference(false)
@@ -1277,7 +1276,7 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 
 Texture::~Texture()
 {
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "mIsNativeImage: %d\n", mIsNativeImage);
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "(%p) mIsNativeImage: %d\n", this, mIsNativeImage);
 
   if(mIsNativeImage)
   {
@@ -1296,8 +1295,7 @@ Texture::~Texture()
     delete mSampler;
   }
 
-  delete mImageView;
-  delete mImage;
+  Texture::DestroyResource();
 }
 
 ResourceBase::InitializationResult Texture::InitializeResource()
@@ -1306,7 +1304,15 @@ ResourceBase::InitializationResult Texture::InitializeResource()
 
   if(!mIsNativeImage || (mIsNativeImage && mNativeImageType == NativeImageType::NATIVE_IMAGE_SOURCE))
   {
-    if(Initialize())
+    SetFormatAndUsage();
+
+    if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
+    {
+      // Defer image creation - may batch up into render target array instead
+      mInitializationDeferred = true;
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Defer ColorAttachment creation\n");
+    }
+    else if(Initialize())
     {
       return InitializationResult::INITIALIZED;
     }
@@ -1317,7 +1323,7 @@ ResourceBase::InitializationResult Texture::InitializeResource()
 
 void Texture::DestroyResource()
 {
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "DestroyResource: mIsNativeImage: %d\n", mIsNativeImage);
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "(%p) mTextureArray:%p mIsNativeImage: %d\n", this, &(*mTextureArray), mIsNativeImage);
 
   if(mIsNativeImage && mNativeImageHandler)
   {
@@ -1336,17 +1342,21 @@ void Texture::DestroyResource()
     mNativeImageHandler->DestroyNativeResources(mDevice, std::move(mNativeResources));
   }
 
-  if(mImageView)
+  if(!mTextureArray)
   {
-    mImageView->Destroy();
-    mImageView = nullptr;
+    for(auto& imageView : mImageViews)
+    {
+      imageView->Destroy();
+    }
+    if(mImage)
+    {
+      mImage->Destroy();
+    }
   }
+  mTextureArray.Reset();
 
-  if(mImage)
-  {
-    mImage->Destroy();
-    mImage = nullptr;
-  }
+  mImageViews.clear();
+  mImage = nullptr;
 }
 
 void Texture::DiscardResource()
@@ -1354,20 +1364,35 @@ void Texture::DiscardResource()
   mController.DiscardResource(this);
 }
 
-bool Texture::Initialize()
+bool Texture::Initialize(int numLayers)
 {
-  SetFormatAndUsage();
-
   if(mFormat == vk::Format::eUndefined)
   {
-    DALI_LOG_ERROR("Vulkan::Texture::InitializeResource: Invalid texture format\n", static_cast<int>(mFormat));
+    DALI_LOG_ERROR("Vulkan::Texture::Initialize: Invalid texture format\n", static_cast<int>(mFormat));
     // not supported!
     return false;
   }
 
-  bool initialized = mIsNativeImage ? InitializeNativeTexture() : InitializeTexture();
+  bool initialized = false;
+  if(mIsNativeImage)
+  {
+    initialized = InitializeNativeTexture();
+  }
+  else
+  {
+    if(mWidth == 0 || mHeight == 0)
+    {
+      return false;
+    }
 
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "InitializeResource: initialized: %d\n", initialized);
+    if(mCreateInfo.textureType == TextureType::TEXTURE_CUBEMAP)
+    {
+      numLayers = 6;
+    }
+    InitializeTextureArray(numLayers);
+    initialized = true;
+  }
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Initialized: %d\n", initialized);
 
   if(initialized)
   {
@@ -1387,7 +1412,7 @@ void Texture::SetFormatAndUsage()
 
   vk::Format format = vk::Format::eUndefined;
 
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage: mIsNativeImage: %d\n", mIsNativeImage);
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "mIsNativeImage: %d\n", mIsNativeImage);
 
   if(mIsNativeImage && mNativeImageHandler)
   {
@@ -1409,26 +1434,27 @@ void Texture::SetFormatAndUsage()
   }
   else
   {
-    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image\n");
-
     if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::COLOR_ATTACHMENT))
     {
       mUsage  = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
       mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "ColorAttachment\n");
     }
     else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::DEPTH_STENCIL_ATTACHMENT))
     {
       mUsage  = vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eSampled;
       mTiling = TextureTiling::OPTIMAL; // force always OPTIMAL tiling
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "DepthStencilAttachment\n");
     }
     else if(mCreateInfo.usageFlags & (0 | TextureUsageFlagBits::SAMPLE))
     {
       mUsage = vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst;
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Sample\n");
     }
 
     format = ConvertApiToVk(mCreateInfo.format);
 
-    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage for NON-native image: mCreateInfo.format: %d, format: %d\n", static_cast<int>(mCreateInfo.format), static_cast<int>(format));
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "NON-native image: mCreateInfo.format: %d, format: %d\n", static_cast<int>(mCreateInfo.format), static_cast<int>(format));
   }
 
   if(IsCompressed(mCreateInfo.format))
@@ -1442,7 +1468,7 @@ void Texture::SetFormatAndUsage()
 
   mConvertFromFormat = vk::Format::eUndefined;
 
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage ValidateFormat: format: %d, mFormat: %d\n", static_cast<int>(format), static_cast<int>(mFormat));
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "ValidateFormat: format: %d, mFormat: %d\n", static_cast<int>(format), static_cast<int>(mFormat));
 
   if(format != mFormat)
   {
@@ -1479,9 +1505,9 @@ bool Texture::InitializeNativeTexture()
     if(mNativeResources)
     {
       // Update texture state from native resources
-      mImage     = mNativeResources->image;
-      mImageView = mNativeResources->imageView;
-      mSampler   = mNativeResources->sampler;
+      mImage = mNativeResources->image;
+      mImageViews.emplace_back(mNativeResources->imageView);
+      mSampler = mNativeResources->sampler;
 
       // Mark that we have a surface reference (acquired in handler)
       mHasSurfaceReference = true;
@@ -1498,14 +1524,11 @@ bool Texture::InitializeNativeTexture()
   return false;
 }
 
-// creates image with pre-allocated memory and default sampler, no data
-// uploaded at this point
-bool Texture::InitializeTexture()
+bool Texture::InitializeTextureArray(uint32_t arrayLayers)
 {
-  if(mImage || (mWidth == 0 || mHeight == 0))
-  {
-    return false;
-  }
+  mInitializationDeferred = false;
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "arrayLayers: %u\n", arrayLayers);
 
   auto tiling = ((mDisableStagingBuffer || mTiling == Dali::Graphics::TextureTiling::LINEAR) ? vk::ImageTiling::eLinear : vk::ImageTiling::eOptimal);
 
@@ -1523,15 +1546,14 @@ bool Texture::InitializeTexture()
                            .setSharingMode(vk::SharingMode::eExclusive)
                            .setUsage(mUsage)
                            .setExtent({mWidth, mHeight, 1})
-                           .setArrayLayers(1)
+                           .setArrayLayers(arrayLayers)
                            .setImageType(vk::ImageType::e2D)
                            .setTiling(tiling)
                            .setMipLevels(mMaxMipMapLevel);
-
+  mArrayLayers    = arrayLayers;
   bool cpuVisible = (mTiling == Dali::Graphics::TextureTiling::LINEAR);
   if(mCreateInfo.textureType == Dali::Graphics::TextureType::TEXTURE_CUBEMAP)
   {
-    imageCreateInfo.setArrayLayers(6);
     imageCreateInfo.setFlags(vk::ImageCreateFlagBits::eCubeCompatible);
     imageCreateInfo.setInitialLayout(vk::ImageLayout::eUndefined);
     imageCreateInfo.setTiling(vk::ImageTiling::eOptimal);
@@ -1563,30 +1585,46 @@ bool Texture::InitializeTexture()
   // Non sampled image will be lazily initialised
   if(!(mUsage & vk::ImageUsageFlagBits::eTransferDst))
   {
-    InitializeImageView();
+    InitializeImageViews();
   }
   return true;
 }
 
-void Texture::InitializeImageView()
+bool Texture::InitializeFromTextureArray(TextureArray* textureArray, uint32_t layer)
 {
-  if(!mImageView)
-  {
-    // Create image view
-    mImageView = ImageView::NewFromImage(mDevice, *mImage, mComponentMapping);
-  }
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "TextureArray:%p, layer: %u\n", textureArray, layer);
+  auto texture = textureArray->GetTexture();
+  mImage       = texture->GetImage();
+
+  DALI_ASSERT_DEBUG(mImageViews.empty())
+  mImageViews.emplace_back(texture->GetImageView(layer));
+  mInitializationDeferred = false;
+
+  mTextureArray = TextureArrayHandle(textureArray);
+
+  return true;
 }
 
-std::unique_ptr<Vulkan::ImageView> Texture::CreateImageView()
+void Texture::InitializeImageViews()
 {
-  if(!mImageView)
+  if(mImageViews.empty())
   {
-    // Ensure we have initialized the image:
-    InitializeImageView();
+    uint32_t arrayCount = mArrayLayers;
+
+    if(mArrayLayers == 6 && mCreateInfo.textureType == TextureType::TEXTURE_CUBEMAP)
+    {
+      // Only create 1 image view for cube maps
+      arrayCount = 1;
+    }
+
+    DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "(%p) Initializing %u views\n", this, arrayCount);
+
+    for(auto layer = 0u; layer < arrayCount; ++layer)
+    {
+      // Create image view
+      mImageViews.emplace_back(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping, layer));
+    }
   }
-  //@todo: Can we just return mImageView? Why create 2nd?
-  std::unique_ptr<Vulkan::ImageView> imageView(ImageView::NewFromImage(mDevice, *mImage, mComponentMapping));
-  return imageView;
 }
 
 Vulkan::Image* Texture::GetImage() const
@@ -1596,10 +1634,16 @@ Vulkan::Image* Texture::GetImage() const
 
 Vulkan::ImageView* Texture::GetImageView() const
 {
-  return mImageView;
+  return GetImageView(0);
 }
 
-Vulkan::SamplerImpl* Texture::GetDefaultSampler() const
+ImageView* Texture::GetImageView(uint32_t layer) const
+{
+  DALI_ASSERT_DEBUG(!mImageViews.empty() && layer < mImageViews.size());
+
+  return mImageViews[layer];
+}
+SamplerImpl* Texture::GetDefaultSampler() const
 {
   return mSampler;
 }

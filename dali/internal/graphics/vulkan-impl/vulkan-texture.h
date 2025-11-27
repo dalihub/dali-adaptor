@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-texture-array.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
@@ -59,11 +60,21 @@ public:
 
 using TextureResource = Resource<Graphics::Texture, Graphics::TextureCreateInfo>;
 
+/**
+ * Texture wraps Vulkan Image and ImageView.
+ * Texture can be used for any kind of texture that Dali needs, e.g. images for sampling,
+ * cubemaps, color/depth/stencil attachments for writing / reading etc.
+ *
+ * In the case of color attachments created in the same frame, we batch up all such attachments
+ * into a single texture array, which is much more memory efficient. In this case, the Texture
+ * object will own the image array and all the image views; it will get dropped when the last
+ * framebuffer is destroyed.
+ * In this case, a "sub" texture can be created from this texture that references the main image
+ * and a single imageview, this doesn't own either resource.
+ */
 class Texture : public TextureResource
 {
 public:
-  static Texture* New(Device& graphicsDevice);
-
   Texture(const Graphics::TextureCreateInfo& createInfo, VulkanGraphicsController& controller);
   ~Texture();
 
@@ -100,14 +111,10 @@ public:
 
   bool IsSamplerImmutable() const;
 
-  Image* GetImage() const;
+  [[nodiscard]] Image* GetImage() const;
 
   ImageView* GetImageView() const;
-
-  /**
-   * Create a new image view onto the image.
-   */
-  std::unique_ptr<ImageView> CreateImageView();
+  ImageView* GetImageView(uint32_t layer) const;
 
   SamplerImpl* GetDefaultSampler() const;
 
@@ -125,11 +132,13 @@ public:
 
   bool InitializeNativeTexture();
 
-  bool InitializeTexture();
-
-  bool Initialize();
+  bool Initialize(int numLayers = 1);
 
   void PrepareTexture();
+
+  bool InitializeTextureArray(uint32_t arrayLayers);
+
+  bool InitializeFromTextureArray(TextureArray* texture, uint32_t layer);
 
   /**
    * Returns structure with texture properties
@@ -138,10 +147,11 @@ public:
   const Dali::Graphics::TextureProperties& GetProperties();
 
   /**
-   * Initialises resources like memory, image view and samplers for previously
-   * initialised image object. Used when lazy allocation is needed.
+   * Initialises image views for the image. If there are multiple layers
+   * and this is a color attachment type, then generate an image view per
+   * layer, as we are batching FBOs.
    */
-  void InitializeImageView();
+  void InitializeImageViews();
 
   /**
    * Tries to convert pixel data to the compatible format. As result it returns new buffer.
@@ -179,9 +189,22 @@ public:
    */
   bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, void* pOutputBuffer);
 
-  Dali::Graphics::TextureTiling GetTiling() const
+  TextureTiling GetTiling() const
   {
     return mTiling;
+  }
+
+  bool WasInitializationDeferred() const
+  {
+    return mInitializationDeferred;
+  }
+  uint32_t GetWidth() const
+  {
+    return mWidth;
+  }
+  uint32_t GetHeight() const
+  {
+    return mHeight;
   }
   uint32_t GetMipLevelCount()
   {
@@ -203,14 +226,15 @@ private:
   vk::ComponentMapping GetVkComponentMapping(Dali::Graphics::Format format);
 
 private:
-  Vulkan::Device& mDevice;
-
-  Image*       mImage;
-  ImageView*   mImageView;
-  SamplerImpl* mSampler{nullptr};
+  Vulkan::Device&         mDevice;
+  TextureArrayHandle      mTextureArray;
+  Image*                  mImage;
+  std::vector<ImageView*> mImageViews;
+  SamplerImpl*            mSampler{nullptr};
 
   uint32_t             mWidth{0u};
   uint32_t             mHeight{0u};
+  uint32_t             mArrayLayers{1};
   uint32_t             mMaxMipMapLevel{1u};
   vk::Format           mFormat{vk::Format::eUndefined};
   vk::Format           mConvertFromFormat{vk::Format::eUndefined};
@@ -218,6 +242,8 @@ private:
   vk::ImageLayout      mLayout{vk::ImageLayout::eUndefined};
   vk::ComponentMapping mComponentMapping{};
 
+  uint32_t                      refcount{0};
+  bool                          mInitializationDeferred{false};
   bool                          mDisableStagingBuffer{false};
   Dali::Graphics::TextureTiling mTiling{Dali::Graphics::TextureTiling::OPTIMAL};
 

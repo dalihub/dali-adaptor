@@ -57,7 +57,7 @@ public:
     vk::AttachmentReference                depthAttachmentReference;
     std::vector<vk::AttachmentDescription> attachmentDescriptions;
     vk::SubpassDescription                 subpassDesc;
-    std::array<vk::SubpassDependency, 2>   subpassDependencies;
+    std::array<vk::SubpassDependency, 3>   subpassDependencies;
     vk::RenderPassCreateInfo               createInfo;
   };
 
@@ -97,6 +97,12 @@ public:
     const SharedAttachments&           colorAttachments,
     const FramebufferAttachmentHandle& depthAttachment,
     bool                               subpassForOffscreen);
+
+  static void CreateMatchingInfo(
+    RenderPassHandle  renderPassImpl,
+    AttachmentLoadOp  loadOp,
+    AttachmentStoreOp storeOp,
+    CreateInfo&       createInfo);
 
 private:
   void       CreateRenderPass();

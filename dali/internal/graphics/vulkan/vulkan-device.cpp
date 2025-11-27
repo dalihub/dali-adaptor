@@ -50,6 +50,10 @@
 #define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 #endif
 
+#ifndef VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME
+#define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
+#endif
+
 // EXTERNAL INCLUDES
 #include <iostream>
 #include <utility>
@@ -165,20 +169,23 @@ void Device::CreateDevice(SurfaceImpl* surface)
                                       VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,             // For binding multi-plane memory
                                       VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, // For querying plane-specific requirements
                                       VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,  // For hardware YUV->RGB conversion
-                                      VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME};        // For multi-format image views for multi-plane
+                                      VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,         // For multi-format image views for multi-plane
+                                      VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME}; // For advanced blending operations
 
   // Query available extensions
   auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
 
+  bool hasAdvancedBlendExtension = false;
+
   // Filter only those extensions actually supported by the device
   std::vector<const char*> enabledExtensions;
-  for(auto const* extentionName : extensions)
+  for(auto const* extensionName : extensions)
   {
     bool found = false;
 
     for(auto const& prop : availableExtensions)
     {
-      if(std::strcmp(prop.extensionName, extentionName) == 0)
+      if(std::strcmp(prop.extensionName, extensionName) == 0)
       {
         found = true;
         break;
@@ -187,16 +194,21 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
     if(found)
     {
-      enabledExtensions.push_back(extentionName);
+      enabledExtensions.push_back(extensionName);
+      if(!hasAdvancedBlendExtension && std::strcmp(extensionName, VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME) == 0)
+      {
+        hasAdvancedBlendExtension = true;
+      }
     }
     else
     {
-      DALI_LOG_WARNING("Vulkan extension %s not supported; native image support may be limited\n", extentionName);
+      DALI_LOG_WARNING("Vulkan extension %s not supported\n", extensionName);
     }
   }
 
   auto deviceFeatures2 = mPhysicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2,
-                                                      vk::PhysicalDeviceSamplerYcbcrConversionFeatures>();
+                                                      vk::PhysicalDeviceSamplerYcbcrConversionFeatures,
+                                                      vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>();
 
   // Check whether samplerYcbcrConversion feature is supported
   vk::PhysicalDeviceSamplerYcbcrConversionFeatures const& samplerYcbcrConversionFeatures =
@@ -211,6 +223,44 @@ void Device::CreateDevice(SurfaceImpl* surface)
   {
     mIsKHRSamplerYCbCrConversionSupported = false;
     DALI_LOG_WARNING("VK_KHR_sampler_ycbcr_conversion not supported; YUV formats unavailable\n");
+  }
+
+  // Initialize advanced blending support flags
+  mIsAdvancedBlendingSupported              = false;
+  mIsAdvancedBlendingAllOperationsSupported = false;
+
+  if(hasAdvancedBlendExtension)
+  {
+    mIsAdvancedBlendingSupported = true;
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_blend_operation_advanced supported\n");
+  }
+  else
+  {
+    DALI_LOG_WARNING("VK_EXT_blend_operation_advanced not supported; advanced blending unavailable\n");
+  }
+
+  // Query advanced blending properties to determine capability level
+  if(mIsAdvancedBlendingSupported)
+  {
+    vk::PhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps{};
+    blendProps.sType = vk::StructureType::ePhysicalDeviceBlendOperationAdvancedPropertiesEXT;
+    blendProps.pNext = nullptr;
+
+    vk::PhysicalDeviceProperties2 props{};
+    props.sType = vk::StructureType::ePhysicalDeviceProperties2;
+    props.pNext = &blendProps;
+
+    mPhysicalDevice.getProperties2(&props);
+
+    if(blendProps.advancedBlendAllOperations)
+    {
+      mIsAdvancedBlendingAllOperationsSupported = true;
+      DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_blend_operation_advanced: all operations supported\n");
+    }
+    else
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_blend_operation_advanced: limited operations supported\n");
+    }
   }
 
   auto queueInfos = GetQueueCreateInfos();
@@ -254,6 +304,16 @@ void Device::CreateDevice(SurfaceImpl* surface)
         .setPEnabledFeatures(&featuresToEnable)
         .setPQueueCreateInfos(queueInfos.data())
         .setQueueCreateInfoCount(U32(queueInfos.size()));
+
+      if(mIsAdvancedBlendingSupported)
+      {
+        // Enable advanced blending features if supported
+        auto& advancedBlendFeatures = deviceFeatures2.get<vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>();
+
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "advancedBlendCoherentOperations: %s\n", advancedBlendFeatures.advancedBlendCoherentOperations ? "TRUE" : "FALSE");
+
+        info.setPNext(&advancedBlendFeatures);
+      }
 
       mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
 

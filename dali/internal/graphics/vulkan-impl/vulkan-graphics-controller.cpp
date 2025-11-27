@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
@@ -160,6 +161,14 @@ struct VulkanGraphicsController::Impl
       mSamplerImpl->Destroy();
       mSamplerImpl = nullptr;
     }
+    if(!mTextureArrays.empty())
+    {
+      for(auto textureArray : mTextureArrays)
+      {
+        textureArray->DestroyResource();
+      }
+      mTextureArrays.clear();
+    }
   }
 
   bool Initialize(Vulkan::Device& device)
@@ -170,6 +179,74 @@ struct VulkanGraphicsController::Impl
 
     // @todo Create pipeline cache & descriptor set allocator here
     return true;
+  }
+
+  void CreateDeferredTextures()
+  {
+    // Expect only color attachments. For better performance, we will batch all images with the same size
+    // into a render target array.
+    std::unordered_map<Uint16Pair::DataType, std::vector<Vulkan::Texture*>> texturesBySize{};
+    for(auto texture : mDeferredTextures)
+    {
+      Uint16Pair           imgSize(texture->GetWidth(), texture->GetHeight());
+      Uint16Pair::DataType data = *reinterpret_cast<Uint16Pair::DataType*>(&imgSize);
+      if(auto iter = texturesBySize.find(data); iter != texturesBySize.end())
+      {
+        iter->second.emplace_back(texture);
+      }
+      else
+      {
+        texturesBySize.insert(std::pair<const Uint16Pair::DataType, std::vector<Texture*>>{data, {texture}});
+      }
+    }
+    mDeferredTextures.clear();
+    const auto MAX_ARRAY_LAYERS = mGraphicsDevice->GetPhysicalDeviceProperties().limits.maxImageArrayLayers;
+
+    for(auto keyValue : texturesBySize)
+    {
+      uint32_t arrayLayers = keyValue.second.size();
+      auto&    textures    = keyValue.second;
+      if(arrayLayers > 1)
+      {
+        const int numTextureArrays    = 1 + arrayLayers / MAX_ARRAY_LAYERS; // Batch into numTextures.
+        int       currentTextureSlice = 0;                                  // index of "child" texture in batched texture array.
+        for(int i = 0; i < numTextureArrays; ++i)
+        {
+          uint32_t numArrayLayers = MAX_ARRAY_LAYERS;
+          if(i == numTextureArrays - 1)
+          {
+            numArrayLayers = arrayLayers % MAX_ARRAY_LAYERS; // Number of layers in this batch.
+          }
+
+          auto          createInfo   = keyValue.second[0]->GetCreateInfo();
+          TextureArray* textureArray = TextureArray::New(createInfo, mGraphicsController, numArrayLayers);
+          mTextureArrays.emplace_back(textureArray); // Each Batch texture owned by controller.
+
+          for(uint32_t layer = 0; layer < numArrayLayers; ++layer)
+          {
+            // Initialize each "child" texture to use batch for image/image view.
+            textures[currentTextureSlice++]->InitializeFromTextureArray(textureArray, layer);
+          }
+          DALI_LOG_RELEASE_INFO("<=> Created texture array of size %u for %dx%d", numArrayLayers, textureArray->GetWidth(), textureArray->GetHeight());
+        }
+      }
+      else
+      {
+        // Only 1 texture - initialize normally.
+        textures[0]->Initialize();
+        textures[0]->GetProperties();
+      }
+    }
+  }
+
+  void RemoveTextureArray(TextureArray* textureArray)
+  {
+    if(auto iter = std::find(mTextureArrays.begin(), mTextureArrays.end(), textureArray);
+       iter != mTextureArrays.end())
+    {
+      mTextureArrays.erase(iter);
+    }
+    textureArray->DestroyResource();
   }
 
   bool EnableDepthStencilBuffer(const RenderTarget& renderTarget, bool enableDepth, bool enableStencil)
@@ -271,19 +348,27 @@ struct VulkanGraphicsController::Impl
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
   Vulkan::TextureDependencyChecker mDependencyChecker; ///< Dependencies between framebuffers/scene
-
-  DiscardQueues<ResourceBase> mDiscardQueues;
+  std::vector<Vulkan::Texture*>    mDeferredTextures;
+  DiscardQueues<ResourceBase>      mDiscardQueues;
 
   std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
   DepthStencilFlags            mDepthStencilBufferCurrentState{0u};
   DepthStencilFlags            mDepthStencilBufferRequestedState{0u};
 
+  std::vector<TextureArray*>                                           mTextureArrays;                   ///< Batched textures (for color attachments)
   std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources;        ///< Used for ResourceId.
   std::queue<const Vulkan::Texture*>                                   mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
   bool                                                                 mDidPresent{false};
   ResourceTransfer                                                     mResourceTransfer;
 
   std::size_t mCapacity{0u}; ///< Memory Usage (of command buffers)
+
+  // Logical device creation synchronization
+  Dali::ConditionalWait mLogicalDeviceCreatedWaitCondition;
+  bool                  mIsLogicalDeviceCreated{false};
+
+  bool mIsAdvancedBlendEquationSupported{false};
+  bool mIsAdvancedBlendEquationCached{false};
 };
 
 VulkanGraphicsController::VulkanGraphicsController()
@@ -316,6 +401,14 @@ void VulkanGraphicsController::FrameStart()
   // Check the size of the discard queues.
   auto bufferCount = mImpl->mGraphicsDevice->GetBufferCount();
   mImpl->mDiscardQueues.Resize(bufferCount);
+}
+
+void VulkanGraphicsController::RenderStart()
+{
+  if(!mImpl->mDeferredTextures.empty())
+  {
+    mImpl->CreateDeferredTextures();
+  }
 }
 
 void VulkanGraphicsController::ResetDidPresent()
@@ -507,7 +600,7 @@ UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const
 {
   auto renderPass = UniquePtr<Graphics::RenderPass>(new Vulkan::RenderPass(renderPassCreateInfo, *this));
 
-  // Don't create actual vulkan resource here. It will instead be done on demand. (e.g. framebuffer creation, CommandBuffer::BeginRenderPass())
+  // Don't create actual vulkan resource here. It will instead be done on demand. (e.g. framebuffer creation, CommandBuffer::BeginRenderPass())10
   return renderPass;
 }
 
@@ -518,7 +611,12 @@ UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphic
 
 UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const Graphics::TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
 {
-  return NewGraphicsObject<Vulkan::Texture>(textureCreateInfo, *this, std::move(oldTexture));
+  auto gfxTexture = NewGraphicsObject<Vulkan::Texture>(textureCreateInfo, *this, std::move(oldTexture));
+  if(auto texture = static_cast<Vulkan::Texture*>(gfxTexture.get()); texture->WasInitializationDeferred())
+  {
+    mImpl->mDeferredTextures.emplace_back(texture);
+  }
+  return gfxTexture;
 }
 
 UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer)
@@ -554,6 +652,18 @@ UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const
 
 void VulkanGraphicsController::DiscardResource(ResourceBase* resource)
 {
+  // If it is a texture, remove it from mDeferredTextures.
+  if(auto texture = dynamic_cast<Vulkan::Texture*>(resource); texture != nullptr)
+  {
+    if(texture->WasInitializationDeferred())
+    {
+      if(auto gfxTexture = std::find(mImpl->mDeferredTextures.begin(), mImpl->mDeferredTextures.end(), resource);
+         gfxTexture != mImpl->mDeferredTextures.end())
+      {
+        mImpl->mDeferredTextures.erase(gfxTexture);
+      }
+    }
+  }
   mImpl->mDiscardQueues.Discard(resource);
 }
 
@@ -693,8 +803,65 @@ bool VulkanGraphicsController::IsBlendEquationSupported(DevelBlendEquation::Type
 
 bool VulkanGraphicsController::IsAdvancedBlendEquationSupported()
 {
-  //@todo Implement this!
-  return false;
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated && !mImpl->mIsAdvancedBlendEquationCached)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "IsAdvancedBlendEquationSupported: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  if(mImpl->mIsAdvancedBlendEquationCached)
+  {
+    return mImpl->mIsAdvancedBlendEquationSupported;
+  }
+  else
+  {
+    auto& device = mImpl->mGraphicsDevice;
+    return device && device->IsAdvancedBlendingSupported();
+  }
+}
+
+void VulkanGraphicsController::SetIsAdvancedBlendEquationSupported(bool isSupported)
+{
+  mImpl->mIsAdvancedBlendEquationSupported = isSupported;
+  mImpl->mIsAdvancedBlendEquationCached    = true;
+}
+
+uint32_t VulkanGraphicsController::GetMaxTextureSize()
+{
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "GetMaxTextureSize: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  // Query max texture size from Vulkan physical device properties
+  const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+  return properties.limits.maxImageDimension2D;
+}
+
+uint32_t VulkanGraphicsController::GetMaxCombinedTextureUnits()
+{
+  // Wait for logical device creation if not ready
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    if(!mImpl->mIsLogicalDeviceCreated)
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "GetMaxCombinedTextureUnits: waiting for logical device creation\n");
+      mImpl->mLogicalDeviceCreatedWaitCondition.Wait(lock);
+    }
+  }
+
+  // Query max combined texture units from Vulkan physical device properties
+  const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+  return properties.limits.maxPerStageDescriptorSamplers;
 }
 
 uint32_t VulkanGraphicsController::GetShaderLanguageVersion()
@@ -779,6 +946,16 @@ void VulkanGraphicsController::Flush()
   mImpl->Flush();
 }
 
+void VulkanGraphicsController::NotifyLogicalDeviceCreated()
+{
+  // Signal that logical device is created
+  {
+    Dali::ConditionalWait::ScopedLock lock(mImpl->mLogicalDeviceCreatedWaitCondition);
+    mImpl->mIsLogicalDeviceCreated = true;
+    mImpl->mLogicalDeviceCreatedWaitCondition.Notify(lock);
+  }
+}
+
 std::size_t VulkanGraphicsController::GetCapacity() const
 {
   return mImpl->mCapacity;
@@ -840,6 +1017,11 @@ void VulkanGraphicsController::RemoveRenderTarget(RenderTarget* renderTarget)
 SamplerImpl* VulkanGraphicsController::GetDefaultSampler()
 {
   return mImpl->GetDefaultSampler();
+}
+
+void VulkanGraphicsController::RemoveTextureArray(TextureArray* textureArray)
+{
+  mImpl->RemoveTextureArray(textureArray);
 }
 
 } // namespace Dali::Graphics::Vulkan

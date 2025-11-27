@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_FRAMEBUFFER_ATTACHMENT_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public:
    * @param[in] presentable Whether the attachment is presentable (changes final layout)
    */
   FramebufferAttachment(
-    std::unique_ptr<ImageView>&            imageView,
+    ImageView*                             imageView,
     vk::ClearValue                         clearColor,
     const Graphics::AttachmentDescription* description,
     AttachmentType                         type,
@@ -62,7 +62,7 @@ public:
    * @param[in] presentable Whether the attachment is presentable (changes final layout)
    */
   static FramebufferAttachment* NewColorAttachment(
-    std::unique_ptr<ImageView>&            imageView,
+    ImageView*                             imageView,
     vk::ClearColorValue                    clearColorValue,
     const Graphics::AttachmentDescription* description,
     bool                                   presentable);
@@ -75,7 +75,7 @@ public:
    * @param[in] description Expected Load/Store ops
    */
   static FramebufferAttachment* NewDepthAttachment(
-    std::unique_ptr<ImageView>&            imageView,
+    ImageView*                             imageView,
     vk::ClearDepthStencilValue             clearDepthStencilValue,
     const Graphics::AttachmentDescription* description);
 
@@ -92,9 +92,9 @@ public:
 private:
   FramebufferAttachment() = default;
 
-  std::unique_ptr<ImageView> mImageView;
-  vk::AttachmentDescription  mDescription;
-  vk::ClearValue             mClearValue;
+  ImageView*                mImageView; ///< Non-owned image view onto attachment image. (Attachment texture owns it's image views)
+  vk::AttachmentDescription mDescription;
+  vk::ClearValue            mClearValue;
 
   AttachmentType mType{AttachmentType::UNDEFINED};
 };
