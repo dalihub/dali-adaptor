@@ -377,6 +377,8 @@ public:
 
   bool IsCompatible(const Graphics::RenderTarget& gfxRenderTargetA, const Graphics::RenderTarget& gfxRenderTargetB, const Graphics::RenderPass& gfxRenderPassA, const Graphics::RenderPass& gfxRenderPassB) override;
 
+  void UpdateRenderTarget(Graphics::RenderTarget& renderTarget, const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo) override;
+
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
   uint32_t    GetShaderLanguageVersion() override;

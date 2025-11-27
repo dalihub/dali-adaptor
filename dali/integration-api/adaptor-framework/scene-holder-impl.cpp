@@ -276,10 +276,11 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
 void SceneHolder::CreateRenderTarget()
 {
+  auto                             newSize = mScene.GetSize();
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
     .SetSurface(mSurface.get())
-    .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
+    .SetExtent({static_cast<uint32_t>(newSize.width), static_cast<uint32_t>(newSize.height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
   mScene.SetSurfaceRenderTarget(rtInfo);
