@@ -743,6 +743,14 @@ bool VulkanGraphicsController::IsCompatible(
   return surfaceA == surfaceB;
 }
 
+void VulkanGraphicsController::UpdateRenderTarget(Graphics::RenderTarget& renderTarget, const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo)
+{
+  auto glesRenderTarget     = static_cast<RenderTarget*>(&renderTarget);
+  auto createInfo           = const_cast<RenderTargetCreateInfo*>(&glesRenderTarget->GetCreateInfo());
+  createInfo->extent.width  = renderTargetCreateInfo.extent.width;
+  createInfo->extent.height = renderTargetCreateInfo.extent.height;
+}
+
 bool VulkanGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
 {
   return true;
