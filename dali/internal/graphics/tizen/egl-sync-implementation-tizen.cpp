@@ -190,7 +190,13 @@ void EglSyncObject::ClientWait()
 
 int32_t EglSyncObject::DuplicateNativeFenceFD()
 {
-  if(mEglSync != NULL && eglDupNativeFenceFDANDROID)
+  if(mEglSync == NULL)
+  {
+    DALI_LOG_ERROR("EGL sync object is not created.\n");
+    return -1;
+  }
+
+  if(eglDupNativeFenceFDANDROID)
   {
     DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     int32_t fenceFd = eglDupNativeFenceFDANDROID(mEglImplementation.GetDisplay(), mEglSync);
@@ -225,7 +231,7 @@ int32_t EglSyncObject::DuplicateNativeFenceFD()
     return fenceFd;
   }
 
-  DALI_LOG_ERROR("eglDupNativeFenceFDANDROID is not supported!\n");
+  // Not supported
   return -1;
 }
 
@@ -291,6 +297,11 @@ void EglSyncImplementation::InitializeEglSync()
     eglWaitSyncKHR             = reinterpret_cast<PFNEGLWAITSYNCKHRPROC>(eglGetProcAddress("eglWaitSyncKHR"));
     eglDestroySyncKHR          = reinterpret_cast<PFNEGLDESTROYSYNCKHRPROC>(eglGetProcAddress("eglDestroySyncKHR"));
     eglDupNativeFenceFDANDROID = reinterpret_cast<PFNEGLDUPNATIVEFENCEFDANDROIDPROC>(eglGetProcAddress("eglDupNativeFenceFDANDROID"));
+
+    if(!eglDupNativeFenceFDANDROID)
+    {
+      DALI_LOG_RELEASE_INFO("eglDupNativeFenceFDANDROID is not supported.\n");
+    }
   }
 
   if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglWaitSyncKHR && eglDestroySyncKHR)
