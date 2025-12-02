@@ -46,6 +46,11 @@ public:
   void ObjectDestroyed() override;
 
   /**
+   * @copydoc Dali::Accessibility::Accessible::GetAddress()
+   */
+  Address GetAddress() const override;
+
+  /**
    * @copydoc Dali::Accessibility::Accessible::GetName()
    */
   std::string GetName() const override;

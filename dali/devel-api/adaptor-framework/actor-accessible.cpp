@@ -67,6 +67,15 @@ bool ShouldEmitShowing(Accessible* accessible, bool showing)
          (!showing && accessible->IsHighlighted()) || accessible->GetStates()[State::MODAL];
 }
 
+Address GetAddressByActorId(uint32_t actorId)
+{
+  if(auto bridge = Bridge::GetCurrentBridge())
+  {
+    return {bridge->GetBusName(), std::to_string(actorId)};
+  }
+  return {};
+}
+
 } // namespace
 
 namespace Dali::Accessibility
@@ -89,10 +98,15 @@ ActorAccessible::ActorAccessible(Actor actor)
 void ActorAccessible::ObjectDestroyed()
 {
   mIsBeingDestroyed = true;
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
     bridge->RemoveAccessible(mActorId);
   }
+}
+
+Address ActorAccessible::GetAddress() const
+{
+  return GetAddressByActorId(mActorId);
 }
 
 std::string ActorAccessible::GetName() const
@@ -114,8 +128,10 @@ Accessible* ActorAccessible::GetParent()
 {
   if(IsOnRootLevel())
   {
-    auto data = GetBridgeData();
-    return data->mBridge->GetApplication();
+    if(auto bridge = Bridge::GetCurrentBridge())
+    {
+      return bridge->GetApplication();
+    }
   }
 
   return Get(Self().GetParent());
@@ -262,7 +278,7 @@ void ActorAccessible::UpdateChildren()
   mChildren.clear();
   DoGetChildren(mChildren);
 
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
     const bool shouldIncludeHidden = bridge->ShouldIncludeHidden();
 
@@ -282,9 +298,9 @@ void ActorAccessible::EmitActiveDescendantChanged(Accessible* child)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitActiveDescendantChanged(this, child);
+    bridge->EmitActiveDescendantChanged(this, child);
   }
 }
 
@@ -295,7 +311,7 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
     bool shouldEmit{false};
 
@@ -328,7 +344,7 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
     {
       try
       {
-        bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
+        bridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
       }
       catch(const std::bad_weak_ptr& e)
       {
@@ -365,9 +381,9 @@ void ActorAccessible::EmitTextInserted(unsigned int position, unsigned int lengt
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
+    bridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
   }
 }
 void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
@@ -377,9 +393,9 @@ void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
+    bridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
   }
 }
 void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
@@ -389,9 +405,9 @@ void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitCursorMoved(this, cursorPosition);
+    bridge->EmitCursorMoved(this, cursorPosition);
   }
 }
 
@@ -402,9 +418,9 @@ void ActorAccessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
+    bridge->EmitMovedOutOfScreen(this, type);
   }
 }
 
@@ -415,9 +431,9 @@ void ActorAccessible::EmitScrollStarted()
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitScrollStarted(this);
+    bridge->EmitScrollStarted(this);
   }
 }
 
@@ -428,9 +444,9 @@ void ActorAccessible::EmitScrollFinished()
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->EmitScrollFinished(this);
+    bridge->EmitScrollFinished(this);
   }
 }
 
@@ -441,9 +457,9 @@ void ActorAccessible::Emit(WindowEvent event, unsigned int detail)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
-    bridgeData->mBridge->Emit(this, event, detail);
+    bridge->Emit(this, event, detail);
   }
 }
 
@@ -454,11 +470,11 @@ void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
     try
     {
-      bridgeData->mBridge->Emit(shared_from_this(), event);
+      bridge->Emit(shared_from_this(), event);
     }
     catch(const std::bad_weak_ptr& e)
     {
@@ -474,11 +490,11 @@ void ActorAccessible::EmitBoundsChanged(Rect<> rect)
     return;
   }
 
-  if(auto bridgeData = GetBridgeData())
+  if(auto bridge = Bridge::GetCurrentBridge())
   {
     try
     {
-      bridgeData->mBridge->EmitBoundsChanged(shared_from_this(), rect);
+      bridge->EmitBoundsChanged(shared_from_this(), rect);
     }
     catch(const std::bad_weak_ptr& e)
     {

@@ -262,50 +262,6 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
 
 } // anonymous namespace
 
-std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
-{
-  auto handle = mBridgeData.lock();
-  if(!handle)
-  {
-    if(auto bridge = Bridge::GetCurrentBridge())
-    {
-      handle = bridge->mData;
-    }
-  }
-  return handle;
-}
-
-Address Accessible::GetAddress() const
-{
-  auto handle = mBridgeData.lock();
-  if(!handle)
-  {
-    handle = GetBridgeData();
-    if(handle)
-    {
-      handle->mBridge->RegisterOnBridge(this);
-    }
-  }
-  std::string path;
-  auto        actor = GetInternalActor();
-  if(actor)
-  {
-    uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
-    path             = std::to_string(actorId);
-  }
-  return {handle ? handle->mBusName : "", path};
-}
-
-void Bridge::RegisterOnBridge(const Accessible* object)
-{
-  assert(!object->mBridgeData.lock() || object->mBridgeData.lock() == mData);
-  if(!object->mBridgeData.lock())
-  {
-    assert(mData);
-    object->mBridgeData = mData;
-  }
-}
-
 bool Accessible::IsHidden() const
 {
   return false;
