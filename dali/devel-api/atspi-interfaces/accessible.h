@@ -178,7 +178,7 @@ public:
    *
    * @see Dali::Accessibility::Address
    */
-  virtual Address GetAddress() const;
+  virtual Address GetAddress() const = 0;
 
   /**
    * @brief Deputes an object to perform provided gesture.
@@ -298,7 +298,6 @@ protected:
   Accessible(Accessible&&)                                   = delete;
   Accessible&                   operator=(const Accessible&) = delete;
   Accessible&                   operator=(Accessible&&)      = delete;
-  std::shared_ptr<Bridge::Data> GetBridgeData() const;
 
   /**
    * @brief Returns the collection of AT-SPI interfaces implemented by this Accessible.
@@ -400,7 +399,6 @@ public:
 private:
   friend class Bridge;
 
-  mutable std::weak_ptr<Bridge::Data> mBridgeData;
   mutable AtspiInterfaces             mInterfaces;
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;

@@ -288,7 +288,6 @@ struct DALI_ADAPTOR_API Bridge
       return ForceUpResult::ALREADY_UP;
     }
     mData          = std::make_shared<Data>();
-    mData->mBridge = this;
     return ForceUpResult::JUST_STARTED;
   }
 
@@ -607,7 +606,6 @@ protected:
   struct Data
   {
     std::string                           mBusName;
-    Bridge*                               mBridge = nullptr;
     Actor                                 mHighlightActor;
     Actor                                 mCurrentlyHighlightedActor;
     std::pair<std::int32_t, std::int32_t> mExtentsOffset{0, 0};
@@ -629,17 +627,6 @@ protected:
   inline static Signal<void()> mDisabledSignal;
   inline static Signal<void()> mScreenReaderEnabledSignal;
   inline static Signal<void()> mScreenReaderDisabledSignal;
-
-  /**
-   * @brief Registers accessible object to be known in bridge object.
-   *
-   * Bridge must known about all currently alive accessible objects, as some requst
-   * might come and object will be identified by number id (it's memory address).
-   * To avoid memory corruption number id is checked against set of known objects.
-   *
-   * @param[in] object The accessible object
-   **/
-  void RegisterOnBridge(const Accessible* object);
 
   /**
    * @brief Tells bridge, that given object is considered root (doesn't have any parents).
