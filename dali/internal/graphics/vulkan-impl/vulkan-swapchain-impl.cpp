@@ -473,36 +473,39 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 {
   FramebufferAttachmentHandle depthAttachment;
   auto                        swapchainExtent = mSwapchainCreateInfoKHR.imageExtent;
-
-  if(depthStencilFormat != vk::Format::eUndefined)
+  if(depthStencilFormat != mDepthStencilFormat)
   {
-    // Create depth/stencil image
-    auto imageCreateInfo = vk::ImageCreateInfo{}
-                             .setFormat(depthStencilFormat)
-                             .setMipLevels(1)
-                             .setTiling(vk::ImageTiling::eOptimal)
-                             .setImageType(vk::ImageType::e2D)
-                             .setArrayLayers(1)
-                             .setExtent({swapchainExtent.width, swapchainExtent.height, 1})
-                             .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
-                             .setSharingMode(vk::SharingMode::eExclusive)
-                             .setInitialLayout(vk::ImageLayout::eUndefined)
-                             .setSamples(vk::SampleCountFlagBits::e1);
+    if(depthStencilFormat != vk::Format::eUndefined)
+    {
+      mDepthStencilFormat = depthStencilFormat;
+      // Create depth/stencil image
+      auto imageCreateInfo = vk::ImageCreateInfo{}
+                               .setFormat(depthStencilFormat)
+                               .setMipLevels(1)
+                               .setTiling(vk::ImageTiling::eOptimal)
+                               .setImageType(vk::ImageType::e2D)
+                               .setArrayLayers(1)
+                               .setExtent({swapchainExtent.width, swapchainExtent.height, 1})
+                               .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
+                               .setSharingMode(vk::SharingMode::eExclusive)
+                               .setInitialLayout(vk::ImageLayout::eUndefined)
+                               .setSamples(vk::SampleCountFlagBits::e1);
 
-    mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo, vk::MemoryPropertyFlagBits::eDeviceLocal));
+      mDepthStencilBuffer.reset(Image::New(mGraphicsDevice, imageCreateInfo, vk::MemoryPropertyFlagBits::eDeviceLocal));
 
-    // create the depth stencil ImageView to be used within framebuffer
-    mDepthStencilImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer.get()));
-    auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
+      // create the depth stencil ImageView to be used within framebuffer
+      mDepthStencilImageView.reset(ImageView::NewFromImage(mGraphicsDevice, *mDepthStencilBuffer.get()));
+      auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
-    // A single depth attachment for the swapchain.
-    depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(mDepthStencilImageView.get(), depthClearValue, nullptr));
+      // A single depth attachment for the swapchain.
+      depthAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(mDepthStencilImageView.get(), depthClearValue, nullptr));
+    }
+
+    // Before replacing framebuffers in the swapchain, wait until all is done
+    mGraphicsDevice.DeviceWaitIdle();
+
+    CreateFramebuffers(depthAttachment);
   }
-
-  // Before replacing framebuffers in the swapchain, wait until all is done
-  mGraphicsDevice.DeviceWaitIdle();
-
-  CreateFramebuffers(depthAttachment);
 }
 
 } // namespace Dali::Graphics::Vulkan

@@ -508,9 +508,10 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
   auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new swapchain with buffer count: %u\n", mBufferCount);
-
+  vk::Format depthStencilFormat{vk::Format::eUndefined};
   if(oldSwapchain)
   {
+    depthStencilFormat = oldSwapchain->GetDepthStencilFormat();
     for(auto&& i : mSurfaceMap)
     {
       if(i.second.swapchain == oldSwapchain)
@@ -519,6 +520,10 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
         break;
       }
     }
+  }
+  else
+  {
+    depthStencilFormat = DEPTH_STENCIL_FORMATS[GetDepthStencilState(mHasDepth, mHasStencil)];
   }
 
   if(oldSwapchain)
@@ -531,8 +536,16 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
     mLogicalDevice.destroySwapchainKHR(khr, *mAllocator);
   }
 
-  FramebufferAttachmentHandle empty;
-  newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
+  if(depthStencilFormat != vk::Format::eUndefined)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new depth buffer: %u\n", depthStencilFormat);
+    newSwapchain->SetDepthStencil(depthStencilFormat);
+  }
+  else
+  {
+    FramebufferAttachmentHandle empty;
+    newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
+  }
   return newSwapchain;
 }
 

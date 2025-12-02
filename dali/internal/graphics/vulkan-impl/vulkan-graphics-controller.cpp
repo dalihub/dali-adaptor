@@ -136,15 +136,6 @@ T0* CastObject(T1* apiObject)
   return static_cast<T0*>(apiObject);
 }
 
-namespace DepthStencilFlagBits
-{
-static constexpr uint32_t DEPTH_BUFFER_BIT   = 1; // depth buffer enabled
-static constexpr uint32_t STENCIL_BUFFER_BIT = 2; // stencil buffer enabled
-} // namespace DepthStencilFlagBits
-
-// State of the depth-stencil buffer
-using DepthStencilFlags = uint32_t;
-
 struct VulkanGraphicsController::Impl
 {
   explicit Impl(VulkanGraphicsController& controller)
@@ -261,8 +252,7 @@ struct VulkanGraphicsController::Impl
     auto renderSurface = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
     auto surfaceId     = renderSurface->GetSurfaceId();
 
-    mDepthStencilBufferRequestedState = (enableDepth ? DepthStencilFlagBits::DEPTH_BUFFER_BIT : 0u) |
-                                        (enableStencil ? DepthStencilFlagBits::STENCIL_BUFFER_BIT : 0u);
+    mDepthStencilBufferRequestedState = GetDepthStencilState(enableDepth, enableStencil);
 
     auto retval = mDepthStencilBufferRequestedState != mDepthStencilBufferCurrentState;
 
@@ -270,14 +260,6 @@ struct VulkanGraphicsController::Impl
     if(surface && mDepthStencilBufferCurrentState != mDepthStencilBufferRequestedState)
     {
       DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "UpdateDepthStencilBuffer(): New state: DEPTH: %d, STENCIL: %d\n", int(mDepthStencilBufferRequestedState & 1), int((mDepthStencilBufferRequestedState >> 1) & 1));
-
-      // Formats
-      const std::array<vk::Format, 4> DEPTH_STENCIL_FORMATS = {
-        vk::Format::eUndefined,     // no depth nor stencil needed
-        vk::Format::eD16Unorm,      // only depth buffer
-        vk::Format::eS8Uint,        // only stencil buffer
-        vk::Format::eD24UnormS8Uint // depth and stencil buffers
-      };
 
       mGraphicsDevice->DeviceWaitIdle();
 

@@ -140,6 +140,15 @@ public:
   void SetDepthStencil(vk::Format depthStencilFormat);
 
   /**
+   * Get the current depth/stencil format, if any.
+   * @return The current depth stencil format.
+   */
+  vk::Format GetDepthStencilFormat()
+  {
+    return mDepthStencilFormat;
+  }
+
+  /**
    * Returns surface associated with swapchain
    * @return Pointer to surface
    */
@@ -188,6 +197,8 @@ private:
   uint32_t                                      mBufferCount{2u};       ///< Minimum Number of swapchain buffers
   uint32_t                                      mFrameCounter{0u};      ///< Current frame number
   uint32_t                                      mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
+
+  vk::Format mDepthStencilFormat{vk::Format::eUndefined};
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
