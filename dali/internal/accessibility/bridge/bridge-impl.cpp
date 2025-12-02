@@ -447,8 +447,6 @@ public:
     BridgeTable::RegisterInterfaces();
     BridgeTableCell::RegisterInterfaces();
 
-    RegisterOnBridge(&mApplication);
-
     mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 

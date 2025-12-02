@@ -1288,4 +1288,12 @@ bool EglGraphicsController::IsCompatible(const Graphics::RenderTarget& renderTar
   return true;
 }
 
+void EglGraphicsController::UpdateRenderTarget(Graphics::RenderTarget& renderTarget, const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo)
+{
+  auto glesRenderTarget     = static_cast<GLES::RenderTarget*>(&renderTarget);
+  auto createInfo           = const_cast<RenderTargetCreateInfo*>(&glesRenderTarget->GetCreateInfo());
+  createInfo->extent.width  = renderTargetCreateInfo.extent.width;
+  createInfo->extent.height = renderTargetCreateInfo.extent.height;
+}
+
 } // namespace Dali::Graphics

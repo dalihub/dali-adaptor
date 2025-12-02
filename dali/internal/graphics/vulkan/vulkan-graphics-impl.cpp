@@ -219,8 +219,9 @@ bool VulkanGraphics::IsInitialized()
 
 bool VulkanGraphics::IsResourceContextSupported()
 {
-  return false;
+  return true;
 }
+
 uint32_t VulkanGraphics::GetMaxTextureSize()
 {
   return mGraphicsController.GetMaxTextureSize();

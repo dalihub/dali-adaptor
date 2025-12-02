@@ -36,6 +36,15 @@ namespace
 {
 inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
 {
+  // Use bit mixing and prime multiplication to reduce collisions
+  // Based on xxHash-like approach for good distribution
+
+  // Well-chosen primes for good bit distribution
+  const uint32_t PRIME1 = 2654435761U; // 2^32 / golden ratio
+  const uint32_t PRIME2 = 2246822519U; // Large prime for mixing
+  const uint32_t PRIME3 = 3266489917U; // Another large prime
+
+  // Convert float to uint32_t without changing bit pattern
   struct FloatToInt
   {
     FloatToInt(float f)
@@ -49,19 +58,46 @@ inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& s
     };
   };
 
-  // hash first level using xor for each value (fast and should be enough)
-  uint32_t hash = uint32_t(state.depthTestEnable) ^ uint32_t(state.depthWriteEnable) ^
-                  uint32_t(state.depthCompareOp) ^ state.depthBoundsTestEnable ^ state.stencilTestEnable ^
-                  FloatToInt(state.minDepthBounds).v1 ^ FloatToInt(state.maxDepthBounds).v1;
+  // Start with prime seed for good initial distribution
+  uint32_t hash = PRIME1;
 
-  // hash front and back
-  auto HashStencilOpState = [](const vk::StencilOpState& sop) -> uint32_t
+  // Mix depth test state with bit shifting for better distribution
+  hash = (hash * PRIME2) + (uint32_t(state.depthTestEnable) << 16);
+  hash = (hash * PRIME3) + (uint32_t(state.depthWriteEnable) << 8);
+  hash = (hash * PRIME2) + (uint32_t(state.depthCompareOp) << 24);
+  hash = (hash * PRIME3) + (uint32_t(state.depthBoundsTestEnable) << 12);
+  hash = (hash * PRIME2) + (uint32_t(state.stencilTestEnable) << 4);
+
+  // Mix depth bounds using XOR for different mixing behavior
+  hash = (hash * PRIME3) ^ FloatToInt(state.minDepthBounds).v1;
+  hash = (hash * PRIME2) ^ FloatToInt(state.maxDepthBounds).v1;
+
+  // Hash stencil front state with field-specific mixing
+  auto HashStencilOpState = [&hash](const vk::StencilOpState& sop)
   {
-    return sop.reference ^ sop.writeMask ^ sop.compareMask ^ uint32_t(sop.compareOp) ^
-           uint32_t(sop.passOp) ^ uint32_t(sop.depthFailOp) ^ uint32_t(sop.failOp);
+    // Mix stencil operations at different bit positions
+    hash = (hash * PRIME3) + (static_cast<uint32_t>(sop.failOp) << 24);
+    hash = (hash * PRIME2) + (static_cast<uint32_t>(sop.passOp) << 16);
+    hash = (hash * PRIME3) + (static_cast<uint32_t>(sop.depthFailOp) << 8);
+    hash = (hash * PRIME2) + (static_cast<uint32_t>(sop.compareOp) << 20);
+
+    // Mix stencil masks and reference (small values, no shift needed)
+    hash = (hash * PRIME3) + sop.compareMask;
+    hash = (hash * PRIME2) + sop.writeMask;
+    hash = (hash * PRIME3) + sop.reference;
   };
 
-  hash ^= HashStencilOpState(state.front) ^ HashStencilOpState(state.back);
+  // Hash front and back with different mixing to distinguish them
+  HashStencilOpState(state.front);
+  hash = (hash * PRIME1) + 0x9e3779b9; // Add constant to distinguish front from back
+  HashStencilOpState(state.back);
+
+  // Final mixing to avalanche bits
+  hash ^= hash >> 16;
+  hash *= PRIME2;
+  hash ^= hash >> 13;
+  hash *= PRIME3;
+  hash ^= hash >> 16;
 
   return hash;
 }
@@ -205,74 +241,284 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Vulka
 
 vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState)
 {
+  // Check for render pass compatibility and remove incompatible pipelines from the caches
+  ValidateRenderPassCompatibility();
+
   auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
 
+  auto currentRenderPassImpl = GetCurrentRenderPassImpl();
+
+  // Try to find an existing pipeline that matches the depth state and render pass
+  vk::Pipeline existingPipeline = FindExistingPipeline(dsState, currentRenderPassImpl);
+  if(existingPipeline)
+  {
+    return existingPipeline;
+  }
+
+  // If no reusable pipeline found, create a new one
+  // Copy original info
+  vk::GraphicsPipelineCreateInfo gfxPipelineInfo = mVkPipelineCreateInfo;
+
+  // override depth stencil
+  gfxPipelineInfo.setPDepthStencilState(&dsState);
+
+  // make sure dynamic depth stencil states are not on
+  decltype(mDynamicStates) newDynamicStates = {};
+
+  // Make sure depth and stencil dynamic states are not included
+  // in the list of dynamic states
+  for(auto& state : mDynamicStates)
+  {
+    if(!(vk::DynamicState::eDepthWriteEnable == state ||
+         vk::DynamicState::eDepthTestEnable == state ||
+         vk::DynamicState::eDepthCompareOp == state ||
+         vk::DynamicState::eDepthBounds == state ||
+         vk::DynamicState::eDepthBoundsTestEnable == state ||
+         vk::DynamicState::eStencilTestEnable == state ||
+         vk::DynamicState::eStencilOp == state ||
+         vk::DynamicState::eStencilCompareMask == state ||
+         vk::DynamicState::eStencilWriteMask == state ||
+         vk::DynamicState::eStencilReference == state))
+    {
+      newDynamicStates.emplace_back(state);
+    }
+  }
+
+  vk::PipelineDynamicStateCreateInfo dynamicStateInfo;
+  dynamicStateInfo.setDynamicStates(newDynamicStates);
+  gfxPipelineInfo.setPDynamicState(&dynamicStateInfo);
+
+  // create pipeline
+  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+
   vk::Pipeline vkPipeline;
-  auto         hash = HashDepthStencilState(dsState);
-  for(auto& item : mPipelineForDepthStateCache)
+  VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
+                                            1,
+                                            &gfxPipelineInfo,
+                                            &allocator,
+                                            &vkPipeline));
+
+  // Store the pipeline and render pass in mVkPipelines for future reuse
+  if(currentRenderPassImpl)
   {
-    if(item.hash == hash)
-    {
-      bool result = item.ds == dsState;
-      if(result)
-      {
-        vkPipeline = item.pipeline;
-        break;
-      }
-    }
+    RenderPassPipelinePair pipelinePair;
+    pipelinePair.renderPass = currentRenderPassImpl;
+    pipelinePair.pipeline   = vkPipeline;
+    mVkPipelines.emplace_back(pipelinePair);
   }
 
-  if(!vkPipeline)
-  {
-    // Copy original info
-    vk::GraphicsPipelineCreateInfo gfxPipelineInfo = mVkPipelineCreateInfo;
+  // Push pipeline to the depth state cache for future reuse
+  auto hash = HashDepthStencilState(dsState);
 
-    // override depth stencil
-    gfxPipelineInfo.setPDepthStencilState(&dsState);
+  DepthStatePipelineHashed item;
+  item.hash     = hash;
+  item.pipeline = vkPipeline;
+  item.ds       = dsState;
+  mPipelineForDepthStateCache.emplace_back(item);
 
-    // make sure dynamic depth stencil states are not on
-    decltype(mDynamicStates) newDynamicStates = {};
-
-    // Make sure depth and stencil dynamic states are not included
-    // in the list of dynamic states
-    for(auto& state : mDynamicStates)
-    {
-      if(!(vk::DynamicState::eDepthWriteEnable == state ||
-           vk::DynamicState::eDepthTestEnable == state ||
-           vk::DynamicState::eDepthCompareOp == state ||
-           vk::DynamicState::eDepthBounds == state ||
-           vk::DynamicState::eDepthBoundsTestEnable == state ||
-           vk::DynamicState::eStencilTestEnable == state ||
-           vk::DynamicState::eStencilOp == state ||
-           vk::DynamicState::eStencilCompareMask == state ||
-           vk::DynamicState::eStencilWriteMask == state ||
-           vk::DynamicState::eStencilReference == state))
-      {
-        newDynamicStates.emplace_back(state);
-      }
-    }
-
-    vk::PipelineDynamicStateCreateInfo dynamicStateInfo;
-    dynamicStateInfo.setDynamicStates(newDynamicStates);
-    gfxPipelineInfo.setPDynamicState(&dynamicStateInfo);
-
-    // create pipeline
-    auto& allocator = mController.GetGraphicsDevice().GetAllocator();
-
-    VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
-                                              1,
-                                              &gfxPipelineInfo,
-                                              &allocator,
-                                              &vkPipeline));
-
-    // Push pipeline to the state
-    DepthStatePipelineHashed item;
-    item.hash     = hash;
-    item.pipeline = vkPipeline;
-    item.ds       = dsState;
-    mPipelineForDepthStateCache.emplace_back(item);
-  }
   return vkPipeline;
+}
+
+RenderPassHandle PipelineImpl::GetCurrentRenderPassImpl()
+{
+  auto rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  auto framebuffer = rtImpl->GetFramebuffer();
+  auto surface     = rtImpl->GetSurface();
+
+  FramebufferImpl* fbImpl = nullptr;
+  if(surface)
+  {
+    auto& gfxDevice = mController.GetGraphicsDevice();
+    auto  surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto  swapchain = gfxDevice.GetSwapchainForSurfaceId(surfaceId);
+    fbImpl          = swapchain->GetCurrentFramebuffer();
+  }
+  else if(framebuffer)
+  {
+    fbImpl = framebuffer->GetImpl();
+  }
+
+  if(fbImpl && fbImpl->GetRenderPassCount() > 0)
+  {
+    return fbImpl->GetRenderPass(0); // Return the Handle directly
+  }
+
+  return {}; // Return empty handle
+}
+
+vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, RenderPassHandle currentRenderPassImpl)
+{
+  auto hash = HashDepthStencilState(dsState);
+
+  // First, check the depth state cache for an exact match
+  auto it = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [hash, &dsState](const auto& item)
+                         { return item.hash == hash && item.ds == dsState; });
+
+  if(it != mPipelineForDepthStateCache.end())
+  {
+    // Return early if found in depth state cache
+    return it->pipeline;
+  }
+
+  // If not found in depth state cache, check if we can reuse from main pipeline cache
+  // Look for pipelines with compatible render passes AND matching depth state that could be reused
+  auto pipelineIt = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPassImpl, &hash, this](const auto& pipelinePair)
+                                 {
+                                   if(!pipelinePair.pipeline || !currentRenderPassImpl || !pipelinePair.renderPass)
+                                   {
+                                     return false;
+                                   }
+
+                                   // Check if the existing pipeline's render pass is compatible with current render pass
+                                   if(!pipelinePair.renderPass->IsCompatible(currentRenderPassImpl))
+                                   {
+                                     return false;
+                                   }
+
+                                   // Check if this pipeline was created with the same depth state
+                                   auto depthIt = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(),
+                                                         [&pipelinePair, &hash](const auto& depthEntry)
+                                                         {
+                                                           return depthEntry.pipeline == pipelinePair.pipeline && depthEntry.hash == hash;
+                                                         });
+
+                                   return depthIt != mPipelineForDepthStateCache.end(); });
+
+  if(pipelineIt != mVkPipelines.end())
+  {
+    // Found a pipeline with compatible render pass AND matching depth state
+    return pipelineIt->pipeline;
+  }
+
+  return nullptr; // No matching pipeline found
+}
+
+void PipelineImpl::ClearPipelineCaches()
+{
+  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
+
+  // Track all pipelines we've destroyed to avoid double destruction
+  std::vector<vk::Pipeline> destroyedPipelines;
+
+  // Clear depth state pipeline cache and destroy pipelines
+  for(auto& entry : mPipelineForDepthStateCache)
+  {
+    if(entry.pipeline)
+    {
+      vkDevice.destroyPipeline(entry.pipeline);
+      destroyedPipelines.push_back(entry.pipeline);
+      entry.pipeline = nullptr;
+    }
+  }
+  mPipelineForDepthStateCache.clear();
+
+  // Clear main pipeline cache, skipping already destroyed pipelines
+  for(auto& entry : mVkPipelines)
+  {
+    if(entry.pipeline)
+    {
+      // Only destroy if we haven't already destroyed this pipeline
+      bool alreadyDestroyed = std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(), [&entry](vk::Pipeline destroyedPipeline)
+                                          { return entry.pipeline == destroyedPipeline; });
+
+      if(!alreadyDestroyed)
+      {
+        vkDevice.destroyPipeline(entry.pipeline);
+      }
+      entry.pipeline = nullptr;
+    }
+  }
+  mVkPipelines.clear();
+}
+
+void PipelineImpl::RemoveIncompatiblePipelines(RenderPassHandle currentRenderPass)
+{
+  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
+
+  // Track all pipelines we've destroyed to avoid double destruction
+  std::vector<vk::Pipeline> destroyedPipelines;
+
+  // First, identify and remove incompatible pipelines from main cache
+  auto newEnd = std::remove_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPass, &vkDevice, &destroyedPipelines](const auto& pipelinePair)
+                               {
+                                 if(pipelinePair.pipeline && pipelinePair.renderPass)
+                                 {
+                                   // Check if this pipeline's render pass is compatible with current render pass
+                                   if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
+                                   {
+                                     // Incompatible - destroy the pipeline
+                                     vkDevice.destroyPipeline(pipelinePair.pipeline);
+                                     destroyedPipelines.push_back(pipelinePair.pipeline);
+                                     return true; // Remove from vector
+                                   }
+                                 }
+                                 return false; // Keep compatible pipelines
+                               });
+
+  mVkPipelines.erase(newEnd, mVkPipelines.end());
+
+  // Now remove corresponding entries from depth state cache for destroyed pipelines
+  auto depthNewEnd = std::remove_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [&destroyedPipelines](const auto& depthEntry)
+                                    {
+                                     // Check if this pipeline was destroyed
+                                     return std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(),
+                                                      [&depthEntry](vk::Pipeline destroyedPipeline)
+                                                      {
+                                                        return depthEntry.pipeline == destroyedPipeline;
+                                                      }); });
+
+  mPipelineForDepthStateCache.erase(depthNewEnd, mPipelineForDepthStateCache.end());
+}
+
+void PipelineImpl::ValidateRenderPassCompatibility()
+{
+  // Check for render pass compatibility and force recreation if needed
+  // This ensures we never use incompatible pipelines
+  auto rtImpl      = static_cast<Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  auto framebuffer = rtImpl->GetFramebuffer();
+  auto surface     = rtImpl->GetSurface();
+
+  FramebufferImpl* fbImpl = nullptr;
+  if(surface)
+  {
+    auto& gfxDevice = mController.GetGraphicsDevice();
+    auto  surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+    auto  swapchain = gfxDevice.GetSwapchainForSurfaceId(surfaceId);
+    fbImpl          = swapchain->GetCurrentFramebuffer();
+  }
+  else if(framebuffer)
+  {
+    fbImpl = framebuffer->GetImpl();
+  }
+
+  // Check if current cached render pass is compatible with current framebuffer
+  bool renderPassIncompatible = true;
+  if(fbImpl && fbImpl->GetRenderPassCount() > 0)
+  {
+    RenderPassHandle currentRenderPass = fbImpl->GetRenderPass(0);
+
+    // Check if any cached pipeline has an incompatible render pass
+    auto it = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPass](const auto& pipelinePair)
+                           { return pipelinePair.pipeline && pipelinePair.renderPass &&
+                                    !pipelinePair.renderPass->IsCompatible(currentRenderPass); });
+
+    // If no incompatible pipeline found, then all are compatible
+    renderPassIncompatible = (it != mVkPipelines.end());
+  }
+
+  if(renderPassIncompatible)
+  {
+    // Remove incompatible pipelines from the caches
+    if(fbImpl && fbImpl->GetRenderPassCount() > 0)
+    {
+      RenderPassHandle currentRenderPass = fbImpl->GetRenderPass(0);
+      RemoveIncompatiblePipelines(currentRenderPass);
+
+      // Update cached render pass to current one
+      mVkPipelineCreateInfo.renderPass = currentRenderPass->GetVkHandle();
+      mVkPipelineCreateInfo.subpass    = 0;
+    }
+  }
 }
 
 const PipelineCreateInfo& PipelineImpl::GetCreateInfo() const
@@ -316,17 +562,8 @@ uint32_t PipelineImpl::GetRefCount() const
 
 PipelineImpl::~PipelineImpl()
 {
-  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
-  for(auto& entry : mPipelineForDepthStateCache)
-  {
-    if(entry.pipeline)
-    {
-      vkDevice.destroyPipeline(entry.pipeline);
-      entry.pipeline = nullptr;
-    }
-  }
-
-  mPipelineForDepthStateCache.clear();
+  // Clear all pipeline caches
+  ClearPipelineCaches();
 }
 
 void PipelineImpl::InitializePipeline()
@@ -453,6 +690,15 @@ void PipelineImpl::InitializePipeline()
       mVkPipelines.emplace_back(item);
       */
     }
+  }
+
+  // Update the cached pipeline create info with the current render pass
+  // This ensures that when CloneInheritedVkPipeline uses mVkPipelineCreateInfo it has the correct render pass
+  if(renderPassCount > 0)
+  {
+    RenderPassHandle currentRenderPass = fbImpl->GetRenderPass(0);
+    mVkPipelineCreateInfo.renderPass   = currentRenderPass->GetVkHandle();
+    mVkPipelineCreateInfo.subpass      = 0;
   }
 }
 
