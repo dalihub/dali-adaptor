@@ -263,6 +263,7 @@ private:
   uint32_t               mHeight;             ///< image height
   tbm_surface_queue_h    mTbmQueue;           ///< Tbm surface queue handle
   tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
+  tbm_surface_h          mOldSurface;         ///< The old surface to be released
   SurfaceEglContainer    mEglImages;          ///< EGL Image map
   BufferSurfaceContainer mBuffers;            ///< Buffer map
   EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
