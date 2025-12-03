@@ -184,6 +184,15 @@ struct VectorFont
     mGlyphCache.reserve( INITIAL_GLYPH_CAPACITY );
   }
 
+  ~VectorFont()
+  {
+    for(auto&& glyph : mGlyphCache)
+    {
+      delete glyph;
+    }
+    mGlyphCache.clear();
+  }
+
   FT_Face    mFace;
   GlyphCache mGlyphCache;
 };
@@ -201,6 +210,11 @@ struct VectorFontCache::Impl
 
   ~Impl()
   {
+    for(auto&& font : mVectorFonts)
+    {
+      delete font;
+    }
+    mVectorFonts.clear();
     glyphy_arc_accumulator_destroy( mAccumulator );
   }
 
