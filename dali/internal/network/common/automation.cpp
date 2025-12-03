@@ -20,6 +20,7 @@
 #include <dali/internal/network/common/automation.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
@@ -30,13 +31,19 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/network/common/network-service-impl.h>
 
+using Dali::Actor;
+using Dali::DecoratedVisualRenderer;
+using Dali::FrameBuffer;
+using Dali::Layer;
 using Dali::Matrix;
 using Dali::Matrix3;
 using Dali::Property;
-
-using Dali::DecoratedVisualRenderer;
 using Dali::Renderer;
+using Dali::RenderTask;
+using Dali::RenderTaskList;
 using Dali::VisualRenderer;
+using Dali::Window;
+using namespace Dali::DevelFrameBuffer;
 
 namespace // un-named namespace
 {
@@ -327,6 +334,20 @@ void AppendPropertyNameAndValue(Dali::Handle handle, int propertyIndex, std::ost
   outputStream << "\"" << valueString << "\"";
 }
 
+void AppendPropertyAsObject(Dali::Handle handle, int propertyIndex, std::ostringstream& outputStream)
+{
+  // get the property name and the value as a string
+  std::string propertyName(handle.GetPropertyName(propertyIndex));
+
+  // Apply quotes around the property name
+  outputStream << "{\"" << propertyName << "\":";
+
+  // Convert value to a string
+  std::string valueString = GetPropertyValueString(handle, propertyIndex);
+
+  outputStream << "\"" << valueString << "\"}";
+}
+
 void AppendRendererPropertyNameAndValue(Dali::Renderer renderer, int rendererIndex, const std::string& name, std::ostringstream& outputStream)
 {
   outputStream << ",[\"renderer[" << rendererIndex << "]." << name << "\""
@@ -446,6 +467,119 @@ std::string GetActorTree()
   return str;
 }
 
+void DumpFrameBuffer(std::ostringstream& msg, FrameBuffer fbo)
+{
+  msg << "{";
+  if(!fbo)
+  {
+    msg << "";
+  }
+  else
+  {
+    Dali::Uint16Pair size = Dali::DevelFrameBuffer::GetSize(fbo);
+    msg << "\"Size\":[" << size.GetWidth() << ", " << size.GetHeight() << "],\n";
+    msg << "\"ColorAttachmentCount\":" << int(Dali::DevelFrameBuffer::GetColorAttachmentCount(fbo)) << ",\n";
+    FrameBuffer::Attachment::Mask mask = Dali::DevelFrameBuffer::GetMask(fbo);
+
+    msg << "\"DepthAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::DEPTH) > 0 ? "Implicit" : "None")) << ",\n";
+    msg << "\"DepthStencilAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthStencilTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::STENCIL) > 0 ? "Implicit" : "None")) << "\n";
+  }
+  msg << "}\n";
+}
+
+void DumpRenderTaskList(std::ostringstream& msg, RenderTaskList tasks)
+{
+  msg << "[";
+  uint32_t taskCount = tasks.GetTaskCount();
+  for(uint32_t i = 0; i < taskCount; ++i)
+  {
+    auto renderTask = tasks.GetTask(i);
+    if(i > 0)
+    {
+      msg << ",\n";
+    }
+    msg << "{";
+    msg << "\"RenderTaskId\":" << renderTask.GetRenderTaskId() << ",\n";
+    Actor src = renderTask.GetSourceActor();
+    msg << "\"SourceActor\":\"" << src.GetProperty<std::string>(Actor::Property::NAME) << "[" << src.GetProperty<int>(Actor::Property::ID) << "]" << "\",\n";
+    if(src.GetProperty<bool>(Actor::Property::IS_LAYER))
+    {
+      Dali::Layer srcLayer = Layer::DownCast(src);
+      if(srcLayer)
+      {
+        msg << "\"Layer Properties\":[{\"depth\":" << srcLayer.GetProperty<int>(Layer::Property::DEPTH)
+            << "},{\"depthTest\":" << srcLayer.GetProperty<bool>(Layer::Property::DEPTH_TEST)
+            << "}],\n";
+      }
+    }
+    Dali::Property::IndexContainer indices;
+    renderTask.GetPropertyIndices(indices);
+    Dali::Property::IndexContainer::Iterator iter  = indices.Begin();
+    int                                      first = 1;
+    msg << "\"Properties\":[";
+    for(; iter != indices.End(); iter++)
+    {
+      if(!first)
+      {
+        msg << ",";
+      }
+      first     = 0;
+      int index = *iter;
+      AppendPropertyAsObject(renderTask, index, msg);
+    }
+    msg << "],";
+    msg << "\"IsExclusive\":" << (renderTask.IsExclusive() ? "true" : "false") << ",\n";
+    msg << "\"InputEnabled\":" << (renderTask.GetInputEnabled() ? "true" : "false") << ",\n";
+    auto fbo = renderTask.GetFrameBuffer();
+    msg << "\"Framebuffer\":";
+    DumpFrameBuffer(msg, fbo);
+    msg << ",\n";
+    msg << "\"ClearColor\":" << renderTask.GetClearColor() << ",\n";
+    msg << "\"ClearEnabled\":" << (renderTask.GetClearEnabled() ? "true" : "false") << ",\n";
+    msg << "\"CullMode\":" << (renderTask.GetCullMode() ? "true" : "false") << ",\n";
+    msg << "\"RefreshRate\":" << renderTask.GetRefreshRate() << ",\n";
+    msg << "\"RenderPassTag\":" << renderTask.GetRenderPassTag() << ",\n";
+    msg << "\"OrderIndex\":" << renderTask.GetOrderIndex() << "\n";
+    msg << "}\n";
+  }
+  msg << "]";
+}
+
+void DumpWindow(std::ostringstream& msg, Window window)
+{
+  msg << "{";
+  window.GetRootLayer();
+  auto size = window.GetSize();
+  auto pos  = window.GetPosition();
+  msg << "\"LayerCount\":" << window.GetLayerCount() << ",\n";
+  msg << "\"IsVisible\":" << (window.IsVisible() ? "true" : "false") << ",\n";
+  msg << "\"Size\":[" << size.GetWidth() << "," << size.GetHeight() << "],\n";
+  msg << "\"Position\":[" << pos.GetX() << "," << pos.GetY() << "],\n";
+  msg << "\"PartialUpdate\":" << (window.IsPartialUpdateEnabled() ? "true" : "false") << ",\n";
+
+  msg << "\"RenderTaskList\":";
+  DumpRenderTaskList(msg, window.GetRenderTaskList());
+  msg << "\n}\n";
+}
+
+std::string GetRenderTasks()
+{
+  std::ostringstream msg;
+  int                windowIndex = 0;
+  msg << "{";
+  for(auto& window : Dali::Internal::Adaptor::Adaptor::Get().GetWindows())
+  {
+    if(windowIndex > 0)
+    {
+      msg << ",";
+    }
+    msg << "\"Window " << windowIndex << "\":";
+    DumpWindow(msg, window);
+  }
+  msg << "}\n";
+  return msg.str();
+}
+
 namespace Dali
 {
 namespace Internal
@@ -470,6 +604,17 @@ void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData)
 {
   char        buf[32];
   std::string json   = GetActorTree();
+  int         length = json.length();
+  snprintf(buf, 32, "%d\n", length);
+  std::string header(buf);
+  json = buf + json;
+  sendData->SendData(json.c_str(), json.length(), clientId);
+}
+
+void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData)
+{
+  char        buf[32];
+  std::string json   = GetRenderTasks();
   int         length = json.length();
   snprintf(buf, 32, "%d\n", length);
   std::string header(buf);

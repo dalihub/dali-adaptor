@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_PROTOCOL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ enum CommandId
   ENABLE_TIME_MARKER_BIT_MASK = 4, ///< bit mask of time markers to enable
   SET_PROPERTIES              = 5, ///< set property
   DUMP_SCENE_GRAPH            = 6, ///< dump the scene graph
-  CUSTOM_COMMAND              = 7, ///< custom command for the application
+  DUMP_RENDER_TASKS           = 7, ///< Dump the render tasks for all windows
+  CUSTOM_COMMAND              = 8, ///< custom command for the application
   UNKNOWN_COMMAND             = 4096
 };
 

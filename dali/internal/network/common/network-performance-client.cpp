@@ -54,7 +54,8 @@ public:
     UNKNOWN_COMMAND,
     SET_PROPERTY,
     CUSTOM_COMMAND,
-    DUMP_SCENE
+    DUMP_SCENE,
+    DUMP_RENDER_TASKS
   };
 
   AutomationCallback(unsigned int clientId, ClientSendDataInterface& sendDataInterface)
@@ -78,6 +79,11 @@ public:
     mCommandId = DUMP_SCENE;
   }
 
+  void AssignDumpRenderTasksCommand()
+  {
+    mCommandId = DUMP_RENDER_TASKS;
+  }
+
   void AssignCustomCommand(std::string&& customCommand)
   {
     mCommandId     = CUSTOM_COMMAND;
@@ -96,6 +102,11 @@ public:
       case DUMP_SCENE:
       {
         Automation::DumpScene(mClientId, &mSendDataInterface);
+        break;
+      }
+      case DUMP_RENDER_TASKS:
+      {
+        Automation::DumpRenderTasks(mClientId, &mSendDataInterface);
         break;
       }
       case CUSTOM_COMMAND:
@@ -246,6 +257,13 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
     {
       TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
       { callback->AssignDumpSceneCommand(); });
+      break;
+    }
+
+    case PerformanceProtocol::DUMP_RENDER_TASKS:
+    {
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
+      { callback->AssignDumpRenderTasksCommand(); });
       break;
     }
 

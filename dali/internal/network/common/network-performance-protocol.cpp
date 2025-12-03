@@ -34,7 +34,7 @@ namespace
 /**
  * Command parameter type
  */
-enum PARAMETER_TYPE
+enum ParameterType
 {
   NO_PARAMS,
   UNSIGNED_INT,
@@ -46,9 +46,9 @@ enum PARAMETER_TYPE
  */
 struct CommandInfo
 {
-  CommandId      cmdId;
-  CommandString  cmdString;
-  PARAMETER_TYPE paramType;
+  CommandId     cmdId;
+  CommandString cmdString;
+  ParameterType paramType;
 };
 
 /**
@@ -63,6 +63,7 @@ CommandInfo CommandLookup[]=
   {LIST_METRICS_AVAILABLE,      "list_metrics",   NO_PARAMS   },
   {ENABLE_TIME_MARKER_BIT_MASK, "set_marker",     UNSIGNED_INT},
   {DUMP_SCENE_GRAPH,            "dump_scene",     NO_PARAMS   },
+  {DUMP_RENDER_TASKS,           "dump_render_tasks",NO_PARAMS },
   {SET_PROPERTIES,              "set_properties", STRING      },
   {CUSTOM_COMMAND,              "custom_command", STRING      },
   {UNKNOWN_COMMAND,             "unknown",        NO_PARAMS   }
@@ -70,6 +71,8 @@ CommandInfo CommandLookup[]=
 // clang-format on
 const unsigned int CommandLookupLength = sizeof(CommandLookup) / sizeof(CommandInfo);
 
+// Blah
+#define BLAH "blah"
 #define GREEN "\033[01;32m"
 #define NORMAL "\e[m"
 #define PARAM "\033[22;32m"
@@ -100,7 +103,8 @@ const char* const helpMsg =
     GREEN " custom_command " NORMAL " - A custom command for an application. Format:\n\n"
     GREEN " custom_command " PARAM "ANY_STRING" NORMAL "\n"
     "\n"
-    GREEN " dump_scene" NORMAL " - dump the current scene in json format\n";
+    GREEN " dump_scene" NORMAL " - dump the current scene in json format\n"
+    GREEN " dump_render_tasks" NORMAL " - dump the render tasks in json format\n";
 // clang-format on
 
 const char* const DELIMITERS = " \t\n";
