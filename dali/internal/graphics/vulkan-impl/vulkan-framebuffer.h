@@ -82,6 +82,8 @@ public:
 
 private:
   FramebufferImpl*              mFramebufferImpl;
+  Image*                        mDepthStencilImage;     // Only created if DEPTH_WRITE/STENCIL_WRITE set.
+  ImageView*                    mDepthStencilImageView; // Only created if DEPTH_WRITE/STENCIL_WRITE set.
   std::vector<RenderPassHandle> mRenderPasses;
 };
 
