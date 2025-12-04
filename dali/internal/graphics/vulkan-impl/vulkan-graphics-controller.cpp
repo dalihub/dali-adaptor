@@ -956,12 +956,28 @@ bool VulkanGraphicsController::HasClipMatrix() const
   return true;
 }
 
-const Matrix& VulkanGraphicsController::GetClipMatrix() const
+const Matrix& VulkanGraphicsController::GetClipMatrix(const Graphics::RenderTarget* gfxRenderTarget) const
 {
   constexpr float CLIP_MATRIX_DATA[] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.5f, 0.0f,
+    0.0f, 0.0f, 0.5f, 1.0f};
+  constexpr float CLIP_INVERT_Y_MATRIX_DATA[] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, -1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.5f, 0.0f,
+    0.0f, 0.0f, 0.5f, 1.0f};
+
   static const Matrix CLIP_MATRIX(CLIP_MATRIX_DATA);
-  return CLIP_MATRIX;
+  static const Matrix CLIP_INVERT_Y_MATRIX(CLIP_INVERT_Y_MATRIX_DATA);
+
+  auto renderTarget = static_cast<const Vulkan::RenderTarget*>(gfxRenderTarget);
+  if(renderTarget->GetFramebuffer() != nullptr)
+  {
+    return CLIP_MATRIX;
+  }
+  return CLIP_INVERT_Y_MATRIX;
 }
 
 void VulkanGraphicsController::AddTextureDependencies(RenderTarget* renderTarget)

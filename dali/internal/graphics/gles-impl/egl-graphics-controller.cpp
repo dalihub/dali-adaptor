@@ -1267,7 +1267,7 @@ bool EglGraphicsController::HasClipMatrix() const
   return false;
 }
 
-const Matrix& EglGraphicsController::GetClipMatrix() const
+const Matrix& EglGraphicsController::GetClipMatrix(const RenderTarget* renderTarget) const
 {
   return Matrix::IDENTITY;
 }

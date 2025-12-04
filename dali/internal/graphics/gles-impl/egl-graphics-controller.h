@@ -947,7 +947,7 @@ public:
   }
 
   bool          HasClipMatrix() const override;
-  const Matrix& GetClipMatrix() const override;
+  const Matrix& GetClipMatrix(const RenderTarget* renderTarget) const override;
 
   uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;
 
