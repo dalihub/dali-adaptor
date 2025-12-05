@@ -350,7 +350,6 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
                                            &mSwapchainImageIndex);
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d", int(mSwapchainImageIndex));
-
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "acquireNextImageKHR result %s\n", vk::to_string(result).c_str());
 
   // swapchain either not optimal or expired, returning nullptr and
@@ -376,7 +375,11 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer(bool shouldCollectGarbageNow)
     }
   }
 
-  return mFramebuffers[mSwapchainImageIndex].get();
+  auto framebuffer = mFramebuffers[mSwapchainImageIndex].get();
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Framebuffer contains %d color attachments, %d depth attachments",
+                framebuffer->GetAttachmentCount(AttachmentType::COLOR),
+                framebuffer->GetAttachmentCount(AttachmentType::DEPTH_STENCIL));
+  return framebuffer;
 }
 
 Queue* Swapchain::GetQueue()
@@ -475,9 +478,9 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
   auto                        swapchainExtent = mSwapchainCreateInfoKHR.imageExtent;
   if(depthStencilFormat != mDepthStencilFormat)
   {
+    mDepthStencilFormat = depthStencilFormat;
     if(depthStencilFormat != vk::Format::eUndefined)
     {
-      mDepthStencilFormat = depthStencilFormat;
       // Create depth/stencil image
       auto imageCreateInfo = vk::ImageCreateInfo{}
                                .setFormat(depthStencilFormat)
