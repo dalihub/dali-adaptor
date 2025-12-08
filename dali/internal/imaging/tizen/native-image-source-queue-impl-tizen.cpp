@@ -98,6 +98,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mEglImages(),
   mBuffers(),
   mEglSyncObjects(),
+  mEglSyncDiscardList(),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mImageState(ImageState::INITIALIZED),
@@ -455,16 +456,12 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   {
     for(auto&& iter : mEglSyncObjects)
     {
+      // Actually we only have 1 element in the list if mWaitInWorkerThread is true
+      // But iterate the loop for safety
       iter.second.first->ClientWait();
-
-      mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-
-      if(iter.second.second != -1)
-      {
-        close(iter.second.second);
-      }
     }
-    mEglSyncObjects.clear();
+
+    ResetSyncObjects();
   }
 
   bool          updated    = false;
@@ -554,6 +551,9 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
     tbm_surface_queue_free_flush(mTbmQueue);
     mFreeRequest = false;
+
+    // We freed all released buffers. So we don't need the sync objects.
+    ResetSyncObjects();
   }
 
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareTexture");
@@ -673,6 +673,20 @@ void NativeImageSourceQueueTizen::WaitSync(tbm_surface_h surface)
   }
 }
 
+void NativeImageSourceQueueTizen::ResetSyncObjects()
+{
+  for(auto&& iter : mEglSyncObjects)
+  {
+    mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
+  }
+  mEglSyncObjects.clear();
+}
+
 void NativeImageSourceQueueTizen::PostRender()
 {
   // Create the sync object when we change the egl image
@@ -709,16 +723,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
   }
   mEglImages.clear();
 
-  for(auto&& iter : mEglSyncObjects)
-  {
-    mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-
-    if(iter.second.second != -1)
-    {
-      close(iter.second.second);
-    }
-  }
-  mEglSyncObjects.clear();
+  ResetSyncObjects();
 
   for(auto&& iter : mEglSyncDiscardList)
   {
