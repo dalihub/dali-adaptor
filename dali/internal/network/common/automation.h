@@ -60,6 +60,13 @@ void SetProperty(const std::string& message);
 void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData);
 
 /**
+ * @brief Dumps each render task of every window to the client
+ * @param[in] clientId unique network client id
+ * @param[in] sendData interface to transmit data to the client
+ */
+void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData);
+
+/**
  * @brief Sets a custom command.
  * No ClientSendDataInterface required, as no response is sent back
  * @param[in] message custom message

@@ -29,6 +29,8 @@
 #include <unordered_set>
 
 struct SpvReflectShaderModule;
+struct SpvReflectBlockVariable;
+
 namespace Dali::Graphics
 {
 namespace Vulkan
@@ -210,6 +212,23 @@ private:
   void BuildVertexAttributeReflection(SpvReflectShaderModule* spvModule);
 
   void BuildReflection();
+
+  struct FullyQualifiedMember
+  {
+    struct ::SpvReflectBlockVariable* member{nullptr};
+    std::string                       name;
+    uint32_t                          offset{0u};
+    uint32_t                          elementCount{0u};
+  };
+  /**
+   * Translate member hierarchy into a flattened list of structure/array elements.
+   * Uses stack/iteration rather than recursion to generate the list.
+   *
+   * @param[in] members The top level members of the uniform block
+   * @param[in] memberCount The number of top level members
+   * @param[inout] flattenedStructs Final structs containing individual fully qualified element names and offsets
+   */
+  void ParseUniformBlockVariables(struct ::SpvReflectBlockVariable* members, uint32_t memberCount, std::vector<FullyQualifiedMember>& flattenedStructs);
 
 protected:
   Reflection(Reflection&&) noexcept            = default;

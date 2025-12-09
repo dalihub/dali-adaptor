@@ -276,6 +276,29 @@ struct VkStencilOpType
   vk::StencilOp op{vk::StencilOp::eZero};
 };
 
+namespace DepthStencilFlagBits
+{
+static constexpr uint32_t DEPTH_BUFFER_BIT   = 1; // depth buffer enabled
+static constexpr uint32_t STENCIL_BUFFER_BIT = 2; // stencil buffer enabled
+} // namespace DepthStencilFlagBits
+
+// State of the depth-stencil buffer
+using DepthStencilFlags = uint32_t;
+
+constexpr uint32_t GetDepthStencilState(bool enableDepth, bool enableStencil)
+{
+  return (enableDepth ? DepthStencilFlagBits::DEPTH_BUFFER_BIT : 0u) |
+         (enableStencil ? DepthStencilFlagBits::STENCIL_BUFFER_BIT : 0u);
+}
+
+// Formats
+const std::array<vk::Format, 4> DEPTH_STENCIL_FORMATS = {
+  vk::Format::eUndefined,     // no depth nor stencil needed
+  vk::Format::eD16Unorm,      // only depth buffer
+  vk::Format::eS8Uint,        // only stencil buffer
+  vk::Format::eD24UnormS8Uint // depth and stencil buffers
+};
+
 } // namespace Vulkan
 } // namespace Dali::Graphics
 

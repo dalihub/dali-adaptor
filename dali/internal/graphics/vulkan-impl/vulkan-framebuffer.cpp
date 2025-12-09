@@ -19,6 +19,8 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
@@ -34,7 +36,9 @@ namespace Dali::Graphics::Vulkan
 {
 Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
-  mFramebufferImpl{nullptr}
+  mFramebufferImpl{nullptr},
+  mDepthStencilImage{nullptr},
+  mDepthStencilImageView{nullptr}
 {
 }
 
@@ -92,6 +96,31 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
       ImageView* imageView      = stencilTexture->GetImageView();
       depthStencilAttachment    = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
     }
+    else
+    {
+      const bool depthWrite   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+      const bool stencilWrite = mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+      if(depthWrite || stencilWrite)
+      {
+        const auto internalFormat = DEPTH_STENCIL_FORMATS[GetDepthStencilState(depthWrite, stencilWrite)];
+        auto       imageInfo      = vk::ImageCreateInfo{}
+                           .setFormat(internalFormat)
+                           .setFlags(vk::ImageCreateFlags{})
+                           .setInitialLayout(vk::ImageLayout::eUndefined)
+                           .setSamples(static_cast<vk::SampleCountFlagBits>(mCreateInfo.multiSamplingLevel))
+                           .setSharingMode(vk::SharingMode::eExclusive)
+                           .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
+                           .setExtent({mCreateInfo.size.width, mCreateInfo.size.height, 1})
+                           .setArrayLayers(1)
+                           .setImageType(vk::ImageType::e2D)
+                           .setTiling(vk::ImageTiling::eOptimal)
+                           .setMipLevels(1);
+
+        mDepthStencilImage     = Image::New(device, imageInfo, vk::MemoryPropertyFlagBits::eDeviceLocal);
+        mDepthStencilImageView = ImageView::NewFromImage(device, *mDepthStencilImage);
+        depthStencilAttachment = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(mDepthStencilImageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
+      }
+    }
 
     RenderPassImpl::CreateInfo createInfo;
     RenderPassImpl::CreateCompatibleCreateInfo(createInfo, colorAttachments, depthStencilAttachment, true);
@@ -117,6 +146,16 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
 
 void Framebuffer::DestroyResource()
 {
+  if(mDepthStencilImage)
+  {
+    mDepthStencilImage->Destroy();
+    mDepthStencilImage = nullptr;
+  }
+  if(mDepthStencilImageView)
+  {
+    mDepthStencilImageView->Destroy();
+    mDepthStencilImageView = nullptr;
+  }
   if(mFramebufferImpl != nullptr)
   {
     mFramebufferImpl->Destroy();

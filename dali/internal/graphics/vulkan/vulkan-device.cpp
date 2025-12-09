@@ -55,6 +55,7 @@
 #endif
 
 // EXTERNAL INCLUDES
+#include <signal.h>
 #include <iostream>
 #include <utility>
 
@@ -507,9 +508,10 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
   auto newSwapchain = Swapchain::NewSwapchain(*this, GetPresentQueue(), oldSwapchain ? oldSwapchain->GetVkHandle() : nullptr, surface, requestedFormat, presentMode, mBufferCount);
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new swapchain with buffer count: %u\n", mBufferCount);
-
+  vk::Format depthStencilFormat{vk::Format::eUndefined};
   if(oldSwapchain)
   {
+    depthStencilFormat = oldSwapchain->GetDepthStencilFormat();
     for(auto&& i : mSurfaceMap)
     {
       if(i.second.swapchain == oldSwapchain)
@@ -518,6 +520,10 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
         break;
       }
     }
+  }
+  else
+  {
+    depthStencilFormat = DEPTH_STENCIL_FORMATS[GetDepthStencilState(mHasDepth, mHasStencil)];
   }
 
   if(oldSwapchain)
@@ -530,8 +536,16 @@ Swapchain* Device::CreateSwapchain(SurfaceImpl*       surface,
     mLogicalDevice.destroySwapchainKHR(khr, *mAllocator);
   }
 
-  FramebufferAttachmentHandle empty;
-  newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
+  if(depthStencilFormat != vk::Format::eUndefined)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Creating new depth buffer: %u\n", depthStencilFormat);
+    newSwapchain->SetDepthStencil(depthStencilFormat);
+  }
+  else
+  {
+    FramebufferAttachmentHandle empty;
+    newSwapchain->CreateFramebuffers(empty); // Note, this may destroy vk swapchain if invalid.
+  }
   return newSwapchain;
 }
 
@@ -817,7 +831,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   }
   else // otherwise look for one which is a graphics device
   {
-    auto vkSurface = surface->GetVkHandle();
+    auto vkSurface = surface ? surface->GetVkHandle() : nullptr;
 
     for(auto& device : devices)
     {
@@ -839,10 +853,24 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
           if(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
           {
             VkBool32 presentSupported = false;
-            auto     result           = device.getSurfaceSupportKHR(queueIndex, vkSurface, &presentSupported);
-            if((result == vk::Result::eSuccess) && presentSupported)
+            if(vkSurface)
             {
+              auto result = device.getSurfaceSupportKHR(queueIndex, vkSurface, &presentSupported);
+              if((result == vk::Result::eSuccess) && presentSupported)
+              {
+                mPhysicalDevice = device;
+                break;
+              }
+            }
+            else if(!surface)
+            {
+              // Don't care about present. Use the first device
               mPhysicalDevice = device;
+              break;
+            }
+            else
+            {
+              // Choose first graphics queue
               break;
             }
           }

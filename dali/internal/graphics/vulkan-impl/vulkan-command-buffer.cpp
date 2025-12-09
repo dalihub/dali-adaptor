@@ -338,8 +338,8 @@ void CommandBuffer::SetScissor(Rect2D value)
   // @todo Vulkan accepts array of scissors... add to API
   Rect2D correctedValue = value;
 
-  // First, invert the Y coord. But, only for surface, as we've flipped
-  // viewport coordinate system for framebuffers, below, and only if it's
+  // Invert the Y coord for surface only, as we've flipped
+  // projection matrix Y scale for framebuffers, and only if it's
   // smaller than current height of render target (which implies it's been
   // set in Layer API to crop, rather than set to viewport if no clip, as
   // per render-algorithms)
@@ -372,16 +372,9 @@ void CommandBuffer::SetViewport(Viewport value)
 {
   Viewport correctedValue = value;
 
-  // "UnCorrect" framebuffer's viewport (it's wrong way up in GLES backend, so
-  // API "InvertYAxis()" exists in DALI. But that's not used for surface, and we don't want to
-  // change apps).
+  // Invert Y of viewport for surface only.
   auto surface = mRenderTarget->GetSurface();
-  if(!surface)
-  {
-    correctedValue.height = -value.height;
-    correctedValue.y      = value.height;
-  }
-  else
+  if(surface)
   {
     correctedValue.y = mRenderTarget->GetSurface()->GetPositionSize().height - correctedValue.height - correctedValue.y;
   }

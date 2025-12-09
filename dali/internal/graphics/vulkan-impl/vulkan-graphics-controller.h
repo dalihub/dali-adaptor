@@ -431,7 +431,7 @@ public: // ResourceId relative API.
   /**
    * @return the clip space transform matrix
    */
-  const Matrix& GetClipMatrix() const override;
+  const Matrix& GetClipMatrix(const Graphics::RenderTarget* renderTarget) const override;
 
 public: // Other API
   /**

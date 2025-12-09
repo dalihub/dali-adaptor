@@ -92,11 +92,13 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mQueueCount(queueCount),
   mWidth(width),
   mHeight(height),
-  mTbmQueue(NULL),
-  mConsumeSurface(NULL),
+  mTbmQueue(nullptr),
+  mConsumeSurface(nullptr),
+  mOldSurface(nullptr),
   mEglImages(),
   mBuffers(),
   mEglSyncObjects(),
+  mEglSyncDiscardList(),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mImageState(ImageState::INITIALIZED),
@@ -454,16 +456,12 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   {
     for(auto&& iter : mEglSyncObjects)
     {
+      // Actually we only have 1 element in the list if mWaitInWorkerThread is true
+      // But iterate the loop for safety
       iter.second.first->ClientWait();
-
-      mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-
-      if(iter.second.second != -1)
-      {
-        close(iter.second.second);
-      }
     }
-    mEglSyncObjects.clear();
+
+    ResetSyncObjects();
   }
 
   bool          updated    = false;
@@ -481,11 +479,10 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
         return Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
       }
 
-      if(tbm_surface_internal_is_valid(oldSurface))
+      if(oldSurface != mConsumeSurface)
       {
-        // Mark to make a sync object
-        mNeedSync = true;
-
+        // We need a sync in case of the current consumed surface.
+        // So we will release the buffer in PostRender().
         tbm_surface_queue_release(mTbmQueue, oldSurface);
       }
       oldSurface = newSurface;
@@ -499,13 +496,26 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
   if(updated)
   {
+    mOldSurface     = mConsumeSurface;
     mConsumeSurface = newSurface;
     mImageState     = ImageState::CHANGED;
 
     if(mIsResized)
     {
+      // We will free all images except the current surface. Releaes the old surface now.
+      if(tbm_surface_internal_is_valid(mOldSurface))
+      {
+        tbm_surface_queue_release(mTbmQueue, mOldSurface);
+      }
+      mOldSurface = nullptr;
+
       ResetEglImageList(false);
       mIsResized = false;
+    }
+    else
+    {
+      // Mark to make a sync object
+      mNeedSync = true;
     }
   }
   else
@@ -515,6 +525,14 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
   if(mFreeRequest)
   {
+    // We will free all images except the current surface. Releaes the old surface now.
+    if(tbm_surface_internal_is_valid(mOldSurface))
+    {
+      tbm_surface_queue_release(mTbmQueue, mOldSurface);
+    }
+    mOldSurface = nullptr;
+    mNeedSync   = false;
+
     // Destroy all egl images which is not mConsumeSurface.
     for(auto iter = mEglImages.begin(); iter != mEglImages.end();)
     {
@@ -533,6 +551,9 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
     tbm_surface_queue_free_flush(mTbmQueue);
     mFreeRequest = false;
+
+    // We freed all released buffers. So we don't need the sync objects.
+    ResetSyncObjects();
   }
 
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareTexture");
@@ -574,25 +595,34 @@ bool NativeImageSourceQueueTizen::SourceChanged() const
 
 bool NativeImageSourceQueueTizen::CreateSyncObject()
 {
-  Internal::Adaptor::EglSyncObject* syncObject = static_cast<Internal::Adaptor::EglSyncObject*>(mEglGraphics->GetSyncImplementation().CreateSyncObject(EglSyncObject::SyncType::NATIVE_FENCE_SYNC));
-  if(!syncObject)
+  Dali::Mutex::ScopedLock lock(mMutex);
+
+  if(tbm_surface_internal_is_valid(mOldSurface))
   {
-    DALI_LOG_ERROR("CreateSyncObject failed [%d]\n");
-    return false;
+    Internal::Adaptor::EglSyncObject* syncObject = static_cast<Internal::Adaptor::EglSyncObject*>(mEglGraphics->GetSyncImplementation().CreateSyncObject(EglSyncObject::SyncType::NATIVE_FENCE_SYNC));
+    if(!syncObject)
+    {
+      DALI_LOG_ERROR("CreateSyncObject failed [%d]\n");
+      return false;
+    }
+
+    int32_t fenceFd = syncObject->DuplicateNativeFenceFD();
+    if(fenceFd == -1)
+    {
+      // We can't wait for the sync object to be signaled in the worker thread
+      mWaitInWorkerThread = false;
+    }
+
+    mEglGraphics->GetGlAbstraction().Flush();
+
+    // Release the old surface now
+    tbm_surface_queue_release(mTbmQueue, mOldSurface);
+
+    // Insert the new object
+    mEglSyncObjects.insert({mOldSurface, std::make_pair(syncObject, fenceFd)});
   }
 
-  int32_t fenceFd = syncObject->DuplicateNativeFenceFD();
-  if(fenceFd == -1)
-  {
-    // We can't wait for the sync object to be signaled in the worker thread
-    mWaitInWorkerThread = false;
-  }
-
-  //TODO: Do we need this?
-  mEglGraphics->GetGlAbstraction().Flush();
-
-  // Insert the new object
-  mEglSyncObjects.insert({mConsumeSurface, std::make_pair(syncObject, fenceFd)});
+  mOldSurface = nullptr;
 
   return true;
 }
@@ -643,6 +673,20 @@ void NativeImageSourceQueueTizen::WaitSync(tbm_surface_h surface)
   }
 }
 
+void NativeImageSourceQueueTizen::ResetSyncObjects()
+{
+  for(auto&& iter : mEglSyncObjects)
+  {
+    mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
+
+    if(iter.second.second != -1)
+    {
+      close(iter.second.second);
+    }
+  }
+  mEglSyncObjects.clear();
+}
+
 void NativeImageSourceQueueTizen::PostRender()
 {
   // Create the sync object when we change the egl image
@@ -679,16 +723,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
   }
   mEglImages.clear();
 
-  for(auto&& iter : mEglSyncObjects)
-  {
-    mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second.first);
-
-    if(iter.second.second != -1)
-    {
-      close(iter.second.second);
-    }
-  }
-  mEglSyncObjects.clear();
+  ResetSyncObjects();
 
   for(auto&& iter : mEglSyncDiscardList)
   {
