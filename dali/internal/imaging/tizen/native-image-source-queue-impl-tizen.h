@@ -245,6 +245,11 @@ private:
    */
   void WaitSync(tbm_surface_h surface);
 
+  /**
+   * @brief Resets sync objects.
+   */
+  void ResetSyncObjects();
+
 private:
   enum class ImageState : uint8_t
   {
