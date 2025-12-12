@@ -38,8 +38,8 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, V
   if(!createInfo.surface)
   {
     // Non-surface render targets use own semaphore to signal cmd buffer completion.
-    auto& graphicsDevice = controller.GetGraphicsDevice();
-    mSubmitSemaphore     = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
+    auto& graphicsDevice            = controller.GetGraphicsDevice();
+    mSubmitSemaphoreState.semaphore = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
   }
 #endif
 }
@@ -47,13 +47,13 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, V
 RenderTarget::~RenderTarget()
 {
 #if defined(ENABLE_FBO_SEMAPHORE)
-  if(mSubmitSemaphore)
+  if(mSubmitSemaphoreState.semaphore)
   {
     // Render target dies so make sure semaphore is not in use anymore
     auto& gfxDevice = mController.GetGraphicsDevice();
     auto  result    = gfxDevice.GetLogicalDevice().waitIdle();
     VkTest(result, vk::Result::eSuccess);
-    gfxDevice.GetLogicalDevice().destroySemaphore(mSubmitSemaphore, gfxDevice.GetAllocator());
+    gfxDevice.GetLogicalDevice().destroySemaphore(mSubmitSemaphoreState.semaphore, gfxDevice.GetAllocator());
   }
 #endif
 }
@@ -122,15 +122,15 @@ void RenderTarget::CreateSubmissionData(
   {
     // Only use semaphore if dependency render target was submitted
     // already this frame and not already waited on.
-    if(renderTarget->mSubmitted && !renderTarget->mSemaphoreWaited)
+    if(renderTarget->mSubmitted && !renderTarget->mSubmitSemaphoreState.waited)
     {
-      waitSemaphores.push_back(renderTarget->mSubmitSemaphore);
-      renderTarget->mSemaphoreWaited = true;
+      waitSemaphores.push_back(renderTarget->mSubmitSemaphoreState.semaphore);
+      renderTarget->mSubmitSemaphoreState.waited = true;
     }
   }
-  if(mSubmitSemaphore)
+  if(mSubmitSemaphoreState.semaphore)
   {
-    submitSemaphores.emplace_back(mSubmitSemaphore);
+    submitSemaphores.emplace_back(mSubmitSemaphoreState.semaphore);
   }
 #endif
   std::vector<vk::PipelineStageFlags> waitDstStageMask{waitSemaphores.size(), vk::PipelineStageFlagBits::eColorAttachmentOutput};

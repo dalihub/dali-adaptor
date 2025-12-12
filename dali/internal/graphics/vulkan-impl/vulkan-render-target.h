@@ -116,11 +116,18 @@ public:
 
   void ResetDependencies()
   {
+    // If we signalled a semaphore last frame but no one waited on it,
+    // we CANNOT signal it again this frame (Vulkan violation)
+    // Mark it as "dirty" to skip signalling this frame
+#if defined(ENABLE_FBO_SEMAPHORE)
+    mSubmitSemaphoreState.dirty = (mSubmitted && !mSubmitSemaphoreState.waited);
+#endif
+
     mDependencies.clear();
 
     mSubmitted = false;
 #if defined(ENABLE_FBO_SEMAPHORE)
-    mSemaphoreWaited = false;
+    mSubmitSemaphoreState.waited = false;
 #endif
   }
 
@@ -135,11 +142,49 @@ public:
 
   const DependencyContainer& GetDependencies() const;
 
+#if defined(ENABLE_FBO_SEMAPHORE)
+  /**
+   * @brief Tracks submit semaphore and its lifecycle state.
+   */
+  struct SubmitSemaphoreState
+  {
+    vk::Semaphore semaphore{}; ///< Semaphore signaled on FBO completion
+    bool          waited{false};
+    bool          dirty{false};
+  };
+
+  /**
+   * @brief Get the submit semaphore for this render target
+   * @return The semaphore signaled when command buffer completes
+   */
+  [[nodiscard]] vk::Semaphore GetSubmitSemaphore() const
+  {
+    return mSubmitSemaphoreState.semaphore;
+  }
+
+  /**
+   * @brief Check if semaphore is dirty (signaled but not waited on from previous frame)
+   * @return True if semaphore should not be signaled this frame
+   */
+  [[nodiscard]] bool IsSemaphoreDirty() const
+  {
+    return mSubmitSemaphoreState.dirty;
+  }
+
+  /**
+   * @brief Set semaphore dirty state (used when semaphore needs to be signaled despite being dirty)
+   * @param dirty The new dirty state
+   */
+  void SetSemaphoreDirty(bool dirty)
+  {
+    mSubmitSemaphoreState.dirty = dirty;
+  }
+#endif
+
 private:
   DependencyContainer mDependencies; ///< Render targets whose output is used as input to this task.
 #if defined(ENABLE_FBO_SEMAPHORE)
-  vk::Semaphore mSubmitSemaphore; ///< Signaled when the command buffer for this target is processed
-  bool          mSemaphoreWaited{false};
+  SubmitSemaphoreState mSubmitSemaphoreState; ///< Lifecycle state of submit semaphore
 #endif
   bool mSubmitted{false}; ///< Check if this render target was submitted this frame
 };
