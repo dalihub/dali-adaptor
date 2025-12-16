@@ -2632,6 +2632,7 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
                        transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
+  ecore_wl2_window_resize_request_unset(mEcoreWindow);
   ecore_wl2_window_layout_set(mEcoreWindow, transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan);
 #endif
 }
