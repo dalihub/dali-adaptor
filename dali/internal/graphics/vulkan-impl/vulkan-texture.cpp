@@ -1639,10 +1639,15 @@ Vulkan::ImageView* Texture::GetImageView() const
 
 ImageView* Texture::GetImageView(uint32_t layer) const
 {
-  DALI_ASSERT_DEBUG(!mImageViews.empty() && layer < mImageViews.size());
+  if(mImage) // May not have created the image if there is no format conversion available
+  {
+    DALI_ASSERT_DEBUG(!mImageViews.empty() && layer < mImageViews.size());
 
-  return mImageViews[layer];
+    return mImageViews[layer];
+  }
+  return nullptr;
 }
+
 SamplerImpl* Texture::GetDefaultSampler() const
 {
   return mSampler;
