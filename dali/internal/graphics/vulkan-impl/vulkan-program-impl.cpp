@@ -20,6 +20,7 @@
 // INTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
@@ -458,18 +459,47 @@ vk::DescriptorSet ProgramImpl::GetNextDescriptorSetForFrame(uint32_t frameIndex)
 
 void ProgramImpl::ResetDescriptorSetsForFrame(uint32_t frameIndex)
 {
-  if(frameIndex < mImpl->frameResources.size())
+  if(frameIndex >= mImpl->frameResources.size())
   {
-    auto& frame = mImpl->frameResources[frameIndex];
+    return;
+  }
 
-    // Refresh free/used lists (mark the descriptor sets available for reuse)
-    frame.freeSets.reserve(frame.currentCapacity);
+  auto&    frame             = mImpl->frameResources[frameIndex];
+  auto&    gfxDevice         = mImpl->controller.GetGraphicsDevice();
+  uint32_t currentFrameIndex = gfxDevice.GetCurrentBufferIndex();
 
-    for(auto& set : frame.usedSets)
+  // Definitely not safe for the current frame as it is still being used.
+  if(frameIndex != currentFrameIndex)
+  {
+    // Make sure we only reset when it's actually safe.
+
+    // Get the swapchain for the main surface
+    auto* swapchain = gfxDevice.GetSwapchainForSurfaceId(0);
+    if(!swapchain)
     {
-      frame.freeSets.push_back(set);
+      // No swapchain available, cannot safely reset
+      return;
     }
-    frame.usedSets.clear();
+
+    // Get the fence for the specific frame we want to reset
+    // This is the fence that corresponds to when frameIndex was last used
+    auto* frameFence = swapchain->GetEndOfFrameFence(frameIndex);
+
+    // Check the fence status to see if GPU has finished using this frame's descriptor sets
+    if(frameFence && frameFence->GetStatus() == vk::Result::eSuccess)
+    {
+      // Fence is signaled, meaning GPU has finished using the descriptor sets from frameIndex
+      // This frame is safe to reset
+
+      // Refresh free/used lists (mark the descriptor sets available for reuse)
+      frame.freeSets.reserve(frame.currentCapacity);
+
+      for(auto& set : frame.usedSets)
+      {
+        frame.freeSets.push_back(set);
+      }
+      frame.usedSets.clear();
+    }
   }
 }
 

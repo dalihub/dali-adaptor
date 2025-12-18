@@ -114,6 +114,13 @@ public:
   FenceImpl* GetEndOfFrameFence();
 
   /**
+   * Get the end-of-frame fence for a specific buffer index
+   * @param bufferIndex The buffer index to get the fence for
+   * @return Pointer to the fence, or nullptr if index is invalid
+   */
+  FenceImpl* GetEndOfFrameFence(uint32_t bufferIndex);
+
+  /**
    * Presents using default present queue, asynchronously
    * @return true if something was presented to the surface, regardless of error
    */
