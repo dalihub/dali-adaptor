@@ -393,6 +393,16 @@ FenceImpl* Swapchain::GetEndOfFrameFence()
   return swapchainBuffer->endOfFrameFence.get();
 }
 
+FenceImpl* Swapchain::GetEndOfFrameFence(uint32_t bufferIndex)
+{
+  if(bufferIndex >= mSwapchainBuffers.size())
+  {
+    return nullptr;
+  }
+  auto& swapchainBuffer = mSwapchainBuffers[bufferIndex];
+  return swapchainBuffer->endOfFrameFence.get();
+}
+
 void Swapchain::UpdateSubmissionData(std::vector<SubmissionData>& submissionData)
 {
   auto& swapchainBuffer = mSwapchainBuffers[GetCurrentBufferIndex()];
