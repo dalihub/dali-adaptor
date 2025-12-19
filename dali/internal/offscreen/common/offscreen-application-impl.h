@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
-#define DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
+#ifndef DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_APPLICATION_H
+#define DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_APPLICATION_H
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -19,16 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
-#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/offscreen-application.h>
-#include <dali/devel-api/adaptor-framework/offscreen-window.h>
-#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
-#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
-#include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
@@ -40,44 +34,36 @@ namespace Internal
 namespace Adaptor
 {
 class FrameworkFactory;
-} // namespace Adaptor
 
 /**
  * Implementation of the OffscreenApplication class.
  */
-class OffscreenApplication : public BaseObject, public Adaptor::Framework::Observer, public Adaptor::Framework::TaskObserver
+class OffscreenApplication : public BaseObject
 {
 public:
-  using OffscreenApplicationSignalType = Dali::OffscreenApplication::OffscreenApplicationSignalType;
-
   /**
    * @brief Create a new OffscreenApplication
-   * @param[in] width The width of the default OffscreenWindow
-   * @param[in] height The height of the default OffscreenWindow
-   * @param[in] surface The native surface handle to create the default OffscreenWindow
-   * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
-   * @param[in] renderMode The RenderMode of the OffscreenApplication
    */
-  static IntrusivePtr<OffscreenApplication> New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
+  static IntrusivePtr<OffscreenApplication> New(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode);
 
 public:
   /**
-   * Destructor
+   * @brief Destructor
    */
   virtual ~OffscreenApplication();
 
   /**
-   * @copydoc Dali::OffscreenApplication::MainLoop()
+   * @copydoc Dali::OffscreenApplication::Start()
    */
-  void MainLoop();
+  void Start();
 
   /**
-   * @copydoc Dali::OffscreenApplication::Quit()
+   * @copydoc Dali::OffscreenApplication::Terminate()
    */
-  void Quit();
+  void Terminate();
 
   /**
-   * @copydoc Dali::OffscreenApplication::GetDefaultWindow()
+   * @copydoc Dali::OffscreenApplication::GetWindow()
    */
   Dali::OffscreenWindow GetWindow();
 
@@ -86,106 +72,22 @@ public:
    */
   void RenderOnce();
 
-  /**
-   * @copydoc Dali::OffscreenApplication::GetFrameworkContext()
-   */
-  Any GetFrameworkContext() const;
-
-public: // Signals
-  /**
-   * @copydoc Dali::OffscreenApplication::InitSignal()
-   */
-  OffscreenApplicationSignalType& InitSignal()
-  {
-    return mInitSignal;
-  }
-
-  /**
-   * @copydoc Dali::OffscreenApplication::TerminateSignal()
-   */
-  OffscreenApplicationSignalType& TerminateSignal()
-  {
-    return mTerminateSignal;
-  }
-
-  /**
-   * @copydoc Dali::OffscreenApplication::PauseSignal()
-   */
-  OffscreenApplicationSignalType& PauseSignal()
-  {
-    return mPauseSignal;
-  }
-
-  /**
-   * @copydoc Dali::OffscreenApplication::ResumeSignal()
-   */
-  OffscreenApplicationSignalType& ResumeSignal()
-  {
-    return mResumeSignal;
-  }
-
-  /**
-   * @copydoc Dali::OffscreenApplication::ResetSignal()
-   */
-  OffscreenApplicationSignalType& ResetSignal()
-  {
-    return mResetSignal;
-  }
-
-  /**
-   * @copydoc Dali::OffscreenApplication::LanguageChangedSignal()
-   */
-  OffscreenApplicationSignalType& LanguageChangedSignal()
-  {
-    return mLanguageChangedSignal;
-  }
-
-public: // From Framework::Observer
-  /**
-   * Called when the framework is initialised.
-   */
-  void OnInit() override;
-
-  /**
-   * Called when the framework is terminated.
-   */
-  void OnTerminate() override;
-
-  /**
-   * Called when the framework is paused.
-   */
-  void OnPause() override;
-
-  /**
-   * Called when the framework resumes from a paused state.
-   */
-  void OnResume() override;
-
-  /**
-   * Called when the framework informs the application that it should reset itself.
-   */
-  void OnReset() override;
-
-  /**
-   * Called when the framework informs the application that the language of the device has changed.
-   */
-  void OnLanguageChanged() override;
-
 private:
   /**
-   * Private constructor
-   * @param[in] width The width of the OffscreenWindow
-   * @param[in] height The height of the OffscreenApplication
-   * @param[in] surface The native surface handle to create the default OffscreenWindow
-   * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
-   * @param[in] renderMode The RenderMode of the OffscreenApplication
+   * @brief Private constructor
    */
-  OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
+  OffscreenApplication(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode);
 
   /**
-   * Quits from the main loop
+   * @brief Creates the default offscreen window
    */
-  void QuitFromMainLoop();
+  void CreateWindow();
+
+  /**
+   * @brief Creates the adaptor.
+   * It should be called after a default window created.
+   */
+  void CreateAdaptor();
 
   // Undefined
   OffscreenApplication(const OffscreenApplication&)            = delete;
@@ -194,20 +96,17 @@ private:
   OffscreenApplication& operator=(OffscreenApplication&&)      = delete;
 
 private:
-  std::unique_ptr<Dali::Adaptor>                               mAdaptor;
-  std::unique_ptr<Dali::Internal::Adaptor::EnvironmentOptions> mEnvironmentOptions;
-
   Dali::OffscreenWindow mDefaultWindow;
 
-  std::unique_ptr<Internal::Adaptor::Framework>        mFramework;
-  std::unique_ptr<Internal::Adaptor::FrameworkFactory> mFrameworkFactory;
+  std::unique_ptr<Dali::Adaptor>      mAdaptor{};
+  std::unique_ptr<EnvironmentOptions> mEnvironmentOptions{};
+  std::unique_ptr<FrameworkFactory>   mFrameworkFactory{};
 
-  OffscreenApplicationSignalType mInitSignal;
-  OffscreenApplicationSignalType mTerminateSignal;
-  OffscreenApplicationSignalType mPauseSignal;
-  OffscreenApplicationSignalType mResumeSignal;
-  OffscreenApplicationSignalType mResetSignal;
-  OffscreenApplicationSignalType mLanguageChangedSignal;
+  Dali::OffscreenApplication::FrameworkBackend mFrameworkBackend;
+  Dali::OffscreenApplication::RenderMode       mRenderMode;
+
+  bool mIsAdaptorStarted{false};
+  bool mIsAdaptorStoped{false};
 };
 
 inline OffscreenApplication& GetImplementation(Dali::OffscreenApplication& offscreenApplication)
@@ -228,8 +127,10 @@ inline const OffscreenApplication& GetImplementation(const Dali::OffscreenApplic
   return static_cast<const OffscreenApplication&>(handle);
 }
 
+} // namespace Adaptor
+
 } // namespace Internal
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
+#endif // DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_APPLICATION_H

@@ -59,6 +59,7 @@ SET(ADAPTOR_GRAPHICS_GLES_SOURCES
         ${adaptor_window_system_x11_egl_src_files}
         ${adaptor_graphics_library_common_src_files}
         ${adaptor_window_system_x11_graphics_library_src_files}
+        ${adaptor_offscreen_egl_src_files}
 )
 
 # Vulkan Graphics Library
@@ -71,6 +72,7 @@ SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
         ${adaptor_graphics_library_common_src_files}
         ${adaptor_window_system_x11_graphics_library_src_files}
         ${adaptor_graphics_vulkan_native_image_generic_src_files}
+        ${adaptor_offscreen_vulkan_src_files}
 )
 
 # GlWindow Addon

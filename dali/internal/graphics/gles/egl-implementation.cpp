@@ -934,6 +934,33 @@ bool EglImplementation::IsPartialUpdateRequired() const
   return mPartialUpdateRequired;
 }
 
+bool EglImplementation::CreateOffscreenContext(EGLContext& eglContext)
+{
+  {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss)
+    {
+      oss << "[display:" << mEglDisplay << ", share_context:" << mEglContext << "]";
+    });
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateContext");
+    eglContext = eglCreateContext(mEglDisplay, mEglConfig, mEglContext, &(mContextAttribs[0]));
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss)
+    {
+      oss << "[context:" << eglContext << "]";
+    });
+  }
+  TEST_EGL_ERROR("eglCreateContext render thread");
+
+  DALI_ASSERT_ALWAYS(EGL_NO_CONTEXT != eglContext && "EGL context not created");
+
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", glGetString(GL_VENDOR));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", glGetString(GL_RENDERER));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VERSION : %s ***\n", glGetString(GL_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+  DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
+
+  return true;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

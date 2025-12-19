@@ -18,44 +18,37 @@
 // CLASS HEADER
 #include <dali/internal/offscreen/common/offscreen-application-impl.h>
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/common/singleton-service.h>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/integration-api/adaptor-framework/adaptor.h>
-#include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/framework-factory.h>
-#include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
 {
 namespace Internal
 {
-namespace
+namespace Adaptor
 {
-void EmitLifecycleControllerSignal(void (Internal::Adaptor::LifecycleController::*member)(Dali::Application&))
-{
-  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
-  if(DALI_LIKELY(lifecycleController))
-  {
-    Dali::Application dummyApplication;
-    (GetImplementation(lifecycleController).*member)(dummyApplication);
-  }
-}
-} // namespace
-using RenderMode = Dali::OffscreenApplication::RenderMode;
 
-IntrusivePtr<OffscreenApplication> OffscreenApplication::New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
+IntrusivePtr<OffscreenApplication> OffscreenApplication::New(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode)
 {
-  IntrusivePtr<OffscreenApplication> offscreenApplication = new OffscreenApplication(width, height, surface, isTranslucent, renderMode);
+  IntrusivePtr<OffscreenApplication> offscreenApplication = new OffscreenApplication(framework, renderMode);
   return offscreenApplication;
 }
 
-OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
+OffscreenApplication::OffscreenApplication(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode)
+: mDefaultWindow(),
+  mFrameworkBackend(framework),
+  mRenderMode(renderMode)
 {
   // Disable partial update
   EnvironmentVariable::SetEnvironmentVariable(DALI_ENV_DISABLE_PARTIAL_UPDATE, "1");
@@ -63,43 +56,49 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
   // Disable ATSPI
   Dali::Accessibility::Bridge::DisableAutoInit();
 
-  // Create environment options after environmnet value changed.
-  mEnvironmentOptions = std::unique_ptr<Dali::Internal::Adaptor::EnvironmentOptions>(new Dali::Internal::Adaptor::EnvironmentOptions());
+  mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
 
-  auto& adaptorBuilder = Dali::Internal::Adaptor::AdaptorBuilder::Get(*mEnvironmentOptions);
+  mFrameworkFactory = std::unique_ptr<FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
 
-  // Now we assume separated main loop for the offscreen application
-  mFrameworkFactory = std::unique_ptr<Adaptor::FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
-  mFramework        = mFrameworkFactory->CreateFramework(Internal::Adaptor::FrameworkBackend::GLIB, *this, *this, nullptr, nullptr, Adaptor::Framework::NORMAL, false);
+  // We don't need Framework, just set backend type
+  mFrameworkFactory->SetFrameworkBackend(framework == Dali::OffscreenApplication::FrameworkBackend::ECORE ? FrameworkBackend::DEFAULT : FrameworkBackend::GLIB);
 
-  // Generate a default window
-  IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
-  mDefaultWindow                               = Dali::OffscreenWindow(impl.Get());
-
-  auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
-
-  mAdaptor.reset(Dali::Internal::Adaptor::Adaptor::New(graphicsFactory, Dali::Integration::SceneHolder(impl.Get()), impl->GetSurface(), mEnvironmentOptions.get(), renderMode == RenderMode::AUTO ? Dali::Internal::Adaptor::ThreadMode::NORMAL : Dali::Internal::Adaptor::ThreadMode::RUN_IF_REQUESTED));
-
-  // adaptorBuilder invalidate after now.
-  Dali::Internal::Adaptor::AdaptorBuilder::Finalize();
-
-  // Initialize default window
-  impl->Initialize(true);
+  CreateWindow();
+  CreateAdaptor();
 }
 
 OffscreenApplication::~OffscreenApplication()
 {
+  SingletonService service = SingletonService::Get();
+  if(service)
+  {
+    service.UnregisterAll();
+  }
+
+  if(mDefaultWindow)
+  {
+    mDefaultWindow.Reset();
+  }
 }
 
-void OffscreenApplication::MainLoop()
+void OffscreenApplication::Start()
 {
-  mFramework->Run();
+  if(!mIsAdaptorStarted)
+  {
+    mAdaptor->Start();
+    mIsAdaptorStarted = true;
+
+    mAdaptor->NotifySceneCreated();
+  }
 }
 
-void OffscreenApplication::Quit()
+void OffscreenApplication::Terminate()
 {
-  // Actually quit the application.
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &OffscreenApplication::QuitFromMainLoop), false);
+  if(!mIsAdaptorStoped)
+  {
+    mAdaptor->Stop();
+    mIsAdaptorStoped = true;
+  }
 }
 
 Dali::OffscreenWindow OffscreenApplication::GetWindow()
@@ -112,85 +111,28 @@ void OffscreenApplication::RenderOnce()
   mAdaptor->RenderOnce();
 }
 
-Any OffscreenApplication::GetFrameworkContext() const
+void OffscreenApplication::CreateWindow()
 {
-  return mFramework->GetMainLoopContext();
+  IntrusivePtr<OffscreenWindow> window = OffscreenWindow::New();
+
+  mDefaultWindow = Dali::OffscreenWindow(window.Get());
 }
 
-void OffscreenApplication::OnInit()
+void OffscreenApplication::CreateAdaptor()
 {
-  // Start the adaptor
-  mAdaptor->Start();
+  auto& adaptorBuilder  = AdaptorBuilder::Get(*mEnvironmentOptions);
+  auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
-  Dali::OffscreenApplication application(this);
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnPreInit);
+  OffscreenWindow& window     = GetImplementation(mDefaultWindow);
+  ThreadMode       threadMode = mRenderMode == Dali::OffscreenApplication::RenderMode::AUTO ? ThreadMode::NORMAL : ThreadMode::RUN_IF_REQUESTED;
 
-  mInitSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnInit);
+  mAdaptor = std::unique_ptr<Dali::Adaptor>(Adaptor::New(graphicsFactory, Integration::SceneHolder(&window), window.GetSurface(), mEnvironmentOptions.get(), threadMode));
 
-  mAdaptor->NotifySceneCreated();
+  // adaptorBuilder invalidate after now.
+  AdaptorBuilder::Finalize();
 }
 
-void OffscreenApplication::OnTerminate()
-{
-  Dali::OffscreenApplication application(this);
-  mTerminateSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnTerminate);
-
-  // Stop the adaptor
-  mAdaptor->Stop();
-
-  mDefaultWindow.Reset();
-}
-
-void OffscreenApplication::OnPause()
-{
-  Dali::OffscreenApplication application(this);
-  mPauseSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnPause);
-}
-
-void OffscreenApplication::OnResume()
-{
-  Dali::OffscreenApplication application(this);
-  mResumeSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnResume);
-
-  // DALi just delivers the framework Resume event to the application.
-  // Resuming DALi core only occurs on the Window Show framework event
-
-  // Trigger processing of events queued up while paused
-  Internal::Adaptor::CoreEventInterface& coreEventInterface = Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor);
-  coreEventInterface.ProcessCoreEvents();
-}
-
-void OffscreenApplication::OnReset()
-{
-  /*
-   * usually, reset callback was called when a caller request to launch this application via aul.
-   * because Application class already handled initialization in OnInit(), OnReset do nothing.
-   */
-  Dali::OffscreenApplication application(this);
-  mResetSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnReset);
-}
-
-void OffscreenApplication::OnLanguageChanged()
-{
-  mAdaptor->NotifyLanguageChanged(mFramework->GetLanguage());
-
-  Dali::OffscreenApplication application(this);
-  mLanguageChangedSignal.Emit();
-  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnLanguageChanged);
-}
-
-void OffscreenApplication::QuitFromMainLoop()
-{
-  mAdaptor->Stop();
-
-  mFramework->Quit();
-  // This will trigger OnTerminate(), below, after the main loop has completed.
-}
+} // namespace Adaptor
 
 } // namespace Internal
 

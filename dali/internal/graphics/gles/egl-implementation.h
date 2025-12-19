@@ -77,7 +77,7 @@ public:
    * Create the OpenGL context for the window.
    * @return true if successful
    */
-  bool CreateWindowContext(EGLContext& mEglContext) override;
+  bool CreateWindowContext(EGLContext& eglContext) override;
 
   /**
    * Destroy the OpenGL context.
@@ -224,6 +224,12 @@ public:
    * @return true if the partial update is required.
    */
   bool IsPartialUpdateRequired() const override;
+
+  /**
+   * Create the OpenGL context for the offscreen surface.
+   * @return true if successful
+   */
+  bool CreateOffscreenContext(EGLContext& eglContext);
 
 private:
   Vector<EGLint> mContextAttribs;

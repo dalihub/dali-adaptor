@@ -421,7 +421,11 @@ void CombinedUpdateRenderController::ResizeSurface()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
-    mUpdateRenderThreadWaitCondition.Notify(lock);
+
+    if(mThreadMode != ThreadMode::RUN_IF_REQUESTED)
+    {
+      mUpdateRenderThreadWaitCondition.Notify(lock);
+    }
   }
 }
 
@@ -982,6 +986,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
             if(!didRender)
             {
               mCore.ClearScene(scene);
+
+              // To reset graphics flags
+              didRender = graphics.DidPresent();
             }
           }
 

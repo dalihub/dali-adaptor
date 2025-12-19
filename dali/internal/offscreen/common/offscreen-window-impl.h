@@ -18,23 +18,22 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/public-api/common/intrusive-ptr.h>
-#include <memory>
-
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 namespace Dali
 {
-class Adaptor;
 class Layer;
-class NativeRenderSurface;
 
 namespace Internal
 {
+
+namespace Adaptor
+{
+
+class OffscreenRenderSurface;
+
 /**
  * Implementation of the OffscreenWindow class.
  */
@@ -44,14 +43,9 @@ public:
   using WindowSize = Dali::OffscreenWindow::WindowSize;
 
   /**
-   * @brief Create a new OffscreenWindow
-   *
-   * @param[in] width The initial width of the OffscreenWindow
-   * @param[in] height The initial height of the OffscreenWindow
-   * @param[in] surface The native surface handle of your platform
-   * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
+   * @copydoc Dali::OffscreenWindow::New
    */
-  static OffscreenWindow* New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent);
+  static OffscreenWindow* New();
 
   OffscreenWindow() = default;
 
@@ -62,14 +56,9 @@ public:
   ~OffscreenWindow();
 
   /**
-   * @copydoc Dali::OffscreenWindow::GetLayerCount
+   * @copydoc Dali::OffscreenWindow::SetNativeImage
    */
-  uint32_t GetLayerCount() const;
-
-  /**
-   * @copydoc Dali::OffscreenWindow::GetLayer
-   */
-  Dali::Layer GetLayer(uint32_t depth) const;
+  void SetNativeImage(NativeImageSourcePtr nativeImage);
 
   /**
    * @copydoc Dali::OffscreenWindow::GetSize
@@ -77,56 +66,64 @@ public:
   WindowSize GetSize() const;
 
   /**
+   * @copydoc Dali::OffscreenWindow::AddPostRenderSyncCallback
+   */
+  void AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback);
+
+  /**
+   * @copydoc Dali::OffscreenWindow::AddPostRenderAsyncCallback
+   */
+  void AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase> callback);
+
+public: // Dali::Internal::Adaptor::SceneHolder
+  /**
+   * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
+   */
+  void OnAdaptorSet(Dali::Adaptor& adaptor) override;
+
+  /**
    * @copydoc Dali::OffscreenWindow::GetNativeHandle
    */
-  Any GetNativeHandle() const override;
+  Any GetNativeHandle() const override
+  {
+    return Any();
+  }
 
   /**
-   * @copydoc Dali::OffscreenWindow::SetPostRenderCallback
-   */
-  void SetPostRenderCallback(CallbackBase* callback);
-
-  /**
-   * @copydoc Dali::OffscreenWindow::SetFrameRenderedCallback
-   */
-  void SetFrameRenderedCallback(CallbackBase* callback);
-
-  /*
    * @brief Initialize the OffscreenWindow
-   * @param[in] isDefaultWindow Whether the OffscreenWindow is a default one or not
    */
-  void Initialize(bool isDefaultWindow);
-
-private:
-  /**
-   * This function is called after drawing by dali.
-   */
-  void OnPostRender();
-
-  /**
-   * @brief Get the native render surface
-   * @return The render surface
-   */
-  NativeRenderSurface* GetNativeRenderSurface() const;
+  void Initialize();
 
 private:
   /**
    * Private constructor
    *
-   * @param[in] width The initial width of the OffscreenWindow
-   * @param[in] height The initial height of the OffscreenWindow
    * @param[in] surface The native surface handle
-   * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
    */
-  OffscreenWindow(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent);
+  OffscreenWindow(NativeImageSourcePtr nativeImage);
 
   // Undefined
   OffscreenWindow(const OffscreenWindow&);
   OffscreenWindow& operator=(OffscreenWindow&);
 
+  /**
+   * @brief PostRenderSyncCallback
+   */
+  void PostRenderSyncCallback();
+
+  /**
+   * @brief PostRenderAsyncCallback
+   * @param fenceFd File descriptor for the fence to verify GPU rendering completion
+   */
+  void PostRenderAsyncCallback(int32_t fenceFd);
+
 private:
-  TriggerEventFactory::TriggerEventPtr mRenderNotification;
-  std::unique_ptr<CallbackBase>        mPostRenderCallback;
+  OffscreenRenderSurface*       mOffscreenSurface{nullptr};
+  std::unique_ptr<CallbackBase> mPostRenderSyncCallback{};
+  std::unique_ptr<CallbackBase> mPostRenderAsyncCallback{};
+
+  uint32_t mWidth{0};
+  uint32_t mHeight{0};
 };
 
 inline OffscreenWindow& GetImplementation(Dali::OffscreenWindow& offscreenWindow)
@@ -146,6 +143,8 @@ inline const OffscreenWindow& GetImplementation(const Dali::OffscreenWindow& off
 
   return static_cast<const OffscreenWindow&>(handle);
 }
+
+} // namespace Adaptor
 
 } // namespace Internal
 
