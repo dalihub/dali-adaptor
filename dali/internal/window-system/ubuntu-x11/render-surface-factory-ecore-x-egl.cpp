@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/internal/offscreen/egl/offscreen-render-surface-egl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
@@ -46,6 +47,11 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreX::CreatePixmapRen
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreX::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
   return std::unique_ptr<NativeRenderSurface>(nullptr);
+}
+
+std::unique_ptr<OffscreenRenderSurface> RenderSurfaceFactoryEcoreX::CreateOffscreenRenderSurface()
+{
+  return Utils::MakeUnique<OffscreenRenderSurfaceEgl>();
 }
 
 // this should be created from somewhere

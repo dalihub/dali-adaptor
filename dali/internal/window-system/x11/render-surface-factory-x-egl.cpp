@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL HEADERS
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/internal/offscreen/common/offscreen-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/x11/pixmap-render-surface-x.h>
@@ -37,6 +38,11 @@ std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryX::CreatePixmapRenderSu
 }
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryX::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
+{
+  return nullptr;
+}
+
+std::unique_ptr<OffscreenRenderSurface> RenderSurfaceFactoryX::CreateOffscreenRenderSurface()
 {
   return nullptr;
 }

@@ -19,136 +19,112 @@
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/layer.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
+#include <dali/public-api/render-tasks/render-task.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/adaptor.h>
-#include <dali/integration-api/adaptor-framework/native-render-surface-factory.h>
-#include <dali/integration-api/adaptor-framework/native-render-surface.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
-#include <dali/integration-api/debug.h>
-#include <dali/internal/offscreen/common/offscreen-application-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/offscreen/common/offscreen-render-surface.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
 namespace Dali
 {
 namespace Internal
 {
-OffscreenWindow* OffscreenWindow::New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent)
+namespace Adaptor
 {
-  OffscreenWindow* window = new OffscreenWindow(width, height, surface, isTranslucent);
+
+OffscreenWindow* OffscreenWindow::New()
+{
+  OffscreenWindow* window = new OffscreenWindow();
+  window->Initialize();
   return window;
 }
 
-OffscreenWindow::OffscreenWindow(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent)
-: mRenderNotification()
+void OffscreenWindow::Initialize()
 {
-  // Create surface
-  mSurface = std::unique_ptr<Integration::RenderSurfaceInterface>(CreateNativeSurface(SurfaceSize(width, height), surface, isTranslucent));
-}
+  // Create a window render surface
+  auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+  DALI_ASSERT_DEBUG(renderSurfaceFactory && "Cannot create render surface factory\n");
 
-void OffscreenWindow::Initialize(bool isDefaultWindow)
-{
-  if(isDefaultWindow)
-  {
-    return;
-  }
-
-  Dali::Integration::SceneHolder sceneHolderHandler = Dali::Integration::SceneHolder(this);
-  Dali::Adaptor::Get().AddWindow(sceneHolderHandler);
+  mSurface          = renderSurfaceFactory->CreateOffscreenRenderSurface();
+  mOffscreenSurface = static_cast<OffscreenRenderSurface*>(mSurface.get());
 }
 
 OffscreenWindow::~OffscreenWindow()
 {
-  NativeRenderSurface* surface = GetNativeRenderSurface();
-
-  if(surface)
+  if(mAdaptor)
   {
-    // To prevent notification triggering in NativeRenderSurface::PostRender while deleting SceneHolder
-    surface->SetRenderNotification(nullptr);
+    mAdaptor->RemoveWindow(this);
   }
 }
 
-uint32_t OffscreenWindow::GetLayerCount() const
+void OffscreenWindow::SetNativeImage(NativeImageSourcePtr nativeImage)
 {
-  return mScene.GetLayerCount();
-}
+  if(nativeImage)
+  {
+    uint32_t width  = nativeImage->GetWidth();
+    uint32_t height = nativeImage->GetHeight();
 
-Dali::Layer OffscreenWindow::GetLayer(uint32_t depth) const
-{
-  return mScene.GetLayer(depth);
+    mOffscreenSurface->SetNativeImage(nativeImage);
+
+    if(width != mWidth || height != mHeight)
+    {
+      mWidth  = width;
+      mHeight = height;
+
+      // Set scene size
+      SurfaceResized(static_cast<float>(mWidth), static_cast<float>(mHeight));
+
+      Uint16Pair newSize(mWidth, mHeight);
+
+      mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
+      mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+    }
+  }
 }
 
 OffscreenWindow::WindowSize OffscreenWindow::GetSize() const
 {
-  Size size = mScene.GetSize();
-
-  return OffscreenWindow::WindowSize(static_cast<uint16_t>(size.width), static_cast<uint16_t>(size.height));
+  return OffscreenWindow::WindowSize(mWidth, mHeight);
 }
 
-Dali::Any OffscreenWindow::GetNativeHandle() const
+void OffscreenWindow::AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback)
 {
-  NativeRenderSurface* surface = GetNativeRenderSurface();
-  DALI_ASSERT_ALWAYS(surface && "surface handle is empty");
-
-  return surface->GetNativeRenderable();
+  mPostRenderSyncCallback = std::move(callback);
+  mOffscreenSurface->AddPostRenderSyncCallback(std::unique_ptr<CallbackBase>(MakeCallback(this, &OffscreenWindow::PostRenderSyncCallback)));
 }
 
-void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
+void OffscreenWindow::AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase> callback)
 {
-  // Connect callback to be notified when the surface is rendered
-  mPostRenderCallback = std::unique_ptr<CallbackBase>(callback);
-  TriggerEventFactory triggerEventFactory;
+  mPostRenderAsyncCallback = std::move(callback);
+  mOffscreenSurface->AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase>(MakeCallback(this, &OffscreenWindow::PostRenderAsyncCallback)));
+}
 
-  if(!mRenderNotification)
+void OffscreenWindow::OnAdaptorSet(Dali::Adaptor& adaptor)
+{
+  mOffscreenSurface->OnAdaptorSet(mScene.GetRenderTaskList().GetTask(0));
+}
+
+void OffscreenWindow::PostRenderSyncCallback()
+{
+  if(mPostRenderSyncCallback)
   {
-    mRenderNotification = std::move(triggerEventFactory.CreateTriggerEvent(MakeCallback(this, &OffscreenWindow::OnPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-    DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
+    CallbackBase::Execute(*mPostRenderSyncCallback, Dali::OffscreenWindow(this));
   }
-
-  NativeRenderSurface* surface = GetNativeRenderSurface();
-
-  if(!surface)
-  {
-    DALI_LOG_ERROR("NativeRenderSurface is null.");
-    return;
-  }
-
-  surface->SetRenderNotification(mRenderNotification.get());
 }
 
-void OffscreenWindow::SetFrameRenderedCallback(CallbackBase* callback)
+void OffscreenWindow::PostRenderAsyncCallback(int32_t fenceFd)
 {
-  NativeRenderSurface* surface = GetNativeRenderSurface();
-
-  if(!surface)
+  if(mPostRenderAsyncCallback)
   {
-    DALI_LOG_ERROR("NativeRenderSurface is null.");
-    return;
+    CallbackBase::Execute(*mPostRenderAsyncCallback, Dali::OffscreenWindow(this), fenceFd);
   }
-
-  surface->SetFrameRenderedCallback(callback);
 }
 
-NativeRenderSurface* OffscreenWindow::GetNativeRenderSurface() const
-{
-  return dynamic_cast<NativeRenderSurface*>(mSurface.get());
-}
-
-void OffscreenWindow::OnPostRender()
-{
-  NativeRenderSurface* surface = GetNativeRenderSurface();
-
-  if(!surface)
-  {
-    DALI_LOG_ERROR("NativeRenderSurface is null.");
-    return;
-  }
-
-  Dali::OffscreenWindow handle(this);
-  CallbackBase::Execute(*mPostRenderCallback, handle, surface->GetNativeRenderable());
-
-  surface->ReleaseLock();
-}
+} // namespace Adaptor
 
 } // namespace Internal
 

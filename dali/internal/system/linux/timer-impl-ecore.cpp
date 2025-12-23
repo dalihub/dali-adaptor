@@ -247,6 +247,8 @@ void TimerEcore::ResetTimerData()
 {
   if(mImpl->mId != NULL)
   {
+    DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+
     if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
     {
 #ifdef TRACE_ENABLED

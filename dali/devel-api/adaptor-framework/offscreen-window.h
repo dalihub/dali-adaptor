@@ -19,27 +19,61 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/uint-16-pair.h>
-#include <dali/public-api/object/any.h>
+#include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
+#include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
+class Actor;
+class Layer;
+
+namespace Internal DALI_INTERNAL
+{
+namespace Adaptor
+{
+class OffscreenWindow;
+} // namespace Adaptor
+} //namespace Internal DALI_INTERNAL
+
 /**
  * @addtogroup dali_adaptor_framework
  * @{
  */
 
-class Layer;
-
-namespace Internal
-{
-class OffscreenWindow;
-}
-
+/**
+ * @brief OffscreenWindow provides a window-like interface for offscreen rendering.
+ *
+ * IMPORTANT: This is NOT a real native window! OffscreenWindow is a rendering surface
+ * that uses framebuffer objects (FBO) to render UI content offscreen without creating
+ * an actual visible window on the screen.
+ *
+ * IMPORTANT: You must call SetNativeImage() to set the render target BEFORE calling
+ * OffscreenApplication::Start(). The native image source determines where the
+ * rendered content will be stored.
+ *
+ * Usage Example:
+ * @code
+ * auto window = OffscreenWindow.New();
+ * window.SetBackgroundColor(Color::WHITE);
+ *
+ * // IMPORTANT: Set native image source BEFORE starting the application
+ * NativeImageSourcePtr nativeImage = NativeImageSource::New(width, height);
+ * window.SetNativeImage(nativeImage);
+ *
+ * // Now start the application
+ * app.Start();
+ *
+ * // Add UI elements
+ * Actor actor = Actor::New();
+ * window.Add(actor);
+ * @endcode
+ */
 class DALI_ADAPTOR_API OffscreenWindow : public Dali::BaseHandle
 {
 public:
@@ -48,29 +82,28 @@ public:
 public:
   /**
    * @brief Creates an initialized handle to a new OffscreenWindow
-   * @note You should hold the returned handle. If you missed the handle, the OffscreenWindow will be released
    *
-   * @param[in] width The initial width of the OffscreenWindow
-   * @param[in] height The initial height of the OffscreenWindow
-   * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
-   */
-  static OffscreenWindow New(uint16_t width, uint16_t height, bool isTranslucent);
-
-  /**
-   * @brief Creates an initialized handle to a new OffscreenWindow
-   * @note You should hold the returned handle. If you missed the handle, the OffscreenWindow will be released
+   * Creates a new offscreen rendering surface. This does NOT create a visible window
+   * but instead sets up a framebuffer object for offscreen rendering.
    *
-   * @param[in] surface The native surface handle of your platform
+   * @note You should hold the returned handle. If you miss the handle, the OffscreenWindow will be released
+   * @return A new OffscreenWindow instance ready for offscreen rendering
    */
-  static OffscreenWindow New(Any surface);
+  static OffscreenWindow New();
 
   /**
    * @brief Constructs an empty handle
+   *
+   * Creates an uninitialized OffscreenWindow handle. This is typically used
+   * for variable declaration before assignment.
    */
   OffscreenWindow();
 
   /**
    * @brief Copy constructor
+   *
+   * Creates a new OffscreenWindow handle that references the same underlying
+   * offscreen rendering surface as the source handle.
    *
    * @param [in] window A reference to the copied handle
    */
@@ -79,13 +112,18 @@ public:
   /**
    * @brief Assignment operator
    *
+   * Assigns this handle to reference the same underlying offscreen rendering
+   * surface as the source handle.
+   *
    * @param [in] window A reference to the copied handle
-   * @return A reference to this
+   * @return A reference to this handle
    */
   OffscreenWindow& operator=(const OffscreenWindow& window);
 
   /**
    * @brief Move constructor
+   *
+   * Moves the ownership of the offscreen rendering surface from the source handle.
    *
    * @param [in] window A reference to the moved handle
    */
@@ -94,133 +132,143 @@ public:
   /**
    * @brief Move assignment operator
    *
+   * Moves the ownership of the offscreen rendering surface from the source handle.
+   *
    * @param [in] window A reference to the moved handle
-   * @return A reference to this
+   * @return A reference to this handle
    */
   OffscreenWindow& operator=(OffscreenWindow&& window) noexcept;
 
   /**
    * @brief Destructor
+   *
+   * Cleans up the OffscreenWindow handle. The underlying offscreen rendering
+   * surface is only destroyed when all handles to it are destroyed.
    */
   ~OffscreenWindow();
 
 public:
   /**
+   * @brief Sets the native image source for capturing rendered content
+   *
+   * This method allows you to specify a NativeImageSource where the offscreen
+   * rendered content will be stored.
+   *
+   * IMPORTANT: This method MUST be called BEFORE OffscreenApplication::Start() to
+   * ensure the render target is properly configured. The native image source
+   * determines where the rendered content will be stored.
+   *
+   * @param [in] nativeImage Shared pointer to the native image source that will receive the rendered content
+   */
+  void SetNativeImage(NativeImageSourcePtr nativeImage);
+
+  /**
    * @brief Adds a child Actor to the OffscreenWindow.
    *
-   * The child will be referenced.
-   *
-   * @param[in] actor The child
+   * @param[in] actor The child Actor to add to the offscreen window
    * @pre The actor has been initialized.
-   * @pre The actor does not have a parent.
    */
   void Add(Actor actor);
 
   /**
    * @brief Removes a child Actor from the OffscreenWindow.
    *
-   * The child will be unreferenced.
+   * Removes an Actor from the offscreen rendering hierarchy. The actor will no
+   * longer be rendered to the offscreen framebuffer.
    *
-   * @param[in] actor The child
-   * @pre The actor has been added to the OffscreenWindow.
+   * @param[in] actor The child Actor to remove from the offscreen window
    */
   void Remove(Actor actor);
 
   /**
    * @brief Sets the background color of the OffscreenWindow.
    *
-   * @param[in] color The new background color
+   * Sets the clear color that will be used to fill the offscreen framebuffer
+   * before rendering the UI elements.
+   *
+   * @param[in] color The new background color (RGBA format)
    */
   void SetBackgroundColor(const Vector4& color);
 
   /**
    * @brief Gets the background color of the OffscreenWindow.
    *
-   * @return The background color
+   * Returns the current background color used for clearing the offscreen framebuffer.
+   *
+   * @return The background color (RGBA format)
    */
   Vector4 GetBackgroundColor() const;
 
   /**
    * @brief Returns the root Layer of the OffscreenWindow.
    *
-   * @return The root layer
+   * Every OffscreenWindow has a root layer that serves as the container for all
+   * UI elements. This method returns access to that root layer for advanced
+   * layer manipulation.
+   *
+   * @return The root layer of the offscreen window
    */
   Layer GetRootLayer() const;
 
   /**
-   * @brief Queries the number of on-scene layers.
+   * @brief Returns the size of the OffscreenWindow in pixels.
    *
-   * Note that a default layer is always provided (count >= 1).
+   * This size determines the dimensions of the offscreen framebuffer.
    *
-   * @return The number of layers
-   */
-  uint32_t GetLayerCount() const;
-
-  /**
-   * @brief Retrieves the layer at a specified depth in the OffscreenWindow.
-   *
-   * @param[in] depth The depth
-   * @return The layer found at the given depth
-   * @pre Depth is less than layer count; see GetLayerCount().
-   */
-  Layer GetLayer(uint32_t depth) const;
-
-  /**
-   * @brief Returns the size of the OffscreenWindow in pixels as a Vector.
-   *
-   * The x component will be the width of the OffscreenWindow in pixels.
-   * The y component will be the height of the OffscreenWindow in pixels.
-   *
-   * @return The size of the OffscreenWindow as a Vector
+   * @return The size of the OffscreenWindow as a Uint16Pair (width, height)
    */
   WindowSize GetSize() const;
 
   /**
-   * @brief Gets the native handle.
-   * @note When users call this function, it wraps the actual type used by the underlying system.
-   * @return The native handle or an empty handle
-   */
-  Any GetNativeHandle() const;
-
-  /**
-   * @brief Retrieves the DPI of the window.
+   * @brief Adds a callback to be executed synchronously after each render frame
    *
-   * @return The DPI of the window
-   */
-  Uint16Pair GetDpi() const;
-
-  /**
-   * @brief Sets the PostRenderCallback of the OffscreenWindow.
+   * This allows you to register a callback that will be called after the offscreen
+   * rendering is complete for each frame. Useful for post-processing operations,
+   * capturing rendered content, or triggering other actions based on render completion.
    *
-   * @param[in] callback The PostRenderCallback function
+   * IMPORTANT: This is a synchronous call where the engine's internal render thread
+   * stops and waits for the callback execution to complete. This means the callback
+   * should be kept as short and efficient as possible to avoid blocking the rendering
+   * pipeline.
+   *
+   * Note: GPU rendering completion is guaranteed before the callback is invoked.
+   * This ensures that all rendered content is fully available and accessible when
+   * the callback executes.
+   *
+   * A callback of the following type should be used:
    * @code
-   *   void MyFunction( OffscreenWindow window, Any nativeSurface );
+   *   void MyFunction(OffscreenWindow window);
    * @endcode
    *
-   * @note Ownership of the callback is passed onto this class.
-   *
+   * @param [in] callback Unique pointer to the callback base object to be executed post-render
    */
-  void SetPostRenderCallback(CallbackBase* callback);
+  void AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback);
 
   /**
-   * @brief Sets a callback that is called when the frame rendering is done by the graphics driver.
+   * @brief Adds a callback to be executed asynchronously after each render frame
    *
-   * @param[in] callback The function to call
+   * This allows you to register a callback that will be called asynchronously after the offscreen
+   * rendering is complete for each frame. Unlike the synchronous version, this method does not block the render thread.
    *
-   * @note A callback of the following type may be used:
+   * The callback receives a fence file descriptor that can be used to verify GPU rendering completion.
+   * The user is responsible for closing the file descriptor when it's no longer needed.
+   *
+   * A callback of the following type should be used:
    * @code
-   *   void MyFunction();
+   *   void MyFunction(OffscreenWindow window, int32_t fenceFd);
+   *   // fenceFd: File descriptor for the fence to verify GPU rendering completion
+   *   // IMPORTANT: User must call close(fenceFd) when done with the fence
    * @endcode
    *
-   * @note Ownership of the callback is passed onto this class.
+   * @param [in] callback Unique pointer to the callback base object to be executed post-render
    */
-  void SetFrameRenderedCallback(CallbackBase* callback);
+  void AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase> callback);
 
 public: // Not intended for application developers
   /**
    * @brief Internal constructor
    */
-  explicit DALI_INTERNAL OffscreenWindow(Internal::OffscreenWindow* window);
+  explicit DALI_INTERNAL OffscreenWindow(Internal::Adaptor::OffscreenWindow* window);
 };
 
 /**

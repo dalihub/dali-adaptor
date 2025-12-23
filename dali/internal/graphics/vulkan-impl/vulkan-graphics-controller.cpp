@@ -326,6 +326,180 @@ struct VulkanGraphicsController::Impl
     return mSamplerImpl.get();
   }
 
+  void CreateSubmissionData(const SubmitInfo&                                 submitInfo,
+                            std::vector<SubmissionData>&                      fboSubmitData,
+                            std::vector<SubmissionData>&                      surfaceSubmitData,
+                            std::unordered_map<RenderTarget*, size_t>&        fboLastSubmissionIndex,
+                            std::unordered_map<RenderTarget*, vk::Semaphore>& fboSignalSemaphores,
+                            RenderTarget*&                                    currentRenderSurface)
+  {
+    // Iterate over all command buffers:
+    //
+    // 1) Split them into FBO submissions and surface submissions.
+    // 2) Track the last submission index per FBO render target.
+    // 3) Track which render targets have semaphores.
+
+    for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
+    {
+      auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
+      auto renderTarget = cmdBuffer->GetRenderTarget();
+
+      if(!renderTarget)
+      {
+        DALI_LOG_ERROR("Cmd buffer has no render target set.");
+        continue;
+      }
+
+      if(renderTarget->GetSurface() == nullptr)
+      {
+        // Track submission index for FBO render targets
+        size_t submissionIndex = fboSubmitData.size();
+
+        DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
+        renderTarget->CreateSubmissionData(cmdBuffer, fboSubmitData);
+
+        // Record this as the last submission for this render target
+        fboLastSubmissionIndex[renderTarget] = submissionIndex;
+
+#if defined(ENABLE_FBO_SEMAPHORE)
+        // Always track the semaphore, but we'll decide whether to signal it later
+        if(renderTarget->GetSubmitSemaphore())
+        {
+          fboSignalSemaphores[renderTarget] = renderTarget->GetSubmitSemaphore();
+        }
+#endif
+      }
+      else
+      {
+        // Surface target
+        if(currentRenderSurface == nullptr)
+        {
+          currentRenderSurface = renderTarget;
+        }
+        else
+        {
+          DALI_ASSERT_DEBUG(currentRenderSurface == renderTarget);
+        }
+        renderTarget->CreateSubmissionData(cmdBuffer, surfaceSubmitData);
+      }
+    }
+  }
+
+  void ResolveFboSemaphoreDependencies(std::vector<SubmissionData>&                      fboSubmitData,
+                                       const std::unordered_map<RenderTarget*, size_t>&  fboLastSubmissionIndex,
+                                       std::unordered_map<RenderTarget*, vk::Semaphore>& fboSignalSemaphores)
+  {
+    // Re-process all FBO submissions:
+    //
+    // 1) Validate wait semaphores.
+    // 2) Find earliest wait per semaphore, which constructs a dependency graph like this:
+    //
+    //    submission 0 waits on A
+    //    submission 1 waits on nothing
+    //    submission 2 waits on A and B
+    //    submission 3 waits on C
+    //    etc.
+    //
+    // 3) Decide which submission should signal each semaphore.
+    // 4) Insert the signal at the correct place.
+
+#if defined(ENABLE_FBO_SEMAPHORE)
+    std::unordered_set<VkSemaphore>         validSignalSemaphores; // Semaphores that can be signalled this frame (by some FBO render targets)
+    std::unordered_map<VkSemaphore, size_t> earliestWaitLocation;  // Maps semaphore -> earliest submission index (in fboSubmitData) that waits on it
+
+    // Build the valid signal semaphore set and handle map
+    for(const auto& [renderTarget, semaphore] : fboSignalSemaphores)
+    {
+      VkSemaphore semHandle = static_cast<VkSemaphore>(semaphore);
+      validSignalSemaphores.insert(semHandle);
+    }
+
+    // Process submissions, track wait locations, and make signal decisions
+    for(size_t i = 0; i < fboSubmitData.size(); ++i)
+    {
+      auto& submission     = fboSubmitData[i];
+      auto& waitSemaphores = submission.waitSemaphores;
+
+      // Process wait semaphores: validate and track earliest wait locations
+      waitSemaphores.erase(
+        std::remove_if(waitSemaphores.begin(), waitSemaphores.end(), [&validSignalSemaphores, &earliestWaitLocation, i](vk::Semaphore sem)
+                       {
+                         VkSemaphore semHandle = static_cast<VkSemaphore>(sem);
+
+                         // Check if this semaphore is valid (has a corresponding signal)
+                         bool isValid = validSignalSemaphores.count(semHandle) != 0;
+                         if(isValid)
+                         {
+                           // Record earliest wait location for this semaphore
+                           if(!earliestWaitLocation.count(semHandle))
+                           {
+                             earliestWaitLocation[semHandle] = i; // First (earliest) wait location
+                           }
+                           return false; // Keep valid semaphore
+                         }
+                         return true; // Remove invalid semaphore
+                       }),
+        waitSemaphores.end());
+    }
+
+    // Decide where to signal each semaphore
+    for(const auto& [renderTarget, semaphore] : fboSignalSemaphores)
+    {
+      VkSemaphore semHandle = static_cast<VkSemaphore>(semaphore);
+
+      // MUST signal if:
+      // 1. Someone is waiting on this semaphore, OR
+      // 2. It's not dirty.
+      bool isBeingWaitedOn = earliestWaitLocation.count(semHandle) != 0;
+      bool shouldSignal    = isBeingWaitedOn || !renderTarget->IsSemaphoreDirty();
+
+      if(shouldSignal)
+      {
+        size_t signalSubmissionIndex;
+
+        if(isBeingWaitedOn)
+        {
+          // Get the earliest wait location
+          size_t earliestWaitSubmission = earliestWaitLocation.at(semHandle);
+
+          // Signal in the PREVIOUS submission to ensure signal comes before wait
+          if(earliestWaitSubmission == 0)
+          {
+            // If the earliest wait is submission 0, we can't signal in a previous submission
+            // In this case, we need to skip signaling this semaphore (it will be signaled in the next frame)
+            continue;
+          }
+          else
+          {
+            signalSubmissionIndex = earliestWaitSubmission - 1;
+          }
+        }
+        else
+        {
+          // No one is waiting on this semaphore, use the last submission as before
+          signalSubmissionIndex = fboLastSubmissionIndex.at(renderTarget);
+        }
+
+        // Check if semaphore is already in signal list to prevent duplicates
+        auto& signalSemaphores = fboSubmitData[signalSubmissionIndex].signalSemaphores;
+        if(std::find(signalSemaphores.begin(), signalSemaphores.end(), semaphore) == signalSemaphores.end())
+        {
+          signalSemaphores.push_back(semaphore);
+        }
+
+        // If we're signaling a dirty semaphore because someone is waiting on it,
+        // we need to mark it as no longer dirty to prevent future issues
+        if(isBeingWaitedOn && renderTarget->IsSemaphoreDirty())
+        {
+          // This is a special case where we override the dirty state
+          // because the semaphore is actually needed for synchronization
+          renderTarget->SetSemaphoreDirty(false);
+        }
+      }
+    }
+#endif
+  }
+
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device*           mGraphicsDevice{nullptr};
 
@@ -427,43 +601,33 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
-  // Ensure any outstanding image transfers are complete before submitting commands for rendering
+  // Wait for any pending resource transfers to finish.
   mImpl->mResourceTransfer.WaitOnResourceTransferFutures();
+
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
   std::vector<SubmissionData> fboSubmitData;
   std::vector<SubmissionData> surfaceSubmitData;
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SubmitCommandBuffers() bufferIndex:%d\n", mImpl->mGraphicsDevice->GetCurrentBufferIndex());
 
-  // Gather all command buffers targeting frame buffers into a single Submit request
+  std::unordered_map<RenderTarget*, size_t>        fboLastSubmissionIndex;
+  std::unordered_map<RenderTarget*, vk::Semaphore> fboSignalSemaphores;
+
   RenderTarget* currentRenderSurface = nullptr;
-  for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
-  {
-    auto cmdBuffer    = static_cast<const CommandBuffer*>(gfxCmdBuffer);
-    auto renderTarget = cmdBuffer->GetRenderTarget();
 
-    if(!renderTarget)
-    {
-      DALI_LOG_ERROR("Cmd buffer has no render target set.");
-      continue;
-    }
-    if(renderTarget->GetSurface() == nullptr)
-    {
-      DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "CreateSubmissionData: FBO CmdBuffer:%p\n", cmdBuffer->GetImpl());
-      renderTarget->CreateSubmissionData(cmdBuffer, fboSubmitData);
-    }
-    else
-    {
-      if(currentRenderSurface == nullptr)
-      {
-        currentRenderSurface = renderTarget;
-      }
-      else
-      {
-        DALI_ASSERT_DEBUG(currentRenderSurface == renderTarget);
-      }
-      renderTarget->CreateSubmissionData(cmdBuffer, surfaceSubmitData);
-    }
+  // Collect each FBO’s submit semaphore and track its last signal point
+  mImpl->CreateSubmissionData(submitInfo, fboSubmitData, surfaceSubmitData, fboLastSubmissionIndex, fboSignalSemaphores, currentRenderSurface);
+
+  // Clear all signal semaphores from FBO submissions.
+  // We'll add them back only to the last submission for each render target
+  for(auto& submission : fboSubmitData)
+  {
+    submission.signalSemaphores.clear();
   }
+
+  // Resolve the semaphore dependencies for all FBO submissions.
+  mImpl->ResolveFboSemaphoreDependencies(fboSubmitData, fboLastSubmissionIndex, fboSignalSemaphores);
+
+  // Submit FBO work first, then surface work, with the correct wait/signal lists
   if(!fboSubmitData.empty())
   {
     mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(fboSubmitData, nullptr);
@@ -476,7 +640,6 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
     auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
 
     swapchain->UpdateSubmissionData(surfaceSubmitData);
-
     swapchain->GetQueue()->Submit(surfaceSubmitData, swapchain->GetEndOfFrameFence());
   }
 

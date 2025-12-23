@@ -54,7 +54,7 @@ public:
    */
   virtual ~PixmapRenderSurfaceEcoreX();
 
-public: // from WindowRenderSurface
+public: // from PixmapRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::GetSurface()
    */

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_TIZEN_FRAMEWORK_FACTORY_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ public:
   ~FrameworkFactoryTizen();
 
   std::unique_ptr<Framework> CreateFramework(FrameworkBackend frameworkType, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
+
+  void SetFrameworkBackend(FrameworkBackend backend) override
+  {
+    mBackend = backend;
+  }
 
   FrameworkBackend GetFrameworkBackend() const override
   {

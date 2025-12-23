@@ -64,6 +64,7 @@ SET(ADAPTOR_GRAPHICS_GLES_SOURCES
     ${adaptor_window_system_tizen_wayland_egl_src_files}
     ${adaptor_graphics_library_common_src_files}
     ${adaptor_window_system_tizen_wayland_graphics_library_src_files}
+    ${adaptor_offscreen_egl_src_files}
 )
 
 # Vulkan Graphics Library
@@ -76,6 +77,7 @@ SET(ADAPTOR_GRAPHICS_VULKAN_SOURCES
     ${adaptor_graphics_library_common_src_files}
     ${adaptor_window_system_tizen_wayland_graphics_library_src_files}
     ${adaptor_graphics_vulkan_native_image_tizen_src_files}
+    ${adaptor_offscreen_vulkan_src_files}
 )
 
 # GlWindow Addon
