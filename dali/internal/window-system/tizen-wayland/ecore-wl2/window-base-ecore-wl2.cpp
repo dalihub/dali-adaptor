@@ -1657,6 +1657,21 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::D
     Dali::DevelWindow::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
 
     mMouseInOutEventSignal.Emit(inOutEvent);
+
+    if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
+    {
+      std::string deviceName;
+      GetDeviceName(ecore_device_name_get(mouseInOutEvent->dev), deviceName);
+
+      Integration::Point point;
+      point.SetState(PointState::MOTION);
+      point.SetScreenPosition(Vector2(mouseInOutEvent->x, mouseInOutEvent->y));
+      point.SetDeviceClass(deviceClass);
+      point.SetDeviceSubclass(deviceSubclass);
+      point.SetDeviceName(deviceName);
+
+      mTouchEventSignal.Emit(point, mouseInOutEvent->timestamp);
+    }
   }
   else
   {
