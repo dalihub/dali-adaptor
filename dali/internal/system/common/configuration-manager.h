@@ -59,6 +59,12 @@ public:
   virtual ~ConfigurationManager();
 
   /**
+   * @brief Change the graphics interface what it hold.
+   * @param[in] graphics The changed graphics interface.
+   */
+  void ChangeGraphics(Dali::Graphics::GraphicsInterface* graphics);
+
+  /**
    * @brief Retrieve all keys from the config file if the file exists.
    */
   void RetrieveKeysFromConfigFile(const std::string& configFilePath);
