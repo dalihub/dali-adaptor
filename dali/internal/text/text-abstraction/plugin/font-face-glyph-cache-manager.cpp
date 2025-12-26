@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,107 +100,6 @@ bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
     DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::GetGlyphCacheDataFromIndex. Find cache for face : %p, index : %u flag : %d isBold : %d isBitmap : %d, glyph : %p\n", freeTypeFace, index, static_cast<int>(flag), isBoldRequired, glyphDataPtr->mIsBitmap, glyphDataPtr->mGlyph);
     return true;
   }
-}
-
-bool GlyphCacheManager::LoadGlyphDataFromIndex(
-  const FT_Face    freeTypeFace,
-  const GlyphIndex index,
-  const FT_Int32   flag,
-  const bool       isBoldRequired,
-  GlyphCacheData&  glyphData,
-  FT_Error&        error)
-{
-  error = FT_Load_Glyph(freeTypeFace, index, flag);
-  if(FT_Err_Ok == error)
-  {
-    glyphData.mStyleFlags = freeTypeFace->style_flags;
-
-    const bool isEmboldeningRequired = isBoldRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_BOLD);
-    if(isEmboldeningRequired)
-    {
-      // Does the software bold.
-      FT_GlyphSlot_Embolden(freeTypeFace->glyph);
-    }
-
-    glyphData.mGlyphMetrics = freeTypeFace->glyph->metrics;
-    glyphData.mIsBitmap     = false;
-    // Load glyph
-    error = FT_Get_Glyph(freeTypeFace->glyph, &glyphData.mGlyph);
-
-    if(glyphData.mGlyph->format == FT_GLYPH_FORMAT_BITMAP)
-    {
-      // Copy original glyph infomation. Due to we use union, we should keep original handle.
-      FT_Glyph bitmapGlyph = glyphData.mGlyph;
-
-      // Copy rendered bitmap
-      // TODO : Is there any way to keep bitmap buffer without copy?
-      glyphData.mBitmap  = new FT_Bitmap();
-      *glyphData.mBitmap = freeTypeFace->glyph->bitmap;
-
-      // New allocate buffer
-      size_t bufferSize = 0;
-      switch(glyphData.mBitmap->pixel_mode)
-      {
-        case FT_PIXEL_MODE_GRAY:
-        {
-          if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width))
-          {
-            bufferSize = static_cast<size_t>(glyphData.mBitmap->width) * static_cast<size_t>(glyphData.mBitmap->rows);
-          }
-          break;
-        }
-#ifdef FREETYPE_BITMAP_SUPPORT
-        case FT_PIXEL_MODE_BGRA:
-        {
-          if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width << 2u))
-          {
-            bufferSize = (static_cast<size_t>(glyphData.mBitmap->width) * static_cast<size_t>(glyphData.mBitmap->rows)) << 2u;
-          }
-          break;
-        }
-#endif
-        default:
-        {
-          DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::LoadGlyphDataFromIndex. FontClient Unable to create Bitmap of this PixelType\n");
-          break;
-        }
-      }
-
-      if(bufferSize > 0)
-      {
-        glyphData.mIsBitmap       = true;
-        glyphData.mBitmap->buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
-        if(DALI_UNLIKELY(!glyphData.mBitmap->buffer))
-        {
-          DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize * sizeof(uint8_t));
-          delete glyphData.mBitmap;
-          glyphData.mIsBitmap = false;
-          glyphData.mBitmap   = nullptr;
-          error               = static_cast<FT_Error>(-1);
-        }
-        else
-        {
-          memcpy(glyphData.mBitmap->buffer, freeTypeFace->glyph->bitmap.buffer, bufferSize);
-        }
-      }
-      else
-      {
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::LoadGlyphDataFromIndex. Bitmap glyph buffer size is zero\n");
-        delete glyphData.mBitmap;
-        glyphData.mBitmap = nullptr;
-        error             = static_cast<FT_Error>(-1);
-      }
-
-      // Release glyph data.
-      FT_Done_Glyph(bitmapGlyph);
-    }
-
-    if(FT_Err_Ok == error)
-    {
-      return true;
-    }
-  }
-  return false;
 }
 
 void GlyphCacheManager::ResizeBitmapGlyph(
@@ -464,6 +363,120 @@ void GlyphCacheManager::ClearCache(const std::size_t remainCount)
   }
 }
 
+bool GlyphCacheManager::LoadGlyphDataFromIndex(
+  const FT_Face    freeTypeFace,
+  const GlyphIndex index,
+  const FT_Int32   flag,
+  const bool       isBoldRequired,
+  GlyphCacheData&  glyphData,
+  FT_Error&        error)
+{
+  error = FT_Load_Glyph(freeTypeFace, index, flag);
+  if(FT_Err_Ok == error)
+  {
+    glyphData.mStyleFlags = freeTypeFace->style_flags;
+
+    const bool isEmboldeningRequired = isBoldRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_BOLD);
+    if(isEmboldeningRequired)
+    {
+      // Does the software bold.
+      FT_GlyphSlot_Embolden(freeTypeFace->glyph);
+    }
+
+    glyphData.mGlyphMetrics = freeTypeFace->glyph->metrics;
+    glyphData.mIsBitmap     = false;
+    // Load glyph
+    error = FT_Get_Glyph(freeTypeFace->glyph, &glyphData.mGlyph);
+
+    if(FT_Err_Ok == error && glyphData.mGlyph->format == FT_GLYPH_FORMAT_BITMAP)
+    {
+      // Copy original glyph infomation. Due to we use union, we should keep original handle.
+      FT_Glyph bitmapGlyph = glyphData.mGlyph;
+
+      // Copy rendered bitmap
+      // TODO : Is there any way to keep bitmap buffer without copy?
+      glyphData.mBitmap  = new FT_Bitmap();
+      *glyphData.mBitmap = freeTypeFace->glyph->bitmap;
+
+      // New allocate buffer
+      size_t bufferSize = 0;
+      switch(glyphData.mBitmap->pixel_mode)
+      {
+        case FT_PIXEL_MODE_GRAY:
+        {
+          if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width))
+          {
+            bufferSize = static_cast<size_t>(glyphData.mBitmap->width) * static_cast<size_t>(glyphData.mBitmap->rows);
+          }
+          break;
+        }
+#ifdef FREETYPE_BITMAP_SUPPORT
+        case FT_PIXEL_MODE_BGRA:
+        {
+          if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width << 2u))
+          {
+            bufferSize = (static_cast<size_t>(glyphData.mBitmap->width) * static_cast<size_t>(glyphData.mBitmap->rows)) << 2u;
+          }
+          break;
+        }
+#endif
+        default:
+        {
+          DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::LoadGlyphDataFromIndex. FontClient Unable to create Bitmap of this PixelType\n");
+          break;
+        }
+      }
+
+      if(bufferSize > 0)
+      {
+        glyphData.mIsBitmap       = true;
+        glyphData.mBitmap->buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
+        if(DALI_UNLIKELY(!glyphData.mBitmap->buffer))
+        {
+          DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize * sizeof(uint8_t));
+          delete glyphData.mBitmap;
+          glyphData.mIsBitmap = false;
+          glyphData.mBitmap   = nullptr;
+          error               = static_cast<FT_Error>(-1);
+        }
+        else
+        {
+          memcpy(glyphData.mBitmap->buffer, freeTypeFace->glyph->bitmap.buffer, bufferSize);
+        }
+      }
+      else
+      {
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::LoadGlyphDataFromIndex. Bitmap glyph buffer size is zero\n");
+        delete glyphData.mBitmap;
+        glyphData.mIsBitmap = false;
+        glyphData.mBitmap   = nullptr;
+        error               = static_cast<FT_Error>(-1);
+      }
+
+      // Release glyph data.
+      FT_Done_Glyph(bitmapGlyph);
+    }
+
+    if(DALI_LIKELY(FT_Err_Ok == error))
+    {
+      return true;
+    }
+    else
+    {
+      if(glyphData.mIsBitmap && glyphData.mBitmap)
+      {
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::LoadGlyphDataFromIndex. Some logic miss to release bitmap error case. Release bitmap memory here.\n");
+        delete glyphData.mBitmap;
+        glyphData.mIsBitmap = false;
+        glyphData.mBitmap   = nullptr;
+      }
+      glyphData.mIsBitmap = false;
+      glyphData.mGlyph    = nullptr;
+    }
+  }
+  return false;
+}
+
 // GlyphCacheManager::GlyphCacheData
 
 void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()
@@ -475,9 +488,11 @@ void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()
     free(mBitmap->buffer); // This buffer created by malloc
 
     delete mBitmap;
-    mBitmap = nullptr;
+
+    mIsBitmap = false;
+    mBitmap   = nullptr;
   }
-  else if(mGlyph)
+  else if(!mIsBitmap && mGlyph)
   {
     // Created FT_Glyph object must be released with FT_Done_Glyph
     FT_Done_Glyph(mGlyph);
@@ -535,17 +550,20 @@ GlyphCacheManager::GlyphCacheData& GlyphCacheManager::GlyphCacheData::operator=(
     mIsBitmap = true;
     mBitmap   = rhs.mBitmap;
 
-    rhs.mBitmap = nullptr;
+    rhs.mIsBitmap = false;
+    rhs.mBitmap   = nullptr;
   }
-  else if(rhs.mGlyph)
+  else if(!rhs.mIsBitmap && rhs.mGlyph)
   {
-    mGlyph = rhs.mGlyph;
+    mIsBitmap = false;
+    mGlyph    = rhs.mGlyph;
 
     rhs.mGlyph = nullptr;
   }
   else
   {
-    mGlyph = nullptr;
+    mIsBitmap = false;
+    mGlyph    = nullptr;
   }
 
   if(rhs.mRenderedBuffer)
