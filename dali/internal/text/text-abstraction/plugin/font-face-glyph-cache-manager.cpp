@@ -24,7 +24,6 @@
 
 // EXTERNAL INCLUDES
 #include FT_BITMAP_H
-#include <mutex>
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
@@ -480,9 +479,6 @@ void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()
   }
   else if(mGlyph)
   {
-    static std::mutex ftDoneGlyphMutex;
-    std::lock_guard<std::mutex> lock(ftDoneGlyphMutex);
-
     // Created FT_Glyph object must be released with FT_Done_Glyph
     FT_Done_Glyph(mGlyph);
     mGlyph = nullptr;
