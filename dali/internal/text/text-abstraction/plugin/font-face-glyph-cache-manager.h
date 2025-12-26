@@ -123,25 +123,6 @@ public:
     FT_Error&             error);
 
   /**
-   * @brief Load GlyphCacheData from face. The result will not be cached.
-   *
-   * @param[in] freeTypeFace The freetype face handle.
-   * @param[in] index Index of glyph in this face.
-   * @param[in] flag Flag when we load the glyph.
-   * @param[in] isBoldRequired True if we require some software bold.
-   * @param[in, out] glyphData Result of glyph load.
-   * @param[out] error Error code during load glyph.
-   * @return True if load successfully. False if something error occured.
-   */
-  bool LoadGlyphDataFromIndex(
-    const FT_Face    freeTypeFace,
-    const GlyphIndex index,
-    const FT_Int32   flag,
-    const bool       isBoldRequired,
-    GlyphCacheData&  glyphData,
-    FT_Error&        error);
-
-  /**
    * @brief Resize bitmap glyph. The result will change cached glyph bitmap information.
    * If glyph is not bitmap glyph, nothing happened.
    *
@@ -201,6 +182,27 @@ public:
    * @param[in] remainCount The number of remained cache items after call this API. Default is 0, clear all items.
    */
   void ClearCache(const std::size_t remainCount = 0u);
+
+private:
+  // Private method area.
+  /**
+   * @brief Load GlyphCacheData from face. The result will not be cached.
+   *
+   * @param[in] freeTypeFace The freetype face handle.
+   * @param[in] index Index of glyph in this face.
+   * @param[in] flag Flag when we load the glyph.
+   * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in, out] glyphData Result of glyph load.
+   * @param[out] error Error code during load glyph.
+   * @return True if load successfully. False if something error occured.
+   */
+  bool LoadGlyphDataFromIndex(
+    const FT_Face    freeTypeFace,
+    const GlyphIndex index,
+    const FT_Int32   flag,
+    const bool       isBoldRequired,
+    GlyphCacheData&  glyphData,
+    FT_Error&        error);
 
 private:
   // Private struct area.
