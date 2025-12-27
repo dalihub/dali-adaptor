@@ -1647,7 +1647,9 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
     return;
   }
 
+  WindowDimInfo previousBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
   mBlurInfo = blurInfo;
+  WindowDimInfo currentBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
 
   if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
   {
@@ -1656,6 +1658,17 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
   else if(mBlurInfo.windowBlurType == WindowBlurType::BEHIND)
   {
     mWindowBase->SetBehindBlur(mBlurInfo.windowBlurRadius);
+    if(previousBehindBlurDimInfo.isEnabled != currentBehindBlurDimInfo.isEnabled)
+    {
+        mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
+    }
+    else
+    {
+      if(currentBehindBlurDimInfo.isEnabled)
+      {
+        mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
+      }
+    }
   }
   else
   {
