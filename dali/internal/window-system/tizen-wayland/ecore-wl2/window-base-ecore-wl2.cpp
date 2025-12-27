@@ -2598,8 +2598,8 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
 #ifdef OVER_TIZEN_VERSION_8
   unsigned int transformedNumCols = numCols;
   unsigned int transformedNumRows = numRows;
-  unsigned int transformedColumn = column;
-  unsigned int transformedRow = row;
+  unsigned int transformedColumn  = column;
+  unsigned int transformedRow     = row;
   unsigned int transformedColSpan = colSpan;
   unsigned int transformedRowSpan = rowSpan;
 
@@ -2612,8 +2612,8 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
     {
       transformedNumCols = numRows;
       transformedNumRows = numCols;
-      transformedColumn = row;
-      transformedRow = (numCols - 1) - column - colSpan + 1;
+      transformedColumn  = row;
+      transformedRow     = (numCols - 1) - column - colSpan + 1;
       transformedColSpan = rowSpan;
       transformedRowSpan = colSpan;
       break;
@@ -2621,15 +2621,15 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
     case 180:
     {
       transformedColumn = (numCols - 1) - column - colSpan + 1;
-      transformedRow = (numRows - 1) - row - rowSpan + 1;
+      transformedRow    = (numRows - 1) - row - rowSpan + 1;
       break;
     }
     case 270:
     {
       transformedNumCols = numRows;
       transformedNumRows = numCols;
-      transformedColumn = (numRows - 1) - row - rowSpan + 1;
-      transformedRow = column;
+      transformedColumn  = (numRows - 1) - row - rowSpan + 1;
+      transformedRow     = column;
       transformedColSpan = rowSpan;
       transformedRowSpan = colSpan;
       break;
@@ -2642,9 +2642,9 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
   }
 
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, original: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n",
-                       numCols, numRows, column, row, colSpan, rowSpan);
+                        numCols, numRows, column, row, colSpan, rowSpan);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, transformed: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d], rotation[%d]\n",
-                       transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
+                        transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
   ecore_wl2_window_resize_request_unset(mEcoreWindow);
@@ -4171,6 +4171,44 @@ int WindowBaseEcoreWl2::GetBehindBlur()
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_blur_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
 #endif
   return radius;
+}
+
+void WindowBaseEcoreWl2::SetBehindBlurDim(bool enable, Vector4& color)
+{
+#ifdef OVER_TIZEN_VERSION_10
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_dim_set");
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set, window: [%p], enable [%d], NUI dim color[%f, %f, %f, %f]\n", mEcoreWindow, enable, color.r, color.g, color.b, color.a);
+
+  int convertR = static_cast<int>(color.r * 255.0f);
+  int convertG = static_cast<int>(color.g * 255.0f);
+  int convertB = static_cast<int>(color.b * 255.0f);
+  int convertA = static_cast<int>(color.a * 255.0f);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set, window: [%p], enable [%d], converted dim color[%d, %d, %d, %d]\n", mEcoreWindow, enable, convertR, convertG, convertB, convertA);
+
+  ecore_wl2_window_behind_dim_set(mEcoreWindow, static_cast<int>(enable), convertR, convertG, convertB, convertA);
+#else
+  int radius = 0;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
+}
+
+Vector4 WindowBaseEcoreWl2::GetBehindBlurDim(bool& enable)
+{
+  int ecoreEnable = false;
+#ifdef OVER_TIZEN_VERSION_10
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_dim_get");
+  int r, g, b, a;
+  ecore_wl2_window_behind_dim_get(mEcoreWindow, &ecoreEnable, &r, &g, &b, &a);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get, window: [%p], enable [%d], EFL dim color[%d, %d, %d, %d]\n", mEcoreWindow, ecoreEnable, r, g, b, a);
+  Vector4 behindDimColor((static_cast<float>(r)) / 255.0f, (static_cast<float>(g)) / 255.0f, (static_cast<float>(b)) / 255.0f, (static_cast<float>(a)) / 255.0f);
+  enable = ecoreEnable;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get, window: [%p], enable [%d], Converted dim color[%f, %f, %f, %f]\n", mEcoreWindow, enable, behindDimColor.r, behindDimColor.g, behindDimColor.b, behindDimColor.a);
+  return behindDimColor;
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+  enable = ecoreEnable;
+  return Vector4(0.0, 0, 0, 0, 0, 0.0);
+#endif
 }
 
 Extents WindowBaseEcoreWl2::GetInsets()
