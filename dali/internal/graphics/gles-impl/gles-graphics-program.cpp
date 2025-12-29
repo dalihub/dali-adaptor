@@ -202,8 +202,7 @@ void ProgramImpl::Preprocess()
     // Check if stream valid
     if(currentString && currentString->empty() && shader && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
     {
-      *currentString = std::string(reinterpret_cast<const char*>(shader->GetCreateInfo().sourceData),
-                                   shader->GetCreateInfo().sourceSize);
+      *currentString = shader->GetSourceString();
     }
     else
     {
@@ -219,7 +218,8 @@ void ProgramImpl::Preprocess()
   }
 
   // if we have both streams ready
-  if(!vertexString.empty() && !fragmentString.empty())
+  if(!vertexString.empty() && !fragmentString.empty() &&
+     (!vsh->GetImplementation()->HasPreprocessedCode() || !fsh->GetImplementation()->HasPreprocessedCode()))
   {
     // In case we have one modern shader and one legacy counterpart we need to enforce
     // output language.
@@ -244,8 +244,14 @@ void ProgramImpl::Preprocess()
     Internal::ShaderParser::Parse(parseInfo, newShaders);
 
     // substitute shader code
-    vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
-    fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+    if(!vsh->GetImplementation()->HasPreprocessedCode())
+    {
+      vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
+    }
+    if(!fsh->GetImplementation()->HasPreprocessedCode())
+    {
+      fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+    }
   }
   else
   {

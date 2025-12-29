@@ -197,6 +197,26 @@ struct ShaderImpl::Impl
     }
 
     std::copy(dataPtr, dataPtr + size, sourcePreprocessed.data());
+
+    // Update glsl version from preprocessed code
+    if(glslVersion == 0u)
+    {
+      // For legacy shaders we need to make sure that the #version is a very first line
+      // so need to strip //@legacy-prefix-end tag
+      std::string_view sourceText = {reinterpret_cast<const char*>(sourcePreprocessed.data()), sourcePreprocessed.size()};
+      auto             versionPos = sourceText.find("#version", 0);
+      if(versionPos == std::string::npos)
+      {
+        // if there's no version yet it's a legacy shader we assign 100
+        glslVersion = 100;
+      }
+      else
+      {
+        // save version of legacy shader
+        char* end;
+        glslVersion = uint32_t(std::strtol(sourceText.data() + versionPos + 9, &end, 10));
+      }
+    }
   }
 
   EglGraphicsController& controller;
@@ -292,7 +312,7 @@ bool ShaderImpl::HasPreprocessedCode() const
 
 std::string_view ShaderImpl::GetPreprocessedCode() const
 {
-  return {reinterpret_cast<char*>(mImpl->sourcePreprocessed.data())};
+  return {reinterpret_cast<const char*>(mImpl->sourcePreprocessed.data()), mImpl->sourcePreprocessed.size()};
 }
 
 [[nodiscard]] EglGraphicsController& ShaderImpl::GetController() const
@@ -358,6 +378,15 @@ void ShaderImpl::SetPreprocessedCode(void* data, uint32_t size)
   mImpl->SetPreprocessedCode(data, size);
 }
 
+std::string ShaderImpl::GetSourceString() const
+{
+  if(HasPreprocessedCode())
+  {
+    return std::string{GetPreprocessedCode()};
+  }
+  return std::string(reinterpret_cast<const char*>(mImpl->createInfo.sourceData), mImpl->createInfo.sourceSize);
+}
+
 Shader::~Shader()
 {
   if(!mShader->Release())
@@ -384,6 +413,11 @@ void Shader::DiscardResource()
 uint32_t Shader::GetGLSLVersion() const
 {
   return GetImplementation()->GetGLSLVersion();
+}
+
+std::string Shader::GetSourceString() const
+{
+  return GetImplementation()->GetSourceString();
 }
 
 } // namespace Dali::Graphics::GLES
