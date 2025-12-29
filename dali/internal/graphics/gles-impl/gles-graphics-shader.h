@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-shader-create-info.h>
 #include <dali/graphics-api/graphics-shader.h>
+#include <string_view>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -153,7 +154,7 @@ public:
    *
    * @return the string to the source code or preprocessed code
    */
-  std::string GetSourceString() const;
+  std::string_view GetSourceStringView() const;
 
 private:
   friend class Shader;
@@ -225,7 +226,7 @@ public:
    *
    * @return the string to the source code or preprocessed code
    */
-  std::string GetSourceString() const;
+  std::string_view GetSourceStringView() const;
 
 private:
   ShaderImpl* mShader{nullptr};

@@ -164,8 +164,6 @@ bool ProgramImpl::Destroy()
 
 void ProgramImpl::Preprocess()
 {
-  auto* gl               = mImpl->controller.GetGL();
-  bool  advancedBlending = DALI_LIKELY(gl) ? gl->IsAdvancedBlendEquationSupported() : false;
   // For now only Vertex and Fragment shader stages supported
   // and one per stage
   std::string  vertexString;
@@ -202,7 +200,7 @@ void ProgramImpl::Preprocess()
     // Check if stream valid
     if(currentString && currentString->empty() && shader && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
     {
-      *currentString = shader->GetSourceString();
+      *currentString = std::string(shader->GetSourceStringView());
     }
     else
     {
@@ -218,39 +216,43 @@ void ProgramImpl::Preprocess()
   }
 
   // if we have both streams ready
-  if(!vertexString.empty() && !fragmentString.empty() &&
-     (!vsh->GetImplementation()->HasPreprocessedCode() || !fsh->GetImplementation()->HasPreprocessedCode()))
+  if(!vertexString.empty() && !fragmentString.empty())
   {
-    // In case we have one modern shader and one legacy counterpart we need to enforce
-    // output language.
-    Internal::ShaderParser::ShaderParserInfo parseInfo{};
-    parseInfo.vertexShaderCode            = &vertexString;
-    parseInfo.fragmentShaderCode          = &fragmentString;
-    parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
-    parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
-
-    if(advancedBlending)
+    if(!vsh->GetImplementation()->HasPreprocessedCode() || !fsh->GetImplementation()->HasPreprocessedCode())
     {
-      parseInfo.fragmentShaderPrefix = FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX;
-    }
+      // In case we have one modern shader and one legacy counterpart we need to enforce
+      // output language.
+      Internal::ShaderParser::ShaderParserInfo parseInfo{};
+      parseInfo.vertexShaderCode            = &vertexString;
+      parseInfo.fragmentShaderCode          = &fragmentString;
+      parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
+      parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
 
-    // set up language dialect for parsed shader
-    auto glslVersion        = mImpl->controller.GetGraphicsInterface()->GetShaderLanguageVersion();
-    parseInfo.language      = Internal::ShaderParser::OutputLanguage(glslVersion); // We default to GLSL3
-    parseInfo.outputVersion = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
+      auto* gl               = mImpl->controller.GetGL();
+      bool  advancedBlending = DALI_LIKELY(gl) ? gl->IsAdvancedBlendEquationSupported() : false;
+      if(advancedBlending)
+      {
+        parseInfo.fragmentShaderPrefix = FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX;
+      }
 
-    std::vector<std::string> newShaders;
+      // set up language dialect for parsed shader
+      auto glslVersion        = mImpl->controller.GetGraphicsInterface()->GetShaderLanguageVersion();
+      parseInfo.language      = Internal::ShaderParser::OutputLanguage(glslVersion); // We default to GLSL3
+      parseInfo.outputVersion = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
 
-    Internal::ShaderParser::Parse(parseInfo, newShaders);
+      std::vector<std::string> newShaders;
 
-    // substitute shader code
-    if(!vsh->GetImplementation()->HasPreprocessedCode())
-    {
-      vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
-    }
-    if(!fsh->GetImplementation()->HasPreprocessedCode())
-    {
-      fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+      Internal::ShaderParser::Parse(parseInfo, newShaders);
+
+      // substitute shader code
+      if(!vsh->GetImplementation()->HasPreprocessedCode())
+      {
+        vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
+      }
+      if(!fsh->GetImplementation()->HasPreprocessedCode())
+      {
+        fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+      }
     }
   }
   else
@@ -285,8 +287,6 @@ bool ProgramImpl::Create()
   mImpl->glProgram = program;
 
   const auto& info = mImpl->createInfo;
-  Preprocess();
-  DALI_LOG_DEBUG_INFO("Program[%s] pre-process finish for program id : %u\n", mImpl->name.c_str(), program);
 
   auto cachedProgramBinary = false;
 
@@ -298,6 +298,8 @@ bool ProgramImpl::Create()
 
   if(!cachedProgramBinary)
   {
+    Preprocess();
+    DALI_LOG_DEBUG_INFO("Program[%s] pre-process finish for program id : %u\n", mImpl->name.c_str(), program);
     for(const auto& state : *info.shaderState)
     {
       const auto* shader = static_cast<const GLES::Shader*>(state.shader);
@@ -369,6 +371,8 @@ bool ProgramImpl::Create()
     auto blockIndex = gl->GetUniformBlockIndex(program, uboInfo.name.c_str());
     gl->UniformBlockBinding(program, blockIndex, uboInfo.binding);
   }
+
+  DALI_LOG_DEBUG_INFO("Program[%s] create done\n", mImpl->name.c_str());
 
   return true;
 }
@@ -567,7 +571,7 @@ void ProgramImpl::BuildStandaloneUniformCache()
 
 bool ProgramImpl::IsEnableProgramBinary() const
 {
-  if(mImpl->controller.IsUsingProgramBinary())
+  if(!mImpl->name.empty() && mImpl->controller.IsUsingProgramBinary())
   {
     const auto& info = mImpl->createInfo;
     if(info.useFileCache)
@@ -647,6 +651,8 @@ bool ProgramImpl::LoadProgramBinary()
       return false;
     }
 
+    DALI_LOG_DEBUG_INFO("Program binary format : %d", formats[0]);
+
     gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), buffer.Size());
 
     GLint status{0};
@@ -692,6 +698,8 @@ void ProgramImpl::SaveProgramBinary()
     DALI_LOG_ERROR("Program binary created but size mismatch %d != %d\n", binarySize, binaryLength);
     return;
   }
+
+  DALI_LOG_DEBUG_INFO("Program binary format : %d", format);
 
   const auto& info = mImpl->createInfo;
   std::string programBinaryName;

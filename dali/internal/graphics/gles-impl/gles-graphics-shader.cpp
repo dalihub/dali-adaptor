@@ -378,13 +378,13 @@ void ShaderImpl::SetPreprocessedCode(void* data, uint32_t size)
   mImpl->SetPreprocessedCode(data, size);
 }
 
-std::string ShaderImpl::GetSourceString() const
+std::string_view ShaderImpl::GetSourceStringView() const
 {
   if(HasPreprocessedCode())
   {
-    return std::string{GetPreprocessedCode()};
+    return GetPreprocessedCode();
   }
-  return std::string(reinterpret_cast<const char*>(mImpl->createInfo.sourceData), mImpl->createInfo.sourceSize);
+  return std::string_view(reinterpret_cast<const char*>(mImpl->createInfo.sourceData), mImpl->createInfo.sourceSize);
 }
 
 Shader::~Shader()
@@ -415,9 +415,9 @@ uint32_t Shader::GetGLSLVersion() const
   return GetImplementation()->GetGLSLVersion();
 }
 
-std::string Shader::GetSourceString() const
+std::string_view Shader::GetSourceStringView() const
 {
-  return GetImplementation()->GetSourceString();
+  return GetImplementation()->GetSourceStringView();
 }
 
 } // namespace Dali::Graphics::GLES
