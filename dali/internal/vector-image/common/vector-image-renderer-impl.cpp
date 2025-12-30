@@ -78,7 +78,14 @@ VectorImageRenderer::~VectorImageRenderer()
 {
   Mutex::ScopedLock lock(mMutex);
 #ifdef THORVG_SUPPORT
-
+#ifdef THORVG_VERSION_1
+  if(mPicture)
+  {
+    tvg::Paint::rel(mPicture);
+    mPicture = nullptr;
+  }
+  tvg::Initializer::term();
+#else
   // NOTE: Initializer::term() will call clear() internally.
   // However, due to the delete on mPicture, a crash occurs for the paint
   // that has already been deleted in clear() of term().
@@ -92,13 +99,13 @@ VectorImageRenderer::~VectorImageRenderer()
   }
 
   tvg::Initializer::term(tvg::CanvasEngine::Sw);
+#endif
 #else
   if(mParsedImage)
   {
     nsvgDelete(mParsedImage);
     mParsedImage = nullptr;
   }
-
   if(mRasterizer)
   {
     nsvgDeleteRasterizer(mRasterizer);
@@ -110,11 +117,16 @@ VectorImageRenderer::~VectorImageRenderer()
 void VectorImageRenderer::Initialize()
 {
 #ifdef THORVG_SUPPORT
+#ifdef THORVG_VERSION_1
+  tvg::Initializer::init(0);
+  mSwCanvas = tvg::SwCanvas::gen();
+#else
   tvg::Initializer::init(tvg::CanvasEngine::Sw, 0);
 
   mSwCanvas = tvg::SwCanvas::gen();
   mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
   mSwCanvas->reserve(1); // has one picture
+#endif
 #else
   mRasterizer = nsvgCreateRasterizer();
 #endif
@@ -131,21 +143,29 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
     return false;
   }
 
-  if(!mPicture)
-  {
-    mPicture = tvg::Picture::gen().release();
     if(!mPicture)
     {
-      DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
-      return false;
+#ifdef THORVG_VERSION_1
+      mPicture = tvg::Picture::gen();
+#else
+      mPicture = tvg::Picture::gen().release();
+#endif
+      if(!mPicture)
+      {
+        DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
+        return false;
+      }
     }
-  }
   else
   {
     return true;
   }
 
+#ifdef THORVG_VERSION_1
+  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), "svg", nullptr, true);
+#else
   tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), true);
+#endif
 
   if(ret != tvg::Result::Success)
   {
@@ -176,7 +196,11 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
     // Destroy mPicture and make it as nullptr, so we can notify that we fail to load svg file.
     if(mPicture)
     {
+#ifdef THORVG_VERSION_1
+      tvg::Paint::rel(mPicture);
+#else
       delete(mPicture);
+#endif
       mPicture = nullptr;
     }
 
@@ -257,13 +281,21 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 #ifdef THORVG_SUPPORT
   if(!mSwCanvas || !mPicture)
   {
+#ifdef THORVG_VERSION_1
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: either Canvas[%p] or Picture[%p] is invalid [%p]\n", mSwCanvas, mPicture, this);
+#else
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: either Canvas[%p] or Picture[%p] is invalid [%p]\n", mSwCanvas.get(), mPicture, this);
+#endif
     return Devel::PixelBuffer();
   }
 
   Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
 
+#ifdef THORVG_VERSION_1
+  mSwCanvas->sync();
+#else
   mSwCanvas->clear(false);
+#endif
 
   auto pBuffer = pixelBuffer.GetBuffer();
   if(!pBuffer)
@@ -272,12 +304,28 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
     return Devel::PixelBuffer();
   }
 
+#ifdef THORVG_VERSION_1
+  mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::ColorSpace::ABGR8888);
+#else
   mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::SwCanvas::ABGR8888);
-
+#endif
   DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
 
   mPicture->size(width, height);
 
+#ifdef THORVG_VERSION_1
+  const auto& paintList = mSwCanvas->paints();
+  if (std::find(paintList.begin(), paintList.end(), mPicture) == paintList.end())
+  {
+    if(mSwCanvas->add(mPicture) != tvg::Result::Success)
+    {
+      DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Picture push fail [%p]\n", this);
+      return Devel::PixelBuffer();
+    }
+  }
+
+  auto ret = mSwCanvas->draw(true);
+#else
   /* We can push everytime since we cleared the canvas just before. */
   if(mSwCanvas->push(std::unique_ptr<tvg::Picture>(mPicture)) != tvg::Result::Success)
   {
@@ -286,6 +334,8 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
   }
 
   auto ret = mSwCanvas->draw();
+#endif
+
   if(ret != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail %d [%p]\n", static_cast<int>(ret), this);

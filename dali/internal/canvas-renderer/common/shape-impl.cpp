@@ -64,7 +64,11 @@ Shape::~Shape()
 void Shape::Initialize()
 {
 #ifdef THORVG_SUPPORT
+#ifdef THORVG_VERSION_1
+  mTvgShape = tvg::Shape::gen();
+#else
   mTvgShape = tvg::Shape::gen().release();
+#endif
   if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null [%p]\n", this);
@@ -208,7 +212,17 @@ bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  tvg::PathCommand tvgPathCommands[pathCommand.mCommandCount];
+  for (uint32_t i = 0; i < pathCommand.mCommandCount; i++)
+  {
+    tvgPathCommands[i] = static_cast<tvg::PathCommand>(static_cast<uint8_t>(pathCommand.mCommands[i]));
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands, pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("AddPath() fail.\n");
     return false;
@@ -293,7 +307,11 @@ Vector4 Shape::GetFillColor() const
   }
   uint8_t r, g, b, a;
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->fill(&r, &g, &b, &a) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->fillColor(&r, &g, &b, &a) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("GetFillColor fail [%p]\n", this);
     return Vector4(0, 0, 0, 0);
@@ -333,7 +351,11 @@ bool Shape::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
     DALI_LOG_ERROR("Shape is null\n");
     return false;
   }
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->fillRule(static_cast<tvg::FillRule>(rule)) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->fill(static_cast<tvg::FillRule>(rule)) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetFillRule fail.\n");
     return false;
@@ -370,7 +392,11 @@ bool Shape::SetStrokeWidth(float width)
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeWidth(width) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(width) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetStrokeWidth fail.\n");
     return false;
@@ -405,7 +431,11 @@ bool Shape::SetStrokeColor(Vector4 color)
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeFill(color.r * 255.f, color.g * 255.f, color.b * 255.f, color.a * 255.f) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(color.r * 255.f, color.g * 255.f, color.b * 255.f, color.a * 255.f) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetStrokeColor fail.\n");
     return false;
@@ -428,7 +458,11 @@ Vector4 Shape::GetStrokeColor() const
 
   uint8_t r, g, b, a;
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeFill(&r, &g, &b, &a) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->strokeColor(&r, &g, &b, &a) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("GetStrokeColor fail.\n");
     return Vector4(0, 0, 0, 0);
@@ -476,7 +510,11 @@ bool Shape::SetStrokeDash(const Dali::Vector<float> dashPattern)
     tvgDashPattern[i] = dashPattern[i];
   }
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeDash(tvgDashPattern, dashPattern.Count()) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(tvgDashPattern, dashPattern.Count()) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetStrokeDash fail.\n");
     return false;
@@ -528,7 +566,11 @@ bool Shape::SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap)
     DALI_LOG_ERROR("Shape is null\n");
     return false;
   }
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeCap(static_cast<tvg::StrokeCap>(cap)) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(static_cast<tvg::StrokeCap>(cap)) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetStrokeCap fail.\n");
     return false;
@@ -565,7 +607,11 @@ bool Shape::SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join)
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeJoin(static_cast<tvg::StrokeJoin>(join)) != tvg::Result::Success)
+#else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(static_cast<tvg::StrokeJoin>(join)) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetStrokejoin fail.\n");
     return false;
