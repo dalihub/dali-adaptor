@@ -64,7 +64,11 @@ LinearGradient::~LinearGradient()
 void LinearGradient::Initialize()
 {
 #ifdef THORVG_SUPPORT
+#ifdef THORVG_VERSION_1
+  mTvgLinearGradient = tvg::LinearGradient::gen();
+#else
   mTvgLinearGradient = tvg::LinearGradient::gen().release();
+#endif
   if(!mTvgLinearGradient)
   {
     DALI_LOG_ERROR("LinearGradient is null [%p]\n", this);
