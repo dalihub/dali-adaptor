@@ -27,6 +27,8 @@
 
 using namespace Dali::Internal::ShaderParser;
 
+namespace
+{
 static std::string LoadTextFile(std::string filename)
 {
   std::ifstream t(filename);
@@ -57,6 +59,7 @@ static bool CompareFileWithString(std::string file1, std::string stringToCompare
   }
   return result;
 }
+} // namespace
 
 int UtcParseGLES2Shader(void)
 {
@@ -68,8 +71,8 @@ int UtcParseGLES2Shader(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
@@ -100,8 +103,8 @@ int UtcParseGLES2ShaderWithOutput(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
@@ -132,8 +135,8 @@ int UtcParseGLES2ShaderWithFlat(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
@@ -164,8 +167,8 @@ int UtcParseGLES3Shader(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
@@ -195,8 +198,8 @@ int UtcParseGLES3ShaderWithOutput(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
@@ -235,8 +238,8 @@ int UtcParseGLES3ShaderWithFlat(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_320_ES;
@@ -268,8 +271,8 @@ int UtcParseSPIRVShader(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
@@ -310,8 +313,8 @@ int UtcParseSPIRVShaderWithOutput(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
@@ -352,8 +355,8 @@ int UtcParseSPIRVShaderWithFlat(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
@@ -385,8 +388,8 @@ int UtcParseSPIRVShaderDuplicateUBO(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
@@ -424,8 +427,8 @@ int UtcParseShaderGLSLEnumValues(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.outputVersion               = 0;
@@ -538,8 +541,8 @@ int UtcApplyNativeFragmentShader(void)
     // parse the output with legacy vertex shader
     std::vector<std::string>                 outStrings;
     Internal::ShaderParser::ShaderParserInfo parseInfo{};
-    parseInfo.vertexShaderCode            = &vertexSource;
-    parseInfo.fragmentShaderCode          = &source;
+    parseInfo.vertexShaderCode            = vertexSource;
+    parseInfo.fragmentShaderCode          = source;
     parseInfo.vertexShaderLegacyVersion   = 0;
     parseInfo.fragmentShaderLegacyVersion = 0;
     parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
@@ -619,8 +622,8 @@ int UtcParserInfoPrefixTest(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL_100_ES; // We default to GLSL3
@@ -652,8 +655,8 @@ int UtcParserSingleLineCommentStrip(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
@@ -683,8 +686,8 @@ int UtcParserInOutLocation0(void)
   std::vector<std::string> outStrings;
 
   Internal::ShaderParser::ShaderParserInfo parseInfo{};
-  parseInfo.vertexShaderCode            = &vertexShader;
-  parseInfo.fragmentShaderCode          = &fragmentShader;
+  parseInfo.vertexShaderCode            = vertexShader;
+  parseInfo.fragmentShaderCode          = fragmentShader;
   parseInfo.vertexShaderLegacyVersion   = 0;
   parseInfo.fragmentShaderLegacyVersion = 0;
   parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
