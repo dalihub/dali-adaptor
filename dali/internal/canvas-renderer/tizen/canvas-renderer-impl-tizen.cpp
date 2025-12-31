@@ -135,6 +135,14 @@ void CanvasRendererTizen::OnMakeTargetBuffer(const Vector2& size)
   if(!mNativeImageQueue)
   {
     mNativeImageQueue = Dali::NativeImageSourceQueue::New(CANVAS_RENDERER_QUEUE_SIZE, size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
+    if(DALI_LIKELY(mNativeImageQueue))
+    {
+      mNativeImageQueue->SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType::ENQUEUE_DEQUEUE);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Fail to create tbm_queue. Looks not supported graphics backed\n");
+    }
   }
   else
   {
