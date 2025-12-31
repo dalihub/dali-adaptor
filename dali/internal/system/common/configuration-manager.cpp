@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/public-api/adaptor-framework/graphics-backend.h>
 
@@ -38,17 +39,75 @@ namespace Adaptor
 {
 namespace
 {
-const char* SYSTEM_CACHE_FILE                           = "gpu-environment.conf";
 const char* DALI_ENV_MULTIPLE_WINDOW_SUPPORT            = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
 const char* DALI_BLEND_EQUATION_ADVANCED_SUPPORT        = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
 const char* DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT = "DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT";
 const char* DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
-const char* DALI_GRAPHICS_BACKEND_TYPE                  = "DALI_GRAPHICS_BACKEND_TYPE";
+
+const char* DALI_GRAPHICS_BACKEND_NAME_GLES   = "GLES";
+const char* DALI_GRAPHICS_BACKEND_NAME_VULKAN = "VULKAN";
+
+const char* SYSTEM_CACHE_FILE_GLES   = "gpu-environment-gles.conf";
+const char* SYSTEM_CACHE_FILE_VULKAN = "gpu-environment-vulkan.conf";
+
+/**
+ * @brief Get the current graphics backend type as a string
+ * @return The graphics backend type as string ("GLES" or "VULKAN")
+ */
+inline std::string GetCurrentGraphicsBackendString()
+{
+  Graphics::Backend currentBackend = Graphics::GetCurrentGraphicsBackend();
+
+  switch(currentBackend)
+  {
+    case Graphics::Backend::GLES:
+      return DALI_GRAPHICS_BACKEND_NAME_GLES;
+    case Graphics::Backend::VULKAN:
+      return DALI_GRAPHICS_BACKEND_NAME_VULKAN;
+    default:
+      return DALI_GRAPHICS_BACKEND_NAME_GLES; // Default fallback
+  }
+}
+
+/**
+ * @brief Get the system cache file name as current graphics backend type.
+ * @return The system cache file name as graphics backend type
+ */
+inline std::string GetCurrentSystemCacheFileName()
+{
+  Graphics::Backend currentBackend = Graphics::GetCurrentGraphicsBackend();
+
+  switch(currentBackend)
+  {
+    case Graphics::Backend::GLES:
+      return SYSTEM_CACHE_FILE_GLES;
+    case Graphics::Backend::VULKAN:
+      return SYSTEM_CACHE_FILE_VULKAN;
+    default:
+      return SYSTEM_CACHE_FILE_GLES; // Default fallback
+  }
+}
+
+template<typename KeyType, typename ValueType>
+void AppendCacheFile(const std::string& filePath, const KeyType& key, const ValueType& value)
+{
+  Dali::FileStream configFile(filePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
+  std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
+  if(DALI_LIKELY(stream.is_open()))
+  {
+    stream << key << " " << value << std::endl;
+  }
+  else
+  {
+    DALI_LOG_ERROR("Fail to write key[%s]. file open failed : %s\n", key, filePath.c_str());
+    DALI_PRINT_SYSTEM_ERROR_LOG();
+  }
+}
 
 } // unnamed namespace
 
 ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics::GraphicsInterface* graphics, ThreadController* threadController)
-: mSystemCacheFilePath(systemCachePath + SYSTEM_CACHE_FILE),
+: mSystemCacheFilePath(systemCachePath + GetCurrentSystemCacheFileName()),
   mGraphics(graphics),
   mThreadController(threadController),
   mMaxTextureSize(0u),
@@ -62,13 +121,13 @@ ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics
   mIsAdvancedBlendEquationSupportedCached(false),
   mIsMultisampledRenderToTextureSupportedCached(false),
   mShaderLanguageVersionCached(false),
-  mMaxCombinedTextureUnitsCached(false)
+  mMaxCombinedTextureUnitsCached(false),
+  mEnabled(true)
 {
+  CheckAndHandleBackendSwitch();
+
   // First, read the cached graphics backend from the config file
   RetrieveKeysFromConfigFile(mSystemCacheFilePath);
-
-  // Check for backend switching and handle it during initialization
-  CheckAndHandleBackendSwitch();
 }
 
 ConfigurationManager::~ConfigurationManager()
@@ -79,18 +138,40 @@ void ConfigurationManager::ChangeGraphics(Graphics::GraphicsInterface* graphics)
 {
   mGraphics = graphics;
 
-  // Check for backend switching and handle it during initialization
   CheckAndHandleBackendSwitch();
 }
 
 void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configFilePath)
 {
-  Dali::FileStream configFile(configFilePath, Dali::FileStream::READ | Dali::FileStream::TEXT);
-  std::iostream&   stream = configFile.GetStream();
-  if(stream.rdbuf()->in_avail())
+  if(DALI_UNLIKELY(!mEnabled))
   {
-    std::string line;
-    while(std::getline(stream, line))
+    return;
+  }
+
+  std::vector<std::string> lines;
+
+  // Copy whole string first and close file.
+  {
+    Dali::FileStream configFile(configFilePath, Dali::FileStream::READ | Dali::FileStream::TEXT);
+    std::iostream&   stream = configFile.GetStream();
+    if(DALI_LIKELY(stream.rdbuf()->in_avail()))
+    {
+      std::string line;
+      while(std::getline(stream, line))
+      {
+        lines.emplace_back(line);
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR("Fail to read file : %s\n", configFilePath.c_str());
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
+  }
+
+  try
+  {
+    for(auto& line : lines)
     {
       line.erase(line.find_last_not_of(" \t\r\n") + 1);
       line.erase(0, line.find_first_not_of(" \t\r\n"));
@@ -106,45 +187,48 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
       if(!mMaxTextureSizeCached && name == DALI_ENV_MAX_TEXTURE_SIZE)
       {
         std::getline(subStream, value);
-        mMaxTextureSize       = std::atoi(value.c_str());
+        mMaxTextureSize       = std::stoi(value);
         mMaxTextureSizeCached = true;
       }
       if(!mMaxCombinedTextureUnitsCached && name == DALI_ENV_MAX_COMBINED_TEXTURE_UNITS)
       {
         std::getline(subStream, value);
-        mMaxCombinedTextureUnits       = std::atoi(value.c_str());
+        mMaxCombinedTextureUnits       = std::stoi(value);
         mMaxCombinedTextureUnitsCached = true;
       }
       else if(!mIsAdvancedBlendEquationSupportedCached && name == DALI_BLEND_EQUATION_ADVANCED_SUPPORT)
       {
         std::getline(subStream, value);
-        mIsAdvancedBlendEquationSupported       = std::atoi(value.c_str());
+        mIsAdvancedBlendEquationSupported       = std::stoi(value);
         mIsAdvancedBlendEquationSupportedCached = true;
       }
       else if(!mIsMultisampledRenderToTextureSupportedCached && name == DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT)
       {
         std::getline(subStream, value);
-        mIsMultisampledRenderToTextureSupported       = std::atoi(value.c_str());
+        mIsMultisampledRenderToTextureSupported       = std::stoi(value);
         mIsMultisampledRenderToTextureSupportedCached = true;
       }
       else if(!mShaderLanguageVersionCached && name == DALI_GLSL_VERSION)
       {
         std::getline(subStream, value);
-        mShaderLanguageVersion       = std::atoi(value.c_str());
+        mShaderLanguageVersion       = std::stoi(value);
         mShaderLanguageVersionCached = true;
       }
       else if(!mIsMultipleWindowSupportedCached && name == DALI_ENV_MULTIPLE_WINDOW_SUPPORT)
       {
         std::getline(subStream, value);
-        mIsMultipleWindowSupported       = std::atoi(value.c_str());
+        mIsMultipleWindowSupported       = std::stoi(value);
         mIsMultipleWindowSupportedCached = true;
       }
-      else if(name == DALI_GRAPHICS_BACKEND_TYPE)
-      {
-        std::getline(subStream, value);
-        mCachedGraphicsBackend = value;
-      }
     }
+  }
+  catch(std::invalid_argument const& ex)
+  {
+    DALI_LOG_ERROR("std::invalid_argument! Please check the cache file. [%s]\n", ex.what());
+  }
+  catch(std::out_of_range const& ex)
+  {
+    DALI_LOG_ERROR("std::out_of_range! Please check the cache file. [%s]\n", ex.what());
   }
 }
 
@@ -165,16 +249,11 @@ uint32_t ConfigurationManager::GetMaxTextureSize()
 
       mMaxTextureSize       = mGraphics->GetMaxTextureSize();
       mMaxTextureSizeCached = true;
+      DALI_LOG_RENDER_INFO("MaxTextureSize = %d\n", mMaxTextureSize);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_ENV_MAX_TEXTURE_SIZE << " " << mMaxTextureSize << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_ENV_MAX_TEXTURE_SIZE, mMaxTextureSize);
       }
     }
   }
@@ -201,15 +280,9 @@ uint32_t ConfigurationManager::GetMaxCombinedTextureUnits()
       mMaxCombinedTextureUnitsCached = true;
       DALI_LOG_RENDER_INFO("MaxCombinedTextureUnits = %d\n", mMaxCombinedTextureUnits);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_ENV_MAX_COMBINED_TEXTURE_UNITS << " " << mMaxCombinedTextureUnits << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_ENV_MAX_COMBINED_TEXTURE_UNITS, mMaxCombinedTextureUnits);
       }
     }
   }
@@ -235,16 +308,11 @@ uint32_t ConfigurationManager::GetShadingLanguageVersion()
       // Query from graphics and save the cache
       mShaderLanguageVersion       = mGraphics->GetShaderLanguageVersion();
       mShaderLanguageVersionCached = true;
+      DALI_LOG_RENDER_INFO("ShaderLanguageVersion = %d\n", mShaderLanguageVersion);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_GLSL_VERSION << " " << mShaderLanguageVersion << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_GLSL_VERSION, mShaderLanguageVersion);
       }
     }
   }
@@ -270,16 +338,11 @@ bool ConfigurationManager::IsMultipleWindowSupported()
       // Query from Graphics Subsystem and save the cache
       mIsMultipleWindowSupported       = mGraphics->IsResourceContextSupported();
       mIsMultipleWindowSupportedCached = true;
+      DALI_LOG_RENDER_INFO("IsMultipleWindowSupported = %d\n", mIsMultipleWindowSupported);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_ENV_MULTIPLE_WINDOW_SUPPORT << " " << mIsMultipleWindowSupported << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_ENV_MULTIPLE_WINDOW_SUPPORT, mIsMultipleWindowSupported);
       }
     }
   }
@@ -305,16 +368,11 @@ bool ConfigurationManager::IsAdvancedBlendEquationSupported()
       // Query from Graphics Subsystem and save the cache
       mIsAdvancedBlendEquationSupported       = mGraphics->IsAdvancedBlendEquationSupported();
       mIsAdvancedBlendEquationSupportedCached = true;
+      DALI_LOG_RENDER_INFO("IsAdvancedBlendEquationSupported = %d\n", mIsAdvancedBlendEquationSupported);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_BLEND_EQUATION_ADVANCED_SUPPORT << " " << mIsAdvancedBlendEquationSupported << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_BLEND_EQUATION_ADVANCED_SUPPORT, mIsAdvancedBlendEquationSupported);
       }
     }
   }
@@ -340,36 +398,16 @@ bool ConfigurationManager::IsMultisampledRenderToTextureSupported()
       // Query from Graphics Subsystem and save the cache
       mIsMultisampledRenderToTextureSupported       = mGraphics->IsMultisampledRenderToTextureSupported();
       mIsMultisampledRenderToTextureSupportedCached = true;
+      DALI_LOG_RENDER_INFO("IsMultisampledRenderToTextureSupported = %d\n", mIsMultisampledRenderToTextureSupported);
 
-      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-      if(stream.is_open())
+      if(DALI_LIKELY(mEnabled))
       {
-        stream << DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT << " " << mIsMultisampledRenderToTextureSupported << std::endl;
-      }
-      else
-      {
-        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+        AppendCacheFile(mSystemCacheFilePath, DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT, mIsMultisampledRenderToTextureSupported);
       }
     }
   }
 
   return mIsMultisampledRenderToTextureSupported;
-}
-
-std::string ConfigurationManager::GetCurrentGraphicsBackendString() const
-{
-  Graphics::Backend currentBackend = Graphics::GetCurrentGraphicsBackend();
-
-  switch(currentBackend)
-  {
-    case Graphics::Backend::GLES:
-      return "GLES";
-    case Graphics::Backend::VULKAN:
-      return "VULKAN";
-    default:
-      return "GLES"; // Default fallback
-  }
 }
 
 void ConfigurationManager::CheckAndHandleBackendSwitch()
@@ -379,22 +417,18 @@ void ConfigurationManager::CheckAndHandleBackendSwitch()
   // If we have a cached backend and it's different from current, clear the cache
   if(!mCachedGraphicsBackend.empty() && mCachedGraphicsBackend != currentBackend)
   {
-    DALI_LOG_WARNING("Graphics backend switched from %s to %s, clearing configuration cache\n",
-                     mCachedGraphicsBackend.c_str(),
-                     currentBackend.c_str());
+    DALI_LOG_RELEASE_INFO("Graphics backend switched from %s to %s, invalidate current configuration cache\n",
+                          mCachedGraphicsBackend.c_str(),
+                          currentBackend.c_str());
     ClearConfigurationCache();
 
-    // Save the new graphics backend type to the configuration file
-    SaveCurrentGraphicsBackend();
-  }
-  else if(mCachedGraphicsBackend.empty())
-  {
-    // If no cached backend exists (first run), save the current backend type
-    SaveCurrentGraphicsBackend();
+    // Let we don't use configure file if graphics backend changed during runtime.
+    mEnabled = false;
   }
 
   // Update the cached backend type
   mCachedGraphicsBackend = currentBackend;
+  DALI_LOG_RENDER_INFO("GraphicsBackend = %s\n", mCachedGraphicsBackend.c_str());
 }
 
 void ConfigurationManager::ClearConfigurationCache()
@@ -414,28 +448,6 @@ void ConfigurationManager::ClearConfigurationCache()
   mIsMultipleWindowSupported              = true;
   mIsAdvancedBlendEquationSupported       = true;
   mIsMultisampledRenderToTextureSupported = true;
-
-  // Delete the cache file
-  if(std::remove(mSystemCacheFilePath.c_str()) != 0)
-  {
-    DALI_LOG_WARNING("Failed to remove cache file: %s\n", mSystemCacheFilePath.c_str());
-  }
-}
-
-void ConfigurationManager::SaveCurrentGraphicsBackend()
-{
-  std::string currentBackend = GetCurrentGraphicsBackendString();
-
-  Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
-  std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
-  if(stream.is_open())
-  {
-    stream << DALI_GRAPHICS_BACKEND_TYPE << " " << currentBackend << std::endl;
-  }
-  else
-  {
-    DALI_LOG_ERROR("Fail to open file for saving graphics backend: %s\n", mSystemCacheFilePath.c_str());
-  }
 }
 
 } // namespace Adaptor

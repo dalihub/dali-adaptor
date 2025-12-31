@@ -456,6 +456,11 @@ ELSEIF( UNIX )
   INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
 ENDIF()
 
+# Reset folder for system cache
+SET( daliSystemCachedDir ${cachePath}/.cache/dali_common_caches/ )
+file(REMOVE_RECURSE ${daliSystemCachedDir})
+INSTALL( DIRECTORY DESTINATION ${daliSystemCachedDir} )
+
 # Reset folder for shader
 SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
 file(REMOVE_RECURSE ${daliShaderCachedDir})

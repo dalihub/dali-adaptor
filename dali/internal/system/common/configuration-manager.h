@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,12 +118,6 @@ public:
 
 private:
   /**
-   * @brief Get the current graphics backend type as a string
-   * @return The graphics backend type as string ("GLES" or "VULKAN")
-   */
-  std::string GetCurrentGraphicsBackendString() const;
-
-  /**
    * @brief Check if graphics backend has switched and clear cache if needed
    */
   void CheckAndHandleBackendSwitch();
@@ -133,28 +127,28 @@ private:
    */
   void ClearConfigurationCache();
 
-  /**
-   * @brief Save the current graphics backend type to configuration file
-   */
-  void SaveCurrentGraphicsBackend();
+private:                                                   // Data
+  std::string                        mSystemCacheFilePath; ///< The path of system cache file
+  Dali::Graphics::GraphicsInterface* mGraphics;            ///< Graphics interface
+  ThreadController*                  mThreadController;    ///< The thread controller
 
-private:                                                                                // Data
-  std::string                        mSystemCacheFilePath;                              ///< The path of system cache file
-  Dali::Graphics::GraphicsInterface* mGraphics;                                         ///< Graphics interface
-  ThreadController*                  mThreadController;                                 ///< The thread controller
-  unsigned int                       mMaxTextureSize;                                   ///< The largest texture that the GL can handle
-  unsigned int                       mMaxCombinedTextureUnits;                          ///< The maximum number of combined texture units
-  unsigned int                       mShaderLanguageVersion;                            ///< The shader language version that the system supports.
-  bool                               mIsMultipleWindowSupported : 1;                    ///< Whether multiple window is supported by the GLES
-  bool                               mIsAdvancedBlendEquationSupported : 1;             ///< Whether blend equation advanced (extension) is supported by the GLES
-  bool                               mIsMultisampledRenderToTextureSupported : 1;       ///< Whether multisampled render to texture (extension) is supported by the GLES
-  bool                               mMaxTextureSizeCached : 1;                         ///< Whether we have checked the maximum texture size
-  bool                               mIsMultipleWindowSupportedCached : 1;              ///< Whether we have checked the support of multiple window
-  bool                               mIsAdvancedBlendEquationSupportedCached : 1;       ///< Whether we have checked the support of blend equation advanced (extension)
-  bool                               mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
-  bool                               mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
-  bool                               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
-  std::string                        mCachedGraphicsBackend;                            ///< The graphics backend type that was cached ("GLES" or "VULKAN")
+  std::string mCachedGraphicsBackend; ///< The graphics backend type that was cached ("GLES" or "VULKAN")
+
+  unsigned int mMaxTextureSize;                             ///< The largest texture that the GL can handle
+  unsigned int mMaxCombinedTextureUnits;                    ///< The maximum number of combined texture units
+  unsigned int mShaderLanguageVersion;                      ///< The shader language version that the system supports.
+  bool         mIsMultipleWindowSupported : 1;              ///< Whether multiple window is supported by the GLES
+  bool         mIsAdvancedBlendEquationSupported : 1;       ///< Whether blend equation advanced (extension) is supported by the GLES
+  bool         mIsMultisampledRenderToTextureSupported : 1; ///< Whether multisampled render to texture (extension) is supported by the GLES
+
+  bool mMaxTextureSizeCached : 1;                         ///< Whether we have checked the maximum texture size
+  bool mIsMultipleWindowSupportedCached : 1;              ///< Whether we have checked the support of multiple window
+  bool mIsAdvancedBlendEquationSupportedCached : 1;       ///< Whether we have checked the support of blend equation advanced (extension)
+  bool mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
+  bool mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
+  bool mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
+
+  bool mEnabled : 1; ///< Whether we could read/write configure to file, or not. For example, Do not use cache file if graphics backend changed during runtime.
 };
 
 } // namespace Internal::Adaptor
