@@ -238,6 +238,14 @@ private:
   bool CreateSyncObject();
 
   /**
+   * @brief Waits for the synchronization object to be signaled.
+   *
+   * This method blocks until the sync object is signaled, indicating that
+   * GPU operations have completed.
+   */
+  void WaitSync(tbm_surface_h surface);
+
+  /**
    * @brief Resets sync objects.
    */
   void ResetSyncObjects();
