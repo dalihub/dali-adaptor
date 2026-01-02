@@ -291,16 +291,16 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
 
   {
     Dali::Mutex::ScopedLock lock(mMutex);
-    if(mTbmQueue == NULL)
+    if(mTbmQueue == nullptr)
     {
       DALI_LOG_ERROR("TbmQueue is NULL");
-      return NULL;
+      return nullptr;
     }
 
     if(tbm_surface_queue_dequeue(mTbmQueue, &tbmSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
     {
       DALI_LOG_ERROR("Failed to dequeue a tbm_surface [%p]\n", tbmSurface);
-      return NULL;
+      return nullptr;
     }
 
     tbm_surface_internal_ref(tbmSurface);
@@ -366,7 +366,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     {
       DALI_LOG_ERROR("tbm_surface_map is failed! [%d] [%p]\n", ret, tbmSurface);
       tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
-      return NULL;
+      return nullptr;
     }
 
     buffer = info.planes[0].ptr;
@@ -375,7 +375,15 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
       DALI_LOG_ERROR("tbm buffer pointer is null! [%p]\n", tbmSurface);
       tbm_surface_unmap(tbmSurface);
       tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
-      return NULL;
+      return nullptr;
+    }
+
+    if(DALI_UNLIKELY(info.width != mWidth || info.height != mHeight))
+    {
+      DALI_LOG_ERROR("tbm queue changed during dequeue! [%ux%u -> %ux%u] ignore buffer [%p]\n", info.width, info.height, mWidth, mHeight, tbmSurface);
+      tbm_surface_unmap(tbmSurface);
+      tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+      return nullptr;
     }
 
     stride = info.planes[0].stride;
