@@ -75,6 +75,14 @@ ConfigurationManager::~ConfigurationManager()
 {
 }
 
+void ConfigurationManager::ChangeGraphics(Graphics::GraphicsInterface* graphics)
+{
+  mGraphics = graphics;
+
+  // Check for backend switching and handle it during initialization
+  CheckAndHandleBackendSwitch();
+}
+
 void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configFilePath)
 {
   Dali::FileStream configFile(configFilePath, Dali::FileStream::READ | Dali::FileStream::TEXT);

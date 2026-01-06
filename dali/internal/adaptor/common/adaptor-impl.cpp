@@ -935,6 +935,11 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         mGraphicsLibraryHandle->SetGraphicsInterface(std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create()));
 
         AdaptorBuilder::Finalize();
+
+        if(DALI_LIKELY(mConfigurationManager))
+        {
+          mConfigurationManager->ChangeGraphics(&(mGraphicsLibraryHandle->GetGraphicsInterface()));
+        }
       }
 
       // Update core relative variables.

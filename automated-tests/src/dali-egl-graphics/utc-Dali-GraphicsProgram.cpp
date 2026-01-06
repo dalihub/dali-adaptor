@@ -84,7 +84,7 @@ Actor CreateRenderablegActorWithShaderFileCaching(Texture texture, const std::st
   Geometry geometry = CreateQuadGeometry();
 
   // Create Shader
-  Shader shader = Shader::New(vertexShader, fragmentShader, Shader::Hint::FILE_CACHE_SUPPORT);
+  Shader shader = Shader::New(vertexShader, fragmentShader, Shader::Hint::FILE_CACHE_SUPPORT, "TEST_SHADER_FOR_UTC");
 
   // Create renderer from geometry and material
   Renderer renderer = Renderer::New(geometry, shader);

@@ -63,9 +63,12 @@ bool operator==(const StringSize& lhs, const char* rhs)
 const char* const    DELIMITERS           = " \t\n";
 const char* const    DELIMITERS_INC_INDEX = " \t\n[]";
 constexpr StringSize UNIFORM{"uniform"};
+constexpr StringSize UNIFORM_UPPERCASE{"UNIFORM"};
 constexpr StringSize SAMPLER_PREFIX{"sampler"};
 constexpr StringSize SAMPLER_TYPES[]   = {"2D", "Cube", "ExternalOES"};
 constexpr auto       END_SAMPLER_TYPES = SAMPLER_TYPES + std::extent<decltype(SAMPLER_TYPES)>::value;
+
+constexpr uint32_t SHADER_VERSION_NOT_DEFINED = 0u;
 
 Dali::Graphics::VertexInputAttributeFormat GetVertexAttributeTypeFormat(GLenum type)
 {
@@ -118,42 +121,25 @@ bool IsSampler(GLenum type)
   return type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_EXTERNAL_OES;
 }
 
-std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
-{
-  std::vector<uint8_t> data;
-  auto*                shader           = static_cast<const Dali::Graphics::GLES::Shader*>(shaderState.shader);
-  auto&                shaderCreateInfo = shader->GetCreateInfo();
-
-  auto shaderImpl = shader->GetImplementation();
-  if(shaderImpl->HasPreprocessedCode())
-  {
-    return std::string{shaderImpl->GetPreprocessedCode()};
-  }
-
-  data.resize(shaderCreateInfo.sourceSize + 1);
-  std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
-  data[shaderCreateInfo.sourceSize] = 0;
-
-  return {reinterpret_cast<char*>(&data[0]), shaderCreateInfo.sourceSize};
-}
-
-void ParseShaderSamplers(const std::string& shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
+template<bool upperCaseUniform>
+void ParseShaderSamplers(const std::string_view& shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
 {
   if(!shaderSource.empty())
   {
-    char* shaderStr = strdup(shaderSource.c_str());
+    char* shaderStr = strndup(shaderSource.data(), shaderSource.size());
     if(shaderStr == nullptr)
     {
       DALI_LOG_ERROR("Failed to allocate memory for shader string duplicate\n");
       return;
     }
 
-    char* uniform = strstr(shaderStr, UNIFORM);
+    constexpr StringSize uniformDelimiter = (upperCaseUniform ? UNIFORM_UPPERCASE : UNIFORM);
+    char*                uniform          = strstr(shaderStr, uniformDelimiter);
 
     while(uniform)
     {
       // From "uniform" to ";", not ignoring comments.
-      char* outerToken = strtok_r(uniform + UNIFORM.mLength, ";", &uniform);
+      char* outerToken = strtok_r(uniform + uniformDelimiter.mLength, ";", &uniform);
 
       char* nextPtr = nullptr;
       char* token   = strtok_r(outerToken, DELIMITERS, &nextPtr);
@@ -211,7 +197,7 @@ void ParseShaderSamplers(const std::string& shaderSource, std::vector<Dali::Grap
         token = strtok_r(nullptr, DELIMITERS, &nextPtr);
       }
 
-      uniform = strstr(uniform, UNIFORM);
+      uniform = strstr(uniform, uniformDelimiter);
     }
     free(shaderStr);
   }
@@ -686,26 +672,50 @@ void Reflection::SortOpaques()
   auto& programCreateInfo = mProgram.GetCreateInfo();
 
   std::vector<uint8_t> data;
-  std::string          vertShader;
-  std::string          fragShader;
+
+  std::string_view vertShader;
+  std::string_view fragShader;
+  bool             vertShaderUpperCase = false;
+  bool             fragShaderUpperCase = false;
 
   for(auto& shaderState : *programCreateInfo.shaderState)
   {
+    auto* shader             = static_cast<const Dali::Graphics::GLES::Shader*>(shaderState.shader);
+    auto& shaderCreateInfo   = shader->GetCreateInfo();
+    bool  preprocessRequired = shaderCreateInfo.shaderVersion != SHADER_VERSION_NOT_DEFINED && !shader->GetImplementation()->HasPreprocessedCode();
+
     if(shaderState.pipelineStage == PipelineStage::VERTEX_SHADER)
     {
-      vertShader = GetShaderSource(shaderState);
+      vertShader          = shader->GetSourceStringView();
+      vertShaderUpperCase = preprocessRequired;
     }
     else if(shaderState.pipelineStage == PipelineStage::FRAGMENT_SHADER)
     {
-      fragShader = GetShaderSource(shaderState);
+      fragShader          = shader->GetSourceStringView();
+      fragShaderUpperCase = preprocessRequired;
     }
   }
 
   int              samplerPosition = 0;
   std::vector<int> samplerPositions(mUniformOpaques.size(), -1);
 
-  ParseShaderSamplers(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
-  ParseShaderSamplers(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
+  if(vertShaderUpperCase)
+  {
+    ParseShaderSamplers<true>(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
+  }
+  else
+  {
+    ParseShaderSamplers<false>(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
+  }
+
+  if(fragShaderUpperCase)
+  {
+    ParseShaderSamplers<true>(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
+  }
+  else
+  {
+    ParseShaderSamplers<false>(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
+  }
 
   std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b)
   { return a.offset < b.offset; });

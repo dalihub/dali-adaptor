@@ -892,7 +892,7 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       output[1] = std::move(program.fragmentShader.output);
     }
   }
-
+  DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: legacy version: vsh: %u fsh: %u\n\n", parseInfo.vertexShaderLegacyVersion, parseInfo.fragmentShaderLegacyVersion);
   DALI_LOG_INFO(gLogFilter, Debug::General, "ShaderParserInfo: language: %s\n", parseInfo.language == OutputLanguage::GLSL_100_ES ? "GLSL_100_ES" : parseInfo.language == OutputLanguage::GLSL_3      ? "GLSL_3/300ES"
                                                                                                                                                   : parseInfo.language == OutputLanguage::GLSL_310_ES ? "GLSL_310_ES"
                                                                                                                                                   : parseInfo.language == OutputLanguage::GLSL_320_ES ? "GLSL_320_ES"
