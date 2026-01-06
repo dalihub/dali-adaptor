@@ -2,7 +2,7 @@
 #define DALI_TOOLKIT_TEXT_ABSTRACTION_DEFINED_CHARACTERS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,10 +59,18 @@ constexpr unsigned int CHAR_BLACK_SAFETY_SCISSORS   = 0x2700; ///< Black Safety 
 constexpr unsigned int CHAR_DOUBLE_CURLY_LOOP_EMOJI = 0x27BF; ///< Double Curly Loop Emoji . https://unicode-table.com/en/27BF/
 
 //Basic Latin. Range: 0000—007F
-constexpr unsigned int CHAR_NUMBER_SIGN   = 0x0023; ///< # Number Sign . https://unicode-table.com/en/0023/
-constexpr unsigned int CHAR_ASTERISK      = 0x002A; ///< * Asterisk. https://unicode-table.com/en/002A/
-constexpr unsigned int CHAR_ASCII_DIGIT_0 = 0x0030; ///< 0 Digit Zero. https://unicode-table.com/en/0030/
-constexpr unsigned int CHAR_ASCII_DIGIT_9 = 0x0039; ///< 9 Digit Nine. https://unicode-table.com/en/0039/
+constexpr unsigned int CHAR_NUMBER_SIGN               = 0x0023; ///< # Number Sign. https://unicode-table.com/en/0023/
+constexpr unsigned int CHAR_ASTERISK                  = 0x002A; ///< * Asterisk. https://unicode-table.com/en/002A/
+constexpr unsigned int CHAR_ASCII_DIGIT_0             = 0x0030; ///< 0 Digit Zero. https://unicode-table.com/en/0030/
+constexpr unsigned int CHAR_ASCII_DIGIT_9             = 0x0039; ///< 9 Digit Nine. https://unicode-table.com/en/0039/
+constexpr unsigned int CHAR_ASCII_SPACE               = 0x0020; ///< Space. https://unicode-table.com/en/0020/
+constexpr unsigned int CHAR_ASCII_SOLIDUS             = 0x002F; ///< / Solidus. https://unicode-table.com/en/002F/
+constexpr unsigned int CHAR_ASCII_COLON               = 0x003A; ///< : Colon. https://unicode-table.com/en/003A/
+constexpr unsigned int CHAR_ASCII_COMMERCIAL_AT       = 0x0040; ///< @ Commercial At. https://unicode-table.com/en/0040/
+constexpr unsigned int CHAR_ASCII_LEFT_SQUARE_BRACKET = 0x005B; ///< [ Left Square Bracket. https://unicode-table.com/en/005B/
+constexpr unsigned int CHAR_ASCII_GRAVE_ACCENT        = 0x0060; ///< ` Grave Accent. https://unicode-table.com/en/0060/
+constexpr unsigned int CHAR_ASCII_LEFT_CURLY_BRACKET  = 0x007B; ///< { Left Curly Bracket. https://unicode-table.com/en/007B/
+constexpr unsigned int CHAR_ASCII_TILDE               = 0x007E; ///< ~ Tilde. https://unicode-table.com/en/007E/
 
 // General unicodes
 constexpr unsigned int CHAR_ZWS = 0x200B; ///< Zero width space.
