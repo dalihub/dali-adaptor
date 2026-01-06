@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
 : mEglSync(NULL),
   mEglImplementation(eglImpl)
 {
@@ -165,6 +165,15 @@ int32_t EglSyncObject::DuplicateNativeFenceFD()
   return -1;
 }
 
+bool EglSyncObject::Poll()
+{
+  return false;
+}
+
+void EglSyncObject::DestroySyncObject()
+{
+}
+
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(NULL),
   mSyncInitialized(false),
@@ -174,6 +183,11 @@ EglSyncImplementation::EglSyncImplementation()
 
 EglSyncImplementation::~EglSyncImplementation()
 {
+  for(auto& syncObject : mSyncObjects)
+  {
+    delete static_cast<EglSyncObject*>(syncObject);
+  }
+  mSyncObjects.Clear();
 }
 
 void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
@@ -181,24 +195,31 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
 {
-  return CreateSyncObject(EglSyncObject::SyncType::FENCE_SYNC);
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
+  mSyncObjects.PushBack(syncObject);
+  return syncObject;
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
+void EglSyncImplementation::InitializeEglSync()
 {
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  return new EglSyncObject(*mEglImplementation, type);
 }
 
-void EglSyncImplementation::InitializeEglSync()
+bool NativeFence::PollFD(int32_t fenceFd)
+{
+  return false;
+}
+
+void NativeFence::CloseFD(int32_t fenceFd)
 {
 }
 

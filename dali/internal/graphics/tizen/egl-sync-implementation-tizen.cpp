@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <fcntl.h>
+#include <sys/poll.h>
 #include <unistd.h>
 
 #endif
@@ -66,8 +67,8 @@ namespace Adaptor
 {
 #if defined(_ARCH_ARM_) || defined(__aarch64__)
 
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
-: mEglSync(NULL),
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
+: mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
   EGLDisplay display  = mEglImplementation.GetDisplay();
@@ -92,22 +93,7 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType
 
 EglSyncObject::~EglSyncObject()
 {
-  if(mEglSync != NULL && mEglImplementation.IsGlesInitialized())
-  {
-    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-    eglDestroySyncKHR(mEglImplementation.GetDisplay(), mEglSync);
-    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDestroySyncKHR");
-
-    EGLint error = eglGetError();
-    if(EGL_SUCCESS != error)
-    {
-      DALI_LOG_ERROR("eglDestroySyncKHR failed %#0.4x\n", error);
-    }
-    else
-    {
-      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglDestroySyncKHR Success: %p\n", mEglSync);
-    }
-  }
+  DestroySyncObject();
 }
 
 bool EglSyncObject::IsSynced()
@@ -235,6 +221,27 @@ int32_t EglSyncObject::DuplicateNativeFenceFD()
   return -1;
 }
 
+void EglSyncObject::DestroySyncObject()
+{
+  if(mEglSync != nullptr && mEglImplementation.IsGlesInitialized())
+  {
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+    eglDestroySyncKHR(mEglImplementation.GetDisplay(), mEglSync);
+    DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglDestroySyncKHR");
+
+    EGLint error = eglGetError();
+    if(EGL_SUCCESS != error)
+    {
+      DALI_LOG_ERROR("eglDestroySyncKHR failed %#0.4x\n", error);
+    }
+    else
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglDestroySyncKHR Success: %p\n", mEglSync);
+    }
+    mEglSync = nullptr;
+  }
+}
+
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(NULL),
   mSyncInitialized(false),
@@ -256,9 +263,17 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
 {
-  return CreateSyncObject(EglSyncObject::SyncType::FENCE_SYNC);
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  if(mSyncInitialized == false)
+  {
+    InitializeEglSync();
+  }
+
+  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
+  mSyncObjects.PushBack(syncObject);
+  return syncObject;
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
@@ -272,19 +287,6 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
 
   mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
-}
-
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
-{
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  if(mSyncInitialized == false)
-  {
-    InitializeEglSync();
-  }
-
-  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
-  mSyncObjects.PushBack(syncObject);
-  return syncObject;
 }
 
 void EglSyncImplementation::InitializeEglSync()
@@ -314,9 +316,52 @@ void EglSyncImplementation::InitializeEglSync()
   }
 }
 
+bool NativeFence::PollFD(int32_t fenceFd)
+{
+  if(fenceFd != -1)
+  {
+    struct pollfd fds;
+    fds.fd      = fenceFd;
+    fds.events  = POLLIN;
+    fds.revents = 0;
+
+    DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "Wait [%d]\n", fenceFd);
+
+    DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+
+    int ret = poll(&fds, 1, 5000); // timeout 5sec
+
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
+    {
+      oss << "Wait sync: poll(" << fenceFd << ")";
+    });
+
+    // Close fd immediately
+    close(fenceFd);
+
+    if(ret <= 0 || (fds.revents & (POLLERR | POLLNVAL)))
+    {
+      DALI_LOG_ERROR("poll failed or timeout [%d] [%d, %d]\n", fenceFd, ret, fds.revents);
+      return false;
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+void NativeFence::CloseFD(int32_t fenceFd)
+{
+  if(fenceFd != -1)
+  {
+    close(fenceFd);
+  }
+}
+
 #else
 
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
 : mEglSync(NULL),
   mEglImplementation(eglImpl)
 {
@@ -339,9 +384,13 @@ void EglSyncObject::ClientWait()
 {
 }
 
-EGLint EglSyncObject::DuplicateNativeFenceFD()
+int32_t EglSyncObject::DuplicateNativeFenceFD()
 {
   return -1;
+}
+
+void EglSyncObject::DestroySyncObject()
+{
 }
 
 EglSyncImplementation::EglSyncImplementation()
@@ -360,9 +409,12 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
 {
-  return CreateSyncObject(EglSyncObject::SyncType::FENCE_SYNC);
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
+  mSyncObjects.PushBack(syncObject);
+  return syncObject;
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
@@ -371,13 +423,16 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
+void EglSyncImplementation::InitializeEglSync()
 {
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  return new EglSyncObject(*mEglImplementation, type);
 }
 
-void EglSyncImplementation::InitializeEglSync()
+bool NativeFence::PollFD(int32_t fenceFd)
+{
+  return false;
+}
+
+void NativeFence::CloseFD(int32_t fenceFd)
 {
 }
 
