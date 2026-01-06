@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 
 // CLASS HEADER
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 
 using namespace Dali::Accessibility;
@@ -81,5 +82,13 @@ DBus::ValueOrError<bool> BridgeAction::DoActionName(std::string name)
       return self->DoAction(i);
     }
   }
-  throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have action '" + name + "'"};
+  auto* accessible = dynamic_cast<Dali::Accessibility::Accessible*>(self);
+  if(accessible)
+  {
+    throw std::domain_error{"object " + accessible->GetAddress().ToString() + " doesn't have action '" + name + "'"};
+  }
+  else
+  {
+    throw std::domain_error{"object is not accessible '" + name + "'"};
+  }
 }

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_EDITABLE_TEXT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 
 namespace Dali::Accessibility
@@ -33,7 +33,7 @@ namespace Dali::Accessibility
  *
  * @see Dali::Accessibility::EditableText
  */
-class DALI_ADAPTOR_API EditableText : public virtual Accessible, public virtual Text
+class DALI_ADAPTOR_API EditableText : public Text
 {
 public:
   /**
@@ -44,7 +44,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CopyText(std::size_t startPosition, std::size_t endPosition) = 0;
+  virtual bool CopyText(std::size_t startPosition, std::size_t endPosition);
 
   /**
    * @brief Cuts text in range to system clipboard.
@@ -54,7 +54,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CutText(std::size_t startPosition, std::size_t endPosition) = 0;
+  virtual bool CutText(std::size_t startPosition, std::size_t endPosition);
 
   /**
    * @brief Deletes text in range.
@@ -64,7 +64,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DeleteText(std::size_t startPosition, std::size_t endPosition) = 0;
+  virtual bool DeleteText(std::size_t startPosition, std::size_t endPosition);
 
   /**
    * @brief Inserts text at startPosition.
@@ -74,7 +74,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool InsertText(std::size_t startPosition, std::string text) = 0;
+  virtual bool InsertText(std::size_t startPosition, std::string text);
 
   /**
    * @brief Replaces text with content.
@@ -83,17 +83,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool SetTextContents(std::string newContents) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to an EditableText.
-   *
-   * @param obj The Accessible
-   * @return An EditableText or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline EditableText* DownCast(Accessible* obj);
+  virtual bool SetTextContents(std::string newContents);
 };
 
 namespace Internal
@@ -104,11 +94,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::EDITABLE_TEXT>
   using Type = EditableText;
 };
 } // namespace Internal
-
-inline EditableText* EditableText::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::EDITABLE_TEXT>(obj);
-}
 
 } // namespace Dali::Accessibility
 

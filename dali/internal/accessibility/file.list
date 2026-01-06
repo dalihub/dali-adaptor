@@ -60,6 +60,7 @@ SET( adaptor_accessibility_windows_src_files
 )
 
 SET( adaptor_accessibility_atspi_bridge_src_files
+    ${adaptor_accessibility_dir}/bridge/dummy/accessible-dummy.cpp
     ${adaptor_accessibility_dir}/bridge/accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-action.cpp
@@ -79,11 +80,11 @@ SET( adaptor_accessibility_atspi_bridge_src_files
     ${adaptor_accessibility_dir}/bridge/bridge-text.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-value.cpp
     ${adaptor_accessibility_dir}/bridge/collection.cpp
-    ${adaptor_accessibility_dir}/bridge/component.cpp
     ${adaptor_accessibility_dir}/bridge/dbus/dbus-tizen.cpp
 )
 
 SET( adaptor_accessibility_atspi_dummy_src_files
+    ${adaptor_accessibility_dir}/bridge/dummy/accessible-dummy.cpp
     ${adaptor_accessibility_dir}/bridge/dummy/dummy-atspi.cpp
 )
 

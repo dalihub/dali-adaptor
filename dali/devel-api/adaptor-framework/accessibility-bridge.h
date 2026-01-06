@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACCESSIBILITY_BRIDGE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -287,7 +287,7 @@ struct DALI_ADAPTOR_API Bridge
     {
       return ForceUpResult::ALREADY_UP;
     }
-    mData          = std::make_shared<Data>();
+    mData = std::make_shared<Data>();
     return ForceUpResult::JUST_STARTED;
   }
 
@@ -387,7 +387,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] rect The rectangle for changed bounds
    **/
-  virtual void EmitBoundsChanged(std::shared_ptr<Accessible> obj, Rect<> rect) = 0;
+  virtual void EmitBoundsChanged(std::shared_ptr<Accessible> obj, Rect<int> rect) = 0;
 
   /**
    * @brief Emits org.a11y.atspi.Event.Window.PostRender on the AT-SPI bus.

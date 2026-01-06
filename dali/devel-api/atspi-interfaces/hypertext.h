@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_HYPERTEXT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
 
 namespace Dali::Accessibility
@@ -29,7 +29,7 @@ namespace Dali::Accessibility
 /**
  * @brief Interface representing hypertext that can store a collection of hyperlinks.
  */
-class DALI_ADAPTOR_API Hypertext : public virtual Accessible
+class DALI_ADAPTOR_API Hypertext
 {
 public:
   /**
@@ -39,7 +39,7 @@ public:
    *
    * @return Handle to hyperlink object at a specified index in hyperlink collection of hypertext.
    */
-  virtual Hyperlink* GetLink(std::int32_t linkIndex) const = 0;
+  virtual Hyperlink* GetLink(std::int32_t linkIndex) const;
 
   /**
    * @brief Gets the index in hyperlink collection occupied by hyperlink which spans over a specified character offset in this hypertext.
@@ -48,24 +48,14 @@ public:
    *
    * @return The value of 0-based index in hyperlink collection (-1 if there is no hyperlink at the specified character offset).
    */
-  virtual std::int32_t GetLinkIndex(std::int32_t characterOffset) const = 0;
+  virtual std::int32_t GetLinkIndex(std::int32_t characterOffset) const;
 
   /**
    * @brief Gets number of hyperlinks stored in this hypertext.
    *
    * @return The number of hyperlinks (zero if none or -1 if the number cannot be determined)
    */
-  virtual std::int32_t GetLinkCount() const = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Hypertext.
-   *
-   * @param obj The Accessible
-   * @return A Hypertext or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Hypertext* DownCast(Accessible* obj);
+  virtual std::int32_t GetLinkCount() const;
 };
 
 namespace Internal
@@ -76,11 +66,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::HYPERTEXT>
   using Type = Hypertext;
 };
 } // namespace Internal
-
-inline Hypertext* Hypertext::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::HYPERTEXT>(obj);
-}
 
 } // namespace Dali::Accessibility
 

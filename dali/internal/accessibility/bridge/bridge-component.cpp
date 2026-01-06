@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 #include <dali/internal/accessibility/bridge/bridge-component.h>
 
 #define DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
+
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 using namespace Dali::Accessibility;
 
@@ -47,9 +49,9 @@ void BridgeComponent::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Component* BridgeComponent::FindSelf() const
+Accessible* BridgeComponent::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::COMPONENT>();
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::ACCESSIBLE>();
 }
 
 DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType)

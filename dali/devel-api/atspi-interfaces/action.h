@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,14 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface enabling to perform provided actions.
  */
-class DALI_ADAPTOR_API Action : public virtual Accessible
+class DALI_ADAPTOR_API Action
 {
 public:
   /**
@@ -38,7 +38,7 @@ public:
    *
    * @return The string with name of action
    */
-  virtual std::string GetActionName(std::size_t index) const = 0;
+  virtual std::string GetActionName(std::size_t index) const;
 
   /**
    * @brief Gets translated name of action with given index.
@@ -49,7 +49,7 @@ public:
    *
    * @note The translation is not supported in this version
    */
-  virtual std::string GetLocalizedActionName(std::size_t index) const = 0;
+  virtual std::string GetLocalizedActionName(std::size_t index) const;
 
   /**
    * @brief Gets description of action with given index.
@@ -58,7 +58,7 @@ public:
    *
    * @return The string with description of action
    */
-  virtual std::string GetActionDescription(std::size_t index) const = 0;
+  virtual std::string GetActionDescription(std::size_t index) const;
 
   /**
    * @brief Gets key code binded to action with given index.
@@ -67,14 +67,14 @@ public:
    *
    * @return The string with key name
    */
-  virtual std::string GetActionKeyBinding(std::size_t index) const = 0;
+  virtual std::string GetActionKeyBinding(std::size_t index) const;
 
   /**
    * @brief Gets number of provided actions.
    *
    * @return The number of actions
    */
-  virtual std::size_t GetActionCount() const = 0;
+  virtual std::size_t GetActionCount() const;
 
   /**
    * @brief Performs an action with given index.
@@ -83,7 +83,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction(std::size_t index) = 0;
+  virtual bool DoAction(std::size_t index);
 
   /**
    * @brief Performs an action with given name.
@@ -92,17 +92,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction(const std::string& name) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to an Action.
-   *
-   * @param obj The Accessible
-   * @return An Action or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Action* DownCast(Accessible* obj);
+  virtual bool DoAction(const std::string& name);
 };
 
 namespace Internal
@@ -113,11 +103,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::ACTION>
   using Type = Action;
 };
 } // namespace Internal
-
-inline Action* Action::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::ACTION>(obj);
-}
 
 } // namespace Dali::Accessibility
 

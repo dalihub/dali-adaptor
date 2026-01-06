@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_APPLICATION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -32,7 +32,7 @@ namespace Dali::Accessibility
  * @note Provides global properties describing
  * application's runtime environment.
  */
-class DALI_ADAPTOR_API Application : public virtual Accessible
+class DALI_ADAPTOR_API Application
 {
 public:
   /**
@@ -40,38 +40,28 @@ public:
    *
    * @return String with name
    */
-  virtual std::string GetToolkitName() const = 0;
+  virtual std::string GetToolkitName() const;
 
   /**
    * @brief Gets version of graphic user interface framework used by an application.
    *
    * @return String with version
    */
-  virtual std::string GetVersion() const = 0;
+  virtual std::string GetVersion() const;
 
   /**
    * @brief Gets include_hidden flag currently set on the application.
    *
    * @return true is include_hidden is set; false otherwise.
    */
-  virtual bool GetIncludeHidden() const = 0;
+  virtual bool GetIncludeHidden() const;
 
   /**
    * @brief Sets include_hidden flag to the application.
    *
    * @return true is include_hidden flag is updated; false otherwise.
    */
-  virtual bool SetIncludeHidden(bool includeHidden) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to an Application.
-   *
-   * @param obj The Accessible
-   * @return An Application or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Application* DownCast(Accessible* obj);
+  virtual bool SetIncludeHidden(bool includeHidden);
 };
 
 namespace Internal
@@ -82,11 +72,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::APPLICATION>
   using Type = Application;
 };
 } // namespace Internal
-
-inline Application* Application::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::APPLICATION>(obj);
-}
 
 } // namespace Dali::Accessibility
 

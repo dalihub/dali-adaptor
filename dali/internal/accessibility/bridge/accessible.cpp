@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
-using namespace Dali::Accessibility;
+namespace Dali::Accessibility
+{
 
 namespace
 {
@@ -116,10 +116,9 @@ const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string
 const auto GetScreenCoordString = [](Accessible* node) -> std::string
 {
   std::ostringstream msg;
-  auto*              component = Component::DownCast(node);
-  if(component)
+  if(node)
   {
-    auto rect = component->GetExtents(CoordinateType::SCREEN);
+    auto rect = node->GetExtents(CoordinateType::SCREEN);
     msg << Quote("x") << ": " << rect.x << ", "
         << Quote("y") << ": " << rect.y << ", "
         << Quote("w") << ": " << rect.width << ", "
@@ -150,7 +149,7 @@ const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
 const auto GetValueString = [](Accessible* node) -> std::string
 {
   std::ostringstream msg;
-  auto*              valueInterface = Value::DownCast(node);
+  auto*              valueInterface = Accessible::DownCast<AtspiInterface::VALUE>(node);
   if(valueInterface)
   {
     msg << Quote(KEY_VALUE) << ": { "
@@ -262,6 +261,11 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
 
 } // anonymous namespace
 
+std::vector<Accessible*> Accessible::GetChildren()
+{
+  return {};
+}
+
 bool Accessible::IsHidden() const
 {
   return false;
@@ -280,3 +284,35 @@ std::string Accessible::DumpTree(DumpDetailLevel detailLevel)
 {
   return DumpJson(this, detailLevel, true);
 }
+
+bool Accessible::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type) const
+{
+  auto extents = GetExtents(type);
+  return point.x >= extents.x && point.y >= extents.y && point.x <= extents.x + extents.width && point.y <= extents.y + extents.height;
+}
+
+Accessible* Accessible::GetAccessibleAtPoint(Point point, Dali::Accessibility::CoordinateType type)
+{
+  auto children = GetChildren();
+  for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
+  {
+    auto accessible = *childIt;
+    if(accessible && accessible->IsAccessibleContainingPoint(point, type))
+    {
+      return accessible;
+    }
+  }
+  return nullptr;
+}
+
+bool Component::IsAccessibleContainingPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type) const
+{
+  return false;
+}
+
+Accessible* Component::GetAccessibleAtPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type)
+{
+  return nullptr;
+}
+
+} //namespace Dali::Accessibility

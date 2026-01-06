@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_SOCKET_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -29,7 +29,7 @@ namespace Dali::Accessibility
  *
  * See AT_SPI2_CORE/xml/Socket.xml for a description of this interface in XML format.
  */
-class DALI_ADAPTOR_API Socket : public virtual Accessible
+class DALI_ADAPTOR_API Socket
 {
 public:
   /**
@@ -38,14 +38,14 @@ public:
    * @param plug Address of the Plug (remote parent)
    * @return Address of the Socket
    */
-  virtual Address Embed(Address plug) = 0;
+  virtual Address Embed(Address plug);
 
   /**
    * @brief Terminates the Plug-Socket connection.
    *
    * @param plug Address of the Plug (remote parent)
    */
-  virtual void Unembed(Address plug) = 0;
+  virtual void Unembed(Address plug);
 
   /**
    * @brief Set the offset (position information).
@@ -53,17 +53,7 @@ public:
    * @param[in] x Horizontal offset
    * @param[in] y Vertical offset
    */
-  virtual void SetOffset(std::int32_t x, std::int32_t y) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Socket.
-   *
-   * @param obj The Accessible
-   * @return A Socket or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Socket* DownCast(Accessible* obj);
+  virtual void SetOffset(std::int32_t x, std::int32_t y);
 };
 
 namespace Internal
@@ -74,11 +64,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::SOCKET>
   using Type = Socket;
 };
 } // namespace Internal
-
-inline Socket* Socket::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::SOCKET>(obj);
-}
 
 } // namespace Dali::Accessibility
 

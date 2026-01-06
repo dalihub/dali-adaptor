@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_TEXT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 namespace Dali::Accessibility
 {
@@ -32,7 +31,7 @@ namespace Dali::Accessibility
  *
  * @see Dali::Accessibility::EditableText
  */
-class DALI_ADAPTOR_API Text : public virtual Accessible
+class DALI_ADAPTOR_API Text
 {
 public:
   /**
@@ -43,7 +42,7 @@ public:
    *
    * @return The substring of stored text
    */
-  virtual std::string GetText(std::size_t startOffset, std::size_t endOffset) const = 0;
+  virtual std::string GetText(std::size_t startOffset, std::size_t endOffset) const;
 
   /**
    * @brief Gets number of all stored characters.
@@ -51,7 +50,7 @@ public:
    * @return The number of characters
    * @remarks This method is `CharacterCount` in DBus method.
    */
-  virtual std::size_t GetCharacterCount() const = 0;
+  virtual std::size_t GetCharacterCount() const;
 
   /**
    * @brief Gets the cursor offset.
@@ -59,7 +58,7 @@ public:
    * @return Value of cursor offset
    * @remarks This method is `CaretOffset` in DBus method.
    */
-  virtual std::size_t GetCursorOffset() const = 0;
+  virtual std::size_t GetCursorOffset() const;
 
   /**
    * @brief Sets the cursor offset.
@@ -69,7 +68,7 @@ public:
    * @return True if successful
    * @remarks This method is `SetCaretOffset` in DBus method.
    */
-  virtual bool SetCursorOffset(std::size_t offset) = 0;
+  virtual bool SetCursorOffset(std::size_t offset);
 
   /**
    * @brief Gets substring of stored text truncated in concrete gradation.
@@ -81,7 +80,7 @@ public:
    *
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetTextAtOffset(std::size_t offset, TextBoundary boundary) const = 0;
+  virtual Range GetTextAtOffset(std::size_t offset, TextBoundary boundary) const;
 
   /**
    * @brief Gets selected text.
@@ -94,7 +93,7 @@ public:
    * @remarks This method is `GetSelection` in DBus method.
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetRangeOfSelection(std::size_t selectionIndex) const = 0;
+  virtual Range GetRangeOfSelection(std::size_t selectionIndex) const;
 
   /**
    * @brief Removes the whole selection.
@@ -104,7 +103,7 @@ public:
    *
    * @return bool on success, false otherwise
    */
-  virtual bool RemoveSelection(std::size_t selectionIndex) = 0;
+  virtual bool RemoveSelection(std::size_t selectionIndex);
 
   /**
    * @brief Sets selected text.
@@ -118,7 +117,7 @@ public:
    * @return true on success, false otherwise
    * @remarks This method is `SetSelection` in DBus method.
    */
-  virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset) = 0;
+  virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset);
 
   /**
    * @brief Gets the bounding box for text within a range in text.
@@ -127,20 +126,10 @@ public:
    * @param[in] endOffset The index of first character after the last one expected
    * @param[in] type The enumeration with type of coordinate system
    *
-   * @return Rect<> giving the position and size of the specified range of text
+   * @return Rect<float> giving the position and size of the specified range of text
    * @remarks This method is `GetRangeExtents` in DBus method.
    */
-  virtual Rect<> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Text.
-   *
-   * @param obj The Accessible
-   * @return A Text or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Text* DownCast(Accessible* obj);
+  virtual Rect<float> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type);
 };
 
 namespace Internal
@@ -151,11 +140,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::TEXT>
   using Type = Text;
 };
 } // namespace Internal
-
-inline Text* Text::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::TEXT>(obj);
-}
 
 } // namespace Dali::Accessibility
 
