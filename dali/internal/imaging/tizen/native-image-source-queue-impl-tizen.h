@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,17 +238,14 @@ private:
   bool CreateSyncObject();
 
   /**
-   * @brief Waits for the synchronization object to be signaled.
-   *
-   * This method blocks until the sync object is signaled, indicating that
-   * GPU operations have completed.
-   */
-  void WaitSync(tbm_surface_h surface);
-
-  /**
    * @brief Resets sync objects.
    */
   void ResetSyncObjects();
+
+  /**
+   * @brief Resets discarded sync objects.
+   */
+  void ResetDiscardSyncObjects();
 
 private:
   enum class ImageState : uint8_t
@@ -258,30 +255,31 @@ private:
     CHANGED
   };
 
-  using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
-  using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
-  using EglSyncContainer       = std::unordered_map<tbm_surface_h, std::pair<EglSyncObject*, int32_t>>;
+  using SurfaceEglContainer     = std::unordered_map<tbm_surface_h, void*>;
+  using BufferSurfaceContainer  = std::unordered_map<uint8_t*, tbm_surface_h>;
+  using EglSyncContainer        = std::unordered_map<tbm_surface_h, std::pair<EglSyncObject*, int32_t>>;
+  using EglSyncDiscardContainer = std::unordered_map<tbm_surface_h, std::vector<std::pair<EglSyncObject*, int32_t>>>;
 
-  Dali::Mutex            mMutex;              ///< Mutex
-  uint32_t               mQueueCount;         ///< queue count
-  uint32_t               mWidth;              ///< image width
-  uint32_t               mHeight;             ///< image height
-  tbm_surface_queue_h    mTbmQueue;           ///< Tbm surface queue handle
-  tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
-  tbm_surface_h          mOldSurface;         ///< The old surface to be released
-  SurfaceEglContainer    mEglImages;          ///< EGL Image map
-  BufferSurfaceContainer mBuffers;            ///< Buffer map
-  EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
-  EglSyncContainer       mEglSyncDiscardList; ///< EGL sync object list to discard
-  EglGraphics*           mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
-  ImageState             mImageState;         ///< Image state
-  bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                   mBlendingRequired;   ///< Whether blending is required
-  bool                   mIsResized;          ///< Whether the size has changed
-  bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
-  bool                   mNeedSync;           ///< Whether we need to create the egl sync object
-  bool                   mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
+  Dali::Mutex             mMutex;              ///< Mutex
+  uint32_t                mQueueCount;         ///< queue count
+  uint32_t                mWidth;              ///< image width
+  uint32_t                mHeight;             ///< image height
+  tbm_surface_queue_h     mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h           mConsumeSurface;     ///< The current tbm surface
+  tbm_surface_h           mOldSurface;         ///< The old surface to be released
+  SurfaceEglContainer     mEglImages;          ///< EGL Image map
+  BufferSurfaceContainer  mBuffers;            ///< Buffer map
+  EglSyncContainer        mEglSyncObjects;     ///< EGL sync object map
+  EglSyncDiscardContainer mEglSyncDiscardList; ///< EGL sync object list to discard
+  EglGraphics*            mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*     mEglImageExtensions; ///< The EGL Image Extensions
+  ImageState              mImageState;         ///< Image state
+  bool                    mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                    mBlendingRequired;   ///< Whether blending is required
+  bool                    mIsResized;          ///< Whether the size has changed
+  bool                    mFreeRequest;        ///< Whether it is requested to free the released buffers
+  bool                    mNeedSync;           ///< Whether we need to create the egl sync object
+  bool                    mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
 };
 
 } // namespace Adaptor
