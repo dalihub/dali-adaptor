@@ -244,8 +244,8 @@ bool ProgramImpl::Preprocess()
     // In case we have one modern shader and one legacy counterpart we need to enforce
     // output language.
     Internal::ShaderParser::ShaderParserInfo parseInfo{};
-    parseInfo.vertexShaderCode            = &vertexString;
-    parseInfo.fragmentShaderCode          = &fragmentString;
+    parseInfo.vertexShaderCode            = vertexString;
+    parseInfo.fragmentShaderCode          = fragmentString;
     parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
     parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
     parseInfo.language                    = Internal::ShaderParser::OutputLanguage::SPIRV_GLSL;
