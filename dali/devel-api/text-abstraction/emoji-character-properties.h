@@ -2,7 +2,7 @@
 #define DALI_TOOLKIT_TEXT_ABSTRACTION_EMOJI_CHARACTER_PROPERTIES_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,18 @@ DALI_ADAPTOR_API bool IsDingbatsEmoji(Character character);
  * @return @e true if the character is ASCII digits.
  */
 DALI_ADAPTOR_API bool IsASCIIDigits(Character character);
+
+/**
+ * @brief Whether the character is ASCII PS.
+ * ASCII PS: https://unicode-table.com/en/blocks/basic-latin/
+ *
+ * @note The Range is 0020-007E
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is ASCII PS.
+ */
+DALI_ADAPTOR_API bool IsASCIIPS(Character character);
 
 /**
  * @brief Whether the character is emoji-variation-sequences.

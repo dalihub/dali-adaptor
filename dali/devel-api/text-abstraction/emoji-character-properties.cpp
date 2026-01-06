@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -475,6 +475,14 @@ DALI_ADAPTOR_API bool IsASCIIDigits(Character character)
 {
   return (CHAR_ASCII_DIGIT_0 <= character &&
           CHAR_ASCII_DIGIT_9 >= character);
+}
+
+DALI_ADAPTOR_API bool IsASCIIPS(Character character)
+{
+  return ((CHAR_ASCII_SPACE <= character && CHAR_ASCII_SOLIDUS >= character) ||
+          (CHAR_ASCII_COLON <= character && CHAR_ASCII_COMMERCIAL_AT >= character) ||
+          (CHAR_ASCII_LEFT_SQUARE_BRACKET <= character && CHAR_ASCII_GRAVE_ACCENT >= character) ||
+          (CHAR_ASCII_LEFT_CURLY_BRACKET <= character && CHAR_ASCII_TILDE >= character));
 }
 
 DALI_ADAPTOR_API bool IsEmojiVariationSequences(Character character)
