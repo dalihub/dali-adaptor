@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_TABLE_CELL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <utility>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -32,7 +32,7 @@ class Table;
  *
  * @see Dali::Accessibility::Table
  */
-class DALI_ADAPTOR_API TableCell : public virtual Accessible
+class DALI_ADAPTOR_API TableCell
 {
 public:
   /**
@@ -53,28 +53,28 @@ public:
    *
    * @return The table
    */
-  virtual Table* GetTable() const = 0;
+  virtual Table* GetTable() const;
 
   /**
    * @brief Returns the position of this cell in the table.
    *
    * @return A pair of integers (row index, column index)
    */
-  virtual std::pair<int, int> GetCellPosition() const = 0;
+  virtual std::pair<int, int> GetCellPosition() const;
 
   /**
    * @brief Returns the number of rows occupied by this cell.
    *
    * @return Number of rows
    */
-  virtual int GetCellRowSpan() const = 0;
+  virtual int GetCellRowSpan() const;
 
   /**
    * @brief Returns the number of columns occupied by this cell.
    *
    * @return Number of columns
    */
-  virtual int GetCellColumnSpan() const = 0;
+  virtual int GetCellColumnSpan() const;
 
   /**
    * @brief Returns the position, row span, and column span of this cell.
@@ -86,17 +86,7 @@ public:
    * @see TableCell::GetCellRowSpan()
    * @see TableCell::GetCellColumnSpan()
    */
-  virtual RowColumnSpanType GetCellRowColumnSpan() const = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a TableCell.
-   *
-   * @param obj The Accessible
-   * @return A Table or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline TableCell* DownCast(Accessible* obj);
+  virtual RowColumnSpanType GetCellRowColumnSpan() const;
 };
 
 namespace Internal
@@ -107,11 +97,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::TABLE_CELL>
   using Type = TableCell;
 };
 } // namespace Internal
-
-inline TableCell* TableCell::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::TABLE_CELL>(obj);
-}
 
 } // namespace Dali::Accessibility
 

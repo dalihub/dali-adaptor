@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -806,7 +806,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
     {
       if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
       {
-        accessible->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+        accessible->EmitBoundsChanged(Dali::Rect<int>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
       }
     }
   }
@@ -841,7 +841,7 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
     {
       if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
       {
-        accessible->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+        accessible->EmitBoundsChanged(Dali::Rect<int>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
       }
     }
   }
@@ -1751,7 +1751,7 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
   {
     if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
     {
-      accessible->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+      accessible->EmitBoundsChanged(Dali::Rect<int>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
     }
   }
 
