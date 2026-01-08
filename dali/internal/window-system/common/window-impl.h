@@ -169,6 +169,11 @@ public:
   void SetMimimumSize(Dali::Window::WindowSize size);
 
   /**
+   * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
+   */
+  void MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size);
+
+  /**
    * @copydoc Dali::Window::GetLayerCount()
    */
   uint32_t GetLayerCount() const;

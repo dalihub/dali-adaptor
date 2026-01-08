@@ -231,6 +231,11 @@ public:
   virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
+   * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
+   */
+  virtual void MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size) = 0;
+
+  /**
    * @copydoc Dali::Window::SetAvailableOrientations()
    */
   virtual void SetAvailableAnlges(const std::vector<int>& angles) = 0;

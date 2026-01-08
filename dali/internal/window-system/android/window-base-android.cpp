@@ -225,6 +225,10 @@ void WindowBaseAndroid::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseAndroid::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseAndroid::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }
