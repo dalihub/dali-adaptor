@@ -777,6 +777,10 @@ void WindowBaseEcoreX::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseEcoreX::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseEcoreX::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }

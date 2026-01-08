@@ -724,6 +724,10 @@ void WindowBaseX::SetMaximumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseX::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseX::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }

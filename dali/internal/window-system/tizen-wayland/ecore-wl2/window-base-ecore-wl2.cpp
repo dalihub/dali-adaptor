@@ -2682,6 +2682,15 @@ void WindowBaseEcoreWl2::Maximize(bool maximize)
   ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
 }
 
+void WindowBaseEcoreWl2::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximized_set_with_size, maximize : %d width: %d, height: %d\n", maximize, size.GetWidth(), size.GetHeight());
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximized_set_with_size");
+    ecore_wl2_window_maximized_set_with_size(mEcoreWindow, maximize, size.GetWidth(), size.GetHeight());
+  }
+}
+
 bool WindowBaseEcoreWl2::IsMaximized() const
 {
   return ecore_wl2_window_maximized_get(mEcoreWindow);

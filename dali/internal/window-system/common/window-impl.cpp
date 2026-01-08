@@ -364,6 +364,11 @@ void Window::SetMimimumSize(Dali::Window::WindowSize size)
   mWindowBase->SetMimimumSize(size);
 }
 
+void Window::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+  mWindowBase->MaximizeWithRestoreSize(maximize, size);
+}
+
 uint32_t Window::GetLayerCount() const
 {
   return mScene.GetLayerCount();

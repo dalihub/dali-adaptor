@@ -528,6 +528,10 @@ void WindowBaseCocoa::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseCocoa::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseCocoa::SetAvailableAnlges( const std::vector< int >& angles )
 {
 }

@@ -520,6 +520,22 @@ DALI_ADAPTOR_API bool IsMinimized(Window window);
 DALI_ADAPTOR_API void SetMimimumSize(Window window, Dali::Window::WindowSize size);
 
 /**
+ * @brief Sets the maximized state of a given window with specific size
+ *
+ * If this function is called with true, window will be resized with screen size.
+ * Otherwise window will be resized with restore size.
+ * It is for the window's MAX button in window's border.
+ *
+ * It is for client application.
+ * If window border is supported by display server, it is not necessary.
+ *
+ * @param[in] window The window instance.
+ * @param[in] maximize If window is maximized or unmaximized.
+ * @param[in] restoreSize This is the size used when unmaximized.
+ */
+DALI_ADAPTOR_API void MaximizeWithRestoreSize(Window window, bool maximize, Dali::Window::WindowSize restoreSize);
+
+/**
  * @brief Query whether window is rotating or not.
  *
  * @param[in] window The window instance.

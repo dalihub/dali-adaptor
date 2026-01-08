@@ -240,6 +240,11 @@ public:
   void SetMimimumSize(Dali::Window::WindowSize size) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::MaximizeWithRestoreSize()
+   */
+  void MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
   void SetAvailableAnlges(const std::vector<int>& angles) override;
