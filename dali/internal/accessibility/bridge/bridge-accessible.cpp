@@ -429,7 +429,7 @@ static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, con
   auto childrenCount = children.size();
   if(childrenCount > 0)
   {
-    const bool isShowing = node->GetStates()[State::SHOWING];
+    const bool isShowing = GetScrollableParent(node) == nullptr ? node->GetStates()[State::SHOWING] : node->GetStates()[State::VISIBLE];
     if(isShowing)
     {
       return FindNonDefunctChild(children, forward ? 0 : childrenCount - 1, forward, start);
