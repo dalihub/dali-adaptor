@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -353,6 +353,11 @@ EglSyncImplementation::EglSyncImplementation()
 
 EglSyncImplementation::~EglSyncImplementation()
 {
+  for(auto& syncObject : mSyncObjects)
+  {
+    delete static_cast<EglSyncObject*>(syncObject);
+  }
+  mSyncObjects.Clear();
 }
 
 void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
@@ -368,13 +373,16 @@ Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateS
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
 Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  return new EglSyncObject(*mEglImplementation, type);
+  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
+  mSyncObjects.PushBack(syncObject);
+  return syncObject;
 }
 
 void EglSyncImplementation::InitializeEglSync()
