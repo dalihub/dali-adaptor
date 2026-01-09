@@ -36,7 +36,7 @@ void BridgeAction::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Action* BridgeAction::FindSelf() const
+std::shared_ptr<Action> BridgeAction::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::ACTION>();
 }
@@ -73,18 +73,18 @@ DBus::ValueOrError<bool> BridgeAction::DoAction(int32_t index)
 
 DBus::ValueOrError<bool> BridgeAction::DoActionName(std::string name)
 {
-  auto self = FindSelf();
-  auto cnt  = self->GetActionCount();
-  for(auto i = 0u; i < cnt; ++i)
-  {
-    if(self->GetActionName(i) == name)
-    {
-      return self->DoAction(i);
-    }
-  }
-  auto* accessible = dynamic_cast<Dali::Accessibility::Accessible*>(self);
+  auto accessible = FindCurrentObject();
   if(accessible)
   {
+    auto self = accessible->GetFeature<Action>();
+    auto cnt  = self->GetActionCount();
+    for(auto i = 0u; i < cnt; ++i)
+    {
+      if(self->GetActionName(i) == name)
+      {
+        return self->DoAction(i);
+      }
+    }
     throw std::domain_error{"object " + accessible->GetAddress().ToString() + " doesn't have action '" + name + "'"};
   }
   else

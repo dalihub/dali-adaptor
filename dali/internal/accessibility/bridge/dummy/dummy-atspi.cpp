@@ -19,9 +19,25 @@
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
+
+CollectionImpl::CollectionImpl(std::weak_ptr<Accessible> accessible)
+{
+}
+
+std::vector<Accessible*> CollectionImpl::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
+{
+  return {};
+}
+
+std::vector<Accessible*> CollectionImpl::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
+{
+  return {};
+}
+
 std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
 {
   return {};
@@ -64,16 +80,6 @@ bool Accessibility::Component::IsAccessibleContainingPoint(Accessibility::Point 
 Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type)
 {
   return nullptr;
-}
-
-std::vector<Accessibility::Accessible*> Accessibility::Collection::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
-{
-  return {};
-}
-
-std::vector<Accessibility::Accessible*> Accessibility::Collection::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
-{
-  return {};
 }
 
 std::shared_ptr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()

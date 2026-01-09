@@ -183,6 +183,10 @@ public:
     return false;
   }
 
+  void InitDefaultFeatures() override
+  {
+  }
+
 private:
   Address     mAddress;
   Accessible* mParent;

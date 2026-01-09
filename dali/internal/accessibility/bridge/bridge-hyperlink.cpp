@@ -36,7 +36,7 @@ void BridgeHyperlink::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Hyperlink* BridgeHyperlink::FindSelf() const
+std::shared_ptr<Hyperlink> BridgeHyperlink::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::HYPERLINK>();
 }

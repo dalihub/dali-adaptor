@@ -28,6 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 
 using namespace Dali::Accessibility;
@@ -193,7 +194,6 @@ Dali::Accessibility::Address ApplicationAccessible::Embed(Dali::Accessibility::A
 {
   mIsEmbedded = true;
   mParent.SetAddress(plug);
-
   return GetAddress();
 }
 
@@ -216,7 +216,6 @@ void ApplicationAccessible::SetOffset(std::int32_t x, std::int32_t y)
   {
     return;
   }
-
   if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->SetExtentsOffset(x, y);
@@ -281,19 +280,19 @@ bool ApplicationAccessible::IsScrollable() const
   return false;
 }
 
-Dali::Accessibility::AtspiInterfaces ApplicationAccessible::DoGetInterfaces() const
+void ApplicationAccessible::InitDefaultFeatures()
 {
-  AtspiInterfaces interfaces              = Accessible::DoGetInterfaces();
-  interfaces[AtspiInterface::APPLICATION] = true;
-  interfaces[AtspiInterface::COLLECTION]  = true;
-  interfaces[AtspiInterface::SOCKET]      = true;
-  return interfaces;
+  AddFeature<Application>(this);
+  AddFeature<Collection, CollectionImpl>(weak_from_this());
+  AddFeature<Socket>(this);
 }
 } //namespace Dali::Accessibility
 
 // BridgeBase implementation
 BridgeBase::BridgeBase()
+: mApplication{std::make_shared<ApplicationAccessible>()}
 {
+  mApplication->InitDefaultFeatures();
 }
 
 BridgeBase::~BridgeBase()
@@ -476,24 +475,24 @@ void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
   }
 
   // Prevent adding the default window twice.
-  if(!mApplication.mChildren.empty() &&
-     mApplication.mChildren[0]->GetInternalActor() == windowAccessible->GetInternalActor())
+  if(!mApplication->mChildren.empty() &&
+     mApplication->mChildren[0]->GetInternalActor() == windowAccessible->GetInternalActor())
   {
     return;
   }
 
   // Adds Window to a list of Windows.
-  mApplication.mChildren.push_back(windowAccessible);
+  mApplication->mChildren.push_back(windowAccessible);
   SetIsOnRootLevel(windowAccessible);
 }
 
 void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
 {
-  for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
+  for(auto i = 0u; i < mApplication->mChildren.size(); ++i)
   {
-    if(mApplication.mChildren[i] == windowAccessible)
+    if(mApplication->mChildren[i] == windowAccessible)
     {
-      mApplication.mChildren.erase(mApplication.mChildren.begin() + i);
+      mApplication->mChildren.erase(mApplication->mChildren.begin() + i);
       Emit(windowAccessible, WindowEvent::DESTROY);
       break;
     }
@@ -603,11 +602,11 @@ Accessible* BridgeBase::Find(const std::string& path) const
 {
   if(path == "root")
   {
-    return &mApplication;
+    return mApplication.get();
   }
 
   auto accessible = GetAccessible(path);
-  if(!accessible || (!mApplication.mShouldIncludeHidden && accessible->IsHidden()))
+  if(!accessible || (!mApplication->mShouldIncludeHidden && accessible->IsHidden()))
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }
@@ -654,51 +653,10 @@ int BridgeBase::GetId()
   return this->mId;
 }
 
+// TODO: Remove or make it usable
 auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType>>
 {
-  auto                          root = &mApplication;
-  std::vector<CacheElementType> res;
-
-  std::function<void(Accessible*)> proc =
-    [&](Accessible* item)
-  {
-    res.emplace_back(std::move(CreateCacheElement(root)));
-
-    for(auto i = 0u; i < item->GetChildCount(); ++i)
-    {
-      proc(item->GetChildAtIndex(i));
-    }
-  };
-
-  return res;
-}
-
-auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
-{
-  if(!item)
-  {
-    return {};
-  }
-
-  auto                 root   = &mApplication;
-  auto                 parent = item->GetParent();
-  std::vector<Address> children;
-
-  for(auto i = 0u; i < item->GetChildCount(); ++i)
-  {
-    children.emplace_back(item->GetChildAtIndex(i)->GetAddress());
-  }
-
-  return std::make_tuple(
-    item->GetAddress(),
-    root->GetAddress(),
-    parent ? parent->GetAddress() : Address{},
-    children,
-    item->GetInterfacesAsStrings(),
-    item->GetName(),
-    item->GetRole(),
-    item->GetDescription(),
-    item->GetStates().GetRawData());
+  return {};
 }
 
 Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Actor actor)

@@ -37,7 +37,7 @@ void BridgeValue::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Value* BridgeValue::FindSelf() const
+std::shared_ptr<Value> BridgeValue::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::VALUE>();
 }

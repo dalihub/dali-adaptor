@@ -655,8 +655,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   double      minimumIncrement = 0.0;
   double      maximumValue     = 0.0;
   double      minimumValue     = 0.0;
-  auto*       valueInterface   = Accessible::DownCast<AtspiInterface::VALUE>(self);
-  if(valueInterface)
+  if(auto valueInterface = self->GetFeature<Value>())
   {
     currentValue     = valueInterface->GetCurrent();
     currentValueText = valueInterface->GetValueText();
@@ -676,8 +675,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount      = 0;
-  auto*   selfSelectionInterface  = Accessible::DownCast<AtspiInterface::SELECTION>(self);
-  if(selfSelectionInterface)
+  if(auto selfSelectionInterface = self->GetFeature<Selection>())
   {
     selectedChildCount      = selfSelectionInterface->GetSelectedChildrenCount();
     auto firstSelectedChild = selfSelectionInterface->GetSelectedChild(0);
@@ -716,9 +714,8 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::POPUP_MENU, Role::MENU_ITEM, false);
   }
 
-  auto*       textInterface         = Accessible::DownCast<AtspiInterface::TEXT>(self);
   std::string nameFromTextInterface = "";
-  if(textInterface)
+  if(auto textInterface = self->GetFeature<Text>())
   {
     nameFromTextInterface = textInterface->GetText(0, textInterface->GetCharacterCount());
   }
@@ -735,8 +732,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
   auto  parentStateSet           = parent ? parent->GetStates() : States{};
   bool  isSelectedInParent       = false;
-  auto* parentSelectionInterface = Accessible::DownCast<AtspiInterface::SELECTION>(parent);
-  if(parentSelectionInterface)
+  if(auto parentSelectionInterface = parent->GetFeature<Selection>())
   {
     isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
   }
@@ -786,13 +782,12 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   windowExtents.x += mData->mExtentsOffset.first;
   windowExtents.y += mData->mExtentsOffset.second;
 
-  auto*       valueInterface   = Accessible::DownCast<AtspiInterface::VALUE>(self);
   double      currentValue     = 0.0;
   double      minimumIncrement = 0.0;
   double      maximumValue     = 0.0;
   double      minimumValue     = 0.0;
   std::string currentValueText;
-  if(valueInterface)
+  if(auto valueInterface = self->GetFeature<Value>())
   {
     currentValue     = valueInterface->GetCurrent();
     currentValueText = valueInterface->GetValueText();
@@ -1187,7 +1182,7 @@ DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessibl
     attributes.insert({"suppress-screen-reader", "true"});
   }
 
-  auto* valueInterface = Accessible::DownCast<AtspiInterface::VALUE>(self);
+  auto valueInterface = self->GetFeature<Value>();
   if(!valueInterface && !self->GetValue().empty())
   {
     attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});

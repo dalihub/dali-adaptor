@@ -19,6 +19,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
@@ -28,7 +29,7 @@ namespace Dali::Accessibility
  * @note Since all methods can be implemented inside bridge,
  * no methods have to be overriden.
  */
-class DALI_ADAPTOR_API Collection
+class DALI_ADAPTOR_API Collection : public IAccessibilityFeature
 {
 public:
   /**
@@ -53,7 +54,7 @@ public:
    * @param[in] maxCount The maximum number of objects; returns all matches if 0
    * @return The matching Accessible objects
    */
-  virtual std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount);
+  virtual std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount) = 0;
 
   /**
    * @brief Gets the matching Accessible objects with two MatchRules.
@@ -65,7 +66,7 @@ public:
    * @param[in] secondCount The maximum number of objects to return for the secondary match.; returns all matches if 0
    * @return The matching Accessible objects
    */
-  virtual std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount);
+  virtual std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) = 0;
 };
 
 namespace Internal

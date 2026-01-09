@@ -267,6 +267,11 @@ public:
    */
   bool CanAcceptZeroSize() const;
 
+  /**
+   * @copydoc Dali::Accessibility::Accessible::InitDefaultFeatures()
+   */
+  void InitDefaultFeatures() override;
+
 protected:
   Dali::Actor Self() const
   {
@@ -277,11 +282,6 @@ protected:
 
     return handle;
   }
-
-  /**
-   * @copydoc Dali::Accessibility::Accessible::DoGetInterfaces()
-   */
-  virtual AtspiInterfaces DoGetInterfaces() const override;
 
   /**
    * @brief Populates the collection of children of this Accessible.

@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
@@ -250,12 +251,9 @@ void ActorAccessible::OnChildrenChanged(Dali::Actor)
   OnChildrenChanged();
 }
 
-AtspiInterfaces ActorAccessible::DoGetInterfaces() const
+void ActorAccessible::InitDefaultFeatures()
 {
-  AtspiInterfaces interfaces             = Accessible::DoGetInterfaces();
-  interfaces[AtspiInterface::COLLECTION] = true;
-
-  return interfaces;
+  AddFeature<Collection, CollectionImpl>(weak_from_this());
 }
 
 void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)

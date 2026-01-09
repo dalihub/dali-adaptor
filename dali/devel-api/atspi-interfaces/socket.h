@@ -19,6 +19,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
@@ -29,7 +30,7 @@ namespace Dali::Accessibility
  *
  * See AT_SPI2_CORE/xml/Socket.xml for a description of this interface in XML format.
  */
-class DALI_ADAPTOR_API Socket
+class DALI_ADAPTOR_API Socket : public IAccessibilityFeature
 {
 public:
   /**
@@ -38,14 +39,14 @@ public:
    * @param plug Address of the Plug (remote parent)
    * @return Address of the Socket
    */
-  virtual Address Embed(Address plug);
+  virtual Address Embed(Address plug) = 0;
 
   /**
    * @brief Terminates the Plug-Socket connection.
    *
    * @param plug Address of the Plug (remote parent)
    */
-  virtual void Unembed(Address plug);
+  virtual void Unembed(Address plug) = 0;
 
   /**
    * @brief Set the offset (position information).
@@ -53,7 +54,7 @@ public:
    * @param[in] x Horizontal offset
    * @param[in] y Vertical offset
    */
-  virtual void SetOffset(std::int32_t x, std::int32_t y);
+  virtual void SetOffset(std::int32_t x, std::int32_t y) = 0;
 };
 
 namespace Internal
