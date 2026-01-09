@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_TABLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -37,7 +37,7 @@ class TableCell;
  * @see Dali::Accessibility::Selection
  * @see Dali::Accessibility::TableCell
  */
-class DALI_ADAPTOR_API Table : public virtual Accessible
+class DALI_ADAPTOR_API Table
 {
 public:
   /**
@@ -60,14 +60,14 @@ public:
    *
    * @return Number of rows
    */
-  virtual int GetRowCount() const = 0;
+  virtual int GetRowCount() const;
 
   /**
    * @brief Gets the number of columns.
    *
    * @return Number of columns
    */
-  virtual int GetColumnCount() const = 0;
+  virtual int GetColumnCount() const;
 
   /**
    * @brief Gets the number of selected rows.
@@ -76,7 +76,7 @@ public:
    *
    * @see Table::GetSelectedRows()
    */
-  virtual int GetSelectedRowCount() const = 0;
+  virtual int GetSelectedRowCount() const;
 
   /**
    * @brief Gets the number of selected columns.
@@ -85,21 +85,21 @@ public:
    *
    * @see Table::GetSelectedColumns()
    */
-  virtual int GetSelectedColumnCount() const = 0;
+  virtual int GetSelectedColumnCount() const;
 
   /**
    * @brief Gets the table's caption.
    *
    * @return The caption or null
    */
-  virtual Accessible* GetCaption() const = 0;
+  virtual Accessible* GetCaption() const;
 
   /**
    * @brief Gets the table's summary.
    *
    * @return The summary or null
    */
-  virtual Accessible* GetSummary() const = 0;
+  virtual Accessible* GetSummary() const;
 
   /**
    * @brief Gets the cell at the specified position
@@ -109,7 +109,7 @@ public:
    *
    * @return The cell or null
    */
-  virtual TableCell* GetCell(int row, int column) const = 0;
+  virtual TableCell* GetCell(int row, int column) const;
 
   /**
    * @brief Gets the one-dimensional index of a cell
@@ -125,7 +125,7 @@ public:
    * @see Dali::Accessibility::Accessible::GetChildAtIndex()
    * @see Table::GetCell()
    */
-  virtual std::size_t GetChildIndex(int row, int column) const = 0;
+  virtual std::size_t GetChildIndex(int row, int column) const;
 
   /**
    * @brief Gets the row number of a cell
@@ -136,7 +136,7 @@ public:
    *
    * @see Table::GetChildIndex()
    */
-  virtual int GetRowByChildIndex(std::size_t childIndex) const = 0;
+  virtual int GetRowByChildIndex(std::size_t childIndex) const;
 
   /**
    * @brief Gets the column number of a cell
@@ -147,7 +147,7 @@ public:
    *
    * @see Table::GetChildIndex()
    */
-  virtual int GetColumnByChildIndex(std::size_t childIndex) const = 0;
+  virtual int GetColumnByChildIndex(std::size_t childIndex) const;
 
   /**
    * @brief Gets the description of a row.
@@ -156,7 +156,7 @@ public:
    *
    * @return The description of the row
    */
-  virtual std::string GetRowDescription(int row) const = 0;
+  virtual std::string GetRowDescription(int row) const;
 
   /**
    * @brief Gets the description of a column.
@@ -165,7 +165,7 @@ public:
    *
    * @return The description of the column
    */
-  virtual std::string GetColumnDescription(int column) const = 0;
+  virtual std::string GetColumnDescription(int column) const;
 
   /**
    * @brief Gets the row span of a cell
@@ -181,7 +181,7 @@ public:
    * @see Table::GetCell()
    * @see Dali::Accessibility::TableCell::GetCellRowSpan()
    */
-  virtual int GetRowSpan(int row, int column) const = 0;
+  virtual int GetRowSpan(int row, int column) const;
 
   /**
    * @brief Gets the column span of a cell
@@ -197,7 +197,7 @@ public:
    * @see Table::GetCell()
    * @see Dali::Accessibility::TableCell::GetCellColumnSpan()
    */
-  virtual int GetColumnSpan(int row, int column) const = 0;
+  virtual int GetColumnSpan(int row, int column) const;
 
   /**
    * @brief Gets the header of a row.
@@ -206,7 +206,7 @@ public:
    *
    * @return The row header or null
    */
-  virtual Accessible* GetRowHeader(int row) const = 0;
+  virtual Accessible* GetRowHeader(int row) const;
 
   /**
    * @brief Gets the header of a column.
@@ -215,7 +215,7 @@ public:
    *
    * @return The column header or null
    */
-  virtual Accessible* GetColumnHeader(int column) const = 0;
+  virtual Accessible* GetColumnHeader(int column) const;
 
   /**
    * @brief Gets all selected rows' numbers.
@@ -224,7 +224,7 @@ public:
    *
    * @see Table::GetSelectedRowCount()
    */
-  virtual std::vector<int> GetSelectedRows() const = 0;
+  virtual std::vector<int> GetSelectedRows() const;
 
   /**
    * @brief Gets all selected columns' numbers.
@@ -233,7 +233,7 @@ public:
    *
    * @see Table::GetSelectedColumnCount()
    */
-  virtual std::vector<int> GetSelectedColumns() const = 0;
+  virtual std::vector<int> GetSelectedColumns() const;
 
   /**
    * @brief Checks if a row is selected.
@@ -242,7 +242,7 @@ public:
    *
    * @return True if the row is selected, false otherwise
    */
-  virtual bool IsRowSelected(int row) const = 0;
+  virtual bool IsRowSelected(int row) const;
 
   /**
    * @brief Checks if a column is selected.
@@ -251,7 +251,7 @@ public:
    *
    * @return True if the column is selected, false otherwise
    */
-  virtual bool IsColumnSelected(int column) const = 0;
+  virtual bool IsColumnSelected(int column) const;
 
   /**
    * @brief Checks if a cell is selected.
@@ -261,7 +261,7 @@ public:
    *
    * @return True if the cell is selected, false otherwise
    */
-  virtual bool IsCellSelected(int row, int column) const = 0;
+  virtual bool IsCellSelected(int row, int column) const;
 
   /**
    * @brief Selects a row.
@@ -270,7 +270,7 @@ public:
    *
    * @return True on success, false otherwise
    */
-  virtual bool AddRowSelection(int row) = 0;
+  virtual bool AddRowSelection(int row);
 
   /**
    * @brief Selects a column.
@@ -279,7 +279,7 @@ public:
    *
    * @return True on success, false otherwise
    */
-  virtual bool AddColumnSelection(int column) = 0;
+  virtual bool AddColumnSelection(int column);
 
   /**
    * @brief Unselects a row.
@@ -288,7 +288,7 @@ public:
    *
    * @return True on success, false otherwise
    */
-  virtual bool RemoveRowSelection(int row) = 0;
+  virtual bool RemoveRowSelection(int row);
 
   /**
    * @brief Unselects a column.
@@ -297,7 +297,7 @@ public:
    *
    * @return True on success, false otherwise
    */
-  virtual bool RemoveColumnSelection(int column) = 0;
+  virtual bool RemoveColumnSelection(int column);
 
   /**
    * @brief Returns position and span information about a cell.
@@ -308,17 +308,7 @@ public:
    *
    * @see Table::RowColumnSpanType
    */
-  virtual RowColumnSpanType GetRowColumnSpan(std::size_t childIndex) const = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Table.
-   *
-   * @param obj The Accessible
-   * @return A Table or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Table* DownCast(Accessible* obj);
+  virtual RowColumnSpanType GetRowColumnSpan(std::size_t childIndex) const;
 };
 
 namespace Internal
@@ -329,11 +319,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::TABLE>
   using Type = Table;
 };
 } // namespace Internal
-
-inline Table* Table::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::TABLE>(obj);
-}
 
 } // namespace Dali::Accessibility
 

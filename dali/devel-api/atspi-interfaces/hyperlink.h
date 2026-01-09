@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_HYPERLINK_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing a hyperlink in hypertext .
  */
-class Hyperlink : public virtual Accessible
+class DALI_ADAPTOR_API Hyperlink
 {
 public:
   /**
@@ -37,21 +37,21 @@ public:
    *
    * @return The 0-based index of hyperlink's last character + 1, in its originating hypertext.
    */
-  virtual std::int32_t GetEndIndex() const = 0;
+  virtual std::int32_t GetEndIndex() const;
 
   /**
    * @brief Gets the index of character in originating hypertext at which this hyperlink starts.
    *
    * @return The 0-based index of hyperlink's first character, in its originating hypertext.
    */
-  virtual std::int32_t GetStartIndex() const = 0;
+  virtual std::int32_t GetStartIndex() const;
 
   /**
    * @brief Gets the total number of anchors which this hyperlink has. Though, typical hyperlinks will have only one anchor.
    *
    * @return The number of anchors.
    */
-  virtual std::int32_t GetAnchorCount() const = 0;
+  virtual std::int32_t GetAnchorCount() const;
 
   /**
    * @brief Gets the object associated with a particular hyperlink's anchor.
@@ -60,7 +60,7 @@ public:
    *
    * @return The handle to accessible object.
    */
-  virtual Accessible* GetAnchorAccessible(std::int32_t anchorIndex) const = 0;
+  virtual Accessible* GetAnchorAccessible(std::int32_t anchorIndex) const;
 
   /**
    * @brief Gets the URI associated with a particular hyperlink's anchor.
@@ -69,24 +69,14 @@ public:
    *
    * @return The string containing URI.
    */
-  virtual std::string GetAnchorUri(std::int32_t anchorIndex) const = 0;
+  virtual std::string GetAnchorUri(std::int32_t anchorIndex) const;
 
   /**
    * @brief Tells whether this hyperlink object is still valid with respect to its originating hypertext object.
    *
    * @return True if hyperlink object is valid, false otherwise
    */
-  virtual bool IsValid() const = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Hyperlink.
-   *
-   * @param obj The Accessible
-   * @return A Hyperlink or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Hyperlink* DownCast(Accessible* obj);
+  virtual bool IsValid() const;
 };
 
 namespace Internal
@@ -97,11 +87,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::HYPERLINK>
   using Type = Hyperlink;
 };
 } // namespace Internal
-
-inline Hyperlink* Hyperlink::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::HYPERLINK>(obj);
-}
 
 } // namespace Dali::Accessibility
 

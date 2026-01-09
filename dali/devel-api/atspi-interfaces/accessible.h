@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,37 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/action.h>
+#include <dali/devel-api/atspi-interfaces/application.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/devel-api/atspi-interfaces/editable-text.h>
+#include <dali/devel-api/atspi-interfaces/hyperlink.h>
+#include <dali/devel-api/atspi-interfaces/hypertext.h>
+#include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
+#include <dali/devel-api/atspi-interfaces/table-cell.h>
+#include <dali/devel-api/atspi-interfaces/table.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Basic interface implemented by all accessibility objects.
  */
-class DALI_ADAPTOR_API Accessible
+class DALI_ADAPTOR_API Accessible : public Dali::Accessibility::Action,
+                                    public Dali::Accessibility::Application,
+                                    public Dali::Accessibility::Collection,
+                                    public Dali::Accessibility::Component,
+                                    public Dali::Accessibility::EditableText, // Include Text
+                                    public Dali::Accessibility::Hyperlink,
+                                    public Dali::Accessibility::Hypertext,
+                                    public Dali::Accessibility::Selection,
+                                    public Dali::Accessibility::Socket,
+                                    public Dali::Accessibility::TableCell,
+                                    public Dali::Accessibility::Table,
+                                    public Dali::Accessibility::Value
 {
 public:
   virtual ~Accessible() noexcept = default;
@@ -292,19 +316,23 @@ public:
    */
   std::string DumpTree(DumpDetailLevel detailLevel);
 
+  // Component interface
+  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type) override;
+
+  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const override;
+
 protected:
-  Accessible()                                               = default;
-  Accessible(const Accessible&)                              = delete;
-  Accessible(Accessible&&)                                   = delete;
-  Accessible&                   operator=(const Accessible&) = delete;
-  Accessible&                   operator=(Accessible&&)      = delete;
+  Accessible()                             = default;
+  Accessible(const Accessible&)            = delete;
+  Accessible(Accessible&&)                 = delete;
+  Accessible& operator=(const Accessible&) = delete;
+  Accessible& operator=(Accessible&&)      = delete;
 
   /**
    * @brief Returns the collection of AT-SPI interfaces implemented by this Accessible.
    *
-   * This method is called only once and its return value is cached. The default implementation
-   * uses dynamic_cast to determine which interfaces are implemented. Override this if you
-   * conceptually provide fewer interfaces than dynamic_cast can see.
+   * This method is called only once and its return value is cached. Must override this
+   * and fill interface if you determine which interfaces are implemented.
    *
    * @return The collection of implemented interfaces
    *
@@ -378,6 +406,8 @@ public:
 
   /**
    * @brief Downcasts an Accessible pointer to an AT-SPI interface pointer.
+   * @note Actual InterfaceType is parent of Accessible. So we use upcast internally.
+   *       Only AtspiInterfaces be used to determine whether given interface implemented or not.
    *
    * @tparam I Desired AT-SPI interface
    *
@@ -393,15 +423,15 @@ public:
       return nullptr;
     }
 
-    return dynamic_cast<AtspiInterfaceType<I>*>(obj);
+    return static_cast<AtspiInterfaceType<I>*>(obj);
   }
 
 private:
   friend class Bridge;
 
-  mutable AtspiInterfaces             mInterfaces;
-  AtspiEvents                         mSuppressedEvents;
-  bool                                mIsOnRootLevel = false;
+  mutable AtspiInterfaces mInterfaces;
+  AtspiEvents             mSuppressedEvents;
+  bool                    mIsOnRootLevel{false};
 
 }; // Accessible class
 

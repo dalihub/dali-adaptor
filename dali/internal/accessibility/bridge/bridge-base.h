@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,12 @@
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
+namespace Dali::Accessibility
+{
 /**
  * @brief The ApplicationAccessible class is to define Accessibility Application.
  */
-class ApplicationAccessible : public virtual Dali::Accessibility::Accessible,
-                              public virtual Dali::Accessibility::Application,
-                              public virtual Dali::Accessibility::Collection,
-                              public virtual Dali::Accessibility::Component,
-                              public virtual Dali::Accessibility::Socket
+class ApplicationAccessible : public Dali::Accessibility::Accessible
 {
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
@@ -53,80 +51,17 @@ public:
   bool                                          mIsEmbedded{false};
   bool                                          mShouldIncludeHidden{false};
 
-  std::string GetName() const override
-  {
-    return mName;
-  }
-
-  std::string GetDescription() const override
-  {
-    return {};
-  }
-
-  std::string GetValue() const override
-  {
-    return {};
-  }
-
-  Dali::Accessibility::Accessible* GetParent() override
-  {
-    return &mParent;
-  }
-
-  size_t GetChildCount() const override
-  {
-    return mChildren.size();
-  }
-
-  std::vector<Dali::Accessibility::Accessible*> GetChildren() override
-  {
-    return mChildren;
-  }
-
-  Dali::Accessibility::Accessible* GetChildAtIndex(size_t index) override
-  {
-    auto size = mChildren.size();
-    if(index >= size)
-    {
-      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(size) + " children"};
-    }
-    return mChildren[index];
-  }
-
-  size_t GetIndexInParent() override
-  {
-    if(mIsEmbedded)
-    {
-      return 0u;
-    }
-
-    throw std::domain_error{"can't call GetIndexInParent on application object"};
-  }
-
-  Dali::Accessibility::Role GetRole() const override
-  {
-    return Dali::Accessibility::Role::APPLICATION;
-  }
-
-  Dali::Accessibility::States GetStates() override
-  {
-    Dali::Accessibility::States result;
-
-    for(auto* child : mChildren)
-    {
-      result = result | child->GetStates();
-    }
-
-    // The Application object should never have the SENSITIVE state
-    result[Dali::Accessibility::State::SENSITIVE] = false;
-
-    return result;
-  }
-
-  Dali::Accessibility::Attributes GetAttributes() const override
-  {
-    return {};
-  }
+  std::string                                   GetName() const override;
+  std::string                                   GetDescription() const override;
+  std::string                                   GetValue() const override;
+  Dali::Accessibility::Accessible*              GetParent() override;
+  size_t                                        GetChildCount() const override;
+  std::vector<Dali::Accessibility::Accessible*> GetChildren() override;
+  Dali::Accessibility::Accessible*              GetChildAtIndex(size_t index) override;
+  size_t                                        GetIndexInParent() override;
+  Dali::Accessibility::Role                     GetRole() const override;
+  Dali::Accessibility::States                   GetStates() override;
+  Dali::Accessibility::Attributes               GetAttributes() const override;
 
   /**
    * @brief Gets the Accessible object from the window.
@@ -135,181 +70,39 @@ public:
    * @return Null if mChildren is empty, otherwise the Accessible object
    * @note Currently, the default window would be returned when mChildren is not empty.
    */
-  Dali::Accessibility::ActorAccessible* GetWindowAccessible(Dali::Window window)
-  {
-    if(mChildren.empty())
-    {
-      return nullptr;
-    }
+  Dali::Accessibility::ActorAccessible* GetWindowAccessible(Dali::Window window);
 
-    Dali::Layer rootLayer = window.GetRootLayer();
-
-    // Find a child which is related to the window.
-    for(auto i = 0u; i < mChildren.size(); ++i)
-    {
-      if(rootLayer == mChildren[i]->GetInternalActor())
-      {
-        return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[i]);
-      }
-    }
-
-    // If can't find its children, return the default window.
-    return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[0]);
-  }
-
-  bool DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override
-  {
-    return false;
-  }
-
-  std::vector<Dali::Accessibility::Relation> GetRelationSet() override
-  {
-    return {};
-  }
-
-  Dali::Actor GetInternalActor() const override
-  {
-    return Dali::Actor{};
-  }
-
-  Dali::Accessibility::Address GetAddress() const override
-  {
-    return {"", "root"};
-  }
-
-  std::string GetStringProperty(std::string propertyName) const override
-  {
-    return {};
-  }
+  bool                                       DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override;
+  std::vector<Dali::Accessibility::Relation> GetRelationSet() override;
+  Dali::Actor                                GetInternalActor() const override;
+  Dali::Accessibility::Address               GetAddress() const override;
+  std::string                                GetStringProperty(std::string propertyName) const override;
 
   // Application
-
-  std::string GetToolkitName() const override
-  {
-    return mToolkitName;
-  }
-
-  std::string GetVersion() const override
-  {
-    return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
-  }
-
-  bool GetIncludeHidden() const override
-  {
-    return mShouldIncludeHidden;
-  }
-
-  bool SetIncludeHidden(bool includeHidden) override
-  {
-    if(mShouldIncludeHidden != includeHidden)
-    {
-      mShouldIncludeHidden = includeHidden;
-      return true;
-    }
-    return false;
-  }
+  std::string GetToolkitName() const override;
+  std::string GetVersion() const override;
+  bool        GetIncludeHidden() const override;
+  bool        SetIncludeHidden(bool includeHidden) override;
 
   // Socket
-
-  Dali::Accessibility::Address Embed(Dali::Accessibility::Address plug) override
-  {
-    mIsEmbedded = true;
-    mParent.SetAddress(plug);
-
-    return GetAddress();
-  }
-
-  void Unembed(Dali::Accessibility::Address plug) override
-  {
-    if(mParent.GetAddress() == plug)
-    {
-      mIsEmbedded = false;
-      mParent.SetAddress({});
-      if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
-      {
-        bridge->SetExtentsOffset(0, 0);
-      }
-    }
-  }
-
-  void SetOffset(std::int32_t x, std::int32_t y) override
-  {
-    if(!mIsEmbedded)
-    {
-      return;
-    }
-
-    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
-    {
-      bridge->SetExtentsOffset(x, y);
-    }
-  }
+  Dali::Accessibility::Address Embed(Dali::Accessibility::Address plug) override;
+  void                         Unembed(Dali::Accessibility::Address plug) override;
+  void                         SetOffset(std::int32_t x, std::int32_t y) override;
 
   // Component
+  Dali::Rect<float>                   GetExtents(Dali::Accessibility::CoordinateType type) const override;
+  Dali::Accessibility::ComponentLayer GetLayer() const override;
+  std::int16_t                        GetMdiZOrder() const override;
+  bool                                GrabFocus() override;
+  double                              GetAlpha() const override;
+  bool                                GrabHighlight() override;
+  bool                                ClearHighlight() override;
+  bool                                IsScrollable() const override;
 
-  Dali::Rect<> GetExtents(Dali::Accessibility::CoordinateType type) const override
-  {
-    using limits = std::numeric_limits<float>;
-
-    float minX = limits::max();
-    float minY = limits::max();
-    float maxX = limits::min();
-    float maxY = limits::min();
-
-    for(Dali::Accessibility::Accessible* child : mChildren)
-    {
-      auto* component = Dali::Accessibility::Component::DownCast(child);
-      if(!component)
-      {
-        continue;
-      }
-
-      auto extents = component->GetExtents(type);
-
-      minX = std::min(minX, extents.x);
-      minY = std::min(minY, extents.y);
-      maxX = std::max(maxX, extents.x + extents.width);
-      maxY = std::max(maxY, extents.y + extents.height);
-    }
-
-    return {minX, minY, maxX - minX, maxY - minY};
-  }
-
-  Dali::Accessibility::ComponentLayer GetLayer() const override
-  {
-    return Dali::Accessibility::ComponentLayer::WINDOW;
-  }
-
-  std::int16_t GetMdiZOrder() const override
-  {
-    return 0;
-  }
-
-  bool GrabFocus() override
-  {
-    return false;
-  }
-
-  double GetAlpha() const override
-  {
-    return 0.0;
-  }
-
-  bool GrabHighlight() override
-  {
-    return false;
-  }
-
-  bool ClearHighlight() override
-  {
-    return false;
-  }
-
-  bool IsScrollable() const override
-  {
-    return false;
-  }
+protected:
+  Dali::Accessibility::AtspiInterfaces DoGetInterfaces() const override;
 };
+} //namespace Dali::Accessibility
 
 /**
  * @brief Enumeration for CoalescableMessages.
@@ -619,9 +412,9 @@ public:
 
     Type* result;
     auto* currentObject = FindCurrentObject();
-    DALI_ASSERT_DEBUG(currentObject); // FindCurrentObject() throws domain_error
+    DALI_ASSERT_ALWAYS(currentObject && "Current BridgeBase's Accessible should not be nullptr"); // FindCurrentObject() throws domain_error
 
-    if(!(result = Dali::Accessibility::Accessible::DownCast<I>(currentObject)))
+    if(!(result = dynamic_cast<Type*>(currentObject)))
     {
       std::stringstream s;
 
@@ -669,9 +462,10 @@ protected:
   using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::WeakHandle<Dali::Actor>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
-  mutable ApplicationAccessible mApplication;
-  DefaultLabelsType             mDefaultLabels;
-  bool                          mIsScreenReaderSuppressed = false;
+  mutable Dali::Accessibility::ApplicationAccessible mApplication;
+
+  DefaultLabelsType mDefaultLabels;
+  bool              mIsScreenReaderSuppressed = false;
 
 private:
   /**

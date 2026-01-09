@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-table.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/table-cell.h>
 
 using namespace Dali::Accessibility;
@@ -94,7 +95,7 @@ DBus::ValueOrError<Accessible*> BridgeTable::GetSummary()
 
 DBus::ValueOrError<Accessible*> BridgeTable::GetCell(std::int32_t row, std::int32_t column)
 {
-  return FindSelf()->GetCell(row, column);
+  return dynamic_cast<Dali::Accessibility::Accessible*>(FindSelf()->GetCell(row, column));
 }
 
 DBus::ValueOrError<std::int32_t> BridgeTable::GetChildIndex(std::int32_t row, std::int32_t column)

@@ -33,7 +33,6 @@
 #include <dali/devel-api/atspi-interfaces/action.h>
 #include <dali/devel-api/atspi-interfaces/application.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/devel-api/atspi-interfaces/editable-text.h>
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
@@ -48,8 +47,8 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-using namespace Dali::Accessibility;
-using namespace Dali;
+namespace Dali::Accessibility
+{
 
 const std::string& Dali::Accessibility::Address::GetBus() const
 {
@@ -233,20 +232,21 @@ AtspiInterfaces Accessible::DoGetInterfaces() const
 {
   AtspiInterfaces interfaces;
 
+  // TODO : Need to use new API for it.
   interfaces[AtspiInterface::ACCESSIBLE]    = true;
-  interfaces[AtspiInterface::ACTION]        = dynamic_cast<const Action*>(this);
-  interfaces[AtspiInterface::APPLICATION]   = dynamic_cast<const Application*>(this);
-  interfaces[AtspiInterface::COLLECTION]    = dynamic_cast<const Collection*>(this);
-  interfaces[AtspiInterface::COMPONENT]     = dynamic_cast<const Component*>(this);
-  interfaces[AtspiInterface::EDITABLE_TEXT] = dynamic_cast<const EditableText*>(this);
-  interfaces[AtspiInterface::HYPERLINK]     = dynamic_cast<const Hyperlink*>(this);
-  interfaces[AtspiInterface::HYPERTEXT]     = dynamic_cast<const Hypertext*>(this);
-  interfaces[AtspiInterface::SELECTION]     = dynamic_cast<const Selection*>(this);
-  interfaces[AtspiInterface::SOCKET]        = dynamic_cast<const Socket*>(this);
-  interfaces[AtspiInterface::TABLE]         = dynamic_cast<const Table*>(this);
-  interfaces[AtspiInterface::TABLE_CELL]    = dynamic_cast<const TableCell*>(this);
-  interfaces[AtspiInterface::TEXT]          = dynamic_cast<const Text*>(this);
-  interfaces[AtspiInterface::VALUE]         = dynamic_cast<const Value*>(this);
+  interfaces[AtspiInterface::ACTION]        = false;
+  interfaces[AtspiInterface::APPLICATION]   = false;
+  interfaces[AtspiInterface::COLLECTION]    = false;
+  interfaces[AtspiInterface::COMPONENT]     = true;
+  interfaces[AtspiInterface::EDITABLE_TEXT] = false;
+  interfaces[AtspiInterface::HYPERLINK]     = false;
+  interfaces[AtspiInterface::HYPERTEXT]     = false;
+  interfaces[AtspiInterface::SELECTION]     = false;
+  interfaces[AtspiInterface::SOCKET]        = false;
+  interfaces[AtspiInterface::TABLE]         = false;
+  interfaces[AtspiInterface::TABLE_CELL]    = false;
+  interfaces[AtspiInterface::TEXT]          = false;
+  interfaces[AtspiInterface::VALUE]         = false;
 
   return interfaces;
 }
@@ -331,10 +331,10 @@ void Bridge::ForceDown()
   auto highlighted = Accessible::GetCurrentlyHighlightedActor();
   if(highlighted)
   {
-    auto component = dynamic_cast<Component*>(Accessible::Get(highlighted));
-    if(component)
+    auto accessible = Accessible::Get(highlighted);
+    if(accessible)
     {
-      component->ClearHighlight();
+      accessible->ClearHighlight();
     }
   }
   mData = {};
@@ -399,7 +399,7 @@ public:
     // Clear the old highlight.
     if(oldHighlightedActor)
     {
-      auto oldHighlightedObject = Dali::Accessibility::Component::DownCast(Accessible::Get(oldHighlightedActor));
+      auto oldHighlightedObject = Accessible::Get(oldHighlightedActor);
       if(oldHighlightedObject)
       {
         oldHighlightedObject->ClearHighlight();
@@ -623,3 +623,5 @@ Accessible* Accessible::Get(Dali::Actor actor)
   auto accessible = Accessible::GetOwningPtr(actor);
   return accessible ? accessible.get() : nullptr;
 }
+
+} //namespace Dali::Accessibility

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_COMPONENT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**
@@ -50,7 +50,7 @@ protected:
    *
    * @return The Component object
    */
-  Dali::Accessibility::Component* FindSelf() const;
+  Dali::Accessibility::Accessible* FindSelf() const;
 
 public:
   /**
