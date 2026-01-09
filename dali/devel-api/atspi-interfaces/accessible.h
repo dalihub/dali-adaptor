@@ -19,47 +19,29 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
 #include <cstdint>
 #include <map>
 #include <string>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/atspi-interfaces/action.h>
-#include <dali/devel-api/atspi-interfaces/application.h>
-#include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
-#include <dali/devel-api/atspi-interfaces/editable-text.h>
-#include <dali/devel-api/atspi-interfaces/hyperlink.h>
-#include <dali/devel-api/atspi-interfaces/hypertext.h>
-#include <dali/devel-api/atspi-interfaces/selection.h>
-#include <dali/devel-api/atspi-interfaces/socket.h>
-#include <dali/devel-api/atspi-interfaces/table-cell.h>
-#include <dali/devel-api/atspi-interfaces/table.h>
-#include <dali/devel-api/atspi-interfaces/text.h>
-#include <dali/devel-api/atspi-interfaces/value.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Basic interface implemented by all accessibility objects.
  */
-class DALI_ADAPTOR_API Accessible : public Dali::Accessibility::Action,
-                                    public Dali::Accessibility::Application,
-                                    public Dali::Accessibility::Collection,
-                                    public Dali::Accessibility::Component,
-                                    public Dali::Accessibility::EditableText, // Include Text
-                                    public Dali::Accessibility::Hyperlink,
-                                    public Dali::Accessibility::Hypertext,
-                                    public Dali::Accessibility::Selection,
-                                    public Dali::Accessibility::Socket,
-                                    public Dali::Accessibility::TableCell,
-                                    public Dali::Accessibility::Table,
-                                    public Dali::Accessibility::Value
+class DALI_ADAPTOR_API Accessible : public Component
 {
 public:
   virtual ~Accessible() noexcept = default;
@@ -405,26 +387,85 @@ public:
   static std::string GetInterfaceName(AtspiInterface interface);
 
   /**
-   * @brief Downcasts an Accessible pointer to an AT-SPI interface pointer.
-   * @note Actual InterfaceType is parent of Accessible. So we use upcast internally.
-   *       Only AtspiInterfaces be used to determine whether given interface implemented or not.
+   * @brief Adds a feature of type T with implementation Impl.
    *
-   * @tparam I Desired AT-SPI interface
+   * This template function creates and registers a new feature instance.
+   * The feature type T must inherit from IAccessibilityFeature.
+   * The implementation type Impl must inherit from T.
    *
-   * @param obj Object to cast.
+   * @tparam T The feature interface type
+   * @tparam Impl The feature implementation type
+   * @tparam Args The argument types for the implementation constructor
+   * @param[in] args The arguments to pass to the implementation constructor
    *
-   * @return Pointer to an AT-SPI interface or null if the interface is not implemented.
+   * @note The feature instance is automatically managed and will be destroyed
+   * when this Accessible object is destroyed.
    */
-  template<AtspiInterface I>
-  static AtspiInterfaceType<I>* DownCast(Accessible* obj)
+  template <typename T, typename Impl, typename... Args>
+  void AddFeature(Args &&...args)
   {
-    if(!obj || !obj->GetInterfaces()[I])
-    {
-      return nullptr;
-    }
+    static_assert(std::is_base_of<T,Impl>::value, "Impl must inherit from T");
+    static_assert(std::is_base_of<IAccessibilityFeature, T>::value, "T must inherit from IAccessibilityFeature");
 
-    return static_cast<AtspiInterfaceType<I>*>(obj);
+    mFeatures[std::type_index(typeid(T))] = std::make_shared<Impl>(std::forward<Args>(args)...);
   }
+
+  /**
+   * @brief Adds an existing feature instance.
+   *
+   * This template function registers an existing feature instance.
+   * The feature type T must inherit from IAccessibilityFeature.
+   * The feature instance is not automatically deleted when this Accessible
+   * object is destroyed - the original owner retains ownership.
+   *
+   * @tparam T The feature type
+   * @param[in] feature Pointer to the existing feature instance
+   *
+   * @note The feature instance is not owned by this Accessible object.
+   * The original owner is responsible for managing the feature's lifetime.
+   */
+  template <typename T>
+  void AddFeature(T* feature)
+  {
+    static_assert(std::is_base_of<IAccessibilityFeature, T>::value, "T must inherit from IAccessibilityFeature");
+
+    mFeatures[std::type_index(typeid(T))] = std::shared_ptr<IAccessibilityFeature>(feature, [](IAccessibilityFeature *) {});
+  }
+
+  /**
+   * @brief Gets a feature of type T.
+   *
+   * This template function retrieves a previously registered feature instance.
+   * The feature type T must inherit from IAccessibilityFeature.
+   *
+   * @tparam T The feature type to retrieve
+   * @return Shared pointer to the feature instance, or nullptr if not found
+   *
+   * @note Returns nullptr if the feature has not been registered or if the
+   * dynamic cast to type T fails.
+   */
+  template <typename T>
+  std::shared_ptr<T> GetFeature() const
+  {
+    auto it = mFeatures.find(std::type_index(typeid(T)));
+    if (it != mFeatures.end())
+    {
+      return std::dynamic_pointer_cast<T>(it->second);
+    }
+    return nullptr;
+  }
+
+  /**
+   * @brief Initializes default accessibility features.
+   *
+   * This pure virtual function must be implemented by derived classes to
+   * initialize the default set of accessibility features for the specific
+   * accessible object type.
+   *
+   * @note This function is called during the initialization of the accessible
+   * object to set up the basic accessibility features that are always available.
+   */
+  virtual void InitDefaultFeatures() = 0;
 
 private:
   friend class Bridge;
@@ -432,6 +473,7 @@ private:
   mutable AtspiInterfaces mInterfaces;
   AtspiEvents             mSuppressedEvents;
   bool                    mIsOnRootLevel{false};
+  std::unordered_map<std::type_index, std::shared_ptr<IAccessibilityFeature>> mFeatures;
 
 }; // Accessible class
 

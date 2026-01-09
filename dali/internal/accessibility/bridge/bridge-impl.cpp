@@ -41,8 +41,6 @@
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-selection.h>
 #include <dali/internal/accessibility/bridge/bridge-socket.h>
-#include <dali/internal/accessibility/bridge/bridge-table-cell.h>
-#include <dali/internal/accessibility/bridge/bridge-table.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
@@ -72,9 +70,7 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeApplication,
                    public BridgeHypertext,
                    public BridgeHyperlink,
-                   public BridgeSocket,
-                   public BridgeTable,
-                   public BridgeTableCell
+                   public BridgeSocket
 {
   DBus::DBusClient                                              mAccessibilityStatusClient{};
   DBus::DBusClient                                              mRegistryClient{};
@@ -161,7 +157,11 @@ public:
    */
   bool ShouldIncludeHidden() const override
   {
-    return mApplication.mShouldIncludeHidden;
+    if(auto application = mApplication->GetFeature<Application>())
+    {
+      return application->GetIncludeHidden();
+    }
+    return false;
   }
 
   void NotifyIncludeHiddenChanged() override
@@ -316,7 +316,7 @@ public:
       mData->mHighlightActor            = {};
 
       mDisabledSignal.Emit();
-      UnembedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
+      UnembedSocket(mApplication->GetAddress(), {AtspiDbusNameRegistry, "root"});
       ReleaseBusName(mPreferredBusName);
     }
 
@@ -324,7 +324,7 @@ public:
     mRegistryClient      = {};
     mDirectReadingClient = {};
     mDirectReadingCallbacks.clear();
-    mApplication.mChildren.clear();
+    mApplication->mChildren.clear();
     ClearTimer();
 
     for(auto& [key, obj] : mAccessibles)
@@ -383,7 +383,7 @@ public:
     if(mData)
     {
       // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
-      for(auto windowAccessible : mApplication.mChildren)
+      for(auto windowAccessible : mApplication->mChildren)
       {
         BridgeObject::Emit(windowAccessible, WindowEvent::DESTROY);
       }
@@ -445,8 +445,6 @@ public:
     BridgeHypertext::RegisterInterfaces();
     BridgeHyperlink::RegisterInterfaces();
     BridgeSocket::RegisterInterfaces();
-    BridgeTable::RegisterInterfaces();
-    BridgeTableCell::RegisterInterfaces();
 
     mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
@@ -466,8 +464,11 @@ public:
 
     RequestBusName(mPreferredBusName);
 
-    auto parentAddress = EmbedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
-    mApplication.mParent.SetAddress(std::move(parentAddress));
+    auto parentAddress = EmbedSocket(mApplication->GetAddress(), {AtspiDbusNameRegistry, "root"});
+    if(auto proxyAccessible = dynamic_cast<ProxyAccessible*>(mApplication->GetParent()))
+    {
+      proxyAccessible->SetAddress(std::move(parentAddress));
+    }
     mEnabledSignal.Emit();
 
     return ForceUpResult::JUST_STARTED;
@@ -481,7 +482,7 @@ public:
    */
   void EmitCreated(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::CREATE, 0);
@@ -496,7 +497,7 @@ public:
    */
   void EmitShown(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->EmitShowing(true);
@@ -511,7 +512,7 @@ public:
    */
   void EmitHidden(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->EmitShowing(false);
@@ -526,7 +527,7 @@ public:
    */
   void EmitActivate(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::ACTIVATE, 0);
@@ -541,7 +542,7 @@ public:
    */
   void EmitDeactivate(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::DEACTIVATE, 0);
@@ -556,7 +557,7 @@ public:
    */
   void EmitMinimize(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::MINIMIZE, 0);
@@ -572,7 +573,7 @@ public:
    */
   void EmitRestore(Dali::Window window, Dali::Accessibility::WindowRestoreType detail)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::RESTORE, static_cast<unsigned int>(detail));
@@ -587,7 +588,7 @@ public:
    */
   void EmitMaximize(Dali::Window window)
   {
-    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::MAXIMIZE, 0);

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_COLLECTION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ protected:
    *
    * @return The Collection object
    */
-  Dali::Accessibility::Collection* FindSelf() const;
+  std::shared_ptr<Dali::Accessibility::Collection> FindSelf() const;
 
 public:
   /**

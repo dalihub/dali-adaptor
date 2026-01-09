@@ -41,7 +41,7 @@ public:
    *
    * @see Dali::Rect<float>
    */
-  virtual Rect<float> GetExtents(CoordinateType type) const;
+  virtual Rect<float> GetExtents(CoordinateType type) const = 0;
 
   /**
    * @brief Gets layer current object is localized on.
@@ -50,7 +50,7 @@ public:
    *
    * @see Dali::Accessibility::ComponentLayer
    */
-  virtual ComponentLayer GetLayer() const;
+  virtual ComponentLayer GetLayer() const = 0;
 
   /**
    * @brief Gets value of z-order.
@@ -60,21 +60,21 @@ public:
    * which in short means that many stacked windows can be displayed within a single application.
    * In such model, the concept of z-order of UI element became important to deal with element overlapping.
    */
-  virtual int16_t GetMdiZOrder() const;
+  virtual int16_t GetMdiZOrder() const = 0;
 
   /**
    * @brief Sets current object as "focused".
    *
    * @return true on success, false otherwise
    */
-  virtual bool GrabFocus();
+  virtual bool GrabFocus() = 0;
 
   /**
    * @brief Gets value of alpha channel.
    *
    * @return The alpha channel value in range [0.0, 1.0]
    */
-  virtual double GetAlpha() const;
+  virtual double GetAlpha() const = 0;
 
   /**
    * @brief Sets current object as "highlighted".
@@ -84,7 +84,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool GrabHighlight();
+  virtual bool GrabHighlight() = 0;
 
   /**
    * @brief Sets current object as "unhighlighted".
@@ -95,7 +95,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool ClearHighlight();
+  virtual bool ClearHighlight() = 0;
 
   /**
    * @brief Checks whether object can be scrolled.
@@ -104,7 +104,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool IsScrollable() const;
+  virtual bool IsScrollable() const = 0;
 
   /**
    * @brief Gets Accessible object containing given point.
@@ -116,7 +116,7 @@ public:
    *
    * @see Dali::Accessibility::Point
    */
-  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type);
+  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type) = 0;
 
   /**
    * @brief Checks if the current object contains the given point inside.
@@ -129,7 +129,7 @@ public:
    * @remarks This method is `Contains` in DBus method.
    * @see Dali::Accessibility::Point
    */
-  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const;
+  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const = 0;
 };
 
 namespace Internal

@@ -33,7 +33,7 @@ void BridgeHypertext::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Hypertext* BridgeHypertext::FindSelf() const
+std::shared_ptr<Hypertext> BridgeHypertext::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::HYPERTEXT>();
 }
@@ -45,7 +45,7 @@ DBus::ValueOrError<int32_t> BridgeHypertext::GetLinkCount()
 
 DBus::ValueOrError<Dali::Accessibility::Accessible*> BridgeHypertext::GetLink(int32_t linkIndex)
 {
-  return dynamic_cast<Dali::Accessibility::Accessible*>(FindSelf()->GetLink(linkIndex));
+  return FindSelf()->GetLink(linkIndex);
 }
 
 DBus::ValueOrError<int32_t> BridgeHypertext::GetLinkIndex(int32_t characterOffset)

@@ -22,13 +22,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface enabling to perform provided actions.
  */
-class DALI_ADAPTOR_API Action
+class DALI_ADAPTOR_API Action : public IAccessibilityFeature
 {
 public:
   /**
@@ -38,7 +39,7 @@ public:
    *
    * @return The string with name of action
    */
-  virtual std::string GetActionName(std::size_t index) const;
+  virtual std::string GetActionName(std::size_t index) const = 0;
 
   /**
    * @brief Gets translated name of action with given index.
@@ -49,7 +50,7 @@ public:
    *
    * @note The translation is not supported in this version
    */
-  virtual std::string GetLocalizedActionName(std::size_t index) const;
+  virtual std::string GetLocalizedActionName(std::size_t index) const = 0;
 
   /**
    * @brief Gets description of action with given index.
@@ -58,7 +59,7 @@ public:
    *
    * @return The string with description of action
    */
-  virtual std::string GetActionDescription(std::size_t index) const;
+  virtual std::string GetActionDescription(std::size_t index) const = 0;
 
   /**
    * @brief Gets key code binded to action with given index.
@@ -67,14 +68,14 @@ public:
    *
    * @return The string with key name
    */
-  virtual std::string GetActionKeyBinding(std::size_t index) const;
+  virtual std::string GetActionKeyBinding(std::size_t index) const = 0;
 
   /**
    * @brief Gets number of provided actions.
    *
    * @return The number of actions
    */
-  virtual std::size_t GetActionCount() const;
+  virtual std::size_t GetActionCount() const = 0;
 
   /**
    * @brief Performs an action with given index.
@@ -83,7 +84,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction(std::size_t index);
+  virtual bool DoAction(std::size_t index) = 0;
 
   /**
    * @brief Performs an action with given name.
@@ -92,7 +93,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction(const std::string& name);
+  virtual bool DoAction(const std::string& name) = 0;
 };
 
 namespace Internal

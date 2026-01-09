@@ -22,6 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
 
 namespace Dali::Accessibility
@@ -29,7 +30,7 @@ namespace Dali::Accessibility
 /**
  * @brief Interface representing hypertext that can store a collection of hyperlinks.
  */
-class DALI_ADAPTOR_API Hypertext
+class DALI_ADAPTOR_API Hypertext : public IAccessibilityFeature
 {
 public:
   /**
@@ -39,7 +40,7 @@ public:
    *
    * @return Handle to hyperlink object at a specified index in hyperlink collection of hypertext.
    */
-  virtual Hyperlink* GetLink(std::int32_t linkIndex) const;
+  virtual Accessible* GetLink(std::int32_t linkIndex) const = 0;
 
   /**
    * @brief Gets the index in hyperlink collection occupied by hyperlink which spans over a specified character offset in this hypertext.
@@ -48,14 +49,14 @@ public:
    *
    * @return The value of 0-based index in hyperlink collection (-1 if there is no hyperlink at the specified character offset).
    */
-  virtual std::int32_t GetLinkIndex(std::int32_t characterOffset) const;
+  virtual std::int32_t GetLinkIndex(std::int32_t characterOffset) const = 0;
 
   /**
    * @brief Gets number of hyperlinks stored in this hypertext.
    *
    * @return The number of hyperlinks (zero if none or -1 if the number cannot be determined)
    */
-  virtual std::int32_t GetLinkCount() const;
+  virtual std::int32_t GetLinkCount() const = 0;
 };
 
 namespace Internal
