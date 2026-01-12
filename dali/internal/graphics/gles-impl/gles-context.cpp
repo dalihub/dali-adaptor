@@ -559,8 +559,10 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         needDraw = false;
       }
 
+      GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
+
       // Must call it after Prepare(), and must cache even if prepare failed.
-      dependencyChecker.MarkNativeTexturePrepared(this, texture);
+      dependencyChecker.MarkNativeTexturePrepared(this, framebuffer, texture);
     }
 
     if(programChanged)

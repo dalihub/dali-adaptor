@@ -106,7 +106,7 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
   textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
 
   // For native image texture
-  CreateNativeTextureSync(writeContext);
+  CreateNativeTextureSync(writeContext, framebuffer);
 }
 
 void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture, bool cpu)
@@ -143,11 +143,11 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
   }
 }
 
-void TextureDependencyChecker::MarkNativeTexturePrepared(const Context* context, const GLES::Texture* texture)
+void TextureDependencyChecker::MarkNativeTexturePrepared(const Context* context, const Framebuffer* framebuffer, const GLES::Texture* texture)
 {
   if(DALI_LIKELY(texture->IsNativeTexture()))
   {
-    mNativeTextureDependencies.push_back({context, texture});
+    mNativeTextureDependencies.push_back({{context, framebuffer}, texture});
   }
 }
 
@@ -159,7 +159,7 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
     while(iter != mNativeTextureDependencies.end())
     {
       iter = std::find_if(iter, mNativeTextureDependencies.end(),
-                          [&](const std::pair<const Context*, const Texture*>& p)
+                          [&](const std::pair<NativeTextureDependencyKey, const Texture*>& p)
       { return p.second == texture; });
       if(iter != mNativeTextureDependencies.end())
       {
@@ -169,14 +169,14 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
   }
 }
 
-void TextureDependencyChecker::CreateNativeTextureSync(const Context* context)
+void TextureDependencyChecker::CreateNativeTextureSync(const Context* context, const Framebuffer* framebuffer)
 {
   auto iter = mNativeTextureDependencies.begin();
   while(iter != mNativeTextureDependencies.end())
   {
     iter = std::find_if(iter, mNativeTextureDependencies.end(),
-                        [&](const std::pair<const Context*, const Texture*>& p)
-    { return p.first == context; });
+                        [&](const std::pair<NativeTextureDependencyKey, const Texture*>& p)
+    { return p.first.first == context && p.first.second == framebuffer; });
     if(iter != mNativeTextureDependencies.end())
     {
       const_cast<GLES::Texture*>(iter->second)->ResetPrepare();

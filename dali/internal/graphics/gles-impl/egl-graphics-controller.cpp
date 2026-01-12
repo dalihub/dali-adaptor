@@ -333,7 +333,8 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     const auto* currentSurfaceContext = GetSurfaceContext(surfaceInterface);
     mSyncPool.ProcessDiscardSyncObjects(currentSurfaceContext);
 
-    mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext);
+    GLES::Framebuffer* framebuffer = renderTarget->GetFramebuffer();
+    mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
   }
   else
   {
