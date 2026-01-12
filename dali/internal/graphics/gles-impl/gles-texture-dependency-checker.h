@@ -90,7 +90,7 @@ public: ///< For NativeTexture dependency checker
   /**
    * @brief Add prepared native image texture to dependency list
    */
-  void MarkNativeTexturePrepared(const Context* context, const Texture* texture);
+  void MarkNativeTexturePrepared(const Context* context, const Framebuffer* framebuffer, const Texture* texture);
 
   /**
    * @brief Remove native image texture from dependency list.
@@ -101,7 +101,7 @@ public: ///< For NativeTexture dependency checker
   /**
    * @brief Create a sync for the native image texture
    */
-  void CreateNativeTextureSync(const Context* context);
+  void CreateNativeTextureSync(const Context* context, const Framebuffer* framebuffer);
 
 private:
   using SyncObjectId = uint32_t; ///< Note : It should be matched with Dali::Graphics::GLES::SyncPool:SyncObjectId.
@@ -118,7 +118,8 @@ private:
   };
   std::vector<FramebufferTextureDependency> mFramebufferTextureDependencies;
 
-  std::vector<std::pair<const Context*, const Texture*>> mNativeTextureDependencies;
+  using NativeTextureDependencyKey = std::pair<const Context*, const Framebuffer*>;
+  std::vector<std::pair<NativeTextureDependencyKey, const Texture*>> mNativeTextureDependencies;
 
   EglGraphicsController& mController;
 };
