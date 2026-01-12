@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -559,8 +559,10 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         needDraw = false;
       }
 
+      GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
+
       // Must call it after Prepare(), and must cache even if prepare failed.
-      dependencyChecker.MarkNativeTexturePrepared(texture);
+      dependencyChecker.MarkNativeTexturePrepared(this, framebuffer, texture);
     }
 
     if(programChanged)

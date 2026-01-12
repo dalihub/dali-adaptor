@@ -65,6 +65,10 @@ constexpr int32_t NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 constexpr int32_t DEFAULT_TBM_SURFACE_QUEUE_SIZE = 3u;
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gNativeImageQueueLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_NATIVE_IMAGE_QUEUE");
+#endif
+
 int32_t GetTbmSurfaceQueueSize()
 {
   static auto    queueSizeString = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_TBM_SURFACE_QUEUE_SIZE);
@@ -107,7 +111,8 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mIsResized(false),
   mFreeRequest(false),
   mNeedSync(false),
-  mWaitInWorkerThread(false)
+  mWaitInWorkerThread(false),
+  mRendered(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -270,6 +275,7 @@ void NativeImageSourceQueueTizen::IgnoreSourceImage()
     if(tbm_surface_internal_is_valid(surface))
     {
       tbm_surface_queue_release(mTbmQueue, surface);
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", surface, this);
     }
   }
 }
@@ -328,6 +334,8 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
       fds.events  = POLLIN;
       fds.revents = 0;
 
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %d] [%p]\n", tbmSurface, fenceFd, this);
+
       DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
 
       int ret = poll(&fds, 1, 5000); // timeout 5sec
@@ -368,6 +376,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     {
       DALI_LOG_ERROR("tbm_surface_map is failed! [%d] [%p]\n", ret, tbmSurface);
       tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+      tbm_surface_internal_unref(tbmSurface);
       return nullptr;
     }
 
@@ -377,6 +386,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
       DALI_LOG_ERROR("tbm buffer pointer is null! [%p]\n", tbmSurface);
       tbm_surface_unmap(tbmSurface);
       tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+      tbm_surface_internal_unref(tbmSurface);
       return nullptr;
     }
 
@@ -385,6 +395,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
       DALI_LOG_ERROR("tbm queue changed during dequeue! [%ux%u -> %ux%u] ignore buffer [%p]\n", info.width, info.height, mWidth, mHeight, tbmSurface);
       tbm_surface_unmap(tbmSurface);
       tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+      tbm_surface_internal_unref(tbmSurface);
       return nullptr;
     }
 
@@ -405,9 +416,9 @@ bool NativeImageSourceQueueTizen::EnqueueBuffer(uint8_t* buffer)
   auto                    bufferInstance = mBuffers.find(buffer);
   if(bufferInstance != mBuffers.end())
   {
-    tbm_surface_internal_unref((*bufferInstance).second);
     tbm_surface_unmap((*bufferInstance).second);
     tbm_surface_queue_enqueue(mTbmQueue, (*bufferInstance).second);
+    tbm_surface_internal_unref((*bufferInstance).second);
     mBuffers.erase(bufferInstance);
     return true;
   }
@@ -420,9 +431,9 @@ void NativeImageSourceQueueTizen::CancelDequeuedBuffer(uint8_t* buffer)
   auto                    bufferInstance = mBuffers.find(buffer);
   if(bufferInstance != mBuffers.end())
   {
-    tbm_surface_internal_unref((*bufferInstance).second);
     tbm_surface_unmap((*bufferInstance).second);
     tbm_surface_queue_cancel_dequeue(mTbmQueue, (*bufferInstance).second);
+    tbm_surface_internal_unref((*bufferInstance).second);
     mBuffers.erase(bufferInstance);
   }
 }
@@ -488,6 +499,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
   Dali::Mutex::ScopedLock lock(mMutex);
 
+  mRendered = true;
+
   if(mImageState != ImageState::INITIALIZED)
   {
     DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareTexture");
@@ -504,6 +517,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
       // Actually we only have 1 element in the list if mWaitInWorkerThread is true
       // But iterate the loop for safety
       iter.second.first->ClientWait();
+
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %p]\n", iter.first, iter.second.first);
     }
 
     ResetSyncObjects();
@@ -529,6 +544,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
         // We need a sync in case of the current consumed surface.
         // So we will release the buffer in PostRender().
         tbm_surface_queue_release(mTbmQueue, oldSurface);
+
+        DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", oldSurface, this);
       }
       oldSurface = newSurface;
       updated    = true;
@@ -551,6 +568,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
       if(tbm_surface_internal_is_valid(mOldSurface))
       {
         tbm_surface_queue_release(mTbmQueue, mOldSurface);
+
+        DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", mOldSurface, this);
       }
       mOldSurface = nullptr;
 
@@ -574,6 +593,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
     if(tbm_surface_internal_is_valid(mOldSurface))
     {
       tbm_surface_queue_release(mTbmQueue, mOldSurface);
+
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", mOldSurface, this);
     }
     mOldSurface = nullptr;
     mNeedSync   = false;
@@ -602,6 +623,8 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   }
 
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareTexture");
+
+  DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Use [%p] / Old [%p] [%p]\n", mConsumeSurface, mOldSurface, this);
 
   if(DALI_LIKELY(mConsumeSurface))
   {
@@ -640,8 +663,6 @@ bool NativeImageSourceQueueTizen::SourceChanged() const
 
 bool NativeImageSourceQueueTizen::CreateSyncObject()
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
-
   tbm_surface_h tbmSurface;
   bool          ret = true;
 
@@ -680,16 +701,10 @@ bool NativeImageSourceQueueTizen::CreateSyncObject()
       // Insert the new object
       [[maybe_unused]] auto insertResult = mEglSyncObjects.insert({tbmSurface, std::make_pair(syncObject, fenceFd)});
       DALI_ASSERT_DEBUG(insertResult.second && "We don't allow multiple sync objects cache!\n");
+
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "[%p, %p, %d] [%p]\n", tbmSurface, syncObject, fenceFd, this);
     }
   }
-
-  // Release the old surface now
-  if(tbm_surface_internal_is_valid(mOldSurface))
-  {
-    tbm_surface_queue_release(mTbmQueue, mOldSurface);
-  }
-
-  mOldSurface = nullptr;
 
   return ret;
 }
@@ -729,17 +744,39 @@ void NativeImageSourceQueueTizen::ResetDiscardSyncObjects()
 
 void NativeImageSourceQueueTizen::PostRender()
 {
-  // Create the sync object when we change the egl image
-  // We need the sync every frame if we should wait in the render thread
-  if(mNeedSync || (!mWaitInWorkerThread && mImageState != ImageState::INITIALIZED))
-  {
-    CreateSyncObject();
+  Dali::Mutex::ScopedLock lock(mMutex);
 
-    mNeedSync = false;
+  if(mRendered)
+  {
+    // End of render pass
+
+    // Create the sync object when we change the egl image
+    // We need the sync every frame if we should wait in the render thread
+    if(mNeedSync || !mWaitInWorkerThread)
+    {
+      CreateSyncObject();
+    }
+  }
+  else
+  {
+    // End of all rendering
+
+    // Release the old surface now
+    if(tbm_surface_internal_is_valid(mOldSurface))
+    {
+      tbm_surface_queue_release(mTbmQueue, mOldSurface);
+
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", mOldSurface, this);
+    }
+
+    mOldSurface = nullptr;
+
+    // Reset the image state and flag
+    mImageState = ImageState::INITIALIZED;
+    mNeedSync   = false;
   }
 
-  // Reset the image state
-  mImageState = ImageState::INITIALIZED;
+  mRendered = false;
 }
 
 // This Method is called inside mMutex
@@ -752,6 +789,8 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
     if(tbm_surface_internal_is_valid(mConsumeSurface))
     {
       tbm_surface_queue_release(mTbmQueue, mConsumeSurface);
+
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Release [%p] [%p]\n", mConsumeSurface, this);
     }
     mConsumeSurface = NULL;
   }

@@ -280,6 +280,7 @@ private:
   bool                    mFreeRequest;        ///< Whether it is requested to free the released buffers
   bool                    mNeedSync;           ///< Whether we need to create the egl sync object
   bool                    mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
+  bool                    mRendered;           ///< Whether this texture is rendered in this frame
 };
 
 } // namespace Adaptor
