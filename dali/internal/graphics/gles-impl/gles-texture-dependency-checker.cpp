@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,9 +58,9 @@ void TextureDependencyChecker::Reset()
   mFramebufferTextureDependencies.clear();
 
   // Reset all native texture's state as prepared.
-  for(auto& texture : mNativeTextureDependencies)
+  for(auto& iter : mNativeTextureDependencies)
   {
-    const_cast<GLES::Texture*>(texture)->ResetPrepare();
+    const_cast<GLES::Texture*>(iter.second)->ResetPrepare();
   }
   mNativeTextureDependencies.clear();
 }
@@ -104,6 +104,9 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
   // but they are usually drawn onto separate scene context.
   DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
   textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
+
+  // For native image texture
+  CreateNativeTextureSync(writeContext);
 }
 
 void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture, bool cpu)
@@ -140,11 +143,11 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
   }
 }
 
-void TextureDependencyChecker::MarkNativeTexturePrepared(const GLES::Texture* texture)
+void TextureDependencyChecker::MarkNativeTexturePrepared(const Context* context, const GLES::Texture* texture)
 {
   if(DALI_LIKELY(texture->IsNativeTexture()))
   {
-    mNativeTextureDependencies.push_back(texture);
+    mNativeTextureDependencies.push_back({context, texture});
   }
 }
 
@@ -152,10 +155,32 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
 {
   if(DALI_LIKELY(texture->IsNativeTexture()))
   {
-    auto iter = std::find(mNativeTextureDependencies.begin(), mNativeTextureDependencies.end(), texture);
+    auto iter = mNativeTextureDependencies.begin();
+    while(iter != mNativeTextureDependencies.end())
+    {
+      iter = std::find_if(iter, mNativeTextureDependencies.end(),
+                          [&](const std::pair<const Context*, const Texture*>& p)
+      { return p.second == texture; });
+      if(iter != mNativeTextureDependencies.end())
+      {
+        iter = mNativeTextureDependencies.erase(iter);
+      }
+    }
+  }
+}
+
+void TextureDependencyChecker::CreateNativeTextureSync(const Context* context)
+{
+  auto iter = mNativeTextureDependencies.begin();
+  while(iter != mNativeTextureDependencies.end())
+  {
+    iter = std::find_if(iter, mNativeTextureDependencies.end(),
+                        [&](const std::pair<const Context*, const Texture*>& p)
+    { return p.first == context; });
     if(iter != mNativeTextureDependencies.end())
     {
-      mNativeTextureDependencies.erase(iter);
+      const_cast<GLES::Texture*>(iter->second)->ResetPrepare();
+      ++iter;
     }
   }
 }
