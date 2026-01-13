@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -629,9 +629,9 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizen::Prepare
   return result;
 }
 
-bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader, int mask)
 {
-  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE, count);
+  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE, mask);
 }
 
 const char* NativeImageSourceTizen::GetCustomSamplerTypename() const

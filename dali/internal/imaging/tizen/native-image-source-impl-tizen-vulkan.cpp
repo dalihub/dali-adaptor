@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -584,7 +584,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceTizenVulkan::P
   return NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED;
 }
 
-bool NativeImageSourceTizenVulkan::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceTizenVulkan::ApplyNativeFragmentShader(std::string& shader, int mask)
 {
   // Not used in Vulkan backend
   return false;

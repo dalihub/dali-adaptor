@@ -636,9 +636,9 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
   }
 }
 
-bool NativeImageSourceQueueTizen::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceQueueTizen::ApplyNativeFragmentShader(std::string& shader, int mask)
 {
-  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE, count);
+  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE, mask);
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename() const
