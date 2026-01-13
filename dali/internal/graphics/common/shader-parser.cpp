@@ -732,29 +732,24 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
 
 void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
 {
-  auto vs = std::istringstream(*parseInfo.vertexShaderCode);
-  auto fs = std::istringstream(*parseInfo.fragmentShaderCode);
-
+  // Copy string of std::string_view.
+  // TODO : istringstream don't support std::string_view. Could we remove this string copy?
   output.resize(2);
+  output[0] = std::string(parseInfo.vertexShaderCode);
+  output[1] = std::string(parseInfo.fragmentShaderCode);
 
   // Create program
   Program program;
 
-  if(parseInfo.vertexShaderLegacyVersion)
+  if(parseInfo.vertexShaderLegacyVersion == 0u)
   {
-    output[0] = *parseInfo.vertexShaderCode;
-  }
-  else
-  {
+    auto vs = std::istringstream(output[0]);
     TokenizeSource(program, ShaderStage::VERTEX, vs);
   }
 
-  if(parseInfo.fragmentShaderLegacyVersion)
+  if(parseInfo.fragmentShaderLegacyVersion == 0u)
   {
-    output[1] = *parseInfo.fragmentShaderCode;
-  }
-  else
-  {
+    auto fs = std::istringstream(output[1]);
     TokenizeSource(program, ShaderStage::FRAGMENT, fs);
   }
 
@@ -797,8 +792,8 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       program.fragmentShader.output += ext + "\n";
     }
 
-    program.vertexShader.output += parseInfo.vertexShaderPrefix;
-    program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+    program.vertexShader.output += std::string(parseInfo.vertexShaderPrefix);
+    program.fragmentShader.output += std::string(parseInfo.fragmentShaderPrefix);
 
     if(parseInfo.language == OutputLanguage::GLSL_100_ES)
     {
@@ -824,20 +819,14 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
       // update #version
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
       program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
-      program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
 
       // Define extensions follow after version.
       for(const auto& ext : program.vertexShader.extensions)
       {
         program.vertexShader.output += ext + "\n";
       }
-      for(const auto& ext : program.fragmentShader.extensions)
-      {
-        program.fragmentShader.output += ext + "\n";
-      }
 
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+      program.vertexShader.output += std::string(parseInfo.vertexShaderPrefix);
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)
@@ -859,21 +848,15 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
     {
       // update #version
       std::string suffix(parseInfo.outputVersion < 200 ? std::string("\n") : std::string(" es\n"));
-      program.vertexShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
       program.fragmentShader.output += std::string("#version ") + std::to_string(parseInfo.outputVersion) + suffix;
 
       // Define extensions follow after version.
-      for(const auto& ext : program.vertexShader.extensions)
-      {
-        program.vertexShader.output += ext + "\n";
-      }
       for(const auto& ext : program.fragmentShader.extensions)
       {
         program.fragmentShader.output += ext + "\n";
       }
 
-      program.vertexShader.output += parseInfo.vertexShaderPrefix;
-      program.fragmentShader.output += parseInfo.fragmentShaderPrefix;
+      program.fragmentShader.output += std::string(parseInfo.fragmentShaderPrefix);
 
       auto language = parseInfo.language;
       if(parseInfo.language != OutputLanguage::SPIRV_GLSL)

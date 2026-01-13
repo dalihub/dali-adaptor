@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_SHADER_PARSER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,8 +82,8 @@ struct Program
 
 struct ShaderParserInfo
 {
-  const std::string* vertexShaderCode;
-  const std::string* fragmentShaderCode;
+  std::string_view vertexShaderCode;
+  std::string_view fragmentShaderCode;
 
   uint32_t vertexShaderLegacyVersion;
   uint32_t fragmentShaderLegacyVersion;
@@ -91,8 +91,8 @@ struct ShaderParserInfo
   OutputLanguage language;
   uint32_t       outputVersion;
 
-  std::string vertexShaderPrefix;   // this code will be added right after #version
-  std::string fragmentShaderPrefix; // this code will be added right after #version
+  std::string_view vertexShaderPrefix;   // this code will be added right after #version
+  std::string_view fragmentShaderPrefix; // this code will be added right after #version
 };
 
 /**

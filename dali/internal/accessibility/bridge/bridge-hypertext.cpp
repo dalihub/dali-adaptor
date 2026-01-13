@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-hypertext.h>
 
 using namespace Dali::Accessibility;
@@ -44,7 +45,7 @@ DBus::ValueOrError<int32_t> BridgeHypertext::GetLinkCount()
 
 DBus::ValueOrError<Dali::Accessibility::Accessible*> BridgeHypertext::GetLink(int32_t linkIndex)
 {
-  return FindSelf()->GetLink(linkIndex);
+  return dynamic_cast<Dali::Accessibility::Accessible*>(FindSelf()->GetLink(linkIndex));
 }
 
 DBus::ValueOrError<int32_t> BridgeHypertext::GetLinkIndex(int32_t characterOffset)

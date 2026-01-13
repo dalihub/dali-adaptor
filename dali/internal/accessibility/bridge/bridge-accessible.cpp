@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
@@ -52,7 +51,7 @@ constexpr const char* COLLECTION_CONTAINER_ATTR = "collection_container";
 // Comparison function for sorting by collection_index.
 // Items with collection_index come before those without.
 // If both have it, sorted by the integer value.
-bool SortByCollectionIndex(Component* lhs, Component* rhs)
+bool SortByCollectionIndex(Accessible* lhs, Accessible* rhs)
 {
   auto lhsAttr = lhs->GetAttributes();
   auto rhsAttr = rhs->GetAttributes();
@@ -84,7 +83,7 @@ bool SortByCollectionIndex(Component* lhs, Component* rhs)
   return false; // rhs has it or neither has it
 }
 
-void SortChildrenByCollectionIndex(std::vector<Dali::Accessibility::Component*>& children)
+void SortChildrenByCollectionIndex(std::vector<Dali::Accessibility::Accessible*>& children)
 {
   std::sort(children.begin(), children.end(), SortByCollectionIndex);
 }
@@ -100,7 +99,7 @@ bool IsSubWindow(Accessible* accessible)
   return false;
 }
 
-bool SortVertically(Component* lhs, Component* rhs)
+bool SortVertically(Accessible* lhs, Accessible* rhs)
 {
   auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
   auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
@@ -108,7 +107,7 @@ bool SortVertically(Component* lhs, Component* rhs)
   return leftRect.y < rightRect.y;
 }
 
-bool SortHorizontally(Component* lhs, Component* rhs)
+bool SortHorizontally(Accessible* lhs, Accessible* rhs)
 {
   auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
   auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
@@ -116,10 +115,10 @@ bool SortHorizontally(Component* lhs, Component* rhs)
   return leftRect.x < rightRect.x;
 }
 
-std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& children)
+std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>& children)
 {
   // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool
+  auto first = std::find_if(children.begin(), children.end(), [](Accessible* child) -> bool
   {
     auto extents = child->GetExtents(CoordinateType::WINDOW);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
@@ -130,9 +129,9 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
     return {};
   }
 
-  std::vector<std::vector<Component*>> lines(1);
-  Dali::Rect<>                         lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
-  Dali::Rect<>                         rect;
+  std::vector<std::vector<Accessible*>> lines(1);
+  Dali::Rect<float>                     lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
+  Dali::Rect<float>                     rect;
 
   // Split into lines
   for(auto it = first; it != children.end(); ++it)
@@ -163,14 +162,14 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   return lines;
 }
 
-void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children)
+void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Accessible*>& children)
 {
   if(children.empty())
   {
     return;
   }
 
-  std::vector<Component*> sortedChildren;
+  std::vector<Accessible*> sortedChildren;
 
   std::sort(children.begin(), children.end(), &SortVertically);
 
@@ -183,7 +182,7 @@ void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& child
   children = sortedChildren;
 }
 
-void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility::Component*>& children)
+void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility::Accessible*>& children)
 {
   if(!parent || children.empty())
   {
@@ -205,7 +204,7 @@ void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility:
   }
 }
 
-static bool AcceptObjectCheckRelations(Component* obj)
+static bool AcceptObjectCheckRelations(Accessible* obj)
 {
   auto relations = obj->GetRelationSet();
 
@@ -219,21 +218,20 @@ static bool AcceptObjectCheckRelations(Component* obj)
   return true;
 }
 
-static Component* GetScrollableParent(Accessible* obj)
+static Accessible* GetScrollableParent(Accessible* obj)
 {
   while(obj)
   {
-    obj       = obj->GetParent();
-    auto comp = dynamic_cast<Component*>(obj);
-    if(comp && comp->IsScrollable())
+    obj = obj->GetParent();
+    if(obj && obj->IsScrollable())
     {
-      return comp;
+      return obj;
     }
   }
   return nullptr;
 }
 
-static bool IsObjectItem(Component* obj)
+static bool IsObjectItem(Accessible* obj)
 {
   if(!obj)
   {
@@ -243,7 +241,7 @@ static bool IsObjectItem(Component* obj)
   return role == Role::LIST_ITEM || role == Role::MENU_ITEM;
 }
 
-static bool IsObjectCollapsed(Component* obj)
+static bool IsObjectCollapsed(Accessible* obj)
 {
   if(!obj)
   {
@@ -253,7 +251,7 @@ static bool IsObjectCollapsed(Component* obj)
   return states[State::EXPANDABLE] && !states[State::EXPANDED];
 }
 
-static bool IsObjectZeroSize(Component* obj)
+static bool IsObjectZeroSize(Accessible* obj)
 {
   if(!obj)
   {
@@ -272,9 +270,8 @@ static bool IsVisibleInScrollableParent(Accessible* accessible)
   }
 
   auto scrollableParentExtents = scrollableParent->GetExtents(CoordinateType::WINDOW);
-  auto component               = dynamic_cast<Component*>(accessible);
 
-  if(component && !scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
+  if(!scrollableParentExtents.Intersects(accessible->GetExtents(CoordinateType::WINDOW)))
   {
     return false;
   }
@@ -287,7 +284,7 @@ static bool IsChildVisibleInScrollableParent(Accessible* start, Accessible* acce
   return IsVisibleInScrollableParent(start) || IsVisibleInScrollableParent(accessible);
 }
 
-static bool IsObjectAcceptable(Component* obj)
+static bool IsObjectAcceptable(Accessible* obj)
 {
   if(!obj)
   {
@@ -310,7 +307,7 @@ static bool IsObjectAcceptable(Component* obj)
 
   if(GetScrollableParent(obj) != nullptr)
   {
-    auto parent = dynamic_cast<Component*>(obj->GetParent());
+    auto parent = obj->GetParent();
 
     if(parent)
     {
@@ -329,12 +326,6 @@ static bool IsObjectAcceptable(Component* obj)
     }
   }
   return true;
-}
-
-static bool IsObjectAcceptable(Accessible* obj)
-{
-  auto component = dynamic_cast<Component*>(obj);
-  return IsObjectAcceptable(component);
 }
 
 static int32_t GetItemCountOfContainer(Accessible* obj, Dali::Accessibility::Role containerRole, Dali::Accessibility::Role itemRole, bool isDirectChild)
@@ -375,7 +366,7 @@ static int32_t GetItemCountOfFirstDescendantContainer(Accessible* obj, Dali::Acc
   return itemCount;
 }
 
-static std::string GetComponentInfo(Component* obj)
+static std::string GetComponentInfo(Accessible* obj)
 {
   if(!obj)
   {
@@ -404,7 +395,7 @@ static bool IsRoleAcceptableWhenNavigatingNextPrev(Accessible* obj)
   return role != Role::POPUP_MENU && role != Role::DIALOG;
 }
 
-static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, unsigned int currentIndex, unsigned char forward, Accessible* start)
+static Accessible* FindNonDefunctChild(const std::vector<Accessible*>& children, unsigned int currentIndex, unsigned char forward, Accessible* start)
 {
   unsigned int childrenCount = children.size();
   for(; currentIndex < childrenCount; forward ? ++currentIndex : --currentIndex)
@@ -419,7 +410,7 @@ static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, 
 }
 
 // The auxiliary method for Depth-First Search (DFS) algorithm to find non defunct child directionally
-static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Component*>& children, unsigned char forward, Accessible* start)
+static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Accessible*>& children, unsigned char forward, Accessible* start)
 {
   if(!node)
   {
@@ -429,7 +420,7 @@ static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, con
   auto childrenCount = children.size();
   if(childrenCount > 0)
   {
-    const bool isShowing = node->GetStates()[State::SHOWING];
+    const bool isShowing = GetScrollableParent(node) == nullptr ? node->GetStates()[State::SHOWING] : node->GetStates()[State::VISIBLE];
     if(isShowing)
     {
       return FindNonDefunctChild(children, forward ? 0 : childrenCount - 1, forward, start);
@@ -438,23 +429,22 @@ static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, con
   return nullptr;
 }
 
-static std::vector<Component*> GetScrollableParents(Accessible* accessible)
+static std::vector<Accessible*> GetScrollableParents(Accessible* accessible)
 {
-  std::vector<Component*> scrollableParents;
+  std::vector<Accessible*> scrollableParents;
 
   while(accessible)
   {
-    accessible     = accessible->GetParent();
-    auto component = dynamic_cast<Component*>(accessible);
-    if(component && component->IsScrollable())
+    accessible = accessible->GetParent();
+    if(accessible && accessible->IsScrollable())
     {
-      scrollableParents.push_back(component);
+      scrollableParents.push_back(accessible);
     }
   }
   return scrollableParents;
 }
 
-static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible* child, Accessible* start)
+static std::vector<Accessible*> GetNonDuplicatedScrollableParents(Accessible* child, Accessible* start)
 {
   auto scrollableParentsOfChild = GetScrollableParents(child);
   auto scrollableParentsOfStart = GetScrollableParents(start);
@@ -510,7 +500,7 @@ bool IsActorAccessibleFunction(Dali::Actor actor, Dali::HitTestAlgorithm::Traver
   return hittable;
 }
 
-Component* GetObjectInRelation(Accessible* obj, RelationType relationType)
+Accessible* GetObjectInRelation(Accessible* obj, RelationType relationType)
 {
   if(!obj)
   {
@@ -519,22 +509,15 @@ Component* GetObjectInRelation(Accessible* obj, RelationType relationType)
 
   for(auto& relation : obj->GetRelationSet())
   {
-    if(relation.mRelationType == relationType)
+    if(relation.mRelationType == relationType && !relation.mTargets.empty())
     {
-      for(auto& target : relation.mTargets)
-      {
-        auto component = dynamic_cast<Component*>(target);
-        if(component)
-        {
-          return component;
-        }
-      }
+      return relation.mTargets.front();
     }
   }
   return nullptr;
 }
 
-Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
+Accessible* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
 {
   if(!root || maxRecursionDepth == 0)
   {
@@ -552,7 +535,7 @@ Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, Co
       Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
       if(hitTestResults.actor)
       {
-        return dynamic_cast<Component*>(Accessible::Get(hitTestResults.actor));
+        return Accessible::Get(hitTestResults.actor);
       }
       else
       {
@@ -561,8 +544,7 @@ Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, Co
     }
   }
 
-  auto rootComponent = dynamic_cast<Component*>(root);
-  LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
+  LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(root);
 
   bool        forceChildSearch     = false;
   const auto& attributes           = root->GetAttributes();
@@ -575,7 +557,7 @@ Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, Co
 
   bool currentForceSearchActive = forceChildSearch || isForceSearchPropagated;
 
-  if(rootComponent && !currentForceSearchActive && !rootComponent->IsAccessibleContainingPoint(point, type))
+  if(!currentForceSearchActive && !root->IsAccessibleContainingPoint(point, type))
   {
     return nullptr;
   }
@@ -591,21 +573,18 @@ Component* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, Co
     }
   }
 
-  if(rootComponent)
+  //Found a candidate, all its children are already checked
+  auto controledBy = GetObjectInRelation(root, RelationType::CONTROLLED_BY);
+  if(!controledBy)
   {
-    //Found a candidate, all its children are already checked
-    auto controledBy = GetObjectInRelation(rootComponent, RelationType::CONTROLLED_BY);
-    if(!controledBy)
-    {
-      controledBy = rootComponent;
-    }
+    controledBy = root;
+  }
 
-    auto isContainingPoint = controledBy->IsAccessibleContainingPoint(point, type);
-    if((controledBy->IsProxy() && isContainingPoint) || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || isContainingPoint)))
-    {
-      LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent) << " " << controledBy->IsProxy();
-      return controledBy;
-    }
+  auto isContainingPoint = controledBy->IsAccessibleContainingPoint(point, type);
+  if((controledBy->IsProxy() && isContainingPoint) || (IsObjectAcceptable(controledBy) && (!currentForceSearchActive || isContainingPoint)))
+  {
+    LOG() << "CalculateNavigableAccessibleAtPoint: found:    " << MakeIndent(maxRecursionDepth) << GetComponentInfo(root) << " " << controledBy->IsProxy();
+    return controledBy;
   }
   return nullptr;
 }
@@ -676,7 +655,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   double      minimumIncrement = 0.0;
   double      maximumValue     = 0.0;
   double      minimumValue     = 0.0;
-  auto*       valueInterface   = Value::DownCast(self);
+  auto*       valueInterface   = Accessible::DownCast<AtspiInterface::VALUE>(self);
   if(valueInterface)
   {
     currentValue     = valueInterface->GetCurrent();
@@ -697,7 +676,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount      = 0;
-  auto*   selfSelectionInterface  = Selection::DownCast(self);
+  auto*   selfSelectionInterface  = Accessible::DownCast<AtspiInterface::SELECTION>(self);
   if(selfSelectionInterface)
   {
     selectedChildCount      = selfSelectionInterface->GetSelectedChildrenCount();
@@ -737,7 +716,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::POPUP_MENU, Role::MENU_ITEM, false);
   }
 
-  auto*       textInterface         = Text::DownCast(self);
+  auto*       textInterface         = Accessible::DownCast<AtspiInterface::TEXT>(self);
   std::string nameFromTextInterface = "";
   if(textInterface)
   {
@@ -756,7 +735,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
   auto  parentStateSet           = parent ? parent->GetStates() : States{};
   bool  isSelectedInParent       = false;
-  auto* parentSelectionInterface = Selection::DownCast(parent);
+  auto* parentSelectionInterface = Accessible::DownCast<AtspiInterface::SELECTION>(parent);
   if(parentSelectionInterface)
   {
     isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
@@ -799,25 +778,19 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   auto attributes  = self->GetAttributes();
   auto states      = self->GetStates();
 
-  auto*        component     = Component::DownCast(self);
-  Dali::Rect<> screenExtents = {0, 0, 0, 0};
-  Dali::Rect<> windowExtents = {0, 0, 0, 0};
-  if(component)
-  {
-    screenExtents = component->GetExtents(CoordinateType::SCREEN);
-    windowExtents = component->GetExtents(CoordinateType::WINDOW);
+  Dali::Rect<float> screenExtents = self->GetExtents(CoordinateType::SCREEN);
+  Dali::Rect<float> windowExtents = self->GetExtents(CoordinateType::WINDOW);
 
-    screenExtents.x += mData->mExtentsOffset.first;
-    screenExtents.y += mData->mExtentsOffset.second;
-    windowExtents.x += mData->mExtentsOffset.first;
-    windowExtents.y += mData->mExtentsOffset.second;
-  }
+  screenExtents.x += mData->mExtentsOffset.first;
+  screenExtents.y += mData->mExtentsOffset.second;
+  windowExtents.x += mData->mExtentsOffset.first;
+  windowExtents.y += mData->mExtentsOffset.second;
 
-  auto*  valueInterface   = Value::DownCast(self);
-  double currentValue     = 0.0;
-  double minimumIncrement = 0.0;
-  double maximumValue     = 0.0;
-  double minimumValue     = 0.0;
+  auto*       valueInterface   = Accessible::DownCast<AtspiInterface::VALUE>(self);
+  double      currentValue     = 0.0;
+  double      minimumIncrement = 0.0;
+  double      maximumValue     = 0.0;
+  double      minimumValue     = 0.0;
   std::string currentValueText;
   if(valueInterface)
   {
@@ -872,27 +845,27 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   }
 
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
-  auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH, false);
-  bool recurse   = false;
-  if(component)
+  auto target  = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH, false);
+  bool recurse = false;
+  if(target)
   {
-    recurse = component->IsProxy();
+    recurse = target->IsProxy();
     if(recurse)
     {
-      Accessible* parent = component;
+      Accessible* parent = target;
       do
       {
         parent = parent->GetParent();
         if(IsObjectAcceptable(parent))
         {
           deputy = parent;
-          LOG() << "deputy:    " << GetComponentInfo(dynamic_cast<Component*>(deputy));
+          LOG() << "deputy:    " << GetComponentInfo(deputy);
           break;
         }
       } while(parent && parent != accessible);
     }
   }
-  return {component, recurse, deputy};
+  return {target, recurse, deputy};
 }
 
 Accessible* BridgeAccessible::GetCurrentlyHighlighted()
@@ -900,17 +873,17 @@ Accessible* BridgeAccessible::GetCurrentlyHighlighted()
   return Accessible::Get(mData->mCurrentlyHighlightedActor);
 }
 
-std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
+std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
 {
   if(children.empty())
   {
     return {};
   }
 
-  std::vector<Component*> vec;
+  std::vector<Accessible*> vec;
 
-  Dali::Rect<> scrollableParentExtents;
-  auto         nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
+  Dali::Rect<float> scrollableParentExtents;
+  auto              nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
   if(!nonDuplicatedScrollableParents.empty())
   {
     scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);
@@ -918,13 +891,9 @@ std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Acc
 
   for(auto child : children)
   {
-    auto* component = dynamic_cast<Component*>(child);
-    if(component)
+    if(child && (nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(child->GetExtents(CoordinateType::WINDOW))))
     {
-      if(nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
-      {
-        vec.push_back(component);
-      }
+      vec.push_back(child);
     }
   }
 
@@ -1218,7 +1187,7 @@ DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessibl
     attributes.insert({"suppress-screen-reader", "true"});
   }
 
-  auto* valueInterface = Value::DownCast(self);
+  auto* valueInterface = Accessible::DownCast<AtspiInterface::VALUE>(self);
   if(!valueInterface && !self->GetValue().empty())
   {
     attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_VALUE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing objects which can store numeric value.
  */
-class DALI_ADAPTOR_API Value : public virtual Accessible
+class DALI_ADAPTOR_API Value
 {
 public:
   /**
@@ -33,7 +33,7 @@ public:
    *
    * @return The minimum value
    */
-  virtual double GetMinimum() const = 0;
+  virtual double GetMinimum() const;
 
   /**
    * @brief Gets the current value.
@@ -52,7 +52,7 @@ public:
    * @see Value::GetValueText()
    * @see Dali::Toolkit::DevelControl::AppendAccessibilityAttribute()
    */
-  virtual double GetCurrent() const = 0;
+  virtual double GetCurrent() const;
 
   /**
    * @brief Gets the formatted current value.
@@ -66,14 +66,14 @@ public:
    * @note Only used if the "value_format" attribute is "text"
    * @see Value::GetCurrent()
    */
-  virtual std::string GetValueText() const = 0;
+  virtual std::string GetValueText() const;
 
   /**
    * @brief Gets the highest possible value.
    *
    * @return The highest value.
    */
-  virtual double GetMaximum() const = 0;
+  virtual double GetMaximum() const;
 
   /**
    * @brief Sets the current value.
@@ -82,24 +82,14 @@ public:
    *
    * @return true if value could have been assigned, false otherwise
    */
-  virtual bool SetCurrent(double value) = 0;
+  virtual bool SetCurrent(double value);
 
   /**
    * @brief Gets the lowest increment that can be distinguished.
    *
    * @return The lowest increment
    */
-  virtual double GetMinimumIncrement() const = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Value.
-   *
-   * @param obj The Accessible
-   * @return A Value or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Value* DownCast(Accessible* obj);
+  virtual double GetMinimumIncrement() const;
 };
 
 namespace Internal
@@ -110,11 +100,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::VALUE>
   using Type = Value;
 };
 } // namespace Internal
-
-inline Value* Value::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::VALUE>(obj);
-}
 
 } // namespace Dali::Accessibility
 

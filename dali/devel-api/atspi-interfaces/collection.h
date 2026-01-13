@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_COLLECTION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -28,7 +28,7 @@ namespace Dali::Accessibility
  * @note Since all methods can be implemented inside bridge,
  * no methods have to be overriden.
  */
-class DALI_ADAPTOR_API Collection : public virtual Accessible
+class DALI_ADAPTOR_API Collection
 {
 public:
   /**
@@ -46,16 +46,6 @@ public:
     bool>;
 
   /**
-   * @brief Downcasts an Accessible to a Collection.
-   *
-   * @param obj The Accessible
-   * @return A Collection or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Collection* DownCast(Accessible* obj);
-
-  /**
    * @brief Gets the matching Accessible objects with MatchRule.
    *
    * @param[in] rule Collection::MatchRule
@@ -63,7 +53,7 @@ public:
    * @param[in] maxCount The maximum number of objects; returns all matches if 0
    * @return The matching Accessible objects
    */
-  std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount);
+  virtual std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount);
 
   /**
    * @brief Gets the matching Accessible objects with two MatchRules.
@@ -75,7 +65,7 @@ public:
    * @param[in] secondCount The maximum number of objects to return for the secondary match.; returns all matches if 0
    * @return The matching Accessible objects
    */
-  std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount);
+  virtual std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount);
 };
 
 namespace Internal
@@ -86,11 +76,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::COLLECTION>
   using Type = Collection;
 };
 } // namespace Internal
-
-inline Collection* Collection::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::COLLECTION>(obj);
-}
 
 } // namespace Dali::Accessibility
 

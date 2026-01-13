@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 
-using namespace Dali::Accessibility;
+namespace Dali::Accessibility
+{
 
 namespace
 {
@@ -78,8 +79,6 @@ Address GetAddressByActorId(uint32_t actorId)
 
 } // namespace
 
-namespace Dali::Accessibility
-{
 ActorAccessible::ActorAccessible(Actor actor)
 : Dali::BaseObjectObserver(actor),
   mSelf(actor),
@@ -216,18 +215,18 @@ bool ActorAccessible::IsScrollable() const
   return false;
 }
 
-Dali::Rect<> ActorAccessible::GetExtents(CoordinateType type) const
+Dali::Rect<float> ActorAccessible::GetExtents(CoordinateType type) const
 {
-  Dali::Actor actor                   = Self();
-  auto extents = DevelActor::CalculateScreenExtents(actor);
+  Dali::Actor actor   = Self();
+  auto        extents = DevelActor::CalculateScreenExtents(actor);
 
   if(Dali::EqualsZero(extents.width) && Dali::EqualsZero(extents.height) && CanAcceptZeroSize())
   {
-    extents.width = 1.f;
+    extents.width  = 1.f;
     extents.height = 1.f;
   }
 
-  auto rounded = Dali::Rect{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
+  auto rounded = Dali::Rect<float>{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
 
   if(type == CoordinateType::WINDOW)
   {
@@ -249,6 +248,14 @@ void ActorAccessible::OnChildrenChanged()
 void ActorAccessible::OnChildrenChanged(Dali::Actor)
 {
   OnChildrenChanged();
+}
+
+AtspiInterfaces ActorAccessible::DoGetInterfaces() const
+{
+  AtspiInterfaces interfaces             = Accessible::DoGetInterfaces();
+  interfaces[AtspiInterface::COLLECTION] = true;
+
+  return interfaces;
 }
 
 void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)
@@ -483,7 +490,7 @@ void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
   }
 }
 
-void ActorAccessible::EmitBoundsChanged(Rect<> rect)
+void ActorAccessible::EmitBoundsChanged(Rect<int> rect)
 {
   if(mIsBeingDestroyed)
   {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
 #include <set>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
-using namespace Dali::Accessibility;
+namespace Dali::Accessibility
+{
 
 namespace
 {
@@ -547,8 +549,13 @@ std::vector<Accessible*> Collection::GetMatches(MatchRule rule, uint32_t sortBy,
   std::vector<Accessible*> res;
   auto                     matcher = Comparer{&rule};
   std::set<Accessible*>    visitedNodes;
-  VisitNodes(this, res, matcher, maxCount, visitedNodes);
-  SortMatchedResult(res, static_cast<SortOrder>(sortBy));
+
+  Accessible* self = dynamic_cast<Accessible*>(this);
+  if(DALI_LIKELY(self))
+  {
+    VisitNodes(self, res, matcher, maxCount, visitedNodes);
+    SortMatchedResult(res, static_cast<SortOrder>(sortBy));
+  }
   return res;
 }
 
@@ -558,25 +565,32 @@ std::vector<Accessible*> Collection::GetMatchesInMatches(MatchRule firstRule, Ma
   std::vector<Accessible*> firstRes;
   auto                     firstMatcher = Comparer{&firstRule};
   std::set<Accessible*>    visitedNodes;
-  VisitNodes(this, firstRes, firstMatcher, firstCount, visitedNodes);
 
-  if(!firstRes.empty())
+  Accessible* self = dynamic_cast<Accessible*>(this);
+  if(DALI_LIKELY(self))
   {
-    visitedNodes.clear();
-    auto secondMatcher = Comparer{&secondRule};
-    for(auto* obj : firstRes)
+    VisitNodes(self, firstRes, firstMatcher, firstCount, visitedNodes);
+
+    if(!firstRes.empty())
     {
-      std::vector<Accessible*> secondRes;
-      VisitNodes(obj, secondRes, secondMatcher, secondCount, visitedNodes);
-
-      if(!secondRes.empty())
+      visitedNodes.clear();
+      auto secondMatcher = Comparer{&secondRule};
+      for(auto* obj : firstRes)
       {
-        res.insert(res.end(), secondRes.begin(), secondRes.end());
-      }
-    }
+        std::vector<Accessible*> secondRes;
+        VisitNodes(obj, secondRes, secondMatcher, secondCount, visitedNodes);
 
-    SortMatchedResult(res, static_cast<SortOrder>(sortBy));
+        if(!secondRes.empty())
+        {
+          res.insert(res.end(), secondRes.begin(), secondRes.end());
+        }
+      }
+
+      SortMatchedResult(res, static_cast<SortOrder>(sortBy));
+    }
   }
 
   return res;
 }
+
+} //namespace Dali::Accessibility

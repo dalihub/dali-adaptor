@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_SELECTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing objects which can store a set of selected items.
  */
-class DALI_ADAPTOR_API Selection : public virtual Accessible
+class DALI_ADAPTOR_API Selection
 {
 public:
   /**
@@ -33,7 +33,7 @@ public:
    *
    * @return The number of selected children (zero if none)
    */
-  virtual int GetSelectedChildrenCount() const = 0;
+  virtual int GetSelectedChildrenCount() const;
 
   /**
    * @brief Gets a specific selected child.
@@ -45,7 +45,7 @@ public:
    *
    * @return The selected child or nullptr if index is invalid
    */
-  virtual Accessible* GetSelectedChild(int selectedChildIndex) = 0;
+  virtual Accessible* GetSelectedChild(int selectedChildIndex);
 
   /**
    * @brief Selects a child.
@@ -54,7 +54,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool SelectChild(int childIndex) = 0;
+  virtual bool SelectChild(int childIndex);
 
   /**
    * @brief Deselects a selected child.
@@ -68,7 +68,7 @@ public:
    *
    * @see Dali::Accessibility::Selection::DeselectChild
    */
-  virtual bool DeselectSelectedChild(int selectedChildIndex) = 0;
+  virtual bool DeselectSelectedChild(int selectedChildIndex);
 
   /**
    * @brief Checks whether a child is selected.
@@ -77,21 +77,21 @@ public:
    *
    * @return true if given child is selected, false otherwise
    */
-  virtual bool IsChildSelected(int childIndex) const = 0;
+  virtual bool IsChildSelected(int childIndex) const;
 
   /**
    * @brief Selects all children.
    *
    * @return true on success, false otherwise
    */
-  virtual bool SelectAll() = 0;
+  virtual bool SelectAll();
 
   /**
    * @brief Deselects all children.
    *
    * @return true on success, false otherwise
    */
-  virtual bool ClearSelection() = 0;
+  virtual bool ClearSelection();
 
   /**
    * @brief Deselects a child.
@@ -102,17 +102,7 @@ public:
    *
    * @see Dali::Accessibility::Selection::DeselectSelectedChild
    */
-  virtual bool DeselectChild(int childIndex) = 0;
-
-  /**
-   * @brief Downcasts an Accessible to a Selection.
-   *
-   * @param obj The Accessible
-   * @return A Selection or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Selection* DownCast(Accessible* obj);
+  virtual bool DeselectChild(int childIndex);
 };
 
 namespace Internal
@@ -123,11 +113,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::SELECTION>
   using Type = Selection;
 };
 } // namespace Internal
-
-inline Selection* Selection::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::SELECTION>(obj);
-}
 
 } // namespace Dali::Accessibility
 

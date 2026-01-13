@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -332,6 +332,9 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     //        And also can asusme that ResolvePresentRenderTarget() will be called at most 1 times per each frame.
     const auto* currentSurfaceContext = GetSurfaceContext(surfaceInterface);
     mSyncPool.ProcessDiscardSyncObjects(currentSurfaceContext);
+
+    GLES::Framebuffer* framebuffer = renderTarget->GetFramebuffer();
+    mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
   }
   else
   {

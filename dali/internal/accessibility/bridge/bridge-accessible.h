@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**
@@ -264,7 +263,7 @@ private:
    * @param start The start node
    * @return The valid children
    */
-  std::vector<Dali::Accessibility::Component*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
+  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
 
   /**
    * @brief Gets the currently highlighted accessible.

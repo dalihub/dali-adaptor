@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,7 @@ NativeImageSourceQueueTizenVulkan::NativeImageSourceQueueTizenVulkan(uint32_t qu
     mQueueCount       = tbm_surface_queue_get_size(mTbmQueue);
     mWidth            = tbm_surface_queue_get_width(mTbmQueue);
     mHeight           = tbm_surface_queue_get_height(mTbmQueue);
+    DALI_ASSERT_ALWAYS(mQueueCount >= 2 && "Inputed tbm surface queue count must be 2 or more.");
   }
 }
 
@@ -177,6 +178,7 @@ void NativeImageSourceQueueTizenVulkan::Initialize(Dali::NativeImageSourceQueue:
     {
       mQueueCount = GetTbmSurfaceQueueSize();
     }
+    DALI_ASSERT_ALWAYS(mQueueCount >= 2 && "Tbm surface queue count must be 2 or more.");
 
     mTbmQueue = tbm_surface_queue_create(mQueueCount, mWidth, mHeight, tbmFormat, 0);
     if(!mTbmQueue)
@@ -527,7 +529,8 @@ void NativeImageSourceQueueTizenVulkan::ReleaseSurfaceReference(void* surface)
     if(newRefCount <= 0)
     {
       // Check if this surface is in pending release list
-      auto pendingIt = std::find_if(mPendingRelease.begin(), mPendingRelease.end(), [tbmSurface](const PendingRelease& pr) {
+      auto pendingIt = std::find_if(mPendingRelease.begin(), mPendingRelease.end(), [tbmSurface](const PendingRelease& pr)
+      {
         return pr.surface == tbmSurface;
       });
 

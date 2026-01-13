@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_COMPONENT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing objects having screen coordinates.
  */
-class DALI_ADAPTOR_API Component : public virtual Accessible
+class DALI_ADAPTOR_API Component
 {
 public:
   /**
@@ -38,11 +37,11 @@ public:
    *
    * @param[in] type The enumeration with type of coordinate systems
    *
-   * @return Rect<> object
+   * @return Rect<float> object
    *
-   * @see Dali::Rect
+   * @see Dali::Rect<float>
    */
-  virtual Rect<> GetExtents(CoordinateType type) const = 0;
+  virtual Rect<float> GetExtents(CoordinateType type) const;
 
   /**
    * @brief Gets layer current object is localized on.
@@ -51,7 +50,7 @@ public:
    *
    * @see Dali::Accessibility::ComponentLayer
    */
-  virtual ComponentLayer GetLayer() const = 0;
+  virtual ComponentLayer GetLayer() const;
 
   /**
    * @brief Gets value of z-order.
@@ -61,21 +60,21 @@ public:
    * which in short means that many stacked windows can be displayed within a single application.
    * In such model, the concept of z-order of UI element became important to deal with element overlapping.
    */
-  virtual int16_t GetMdiZOrder() const = 0;
+  virtual int16_t GetMdiZOrder() const;
 
   /**
    * @brief Sets current object as "focused".
    *
    * @return true on success, false otherwise
    */
-  virtual bool GrabFocus() = 0;
+  virtual bool GrabFocus();
 
   /**
    * @brief Gets value of alpha channel.
    *
    * @return The alpha channel value in range [0.0, 1.0]
    */
-  virtual double GetAlpha() const = 0;
+  virtual double GetAlpha() const;
 
   /**
    * @brief Sets current object as "highlighted".
@@ -85,7 +84,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool GrabHighlight() = 0;
+  virtual bool GrabHighlight();
 
   /**
    * @brief Sets current object as "unhighlighted".
@@ -96,7 +95,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool ClearHighlight() = 0;
+  virtual bool ClearHighlight();
 
   /**
    * @brief Checks whether object can be scrolled.
@@ -105,7 +104,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool IsScrollable() const = 0;
+  virtual bool IsScrollable() const;
 
   /**
    * @brief Gets Accessible object containing given point.
@@ -131,16 +130,6 @@ public:
    * @see Dali::Accessibility::Point
    */
   virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const;
-
-  /**
-   * @brief Downcasts an Accessible to a Component.
-   *
-   * @param obj The Accessible
-   * @return A Component or null
-   *
-   * @see Dali::Accessibility::Accessible::DownCast()
-   */
-  static inline Component* DownCast(Accessible* obj);
 };
 
 namespace Internal
@@ -151,11 +140,6 @@ struct AtspiInterfaceTypeHelper<AtspiInterface::COMPONENT>
   using Type = Component;
 };
 } // namespace Internal
-
-inline Component* Component::DownCast(Accessible* obj)
-{
-  return Accessible::DownCast<AtspiInterface::COMPONENT>(obj);
-}
 
 } // namespace Dali::Accessibility
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 
 // CLASS HEADER
 #include <dali/internal/accessibility/bridge/bridge-socket.h>
+
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 using namespace Dali::Accessibility;
 

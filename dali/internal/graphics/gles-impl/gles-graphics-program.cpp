@@ -166,9 +166,9 @@ void ProgramImpl::Preprocess()
 {
   // For now only Vertex and Fragment shader stages supported
   // and one per stage
-  std::string  vertexString;
-  std::string  fragmentString;
-  std::string* currentString = nullptr;
+  std::string_view  vertexStringView;
+  std::string_view  fragmentStringView;
+  std::string_view* currentStringView = nullptr;
 
   const GLES::Shader* vsh = nullptr;
   const GLES::Shader* fsh = nullptr;
@@ -181,26 +181,26 @@ void ProgramImpl::Preprocess()
     if(shader && state.pipelineStage == PipelineStage::VERTEX_SHADER)
     {
       // Only TEXT source mode can be processed
-      currentString = &vertexString;
-      vsh           = shader;
+      currentStringView = &vertexStringView;
+      vsh               = shader;
     }
     else if(shader && state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
     {
       // Only TEXT source mode can be processed
-      currentString = &fragmentString;
-      fsh           = shader;
+      currentStringView = &fragmentStringView;
+      fsh               = shader;
     }
     else
     {
       // no valid stream to push
-      currentString = nullptr;
+      currentStringView = nullptr;
       DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!\n");
     }
 
     // Check if stream valid
-    if(currentString && currentString->empty() && shader && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
+    if(currentStringView && currentStringView->empty() && shader && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
     {
-      *currentString = std::string(shader->GetSourceStringView());
+      *currentStringView = shader->GetSourceStringView();
     }
     else
     {
@@ -216,15 +216,15 @@ void ProgramImpl::Preprocess()
   }
 
   // if we have both streams ready
-  if(!vertexString.empty() && !fragmentString.empty())
+  if(!vertexStringView.empty() && !fragmentStringView.empty())
   {
     if(!vsh->GetImplementation()->HasPreprocessedCode() || !fsh->GetImplementation()->HasPreprocessedCode())
     {
       // In case we have one modern shader and one legacy counterpart we need to enforce
       // output language.
       Internal::ShaderParser::ShaderParserInfo parseInfo{};
-      parseInfo.vertexShaderCode            = &vertexString;
-      parseInfo.fragmentShaderCode          = &fragmentString;
+      parseInfo.vertexShaderCode            = vertexStringView;
+      parseInfo.fragmentShaderCode          = fragmentStringView;
       parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
       parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
 

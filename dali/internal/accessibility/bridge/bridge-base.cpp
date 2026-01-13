@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,276 @@
 #include <dali/devel-api/common/stage.h>
 #include <atomic>
 #include <cstdlib>
+#include <limits>
 #include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 
 using namespace Dali::Accessibility;
 
-static Dali::Timer tickTimer;
+namespace
+{
+static Dali::Timer gTickTimer;
+}
 
+namespace Dali::Accessibility
+{
+
+// ApplicationAccessible implementation
+std::string ApplicationAccessible::GetName() const
+{
+  return mName;
+}
+
+std::string ApplicationAccessible::GetDescription() const
+{
+  return {};
+}
+
+std::string ApplicationAccessible::GetValue() const
+{
+  return {};
+}
+
+Dali::Accessibility::Accessible* ApplicationAccessible::GetParent()
+{
+  return &mParent;
+}
+
+size_t ApplicationAccessible::GetChildCount() const
+{
+  return mChildren.size();
+}
+
+std::vector<Dali::Accessibility::Accessible*> ApplicationAccessible::GetChildren()
+{
+  return mChildren;
+}
+
+Dali::Accessibility::Accessible* ApplicationAccessible::GetChildAtIndex(size_t index)
+{
+  auto size = mChildren.size();
+  if(index >= size)
+  {
+    throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(size) + " children"};
+  }
+  return mChildren[index];
+}
+
+size_t ApplicationAccessible::GetIndexInParent()
+{
+  if(mIsEmbedded)
+  {
+    return 0u;
+  }
+  throw std::domain_error{"can't call GetIndexInParent on application object"};
+}
+
+Dali::Accessibility::Role ApplicationAccessible::GetRole() const
+{
+  return Dali::Accessibility::Role::APPLICATION;
+}
+
+Dali::Accessibility::States ApplicationAccessible::GetStates()
+{
+  Dali::Accessibility::States result;
+
+  for(auto* child : mChildren)
+  {
+    result = result | child->GetStates();
+  }
+
+  // The Application object should never have the SENSITIVE state
+  result[Dali::Accessibility::State::SENSITIVE] = false;
+
+  return result;
+}
+
+Dali::Accessibility::Attributes ApplicationAccessible::GetAttributes() const
+{
+  return {};
+}
+
+Dali::Accessibility::ActorAccessible* ApplicationAccessible::GetWindowAccessible(Dali::Window window)
+{
+  if(mChildren.empty())
+  {
+    return nullptr;
+  }
+
+  Dali::Layer rootLayer = window.GetRootLayer();
+
+  // Find a child which is related to the window.
+  for(auto i = 0u; i < mChildren.size(); ++i)
+  {
+    if(rootLayer == mChildren[i]->GetInternalActor())
+    {
+      return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[i]);
+    }
+  }
+
+  // If can't find its children, return the default window.
+  return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[0]);
+}
+
+bool ApplicationAccessible::DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo)
+{
+  return false;
+}
+
+std::vector<Dali::Accessibility::Relation> ApplicationAccessible::GetRelationSet()
+{
+  return {};
+}
+
+Dali::Actor ApplicationAccessible::GetInternalActor() const
+{
+  return Dali::Actor{};
+}
+
+Dali::Accessibility::Address ApplicationAccessible::GetAddress() const
+{
+  return {"", "root"};
+}
+
+std::string ApplicationAccessible::GetStringProperty(std::string propertyName) const
+{
+  return {};
+}
+
+// Application interface implementation
+std::string ApplicationAccessible::GetToolkitName() const
+{
+  return mToolkitName;
+}
+
+std::string ApplicationAccessible::GetVersion() const
+{
+  return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
+}
+
+bool ApplicationAccessible::GetIncludeHidden() const
+{
+  return mShouldIncludeHidden;
+}
+
+bool ApplicationAccessible::SetIncludeHidden(bool includeHidden)
+{
+  if(mShouldIncludeHidden != includeHidden)
+  {
+    mShouldIncludeHidden = includeHidden;
+    return true;
+  }
+  return false;
+}
+
+// Socket interface implementation
+Dali::Accessibility::Address ApplicationAccessible::Embed(Dali::Accessibility::Address plug)
+{
+  mIsEmbedded = true;
+  mParent.SetAddress(plug);
+
+  return GetAddress();
+}
+
+void ApplicationAccessible::Unembed(Dali::Accessibility::Address plug)
+{
+  if(mParent.GetAddress() == plug)
+  {
+    mIsEmbedded = false;
+    mParent.SetAddress({});
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+    {
+      bridge->SetExtentsOffset(0, 0);
+    }
+  }
+}
+
+void ApplicationAccessible::SetOffset(std::int32_t x, std::int32_t y)
+{
+  if(!mIsEmbedded)
+  {
+    return;
+  }
+
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->SetExtentsOffset(x, y);
+  }
+}
+
+// Component interface implementation
+Dali::Rect<float> ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateType type) const
+{
+  using limits = std::numeric_limits<float>;
+
+  float minX = limits::max();
+  float minY = limits::max();
+  float maxX = limits::min();
+  float maxY = limits::min();
+
+  for(Dali::Accessibility::Accessible* child : mChildren)
+  {
+    auto extents = child->GetExtents(type);
+
+    minX = std::min(minX, extents.x);
+    minY = std::min(minY, extents.y);
+    maxX = std::max(maxX, extents.x + extents.width);
+    maxY = std::max(maxY, extents.y + extents.height);
+  }
+
+  return {minX, minY, maxX - minX, maxY - minY};
+}
+
+Dali::Accessibility::ComponentLayer ApplicationAccessible::GetLayer() const
+{
+  return Dali::Accessibility::ComponentLayer::WINDOW;
+}
+
+std::int16_t ApplicationAccessible::GetMdiZOrder() const
+{
+  return 0;
+}
+
+bool ApplicationAccessible::GrabFocus()
+{
+  return false;
+}
+
+double ApplicationAccessible::GetAlpha() const
+{
+  return 0.0;
+}
+
+bool ApplicationAccessible::GrabHighlight()
+{
+  return false;
+}
+
+bool ApplicationAccessible::ClearHighlight()
+{
+  return false;
+}
+
+bool ApplicationAccessible::IsScrollable() const
+{
+  return false;
+}
+
+Dali::Accessibility::AtspiInterfaces ApplicationAccessible::DoGetInterfaces() const
+{
+  AtspiInterfaces interfaces              = Accessible::DoGetInterfaces();
+  interfaces[AtspiInterface::APPLICATION] = true;
+  interfaces[AtspiInterface::COLLECTION]  = true;
+  interfaces[AtspiInterface::SOCKET]      = true;
+  return interfaces;
+}
+} //namespace Dali::Accessibility
+
+// BridgeBase implementation
 BridgeBase::BridgeBase()
 {
 }
@@ -46,9 +306,10 @@ void BridgeBase::AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibi
   {
     delay = 0;
   }
-  auto countdownBase = static_cast<unsigned int>(delay * 10);
 
-  auto it = mCoalescableMessages.insert({{kind, obj}, {countdownBase, countdownBase, {}}});
+  auto countdownBase = static_cast<unsigned int>(delay * 10);
+  auto it            = mCoalescableMessages.insert({{kind, obj}, {countdownBase, countdownBase, {}}});
+
   if(it.second)
   {
     functor();
@@ -59,15 +320,15 @@ void BridgeBase::AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibi
     std::get<2>(it.first->second) = std::move(functor);
   }
 
-  if(!tickTimer)
+  if(!gTickTimer)
   {
-    tickTimer = Dali::Timer::New(100);
-    tickTimer.TickSignal().Connect(this, &BridgeBase::TickCoalescableMessages);
+    gTickTimer = Dali::Timer::New(100);
+    gTickTimer.TickSignal().Connect(this, &BridgeBase::TickCoalescableMessages);
   }
 
-  if(!tickTimer.IsRunning())
+  if(!gTickTimer.IsRunning())
   {
-    tickTimer.Start();
+    gTickTimer.Start();
   }
 }
 
@@ -78,6 +339,7 @@ bool BridgeBase::TickCoalescableMessages()
     auto& countdown     = std::get<0>(it->second);
     auto  countdownBase = std::get<1>(it->second);
     auto& functor       = std::get<2>(it->second);
+
     if(countdown)
     {
       --countdown;
@@ -96,14 +358,17 @@ bool BridgeBase::TickCoalescableMessages()
         continue;
       }
     }
+
     ++it;
   }
+
   return !mCoalescableMessages.empty();
 }
 
 void BridgeBase::UpdateRegisteredEvents()
 {
   using ReturnType = std::vector<std::tuple<std::string, std::string>>;
+
   mRegistry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg)
   {
     if(!msg)
@@ -113,8 +378,8 @@ void BridgeBase::UpdateRegisteredEvents()
     }
 
     IsBoundsChangedEventAllowed = false;
+    ReturnType values           = std::get<ReturnType>(msg.getValues());
 
-    ReturnType values = std::get<ReturnType>(msg.getValues());
     for(long unsigned int i = 0; i < values.size(); i++)
     {
       if(!std::get<1>(values[i]).compare("Object:BoundsChanged"))
@@ -132,6 +397,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   {
     return ForceUpResult::ALREADY_UP;
   }
+
   auto proxy = DBus::DBusClient{dbusLocators::atspi::BUS, dbusLocators::atspi::OBJ_PATH, dbusLocators::atspi::BUS_INTERFACE, DBus::ConnectionType::SESSION};
   auto addr  = proxy.method<std::string()>(dbusLocators::atspi::GET_ADDRESS).call();
 
@@ -150,6 +416,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
     AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
     mDbusServer.addInterface(AtspiDbusPathCache, desc);
   }
+
   {
     DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
     AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::GetId, &BridgeBase::SetId);
@@ -157,7 +424,6 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   }
 
   mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, Accessible::GetInterfaceName(AtspiInterface::REGISTRY), mConnectionPtr};
-
   UpdateRegisteredEvents();
 
   mRegistry.addSignal<void(void)>("EventListenerRegistered", [this](void)
@@ -176,7 +442,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
-  tickTimer.Reset();
+  gTickTimer.Reset();
   mCoalescableMessages.clear();
   DBusWrapper::Installed()->Strings.clear();
   mRegistry      = {};
@@ -247,8 +513,8 @@ void BridgeBase::CompressDefaultLabels()
 void BridgeBase::RegisterDefaultLabel(Dali::Actor actor)
 {
   CompressDefaultLabels();
-
   Dali::WeakHandle<Dali::Window> window = GetWindow(actor);
+
   if(!window.GetBaseHandle())
   {
     DALI_LOG_ERROR("Cannot register default label: actor does not belong to any window");
@@ -262,6 +528,7 @@ void BridgeBase::RegisterDefaultLabel(Dali::Actor actor)
   });
 
   Dali::WeakHandle<Dali::Actor> weakActor{actor};
+
   if(it == mDefaultLabels.end())
   {
     mDefaultLabels.push_back({window, weakActor});
@@ -281,7 +548,6 @@ void BridgeBase::RegisterDefaultLabel(Dali::Actor actor)
 void BridgeBase::UnregisterDefaultLabel(Dali::Actor actor)
 {
   CompressDefaultLabels();
-
   mDefaultLabels.remove_if([&actor](const DefaultLabelType& label)
   {
     auto actorHandle = label.second.GetBaseHandle();
@@ -298,8 +564,8 @@ Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
   }
 
   CompressDefaultLabels();
-
   Dali::WeakHandle<Dali::Window> window = GetWindow(root->GetInternalActor());
+
   if(!window.GetBaseHandle())
   {
     return root;
@@ -311,6 +577,7 @@ Accessible* BridgeBase::GetDefaultLabel(Accessible* root)
   });
 
   Accessible* accessible = root;
+
   if(it != mDefaultLabels.rend())
   {
     if(auto actorHandle = it->second.GetBaseHandle())
@@ -358,18 +625,22 @@ Accessible* BridgeBase::FindCurrentObject() const
 {
   auto path = DBus::DBusServer::getCurrentObjectPath();
   auto size = strlen(AtspiPath);
+
   if(path.size() <= size)
   {
     throw std::domain_error{"invalid path '" + path + "'"};
   }
+
   if(path.substr(0, size) != AtspiPath)
   {
     throw std::domain_error{"invalid path '" + path + "'"};
   }
+
   if(path[size] != '/')
   {
     throw std::domain_error{"invalid path '" + path + "'"};
   }
+
   return Find(StripPrefix(path));
 }
 
@@ -385,14 +656,14 @@ int BridgeBase::GetId()
 
 auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType>>
 {
-  auto root = &mApplication;
-
+  auto                          root = &mApplication;
   std::vector<CacheElementType> res;
 
   std::function<void(Accessible*)> proc =
     [&](Accessible* item)
   {
     res.emplace_back(std::move(CreateCacheElement(root)));
+
     for(auto i = 0u; i < item->GetChildCount(); ++i)
     {
       proc(item->GetChildAtIndex(i));
@@ -409,10 +680,10 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     return {};
   }
 
-  auto root   = &mApplication;
-  auto parent = item->GetParent();
-
+  auto                 root   = &mApplication;
+  auto                 parent = item->GetParent();
   std::vector<Address> children;
+
   for(auto i = 0u; i < item->GetChildCount(); ++i)
   {
     children.emplace_back(item->GetChildAtIndex(i)->GetAddress());
@@ -433,6 +704,7 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
 Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Actor actor)
 {
   Dali::WeakHandle<Dali::Window> windowHandle;
+
   if(actor)
   {
     Dali::Window window = Dali::DevelWindow::Get(actor);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 using namespace Dali::Accessibility;
 
@@ -227,7 +229,7 @@ void BridgeObject::EmitStateChanged(std::shared_ptr<Accessible> obj, State state
   }
 }
 
-void BridgeObject::EmitBoundsChanged(std::shared_ptr<Accessible> obj, Dali::Rect<> rect)
+void BridgeObject::EmitBoundsChanged(std::shared_ptr<Accessible> obj, Dali::Rect<int> rect)
 {
   if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
   {

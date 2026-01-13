@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_PROXY_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
 
 namespace Dali::Accessibility
 {
@@ -35,7 +34,7 @@ namespace Dali::Accessibility
  * a different bridge (embedding for example), but the object itself isn't planned to be used
  * otherwise. This object has a settable parent, no children, an empty name and so on.
  */
-class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible, public virtual Component
+class DALI_ADAPTOR_API ProxyAccessible : public Accessible
 {
 public:
   ProxyAccessible()
@@ -144,11 +143,9 @@ public:
     return Dali::Actor{};
   }
 
-  Rect<> GetExtents(CoordinateType type) const override
+  Rect<float> GetExtents(CoordinateType type) const override
   {
-    auto* parent = Component::DownCast(mParent);
-
-    return parent ? parent->GetExtents(type) : Rect<>{};
+    return mParent ? mParent->GetExtents(type) : Rect<float>{};
   }
 
   ComponentLayer GetLayer() const override

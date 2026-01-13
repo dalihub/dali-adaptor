@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACTOR_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,9 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
-
 namespace Dali::Accessibility
 {
-class DALI_ADAPTOR_API ActorAccessible : public virtual Accessible,
-                                         public virtual Collection,
-                                         public virtual Component,
+class DALI_ADAPTOR_API ActorAccessible : public Dali::Accessibility::Accessible,
                                          public Dali::ConnectionTracker,
                                          public Dali::BaseObjectObserver,
                                          public std::enable_shared_from_this<ActorAccessible>
@@ -123,7 +119,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Component::GetExtents()
    */
-  Dali::Rect<> GetExtents(CoordinateType type) const override;
+  Dali::Rect<float> GetExtents(CoordinateType type) const override;
 
   /**
    * @brief Notifies this object that its children have changed.
@@ -160,7 +156,7 @@ public:
    *
    * @param rect The rectangle for changed bounds
    */
-  void EmitBoundsChanged(Rect<> rect);
+  void EmitBoundsChanged(Rect<int> rect);
 
   /**
    * @brief Emits "showing" event.
@@ -281,6 +277,11 @@ protected:
 
     return handle;
   }
+
+  /**
+   * @copydoc Dali::Accessibility::Accessible::DoGetInterfaces()
+   */
+  virtual AtspiInterfaces DoGetInterfaces() const override;
 
   /**
    * @brief Populates the collection of children of this Accessible.
