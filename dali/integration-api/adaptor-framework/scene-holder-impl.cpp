@@ -89,6 +89,7 @@ SceneHolder::SceneHolder()
 : mLifeCycleObserver(new SceneHolderLifeCycleObserver(mAdaptor, mAdaptorStarted)),
   mLastTouchEvent(),
   mLastHoverEvent(),
+  mFocusChangedGeneratedSignal(),
   mId(mSceneHolderCounter++),
   mSurface(nullptr),
   mAdaptor(nullptr),
@@ -517,6 +518,16 @@ bool SceneHolder::IsGeometryHittestEnabled()
 int32_t SceneHolder::GetNativeId() const
 {
   return mScene.GetNativeId();
+}
+
+void SceneHolder::FocusChanged(bool focusIn)
+{
+  // Emit the focus changed signal
+  if(!mFocusChangedGeneratedSignal.Empty())
+  {
+    Dali::Integration::SceneHolder handle(this);
+    mFocusChangedGeneratedSignal.Emit(handle, focusIn);
+  }
 }
 
 void SceneHolder::AddFrameRenderedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId)

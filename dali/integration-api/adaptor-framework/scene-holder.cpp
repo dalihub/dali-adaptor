@@ -174,6 +174,11 @@ SceneHolder::WheelEventGeneratedSignalType& SceneHolder::WheelEventGeneratedSign
   return GetImplementation(*this).WheelEventGeneratedSignal();
 }
 
+SceneHolder::FocusChangedGeneratedSignalType& SceneHolder::FocusChangedGeneratedSignal()
+{
+  return GetImplementation(*this).FocusChangedGeneratedSignal();
+}
+
 } // namespace Integration
 
 } // namespace Dali
