@@ -122,6 +122,7 @@ void CommandBufferImpl::Reset()
   mDeferredPipelineToBind = nullptr;
   mLastBoundPipeline      = VK_NULL_HANDLE;
   mDepthStencilState      = vk::PipelineDepthStencilStateCreateInfo();
+  mColorWriteMask         = true;
 }
 
 /** Free command buffer */
@@ -311,15 +312,16 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
   if(mDeferredPipelineToBind)
   {
     auto& impl = mDeferredPipelineToBind->GetImpl();
-    // The depth stencil state doesn't match the pipeline
+
+    // Check if the depth/stencil/color mask state doesn't match the pipeline
     vk::Pipeline pipelineToBind;
     mDepthStencilState.front = mStencilTestFrontState;
     mDepthStencilState.back  = mStencilTestBackState;
-    if(!impl.ComparePipelineDepthStencilState(mDepthStencilState))
+    if(!impl.ComparePipelineDepthStencilState(mDepthStencilState, mColorWriteMask))
     {
       // Clone implementation for that state
       // One pipeline will hold to multiple implementations (?)
-      pipelineToBind = impl.CloneInheritedVkPipeline(mDepthStencilState);
+      pipelineToBind = impl.CloneInheritedVkPipeline(mDepthStencilState, mColorWriteMask);
     }
 
     if(!pipelineToBind)
@@ -527,6 +529,11 @@ void CommandBufferImpl::SetDepthWriteEnable(bool depthWriteEnable)
 void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
 {
   mDepthStencilState.setDepthCompareOp(op);
+}
+
+void CommandBufferImpl::SetColorMask(bool enable)
+{
+  mColorWriteMask = enable;
 }
 
 void CommandBufferImpl::SetColorBlendEnable(uint32_t attachment, bool enabled)

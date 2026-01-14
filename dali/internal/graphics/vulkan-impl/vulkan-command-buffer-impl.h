@@ -124,6 +124,7 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable);
   void SetDepthCompareOp(vk::CompareOp compareOp);
 
+  void SetColorMask(bool colorWriteMask);
   void SetColorBlendEnable(uint32_t attachment, bool enabled);
   void SetColorBlendEquation(uint32_t attachment, const Dali::Graphics::Vulkan::ColorBlendEquation& equation);
   void SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, BlendOp blendOp);
@@ -231,6 +232,8 @@ private:
   vk::StencilOpState                      mStencilTestStates[3]; /// 0 - unused, we can avoid branching
   vk::StencilOpState&                     mStencilTestFrontState{mStencilTestStates[1]};
   vk::StencilOpState&                     mStencilTestBackState{mStencilTestStates[2]};
+
+  bool mColorWriteMask{true};
 
   vk::CommandBuffer mCommandBuffer{};
 

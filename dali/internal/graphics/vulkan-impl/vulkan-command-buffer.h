@@ -49,8 +49,9 @@ const uint32_t STENCIL_OP_COMP       = 1 << 9;
 const uint32_t DEPTH_TEST            = 1 << 10;
 const uint32_t DEPTH_WRITE           = 1 << 11;
 const uint32_t DEPTH_OP_COMP         = 1 << 12;
-const uint32_t COLOR_BLEND_ENABLE    = 1 << 13;
-const uint32_t COLOR_BLEND_EQUATION  = 1 << 14;
+const uint32_t COLOR_WRITE_MASK      = 1 << 13;
+const uint32_t COLOR_BLEND_ENABLE    = 1 << 14;
+const uint32_t COLOR_BLEND_EQUATION  = 1 << 15;
 }; // namespace DynamicStateMaskBits
 using DynamicStateMask = uint32_t;
 
@@ -461,6 +462,7 @@ private:
     bool                stencilTest;
     bool                depthTest;
     bool                depthWrite;
+    bool                colorWriteMask{true};
     bool                colorBlendEnable{false};
     ColorBlendEquation  colorBlendEquation{};
   } mDynamicState;

@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PIPELINE_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,9 +99,16 @@ public:
 
   const Vulkan::Program* GetProgram() const;
 
-  bool ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state);
+  /**
+   * Compares the depth stencil states and the color write mask.
+   * @param[in] state The depth/stencil states
+   * @param[in] colorWriteMask The color write mask (usually true)
+   */
+  bool ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state,
+                                        bool                                     colorWriteMask);
 
-  vk::Pipeline CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState);
+  vk::Pipeline CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState,
+                                        bool                                     colorWriteMask);
 
 private:
   /**
@@ -141,10 +148,14 @@ private:
    * a reusable pipeline that matches the given depth state and is compatible with the
    * current render pass.
    * @param[in] dsState The depth stencil state to match
+   * @param[in] colorWriteMask the color write mask to match (enabled/disabled)
    * @param[in] currentRenderPassImpl The current render pass implementation
    * @return Found pipeline, or nullptr if no matching pipeline exists
    */
-  vk::Pipeline FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, RenderPassHandle currentRenderPassImpl);
+  vk::Pipeline FindExistingPipeline(
+    vk::PipelineDepthStencilStateCreateInfo& dsState,
+    bool                                     colorWriteMask,
+    RenderPassHandle                         currentRenderPassImpl);
 
   void InitializeVertexInputState(vk::PipelineVertexInputStateCreateInfo& out);
   void InitializeInputAssemblyState(vk::PipelineInputAssemblyStateCreateInfo& out) const;
@@ -225,6 +236,7 @@ private:
     uint32_t                                hash;
     vk::PipelineDepthStencilStateCreateInfo ds;
     vk::Pipeline                            pipeline;
+    bool                                    colorWriteMask{true};
   };
 
   // Depth state cache for fast hash lookups during frequent depth state switching

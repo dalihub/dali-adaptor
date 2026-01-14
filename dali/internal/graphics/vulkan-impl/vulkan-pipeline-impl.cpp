@@ -44,7 +44,7 @@ namespace
 Debug::Filter* gVulkanPipelineLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VULKAN_PIPELINE");
 #endif
 
-inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state, bool colorWriteMask)
 {
   // Use bit mixing and prime multiplication to reduce collisions
   // Based on xxHash-like approach for good distribution
@@ -77,6 +77,7 @@ inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& s
   hash = (hash * PRIME2) + (uint32_t(state.depthCompareOp) << 24);
   hash = (hash * PRIME3) + (uint32_t(state.depthBoundsTestEnable) << 12);
   hash = (hash * PRIME2) + (uint32_t(state.stencilTestEnable) << 4);
+  hash = (hash * PRIME2) + (uint32_t(colorWriteMask));
 
   // Mix depth bounds using XOR for different mixing behavior
   hash = (hash * PRIME3) ^ FloatToInt(state.minDepthBounds).v1;
@@ -157,15 +158,15 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Vulka
   InitializePipeline();
 }
 
-vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState)
+vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, bool colorWriteMask)
 {
   // Check for render pass compatibility and remove incompatible pipelines from the caches
   ValidateRenderPassCompatibility();
 
   auto currentRenderPassImpl = GetCurrentRenderPassImpl();
 
-  // Try to find an existing pipeline that matches the depth state and render pass
-  vk::Pipeline existingPipeline = FindExistingPipeline(dsState, currentRenderPassImpl);
+  // Try to find an existing pipeline that matches the depth state, colorWriteMask and render pass
+  vk::Pipeline existingPipeline = FindExistingPipeline(dsState, colorWriteMask, currentRenderPassImpl);
   if(existingPipeline)
   {
     return existingPipeline;
@@ -174,6 +175,13 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   // If no reusable pipeline found, create a new one
   // Copy original info
   vk::GraphicsPipelineCreateInfo gfxPipelineInfo = mVkPipelineCreateInfo;
+
+  // override color write mask
+  if(!colorWriteMask && mVkPipelineCreateInfo.pColorBlendState)
+  {
+    DALI_ASSERT_DEBUG(mVkPipelineCreateInfo.pColorBlendState->pAttachments == mBlendStateAttachments.data());
+    mBlendStateAttachments[0].colorWriteMask = vk::ColorComponentFlags{};
+  }
 
   // override depth stencil
   gfxPipelineInfo.setPDepthStencilState(&dsState);
@@ -274,14 +282,14 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
     pipelinePair.pipeline   = vkPipeline;
     mVkPipelines.emplace_back(pipelinePair);
   }
-
   // Push pipeline to the depth state cache for future reuse
-  auto hash = HashDepthStencilState(dsState);
+  auto hash = HashDepthStencilState(dsState, colorWriteMask);
 
   DepthStatePipelineHashed item;
-  item.hash     = hash;
-  item.pipeline = vkPipeline;
-  item.ds       = dsState;
+  item.hash           = hash;
+  item.pipeline       = vkPipeline;
+  item.ds             = dsState;
+  item.colorWriteMask = colorWriteMask;
   mPipelineForDepthStateCache.emplace_back(item);
   return vkPipeline;
 }
@@ -313,13 +321,13 @@ RenderPassHandle PipelineImpl::GetCurrentRenderPassImpl()
   return {}; // Return empty handle
 }
 
-vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, RenderPassHandle currentRenderPassImpl)
+vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, bool colorWriteMask, RenderPassHandle currentRenderPassImpl)
 {
-  auto hash = HashDepthStencilState(dsState);
+  auto hash = HashDepthStencilState(dsState, colorWriteMask);
 
   // First, check the depth state cache for an exact match
-  auto it = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [hash, &dsState](const auto& item)
-                         { return item.hash == hash && item.ds == dsState; });
+  auto it = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [hash, &dsState, &colorWriteMask](const auto& item)
+  { return item.hash == hash && item.ds == dsState && item.colorWriteMask == colorWriteMask; });
 
   if(it != mPipelineForDepthStateCache.end())
   {
@@ -329,8 +337,8 @@ vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCre
 
   // If not found in depth state cache, check if we can reuse from main pipeline cache
   // Look for pipelines with compatible render passes AND matching depth state that could be reused
-  auto pipelineIt = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPassImpl, &hash, this](const auto& pipelinePair)
-                                 {
+  auto pipelineIt = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPassImpl, &hash, this, &colorWriteMask](const auto& pipelinePair)
+  {
                                    if(!pipelinePair.pipeline || !currentRenderPassImpl || !pipelinePair.renderPass)
                                    {
                                      return false;
@@ -342,18 +350,18 @@ vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCre
                                      return false;
                                    }
 
-                                   // Check if this pipeline was created with the same depth state
+                                   // Check if this pipeline was created with the same depth state/colorWriteMask
                                    auto depthIt = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(),
-                                                         [&pipelinePair, &hash](const auto& depthEntry)
+                                                               [&pipelinePair, &hash, &colorWriteMask](const auto& depthEntry)
                                                          {
-                                                           return depthEntry.pipeline == pipelinePair.pipeline && depthEntry.hash == hash;
+                                                           return depthEntry.pipeline == pipelinePair.pipeline && depthEntry.hash == hash && depthEntry.colorWriteMask == colorWriteMask;
                                                          });
 
                                    return depthIt != mPipelineForDepthStateCache.end(); });
 
   if(pipelineIt != mVkPipelines.end())
   {
-    // Found a pipeline with compatible render pass AND matching depth state
+    // Found a pipeline with compatible render pass AND matching depth state AND matching color write mask
     return pipelineIt->pipeline;
   }
 
@@ -394,7 +402,7 @@ void PipelineImpl::ClearPipelineCaches()
     {
       // Only destroy if we haven't already destroyed this pipeline
       bool alreadyDestroyed = std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(), [&entry](vk::Pipeline destroyedPipeline)
-                                          { return entry.pipeline == destroyedPipeline; });
+      { return entry.pipeline == destroyedPipeline; });
 
       if(!alreadyDestroyed)
       {
@@ -425,33 +433,33 @@ void PipelineImpl::RemoveIncompatiblePipelines(RenderPassHandle currentRenderPas
 
   // First, identify and remove incompatible pipelines from main cache
   auto newEnd = std::remove_if(mVkPipelines.begin(), mVkPipelines.end(), [&pipelineManager, &currentRenderPass, &vkDevice, &destroyedPipelines](const auto& pipelinePair)
-                               {
-                                 if(pipelinePair.pipeline && pipelinePair.renderPass)
-                                 {
-                                   // Check if this pipeline's render pass is compatible with current render pass
-                                   if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
-                                   {
-                                     // Incompatible - destroy the pipeline
+  {
+    if(pipelinePair.pipeline && pipelinePair.renderPass)
+    {
+      // Check if this pipeline's render pass is compatible with current render pass
+      if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
+      {
+        // Incompatible - destroy the pipeline
                                      if(pipelineManager)
                                      {
                                         pipelineManager->RemovePipelineFromCache(pipelinePair.pipeline);
                                      }
                                      else
                                      {
-                                        vkDevice.destroyPipeline(pipelinePair.pipeline);
+                                       vkDevice.destroyPipeline(pipelinePair.pipeline);
                                      }
-                                     destroyedPipelines.push_back(pipelinePair.pipeline);
-                                     return true; // Remove from vector
-                                   }
-                                 }
-                                 return false; // Keep compatible pipelines
-                               });
+        destroyedPipelines.push_back(pipelinePair.pipeline);
+        return true; // Remove from vector
+      }
+    }
+    return false; // Keep compatible pipelines
+  });
 
   mVkPipelines.erase(newEnd, mVkPipelines.end());
 
   // Now remove corresponding entries from depth state cache for destroyed pipelines
   auto depthNewEnd = std::remove_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [&destroyedPipelines](const auto& depthEntry)
-                                    {
+  {
                                      // Check if this pipeline was destroyed
                                      return std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(),
                                                       [&depthEntry](vk::Pipeline destroyedPipeline)
@@ -491,8 +499,8 @@ void PipelineImpl::ValidateRenderPassCompatibility()
 
     // Check if any cached pipeline has an incompatible render pass
     auto it = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPass](const auto& pipelinePair)
-                           { return pipelinePair.pipeline && pipelinePair.renderPass &&
-                                    !pipelinePair.renderPass->IsCompatible(currentRenderPass); });
+    { return pipelinePair.pipeline && pipelinePair.renderPass &&
+             !pipelinePair.renderPass->IsCompatible(currentRenderPass); });
 
     // If no incompatible pipeline found, then all are compatible
     renderPassIncompatible = (it != mVkPipelines.end());
@@ -699,10 +707,11 @@ const Vulkan::Program* PipelineImpl::GetProgram() const
   return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
 }
 
-bool PipelineImpl::ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+bool PipelineImpl::ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state, bool colorWriteMask)
 {
-  auto hashToCompare = HashDepthStencilState(state);
-  auto currentHash   = HashDepthStencilState(mDepthStencilState);
+  auto hashToCompare   = HashDepthStencilState(state, colorWriteMask);
+  bool storedWriteMask = !!mBlendStateAttachments[0].colorWriteMask;
+  auto currentHash     = HashDepthStencilState(mDepthStencilState, storedWriteMask);
   if(hashToCompare == currentHash)
   {
     return mDepthStencilState == state;
@@ -993,7 +1002,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 
     att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
     att.setBlendEnable(in->blendEnable);
-    // att.setColorWriteMask()
+    
     att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
     att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
     att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |

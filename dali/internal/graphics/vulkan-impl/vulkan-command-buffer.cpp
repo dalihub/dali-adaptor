@@ -394,6 +394,12 @@ void CommandBuffer::SetViewportEnable(bool value)
 
 void CommandBuffer::SetColorMask(bool enabled)
 {
+  if(SetDynamicState(mDynamicState.colorWriteMask, enabled, DynamicStateMaskBits::COLOR_WRITE_MASK))
+  {
+    mCmdCount++; // Debug info
+    CommandBufferImpl* commandBufferImpl = GetImpl();
+    commandBufferImpl->SetColorMask(enabled);
+  }
 }
 
 void CommandBuffer::ClearStencilBuffer()
@@ -446,10 +452,12 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
     commandBufferImpl->SetStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, reference);
   }
 
-  if(SetDynamicState(mDynamicState.stencilFailOp, failOp, DynamicStateMaskBits::STENCIL_OP_FAIL) ||
-     SetDynamicState(mDynamicState.stencilPassOp, passOp, DynamicStateMaskBits::STENCIL_OP_PASS) ||
-     SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL) ||
-     SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP))
+  int result = 0;
+  result |= SetDynamicState(mDynamicState.stencilFailOp, failOp, DynamicStateMaskBits::STENCIL_OP_FAIL);
+  result |= SetDynamicState(mDynamicState.stencilPassOp, passOp, DynamicStateMaskBits::STENCIL_OP_PASS);
+  result |= SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL);
+  result |= SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP);
+  if(result)
   {
     mCmdCount++; // Debug info
     commandBufferImpl->SetStencilOp(vk::StencilFaceFlagBits::eFrontAndBack,
