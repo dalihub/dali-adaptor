@@ -63,6 +63,8 @@ public:
 
   typedef Signal<bool(const Dali::WheelEvent&)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
 
+  typedef Signal<void(Dali::Integration::SceneHolder, bool)> FocusChangedGeneratedSignalType; ///<  Focus changed generated signal type
+
   /**
    * @brief Create an uninitialized SceneHolder handle.
    */
@@ -310,6 +312,20 @@ public:
    * @return The signal to connect to
    */
   WheelEventGeneratedSignalType& WheelEventGeneratedSignal();
+
+  /**
+   * @brief This signal is emitted when the window focus changes.
+   *
+   * Although there is already a focus change signal in the window,
+   * it has been added to the scene-holder to ensure that the keyboardFocusManager processes the focus change signal after all window focus change signals have been handled.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Dali::Integration::SceneHolder sceneHolder, bool focusIn);
+   * @endcode
+   * @return The signal to connect to
+   */
+  FocusChangedGeneratedSignalType& FocusChangedGeneratedSignal();
 
 public: // Not intended for application developers
   /**
