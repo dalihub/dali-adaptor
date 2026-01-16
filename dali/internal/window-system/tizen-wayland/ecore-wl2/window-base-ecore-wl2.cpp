@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2598,8 +2598,8 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
 #ifdef OVER_TIZEN_VERSION_8
   unsigned int transformedNumCols = numCols;
   unsigned int transformedNumRows = numRows;
-  unsigned int transformedColumn = column;
-  unsigned int transformedRow = row;
+  unsigned int transformedColumn  = column;
+  unsigned int transformedRow     = row;
   unsigned int transformedColSpan = colSpan;
   unsigned int transformedRowSpan = rowSpan;
 
@@ -2612,8 +2612,8 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
     {
       transformedNumCols = numRows;
       transformedNumRows = numCols;
-      transformedColumn = row;
-      transformedRow = (numCols - 1) - column - colSpan + 1;
+      transformedColumn  = row;
+      transformedRow     = (numCols - 1) - column - colSpan + 1;
       transformedColSpan = rowSpan;
       transformedRowSpan = colSpan;
       break;
@@ -2621,15 +2621,15 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
     case 180:
     {
       transformedColumn = (numCols - 1) - column - colSpan + 1;
-      transformedRow = (numRows - 1) - row - rowSpan + 1;
+      transformedRow    = (numRows - 1) - row - rowSpan + 1;
       break;
     }
     case 270:
     {
       transformedNumCols = numRows;
       transformedNumRows = numCols;
-      transformedColumn = (numRows - 1) - row - rowSpan + 1;
-      transformedRow = column;
+      transformedColumn  = (numRows - 1) - row - rowSpan + 1;
+      transformedRow     = column;
       transformedColSpan = rowSpan;
       transformedRowSpan = colSpan;
       break;
@@ -2642,9 +2642,9 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
   }
 
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, original: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n",
-                       numCols, numRows, column, row, colSpan, rowSpan);
+                        numCols, numRows, column, row, colSpan, rowSpan);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, transformed: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d], rotation[%d]\n",
-                       transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
+                        transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
   ecore_wl2_window_layout_set(mEcoreWindow, transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan);
@@ -2684,11 +2684,15 @@ void WindowBaseEcoreWl2::Maximize(bool maximize)
 
 void WindowBaseEcoreWl2::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
 {
+#ifdef OVER_TIZEN_VERSION_10
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximized_set_with_size, maximize : %d width: %d, height: %d\n", maximize, size.GetWidth(), size.GetHeight());
   {
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximized_set_with_size");
     ecore_wl2_window_maximized_set_with_size(mEcoreWindow, maximize, size.GetWidth(), size.GetHeight());
   }
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_ungrab NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
 }
 
 bool WindowBaseEcoreWl2::IsMaximized() const
