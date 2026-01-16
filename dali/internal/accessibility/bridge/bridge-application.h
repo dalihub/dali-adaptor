@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ protected:
    *
    * @return The Application object
    */
-  Dali::Accessibility::Application* FindSelf() const;
+  std::shared_ptr<Dali::Accessibility::Application> FindSelf() const;
 
 private:
   virtual void NotifyIncludeHiddenChanged() {};

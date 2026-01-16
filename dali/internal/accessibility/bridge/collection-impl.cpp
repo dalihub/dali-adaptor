@@ -18,13 +18,16 @@
 // CLASS HEADER
 
 // EXTERNAL INCLUDES
+#include <algorithm>
+#include <array>
 #include <iostream>
 #include <set>
+#include <tuple>
+#include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
@@ -544,32 +547,35 @@ void SortMatchedResult(std::vector<Accessible*>& result, SortOrder sortBy)
 
 } // namespace
 
-std::vector<Accessible*> Collection::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
+CollectionImpl::CollectionImpl(std::weak_ptr<Accessible> accessible)
+: mAccessible(std::move(accessible))
+{
+}
+
+std::vector<Accessible*> CollectionImpl::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
 {
   std::vector<Accessible*> res;
   auto                     matcher = Comparer{&rule};
   std::set<Accessible*>    visitedNodes;
 
-  Accessible* self = dynamic_cast<Accessible*>(this);
-  if(DALI_LIKELY(self))
+  if(auto accessible = mAccessible.lock())
   {
-    VisitNodes(self, res, matcher, maxCount, visitedNodes);
+    VisitNodes(accessible.get(), res, matcher, maxCount, visitedNodes);
     SortMatchedResult(res, static_cast<SortOrder>(sortBy));
   }
   return res;
 }
 
-std::vector<Accessible*> Collection::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
+std::vector<Accessible*> CollectionImpl::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
 {
   std::vector<Accessible*> res;
   std::vector<Accessible*> firstRes;
   auto                     firstMatcher = Comparer{&firstRule};
   std::set<Accessible*>    visitedNodes;
 
-  Accessible* self = dynamic_cast<Accessible*>(this);
-  if(DALI_LIKELY(self))
+  if(auto accessible = mAccessible.lock())
   {
-    VisitNodes(self, firstRes, firstMatcher, firstCount, visitedNodes);
+    VisitNodes(accessible.get(), firstRes, firstMatcher, firstCount, visitedNodes);
 
     if(!firstRes.empty())
     {

@@ -23,13 +23,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing a hyperlink in hypertext .
  */
-class DALI_ADAPTOR_API Hyperlink
+class DALI_ADAPTOR_API Hyperlink : public IAccessibilityFeature
 {
 public:
   /**
@@ -37,21 +38,21 @@ public:
    *
    * @return The 0-based index of hyperlink's last character + 1, in its originating hypertext.
    */
-  virtual std::int32_t GetEndIndex() const;
+  virtual std::int32_t GetEndIndex() const = 0;
 
   /**
    * @brief Gets the index of character in originating hypertext at which this hyperlink starts.
    *
    * @return The 0-based index of hyperlink's first character, in its originating hypertext.
    */
-  virtual std::int32_t GetStartIndex() const;
+  virtual std::int32_t GetStartIndex() const = 0;
 
   /**
    * @brief Gets the total number of anchors which this hyperlink has. Though, typical hyperlinks will have only one anchor.
    *
    * @return The number of anchors.
    */
-  virtual std::int32_t GetAnchorCount() const;
+  virtual std::int32_t GetAnchorCount() const = 0;
 
   /**
    * @brief Gets the object associated with a particular hyperlink's anchor.
@@ -60,7 +61,7 @@ public:
    *
    * @return The handle to accessible object.
    */
-  virtual Accessible* GetAnchorAccessible(std::int32_t anchorIndex) const;
+  virtual Accessible* GetAnchorAccessible(std::int32_t anchorIndex) const = 0;
 
   /**
    * @brief Gets the URI associated with a particular hyperlink's anchor.
@@ -69,14 +70,14 @@ public:
    *
    * @return The string containing URI.
    */
-  virtual std::string GetAnchorUri(std::int32_t anchorIndex) const;
+  virtual std::string GetAnchorUri(std::int32_t anchorIndex) const = 0;
 
   /**
    * @brief Tells whether this hyperlink object is still valid with respect to its originating hypertext object.
    *
    * @return True if hyperlink object is valid, false otherwise
    */
-  virtual bool IsValid() const;
+  virtual bool IsValid() const = 0;
 };
 
 namespace Internal
