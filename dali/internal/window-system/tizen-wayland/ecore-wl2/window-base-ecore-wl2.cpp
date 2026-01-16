@@ -4185,6 +4185,44 @@ int WindowBaseEcoreWl2::GetBehindBlur()
   return radius;
 }
 
+void WindowBaseEcoreWl2::SetBehindBlurDim(bool enable, Vector4& color)
+{
+#ifdef OVER_TIZEN_VERSION_10
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_dim_set");
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set, window: [%p], enable [%d], NUI dim color[%f, %f, %f, %f]\n", mEcoreWindow, enable, color.r, color.g, color.b, color.a);
+
+  int convertR = static_cast<int>(color.r * 255.0f);
+  int convertG = static_cast<int>(color.g * 255.0f);
+  int convertB = static_cast<int>(color.b * 255.0f);
+  int convertA = static_cast<int>(color.a * 255.0f);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set, window: [%p], enable [%d], converted dim color[%d, %d, %d, %d]\n", mEcoreWindow, enable, convertR, convertG, convertB, convertA);
+
+  ecore_wl2_window_behind_dim_set(mEcoreWindow, static_cast<int>(enable), convertR, convertG, convertB, convertA);
+#else
+  int radius = 0;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+#endif
+}
+
+Vector4 WindowBaseEcoreWl2::GetBehindBlurDim(bool& enable)
+{
+  int ecoreEnable = false;
+#ifdef OVER_TIZEN_VERSION_10
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_behind_dim_get");
+  int r, g, b, a;
+  ecore_wl2_window_behind_dim_get(mEcoreWindow, &ecoreEnable, &r, &g, &b, &a);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get, window: [%p], enable [%d], EFL dim color[%d, %d, %d, %d]\n", mEcoreWindow, ecoreEnable, r, g, b, a);
+  Vector4 behindDimColor((static_cast<float>(r)) / 255.0f, (static_cast<float>(g)) / 255.0f, (static_cast<float>(b)) / 255.0f, (static_cast<float>(a)) / 255.0f);
+  enable = ecoreEnable;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get, window: [%p], enable [%d], Converted dim color[%f, %f, %f, %f]\n", mEcoreWindow, enable, behindDimColor.r, behindDimColor.g, behindDimColor.b, behindDimColor.a);
+  return behindDimColor;
+#else
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
+  enable = ecoreEnable;
+  return Vector4(0.0, 0, 0, 0, 0, 0.0);
+#endif
+}
+
 Extents WindowBaseEcoreWl2::GetInsets()
 {
   return GetInsets(WindowInsetsPartFlags::STATUS_BAR | WindowInsetsPartFlags::KEYBOARD | WindowInsetsPartFlags::CLIPBOARD);

@@ -1095,6 +1095,16 @@ int WindowBaseX::GetBehindBlur()
   return 0;
 }
 
+void WindowBaseX::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseX::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
+}
+
 Extents WindowBaseX::GetInsets()
 {
   return Extents(0, 0, 0, 0);

@@ -559,6 +559,16 @@ int WindowBaseAndroid::GetBehindBlur()
   return 0;
 }
 
+void WindowBaseAndroid::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseAndroid::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
+}
+
 Extents WindowBaseAndroid::GetInsets()
 {
   return Extents(0, 0, 0, 0);

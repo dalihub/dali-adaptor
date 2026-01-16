@@ -790,6 +790,16 @@ int WindowBaseWin::GetBehindBlur()
   return 0;
 }
 
+void WindowBaseWin::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseWin::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
+}
+
 Extents WindowBaseWin::GetInsets()
 {
   return Extents(0, 0, 0, 0);

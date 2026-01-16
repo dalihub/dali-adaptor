@@ -600,6 +600,16 @@ public:
   int GetBehindBlur() override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlurDim()
+   */
+  void SetBehindBlurDim(bool enable, Vector4& color) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlurDim()
+   */
+  Vector4 GetBehindBlurDim(bool& enable) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
    */
   Extents GetInsets() override;

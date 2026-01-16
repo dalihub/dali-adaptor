@@ -870,6 +870,16 @@ int WindowBaseCocoa::GetBehindBlur()
   return 0;
 }
 
+void WindowBaseCocoa::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseCocoa::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
+}
+
 Extents WindowBaseCocoa::GetInsets()
 {
   return Extents(0, 0, 0, 0);
