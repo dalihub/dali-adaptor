@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -357,6 +357,9 @@ void CommandBufferImpl::ResolveDeferredPipelineBinding()
 
         mCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipelineToBind);
         mLastBoundPipeline = pipelineToBind;
+
+        // Apply deferred color blend states
+        ApplyDeferredColorBlendStates();
       }
       mCurrentProgram = impl.GetProgram()->GetImplementation();
     }
@@ -526,6 +529,91 @@ void CommandBufferImpl::SetDepthCompareOp(vk::CompareOp op)
   mDepthStencilState.setDepthCompareOp(op);
 }
 
+void CommandBufferImpl::SetColorBlendEnable(uint32_t attachment, bool enabled)
+{
+  // Store the deferred state
+  mDeferredColorBlendStates.emplace_back();
+  mDeferredColorBlendStates.back().attachment = attachment;
+  mDeferredColorBlendStates.back().enableSet = true;
+  mDeferredColorBlendStates.back().enable = enabled;
+}
+
+void CommandBufferImpl::SetColorBlendEquation(uint32_t attachment, const ColorBlendEquation& equation)
+{
+  // Store the deferred state
+  mDeferredColorBlendStates.emplace_back();
+  mDeferredColorBlendStates.back().attachment = attachment;
+  mDeferredColorBlendStates.back().equationSet = true;
+  mDeferredColorBlendStates.back().equation = equation;
+}
+
+void CommandBufferImpl::SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, BlendOp blendOp)
+{
+  // Store the deferred state
+  mDeferredColorBlendStates.emplace_back();
+  mDeferredColorBlendStates.back().attachment = attachment;
+  mDeferredColorBlendStates.back().advancedSet = true;
+  mDeferredColorBlendStates.back().srcPremultiplied = srcPremultiplied;
+  mDeferredColorBlendStates.back().dstPremultiplied = dstPremultiplied;
+  mDeferredColorBlendStates.back().blendOp = blendOp;
+}
+
+void CommandBufferImpl::ApplyDeferredColorBlendStates()
+{
+  if(!mGraphicsDevice->IsAdvancedBlendingSupported())
+  {
+    return;
+  }
+
+  auto vkDevice = mGraphicsDevice->GetLogicalDevice();
+
+  for(const auto& state : mDeferredColorBlendStates)
+  {
+    if(state.enableSet)
+    {
+      auto func = reinterpret_cast<PFN_vkCmdSetColorBlendEnableEXT>(vkDevice.getProcAddr("vkCmdSetColorBlendEnableEXT"));
+      if(func)
+      {
+        vk::Bool32 enable = state.enable ? VK_TRUE : VK_FALSE;
+        func(mCommandBuffer, state.attachment, 1, reinterpret_cast<VkBool32*>(&enable));
+      }
+    }
+
+    if(state.equationSet)
+    {
+      auto func = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkDevice.getProcAddr("vkCmdSetColorBlendEquationEXT"));
+      if(func)
+      {
+        VkColorBlendEquationEXT eq;
+        eq.srcColorBlendFactor = static_cast<VkBlendFactor>(ConvBlendFactor(state.equation.srcColorBlendFactor));
+        eq.dstColorBlendFactor = static_cast<VkBlendFactor>(ConvBlendFactor(state.equation.dstColorBlendFactor));
+        eq.colorBlendOp        = static_cast<VkBlendOp>(ConvBlendOp(state.equation.colorBlendOp));
+        eq.srcAlphaBlendFactor = static_cast<VkBlendFactor>(ConvBlendFactor(state.equation.srcAlphaBlendFactor));
+        eq.dstAlphaBlendFactor = static_cast<VkBlendFactor>(ConvBlendFactor(state.equation.dstAlphaBlendFactor));
+        eq.alphaBlendOp        = static_cast<VkBlendOp>(ConvBlendOp(state.equation.alphaBlendOp));
+
+        func(mCommandBuffer, state.attachment, 1, &eq);
+      }
+    }
+
+    if(state.advancedSet)
+    {
+      auto func = reinterpret_cast<PFN_vkCmdSetColorBlendAdvancedEXT>(vkDevice.getProcAddr("vkCmdSetColorBlendAdvancedEXT"));
+      if(func)
+      {
+        VkColorBlendAdvancedEXT advanced;
+        advanced.advancedBlendOp = static_cast<VkBlendOp>(ConvBlendOp(state.blendOp));
+        advanced.srcPremultiplied = state.srcPremultiplied ? VK_TRUE : VK_FALSE;
+        advanced.dstPremultiplied = state.dstPremultiplied ? VK_TRUE : VK_FALSE;
+        advanced.blendOverlap     = VK_BLEND_OVERLAP_UNCORRELATED_EXT;
+        advanced.clampResults = VK_TRUE;
+
+        func(mCommandBuffer, state.attachment, 1, &advanced);
+      }
+    }
+  }
+}
+
 void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
 {
   auto& reflection = mCurrentProgram->GetReflection();
@@ -541,6 +629,7 @@ void CommandBufferImpl::BindResources(vk::DescriptorSet descriptorSet)
                                     nullptr);
   mDeferredTextureBindings.clear();
   mDeferredUniformBindings.clear();
+  mDeferredColorBlendStates.clear();
 }
 
 void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)

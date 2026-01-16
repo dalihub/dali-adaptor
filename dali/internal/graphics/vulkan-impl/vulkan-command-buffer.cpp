@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -488,6 +488,65 @@ void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
     CommandBufferImpl* commandBufferImpl = GetImpl();
     commandBufferImpl->SetDepthWriteEnable(depthWriteEnable);
   }
+}
+
+void CommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
+{
+  // For now, only support attachment 0 (single color attachment)
+  if(attachment == 0 &&
+     SetDynamicState(mDynamicState.colorBlendEnable, enabled, DynamicStateMaskBits::COLOR_BLEND_ENABLE))
+  {
+    mCmdCount++; // Debug info
+    CommandBufferImpl* commandBufferImpl = GetImpl();
+    commandBufferImpl->SetColorBlendEnable(attachment, enabled);
+  }
+}
+
+void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
+                                         BlendFactor srcColorBlendFactor,
+                                         BlendFactor dstColorBlendFactor,
+                                         BlendOp colorBlendOp,
+                                         BlendFactor srcAlphaBlendFactor,
+                                         BlendFactor dstAlphaBlendFactor,
+                                         BlendOp alphaBlendOp)
+{
+  // For now, only support attachment 0 (single color attachment)
+  if(attachment != 0)
+  {
+    return;
+  }
+
+  ColorBlendEquation equation{
+    srcColorBlendFactor,
+    dstColorBlendFactor,
+    colorBlendOp,
+    srcAlphaBlendFactor,
+    dstAlphaBlendFactor,
+    alphaBlendOp
+  };
+
+  if(SetDynamicState(mDynamicState.colorBlendEquation, equation, DynamicStateMaskBits::COLOR_BLEND_EQUATION))
+  {
+    mCmdCount++; // Debug info
+    CommandBufferImpl* commandBufferImpl = GetImpl();
+    commandBufferImpl->SetColorBlendEquation(attachment, equation);
+  }
+}
+
+void CommandBuffer::SetColorBlendAdvanced(uint32_t attachment,
+                                          bool srcPremultiplied,
+                                          bool dstPremultiplied,
+                                          Graphics::BlendOp blendOp)
+{
+  // For now, only support attachment 0 (single color attachment)
+  if(attachment != 0)
+  {
+    return;
+  }
+
+  mCmdCount++; // Debug info
+  CommandBufferImpl* commandBufferImpl = GetImpl();
+  commandBufferImpl->SetColorBlendAdvanced(attachment, srcPremultiplied, dstPremultiplied, blendOp);
 }
 
 Vulkan::RenderTarget* CommandBuffer::GetRenderTarget() const

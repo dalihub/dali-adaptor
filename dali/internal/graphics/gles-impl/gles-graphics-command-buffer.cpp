@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -732,6 +732,30 @@ void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 void CommandBuffer::ClearDepthBuffer()
 {
   mCommandPool->AllocateCommand(CommandType::CLEAR_DEPTH_BUFFER);
+}
+
+void CommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
+{
+  // Not implemented for GLES
+}
+
+void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
+                                         Graphics::BlendFactor srcColorBlendFactor,
+                                         Graphics::BlendFactor dstColorBlendFactor,
+                                         Graphics::BlendOp colorBlendOp,
+                                         Graphics::BlendFactor srcAlphaBlendFactor,
+                                         Graphics::BlendFactor dstAlphaBlendFactor,
+                                         Graphics::BlendOp alphaBlendOp)
+{
+  // Not implemented for GLES
+}
+
+void CommandBuffer::SetColorBlendAdvanced(uint32_t attachment,
+                                          bool     srcPremultiplied,
+                                          bool     dstPremultiplied,
+                                          Graphics::BlendOp      blendOp)
+{
+  // Not implemented for GLES
 }
 
 void CommandBuffer::PresentRenderTarget(GLES::RenderTarget* renderTarget)

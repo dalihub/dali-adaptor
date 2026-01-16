@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_TYPES
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,259 @@ inline vk::Result VkTest(vk::Result result, vk::Result expected = vk::Result::eS
   // todo: log if result different than expected?
   return result;
 }
+
+inline vk::BlendFactor ConvBlendFactor(BlendFactor in)
+{
+  switch(in)
+  {
+    case BlendFactor::ZERO:
+      return vk::BlendFactor::eZero;
+    case BlendFactor::ONE:
+      return vk::BlendFactor::eOne;
+    case BlendFactor::SRC_COLOR:
+      return vk::BlendFactor::eSrcColor;
+    case BlendFactor::ONE_MINUS_SRC_COLOR:
+      return vk::BlendFactor::eOneMinusSrcColor;
+    case BlendFactor::DST_COLOR:
+      return vk::BlendFactor::eDstColor;
+    case BlendFactor::ONE_MINUS_DST_COLOR:
+      return vk::BlendFactor::eOneMinusDstColor;
+    case BlendFactor::SRC_ALPHA:
+      return vk::BlendFactor::eSrcAlpha;
+    case BlendFactor::ONE_MINUS_SRC_ALPHA:
+      return vk::BlendFactor::eOneMinusSrcAlpha;
+    case BlendFactor::DST_ALPHA:
+      return vk::BlendFactor::eDstAlpha;
+    case BlendFactor::ONE_MINUS_DST_ALPHA:
+      return vk::BlendFactor::eOneMinusDstAlpha;
+    case BlendFactor::CONSTANT_COLOR:
+      return vk::BlendFactor::eConstantColor;
+    case BlendFactor::ONE_MINUS_CONSTANT_COLOR:
+      return vk::BlendFactor::eOneMinusConstantColor;
+    case BlendFactor::CONSTANT_ALPHA:
+      return vk::BlendFactor::eConstantAlpha;
+    case BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
+      return vk::BlendFactor::eOneMinusConstantAlpha;
+    case BlendFactor::SRC_ALPHA_SATURATE:
+      return vk::BlendFactor::eSrcAlphaSaturate;
+    case BlendFactor::SRC1_COLOR:
+      return vk::BlendFactor::eSrc1Color;
+    case BlendFactor::ONE_MINUS_SRC1_COLOR:
+      return vk::BlendFactor::eOneMinusSrc1Color;
+    case BlendFactor::SRC1_ALPHA:
+      return vk::BlendFactor::eSrc1Alpha;
+    case BlendFactor::ONE_MINUS_SRC1_ALPHA:
+      return vk::BlendFactor::eOneMinusSrc1Alpha;
+  }
+  return vk::BlendFactor{};
+}
+
+inline vk::BlendOp ConvBlendOp(BlendOp in)
+{
+  switch(in)
+  {
+    case BlendOp::ADD:
+      return vk::BlendOp::eAdd;
+    case BlendOp::SUBTRACT:
+      return vk::BlendOp::eSubtract;
+    case BlendOp::REVERSE_SUBTRACT:
+      return vk::BlendOp::eReverseSubtract;
+    case BlendOp::MIN:
+      return vk::BlendOp::eMin;
+    case BlendOp::MAX:
+      return vk::BlendOp::eMax;
+    case BlendOp::MULTIPLY:
+      return vk::BlendOp::eMultiplyEXT;
+    case BlendOp::SCREEN:
+      return vk::BlendOp::eScreenEXT;
+    case BlendOp::OVERLAY:
+      return vk::BlendOp::eOverlayEXT;
+    case BlendOp::DARKEN:
+      return vk::BlendOp::eDarkenEXT;
+    case BlendOp::LIGHTEN:
+      return vk::BlendOp::eLightenEXT;
+    case BlendOp::COLOR_DODGE:
+      return vk::BlendOp::eColordodgeEXT;
+    case BlendOp::COLOR_BURN:
+      return vk::BlendOp::eColorburnEXT;
+    case BlendOp::HARD_LIGHT:
+      return vk::BlendOp::eHardlightEXT;
+    case BlendOp::SOFT_LIGHT:
+      return vk::BlendOp::eSoftlightEXT;
+    case BlendOp::DIFFERENCE:
+      return vk::BlendOp::eDifferenceEXT;
+    case BlendOp::EXCLUSION:
+      return vk::BlendOp::eExclusionEXT;
+    case BlendOp::HUE:
+      return vk::BlendOp::eHslHueEXT;
+    case BlendOp::SATURATION:
+      return vk::BlendOp::eHslSaturationEXT;
+    case BlendOp::COLOR:
+      return vk::BlendOp::eHslColorEXT;
+    case BlendOp::LUMINOSITY:
+      return vk::BlendOp::eHslLuminosityEXT;
+  }
+  return vk::BlendOp{};
+}
+
+inline vk::LogicOp ConvLogicOp(LogicOp in)
+{
+  switch(in)
+  {
+    case LogicOp::CLEAR:
+      return vk::LogicOp::eClear;
+    case LogicOp::AND:
+      return vk::LogicOp::eAnd;
+    case LogicOp::AND_REVERSE:
+      return vk::LogicOp::eAndReverse;
+    case LogicOp::COPY:
+      return vk::LogicOp::eCopy;
+    case LogicOp::AND_INVERTED:
+      return vk::LogicOp::eAndInverted;
+    case LogicOp::NO_OP:
+      return vk::LogicOp::eNoOp;
+    case LogicOp::XOR:
+      return vk::LogicOp::eXor;
+    case LogicOp::OR:
+      return vk::LogicOp::eOr;
+    case LogicOp::NOR:
+      return vk::LogicOp::eNor;
+    case LogicOp::EQUIVALENT:
+      return vk::LogicOp::eEquivalent;
+    case LogicOp::INVERT:
+      return vk::LogicOp::eInvert;
+    case LogicOp::OR_REVERSE:
+      return vk::LogicOp::eOrReverse;
+    case LogicOp::COPY_INVERTED:
+      return vk::LogicOp::eCopyInverted;
+    case LogicOp::OR_INVERTED:
+      return vk::LogicOp::eOrInverted;
+    case LogicOp::NAND:
+      return vk::LogicOp::eNand;
+    case LogicOp::SET:
+      return vk::LogicOp::eSet;
+  }
+  return vk::LogicOp{};
+}
+
+inline vk::CompareOp ConvCompareOp(const CompareOp in)
+{
+  switch(in)
+  {
+    case CompareOp::NEVER:
+    {
+      return vk::CompareOp::eNever;
+    }
+    case CompareOp::LESS:
+    {
+      return vk::CompareOp::eLess;
+    }
+    case CompareOp::EQUAL:
+    {
+      return vk::CompareOp::eEqual;
+    }
+    case CompareOp::LESS_OR_EQUAL:
+    {
+      return vk::CompareOp::eLessOrEqual;
+    }
+    case CompareOp::GREATER:
+    {
+      return vk::CompareOp::eGreater;
+    }
+    case CompareOp::NOT_EQUAL:
+    {
+      return vk::CompareOp::eNotEqual;
+    }
+    case CompareOp::GREATER_OR_EQUAL:
+    {
+      return vk::CompareOp::eGreaterOrEqual;
+    }
+    case CompareOp::ALWAYS:
+    {
+      return vk::CompareOp::eAlways;
+    }
+  }
+  return vk::CompareOp{};
+};
+
+inline vk::StencilOp ConvStencilOp(const StencilOp in)
+{
+  switch(in)
+  {
+    case StencilOp::DECREMENT_AND_CLAMP:
+    {
+      return vk::StencilOp::eDecrementAndClamp;
+    }
+    case StencilOp::DECREMENT_AND_WRAP:
+    {
+      return vk::StencilOp::eDecrementAndWrap;
+    }
+    case StencilOp::INCREMENT_AND_CLAMP:
+    {
+      return vk::StencilOp::eIncrementAndClamp;
+    }
+    case StencilOp::INCREMENT_AND_WRAP:
+    {
+      return vk::StencilOp::eIncrementAndWrap;
+    }
+    case StencilOp::INVERT:
+    {
+      return vk::StencilOp::eInvert;
+    }
+    case StencilOp::KEEP:
+    {
+      return vk::StencilOp::eKeep;
+    }
+    case StencilOp::REPLACE:
+    {
+      return vk::StencilOp::eReplace;
+    }
+    case StencilOp::ZERO:
+    {
+      return vk::StencilOp::eZero;
+    }
+  }
+  return vk::StencilOp{};
+};
+
+inline vk::StencilOpState ConvStencilOpState(const StencilOpState& in)
+{
+  vk::StencilOpState out;
+  out.compareOp   = ConvCompareOp(in.compareOp);
+  out.depthFailOp = ConvStencilOp(in.depthFailOp);
+  out.compareMask = in.compareMask;
+  out.failOp      = ConvStencilOp(in.failOp);
+  out.passOp      = ConvStencilOp(in.passOp);
+  out.reference   = in.reference;
+  out.writeMask   = in.writeMask;
+  return out;
+};
+
+// Structure to hold color blend equation parameters
+struct ColorBlendEquation
+{
+  Graphics::BlendFactor srcColorBlendFactor;
+  Graphics::BlendFactor dstColorBlendFactor;
+  Graphics::BlendOp     colorBlendOp;
+  Graphics::BlendFactor srcAlphaBlendFactor;
+  Graphics::BlendFactor dstAlphaBlendFactor;
+  Graphics::BlendOp     alphaBlendOp;
+
+  bool operator==(const ColorBlendEquation& other) const
+  {
+    return srcColorBlendFactor == other.srcColorBlendFactor &&
+           dstColorBlendFactor == other.dstColorBlendFactor &&
+           colorBlendOp == other.colorBlendOp &&
+           srcAlphaBlendFactor == other.srcAlphaBlendFactor &&
+           dstAlphaBlendFactor == other.dstAlphaBlendFactor &&
+           alphaBlendOp == other.alphaBlendOp;
+  }
+
+  bool operator!=(const ColorBlendEquation& other) const
+  {
+    return !(*this == other);
+  }
+};
 
 template<typename T>
 inline uint32_t U32(T value)
