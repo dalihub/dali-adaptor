@@ -285,7 +285,7 @@ struct Comparer
   {
     States mRequested;
     States mObject;
-    Mode   mMode = Mode::INVALID;
+    const Mode   mMode = Mode::INVALID;
 
     ComparerStates(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::STATES_MATCH_TYPE)>(*rule)))
@@ -385,7 +385,7 @@ struct Comparer
         }
         break;
       }
-      case Mode::INVALID:
+      default:
       {
         return true;
       }
@@ -418,7 +418,7 @@ struct Comparer
         }
         break;
       }
-      case Mode::INVALID:
+      default:
       {
         return true;
       }
@@ -436,7 +436,7 @@ struct Comparer
       {
         return false;
       }
-      case Mode::INVALID:
+      default:
       {
         return true;
       }
