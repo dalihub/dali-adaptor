@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -889,8 +889,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     graphics.RenderStart();
 
+    bool postRenderRequired = false;
     if((!uploadOnly && updateStatus.RendererAdded()) || surfaceResized)
     {
+      postRenderRequired = true;
+
       // Go through each window
       windows.clear();
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
@@ -1006,7 +1009,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
-    if(!uploadOnly)
+    if(postRenderRequired)
     {
       graphics.PostRender();
     }
