@@ -424,10 +424,6 @@ vk::Pipeline PipelineCacheManager::GetOrCreatePipeline(const vk::GraphicsPipelin
   return newIt->second.get();
 }
 
-void PipelineCacheManager::InvalidatePipelineCache()
-{
-  mPipelineMap.clear();
-}
 
 void PipelineCacheManager::RemovePipelineFromCache(vk::Pipeline pipeline)
 {
