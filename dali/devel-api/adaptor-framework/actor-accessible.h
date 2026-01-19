@@ -29,6 +29,7 @@
 namespace Dali::Accessibility
 {
 class DALI_ADAPTOR_API ActorAccessible : public Dali::Accessibility::Accessible,
+                                         public Dali::Accessibility::Collection,
                                          public Dali::ConnectionTracker,
                                          public Dali::BaseObjectObserver,
                                          public std::enable_shared_from_this<ActorAccessible>
@@ -120,6 +121,16 @@ public:
    * @copydoc Dali::Accessibility::Component::GetExtents()
    */
   Dali::Rect<float> GetExtents(CoordinateType type) const override;
+
+  /**
+   * @copydoc Dali::Accessibility::Collection::GetMatches()
+   */
+  std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Collection::GetMatchesInMatches()
+   */
+  std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) override;
 
   /**
    * @brief Notifies this object that its children have changed.
@@ -317,6 +328,7 @@ private:
   bool                          mIsBeingDestroyed;
   const uint32_t                mActorId;
   std::map<State, int>          mLastEmittedState;
+  std::shared_ptr<Collection>   mCollection;
 };
 
 } // namespace Dali::Accessibility

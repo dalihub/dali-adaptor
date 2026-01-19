@@ -35,6 +35,7 @@
 #include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
@@ -43,6 +44,7 @@ namespace Dali::Accessibility
  */
 class ApplicationAccessible : public Dali::Accessibility::Accessible,
                               public Dali::Accessibility::Application,
+                              public Dali::Accessibility::Collection,
                               public Dali::Accessibility::Socket,
                               public std::enable_shared_from_this<ApplicationAccessible>
 {
@@ -102,6 +104,13 @@ public:
   bool                                GrabHighlight() override;
   bool                                ClearHighlight() override;
   bool                                IsScrollable() const override;
+
+  // Collection
+  std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount) override;
+  std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) override;
+
+private:
+  std::shared_ptr<Collection>   mCollection{nullptr};
 };
 } //namespace Dali::Accessibility
 

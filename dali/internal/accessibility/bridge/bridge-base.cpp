@@ -282,10 +282,32 @@ bool ApplicationAccessible::IsScrollable() const
 
 void ApplicationAccessible::InitDefaultFeatures()
 {
-  AddFeature<Application>(this);
-  AddFeature<Collection, CollectionImpl>(weak_from_this());
-  AddFeature<Socket>(this);
+  mCollection = std::make_shared<CollectionImpl>(weak_from_this());
+  AddFeature<Application>(shared_from_this());
+  AddFeature<Collection>(shared_from_this());
+  AddFeature<Socket>(shared_from_this());
 }
+
+std::vector<Accessible*> ApplicationAccessible::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
+{
+  if(mCollection)
+  {
+    return mCollection->GetMatches(rule, sortBy, maxCount);
+  }
+
+  return {};
+}
+
+std::vector<Accessible*> ApplicationAccessible::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
+{
+  if(mCollection)
+  {
+    return mCollection->GetMatchesInMatches(firstRule, secondRule, sortBy, firstCount, secondCount);
+  }
+
+  return {};
+}
+
 } //namespace Dali::Accessibility
 
 // BridgeBase implementation

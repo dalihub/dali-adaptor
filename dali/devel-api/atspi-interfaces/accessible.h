@@ -387,49 +387,23 @@ public:
   static std::string GetInterfaceName(AtspiInterface interface);
 
   /**
-   * @brief Adds a feature of type T with implementation Impl.
-   *
-   * This template function creates and registers a new feature instance.
-   * The feature type T must inherit from IAccessibilityFeature.
-   * The implementation type Impl must inherit from T.
-   *
-   * @tparam T The feature interface type
-   * @tparam Impl The feature implementation type
-   * @tparam Args The argument types for the implementation constructor
-   * @param[in] args The arguments to pass to the implementation constructor
-   *
-   * @note The feature instance is automatically managed and will be destroyed
-   * when this Accessible object is destroyed.
-   */
-  template <typename T, typename Impl, typename... Args>
-  void AddFeature(Args &&...args)
-  {
-    static_assert(std::is_base_of<T,Impl>::value, "Impl must inherit from T");
-    static_assert(std::is_base_of<IAccessibilityFeature, T>::value, "T must inherit from IAccessibilityFeature");
-
-    mFeatures[std::type_index(typeid(T))] = std::make_shared<Impl>(std::forward<Args>(args)...);
-  }
-
-  /**
    * @brief Adds an existing feature instance.
    *
    * This template function registers an existing feature instance.
    * The feature type T must inherit from IAccessibilityFeature.
-   * The feature instance is not automatically deleted when this Accessible
-   * object is destroyed - the original owner retains ownership.
    *
    * @tparam T The feature type
-   * @param[in] feature Pointer to the existing feature instance
-   *
-   * @note The feature instance is not owned by this Accessible object.
-   * The original owner is responsible for managing the feature's lifetime.
+   * @param[in] accessible Shared pointer to the existing feature instance
    */
   template <typename T>
-  void AddFeature(T* feature)
+  void AddFeature(std::shared_ptr<Accessible> accessible)
   {
     static_assert(std::is_base_of<IAccessibilityFeature, T>::value, "T must inherit from IAccessibilityFeature");
 
-    mFeatures[std::type_index(typeid(T))] = std::shared_ptr<IAccessibilityFeature>(feature, [](IAccessibilityFeature *) {});
+    if (auto feature = std::dynamic_pointer_cast<T>(accessible))
+    {
+      mFeatures[std::type_index(typeid(T))] = feature;
+    }
   }
 
   /**
@@ -450,7 +424,10 @@ public:
     auto it = mFeatures.find(std::type_index(typeid(T)));
     if (it != mFeatures.end())
     {
-      return std::dynamic_pointer_cast<T>(it->second);
+      if (auto feature = it->second.lock())
+      {
+        return std::dynamic_pointer_cast<T>(feature);
+      }
     }
     return nullptr;
   }
@@ -473,7 +450,7 @@ private:
   mutable AtspiInterfaces mInterfaces;
   AtspiEvents             mSuppressedEvents;
   bool                    mIsOnRootLevel{false};
-  std::unordered_map<std::type_index, std::shared_ptr<IAccessibilityFeature>> mFeatures;
+  std::unordered_map<std::type_index, std::weak_ptr<IAccessibilityFeature>> mFeatures;
 
 }; // Accessible class
 
