@@ -73,10 +73,6 @@ public:
    */
   void SaveCacheData();
 
-  /**
-   * @brief Invalidates the application-level pipeline cache
-   */
-  void InvalidatePipelineCache();
 
   /**
    * @brief Removes a pipeline from the main cache and moves it to orphaned list for safe destruction
