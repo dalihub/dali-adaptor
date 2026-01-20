@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging
 
 uint32_t gThreadId = 0u; // Only for debug
 
+#endif
+
 /**
  * @brief Get the Task Name.
  * Note that we can get const char* from std::string_view as data() since it will be const class.
@@ -79,8 +81,6 @@ const char* GetTaskName(AsyncTaskPtr task)
   // Note
   return task ? task->GetTaskName().data() : "(nil)";
 }
-
-#endif
 
 } // unnamed namespace
 
@@ -416,7 +416,14 @@ public:
 
         DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Excute taskS completed callback[%p] for id[%u]\n", callback.get(), id);
 
-        Dali::CallbackBase::Execute(*callback, id);
+        if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+        {
+          Dali::CallbackBase::Execute(*callback, id);
+        }
+        else
+        {
+          DALI_LOG_ERROR("Adaptor is not available, so cannot execute completed callback[%p] for id[%u]\n", callback.get(), id);
+        }
       }
 
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Excute callback end\n");
@@ -1071,11 +1078,21 @@ void AsyncTaskManager::UnregisterProcessor()
 
 void AsyncTaskManager::TasksCompleted()
 {
+  // Keep handle of this manager reference during this function.
+  Dali::AsyncTaskManager manager(this);
+
   DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "TasksCompleted begin\n");
   while(AsyncTaskPtr task = PopNextCompletedTask())
   {
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback [%p][%s]\n", task.Get(), GetTaskName(task));
-    CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+    {
+      CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Adaptor is not available, so cannot execute completed callback[%p] for task[%p][%s]\n", task->GetCompletedCallback(), task.Get(), GetTaskName(task));
+    }
 
     // Remove TasksCompleted callback trace
     if(mTasksCompletedImpl->IsTasksCompletedCallbackExist())
