@@ -364,6 +364,11 @@ void Window::SetMimimumSize(Dali::Window::WindowSize size)
   mWindowBase->SetMimimumSize(size);
 }
 
+void Window::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+  mWindowBase->MaximizeWithRestoreSize(maximize, size);
+}
+
 uint32_t Window::GetLayerCount() const
 {
   return mScene.GetLayerCount();
@@ -1647,7 +1652,9 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
     return;
   }
 
+  WindowDimInfo previousBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
   mBlurInfo = blurInfo;
+  WindowDimInfo currentBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
 
   if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
   {
@@ -1656,6 +1663,17 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
   else if(mBlurInfo.windowBlurType == WindowBlurType::BEHIND)
   {
     mWindowBase->SetBehindBlur(mBlurInfo.windowBlurRadius);
+    if(previousBehindBlurDimInfo.isEnabled != currentBehindBlurDimInfo.isEnabled)
+    {
+        mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
+    }
+    else
+    {
+      if(currentBehindBlurDimInfo.isEnabled)
+      {
+        mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
+      }
+    }
   }
   else
   {

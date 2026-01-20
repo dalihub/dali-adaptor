@@ -51,7 +51,7 @@ void BridgeComponent::RegisterInterfaces()
 
 Accessible* BridgeComponent::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::ACCESSIBLE>();
+  return FindCurrentObject();
 }
 
 DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType)

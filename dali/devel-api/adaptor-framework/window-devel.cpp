@@ -285,6 +285,11 @@ void SetMimimumSize(Window window, Dali::Window::WindowSize size)
   GetImplementation(window).SetMimimumSize(size);
 }
 
+void MaximizeWithRestoreSize(Window window, bool maximize, Dali::Window::WindowSize size)
+{
+  GetImplementation(window).MaximizeWithRestoreSize(maximize, size);
+}
+
 bool IsWindowRotating(Window window)
 {
   return GetImplementation(window).IsWindowRotating();

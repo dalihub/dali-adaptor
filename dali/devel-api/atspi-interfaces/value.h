@@ -19,13 +19,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing objects which can store numeric value.
  */
-class DALI_ADAPTOR_API Value
+class DALI_ADAPTOR_API Value : public IAccessibilityFeature
 {
 public:
   /**
@@ -33,7 +34,7 @@ public:
    *
    * @return The minimum value
    */
-  virtual double GetMinimum() const;
+  virtual double GetMinimum() const = 0;
 
   /**
    * @brief Gets the current value.
@@ -52,7 +53,7 @@ public:
    * @see Value::GetValueText()
    * @see Dali::Toolkit::DevelControl::AppendAccessibilityAttribute()
    */
-  virtual double GetCurrent() const;
+  virtual double GetCurrent() const = 0;
 
   /**
    * @brief Gets the formatted current value.
@@ -66,14 +67,14 @@ public:
    * @note Only used if the "value_format" attribute is "text"
    * @see Value::GetCurrent()
    */
-  virtual std::string GetValueText() const;
+  virtual std::string GetValueText() const = 0;
 
   /**
    * @brief Gets the highest possible value.
    *
    * @return The highest value.
    */
-  virtual double GetMaximum() const;
+  virtual double GetMaximum() const = 0;
 
   /**
    * @brief Sets the current value.
@@ -82,14 +83,14 @@ public:
    *
    * @return true if value could have been assigned, false otherwise
    */
-  virtual bool SetCurrent(double value);
+  virtual bool SetCurrent(double value) = 0;
 
   /**
    * @brief Gets the lowest increment that can be distinguished.
    *
    * @return The lowest increment
    */
-  virtual double GetMinimumIncrement() const;
+  virtual double GetMinimumIncrement() const = 0;
 };
 
 namespace Internal

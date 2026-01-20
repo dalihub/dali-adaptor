@@ -22,6 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
@@ -32,7 +33,7 @@ namespace Dali::Accessibility
  * @note Provides global properties describing
  * application's runtime environment.
  */
-class DALI_ADAPTOR_API Application
+class DALI_ADAPTOR_API Application : public IAccessibilityFeature
 {
 public:
   /**
@@ -40,28 +41,28 @@ public:
    *
    * @return String with name
    */
-  virtual std::string GetToolkitName() const;
+  virtual std::string GetToolkitName() const = 0;
 
   /**
    * @brief Gets version of graphic user interface framework used by an application.
    *
    * @return String with version
    */
-  virtual std::string GetVersion() const;
+  virtual std::string GetVersion() const = 0;
 
   /**
    * @brief Gets include_hidden flag currently set on the application.
    *
    * @return true is include_hidden is set; false otherwise.
    */
-  virtual bool GetIncludeHidden() const;
+  virtual bool GetIncludeHidden() const = 0;
 
   /**
    * @brief Sets include_hidden flag to the application.
    *
    * @return true is include_hidden flag is updated; false otherwise.
    */
-  virtual bool SetIncludeHidden(bool includeHidden);
+  virtual bool SetIncludeHidden(bool includeHidden) = 0;
 };
 
 namespace Internal

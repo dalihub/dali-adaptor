@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -286,7 +286,7 @@ public:
     return mShadingLanguageVersion;
   }
 
-  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int count);
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int mask);
 
   /* OpenGL ES 2.0 */
 
@@ -1597,7 +1597,7 @@ public:
   /**
    * This function is static to make it easier testable
    */
-  static bool ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int count = 1);
+  static bool ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int mask = 1);
 
 private:
   std::unique_ptr<GlesAbstraction> mImpl;

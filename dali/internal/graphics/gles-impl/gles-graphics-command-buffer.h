@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -418,6 +418,30 @@ public:
    * @copydoc Dali::Graphics::CommandBuffer::ClearDepthBuffer
    */
   void ClearDepthBuffer() override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetColorBlendEnable
+   */
+  void SetColorBlendEnable(uint32_t attachment, bool enabled) override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetColorBlendEquation
+   */
+  void SetColorBlendEquation(uint32_t attachment,
+                             Graphics::BlendFactor srcColorBlendFactor,
+                             Graphics::BlendFactor dstColorBlendFactor,
+                             Graphics::BlendOp colorBlendOp,
+                             Graphics::BlendFactor srcAlphaBlendFactor,
+                             Graphics::BlendFactor dstAlphaBlendFactor,
+                             Graphics::BlendOp alphaBlendOp) override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetColorBlendAdvanced
+   */
+  void SetColorBlendAdvanced(uint32_t attachment,
+                             bool     srcPremultiplied,
+                             bool     dstPremultiplied,
+                             Graphics::BlendOp      blendOp) override;
 
   /**
    * @brief Presents specified render target

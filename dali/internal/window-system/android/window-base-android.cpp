@@ -225,6 +225,10 @@ void WindowBaseAndroid::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseAndroid::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseAndroid::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }
@@ -553,6 +557,16 @@ void WindowBaseAndroid::SetBehindBlur(int blurRadius)
 int WindowBaseAndroid::GetBehindBlur()
 {
   return 0;
+}
+
+void WindowBaseAndroid::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseAndroid::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
 Extents WindowBaseAndroid::GetInsets()

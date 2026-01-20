@@ -440,7 +440,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizenVulk
   }
 }
 
-bool NativeImageSourceQueueTizenVulkan::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceQueueTizenVulkan::ApplyNativeFragmentShader(std::string& shader, int mask)
 {
   return false;
 }

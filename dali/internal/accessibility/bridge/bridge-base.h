@@ -35,13 +35,18 @@
 #include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief The ApplicationAccessible class is to define Accessibility Application.
  */
-class ApplicationAccessible : public Dali::Accessibility::Accessible
+class ApplicationAccessible : public Dali::Accessibility::Accessible,
+                              public Dali::Accessibility::Application,
+                              public Dali::Accessibility::Collection,
+                              public Dali::Accessibility::Socket,
+                              public std::enable_shared_from_this<ApplicationAccessible>
 {
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
@@ -62,6 +67,7 @@ public:
   Dali::Accessibility::Role                     GetRole() const override;
   Dali::Accessibility::States                   GetStates() override;
   Dali::Accessibility::Attributes               GetAttributes() const override;
+  void InitDefaultFeatures() override;
 
   /**
    * @brief Gets the Accessible object from the window.
@@ -99,8 +105,12 @@ public:
   bool                                ClearHighlight() override;
   bool                                IsScrollable() const override;
 
-protected:
-  Dali::Accessibility::AtspiInterfaces DoGetInterfaces() const override;
+  // Collection
+  std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount) override;
+  std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) override;
+
+private:
+  std::shared_ptr<Collection>   mCollection{nullptr};
 };
 } //namespace Dali::Accessibility
 
@@ -207,7 +217,7 @@ public:
    */
   Dali::Accessibility::Accessible* GetApplication() const override
   {
-    return &mApplication;
+    return mApplication.get();
   }
 
   /**
@@ -406,15 +416,15 @@ public:
    * @see Dali::Accessibility::Accessible::GetInterfaces()
    */
   template<Dali::Accessibility::AtspiInterface I>
-  auto* FindCurrentObjectWithInterface() const
+  auto FindCurrentObjectWithInterface() const
   {
     using Type = Dali::Accessibility::AtspiInterfaceType<I>;
 
-    Type* result;
+    std::shared_ptr<Type> result;
     auto* currentObject = FindCurrentObject();
     DALI_ASSERT_ALWAYS(currentObject && "Current BridgeBase's Accessible should not be nullptr"); // FindCurrentObject() throws domain_error
 
-    if(!(result = dynamic_cast<Type*>(currentObject)))
+    if(!(result = currentObject->GetFeature<Type>()))
     {
       std::stringstream s;
 
@@ -438,7 +448,7 @@ public:
    */
   void SetApplicationName(std::string name) override
   {
-    mApplication.mName = std::move(name);
+    mApplication->mName = std::move(name);
   }
 
   /**
@@ -446,7 +456,7 @@ public:
    */
   void SetToolkitName(std::string_view toolkitName) override
   {
-    mApplication.mToolkitName = std::string{toolkitName};
+    mApplication->mToolkitName = std::string{toolkitName};
   }
 
   /**
@@ -462,7 +472,7 @@ protected:
   using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::WeakHandle<Dali::Actor>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
-  mutable Dali::Accessibility::ApplicationAccessible mApplication;
+  std::shared_ptr<Dali::Accessibility::ApplicationAccessible> mApplication;
 
   DefaultLabelsType mDefaultLabels;
   bool              mIsScreenReaderSuppressed = false;
@@ -502,18 +512,6 @@ private:
    * @return
    */
   DBus::ValueOrError<std::vector<CacheElementType>> GetItems();
-
-  /**
-   * @brief Creates CacheElement.
-   *
-   * CreateCacheElement method works for GetItems which is a part of ATSPI protocol.
-   * ATSPI client library (libatspi from at-spi2-core) depending on cacheing policy configuration uses GetItems
-   * to pre-load entire accessible tree from application to its own cache in single dbus call.
-   * Otherwise the particular nodes in a tree are cached lazily when client library tries to access them.
-   * @param item Accessible to get information
-   * @return The elements to be cached
-   */
-  CacheElementType CreateCacheElement(Dali::Accessibility::Accessible* item);
 
   /**
    * @brief Removes expired elements from the default label collection.

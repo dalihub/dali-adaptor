@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ class Sampler;
 class Texture;
 class TextureArray;
 class SamplerImpl;
+class PipelineCacheManager;
 
 /**
  * Class to manage the vulkan graphics backend. This is the main object that clients interact
@@ -376,6 +377,9 @@ public:
   uint32_t GetDeviceLimitation(Graphics::DeviceCapability capability) override;
 
   bool IsCompatible(const Graphics::RenderTarget& gfxRenderTargetA, const Graphics::RenderTarget& gfxRenderTargetB, const Graphics::RenderPass& gfxRenderPassA, const Graphics::RenderPass& gfxRenderPassB) override;
+  void CreatePipelineCacheManager();
+
+  PipelineCacheManager* GetPipelineCacheManager();
 
   void UpdateRenderTarget(Graphics::RenderTarget& renderTarget, const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo) override;
 

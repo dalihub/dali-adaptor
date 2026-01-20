@@ -36,7 +36,7 @@ void BridgeEditableText::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-EditableText* BridgeEditableText::FindSelf() const
+std::shared_ptr<EditableText> BridgeEditableText::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::EDITABLE_TEXT>();
 }

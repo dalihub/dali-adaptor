@@ -356,6 +356,10 @@ void WindowBaseWin::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseWin::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseWin::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }
@@ -784,6 +788,16 @@ void WindowBaseWin::SetBehindBlur(int blurRadius)
 int WindowBaseWin::GetBehindBlur()
 {
   return 0;
+}
+
+void WindowBaseWin::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseWin::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
 Extents WindowBaseWin::GetInsets()

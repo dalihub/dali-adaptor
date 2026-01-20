@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
@@ -31,7 +32,7 @@ namespace Dali::Accessibility
  *
  * @see Dali::Accessibility::EditableText
  */
-class DALI_ADAPTOR_API Text
+class DALI_ADAPTOR_API Text : public IAccessibilityFeature
 {
 public:
   /**
@@ -42,7 +43,7 @@ public:
    *
    * @return The substring of stored text
    */
-  virtual std::string GetText(std::size_t startOffset, std::size_t endOffset) const;
+  virtual std::string GetText(std::size_t startOffset, std::size_t endOffset) const = 0;
 
   /**
    * @brief Gets number of all stored characters.
@@ -50,7 +51,7 @@ public:
    * @return The number of characters
    * @remarks This method is `CharacterCount` in DBus method.
    */
-  virtual std::size_t GetCharacterCount() const;
+  virtual std::size_t GetCharacterCount() const = 0;
 
   /**
    * @brief Gets the cursor offset.
@@ -58,7 +59,7 @@ public:
    * @return Value of cursor offset
    * @remarks This method is `CaretOffset` in DBus method.
    */
-  virtual std::size_t GetCursorOffset() const;
+  virtual std::size_t GetCursorOffset() const = 0;
 
   /**
    * @brief Sets the cursor offset.
@@ -68,7 +69,7 @@ public:
    * @return True if successful
    * @remarks This method is `SetCaretOffset` in DBus method.
    */
-  virtual bool SetCursorOffset(std::size_t offset);
+  virtual bool SetCursorOffset(std::size_t offset) = 0;
 
   /**
    * @brief Gets substring of stored text truncated in concrete gradation.
@@ -80,7 +81,7 @@ public:
    *
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetTextAtOffset(std::size_t offset, TextBoundary boundary) const;
+  virtual Range GetTextAtOffset(std::size_t offset, TextBoundary boundary) const = 0;
 
   /**
    * @brief Gets selected text.
@@ -93,7 +94,7 @@ public:
    * @remarks This method is `GetSelection` in DBus method.
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetRangeOfSelection(std::size_t selectionIndex) const;
+  virtual Range GetRangeOfSelection(std::size_t selectionIndex) const = 0;
 
   /**
    * @brief Removes the whole selection.
@@ -103,7 +104,7 @@ public:
    *
    * @return bool on success, false otherwise
    */
-  virtual bool RemoveSelection(std::size_t selectionIndex);
+  virtual bool RemoveSelection(std::size_t selectionIndex) = 0;
 
   /**
    * @brief Sets selected text.
@@ -117,7 +118,7 @@ public:
    * @return true on success, false otherwise
    * @remarks This method is `SetSelection` in DBus method.
    */
-  virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset);
+  virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset) = 0;
 
   /**
    * @brief Gets the bounding box for text within a range in text.
@@ -129,7 +130,7 @@ public:
    * @return Rect<float> giving the position and size of the specified range of text
    * @remarks This method is `GetRangeExtents` in DBus method.
    */
-  virtual Rect<float> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type);
+  virtual Rect<float> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
 };
 
 namespace Internal

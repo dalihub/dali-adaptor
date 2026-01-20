@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,32 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-impl.h>
 
 // EXTERNAL INCLUDES
+#if defined(DEBUG_ENABLED)
+#include <chrono>
+#endif
+
 #include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-cache-manager.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
 {
 namespace
 {
-inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gVulkanPipelineLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VULKAN_PIPELINE");
+#endif
+
+inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state, bool colorWriteMask)
 {
   // Use bit mixing and prime multiplication to reduce collisions
   // Based on xxHash-like approach for good distribution
@@ -67,6 +77,7 @@ inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& s
   hash = (hash * PRIME2) + (uint32_t(state.depthCompareOp) << 24);
   hash = (hash * PRIME3) + (uint32_t(state.depthBoundsTestEnable) << 12);
   hash = (hash * PRIME2) + (uint32_t(state.stencilTestEnable) << 4);
+  hash = (hash * PRIME2) + (uint32_t(colorWriteMask));
 
   // Mix depth bounds using XOR for different mixing behavior
   hash = (hash * PRIME3) ^ FloatToInt(state.minDepthBounds).v1;
@@ -102,98 +113,6 @@ inline uint32_t HashDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& s
   return hash;
 }
 
-constexpr vk::CompareOp ConvCompareOp(const CompareOp in)
-{
-  switch(in)
-  {
-    case CompareOp::NEVER:
-    {
-      return vk::CompareOp::eNever;
-    }
-    case CompareOp::LESS:
-    {
-      return vk::CompareOp::eLess;
-    }
-    case CompareOp::EQUAL:
-    {
-      return vk::CompareOp::eEqual;
-    }
-    case CompareOp::LESS_OR_EQUAL:
-    {
-      return vk::CompareOp::eLessOrEqual;
-    }
-    case CompareOp::GREATER:
-    {
-      return vk::CompareOp::eGreater;
-    }
-    case CompareOp::NOT_EQUAL:
-    {
-      return vk::CompareOp::eNotEqual;
-    }
-    case CompareOp::GREATER_OR_EQUAL:
-    {
-      return vk::CompareOp::eGreaterOrEqual;
-    }
-    case CompareOp::ALWAYS:
-    {
-      return vk::CompareOp::eAlways;
-    }
-  }
-  return vk::CompareOp{};
-};
-
-constexpr vk::StencilOp ConvStencilOp(const StencilOp in)
-{
-  switch(in)
-  {
-    case StencilOp::DECREMENT_AND_CLAMP:
-    {
-      return vk::StencilOp::eDecrementAndClamp;
-    }
-    case StencilOp::DECREMENT_AND_WRAP:
-    {
-      return vk::StencilOp::eDecrementAndWrap;
-    }
-    case StencilOp::INCREMENT_AND_CLAMP:
-    {
-      return vk::StencilOp::eIncrementAndClamp;
-    }
-    case StencilOp::INCREMENT_AND_WRAP:
-    {
-      return vk::StencilOp::eIncrementAndWrap;
-    }
-    case StencilOp::INVERT:
-    {
-      return vk::StencilOp::eInvert;
-    }
-    case StencilOp::KEEP:
-    {
-      return vk::StencilOp::eKeep;
-    }
-    case StencilOp::REPLACE:
-    {
-      return vk::StencilOp::eReplace;
-    }
-    case StencilOp::ZERO:
-    {
-      return vk::StencilOp::eZero;
-    }
-  }
-  return vk::StencilOp{};
-};
-
-constexpr vk::StencilOpState ConvStencilOpState(const StencilOpState& in)
-{
-  vk::StencilOpState out;
-  out.compareOp   = ConvCompareOp(in.compareOp);
-  out.depthFailOp = ConvStencilOp(in.depthFailOp);
-  out.compareMask = in.compareMask;
-  out.failOp      = ConvStencilOp(in.failOp);
-  out.passOp      = ConvStencilOp(in.passOp);
-  out.reference   = in.reference;
-  out.writeMask   = in.writeMask;
-  return out;
-};
 } // namespace
 
 /**
@@ -239,17 +158,15 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Vulka
   InitializePipeline();
 }
 
-vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState)
+vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, bool colorWriteMask)
 {
   // Check for render pass compatibility and remove incompatible pipelines from the caches
   ValidateRenderPassCompatibility();
 
-  auto vkDevice = mController.GetGraphicsDevice().GetLogicalDevice();
-
   auto currentRenderPassImpl = GetCurrentRenderPassImpl();
 
-  // Try to find an existing pipeline that matches the depth state and render pass
-  vk::Pipeline existingPipeline = FindExistingPipeline(dsState, currentRenderPassImpl);
+  // Try to find an existing pipeline that matches the depth state, colorWriteMask and render pass
+  vk::Pipeline existingPipeline = FindExistingPipeline(dsState, colorWriteMask, currentRenderPassImpl);
   if(existingPipeline)
   {
     return existingPipeline;
@@ -258,6 +175,13 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   // If no reusable pipeline found, create a new one
   // Copy original info
   vk::GraphicsPipelineCreateInfo gfxPipelineInfo = mVkPipelineCreateInfo;
+
+  // override color write mask
+  if(!colorWriteMask && mVkPipelineCreateInfo.pColorBlendState)
+  {
+    DALI_ASSERT_DEBUG(mVkPipelineCreateInfo.pColorBlendState->pAttachments == mBlendStateAttachments.data());
+    mBlendStateAttachments[0].colorWriteMask = vk::ColorComponentFlags{};
+  }
 
   // override depth stencil
   gfxPipelineInfo.setPDepthStencilState(&dsState);
@@ -270,15 +194,15 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   for(auto& state : mDynamicStates)
   {
     if(!(vk::DynamicState::eDepthWriteEnable == state ||
-         vk::DynamicState::eDepthTestEnable == state ||
-         vk::DynamicState::eDepthCompareOp == state ||
-         vk::DynamicState::eDepthBounds == state ||
-         vk::DynamicState::eDepthBoundsTestEnable == state ||
-         vk::DynamicState::eStencilTestEnable == state ||
-         vk::DynamicState::eStencilOp == state ||
-         vk::DynamicState::eStencilCompareMask == state ||
-         vk::DynamicState::eStencilWriteMask == state ||
-         vk::DynamicState::eStencilReference == state))
+        vk::DynamicState::eDepthTestEnable == state ||
+        vk::DynamicState::eDepthCompareOp == state ||
+        vk::DynamicState::eDepthBounds == state ||
+        vk::DynamicState::eDepthBoundsTestEnable == state ||
+        vk::DynamicState::eStencilTestEnable == state ||
+        vk::DynamicState::eStencilOp == state ||
+        vk::DynamicState::eStencilCompareMask == state ||
+        vk::DynamicState::eStencilWriteMask == state ||
+        vk::DynamicState::eStencilReference == state ))
     {
       newDynamicStates.emplace_back(state);
     }
@@ -288,15 +212,67 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   dynamicStateInfo.setDynamicStates(newDynamicStates);
   gfxPipelineInfo.setPDynamicState(&dynamicStateInfo);
 
-  // create pipeline
-  auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+  // Create pipeline cache manager
+  auto pipelineManager = mController.GetPipelineCacheManager();
+
+  // Pipeline Creation Feedback
+  vk::PipelineCreationFeedbackEXT pipelineFeedback;
+  std::vector<vk::PipelineCreationFeedbackEXT> stageFeedbacks(gfxPipelineInfo.stageCount);
+
+  vk::PipelineCreationFeedbackCreateInfoEXT feedbackInfo;
+  feedbackInfo.setPPipelineCreationFeedback(&pipelineFeedback)
+              .setPipelineStageCreationFeedbackCount(static_cast<uint32_t>(stageFeedbacks.size()))
+              .setPPipelineStageCreationFeedbacks(stageFeedbacks.data());
+
+  // Chain the feedback info
+  feedbackInfo.setPNext(gfxPipelineInfo.pNext);
+  gfxPipelineInfo.setPNext(&feedbackInfo);
 
   vk::Pipeline vkPipeline;
-  VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
-                                            1,
-                                            &gfxPipelineInfo,
-                                            &allocator,
-                                            &vkPipeline));
+  if(!pipelineManager)
+  {
+    // Performance measurement for createGraphicsPipelines (direct call)
+#if defined(DEBUG_ENABLED)
+    auto createStartTime = std::chrono::high_resolution_clock::now();
+#endif
+    auto vkDevice  = mController.GetGraphicsDevice().GetLogicalDevice();
+    auto& allocator = mController.GetGraphicsDevice().GetAllocator();
+
+    VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
+                                              1,
+                                              &gfxPipelineInfo,
+                                              &allocator,
+                                              &vkPipeline));
+#if defined(DEBUG_ENABLED)
+    auto createEndTime = std::chrono::high_resolution_clock::now();
+    auto createDuration = std::chrono::duration_cast<std::chrono::microseconds>(createEndTime - createStartTime);
+    bool cacheHit = static_cast<bool>(pipelineFeedback.flags & vk::PipelineCreationFeedbackFlagBitsEXT::eApplicationPipelineCacheHit);
+    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Create Pipeline without cache:: PipelineImpl(%p), creation_time:%lld μs, cache_size:%zu, CacheHit: %s\n",
+                   this,
+                   static_cast<long long>(createDuration.count()),
+                   mPipelineForDepthStateCache.size(),
+                   cacheHit ? "HIT" : "MISS");
+#endif
+  }
+  else
+  {
+    // Performance measurement for GetOrCreatePipeline (cached call)
+#if defined(DEBUG_ENABLED)
+    auto cacheStartTime = std::chrono::high_resolution_clock::now();
+#endif
+    vkPipeline = pipelineManager->GetOrCreatePipeline(gfxPipelineInfo);
+#if defined(DEBUG_ENABLED)
+    auto cacheEndTime = std::chrono::high_resolution_clock::now();
+    auto cacheDuration = std::chrono::duration_cast<std::chrono::microseconds>(cacheEndTime - cacheStartTime);
+
+    bool cacheHit = static_cast<bool>(pipelineFeedback.flags & vk::PipelineCreationFeedbackFlagBitsEXT::eApplicationPipelineCacheHit);
+    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Create Pipeline using cache: PipelineImpl(%p), creation_time:%lld μs, cache_size:%zu, CacheHit: %s\n",
+                   this,
+                   static_cast<long long>(cacheDuration.count()),
+                   mPipelineForDepthStateCache.size(),
+                   cacheHit ? "HIT" : "MISS");
+#endif
+  }
 
   // Store the pipeline and render pass in mVkPipelines for future reuse
   if(currentRenderPassImpl)
@@ -306,16 +282,15 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
     pipelinePair.pipeline   = vkPipeline;
     mVkPipelines.emplace_back(pipelinePair);
   }
-
   // Push pipeline to the depth state cache for future reuse
-  auto hash = HashDepthStencilState(dsState);
+  auto hash = HashDepthStencilState(dsState, colorWriteMask);
 
   DepthStatePipelineHashed item;
-  item.hash     = hash;
-  item.pipeline = vkPipeline;
-  item.ds       = dsState;
+  item.hash           = hash;
+  item.pipeline       = vkPipeline;
+  item.ds             = dsState;
+  item.colorWriteMask = colorWriteMask;
   mPipelineForDepthStateCache.emplace_back(item);
-
   return vkPipeline;
 }
 
@@ -346,13 +321,13 @@ RenderPassHandle PipelineImpl::GetCurrentRenderPassImpl()
   return {}; // Return empty handle
 }
 
-vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, RenderPassHandle currentRenderPassImpl)
+vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCreateInfo& dsState, bool colorWriteMask, RenderPassHandle currentRenderPassImpl)
 {
-  auto hash = HashDepthStencilState(dsState);
+  auto hash = HashDepthStencilState(dsState, colorWriteMask);
 
   // First, check the depth state cache for an exact match
-  auto it = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [hash, &dsState](const auto& item)
-                         { return item.hash == hash && item.ds == dsState; });
+  auto it = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [hash, &dsState, &colorWriteMask](const auto& item)
+  { return item.hash == hash && item.ds == dsState && item.colorWriteMask == colorWriteMask; });
 
   if(it != mPipelineForDepthStateCache.end())
   {
@@ -362,8 +337,8 @@ vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCre
 
   // If not found in depth state cache, check if we can reuse from main pipeline cache
   // Look for pipelines with compatible render passes AND matching depth state that could be reused
-  auto pipelineIt = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPassImpl, &hash, this](const auto& pipelinePair)
-                                 {
+  auto pipelineIt = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPassImpl, &hash, this, &colorWriteMask](const auto& pipelinePair)
+  {
                                    if(!pipelinePair.pipeline || !currentRenderPassImpl || !pipelinePair.renderPass)
                                    {
                                      return false;
@@ -375,18 +350,18 @@ vk::Pipeline PipelineImpl::FindExistingPipeline(vk::PipelineDepthStencilStateCre
                                      return false;
                                    }
 
-                                   // Check if this pipeline was created with the same depth state
+                                   // Check if this pipeline was created with the same depth state/colorWriteMask
                                    auto depthIt = std::find_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(),
-                                                         [&pipelinePair, &hash](const auto& depthEntry)
+                                                               [&pipelinePair, &hash, &colorWriteMask](const auto& depthEntry)
                                                          {
-                                                           return depthEntry.pipeline == pipelinePair.pipeline && depthEntry.hash == hash;
+                                                           return depthEntry.pipeline == pipelinePair.pipeline && depthEntry.hash == hash && depthEntry.colorWriteMask == colorWriteMask;
                                                          });
 
                                    return depthIt != mPipelineForDepthStateCache.end(); });
 
   if(pipelineIt != mVkPipelines.end())
   {
-    // Found a pipeline with compatible render pass AND matching depth state
+    // Found a pipeline with compatible render pass AND matching depth state AND matching color write mask
     return pipelineIt->pipeline;
   }
 
@@ -405,7 +380,15 @@ void PipelineImpl::ClearPipelineCaches()
   {
     if(entry.pipeline)
     {
-      vkDevice.destroyPipeline(entry.pipeline);
+      auto pipelineManager = mController.GetPipelineCacheManager();
+      if(pipelineManager)
+      {
+        pipelineManager->RemovePipelineFromCache(entry.pipeline);
+      }
+      else
+      {
+        vkDevice.destroyPipeline(entry.pipeline);
+      }
       destroyedPipelines.push_back(entry.pipeline);
       entry.pipeline = nullptr;
     }
@@ -419,11 +402,19 @@ void PipelineImpl::ClearPipelineCaches()
     {
       // Only destroy if we haven't already destroyed this pipeline
       bool alreadyDestroyed = std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(), [&entry](vk::Pipeline destroyedPipeline)
-                                          { return entry.pipeline == destroyedPipeline; });
+      { return entry.pipeline == destroyedPipeline; });
 
       if(!alreadyDestroyed)
       {
-        vkDevice.destroyPipeline(entry.pipeline);
+        auto pipelineManager = mController.GetPipelineCacheManager();
+        if(pipelineManager)
+        {
+          pipelineManager->RemovePipelineFromCache(entry.pipeline);
+        }
+        else
+        {
+          vkDevice.destroyPipeline(entry.pipeline);
+        }
       }
       entry.pipeline = nullptr;
     }
@@ -438,28 +429,37 @@ void PipelineImpl::RemoveIncompatiblePipelines(RenderPassHandle currentRenderPas
   // Track all pipelines we've destroyed to avoid double destruction
   std::vector<vk::Pipeline> destroyedPipelines;
 
+  auto pipelineManager = mController.GetPipelineCacheManager();
+
   // First, identify and remove incompatible pipelines from main cache
-  auto newEnd = std::remove_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPass, &vkDevice, &destroyedPipelines](const auto& pipelinePair)
-                               {
-                                 if(pipelinePair.pipeline && pipelinePair.renderPass)
-                                 {
-                                   // Check if this pipeline's render pass is compatible with current render pass
-                                   if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
-                                   {
-                                     // Incompatible - destroy the pipeline
-                                     vkDevice.destroyPipeline(pipelinePair.pipeline);
-                                     destroyedPipelines.push_back(pipelinePair.pipeline);
-                                     return true; // Remove from vector
-                                   }
-                                 }
-                                 return false; // Keep compatible pipelines
-                               });
+  auto newEnd = std::remove_if(mVkPipelines.begin(), mVkPipelines.end(), [&pipelineManager, &currentRenderPass, &vkDevice, &destroyedPipelines](const auto& pipelinePair)
+  {
+    if(pipelinePair.pipeline && pipelinePair.renderPass)
+    {
+      // Check if this pipeline's render pass is compatible with current render pass
+      if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
+      {
+        // Incompatible - destroy the pipeline
+                                     if(pipelineManager)
+                                     {
+                                        pipelineManager->RemovePipelineFromCache(pipelinePair.pipeline);
+                                     }
+                                     else
+                                     {
+                                       vkDevice.destroyPipeline(pipelinePair.pipeline);
+                                     }
+        destroyedPipelines.push_back(pipelinePair.pipeline);
+        return true; // Remove from vector
+      }
+    }
+    return false; // Keep compatible pipelines
+  });
 
   mVkPipelines.erase(newEnd, mVkPipelines.end());
 
   // Now remove corresponding entries from depth state cache for destroyed pipelines
   auto depthNewEnd = std::remove_if(mPipelineForDepthStateCache.begin(), mPipelineForDepthStateCache.end(), [&destroyedPipelines](const auto& depthEntry)
-                                    {
+  {
                                      // Check if this pipeline was destroyed
                                      return std::any_of(destroyedPipelines.begin(), destroyedPipelines.end(),
                                                       [&depthEntry](vk::Pipeline destroyedPipeline)
@@ -499,8 +499,8 @@ void PipelineImpl::ValidateRenderPassCompatibility()
 
     // Check if any cached pipeline has an incompatible render pass
     auto it = std::find_if(mVkPipelines.begin(), mVkPipelines.end(), [&currentRenderPass](const auto& pipelinePair)
-                           { return pipelinePair.pipeline && pipelinePair.renderPass &&
-                                    !pipelinePair.renderPass->IsCompatible(currentRenderPass); });
+    { return pipelinePair.pipeline && pipelinePair.renderPass &&
+             !pipelinePair.renderPass->IsCompatible(currentRenderPass); });
 
     // If no incompatible pipeline found, then all are compatible
     renderPassIncompatible = (it != mVkPipelines.end());
@@ -707,10 +707,11 @@ const Vulkan::Program* PipelineImpl::GetProgram() const
   return static_cast<const Vulkan::Program*>(mCreateInfo.programState->program);
 }
 
-bool PipelineImpl::ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state)
+bool PipelineImpl::ComparePipelineDepthStencilState(vk::PipelineDepthStencilStateCreateInfo& state, bool colorWriteMask)
 {
-  auto hashToCompare = HashDepthStencilState(state);
-  auto currentHash   = HashDepthStencilState(mDepthStencilState);
+  auto hashToCompare   = HashDepthStencilState(state, colorWriteMask);
+  bool storedWriteMask = !!mBlendStateAttachments[0].colorWriteMask;
+  auto currentHash     = HashDepthStencilState(mDepthStencilState, storedWriteMask);
   if(hashToCompare == currentHash)
   {
     return mDepthStencilState == state;
@@ -885,6 +886,7 @@ void PipelineImpl::InitializeViewportState(vk::PipelineViewportStateCreateInfo& 
   {
     out.setViewportCount(1);
     out.setScissorCount(1);
+
     // enable dynamic state, otherwise it's an error
     mDynamicStates.emplace_back(vk::DynamicState::eViewport);
     mDynamicStates.emplace_back(vk::DynamicState::eScissor);
@@ -988,272 +990,45 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 {
   auto in = mCreateInfo.colorBlendState;
 
-  auto ConvLogicOp = [](LogicOp in)
+  if(in)
   {
-    switch(in)
-    {
-      case LogicOp::CLEAR:
-      {
-        return vk::LogicOp::eClear;
-      }
-      case LogicOp::AND:
-      {
-        return vk::LogicOp::eAnd;
-      }
-      case LogicOp::AND_REVERSE:
-      {
-        return vk::LogicOp::eAndReverse;
-      }
-      case LogicOp::COPY:
-      {
-        return vk::LogicOp::eCopy;
-      }
-      case LogicOp::AND_INVERTED:
-      {
-        return vk::LogicOp::eAndInverted;
-      }
-      case LogicOp::NO_OP:
-      {
-        return vk::LogicOp::eNoOp;
-      }
-      case LogicOp::XOR:
-      {
-        return vk::LogicOp::eXor;
-      }
-      case LogicOp::OR:
-      {
-        return vk::LogicOp::eOr;
-      }
-      case LogicOp::NOR:
-      {
-        return vk::LogicOp::eNor;
-      }
-      case LogicOp::EQUIVALENT:
-      {
-        return vk::LogicOp::eEquivalent;
-      }
-      case LogicOp::INVERT:
-      {
-        return vk::LogicOp::eInvert;
-      }
-      case LogicOp::OR_REVERSE:
-      {
-        return vk::LogicOp::eOrReverse;
-      }
-      case LogicOp::COPY_INVERTED:
-      {
-        return vk::LogicOp::eCopyInverted;
-      }
-      case LogicOp::OR_INVERTED:
-      {
-        return vk::LogicOp::eOrInverted;
-      }
-      case LogicOp::NAND:
-      {
-        return vk::LogicOp::eNand;
-      }
-      case LogicOp::SET:
-      {
-        return vk::LogicOp::eSet;
-      }
-    }
-    return vk::LogicOp{};
-  };
+    out.setLogicOpEnable(in->logicOpEnable);
+    out.setLogicOp(ConvLogicOp(in->logicOp));
 
-  auto ConvBlendOp = [](BlendOp in)
+    // We don't know how many attachments we will blend but gfx api assumes single attachment
+    mBlendStateAttachments.clear();
+    mBlendStateAttachments.emplace_back();
+    auto& att = mBlendStateAttachments.back();
+
+    att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
+    att.setBlendEnable(in->blendEnable);
+    
+    att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
+    att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
+    att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                          vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
+    att.setDstAlphaBlendFactor(ConvBlendFactor(in->dstAlphaBlendFactor));
+    att.setDstColorBlendFactor(ConvBlendFactor(in->dstColorBlendFactor));
+    att.setSrcAlphaBlendFactor(ConvBlendFactor(in->srcAlphaBlendFactor));
+    att.setSrcColorBlendFactor(ConvBlendFactor(in->srcColorBlendFactor));
+    out.setAttachments(mBlendStateAttachments);
+
+    std::copy(in->blendConstants, in->blendConstants + 4, out.blendConstants.begin());
+  }
+  else
   {
-    switch(in)
-    {
-      case BlendOp::ADD:
-      {
-        return vk::BlendOp::eAdd;
-      }
-      case BlendOp::SUBTRACT:
-      {
-        return vk::BlendOp::eSubtract;
-      }
-      case BlendOp::REVERSE_SUBTRACT:
-      {
-        return vk::BlendOp::eReverseSubtract;
-      }
-      case BlendOp::MIN:
-      {
-        return vk::BlendOp::eMin;
-      }
-      case BlendOp::MAX:
-      {
-        return vk::BlendOp::eMax;
-      }
-      case BlendOp::MULTIPLY:
-      {
-        return vk::BlendOp::eMultiplyEXT;
-      }
-      case BlendOp::SCREEN:
-      {
-        return vk::BlendOp::eScreenEXT;
-      }
-      case BlendOp::OVERLAY:
-      {
-        return vk::BlendOp::eOverlayEXT;
-      }
-      case BlendOp::DARKEN:
-      {
-        return vk::BlendOp::eDarkenEXT;
-      }
-      case BlendOp::LIGHTEN:
-      {
-        return vk::BlendOp::eLightenEXT;
-      }
-      case BlendOp::COLOR_DODGE:
-      {
-        return vk::BlendOp::eColordodgeEXT;
-      }
-      case BlendOp::COLOR_BURN:
-      {
-        return vk::BlendOp::eColorburnEXT;
-      }
-      case BlendOp::HARD_LIGHT:
-      {
-        return vk::BlendOp::eHardlightEXT;
-      }
-      case BlendOp::SOFT_LIGHT:
-      {
-        return vk::BlendOp::eSoftlightEXT;
-      }
-      case BlendOp::DIFFERENCE:
-      {
-        return vk::BlendOp::eDifferenceEXT;
-      }
-      case BlendOp::EXCLUSION:
-      {
-        return vk::BlendOp::eExclusionEXT;
-      }
-      case BlendOp::HUE:
-      {
-        return vk::BlendOp::eHslHueEXT;
-      }
-      case BlendOp::SATURATION:
-      {
-        return vk::BlendOp::eHslSaturationEXT;
-      }
-      case BlendOp::COLOR:
-      {
-        return vk::BlendOp::eHslColorEXT;
-      }
-      case BlendOp::LUMINOSITY:
-      {
-        return vk::BlendOp::eHslLuminosityEXT;
-      }
-    }
-    return vk::BlendOp{};
-  };
+    // Clear Color Blend State
+    mBlendStateAttachments.clear();
+    mBlendStateAttachments.emplace_back();
+    mBlendStateAttachments.back().setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
+                                                    vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
+    out.setAttachments(mBlendStateAttachments);
 
-  auto ConvBlendFactor = [](BlendFactor in)
-  {
-    switch(in)
-    {
-      case BlendFactor::ZERO:
-      {
-        return vk::BlendFactor::eZero;
-      }
-      case BlendFactor::ONE:
-      {
-        return vk::BlendFactor::eOne;
-      }
-      case BlendFactor::SRC_COLOR:
-      {
-        return vk::BlendFactor::eSrcColor;
-      }
-      case BlendFactor::ONE_MINUS_SRC_COLOR:
-      {
-        return vk::BlendFactor::eOneMinusSrcColor;
-      }
-      case BlendFactor::DST_COLOR:
-      {
-        return vk::BlendFactor::eDstColor;
-      }
-      case BlendFactor::ONE_MINUS_DST_COLOR:
-      {
-        return vk::BlendFactor::eOneMinusDstColor;
-      }
-      case BlendFactor::SRC_ALPHA:
-      {
-        return vk::BlendFactor::eSrcAlpha;
-      }
-      case BlendFactor::ONE_MINUS_SRC_ALPHA:
-      {
-        return vk::BlendFactor::eOneMinusSrcAlpha;
-      }
-      case BlendFactor::DST_ALPHA:
-      {
-        return vk::BlendFactor::eDstAlpha;
-      }
-      case BlendFactor::ONE_MINUS_DST_ALPHA:
-      {
-        return vk::BlendFactor::eOneMinusDstAlpha;
-      }
-      case BlendFactor::CONSTANT_COLOR:
-      {
-        return vk::BlendFactor::eConstantColor;
-      }
-      case BlendFactor::ONE_MINUS_CONSTANT_COLOR:
-      {
-        return vk::BlendFactor::eOneMinusConstantColor;
-      }
-      case BlendFactor::CONSTANT_ALPHA:
-      {
-        return vk::BlendFactor::eConstantAlpha;
-      }
-      case BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
-      {
-        return vk::BlendFactor::eOneMinusConstantAlpha;
-      }
-      case BlendFactor::SRC_ALPHA_SATURATE:
-      {
-        return vk::BlendFactor::eSrcAlphaSaturate;
-      }
-      case BlendFactor::SRC1_COLOR:
-      {
-        return vk::BlendFactor::eSrc1Color;
-      }
-      case BlendFactor::ONE_MINUS_SRC1_COLOR:
-      {
-        return vk::BlendFactor::eOneMinusSrc1Color;
-      }
-      case BlendFactor::SRC1_ALPHA:
-      {
-        return vk::BlendFactor::eSrc1Alpha;
-      }
-      case BlendFactor::ONE_MINUS_SRC1_ALPHA:
-      {
-        return vk::BlendFactor::eOneMinusSrc1Alpha;
-      }
-    }
-    return vk::BlendFactor{};
-  };
-
-  out.setLogicOpEnable(in->logicOpEnable);
-  out.setLogicOp(ConvLogicOp(in->logicOp));
-
-  // We don't know how many attachments we will blend but gfx api assumes single attachment
-  mBlendStateAttachments.clear();
-  mBlendStateAttachments.emplace_back();
-  auto& att = mBlendStateAttachments.back();
-
-  att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
-  att.setBlendEnable(in->blendEnable);
-  // att.setColorWriteMask()
-  att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
-  att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
-  att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                        vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-  att.setDstAlphaBlendFactor(ConvBlendFactor(in->dstAlphaBlendFactor));
-  att.setDstColorBlendFactor(ConvBlendFactor(in->dstColorBlendFactor));
-  att.setSrcAlphaBlendFactor(ConvBlendFactor(in->srcAlphaBlendFactor));
-  att.setSrcColorBlendFactor(ConvBlendFactor(in->srcColorBlendFactor));
-  out.setAttachments(mBlendStateAttachments);
-
-  std::copy(in->blendConstants, in->blendConstants + 4, out.blendConstants.begin());
+    // enable dynamic state, otherwise it's an error
+    mDynamicStates.emplace_back(vk::DynamicState::eColorBlendEnableEXT);
+    mDynamicStates.emplace_back(vk::DynamicState::eColorBlendEquationEXT);
+    mDynamicStates.emplace_back(vk::DynamicState::eColorBlendAdvancedEXT);
+  }
 }
 
 } // namespace Dali::Graphics::Vulkan

@@ -38,8 +38,6 @@
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
-#include <dali/devel-api/atspi-interfaces/table-cell.h>
-#include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
@@ -232,21 +230,20 @@ AtspiInterfaces Accessible::DoGetInterfaces() const
 {
   AtspiInterfaces interfaces;
 
-  // TODO : Need to use new API for it.
-  interfaces[AtspiInterface::ACCESSIBLE]    = true;
-  interfaces[AtspiInterface::ACTION]        = false;
-  interfaces[AtspiInterface::APPLICATION]   = false;
-  interfaces[AtspiInterface::COLLECTION]    = false;
-  interfaces[AtspiInterface::COMPONENT]     = true;
-  interfaces[AtspiInterface::EDITABLE_TEXT] = false;
-  interfaces[AtspiInterface::HYPERLINK]     = false;
-  interfaces[AtspiInterface::HYPERTEXT]     = false;
-  interfaces[AtspiInterface::SELECTION]     = false;
-  interfaces[AtspiInterface::SOCKET]        = false;
+  interfaces[AtspiInterface::ACCESSIBLE]    = true; // always true
+  interfaces[AtspiInterface::ACTION]        = GetFeature<Action>() != nullptr;
+  interfaces[AtspiInterface::APPLICATION]   = GetFeature<Application>() != nullptr;
+  interfaces[AtspiInterface::COLLECTION]    = GetFeature<Collection>() != nullptr;
+  interfaces[AtspiInterface::COMPONENT]     = true; // always true
+  interfaces[AtspiInterface::EDITABLE_TEXT] = GetFeature<EditableText>() != nullptr;
+  interfaces[AtspiInterface::HYPERLINK]     = GetFeature<Hyperlink>() != nullptr;
+  interfaces[AtspiInterface::HYPERTEXT]     = GetFeature<Hypertext>() != nullptr;
+  interfaces[AtspiInterface::SELECTION]     = GetFeature<Selection>() != nullptr;
+  interfaces[AtspiInterface::SOCKET]        = GetFeature<Socket>() != nullptr;
   interfaces[AtspiInterface::TABLE]         = false;
   interfaces[AtspiInterface::TABLE_CELL]    = false;
-  interfaces[AtspiInterface::TEXT]          = false;
-  interfaces[AtspiInterface::VALUE]         = false;
+  interfaces[AtspiInterface::TEXT]          = GetFeature<Text>() != nullptr;
+  interfaces[AtspiInterface::VALUE]         = GetFeature<Value>() != nullptr;
 
   return interfaces;
 }
@@ -608,6 +605,7 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
       {
         actorAccesible->StartObservingDestruction();
       }
+      accessible->InitDefaultFeatures();
     }
     else
     {

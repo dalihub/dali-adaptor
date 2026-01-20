@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ std::string GlImplementation::GetFragmentShaderPrefix()
   return mFragmentShaderPrefix;
 }
 
-bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int count)
+bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstraction& impl, std::string& shader, const char* customSamplerType, int mask)
 {
   // Identify if it's a modern shader. Modern shader will dynamically apply GLSL version
   bool        hasGLSLVersionString = true;
@@ -292,28 +292,30 @@ bool GlImplementation::ApplyNativeFragmentShader(Dali::Integration::GlAbstractio
 
   if(shader.find(customSamplerType) == std::string::npos)
   {
-    size_t pos           = 0;
-    int    replacedCount = 0;
+    size_t pos = 0;
 
-    while((pos = shader.find(DEFAULT_SAMPLER_TYPE, pos)) != std::string::npos)
+    while(mask && (pos = shader.find(DEFAULT_SAMPLER_TYPE, pos)) != std::string::npos)
     {
-      if(count >= 0 && replacedCount >= count)
+      if(mask & 1)
       {
-        break;
+        shader.replace(pos, strlen(DEFAULT_SAMPLER_TYPE), customSamplerType);
+        pos += strlen(customSamplerType);
+        modified = true;
       }
-      shader.replace(pos, strlen(DEFAULT_SAMPLER_TYPE), customSamplerType);
-      pos += strlen(customSamplerType);
-      replacedCount++;
-      modified = true;
+      else
+      {
+        pos += strlen(DEFAULT_SAMPLER_TYPE);
+      }
+      mask >>= 1;
     }
   }
 
   return modified;
 }
 
-bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int count)
+bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType, int mask)
 {
-  return ApplyNativeFragmentShader(*this, shader, customSamplerType, count);
+  return ApplyNativeFragmentShader(*this, shader, customSamplerType, mask);
 }
 
 } // namespace Adaptor

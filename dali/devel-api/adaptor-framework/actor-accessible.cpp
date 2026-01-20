@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/accessibility/bridge/collection-impl.h>
 
 namespace Dali::Accessibility
 {
@@ -84,7 +85,8 @@ ActorAccessible::ActorAccessible(Actor actor)
   mSelf(actor),
   mChildrenDirty{true}, // to trigger the initial UpdateChildren()
   mIsBeingDestroyed{false},
-  mActorId{static_cast<uint32_t>(actor.GetProperty<int>(Dali::Actor::Property::ID))}
+  mActorId{static_cast<uint32_t>(actor.GetProperty<int>(Dali::Actor::Property::ID))},
+  mCollection{nullptr}
 {
   // Select the right overload manually because Connect(this, &OnChildrenChanged) is ambiguous.
   void (ActorAccessible::*handler)(Dali::Actor) = &ActorAccessible::OnChildrenChanged;
@@ -250,12 +252,10 @@ void ActorAccessible::OnChildrenChanged(Dali::Actor)
   OnChildrenChanged();
 }
 
-AtspiInterfaces ActorAccessible::DoGetInterfaces() const
+void ActorAccessible::InitDefaultFeatures()
 {
-  AtspiInterfaces interfaces             = Accessible::DoGetInterfaces();
-  interfaces[AtspiInterface::COLLECTION] = true;
-
-  return interfaces;
+  mCollection = std::make_shared<CollectionImpl>(weak_from_this());
+  AddFeature<Collection>(shared_from_this());
 }
 
 void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)
@@ -547,6 +547,26 @@ bool ActorAccessible::CanAcceptZeroSize() const
 {
   auto layer = Self().GetLayer();
   return layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D;
+}
+
+std::vector<Accessible*> ActorAccessible::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
+{
+  if(mCollection)
+  {
+    return mCollection->GetMatches(rule, sortBy, maxCount);
+  }
+
+  return {};
+}
+
+std::vector<Accessible*> ActorAccessible::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount)
+{
+  if(mCollection)
+  {
+    return mCollection->GetMatchesInMatches(firstRule, secondRule, sortBy, firstCount, secondCount);
+  }
+
+  return {};
 }
 
 } // namespace Dali::Accessibility

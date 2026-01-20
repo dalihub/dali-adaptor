@@ -149,8 +149,7 @@ const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
 const auto GetValueString = [](Accessible* node) -> std::string
 {
   std::ostringstream msg;
-  auto*              valueInterface = Accessible::DownCast<AtspiInterface::VALUE>(node);
-  if(valueInterface)
+  if(auto valueInterface = node->GetFeature<Value>())
   {
     msg << Quote(KEY_VALUE) << ": { "
         << Quote("current") << ": " << valueInterface->GetCurrent() << ", "
@@ -302,16 +301,6 @@ Accessible* Accessible::GetAccessibleAtPoint(Point point, Dali::Accessibility::C
       return accessible;
     }
   }
-  return nullptr;
-}
-
-bool Component::IsAccessibleContainingPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type) const
-{
-  return false;
-}
-
-Accessible* Component::GetAccessibleAtPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type)
-{
   return nullptr;
 }
 

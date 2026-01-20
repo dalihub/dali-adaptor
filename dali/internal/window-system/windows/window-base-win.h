@@ -222,6 +222,11 @@ public:
   void SetMimimumSize(Dali::Window::WindowSize size) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::MaximizeWithRestoreSize()
+   */
+  void MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
   void SetAvailableAnlges(const std::vector<int>& angles) override;
@@ -570,6 +575,16 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlur()
    */
   int GetBehindBlur() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetBehindBlurDim()
+   */
+  void SetBehindBlurDim(bool enable, Vector4& color) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetBehindBlurDim()
+   */
+  Vector4 GetBehindBlurDim(bool& enable) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()

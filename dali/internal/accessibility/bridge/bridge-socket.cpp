@@ -33,7 +33,7 @@ void BridgeSocket::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Socket* BridgeSocket::FindSelf() const
+std::shared_ptr<Socket> BridgeSocket::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::SOCKET>();
 }

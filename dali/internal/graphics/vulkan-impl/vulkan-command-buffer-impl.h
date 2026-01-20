@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+
+// Vulkan headers for function pointer types
+#include <vulkan/vulkan.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -121,7 +124,14 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable);
   void SetDepthCompareOp(vk::CompareOp compareOp);
 
+  void SetColorMask(bool colorWriteMask);
+  void SetColorBlendEnable(uint32_t attachment, bool enabled);
+  void SetColorBlendEquation(uint32_t attachment, const Dali::Graphics::Vulkan::ColorBlendEquation& equation);
+  void SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, BlendOp blendOp);
+
   void ResolveDeferredPipelineBinding();
+
+  void ApplyDeferredColorBlendStates();
 
   void PrepareForDraw();
 
@@ -187,6 +197,21 @@ private: // Struct for deferring texture binding
     uint32_t   binding;
   };
 
+  // Struct for deferring color blend state
+  struct DeferredColorBlendState
+  {
+    uint32_t attachment{0};
+    bool enableSet{false};
+    bool enable{false};
+    bool equationSet{false};
+    ColorBlendEquation equation{};
+    bool advancedSet{false};
+    bool srcPremultiplied{false};
+    bool dstPremultiplied{false};
+    BlendOp blendOp{};
+  };
+
+
 private:
   CommandPool*                        mOwnerCommandPool;
   Device*                             mGraphicsDevice;
@@ -194,6 +219,7 @@ private:
   vk::CommandBufferAllocateInfo       mAllocateInfo{};
   std::vector<DeferredTextureBinding> mDeferredTextureBindings;
   std::vector<DeferredUniformBinding> mDeferredUniformBindings;
+  std::vector<DeferredColorBlendState> mDeferredColorBlendStates;
 
   // Deferred pipeline to bind if dynamic states not supported
   Vulkan::Pipeline* mDeferredPipelineToBind{nullptr};
@@ -206,6 +232,8 @@ private:
   vk::StencilOpState                      mStencilTestStates[3]; /// 0 - unused, we can avoid branching
   vk::StencilOpState&                     mStencilTestFrontState{mStencilTestStates[1]};
   vk::StencilOpState&                     mStencilTestBackState{mStencilTestStates[2]};
+
+  bool mColorWriteMask{true};
 
   vk::CommandBuffer mCommandBuffer{};
 

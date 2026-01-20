@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class NativeImageSource;
 }
-} // namespace DALI_INTERNAL
+} //namespace Internal DALI_INTERNAL
 
 class NativeImageSource;
 /**
@@ -175,7 +175,7 @@ public: // native image
   /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string&, int)
    */
-  bool ApplyNativeFragmentShader(std::string& shader, int count) override;
+  bool ApplyNativeFragmentShader(std::string& shader, int mask) override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()

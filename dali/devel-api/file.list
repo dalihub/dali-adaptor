@@ -165,6 +165,7 @@ SET( devel_api_adaptor_framework_web_engine_header_files
 
 SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/accessible.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/accessibility-feature.h
   ${adaptor_devel_api_dir}/atspi-interfaces/action.h
   ${adaptor_devel_api_dir}/atspi-interfaces/application.h
   ${adaptor_devel_api_dir}/atspi-interfaces/collection.h
@@ -174,8 +175,6 @@ SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/hypertext.h
   ${adaptor_devel_api_dir}/atspi-interfaces/selection.h
   ${adaptor_devel_api_dir}/atspi-interfaces/socket.h
-  ${adaptor_devel_api_dir}/atspi-interfaces/table.h
-  ${adaptor_devel_api_dir}/atspi-interfaces/table-cell.h
   ${adaptor_devel_api_dir}/atspi-interfaces/text.h
   ${adaptor_devel_api_dir}/atspi-interfaces/value.h
 )

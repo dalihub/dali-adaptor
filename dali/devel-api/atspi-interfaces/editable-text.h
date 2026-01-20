@@ -22,7 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
@@ -33,7 +33,7 @@ namespace Dali::Accessibility
  *
  * @see Dali::Accessibility::EditableText
  */
-class DALI_ADAPTOR_API EditableText : public Text
+class DALI_ADAPTOR_API EditableText : public IAccessibilityFeature
 {
 public:
   /**
@@ -44,7 +44,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CopyText(std::size_t startPosition, std::size_t endPosition);
+  virtual bool CopyText(std::size_t startPosition, std::size_t endPosition) = 0;
 
   /**
    * @brief Cuts text in range to system clipboard.
@@ -54,7 +54,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CutText(std::size_t startPosition, std::size_t endPosition);
+  virtual bool CutText(std::size_t startPosition, std::size_t endPosition) = 0;
 
   /**
    * @brief Deletes text in range.
@@ -64,7 +64,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DeleteText(std::size_t startPosition, std::size_t endPosition);
+  virtual bool DeleteText(std::size_t startPosition, std::size_t endPosition) = 0;
 
   /**
    * @brief Inserts text at startPosition.
@@ -74,7 +74,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool InsertText(std::size_t startPosition, std::string text);
+  virtual bool InsertText(std::size_t startPosition, std::string text) = 0;
 
   /**
    * @brief Replaces text with content.
@@ -83,7 +83,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool SetTextContents(std::string newContents);
+  virtual bool SetTextContents(std::string newContents) = 0;
 };
 
 namespace Internal

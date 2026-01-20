@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceCocoa::Prepare
   return Dali::NativeImageInterface::PrepareTextureResult::NOT_SUPPORTED;
 }
 
-bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader, int count)
+bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader, int mask)
 {
   return false;
 }

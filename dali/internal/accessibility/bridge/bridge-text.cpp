@@ -43,7 +43,7 @@ void BridgeText::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-Text* BridgeText::FindSelf() const
+std::shared_ptr<Text> BridgeText::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::TEXT>();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/pixel-data-integ.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <string.h>
@@ -44,6 +45,8 @@ namespace
 {
 static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK = 1000;
 constexpr uint32_t        TIME_OUT_DURATION               = 1000;
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false);
 } // namespace
 
 Capture::Capture()
@@ -128,6 +131,10 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
   if(!mPath.empty())
   {
     mFileSave = true;
+  }
+  else
+  {
+    mFileSave = false;
   }
   mRenderTask.KeepRenderResult();
 
@@ -353,37 +360,71 @@ void Capture::UnsetResources()
 
 void Capture::OnRenderFinished(Dali::RenderTask& task)
 {
-  Dali::Capture::FinishState state = Dali::Capture::FinishState::SUCCEEDED;
+  if(!mRenderTask || mRenderTask != task)
+  {
+    DALI_LOG_DEBUG_INFO("Old RenderFinished callback comes. Ignore\n");
+    return;
+  }
 
-  mTimer.Stop();
+  // Stop timer before file save (legacy behavior)
+  if(DALI_LIKELY(mTimer))
+  {
+    mTimer.Stop();
+  }
 
   if(mFileSave)
   {
-    if(!SaveFile())
+    if(Adaptor::IsAvailable())
     {
-      DALI_LOG_ERROR("Fail to Capture Path[%s]\n", mPath.c_str());
-      state = Dali::Capture::FinishState::FAILED;
+      if(mCaptureFileSaveTask)
+      {
+        DALI_LOG_DEBUG_INFO("Cancel file save Path[%s]\n", mPath.c_str());
+        Dali::AsyncTaskManager::Get().RemoveTask(mCaptureFileSaveTask);
+        mCaptureFileSaveTask.Reset();
+      }
+
+      DALI_LOG_DEBUG_INFO("Request to save Capture Path[%s]\n", mPath.c_str());
+      Dali::PixelData pixelData = mRenderTask.GetRenderResult();
+      mCaptureFileSaveTask      = new Capture::CaptureFileSaveTask(mRenderTask, pixelData, mPath, mQuality, MakeCallback(this, &Capture::OnFileSaveCompleted));
+      Dali::AsyncTaskManager::Get().AddTask(mCaptureFileSaveTask);
     }
+    else
+    {
+      DALI_LOG_ERROR("Fail to Capture Path[%s] (Adaptor is invalidated)\n", mPath.c_str());
+      EmitCaptureFinished(false);
+    }
+    return;
   }
 
-  mInCapture = false;
-
-  Dali::Capture handle(this);
-  mFinishedSignal.Emit(handle, state);
-
-  // Don't unset resources when capture re-start during finished signal.
-  if(!mInCapture)
-  {
-    UnsetResources();
-  }
-
-  // Decrease the reference count forcely. It is increased at Start().
-  Unreference();
+  EmitCaptureFinished(true);
 }
 
 bool Capture::OnTimeOut()
 {
-  Dali::Capture::FinishState state = Dali::Capture::FinishState::FAILED;
+  EmitCaptureFinished(false);
+
+  return false;
+}
+
+void Capture::OnFileSaveCompleted(CaptureFileSaveTaskPtr task)
+{
+  if(DALI_LIKELY(mCaptureFileSaveTask && static_cast<AsyncTask*>(mCaptureFileSaveTask.Get()) == task.Get()))
+  {
+    if(!mRenderTask || mRenderTask != mCaptureFileSaveTask->GetRenderTask())
+    {
+      DALI_LOG_DEBUG_INFO("Old OnFileSaveCompleted callback comes. Ignore\n");
+      return;
+    }
+
+    const bool fileSaved = mCaptureFileSaveTask->IsFileSaved();
+    mCaptureFileSaveTask.Reset();
+    EmitCaptureFinished(fileSaved);
+  }
+}
+
+void Capture::EmitCaptureFinished(bool successed)
+{
+  Dali::Capture::FinishState state = successed ? Dali::Capture::FinishState::SUCCEEDED : Dali::Capture::FinishState::FAILED;
 
   mInCapture = false;
 
@@ -398,20 +439,6 @@ bool Capture::OnTimeOut()
 
   // Decrease the reference count forcely. It is increased at Start().
   Unreference();
-
-  return false;
-}
-
-bool Capture::SaveFile()
-{
-  Dali::PixelData pixelData = mRenderTask.GetRenderResult();
-  if(pixelData)
-  {
-    auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
-    return Dali::EncodeToFile(pixelDataBuffer.buffer, mPath, pixelData.GetPixelFormat(), pixelData.GetWidth(), pixelData.GetHeight(), mQuality);
-  }
-
-  return false;
 }
 
 void Capture::Process(bool postProcessor)
@@ -421,6 +448,44 @@ void Capture::Process(bool postProcessor)
     mTimer = Dali::Timer::New(TIME_OUT_DURATION);
     mTimer.TickSignal().Connect(this, &Capture::OnTimeOut);
     mTimer.Start();
+  }
+}
+
+// CaptureFileSaveTask
+
+Capture::CaptureFileSaveTask::CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelData pixelData, std::string path, uint32_t quality, CallbackBase* callback)
+: AsyncTask(callback),
+  mRenderTask(std::move(renderTask)),
+  mPixelData(std::move(pixelData)),
+  mPath(std::move(path)),
+  mQuality(quality),
+  mFileSaved(false)
+{
+}
+
+Capture::CaptureFileSaveTask::~CaptureFileSaveTask() = default;
+
+void Capture::CaptureFileSaveTask::Process()
+{
+  if(mPixelData)
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_CAPTURE_FILE_SAVE");
+
+    auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
+
+    // TODO : Divide alpha from here! (PixelData from rendertask are pre-multiplied)
+    if(Dali::EncodeToFile(pixelDataBuffer.buffer, mPath, mPixelData.GetPixelFormat(), mPixelData.GetWidth(), mPixelData.GetHeight(), mQuality))
+    {
+      mFileSaved = true;
+    }
+    else
+    {
+      DALI_LOG_ERROR("(Capture) Fail to save file to path[%s]\n", mPath.c_str());
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("(Capture) Fail to save file - PixelData is nullptr. path[%s]\n", mPath.c_str());
   }
 }
 

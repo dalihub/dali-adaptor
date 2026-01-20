@@ -528,6 +528,10 @@ void WindowBaseCocoa::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseCocoa::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseCocoa::SetAvailableAnlges( const std::vector< int >& angles )
 {
 }
@@ -864,6 +868,16 @@ void WindowBaseCocoa::SetBehindBlur(int blurRadius)
 int WindowBaseCocoa::GetBehindBlur()
 {
   return 0;
+}
+
+void WindowBaseCocoa::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseCocoa::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
 Extents WindowBaseCocoa::GetInsets()

@@ -19,13 +19,14 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
 /**
  * @brief Interface representing objects which can store a set of selected items.
  */
-class DALI_ADAPTOR_API Selection
+class DALI_ADAPTOR_API Selection : public IAccessibilityFeature
 {
 public:
   /**
@@ -33,7 +34,7 @@ public:
    *
    * @return The number of selected children (zero if none)
    */
-  virtual int GetSelectedChildrenCount() const;
+  virtual int GetSelectedChildrenCount() const = 0;
 
   /**
    * @brief Gets a specific selected child.
@@ -45,7 +46,7 @@ public:
    *
    * @return The selected child or nullptr if index is invalid
    */
-  virtual Accessible* GetSelectedChild(int selectedChildIndex);
+  virtual Accessible* GetSelectedChild(int selectedChildIndex) = 0;
 
   /**
    * @brief Selects a child.
@@ -54,7 +55,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool SelectChild(int childIndex);
+  virtual bool SelectChild(int childIndex) = 0;
 
   /**
    * @brief Deselects a selected child.
@@ -68,7 +69,7 @@ public:
    *
    * @see Dali::Accessibility::Selection::DeselectChild
    */
-  virtual bool DeselectSelectedChild(int selectedChildIndex);
+  virtual bool DeselectSelectedChild(int selectedChildIndex) = 0;
 
   /**
    * @brief Checks whether a child is selected.
@@ -77,21 +78,21 @@ public:
    *
    * @return true if given child is selected, false otherwise
    */
-  virtual bool IsChildSelected(int childIndex) const;
+  virtual bool IsChildSelected(int childIndex) const = 0;
 
   /**
    * @brief Selects all children.
    *
    * @return true on success, false otherwise
    */
-  virtual bool SelectAll();
+  virtual bool SelectAll() = 0;
 
   /**
    * @brief Deselects all children.
    *
    * @return true on success, false otherwise
    */
-  virtual bool ClearSelection();
+  virtual bool ClearSelection() = 0;
 
   /**
    * @brief Deselects a child.
@@ -102,7 +103,7 @@ public:
    *
    * @see Dali::Accessibility::Selection::DeselectSelectedChild
    */
-  virtual bool DeselectChild(int childIndex);
+  virtual bool DeselectChild(int childIndex) = 0;
 };
 
 namespace Internal

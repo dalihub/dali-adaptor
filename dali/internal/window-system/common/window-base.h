@@ -231,6 +231,11 @@ public:
   virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
+   * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
+   */
+  virtual void MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size) = 0;
+
+  /**
    * @copydoc Dali::Window::SetAvailableOrientations()
    */
   virtual void SetAvailableAnlges(const std::vector<int>& angles) = 0;
@@ -669,6 +674,34 @@ public:
    * @return current behind blur.
    */
   virtual int GetBehindBlur() = 0;
+
+  /**
+   * @brief Sets the behind blur dim effect for the window.
+   *
+   * This function enables or disables a dimming effect that appears behind the window region.
+   * The dim effect uses the specified RGBA color values to create a visual overlay that
+   * darkens the background area outside the window boundaries.
+   *
+   * @param[in] enable True to enable the behind dim effect, false to disable it
+   * @param[in] color The RGBA color values for the dim effect. Each component should be in the range [0.0, 255.0]:
+   *                  - R: Red component
+   *                  - G: Green component
+   *                  - B: Blue component
+   *                  - A: Alpha component (transparency)
+   */
+  virtual void SetBehindBlurDim(bool enable, Vector4& color) = 0;
+
+  /**
+   * @brief Gets the current behind blur dim effect settings.
+   *
+   * This function retrieves the current state and color configuration of the behind dim effect.
+   * The enable parameter indicates whether the dim effect is currently active, and the returned
+   * Vector4 contains the RGBA color values being used for the dim effect.
+   *
+   * @param[out] enable Returns true if the behind dim effect is currently enabled, false otherwise
+   * @return The RGBA color values currently used for the dim effect
+   */
+  virtual Vector4 GetBehindBlurDim(bool& enable) = 0;
 
   /**
    * @brief Gets the window insets for all parts of the system UI.

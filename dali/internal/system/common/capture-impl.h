@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CAPTURE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/public-api/adaptor-framework/async-task-manager.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/capture/capture.h>
@@ -196,11 +197,11 @@ private:
   bool OnTimeOut();
 
   /**
-   * @brief Save framebuffer.
+   * @brief Emit capture finished callback with result
    *
-   * @return True is success to save, false is fail.
+   * @param[in] successed True is success to capture, false is fail.
    */
-  bool SaveFile();
+  void EmitCaptureFinished(bool successed);
 
 private:
   // Undefined
@@ -223,6 +224,69 @@ protected: // Implementation of Processor
     return "Capture";
   }
 
+private: // For CaptureFileSaveTask
+  class CaptureFileSaveTask : public Dali::AsyncTask
+  {
+  public:
+    /**
+     * Constructor.
+     */
+    CaptureFileSaveTask(Dali::RenderTask renderTask, Dali::PixelData pixelData, std::string path, uint32_t quality, CallbackBase* callback);
+
+    /**
+     * Destructor.
+     */
+    ~CaptureFileSaveTask() override;
+
+    const Dali::RenderTask& GetRenderTask() const
+    {
+      return mRenderTask;
+    }
+
+    bool IsFileSaved() const
+    {
+      return mFileSaved;
+    }
+
+  public: // Implementation of AsyncTask
+    /**
+     * @copydoc Dali::AsyncTask::Process()
+     */
+    void Process() override;
+
+    /**
+     * @copydoc Dali::AsyncTask::GetTaskName()
+     */
+    std::string_view GetTaskName() const override
+    {
+      return "CaptureFileSaveTask";
+    }
+
+  private:
+    // Undefined
+    CaptureFileSaveTask(const CaptureFileSaveTask& rhs);
+
+    // Undefined
+    CaptureFileSaveTask& operator=(const CaptureFileSaveTask& rhs);
+
+  private:
+    Dali::RenderTask mRenderTask;
+    Dali::PixelData  mPixelData;
+    std::string      mPath;
+    uint32_t         mQuality;
+
+    bool mFileSaved;
+  };
+
+  using CaptureFileSaveTaskPtr = IntrusivePtr<CaptureFileSaveTask>;
+
+  /**
+   * @brief Callback after CaptureFileSaveTask completed.
+   *
+   * @param[in] task The pointer of task which emit this callback.
+   */
+  void OnFileSaveCompleted(CaptureFileSaveTaskPtr task);
+
 private:
   uint32_t                                         mQuality;
   Dali::Texture                                    mTexture;
@@ -234,11 +298,13 @@ private:
   Dali::Timer                                      mTimer; ///< For timeout.
   Dali::Capture::CaptureFinishedSignalType         mFinishedSignal;
   std::string                                      mPath;
-  bool                                             mInCapture{false};
-  bool                                             mIsExclusive{false};
-  bool                                             mFileSave;
-  bool                                             mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
-  bool                                             mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
+  CaptureFileSaveTaskPtr                           mCaptureFileSaveTask;
+
+  bool mInCapture{false};
+  bool mIsExclusive{false};
+  bool mFileSave;
+  bool mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
+  bool mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
 };
 
 } // End of namespace Adaptor

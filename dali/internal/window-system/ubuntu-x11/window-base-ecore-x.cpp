@@ -777,6 +777,10 @@ void WindowBaseEcoreX::SetMimimumSize(Dali::Window::WindowSize size)
 {
 }
 
+void WindowBaseEcoreX::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseEcoreX::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }
@@ -1155,6 +1159,16 @@ void WindowBaseEcoreX::SetBehindBlur(int blurRadius)
 int WindowBaseEcoreX::GetBehindBlur()
 {
   return 0;
+}
+
+void WindowBaseEcoreX::SetBehindBlurDim(bool enable, Vector4& color)
+{
+}
+
+Vector4 WindowBaseEcoreX::GetBehindBlurDim(bool& enable)
+{
+  enable = false;
+  return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
 Extents WindowBaseEcoreX::GetInsets()
