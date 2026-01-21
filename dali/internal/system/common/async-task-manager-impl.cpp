@@ -25,6 +25,8 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
 
+#include <mutex>
+
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-variables.h>
 
@@ -602,6 +604,12 @@ public:
 
 // AsyncTaskManager
 
+namespace
+{
+std::mutex                                 gStaticAsyncTaskManagerMutex; ///< Mutex for AsyncTaskManager
+Dali::Internal::Adaptor::AsyncTaskManager* gAsyncTaskManager = nullptr;  ///< Must be used under gStaticAsyncTaskManagerMutex
+} // namespace
+
 Dali::AsyncTaskManager AsyncTaskManager::Get()
 {
   Dali::AsyncTaskManager manager;
@@ -627,6 +635,20 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
   return manager;
 }
 
+/// Main + Worker thread called
+void AsyncTaskManager::NotifyManagerToTaskReady(AsyncTaskPtr task)
+{
+  std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+  if(gAsyncTaskManager)
+  {
+    gAsyncTaskManager->NotifyToTaskReady(task);
+  }
+  else
+  {
+    DALI_LOG_DEBUG_INFO("Skip NotifyToTaskReady\n");
+  }
+}
+
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
 { return TaskHelper(*this); }),
@@ -638,10 +660,21 @@ AsyncTaskManager::AsyncTaskManager()
   mProcessorRegistered(false)
 {
   DALI_LOG_DEBUG_INFO("AsyncTaskManager Trigger Id(%d)\n", mTrigger->GetId());
+
+  std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+  gAsyncTaskManager = this;
 }
 
 AsyncTaskManager::~AsyncTaskManager()
 {
+  {
+    std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+    if(gAsyncTaskManager == this)
+    {
+      gAsyncTaskManager = nullptr;
+    }
+  }
+
   if(mProcessorRegistered && Dali::Adaptor::IsAvailable())
   {
     mProcessorRegistered = false;

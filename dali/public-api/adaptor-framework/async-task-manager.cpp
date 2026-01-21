@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,6 @@
 
 namespace Dali
 {
-namespace
-{
-static Internal::Adaptor::AsyncTaskManager* gAsyncTaskManager{nullptr};
-} // namespace
-
 AsyncTask::AsyncTask(CallbackBase* callback, PriorityType priority, ThreadType threadType)
 : mCompletedCallback(std::unique_ptr<CallbackBase>(callback)),
   mPriorityType(priority),
@@ -51,8 +46,7 @@ AsyncTask::PriorityType AsyncTask::GetPriorityType() const
 
 void AsyncTask::NotifyToReady()
 {
-  // TODO : Is their any more good way to get it from worker thread?
-  gAsyncTaskManager->NotifyToTaskReady(AsyncTaskPtr(this));
+  Internal::Adaptor::AsyncTaskManager::NotifyManagerToTaskReady(AsyncTaskPtr(this));
 }
 
 AsyncTaskManager::AsyncTaskManager() = default;
@@ -92,7 +86,6 @@ bool AsyncTaskManager::RemoveCompletedCallback(AsyncTaskManager::TasksCompletedI
 AsyncTaskManager::AsyncTaskManager(Internal::Adaptor::AsyncTaskManager* impl)
 : BaseHandle(impl)
 {
-  gAsyncTaskManager = impl;
 }
 
 } // namespace Dali

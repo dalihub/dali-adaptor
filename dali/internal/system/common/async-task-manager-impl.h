@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ASYNC_TASK_MANAGER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,13 @@ public:
    * @return The AsyncTaskManager object
    */
   static Dali::AsyncTaskManager Get();
+
+  /**
+   * @brief Notify to singleton that given task was ready, called by any thread.
+   *
+   * @param[in] task The task pointer.
+   */
+  static void NotifyManagerToTaskReady(AsyncTaskPtr task);
 
   /**
    * Constructor.
