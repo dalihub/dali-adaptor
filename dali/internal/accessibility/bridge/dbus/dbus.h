@@ -59,7 +59,7 @@ struct DBusWrapper
     SESSION
   };
 
-#define DEFINE_TYPE(name, eldbus_name, unref_call) \
+#define DEFINE_TYPE(name, dbus_name, unref_call) \
   struct name                                      \
   {                                                \
     virtual ~name() = default;                     \
@@ -67,66 +67,66 @@ struct DBusWrapper
   using name##Ptr     = std::shared_ptr<name>;     \
   using name##WeakPtr = std::weak_ptr<name>;
 
-  DEFINE_TYPE(Connection, Eldbus_Connection, )
-  DEFINE_TYPE(MessageIter, Eldbus_Message_Iter, eldbus_message_iter_container_close(Value))
-  DEFINE_TYPE(Message, Eldbus_Message, eldbus_message_unref(Value))
-  DEFINE_TYPE(Proxy, Eldbus_Proxy, eldbus_proxy_unref(Value))
-  DEFINE_TYPE(Object, Eldbus_Object, eldbus_object_unref(Value))
-  DEFINE_TYPE(Pending, Eldbus_Pending, )
-  DEFINE_TYPE(EventPropertyChanged, Eldbus_Proxy_Event_Property_Changed, )
+  DEFINE_TYPE(Connection, , )
+  DEFINE_TYPE(MessageIter, , )
+  DEFINE_TYPE(Message, , )
+  DEFINE_TYPE(Proxy, , )
+  DEFINE_TYPE(Object, , )
+  DEFINE_TYPE(Pending, , )
+  DEFINE_TYPE(EventPropertyChanged, , )
 
 #undef DEFINE_TYPE
-  virtual ConnectionPtr eldbus_address_connection_get_impl(const std::string& addr) = 0;
+  virtual ConnectionPtr dbus_address_connection_get_impl(const std::string& addr) = 0;
 
-#define eldbus_message_iter_arguments_append_impl_basic_impl(type_set, type_get, sig)                 \
-  virtual void eldbus_message_iter_arguments_append_impl(const MessageIterPtr& it, type_set src) = 0; \
-  virtual bool eldbus_message_iter_get_and_next_impl(const MessageIterPtr& it, type_get& dst)    = 0;
-#define eldbus_message_iter_arguments_append_impl_basic(type, sig) \
-  eldbus_message_iter_arguments_append_impl_basic_impl(type, type, sig)
+#define dbus_message_iter_arguments_append_impl_basic_impl(type_set, type_get, sig)                 \
+  virtual void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, type_set src) = 0; \
+  virtual bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, type_get& dst)    = 0;
+#define dbus_message_iter_arguments_append_impl_basic(type, sig) \
+  dbus_message_iter_arguments_append_impl_basic_impl(type, type, sig)
 
   // clang-format off
-  eldbus_message_iter_arguments_append_impl_basic(uint8_t, y)
-  eldbus_message_iter_arguments_append_impl_basic(uint16_t, q)
-  eldbus_message_iter_arguments_append_impl_basic(uint32_t, u)
-  eldbus_message_iter_arguments_append_impl_basic(uint64_t, t)
-  eldbus_message_iter_arguments_append_impl_basic(int16_t, n)
-  eldbus_message_iter_arguments_append_impl_basic(int32_t, i)
-  eldbus_message_iter_arguments_append_impl_basic(int64_t, x)
-  eldbus_message_iter_arguments_append_impl_basic(double, d)
-  eldbus_message_iter_arguments_append_impl_basic(bool, b)
-  eldbus_message_iter_arguments_append_impl_basic_impl(const std::string&, std::string, s)
-  eldbus_message_iter_arguments_append_impl_basic_impl(const ObjectPath&, ObjectPath, o)
+  dbus_message_iter_arguments_append_impl_basic(uint8_t, y)
+  dbus_message_iter_arguments_append_impl_basic(uint16_t, q)
+  dbus_message_iter_arguments_append_impl_basic(uint32_t, u)
+  dbus_message_iter_arguments_append_impl_basic(uint64_t, t)
+  dbus_message_iter_arguments_append_impl_basic(int16_t, n)
+  dbus_message_iter_arguments_append_impl_basic(int32_t, i)
+  dbus_message_iter_arguments_append_impl_basic(int64_t, x)
+  dbus_message_iter_arguments_append_impl_basic(double, d)
+  dbus_message_iter_arguments_append_impl_basic(bool, b)
+  dbus_message_iter_arguments_append_impl_basic_impl(const std::string&, std::string, s)
+  dbus_message_iter_arguments_append_impl_basic_impl(const ObjectPath&, ObjectPath, o)
 
-#undef eldbus_message_iter_arguments_append_impl_basic
-#undef eldbus_message_iter_arguments_append_impl_basic_impl
+#undef dbus_message_iter_arguments_append_impl_basic
+#undef dbus_message_iter_arguments_append_impl_basic_impl
 
-  virtual MessageIterPtr eldbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) = 0;
-  virtual MessageIterPtr eldbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type)                  = 0;
-  virtual MessageIterPtr eldbus_message_iter_get_impl(const MessagePtr& it, bool write)                                     = 0;
-  virtual MessagePtr     eldbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)              = 0;
-  virtual MessagePtr     eldbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg)                     = 0;
-  virtual bool           eldbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text)         = 0;
-  virtual std::string    eldbus_message_signature_get_impl(const MessagePtr& msg)                                           = 0;
+  virtual MessageIterPtr dbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) = 0;
+  virtual MessageIterPtr dbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type)                  = 0;
+  virtual MessageIterPtr dbus_message_iter_get_impl(const MessagePtr& it, bool write)                                     = 0;
+  virtual MessagePtr     dbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)              = 0;
+  virtual MessagePtr     dbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg)                     = 0;
+  virtual bool           dbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text)         = 0;
+  virtual std::string    dbus_message_signature_get_impl(const MessagePtr& msg)                                           = 0;
   // clang-format on
 
   using SendCallback = std::function<void(const MessagePtr& msg)>;
 
-  virtual PendingPtr    eldbus_proxy_send_impl(const ProxyPtr& proxy, const MessagePtr& msg, const SendCallback& callback)                                       = 0;
-  virtual std::string   eldbus_proxy_interface_get_impl(const ProxyPtr&)                                                                                         = 0;
-  virtual void          eldbus_proxy_signal_handler_add_impl(const ProxyPtr& proxy, const std::string& member, const std::function<void(const MessagePtr&)>& cb) = 0;
-  virtual std::string   eldbus_message_iter_signature_get_impl(const MessageIterPtr& iter)                                                                       = 0;
-  virtual MessagePtr    eldbus_message_method_return_new_impl(const MessagePtr& msg)                                                                             = 0;
-  virtual MessagePtr    eldbus_message_error_new_impl(const MessagePtr& msg, const std::string& err, const std::string& txt)                                     = 0;
-  virtual PendingPtr    eldbus_connection_send_impl(const ConnectionPtr& conn, const MessagePtr& msg)                                                            = 0;
-  virtual MessagePtr    eldbus_message_signal_new_impl(const std::string& path, const std::string& iface, const std::string& name)                               = 0;
-  virtual MessagePtr    eldbus_message_ref_impl(const MessagePtr& msg)                                                                                           = 0;
-  virtual ConnectionPtr eldbus_connection_get_impl(ConnectionType type)                                                                                          = 0;
-  virtual std::string   eldbus_connection_unique_name_get_impl(const ConnectionPtr& conn)                                                                        = 0;
-  virtual ObjectPtr     eldbus_object_get_impl(const ConnectionPtr& conn, const std::string& bus, const std::string& path)                                       = 0;
-  virtual ProxyPtr      eldbus_proxy_get_impl(const ObjectPtr& obj, const std::string& interface)                                                                = 0;
-  virtual ProxyPtr      eldbus_proxy_copy_impl(const ProxyPtr& ptr)                                                                                              = 0;
-  virtual void          eldbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
-  virtual void          eldbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
+  virtual PendingPtr    dbus_proxy_send_impl(const ProxyPtr& proxy, const MessagePtr& msg, const SendCallback& callback)                                       = 0;
+  virtual std::string   dbus_proxy_interface_get_impl(const ProxyPtr&)                                                                                         = 0;
+  virtual void          dbus_proxy_signal_handler_add_impl(const ProxyPtr& proxy, const std::string& member, const std::function<void(const MessagePtr&)>& cb) = 0;
+  virtual std::string   dbus_message_iter_signature_get_impl(const MessageIterPtr& iter)                                                                       = 0;
+  virtual MessagePtr    dbus_message_method_return_new_impl(const MessagePtr& msg)                                                                             = 0;
+  virtual MessagePtr    dbus_message_error_new_impl(const MessagePtr& msg, const std::string& err, const std::string& txt)                                     = 0;
+  virtual PendingPtr    dbus_connection_send_impl(const ConnectionPtr& conn, const MessagePtr& msg)                                                            = 0;
+  virtual MessagePtr    dbus_message_signal_new_impl(const std::string& path, const std::string& iface, const std::string& name)                               = 0;
+  virtual MessagePtr    dbus_message_ref_impl(const MessagePtr& msg)                                                                                           = 0;
+  virtual ConnectionPtr dbus_connection_get_impl(ConnectionType type)                                                                                          = 0;
+  virtual std::string   dbus_connection_unique_name_get_impl(const ConnectionPtr& conn)                                                                        = 0;
+  virtual ObjectPtr     dbus_object_get_impl(const ConnectionPtr& conn, const std::string& bus, const std::string& path)                                       = 0;
+  virtual ProxyPtr      dbus_proxy_get_impl(const ObjectPtr& obj, const std::string& interface)                                                                = 0;
+  virtual ProxyPtr      dbus_proxy_copy_impl(const ProxyPtr& ptr)                                                                                              = 0;
+  virtual void          dbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
+  virtual void          dbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
 
   class StringStorage
   {
@@ -852,7 +852,7 @@ struct signature<uint8_t> : signature_helper<signature<uint8_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint8_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -860,7 +860,7 @@ struct signature<uint8_t> : signature_helper<signature<uint8_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint8_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -878,7 +878,7 @@ struct signature<uint16_t> : signature_helper<signature<uint16_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint16_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -886,7 +886,7 @@ struct signature<uint16_t> : signature_helper<signature<uint16_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint16_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -904,7 +904,7 @@ struct signature<uint32_t> : signature_helper<signature<uint32_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint32_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -912,7 +912,7 @@ struct signature<uint32_t> : signature_helper<signature<uint32_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint32_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -930,7 +930,7 @@ struct signature<uint64_t> : signature_helper<signature<uint64_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, uint64_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -938,7 +938,7 @@ struct signature<uint64_t> : signature_helper<signature<uint64_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, uint64_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -956,7 +956,7 @@ struct signature<int16_t> : signature_helper<signature<int16_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, int16_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -964,7 +964,7 @@ struct signature<int16_t> : signature_helper<signature<int16_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int16_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -982,7 +982,7 @@ struct signature<int32_t> : signature_helper<signature<int32_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, int32_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -990,7 +990,7 @@ struct signature<int32_t> : signature_helper<signature<int32_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int32_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -1008,7 +1008,7 @@ struct signature<int64_t> : signature_helper<signature<int64_t>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, int64_t v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1016,7 +1016,7 @@ struct signature<int64_t> : signature_helper<signature<int64_t>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, int64_t& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -1034,7 +1034,7 @@ struct signature<double> : signature_helper<signature<double>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, double v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1042,7 +1042,7 @@ struct signature<double> : signature_helper<signature<double>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, double& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
@@ -1051,7 +1051,7 @@ struct signature<double> : signature_helper<signature<double>>
   static bool get(const DBusWrapper::MessageIterPtr& iter, float& v2)
   {
     double v = 0;
-    auto   r = DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    auto   r = DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
     v2       = static_cast<float>(v);
     return r;
   }
@@ -1071,7 +1071,7 @@ struct signature<float> : signature_helper<signature<float>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, float v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1079,7 +1079,7 @@ struct signature<float> : signature_helper<signature<float>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, double& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
@@ -1088,7 +1088,7 @@ struct signature<float> : signature_helper<signature<float>>
   static bool get(const DBusWrapper::MessageIterPtr& iter, float& v2)
   {
     double v = 0;
-    auto   r = DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    auto   r = DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
     v2       = static_cast<float>(v);
     return r;
   }
@@ -1108,7 +1108,7 @@ struct signature<bool> : signature_helper<signature<bool>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, bool v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1116,7 +1116,7 @@ struct signature<bool> : signature_helper<signature<bool>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, bool& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -1165,7 +1165,7 @@ struct signature<std::string> : signature_helper<signature<std::string>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1173,7 +1173,7 @@ struct signature<std::string> : signature_helper<signature<std::string>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::string& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 };
 
@@ -1188,7 +1188,7 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
   }
 
   /**
@@ -1196,7 +1196,7 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const ObjectPath& v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1204,7 +1204,7 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const char* v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, ObjectPath{v});
   }
 
   /**
@@ -1212,7 +1212,7 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, ObjectPath& v)
   {
-    return DBUS_W->eldbus_message_iter_get_and_next_impl(iter, v);
+    return DBUS_W->dbus_message_iter_get_and_next_impl(iter, v);
   }
 
   /**
@@ -1221,7 +1221,7 @@ struct signature<ObjectPath> : signature_helper<signature<ObjectPath>>
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::string& v)
   {
     ObjectPath q;
-    if(!DBUS_W->eldbus_message_iter_get_and_next_impl(iter, q)) return false;
+    if(!DBUS_W->dbus_message_iter_get_and_next_impl(iter, q)) return false;
     v = std::move(q.value);
     return true;
   }
@@ -1244,7 +1244,7 @@ struct signature<char*> : signature_helper<signature<char*>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::string& v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, v);
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, v);
   }
 
   /**
@@ -1252,7 +1252,7 @@ struct signature<char*> : signature_helper<signature<char*>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const char* v)
   {
-    DBUS_W->eldbus_message_iter_arguments_append_impl(iter, std::string{v});
+    DBUS_W->dbus_message_iter_arguments_append_impl(iter, std::string{v});
   }
 };
 
@@ -1347,7 +1347,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
-    auto entry = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'r', "");
+    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
     signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::set(entry, args);
   }
 
@@ -1356,7 +1356,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::tuple<ARGS...>& args)
   {
-    auto entry = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'r');
+    auto entry = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'r');
     if(!entry) return false;
     return signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::get(entry, args);
   }
@@ -1460,7 +1460,7 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::pair<A, B>& ab, bool dictionary = false)
   {
-    auto entry = DBUS_W->eldbus_message_iter_container_new_impl(iter, dictionary ? 'e' : 'r', "");
+    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, dictionary ? 'e' : 'r', "");
     signature_tuple_helper<0, 2, A, B>::set(entry, ab);
   }
 
@@ -1469,10 +1469,10 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::pair<A, B>& ab)
   {
-    auto entry = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'r');
+    auto entry = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'r');
     if(!entry)
     {
-      entry = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, '{');
+      entry = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, '{');
       if(!entry) return false;
     }
 
@@ -1503,7 +1503,7 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::vector<A>& v)
   {
-    auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
+    auto lst = DBUS_W->dbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
     assert(lst);
     for(auto& a : v)
     {
@@ -1516,7 +1516,7 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::vector<A>& v)
   {
-    auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
+    auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'a');
     if(!s) return false;
     v.clear();
     A a;
@@ -1543,7 +1543,7 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::array<A, N>& v)
   {
-    auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
+    auto lst = DBUS_W->dbus_message_iter_container_new_impl(iter, 'a', std::string{signature<A>::sig()});
     assert(lst);
     for(auto& a : v)
     {
@@ -1556,7 +1556,7 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::array<A, N>& v)
   {
-    auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
+    auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'a');
     if(!s)
       return false;
     for(auto& a : v)
@@ -1592,7 +1592,7 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const A& v)
   {
-    auto var = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'v', std::string{signature<A>::sig()});
+    auto var = DBUS_W->dbus_message_iter_container_new_impl(iter, 'v', std::string{signature<A>::sig()});
     signature<A>::set(var, v);
   }
 
@@ -1601,7 +1601,7 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, EldbusVariant<A>& v)
   {
-    auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'v');
+    auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'v');
     if(!s)
       return false;
     return signature<A>::get(s, v.value);
@@ -1630,7 +1630,7 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::unordered_map<A, B>& v)
   {
     auto sig = "{" + std::string{signature_tuple_helper<0, 2, A, B>::sig()} + "}";
-    auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', sig);
+    auto lst = DBUS_W->dbus_message_iter_container_new_impl(iter, 'a', sig);
     assert(lst);
     for(auto& a : v)
     {
@@ -1643,7 +1643,7 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::unordered_map<A, B>& v)
   {
-    auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
+    auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'a');
     v.clear();
     if(!s)
       return false;
@@ -1676,7 +1676,7 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::map<A, B>& v)
   {
     auto sig = "{" + std::string{signature_tuple_helper<0, 2, A, B>::sig()} + "}";
-    auto lst = DBUS_W->eldbus_message_iter_container_new_impl(iter, 'a', sig);
+    auto lst = DBUS_W->dbus_message_iter_container_new_impl(iter, 'a', sig);
     assert(lst);
     for(auto& a : v)
     {
@@ -1689,7 +1689,7 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, std::map<A, B>& v)
   {
-    auto s = DBUS_W->eldbus_message_iter_get_and_next_by_type_impl(iter, 'a');
+    auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'a');
     if(!s)
       return false;
     std::pair<A, B> a;
@@ -1784,7 +1784,7 @@ ValueType unpackValues(CallId callId, const DBusWrapper::MessagePtr& msg)
 {
   static const std::string sig{signature<ValueType>::sig().data()};
 
-  auto      iter = DBUS_W->eldbus_message_iter_get_impl(msg, false);
+  auto      iter = DBUS_W->dbus_message_iter_get_impl(msg, false);
   ValueType r;
 
   if(iter)
@@ -1793,7 +1793,7 @@ ValueType unpackValues(CallId callId, const DBusWrapper::MessagePtr& msg)
     {
       DBUS_DEBUG("ValueType is %s", signature<ValueType>::name().data());
       r = Error{"call " + std::to_string(callId.id) + ": failed to unpack values, got signature '" +
-                DBUS_W->eldbus_message_signature_get_impl(msg) + "', expected '" + sig + "'"};
+                DBUS_W->dbus_message_signature_get_impl(msg) + "', expected '" + sig + "'"};
     }
   }
   else
@@ -1817,7 +1817,7 @@ void packValues_helper(const DBusWrapper::MessageIterPtr& iter, A&& a, ARGS&&...
 template<typename... ARGS>
 void packValues(CallId callId, const DBusWrapper::MessagePtr& msg, ARGS&&... r)
 {
-  auto iter = DBUS_W->eldbus_message_iter_get_impl(msg, true);
+  auto iter = DBUS_W->dbus_message_iter_get_impl(msg, true);
   packValues_helper(iter, std::forward<ARGS>(r)...);
 }
 
@@ -1839,7 +1839,7 @@ RETTYPE call(CallId callId, const ConnectionState& connectionState, bool propert
   }
 
   DBUS_DEBUG("call %d: calling '%s'", callId.id, funcName.c_str());
-  auto msg = DBUS_W->eldbus_proxy_method_call_new_impl(proxy, funcName);
+  auto msg = DBUS_W->dbus_proxy_method_call_new_impl(proxy, funcName);
   if(!msg)
   {
     DBUS_DEBUG("call %d: failed", callId.id);
@@ -1847,7 +1847,7 @@ RETTYPE call(CallId callId, const ConnectionState& connectionState, bool propert
   }
 
   detail::packValues(callId, msg, args...);
-  auto reply = DBUS_W->eldbus_proxy_send_and_block_impl(proxy, msg);
+  auto reply = DBUS_W->dbus_proxy_send_and_block_impl(proxy, msg);
   DBUS_DEBUG("call %d: calling '%s' done", callId.id, funcName.c_str());
   if(!reply)
   {
@@ -1855,12 +1855,12 @@ RETTYPE call(CallId callId, const ConnectionState& connectionState, bool propert
     return Error{"eldbus returned null as reply"};
   }
   std::string errname, errmsg;
-  if(DBUS_W->eldbus_message_error_get_impl(reply, errname, errmsg))
+  if(DBUS_W->dbus_message_error_get_impl(reply, errname, errmsg))
   {
     DBUS_DEBUG("call %d: %s: %s", callId.id, errname.c_str(), errmsg.c_str());
     return Error{errname + ": " + errmsg};
   }
-  DBUS_DEBUG("call %d: got reply with signature '%s'", callId.id, DBUS_W->eldbus_message_signature_get_impl(reply).c_str());
+  DBUS_DEBUG("call %d: got reply with signature '%s'", callId.id, DBUS_W->dbus_message_signature_get_impl(reply).c_str());
   return detail::unpackValues<RETTYPE>(callId, reply);
 }
 
@@ -1875,7 +1875,7 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
     return;
   }
 
-  auto msg = DBUS_W->eldbus_proxy_method_call_new_impl(proxy, funcName);
+  auto msg = DBUS_W->dbus_proxy_method_call_new_impl(proxy, funcName);
   if(!msg)
   {
     DBUS_DEBUG("call %d: failed", callId.id);
@@ -1884,7 +1884,7 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
   }
 
   detail::packValues(callId, msg, args...);
-  auto pending = DBUS_W->eldbus_proxy_send_impl(proxy, msg, [callback, callId, proxy](const DBusWrapper::MessagePtr& reply)
+  auto pending = DBUS_W->dbus_proxy_send_impl(proxy, msg, [callback, callId, proxy](const DBusWrapper::MessagePtr& reply)
   {
     DBUS_DEBUG("call %d: calling done", callId.id);
     if(!reply)
@@ -1895,14 +1895,14 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
     else
     {
       std::string errname, errmsg;
-      if(DBUS_W->eldbus_message_error_get_impl(reply, errname, errmsg))
+      if(DBUS_W->dbus_message_error_get_impl(reply, errname, errmsg))
       {
         DBUS_DEBUG("call %d: %s: %s", callId.id, errname.c_str(), errmsg.c_str());
         callback(Error{errname + ": " + errmsg, ErrorType::INVALID_REPLY});
       }
       else
       {
-        DBUS_DEBUG("call %d: got reply with signature '%s'", callId.id, DBUS_W->eldbus_message_signature_get_impl(reply).c_str());
+        DBUS_DEBUG("call %d: got reply with signature '%s'", callId.id, DBUS_W->dbus_message_signature_get_impl(reply).c_str());
         callback(detail::unpackValues<RETTYPE>(callId, reply));
       }
     }
@@ -2323,15 +2323,15 @@ public:
   {
     detail::CallId callId;
     detail::displayDebugCallInfoSignal(callId, signalName, info, connectionInfo->interfaceName);
-    DBUS_W->eldbus_proxy_signal_handler_add_impl(connectionState->proxy, signalName, [callId, callback, signalName](const DBusWrapper::MessagePtr& msg) -> void
+    DBUS_W->dbus_proxy_signal_handler_add_impl(connectionState->proxy, signalName, [callId, callback, signalName](const DBusWrapper::MessagePtr& msg) -> void
     {
       std::string errname, aux;
-      if(DBUS_W->eldbus_message_error_get_impl(msg, errname, aux))
+      if(DBUS_W->dbus_message_error_get_impl(msg, errname, aux))
       {
         DBUS_DEBUG("call %d: Eldbus error: %s %s", callId.id, errname.c_str(), aux.c_str());
         return;
       }
-      DBUS_DEBUG("call %d: received signal with signature '%s'", callId.id, DBUS_W->eldbus_message_signature_get_impl(msg).c_str());
+      DBUS_DEBUG("call %d: received signal with signature '%s'", callId.id, DBUS_W->dbus_message_signature_get_impl(msg).c_str());
       using ParamsType = typename detail::dbus_interface_traits<SignalType>::VEArgs;
       auto params      = detail::unpackValues<ParamsType>(callId, msg);
       if(!params)
@@ -2473,7 +2473,7 @@ public:
       z.setCallback = [=](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& src_iter) -> std::string
       {
         std::tuple<T> value;
-        auto          src_signature = DBUS_W->eldbus_message_iter_signature_get_impl(src_iter);
+        auto          src_signature = DBUS_W->dbus_message_iter_signature_get_impl(src_iter);
         if(detail::signature<T>::get(src_iter, std::get<0>(value)))
         {
           try
@@ -2547,35 +2547,35 @@ private:
           if(v)
           {
             DBUS_DEBUG("call %d: success", callId.id);
-            ret = DBUS_W->eldbus_message_method_return_new_impl(msg);
+            ret = DBUS_W->dbus_message_method_return_new_impl(msg);
             detail::packValues(callId, ret, v);
           }
           else
           {
             DBUS_DEBUG("call %d: failed: %s", callId.id, v.getError().message.c_str());
-            ret = DBUS_W->eldbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", v.getError().message);
+            ret = DBUS_W->dbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", v.getError().message);
           }
         }
         catch(std::exception& e)
         {
           auto txt = std::string("unhandled exception (") + e.what() + ")";
           DBUS_DEBUG("call %d: failed: %s", callId.id, txt.c_str());
-          ret = DBUS_W->eldbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", txt);
+          ret = DBUS_W->dbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", txt);
         }
         catch(const Dali::DaliException& e)
         {
           auto txt = std::string("unhandled exception (") + e.condition + ")";
           DBUS_DEBUG("call %d: failed: %s", callId.id, txt.c_str());
-          ret = DBUS_W->eldbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", txt);
+          ret = DBUS_W->dbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.Failed", txt);
         }
       }
       else
       {
         std::ostringstream err;
-        err << "expected signature '" << detail::signature<VEArgs>::sig() << "', got '" << DBUS_W->eldbus_message_signature_get_impl(msg) << "'";
+        err << "expected signature '" << detail::signature<VEArgs>::sig() << "', got '" << DBUS_W->dbus_message_signature_get_impl(msg) << "'";
         auto str = err.str();
         DBUS_DEBUG("call %d: failed: %s", callId.id, str.c_str());
-        ret = DBUS_W->eldbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.InvalidArgs", str);
+        ret = DBUS_W->dbus_message_error_new_impl(msg, "org.freedesktop.DBus.Error.InvalidArgs", str);
       }
       return ret;
     };
@@ -2653,10 +2653,10 @@ public:
   template<typename... ARGS>
   void emit2(const std::string& path, const std::string& interfaceName, const std::string& signalName, const ARGS&... args)
   {
-    auto           msg = DBUS_W->eldbus_message_signal_new_impl(path, interfaceName, signalName);
+    auto           msg = DBUS_W->dbus_message_signal_new_impl(path, interfaceName, signalName);
     detail::CallId id;
     detail::packValues(id, msg, args...);
-    DBUS_W->eldbus_connection_send_impl(connection, msg);
+    DBUS_W->dbus_connection_send_impl(connection, msg);
   }
 
   /**

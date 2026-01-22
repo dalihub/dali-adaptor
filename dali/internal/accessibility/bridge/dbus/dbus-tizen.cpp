@@ -82,27 +82,27 @@ void DBus::debugPrint(const char* file, size_t line, const char* format, ...)
 
 DBusWrapper::ConnectionPtr DBus::getDBusConnectionByName(const std::string& name)
 {
-  return DBUS_W->eldbus_address_connection_get_impl(name);
+  return DBUS_W->dbus_address_connection_get_impl(name);
 }
 
 DBusWrapper::ConnectionPtr DBus::getDBusConnectionByType(DBusWrapper::ConnectionType connectionType)
 {
-  return DBUS_W->eldbus_connection_get_impl(connectionType);
+  return DBUS_W->dbus_connection_get_impl(connectionType);
 }
 
 std::string DBus::getConnectionName(const DBusWrapper::ConnectionPtr& c)
 {
-  return DBUS_W->eldbus_connection_unique_name_get_impl(c);
+  return DBUS_W->dbus_connection_unique_name_get_impl(c);
 }
 
 void DBus::requestBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus)
 {
-  DBUS_W->eldbus_name_request_impl(conn, bus);
+  DBUS_W->dbus_name_request_impl(conn, bus);
 }
 
 void DBus::releaseBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus)
 {
-  DBUS_W->eldbus_name_release_impl(conn, bus);
+  DBUS_W->dbus_name_release_impl(conn, bus);
 }
 
 
@@ -124,17 +124,17 @@ DBus::DBusClient::DBusClient(std::string busName, std::string pathName, std::str
     return;
   }
 
-  connectionState->object = DBUS_W->eldbus_object_get_impl(connectionState->connection, busName.c_str(), pathName.c_str());
+  connectionState->object = DBUS_W->dbus_object_get_impl(connectionState->connection, busName.c_str(), pathName.c_str());
   if(connectionState->object)
   {
-    connectionState->proxy = DBUS_W->eldbus_proxy_get_impl(connectionState->object, interfaceName);
+    connectionState->proxy = DBUS_W->dbus_proxy_get_impl(connectionState->object, interfaceName);
     if(interfaceName != DBUS_INTERFACE_PROPERTIES)
     {
-      connectionState->propertiesProxy = DBUS_W->eldbus_proxy_get_impl(connectionState->object, DBUS_INTERFACE_PROPERTIES);
+      connectionState->propertiesProxy = DBUS_W->dbus_proxy_get_impl(connectionState->object, DBUS_INTERFACE_PROPERTIES);
     }
     else
     {
-      connectionState->propertiesProxy = DBUS_W->eldbus_proxy_copy_impl(connectionState->proxy);
+      connectionState->propertiesProxy = DBUS_W->dbus_proxy_copy_impl(connectionState->proxy);
     }
   }
   connectionInfo                = std::make_shared<ConnectionInfo>();
