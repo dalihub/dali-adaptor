@@ -242,11 +242,6 @@ private:
    */
   void ResetSyncObjects();
 
-  /**
-   * @brief Resets discarded sync objects.
-   */
-  void ResetDiscardSyncObjects();
-
 private:
   enum class ImageState : uint8_t
   {
@@ -255,32 +250,32 @@ private:
     CHANGED
   };
 
-  using SurfaceEglContainer     = std::unordered_map<tbm_surface_h, void*>;
-  using BufferSurfaceContainer  = std::unordered_map<uint8_t*, tbm_surface_h>;
-  using EglSyncContainer        = std::unordered_map<tbm_surface_h, std::pair<EglSyncObject*, int32_t>>;
-  using EglSyncDiscardContainer = std::unordered_map<tbm_surface_h, std::vector<std::pair<EglSyncObject*, int32_t>>>;
+  using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
+  using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
+  using EglSyncContainer       = std::unordered_map<tbm_surface_h, EglSyncObject*>;
+  using EglSyncFdContainer     = std::unordered_map<tbm_surface_h, int32_t>;
 
-  Dali::Mutex             mMutex;              ///< Mutex
-  uint32_t                mQueueCount;         ///< queue count
-  uint32_t                mWidth;              ///< image width
-  uint32_t                mHeight;             ///< image height
-  tbm_surface_queue_h     mTbmQueue;           ///< Tbm surface queue handle
-  tbm_surface_h           mConsumeSurface;     ///< The current tbm surface
-  tbm_surface_h           mOldSurface;         ///< The old surface to be released
-  SurfaceEglContainer     mEglImages;          ///< EGL Image map
-  BufferSurfaceContainer  mBuffers;            ///< Buffer map
-  EglSyncContainer        mEglSyncObjects;     ///< EGL sync object map
-  EglSyncDiscardContainer mEglSyncDiscardList; ///< EGL sync object list to discard
-  EglGraphics*            mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*     mEglImageExtensions; ///< The EGL Image Extensions
-  ImageState              mImageState;         ///< Image state
-  bool                    mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                    mBlendingRequired;   ///< Whether blending is required
-  bool                    mIsResized;          ///< Whether the size has changed
-  bool                    mFreeRequest;        ///< Whether it is requested to free the released buffers
-  bool                    mNeedSync;           ///< Whether we need to create the egl sync object
-  bool                    mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
-  bool                    mRendered;           ///< Whether this texture is rendered in this frame
+  Dali::Mutex            mMutex;              ///< Mutex
+  uint32_t               mQueueCount;         ///< queue count
+  uint32_t               mWidth;              ///< image width
+  uint32_t               mHeight;             ///< image height
+  tbm_surface_queue_h    mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
+  tbm_surface_h          mOldSurface;         ///< The old surface to be released
+  SurfaceEglContainer    mEglImages;          ///< EGL Image map
+  BufferSurfaceContainer mBuffers;            ///< Buffer map
+  EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
+  EglSyncFdContainer     mEglSyncFds;         ///< EGL sync fd  map
+  EglGraphics*           mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
+  ImageState             mImageState;         ///< Image state
+  bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                   mBlendingRequired;   ///< Whether blending is required
+  bool                   mIsResized;          ///< Whether the size has changed
+  bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
+  bool                   mNeedSync;           ///< Whether we need to create the egl sync object
+  bool                   mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
+  bool                   mRendered;           ///< Whether this texture is rendered in this frame
 };
 
 } // namespace Adaptor
