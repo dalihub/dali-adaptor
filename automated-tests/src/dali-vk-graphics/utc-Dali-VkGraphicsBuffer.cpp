@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ namespace
 int UtcDaliBufferReuseTest(void)
 {
   TestGraphicsApplication app;
-  tet_infoline("UtcDaliBufferReuseTest: Tests whether GLES buffer can be reused (orphaning content)");
+  tet_infoline("UtcDaliBufferReuseTest: Tests whether GPU buffer can be reused (orphaning content)");
+
+  app.SendNotification();
+  app.Render(16);
 
   auto& controller = app.GetGraphicsController();
-
   Graphics::BufferCreateInfo info;
   info.size            = 1024;
   info.usage           = 0u | Graphics::BufferUsage::VERTEX_BUFFER;
@@ -47,9 +49,9 @@ int UtcDaliBufferReuseTest(void)
 
   // New buffer with different spec, should create new object
   Graphics::BufferCreateInfo info2;
-  info.size            = 2024;
-  info.usage           = 0u | Graphics::BufferUsage::VERTEX_BUFFER;
-  info.propertiesFlags = 0u;
+  info2.size            = 2024;
+  info2.usage           = 0u | Graphics::BufferUsage::VERTEX_BUFFER;
+  info2.propertiesFlags = 0u;
 
   auto buffer2 = controller.CreateBuffer(info2, std::move(buffer));
   controller.WaitIdle();

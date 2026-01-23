@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,6 +125,18 @@ void Buffer::DestroyResource()
     mBufferImpl = nullptr;
   }
 }
+
+bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, VulkanGraphicsController& controller)
+{
+  if(createInfo.size <= mCreateInfo.size &&
+     createInfo.propertiesFlags == mCreateInfo.propertiesFlags &&
+     createInfo.usage == mCreateInfo.usage)
+  {
+    return true;
+  }
+  return false;
+}
+
 
 void Buffer::DiscardResource()
 {

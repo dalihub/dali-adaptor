@@ -37,6 +37,7 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core
     dali2-adaptor
     vulkan
+    glslang
 )
 
 ADD_COMPILE_OPTIONS(-Wno-switch -Wno-switch-enum -Wno-error=switch -Wno-error=switch-enum)
@@ -66,6 +67,7 @@ INCLUDE_DIRECTORIES(
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
   ${${CAPI_LIB}_LIBRARIES}
+  -ldali2-adaptor-vulkan
   --coverage
 )
 

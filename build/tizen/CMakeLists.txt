@@ -22,8 +22,6 @@ OPTION(ENABLE_ASAN              "Enable Asan" OFF)
 OPTION(ENABLE_TRACE             "Enable Trace" OFF)
 OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
 OPTION(ENABLE_WARNING_TO_ERROR  "Enable -Werror option" ON)
-OPTION(CONFIGURE_AUTOMATED_TESTS "Configure automated tests" ON)
-
 OPTION(ENABLE_PREINITIALIZE_ADAPTOR "Enable PreInitialized Adaptor" ON)
 
 # Include additional macros
