@@ -902,8 +902,23 @@ void PipelineImpl::InitializeRasterizationState(vk::PipelineRasterizationStateCr
 {
   auto gfxRastState = mCreateInfo.rasterizationState;
 
-  out.setFrontFace([gfxRastState]()
-  { return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise; }());
+  // Check if we're rendering offscreen
+  auto rtImpl      = static_cast<const Vulkan::RenderTarget*>(mCreateInfo.renderTarget);
+  bool isOffscreen = rtImpl && rtImpl->GetFramebuffer() != nullptr;
+
+  out.setFrontFace([gfxRastState, isOffscreen]()
+  {
+    // For offscreen rendering, flip the winding order to compensate
+    if(isOffscreen)
+    {
+      return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise;
+    }
+    else
+    {
+      // Onscreen rendering keeps the original winding order
+      return gfxRastState->frontFace == FrontFace::CLOCKWISE ? vk::FrontFace::eClockwise : vk::FrontFace::eCounterClockwise;
+    }
+  }());
 
   out.setPolygonMode([polygonMode = gfxRastState->polygonMode]()
   {
