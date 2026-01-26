@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
 : mEglSync(NULL),
   mEglImplementation(eglImpl)
 {
@@ -59,6 +59,16 @@ void EglSyncObject::ClientWait()
 {
 }
 
+int32_t EglSyncObject::DuplicateNativeFenceFD()
+{
+  return -1;
+}
+
+bool EglSyncObject::Poll()
+{
+  return false;
+}
+
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(NULL),
   mSyncInitialized(false),
@@ -75,9 +85,10 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
 {
-  return CreateSyncObject(EglSyncObject::SyncType::FENCE_SYNC);
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  return new EglSyncObject(*mEglImplementation, type);
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
@@ -86,13 +97,16 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
   delete static_cast<EglSyncObject*>(syncObject);
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
+void EglSyncImplementation::InitializeEglSync()
 {
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  return new EglSyncObject(*mEglImplementation, type);
 }
 
-void EglSyncImplementation::InitializeEglSync()
+bool NativeFence::PollFD(int32_t fenceFd)
+{
+  return false;
+}
+
+void NativeFence::CloseFD(int32_t fenceFd)
 {
 }
 
