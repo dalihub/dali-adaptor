@@ -165,6 +165,11 @@ public: // Getters
     return mIsExtendedDynamicState3Supported;
   }
 
+  bool IsPipelineCreationFeedbackSupported() const
+  {
+    return mIsPipelineCreationFeedbackSupported;
+  }
+
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,
                       const std::vector<const char*>& validationLayers);
@@ -223,6 +228,7 @@ private: // Members
   bool mIsAdvancedBlendingSupported{false};
   bool mIsAdvancedBlendingAllOperationsSupported{false};
   bool mIsExtendedDynamicState3Supported{false};
+  bool mIsPipelineCreationFeedbackSupported{false};
 };
 
 } // namespace Dali::Graphics::Vulkan
