@@ -54,6 +54,10 @@
 #define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
 #endif
 
+#ifndef VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
+#define VK_EXT_MEMORY_BUDGET_EXTENSION_NAME "VK_EXT_memory_budget"
+#endif
+
 // EXTERNAL INCLUDES
 #include <signal.h>
 #include <iostream>
@@ -166,19 +170,22 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
   // Determine required device extensions for native image support
   std::vector<const char*> extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                      VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,        // For importing FD into Vulkan memory
-                                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,             // For binding multi-plane memory
-                                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, // For querying plane-specific requirements
-                                      VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,  // For hardware YUV->RGB conversion
-                                      VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,         // For multi-format image views for multi-plane
-                                      VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,  // For advanced blending operations
+                                      VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,         // For importing FD into Vulkan memory
+                                      VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,              // For binding multi-plane memory
+                                      VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,  // For querying plane-specific requirements
+                                      VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,   // For hardware YUV->RGB conversion
+                                      VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,          // For multi-format image views for multi-plane
+                                      VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,   // For advanced blending operations
                                       VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME, // For pipeline creation feedback
-                                      VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME};  // For dynamic color blend advanced
+                                      VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME,   // For dynamic color blend advanced
+                                      VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};             // For VMA memory budget tracking
 
   // Query available extensions
   auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
 
-  bool hasAdvancedBlendExtension = false;
+  bool hasAdvancedBlendExtension            = false;
+  bool hasPipelineCreationFeedbackExtension = false;
+  bool hasMemoryBudgetExtension             = false;
 
   // Filter only those extensions actually supported by the device
   std::vector<const char*> enabledExtensions;
@@ -202,11 +209,30 @@ void Device::CreateDevice(SurfaceImpl* surface)
       {
         hasAdvancedBlendExtension = true;
       }
+      if(!hasPipelineCreationFeedbackExtension && std::strcmp(extensionName, VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME) == 0)
+      {
+        hasPipelineCreationFeedbackExtension = true;
+      }
+      if(!hasMemoryBudgetExtension && std::strcmp(extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0)
+      {
+        hasMemoryBudgetExtension = true;
+      }
     }
     else
     {
       DALI_LOG_WARNING("Vulkan extension %s not supported\n", extensionName);
     }
+  }
+
+  // Set pipeline creation feedback support flag
+  mIsPipelineCreationFeedbackSupported = hasPipelineCreationFeedbackExtension;
+  if(mIsPipelineCreationFeedbackSupported)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_pipeline_creation_feedback supported\n");
+  }
+  else
+  {
+    DALI_LOG_WARNING("VK_EXT_pipeline_creation_feedback not supported; pipeline creation feedback unavailable\n");
   }
 
   auto deviceFeatures2 = mPhysicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2,
@@ -364,8 +390,16 @@ void Device::CreateDevice(SurfaceImpl* surface)
       allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eKhrDedicatedAllocation;
 
       // Query for current memory usage and budget, which will probably be
-      // more accurate than an estimation
-      allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+      // more accurate than an estimation (only if extension is supported)
+      if(hasMemoryBudgetExtension)
+      {
+        allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_memory_budget extension enabled for VMA\n");
+      }
+      else
+      {
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_memory_budget extension not supported, VMA will use estimation\n");
+      }
 
       mVmaAllocator = std::make_unique<::vma::Allocator>();
       VkAssert(::vma::createAllocator(&allocatorInfo, mVmaAllocator.get()));

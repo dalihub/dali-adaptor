@@ -215,18 +215,24 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   // Create pipeline cache manager
   auto pipelineManager = mController.GetPipelineCacheManager();
 
-  // Pipeline Creation Feedback
+  // Pipeline Creation Feedback - only use if extension is enabled
+  bool usePipelineCreationFeedback = mController.GetGraphicsDevice().IsPipelineCreationFeedbackSupported();
   vk::PipelineCreationFeedbackEXT pipelineFeedback;
-  std::vector<vk::PipelineCreationFeedbackEXT> stageFeedbacks(gfxPipelineInfo.stageCount);
+  std::vector<vk::PipelineCreationFeedbackEXT> stageFeedbacks;
 
   vk::PipelineCreationFeedbackCreateInfoEXT feedbackInfo;
-  feedbackInfo.setPPipelineCreationFeedback(&pipelineFeedback)
-              .setPipelineStageCreationFeedbackCount(static_cast<uint32_t>(stageFeedbacks.size()))
-              .setPPipelineStageCreationFeedbacks(stageFeedbacks.data());
 
-  // Chain the feedback info
-  feedbackInfo.setPNext(gfxPipelineInfo.pNext);
-  gfxPipelineInfo.setPNext(&feedbackInfo);
+  if(usePipelineCreationFeedback)
+  {
+    stageFeedbacks.resize(gfxPipelineInfo.stageCount);
+    feedbackInfo.setPPipelineCreationFeedback(&pipelineFeedback)
+      .setPipelineStageCreationFeedbackCount(static_cast<uint32_t>(stageFeedbacks.size()))
+      .setPPipelineStageCreationFeedbacks(stageFeedbacks.data());
+
+    // Chain the feedback info
+    feedbackInfo.setPNext(gfxPipelineInfo.pNext);
+    gfxPipelineInfo.setPNext(&feedbackInfo);
+  }
 
   vk::Pipeline vkPipeline;
   if(!pipelineManager)
