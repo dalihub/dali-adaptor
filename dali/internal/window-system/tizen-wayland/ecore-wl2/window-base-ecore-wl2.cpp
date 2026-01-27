@@ -4199,7 +4199,6 @@ void WindowBaseEcoreWl2::SetBehindBlurDim(bool enable, Vector4& color)
 
   ecore_wl2_window_behind_dim_set(mEcoreWindow, static_cast<int>(enable), convertR, convertG, convertB, convertA);
 #else
-  int radius = 0;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_set NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
 #endif
 }
@@ -4219,7 +4218,7 @@ Vector4 WindowBaseEcoreWl2::GetBehindBlurDim(bool& enable)
 #else
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_behind_dim_get NOT SUPPORT THIS TIZEN VERSION!, window: [%p]\n", mEcoreWindow);
   enable = ecoreEnable;
-  return Vector4(0.0, 0, 0, 0, 0, 0.0);
+  return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 #endif
 }
 
