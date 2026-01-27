@@ -54,6 +54,10 @@
 #define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
 #endif
 
+#ifndef VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
+#define VK_EXT_MEMORY_BUDGET_EXTENSION_NAME "VK_EXT_memory_budget"
+#endif
+
 // EXTERNAL INCLUDES
 #include <signal.h>
 #include <iostream>
@@ -173,13 +177,15 @@ void Device::CreateDevice(SurfaceImpl* surface)
                                       VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,          // For multi-format image views for multi-plane
                                       VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,   // For advanced blending operations
                                       VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME, // For pipeline creation feedback
-                                      VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME};  // For dynamic color blend advanced
+                                      VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME,   // For dynamic color blend advanced
+                                      VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};             // For VMA memory budget tracking
 
   // Query available extensions
   auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
 
   bool hasAdvancedBlendExtension            = false;
   bool hasPipelineCreationFeedbackExtension = false;
+  bool hasMemoryBudgetExtension             = false;
 
   // Filter only those extensions actually supported by the device
   std::vector<const char*> enabledExtensions;
@@ -206,6 +212,10 @@ void Device::CreateDevice(SurfaceImpl* surface)
       if(!hasPipelineCreationFeedbackExtension && std::strcmp(extensionName, VK_EXT_PIPELINE_CREATION_FEEDBACK_EXTENSION_NAME) == 0)
       {
         hasPipelineCreationFeedbackExtension = true;
+      }
+      if(!hasMemoryBudgetExtension && std::strcmp(extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0)
+      {
+        hasMemoryBudgetExtension = true;
       }
     }
     else
@@ -380,8 +390,16 @@ void Device::CreateDevice(SurfaceImpl* surface)
       allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eKhrDedicatedAllocation;
 
       // Query for current memory usage and budget, which will probably be
-      // more accurate than an estimation
-      allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+      // more accurate than an estimation (only if extension is supported)
+      if(hasMemoryBudgetExtension)
+      {
+        allocatorInfo.flags |= ::vma::AllocatorCreateFlagBits::eExtMemoryBudget;
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_memory_budget extension enabled for VMA\n");
+      }
+      else
+      {
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "VK_EXT_memory_budget extension not supported, VMA will use estimation\n");
+      }
 
       mVmaAllocator = std::make_unique<::vma::Allocator>();
       VkAssert(::vma::createAllocator(&allocatorInfo, mVmaAllocator.get()));
