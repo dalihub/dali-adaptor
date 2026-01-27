@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,13 @@ int UtcDaliClipMatrix01(void)
 
   auto& controller = app.GetGraphicsController();
 
+  tet_printf("Run graphics loop at least once to ensure scene is setup\n");
+  app.SendNotification();
+  app.Render(16);
+
+  const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo{};
+  auto renderTarget = controller.CreateRenderTarget(renderTargetCreateInfo, nullptr);
+
   // GL clip space:
   // Y up, x/y range: -1:1  z range -1:1
   //
@@ -62,7 +69,9 @@ int UtcDaliClipMatrix01(void)
   const int numTests = sizeof(testPoints) / sizeof(Vector3);
 
   DALI_TEST_EQUALS(controller.HasClipMatrix(), true, TEST_LOCATION);
-  const Matrix& clipMatrix = controller.GetClipMatrix();
+
+
+  const Matrix& clipMatrix = controller.GetClipMatrix(renderTarget.get());
 
   for(int i = 0; i < numTests; ++i)
   {

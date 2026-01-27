@@ -37,13 +37,6 @@ IF( print_help )
   EXIT()
 ENDIF()
 
-IF( CONFIGURE_AUTOMATED_TESTS )
-  # Configure automated tests
-  CONFIGURE_FILE( ${ROOT_SRC_DIR}/automated-tests/CMakeLists.txt.in
-                  ${ROOT_SRC_DIR}/automated-tests/CMakeLists.txt @ONLY )
-ENDIF()
-
-
 IF( NOT enable_profile )
   IF( ANDROID )
     SET( enable_profile ANDROID )

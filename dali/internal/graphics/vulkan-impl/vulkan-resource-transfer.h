@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ class ResourceTransfer
 {
 public:
   ResourceTransfer(VulkanGraphicsController& mGraphicsController);
+  ~ResourceTransfer();
+
   void Initialize();
 
   void UpdateTextures(const std::vector<Dali::Graphics::TextureUpdateInfo>&       updateInfoList,

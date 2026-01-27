@@ -52,12 +52,10 @@ function build
     fi
 }
 
-# Query main build to determine if we are using vulkan or egl
 ENABLE_VULKAN=0
-(cd ../build/tizen ; cmake -LA -N 2>/dev/null | grep ENABLE_VULKAN | grep "\=ON")
-if [ $? -eq 0 ] ; then
-    ENABLE_VULKAN=1
-fi
+pkg-config --exists glslang && ENABLE_VULKAN=1
+echo "ENABLE_VULKAN: ${ENABLE_VULKAN}"
+
 if [ -n "$1" ] ; then
   echo BUILDING ONLY $1
   build $1
@@ -65,22 +63,14 @@ else
   for mod in `ls -1 src/ | grep -v CMakeList `
   do
       build=0
-      # only build dali-egl-graphics if we are not using Vulkan.
-      if [ $mod == 'dali-egl-graphics' ] ; then
-          if [ $ENABLE_VULKAN == 0 ] ; then
-              build=1
-          fi
-      # only build dali-vk-graphics if we are using Vulkan.
-      elif [ $mod == 'dali-vk-graphics' ] ; then
+      if [ $mod == 'dali-vk-graphics' ] ; then
           if [ $ENABLE_VULKAN == 1 ] ; then
               build=1
           fi
       elif [ $mod != 'common' ] && [ $mod != 'manual' ]; then
           build=1
       fi
-
       if [ $build == 1 ] ; then
-          echo BUILDING $mod
           build $mod
           if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
       fi
@@ -88,4 +78,5 @@ else
 fi
 
 echo "Build succeeded"
+
 exit 0
