@@ -347,6 +347,19 @@ public:
     return mScene.WheelEventGeneratedSignal();
   }
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FocusChangedGeneratedSignal()
+   */
+  Dali::Integration::SceneHolder::FocusChangedGeneratedSignalType& FocusChangedGeneratedSignal()
+  {
+    return mFocusChangedGeneratedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FocusChanged()
+   */
+  void FocusChanged(bool focusIn);
+
 public: // The following methods can be overridden if required
   /**
    * @brief Returns whether the Scene is visible or not.
@@ -423,9 +436,10 @@ private:
   static uint32_t mSceneHolderCounter; ///< A counter to track the SceneHolder creation
 
   class SceneHolderLifeCycleObserver;
-  std::unique_ptr<SceneHolderLifeCycleObserver> mLifeCycleObserver; ///< The adaptor life cycle observer
-  Dali::TouchEvent                              mLastTouchEvent;
-  Dali::HoverEvent                              mLastHoverEvent;
+  std::unique_ptr<SceneHolderLifeCycleObserver>                   mLifeCycleObserver; ///< The adaptor life cycle observer
+  Dali::TouchEvent                                                mLastTouchEvent;
+  Dali::HoverEvent                                                mLastHoverEvent;
+  Dali::Integration::SceneHolder::FocusChangedGeneratedSignalType mFocusChangedGeneratedSignal;
 
 protected:
   uint32_t                 mId;    ///< A unique ID to identify the SceneHolder starting from 0

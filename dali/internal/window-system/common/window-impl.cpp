@@ -1045,6 +1045,7 @@ void Window::OnFocusChanged(bool focusIn)
 {
   Dali::Window handle(this);
   mFocusChangeSignal.Emit(handle, focusIn);
+  FocusChanged(focusIn);
 
   mSurface->SetFullSwapNextFrame();
   if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
