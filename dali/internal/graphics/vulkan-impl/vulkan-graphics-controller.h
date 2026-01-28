@@ -482,6 +482,12 @@ public: // Other API
   SamplerImpl* GetDefaultSampler();
 
   /**
+   * Get the default sampler for depth textures (uses nearest filtering)
+   * @return Pointer to the depth texture sampler
+   */
+  SamplerImpl* GetDepthTextureSampler();
+
+  /**
    * Remove the texture array and destroy its resources. This should only be called after
    * the last ref has been removed.
    *

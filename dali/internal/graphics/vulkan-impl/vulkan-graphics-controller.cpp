@@ -153,6 +153,11 @@ struct VulkanGraphicsController::Impl
       mSamplerImpl->Destroy();
       mSamplerImpl = nullptr;
     }
+    if(mDepthTextureSamplerImpl)
+    {
+      mDepthTextureSamplerImpl->Destroy();
+      mDepthTextureSamplerImpl = nullptr;
+    }
     if(!mTextureArrays.empty())
     {
       for(auto textureArray : mTextureArrays)
@@ -325,6 +330,31 @@ struct VulkanGraphicsController::Impl
     }
 
     return mSamplerImpl.get();
+  }
+
+  SamplerImpl* GetDepthTextureSampler()
+  {
+    if(!mDepthTextureSamplerImpl)
+    {
+      // Create sampler for depth textures using nearest filtering
+      // This is required because depth formats like VK_FORMAT_D16_UNORM don't support linear filtering
+      auto samplerCreateInfo = vk::SamplerCreateInfo()
+                                 .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+                                 .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+                                 .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
+                                 .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
+                                 .setCompareOp(vk::CompareOp::eNever)
+                                 .setMinFilter(vk::Filter::eNearest) // Use nearest for depth
+                                 .setMagFilter(vk::Filter::eNearest) // Use nearest for depth
+                                 .setMipmapMode(vk::SamplerMipmapMode::eNearest)
+                                 .setMaxAnisotropy(1.0f);
+
+      samplerCreateInfo.setBorderColor(vk::BorderColor::eFloatTransparentBlack);
+
+      mDepthTextureSamplerImpl.reset(SamplerImpl::New(*mGraphicsDevice, samplerCreateInfo));
+    }
+
+    return mDepthTextureSamplerImpl.get();
   }
 
   void CreateSubmissionData(const SubmitInfo&                                 submitInfo,
@@ -511,6 +541,7 @@ struct VulkanGraphicsController::Impl
   DiscardQueues<ResourceBase>      mDiscardQueues;
 
   std::unique_ptr<SamplerImpl> mSamplerImpl{nullptr};
+  std::unique_ptr<SamplerImpl> mDepthTextureSamplerImpl{nullptr};
   DepthStencilFlags            mDepthStencilBufferCurrentState{0u};
   DepthStencilFlags            mDepthStencilBufferRequestedState{0u};
 
@@ -1218,6 +1249,11 @@ void VulkanGraphicsController::RemoveRenderTarget(RenderTarget* renderTarget)
 SamplerImpl* VulkanGraphicsController::GetDefaultSampler()
 {
   return mImpl->GetDefaultSampler();
+}
+
+SamplerImpl* VulkanGraphicsController::GetDepthTextureSampler()
+{
+  return mImpl->GetDepthTextureSampler();
 }
 
 void VulkanGraphicsController::RemoveTextureArray(TextureArray* textureArray)
