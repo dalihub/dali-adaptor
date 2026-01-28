@@ -187,7 +187,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
-  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+  void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) override;
 
   /**
    * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
@@ -241,13 +241,15 @@ private:
   Rect<uint32_t>     mUpdatedArea{}; ///< Updated area
   mutable std::mutex mMutex;
 
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
-  bool                                 mOwnTbmSurface : 1;           ///< Whether we created pixmap or not
-  bool                                 mBlendingRequired : 1;        ///< Whether blending is required
-  bool                                 mSetSource : 1;
-  bool                                 mResourceCreated : 1;   ///< Resource creation state
-  bool                                 mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
-  bool                                 mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
+  EventThreadCallback* mResourceDestructionCallback; ///< The Resource Destruction Callback
+
+  bool mOwnTbmSurface : 1;    ///< Whether we created pixmap or not
+  bool mBlendingRequired : 1; ///< Whether blending is required
+  bool mSetSource : 1;
+  bool mResourceCreated : 1;   ///< Resource creation state
+  bool mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
+  bool mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
+  bool mOwnResourceDestructionCallback : 1;
 };
 
 } // namespace Adaptor

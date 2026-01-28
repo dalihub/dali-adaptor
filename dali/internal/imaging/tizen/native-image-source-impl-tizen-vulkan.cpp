@@ -94,13 +94,14 @@ NativeImageSourceTizenVulkan::NativeImageSourceTizenVulkan(uint32_t width, uint3
   mTbmBackSurface(nullptr),
   mTbmFormat(0),
   mMutex(),
-  mResourceDestructionCallback(),
+  mResourceDestructionCallback(nullptr),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
   mSetSource(false),
   mResourceCreated(false),
   mIsBufferAcquired(false),
-  mBackBufferEnabled(false)
+  mBackBufferEnabled(false),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -221,6 +222,15 @@ void NativeImageSourceTizenVulkan::DestroySurface()
 
 NativeImageSourceTizenVulkan::~NativeImageSourceTizenVulkan()
 {
+  {
+    std::scoped_lock lock(mMutex);
+    if(mOwnResourceDestructionCallback)
+    {
+      delete mResourceDestructionCallback;
+      mResourceDestructionCallback    = nullptr;
+      mOwnResourceDestructionCallback = false;
+    }
+  }
   DestroySurface();
 }
 
@@ -754,10 +764,15 @@ bool NativeImageSourceTizenVulkan::ReleaseBuffer(const Rect<uint32_t>& updatedAr
   return ret;
 }
 
-void NativeImageSourceTizenVulkan::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceTizenVulkan::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
   std::scoped_lock lock(mMutex);
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceTizenVulkan::EnableBackBuffer(bool enable)

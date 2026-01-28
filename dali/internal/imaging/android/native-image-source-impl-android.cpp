@@ -68,7 +68,8 @@ NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t heig
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
-  mResourceDestructionCallback()
+  mResourceDestructionCallback(nullptr),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -125,6 +126,10 @@ void NativeImageSourceAndroid::Initialize()
 
 NativeImageSourceAndroid::~NativeImageSourceAndroid()
 {
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
   AHardwareBuffer_release(mPixmap);
   mPixmap = NULL;
 }
@@ -418,9 +423,14 @@ bool NativeImageSourceAndroid::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return false;
 }
 
-void NativeImageSourceAndroid::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceAndroid::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceAndroid::EnableBackBuffer(bool enable)

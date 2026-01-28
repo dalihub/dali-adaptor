@@ -1,7 +1,7 @@
 #ifndef DALI_NATIVE_IMAGE_SOURCE_DEVEL_H
 #define DALI_NATIVE_IMAGE_SOURCE_DEVEL_H
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,9 +85,9 @@ DALI_ADAPTOR_API bool SetPixels(NativeImageSource& image, uint8_t* pixbuf, const
  *
  * @param[in] image The instance of NativeImageSource.
  * @param[in] callback The Resource Destruction callback
- * @note Ownership of the callback is passed onto this class.
+ * @param[in] ownedCallback True if ownership of the callback is passed onto this class. False if ownership of the callback is exclude.
  */
-DALI_ADAPTOR_API void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback);
+DALI_ADAPTOR_API void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback, bool ownedCallback);
 
 /**
  * @brief Enable a back buffer.

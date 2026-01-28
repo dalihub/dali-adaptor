@@ -97,7 +97,8 @@ NativeImageSourceX::NativeImageSourceX(uint32_t width, uint32_t height, Dali::Na
   mEglImageChanged(false),
   mEglImageKHR(NULL),
   mEglImageExtensions(NULL),
-  mResourceDestructionCallback()
+  mResourceDestructionCallback(nullptr),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -141,6 +142,10 @@ void NativeImageSourceX::Initialize()
 
 NativeImageSourceX::~NativeImageSourceX()
 {
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
   if(mOwnPixmap && mPixmap)
   {
     ::Display* display = WindowSystem::GetImplementation().GetXDisplay();
@@ -453,9 +458,14 @@ bool NativeImageSourceX::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return false;
 }
 
-void NativeImageSourceX::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceX::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceX::EnableBackBuffer(bool enable)

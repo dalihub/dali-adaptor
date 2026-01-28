@@ -187,7 +187,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
-  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+  void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) override;
 
   /**
    * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
@@ -226,18 +226,18 @@ private:
   void DestroyBackBuffer();
 
 private:
-  uint32_t                             mWidth;          ///< image width
-  uint32_t                             mHeight;         ///< image height
-  tbm_surface_h                        mTbmSurface;     ///< Tbm surface
-  tbm_surface_h                        mTbmBackSurface; ///< Back buffer
-  tbm_format                           mTbmFormat;
-  Dali::NativeImageSource::ColorDepth  mColorDepth;    ///< color depth of image
-  Rect<uint32_t>                       mUpdatedArea{}; ///< Updated area
-  mutable std::mutex                   mMutex;
-  void*                                mEglImageKHR;                 ///< From EGL extension
-  EglGraphics*                         mEglGraphics;                 ///< EGL Graphics
-  EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
+  uint32_t                            mWidth;          ///< image width
+  uint32_t                            mHeight;         ///< image height
+  tbm_surface_h                       mTbmSurface;     ///< Tbm surface
+  tbm_surface_h                       mTbmBackSurface; ///< Back buffer
+  tbm_format                          mTbmFormat;
+  Dali::NativeImageSource::ColorDepth mColorDepth;    ///< color depth of image
+  Rect<uint32_t>                      mUpdatedArea{}; ///< Updated area
+  mutable std::mutex                  mMutex;
+  void*                               mEglImageKHR;                 ///< From EGL extension
+  EglGraphics*                        mEglGraphics;                 ///< EGL Graphics
+  EglImageExtensions*                 mEglImageExtensions;          ///< The EGL Image Extensions
+  EventThreadCallback*                mResourceDestructionCallback; ///< The Resource Destruction Callback
 
   bool mOwnTbmSurface : 1;    ///< Whether we created pixmap or not
   bool mBlendingRequired : 1; ///< Whether blending is required
@@ -245,6 +245,7 @@ private:
   bool mSetSource : 1;
   bool mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
   bool mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
+  bool mOwnResourceDestructionCallback : 1;
 };
 
 } // namespace Adaptor

@@ -177,7 +177,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
-  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+  void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) override;
 
   /**
    * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
@@ -199,8 +199,9 @@ private:
     Any                                 nativeImageSource);
 
 private:
-  CFRef<CGImageRef>                    mImage;
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
+  CFRef<CGImageRef>    mImage;
+  EventThreadCallback* mResourceDestructionCallback; ///< The Resource Destruction Callback
+  bool                 mOwnResourceDestructionCallback;
 };
 
 } // namespace Dali::Internal::Adaptor

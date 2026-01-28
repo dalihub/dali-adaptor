@@ -46,7 +46,8 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
 : mImage(MakeRef<CGImageRef>(nullptr)),
-  mResourceDestructionCallback()
+  mResourceDestructionCallback(nullptr),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
   DALI_ASSERT_ALWAYS(nativeImageSource.Empty());
@@ -110,6 +111,10 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
 
 NativeImageSourceCocoa::~NativeImageSourceCocoa()
 {
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
 }
 
 Any NativeImageSourceCocoa::GetNativeImageSource() const
@@ -149,6 +154,10 @@ bool NativeImageSourceCocoa::CreateResource()
 
 void NativeImageSourceCocoa::DestroyResource()
 {
+  if(mResourceDestructionCallback)
+  {
+    mResourceDestructionCallback->Trigger();
+  }
 }
 
 uint32_t NativeImageSourceCocoa::TargetTexture()
@@ -212,9 +221,14 @@ bool NativeImageSourceCocoa::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return false;
 }
 
-void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceCocoa::EnableBackBuffer(bool enable)

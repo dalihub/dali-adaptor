@@ -168,7 +168,7 @@ public:
   /**
    * @copydoc Dali::DevelNativeImageSource::SetResourceDestructionCallback()
    */
-  virtual void SetResourceDestructionCallback(EventThreadCallback* callback) = 0;
+  virtual void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) = 0;
 
   /**
    * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()

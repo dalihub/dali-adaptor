@@ -86,13 +86,14 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
-  mResourceDestructionCallback(),
+  mResourceDestructionCallback(nullptr),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
   mEglImageChanged(false),
   mSetSource(false),
   mIsBufferAcquired(false),
-  mBackBufferEnabled(false)
+  mBackBufferEnabled(false),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -225,6 +226,15 @@ void NativeImageSourceTizen::DestroySurface()
 
 NativeImageSourceTizen::~NativeImageSourceTizen()
 {
+  {
+    std::scoped_lock lock(mMutex);
+    if(mOwnResourceDestructionCallback)
+    {
+      delete mResourceDestructionCallback;
+      mResourceDestructionCallback    = nullptr;
+      mOwnResourceDestructionCallback = false;
+    }
+  }
   DestroySurface();
 }
 
@@ -794,10 +804,15 @@ bool NativeImageSourceTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return ret;
 }
 
-void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
   std::scoped_lock lock(mMutex);
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceTizen::EnableBackBuffer(bool enable)
