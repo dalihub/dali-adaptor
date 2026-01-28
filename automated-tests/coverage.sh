@@ -1,7 +1,7 @@
 #!/bin/bash
 
 opt_genhtml=true
-if [ $1 == -n ] ; then
+if [ "$1" == -n ] ; then
   opt_genhtml=false
 fi
 

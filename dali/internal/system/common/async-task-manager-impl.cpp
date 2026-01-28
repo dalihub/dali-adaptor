@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
+
+#include <mutex>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-variables.h>
@@ -67,6 +69,8 @@ Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging
 
 uint32_t gThreadId = 0u; // Only for debug
 
+#endif
+
 /**
  * @brief Get the Task Name.
  * Note that we can get const char* from std::string_view as data() since it will be const class.
@@ -79,8 +83,6 @@ const char* GetTaskName(AsyncTaskPtr task)
   // Note
   return task ? task->GetTaskName().data() : "(nil)";
 }
-
-#endif
 
 } // unnamed namespace
 
@@ -416,7 +418,14 @@ public:
 
         DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Excute taskS completed callback[%p] for id[%u]\n", callback.get(), id);
 
-        Dali::CallbackBase::Execute(*callback, id);
+        if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+        {
+          Dali::CallbackBase::Execute(*callback, id);
+        }
+        else
+        {
+          DALI_LOG_ERROR("Adaptor is not available, so cannot execute completed callback[%p] for id[%u]\n", callback.get(), id);
+        }
       }
 
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Excute callback end\n");
@@ -595,6 +604,12 @@ public:
 
 // AsyncTaskManager
 
+namespace
+{
+std::mutex                                 gStaticAsyncTaskManagerMutex; ///< Mutex for AsyncTaskManager
+Dali::Internal::Adaptor::AsyncTaskManager* gAsyncTaskManager = nullptr;  ///< Must be used under gStaticAsyncTaskManagerMutex
+} // namespace
+
 Dali::AsyncTaskManager AsyncTaskManager::Get()
 {
   Dali::AsyncTaskManager manager;
@@ -620,6 +635,20 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
   return manager;
 }
 
+/// Main + Worker thread called
+void AsyncTaskManager::NotifyManagerToTaskReady(AsyncTaskPtr task)
+{
+  std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+  if(gAsyncTaskManager)
+  {
+    gAsyncTaskManager->NotifyToTaskReady(task);
+  }
+  else
+  {
+    DALI_LOG_DEBUG_INFO("Skip NotifyToTaskReady\n");
+  }
+}
+
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
 { return TaskHelper(*this); }),
@@ -631,10 +660,21 @@ AsyncTaskManager::AsyncTaskManager()
   mProcessorRegistered(false)
 {
   DALI_LOG_DEBUG_INFO("AsyncTaskManager Trigger Id(%d)\n", mTrigger->GetId());
+
+  std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+  gAsyncTaskManager = this;
 }
 
 AsyncTaskManager::~AsyncTaskManager()
 {
+  {
+    std::unique_lock<std::mutex> lock(gStaticAsyncTaskManagerMutex);
+    if(gAsyncTaskManager == this)
+    {
+      gAsyncTaskManager = nullptr;
+    }
+  }
+
   if(mProcessorRegistered && Dali::Adaptor::IsAvailable())
   {
     mProcessorRegistered = false;
@@ -1071,11 +1111,21 @@ void AsyncTaskManager::UnregisterProcessor()
 
 void AsyncTaskManager::TasksCompleted()
 {
+  // Keep handle of this manager reference during this function.
+  Dali::AsyncTaskManager manager(this);
+
   DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "TasksCompleted begin\n");
   while(AsyncTaskPtr task = PopNextCompletedTask())
   {
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback [%p][%s]\n", task.Get(), GetTaskName(task));
-    CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+    if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
+    {
+      CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Adaptor is not available, so cannot execute completed callback[%p] for task[%p][%s]\n", task->GetCompletedCallback(), task.Get(), GetTaskName(task));
+    }
 
     // Remove TasksCompleted callback trace
     if(mTasksCompletedImpl->IsTasksCompletedCallbackExist())

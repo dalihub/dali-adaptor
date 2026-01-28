@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,14 @@ static bool TestCopyRectIntersection(const ResourceTransferRequest* srcRequest, 
 ResourceTransfer::ResourceTransfer(VulkanGraphicsController& graphicsController)
 : mGraphicsController(graphicsController)
 {
+}
+
+ResourceTransfer::~ResourceTransfer()
+{
+  if(mTextureStagingBuffer)
+  {
+    mTextureStagingBuffer->DestroyResource();
+  }
 }
 
 void ResourceTransfer::Initialize()
@@ -471,6 +479,10 @@ Dali::SharedFuture ResourceTransfer::InitializeTextureStagingBuffer(uint32_t siz
   {
     auto workerFunc = [&, size](auto workerIndex)
     {
+      if(mTextureStagingBuffer)
+      {
+        mTextureStagingBuffer->DestroyResource();
+      }
       Graphics::BufferCreateInfo createInfo{};
       createInfo.SetSize(size)
         .SetUsage(0u | Dali::Graphics::BufferUsage::TRANSFER_SRC);

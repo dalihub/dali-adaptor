@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -432,7 +432,6 @@ int UtcDaliVkReflectionParseUniformBlockVariablesArrays(void)
   tet_printf("Uniform block count: %u\n", uniformBlockCount);
   DALI_TEST_CHECK(uniformBlockCount >= 1); // Should have at least the standalone block
 
-  // If we have the uniform block with arrays, test its members
   if(uniformBlockCount > 1)
   {
     Dali::Graphics::UniformBlockInfo blockInfo;
@@ -440,8 +439,9 @@ int UtcDaliVkReflectionParseUniformBlockVariablesArrays(void)
     if(hasBlock)
     {
       tet_printf("Array uniform block has %u members\n", blockInfo.members.size());
-      // Should have members including array elements
-      DALI_TEST_EQUALS(blockInfo.members.size(), 6, TEST_LOCATION);
+
+      // For simple arrays, only 1 member is reflected, so ARRAY_VERTEX_SHADER should have 3 elements
+      DALI_TEST_EQUALS(blockInfo.members.size(), 3, TEST_LOCATION);
       for(auto i = 0u; i < blockInfo.members.size(); ++i)
       {
         tet_printf("Uniform %s,  offset %u\n",
