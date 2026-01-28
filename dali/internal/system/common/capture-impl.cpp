@@ -471,10 +471,69 @@ void Capture::CaptureFileSaveTask::Process()
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_CAPTURE_FILE_SAVE");
 
-    auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
+    auto               pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
+    Devel::PixelBuffer pixelBuffer;
 
-    // TODO : Divide alpha from here! (PixelData from rendertask are pre-multiplied)
-    if(Dali::EncodeToFile(pixelDataBuffer.buffer, mPath, mPixelData.GetPixelFormat(), mPixelData.GetWidth(), mPixelData.GetHeight(), mQuality))
+    uint8_t* buffer = nullptr;
+
+    auto pixelFormat = mPixelData.GetPixelFormat();
+
+    if(!Dali::Pixel::IsCompressed(pixelFormat) && Dali::Pixel::HasAlpha(pixelFormat))
+    {
+      switch(pixelFormat)
+      {
+        case Pixel::RGBA8888:
+        case Pixel::BGRA8888:
+        {
+          pixelBuffer = Dali::Devel::PixelBuffer::New(pixelDataBuffer.width, pixelDataBuffer.height, pixelFormat);
+
+          buffer = pixelBuffer.GetBuffer();
+          memcpy(buffer, pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);
+
+          const uint32_t bpp         = Dali::Pixel::GetBytesPerPixel(pixelFormat);
+          const uint32_t strideBytes = pixelBuffer.GetStrideBytes();
+
+          for(uint32_t y = 0u; y < mPixelData.GetHeight(); ++y)
+          {
+            for(uint32_t x = 0u; x < mPixelData.GetWidth(); ++x)
+            {
+              uint8_t& c0 = buffer[y * strideBytes + x * bpp + 0u];
+              uint8_t& c1 = buffer[y * strideBytes + x * bpp + 1u];
+              uint8_t& c2 = buffer[y * strideBytes + x * bpp + 2u];
+
+              uint8_t& alpha = buffer[y * strideBytes + x * bpp + 3u];
+
+              if(alpha == 0u)
+              {
+                c0 = c1 = c2 = 0u;
+              }
+              else if(alpha == 255u)
+              {
+                // do nothing
+              }
+              else
+              {
+                c0 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c0)) * 255u + alpha / 2) / alpha);
+                c1 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c1)) * 255u + alpha / 2) / alpha);
+                c2 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c2)) * 255u + alpha / 2) / alpha);
+              }
+            }
+          }
+          break;
+        }
+        default:
+        {
+          // TODO : Support more cases
+          break;
+        }
+      }
+    }
+    else
+    {
+      buffer = pixelDataBuffer.buffer;
+    }
+
+    if(DALI_LIKELY(buffer) && Dali::EncodeToFile(buffer, mPath, mPixelData.GetPixelFormat(), mPixelData.GetWidth(), mPixelData.GetHeight(), mQuality))
     {
       mFileSaved = true;
     }
