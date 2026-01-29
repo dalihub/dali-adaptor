@@ -674,7 +674,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     delete d;
   }
 
-  void add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const Eina_Value*)> cb) override
+  void add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const void*)> cb) override
   {
     auto callbackLambdaPtr = new std::function<void(Eldbus_Proxy_Event_Property_Changed * epc)>{
       [cb, name, interface](Eldbus_Proxy_Event_Property_Changed* ev)
@@ -688,6 +688,11 @@ struct EldbusDBusWrapper : public DBusWrapper
     auto p = get(proxy);
     eldbus_proxy_event_callback_add(p, ELDBUS_PROXY_EVENT_PROPERTY_CHANGED, listenerEventChangedCallback, callbackLambdaPtr);
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);
+  }
+
+  bool get_from_value_impl(const void * v, void * dst)
+  {
+    return eina_value_get(static_cast<Eina_Value*>(const_cast<void*>(v)), dst);
   }
 };
 

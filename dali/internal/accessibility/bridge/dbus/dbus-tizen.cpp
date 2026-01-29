@@ -171,11 +171,6 @@ std::string DBus::DBusServer::getBusName() const
   return getConnectionName(connection);
 }
 
-bool DBus::DBusClient::getFromEinaValue(const _Eina_Value* v, void* dst)
-{
-  return eina_value_get(const_cast<Eina_Value*>(v), dst);
-}
-
 static std::unique_ptr<DBusWrapper> InstalledWrapper;
 
 DBusWrapper* DBusWrapper::Installed()
