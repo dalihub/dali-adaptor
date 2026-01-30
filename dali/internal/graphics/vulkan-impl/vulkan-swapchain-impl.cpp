@@ -196,15 +196,20 @@ void Swapchain::CreateVkSwapchain(
 
 void Swapchain::Destroy()
 {
-  if(mDepthStencilBuffer)
-  {
-    mDepthStencilBuffer->Destroy();
-  }
-
   mFramebuffers.clear();
   mSwapchainBuffers.clear();
   mSwapchainImages.clear();
   mImageViews.clear();
+
+  if(mDepthStencilImageView)
+  {
+    mDepthStencilImageView.reset();
+  }
+
+  if(mDepthStencilBuffer)
+  {
+    mDepthStencilBuffer->Destroy();
+  }
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Destroying SwapChain: %p\n", static_cast<VkSwapchainKHR>(mSwapchainKHR));
 
