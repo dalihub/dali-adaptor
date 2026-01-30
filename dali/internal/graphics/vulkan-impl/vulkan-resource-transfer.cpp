@@ -27,6 +27,8 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 
+#include <algorithm>
+
 namespace Dali::Graphics::Vulkan
 {
 /**

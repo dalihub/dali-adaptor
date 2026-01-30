@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/math/math-utils.h>
+
 #include <algorithm>
 #include <cmath>
 
@@ -83,7 +85,7 @@ void FontMetrics::ApplyDesignLineHeightCompat()
   int desiredLineHeight = lineHeight;
   if(lineHeight > heightPixels)
   {
-    int targetEvenHeight = std::clamp(heightPixels & ~1, 0, lineHeight);
+    int targetEvenHeight = Dali::Clamp(heightPixels & ~1, 0, lineHeight);
     desiredLineHeight    = targetEvenHeight;
   }
   else // lineHeight == heightPixels

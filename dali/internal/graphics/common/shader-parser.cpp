@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
+#include <algorithm>
 #include <sstream>
 
 // Happy trick for Tizen platform! since 2025-04-22. eunkiki.hong@samsung.com

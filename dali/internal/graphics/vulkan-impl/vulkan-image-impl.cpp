@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
+#include <algorithm>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;

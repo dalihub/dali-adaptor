@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <algorithm>
 
 // EXTERNAL_HEADERS
 #include <X11/XKBlib.h>
