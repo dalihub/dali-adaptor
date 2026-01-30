@@ -267,7 +267,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                        .setRenderArea({{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}})
                                        .setPClearValues(vkClearValues.data())
                                        .setClearValueCount(clearValuesCount),
-                                     vk::SubpassContents::eSecondaryCommandBuffers);
+                                     vk::SubpassContents::eInline);
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
