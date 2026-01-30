@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-discard-queue.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller-debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-cache-manager.h>
@@ -50,6 +51,15 @@
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
 #endif
+
+// Uncomment the following to enable dumping the command buffers to a log file
+// Set GRAPHICS_CMDBUF_OUTFILE to some temporary log file in shell env
+// Start the program - the first 10 cmd bufs will get dumped to this file.
+// Trigger a dump to a subsequent file by touching /tmp/dump_cmd_buf whilst
+// the app is running
+//#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller-debug.h>
+DUMP_FRAME_INIT();
 
 namespace
 {
@@ -82,12 +92,18 @@ struct GraphicsDeleter
 /**
  * @brief Helper function allocating graphics object
  *
+ * @tparam VKType The Vulkan type to allocate
+ * @tparam GfxCreateInfo The associated CreateInfo type
+ * @tparam T The Graphics base class of VKType
+ * @tparam Types optional argument types of the VKType constructor
  * @param[in] info Create info structure
  * @param[in] controller Controller object
- * @param[out] out Unique pointer to the return object
+ * @param[in] oldObject R-value to old object for recycling
+ * @param[in] args Optional arguments to the VKType constructor
+ * @return Unique pointer to the new object
  */
-template<class VKType, class GfxCreateInfo, class T>
-auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, T&& oldObject)
+template<class VKType, class GfxCreateInfo, class T, typename... Types>
+auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, T&& oldObject, Types... args)
 {
   // Use allocator
   using Type = typename T::element_type;
@@ -102,7 +118,7 @@ auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& cont
   }
   else // Use standard allocator
   {
-    // We are given all object for recycling
+    // We are given old object for recycling
     if(oldObject)
     {
       auto reusedObject = oldObject.release();
@@ -120,8 +136,8 @@ auto NewGraphicsObject(const GfxCreateInfo& info, VulkanGraphicsController& cont
     }
 
     // Create brand-new object
-    UPtr gfxObject(new VKType(info, controller), GraphicsDeleter<VKType>());
-    // @todo Consider using create queues?
+    UPtr gfxObject(new VKType(info, controller, args...), GraphicsDeleter<VKType>());
+
     ResourceBase::InitializationResult result = static_cast<VKType*>(gfxObject.get())->InitializeResource();
     if(result == ResourceBase::InitializationResult::NOT_SUPPORTED)
     {
@@ -380,6 +396,8 @@ struct VulkanGraphicsController::Impl
         DALI_LOG_ERROR("Cmd buffer has no render target set.");
         continue;
       }
+      DUMP_FRAME_COMMAND_BUFFER(cmdBuffer->GetStoredCommandBuffer());
+      cmdBuffer->Process(); // Translate copy to Vulkan
 
       if(renderTarget->GetSurface() == nullptr)
       {
@@ -454,22 +472,22 @@ struct VulkanGraphicsController::Impl
       // Process wait semaphores: validate and track earliest wait locations
       waitSemaphores.erase(
         std::remove_if(waitSemaphores.begin(), waitSemaphores.end(), [&validSignalSemaphores, &earliestWaitLocation, i](vk::Semaphore sem)
-                       {
-                         VkSemaphore semHandle = static_cast<VkSemaphore>(sem);
+      {
+        VkSemaphore semHandle = static_cast<VkSemaphore>(sem);
 
-                         // Check if this semaphore is valid (has a corresponding signal)
-                         bool isValid = validSignalSemaphores.count(semHandle) != 0;
-                         if(isValid)
-                         {
-                           // Record earliest wait location for this semaphore
-                           if(!earliestWaitLocation.count(semHandle))
-                           {
-                             earliestWaitLocation[semHandle] = i; // First (earliest) wait location
-                           }
-                           return false; // Keep valid semaphore
-                         }
-                         return true; // Remove invalid semaphore
-                       }),
+        // Check if this semaphore is valid (has a corresponding signal)
+        bool isValid = validSignalSemaphores.count(semHandle) != 0;
+        if(isValid)
+        {
+          // Record earliest wait location for this semaphore
+          if(!earliestWaitLocation.count(semHandle))
+          {
+            earliestWaitLocation[semHandle] = i; // First (earliest) wait location
+          }
+          return false; // Keep valid semaphore
+        }
+        return true; // Remove invalid semaphore
+      }),
         waitSemaphores.end());
     }
 
@@ -648,6 +666,8 @@ void VulkanGraphicsController::SetResourceBindingHints(const std::vector<SceneRe
 
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
+  DUMP_FRAME_START();
+
   // Wait for any pending resource transfers to finish.
   mImpl->mResourceTransfer.WaitOnResourceTransferFutures();
 
@@ -662,6 +682,7 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
   RenderTarget* currentRenderSurface = nullptr;
 
   // Collect each FBO’s submit semaphore and track its last signal point
+
   mImpl->CreateSubmissionData(submitInfo, fboSubmitData, surfaceSubmitData, fboLastSubmissionIndex, fboSignalSemaphores, currentRenderSurface);
 
   // Clear all signal semaphores from FBO submissions.
@@ -675,6 +696,8 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
   mImpl->ResolveFboSemaphoreDependencies(fboSubmitData, fboLastSubmissionIndex, fboSignalSemaphores);
 
   // Submit FBO work first, then surface work, with the correct wait/signal lists
+  DUMP_FRAME_END();
+
   if(!fboSubmitData.empty())
   {
     mImpl->mGraphicsDevice->GetGraphicsQueue(0).Submit(fboSubmitData, nullptr);
@@ -785,6 +808,13 @@ UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(c
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
   auto commandBuffer = NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+  return commandBuffer;
+}
+
+UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateImmediateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
+{
+  auto commandBuffer = NewGraphicsObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer), CommandBuffer::Storage::IMMEDIATE, false);
+
   return commandBuffer;
 }
 

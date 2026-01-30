@@ -118,6 +118,7 @@ void RenderTarget::CreateSubmissionData(
   std::vector<vk::Semaphore> waitSemaphores;   // Remains empty if we're only using barriers
   std::vector<vk::Semaphore> submitSemaphores; // Remains empty if we're only using barriers
 #if defined(ENABLE_FBO_SEMAPHORE)
+
   for(auto renderTarget : mDependencies)
   {
     // Only use semaphore if dependency render target was submitted

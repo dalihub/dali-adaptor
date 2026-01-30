@@ -22,6 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
@@ -546,10 +547,9 @@ void ResourceTransfer::CopyBufferAndTransition(
   auto& device             = graphicsController.GetGraphicsDevice();
   auto& image              = *destTexture.GetImage();
 
-  //@todo Ensure this isn't double buffered.
   Graphics::CommandBufferCreateInfo createInfo{};
   createInfo.SetLevel(Graphics::CommandBufferLevel::PRIMARY);
-  auto gfxCommandBuffer = graphicsController.CreateCommandBuffer(createInfo, nullptr);
+  auto gfxCommandBuffer = graphicsController.CreateImmediateCommandBuffer(createInfo, nullptr);
   auto commandBuffer    = static_cast<Vulkan::CommandBuffer*>(gfxCommandBuffer.get());
 
   // Fence between submissions
@@ -893,8 +893,7 @@ void ResourceTransfer::ProcessResourceTransferRequests(bool immediateOnly)
     Graphics::CommandBufferCreateInfo createInfo{};
     createInfo.SetLevel(Graphics::CommandBufferLevel::PRIMARY);
 
-    //@todo Ensure this isn't double buffered.
-    auto gfxCommandBuffer = graphicsController.CreateCommandBuffer(createInfo, nullptr);
+    auto gfxCommandBuffer = graphicsController.CreateImmediateCommandBuffer(createInfo, nullptr);
     auto commandBuffer    = static_cast<Vulkan::CommandBuffer*>(gfxCommandBuffer.get());
 
     // Fence between submissions

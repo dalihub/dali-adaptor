@@ -1211,7 +1211,7 @@ struct DrawCallDescriptor
 };
 
 /**
- * @brief Topologu conversion from Graphics to GLES
+ * @brief Topology conversion from Graphics to GLES
  */
 struct GLESTopology
 {
