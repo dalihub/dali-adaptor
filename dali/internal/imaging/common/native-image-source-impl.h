@@ -58,7 +58,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  virtual bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const = 0;
+  virtual bool GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::SetPixels()
@@ -195,9 +195,9 @@ public:
    */
   inline bool EncodeToFile(const std::string& filename, const uint32_t quality) const
   {
-    std::vector<uint8_t> pixbuf;
-    uint32_t             width(0), height(0);
-    Pixel::Format        pixelFormat;
+    Dali::Vector<uint8_t> pixbuf;
+    uint32_t              width(0), height(0);
+    Pixel::Format         pixelFormat;
 
     if(GetPixels(pixbuf, width, height, pixelFormat))
     {

@@ -239,7 +239,7 @@ Any NativeImageSourceTizenVulkan::GetNativeImageSource() const
   return Any(mTbmSurface);
 }
 
-bool NativeImageSourceTizenVulkan::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizenVulkan::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   std::scoped_lock lock(mMutex);
   if(mTbmSurface != nullptr)
@@ -272,7 +272,7 @@ bool NativeImageSourceTizenVulkan::GetPixels(std::vector<uint8_t>& pixbuf, uint3
       {
         lineSize    = width * 3;
         pixelFormat = Pixel::RGB888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -292,7 +292,7 @@ bool NativeImageSourceTizenVulkan::GetPixels(std::vector<uint8_t>& pixbuf, uint3
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -313,7 +313,7 @@ bool NativeImageSourceTizenVulkan::GetPixels(std::vector<uint8_t>& pixbuf, uint3
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)

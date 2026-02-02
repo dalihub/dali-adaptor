@@ -111,7 +111,7 @@ Any NativeImageSourceWin::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceWin::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;

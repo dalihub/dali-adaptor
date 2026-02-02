@@ -139,7 +139,7 @@ Any NativeImageSourceAndroid::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceAndroid::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceAndroid::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;
@@ -187,10 +187,10 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t&
     uint32_t dstStride = pixelBytes * bufferDescription.width;
     uint32_t srcStride = pixelBytes * bufferDescription.stride;
     uint32_t size      = dstStride * bufferDescription.height;
-    pixbuf.resize(size);
+    pixbuf.ResizeUninitialized(size);
     // copy each row over
     const uint8_t* ptrSrc = reinterpret_cast<const uint8_t*>(buffer);
-    uint8_t*       ptrDst = pixbuf.data();
+    uint8_t*       ptrDst = pixbuf.Begin();
     for(int y = 0; y < bufferDescription.height; y++, ptrSrc += srcStride, ptrDst += dstStride)
     {
       memcpy(ptrDst, ptrSrc, dstStride);
@@ -199,8 +199,8 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t&
   else
   {
     uint32_t size = bufferDescription.stride * bufferDescription.height;
-    pixbuf.resize(size);
-    memcpy(pixbuf.data(), buffer, size);
+    pixbuf.ResizeUninitialized(size);
+    memcpy(pixbuf.Begin(), buffer, size);
   }
 
   ret = AHardwareBuffer_unlock(mPixmap, NULL);

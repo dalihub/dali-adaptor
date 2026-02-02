@@ -243,7 +243,7 @@ Any NativeImageSourceTizen::GetNativeImageSource() const
   return Any(mTbmSurface);
 }
 
-bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizen::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   std::scoped_lock lock(mMutex);
   if(mTbmSurface != NULL)
@@ -276,7 +276,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 3;
         pixelFormat = Pixel::RGB888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -296,7 +296,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -317,7 +317,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)

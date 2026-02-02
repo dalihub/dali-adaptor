@@ -154,7 +154,7 @@ Any NativeImageSourceX::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceX::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;
@@ -190,7 +190,7 @@ bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width
       case 24:
       {
         pixelFormat = Pixel::RGB888;
-        pixbuf.resize(width * height * 3);
+        pixbuf.ResizeUninitialized(width * height * 3);
         uint8_t* bufPtr = &pixbuf[0];
 
         for(uint32_t y = 0; y < height; ++y)
@@ -218,7 +218,7 @@ bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width
         {
           // Sweep through the image, doing a vertical flip, but handling each scanline as
           // an inlined intrinsic/builtin memcpy (should be fast):
-          pixbuf.resize(width * height * 4);
+          pixbuf.ResizeUninitialized(width * height * 4);
           uint32_t*      bufPtr        = reinterpret_cast<uint32_t*>(&pixbuf[0]);
           const uint32_t xDataLineSkip = pXImage->bytes_per_line;
           const size_t   copy_count    = static_cast<size_t>(width) * 4;
@@ -230,7 +230,7 @@ bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width
 
             // Copy a whole scanline at a time:
             DALI_ASSERT_DEBUG(size_t(bufPtr) >= size_t(&pixbuf[0]));
-            DALI_ASSERT_DEBUG(reinterpret_cast<size_t>(bufPtr) + copy_count <= reinterpret_cast<size_t>(&pixbuf[pixbuf.size()]));
+            DALI_ASSERT_DEBUG(reinterpret_cast<size_t>(bufPtr) + copy_count <= reinterpret_cast<size_t>(pixbuf.End()));
             DALI_ASSERT_DEBUG(in >= pXImage->data);
             DALI_ASSERT_DEBUG(in + copy_count <= pXImage->data + xDataLineSkip * height);
             __builtin_memcpy(bufPtr, in, copy_count);
@@ -259,7 +259,7 @@ bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width
   if(!success)
   {
     DALI_LOG_ERROR("Failed to get pixels from NativeImageSource.\n");
-    pixbuf.resize(0);
+    pixbuf.ResizeUninitialized(0);
     width  = 0;
     height = 0;
   }

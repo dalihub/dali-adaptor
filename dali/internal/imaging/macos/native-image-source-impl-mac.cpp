@@ -123,10 +123,10 @@ Any NativeImageSourceCocoa::GetNativeImageSource() const
 }
 
 bool NativeImageSourceCocoa::GetPixels(
-  std::vector<uint8_t>& pixbuf,
-  uint32_t&             width,
-  uint32_t&             height,
-  Pixel::Format&        pixelFormat) const
+  Dali::Vector<uint8_t>& pixbuf,
+  uint32_t&              width,
+  uint32_t&              height,
+  Pixel::Format&         pixelFormat) const
 {
   width  = static_cast<uint32_t>(CGImageGetWidth(mImage.get()));
   height = static_cast<uint32_t>(CGImageGetHeight(mImage.get()));

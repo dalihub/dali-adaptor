@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint> ///< for uint8_t
 #include <string>
 
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
 #include <dali/public-api/object/any.h>
@@ -120,7 +121,7 @@ public:
    * @param[out] pixelFormat pixel format used by image
    * @return     @c true if the pixels were gotten, and @c false otherwise
    */
-  bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const;
+  bool GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const;
 
   /**
    * @brief Converts the current pixel contents to either a JPEG or PNG format
