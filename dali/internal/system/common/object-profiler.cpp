@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20257 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20267 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <dali/public-api/object/type-registry.h>
 
 #include <stdlib.h>
+#include <algorithm> // for std::find_if
 
 using std::string;
 using namespace Dali::Integration::Profiling;

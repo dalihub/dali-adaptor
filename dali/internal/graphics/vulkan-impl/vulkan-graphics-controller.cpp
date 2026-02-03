@@ -43,6 +43,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
+#include <algorithm>
 #include <queue>
 #include <unordered_map>
 

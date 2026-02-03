@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <sys/time.h>
+#include <algorithm>
 #include <cstring>
 
 #include <dali/devel-api/events/touch-point.h>
@@ -193,7 +194,7 @@ void EventHandler::OnStyleChanged(StyleChange::Type styleChange)
 
 void EventHandler::AddObserver(Observer& observer)
 {
-  ObserverContainer::iterator match(find(mObservers.begin(), mObservers.end(), &observer));
+  ObserverContainer::iterator match(std::find(mObservers.begin(), mObservers.end(), &observer));
 
   if(match == mObservers.end())
   {
@@ -203,7 +204,7 @@ void EventHandler::AddObserver(Observer& observer)
 
 void EventHandler::RemoveObserver(Observer& observer)
 {
-  ObserverContainer::iterator match(find(mObservers.begin(), mObservers.end(), &observer));
+  ObserverContainer::iterator match(std::find(mObservers.begin(), mObservers.end(), &observer));
 
   if(match != mObservers.end())
   {

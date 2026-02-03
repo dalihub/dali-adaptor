@@ -60,6 +60,7 @@
 
 // EXTERNAL INCLUDES
 #include <signal.h>
+#include <algorithm>
 #include <iostream>
 #include <utility>
 
@@ -345,7 +346,7 @@ void Device::CreateDevice(SurfaceImpl* surface)
         DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "advancedBlendCoherentOperations: %s\n", advancedBlendFeatures.advancedBlendCoherentOperations ? "TRUE" : "FALSE");
 
         advancedBlendFeatures.pNext = pNextChain;
-        pNextChain = &advancedBlendFeatures;
+        pNextChain                  = &advancedBlendFeatures;
       }
 
       // Check for VK_EXT_extended_dynamic_state3

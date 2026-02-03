@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+#include <algorithm>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gLogSyncFilter;

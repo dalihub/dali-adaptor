@@ -23,6 +23,7 @@
 #include <chrono>
 #endif
 
+#include <algorithm>
 #include <memory>
 
 // INTERNAL INCLUDES
@@ -31,10 +32,10 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-pipeline-cache-manager.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -194,15 +195,15 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   for(auto& state : mDynamicStates)
   {
     if(!(vk::DynamicState::eDepthWriteEnable == state ||
-        vk::DynamicState::eDepthTestEnable == state ||
-        vk::DynamicState::eDepthCompareOp == state ||
-        vk::DynamicState::eDepthBounds == state ||
-        vk::DynamicState::eDepthBoundsTestEnable == state ||
-        vk::DynamicState::eStencilTestEnable == state ||
-        vk::DynamicState::eStencilOp == state ||
-        vk::DynamicState::eStencilCompareMask == state ||
-        vk::DynamicState::eStencilWriteMask == state ||
-        vk::DynamicState::eStencilReference == state ))
+         vk::DynamicState::eDepthTestEnable == state ||
+         vk::DynamicState::eDepthCompareOp == state ||
+         vk::DynamicState::eDepthBounds == state ||
+         vk::DynamicState::eDepthBoundsTestEnable == state ||
+         vk::DynamicState::eStencilTestEnable == state ||
+         vk::DynamicState::eStencilOp == state ||
+         vk::DynamicState::eStencilCompareMask == state ||
+         vk::DynamicState::eStencilWriteMask == state ||
+         vk::DynamicState::eStencilReference == state))
     {
       newDynamicStates.emplace_back(state);
     }
@@ -216,8 +217,8 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
   auto pipelineManager = mController.GetPipelineCacheManager();
 
   // Pipeline Creation Feedback - only use if extension is enabled
-  bool usePipelineCreationFeedback = mController.GetGraphicsDevice().IsPipelineCreationFeedbackSupported();
-  vk::PipelineCreationFeedbackEXT pipelineFeedback;
+  bool                                         usePipelineCreationFeedback = mController.GetGraphicsDevice().IsPipelineCreationFeedbackSupported();
+  vk::PipelineCreationFeedbackEXT              pipelineFeedback;
   std::vector<vk::PipelineCreationFeedbackEXT> stageFeedbacks;
 
   vk::PipelineCreationFeedbackCreateInfoEXT feedbackInfo;
@@ -241,7 +242,7 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
 #if defined(DEBUG_ENABLED)
     auto createStartTime = std::chrono::high_resolution_clock::now();
 #endif
-    auto vkDevice  = mController.GetGraphicsDevice().GetLogicalDevice();
+    auto  vkDevice  = mController.GetGraphicsDevice().GetLogicalDevice();
     auto& allocator = mController.GetGraphicsDevice().GetAllocator();
 
     VkAssert(vkDevice.createGraphicsPipelines(VK_NULL_HANDLE,
@@ -250,14 +251,14 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
                                               &allocator,
                                               &vkPipeline));
 #if defined(DEBUG_ENABLED)
-    auto createEndTime = std::chrono::high_resolution_clock::now();
+    auto createEndTime  = std::chrono::high_resolution_clock::now();
     auto createDuration = std::chrono::duration_cast<std::chrono::microseconds>(createEndTime - createStartTime);
-    bool cacheHit = static_cast<bool>(pipelineFeedback.flags & vk::PipelineCreationFeedbackFlagBitsEXT::eApplicationPipelineCacheHit);
+    bool cacheHit       = static_cast<bool>(pipelineFeedback.flags & vk::PipelineCreationFeedbackFlagBitsEXT::eApplicationPipelineCacheHit);
     DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Create Pipeline without cache:: PipelineImpl(%p), creation_time:%lld μs, cache_size:%zu, CacheHit: %s\n",
-                   this,
-                   static_cast<long long>(createDuration.count()),
-                   mPipelineForDepthStateCache.size(),
-                   cacheHit ? "HIT" : "MISS");
+                  this,
+                  static_cast<long long>(createDuration.count()),
+                  mPipelineForDepthStateCache.size(),
+                  cacheHit ? "HIT" : "MISS");
 #endif
   }
   else
@@ -268,15 +269,15 @@ vk::Pipeline PipelineImpl::CloneInheritedVkPipeline(vk::PipelineDepthStencilStat
 #endif
     vkPipeline = pipelineManager->GetOrCreatePipeline(gfxPipelineInfo);
 #if defined(DEBUG_ENABLED)
-    auto cacheEndTime = std::chrono::high_resolution_clock::now();
+    auto cacheEndTime  = std::chrono::high_resolution_clock::now();
     auto cacheDuration = std::chrono::duration_cast<std::chrono::microseconds>(cacheEndTime - cacheStartTime);
 
     bool cacheHit = static_cast<bool>(pipelineFeedback.flags & vk::PipelineCreationFeedbackFlagBitsEXT::eApplicationPipelineCacheHit);
     DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Create Pipeline using cache: PipelineImpl(%p), creation_time:%lld μs, cache_size:%zu, CacheHit: %s\n",
-                   this,
-                   static_cast<long long>(cacheDuration.count()),
-                   mPipelineForDepthStateCache.size(),
-                   cacheHit ? "HIT" : "MISS");
+                  this,
+                  static_cast<long long>(cacheDuration.count()),
+                  mPipelineForDepthStateCache.size(),
+                  cacheHit ? "HIT" : "MISS");
 #endif
   }
 
@@ -446,14 +447,14 @@ void PipelineImpl::RemoveIncompatiblePipelines(RenderPassHandle currentRenderPas
       if(!pipelinePair.renderPass->IsCompatible(currentRenderPass))
       {
         // Incompatible - destroy the pipeline
-                                     if(pipelineManager)
-                                     {
-                                        pipelineManager->RemovePipelineFromCache(pipelinePair.pipeline);
-                                     }
-                                     else
-                                     {
-                                       vkDevice.destroyPipeline(pipelinePair.pipeline);
-                                     }
+        if(pipelineManager)
+        {
+          pipelineManager->RemovePipelineFromCache(pipelinePair.pipeline);
+        }
+        else
+        {
+          vkDevice.destroyPipeline(pipelinePair.pipeline);
+        }
         destroyedPipelines.push_back(pipelinePair.pipeline);
         return true; // Remove from vector
       }
@@ -1023,7 +1024,7 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
 
     att.setAlphaBlendOp(ConvBlendOp(in->alphaBlendOp));
     att.setBlendEnable(in->blendEnable);
-    
+
     att.setColorBlendOp(ConvBlendOp(in->colorBlendOp));
     att.setColorWriteMask(vk::ColorComponentFlags(in->colorComponentWriteBits));
     att.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
