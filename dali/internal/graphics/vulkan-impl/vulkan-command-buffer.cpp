@@ -19,6 +19,7 @@
 // INTERNAL HEADERS
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-executor.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
@@ -26,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-stored-command-buffer.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/integration-api/debug.h>
@@ -48,9 +50,22 @@ VT* ConstGraphicsCast(const GT* object)
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : CommandBufferResource(createInfo, controller),
-  mDynamicStateMask(CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE)
+  mStorageType(CommandBuffer::Storage::IMMEDIATE)
 {
-  AllocateCommandBuffers();
+  AllocateCommandBuffers(true);
+  mStoredCommandBuffer = std::make_unique<StoredCommandBuffer>(mCreateInfo, mCreateInfo.fixedCapacity);
+}
+
+CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller, CommandBuffer::Storage storageType, bool doubleBuffered)
+: CommandBufferResource(createInfo, controller),
+  mStorageType(storageType),
+  mDoubleBuffered(doubleBuffered)
+{
+  AllocateCommandBuffers(mDoubleBuffered);
+  if(storageType == CommandBuffer::Storage::STORED)
+  {
+    mStoredCommandBuffer = std::make_unique<StoredCommandBuffer>(mCreateInfo, mCreateInfo.fixedCapacity);
+  }
 }
 
 CommandBuffer::~CommandBuffer() = default;
@@ -72,47 +87,12 @@ void CommandBuffer::DiscardResource()
   mController.DiscardResource(this);
 }
 
-void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
-{
-  mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
-  mRenderTarget     = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
-
-  auto commandBufferImpl = GetImpl();
-  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::Begin: ptr:%p bufferIndex=%d\n", GetImpl(), mController.GetGraphicsDevice().GetCurrentBufferIndex());
-  mCmdCount++; // Debug info
-
-  if(commandBufferImpl)
-  {
-    vk::CommandBufferInheritanceInfo inheritanceInfo{};
-    if(info.renderPass)
-    {
-      inheritanceInfo.renderPass         = mRenderTarget->GetRenderPass(info.renderPass)->GetVkHandle();
-      inheritanceInfo.subpass            = 0;
-      inheritanceInfo.framebuffer        = mRenderTarget->GetCurrentFramebufferImpl()->GetVkHandle();
-      inheritanceInfo.queryFlags         = static_cast<vk::QueryControlFlags>(0);
-      inheritanceInfo.pipelineStatistics = static_cast<vk::QueryPipelineStatisticFlags>(0);
-    }
-    commandBufferImpl->Begin(static_cast<vk::CommandBufferUsageFlags>(info.usage), &inheritanceInfo);
-
-    // Default depth/stencil should be off:
-    SetDepthTestEnable(false);
-    SetDepthWriteEnable(false);
-    SetDepthCompareOp(Graphics::CompareOp::LESS);
-    SetStencilTestEnable(false);
-  }
-}
-
-void CommandBuffer::End()
-{
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "CommandBuffer::End: ptr:%p bufferIndex=%d\n", commandBufferImpl, mController.GetGraphicsDevice().GetCurrentBufferIndex());
-
-  mCmdCount++; // Debug info
-  commandBufferImpl->End();
-}
-
 void CommandBuffer::Reset()
 {
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->Reset();
+  }
   const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
 
   if(bufferIndex >= EXCESS_BUFFER_COUNT)
@@ -124,79 +104,141 @@ void CommandBuffer::Reset()
   if(bufferIndex >= mCommandBufferImpl.size())
   {
     // Handle (odd) case where swapchain is re-created with a different number of min images
-    AllocateCommandBuffers();
+    AllocateCommandBuffers(mDoubleBuffered);
   }
 
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size());
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "Resetting cmd buf[%d]\n", bufferIndex);
   mCommandBufferImpl[bufferIndex]->Reset();
 
-  mDynamicStateMask = CommandBuffer::INITIAL_DYNAMIC_MASK_VALUE;
-  mRenderTarget     = nullptr;
-  mCmdCount         = 1;
+  mRenderTarget = nullptr;
+}
+
+void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
+{
+  mRenderTarget = ConstGraphicsCast<Vulkan::RenderTarget, Graphics::RenderTarget>(info.renderTarget);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->Begin(info);
+  }
+  else
+  {
+    // Create temporary command buffer and execute it.
+    StoredCommandBuffer commandBuffer(mCreateInfo, 1);
+    commandBuffer.Begin(info);
+    CommandBufferExecutor commandExecutor(mController);
+    commandExecutor.ProcessCommandBuffer(&commandBuffer, GetImpl());
+  }
+}
+
+void CommandBuffer::End()
+{
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->End();
+  }
+  else
+  {
+    GetImpl()->End();
+  }
 }
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
                                       const std::vector<const Graphics::Buffer*>& gfxBuffers,
                                       const std::vector<uint32_t>&                offsets)
 {
-  mCmdCount++; // Debug info
-  std::vector<BufferImpl*> buffers;
-  buffers.reserve(gfxBuffers.size());
-  for(auto& gfxBuffer : gfxBuffers)
+  if(mStoredCommandBuffer)
   {
-    buffers.push_back(ConstGraphicsCast<Buffer, Graphics::Buffer>(gfxBuffer)->GetImpl());
+    mStoredCommandBuffer->BindVertexBuffers(firstBinding, gfxBuffers, offsets);
   }
-
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindVertexBuffers(firstBinding, buffers, offsets);
+  else
+  {
+    // Create temporary command buffer and execute it.
+    StoredCommandBuffer commandBuffer(mCreateInfo, 1);
+    commandBuffer.BindVertexBuffers(firstBinding, gfxBuffers, offsets);
+    CommandBufferExecutor commandExecutor(mController);
+    commandExecutor.ProcessCommandBuffer(&commandBuffer, GetImpl());
+  }
 }
 
 void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& gfxBuffer,
                                     uint32_t                offset,
                                     Format                  format)
 {
-  mCmdCount++; // Debug info
-  auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
-  DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindIndexBuffer(gfxBuffer, offset, format);
+  }
+  else
+  {
+    auto indexBuffer = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer);
+    DALI_ASSERT_DEBUG(indexBuffer && indexBuffer->GetImpl());
 
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
+    GetImpl()->BindIndexBuffer(*indexBuffer->GetImpl(), offset, format);
+  }
 }
 
 void CommandBuffer::BindUniformBuffers(const std::vector<UniformBufferBinding>& bindings)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindUniformBuffers(bindings);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindUniformBuffers(bindings);
+  }
+  else
+  {
+    GetImpl()->BindUniformBuffers(bindings);
+  }
 }
 
 void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindPipeline(&pipeline);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindPipeline(pipeline);
+  }
+  else
+  {
+    GetImpl()->BindPipeline(&pipeline);
+  }
 }
 
 void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindTextures(textureBindings);
-
   mController.CheckTextureDependencies(textureBindings, mRenderTarget);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindTextures(textureBindings);
+  }
+  else
+  {
+    GetImpl()->BindTextures(textureBindings);
+  }
 }
 
 void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BindSamplers(samplerBindings);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindSamplers(samplerBindings);
+  }
+  else
+  {
+    GetImpl()->BindSamplers(samplerBindings);
+  }
 }
 
 void CommandBuffer::BindPushConstants(void*    data,
                                       uint32_t size,
                                       uint32_t binding)
 {
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->BindPushConstants(data, size, binding);
+  }
+  else
+  {
+    //GetImpl()->BindPushConstants(data, size, binding);
+  }
 }
 
 void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass,
@@ -204,97 +246,57 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
                                     Rect2D                         renderArea,
                                     const std::vector<ClearValue>& clearValues)
 {
-  auto renderTarget = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
-  DALI_ASSERT_DEBUG(mRenderTarget == renderTarget && "RenderPass has different render target to cmd buffer Begin");
-
-  auto             renderPass  = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
-  auto             surface     = mRenderTarget->GetSurface();
-  auto&            device      = mController.GetGraphicsDevice();
-  FramebufferImpl* framebuffer = nullptr;
-  RenderPassHandle renderPassImpl;
-  if(surface)
+  if(mStoredCommandBuffer)
   {
-    auto window    = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
-    auto surfaceId = window->GetSurfaceId();
-    auto swapchain = device.GetSwapchainForSurfaceId(surfaceId);
-    framebuffer    = swapchain->GetCurrentFramebuffer();
-    renderArea.y   = framebuffer->GetHeight() - renderArea.y - renderArea.height;
-    renderPassImpl = framebuffer->GetImplFromRenderPass(renderPass);
+
+    mStoredCommandBuffer->BeginRenderPass(gfxRenderPass, gfxRenderTarget, renderArea, clearValues);
   }
   else
   {
-    auto framebufferHandle = mRenderTarget->GetFramebuffer();
-    framebuffer            = framebufferHandle->GetImpl();
-    renderPassImpl         = framebuffer->GetImplFromRenderPass(renderPass);
-    mController.AddTextureDependencies(renderTarget);
+    CommandBufferExecutor     commandExecutor(mController);
+    BeginRenderPassDescriptor descriptor;
+    descriptor.renderPass       = static_cast<Vulkan::RenderPass*>(gfxRenderPass);
+    descriptor.renderTarget     = static_cast<Vulkan::RenderTarget*>(gfxRenderTarget);
+    descriptor.renderArea       = renderArea;
+    descriptor.clearValuesCount = clearValues.size();
+    descriptor.clearValues      = const_cast<ClearValue*>(clearValues.data());
+    commandExecutor.BeginRenderPass(GetImpl(), descriptor);
   }
 
-  // Use standalone buffer to avoid memory allocation.
-  static std::vector<vk::ClearValue> vkClearValues;
-
-  uint32_t clearValuesCount = 0u;
-
-  auto attachments = renderPass->GetCreateInfo().attachments;
-  if(attachments != nullptr &&
-     !attachments->empty()) // Can specify clear color even if load op is not clear.
+  auto surface = mRenderTarget->GetSurface();
+  if(!surface)
   {
-    clearValuesCount = static_cast<uint32_t>(clearValues.size());
-    if(DALI_UNLIKELY(vkClearValues.size() < clearValuesCount))
-    {
-      vkClearValues.resize(clearValuesCount);
-    }
-    auto clearValuesIter    = clearValues.cbegin();
-    auto clearValuesEndIter = clearValues.cend();
-    for(auto vkClearValuesIter = vkClearValues.begin(); clearValuesIter != clearValuesEndIter;)
-    {
-      vk::ClearColorValue color;
-      const auto&         clearValue = *(clearValuesIter++);
-
-      color.float32[0] = clearValue.color.r;
-      color.float32[1] = clearValue.color.g;
-      color.float32[2] = clearValue.color.b;
-      color.float32[3] = clearValue.color.a;
-
-      *(vkClearValuesIter++) = color;
-    }
+    mController.AddTextureDependencies(mRenderTarget);
   }
-
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->BeginRenderPass(vk::RenderPassBeginInfo{}
-                                       .setFramebuffer(framebuffer->GetVkHandle())
-                                       .setRenderPass(renderPassImpl->GetVkHandle())
-                                       .setRenderArea({{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}})
-                                       .setPClearValues(vkClearValues.data())
-                                       .setClearValueCount(clearValuesCount),
-                                     vk::SubpassContents::eSecondaryCommandBuffers);
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->EndRenderPass();
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->EndRenderPass(syncObject);
+  }
+  else
+  {
+    GetImpl()->EndRenderPass();
+  }
 }
 
 void CommandBuffer::ReadPixels(uint8_t* buffer)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->ReadPixels(buffer);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->ReadPixels(buffer);
+  }
+  else
+  {
+    GetImpl()->ReadPixels(buffer);
+  }
 }
 
-void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& gfxCommandBuffers)
+void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
 {
-  std::vector<vk::CommandBuffer> vkCommandBuffers;
-  vkCommandBuffers.reserve(gfxCommandBuffers.size());
-  for(auto& gfxCmdBuf : gfxCommandBuffers)
-  {
-    vkCommandBuffers.emplace_back(ConstGraphicsCast<CommandBuffer, Graphics::CommandBuffer>(gfxCmdBuf)->GetImpl()->GetVkHandle());
-  }
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->ExecuteCommandBuffers(vkCommandBuffers);
+  DALI_LOG_ERROR("Secondary cmd buffers no longer supported\n");
 }
 
 void CommandBuffer::Draw(uint32_t vertexCount,
@@ -302,9 +304,14 @@ void CommandBuffer::Draw(uint32_t vertexCount,
                          uint32_t firstVertex,
                          uint32_t firstInstance)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
+  }
+  else
+  {
+    GetImpl()->Draw(vertexCount, instanceCount, firstVertex, firstInstance);
+  }
 }
 
 void CommandBuffer::DrawIndexed(uint32_t indexCount,
@@ -313,9 +320,14 @@ void CommandBuffer::DrawIndexed(uint32_t indexCount,
                                 int32_t  vertexOffset,
                                 uint32_t firstInstance)
 {
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+  }
+  else
+  {
+    GetImpl()->DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+  }
 }
 
 void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
@@ -323,19 +335,23 @@ void CommandBuffer::DrawIndexedIndirect(Graphics::Buffer& gfxBuffer,
                                         uint32_t          drawCount,
                                         uint32_t          stride)
 {
-  mCmdCount++; // Debug info
-  auto               buffer            = ConstGraphicsCast<Buffer, Graphics::Buffer>(&gfxBuffer)->GetImpl();
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->DrawIndexedIndirect(*buffer, offset, drawCount, stride);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->DrawIndexedIndirect(gfxBuffer, offset, drawCount, stride);
+  }
+  else
+  {
+    GetImpl()->DrawIndexedIndirect(*static_cast<Vulkan::Buffer*>(&gfxBuffer)->GetImpl(), offset, drawCount, stride);
+  }
 }
 
 void CommandBuffer::DrawNative(const DrawNativeInfo* drawInfo)
 {
+  // No implementation in Vulkan
 }
 
 void CommandBuffer::SetScissor(Rect2D value)
 {
-  // @todo Vulkan accepts array of scissors... add to API
   Rect2D correctedValue = value;
 
   // Invert the Y coord for surface only, as we've flipped
@@ -353,12 +369,13 @@ void CommandBuffer::SetScissor(Rect2D value)
     }
   }
 
-  if(SetDynamicState(mDynamicState.scissor, correctedValue, DynamicStateMaskBits::SCISSOR))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
-
-    CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetScissor(correctedValue);
+    mStoredCommandBuffer->SetScissor(correctedValue);
+  }
+  else
+  {
+    GetImpl()->SetScissor(correctedValue);
   }
 }
 
@@ -378,11 +395,14 @@ void CommandBuffer::SetViewport(Viewport value)
   {
     correctedValue.y = mRenderTarget->GetSurface()->GetPositionSize().height - correctedValue.height - correctedValue.y;
   }
-  if(SetDynamicState(mDynamicState.viewport, correctedValue, DynamicStateMaskBits::VIEWPORT))
+
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
-    CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetViewport(correctedValue);
+    mStoredCommandBuffer->SetViewport(correctedValue);
+  }
+  else
+  {
+    GetImpl()->SetViewport(correctedValue);
   }
 }
 
@@ -394,11 +414,13 @@ void CommandBuffer::SetViewportEnable(bool value)
 
 void CommandBuffer::SetColorMask(bool enabled)
 {
-  if(SetDynamicState(mDynamicState.colorWriteMask, enabled, DynamicStateMaskBits::COLOR_WRITE_MASK))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
-    CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetColorMask(enabled);
+    mStoredCommandBuffer->SetColorMask(enabled);
+  }
+  else
+  {
+    GetImpl()->SetColorMask(enabled);
   }
 }
 
@@ -414,21 +436,26 @@ void CommandBuffer::ClearDepthBuffer()
 
 void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
 {
-  if(SetDynamicState(mDynamicState.stencilTest, stencilEnable, DynamicStateMaskBits::STENCIL_TEST))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
-    CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetStencilTestEnable(stencilEnable);
+    mStoredCommandBuffer->SetStencilTestEnable(stencilEnable);
+  }
+  else
+  {
+    GetImpl()->SetStencilTestEnable(stencilEnable);
   }
 }
 
 void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
 {
-  if(SetDynamicState(mDynamicState.stencilWriteMask, writeMask, DynamicStateMaskBits::STENCIL_WRITE_MASK))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
+    mStoredCommandBuffer->SetStencilWriteMask(writeMask);
+  }
+  else
+  {
     CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetStencilWriteMask(vk::StencilFaceFlagBits::eFrontAndBack, writeMask);
+    commandBufferImpl->SetStencilWriteMask(writeMask);
   }
 }
 
@@ -439,60 +466,53 @@ void CommandBuffer::SetStencilState(Graphics::CompareOp compareOp,
                                     Graphics::StencilOp passOp,
                                     Graphics::StencilOp depthFailOp)
 {
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-
-  if(SetDynamicState(mDynamicState.stencilCompareMask, compareMask, DynamicStateMaskBits::STENCIL_COMP_MASK))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
-    commandBufferImpl->SetStencilCompareMask(vk::StencilFaceFlagBits::eFrontAndBack, compareMask);
+    mStoredCommandBuffer->SetStencilState(compareOp, reference, compareMask, failOp, passOp, depthFailOp);
   }
-  if(SetDynamicState(mDynamicState.stencilReference, reference, DynamicStateMaskBits::STENCIL_REF))
+  else
   {
-    mCmdCount++; // Debug info
-    commandBufferImpl->SetStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, reference);
-  }
+    CommandBufferImpl* commandBufferImpl = GetImpl();
 
-  int result = 0;
-  result |= SetDynamicState(mDynamicState.stencilFailOp, failOp, DynamicStateMaskBits::STENCIL_OP_FAIL);
-  result |= SetDynamicState(mDynamicState.stencilPassOp, passOp, DynamicStateMaskBits::STENCIL_OP_PASS);
-  result |= SetDynamicState(mDynamicState.stencilDepthFailOp, depthFailOp, DynamicStateMaskBits::STENCIL_OP_DEPTH_FAIL);
-  result |= SetDynamicState(mDynamicState.stencilCompareOp, compareOp, DynamicStateMaskBits::STENCIL_OP_COMP);
-  if(result)
-  {
-    mCmdCount++; // Debug info
-    commandBufferImpl->SetStencilOp(vk::StencilFaceFlagBits::eFrontAndBack,
-                                    VkStencilOpType(failOp).op,
-                                    VkStencilOpType(passOp).op,
-                                    VkStencilOpType(depthFailOp).op,
-                                    VkCompareOpType(compareOp).op);
+    commandBufferImpl->SetStencilCompareMask(compareMask);
+    commandBufferImpl->SetStencilReference(reference);
+    commandBufferImpl->SetStencilOp(failOp, passOp, depthFailOp, compareOp);
   }
 }
 
 void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
-  if(SetDynamicState(mDynamicState.depthCompareOp, compareOp, DynamicStateMaskBits::DEPTH_OP_COMP))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
+    mStoredCommandBuffer->SetDepthCompareOp(compareOp);
+  }
+  else
+  {
     CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetDepthCompareOp(VkCompareOpType(compareOp).op);
+    commandBufferImpl->SetDepthCompareOp(compareOp);
   }
 }
 
 void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
 {
-  if(SetDynamicState(mDynamicState.depthTest, depthTestEnable, DynamicStateMaskBits::DEPTH_TEST))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
+    mStoredCommandBuffer->SetDepthTestEnable(depthTestEnable);
+  }
+  else
+  {
     CommandBufferImpl* commandBufferImpl = GetImpl();
     commandBufferImpl->SetDepthTestEnable(depthTestEnable);
   }
 }
-
 void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 {
-  if(SetDynamicState(mDynamicState.depthWrite, depthWriteEnable, DynamicStateMaskBits::DEPTH_WRITE))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
+    mStoredCommandBuffer->SetDepthWriteEnable(depthWriteEnable);
+  }
+  else
+  {
     CommandBufferImpl* commandBufferImpl = GetImpl();
     commandBufferImpl->SetDepthWriteEnable(depthWriteEnable);
   }
@@ -500,13 +520,17 @@ void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
 
 void CommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
 {
-  // For now, only support attachment 0 (single color attachment)
-  if(attachment == 0 &&
-     SetDynamicState(mDynamicState.colorBlendEnable, enabled, DynamicStateMaskBits::COLOR_BLEND_ENABLE))
+  if(attachment == 0)
   {
-    mCmdCount++; // Debug info
-    CommandBufferImpl* commandBufferImpl = GetImpl();
-    commandBufferImpl->SetColorBlendEnable(attachment, enabled);
+    if(mStoredCommandBuffer)
+    {
+      mStoredCommandBuffer->SetColorBlendEnable(attachment, enabled);
+    }
+    else
+    {
+      CommandBufferImpl* commandBufferImpl = GetImpl();
+      commandBufferImpl->SetColorBlendEnable(attachment, enabled);
+    }
   }
 }
 
@@ -524,18 +548,27 @@ void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
     return;
   }
 
-  ColorBlendEquation equation{
-    srcColorBlendFactor,
-    dstColorBlendFactor,
-    colorBlendOp,
-    srcAlphaBlendFactor,
-    dstAlphaBlendFactor,
-    alphaBlendOp
-  };
-
-  if(SetDynamicState(mDynamicState.colorBlendEquation, equation, DynamicStateMaskBits::COLOR_BLEND_EQUATION))
+  if(mStoredCommandBuffer)
   {
-    mCmdCount++; // Debug info
+    mStoredCommandBuffer->SetColorBlendEquation(attachment,
+                                                srcColorBlendFactor,
+                                                dstColorBlendFactor,
+                                                colorBlendOp,
+                                                srcAlphaBlendFactor,
+                                                dstAlphaBlendFactor,
+                                                alphaBlendOp);
+  }
+  else
+  {
+    ColorBlendEquation equation{
+      srcColorBlendFactor,
+      dstColorBlendFactor,
+      colorBlendOp,
+      srcAlphaBlendFactor,
+      dstAlphaBlendFactor,
+      alphaBlendOp
+    };
+
     CommandBufferImpl* commandBufferImpl = GetImpl();
     commandBufferImpl->SetColorBlendEquation(attachment, equation);
   }
@@ -552,9 +585,15 @@ void CommandBuffer::SetColorBlendAdvanced(uint32_t attachment,
     return;
   }
 
-  mCmdCount++; // Debug info
-  CommandBufferImpl* commandBufferImpl = GetImpl();
-  commandBufferImpl->SetColorBlendAdvanced(attachment, srcPremultiplied, dstPremultiplied, blendOp);
+  if(mStoredCommandBuffer)
+  {
+    mStoredCommandBuffer->SetColorBlendAdvanced(attachment, srcPremultiplied, dstPremultiplied, blendOp);
+  }
+  else
+  {
+    CommandBufferImpl* commandBufferImpl = GetImpl();
+    commandBufferImpl->SetColorBlendAdvanced(attachment, srcPremultiplied, dstPremultiplied, blendOp);
+  }
 }
 
 Vulkan::RenderTarget* CommandBuffer::GetRenderTarget() const
@@ -565,12 +604,17 @@ Vulkan::RenderTarget* CommandBuffer::GetRenderTarget() const
 
 [[nodiscard]] Vulkan::CommandBufferImpl* CommandBuffer::GetImpl() const
 {
-  const uint32_t bufferIndex = mController.GetGraphicsDevice().GetCurrentBufferIndex();
+  uint32_t bufferIndex = mDoubleBuffered ? mController.GetGraphicsDevice().GetCurrentBufferIndex() : 0;
+
   DALI_ASSERT_ALWAYS(bufferIndex < mCommandBufferImpl.size());
-  return mCommandBufferImpl[bufferIndex];
+  auto impl = mCommandBufferImpl[bufferIndex];
+
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "Resource:%p DoubleBuffered:%s currentBufferIndex=%d  appliedIndex:%d impl:%p\n", this, mDoubleBuffered ? "T" : "F", mController.GetGraphicsDevice().GetCurrentBufferIndex(), bufferIndex, impl);
+
+  return impl;
 }
 
-void CommandBuffer::AllocateCommandBuffers()
+void CommandBuffer::AllocateCommandBuffers(bool doubleBuffered)
 {
   auto& device    = mController.GetGraphicsDevice();
   bool  isPrimary = true;
@@ -579,7 +623,7 @@ void CommandBuffer::AllocateCommandBuffers()
     isPrimary = false;
   }
   auto commandPool = device.GetCommandPool(std::this_thread::get_id());
-  auto bufferCount = device.GetBufferCount();
+  auto bufferCount = doubleBuffered ? device.GetBufferCount() : 1;
 
   DALI_LOG_INFO(gVulkanFilter, Debug::General, "Allocating %d new cmd buffers\n", bufferCount - mCommandBufferImpl.size());
 
@@ -587,6 +631,13 @@ void CommandBuffer::AllocateCommandBuffers()
   {
     mCommandBufferImpl.emplace_back(commandPool->NewCommandBuffer(isPrimary));
   }
+}
+
+void CommandBuffer::Process() const
+{
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "Resource:%p\n", this);
+  CommandBufferExecutor commandExecutor(mController);
+  commandExecutor.ProcessCommandBuffer(mStoredCommandBuffer.get(), GetImpl());
 }
 
 } // namespace Dali::Graphics::Vulkan

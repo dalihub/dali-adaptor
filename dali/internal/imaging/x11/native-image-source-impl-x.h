@@ -61,7 +61,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const override;
+  bool GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetPixels()
@@ -188,7 +188,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
-  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+  void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) override;
 
   /**
    * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
@@ -234,16 +234,17 @@ private:
   void GetPixmapDetails();
 
 private:
-  uint32_t                             mWidth;                       ///< image width
-  uint32_t                             mHeight;                      ///< image heights
-  bool                                 mOwnPixmap;                   ///< Whether we created pixmap or not
-  ::Pixmap                             mPixmap;                      ///< From Xlib
-  bool                                 mBlendingRequired;            ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth  mColorDepth;                  ///< color depth of image
-  bool                                 mEglImageChanged;             ///< Whether EGLImage changed or not. Reset flag as false at PrepareTexture().
-  void*                                mEglImageKHR;                 ///< From EGL extension
-  EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
+  uint32_t                            mWidth;                       ///< image width
+  uint32_t                            mHeight;                      ///< image heights
+  bool                                mOwnPixmap;                   ///< Whether we created pixmap or not
+  ::Pixmap                            mPixmap;                      ///< From Xlib
+  bool                                mBlendingRequired;            ///< Whether blending is required
+  Dali::NativeImageSource::ColorDepth mColorDepth;                  ///< color depth of image
+  bool                                mEglImageChanged;             ///< Whether EGLImage changed or not. Reset flag as false at PrepareTexture().
+  void*                               mEglImageKHR;                 ///< From EGL extension
+  EglImageExtensions*                 mEglImageExtensions;          ///< The EGL Image Extensions
+  EventThreadCallback*                mResourceDestructionCallback; ///< The Resource Destruction Callback
+  bool                                mOwnResourceDestructionCallback;
 };
 
 } // namespace Adaptor

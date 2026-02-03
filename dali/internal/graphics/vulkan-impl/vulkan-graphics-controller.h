@@ -182,13 +182,27 @@ public:
   UniquePtr<Graphics::Buffer> CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer) override;
 
   /**
-   * @brief Creates new CommandBufferImpl object
+   * @brief Creates a new CommandBuffer object. It will generate multiple implementations
+   * as required, to enable in-flight vulkan command buffers. It will also create a store
+   * for all commands issued to this buffer; which will be executed into the implementation
+   * on submission. This allows the backend to modify the commands as needed before execution.
    *
    * @param[in] bufferCreateInfo The valid BufferCreateInfo structure
    * @param[in] oldCommandBuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
-   * @return pointer to the CommandBufferImpl object
+   * @return pointer to the CommandBuffer object
    */
   UniquePtr<Graphics::CommandBuffer> CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer) override;
+
+  /**
+   * @brief Creates a new CommandBuffer object. It will immediately create a single implementation,
+   * and all commands will be immediately relayed to that buffer, and won't be stored. It is intended
+   * for use by the vulkan backend rather than by Core.
+   *
+   * @param[in] bufferCreateInfo The valid BufferCreateInfo structure
+   * @param[in] oldCommandBuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
+   * @return pointer to the CommandBuffer object
+   */
+  UniquePtr<Graphics::CommandBuffer> CreateImmediateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer);
 
   /**
    * @brief Creates new RenderPass object
@@ -480,6 +494,12 @@ public: // Other API
   bool DidPresent() const;
 
   SamplerImpl* GetDefaultSampler();
+
+  /**
+   * Get the default sampler for depth textures (uses nearest filtering)
+   * @return Pointer to the depth texture sampler
+   */
+  SamplerImpl* GetDepthTextureSampler();
 
   /**
    * Remove the texture array and destroy its resources. This should only be called after

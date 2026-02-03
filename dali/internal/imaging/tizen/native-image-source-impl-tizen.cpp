@@ -86,13 +86,14 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
-  mResourceDestructionCallback(),
+  mResourceDestructionCallback(nullptr),
   mOwnTbmSurface(false),
   mBlendingRequired(false),
   mEglImageChanged(false),
   mSetSource(false),
   mIsBufferAcquired(false),
-  mBackBufferEnabled(false)
+  mBackBufferEnabled(false),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -225,6 +226,15 @@ void NativeImageSourceTizen::DestroySurface()
 
 NativeImageSourceTizen::~NativeImageSourceTizen()
 {
+  {
+    std::scoped_lock lock(mMutex);
+    if(mOwnResourceDestructionCallback)
+    {
+      delete mResourceDestructionCallback;
+      mResourceDestructionCallback    = nullptr;
+      mOwnResourceDestructionCallback = false;
+    }
+  }
   DestroySurface();
 }
 
@@ -233,7 +243,7 @@ Any NativeImageSourceTizen::GetNativeImageSource() const
   return Any(mTbmSurface);
 }
 
-bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizen::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   std::scoped_lock lock(mMutex);
   if(mTbmSurface != NULL)
@@ -266,7 +276,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 3;
         pixelFormat = Pixel::RGB888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -286,7 +296,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -307,7 +317,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& w
       {
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
-        pixbuf.resize(lineSize * height);
+        pixbuf.ResizeUninitialized(lineSize * height);
         uint8_t* bufptr = &pixbuf[0];
 
         for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
@@ -794,10 +804,15 @@ bool NativeImageSourceTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return ret;
 }
 
-void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
   std::scoped_lock lock(mMutex);
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceTizen::EnableBackBuffer(bool enable)

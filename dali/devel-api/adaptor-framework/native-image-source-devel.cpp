@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ bool SetPixels(NativeImageSource& image, uint8_t* pixbuf, const Pixel::Format& p
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetPixels(pixbuf, pixelFormat);
 }
 
-void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback)
+void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback, bool ownedCallback)
 {
-  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetResourceDestructionCallback(callback);
+  Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetResourceDestructionCallback(callback, ownedCallback);
 }
 
 void EnableBackBuffer(NativeImageSource& image, bool enable)

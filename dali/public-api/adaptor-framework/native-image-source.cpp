@@ -53,7 +53,7 @@ Any NativeImageSource::GetNativeImageSource()
   return mImpl->GetNativeImageSource();
 }
 
-bool NativeImageSource::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSource::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   return mImpl->GetPixels(pixbuf, width, height, pixelFormat);
 }

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public:
    */
   void AddRenderPass(Vulkan::RenderPass* renderPass, Vulkan::RenderPassHandle renderPassImpl);
 
-  [[nodiscard]] RenderPassHandle GetImplFromRenderPass(Vulkan::RenderPass* renderPass); // May mutate mRenderPasses
+  [[nodiscard]] RenderPassHandle GetImplFromRenderPass(const Vulkan::RenderPass* renderPass); // May mutate mRenderPasses
 
   [[nodiscard]] RenderPassHandle GetRenderPass(uint32_t index) const;
 

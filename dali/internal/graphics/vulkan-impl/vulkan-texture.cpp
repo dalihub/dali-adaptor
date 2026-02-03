@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1271,7 +1271,21 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr, mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
 
-  mSampler = controller.GetDefaultSampler();
+  // Depth formats like VK_FORMAT_D16_UNORM don't support linear filtering
+  // Use dedicated depth texture sampler (using nearest filtering) for depth formats
+  if(createInfo.format == Dali::Graphics::Format::D16_UNORM ||
+     createInfo.format == Dali::Graphics::Format::X8_D24_UNORM_PACK32 ||
+     createInfo.format == Dali::Graphics::Format::D32_SFLOAT ||
+     createInfo.format == Dali::Graphics::Format::D16_UNORM_S8_UINT ||
+     createInfo.format == Dali::Graphics::Format::D24_UNORM_S8_UINT ||
+     createInfo.format == Dali::Graphics::Format::D32_SFLOAT_S8_UINT)
+  {
+    mSampler = controller.GetDepthTextureSampler();
+  }
+  else
+  {
+    mSampler = controller.GetDefaultSampler();
+  }
 }
 
 Texture::~Texture()

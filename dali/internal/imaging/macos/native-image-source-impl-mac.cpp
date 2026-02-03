@@ -46,7 +46,8 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
 : mImage(MakeRef<CGImageRef>(nullptr)),
-  mResourceDestructionCallback()
+  mResourceDestructionCallback(nullptr),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
   DALI_ASSERT_ALWAYS(nativeImageSource.Empty());
@@ -110,6 +111,10 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
 
 NativeImageSourceCocoa::~NativeImageSourceCocoa()
 {
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
 }
 
 Any NativeImageSourceCocoa::GetNativeImageSource() const
@@ -118,10 +123,10 @@ Any NativeImageSourceCocoa::GetNativeImageSource() const
 }
 
 bool NativeImageSourceCocoa::GetPixels(
-  std::vector<uint8_t>& pixbuf,
-  uint32_t&             width,
-  uint32_t&             height,
-  Pixel::Format&        pixelFormat) const
+  Dali::Vector<uint8_t>& pixbuf,
+  uint32_t&              width,
+  uint32_t&              height,
+  Pixel::Format&         pixelFormat) const
 {
   width  = static_cast<uint32_t>(CGImageGetWidth(mImage.get()));
   height = static_cast<uint32_t>(CGImageGetHeight(mImage.get()));
@@ -149,6 +154,10 @@ bool NativeImageSourceCocoa::CreateResource()
 
 void NativeImageSourceCocoa::DestroyResource()
 {
+  if(mResourceDestructionCallback)
+  {
+    mResourceDestructionCallback->Trigger();
+  }
 }
 
 uint32_t NativeImageSourceCocoa::TargetTexture()
@@ -212,9 +221,14 @@ bool NativeImageSourceCocoa::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return false;
 }
 
-void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceCocoa::EnableBackBuffer(bool enable)

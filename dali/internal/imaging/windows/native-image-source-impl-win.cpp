@@ -62,7 +62,8 @@ NativeImageSourceWin::NativeImageSourceWin(uint32_t width, uint32_t height, Dali
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
-  mResourceDestructionCallback()
+  mResourceDestructionCallback(nullptr),
+  mOwnResourceDestructionCallback(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
@@ -99,6 +100,10 @@ void NativeImageSourceWin::Initialize()
 
 NativeImageSourceWin::~NativeImageSourceWin()
 {
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
 }
 
 Any NativeImageSourceWin::GetNativeImageSource() const
@@ -106,7 +111,7 @@ Any NativeImageSourceWin::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceWin::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;
@@ -290,9 +295,14 @@ bool NativeImageSourceWin::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
   return false;
 }
 
-void NativeImageSourceWin::SetResourceDestructionCallback(EventThreadCallback* callback)
+void NativeImageSourceWin::SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback)
 {
-  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+  if(mOwnResourceDestructionCallback)
+  {
+    delete mResourceDestructionCallback;
+  }
+  mResourceDestructionCallback    = callback;
+  mOwnResourceDestructionCallback = ownedCallback;
 }
 
 void NativeImageSourceWin::EnableBackBuffer(bool enable)

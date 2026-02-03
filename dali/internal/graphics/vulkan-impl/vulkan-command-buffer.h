@@ -27,38 +27,45 @@ namespace Dali::Graphics::Vulkan
 class CommandBufferImpl;
 class Swapchain;
 class RenderTarget;
-
-using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
+class StoredCommandPool;
+class StoredCommandBuffer;
 
 // Constants for blend state support
 constexpr uint32_t MAX_COLOR_ATTACHMENTS = 4;
 
+using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
 
-namespace DynamicStateMaskBits
-{
-const uint32_t SCISSOR               = 1 << 0;
-const uint32_t VIEWPORT              = 1 << 1;
-const uint32_t STENCIL_TEST          = 1 << 2;
-const uint32_t STENCIL_WRITE_MASK    = 1 << 3;
-const uint32_t STENCIL_COMP_MASK     = 1 << 4;
-const uint32_t STENCIL_REF           = 1 << 5;
-const uint32_t STENCIL_OP_FAIL       = 1 << 6;
-const uint32_t STENCIL_OP_DEPTH_FAIL = 1 << 7;
-const uint32_t STENCIL_OP_PASS       = 1 << 8;
-const uint32_t STENCIL_OP_COMP       = 1 << 9;
-const uint32_t DEPTH_TEST            = 1 << 10;
-const uint32_t DEPTH_WRITE           = 1 << 11;
-const uint32_t DEPTH_OP_COMP         = 1 << 12;
-const uint32_t COLOR_WRITE_MASK      = 1 << 13;
-const uint32_t COLOR_BLEND_ENABLE    = 1 << 14;
-const uint32_t COLOR_BLEND_EQUATION  = 1 << 15;
-}; // namespace DynamicStateMaskBits
-using DynamicStateMask = uint32_t;
-
+/**
+ * Implements Graphics::CommandBuffer, and is stored as a discardable resource.
+ * Internally, this holds one or more vk:CommandBuffer wrappers (CommandBufferImpl);
+ * allocated from a thread specific pool. The command buffer it's writing to is determined by
+ * the Vulkan device's current buffer index.
+ *
+ * It may also hold a StoredCommandBuffer, in which case, all commands first get written
+ * to the StoredCommandBuffer, and are transferred to the current vulkan command buffer during
+ * submission by using the Process() call. This gives the backend the chance to modify
+ * the command stream prior to submission (E.g. to insert barriers, etc).
+ * A separate CommandBufferExecutor class is used to do the transfer.
+ *
+ * If Immediate mode is used, then there is no StoredCommandBuffer, and all commands
+ * are written directly to the CommandBufferImpl and into the current vulkan command buffer.
+ * (This is intended for use within the backend, for example, during resource transfer).
+ *
+ * Dynamic state is now handled in the CommandBufferImpl class.
+ */
 class CommandBuffer : public CommandBufferResource
 {
 public:
+  enum class Storage
+  {
+    IMMEDIATE,
+    STORED
+  };
+
+public:
   CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller);
+  CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller, Storage storage, bool doubleBuffered);
+
   ~CommandBuffer() override;
 
   void Begin(const Graphics::CommandBufferBeginInfo& info) override;
@@ -369,13 +376,13 @@ public:
    * @param[in] dstAlphaBlendFactor Destination alpha blend factor
    * @param[in] alphaBlendOp Alpha blend operation
    */
-  void SetColorBlendEquation(uint32_t attachment,
+  void SetColorBlendEquation(uint32_t              attachment,
                              Graphics::BlendFactor srcColorBlendFactor,
                              Graphics::BlendFactor dstColorBlendFactor,
-                             Graphics::BlendOp colorBlendOp,
+                             Graphics::BlendOp     colorBlendOp,
                              Graphics::BlendFactor srcAlphaBlendFactor,
                              Graphics::BlendFactor dstAlphaBlendFactor,
-                             Graphics::BlendOp alphaBlendOp) override;
+                             Graphics::BlendOp     alphaBlendOp) override;
 
   /**
    * @brief Sets the advanced color blend equation for the specified attachment
@@ -386,10 +393,16 @@ public:
    * @param[in] blendOverlap Blend overlap
    * @param[in] blendOp Blend operation
    */
-  void SetColorBlendAdvanced(uint32_t attachment,
-                             bool srcPremultiplied,
-                             bool dstPremultiplied,
+  void SetColorBlendAdvanced(uint32_t          attachment,
+                             bool              srcPremultiplied,
+                             bool              dstPremultiplied,
                              Graphics::BlendOp blendOp) override;
+
+  /**
+   * @brief Process the locally recorded command buffer into an actual vulkan command buffer
+   * ready for submission.
+   */
+  void Process() const;
 
 public: // VulkanResource API
   /**
@@ -438,52 +451,24 @@ public: // API
    */
   [[nodiscard]] CommandBufferImpl* GetImpl() const;
 
+  const StoredCommandBuffer* GetStoredCommandBuffer() const
+  {
+    return mStoredCommandBuffer.get();
+  }
+
 private:
   /**
    * Ensure that there are enough command buffers allocated.
    */
-  void AllocateCommandBuffers();
+  void AllocateCommandBuffers(bool doubleBuffered);
 
-  static const DynamicStateMask INITIAL_DYNAMIC_MASK_VALUE{0xFFFFFFFF};
-
-  /** Struct that defines the current state */
-  struct DynamicState
-  {
-    Rect2D              scissor;
-    Viewport            viewport;
-    uint32_t            stencilWriteMask;
-    uint32_t            stencilReference;
-    uint32_t            stencilCompareMask;
-    Graphics::CompareOp stencilCompareOp;
-    Graphics::CompareOp depthCompareOp;
-    Graphics::StencilOp stencilFailOp;
-    Graphics::StencilOp stencilPassOp;
-    Graphics::StencilOp stencilDepthFailOp;
-    bool                stencilTest;
-    bool                depthTest;
-    bool                depthWrite;
-    bool                colorWriteMask{true};
-    bool                colorBlendEnable{false};
-    ColorBlendEquation  colorBlendEquation{};
-  } mDynamicState;
-  DynamicStateMask mDynamicStateMask{INITIAL_DYNAMIC_MASK_VALUE}; // If a bit is 1, next cmd will write, else check & write if different.
-
-  template<typename ValueType>
-  bool SetDynamicState(ValueType& oldValue, ValueType& newValue, uint32_t bit)
-  {
-    if(((mDynamicStateMask & bit) != 0) || oldValue != newValue)
-    {
-      oldValue = newValue;
-      mDynamicStateMask &= ~bit;
-      return true;
-    }
-    return false;
-  }
+  Storage                              mStorageType;
+  std::unique_ptr<StoredCommandBuffer> mStoredCommandBuffer; ///< Copy of all cmds
 
   std::vector<CommandBufferImpl*> mCommandBufferImpl; ///< There are as many elements as there are swapchain images
   RenderTarget*                   mRenderTarget{nullptr};
-  Swapchain*                      mLastSwapchain{nullptr};
-  uint32_t                        mCmdCount{0u};
+
+  bool mDoubleBuffered{true};
 };
 
 } // namespace Dali::Graphics::Vulkan

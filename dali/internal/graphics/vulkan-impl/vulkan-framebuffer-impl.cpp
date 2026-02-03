@@ -257,7 +257,7 @@ RenderPassHandle FramebufferImpl::GetRenderPass(uint32_t index) const
   return RenderPassHandle{};
 }
 
-RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
+RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* renderPass)
 {
   auto attachments  = renderPass->GetCreateInfo().attachments;
   auto matchLoadOp  = attachments->front().loadOp;
@@ -283,7 +283,7 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
       if(createInfo.attachmentDescriptions[0].loadOp == VkLoadOpType(matchLoadOp).loadOp &&
          createInfo.attachmentDescriptions[0].storeOp == VkStoreOpType(matchStoreOp).storeOp)
       {
-        element.renderPass = renderPass;
+        element.renderPass = const_cast<RenderPass*>(renderPass);
         return element.renderPassImpl;
       }
     }
@@ -292,7 +292,7 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(RenderPass* renderPass)
   RenderPassImpl::CreateInfo createInfo;
   RenderPassImpl::CreateMatchingInfo(mRenderPasses[0].renderPassImpl, matchLoadOp, matchStoreOp, createInfo);
   auto renderPassImpl = RenderPassHandle(RenderPassImpl::New(*mGraphicsDevice, createInfo));
-  mRenderPasses.emplace_back(RenderPassMapElement{renderPass, renderPassImpl});
+  mRenderPasses.emplace_back(RenderPassMapElement{const_cast<RenderPass*>(renderPass), renderPassImpl});
 
   return renderPassImpl;
 }
