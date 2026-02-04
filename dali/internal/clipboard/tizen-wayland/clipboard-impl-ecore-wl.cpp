@@ -260,11 +260,6 @@ struct Clipboard::Impl
     size_t bufferSize = dataLength + 1u;
 
     char* buffer = new char[bufferSize];
-    if(!buffer)
-    {
-      return;
-    }
-
     memcpy(buffer, data.c_str(), dataLength);
     buffer[dataLength] = '\0';
 
