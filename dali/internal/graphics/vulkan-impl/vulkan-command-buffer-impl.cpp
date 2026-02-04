@@ -54,6 +54,7 @@ CommandBufferImpl::CommandBufferImpl(CommandPool&                         comman
   mGraphicsDevice(mOwnerCommandPool->GetGraphicsDevice()),
   mPoolAllocationIndex(poolIndex),
   mAllocateInfo(allocateInfo),
+  mDeferredUniformBindingDescriptorCount(0u),
   mCommandBuffer(vulkanHandle)
 {
 }
@@ -627,14 +628,13 @@ void CommandBufferImpl::SetColorMask(bool enable)
 
 void CommandBufferImpl::SetColorBlendEnable(uint32_t attachment, bool enabled)
 {
-
   if(SetDynamicState(mDynamicState.colorBlendEnable, enabled, DynamicStateMaskBits::COLOR_BLEND_ENABLE))
   {
     // Store the deferred state
     mDeferredColorBlendStates.emplace_back();
     mDeferredColorBlendStates.back().attachment = attachment;
-    mDeferredColorBlendStates.back().enableSet = true;
-    mDeferredColorBlendStates.back().enable = enabled;
+    mDeferredColorBlendStates.back().enableSet  = true;
+    mDeferredColorBlendStates.back().enable     = enabled;
   }
 }
 
@@ -644,9 +644,9 @@ void CommandBufferImpl::SetColorBlendEquation(uint32_t attachment, const ColorBl
   {
     // Store the deferred state
     mDeferredColorBlendStates.emplace_back();
-    mDeferredColorBlendStates.back().attachment = attachment;
+    mDeferredColorBlendStates.back().attachment  = attachment;
     mDeferredColorBlendStates.back().equationSet = true;
-    mDeferredColorBlendStates.back().equation = equation;
+    mDeferredColorBlendStates.back().equation    = equation;
   }
 }
 
@@ -654,11 +654,11 @@ void CommandBufferImpl::SetColorBlendAdvanced(uint32_t attachment, bool srcPremu
 {
   // Store the deferred state
   mDeferredColorBlendStates.emplace_back();
-  mDeferredColorBlendStates.back().attachment = attachment;
-  mDeferredColorBlendStates.back().advancedSet = true;
+  mDeferredColorBlendStates.back().attachment       = attachment;
+  mDeferredColorBlendStates.back().advancedSet      = true;
   mDeferredColorBlendStates.back().srcPremultiplied = srcPremultiplied;
   mDeferredColorBlendStates.back().dstPremultiplied = dstPremultiplied;
-  mDeferredColorBlendStates.back().blendOp = blendOp;
+  mDeferredColorBlendStates.back().blendOp          = blendOp;
 }
 
 void CommandBufferImpl::ApplyDeferredColorBlendStates()
@@ -705,11 +705,11 @@ void CommandBufferImpl::ApplyDeferredColorBlendStates()
       if(func)
       {
         VkColorBlendAdvancedEXT advanced;
-        advanced.advancedBlendOp = static_cast<VkBlendOp>(ConvBlendOp(state.blendOp));
+        advanced.advancedBlendOp  = static_cast<VkBlendOp>(ConvBlendOp(state.blendOp));
         advanced.srcPremultiplied = state.srcPremultiplied ? VK_TRUE : VK_FALSE;
         advanced.dstPremultiplied = state.dstPremultiplied ? VK_TRUE : VK_FALSE;
         advanced.blendOverlap     = VK_BLEND_OVERLAP_UNCORRELATED_EXT;
-        advanced.clampResults = VK_TRUE;
+        advanced.clampResults     = VK_TRUE;
 
         func(mCommandBuffer, state.attachment, 1, &advanced);
       }
