@@ -93,7 +93,6 @@ private:
 private:
 #if defined(_ARCH_ARM_) || defined(__aarch64__)
   EGLSyncKHR mEglSync;
-  int32_t    mFenceFd;
 #else
   EGLSync mEglSync;
 #endif
