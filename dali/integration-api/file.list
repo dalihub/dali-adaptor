@@ -15,6 +15,7 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface-factory.h
   ${adaptor_integration_api_dir}/adaptor-framework/render-surface-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/round-robin-container-view.h
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.h
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.h
   ${adaptor_integration_api_dir}/adaptor-framework/thread-synchronization-interface.h
