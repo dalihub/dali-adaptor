@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,28 +27,28 @@
 extern "C" {
 using namespace Dali::Internal::Adaptor;
 
-DALI_ADAPTOR_API std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
+DALI_ADAPTOR_API GraphicsFactoryInterface* CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
-  return Dali::Internal::Adaptor::CreateGraphicsFactory(environmentOptions);
+  return Dali::Internal::Adaptor::CreateGraphicsFactory(environmentOptions).release();
 }
 
-DALI_ADAPTOR_API std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
+DALI_ADAPTOR_API RenderSurfaceFactory* GetRenderSurfaceFactory()
 {
-  return Dali::Internal::Adaptor::GetRenderSurfaceFactory();
+  return Dali::Internal::Adaptor::GetRenderSurfaceFactory().release();
 }
 
-DALI_ADAPTOR_API std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
+DALI_ADAPTOR_API NativeImageSourceFactory* GetNativeImageSourceFactory()
 {
-  return Dali::Internal::Adaptor::GetNativeImageSourceFactory();
+  return Dali::Internal::Adaptor::GetNativeImageSourceFactory().release();
 }
 
-DALI_ADAPTOR_API std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
+DALI_ADAPTOR_API NativeImageSurface* CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
 {
-  return Dali::Internal::Adaptor::NativeImageSurfaceFactory::CreateNativeImageSurface(queue);
+  return Dali::Internal::Adaptor::NativeImageSurfaceFactory::CreateNativeImageSurface(queue).release();
 }
 
-DALI_ADAPTOR_API std::unique_ptr<Dali::Graphics::SurfaceFactory> CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow)
+DALI_ADAPTOR_API Dali::Graphics::SurfaceFactory* CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow)
 {
-  return Dali::Graphics::SurfaceFactory::New(nativeWindow);
+  return Dali::Graphics::SurfaceFactory::New(nativeWindow).release();
 }
 } // extern "C"
