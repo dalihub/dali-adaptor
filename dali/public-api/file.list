@@ -40,7 +40,6 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/native-image-source.h
   ${adaptor_public_api_dir}/adaptor-framework/window.h
   ${adaptor_public_api_dir}/adaptor-framework/window-enumerations.h
-  ${adaptor_public_api_dir}/adaptor-framework/round-robin-container-view.h
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.h
   ${adaptor_public_api_dir}/adaptor-framework/window-data.h
 )
