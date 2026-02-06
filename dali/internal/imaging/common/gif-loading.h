@@ -112,6 +112,17 @@ public:
    */
   bool HasLoadingSucceeded() const override;
 
+  /**
+   * @brief Load frame planes of the animated image.
+   *
+   * @note GIF does not support planes, this function always returns false.
+   * @param[in] frameIndex The frame index to load.
+   * @param[out] pixelBuffers The loaded PixelBuffer list. Always empty.
+   * @param[in] size The width and height to fit the loaded image to.
+   * @return false, as GIF does not support planes.
+   */
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
+
 private:
   struct Impl;
   Impl* mImpl;
