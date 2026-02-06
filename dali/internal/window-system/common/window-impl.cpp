@@ -826,7 +826,7 @@ Dali::Window::WindowSize Window::GetSize() const
 
 void Window::SetPosition(Dali::Window::WindowPosition position)
 {
-  PositionSize oldRect = mSurface->GetPositionSize();
+  PositionSize oldRect = GetPositionSize();
   int32_t      newX    = position.GetX();
   int32_t      newY    = position.GetY();
 
