@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ CommandInfo CommandLookup[]=
   {ENABLE_TIME_MARKER_BIT_MASK, "set_marker",     UNSIGNED_INT},
   {DUMP_SCENE_GRAPH,            "dump_scene",     NO_PARAMS   },
   {DUMP_RENDER_TASKS,           "dump_render_tasks",NO_PARAMS },
+  {DUMP_MEMORY_POOLS,           "dump_memory_pools", NO_PARAMS},
   {SET_PROPERTIES,              "set_properties", STRING      },
   {CUSTOM_COMMAND,              "custom_command", STRING      },
   {UNKNOWN_COMMAND,             "unknown",        NO_PARAMS   }
@@ -104,7 +105,8 @@ const char* const helpMsg =
     GREEN " custom_command " PARAM "ANY_STRING" NORMAL "\n"
     "\n"
     GREEN " dump_scene" NORMAL " - dump the current scene in json format\n"
-    GREEN " dump_render_tasks" NORMAL " - dump the render tasks in json format\n";
+    GREEN " dump_render_tasks" NORMAL " - dump the render tasks in json format\n"
+    GREEN " dump_memory_pools" NORMAL " - dump the memory pools\n";
 // clang-format on
 
 const char* const DELIMITERS = " \t\n";

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,8 @@ public:
     SET_PROPERTY,
     CUSTOM_COMMAND,
     DUMP_SCENE,
-    DUMP_RENDER_TASKS
+    DUMP_RENDER_TASKS,
+    DUMP_MEMORY_POOLS,
   };
 
   AutomationCallback(unsigned int clientId, ClientSendDataInterface& sendDataInterface)
@@ -84,6 +85,11 @@ public:
     mCommandId = DUMP_RENDER_TASKS;
   }
 
+  void AssignDumpMemoryPoolsCommand()
+  {
+    mCommandId = DUMP_MEMORY_POOLS;
+  }
+
   void AssignCustomCommand(std::string&& customCommand)
   {
     mCommandId     = CUSTOM_COMMAND;
@@ -107,6 +113,11 @@ public:
       case DUMP_RENDER_TASKS:
       {
         Automation::DumpRenderTasks(mClientId, &mSendDataInterface);
+        break;
+      }
+      case DUMP_MEMORY_POOLS:
+      {
+        Automation::DumpMemoryPools(mClientId, &mSendDataInterface);
         break;
       }
       case CUSTOM_COMMAND:
@@ -264,6 +275,13 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
     {
       TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
       { callback->AssignDumpRenderTasksCommand(); });
+      break;
+    }
+
+    case PerformanceProtocol::DUMP_MEMORY_POOLS:
+    {
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback)
+      { callback->AssignDumpMemoryPoolsCommand(); });
       break;
     }
 
