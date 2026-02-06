@@ -18,7 +18,6 @@
  *
  */
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
@@ -93,6 +92,18 @@ public:
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
   Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
+
+  /**
+   * @brief Load frame planes the image.
+   *
+   * @note This function will load the entire image into memory if not already loaded.
+   * @param[in] frameIndex The frame index to load.
+   * @param[out] pixelBuffers The loaded PixelBuffer list. If loading is fail, return empty list.
+   * @param[in] size The width and height to fit the loaded image to.
+   * @note This method is for static image. If the image is animated image, return empty pixelBuffers.
+   * @return true if loading succeeded, false otherwise.
+   */
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size);
 
   /**
    * @brief Get the size of a webp image.

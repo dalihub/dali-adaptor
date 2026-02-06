@@ -64,6 +64,28 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   return false;
 }
 
+bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+{
+  FILE* const                fp          = input.file;
+  Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
+  if(webPLoading)
+  {
+    if(webPLoading.LoadFramePlanes(FIRST_FRAME_INDEX, pixelBuffers))
+    {
+      return true;
+    }
+
+    Dali::Devel::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
+    if(pixelBuffer)
+    {
+      pixelBuffers.clear();
+      pixelBuffers.push_back(pixelBuffer);
+      return true;
+    }
+  }
+  return false;
+}
+
 } // namespace TizenPlatform
 
 } // namespace Dali
