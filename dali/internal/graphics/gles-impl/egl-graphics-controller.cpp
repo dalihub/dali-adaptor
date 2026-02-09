@@ -879,7 +879,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
 
         if(info->glesNativeInfo.eglSharedContextStoragePointer)
         {
-          auto* anyContext = reinterpret_cast<std::any*>(info->glesNativeInfo.eglSharedContextStoragePointer);
+          auto* anyContext = reinterpret_cast<Dali::Any*>(info->glesNativeInfo.eglSharedContextStoragePointer);
           *anyContext      = mSharedContext;
         }
 
