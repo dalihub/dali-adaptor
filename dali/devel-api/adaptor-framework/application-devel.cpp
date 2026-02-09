@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/application-controller-impl.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/network/common/network-service-impl.h>
 
@@ -28,30 +29,12 @@ namespace DevelApplication
 {
 Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // Set Defaut Window type
-    internal->SetDefaultWindowType(type);
+  WindowData windowData;
+  windowData.SetPositionSize(positionSize);
+  windowData.SetTransparency(windowMode == Application::TRANSPARENT);
+  windowData.SetWindowType(type);
 
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
-
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-    windowData.SetWindowType(type);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
@@ -91,14 +74,21 @@ void FlushUpdateMessages(Application application)
   Internal::Adaptor::GetImplementation(application).FlushUpdateMessages();
 }
 
-Dali::Window GetPreInitializeWindow()
-{
-  return Internal::Adaptor::Application::GetPreInitializeWindow();
-}
-
 void SetApplicationLocale(Application application, const std::string& locale)
 {
   Internal::Adaptor::GetImplementation(application).SetApplicationLocale(locale);
+}
+
+Dali::Window GetPreInitializedWindow()
+{
+  Dali::Window                                      result;
+  Dali::Internal::Adaptor::ApplicationControllerPtr controller = Dali::Internal::Adaptor::ApplicationController::GetLaunchpadApplicationController();
+
+  if(controller)
+  {
+    result = controller->GetWindow();
+  }
+  return result;
 }
 
 } // namespace DevelApplication
@@ -107,5 +97,5 @@ void SetApplicationLocale(Application application, const std::string& locale)
 
 extern "C" void ApplicationPreInitialize(int* argc, char** argv[])
 {
-  Dali::Internal::Adaptor::Application::PreInitialize(argc, argv);
+  Dali::Internal::Adaptor::ApplicationController::LaunchpadApplicationPreInitialize(argc, argv);
 }

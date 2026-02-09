@@ -1,6 +1,7 @@
 
 
 SET( adaptor_integration_api_src_files
+  ${adaptor_integration_api_dir}/adaptor-framework/application-controller.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.cpp
@@ -10,6 +11,7 @@ SET( adaptor_integration_api_src_files
 
 SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
+  ${adaptor_integration_api_dir}/adaptor-framework/application-controller.h
   ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h

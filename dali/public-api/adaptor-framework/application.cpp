@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,138 +34,51 @@ Application Application::New()
 
 Application Application::New(int* argc, char** argv[])
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, "", Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
+  WindowData windowData;
+  windowData.SetTransparency(false);
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, "", Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
+  WindowData windowData;
+  windowData.SetTransparency(false);
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
-
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
+  WindowData windowData;
+  windowData.SetTransparency(windowMode == Application::TRANSPARENT);
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+  WindowData windowData;
+  windowData.SetPositionSize(positionSize);
+  windowData.SetTransparency(windowMode == Application::TRANSPARENT);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+  WindowData windowData;
+  windowData.SetPositionSize(positionSize);
+  windowData.SetTransparency(windowMode == Application::TRANSPARENT);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
-  }
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, bool useUiThread, WindowData& windowData)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
-
-    // Set defaut Window type
-    internal->SetDefaultWindowType(windowData.GetWindowType());
-    internal->GetWindow().SetTransparency(windowData.GetTransparency());
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(windowData.GetPositionSize());
-
-    // Set front buffer rendering
-    internal->StoreFrontBufferRendering(windowData.GetFrontBufferRendering());
-
-    // Set screen for default window
-    internal->StoreWindowScreen(windowData.GetScreen());
-  }
-  else
-  {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
-  }
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   return Application(internal.Get());
 }
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,13 @@ public:
    * @return A newly allocated Window
    */
   static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader);
+
+  /**
+   * @brief Create a new Window.
+   *
+   * @return A newly allocated Window
+   */
+  static Window* New(PositionSize positionSize);
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -749,13 +756,21 @@ private:
    *
    * @param[in] surface The surface used to render on.
    * @param[in] positionSize The window's position and size in initailized time.
+   */
+  void Initialize(Any surface, const PositionSize& positionSize);
+
+  /**
+   * @brief Second stage initialization
+   *
+   * @param[in] surface The surface used to render on.
+   * @param[in] positionSize The window's position and size in initailized time.
    * @param[in] name The window title
    * @param[in] className The window class name
    * @param[in] type window's type. Refer the WindowType in window-enumerations.h.
    * @param[in] screenName screen name to set current screen name if this string is not empty.
-   * @param[in] isPreLoader The flag is whether this window is created by preloader process or not.
+   * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isPreLoader);
+  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader);
 
   /**
    * @brief Called when the window becomes iconified or deiconified.

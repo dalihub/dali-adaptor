@@ -76,6 +76,14 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
   return window;
 }
 
+Window* Window::New(PositionSize positionSize)
+{
+  Any     surface;
+  Window* window = new Window();
+  window->Initialize(surface, positionSize);
+  return window;
+}
+
 Window::Window()
 : mWindowSurface(nullptr),
   mWindowBase(),
@@ -130,7 +138,7 @@ Window::~Window()
   }
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
+void Window::Initialize(Any surface, const PositionSize& positionSize)
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
@@ -141,19 +149,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
-
-  // Set the flag of preloader is used.
-  mIsUsePreLoader = isUsePreLoader;
-  DALI_LOG_RELEASE_INFO("Window::Initialize, isUsePreLoader(%d)\n", mIsUsePreLoader);
-
-  // Set Window Type
-  mWindowBase->SetType(type);
-
-  // Initialize for Ime window type
-  if(type == WindowType::IME)
-  {
-    InitializeImeInfo();
-  }
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect(this, &Window::OnIconifyChanged);
@@ -175,8 +170,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
 
   mWindowBase->InsetsChangedSignal().Connect(this, &Window::OnInsetsChanged);
-
-  SetClass(name, className);
 
   mOrientation = Orientation::New(this);
 
@@ -211,6 +204,26 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // For Debugging
   mNativeWindowId = mWindowBase->GetNativeWindowId();
+}
+
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
+{
+  Initialize(surface, positionSize);
+
+  // Set the flag of preloader is used.
+  mIsUsePreLoader = isUsePreLoader;
+  DALI_LOG_RELEASE_INFO("Window::Initialize, isUsePreLoader(%d)\n", mIsUsePreLoader);
+
+  // Set Window Type
+  mWindowBase->SetType(type);
+
+  // Initialize for Ime window type
+  if(type == WindowType::IME)
+  {
+    InitializeImeInfo();
+  }
+
+  SetClass(name, className);
 
   if(mIsFrontBufferRendering)
   {
@@ -1654,8 +1667,8 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
   }
 
   WindowDimInfo previousBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
-  mBlurInfo = blurInfo;
-  WindowDimInfo currentBehindBlurDimInfo = mBlurInfo.GetBehindBlurDimInfo();
+  mBlurInfo                               = blurInfo;
+  WindowDimInfo currentBehindBlurDimInfo  = mBlurInfo.GetBehindBlurDimInfo();
 
   if(mBlurInfo.windowBlurType == WindowBlurType::BACKGROUND)
   {
@@ -1666,7 +1679,7 @@ void Window::SetBlur(const WindowBlurInfo& blurInfo)
     mWindowBase->SetBehindBlur(mBlurInfo.windowBlurRadius);
     if(previousBehindBlurDimInfo.isEnabled != currentBehindBlurDimInfo.isEnabled)
     {
-        mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
+      mWindowBase->SetBehindBlurDim(currentBehindBlurDimInfo.isEnabled, currentBehindBlurDimInfo.dimColor);
     }
     else
     {

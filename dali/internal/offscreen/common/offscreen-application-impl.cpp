@@ -37,13 +37,12 @@ namespace Internal
 {
 namespace
 {
-void EmitLifecycleControllerSignal(void (Internal::Adaptor::LifecycleController::*member)(Dali::Application&))
+void EmitLifecycleControllerSignal(void (Internal::Adaptor::LifecycleController::*member)())
 {
   Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
   if(DALI_LIKELY(lifecycleController))
   {
-    Dali::Application dummyApplication;
-    (GetImplementation(lifecycleController).*member)(dummyApplication);
+    (GetImplementation(lifecycleController).*member)();
   }
 }
 } // namespace
@@ -123,7 +122,6 @@ void OffscreenApplication::OnInit()
   // Start the adaptor
   mAdaptor->Start();
 
-  Dali::OffscreenApplication application(this);
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnPreInit);
 
   mInitSignal.Emit();
@@ -134,7 +132,6 @@ void OffscreenApplication::OnInit()
 
 void OffscreenApplication::OnTerminate()
 {
-  Dali::OffscreenApplication application(this);
   mTerminateSignal.Emit();
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnTerminate);
 
@@ -146,14 +143,12 @@ void OffscreenApplication::OnTerminate()
 
 void OffscreenApplication::OnPause()
 {
-  Dali::OffscreenApplication application(this);
   mPauseSignal.Emit();
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnPause);
 }
 
 void OffscreenApplication::OnResume()
 {
-  Dali::OffscreenApplication application(this);
   mResumeSignal.Emit();
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnResume);
 
@@ -171,7 +166,6 @@ void OffscreenApplication::OnReset()
    * usually, reset callback was called when a caller request to launch this application via aul.
    * because Application class already handled initialization in OnInit(), OnReset do nothing.
    */
-  Dali::OffscreenApplication application(this);
   mResetSignal.Emit();
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnReset);
 }
@@ -180,7 +174,6 @@ void OffscreenApplication::OnLanguageChanged()
 {
   mAdaptor->NotifyLanguageChanged(mFramework->GetLanguage());
 
-  Dali::OffscreenApplication application(this);
   mLanguageChangedSignal.Emit();
   EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnLanguageChanged);
 }
