@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-common.h>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>

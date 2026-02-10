@@ -23,6 +23,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/devel-api/threading/thread.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/round-robin-container-view.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/public-api/common/list-wrapper.h>
@@ -31,7 +32,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/async-task-manager.h>
-#include <dali/public-api/adaptor-framework/round-robin-container-view.h>
 
 namespace Dali
 {

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_SYNC_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,23 +40,9 @@ class EglSyncObject : public Integration::GraphicsSyncAbstraction::SyncObject
 {
 public:
   /**
-   * @brief EGL Sync object type
-   *
-   * Defines the type of EGL sync object that can be created. Different sync types
-   * provide different synchronization capabilities and are used for different
-   * synchronization scenarios.
-   */
-  enum class SyncType
-  {
-    FENCE_SYNC,       ///< Standard EGL fence sync for GPU-CPU synchronization within the same process
-    NATIVE_FENCE_SYNC ///< Native fence sync that supports cross-process synchronization via file descriptors
-  };
-
-public:
-  /**
    * Constructor
    */
-  EglSyncObject(EglImplementation& eglSyncImpl, EglSyncObject::SyncType type);
+  EglSyncObject(EglImplementation& eglSyncImpl, SyncObject::SyncType type);
 
   /**
    * Destructor
@@ -84,11 +70,25 @@ public:
    * with this EGL sync object. The native fence FD can be used to synchronize
    * GPU operations across different processes or contexts.
    *
-   * @return The duplicated native fence file descriptor, or -1 if the operation fails.
-   *         The caller is responsible for closing the returned file descriptor when
-   *         it is no longer needed.
+   * Wait() and ClientWait() can't be used after this method succeeds.
+   * Poll() should be used to wait in the case.
+   *
+   * @return The duplicated native fence file descriptor, or -1 on failure.
    */
   int32_t DuplicateNativeFenceFD();
+
+  /**
+   * Wait until the duplicated native fence FD is signaled.
+   *
+   * @return True if the FD is signaled before timeout, false otherwise.
+   */
+  bool Poll();
+
+private:
+  /**
+   * Destroy the egl sync object.
+   */
+  void DestroySyncObject();
 
 private:
 #if defined(_ARCH_ARM_) || defined(__aarch64__)
@@ -126,16 +126,6 @@ public:
   void Initialize(EglImplementation* impl);
 
   /**
-   * Create a sync object that can be polled
-   */
-  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject() override;
-
-  /**
-   * Destroy a sync object
-   */
-  void DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject) override;
-
-  /**
    * Create a sync object with the specified type that can be polled.
    *
    * @param[in] type The type of sync object to create (FENCE_SYNC or NATIVE_FENCE_SYNC)
@@ -144,7 +134,12 @@ public:
    * @note The caller is responsible for destroying the sync object using
    *       DestroySyncObject() when it is no longer needed.
    */
-  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject(EglSyncObject::SyncType type);
+  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject(SyncObject::SyncType type) override;
+
+  /**
+   * Destroy a sync object
+   */
+  void DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject) override;
 
 private:
   /**
@@ -162,6 +157,37 @@ private:
 
   SyncContainer mSyncObjects;
 };
+
+/**
+ * Utility functions for native fence file descriptor operations.
+ *
+ * This namespace provides helper functions for working with native fence file
+ * descriptors used for GPU synchronization across processes or contexts.
+ */
+namespace NativeFence
+{
+/**
+ * Poll on a native fence file descriptor until it is signaled.
+ *
+ * This method waits for the native fence FD to be signaled, indicating that
+ * the associated GPU operation has completed. After polling completes, the
+ * file descriptor is automatically closed.
+ *
+ * @param[in] fenceFd The native fence file descriptor to poll.
+ * @return True if the FD is signaled before timeout, false otherwise.
+ */
+bool PollFD(int32_t fenceFd);
+
+/**
+ * Close a native fence file descriptor.
+ *
+ * This method closes the specified native fence file descriptor, releasing
+ * the associated system resources.
+ *
+ * @param[in] fenceFd The native fence file descriptor to close.
+ */
+void CloseFD(int32_t fenceFd);
+} // namespace NativeFence
 
 } // namespace Adaptor
 } // namespace Internal

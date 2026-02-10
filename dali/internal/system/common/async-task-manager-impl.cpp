@@ -25,6 +25,7 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
 
+#include <algorithm> // for std::find
 #include <mutex>
 
 // INTERNAL INCLUDES

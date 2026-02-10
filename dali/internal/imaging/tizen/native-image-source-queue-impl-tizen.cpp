@@ -22,15 +22,12 @@
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
-#include <sys/poll.h>
 #include <tbm_surface_internal.h>
-#include <unistd.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -101,10 +98,10 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mOldSurface(nullptr),
   mEglImages(),
   mBuffers(),
-  mEglSyncObjects(),
-  mEglSyncFds(),
-  mEglGraphics(NULL),
-  mEglImageExtensions(NULL),
+  mSyncObjects(),
+  mEglGraphics(nullptr),
+  mEglImageExtensions(nullptr),
+  mSyncPool(nullptr),
   mImageState(ImageState::INITIALIZED),
   mOwnTbmQueue(false),
   mBlendingRequired(false),
@@ -119,9 +116,12 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics  = static_cast<EglGraphics*>(graphics);
 
+  auto controller = static_cast<Graphics::EglGraphicsController*>(&mEglGraphics->GetController());
+  mSyncPool       = &controller->GetSyncPool();
+
   mTbmQueue = GetSurfaceFromAny(nativeImageSourceQueue);
 
-  if(mTbmQueue != NULL)
+  if(mTbmQueue != nullptr)
   {
     mBlendingRequired = CheckBlending(tbm_surface_queue_get_format(mTbmQueue));
     mQueueCount       = tbm_surface_queue_get_size(mTbmQueue);
@@ -152,7 +152,7 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
     return;
   }
 
-  if(mTbmQueue == NULL)
+  if(mTbmQueue == nullptr)
   {
     int tbmFormat = TBM_FORMAT_ARGB8888;
 
@@ -225,7 +225,7 @@ tbm_surface_queue_h NativeImageSourceQueueTizen::GetSurfaceFromAny(Any source) c
 {
   if(source.Empty())
   {
-    return NULL;
+    return nullptr;
   }
 
   if(source.GetType() == typeid(tbm_surface_queue_h))
@@ -234,7 +234,7 @@ tbm_surface_queue_h NativeImageSourceQueueTizen::GetSurfaceFromAny(Any source) c
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -293,8 +293,9 @@ bool NativeImageSourceQueueTizen::CanDequeueBuffer()
 uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, Dali::NativeImageSourceQueue::BufferAccessType type)
 {
   tbm_surface_h tbmSurface;
-  uint8_t*      buffer  = nullptr;
-  int32_t       fenceFd = -1;
+  uint8_t*      buffer = nullptr;
+
+  std::shared_ptr<Graphics::GLES::SyncPool::SharedSyncObject> syncObject;
 
   {
     Dali::Mutex::ScopedLock lock(mMutex);
@@ -314,42 +315,25 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
 
     if(mWaitInWorkerThread)
     {
-      auto iter = mEglSyncFds.find(tbmSurface);
-      if(iter != mEglSyncFds.end())
+      auto iter = mSyncObjects.find(tbmSurface);
+      if(iter != mSyncObjects.end())
       {
-        fenceFd = iter->second;
-        mEglSyncFds.erase(iter);
+        syncObject = std::move(iter->second);
+        mSyncObjects.erase(iter);
       }
     }
   }
 
   if(mWaitInWorkerThread)
   {
-    if(fenceFd != -1)
+    if(syncObject)
     {
-      struct pollfd fds;
-      fds.fd      = fenceFd;
-      fds.events  = POLLIN;
-      fds.revents = 0;
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %p] [%p]\n", tbmSurface, syncObject.get(), this);
 
-      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %d] [%p]\n", tbmSurface, fenceFd, this);
+      syncObject->Poll();
 
-      DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-
-      int ret = poll(&fds, 1, 5000); // timeout 5sec
-
-      DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-      {
-        oss << "Wait sync: poll(" << tbmSurface << ", " << fenceFd << ")";
-      });
-
-      if(ret <= 0 || (fds.revents & (POLLERR | POLLNVAL)))
-      {
-        DALI_LOG_ERROR("poll failed or timeout [%d, %d]\n", ret, fds.revents);
-      }
-
-      // Close fd immediately
-      close(fenceFd);
+      // We can free sync object
+      syncObject.reset();
     }
   }
 
@@ -505,16 +489,16 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
 
   if(!mWaitInWorkerThread)
   {
-    for(auto&& iter : mEglSyncObjects)
+    for(auto&& iter : mSyncObjects)
     {
       // Actually we only have 1 element in the list if mWaitInWorkerThread is true
       // But iterate the loop for safety
       iter.second->ClientWait();
 
-      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %p]\n", iter.first, iter.second);
+      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "Wait [%p, %p]\n", iter.first, iter.second.get());
     }
 
-    ResetSyncObjects();
+    mSyncObjects.clear();
   }
 
   bool          updated    = false;
@@ -612,7 +596,7 @@ Dali::NativeImageInterface::PrepareTextureResult NativeImageSourceQueueTizen::Pr
     mFreeRequest = false;
 
     // We freed all released buffers. So we don't need the sync objects.
-    ResetSyncObjects();
+    mSyncObjects.clear();
   }
 
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareTexture");
@@ -654,10 +638,10 @@ bool NativeImageSourceQueueTizen::SourceChanged() const
   return true;
 }
 
+// This method should be called on the render thread.
 bool NativeImageSourceQueueTizen::CreateSyncObject()
 {
   tbm_surface_h tbmSurface;
-  bool          ret = true;
 
   // We need a sync for the current surface if we should wait in the render thread
   tbmSurface = mWaitInWorkerThread ? mOldSurface : mConsumeSurface;
@@ -665,80 +649,28 @@ bool NativeImageSourceQueueTizen::CreateSyncObject()
   if(tbm_surface_internal_is_valid(tbmSurface))
   {
     // Destroy previous sync object first
-    auto iter = mEglSyncObjects.find(tbmSurface);
-    if(iter != mEglSyncObjects.end())
+    mSyncObjects.erase(tbmSurface);
+
+    // Create a new sync object
+    std::shared_ptr<Graphics::GLES::SyncPool::SharedSyncObject> syncObject = mSyncPool->AllocateSharedSyncObject(mWaitInWorkerThread);
+    if(!syncObject)
     {
-      mEglGraphics->GetSyncImplementation().DestroySyncObject(iter->second);
-      mEglSyncObjects.erase(iter);
+      DALI_LOG_ERROR("AllocateSharedSyncObject failed [%p]\n", this);
+      return false;
     }
 
-    auto fdObjects = mEglSyncFds.find(tbmSurface);
-    if(fdObjects != mEglSyncFds.end())
+    if(!syncObject->IsFenceFdSupported())
     {
-      close(fdObjects->second);
-      mEglSyncFds.erase(fdObjects);
+      mWaitInWorkerThread = false;
     }
 
-    Internal::Adaptor::EglSyncObject* syncObject = static_cast<Internal::Adaptor::EglSyncObject*>(mEglGraphics->GetSyncImplementation().CreateSyncObject(EglSyncObject::SyncType::NATIVE_FENCE_SYNC));
-    if(DALI_LIKELY(syncObject))
-    {
-      int32_t fenceFd = -1;
+    [[maybe_unused]] auto insertResult = mSyncObjects.insert({tbmSurface, std::move(syncObject)});
+    DALI_ASSERT_DEBUG(insertResult.second && "We don't allow multiple sync objects cache!\n");
 
-      if(mWaitInWorkerThread)
-      {
-        fenceFd = syncObject->DuplicateNativeFenceFD();
-        if(fenceFd == -1)
-        {
-          // We can't wait for the sync object to be signaled in the worker thread
-          mWaitInWorkerThread = false;
-        }
-      }
-
-      if(fenceFd != -1)
-      {
-        // We don't need sync object.
-        mEglGraphics->GetSyncImplementation().DestroySyncObject(syncObject);
-        syncObject = nullptr;
-
-        // Insert the new fd
-        [[maybe_unused]] auto insertResult = mEglSyncFds.insert({tbmSurface, fenceFd});
-        DALI_ASSERT_DEBUG(insertResult.second && "We don't allow multiple sync objects cache!\n");
-      }
-      else
-      {
-        // We use sync object. Insert the new sync object
-        [[maybe_unused]] auto insertResult = mEglSyncObjects.insert({tbmSurface, syncObject});
-        DALI_ASSERT_DEBUG(insertResult.second && "We don't allow multiple sync objects cache!\n");
-      }
-
-      mEglGraphics->GetGlAbstraction().Flush();
-
-      DALI_LOG_INFO(gNativeImageQueueLogFilter, Debug::Verbose, "[%p, %p, %d] [%p]\n", tbmSurface, syncObject, fenceFd, this);
-    }
-    else
-    {
-      DALI_LOG_ERROR("CreateSyncObject failed\n");
-      ret = false;
-    }
+    return true;
   }
 
-  return ret;
-}
-
-// This Method is called inside mMutex
-void NativeImageSourceQueueTizen::ResetSyncObjects()
-{
-  for(auto&& iter : mEglSyncObjects)
-  {
-    mEglGraphics->GetSyncImplementation().DestroySyncObject(iter.second);
-  }
-  mEglSyncObjects.clear();
-
-  for(auto&& iter : mEglSyncFds)
-  {
-    close(iter.second);
-  }
-  mEglSyncFds.clear();
+  return false;
 }
 
 void NativeImageSourceQueueTizen::PostRender()
@@ -802,7 +734,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
   }
   mEglImages.clear();
 
-  ResetSyncObjects();
+  mSyncObjects.clear();
 }
 
 bool NativeImageSourceQueueTizen::CheckBlending(int format)

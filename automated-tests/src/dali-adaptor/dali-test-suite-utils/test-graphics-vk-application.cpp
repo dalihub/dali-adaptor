@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
                                                  bool     initialize,
                                                  bool     enablePartialUpdate)
 : mGraphics(GetGraphicsCreateInfo(surfaceWidth, surfaceHeight),
-            Integration::DepthBufferAvailable::FALSE,
-            Integration::StencilBufferAvailable::FALSE,
-            Integration::PartialUpdateAvailable::FALSE, 0),
+            Dali::Integration::DepthBufferAvailable::FALSE,
+            Dali::Integration::StencilBufferAvailable::FALSE,
+            Dali::Integration::PartialUpdateAvailable::FALSE, 0),
   mCore(NULL),
   mSurfaceWidth(surfaceWidth),
   mSurfaceHeight(surfaceHeight),
@@ -70,15 +70,15 @@ void TestGraphicsApplication::CreateCore()
   Dali::Integration::Trace::InstallLogContextFunction(logContextFunction);
 
   // We always need the first update!
-  mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
+  mStatus.keepUpdating = Dali::Integration::KeepUpdating::STAGE_KEEP_RENDERING;
   mDisplayConnection   = DisplayConnection::New();
   mGraphics.Initialize(*mDisplayConnection);
   mGraphics.GetDevice().CreateDevice(nullptr);
 
-  Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
+  Dali::Integration::CorePolicyFlags corePolicyFlags = Dali::Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Dali::Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
   if(mPartialUpdateEnabled)
   {
-    corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
+    corePolicyFlags |= Dali::Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
   }
 
   mCore = Dali::Integration::Core::New(mRenderController,
@@ -179,7 +179,7 @@ Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
   return mGraphics.GetController();
 }
 
-void TestGraphicsApplication::ProcessEvent(const Integration::Event& event)
+void TestGraphicsApplication::ProcessEvent(const Dali::Integration::Event& event)
 {
   mCore->QueueEvent(event);
   mCore->ProcessEvents();

@@ -105,7 +105,7 @@ public:
   /**
    * Used to access extra info about the graphics subsystem.
    */
-  Integration::GraphicsConfig& GetGraphicsConfig();
+  Integration::GraphicsConfig& GetGraphicsConfig() override;
 
   Internal::Adaptor::EglSyncImplementation& GetEglSyncImplementation();
 

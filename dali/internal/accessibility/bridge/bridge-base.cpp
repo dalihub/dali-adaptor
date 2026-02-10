@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/stage.h>
+#include <algorithm>
 #include <atomic>
 #include <cstdlib>
 #include <limits>

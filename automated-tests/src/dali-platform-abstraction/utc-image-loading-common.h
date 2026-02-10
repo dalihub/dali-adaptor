@@ -71,7 +71,7 @@ extern TizenPlatform::TizenPlatformAbstraction* gAbstraction;
 typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;
 extern std::vector<ImageParameters>                                                                     gCancelAttributes;
 
-double GetTimeMilliseconds(Integration::PlatformAbstraction& abstraction); ///< Returns elapsed milliseconds.
+double GetTimeMilliseconds(Dali::Integration::PlatformAbstraction& abstraction); ///< Returns elapsed milliseconds.
 
 void utc_dali_loading_startup(void);
 void utc_dali_loading_cleanup(void);

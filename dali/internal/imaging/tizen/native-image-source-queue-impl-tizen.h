@@ -19,15 +19,14 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/map-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
 #include <unordered_map>
 #include <utility>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/gles-impl/gles-sync-pool.h>
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
 
 namespace Dali
@@ -38,7 +37,6 @@ namespace Adaptor
 {
 class EglGraphics;
 class EglImageExtensions;
-class EglSyncObject;
 
 /**
  * Dali internal NativeImageSource.
@@ -237,11 +235,6 @@ private:
    */
   bool CreateSyncObject();
 
-  /**
-   * @brief Resets sync objects.
-   */
-  void ResetSyncObjects();
-
 private:
   enum class ImageState : uint8_t
   {
@@ -252,8 +245,7 @@ private:
 
   using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
   using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
-  using EglSyncContainer       = std::unordered_map<tbm_surface_h, EglSyncObject*>;
-  using EglSyncFdContainer     = std::unordered_map<tbm_surface_h, int32_t>;
+  using SyncObjectContainer    = std::unordered_map<tbm_surface_h, std::shared_ptr<Graphics::GLES::SyncPool::SharedSyncObject>>;
 
   Dali::Mutex            mMutex;              ///< Mutex
   uint32_t               mQueueCount;         ///< queue count
@@ -264,18 +256,20 @@ private:
   tbm_surface_h          mOldSurface;         ///< The old surface to be released
   SurfaceEglContainer    mEglImages;          ///< EGL Image map
   BufferSurfaceContainer mBuffers;            ///< Buffer map
-  EglSyncContainer       mEglSyncObjects;     ///< EGL sync object map
-  EglSyncFdContainer     mEglSyncFds;         ///< EGL sync fd  map
+  SyncObjectContainer    mSyncObjects;        ///< Sync object map
   EglGraphics*           mEglGraphics;        ///< EGL Graphics
   EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
-  ImageState             mImageState;         ///< Image state
-  bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                   mBlendingRequired;   ///< Whether blending is required
-  bool                   mIsResized;          ///< Whether the size has changed
-  bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
-  bool                   mNeedSync;           ///< Whether we need to create the egl sync object
-  bool                   mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
-  bool                   mRendered;           ///< Whether this texture is rendered in this frame
+
+  Dali::Graphics::GLES::SyncPool* mSyncPool; ///< Sync Pool
+
+  ImageState mImageState;         ///< Image state
+  bool       mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool       mBlendingRequired;   ///< Whether blending is required
+  bool       mIsResized;          ///< Whether the size has changed
+  bool       mFreeRequest;        ///< Whether it is requested to free the released buffers
+  bool       mNeedSync;           ///< Whether we need to create the egl sync object
+  bool       mWaitInWorkerThread; ///< Whether we can wait for the sync to be signaled in the worker thread
+  bool       mRendered;           ///< Whether this texture is rendered in this frame
 };
 
 } // namespace Adaptor

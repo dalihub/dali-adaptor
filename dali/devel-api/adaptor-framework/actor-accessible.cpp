@@ -23,6 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/type-info.h>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>

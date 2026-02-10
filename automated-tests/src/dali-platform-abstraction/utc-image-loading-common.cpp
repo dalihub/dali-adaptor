@@ -17,7 +17,7 @@
 
 #include "utc-image-loading-common.h"
 
-double GetTimeMilliseconds(Integration::PlatformAbstraction& abstraction)
+double GetTimeMilliseconds(Dali::Integration::PlatformAbstraction& abstraction)
 {
   timespec timeSpec;
   clock_gettime(CLOCK_MONOTONIC, &timeSpec);

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class TestGraphicsImpl : public Graphics::GraphicsInterface
 {
 public:
   TestGraphicsImpl()
-  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Integration::DepthBufferAvailable::TRUE, Integration::StencilBufferAvailable::TRUE, Integration::PartialUpdateAvailable::TRUE, 4)
+  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Dali::Integration::DepthBufferAvailable::TRUE, Dali::Integration::StencilBufferAvailable::TRUE, Dali::Integration::PartialUpdateAvailable::TRUE, 4)
   {
   }
   virtual ~TestGraphicsImpl() = default;
@@ -147,7 +147,7 @@ public:
     mCallstack.PushCall("MakeContextCurrent()", "");
   }
 
-  void AcquireNextImage(Integration::RenderSurfaceInterface* surface) override
+  void AcquireNextImage(Dali::Integration::RenderSurfaceInterface* surface) override
   {
     mCallstack.PushCall("AcquireNextImage()", "");
   }
@@ -189,7 +189,7 @@ public:
     mCallstack.PushCall("Resume()", "");
   }
 
-  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size) override
+  void Resize(Dali::Integration::RenderSurfaceInterface* surface, Uint16Pair size) override
   {
     mCallstack.PushCall("Resize()", "");
   }
@@ -361,7 +361,7 @@ public:
 
   TestGlAbstraction& GetGlAbstraction();
 
-  void        ProcessEvent(const Integration::Event& event);
+  void        ProcessEvent(const Dali::Integration::Event& event);
   void        SendNotification();
   bool        Render(uint32_t intervalMilliseconds = DEFAULT_RENDER_INTERVAL, const char* location = NULL);
   bool        PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects);
@@ -378,7 +378,7 @@ public:
     mLoggingEnabled = enabled;
   }
 
-  Integration::Scene GetScene() const
+  Dali::Integration::Scene GetScene() const
   {
     return mScene;
   }
@@ -396,11 +396,11 @@ protected:
   Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
   Dali::DisplayConnection*                    mDisplayConnection{nullptr};
 
-  Integration::UpdateStatus         mStatus;
-  Integration::RenderStatus         mRenderStatus;
-  Integration::ScenePreRenderStatus mScenePreRenderStatus;
+  Dali::Integration::UpdateStatus         mStatus;
+  Dali::Integration::RenderStatus         mRenderStatus;
+  Dali::Integration::ScenePreRenderStatus mScenePreRenderStatus;
 
-  Integration::Core*       mCore;
+  Dali::Integration::Core* mCore;
   Dali::Integration::Scene mScene;
 
   uint32_t mSurfaceWidth;
