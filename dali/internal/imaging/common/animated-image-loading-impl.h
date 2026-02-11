@@ -112,6 +112,17 @@ public:
    */
   virtual bool HasLoadingSucceeded() const = 0;
 
+  /**
+   * @brief Load frame planes of the animated image.
+   *
+   * @note This function will load the entire animated image into memory if not already loaded.
+   * @param[in] frameIndex The frame index to load.
+   * @param[out] pixelBuffers The loaded PixelBuffer list. If loading is fail, return empty list.
+   * @param[in] size The width and height to fit the loaded image to.
+   * @return true if loading succeeded, false otherwise.
+   */
+  virtual bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) = 0;
+
 private:
   /**
    * @brief Load a frame of the animated image.
