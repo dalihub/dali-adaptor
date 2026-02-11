@@ -10,6 +10,7 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/tts-player.cpp
   ${adaptor_public_api_dir}/adaptor-framework/native-image-source.cpp
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/ui-context.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
   ${adaptor_public_api_dir}/capture/capture.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
@@ -38,6 +39,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/timer.h
   ${adaptor_public_api_dir}/adaptor-framework/tts-player.h
   ${adaptor_public_api_dir}/adaptor-framework/native-image-source.h
+  ${adaptor_public_api_dir}/adaptor-framework/ui-context.h
   ${adaptor_public_api_dir}/adaptor-framework/window.h
   ${adaptor_public_api_dir}/adaptor-framework/window-enumerations.h
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.h
