@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ struct JpegErrorState
   jmp_buf               jumpBuffer;
 };
 
-static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
+static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling, int jpegColorspace)
 {
   if(!gIsSubsamplingFormatTableInitialized)
   {
@@ -108,6 +108,12 @@ static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
   if(DALI_UNLIKELY(chrominanceSubsampling >= TJ_NUMSAMP))
   {
     DALI_LOG_ERROR("WARNING! Input subsampling value [%d] is bigger than turbojpeg library support [%d]\n", chrominanceSubsampling, TJ_NUMSAMP);
+  }
+
+  // For now, we should ignore CMYK and YCCK format who has 4 channels.
+  if(jpegColorspace == TJCS_CMYK || jpegColorspace == TJCS_YCCK)
+  {
+    return false;
   }
 
   return chrominanceSubsampling < TJ_NUMSAMP ? gSubsamplingFormatTable[chrominanceSubsampling] : false;
@@ -822,7 +828,12 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
 bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
 {
-  return DecodeJpeg(input, pixelBuffers, true);
+  if(DALI_LIKELY(DecodeJpeg(input, pixelBuffers, true)))
+  {
+    return true;
+  }
+  // Fallback if YUV load failed.
+  return DecodeJpeg(input, pixelBuffers, false);
 }
 
 bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv)
@@ -890,7 +901,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
   bool result = false;
 
   // Check decoding format
-  if(decodeToYuv && IsSubsamplingFormatEnabled(chrominanceSubsampling) && transform == JpegTransform::NONE)
+  if(decodeToYuv && IsSubsamplingFormatEnabled(chrominanceSubsampling, jpegColorspace) && transform == JpegTransform::NONE)
   {
     uint8_t* planes[3];
 
