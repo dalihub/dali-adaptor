@@ -1700,6 +1700,13 @@ bool GifLoading::HasLoadingSucceeded() const
   return mImpl->mLoadSucceeded;
 }
 
+bool GifLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
+{
+  // GIF does not support planes
+  pixelBuffers.clear();
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

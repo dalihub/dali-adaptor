@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,11 +163,11 @@ void ResetGraphicsLibrary(bool reload)
     DummyWindow        dummyWindow;
     EnvironmentOptions dummyEnvironmentOptions;
 
-    CallReturnValueFunction<std::unique_ptr<GraphicsFactoryInterface> (*)(EnvironmentOptions&), std::unique_ptr<GraphicsFactoryInterface>, EnvironmentOptions&>("CreateGraphicsFactory", true, dummyEnvironmentOptions);
-    CallReturnValueFunction<std::unique_ptr<RenderSurfaceFactory> (*)(), std::unique_ptr<RenderSurfaceFactory>>("GetRenderSurfaceFactory", true);
-    CallReturnValueFunction<std::unique_ptr<NativeImageSourceFactory> (*)(), std::unique_ptr<NativeImageSourceFactory>>("GetNativeImageSourceFactory", true);
-    CallReturnValueFunction<std::unique_ptr<Graphics::SurfaceFactory> (*)(Graphics::NativeWindowInterface&), std::unique_ptr<Graphics::SurfaceFactory>, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", true, dummyWindow);
-    CallReturnValueFunction<std::unique_ptr<NativeImageSurface> (*)(NativeImageSourceQueuePtr), std::unique_ptr<NativeImageSurface>, NativeImageSourceQueuePtr>("CreateNativeImageSurface", true, NativeImageSourceQueuePtr());
+    CallReturnValueFunction<GraphicsFactoryInterface* (*)(EnvironmentOptions&), GraphicsFactoryInterface*, EnvironmentOptions&>("CreateGraphicsFactory", true, dummyEnvironmentOptions);
+    CallReturnValueFunction<RenderSurfaceFactory* (*)(), RenderSurfaceFactory*>("GetRenderSurfaceFactory", true);
+    CallReturnValueFunction<NativeImageSourceFactory* (*)(), NativeImageSourceFactory*>("GetNativeImageSourceFactory", true);
+    CallReturnValueFunction<Graphics::SurfaceFactory* (*)(Graphics::NativeWindowInterface&), Graphics::SurfaceFactory*, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", true, dummyWindow);
+    CallReturnValueFunction<NativeImageSurface* (*)(NativeImageSourceQueuePtr), NativeImageSurface*, NativeImageSourceQueuePtr>("CreateNativeImageSurface", true, NativeImageSourceQueuePtr());
     CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", true, nullptr);
   }
 
@@ -181,27 +181,27 @@ GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
 
 std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
-  return CallReturnValueFunction<std::unique_ptr<GraphicsFactoryInterface> (*)(EnvironmentOptions&), std::unique_ptr<GraphicsFactoryInterface>, EnvironmentOptions&>("CreateGraphicsFactory", false, environmentOptions);
+  return std::unique_ptr<GraphicsFactoryInterface>(CallReturnValueFunction<GraphicsFactoryInterface* (*)(EnvironmentOptions&), GraphicsFactoryInterface*, EnvironmentOptions&>("CreateGraphicsFactory", false, environmentOptions));
 }
 
 std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
 {
-  return CallReturnValueFunction<std::unique_ptr<RenderSurfaceFactory> (*)(), std::unique_ptr<RenderSurfaceFactory>>("GetRenderSurfaceFactory", false);
+  return std::unique_ptr<RenderSurfaceFactory>(CallReturnValueFunction<RenderSurfaceFactory* (*)(), RenderSurfaceFactory*>("GetRenderSurfaceFactory", false));
 }
 
 std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
 {
-  return CallReturnValueFunction<std::unique_ptr<NativeImageSourceFactory> (*)(), std::unique_ptr<NativeImageSourceFactory>>("GetNativeImageSourceFactory", false);
+  return std::unique_ptr<NativeImageSourceFactory>(CallReturnValueFunction<NativeImageSourceFactory* (*)(), NativeImageSourceFactory*>("GetNativeImageSourceFactory", false));
 }
 
 std::unique_ptr<Graphics::SurfaceFactory> CreateSurfaceFactory(Graphics::NativeWindowInterface& nativeWindow)
 {
-  return CallReturnValueFunction<std::unique_ptr<Graphics::SurfaceFactory> (*)(Graphics::NativeWindowInterface&), std::unique_ptr<Graphics::SurfaceFactory>, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", false, nativeWindow);
+  return std::unique_ptr<Graphics::SurfaceFactory>(CallReturnValueFunction<Graphics::SurfaceFactory* (*)(Graphics::NativeWindowInterface&), Graphics::SurfaceFactory*, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", false, nativeWindow));
 }
 
 std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageSourceQueuePtr queue)
 {
-  return CallReturnValueFunction<std::unique_ptr<NativeImageSurface> (*)(NativeImageSourceQueuePtr), std::unique_ptr<NativeImageSurface>, NativeImageSourceQueuePtr>("CreateNativeImageSurface", false, queue);
+  return std::unique_ptr<NativeImageSurface>(CallReturnValueFunction<NativeImageSurface* (*)(NativeImageSourceQueuePtr), NativeImageSurface*, NativeImageSourceQueuePtr>("CreateNativeImageSurface", false, queue));
 }
 
 Any CastToNativeGraphicsType(void* display)

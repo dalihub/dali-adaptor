@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,6 +186,31 @@ void LifecycleController::OnReset(Dali::Application& app)
 void LifecycleController::OnLanguageChanged(Dali::Application& app)
 {
   EmitLanguageChangedSignal();
+}
+
+void LifecycleController::OnPreInit()
+{
+  EmitPreInitSignal();
+}
+
+void LifecycleController::OnInit()
+{
+  EmitInitSignal();
+}
+
+void LifecycleController::OnTerminate()
+{
+  EmitTerminateSignal();
+}
+
+void LifecycleController::OnPause()
+{
+  EmitPauseSignal();
+}
+
+void LifecycleController::OnResume()
+{
+  EmitResumeSignal();
 }
 
 } // namespace Adaptor

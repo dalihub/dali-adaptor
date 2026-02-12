@@ -61,6 +61,8 @@ Debug::Filter* gWebPLoadingLogFilter = Debug::Filter::New(Debug::NoLogging, fals
 
 static constexpr int32_t INITIAL_INDEX               = -1;
 static constexpr size_t  MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
+static constexpr int32_t WEBP_LOSSY                  = 1;
+static constexpr int32_t WEBP_LOSSLESS               = 2;
 
 } // namespace
 
@@ -493,6 +495,141 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
   }
 #endif
   return pixelBuffer;
+}
+
+bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
+{
+  {
+    Mutex::ScopedLock lock(mImpl->mMutex);
+    if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+    {
+      if(DALI_UNLIKELY(!mImpl->LoadWebPInformation()))
+      {
+        mImpl->ReleaseResource();
+        return false;
+      }
+    }
+  }
+
+#ifdef DALI_WEBP_AVAILABLE
+  if(!mImpl->mIsAnimatedImage)
+  {
+    WebPDecoderConfig config;
+    if(DALI_UNLIKELY(!WebPInitDecoderConfig(&config)))
+    {
+      DALI_LOG_ERROR("WebPInitDecoderConfig failed\n");
+      return false;
+    }
+
+    if(WebPGetFeatures(mImpl->mBuffer, mImpl->mBufferSize, &config.input) != VP8_STATUS_OK)
+    {
+      return false;
+    }
+
+    if(config.input.format == WEBP_LOSSLESS)
+    {
+      // Fallback for RGB(A) format
+      return false;
+    }
+
+    int width  = config.input.width;
+    int height = config.input.height;
+
+    if(size.GetWidth() > 0 && size.GetHeight() > 0)
+    {
+      config.options.use_scaling   = 1;
+      config.options.scaled_width  = size.GetWidth();
+      config.options.scaled_height = size.GetHeight();
+      width                        = size.GetWidth();
+      height                       = size.GetHeight();
+    }
+
+    config.output.colorspace         = (!config.input.has_alpha) ? MODE_YUV : MODE_YUVA;
+    config.output.is_external_memory = 1;
+
+    int uvWidth  = (width + 1) / 2;
+    int uvHeight = (height + 1) / 2;
+
+    size_t ySize  = width * height;
+    size_t uvSize = uvWidth * uvHeight;
+
+    Dali::Devel::PixelBuffer yBuffer = Dali::Devel::PixelBuffer::New(width, height, Dali::Pixel::L8);
+    Dali::Devel::PixelBuffer uBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_U); // U Plane
+    Dali::Devel::PixelBuffer vBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_V); // V Plane
+
+    Dali::Devel::PixelBuffer aBuffer;
+    if(config.input.has_alpha)
+    {
+      aBuffer = Dali::Devel::PixelBuffer::New(width, height, Dali::Pixel::A8);
+    }
+
+    config.output.u.YUVA.y = yBuffer.GetBuffer();
+    config.output.u.YUVA.u = uBuffer.GetBuffer();
+    config.output.u.YUVA.v = vBuffer.GetBuffer();
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a = aBuffer.GetBuffer();
+    }
+
+    config.output.u.YUVA.y_stride = width;
+    config.output.u.YUVA.u_stride = uvWidth;
+    config.output.u.YUVA.v_stride = uvWidth;
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a_stride = width;
+    }
+
+    config.output.u.YUVA.y_size = ySize;
+    config.output.u.YUVA.u_size = uvSize;
+    config.output.u.YUVA.v_size = uvSize;
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a_size = ySize;
+    }
+
+    VP8StatusCode status = WebPDecode(mImpl->mBuffer, mImpl->mBufferSize, &config);
+
+    bool success = false;
+    if(status == VP8_STATUS_OK)
+    {
+      // Black correction.
+      uint8_t* yData = yBuffer.GetBuffer();
+      for(uint32_t i = 0; i < ySize; ++i)
+      {
+        int32_t y = static_cast<int32_t>(yData[i]);
+        y     = std::max(0, y - 16);
+        y     = (y * 298 + 128) >> 8;
+        y     = std::min(255, y);
+
+        yData[i] = static_cast<uint8_t>(y);
+      }
+
+      pixelBuffers.push_back(yBuffer);
+      pixelBuffers.push_back(uBuffer);
+      pixelBuffers.push_back(vBuffer);
+      if(aBuffer)
+      {
+        pixelBuffers.push_back(aBuffer);
+      }
+      success = true;
+    }
+    else
+    {
+      DALI_LOG_ERROR("WebP YUV Decoding failed with status: %d\n", status);
+    }
+
+    WebPFreeDecBuffer(&config.output);
+
+    {
+      Mutex::ScopedLock lock(mImpl->mMutex);
+      mImpl->ReleaseResource();
+    }
+
+    return success;
+  }
+#endif
+
+  return false;
 }
 
 Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)

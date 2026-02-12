@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,6 @@ public:
   Dali::LifecycleController::LifecycleSignalType& LanguageChangedSignal();
 
 public:
-public:
   /**
    * Called when the framework will be initialised.
    *
@@ -140,6 +139,31 @@ public:
    * @param[in] app The application instance
    */
   void OnLanguageChanged(Dali::Application& app);
+
+  /**
+   * Called when the framework will be initialised.
+   */
+  void OnPreInit();
+
+  /**
+   * Called when the framework is initialised.
+   */
+  void OnInit();
+
+  /**
+   * Called when the framework is terminated.
+   */
+  void OnTerminate();
+
+  /**
+   * Called when the framework is paused.
+   */
+  void OnPause();
+
+  /**
+   * Called when the framework resumes from a paused state.
+   */
+  void OnResume();
 
 protected:
   /**

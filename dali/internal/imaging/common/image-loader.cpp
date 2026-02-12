@@ -90,7 +90,7 @@ const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_CO
     {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadPlanesFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  nullptr, LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  nullptr, LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, nullptr, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, LoadPlanesFromWebp, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  nullptr, LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
     {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
     {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader,  Bitmap::BITMAP_COMPRESSED      },

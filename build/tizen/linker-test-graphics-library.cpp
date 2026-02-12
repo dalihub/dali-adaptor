@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,24 +34,24 @@ public:
 };
 
 extern "C" {
-extern std::unique_ptr<Dali::Internal::Adaptor::GraphicsFactoryInterface> CreateGraphicsFactory(Dali::Internal::Adaptor::EnvironmentOptions& environmentOptions);
-extern std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory>     GetRenderSurfaceFactory();
-extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSourceFactory> GetNativeImageSourceFactory();
-extern std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>       CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
-extern std::unique_ptr<Dali::Graphics::SurfaceFactory>                    CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow);
+extern Dali::Internal::Adaptor::GraphicsFactoryInterface* CreateGraphicsFactory(Dali::Internal::Adaptor::EnvironmentOptions& environmentOptions);
+extern Dali::Internal::Adaptor::RenderSurfaceFactory*     GetRenderSurfaceFactory();
+extern Dali::Internal::Adaptor::NativeImageSourceFactory* GetNativeImageSourceFactory();
+extern Dali::Internal::Adaptor::NativeImageSurface*       CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
+extern Dali::Graphics::SurfaceFactory*                    CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow);
 } // extern "C"
 
 int main(int argc, char** argv)
 {
   Dali::Internal::Adaptor::EnvironmentOptions options;
-  CreateGraphicsFactory(options);
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::GraphicsFactoryInterface> graphicsFactory(CreateGraphicsFactory(options));
 
-  [[maybe_unused]] auto renderSurfaceFactory = GetRenderSurfaceFactory();
-  [[maybe_unused]] auto imageSourceFactory   = GetNativeImageSourceFactory();
-  [[maybe_unused]] auto nativeImageSurface   = CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr());
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory>     renderSurfaceFactory(GetRenderSurfaceFactory());
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageSourceFactory> imageSourceFactory(GetNativeImageSourceFactory());
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>       nativeImageSurface(CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr()));
 
   NativeWindowDummyImpl nativeWindow;
-  [[maybe_unused]] auto surfaceFactory = CreateSurfaceFactory(nativeWindow);
+  [[maybe_unused]] std::unique_ptr<Dali::Graphics::SurfaceFactory> surfaceFactory(CreateSurfaceFactory(nativeWindow));
 
   return 0;
 }
