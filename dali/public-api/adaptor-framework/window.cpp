@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,6 @@ namespace Dali
 {
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
-  return Dali::Window::New(posSize, name, "", isTransparent);
-}
-
-Window Window::New(PositionSize posSize, const std::string& name, const std::string& className, bool isTransparent)
-{
   WindowData windowData;
   windowData.SetPositionSize(posSize);
   windowData.SetTransparency(isTransparent);
@@ -58,7 +53,8 @@ Window Window::New(const std::string& name, const std::string& className, const 
 
   if(isNewWindowAllowed)
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(name, className, windowData);
+    Any                        surface;
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, name, className, windowData, false);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 

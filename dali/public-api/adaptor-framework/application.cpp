@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode)
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
@@ -78,19 +78,19 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
+    internal->GetWindow().SetTransparency((windowOpacity == Application::TRANSPARENT));
   }
   else
   {
     WindowData windowData;
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
+    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
     internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize)
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
@@ -99,7 +99,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
+    internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
 
     // Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
@@ -108,14 +108,14 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   {
     WindowData windowData;
     windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
+    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
     internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread)
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
@@ -124,7 +124,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
+    internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
 
     // Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
@@ -133,7 +133,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   {
     WindowData windowData;
     windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
+    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
     internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   }

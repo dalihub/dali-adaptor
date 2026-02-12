@@ -28,48 +28,6 @@ namespace Dali
 {
 namespace DevelWindow
 {
-Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent)
-{
-  return DevelWindow::New(surface, windowPosition, name, "", isTransparent);
-}
-
-Window New(Any surface, PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent)
-{
-  Window newWindow;
-
-  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
-  bool       isNewWindowAllowed = true;
-
-  if(isAdaptorAvailable)
-  {
-    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
-  }
-
-  if(isNewWindowAllowed)
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(windowPosition);
-    windowData.SetTransparency(isTransparent);
-    windowData.SetWindowType(WindowType::NORMAL);
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, name, className, windowData);
-
-    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
-    if(isAdaptorAvailable)
-    {
-      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
-    }
-    newWindow = Window(window);
-  }
-  else
-  {
-    DALI_LOG_ERROR("This device can't support multiple windows.\n");
-  }
-
-  return newWindow;
-}
-
 void SetPositionSize(Window window, PositionSize positionSize)
 {
   GetImplementation(window).SetPositionSize(positionSize);

@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ class Application;
  * Callbacks of all signals in DALi except the task signals are emitted on the UI thread. (e.g., Timer callbacks are emitted on the UI thread.)
  *
  * To enable the UI Thread, you can use this method. you have to set True to the useUiThread.
- * Dali::Application::New(int *argc, char **argv[], const std::string &stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread)
+ * Dali::Application::New(int *argc, char **argv[], const std::string &stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
  *
  *
  * This class accepts command line arguments as well. The following options are supported:
@@ -132,7 +132,7 @@ public:
    * @brief Enumeration for deciding whether a Dali application window is opaque or transparent.
    * @SINCE_1_0.0
    */
-  enum WINDOW_MODE
+  enum WindowOpacity
   {
     OPAQUE      = 0, ///< The window will be opaque @SINCE_1_0.0
     TRANSPARENT = 1  ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor() @SINCE_1_0.0
@@ -180,14 +180,14 @@ public:
    * @SINCE_1_0.0
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc        A pointer to the number of arguments
-   * @param[in,out]  argv        A pointer to the argument list
-   * @param[in]      stylesheet  The path to user defined theme file
-   * @param[in]      windowMode  A member of WINDOW_MODE
+   * @param[in,out]  argc          A pointer to the number of arguments
+   * @param[in,out]  argv          A pointer to the argument list
+   * @param[in]      stylesheet    The path to user defined theme file
+   * @param[in]      windowOpacity A member of WindowOpacity
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity);
 
   /**
    * @brief This is the constructor for applications.
@@ -195,15 +195,15 @@ public:
    * @SINCE_1_2.60
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc         A pointer to the number of arguments
-   * @param[in,out]  argv         A pointer to the argument list
-   * @param[in]      stylesheet   The path to user defined theme file
-   * @param[in]      windowMode   A member of WINDOW_MODE
-   * @param[in]      positionSize A position and a size of the window
+   * @param[in,out]  argc          A pointer to the number of arguments
+   * @param[in,out]  argv          A pointer to the argument list
+   * @param[in]      stylesheet    The path to user defined theme file
+   * @param[in]      windowOpacity A member of WindowOpacity
+   * @param[in]      positionSize  A position and a size of the window
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize);
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity, PositionSize positionSize);
 
   /**
    * @brief This is the constructor for applications.
@@ -211,18 +211,18 @@ public:
    * @SINCE_2_1.20
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc         A pointer to the number of arguments
-   * @param[in,out]  argv         A pointer to the argument list
-   * @param[in]      stylesheet   The path to user defined theme file
-   * @param[in]      windowMode   A member of WINDOW_MODE
-   * @param[in]      positionSize A position and a size of the window
+   * @param[in,out]  argc          A pointer to the number of arguments
+   * @param[in,out]  argv          A pointer to the argument list
+   * @param[in]      stylesheet    The path to user defined theme file
+   * @param[in]      windowOpacity A member of WindowOpacity
+   * @param[in]      positionSize  A position and a size of the window
    * @param[in]      useUiThread  True if the application would create a UI thread
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.<BR>
    * UI thread is an additional thread that DALi creates for UI events.
    * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread);
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread);
 
   /**
    * @brief This is the constructor for applications.
