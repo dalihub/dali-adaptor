@@ -526,7 +526,7 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
       return false;
     }
 
-    if(config.input.format == WEBP_LOSSLESS || config.input.has_alpha)
+    if(config.input.format == WEBP_LOSSLESS)
     {
       // Fallback for RGB(A) format
       return false;
@@ -544,7 +544,7 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
       height                       = size.GetHeight();
     }
 
-    config.output.colorspace         = MODE_YUV;
+    config.output.colorspace         = (!config.input.has_alpha) ? MODE_YUV : MODE_YUVA;
     config.output.is_external_memory = 1;
 
     int uvWidth  = (width + 1) / 2;
@@ -557,17 +557,35 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
     Dali::Devel::PixelBuffer uBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_U); // U Plane
     Dali::Devel::PixelBuffer vBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_V); // V Plane
 
+    Dali::Devel::PixelBuffer aBuffer;
+    if(config.input.has_alpha)
+    {
+      aBuffer = Dali::Devel::PixelBuffer::New(width, height, Dali::Pixel::A8);
+    }
+
     config.output.u.YUVA.y = yBuffer.GetBuffer();
     config.output.u.YUVA.u = uBuffer.GetBuffer();
     config.output.u.YUVA.v = vBuffer.GetBuffer();
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a = aBuffer.GetBuffer();
+    }
 
     config.output.u.YUVA.y_stride = width;
     config.output.u.YUVA.u_stride = uvWidth;
     config.output.u.YUVA.v_stride = uvWidth;
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a_stride = width;
+    }
 
     config.output.u.YUVA.y_size = ySize;
     config.output.u.YUVA.u_size = uvSize;
     config.output.u.YUVA.v_size = uvSize;
+    if(aBuffer)
+    {
+      config.output.u.YUVA.a_size = ySize;
+    }
 
     VP8StatusCode status = WebPDecode(mImpl->mBuffer, mImpl->mBufferSize, &config);
 
@@ -589,6 +607,10 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
       pixelBuffers.push_back(yBuffer);
       pixelBuffers.push_back(uBuffer);
       pixelBuffers.push_back(vBuffer);
+      if(aBuffer)
+      {
+        pixelBuffers.push_back(aBuffer);
+      }
       success = true;
     }
     else
