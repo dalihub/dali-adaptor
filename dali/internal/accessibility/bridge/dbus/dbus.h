@@ -105,6 +105,8 @@ struct DBusWrapper
   virtual MessagePtr     dbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg)                     = 0;
   virtual bool           dbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text)         = 0;
   virtual std::string    dbus_message_signature_get_impl(const MessagePtr& msg)                                           = 0;
+  virtual void           dbus_message_iter_pack_end_impl(const MessageIterPtr& it, const MessagePtr& msg)                 = 0;
+  virtual void           dbus_message_iter_container_close_impl(const MessageIterPtr& it)                                 = 0;
   // clang-format on
 
   using SendCallback = std::function<void(const MessagePtr& msg)>;
@@ -1348,6 +1350,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
   {
     auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
     signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::set(entry, args);
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1508,6 +1511,7 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
     {
       signature<A>::set(lst, a);
     }
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1548,6 +1552,7 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
     {
       signature<A>::set(lst, a);
     }
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1593,6 +1598,7 @@ struct signature<DbusVariant<A>> : signature_helper<signature<DbusVariant<A>>>
   {
     auto var = DBUS_W->dbus_message_iter_container_new_impl(iter, 'v', std::string{signature<A>::sig()});
     signature<A>::set(var, v);
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1635,6 +1641,7 @@ struct signature<std::unordered_map<A, B>> : signature_helper<signature<std::uno
     {
       signature<std::pair<A, B>>::set(lst, a, true);
     }
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1681,6 +1688,7 @@ struct signature<std::map<A, B>> : signature_helper<signature<std::map<A, B>>>
     {
       signature<std::pair<A, B>>::set(lst, a, true);
     }
+    DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
 
   /**
@@ -1818,6 +1826,7 @@ void packValues(CallId callId, const DBusWrapper::MessagePtr& msg, ARGS&&... r)
 {
   auto iter = DBUS_W->dbus_message_iter_get_impl(msg, true);
   packValues_helper(iter, std::forward<ARGS>(r)...);
+  DBUS_W->dbus_message_iter_pack_end_impl(iter, msg);
 }
 
 struct ConnectionState
