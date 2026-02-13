@@ -2000,6 +2000,15 @@ struct DbusArgGenerator_Helper<ValueOrError<>, void>
 };
 
 template<typename... ARGS>
+struct DbusArgGenerator_Helper<ValueOrError<ARGS...>, void>
+{
+  static void add(std::vector<std::pair<std::string, std::string>>& r)
+  {
+    DbusArgGenerator_Helper<ARGS..., void>::add(r);
+  }
+};
+
+template<typename... ARGS>
 struct DbusArgGenerator_Helper<std::tuple<ARGS...>>
 {
   static void add(std::vector<std::pair<std::string, std::string>>& r)
