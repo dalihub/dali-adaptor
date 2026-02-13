@@ -99,6 +99,7 @@ struct DBusWrapper
 #undef dbus_message_iter_arguments_append_impl_basic
 #undef dbus_message_iter_arguments_append_impl_basic_impl
 
+  virtual void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const std::string& v1, const std::string& v2) = 0;
   virtual MessageIterPtr dbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) = 0;
   virtual MessageIterPtr dbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type)                  = 0;
   virtual MessageIterPtr dbus_message_iter_get_impl(const MessagePtr& it, bool write)                                     = 0;
@@ -1463,8 +1464,25 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::pair<A, B>& ab, bool dictionary = false)
   {
-    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, dictionary ? 'e' : 'r', "");
-    signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+    if (dictionary) {
+      // Case of std::pair<key, value>.
+      if constexpr (std::is_same_v<A, std::string> && std::is_same_v<B, std::string>)
+      {
+        DBUS_W->dbus_message_iter_arguments_append_impl(iter, ab.first, ab.second);
+      }
+      else
+      {
+        auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'e', "");
+        signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+        DBUS_W->dbus_message_iter_container_close_impl(iter);
+      }
+    }
+    else
+    {
+      auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
+      signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+      DBUS_W->dbus_message_iter_container_close_impl(iter);
+    }
   }
 
   /**
