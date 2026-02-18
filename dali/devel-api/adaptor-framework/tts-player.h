@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -145,7 +146,7 @@ public: // API
    * @param[in] text The text to play
    * @pre The TtsPlayer needs to be initialized.
    */
-  void Play(const std::string& text);
+  void Play(const Dali::String& text);
 
   /**
    * @brief Stops playing the utterance.

@@ -19,7 +19,10 @@
 #include <dali/public-api/adaptor-framework/capture.h>
 
 // INTERNAL HEADER
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/system/common/capture-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -58,24 +61,24 @@ Capture::Capture(Capture&& rhs) noexcept = default;
 
 Capture& Capture::operator=(Capture&& rhs) noexcept = default;
 
-void Capture::Start(Actor source, const Vector2& position, const Vector2& size, const std::string& path, const Vector4& clearColor)
+void Capture::Start(Actor source, const Vector2& position, const Vector2& size, const Dali::String& path, const Vector4& clearColor)
 {
-  GetImpl(*this).Start(source, position, size, path, clearColor);
+  GetImpl(*this).Start(source, position, size, ToStdString(path), clearColor);
 }
 
-void Capture::Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor, const uint32_t quality)
+void Capture::Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, const uint32_t quality)
 {
-  GetImpl(*this).Start(source, Vector2::ZERO, size, path, clearColor, quality);
+  GetImpl(*this).Start(source, Vector2::ZERO, size, ToStdString(path), clearColor, quality);
 }
 
-void Capture::Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor)
+void Capture::Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor)
 {
-  GetImpl(*this).Start(source, Vector2::ZERO, size, path, clearColor);
+  GetImpl(*this).Start(source, Vector2::ZERO, size, ToStdString(path), clearColor);
 }
 
-void Capture::Start(Actor source, const Vector2& size, const std::string& path)
+void Capture::Start(Actor source, const Vector2& size, const Dali::String& path)
 {
-  GetImpl(*this).Start(source, Vector2::ZERO, size, path, Dali::Color::TRANSPARENT);
+  GetImpl(*this).Start(source, Vector2::ZERO, size, ToStdString(path), Dali::Color::TRANSPARENT);
 }
 
 void Capture::SetImageQuality(uint32_t quality)

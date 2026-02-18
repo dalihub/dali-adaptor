@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/stream-operators.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
 #include <iomanip>
@@ -41,8 +43,11 @@ using Dali::Property;
 using Dali::Renderer;
 using Dali::RenderTask;
 using Dali::RenderTaskList;
+using Dali::String;
 using Dali::VisualRenderer;
 using Dali::Window;
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 using namespace Dali::DevelFrameBuffer;
 
 namespace // un-named namespace
@@ -148,7 +153,7 @@ void SetProperty(Dali::Handle handle, int propertyId, JsonPropertyValue& propert
     }
     case Dali::Property::STRING:
     {
-      std::string str = propertyValue.GetString();
+      Dali::String str = ToDaliString(propertyValue.GetString());
       handle.SetProperty(propertyId, Dali::Property::Value(str));
       break;
     }
@@ -199,7 +204,7 @@ int SetProperties(const std::string& setPropertyMessage)
       if(a)
       {
         // lookup by name for custom properties
-        int propId = a.GetPropertyIndex(propName);
+        int propId = a.GetPropertyIndex(ToDaliString(propName));
         if(propId > 0)
         {
           JsonPropertyValue pv(propValue);
@@ -239,6 +244,11 @@ void MatrixToStream(Property::Value value, std::ostream& o)
 inline std::string Quote(const std::string& in)
 {
   return (std::string("\"") + in + std::string("\""));
+}
+
+inline std::string QuoteS(const Dali::String& in)
+{
+  return ToStdString(String("\"") + in + String("\""));
 }
 
 template<class T>
@@ -322,7 +332,7 @@ std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
 void AppendPropertyNameAndValue(Dali::Handle handle, int propertyIndex, std::ostringstream& outputStream)
 {
   // get the property name and the value as a string
-  std::string propertyName(handle.GetPropertyName(propertyIndex));
+  Dali::String propertyName(handle.GetPropertyName(propertyIndex));
 
   // Apply quotes around the property name
   outputStream << "\"" << propertyName << "\""
@@ -337,7 +347,7 @@ void AppendPropertyNameAndValue(Dali::Handle handle, int propertyIndex, std::ost
 void AppendPropertyAsObject(Dali::Handle handle, int propertyIndex, std::ostringstream& outputStream)
 {
   // get the property name and the value as a string
-  std::string propertyName(handle.GetPropertyName(propertyIndex));
+  Dali::String propertyName(handle.GetPropertyName(propertyIndex));
 
   // Apply quotes around the property name
   outputStream << "{\"" << propertyName << "\":";
@@ -352,7 +362,7 @@ void AppendRendererPropertyNameAndValue(Dali::Renderer renderer, int rendererInd
 {
   outputStream << ",[\"renderer[" << rendererIndex << "]." << name << "\""
                << ",";
-  std::string valueString = GetPropertyValueString(renderer, renderer.GetPropertyIndex(name));
+  std::string valueString = GetPropertyValueString(renderer, renderer.GetPropertyIndex(ToDaliString(name)));
   outputStream << "\"" << valueString << "\"]";
 }
 
@@ -387,7 +397,7 @@ std::string DumpJson(Dali::Actor actor, int level)
   // All the information about this actor
   std::ostringstream msg;
   int                id = actor["id"];
-  msg << "{ " << Quote("Name") << " : " << Quote(actor.GetProperty<std::string>(Dali::Actor::Property::NAME)) << ", " << Quote("level") << " : " << level << ", " << Quote("id") << " : " << id << ", " << Quote("IsVisible")
+  msg << "{ " << Quote("Name") << " : " << QuoteS(actor.GetProperty<Dali::String>(Dali::Actor::Property::NAME)) << ", " << Quote("level") << " : " << level << ", " << Quote("id") << " : " << id << ", " << Quote("IsVisible")
       << " : " << actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) << ", " << Quote("IsSensitive") << " : " << actor.GetProperty<bool>(Dali::Actor::Property::SENSITIVE);
 
   msg << ", " << Quote("properties") << ": [ ";
@@ -501,7 +511,7 @@ void DumpRenderTaskList(std::ostringstream& msg, RenderTaskList tasks)
     msg << "{";
     msg << "\"RenderTaskId\":" << renderTask.GetRenderTaskId() << ",\n";
     Actor src = renderTask.GetSourceActor();
-    msg << "\"SourceActor\":\"" << src.GetProperty<std::string>(Actor::Property::NAME) << "[" << src.GetProperty<int>(Actor::Property::ID) << "]" << "\",\n";
+    msg << "\"SourceActor\":\"" << src.GetProperty<Dali::String>(Actor::Property::NAME) << "[" << src.GetProperty<int>(Actor::Property::ID) << "]" << "\",\n";
     if(src.GetProperty<bool>(Actor::Property::IS_LAYER))
     {
       Dali::Layer srcLayer = Layer::DownCast(src);

@@ -30,7 +30,7 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
-const char* const SIGNAL_SOUND_PLAY_FINISHED = "soundPlayFinished";
+static const char* SIGNAL_SOUND_PLAY_FINISHED("soundPlayFinished");
 
 // Type Registration
 Dali::BaseHandle GetInstance()
@@ -40,7 +40,7 @@ Dali::BaseHandle GetInstance()
 
 Dali::TypeRegistration SOUND_PLAYER_TYPE(typeid(Dali::SoundPlayer), typeid(Dali::BaseHandle), GetInstance);
 
-Dali::SignalConnectorType SIGNAL_CONNECTOR_1(SOUND_PLAYER_TYPE, SIGNAL_SOUND_PLAY_FINISHED, Dali::Internal::Adaptor::SoundPlayer::DoConnectSignal);
+Dali::SignalConnectorType SIGNAL_CONNECTOR_1(SOUND_PLAYER_TYPE, Dali::String(SIGNAL_SOUND_PLAY_FINISHED), Dali::Internal::Adaptor::SoundPlayer::DoConnectSignal);
 
 } // unnamed namespace
 
@@ -89,12 +89,12 @@ SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
   return mSoundPlayFinishedSignal;
 }
 
-bool SoundPlayer::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
+bool SoundPlayer::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const Dali::String& signalName, FunctorDelegate* functor)
 {
   bool         connected(true);
   SoundPlayer* player = dynamic_cast<SoundPlayer*>(object);
 
-  if(player && (SIGNAL_SOUND_PLAY_FINISHED == signalName))
+  if(player && (signalName == String(SIGNAL_SOUND_PLAY_FINISHED)))
   {
     player->SoundPlayFinishedSignal().Connect(tracker, functor);
   }

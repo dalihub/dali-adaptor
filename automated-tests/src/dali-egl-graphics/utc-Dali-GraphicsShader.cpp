@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,9 +92,9 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
 {
   TestGraphicsApplication application;
 
-  std::string vertexShader =
+  Dali::String vertexShader(
     "//@version 100\n"
-    "some code\n";
+    "some code\n");
 
   auto vertexPrefix = Dali::Shader::GetVertexShaderPrefix();
 
@@ -102,11 +102,11 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
     Dali::Graphics::ShaderCreateInfo info;
     info.SetPipelineStage(Dali::Graphics::PipelineStage::VERTEX_SHADER);
 
-    std::string prefixedVertexShader = Dali::Shader::GetVertexShaderPrefix() + vertexShader;
+    Dali::String prefixedVertexShader = Dali::Shader::GetVertexShaderPrefix() + vertexShader;
 
     info.SetShaderVersion(100);
-    info.SetSourceData(prefixedVertexShader.data());
-    info.SetSourceSize(prefixedVertexShader.size());
+    info.SetSourceData(&prefixedVertexShader.CStr()[0]);
+    info.SetSourceSize(prefixedVertexShader.Size());
     info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
 
     size_t   dataSize  = 0;
@@ -114,10 +114,10 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
     uint32_t version;
     Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, version, dataSize);
 
-    DALI_TEST_EQUALS(dataIndex, vertexPrefix.length(), TEST_LOCATION);
+    DALI_TEST_EQUALS(dataIndex, vertexPrefix.Size(), TEST_LOCATION);
 
     // should match original shader size
-    DALI_TEST_EQUALS(dataSize, vertexShader.size(), TEST_LOCATION);
+    DALI_TEST_EQUALS(dataSize, vertexShader.Size(), TEST_LOCATION);
   }
 
   END_TEST;

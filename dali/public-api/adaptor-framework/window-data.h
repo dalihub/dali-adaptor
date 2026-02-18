@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -130,7 +131,7 @@ public:
    * @SINCE_2_4.35
    * @param[in] screen The name of the screen to set
    */
-  void SetScreen(const std::string& screen);
+  void SetScreen(const Dali::String& screen);
 
   /**
    * @brief Gets the screen
@@ -138,7 +139,7 @@ public:
    * @SINCE_2_4.35
    * @return screen name
    */
-  std::string GetScreen() const;
+  Dali::String GetScreen() const;
 
 private:
   struct Impl;

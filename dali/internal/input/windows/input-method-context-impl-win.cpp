@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -337,7 +337,7 @@ bool InputMethodContextWin::FilterEventKey(const Dali::KeyEvent& keyEvent)
 {
   bool eventHandled(false);
 
-  if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().c_str()))
+  if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().CStr()))
   {
     //check whether it's key down or key up event
     if(keyEvent.GetState() == Dali::KeyEvent::DOWN)

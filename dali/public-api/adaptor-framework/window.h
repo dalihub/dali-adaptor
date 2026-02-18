@@ -29,7 +29,6 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -92,7 +91,7 @@ public:
    * @return A new window
    * @note This creates an extra window in addition to the default main window
    */
-  static Window New(PositionSize windowPosition, const std::string& name, bool isTransparent = false);
+  static Window New(PositionSize windowPosition, const Dali::String& name, bool isTransparent = false);
 
   /**
    * @brief Creates an initialized handle to a new Window.
@@ -103,7 +102,7 @@ public:
    * @note This creates an extra window in addition to the default main window
    * @return A new Window
    */
-  static Window New(const std::string& name, const std::string& className, const WindowData& windowData);
+  static Window New(const Dali::String& name, const Dali::String& className, const WindowData& windowData);
 
   /**
    * @brief Creates an uninitialized handle.
@@ -257,7 +256,7 @@ public:
    * @param[in] name The name of the window
    * @param[in] klass The class of the window
    */
-  void SetClass(std::string name, std::string klass);
+  void SetClass(Dali::String name, Dali::String klass);
 
   /**
    * @brief Raises window to the top of Window stack.
@@ -371,7 +370,7 @@ public:
    * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
    * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
    */
-  std::string GetSupportedAuxiliaryHint(unsigned int index) const;
+  Dali::String GetSupportedAuxiliaryHint(unsigned int index) const;
 
   /**
    * @brief Creates an auxiliary hint of the window.
@@ -380,7 +379,7 @@ public:
    * @param[in] value The value string.
    * @return The ID of created auxiliary hint, or @c 0 on failure.
    */
-  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value);
+  unsigned int AddAuxiliaryHint(const Dali::String& hint, const Dali::String& value);
 
   /**
    * @brief Removes an auxiliary hint of the window.
@@ -397,7 +396,7 @@ public:
    * @param[in] value The value string to be set.
    * @return True if no error occurred, false otherwise.
    */
-  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value);
+  bool SetAuxiliaryHintValue(unsigned int id, const Dali::String& value);
 
   /**
    * @brief Gets a value of the auxiliary hint.
@@ -405,7 +404,7 @@ public:
    * @param[in] id The auxiliary hint ID.
    * @return The string value of the auxiliary hint ID, or an empty string if none exists.
    */
-  std::string GetAuxiliaryHintValue(unsigned int id) const;
+  Dali::String GetAuxiliaryHintValue(unsigned int id) const;
 
   /**
    * @brief Gets a ID of the auxiliary hint string.
@@ -413,7 +412,7 @@ public:
    * @param[in] hint The auxiliary hint string.
    * @return The ID of the auxiliary hint string, or @c 0 if none exists.
    */
-  unsigned int GetAuxiliaryHintId(const std::string& hint) const;
+  unsigned int GetAuxiliaryHintId(const Dali::String& hint) const;
 
   /**
    * @brief Sets a region to accept input events.

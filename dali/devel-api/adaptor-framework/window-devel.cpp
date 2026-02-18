@@ -22,7 +22,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/window-impl.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -202,7 +206,17 @@ void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent)
 
 void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  Integration::KeyEvent convertedEvent(ToDaliString(keyEvent.GetKeyName()),
+                                       ToDaliString(keyEvent.GetLogicalKey()),
+                                       ToDaliString(keyEvent.GetKeyString()),
+                                       keyEvent.GetKeyCode(),
+                                       keyEvent.GetKeyModifier(),
+                                       keyEvent.GetTime(),
+                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
+                                       keyEvent.GetCompose(),
+                                       ToDaliString(keyEvent.GetDeviceName()),
+                                       keyEvent.GetDeviceClass(),
+                                       keyEvent.GetDeviceSubclass());
   convertedEvent.receiveTime = keyEvent.GetReceiveTime();
   GetImplementation(window).FeedKeyEvent(convertedEvent);
 }

@@ -1,8 +1,8 @@
-#ifndef DALI_INPUT_MEHTOD_H
-#define DALI_INPUT_MEHTOD_H
+#ifndef DALI_INPUT_METHOD_H
+#define DALI_INPUT_METHOD_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,4 +216,4 @@ enum Type
  */
 } // namespace Dali
 
-#endif // DALI_INPUT_MEHTOD_H
+#endif // DALI_INPUT_METHOD_H

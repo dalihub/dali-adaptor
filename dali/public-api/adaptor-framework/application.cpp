@@ -20,10 +20,14 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -50,33 +54,33 @@ Application Application::New(int* argc, char** argv[])
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet)
+Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
   {
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+    internal->SetStyleSheet(ToStdString(stylesheet)); //@todo THis is now a copy...
   }
   else
   {
     WindowData windowData;
     windowData.SetTransparency(false);
 
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity)
+Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
   {
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+    internal->SetStyleSheet(ToStdString(stylesheet));
 
     internal->GetWindow().SetTransparency((windowOpacity == Application::TRANSPARENT));
   }
@@ -85,19 +89,19 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     WindowData windowData;
     windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize)
+Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
   {
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+    internal->SetStyleSheet(ToStdString(stylesheet));
 
     internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
 
@@ -110,19 +114,19 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     windowData.SetPositionSize(positionSize);
     windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
+Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
   {
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+    internal->SetStyleSheet(ToStdString(stylesheet));
 
     internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
 
@@ -135,19 +139,19 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     windowData.SetPositionSize(positionSize);
     windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
 
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   }
   return Application(internal.Get());
 }
 
-Application Application::New(int* argc, char** argv[], const std::string& stylesheet, bool useUiThread, WindowData& windowData)
+Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, bool useUiThread, WindowData& windowData)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
   if(internal)
   {
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
+    internal->SetStyleSheet(ToStdString(stylesheet));
 
     // Set defaut Window type
     internal->SetDefaultWindowType(windowData.GetWindowType());
@@ -160,11 +164,11 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->StoreFrontBufferRendering(windowData.GetFrontBufferRendering());
 
     // Set screen for default window
-    internal->StoreWindowScreen(windowData.GetScreen());
+    internal->StoreWindowScreen(ToStdString(windowData.GetScreen()));
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   }
   return Application(internal.Get());
 }
@@ -210,19 +214,19 @@ Window Application::GetWindow()
   return Internal::Adaptor::GetImplementation(*this).GetWindow();
 }
 
-std::string Application::GetResourcePath()
+Dali::String Application::GetResourcePath()
 {
-  return Internal::Adaptor::Application::GetResourcePath();
+  return ToDaliString(Internal::Adaptor::Application::GetResourcePath());
 }
 
-std::string Application::GetRegion() const
+Dali::String Application::GetRegion() const
 {
-  return Internal::Adaptor::GetImplementation(*this).GetRegion();
+  return ToDaliString(Internal::Adaptor::GetImplementation(*this).GetRegion());
 }
 
-std::string Application::GetLanguage() const
+Dali::String Application::GetLanguage() const
 {
-  return Internal::Adaptor::GetImplementation(*this).GetLanguage();
+  return ToDaliString(Internal::Adaptor::GetImplementation(*this).GetLanguage());
 }
 
 ObjectRegistry Application::GetObjectRegistry() const

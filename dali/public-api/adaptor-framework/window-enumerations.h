@@ -45,7 +45,7 @@ enum class WindowOrientation
  * The default window type is NORMAL. If application does not set the specific window type, this type will be set.
  *
  * Ime window type is special type. It can only set by one Application::New function.
- * The fuction is "New(int* argc, char** argv[], const std::string& stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, WindowType type)".
+ * The fuction is "New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, WindowType type)".
  * Ime window type can not set by Window::SetType().
  *
  * @SINCE_2_0.0

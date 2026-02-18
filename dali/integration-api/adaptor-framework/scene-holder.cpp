@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,15 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/public-api/actors/layer.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -103,7 +106,17 @@ void SceneHolder::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 
 void SceneHolder::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent event(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  Integration::KeyEvent event(keyEvent.GetKeyName(),
+                              keyEvent.GetLogicalKey(),
+                              keyEvent.GetKeyString(),
+                              keyEvent.GetKeyCode(),
+                              keyEvent.GetKeyModifier(),
+                              keyEvent.GetTime(),
+                              static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
+                              keyEvent.GetCompose(),
+                              keyEvent.GetDeviceName(),
+                              keyEvent.GetDeviceClass(),
+                              keyEvent.GetDeviceSubclass());
   event.receiveTime = keyEvent.GetReceiveTime();
   GetImplementation(*this).FeedKeyEvent(event);
 }

@@ -34,6 +34,7 @@
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
@@ -42,6 +43,8 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -61,7 +64,7 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
   Window* window                  = new Window();
   window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen(), isUsePreLoader);
+  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
   return window;
 }
 
@@ -1123,7 +1126,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  mLastKeyEvent = Dali::DevelKeyEvent::New(ToStdString(keyEvent.keyName), ToStdString(keyEvent.logicalKey), ToStdString(keyEvent.keyString), keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), ToStdString(keyEvent.compose), ToStdString(keyEvent.deviceName), keyEvent.deviceClass, keyEvent.deviceSubclass);
   DevelKeyEvent::SetWindowId(mLastKeyEvent, keyEvent.windowId);
   FeedKeyEvent(keyEvent);
 }

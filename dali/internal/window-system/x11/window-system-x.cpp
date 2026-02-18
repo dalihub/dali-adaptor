@@ -394,9 +394,11 @@ void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent,
   char*  keyname   = XKeysymToString(keySymbol);
   if(!keyname)
   {
-    asprintf(&keyname, "Keycode-%i", xKeyEvent->keycode);
-    keyEvent.keyname = keyname;
-    free(keyname);
+    if(0 <= asprintf(&keyname, "Keycode-%i", xKeyEvent->keycode))
+    {
+      keyEvent.keyname = keyname;
+      free(keyname);
+    }
   }
   else
   {

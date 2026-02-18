@@ -218,14 +218,14 @@ public:
   int GetTextureTarget() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string&)
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader)
    */
-  bool ApplyNativeFragmentShader(std::string& shader) override;
+  bool ApplyNativeFragmentShader(Dali::String& shader) override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string&, int)
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader, int mask);
    */
-  bool ApplyNativeFragmentShader(std::string& shader, int mask) override;
+  bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()

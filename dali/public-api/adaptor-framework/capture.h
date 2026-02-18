@@ -21,6 +21,7 @@
 // EXTERNAL HEADERS
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/rendering/texture.h>
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -199,7 +200,7 @@ public:
    *       in this case, if source is root of scene, the captured image includes a part of actor 'B' on the 'A'.
    *       however, if source is just actor 'A', the result includes only 'A'.
    */
-  void Start(Actor source, const Vector2& position, const Vector2& size, const std::string& path, const Vector4& clearColor);
+  void Start(Actor source, const Vector2& position, const Vector2& size, const Dali::String& path, const Vector4& clearColor);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -214,7 +215,7 @@ public:
    * @param[in] clearColor background color of captured scene
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
-  void Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor, const uint32_t quality);
+  void Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor, const uint32_t quality);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -228,7 +229,7 @@ public:
    *            If path is empty string, the captured result is not be saved as a file.
    * @param[in] clearColor background color of captured scene
    */
-  void Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor);
+  void Start(Actor source, const Vector2& size, const Dali::String& path, const Vector4& clearColor);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -242,7 +243,7 @@ public:
    *            If path is empty string, the captured result is not be saved as a file.
    * @note Clear color is transparent.
    */
-  void Start(Actor source, const Vector2& size, const std::string& path);
+  void Start(Actor source, const Vector2& size, const Dali::String& path);
 
   /**
    * @brief Set result image quality in case of jpeg

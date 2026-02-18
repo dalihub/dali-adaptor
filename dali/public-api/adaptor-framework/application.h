@@ -104,7 +104,7 @@ class Application;
  * Callbacks of all signals in DALi except the task signals are emitted on the UI thread. (e.g., Timer callbacks are emitted on the UI thread.)
  *
  * To enable the UI Thread, you can use this method. you have to set True to the useUiThread.
- * Dali::Application::New(int *argc, char **argv[], const std::string &stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
+ * Dali::Application::New(int *argc, char **argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
  *
  *
  * This class accepts command line arguments as well. The following options are supported:
@@ -172,7 +172,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet);
 
   /**
    * @brief This is the constructor for applications with a name.
@@ -187,7 +187,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity);
 
   /**
    * @brief This is the constructor for applications.
@@ -203,7 +203,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity, PositionSize positionSize);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize);
 
   /**
    * @brief This is the constructor for applications.
@@ -222,7 +222,7 @@ public:
    * UI thread is an additional thread that DALi creates for UI events.
    * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread);
 
   /**
    * @brief This is the constructor for applications.
@@ -240,7 +240,7 @@ public:
    * UI thread is an additional thread that DALi creates for UI events.
    * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
    */
-  static Application New(int* argc, char** argv[], const std::string& stylesheet, bool useUiThread, WindowData& windowData);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, bool useUiThread, WindowData& windowData);
 
   /**
    * @brief Constructs an empty handle.
@@ -346,7 +346,7 @@ public:
    * @SINCE_1_2.2
    * @return the full path of the resources
    */
-  static std::string GetResourcePath();
+  static Dali::String GetResourcePath();
 
   /**
    * @brief This is used to get region information from device.
@@ -354,7 +354,7 @@ public:
    * @SINCE_1_2.62
    * @return Region information
    */
-  std::string GetRegion() const;
+  Dali::String GetRegion() const;
 
   /**
    * @brief This is used to get language information from device.
@@ -362,7 +362,7 @@ public:
    * @SINCE_1_2.62
    * @return Language information
    */
-  std::string GetLanguage() const;
+  Dali::String GetLanguage() const;
 
   /**
    * @brief Gets the Object registry.
