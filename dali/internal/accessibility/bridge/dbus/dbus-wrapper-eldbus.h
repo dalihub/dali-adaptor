@@ -16,6 +16,9 @@
 #ifndef DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_WRAPPER_ELDBUS_H
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_WRAPPER_ELDBUS_H
 
+#include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus.h>
+
 // EXTERNAL INCLUDES
 #include <Ecore_Input.h>
 #include <Eldbus.h>
