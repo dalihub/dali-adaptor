@@ -58,7 +58,7 @@ void OffscreenRenderSurfaceEgl::OnAdaptorSet(Dali::RenderTask renderTask)
   mRenderTask = renderTask;
 }
 
-void OffscreenRenderSurfaceEgl::SetNativeImage(NativeImageSourcePtr nativeImage)
+void OffscreenRenderSurfaceEgl::SetNativeImage(Dali::NativeImageInterfacePtr nativeImage)
 {
   mNativeImage = nativeImage;
 
@@ -79,6 +79,11 @@ void OffscreenRenderSurfaceEgl::SetNativeImage(NativeImageSourcePtr nativeImage)
   mFrameBuffer.AttachColorTexture(mNativeTexture);
 
   DALI_LOG_INFO(gOffscreenSurfaceLogFilter, Debug::Verbose, "Native image [%d x %d]\n", mNativeImage->GetWidth(), mNativeImage->GetHeight());
+}
+
+Dali::NativeImageInterfacePtr OffscreenRenderSurfaceEgl::GetNativeImage() const
+{
+  return mNativeImage;
 }
 
 void OffscreenRenderSurfaceEgl::AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback)

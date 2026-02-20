@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/images/native-image-interface.h>
 
 namespace Dali
 {
@@ -77,18 +77,28 @@ public: // API
   virtual void OnAdaptorSet(Dali::RenderTask renderTask) = 0;
 
   /**
-   * @brief Sets the native image source to be rendered into
+   * @brief Sets the native image interface to be rendered into
    *
-   * Configures the offscreen surface to render into the provided native image source.
+   * Configures the offscreen surface to render into the provided native image interface.
    * This allows the rendered content to be accessed as pixel data for further
    * processing, saving to files, or other programmatic uses.
    *
    * The implementation should configure the graphics API render target to render into
    * the native image's underlying texture or buffer.
    *
-   * @param [in] nativeImage Shared pointer to the native image source that will receive rendered pixels
+   * @param [in] nativeImage Shared pointer to the native image interface that will receive rendered pixels
    */
-  virtual void SetNativeImage(NativeImageSourcePtr nativeImage) = 0;
+  virtual void SetNativeImage(Dali::NativeImageInterfacePtr nativeImage) = 0;
+
+  /**
+   * @brief Gets the currently set native image interface
+   *
+   * Returns the native image interface that is currently set as the render target
+   * for this offscreen surface.
+   *
+   * @return Shared pointer to the currently set native image interface
+   */
+  virtual Dali::NativeImageInterfacePtr GetNativeImage() const = 0;
 
   /**
    * @brief Adds a callback to be executed synchronously after each render frame completes

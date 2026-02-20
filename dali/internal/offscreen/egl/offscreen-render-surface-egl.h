@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_EGL_OFFSCREEN_RENDER_SURFACE_EGL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,12 @@ public: // from Dali::Internal::Adaptor::OffscreenRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::SetNativeImage()
    */
-  void SetNativeImage(NativeImageSourcePtr nativeImage) override;
+  void SetNativeImage(Dali::NativeImageInterfacePtr nativeImage) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::GetNativeImage()
+   */
+  Dali::NativeImageInterfacePtr GetNativeImage() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::AddPostRenderSyncCallback()
@@ -190,7 +195,7 @@ private: // Data
   Dali::FrameBuffer mFrameBuffer{};
   Dali::Texture     mNativeTexture{};
 
-  NativeImageSourcePtr                 mNativeImage{};
+  Dali::NativeImageInterfacePtr        mNativeImage{};
   TriggerEventFactory::TriggerEventPtr mPostRenderTrigger{};
   std::unique_ptr<CallbackBase>        mPostRenderSyncCallback{};
   std::unique_ptr<CallbackBase>        mPostRenderAsyncCallback{};

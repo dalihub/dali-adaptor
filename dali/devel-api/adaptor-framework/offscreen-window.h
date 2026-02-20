@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_WINDOW_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/images/native-image-interface.h>
 
 namespace Dali
 {
@@ -149,18 +149,28 @@ public:
 
 public:
   /**
-   * @brief Sets the native image source for capturing rendered content
+   * @brief Sets the native image interface for capturing rendered content
    *
-   * This method allows you to specify a NativeImageSource where the offscreen
+   * This method allows you to specify a NativeImageInterface where the offscreen
    * rendered content will be stored.
    *
    * IMPORTANT: This method MUST be called BEFORE OffscreenApplication::Start() to
-   * ensure the render target is properly configured. The native image source
+   * ensure the render target is properly configured. The native image interface
    * determines where the rendered content will be stored.
    *
-   * @param [in] nativeImage Shared pointer to the native image source that will receive the rendered content
+   * @param [in] nativeImage Shared pointer to the native image interface that will receive the rendered content
    */
-  void SetNativeImage(NativeImageSourcePtr nativeImage);
+  void SetNativeImage(Dali::NativeImageInterfacePtr nativeImage);
+
+  /**
+   * @brief Gets the currently set native image interface
+   *
+   * Returns the native image interface that is currently set as the render target
+   * for this OffscreenWindow.
+   *
+   * @return Shared pointer to the currently set native image interface
+   */
+  Dali::NativeImageInterfacePtr GetNativeImage() const;
 
   /**
    * @brief Adds a child Actor to the OffscreenWindow.

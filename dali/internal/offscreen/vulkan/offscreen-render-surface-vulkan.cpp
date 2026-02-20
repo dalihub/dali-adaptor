@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,14 @@ void OffscreenRenderSurfaceVulkan::OnAdaptorSet(Dali::RenderTask renderTask)
 {
 }
 
-void OffscreenRenderSurfaceVulkan::SetNativeImage(NativeImageSourcePtr nativeImage)
+void OffscreenRenderSurfaceVulkan::SetNativeImage(Dali::NativeImageInterfacePtr nativeImage)
 {
+  mNativeImage = nativeImage;
+}
+
+Dali::NativeImageInterfacePtr OffscreenRenderSurfaceVulkan::GetNativeImage() const
+{
+  return mNativeImage;
 }
 
 void OffscreenRenderSurfaceVulkan::AddPostRenderSyncCallback(std::unique_ptr<CallbackBase> callback)
