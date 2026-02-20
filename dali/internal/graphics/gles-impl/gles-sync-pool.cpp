@@ -61,10 +61,14 @@ struct SyncPool::SharedSyncObject::Impl
     {
       Internal::Adaptor::NativeFence::CloseFD(fenceFd);
     }
-
     if(eglSyncObject)
     {
-      controller.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
+      if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+      {
+        // TODO : ~Impl could be called from any thread.
+        // Could we guarentee that graphics controller is still valid at this moment?
+        controller.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
+      }
     }
 
     DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "SyncPool::SharedSyncObject::~Impl: [%p]\n", this);
@@ -105,16 +109,19 @@ struct SyncPool::SharedSyncObject::Impl
 
     if(eglSyncObject)
     {
-      DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "ClientWait() [%p]\n", this);
-      eglSyncObject->ClientWait();
-      synced = true;
+      if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
+      {
+        DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "ClientWait() [%p]\n", this);
+        eglSyncObject->ClientWait();
+        synced = true;
 
-      controller.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
+        controller.GetEglSyncImplementation().DestroySyncObject(eglSyncObject);
+      }
       eglSyncObject = nullptr;
     }
     else
     {
-      Poll();
+      PollWithoutLock();
     }
 
     DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "ClientWait(); Result: %s\n", synced ? "Synced" : "NOT SYNCED");
@@ -126,6 +133,18 @@ struct SyncPool::SharedSyncObject::Impl
   {
     Dali::Mutex::ScopedLock lock(mutex);
 
+    return PollWithoutLock();
+  }
+
+  bool IsFenceFdSupported()
+  {
+    return fenceFd == -1 ? false : true;
+  }
+
+private:
+  // Should be called with mutex lock
+  bool PollWithoutLock()
+  {
     if(synced)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "Already synced [%d]\n", fenceFd);
@@ -149,11 +168,7 @@ struct SyncPool::SharedSyncObject::Impl
     return synced;
   }
 
-  bool IsFenceFdSupported()
-  {
-    return fenceFd == -1 ? false : true;
-  }
-
+public:
   EglGraphicsController&            controller;
   const Context*                    context{nullptr};
   Internal::Adaptor::EglSyncObject* eglSyncObject{nullptr};
