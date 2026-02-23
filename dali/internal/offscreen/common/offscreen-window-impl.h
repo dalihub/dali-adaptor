@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,12 @@ public:
   /**
    * @copydoc Dali::OffscreenWindow::SetNativeImage
    */
-  void SetNativeImage(NativeImageSourcePtr nativeImage);
+  void SetNativeImage(Dali::NativeImageInterfacePtr nativeImage);
+
+  /**
+   * @copydoc Dali::OffscreenWindow::GetNativeImage
+   */
+  Dali::NativeImageInterfacePtr GetNativeImage() const;
 
   /**
    * @copydoc Dali::OffscreenWindow::GetSize
@@ -95,16 +100,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void Initialize();
 
 private:
-  /**
-   * Private constructor
-   *
-   * @param[in] surface The native surface handle
-   */
-  OffscreenWindow(NativeImageSourcePtr nativeImage);
-
   // Undefined
-  OffscreenWindow(const OffscreenWindow&);
-  OffscreenWindow& operator=(OffscreenWindow&);
+  OffscreenWindow(const OffscreenWindow&)            = delete;
+  OffscreenWindow(OffscreenWindow&&)                 = delete;
+  OffscreenWindow& operator=(const OffscreenWindow&) = delete;
+  OffscreenWindow& operator=(OffscreenWindow&&)      = delete;
 
   /**
    * @brief PostRenderSyncCallback
