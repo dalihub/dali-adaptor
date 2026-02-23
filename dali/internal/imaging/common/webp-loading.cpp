@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -593,13 +593,24 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
     if(status == VP8_STATUS_OK)
     {
       // Black correction.
+      //
+      // WebP use 16 ~ 235 range for Y, and 16 ~ 240 range for UV.
+      // (Because WebP YUV convertor works as RGB-to-YUV conversion internally.)
+      //
+      // To support full-black and full-white,
+      // We should re-arrange the Y variables as 0 ~ 255 range.
+      //
+      // newY = 255 / 219 * (Y - 16) = 298.0822 / 256 * (Y - 16) ~= (298 * (Y - 16)) >> 8
+      //
+      // reference : https://en.wikipedia.org/wiki/YCbCr
       uint8_t* yData = yBuffer.GetBuffer();
       for(uint32_t i = 0; i < ySize; ++i)
       {
-        int32_t y = static_cast<int32_t>(yData[i]);
-        y     = std::max(0, y - 16);
-        y     = (y * 298 + 128) >> 8;
-        y     = std::min(255, y);
+        uint32_t y = static_cast<uint32_t>(yData[i]);
+
+        y = DALI_LIKELY(y & (~0x0f)) ? (y - 16u) : 0u; // std::max(0, y - 16)
+        y = (y * 298 + 128) >> 8;
+        y = DALI_UNLIKELY(y & (~0xff)) ? 255u : y; // std::min(255, y)
 
         yData[i] = static_cast<uint8_t>(y);
       }
