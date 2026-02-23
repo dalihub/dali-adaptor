@@ -64,7 +64,11 @@ RadialGradient::~RadialGradient()
 void RadialGradient::Initialize()
 {
 #ifdef THORVG_SUPPORT
+#ifdef THORVG_VERSION_1
+  mTvgRadialGradient = tvg::RadialGradient::gen();
+#else
   mTvgRadialGradient = tvg::RadialGradient::gen().release();
+#endif
   if(!mTvgRadialGradient)
   {
     DALI_LOG_ERROR("RadialGradient is null [%p]\n", this);
@@ -83,7 +87,11 @@ bool RadialGradient::SetBounds(Vector2 centerPoint, float radius)
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  if(mTvgRadialGradient->radial(centerPoint.x, centerPoint.y, radius, centerPoint.x, centerPoint.y, 0) != tvg::Result::Success)
+#else
   if(mTvgRadialGradient->radial(centerPoint.x, centerPoint.y, radius) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("SetBounds() fail.\n");
     return false;
@@ -106,7 +114,11 @@ bool RadialGradient::GetBounds(Vector2& centerPoint, float& radius) const
     return false;
   }
 
+#ifdef THORVG_VERSION_1
+  if(mTvgRadialGradient->radial(&centerPoint.x, &centerPoint.y, &radius, &centerPoint.x, &centerPoint.y, nullptr) != tvg::Result::Success)
+#else
   if(mTvgRadialGradient->radial(&centerPoint.x, &centerPoint.y, &radius) != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("GetBounds() fail.\n");
     return false;
