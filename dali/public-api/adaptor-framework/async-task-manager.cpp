@@ -23,7 +23,7 @@
 namespace Dali
 {
 AsyncTask::AsyncTask(CallbackBase* callback, PriorityType priority, ThreadType threadType)
-: mCompletedCallback(std::unique_ptr<CallbackBase>(callback)),
+: mCompletedCallback(UniquePtr<CallbackBase>(callback)),
   mPriorityType(priority),
   mThreadType(threadType)
 {
@@ -31,7 +31,7 @@ AsyncTask::AsyncTask(CallbackBase* callback, PriorityType priority, ThreadType t
 
 CallbackBase* AsyncTask::GetCompletedCallback()
 {
-  return mCompletedCallback.get();
+  return mCompletedCallback.Get();
 }
 
 AsyncTask::ThreadType AsyncTask::GetCallbackInvocationThread() const

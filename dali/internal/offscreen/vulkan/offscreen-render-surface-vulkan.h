@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_VULKAN_OFFSCREEN_RENDER_SURFACE_VULKAN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,12 @@ public: // from Dali::Internal::Adaptor::OffscreenRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::SetNativeImage()
    */
-  void SetNativeImage(NativeImageSourcePtr nativeImage) override;
+  void SetNativeImage(Dali::NativeImageInterfacePtr nativeImage) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::GetNativeImage()
+   */
+  Dali::NativeImageInterfacePtr GetNativeImage() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::OffscreenRenderSurface::AddPostRenderSyncCallback()
@@ -174,7 +179,7 @@ protected:
   OffscreenRenderSurfaceVulkan& operator=(const OffscreenRenderSurfaceVulkan& rhs) = delete;
 
 private: // Data
-  NativeImageSourcePtr mNativeImage{};
+  NativeImageInterfacePtr mNativeImage{};
 
 }; // class OffscreenRenderSurfaceVulkan
 

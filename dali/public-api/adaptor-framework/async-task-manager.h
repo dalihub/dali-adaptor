@@ -2,7 +2,7 @@
 #define DALI_ASYNC_TASK_MANAGER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/common/unique-ptr.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
-#include <memory>
 #include <string_view>
 
 // INTERNAL INCLUDES
@@ -148,9 +148,9 @@ public:
   }
 
 private:
-  std::unique_ptr<CallbackBase> mCompletedCallback;
-  const PriorityType            mPriorityType;
-  ThreadType                    mThreadType;
+  UniquePtr<CallbackBase> mCompletedCallback;
+  const PriorityType      mPriorityType;
+  ThreadType              mThreadType;
 
   // Undefined
   AsyncTask(const AsyncTask& task) = delete;
