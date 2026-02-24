@@ -126,6 +126,14 @@ constexpr IntervalMarker GetIntervalMarker(int positionInfo)
 }
 
 /**
+ * @brief Helper function to remove the interval marker mask.
+ */
+constexpr int RemoveIntervalMarker(int positionInfo)
+{
+  return positionInfo & (~INTERVAL_MARKER_MASK);
+}
+
+/**
  * @brief Helper function to set the interval as begin or end.
  * Ensures interval endpoints are even for pixel alignment and to avoid rounding bias in repeated merges.
  */
@@ -154,7 +162,7 @@ constexpr int MarkAsEnd(int positionInfo, int min, int max)
  * The position infos should be sorted by IntervalMarker.
  *
  * @param[in] positionInfos The vector of position infos with IntervalMarker.
- * @param[out] intervals The output vector for intervals.
+ * @param[out] intervals The output vector for intervals without IntervalMarker.
  */
 void RetrieveMarkedInterval(const std::vector<int>& positionInfos, std::vector<int>& intervals)
 {
@@ -174,7 +182,8 @@ void RetrieveMarkedInterval(const std::vector<int>& positionInfos, std::vector<i
     {
       if(--xCount == 0)
       {
-        xEnd = positionInfo;
+        // Remove IntervalMarker mask now.
+        xEnd = RemoveIntervalMarker(positionInfo);
 
         // Check overflow happened
         if(DALI_LIKELY(xStart < xEnd))
@@ -186,6 +195,7 @@ void RetrieveMarkedInterval(const std::vector<int>& positionInfos, std::vector<i
         {
           DALI_LOG_ERROR("Integer overflow happend! (begin was INT_MIN, or end was INT_MAX). Just reset intervals and full-swap\n");
           intervals.clear();
+          return;
         }
       }
     }
@@ -460,7 +470,7 @@ void MergeIntersectingRectsAndRotateForSmallCase(Rect<int>& mergingRect, std::ve
   uint32_t j = 0;
   for(uint32_t i = 0; i < n; i++)
   {
-    if(!damagedRects[i].IsEmpty())
+    if(damagedRects[i].Intersect(surfaceRect) && !damagedRects[i].IsEmpty())
     {
       // Merge rects before rotate
       if(mergingRect.IsEmpty())
@@ -479,6 +489,13 @@ void MergeIntersectingRectsAndRotateForSmallCase(Rect<int>& mergingRect, std::ve
   if(DALI_LIKELY(j != 0))
   {
     damagedRects.resize(j);
+  }
+  else
+  {
+    // Should never happen, but keep logic for safety.
+    mergingRect = surfaceRect;
+    damagedRects.clear();
+    damagedRects.push_back(RecalculateRect[orientation](mergingRect, surfaceRect));
   }
 }
 } // namespace DamagedRectUtils
