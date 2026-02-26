@@ -195,11 +195,12 @@ NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
 NativeImageSourceQueue::NativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl        = factory->CreateNativeImageSourceQueue(queueCount, width, height, colorFormat, nativeImageSourceQueue);
+  mImpl        = factory->CreateNativeImageSourceQueue(queueCount, width, height, colorFormat, nativeImageSourceQueue).release();
 }
 
 NativeImageSourceQueue::~NativeImageSourceQueue()
 {
+  delete mImpl;
 }
 
 } // namespace Dali
