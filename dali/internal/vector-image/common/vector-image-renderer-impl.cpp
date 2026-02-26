@@ -17,6 +17,7 @@
 
 // CLASS HEADER
 #include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
+#include <algorithm>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
