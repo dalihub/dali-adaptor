@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1327,10 +1327,10 @@ int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
 {
   try
   {
-    Dali::Window                        arg1;
-    std::unique_ptr<Dali::CallbackBase> arg2;
-    int                                 arg3(0);
-    DevelWindow::AddFrameRenderedCallback(arg1, std::move(arg2), arg3);
+    Dali::Window        arg1;
+    Dali::CallbackBase* arg2 = nullptr;
+    int                 arg3(0);
+    DevelWindow::AddFrameRenderedCallback(arg1, arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1360,10 +1360,10 @@ int UtcDaliWindowAddFramePresentedCallbackNegative(void)
 {
   try
   {
-    Dali::Window                        arg1;
-    std::unique_ptr<Dali::CallbackBase> arg2;
-    int                                 arg3(0);
-    DevelWindow::AddFramePresentedCallback(arg1, std::move(arg2), arg3);
+    Dali::Window        arg1;
+    Dali::CallbackBase* arg2 = nullptr;
+    int                 arg3(0);
+    DevelWindow::AddFramePresentedCallback(arg1, arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

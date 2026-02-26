@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,14 +175,14 @@ int32_t GetNativeId(Window window)
   return GetImplementation(window).GetNativeId();
 }
 
-void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
+void AddFrameRenderedCallback(Window window, CallbackBase* callback, int32_t frameId)
 {
-  GetImplementation(window).AddFrameRenderedCallback(std::move(callback), frameId);
+  GetImplementation(window).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
-void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
+void AddFramePresentedCallback(Window window, CallbackBase* callback, int32_t frameId)
 {
-  GetImplementation(window).AddFramePresentedCallback(std::move(callback), frameId);
+  GetImplementation(window).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
 void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation)
