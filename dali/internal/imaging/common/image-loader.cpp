@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,16 +86,16 @@ enum FileFormats
 // clang-format off
 const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
   {
-    {Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  nullptr, LoadPngHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadPlanesFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  nullptr, LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  nullptr, LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, LoadPlanesFromWebp, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  nullptr, LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
-    {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
-    {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader,  Bitmap::BITMAP_COMPRESSED      },
-    {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  nullptr, LoadPngHeader},
+    {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadPlanesFromJpeg, LoadJpegHeader},
+    {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  nullptr, LoadBmpHeader},
+    {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  nullptr, LoadGifHeader},
+    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, LoadPlanesFromWebp, LoadWebpHeader},
+    {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  nullptr, LoadKtxHeader},
+    {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader},
+    {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader},
+    {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader},
+    {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader},
   };
 // clang-format on
 
@@ -156,7 +156,6 @@ FileFormats GetFormatHint(const std::string& filename)
  * @param[in]   format  Hint about what format to try first
  * @param[out]  loader  Set with the function to use to decode the image
  * @param[out]  header  Set with the function to use to decode the header
- * @param[out]  profile The kind of bitmap to hold the bits loaded for the bitmap.
  * @return true, if we can decode the image, false otherwise
  */
 bool GetBitmapLoaderFunctions(FILE*                                        fp,
@@ -164,7 +163,6 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
                               Dali::ImageLoader::LoadBitmapFunction&       loader,
                               Dali::ImageLoader::LoadPlanesFunction&       planeLoader,
                               Dali::ImageLoader::LoadBitmapHeaderFunction& header,
-                              Bitmap::Profile&                             profile,
                               const std::string&                           filename)
 {
   // Fast out if image loader doesn't support the format.
@@ -260,7 +258,6 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
     loader      = lookupPtr->loader;
     planeLoader = lookupPtr->planeLoader;
     header      = lookupPtr->header;
-    profile     = lookupPtr->profile;
   }
 
   // Reset to the start of the file.
@@ -289,14 +286,11 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
     Dali::ImageLoader::LoadBitmapHeaderFunction header;
 
-    Bitmap::Profile profile;
-
     if(GetBitmapLoaderFunctions(fp,
                                 GetFormatHint(path),
                                 function,
                                 planeLoader,
                                 header,
-                                profile,
                                 path))
     {
       const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.scalingMode, resource.samplingMode);
@@ -338,14 +332,11 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
     Dali::ImageLoader::LoadBitmapHeaderFunction header;
 
-    Bitmap::Profile profile;
-
     if(GetBitmapLoaderFunctions(fp,
                                 GetFormatHint(path),
                                 loader,
                                 planeLoader,
                                 header,
-                                profile,
                                 path))
     {
       const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.scalingMode, resource.samplingMode);
@@ -414,45 +405,6 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
   return result;
 }
 
-ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& path)
-{
-  ResourcePointer          result;
-  Dali::Devel::PixelBuffer bitmap;
-
-  Internal::Platform::FileReader fileReader(path);
-  FILE* const                    fp = fileReader.GetFile();
-  if(DALI_LIKELY(fp != NULL))
-  {
-    bool success = ConvertStreamToBitmap(resource, path, fp, bitmap);
-    if(success && bitmap)
-    {
-      Bitmap::Profile profile{Bitmap::Profile::BITMAP_2D_PACKED_PIXELS};
-
-      // For backward compatibility the Bitmap must be created
-      auto retval = Bitmap::New(profile, Dali::ResourcePolicy::OWNED_DISCARD);
-
-      DALI_LOG_SET_OBJECT_STRING(retval, path);
-
-      retval->GetPackedPixelsProfile()->ReserveBuffer(
-        bitmap.GetPixelFormat(),
-        bitmap.GetWidth(),
-        bitmap.GetHeight(),
-        bitmap.GetWidth(),
-        bitmap.GetHeight());
-
-      auto& impl = Dali::GetImplementation(bitmap);
-
-      std::copy(impl.GetBuffer(), impl.GetBuffer() + impl.GetBufferSize(), retval->GetBuffer());
-      result.Reset(retval);
-    }
-  }
-  else
-  {
-    DALI_LOG_ERROR("Error reading file\n");
-  }
-  return result;
-}
-
 ///@ToDo: Rename GetClosestImageSize() functions. Make them use the orientation correction and scaling information. Requires jpeg loader to tell us about reorientation. [Is there still a requirement for this functionality at all?]
 ImageDimensions GetClosestImageSize(const std::string& filename,
                                     ImageDimensions    size,
@@ -478,14 +430,12 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
     Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
     Dali::ImageLoader::LoadPlanesFunction       planeLoader;
     Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
-    Bitmap::Profile                             profile;
 
     if(GetBitmapLoaderFunctions(fp,
                                 formatHint,
                                 loaderFunction,
                                 planeLoader,
                                 headerFunction,
-                                profile,
                                 filename))
     {
       const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, fittingMode, samplingMode), orientationCorrection);
@@ -533,14 +483,12 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
         Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
         Dali::ImageLoader::LoadPlanesFunction       planeLoader;
         Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
-        Bitmap::Profile                             profile;
 
         if(GetBitmapLoaderFunctions(fp,
                                     FORMAT_UNKNOWN,
                                     loaderFunction,
                                     planeLoader,
                                     headerFunction,
-                                    profile,
                                     ""))
         {
           const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, fittingMode, samplingMode), orientationCorrection);

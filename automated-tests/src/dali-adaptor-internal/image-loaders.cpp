@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ void ImageDetails::LoadBuffer()
     fseek(fp, 0, SEEK_END);
     refBufferSize = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    refBuffer = reinterpret_cast<Dali::Integration::PixelBuffer*>(malloc(refBufferSize));
-    fread(refBuffer, sizeof(Dali::Integration::PixelBuffer), refBufferSize, fp);
+    refBuffer = reinterpret_cast<uint8_t*>(malloc(refBufferSize));
+    fread(refBuffer, sizeof(uint8_t), refBufferSize, fp);
   }
 }
 
@@ -87,7 +87,7 @@ LoadFunctions::LoadFunctions(LoadBitmapHeaderFunction _header, LoadBitmapFunctio
 {
 }
 
-void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile)
+void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions)
 {
   FILE*         fp = fopen(image.name.c_str(), "rb");
   AutoCloseFile autoClose(fp);
@@ -113,8 +113,8 @@ void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions,
   DALI_TEST_EQUALS(image.height, bitmap.GetHeight(), TEST_LOCATION);
 
   // Compare buffer generated with reference buffer.
-  Dali::Integration::PixelBuffer* bufferPtr(bitmap.GetBuffer());
-  Dali::Integration::PixelBuffer* refBufferPtr(image.refBuffer);
+  uint8_t* bufferPtr(bitmap.GetBuffer());
+  uint8_t* refBufferPtr(image.refBuffer);
   for(unsigned int i = 0; i < image.refBufferSize; ++i, ++bufferPtr, ++refBufferPtr)
   {
     if(*bufferPtr != *refBufferPtr)
@@ -155,8 +155,8 @@ void CompareLoadedImageData(const ImageDetails& image, const LoadFunctions& func
   const unsigned int  bytesPerPixel = Pixel::GetBytesPerPixel(pixelFormat);
 
   // Compare buffer generated with reference buffer.
-  Dali::Integration::PixelBuffer* pBitmapData(bitmap.GetBuffer());
-  const uint32_t*                 pMaster(master);
+  uint8_t*        pBitmapData(bitmap.GetBuffer());
+  const uint32_t* pMaster(master);
 
   // Loop through each pixel in the bitmap.
   for(unsigned int i = 0; i < image.refBufferSize; ++i, ++pMaster)
@@ -183,7 +183,7 @@ void DumpImageBufferToTempFile(std::string filename, std::string targetFilename,
 
   DALI_TEST_CHECK(functions.loader(input, bitmap));
 
-  Dali::Integration::PixelBuffer* bufferPtr(bitmap.GetBuffer());
+  uint8_t* bufferPtr(bitmap.GetBuffer());
 
   FILE*         writeFp = fopen(targetFilename.c_str(), "wb");
   AutoCloseFile autoCloseWrite(writeFp);

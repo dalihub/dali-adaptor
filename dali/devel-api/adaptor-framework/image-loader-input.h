@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_IMAGE_LOADER_INPUT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/integration-api/bitmap.h>
 #include <dali/public-api/images/image-operations.h>
 #include <cstdio>
+#include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -71,13 +71,11 @@ using LoadBitmapHeaderFunction = bool (*)(const Dali::ImageLoader::Input& input,
  */
 struct BitmapLoader
 {
-  unsigned char                      magicByte1;  ///< The first byte in the file should be this
-  unsigned char                      magicByte2;  ///< The second byte in the file should be this
-  LoadBitmapFunction                 loader;      ///< The function which decodes the file
-  LoadPlanesFunction                 planeLoader; ///< The function which decodes the file to each plane
-  LoadBitmapHeaderFunction           header;      ///< The function which decodes the header of the file
-  Dali::Integration::Bitmap::Profile profile;     ///< The kind of bitmap to be created
-                                                  ///  (addressable packed pixels or an opaque compressed blob).
+  unsigned char            magicByte1;  ///< The first byte in the file should be this
+  unsigned char            magicByte2;  ///< The second byte in the file should be this
+  LoadBitmapFunction       loader;      ///< The function which decodes the file
+  LoadPlanesFunction       planeLoader; ///< The function which decodes the file to each plane
+  LoadBitmapHeaderFunction header;      ///< The function which decodes the header of the file
 };
 
 } // namespace ImageLoader

@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_IMAGE_LOADER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,15 @@
  * limitations under the License.
  */
 
-// EXTERNAL INCLUDES
+// INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/integration-api/bitmap.h>
+
+// EXTERNAL INCLUDES
 #include <dali/integration-api/resource-types.h>
 #include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <string>
+#include <vector>
 
 namespace Dali
 {
@@ -56,14 +58,6 @@ bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, cons
  * @note If the image file doesn't support to load planes, this method returns one RGB bitmap image.
  */
 bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
-
-/**
- * Loads an image synchronously
- * @param resource details of the image
- * @param path to the image
- * @return bitmap
- */
-Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& path);
 
 /**
  * @returns the closest image size

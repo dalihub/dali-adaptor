@@ -35,7 +35,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-using Dali::Integration::PixelBuffer;
 
 NativeImageSourceWin* NativeImageSourceWin::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {

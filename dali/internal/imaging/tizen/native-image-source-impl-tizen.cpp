@@ -60,8 +60,6 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 } // namespace
 
-using Dali::Integration::PixelBuffer;
-
 NativeImageSourceTizen* NativeImageSourceTizen::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
   NativeImageSourceTizen* image = new NativeImageSourceTizen(width, height, depth, nativeImageSource);

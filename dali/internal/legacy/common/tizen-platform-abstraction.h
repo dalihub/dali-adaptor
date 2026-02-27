@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_ABSTRACTION_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace Dali
 {
@@ -54,44 +55,6 @@ public: // Construction & Destruction
 
 public: // PlatformAbstraction overrides
   /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  ImageDimensions GetClosestImageSize(const std::string& filename,
-                                      ImageDimensions    size,
-                                      FittingMode::Type  fittingMode,
-                                      SamplingMode::Type samplingMode,
-                                      bool               orientationCorrection) override;
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
-                                      ImageDimensions              size,
-                                      FittingMode::Type            fittingMode,
-                                      SamplingMode::Type           samplingMode,
-                                      bool                         orientationCorrection) override;
-
-  /**
-   * @copydoc PlatformAbstraction::LoadImageSynchronously()
-   */
-  Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath) override;
-
-  /**
-   * @copydoc PlatformAbstraction::DecodeBuffer()
-   */
-  Integration::BitmapPtr DecodeBuffer(const Integration::BitmapResourceType& resource, uint8_t* buffer, size_t size) override;
-
-  /**
-   * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
-   */
-  bool LoadShaderBinaryFile(const std::string& filename, Dali::Vector<unsigned char>& buffer) const override;
-
-  /**
-   * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
-   */
-  bool SaveShaderBinaryFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes) const override;
-
-  /**
    * @copydoc PlatformAbstraction::StartTimer()
    */
   uint32_t StartTimer(uint32_t milliseconds, CallbackBase* callback) override;
@@ -100,12 +63,6 @@ public: // PlatformAbstraction overrides
    * @copydoc PlatformAbstraction::CancelTimer()
    */
   void CancelTimer(uint32_t timerId) override;
-
-  /**
-   * Sets path for data/resource storage.
-   * @param[in] path data/resource storage path
-   */
-  void SetDataStoragePath(const std::string& path);
 
   /**
    * Clears the timers that have completed
@@ -127,8 +84,6 @@ private:
 
   TizenPlatformAbstraction(const TizenPlatformAbstraction&);            ///< Undefined
   TizenPlatformAbstraction& operator=(const TizenPlatformAbstraction&); ///< Undefined
-
-  std::string mDataStoragePath;
 
   std::vector<std::unique_ptr<TimerCallback> > mTimerPairsWaiting;
   std::vector<std::unique_ptr<TimerCallback> > mTimerPairsSpent;

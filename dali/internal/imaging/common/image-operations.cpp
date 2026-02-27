@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,6 @@ const float RAD_225 = RAD_135 + Math::PI_2;    ///< 225 degrees in radians;
 const float RAD_270 = 3.f * Math::PI_2;        ///< 270 degrees in radians;
 const float RAD_315 = RAD_225 + Math::PI_2;    ///< 315 degrees in radians;
 
-using Integration::Bitmap;
-using Integration::BitmapPtr;
 typedef uint8_t PixelBuffer;
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false);
