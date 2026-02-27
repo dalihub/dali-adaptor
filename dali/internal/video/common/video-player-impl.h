@@ -143,9 +143,19 @@ public:
   Dali::VideoPlayerPlugin::VideoPlayerSignalType& FinishedSignal();
 
   /**
+   * @copydoc Dali::VideoPlayer::EventSignal()
+   */
+  Dali::VideoPlayerPlugin::VideoPlayerEventSignalType& EventSignal();
+
+  /**
    * @brief Initializes member data.
    */
   void Initialize(Dali::Actor actor, VideoSyncMode syncMode);
+
+  /**
+   * @brief Initializes member data with an existing player handle and actor for synchronization.
+   */
+  void Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode);
 
   /**
    * @brief Dali::VideoPlayer::Forward()
@@ -310,12 +320,15 @@ private:
   void*                    mHandle; ///< Handle for the loaded library
 
   typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)(Dali::Actor actor, Dali::VideoSyncMode syncMode);
+  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerByHandleFunction)(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, Dali::VideoSyncMode syncMode);
   typedef void (*DestroyVideoPlayerFunction)(Dali::VideoPlayerPlugin* plugin);
 
-  CreateVideoPlayerFunction  mCreateVideoPlayerPtr;
-  DestroyVideoPlayerFunction mDestroyVideoPlayerPtr;
+  CreateVideoPlayerFunction                           mCreateVideoPlayerPtr;
+  CreateVideoPlayerByHandleFunction                   mCreateVideoPlayerByHandlePtr;
+  DestroyVideoPlayerFunction                          mDestroyVideoPlayerPtr;
 
-  Dali::VideoPlayerPlugin::VideoPlayerSignalType mFinishedSignal;
+  Dali::VideoPlayerPlugin::VideoPlayerSignalType      mFinishedSignal;
+  Dali::VideoPlayerPlugin::VideoPlayerEventSignalType mEventSignal;
 };
 
 } // namespace Adaptor
