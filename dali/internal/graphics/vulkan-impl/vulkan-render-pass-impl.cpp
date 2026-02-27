@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,16 @@ bool RenderPassImpl::IsCompatible(RenderPassHandle rhs)
     bool equal = true;
     for(size_t i = 0; i < mCreateInfo.attachmentHandles.size(); ++i)
     {
+      if(!(mCreateInfo.attachmentHandles[i]) && !(rhs->mCreateInfo.attachmentHandles[i]))
+      {
+        continue;
+      }
+      if(!(mCreateInfo.attachmentHandles[i]) || !(rhs->mCreateInfo.attachmentHandles[i]))
+      {
+        equal = false;
+        break;
+      }
+
       if(mCreateInfo.attachmentHandles[i]->GetType() != rhs->mCreateInfo.attachmentHandles[i]->GetType())
       {
         equal = false;
