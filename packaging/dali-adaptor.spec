@@ -236,7 +236,6 @@ The DALi Tizen Adaptor for common.
 Summary:    Development components for the DALi Tizen Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
-Requires:   %{name}-integration-devel = %{version}-%{release}
 
 %description devel
 Development components for the DALi Tizen Adaptor - public headers and package configs
@@ -248,6 +247,7 @@ Development components for the DALi Tizen Adaptor - public headers and package c
 Summary:    Integration development package for the Adaptor
 Group:      Development/Building
 Requires:   %{name} = %{version}-%{release}
+Requires:   %{name}-devel = %{version}-%{release}
 
 %description integration-devel
 Integration development package for the Adaptor - headers for integrating with an adaptor library.
@@ -741,12 +741,12 @@ exit 0
 %defattr(-,root,root,-)
 %{_includedir}/dali/dali.h
 %{_includedir}/dali/public-api/*
-%{_includedir}/dali/devel-api/*
 %{_includedir}/dali/doc/*
 %{_libdir}/pkgconfig/dali2-adaptor.pc
 
 %files integration-devel
 %defattr(-,root,root,-)
+%{_includedir}/dali/devel-api/*
 %{_includedir}/dali/integration-api/adaptor-framework/*
 %{_includedir}/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali2-adaptor-integration.pc
