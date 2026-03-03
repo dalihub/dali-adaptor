@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -870,7 +870,7 @@ public:
    * @brief Register WebAuthDisplayQR callback.
    *
    * @param[in] callback The callback function called when QR auth display is requested.
-
+   *
    */
   void RegisterWebAuthDisplayQRCallback(Dali::WebEnginePlugin::WebEngineWebAuthDisplayQRCallback callback);
 
@@ -878,7 +878,7 @@ public:
    * @brief Register WebAuthResponse callback.
    *
    * @param[in] callback The callback function called when auth is responsed.
-
+   *
    */
   void RegisterWebAuthResponseCallback(Dali::WebEnginePlugin::WebEngineWebAuthResponseCallback callback);
 
@@ -886,9 +886,17 @@ public:
    * @brief Register FileChooserRequest callback.
    *
    * @param[in] callback The callback function called when file chooser is requested.
-
+   *
    */
   void RegisterFileChooserRequestedCallback(Dali::WebEnginePlugin::WebEngineFileChooserRequestedCallback callback);
+
+  /**
+   * @brief Register a callback for monitoring web process crash events in Web Engine.
+   *
+   * @param[in] callback The callback function called when web process crashes.
+   *
+   */
+  void RegisterWebProcessCrashedCallback(Dali::WebEnginePlugin::WebEngineWebProcessCrashedCallback callback);
 
   /**
    * @brief Register UserMediaPermissionRequest callback.
