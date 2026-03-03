@@ -32,6 +32,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/device-status.h
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.h
   ${adaptor_public_api_dir}/adaptor-framework/graphics-backend.h
+  ${adaptor_public_api_dir}/adaptor-framework/image-options.h
   ${adaptor_public_api_dir}/adaptor-framework/input-method.h
   ${adaptor_public_api_dir}/adaptor-framework/key.h
   ${adaptor_public_api_dir}/adaptor-framework/key-grab.h

@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-// INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-
 // EXTERNAL INCLUDES
-#include <dali/integration-api/resource-types.h>
-#include <dali/public-api/images/image-operations.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <string>
 #include <vector>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/internal/imaging/common/resource-types.h>
+#include <dali/public-api/adaptor-framework/image-options.h>
 
 namespace Dali
 {
