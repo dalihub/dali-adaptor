@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,35 +26,6 @@ namespace Dali
 {
 namespace DevelApplication
 {
-Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // Set Defaut Window type
-    internal->SetDefaultWindowType(type);
-
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(stylesheet);
-
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-    windowData.SetWindowType(type);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
-  return Application(internal.Get());
-}
-
 bool AddIdleWithReturnValue(Application application, CallbackBase* callback)
 {
   return Internal::Adaptor::GetImplementation(application).AddIdle(callback, true);

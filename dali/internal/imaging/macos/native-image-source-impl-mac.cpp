@@ -29,7 +29,6 @@
 
 namespace Dali::Internal::Adaptor
 {
-using Dali::Integration::PixelBuffer;
 
 NativeImageSourceCocoa* NativeImageSourceCocoa::New(
   uint32_t                            width,

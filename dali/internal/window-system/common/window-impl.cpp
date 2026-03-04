@@ -56,17 +56,6 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 #endif
 } // unnamed namespace
 
-Window* Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
-{
-  Any surface;
-  return Window::New(surface, name, className, windowData, false);
-}
-
-Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData)
-{
-  return Window::New(surface, name, className, windowData, false);
-}
-
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
 {
   Window* window                  = new Window();

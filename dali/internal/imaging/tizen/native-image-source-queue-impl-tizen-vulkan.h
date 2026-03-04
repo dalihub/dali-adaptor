@@ -27,6 +27,7 @@
 #include <tbm_surface_queue.h>
 #include <atomic>
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 
 // INTERNAL INCLUDES

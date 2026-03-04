@@ -170,7 +170,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mAdaptor(nullptr),
   mEnvironmentOptions(nullptr),
   mMainWindow(),
-  mMainWindowMode(windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE),
+  mMainWindowOpacity(windowData.GetTransparency() ? WindowOpacity::TRANSPARENT : WindowOpacity::OPAQUE),
   mMainWindowName(),
   mIsMainWindowFrontBufferRendering(windowData.GetFrontBufferRendering()),
   mStylesheet(stylesheet),
@@ -342,7 +342,7 @@ void Application::CreateWindow()
 {
   Internal::Adaptor::Window* window;
   WindowData                 windowData;
-  windowData.SetTransparency(mMainWindowMode);
+  windowData.SetTransparency(mMainWindowOpacity);
   windowData.SetWindowType(mDefaultWindowType);
   windowData.SetFrontBufferRendering(mIsMainWindowFrontBufferRendering);
   windowData.SetScreen(mScreen);
@@ -378,7 +378,9 @@ void Application::CreateWindow()
     }
 
     windowData.SetPositionSize(mWindowPositionSize);
-    window = Internal::Adaptor::Window::New(mMainWindowName, windowClassName, windowData);
+
+    Any surface;
+    window = Internal::Adaptor::Window::New(surface, mMainWindowName, windowClassName, windowData, false);
   }
   else
   {

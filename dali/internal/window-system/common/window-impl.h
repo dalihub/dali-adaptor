@@ -81,27 +81,6 @@ public:
   /**
    * @brief Create a new Window. This should only be called once by the Application class
    *
-   * @param[in] name The window title
-   * @param[in] className The window class name
-   * @param[in] windowData The window data
-   * @return A newly allocated Window
-   */
-  static Window* New(const std::string& name, const std::string& className, const WindowData& windowData);
-
-  /**
-   * @brief Create a new Window. This should only be called once by the Application class
-   *
-   * @param[in] surface The surface used to render on.
-   * @param[in] name The window title
-   * @param[in] className The window class name
-   * @param[in] windowData The window data
-   * @return A newly allocated Window
-   */
-  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData);
-
-  /**
-   * @brief Create a new Window. This should only be called once by the Application class
-   *
    * @param[in] surface The surface used to render on.
    * @param[in] name The window title
    * @param[in] className The window class name

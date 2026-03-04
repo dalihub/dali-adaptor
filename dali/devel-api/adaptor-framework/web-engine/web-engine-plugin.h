@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,6 +228,11 @@ public:
    * @brief The callback to be called when file chooser is requested.
    */
   using WebEngineFileChooserRequestedCallback = std::function<void(std::unique_ptr<Dali::WebEngineFileChooserRequest>)>;
+
+  /**
+   * @brief The callback to be called when web process crashes.
+   */
+  using WebEngineWebProcessCrashedCallback = std::function<void(void)>;
 
   /**
    * @brief The callback to be called when the web engine received a user media permission reqeust from user application.
@@ -1050,6 +1055,13 @@ public:
    * @param[in] callback The callback to be called when file chooser is requested.
    */
   virtual void RegisterFileChooserRequestedCallback(WebEngineFileChooserRequestedCallback callback) = 0;
+
+  /**
+   * @brief Register a callback for monitoring web process crash events in Web Engine.
+   *
+   * @param[in] callback The callback function called when web process crashes.
+   */
+  virtual void RegisterWebProcessCrashedCallback(WebEngineWebProcessCrashedCallback callback) = 0;
 
   /**
    * @brief Register UserMediaPermissionRequest callback.

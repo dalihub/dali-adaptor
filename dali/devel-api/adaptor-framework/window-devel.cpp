@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,48 +28,6 @@ namespace Dali
 {
 namespace DevelWindow
 {
-Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent)
-{
-  return DevelWindow::New(surface, windowPosition, name, "", isTransparent);
-}
-
-Window New(Any surface, PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent)
-{
-  Window newWindow;
-
-  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
-  bool       isNewWindowAllowed = true;
-
-  if(isAdaptorAvailable)
-  {
-    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
-  }
-
-  if(isNewWindowAllowed)
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(windowPosition);
-    windowData.SetTransparency(isTransparent);
-    windowData.SetWindowType(WindowType::NORMAL);
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, name, className, windowData);
-
-    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
-    if(isAdaptorAvailable)
-    {
-      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
-    }
-    newWindow = Window(window);
-  }
-  else
-  {
-    DALI_LOG_ERROR("This device can't support multiple windows.\n");
-  }
-
-  return newWindow;
-}
-
 void SetPositionSize(Window window, PositionSize positionSize)
 {
   GetImplementation(window).SetPositionSize(positionSize);
@@ -175,14 +133,14 @@ int32_t GetNativeId(Window window)
   return GetImplementation(window).GetNativeId();
 }
 
-void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
+void AddFrameRenderedCallback(Window window, CallbackBase* callback, int32_t frameId)
 {
-  GetImplementation(window).AddFrameRenderedCallback(std::move(callback), frameId);
+  GetImplementation(window).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
-void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
+void AddFramePresentedCallback(Window window, CallbackBase* callback, int32_t frameId)
 {
-  GetImplementation(window).AddFramePresentedCallback(std::move(callback), frameId);
+  GetImplementation(window).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
 void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation)

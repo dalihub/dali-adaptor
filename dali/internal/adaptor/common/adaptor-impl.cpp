@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,10 +142,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
-
-  std::string path;
-  GetDataStoragePath(path);
-  mPlatformAbstraction->SetDataStoragePath(path);
 
   if(mEnvironmentOptions->PerformanceServerRequired())
   {
@@ -942,7 +938,21 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         }
       }
 
+      // Update graphics relative variables.
+      if(DALI_UNLIKELY(updateGraphicsRequired))
+      {
+        // Update graphics relative variables.
+        auto depthBufferRequired   = (mEnvironmentOptions->DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
+        auto stencilBufferRequired = (mEnvironmentOptions->StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
+        auto partialUpdateRequired = (mEnvironmentOptions->PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
+
+        int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
+
+        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+      }
+
       // Update core relative variables.
+      // DevNote : We should change core policy after update graphics interface.
       if(DALI_UNLIKELY(updateCoreRequired))
       {
         Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEFAULT;
@@ -968,17 +978,6 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         {
           mCore->ChangeGraphicsController(mGraphicsLibraryHandle->GetGraphicsInterface().GetController());
         }
-      }
-      if(DALI_UNLIKELY(updateGraphicsRequired))
-      {
-        // Update graphics relative variables.
-        auto depthBufferRequired   = (mEnvironmentOptions->DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
-        auto stencilBufferRequired = (mEnvironmentOptions->StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
-        auto partialUpdateRequired = (mEnvironmentOptions->PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
-
-        int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
-
-        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
       }
 
       if(DALI_UNLIKELY(updateThreadController))

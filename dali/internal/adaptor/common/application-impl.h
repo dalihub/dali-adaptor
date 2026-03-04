@@ -71,7 +71,7 @@ public:
   typedef Dali::Application::DeviceOrientationChangedSignalType DeviceOrientationChangedSignalType;
   typedef Dali::Application::AppSignalType                      AppSignalType;
   typedef Dali::Application::AppControlSignalType               AppControlSignalType;
-  typedef Dali::Application::WINDOW_MODE                        WINDOW_MODE;
+  typedef Dali::Application::WindowOpacity                      WindowOpacity;
 
   /**
    * Create a new application
@@ -587,10 +587,10 @@ private:
 
   // The Main Window is that window created by the Application during initial startup
   // (previously this was the only window)
-  Dali::Window                   mMainWindow;                       ///< Main Window instance
-  Dali::Application::WINDOW_MODE mMainWindowMode;                   ///< Window mode of the main window
-  std::string                    mMainWindowName;                   ///< Name of the main window as obtained from environment options
-  bool                           mIsMainWindowFrontBufferRendering; ///< Whether front buffer rendering of the main window is enabled
+  Dali::Window  mMainWindow;                       ///< Main Window instance
+  WindowOpacity mMainWindowOpacity;                ///< Window opacity of the main window
+  std::string   mMainWindowName;                   ///< Name of the main window as obtained from environment options
+  bool          mIsMainWindowFrontBufferRendering; ///< Whether front buffer rendering of the main window is enabled
 
   std::string      mStylesheet;
   PositionSize     mWindowPositionSize;

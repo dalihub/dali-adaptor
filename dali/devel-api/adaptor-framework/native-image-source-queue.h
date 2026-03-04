@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/object/any.h>
-#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -339,7 +338,7 @@ private:
 
 private:
   /// @cond internal
-  std::unique_ptr<Internal::Adaptor::NativeImageSourceQueue> mImpl; ///< Implementation pointer
+  Internal::Adaptor::NativeImageSourceQueue* mImpl; ///< Implementation pointer
   /// @endcond
 };
 

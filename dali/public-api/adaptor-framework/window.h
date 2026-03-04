@@ -2,7 +2,7 @@
 #define DALI_WINDOW_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,18 +93,6 @@ public:
    * @note This creates an extra window in addition to the default main window
    */
   static Window New(PositionSize windowPosition, const std::string& name, bool isTransparent = false);
-
-  /**
-   * @brief Creates an initialized handle to a new Window.
-   * @SINCE_1_0.0
-   * @param[in] windowPosition The position and size of the Window
-   * @param[in] name The Window title
-   * @param[in] className The Window class name
-   * @param[in] isTransparent Whether Window is transparent
-   * @note This creates an extra window in addition to the default main window
-   * @return A new Window
-   */
-  static Window New(PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @brief Creates an initialized handle to a new Window.

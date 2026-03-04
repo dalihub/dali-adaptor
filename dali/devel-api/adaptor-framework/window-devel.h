@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/gesture-enumerations.h>
-#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
@@ -60,31 +59,6 @@ typedef Signal<void(Window, Dali::Window::WindowPosition)>                      
 typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
 typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;                 ///< InsetsChanged signal type
 typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;            ///< PointerConstraintsEvent signal type
-
-/**
- * @brief Creates an initialized handle to a new Window.
- *
- * @param[in] surface Can be a window or pixmap.
- * @param[in] windowPosition The position and size of the Window
- * @param[in] name The Window title
- * @param[in] isTransparent Whether Window is transparent
- * @return A new window
- * @note This creates an extra window in addition to the default main window
- */
-DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent = false);
-
-/**
- * @brief Creates an initialized handle to a new Window.
- *
- * @param[in] surface Can be a window or pixmap.
- * @param[in] windowPosition The position and size of the Window
- * @param[in] name The Window title
- * @param[in] className The Window class name
- * @param[in] isTransparent Whether Window is transparent
- * @note This creates an extra window in addition to the default main window
- * @return A new Window
- */
-DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
 
 /**
  * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
@@ -284,7 +258,7 @@ DALI_ADAPTOR_API int32_t GetNativeId(Window window);
  *
  * @note Ownership of the callback is passed onto this class.
  */
-DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
+DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, CallbackBase* callback, int32_t frameId);
 
 /**
  * @brief Adds a callback that is called when the frame is displayed on the display.
@@ -301,7 +275,7 @@ DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, std::unique_ptr<Ca
  *
  * @note Ownership of the callback is passed onto this class.
  */
-DALI_ADAPTOR_API void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
+DALI_ADAPTOR_API void AddFramePresentedCallback(Window window, CallbackBase* callback, int32_t frameId);
 
 /**
  * @brief Sets window position and size for specific orientation.
