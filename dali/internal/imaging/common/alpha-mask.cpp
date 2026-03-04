@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+// INTERNAL INCLUDES
 #include <dali/internal/imaging/common/alpha-mask.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
-#include <dali/public-api/images/image-operations.h> // For ImageDimensions and MultiplyAndNormalizeColor
+#include <dali/public-api/adaptor-framework/image-options.h>
 
 namespace Dali
 {

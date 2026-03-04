@@ -18,12 +18,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/images/image-operations.h>
 #include <cstdio>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/adaptor-framework/image-options.h>
 
 namespace Dali
 {

@@ -19,11 +19,11 @@
 #define DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/image-options.h>
 #include <stdint.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/public-api/images/image-operations.h>
 #include <third-party/resampler/resampler.h>
 
 namespace Dali
