@@ -566,8 +566,26 @@ bool Shape::SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap)
     DALI_LOG_ERROR("Shape is null\n");
     return false;
   }
+
 #ifdef THORVG_VERSION_1
-  if(static_cast<tvg::Shape*>(mTvgShape)->strokeCap(static_cast<tvg::StrokeCap>(cap)) != tvg::Result::Success)
+  tvg::StrokeCap tvgCap;
+  switch(cap)
+  {
+    case Dali::CanvasRenderer::Shape::StrokeCap::SQUARE:
+      tvgCap = tvg::StrokeCap::Square;
+      break;
+    case Dali::CanvasRenderer::Shape::StrokeCap::ROUND:
+      tvgCap = tvg::StrokeCap::Round;
+      break;
+    case Dali::CanvasRenderer::Shape::StrokeCap::BUTT:
+      tvgCap = tvg::StrokeCap::Butt;
+      break;
+    default:
+      tvgCap = tvg::StrokeCap::Square;
+      break;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeCap(tvgCap) != tvg::Result::Success)
 #else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(static_cast<tvg::StrokeCap>(cap)) != tvg::Result::Success)
 #endif
@@ -593,7 +611,21 @@ Dali::CanvasRenderer::Shape::StrokeCap Shape::GetStrokeCap() const
 
   tvg::StrokeCap cap = static_cast<tvg::Shape*>(mTvgShape)->strokeCap();
 
+#ifdef THORVG_VERSION_1
+  switch(cap)
+  {
+    case tvg::StrokeCap::Square:
+      return Dali::CanvasRenderer::Shape::StrokeCap::SQUARE;
+    case tvg::StrokeCap::Round:
+      return Dali::CanvasRenderer::Shape::StrokeCap::ROUND;
+    case tvg::StrokeCap::Butt:
+      return Dali::CanvasRenderer::Shape::StrokeCap::BUTT;
+    default:
+      return Dali::CanvasRenderer::Shape::StrokeCap::SQUARE;
+  }
+#else
   return static_cast<Dali::CanvasRenderer::Shape::StrokeCap>(cap);
+#endif
 #endif
   return Dali::CanvasRenderer::Shape::StrokeCap::SQUARE;
 }
@@ -608,7 +640,24 @@ bool Shape::SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join)
   }
 
 #ifdef THORVG_VERSION_1
-  if(static_cast<tvg::Shape*>(mTvgShape)->strokeJoin(static_cast<tvg::StrokeJoin>(join)) != tvg::Result::Success)
+  tvg::StrokeJoin tvgJoin;
+  switch(join)
+  {
+    case Dali::CanvasRenderer::Shape::StrokeJoin::BEVEL:
+      tvgJoin = tvg::StrokeJoin::Bevel;
+      break;
+    case Dali::CanvasRenderer::Shape::StrokeJoin::ROUND:
+      tvgJoin = tvg::StrokeJoin::Round;
+      break;
+    case Dali::CanvasRenderer::Shape::StrokeJoin::MITER:
+      tvgJoin = tvg::StrokeJoin::Miter;
+      break;
+    default:
+      tvgJoin = tvg::StrokeJoin::Bevel;
+      break;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeJoin(tvgJoin) != tvg::Result::Success)
 #else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(static_cast<tvg::StrokeJoin>(join)) != tvg::Result::Success)
 #endif
@@ -634,7 +683,21 @@ Dali::CanvasRenderer::Shape::StrokeJoin Shape::GetStrokeJoin() const
 
   tvg::StrokeJoin join = static_cast<tvg::Shape*>(mTvgShape)->strokeJoin();
 
+#ifdef THORVG_VERSION_1
+  switch(join)
+  {
+    case tvg::StrokeJoin::Bevel:
+      return Dali::CanvasRenderer::Shape::StrokeJoin::BEVEL;
+    case tvg::StrokeJoin::Round:
+      return Dali::CanvasRenderer::Shape::StrokeJoin::ROUND;
+    case tvg::StrokeJoin::Miter:
+      return Dali::CanvasRenderer::Shape::StrokeJoin::MITER;
+    default:
+      return Dali::CanvasRenderer::Shape::StrokeJoin::BEVEL;
+  }
+#else
   return static_cast<Dali::CanvasRenderer::Shape::StrokeJoin>(join);
+#endif
 #endif
   return Dali::CanvasRenderer::Shape::StrokeJoin::BEVEL;
 }
