@@ -2,7 +2,7 @@
 #define DALI_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -233,11 +233,13 @@ public:
   /**
    * Apply a Gaussian blur to this pixel data with the given radius.
    *
-   * @note A bigger radius will yield a blurrier image. Only works for pixel data in RGBA format.
+   * @note A bigger radius will yield a blurrier image.
    *
    * @param[in] blurRadius The radius for Gaussian blur. A value of 0 or negative value indicates no blur.
+   *
+   * @return @e false if the gaussian blur fails (invalid pixel format or memory issues).
    */
-  void ApplyGaussianBlur(const float blurRadius);
+  bool ApplyGaussianBlur(float blurRadius);
 
   /**
    * @brief Crops this buffer to the given crop rectangle.

@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-vector.h>
@@ -57,6 +58,73 @@ const float RAD_270 = 3.f * Math::PI_2;        ///< 270 degrees in radians;
 const float RAD_315 = RAD_225 + Math::PI_2;    ///< 315 degrees in radians;
 
 typedef uint8_t PixelBuffer;
+
+// Pixel format to string conversion table
+DALI_ENUM_TO_STRING_TABLE_BEGIN(PIXEL_FORMAT)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, INVALID)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, A8)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, L8)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, LA88)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGB565)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, BGR565)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGBA4444)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, BGRA4444)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGBA5551)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, BGRA5551)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGB888)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGB8888)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, BGR8888)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGBA8888)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, BGRA8888)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_R11_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SIGNED_R11_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RG11_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SIGNED_RG11_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGB8_ETC2)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ETC2)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA8_ETC2_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ETC2_EAC)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGB8_ETC1)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGB_PVRTC_4BPPV1)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_4x4_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_5x4_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_5x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_6x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_6x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_8x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_8x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_8x8_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_10x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_10x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_10x8_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_10x10_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_12x10_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_RGBA_ASTC_12x12_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGB16F)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, RGB32F)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, DEPTH_UNSIGNED_INT)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, DEPTH_FLOAT)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, DEPTH_STENCIL)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, R11G11B10F)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, CHROMINANCE_U)
+  DALI_ENUM_TO_STRING_WITH_SCOPE(Dali::Pixel::Format, CHROMINANCE_V)
+DALI_ENUM_TO_STRING_TABLE_END(PIXEL_FORMAT)
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false);
 
@@ -917,6 +985,18 @@ void VerticalSkew(const uint8_t* const srcBufferPtr,
 }
 } // namespace
 
+const char* GetPixelFormatName(Dali::Pixel::Format format)
+{
+  for(uint32_t i = 0; i < PIXEL_FORMAT_TABLE_COUNT; ++i)
+  {
+    if(PIXEL_FORMAT_TABLE[i].value == static_cast<int32_t>(format))
+    {
+      return PIXEL_FORMAT_TABLE[i].string;
+    }
+  }
+  return "UNKNOWN";
+}
+
 ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions, FittingMode::Type fittingMode)
 {
   return CalculateDesiredDimensions(rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight(), fittingMode);
@@ -1668,51 +1748,49 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
   // Perform power of 2 iterated 4:1 box filtering if the requested filter mode requires it:
   if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR || samplingMode == SamplingMode::BOX_THEN_LANCZOS)
   {
-    // Check the pixel format is one that is supported:
-    if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
-    {
-      const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
+    const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
 
-      switch(pixelFormat)
+    // Check the pixel format is one that is supported:
+    switch(pixelFormat)
+    {
+      case Pixel::RGBA8888:
       {
-        case Pixel::RGBA8888:
-        {
-          Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
-          break;
-        }
-        case Pixel::RGB888:
-        {
-          Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
-          break;
-        }
-        case Pixel::RGB565:
-        {
-          Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
-          break;
-        }
-        case Pixel::LA88:
-        {
-          Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
-          break;
-        }
-        case Pixel::L8:
-        case Pixel::A8:
-        case Pixel::CHROMINANCE_U:
-        case Pixel::CHROMINANCE_V:
-        {
-          Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
-          break;
-        }
-        default:
-        {
-          DALI_ASSERT_DEBUG(false && "Inner branch conditions don't match outer branch.");
-        }
+        Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
+        break;
+      }
+      case Pixel::RGB888:
+      {
+        Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
+        break;
+      }
+      case Pixel::RGB565:
+      {
+        Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
+        break;
+      }
+      case Pixel::LA88:
+      {
+        Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      case Pixel::CHROMINANCE_U:
+      case Pixel::CHROMINANCE_V:
+      {
+        Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, inputStrideBytes, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStrideBytes);
+        break;
+      }
+      default:
+      {
+        DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not shrunk: unsupported pixel format: %s.\n", GetPixelFormatName(pixelFormat));
+        break;
       }
     }
   }
   else
   {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not shrunk: unsupported pixel format: %u.\n", uint32_t(pixelFormat));
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not shrunk: unsupported samplingMode: %d\n", samplingMode);
   }
 }
 
@@ -1959,43 +2037,37 @@ void PointSample(const uint8_t* inPixels,
                  uint32_t       desiredHeight)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
+  switch(pixelFormat)
   {
-    switch(pixelFormat)
+    case Pixel::RGB888:
     {
-      case Pixel::RGB888:
-      {
-        PointSample3BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
-        break;
-      }
-      case Pixel::RGBA8888:
-      {
-        PointSample4BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
-        break;
-      }
-      case Pixel::RGB565:
-      case Pixel::LA88:
-      {
-        PointSample2BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
-        break;
-      }
-      case Pixel::L8:
-      case Pixel::A8:
-      case Pixel::CHROMINANCE_U:
-      case Pixel::CHROMINANCE_V:
-      {
-        PointSample1BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
-        break;
-      }
-      default:
-      {
-        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
-      }
+      PointSample3BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
+      break;
     }
-  }
-  else
-  {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not point sampled: unsupported pixel format: %u.\n", uint32_t(pixelFormat));
+    case Pixel::RGBA8888:
+    {
+      PointSample4BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
+      break;
+    }
+    case Pixel::RGB565:
+    case Pixel::LA88:
+    {
+      PointSample2BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
+      break;
+    }
+    case Pixel::L8:
+    case Pixel::A8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    {
+      PointSample1BPP(inPixels, inputWidth, inputHeight, inputStrideBytes, outPixels, desiredWidth, desiredHeight);
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not point sampled: unsupported pixel format: %s.\n", GetPixelFormatName(pixelFormat));
+      break;
+    }
   }
 }
 
@@ -2183,47 +2255,41 @@ void LinearSample(const uint8_t* __restrict__ inPixels,
                   ImageDimensions outDimensions)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
+  switch(pixelFormat)
   {
-    switch(pixelFormat)
+    case Pixel::RGB888:
     {
-      case Pixel::RGB888:
-      {
-        LinearSample3BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::RGBA8888:
-      {
-        LinearSample4BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::L8:
-      case Pixel::A8:
-      case Pixel::CHROMINANCE_U:
-      case Pixel::CHROMINANCE_V:
-      {
-        LinearSample1BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::LA88:
-      {
-        LinearSample2BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::RGB565:
-      {
-        LinearSampleRGB565(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      default:
-      {
-        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
-      }
+      LinearSample3BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
     }
-  }
-  else
-  {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", uint32_t(pixelFormat));
+    case Pixel::RGBA8888:
+    {
+      LinearSample4BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    case Pixel::L8:
+    case Pixel::A8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    {
+      LinearSample1BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    case Pixel::LA88:
+    {
+      LinearSample2BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    case Pixel::RGB565:
+    {
+      LinearSampleRGB565(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %s.\n", GetPixelFormatName(pixelFormat));
+      break;
+    }
   }
 }
 
@@ -2447,37 +2513,33 @@ void LanczosSample(const uint8_t* __restrict__ inPixels,
   // Until now, just use LinearSample instead.
   //
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
+  switch(pixelFormat)
   {
-    switch(pixelFormat)
+    case Pixel::RGB888:
     {
-      case Pixel::RGB888:
-      {
-        LanczosSample3BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::RGBA8888:
-      case Pixel::BGRA8888:
-      {
-        LanczosSample4BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::L8:
-      case Pixel::A8:
-      {
-        LanczosSample1BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
-        break;
-      }
-      default:
-      {
-        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
-      }
+      LanczosSample3BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
     }
-  }
-  else
-  {
-    LinearSample(inPixels, inDimensions, inputStrideBytes, pixelFormat, outPixels, outDimensions);
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", static_cast<uint32_t>(pixelFormat));
+    case Pixel::RGBA8888:
+    case Pixel::BGRA8888:
+    {
+      LanczosSample4BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    case Pixel::L8:
+    case Pixel::A8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    {
+      LanczosSample1BPP(inPixels, inDimensions, inputStrideBytes, outPixels, outDimensions);
+      break;
+    }
+    default:
+    {
+      DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %s.\n", GetPixelFormatName(pixelFormat));
+      LinearSample(inPixels, inDimensions, inputStrideBytes, pixelFormat, outPixels, outDimensions);
+      break;
+    }
   }
 }
 

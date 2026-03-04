@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -804,7 +804,7 @@ int UtcDaliPixelBufferMask09(void)
   END_TEST;
 }
 
-int UtcDaliPixelBufferGaussianBlur(void)
+int UtcDaliPixelBufferGaussianBlur01(void)
 {
   TestApplication application;
 
@@ -822,17 +822,101 @@ int UtcDaliPixelBufferGaussianBlur(void)
   // Test that an even pixel in the even row has no alpha value
   DALI_TEST_EQUALS(buffer[55], 0x00u, TEST_LOCATION);
 
-  imageData.ApplyGaussianBlur(0.0f);
+  DALI_TEST_EQUALS(true, imageData.ApplyGaussianBlur(0.0f), TEST_LOCATION);
 
   // Test that the pixels' alpha values are not changed because there is no blur
   DALI_TEST_EQUALS(buffer[43], 0xffu, TEST_LOCATION);
   DALI_TEST_EQUALS(buffer[55], 0x00u, TEST_LOCATION);
 
-  imageData.ApplyGaussianBlur(1.0f);
+  DALI_TEST_EQUALS(false, imageData.ApplyGaussianBlur(-1.0f), TEST_LOCATION);
+
+  // Test that the pixels' alpha values are not changed because there is no blur
+  DALI_TEST_EQUALS(buffer[43], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[55], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(true, imageData.ApplyGaussianBlur(1.0f), TEST_LOCATION);
 
   // Test that the pixels' alpha values are changed after applying gaussian blur
   DALI_TEST_EQUALS(buffer[43], 0x7Au, TEST_LOCATION);
   DALI_TEST_EQUALS(buffer[55], 0x7Eu, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferGaussianBlur02(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB888);
+  FillCheckerboard(imageData);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  unsigned char* buffer = imageData.GetBuffer();
+
+  // Test that an even pixel in the odd row has white value
+  DALI_TEST_EQUALS(buffer[30], 0xffu, TEST_LOCATION);
+
+  // Test that an even pixel in the even row has black value
+  DALI_TEST_EQUALS(buffer[39], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(true, imageData.ApplyGaussianBlur(0.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are not changed because there is no blur
+  DALI_TEST_EQUALS(buffer[30], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[39], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(false, imageData.ApplyGaussianBlur(-1.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are not changed because there is no blur
+  DALI_TEST_EQUALS(buffer[30], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[39], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(true, imageData.ApplyGaussianBlur(1.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are changed after applying gaussian blur
+  DALI_TEST_EQUALS(buffer[30], 0x7Au, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[39], 0x7Eu, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferGaussianBlur03(void)
+{
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  FillCheckerboard(imageData);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
+
+  unsigned char* buffer = imageData.GetBuffer();
+
+  // Test that an even pixel in the odd row has white value
+  DALI_TEST_EQUALS(buffer[20], 0xffu, TEST_LOCATION);
+
+  // Test that an even pixel in the even row has black value
+  DALI_TEST_EQUALS(buffer[26], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(false, imageData.ApplyGaussianBlur(0.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are not changed because not supported pixel format
+  DALI_TEST_EQUALS(buffer[20], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[26], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(false, imageData.ApplyGaussianBlur(-1.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are not changed because not supported pixel format
+  DALI_TEST_EQUALS(buffer[20], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[26], 0x00u, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(false, imageData.ApplyGaussianBlur(1.0f), TEST_LOCATION);
+
+  // Test that the pixels' red values are not changed because not supported pixel format
+  DALI_TEST_EQUALS(buffer[20], 0xffu, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer[26], 0x00u, TEST_LOCATION);
 
   END_TEST;
 }

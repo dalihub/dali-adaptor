@@ -188,8 +188,10 @@ public:
    * @brief Apply a Gaussian blur to the current buffer with the given radius.
    *
    * @param[in] blurRadius The radius for Gaussian blur
+   *
+   * @return @e false if the gaussian blur fails (invalid pixel format or memory issues).
    */
-  void ApplyGaussianBlur(const float blurRadius);
+  bool ApplyGaussianBlur(const float blurRadius);
 
   /**
    * Crops this buffer to the given crop rectangle. Assumes the crop rectangle

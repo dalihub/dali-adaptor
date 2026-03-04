@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <memory.h>
+#include <dali/public-api/common/dali-common.h>
 #include <cmath>
+#include <new> ///< for std::bad_alloc
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/gaussian-blur.h>
@@ -29,121 +30,237 @@ namespace Internal
 {
 namespace Adaptor
 {
-void ConvoluteAndTranspose(unsigned char*     inBuffer,
-                           unsigned char*     outBuffer,
-                           const unsigned int bufferWidth,
-                           const unsigned int bufferHeight,
-                           const unsigned int inBufferStrideBytes,
-                           const unsigned int outBufferStrideBytes,
-                           const float        blurRadius)
+namespace
 {
-  // Note that we always assume that input and output are RGBA8888 format.
-  // TODO : Can't we support other pixel format?
-  constexpr uint32_t inBytesPerPixel  = 4u;
-  constexpr uint32_t outBytesPerPixel = 4u;
+
+/**
+ * Helper to finalize memory automatically even if throw exception.
+ */
+template<typename T>
+struct MemoryFinalizer
+{
+  MemoryFinalizer(T*& array)
+  : mArray(array)
+  {
+  }
+  ~MemoryFinalizer()
+  {
+    if(DALI_LIKELY(mArray))
+    {
+      delete[] mArray;
+    }
+  }
+
+  T*& mArray;
+};
+
+/**
+ * Perform a one dimension Gaussian blur convolution and write its output buffer transposed.
+ *
+ * @param[in] inBuffer The input buffer with the source image
+ * @param[in] outBuffer The output buffer with the Gaussian blur applied and transposed
+ * @param[in] bufferWidth The width of the buffer
+ * @param[in] bufferHeight The height of the buffer
+ * @param[in] inBufferStrideBytes The stride byte of input buffer
+ * @param[in] outBufferStrideBytes The stride byte of output buffer
+ * @param[in] inBytesPerPixel The bytes per pixels of input buffer
+ * @param[in] outBytesPerPixel The bytes per pixels of output buffer
+ * @param[in] blurRadius The radius for Gaussian blur
+ *
+ * @return @e false if convolute fails (invalid pixel format or memory issues).
+ */
+bool ConvoluteAndTranspose(uint8_t*       inBuffer,
+                           uint8_t*       outBuffer,
+                           const uint32_t bufferWidth,
+                           const uint32_t bufferHeight,
+                           const uint32_t inBufferStrideBytes,
+                           const uint32_t outBufferStrideBytes,
+                           const uint32_t inBytesPerPixel,
+                           const uint32_t outBytesPerPixel,
+                           const float    blurRadius)
+{
+  if(DALI_UNLIKELY(inBytesPerPixel != outBytesPerPixel))
+  {
+    DALI_LOG_ERROR("Invalid operation!\n");
+    return false;
+  }
 
   // Calculate the weights for gaussian blur
-  int radius = static_cast<int>(std::ceil(blurRadius));
-  int rows   = radius * 2 + 1;
+  int32_t radius = static_cast<int32_t>(std::ceil(blurRadius));
+  if(DALI_UNLIKELY(radius < 0))
+  {
+    DALI_LOG_ERROR("Blur radius could not be negative!\n");
+    return false;
+  }
 
-  float sigma           = (blurRadius < Math::MACHINE_EPSILON_1) ? 0.0f : blurRadius * 0.4f + 0.6f; // The same equation used by Android
-  float sigma22         = 2.0f * sigma * sigma;
-  float sqrtSigmaPi2    = std::sqrt(2.0f * Math::PI) * sigma;
-  float radius2         = radius * radius;
+  uint32_t rows = static_cast<uint32_t>(radius) * 2u + 1u;
+
+  const float sigma        = (blurRadius < Math::MACHINE_EPSILON_1) ? 0.0f : blurRadius * 0.4f + 0.6f; // The same equation used by Android
+  const float sigma22      = 2.0f * sigma * sigma;
+  const float sqrtSigmaPi2 = std::sqrt(2.0f * Math::PI) * sigma;
+
   float normalizeFactor = 0.0f;
 
-  float* weightMatrix = new float[rows];
-  int    index        = 0;
+  float* weightMatrix = nullptr;
+  float* channelSum   = nullptr;
 
-  for(int row = -radius; row <= radius; row++)
+  try
   {
-    float distance = row * row;
-    if(distance > radius2)
+    // Automatically delete memory array
+    MemoryFinalizer weightMatrixFinalizer(weightMatrix);
+    MemoryFinalizer channelSumFinalizer(channelSum);
+
+    if(DALI_UNLIKELY(radius <= 0 || sigma22 < Math::MACHINE_EPSILON_1 || sqrtSigmaPi2 < Math::MACHINE_EPSILON_1))
     {
-      weightMatrix[index] = 0.0f;
+      rows            = 1u;
+      weightMatrix    = new float[rows];
+      weightMatrix[0] = 1.0f;
+      normalizeFactor = 1.0f;
     }
     else
     {
-      weightMatrix[index] = static_cast<float>(std::exp(-(distance) / sigma22) / sqrtSigmaPi2);
-    }
-    normalizeFactor += weightMatrix[index];
-    index++;
-  }
+      weightMatrix        = new float[rows];
+      const float radius2 = radius * radius;
 
-  if(normalizeFactor < Math::MACHINE_EPSILON_1)
-  {
-    DALI_LOG_ERROR("Blur radius is too small.\n");
-    delete[] weightMatrix;
-    return;
-  }
-
-  for(int i = 0; i < rows; i++)
-  {
-    weightMatrix[i] /= normalizeFactor;
-  }
-
-  // Perform the convolution and transposition using the weights
-  int columns  = rows;
-  int columns2 = columns / 2;
-  for(unsigned int y = 0; y < bufferHeight; y++)
-  {
-    unsigned int targetPixelByte = y * outBytesPerPixel;
-    unsigned int ioffset         = y * inBufferStrideBytes;
-    for(unsigned int x = 0; x < bufferWidth; x++)
-    {
-      float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
-      int   weightColumnOffset = columns2;
-      for(int column = -columns2; column <= columns2; column++)
+      int32_t index = 0;
+      for(int32_t row = -radius; row <= radius; row++)
       {
-        float weight = weightMatrix[weightColumnOffset + column];
-        if(fabsf(weight) > Math::MACHINE_EPSILON_1)
+        const float distance = static_cast<float>(row) * static_cast<float>(row);
+        if(distance > radius2)
         {
-          int ix                       = x + column;
-          ix                           = std::max(0, std::min(ix, static_cast<int>(bufferWidth - 1)));
-          unsigned int sourcePixelByte = ioffset + (ix * inBytesPerPixel);
-          r += weight * inBuffer[sourcePixelByte];
-          g += weight * inBuffer[sourcePixelByte + 1];
-          b += weight * inBuffer[sourcePixelByte + 2];
-          a += weight * inBuffer[sourcePixelByte + 3];
+          weightMatrix[index] = 0.0f;
         }
+        else
+        {
+          weightMatrix[index] = static_cast<float>(std::exp(-(distance) / sigma22) / sqrtSigmaPi2);
+        }
+        normalizeFactor += weightMatrix[index];
+        index++;
       }
 
-      outBuffer[targetPixelByte]     = std::max(0, std::min(static_cast<int>(r + 0.5f), 255));
-      outBuffer[targetPixelByte + 1] = std::max(0, std::min(static_cast<int>(g + 0.5f), 255));
-      outBuffer[targetPixelByte + 2] = std::max(0, std::min(static_cast<int>(b + 0.5f), 255));
-      outBuffer[targetPixelByte + 3] = std::max(0, std::min(static_cast<int>(a + 0.5f), 255));
+      if(DALI_UNLIKELY(normalizeFactor < Math::MACHINE_EPSILON_1))
+      {
+        DALI_LOG_ERROR("Blur radius is too small!\n");
+        return false;
+      }
 
-      targetPixelByte += outBufferStrideBytes;
+      for(uint32_t i = 0; i < rows; i++)
+      {
+        weightMatrix[i] /= normalizeFactor;
+      }
+    }
+
+    channelSum = new float[inBytesPerPixel];
+
+    // Perform the convolution and transposition using the weights
+    const int32_t columns  = static_cast<int32_t>(rows);
+    const int32_t columns2 = columns / 2; // == radius
+    for(uint32_t y = 0; y < bufferHeight; y++)
+    {
+      uint32_t       targetPixelByte = y * outBytesPerPixel;
+      const uint32_t ioffset         = y * inBufferStrideBytes;
+      for(uint32_t x = 0; x < bufferWidth; x++)
+      {
+        for(uint32_t i = 0; i < inBytesPerPixel; ++i)
+        {
+          channelSum[i] = 0.0f;
+        }
+        const int32_t weightColumnOffset = columns2;
+        for(int32_t column = -columns2; column <= columns2; column++)
+        {
+          const float weight = weightMatrix[static_cast<uint32_t>(weightColumnOffset + column)];
+          if(fabsf(weight) > Math::MACHINE_EPSILON_1)
+          {
+            int32_t ix = static_cast<int32_t>(x) + column;
+
+            // Mirror Repeat
+            ix %= (2 * static_cast<int32_t>(bufferWidth));
+            if(ix < 0)
+            {
+              ix += 2 * static_cast<int32_t>(bufferWidth);
+            }
+            ix = (ix < static_cast<int32_t>(bufferWidth)) ? (ix) : (2 * static_cast<int32_t>(bufferWidth) - ix - 1);
+
+            DALI_ASSERT_DEBUG(ix >= 0 && ix < static_cast<int32_t>(bufferWidth));
+
+            const uint32_t sourcePixelByte = ioffset + (static_cast<uint32_t>(ix) * inBytesPerPixel);
+            for(uint32_t i = 0; i < inBytesPerPixel; ++i)
+            {
+              channelSum[i] += weight * static_cast<float>(inBuffer[sourcePixelByte + i]);
+            }
+          }
+        }
+
+        for(uint32_t i = 0; i < inBytesPerPixel; ++i)
+        {
+          outBuffer[targetPixelByte + i] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(std::max(0, static_cast<int32_t>(channelSum[i] + 0.5f))), 255u));
+        }
+
+        targetPixelByte += outBufferStrideBytes;
+      }
     }
   }
+  catch(Dali::DaliException& e)
+  {
+    DALI_LOG_ERROR("DaliException! Assertion %s failed at %s\n", e.condition, e.location);
+    return false;
+  }
+  catch(const std::bad_alloc& e)
+  {
+    DALI_LOG_ERROR("Could not allocate temporary memory. (%u byte) e.what() : %s\n", (inBytesPerPixel + rows), e.what());
+    return false;
+  }
 
-  delete[] weightMatrix;
+  return true;
 }
+} // namespace
 
-void PerformGaussianBlurRGBA(PixelBuffer& buffer, const float blurRadius)
+bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius)
 {
-  unsigned int bufferWidth       = buffer.GetWidth();
-  unsigned int bufferHeight      = buffer.GetHeight();
-  unsigned int bufferStrideBytes = buffer.GetStrideBytes();
+  if(DALI_UNLIKELY(blurRadius < 0.0f))
+  {
+    DALI_LOG_ERROR("Blur radius could not be negative!\n");
+    return false;
+  }
 
-  if(bufferWidth == 0 || bufferHeight == 0 || bufferStrideBytes == 0 || buffer.GetPixelFormat() != Pixel::RGBA8888)
+  if(DALI_UNLIKELY(blurRadius < Math::MACHINE_EPSILON_1))
+  {
+    // If blur radius is exactly 0.0f, just skip operation and return as true.
+    return true;
+  }
+
+  const uint32_t bufferWidth       = buffer.GetWidth();
+  const uint32_t bufferHeight      = buffer.GetHeight();
+  const uint32_t bufferStrideBytes = buffer.GetStrideBytes();
+
+  const Pixel::Format bufferPixelFormat = buffer.GetPixelFormat();
+  const uint32_t      bytesPerPixel     = Dali::Pixel::GetBytesPerPixel(bufferPixelFormat);
+
+  if(bufferWidth == 0 || bufferHeight == 0 || bufferStrideBytes == 0 || bytesPerPixel == 0)
   {
     DALI_LOG_ERROR("Invalid buffer!\n");
-    return;
+    return false;
   }
 
   // Create a temporary buffer for the two-pass blur
-  PixelBufferPtr softShadowImageBuffer = PixelBuffer::New(bufferHeight, bufferWidth, Pixel::RGBA8888);
+  // On leaving scope, softShadowImageBuffer will get destroyed.
+  PixelBufferPtr softShadowImageBuffer = PixelBuffer::New(bufferHeight, bufferWidth, bufferPixelFormat);
 
   // We perform the blur first but write its output image buffer transposed, so that we
   // can just do it in two passes. The first pass blurs horizontally and transposes, the
   // second pass does the same, but as the image is now transposed, it's really doing a
   // vertical blur. The second transposition makes the image the right way up again. This
   // is much faster than doing a 2D convolution.
-  ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer->GetBuffer(), bufferWidth, bufferHeight, bufferStrideBytes, bufferHeight * 4u, blurRadius);
-  ConvoluteAndTranspose(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, bufferHeight * 4u, bufferStrideBytes, blurRadius);
+  if(DALI_UNLIKELY(!ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer->GetBuffer(), bufferWidth, bufferHeight, bufferStrideBytes, softShadowImageBuffer->GetStrideBytes(), bytesPerPixel, bytesPerPixel, blurRadius)))
+  {
+    return false;
+  }
+  if(DALI_UNLIKELY(!ConvoluteAndTranspose(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, softShadowImageBuffer->GetStrideBytes(), bufferStrideBytes, bytesPerPixel, bytesPerPixel, blurRadius)))
+  {
+    return false;
+  }
 
-  // On leaving scope, softShadowImageBuffer will get destroyed.
+  return true;
 }
 
 } //namespace Adaptor
