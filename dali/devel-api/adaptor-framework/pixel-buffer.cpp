@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,9 +115,9 @@ void PixelBuffer::ApplyMask(PixelBuffer mask, float contentScale, bool cropToMas
   GetImplementation(*this).ApplyMask(GetImplementation(mask), contentScale, cropToMask);
 }
 
-void PixelBuffer::ApplyGaussianBlur(const float blurRadius)
+bool PixelBuffer::ApplyGaussianBlur(float blurRadius)
 {
-  GetImplementation(*this).ApplyGaussianBlur(blurRadius);
+  return GetImplementation(*this).ApplyGaussianBlur(blurRadius);
 }
 
 void PixelBuffer::Crop(uint16_t x, uint16_t y, uint16_t width, uint16_t height)

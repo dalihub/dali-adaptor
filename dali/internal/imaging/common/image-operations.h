@@ -52,6 +52,13 @@ enum BoxDimensionTest
 typedef Uint16Pair ImageDimensions;
 
 /**
+ * @brief Helper to get Dali::Pixel::Format enum to c-string.
+ * @param[in] format Pixel format enum
+ * @return c-string of enum name.
+ */
+const char* GetPixelFormatName(Dali::Pixel::Format format);
+
+/**
  * @brief Work out the true desired width and height, accounting for special
  * rules for zeros in either or both input requested dimensions.
  *

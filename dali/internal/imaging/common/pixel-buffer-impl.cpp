@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -307,6 +307,8 @@ bool PixelBuffer::Rotate(Degree angle)
   {
     case Pixel::A8:
     case Pixel::L8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
     case Pixel::LA88:
     case Pixel::RGB888:
     case Pixel::RGB8888:
@@ -328,7 +330,7 @@ bool PixelBuffer::Rotate(Degree angle)
   if(!validPixelFormat)
   {
     // Can't rotate the pixel buffer with the current pixel format.
-    DALI_LOG_ERROR("Can't rotate the pixel buffer with the current pixel format\n");
+    DALI_LOG_ERROR("Can't rotate the pixel buffer with the current pixel format : %s\n", Platform::GetPixelFormatName(mPixelFormat));
     return false;
   }
 
@@ -477,46 +479,94 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
   bool hasAlpha      = Pixel::HasAlpha(inBuffer.mPixelFormat);
   int  bytesPerPixel = Pixel::GetBytesPerPixel(inBuffer.mPixelFormat);
 
-  Resampler::Filter filterType = Resampler::LANCZOS4;
-  if(inDimensions.GetWidth() < outDimensions.GetWidth() && inDimensions.GetHeight() < outDimensions.GetHeight())
-  {
-    filterType = Resampler::MITCHELL;
-  }
-
   // This method only really works for 8 bit wide channels.
   // (But could be expanded to work)
-  if(inBuffer.mPixelFormat == Pixel::A8 ||
-     inBuffer.mPixelFormat == Pixel::L8 ||
-     inBuffer.mPixelFormat == Pixel::LA88 ||
-     inBuffer.mPixelFormat == Pixel::RGB888 ||
-     inBuffer.mPixelFormat == Pixel::RGB8888 ||
-     inBuffer.mPixelFormat == Pixel::BGR8888 ||
-     inBuffer.mPixelFormat == Pixel::RGBA8888 ||
-     inBuffer.mPixelFormat == Pixel::BGRA8888)
+  bool validPixelFormat = false;
+  switch(inBuffer.mPixelFormat)
   {
+    case Pixel::A8:
+    case Pixel::L8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    case Pixel::LA88:
+    case Pixel::RGB888:
+    case Pixel::RGB8888:
+    case Pixel::BGR8888:
+    case Pixel::RGBA8888:
+    case Pixel::BGRA8888: // FALL THROUGH
+    {
+      validPixelFormat = true;
+      break;
+    }
+    default:
+    {
+      // This pixel format is not supported for this operation.
+      validPixelFormat = false;
+      break;
+    }
+  }
+
+  if(validPixelFormat)
+  {
+    Resampler::Filter filterType = Resampler::LANCZOS4;
+    if(inDimensions.GetWidth() < outDimensions.GetWidth() && inDimensions.GetHeight() < outDimensions.GetHeight())
+    {
+      filterType = Resampler::MITCHELL;
+    }
     Dali::Internal::Platform::Resample(inBuffer.mBuffer, inDimensions, inBuffer.mStrideBytes, outBuffer->GetBuffer(), outDimensions, filterType, bytesPerPixel, hasAlpha);
   }
   else
   {
-    DALI_LOG_ERROR("Trying to resize an image with too narrow a channel width");
+    DALI_LOG_ERROR("Trying to resize an image with unsupported pixel format: %s\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat));
   }
 
   return outBuffer;
 }
 
-void PixelBuffer::ApplyGaussianBlur(const float blurRadius)
+bool PixelBuffer::ApplyGaussianBlur(const float blurRadius)
 {
-  // This method only works for pixel buffer in RGBA format.
-  if(mWidth > 0 && mHeight > 0 && mPixelFormat == Pixel::RGBA8888)
+  // Check first if ApplyGaussianBlur() can perform the operation in the current pixel buffer.
+
+  bool validPixelFormat = false;
+  switch(mPixelFormat)
   {
-    if(blurRadius > Math::MACHINE_EPSILON_1)
+    case Pixel::A8:
+    case Pixel::L8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    case Pixel::LA88:
+    case Pixel::RGB888:
+    case Pixel::RGB8888:
+    case Pixel::BGR8888:
+    case Pixel::RGBA8888:
+    case Pixel::BGRA8888: // FALL THROUGH
     {
-      PerformGaussianBlurRGBA(*this, blurRadius);
+      validPixelFormat = true;
+      break;
     }
+    default:
+    {
+      // This pixel format is not supported for this operation.
+      validPixelFormat = false;
+      break;
+    }
+  }
+
+  if(!validPixelFormat)
+  {
+    // Can't apply gaussin blur the pixel buffer with the current pixel format.
+    DALI_LOG_ERROR("Can't apply gaussian blur to the pixel buffer with the current pixel format : %s\n", Platform::GetPixelFormatName(mPixelFormat));
+    return false;
+  }
+
+  if(mWidth > 0 && mHeight > 0)
+  {
+    return PerformGaussianBlur(*this, blurRadius);
   }
   else
   {
-    DALI_LOG_ERROR("Trying to apply gaussian blur to an empty pixel buffer or a pixel buffer not in RGBA format");
+    DALI_LOG_ERROR("Trying to apply gaussian blur to an empty pixel buffer");
+    return false;
   }
 }
 
