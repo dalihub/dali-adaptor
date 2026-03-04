@@ -19,7 +19,6 @@
 #include <dali/internal/imaging/common/native-bitmap-buffer-impl.h>
 
 // EXTERNAL HEADERS
-#include <dali/integration-api/bitmap.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS

@@ -21,7 +21,6 @@
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/integration-api/bitmap.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
@@ -60,13 +59,13 @@ struct ImageDetails
    */
   ~ImageDetails();
 
-  std::string                     name;
-  unsigned int                    width;
-  unsigned int                    height;
-  unsigned int                    reportedWidth;
-  unsigned int                    reportedHeight;
-  unsigned int                    refBufferSize;
-  Dali::Integration::PixelBuffer* refBuffer;
+  std::string name;
+  uint32_t    width;
+  uint32_t    height;
+  uint32_t    reportedWidth;
+  uint32_t    reportedHeight;
+  uint32_t    refBufferSize;
+  uint8_t*    refBuffer;
 
 private:
   /**
@@ -98,7 +97,7 @@ struct LoadFunctions
  * @param[in]  functions     The loader functions that need to be called.
  * @param[in]  bitmapProfile Whether or not the bitmap is raw
  */
-void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile = Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS);
+void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions);
 
 /**
  * Helper method to compare the resultant loaded image data of the specified image with a golden master data.

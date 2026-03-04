@@ -71,8 +71,6 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 } // namespace
 
-using Dali::Integration::PixelBuffer;
-
 NativeImageSourceTizenVulkan* NativeImageSourceTizenVulkan::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
   NativeImageSourceTizenVulkan* image = new NativeImageSourceTizenVulkan(width, height, depth, nativeImageSource);

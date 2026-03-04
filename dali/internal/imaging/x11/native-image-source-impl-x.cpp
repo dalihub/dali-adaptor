@@ -39,7 +39,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-using Dali::Integration::PixelBuffer;
 
 // Pieces needed to save compressed images (temporary location while plumbing):
 namespace

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,10 +142,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
-
-  std::string path;
-  GetDataStoragePath(path);
-  mPlatformAbstraction->SetDataStoragePath(path);
 
   if(mEnvironmentOptions->PerformanceServerRequired())
   {
