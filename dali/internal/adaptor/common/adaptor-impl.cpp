@@ -1004,7 +1004,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
         mEnvironmentOptions->CreateTraceManager(mPerformanceInterface);
         mEnvironmentOptions->InstallTraceFunction(); // install tracing for main thread
       }
-      if(DALI_UNLIKELY(recreateMemoryPoolTimer))
+      if(DALI_UNLIKELY(recreateObjectProfiler))
       {
         delete mObjectProfiler;
         mObjectProfiler                 = nullptr;
@@ -1014,7 +1014,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
           mObjectProfiler = new ObjectProfiler(mCore->GetObjectRegistry(), timeInterval);
         }
       }
-      if(DALI_UNLIKELY(recreateObjectProfiler))
+      if(DALI_UNLIKELY(recreateMemoryPoolTimer))
       {
         mMemoryPoolTimer.Stop();
         mMemoryPoolTimer.Reset();
