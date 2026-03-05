@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,12 +194,12 @@ int UtcDaliCaptureStart4Negative(void)
   END_TEST;
 }
 
-int UtcDaliCaptureGetNativeImageSourceNegative(void)
+int UtcDaliCaptureGetNativeImageNegative(void)
 {
   Dali::Capture instance;
   try
   {
-    instance.GetNativeImageSource();
+    instance.GetNativeImage();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

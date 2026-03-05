@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #include <tbm_surface_queue.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/window-system/common/display-connection.h>
@@ -40,9 +40,9 @@ class NativeImageSurfaceEcoreWl : public Dali::Internal::Adaptor::NativeImageSur
 {
 public:
   /**
-   * @param [in] queue the NativeImageSourceQueue pointer
+   * @param [in] queue the NativeImageQueue pointer
    */
-  NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueuePtr queue);
+  NativeImageSurfaceEcoreWl(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief Destructor

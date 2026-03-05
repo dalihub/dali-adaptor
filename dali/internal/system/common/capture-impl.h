@@ -33,7 +33,7 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/public-api/adaptor-framework/async-task-manager.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/capture/capture.h>
 #include <dali/public-api/dali-adaptor-common.h>
@@ -95,9 +95,9 @@ public:
   bool IsExclusive() const;
 
   /**
-   * @copydoc Dali::Capture::GetNativeImageSource
+   * @copydoc Dali::Capture::GetNativeImage
    */
-  Dali::NativeImageSourcePtr GetNativeImageSource();
+  Dali::NativeImagePtr GetNativeImage();
 
   /**
    * @copydoc Dali::Capture::GetCapturedBuffer

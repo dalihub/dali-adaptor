@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
 namespace Dali
@@ -34,9 +34,9 @@ class NativeImageSurfaceCocoa : public Dali::Internal::Adaptor::NativeImageSurfa
 {
 public:
   /**
-   * @param [in] queue the NativeImageSourceQueue pointer
+   * @param [in] queue the NativeImageQueue pointer
    */
-  NativeImageSurfaceCocoa(Dali::NativeImageSourceQueuePtr queue);
+  NativeImageSurfaceCocoa(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief Destructor

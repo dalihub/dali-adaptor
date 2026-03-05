@@ -30,7 +30,7 @@ SET( adaptor_imaging_common_egl_src_files
 
 # module: imaging, backend: common/dynamic
 SET( adaptor_imaging_common_dynamic_src_files
-    ${adaptor_imaging_dir}/common/native-image-source-factory-dynamic.cpp
+    ${adaptor_imaging_dir}/common/native-image-factory-dynamic.cpp
 )
 
 # module: imaging, backend: tizen
@@ -40,16 +40,16 @@ SET( adaptor_imaging_tizen_src_files
 
 # module: imaging, backend: tizen/egl
 SET( adaptor_imaging_tizen_egl_src_files
-    ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen.cpp
-    ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen.cpp
-    ${adaptor_imaging_dir}/tizen/native-image-source-queue-impl-tizen.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-factory-tizen.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-impl-tizen.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-queue-impl-tizen.cpp
 )
 
 # module: imaging, backend: tizen/vulkan
 SET( adaptor_imaging_tizen_vulkan_src_files
-    ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen-vulkan.cpp
-    ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen-vulkan.cpp
-    ${adaptor_imaging_dir}/tizen/native-image-source-queue-impl-tizen-vulkan.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-factory-tizen-vulkan.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-impl-tizen-vulkan.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-queue-impl-tizen-vulkan.cpp
 )
 
 # module: imaging, backend: ubuntu
@@ -59,14 +59,14 @@ SET( adaptor_imaging_ubuntu_src_files
 
 # module: imaging, backend: ubuntu-x11/egl
 SET( adaptor_imaging_ubuntu_x11_egl_src_files
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x-egl.cpp
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-impl-x.cpp
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-factory-x-egl.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-impl-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-queue-impl-x.cpp
 )
 
 # module: imaging, backend: ubuntu-x11/vulkan
 SET( adaptor_imaging_ubuntu_x11_vulkan_src_files
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x-vulkan.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-factory-x-vulkan.cpp
 )
 
 # module: imaging, backend: libuv-x11/glib
@@ -76,14 +76,14 @@ SET( adaptor_imaging_x11_src_files
 
 # module: imaging, backend: libuv-x11/glib / egl
 SET( adaptor_imaging_x11_egl_src_files
-    ${adaptor_imaging_dir}/x11/native-image-source-factory-x-egl.cpp
-    ${adaptor_imaging_dir}/x11/native-image-source-impl-x.cpp
-    ${adaptor_imaging_dir}/x11/native-image-source-queue-impl-x.cpp
+    ${adaptor_imaging_dir}/x11/native-image-factory-x-egl.cpp
+    ${adaptor_imaging_dir}/x11/native-image-impl-x.cpp
+    ${adaptor_imaging_dir}/x11/native-image-queue-impl-x.cpp
 )
 
 # module: imaging, backend: libuv-x11/glib / vulkan
 SET( adaptor_imaging_x11_vulkan_src_files
-    ${adaptor_imaging_dir}/x11/native-image-source-factory-x-vulkan.cpp
+    ${adaptor_imaging_dir}/x11/native-image-factory-x-vulkan.cpp
 )
 
 # module: imaging, backend: android
@@ -93,27 +93,27 @@ SET( adaptor_imaging_android_src_files
 
 # module: imaging, backend: android, egl
 SET( adaptor_imaging_egl_android_src_files
-    ${adaptor_imaging_dir}/android/native-image-source-factory-android.cpp
-    ${adaptor_imaging_dir}/android/native-image-source-impl-android.cpp
-    ${adaptor_imaging_dir}/android/native-image-source-queue-impl-android.cpp
+    ${adaptor_imaging_dir}/android/native-image-factory-android.cpp
+    ${adaptor_imaging_dir}/android/native-image-impl-android.cpp
+    ${adaptor_imaging_dir}/android/native-image-queue-impl-android.cpp
 )
 
 # module: imaging, backend: android, vulkan
 SET( adaptor_imaging_vulkan_android_src_files
-    ${adaptor_imaging_dir}/android/native-image-source-factory-android-vulkan.cpp
+    ${adaptor_imaging_dir}/android/native-image-factory-android-vulkan.cpp
 )
 
 # module: imaging, backend: windows
 SET( adaptor_imaging_windows_src_files
     ${adaptor_imaging_dir}/windows/curl-environment-win.cpp
     ${adaptor_imaging_dir}/windows/file-download-win.cpp
-    ${adaptor_imaging_dir}/windows/native-image-source-factory-win.cpp
-    ${adaptor_imaging_dir}/windows/native-image-source-impl-win.cpp
+    ${adaptor_imaging_dir}/windows/native-image-factory-win.cpp
+    ${adaptor_imaging_dir}/windows/native-image-impl-win.cpp
 )
 
 # module: imaging, backend: macos
 SET( adaptor_imaging_macos_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp
-    ${adaptor_imaging_dir}/macos/native-image-source-factory-mac.cpp
-    ${adaptor_imaging_dir}/macos/native-image-source-impl-mac.cpp
+    ${adaptor_imaging_dir}/macos/native-image-factory-mac.cpp
+    ${adaptor_imaging_dir}/macos/native-image-impl-mac.cpp
 )

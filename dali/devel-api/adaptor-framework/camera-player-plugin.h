@@ -2,7 +2,7 @@
 #define DALI_CAMERA_PLAYER_PLUGIN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 // EXTERNAL INCLUDES
@@ -59,9 +59,9 @@ public:
 
   /**
    * @brief Sets camera rendering target for native image
-   * @param[in] target The target for camera rendering, native image source
+   * @param[in] target The target for camera rendering, native image
    */
-  virtual void SetNativeImageRenderingTarget(Dali::NativeImageSourcePtr target) = 0;
+  virtual void SetNativeImageRenderingTarget(Dali::NativeImagePtr target) = 0;
 
   /**
    * @brief Sets the area of camera display.

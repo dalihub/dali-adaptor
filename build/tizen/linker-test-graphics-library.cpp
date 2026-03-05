@@ -36,21 +36,21 @@ public:
 extern "C" {
 extern Dali::Internal::Adaptor::GraphicsFactoryInterface* CreateGraphicsFactory(Dali::Internal::Adaptor::EnvironmentOptions& environmentOptions);
 extern Dali::Internal::Adaptor::RenderSurfaceFactory*     GetRenderSurfaceFactory();
-extern Dali::Internal::Adaptor::NativeImageSourceFactory* GetNativeImageSourceFactory();
-extern Dali::Internal::Adaptor::NativeImageSurface*       CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
+extern Dali::Internal::Adaptor::NativeImageFactory*       GetNativeImageFactory();
+extern Dali::Internal::Adaptor::NativeImageSurface*       CreateNativeImageSurface(Dali::NativeImageQueuePtr queue);
 extern Dali::Graphics::SurfaceFactory*                    CreateSurfaceFactory(Dali::Graphics::NativeWindowInterface& nativeWindow);
 } // extern "C"
 
 int main(int argc, char** argv)
 {
-  Dali::Internal::Adaptor::EnvironmentOptions options;
+  Dali::Internal::Adaptor::EnvironmentOptions                                         options;
   [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::GraphicsFactoryInterface> graphicsFactory(CreateGraphicsFactory(options));
 
-  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory>     renderSurfaceFactory(GetRenderSurfaceFactory());
-  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageSourceFactory> imageSourceFactory(GetNativeImageSourceFactory());
-  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>       nativeImageSurface(CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr()));
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::RenderSurfaceFactory> renderSurfaceFactory(GetRenderSurfaceFactory());
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageFactory>   imageSourceFactory(GetNativeImageFactory());
+  [[maybe_unused]] std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface>   nativeImageSurface(CreateNativeImageSurface(Dali::NativeImageQueuePtr()));
 
-  NativeWindowDummyImpl nativeWindow;
+  NativeWindowDummyImpl                                            nativeWindow;
   [[maybe_unused]] std::unique_ptr<Dali::Graphics::SurfaceFactory> surfaceFactory(CreateSurfaceFactory(nativeWindow));
 
   return 0;

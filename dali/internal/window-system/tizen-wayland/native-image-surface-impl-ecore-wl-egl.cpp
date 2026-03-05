@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ inline bool IsColorDepth32Required(const tbm_format format)
 }
 } // namespace
 
-NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueuePtr queue)
+NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageQueuePtr queue)
 : mDisplayConnection(nullptr),
   mGraphics(nullptr),
   mEGL(nullptr),
@@ -86,13 +86,13 @@ NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueu
 {
   if(queue)
   {
-    mTbmQueue   = AnyCast<tbm_surface_queue_h>(queue->GetNativeImageSourceQueue());
+    mTbmQueue   = AnyCast<tbm_surface_queue_h>(queue->GetNativeImageQueue());
     mTbmFormat  = tbm_surface_queue_get_format(mTbmQueue);
     mColorDepth = IsColorDepth32Required(mTbmFormat) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
   else
   {
-    DALI_LOG_ERROR("NativeImageSourceQueue is null.");
+    DALI_LOG_ERROR("NativeImageQueue is null.");
   }
 }
 

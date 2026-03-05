@@ -18,7 +18,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 
 // INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/pixel-data-integ.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
@@ -32,7 +32,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 
 #include <algorithm>
 
@@ -1261,11 +1261,11 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
   mIsNativeImage = (createInfo.nativeImagePtr != nullptr);
   if(mIsNativeImage)
   {
-    if(dynamic_cast<Dali::NativeImageSource*>(createInfo.nativeImagePtr.Get()))
+    if(dynamic_cast<Dali::NativeImage*>(createInfo.nativeImagePtr.Get()))
     {
       mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE;
     }
-    else if(dynamic_cast<Dali::NativeImageSourceQueue*>(createInfo.nativeImagePtr.Get()))
+    else if(dynamic_cast<Dali::NativeImageQueue*>(createInfo.nativeImagePtr.Get()))
     {
       mNativeImageType = NativeImageType::NATIVE_IMAGE_SOURCE_QUEUE;
     }

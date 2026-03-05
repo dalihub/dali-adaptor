@@ -152,9 +152,9 @@ public:
   Dali::WebEnginePlugin* GetPlugin() const;
 
   /**
-   * @brief Get native image source to render.
+   * @brief Get native image to render.
    */
-  NativeImageSourcePtr GetNativeImageSource();
+  NativeImagePtr GetNativeImage();
 
   /**
    * @brief Change orientation.

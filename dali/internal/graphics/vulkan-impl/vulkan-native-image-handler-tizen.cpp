@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -372,10 +372,10 @@ NativeTextureData VulkanNativeImageHandlerTizen::SetFormatAndUsage(const Dali::G
   textureData.isValid = false;
 
   NativeImageInterfacePtr nativeImage       = createInfo.nativeImagePtr;
-  Dali::Any               nativeImageSource = nativeImage->GetNativeImageHandle();
-  if(nativeImageSource.GetType() == typeid(tbm_surface_h))
+  Dali::Any               nativeImageHandle = nativeImage->GetNativeImageHandle();
+  if(nativeImageHandle.GetType() == typeid(tbm_surface_h))
   {
-    tbm_surface_h tbmSurface = AnyCast<tbm_surface_h>(nativeImageSource);
+    tbm_surface_h tbmSurface = AnyCast<tbm_surface_h>(nativeImageHandle);
     if(tbm_surface_internal_is_valid(tbmSurface))
     {
       DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "SetFormatAndUsage: Valid TBM surface\n");
@@ -405,7 +405,7 @@ NativeTextureData VulkanNativeImageHandlerTizen::SetFormatAndUsage(const Dali::G
   }
   else
   {
-    DALI_LOG_ERROR("VulkanNativeImageHandlerTizen::SetFormatAndUsage: nativeImageSource.GetType() != typeid(tbm_surface_h)\n");
+    DALI_LOG_ERROR("VulkanNativeImageHandlerTizen::SetFormatAndUsage: nativeImageHandle.GetType() != typeid(tbm_surface_h)\n");
   }
 
   return textureData;

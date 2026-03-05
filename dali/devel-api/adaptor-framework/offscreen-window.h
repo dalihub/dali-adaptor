@@ -54,7 +54,7 @@ class OffscreenWindow;
  * an actual visible window on the screen.
  *
  * IMPORTANT: You must call SetNativeImage() to set the render target BEFORE calling
- * OffscreenApplication::Start(). The native image source determines where the
+ * OffscreenApplication::Start(). The native image determines where the
  * rendered content will be stored.
  *
  * Usage Example:
@@ -62,8 +62,8 @@ class OffscreenWindow;
  * auto window = OffscreenWindow.New();
  * window.SetBackgroundColor(Color::WHITE);
  *
- * // IMPORTANT: Set native image source BEFORE starting the application
- * NativeImageSourcePtr nativeImage = NativeImageSource::New(width, height);
+ * // IMPORTANT: Set native image BEFORE starting the application
+ * NativeImagePtr nativeImage = NativeImage::New(width, height);
  * window.SetNativeImage(nativeImage);
  *
  * // Now start the application

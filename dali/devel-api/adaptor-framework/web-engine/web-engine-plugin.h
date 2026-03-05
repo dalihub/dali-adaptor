@@ -28,7 +28,7 @@
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 
 namespace Dali
 {
@@ -356,7 +356,7 @@ public:
   /**
    * @brief Get image to render.
    */
-  virtual NativeImageSourcePtr GetNativeImageSource() = 0;
+  virtual NativeImagePtr GetNativeImage() = 0;
 
   /**
    * @brief Change orientation.

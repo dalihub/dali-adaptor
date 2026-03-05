@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TIZEN_CANVAS_RENDERER_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -73,7 +73,7 @@ private:
 
 private:
 #ifdef THORVG_SUPPORT
-  Dali::NativeImageSourceQueuePtr mNativeImageQueue;
+  Dali::NativeImageQueuePtr mNativeImageQueue;
 #endif
 };
 

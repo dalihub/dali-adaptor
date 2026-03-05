@@ -22,7 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 
 namespace Dali
 {
@@ -44,7 +44,7 @@ public:
    *
    * Needs exporting as it's called by one of the the other libraries
    */
-  static DALI_ADAPTOR_API std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
+  static DALI_ADAPTOR_API std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> CreateNativeImageSurface(Dali::NativeImageQueuePtr queue);
 };
 
 } // namespace Adaptor
