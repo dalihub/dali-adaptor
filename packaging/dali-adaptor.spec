@@ -114,6 +114,7 @@ BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
+Requires: capi-system-system-settings-util-lib
 
 # for ATSPI (Accessibility) support
 BuildRequires:  pkgconfig(eldbus)
