@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-library-handle.h>
 #include <dali/internal/graphics/common/surface-factory.h>
-#include <dali/internal/imaging/common/native-image-source-factory.h>
+#include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
@@ -68,10 +68,10 @@ std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptio
 std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory();
 
 /**
- * @brief Gets the native image source factory.
- * @return A unique pointer to the native image source factory.
+ * @brief Gets the native image factory.
+ * @return A unique pointer to the native image factory.
  */
-std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory();
+std::unique_ptr<NativeImageFactory> GetNativeImageFactory();
 
 /**
  * @brief Creates a surface factory for the given native window.
@@ -82,10 +82,10 @@ std::unique_ptr<Graphics::SurfaceFactory> CreateSurfaceFactory(Graphics::NativeW
 
 /**
  * @brief Creates a native image surface with the given queue.
- * @param[in] queue The native image source queue for the surface.
+ * @param[in] queue The native image queue for the surface.
  * @return A unique pointer to the native image surface.
  */
-std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageSourceQueuePtr queue);
+std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageQueuePtr queue);
 
 /**
  * @brief Casts a void pointer to a native graphics type.

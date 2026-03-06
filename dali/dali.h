@@ -28,7 +28,7 @@
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>

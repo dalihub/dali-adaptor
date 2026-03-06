@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ namespace Adaptor
  * @brief Global counter for tracking TBM surface usage across the system
  *
  * This class provides thread-safe counting of:
- * - NativeImageSource instances (1 tbm_surface each)
- * - NativeImageSourceQueue instances (multiple tbm_surfaces each)
+ * - NativeImage instances (1 tbm_surface each)
+ * - NativeImageQueue instances (multiple tbm_surfaces each)
  */
 class TbmSurfaceCounter
 {
@@ -50,30 +50,30 @@ public:
   }
 
   /**
-   * @brief Increment count when a NativeImageSource is created
+   * @brief Increment count when a NativeImage is created
    */
-  void AddNativeImageSource()
+  void AddNativeImage()
   {
     Mutex::ScopedLock lock(mMutex);
-    mNativeImageSourceCount++;
+    mNativeImageCount++;
     LogTotalCount();
   }
 
   /**
-   * @brief Decrement count when a NativeImageSource is destroyed
+   * @brief Decrement count when a NativeImage is destroyed
    */
-  void RemoveNativeImageSource()
+  void RemoveNativeImage()
   {
     Mutex::ScopedLock lock(mMutex);
-    if(mNativeImageSourceCount > 0)
+    if(mNativeImageCount > 0)
     {
-      mNativeImageSourceCount--;
+      mNativeImageCount--;
     }
     LogTotalCount();
   }
 
   /**
-   * @brief Increment count when a BackBuffer of NativeImageSource is created
+   * @brief Increment count when a BackBuffer of NativeImage is created
    */
   void AddBackBufferSurface()
   {
@@ -83,7 +83,7 @@ public:
   }
 
   /**
-   * @brief Decrement count when a BackBuffer of NativeImageSource is destroyed
+   * @brief Decrement count when a BackBuffer of NativeImage is destroyed
    */
   void RemoveBackBufferSurface()
   {
@@ -96,27 +96,27 @@ public:
   }
 
   /**
-   * @brief Increment count when a NativeImageSourceQueue is created
+   * @brief Increment count when a NativeImageQueue is created
    * @param queueSize Number of tbm_surfaces in the queue
    */
-  void AddNativeImageSourceQueue(uint32_t queueSize)
+  void AddNativeImageQueue(uint32_t queueSize)
   {
     Mutex::ScopedLock lock(mMutex);
-    mNativeImageSourceQueueCount++;
+    mNativeImageQueueCount++;
     mQueueSurfaceCount += queueSize;
     LogTotalCount();
   }
 
   /**
-   * @brief Decrement count when a NativeImageSourceQueue is destroyed
+   * @brief Decrement count when a NativeImageQueue is destroyed
    * @param queueSize Number of tbm_surfaces in the queue
    */
-  void RemoveNativeImageSourceQueue(uint32_t queueSize)
+  void RemoveNativeImageQueue(uint32_t queueSize)
   {
     Mutex::ScopedLock lock(mMutex);
-    if(mNativeImageSourceQueueCount > 0)
+    if(mNativeImageQueueCount > 0)
     {
-      mNativeImageSourceQueueCount--;
+      mNativeImageQueueCount--;
     }
     if(mQueueSurfaceCount >= queueSize)
     {
@@ -131,8 +131,8 @@ private:
    */
   void LogTotalCount()
   {
-    DALI_LOG_DEBUG_INFO("NativeImageSource=%u, NativeImageSourceQueue=%u, QueueSurfaceCount=%u, TotalSurfaceCount=%u\n",
-                        mNativeImageSourceCount, mNativeImageSourceQueueCount, mQueueSurfaceCount, mNativeImageSourceCount + mQueueSurfaceCount + mBackBufferCount);
+    DALI_LOG_DEBUG_INFO("NativeImage=%u, NativeImageQueue=%u, QueueSurfaceCount=%u, TotalSurfaceCount=%u\n",
+                        mNativeImageCount, mNativeImageQueueCount, mQueueSurfaceCount, mNativeImageCount + mQueueSurfaceCount + mBackBufferCount);
   }
 
 private:
@@ -141,11 +141,11 @@ private:
   TbmSurfaceCounter(const TbmSurfaceCounter&)            = delete;
   TbmSurfaceCounter& operator=(const TbmSurfaceCounter&) = delete;
 
-  Dali::Mutex        mMutex;
-  uint32_t           mNativeImageSourceCount      = 0;
-  uint32_t           mBackBufferCount             = 0;
-  uint32_t           mNativeImageSourceQueueCount = 0;
-  uint32_t           mQueueSurfaceCount           = 0;
+  Dali::Mutex mMutex;
+  uint32_t    mNativeImageCount      = 0;
+  uint32_t    mBackBufferCount       = 0;
+  uint32_t    mNativeImageQueueCount = 0;
+  uint32_t    mQueueSurfaceCount     = 0;
 };
 
 } // namespace Adaptor

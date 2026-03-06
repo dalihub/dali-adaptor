@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
 
@@ -176,7 +176,7 @@ public:
   /**
    * @brief Sets video rendering target.
    * @SINCE_1_1.38
-   * @param[in] target The target for video rendering, window surface or native image source
+   * @param[in] target The target for video rendering, window surface or native image
    */
   virtual void SetRenderingTarget(Any target) = 0;
 
@@ -373,15 +373,15 @@ public:
    * @brief Enables or disables offscreen frame rendering for video interpolation.
    *
    * This method enables offscreen frame rendering which allows for smooth frame interpolation
-   * between previous and current video frames. When enabled, it creates two native image sources
+   * between previous and current video frames. When enabled, it creates two native images
    * for storing previous and current frames respectively.
    *
    * @SINCE_2_4.39
    * @param[in] useOffScreenFrame True to enable offscreen frame rendering, false to disable
-   * @param[in] previousFrameBufferNativeImageSourcePtr Native image source for previous frame buffer
-   * @param[in] currentFrameBufferNativeImageSourcePtr Native image source for current frame buffer
+   * @param[in] previousFrameBufferNativeImagePtr Native image for previous frame buffer
+   * @param[in] currentFrameBufferNativeImagePtr Native image for current frame buffer
    */
-  virtual void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr) = 0;
+  virtual void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImagePtr previousFrameBufferNativeImagePtr, Dali::NativeImagePtr currentFrameBufferNativeImagePtr) = 0;
 
   /**
    * @brief Sets the video frame buffer for rendering.
@@ -392,7 +392,7 @@ public:
    * @SINCE_2_4.39
    * @param[in] source The video frame buffer source containing surface data
    */
-  virtual void SetVideoFrameBuffer(Dali::NativeImageSourcePtr source) = 0;
+  virtual void SetVideoFrameBuffer(Dali::NativeImagePtr source) = 0;
 };
 
 } // namespace Dali

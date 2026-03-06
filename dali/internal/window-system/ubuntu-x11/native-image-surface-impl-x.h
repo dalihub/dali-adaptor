@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_X_NATIVE_IMAGE_SURFACE_IMPL_X_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
 namespace Dali
@@ -35,9 +35,9 @@ class NativeImageSurfaceX : public Dali::Internal::Adaptor::NativeImageSurface
 {
 public:
   /**
-   * @param [in] queue the NativeImageSourceQueue pointer
+   * @param [in] queue the NativeImageQueue pointer
    */
-  NativeImageSurfaceX(Dali::NativeImageSourceQueuePtr queue);
+  NativeImageSurfaceX(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief Destructor

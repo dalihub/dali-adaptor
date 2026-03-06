@@ -15,7 +15,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
-    utc-Dali-NativeImageSource.cpp
+    utc-Dali-NativeImage.cpp
     utc-Dali-PixelBuffer.cpp
     utc-Dali-TextScript.cpp
     utc-Dali-Timer.cpp

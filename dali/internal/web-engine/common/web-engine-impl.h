@@ -88,9 +88,9 @@ public:
   Dali::WebEnginePlugin* GetPlugin() const;
 
   /**
-   * @copydoc Dali::WebEngine::GetNativeImageSource()
+   * @copydoc Dali::WebEngine::GetNativeImage()
    */
-  Dali::NativeImageSourcePtr GetNativeImageSource();
+  Dali::NativeImagePtr GetNativeImage();
 
   /**
    * @copydoc Dali::WebEngine::ChangeOrientation()

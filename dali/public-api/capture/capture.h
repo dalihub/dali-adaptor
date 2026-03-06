@@ -2,7 +2,7 @@
 #define DALI_CAPTURE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -266,14 +266,14 @@ public:
   bool IsExclusive() const;
 
   /**
-   * @brief Get NativeImageSourcePtr that is saved captured image.
+   * @brief Get NativeImagePtr that is saved captured image.
    *
-   * @SINCE_1_9.10
+   * @SINCE_2_5.13
    *
-   * @return NativeImageSourcePtr Captured result that can be rendered with DALi
-   * @note GetNativeImageSource is only available inside FinishedSignal.
+   * @return NativeImagePtr Captured result that can be rendered with DALi
+   * @note GetNativeImage is only available inside FinishedSignal.
    */
-  Dali::NativeImageSourcePtr GetNativeImageSource();
+  Dali::NativeImagePtr GetNativeImage();
 
   /**
    * @brief Get Texture of captured image.

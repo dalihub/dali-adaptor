@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -272,12 +272,12 @@ void VideoPlayer::SetFrameInterpolationInterval(float intervalSeconds)
   GetImplementation(*this).SetFrameInterpolationInterval(intervalSeconds);
 }
 
-void VideoPlayer::EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr)
+void VideoPlayer::EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImagePtr previousFrameBufferNativeImagePtr, Dali::NativeImagePtr currentFrameBufferNativeImagePtr)
 {
-  GetImplementation(*this).EnableOffscreenFrameRendering(useOffScreenFrame, previousFrameBufferNativeImageSourcePtr, currentFrameBufferNativeImageSourcePtr);
+  GetImplementation(*this).EnableOffscreenFrameRendering(useOffScreenFrame, previousFrameBufferNativeImagePtr, currentFrameBufferNativeImagePtr);
 }
 
-void VideoPlayer::SetVideoFrameBuffer(Dali::NativeImageSourcePtr source)
+void VideoPlayer::SetVideoFrameBuffer(Dali::NativeImagePtr source)
 {
   GetImplementation(*this).SetVideoFrameBuffer(source);
 }

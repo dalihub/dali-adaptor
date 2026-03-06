@@ -2,7 +2,7 @@
 #define DALI_VIDEO_PLAYER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-sync-mode.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
@@ -204,7 +204,7 @@ public:
   /**
    * @brief Sets video rendering target.
    * @SINCE_1_1.38
-   * @param[in] target The target for video rendering, window surface or native image source
+   * @param[in] target The target for video rendering, window surface or native image
    */
   void SetRenderingTarget(Any target);
 
@@ -382,17 +382,17 @@ public:
    * @brief Enables or disables offscreen frame rendering for video interpolation.
    * @SINCE_2_4.39
    * @param[in] useOffScreenFrame True to enable offscreen frame rendering, false to disable
-   * @param[in] previousFrameBufferNativeImageSourcePtr Native image source for previous frame buffer
-   * @param[in] currentFrameBufferNativeImageSourcePtr Native image source for current frame buffer
+   * @param[in] previousFrameBufferNativeImagePtr Native image for previous frame buffer
+   * @param[in] currentFrameBufferNativeImagePtr Native image for current frame buffer
    */
-  void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImageSourcePtr previousFrameBufferNativeImageSourcePtr, Dali::NativeImageSourcePtr currentFrameBufferNativeImageSourcePtr);
+  void EnableOffscreenFrameRendering(bool useOffScreenFrame, Dali::NativeImagePtr previousFrameBufferNativeImagePtr, Dali::NativeImagePtr currentFrameBufferNativeImagePtr);
 
   /**
    * @brief Sets the video frame buffer for rendering.
    * @SINCE_2_4.39
    * @param[in] source The video frame buffer source containing surface data
    */
-  void SetVideoFrameBuffer(Dali::NativeImageSourcePtr source);
+  void SetVideoFrameBuffer(Dali::NativeImagePtr source);
 
 private: // Not intended for application developers
   /**

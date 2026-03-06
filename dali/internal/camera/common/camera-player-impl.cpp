@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dlfcn.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 
 namespace Dali
 {
@@ -122,7 +122,7 @@ void CameraPlayer::SetWindowRenderingTarget(Dali::Window target)
   }
 }
 
-void CameraPlayer::SetNativeImageRenderingTarget(Dali::NativeImageSourcePtr target)
+void CameraPlayer::SetNativeImageRenderingTarget(Dali::NativeImagePtr target)
 {
   if(mPlugin != NULL)
   {

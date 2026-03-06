@@ -108,9 +108,9 @@ Dali::WebEnginePlugin* WebEngine::GetPlugin() const
   return GetImplementation(*this).GetPlugin();
 }
 
-NativeImageSourcePtr WebEngine::GetNativeImageSource()
+NativeImagePtr WebEngine::GetNativeImage()
 {
-  return GetImplementation(*this).GetNativeImageSource();
+  return GetImplementation(*this).GetNativeImage();
 }
 
 void WebEngine::ChangeOrientation(int orientation)
