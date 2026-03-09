@@ -85,6 +85,13 @@ VectorImageRenderer::~VectorImageRenderer()
     tvg::Paint::rel(mPicture);
     mPicture = nullptr;
   }
+
+  if(mSwCanvas)
+  {
+    delete mSwCanvas;
+    mSwCanvas = nullptr;
+  }
+
   tvg::Initializer::term();
 #else
   // NOTE: Initializer::term() will call clear() internally.

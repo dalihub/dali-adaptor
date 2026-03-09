@@ -69,6 +69,11 @@ CanvasRenderer::~CanvasRenderer()
   {
     // Terminate ThorVG Engine
 #ifdef THORVG_VERSION_1
+    if(mTvgCanvas)
+    {
+      delete mTvgCanvas;
+      mTvgCanvas = nullptr;
+    }
     tvg::Initializer::term();
 #else
     tvg::Initializer::term(tvg::CanvasEngine::Sw);
