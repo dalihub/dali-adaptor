@@ -17,7 +17,7 @@
 
 #include <adaptor-test-application.h>
 #include <dali-test-suite-utils.h>
-#include <dali/public-api/capture/capture.h>
+#include <dali/public-api/adaptor-framework/capture.h>
 
 using namespace Dali;
 

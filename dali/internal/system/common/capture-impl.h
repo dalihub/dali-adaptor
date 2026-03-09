@@ -30,12 +30,12 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/async-task-manager.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
-#include <dali/public-api/adaptor-framework/async-task-manager.h>
+#include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/capture/capture.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali

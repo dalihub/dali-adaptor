@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-library-handle.h>
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali::Internal::Adaptor
 {

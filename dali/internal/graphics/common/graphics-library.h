@@ -22,6 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-library-handle.h>
 #include <dali/internal/graphics/common/surface-factory.h>
@@ -29,7 +30,6 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali::Internal::Adaptor::GraphicsLibrary
 {

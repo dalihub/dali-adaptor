@@ -1,5 +1,8 @@
+#ifndef DALI_WEARABLE_H
+#define DALI_WEARABLE_H
+
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +18,8 @@
  *
  */
 
-// HEADER
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
-
-// EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
-
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/graphics-backend-impl.h>
+#include <dali/devel-api/watch/watch-application.h>
+#include <dali/public-api/adaptor-framework/capture.h>
 
-namespace Dali::Graphics
-{
-Backend GetCurrentGraphicsBackend()
-{
-  return Internal::GetCurrentGraphicsBackend();
-}
-
-void SetGraphicsBackend(Backend backend)
-{
-  Internal::SetGraphicsBackend(backend);
-}
-
-const std::string& GetBackendInformation()
-{
-  return Internal::GetBackendInformation();
-}
-} // namespace Dali::Graphics
+#endif // DALI_WEARABLE_H

@@ -15,7 +15,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/adaptor-framework/async-task-manager.h>
+#include <dali/devel-api/adaptor-framework/async-task-manager.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/async-task-manager-impl.h>

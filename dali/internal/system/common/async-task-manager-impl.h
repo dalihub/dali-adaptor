@@ -31,7 +31,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/async-task-manager.h>
+#include <dali/devel-api/adaptor-framework/async-task-manager.h>
 
 namespace Dali
 {

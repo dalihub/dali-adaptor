@@ -24,9 +24,9 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/internal/graphics/common/graphics-library-open-mode.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali::Internal::Adaptor::GraphicsLibrary
 {

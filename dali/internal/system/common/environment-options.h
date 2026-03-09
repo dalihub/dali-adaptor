@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/internal/adaptor/common/threading-mode.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {

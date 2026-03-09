@@ -24,12 +24,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-stream.h>
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/thread-controller.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 namespace Dali
 {

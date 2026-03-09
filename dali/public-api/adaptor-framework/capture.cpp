@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/capture/capture.h>
+#include <dali/public-api/adaptor-framework/capture.h>
 
 // INTERNAL HEADER
 #include <dali/internal/system/common/capture-impl.h>
