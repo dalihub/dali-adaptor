@@ -114,7 +114,10 @@ BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
+
+%if 0%{?tizen_version_major} >= 11
 Requires: capi-system-system-settings-util-lib
+%endif
 
 # for ATSPI (Accessibility) support
 BuildRequires:  pkgconfig(eldbus)
