@@ -23,7 +23,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -53,10 +53,10 @@ public:
   /**
    * Creates a NativeImageSurface
    *
-   * @param [in] queue the native image source queue handle
+   * @param [in] queue the native image queue handle
    * @return A smart-pointer to a newly allocated native image surface
    */
-  static NativeImageSurfacePtr New(Dali::NativeImageSourceQueuePtr queue);
+  static NativeImageSurfacePtr New(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief Gets the native renderable handle
@@ -104,9 +104,9 @@ private:
   /// @cond internal
   /**
    * @brief Private constructor.
-   * @param[in] queue the native image source queue handle
+   * @param[in] queue the native image queue handle
    */
-  DALI_INTERNAL NativeImageSurface(Dali::NativeImageSourceQueuePtr queue);
+  DALI_INTERNAL NativeImageSurface(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().

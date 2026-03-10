@@ -37,7 +37,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-policy-decision.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/images/pixel-data.h>
 
 namespace Dali
@@ -331,9 +331,9 @@ Dali::WebEnginePlugin* WebEngine::GetPlugin() const
   return mPlugin;
 }
 
-Dali::NativeImageSourcePtr WebEngine::GetNativeImageSource()
+Dali::NativeImagePtr WebEngine::GetNativeImage()
 {
-  return mPlugin->GetNativeImageSource();
+  return mPlugin->GetNativeImage();
 }
 
 void WebEngine::ChangeOrientation(int orientation)

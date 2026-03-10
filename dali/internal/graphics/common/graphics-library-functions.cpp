@@ -18,7 +18,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/graphics/common/surface-factory.h>
-#include <dali/internal/imaging/common/native-image-source-factory.h>
+#include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
@@ -37,12 +37,12 @@ DALI_ADAPTOR_API RenderSurfaceFactory* GetRenderSurfaceFactory()
   return Dali::Internal::Adaptor::GetRenderSurfaceFactory().release();
 }
 
-DALI_ADAPTOR_API NativeImageSourceFactory* GetNativeImageSourceFactory()
+DALI_ADAPTOR_API NativeImageFactory* GetNativeImageFactory()
 {
-  return Dali::Internal::Adaptor::GetNativeImageSourceFactory().release();
+  return Dali::Internal::Adaptor::GetNativeImageFactory().release();
 }
 
-DALI_ADAPTOR_API NativeImageSurface* CreateNativeImageSurface(Dali::NativeImageSourceQueuePtr queue)
+DALI_ADAPTOR_API NativeImageSurface* CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
 {
   return Dali::Internal::Adaptor::NativeImageSurfaceFactory::CreateNativeImageSurface(queue).release();
 }

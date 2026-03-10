@@ -29,7 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/devel-api/adaptor-framework/native-image-source-devel.h>
+#include <dali/devel-api/adaptor-framework/native-image-devel.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -164,20 +164,20 @@ bool Capture::IsExclusive() const
   return mIsExclusive;
 }
 
-Dali::NativeImageSourcePtr Capture::GetNativeImageSource()
+Dali::NativeImagePtr Capture::GetNativeImage()
 {
-  Dali::NativeImageSourcePtr result;
+  Dali::NativeImagePtr result;
   if(mRenderTask)
   {
     Dali::PixelData pixelData = mRenderTask.GetRenderResult();
     if(pixelData)
     {
-      auto                 pixelDataBuffer      = Dali::Integration::GetPixelDataBuffer(pixelData);
-      NativeImageSourcePtr nativeImageSourcePtr = Dali::NativeImageSource::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImageSource::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
+      auto                 pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
+      Dali::NativeImagePtr nativeImagePtr  = Dali::NativeImage::New(pixelData.GetWidth(), pixelData.GetHeight(), Dali::NativeImage::COLOR_DEPTH_32); // Texture pixel format is RGBA8888
 
-      if(Dali::DevelNativeImageSource::SetPixels(*nativeImageSourcePtr, pixelDataBuffer.buffer, pixelData.GetPixelFormat()))
+      if(Dali::DevelNativeImage::SetPixels(*nativeImagePtr, pixelDataBuffer.buffer, pixelData.GetPixelFormat()))
       {
-        result = nativeImageSourcePtr;
+        result = nativeImagePtr;
       }
     }
   }

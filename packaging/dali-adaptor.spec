@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.12
+Version:    2.5.13
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -114,6 +114,10 @@ BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
+
+%if 0%{?tizen_version_major} >= 11
+Requires: capi-system-system-settings-util-lib
+%endif
 
 # for ATSPI (Accessibility) support
 BuildRequires:  pkgconfig(eldbus)

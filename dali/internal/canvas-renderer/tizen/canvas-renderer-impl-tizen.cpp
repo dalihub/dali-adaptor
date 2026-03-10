@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,6 @@ bool CanvasRendererTizen::OnRasterize()
       return false;
     }
 
-
 #ifdef THORVG_VERSION_1
     mTvgCanvas->sync();
     mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), stride / 4, width, height, tvg::ColorSpace::ARGB8888);
@@ -144,10 +143,10 @@ void CanvasRendererTizen::OnMakeTargetBuffer(const Vector2& size)
 #ifdef THORVG_SUPPORT
   if(!mNativeImageQueue)
   {
-    mNativeImageQueue = Dali::NativeImageSourceQueue::New(CANVAS_RENDERER_QUEUE_SIZE, size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
+    mNativeImageQueue = Dali::NativeImageQueue::New(CANVAS_RENDERER_QUEUE_SIZE, size.width, size.height, Dali::NativeImageQueue::ColorFormat::BGRA8888);
     if(DALI_LIKELY(mNativeImageQueue))
     {
-      mNativeImageQueue->SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType::ENQUEUE_DEQUEUE);
+      mNativeImageQueue->SetQueueUsageHint(Dali::NativeImageQueue::QueueUsageType::ENQUEUE_DEQUEUE);
     }
     else
     {

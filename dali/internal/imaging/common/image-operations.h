@@ -19,6 +19,7 @@
 #define DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <stdint.h>
 
@@ -49,6 +50,13 @@ enum BoxDimensionTest
  * @note  This can only be used for images of up to 65535 x 65535 pixels.
  */
 typedef Uint16Pair ImageDimensions;
+
+/**
+ * @brief Helper to get Dali::Pixel::Format enum to c-string.
+ * @param[in] format Pixel format enum
+ * @return c-string of enum name.
+ */
+const char* GetPixelFormatName(Dali::Pixel::Format format);
 
 /**
  * @brief Work out the true desired width and height, accounting for special

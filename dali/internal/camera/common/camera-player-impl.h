@@ -2,7 +2,7 @@
 #define DALI_CAMERA_PLAYER_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public:
   /**
    * @copydoc Dali::CameraPlayer::SetNativeImageRenderingTarget()
    */
-  void SetNativeImageRenderingTarget(Dali::NativeImageSourcePtr target);
+  void SetNativeImageRenderingTarget(Dali::NativeImagePtr target);
 
   /**
    * @copydoc Dali::CameraPlayer::SetDisplayArea()
