@@ -19,11 +19,11 @@
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/object/any.h>
-#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>

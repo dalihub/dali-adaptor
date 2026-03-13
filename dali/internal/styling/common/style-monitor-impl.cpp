@@ -22,8 +22,8 @@
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>

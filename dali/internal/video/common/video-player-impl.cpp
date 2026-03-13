@@ -19,9 +19,9 @@
 #include <dali/internal/video/common/video-player-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/any.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dlfcn.h>
 
 // INTERNAL INCLUDES
