@@ -429,7 +429,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
     return ForceUpResult::FAILED;
   }
 
-  mConnectionPtr  = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));
+  mConnectionPtr  = DBus::getDBusConnectionByName(std::get<0>(addr));
   mData->mBusName = DBus::getConnectionName(mConnectionPtr);
   mDbusServer     = {mConnectionPtr};
 
