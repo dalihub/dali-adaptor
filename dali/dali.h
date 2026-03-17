@@ -22,15 +22,16 @@
 
 // Application / UI Framework adaption
 #include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/device-status.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
+#include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
+#include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
@@ -38,7 +39,6 @@
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/capture/capture.h>
 #include <dali/public-api/dali-adaptor-version.h>
 
 #endif // DALI_H

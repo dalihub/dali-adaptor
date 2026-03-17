@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/adaptor-framework/tts-player.h>
+#include <dali/devel-api/adaptor-framework/tts-player.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/common/tts-player-impl.h>

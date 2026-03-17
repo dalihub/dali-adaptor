@@ -92,6 +92,11 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
         oss += "<Renderer::RENDERING_BEHAVIOUR is CONTINUOUSLY> ";
       }
 
+      if(keepUpdatingStatus & Integration::KeepUpdating::OBJECT_DISCARDED)
+      {
+        oss += "<Object discarded> ";
+      }
+
       DALI_LOG_UPDATE_STATUS("%s\n", oss.c_str());
     }
   }

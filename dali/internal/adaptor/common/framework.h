@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <functional>
 #include <string>
 #ifdef APPCORE_WATCH_AVAILABLE
-#include <dali/public-api/watch/watch-application.h>
+#include <dali/devel-api/watch/watch-application.h>
 #endif
 
 // INTERNAL INCLUDES

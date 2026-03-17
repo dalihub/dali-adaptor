@@ -27,6 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -45,7 +46,6 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
-#include <dali/public-api/adaptor-framework/graphics-backend.h>
 
 // To disable a macro with the same name from one of OpenGL headers
 #undef Status
