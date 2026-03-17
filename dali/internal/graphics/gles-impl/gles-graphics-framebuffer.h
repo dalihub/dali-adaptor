@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_FRAMEBUFFER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-framebuffer-create-info.h>
 #include <dali/graphics-api/graphics-framebuffer.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -70,13 +71,25 @@ public:
   /**
    * Used to bind the framebuffer, e.g. when offscreen changes
    */
-  void Bind() const;
+  void Bind();
 
   [[nodiscard]] uint32_t GetGlFramebufferId() const;
 
   [[nodiscard]] uint32_t GetGlDepthBufferId() const;
 
   [[nodiscard]] uint32_t GetGlStencilBufferId() const;
+
+  /**
+   * @brief Updates the depth/stencil state
+   * @param[in] depthStencilState The new depth/stencil state
+   */
+  void UpdateDepthStencilState(const Graphics::DepthStencilState& depthStencilState);
+
+  /**
+   * @brief Invalidate Renderbuffer after render completed.
+   * Note : We should call this API before framebuffer unbind.
+   */
+  void InvalidateDepthStencilRenderBuffers();
 
 private:
   /**
@@ -88,6 +101,12 @@ private:
    */
   void AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId);
 
+  /**
+   * @brief Bind and create render buffers if need.
+   * @note Must be called after glBindFramebuffer.
+   */
+  void PrepareRenderBuffer();
+
 private:
   static Context* mSharedContext; ///< The bind available context
 
@@ -96,7 +115,15 @@ private:
   uint32_t mStencilBufferId{0u};
   uint32_t mMultisamples{1u};
 
-  bool mInitialized{false};
+  bool mInitialized : 1;
+  bool mDepthBufferUsed : 1;
+  bool mStencilBufferUsed : 1;
+
+  // Attached renderbuffer state
+  bool   mAttachedDepthWrite : 1;
+  bool   mAttachedStencilWrite : 1;
+  GLenum mAttachedAttachment;
+  GLenum mAttachedInternalFormat;
 };
 
 } // namespace Dali::Graphics::GLES

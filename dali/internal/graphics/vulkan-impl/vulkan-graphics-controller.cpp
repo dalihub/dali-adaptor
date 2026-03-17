@@ -19,6 +19,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/threading/conditional-wait.h>
+#include <dali/graphics-api/graphics-types.h>
+
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer-impl.h>
@@ -53,6 +55,8 @@ extern Debug::Filter* gVulkanFilter;
 namespace
 {
 const uint32_t INITIAL_POOL_CAPACITY = 32u;
+
+constexpr Dali::Graphics::GraphicsFeatureFlags DEFAULT_GRAPHICS_FEATURE_FLAGS = 0 | Dali::Graphics::GraphicsFeatureFlagBits::HAS_CLIP_MATRIX_BIT | Dali::Graphics::GraphicsFeatureFlagBits::PIPELINE_USE_RENDER_TARGET_BIT;
 } // Anonymous namespace
 
 namespace Dali::Graphics::Vulkan
@@ -624,6 +628,16 @@ UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(con
   return NewGraphicsObject<Vulkan::Framebuffer>(framebufferCreateInfo, *this, std::move(oldFramebuffer));
 }
 
+void VulkanGraphicsController::UpdateFramebufferRenderbufferUsage(Graphics::Framebuffer& framebuffer, const Graphics::DepthStencilState& depthStencilState)
+{
+  // Cast to Vulkan::Framebuffer and update
+  auto* vulkanFramebuffer = static_cast<Vulkan::Framebuffer*>(&framebuffer);
+  if(vulkanFramebuffer)
+  {
+    vulkanFramebuffer->UpdateDepthStencilState(depthStencilState);
+  }
+}
+
 UniquePtr<Graphics::Pipeline> VulkanGraphicsController::CreatePipeline(const Graphics::PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
   return UniquePtr<Graphics::Pipeline>(new Vulkan::Pipeline(pipelineCreateInfo, *this, nullptr));
@@ -755,12 +769,29 @@ bool VulkanGraphicsController::GetProgramParameter(Graphics::Program& program, u
 
 uint32_t VulkanGraphicsController::GetDeviceLimitation(Graphics::DeviceCapability capability)
 {
-  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  switch(capability)
   {
-    const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
-    return properties.limits.minUniformBufferOffsetAlignment;
+    case DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT:
+    {
+      const auto& properties = mImpl->mGraphicsDevice->GetPhysicalDeviceProperties();
+      return properties.limits.minUniformBufferOffsetAlignment;
+    }
+    case DeviceCapability::SUPPORTED_DYNAMIC_STATES:
+    {
+      uint32_t dynamicStateBits = PipelineDynamicStateBits::VIEWPORT_BIT |
+                                  PipelineDynamicStateBits::SCISSOR_BIT;
+
+      return dynamicStateBits;
+    }
+    case DeviceCapability::SUPPORTED_GRAPHICS_FEATURE_FLAGS:
+    {
+      return static_cast<uint32_t>(DEFAULT_GRAPHICS_FEATURE_FLAGS);
+    }
+    default:
+    {
+      return 0u;
+    }
   }
-  return 0;
 }
 
 bool VulkanGraphicsController::IsBlendEquationSupported(DevelBlendEquation::Type blendEquation)
@@ -959,11 +990,6 @@ void VulkanGraphicsController::NotifyLogicalDeviceCreated()
 std::size_t VulkanGraphicsController::GetCapacity() const
 {
   return mImpl->mCapacity;
-}
-
-bool VulkanGraphicsController::HasClipMatrix() const
-{
-  return true;
 }
 
 const Matrix& VulkanGraphicsController::GetClipMatrix() const

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,20 +77,21 @@ ResourceBase::InitializationResult Framebuffer::InitializeResource()
 
     auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth(0.0).setStencil(STENCIL_DEFAULT_CLEAR_VALUE);
 
-    if(mCreateInfo.depthStencilAttachment.depthTexture)
+    // We will assume that stencilTexture / stencilBufferId always mean depth-stencil.
+    if(mCreateInfo.depthStencilAttachment.stencilTexture)
+    {
+      DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() && "Render pass attachment descriptions out of range");
+      auto       stencilTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.stencilTexture);
+      ImageView* imageView      = stencilTexture->GetImageView();
+      depthStencilAttachment    = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
+    }
+    else if(mCreateInfo.depthStencilAttachment.depthTexture)
     {
       DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() && "Render pass attachment descriptions out of range");
 
       auto       depthTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.depthTexture);
       ImageView* imageView    = depthTexture->GetImageView();
       depthStencilAttachment  = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
-    }
-    else if(mCreateInfo.depthStencilAttachment.stencilTexture)
-    {
-      DALI_ASSERT_DEBUG(attachmentDescriptionIndex < attachmentDescriptions.size() && "Render pass attachment descriptions out of range");
-      auto       stencilTexture = VulkanCast<Vulkan::Texture>(mCreateInfo.depthStencilAttachment.stencilTexture);
-      ImageView* imageView      = stencilTexture->GetImageView();
-      depthStencilAttachment    = FramebufferAttachmentHandle(FramebufferAttachment::NewDepthAttachment(imageView, depthClearValue, &attachmentDescriptions[attachmentDescriptionIndex++]));
     }
 
     RenderPassImpl::CreateInfo createInfo;
@@ -128,6 +129,15 @@ void Framebuffer::DestroyResource()
 void Framebuffer::DiscardResource()
 {
   mController.DiscardResource(this);
+}
+
+void Framebuffer::UpdateDepthStencilState(const Graphics::DepthStencilState& depthStencilState)
+{
+  // For Vulkan, framebuffers are immutable once created. Updating depth/stencil state at runtime
+  // would require recreating the framebuffer with a new render pass, which is complex and expensive.
+  // For now, this is a no-op. The state change is handled at the pipeline level or by using
+  // different framebuffers for different depth/stencil requirements.
+  // TODO: If runtime toggling is needed, consider recreating framebuffer with updated attachments.
 }
 
 } // namespace Dali::Graphics::Vulkan

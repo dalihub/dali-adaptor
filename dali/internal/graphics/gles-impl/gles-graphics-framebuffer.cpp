@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,13 +90,23 @@ void Framebuffer::SetSharedContext(Context* context)
 }
 
 Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-: FramebufferResource(createInfo, controller)
+: FramebufferResource(createInfo, controller),
+  mInitialized(false),
+  mDepthBufferUsed(false),
+  mStencilBufferUsed(false),
+  mAttachedDepthWrite(false),
+  mAttachedStencilWrite(false),
+  mAttachedAttachment(GL_NONE),
+  mAttachedInternalFormat(GL_NONE)
 {
   // Check whether we need to consider multisampling
   if(createInfo.multiSamplingLevel > 1u && controller.GetGraphicsInterface()->IsMultisampledRenderToTextureSupported())
   {
     mMultisamples = std::min(createInfo.multiSamplingLevel, controller.GetGraphicsInterface()->GetMaxTextureSamples());
   }
+
+  mDepthBufferUsed   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+  mStencilBufferUsed = mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
 
   // Add framebuffer to the Resource queue
   mController.AddFramebuffer(*this);
@@ -153,33 +163,6 @@ bool Framebuffer::InitializeResource()
 
       AttachTexture(depthTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.depthLevel);
     }
-    else
-    {
-      const bool depthWrite   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
-      const bool stencilWrite = mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
-
-      // Check whether we need to use RenderBuffer
-      if(depthWrite || stencilWrite)
-      {
-        // if stencil is write, use renderbuffer as mStencilBufferId.
-        uint32_t&  bufferId       = stencilWrite ? mStencilBufferId : mDepthBufferId;
-        const auto internalFormat = depthWrite ? (stencilWrite ? GL_DEPTH24_STENCIL8 : GL_DEPTH_COMPONENT16) : GL_STENCIL_INDEX8;
-        const auto attachment     = depthWrite ? (stencilWrite ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT) : GL_STENCIL_ATTACHMENT;
-
-        gl->GenRenderbuffers(1, &bufferId);
-        gl->BindRenderbuffer(GL_RENDERBUFFER, bufferId);
-
-        if(mMultisamples <= 1u)
-        {
-          gl->RenderbufferStorage(GL_RENDERBUFFER, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
-        }
-        else
-        {
-          gl->RenderbufferStorageMultisample(GL_RENDERBUFFER, mMultisamples, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
-        }
-        gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, bufferId);
-      }
-    }
 
     gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -230,6 +213,12 @@ void Framebuffer::DestroyResource()
 
       mFramebufferId = 0u;
       mInitialized   = false;
+
+      // Reset attached renderbuffer state
+      mAttachedDepthWrite     = false;
+      mAttachedStencilWrite   = false;
+      mAttachedAttachment     = GL_NONE;
+      mAttachedInternalFormat = GL_NONE;
     }
   }
 }
@@ -239,13 +228,15 @@ void Framebuffer::DiscardResource()
   mController.DiscardResource(this);
 }
 
-void Framebuffer::Bind() const
+void Framebuffer::Bind()
 {
   auto* gl = mController.GetGL();
   if(DALI_LIKELY(gl) && mSharedContext)
   {
     DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is bound to another context!");
     gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
+
+    PrepareRenderBuffer();
 
     // Update framebuffer state cache here.
     auto& framebufferStateCache = mSharedContext->GetGLStateCache().mFrameBufferStateCache;
@@ -271,6 +262,49 @@ void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attac
   }
 }
 
+void Framebuffer::InvalidateDepthStencilRenderBuffers()
+{
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl))
+  {
+    switch(mAttachedAttachment)
+    {
+      case GL_DEPTH_STENCIL_ATTACHMENT:
+      {
+        if(mStencilBufferId != 0u)
+        {
+          GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
+          gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+        }
+        break;
+      }
+      case GL_STENCIL_ATTACHMENT:
+      {
+        if(mStencilBufferId != 0u)
+        {
+          GLenum attachment = GL_STENCIL;
+          gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachment);
+        }
+        break;
+      }
+      case GL_DEPTH_ATTACHMENT:
+      {
+        if(mDepthBufferId != 0u)
+        {
+          GLenum attachment = GL_DEPTH;
+          gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachment);
+        }
+        break;
+      }
+      default:
+      {
+        // Do nothing.
+        break;
+      }
+    }
+  }
+}
+
 uint32_t Framebuffer::GetGlFramebufferId() const
 {
   return mFramebufferId;
@@ -284,6 +318,95 @@ uint32_t Framebuffer::GetGlDepthBufferId() const
 uint32_t Framebuffer::GetGlStencilBufferId() const
 {
   return mStencilBufferId;
+}
+
+void Framebuffer::PrepareRenderBuffer()
+{
+  auto* gl = mController.GetGL();
+  if(DALI_LIKELY(gl) && !mCreateInfo.depthStencilAttachment.stencilTexture && !mCreateInfo.depthStencilAttachment.depthTexture)
+  {
+    const bool depthWrite   = (mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE) && mDepthBufferUsed;
+    const bool stencilWrite = (mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE) && mStencilBufferUsed;
+
+    // Check if the state has changed
+    if(DALI_LIKELY(depthWrite == mAttachedDepthWrite && stencilWrite == mAttachedStencilWrite))
+    {
+      return; // No change, nothing to do
+    }
+
+    // State has changed, need to update renderbuffer
+
+    // Delete old renderbuffers
+    if(mDepthBufferId != 0u)
+    {
+      gl->DeleteRenderbuffers(1, &mDepthBufferId);
+      mDepthBufferId = 0u;
+    }
+    if(mStencilBufferId != 0u)
+    {
+      gl->DeleteRenderbuffers(1, &mStencilBufferId);
+      mStencilBufferId = 0u;
+    }
+
+    // Reset previous framebuffer attachment
+    if(mAttachedAttachment != GL_NONE)
+    {
+      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, mAttachedAttachment, GL_RENDERBUFFER, 0);
+      mAttachedAttachment = GL_NONE;
+    }
+
+    if(depthWrite || stencilWrite)
+    {
+      // Determine attachment and internal format
+      const auto attachment     = depthWrite ? (stencilWrite ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT) : GL_STENCIL_ATTACHMENT;
+      const auto internalFormat = depthWrite ? (stencilWrite ? GL_DEPTH24_STENCIL8 : GL_DEPTH_COMPONENT16) : GL_STENCIL_INDEX8;
+
+      // Choose which buffer ID to use
+      uint32_t& bufferId = stencilWrite ? mStencilBufferId : mDepthBufferId;
+
+      // Create new renderbuffer
+      gl->GenRenderbuffers(1, &bufferId);
+      gl->BindRenderbuffer(GL_RENDERBUFFER, bufferId);
+
+      if(mMultisamples <= 1u)
+      {
+        gl->RenderbufferStorage(GL_RENDERBUFFER, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
+      }
+      else
+      {
+        gl->RenderbufferStorageMultisample(GL_RENDERBUFFER, mMultisamples, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
+      }
+
+      // Attach to framebuffer
+      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, bufferId);
+
+      // Update attached state
+      mAttachedAttachment     = attachment;
+      mAttachedInternalFormat = internalFormat;
+    }
+    else
+    {
+      // No renderbuffer needed
+      mAttachedAttachment     = GL_NONE;
+      mAttachedInternalFormat = GL_NONE;
+    }
+
+    // Update attached write states
+    mAttachedDepthWrite   = depthWrite;
+    mAttachedStencilWrite = stencilWrite;
+  }
+}
+
+void Framebuffer::UpdateDepthStencilState(const Graphics::DepthStencilState& depthStencilState)
+{
+  if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+  {
+    mDepthBufferUsed = depthStencilState.depthTestEnable;
+  }
+  if(mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+  {
+    mStencilBufferUsed = depthStencilState.stencilTestEnable;
+  }
 }
 
 } // namespace Dali::Graphics::GLES

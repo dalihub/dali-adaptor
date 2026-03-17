@@ -1180,7 +1180,7 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
       // Need to call glFlush or eglSwapBuffer after create sync object.
       gl->Flush();
 
-      InvalidateDepthStencilRenderBuffers(framebuffer);
+      framebuffer->InvalidateDepthStencilRenderBuffers();
 
       // Reset FBO bind after using.
       gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1244,24 +1244,6 @@ void Context::ClearVertexBufferCache()
 void Context::ClearUniformBufferCache()
 {
   mImpl->mUniformBufferBindingCache.Clear();
-}
-
-void Context::InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer)
-{
-  auto* gl = mImpl->GetGL();
-  if(DALI_LIKELY(gl && framebuffer))
-  {
-    if(framebuffer->GetGlStencilBufferId() != 0u)
-    {
-      GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
-      gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
-    }
-    else if(framebuffer->GetGlDepthBufferId() != 0u)
-    {
-      GLenum attachment = GL_DEPTH;
-      gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachment);
-    }
-  }
 }
 
 void Context::ColorMask(bool enabled)
