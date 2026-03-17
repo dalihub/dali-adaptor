@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,79 +102,79 @@ const std::string BlendFactorString(Graphics::BlendFactor blendFactor)
   {
     case Graphics::BlendFactor::ZERO:
     {
-      return("ZERO");
+      return ("ZERO");
     }
     case Graphics::BlendFactor::ONE:
     {
-      return("ONE");
+      return ("ONE");
     }
     case Graphics::BlendFactor::SRC_COLOR:
     {
-      return("SRC_COLOR");
+      return ("SRC_COLOR");
     }
     case Graphics::BlendFactor::ONE_MINUS_SRC_COLOR:
     {
-      return("ONE_MINUS_SRC_COLOR");
+      return ("ONE_MINUS_SRC_COLOR");
     }
     case Graphics::BlendFactor::DST_COLOR:
     {
-      return("DST_COLOR");
+      return ("DST_COLOR");
     }
     case Graphics::BlendFactor::ONE_MINUS_DST_COLOR:
     {
-      return("ONE_MINUS_DST_COLOR");
+      return ("ONE_MINUS_DST_COLOR");
     }
     case Graphics::BlendFactor::SRC_ALPHA:
     {
-      return("SRC_ALPHA");
+      return ("SRC_ALPHA");
     }
     case Graphics::BlendFactor::ONE_MINUS_SRC_ALPHA:
     {
-      return("ONE_MINUS_SRC_ALPHA");
+      return ("ONE_MINUS_SRC_ALPHA");
     }
     case Graphics::BlendFactor::DST_ALPHA:
     {
-      return("DST_ALPHA");
+      return ("DST_ALPHA");
     }
     case Graphics::BlendFactor::ONE_MINUS_DST_ALPHA:
     {
-      return("ONE_MINUS_DST_ALPHA");
+      return ("ONE_MINUS_DST_ALPHA");
     }
     case Graphics::BlendFactor::CONSTANT_COLOR:
     {
-      return("CONSTANT_COLOR");
+      return ("CONSTANT_COLOR");
     }
     case Graphics::BlendFactor::ONE_MINUS_CONSTANT_COLOR:
     {
-      return("ONE_MINUS_CONSTANT_COLOR");
+      return ("ONE_MINUS_CONSTANT_COLOR");
     }
     case Graphics::BlendFactor::CONSTANT_ALPHA:
     {
-      return("CONSTANT_ALPHA");
+      return ("CONSTANT_ALPHA");
     }
     case Graphics::BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
     {
-      return("ONE_MINUS_CONSTANT_ALPHA");
+      return ("ONE_MINUS_CONSTANT_ALPHA");
     }
     case Graphics::BlendFactor::SRC_ALPHA_SATURATE:
     {
-      return("SRC_ALPHA_SATURATE");
+      return ("SRC_ALPHA_SATURATE");
     }
     case Graphics::BlendFactor::SRC1_COLOR:
     {
-      return("SRC1_COLOR");
+      return ("SRC1_COLOR");
     }
     case Graphics::BlendFactor::ONE_MINUS_SRC1_COLOR:
     {
-      return("ONE_MINUS_SRC1_COLOR");
+      return ("ONE_MINUS_SRC1_COLOR");
     }
     case Graphics::BlendFactor::SRC1_ALPHA:
     {
-      return("SRC1_ALPHA");
+      return ("SRC1_ALPHA");
     }
     case Graphics::BlendFactor::ONE_MINUS_SRC1_ALPHA:
     {
-      return("ONE_MINUS_SRC1_ALPHA");
+      return ("ONE_MINUS_SRC1_ALPHA");
     }
   }
   return "Unknown";
@@ -267,8 +267,6 @@ const std::string BlendOpString(Graphics::BlendOp blendOp)
   }
   return "Unknown";
 }
-
-
 
 void DumpCommandBuffer(GraphicsFrameDump& frameDump, const Vulkan::StoredCommandBuffer* commandBuffer)
 {
@@ -464,13 +462,14 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const Vulkan::StoredCommand
       }
       case Vulkan::CommandType::SET_COLOR_BLEND_EQUATION:
       {
-        fprintf(output, "{\"Cmd\":\"SET_COLOR_BLEND_EQUATION\",\n"
-                        " \"srcColorBlendFactor\":\"%s\",\n"
-                        " \"dstColorBlendFactor\":\"%s\",\n"
-                        " \"colorBlendOp\":\"%s\",\n"
-                        " \"srcAlphaBlendFactor\":\"%s\",\n"
-                        " \"dstAlphaBlendFactor\":\"%s\",\n"
-                        " \"alphaBlendOp\":\"%s\"\n}\n",
+        fprintf(output,
+                "{\"Cmd\":\"SET_COLOR_BLEND_EQUATION\",\n"
+                " \"srcColorBlendFactor\":\"%s\",\n"
+                " \"dstColorBlendFactor\":\"%s\",\n"
+                " \"colorBlendOp\":\"%s\",\n"
+                " \"srcAlphaBlendFactor\":\"%s\",\n"
+                " \"dstAlphaBlendFactor\":\"%s\",\n"
+                " \"alphaBlendOp\":\"%s\"\n}\n",
                 BlendFactorString(cmd.colorBlend.equation.srcColorBlendFactor).c_str(),
                 BlendFactorString(cmd.colorBlend.equation.dstColorBlendFactor).c_str(),
                 BlendOpString(cmd.colorBlend.equation.colorBlendOp).c_str(),
@@ -481,10 +480,11 @@ void DumpCommandBuffer(GraphicsFrameDump& frameDump, const Vulkan::StoredCommand
       }
       case Vulkan::CommandType::SET_COLOR_BLEND_ADVANCED:
       {
-        fprintf(output, "{\"Cmd\":\"SET_COLOR_BLEND_ADVANCED\",\n"
-                        " \"srcPremultiplied\":\"%s\",\n"
-                        " \"dstPremultiplied\":\"%s\",\n"
-                        " \"blendOp\":\"%s\"}\n",
+        fprintf(output,
+                "{\"Cmd\":\"SET_COLOR_BLEND_ADVANCED\",\n"
+                " \"srcPremultiplied\":\"%s\",\n"
+                " \"dstPremultiplied\":\"%s\",\n"
+                " \"blendOp\":\"%s\"}\n",
                 (cmd.colorBlend.advanced.srcPremultiplied ? "\"true\"" : "\"false\""),
                 (cmd.colorBlend.advanced.dstPremultiplied ? "\"true\"" : "\"false\""),
                 BlendOpString(cmd.colorBlend.advanced.blendOp).c_str());

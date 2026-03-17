@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,13 +206,6 @@ public:
    * @return true if the buffer was actually bound, false if it's cached
    */
   bool BindBuffer(GLenum target, uint32_t bufferId);
-
-  /**
-   * @brief Invalidate Renderbuffer for given framebuffer if they using.
-   * Note : We should call this API before framebuffer unbind.
-   * @param[in] framebuffer The framebuffer to be invalidate
-   */
-  void InvalidateDepthStencilRenderBuffers(GLES::Framebuffer* framebuffer);
 
   void ColorMask(bool enabled);
   void ClearStencilBuffer();
