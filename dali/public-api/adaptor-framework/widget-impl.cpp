@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@
 #include "widget-impl.h"
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/system/common/widget-controller.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -45,11 +49,11 @@ Widget::~Widget()
   }
 }
 
-void Widget::OnCreate(const std::string& contentInfo, Dali::Window window)
+void Widget::OnCreate(const Dali::String& contentInfo, Dali::Window window)
 {
 }
 
-void Widget::OnTerminate(const std::string& contentInfo, Dali::Widget::Termination type)
+void Widget::OnTerminate(const Dali::String& contentInfo, Dali::Widget::Termination type)
 {
 }
 
@@ -65,7 +69,7 @@ void Widget::OnResize(Dali::Window window)
 {
 }
 
-void Widget::OnUpdate(const std::string& contentInfo, int force)
+void Widget::OnUpdate(const Dali::String& contentInfo, int force)
 {
 }
 
@@ -79,11 +83,11 @@ void Widget::SignalDisconnected(SlotObserver* slotObserver, CallbackBase* callba
   mImpl->SignalDisconnected(slotObserver, callback);
 }
 
-void Widget::SetContentInfo(const std::string& contentInfo)
+void Widget::SetContentInfo(const Dali::String& contentInfo)
 {
   if(mImpl != nullptr)
   {
-    mImpl->SetContentInfo(contentInfo);
+    mImpl->SetContentInfo(ToStdString(contentInfo));
   }
 }
 
@@ -111,11 +115,11 @@ void Widget::SetImpl(Impl* impl)
   mImpl = impl;
 }
 
-void Widget::SetInformation(Dali::Window window, const std::string& widgetId)
+void Widget::SetInformation(Dali::Window window, const Dali::String& widgetId)
 {
   if(mImpl != nullptr)
   {
-    mImpl->SetInformation(window, widgetId);
+    mImpl->SetInformation(window, ToStdString(widgetId));
   }
 }
 
@@ -129,14 +133,14 @@ Dali::Window Widget::GetWindow() const
   return Dali::Window();
 }
 
-std::string Widget::GetWidgetId() const
+Dali::String Widget::GetWidgetId() const
 {
   if(mImpl != nullptr)
   {
-    return mImpl->GetWidgetId();
+    return ToDaliString(mImpl->GetWidgetId());
   }
 
-  return std::string();
+  return Dali::String();
 }
 
 Internal::Adaptor::Widget& GetImplementation(Dali::Widget& widget)

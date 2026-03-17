@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-actor-utils.h>
 #include <test-graphics-egl-application.h>
@@ -26,6 +27,7 @@
 #include "mesh-builder.h"
 
 using namespace Dali;
+using Dali::Integration::ToDaliStringView;
 
 void utc_dali_program_startup(void)
 {
@@ -84,7 +86,7 @@ Actor CreateRenderablegActorWithShaderFileCaching(Texture texture, const std::st
   Geometry geometry = CreateQuadGeometry();
 
   // Create Shader
-  Shader shader = Shader::New(vertexShader, fragmentShader, Shader::Hint::FILE_CACHE_SUPPORT, "TEST_SHADER_FOR_UTC");
+  Shader shader = Shader::New(ToDaliStringView(vertexShader), ToDaliStringView(fragmentShader), Shader::Hint::FILE_CACHE_SUPPORT, "TEST_SHADER_FOR_UTC");
 
   // Create renderer from geometry and material
   Renderer renderer = Renderer::New(geometry, shader);

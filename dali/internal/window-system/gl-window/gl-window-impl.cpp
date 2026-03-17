@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-integ.h>
+#include <dali/integration-api/string-utils.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
@@ -38,6 +39,8 @@
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/window-system/gl-window/gl-window-render-thread.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -516,7 +519,7 @@ void GlWindow::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void GlWindow::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  Dali::KeyEvent event = Dali::DevelKeyEvent::New(ToStdString(keyEvent.keyName), ToStdString(keyEvent.logicalKey), ToStdString(keyEvent.keyString), keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), ToStdString(keyEvent.compose), ToStdString(keyEvent.deviceName), keyEvent.deviceClass, keyEvent.deviceSubclass);
   Dali::DevelKeyEvent::SetWindowId(event, keyEvent.windowId);
   Dali::GlWindow handle(this);
   mKeyEventSignal.Emit(event);

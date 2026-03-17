@@ -20,9 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/tizen-wayland/tizen-wearable/watch-application-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -39,11 +42,11 @@ WatchApplication WatchApplication::New(int* argc, char** argv[])
   return WatchApplication(internal.Get());
 }
 
-WatchApplication WatchApplication::New(int* argc, char** argv[], const std::string& stylesheet)
+WatchApplication WatchApplication::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
   WindowData windowData;
   windowData.SetTransparency(false);
-  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, stylesheet, windowData);
+  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, ToStdString(stylesheet), windowData);
   return WatchApplication(internal.Get());
 }
 

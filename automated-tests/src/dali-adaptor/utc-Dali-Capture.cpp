@@ -124,7 +124,7 @@ int UtcDaliCaptureStartNegative(void)
   {
     Dali::Actor   arg1;
     Dali::Vector2 arg2;
-    std::string   arg3;
+    Dali::String  arg3;
     instance.Start(arg1, arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -142,7 +142,7 @@ int UtcDaliCaptureStart2Negative(void)
   {
     Dali::Actor   arg1;
     Dali::Vector2 arg2;
-    std::string   arg3;
+    Dali::String  arg3;
     Dali::Vector4 arg4;
     instance.Start(arg1, arg2, arg3, arg4);
     DALI_TEST_CHECK(false); // Should not get here
@@ -161,7 +161,7 @@ int UtcDaliCaptureStart3Negative(void)
   {
     Dali::Actor   arg1;
     Dali::Vector2 arg2;
-    std::string   arg3;
+    Dali::String  arg3;
     Dali::Vector4 arg4;
     unsigned int  arg5(0u);
     instance.Start(arg1, arg2, arg3, arg4, arg5);
@@ -182,7 +182,7 @@ int UtcDaliCaptureStart4Negative(void)
     Dali::Actor   arg1;
     Dali::Vector2 arg2;
     Dali::Vector2 arg3;
-    std::string   arg4;
+    Dali::String  arg4;
     Dali::Vector4 arg5;
     instance.Start(arg1, arg2, arg3, arg4, arg5);
     DALI_TEST_CHECK(false); // Should not get here

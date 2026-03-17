@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -469,7 +469,7 @@ void SceneHolder::FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent)
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if(physicalKeyboard)
   {
-    if(!KeyLookup::IsDeviceButton(keyEvent.keyName.c_str()))
+    if(!KeyLookup::IsDeviceButton(keyEvent.keyName.CStr()))
     {
       GetImplementation(physicalKeyboard).KeyReceived(keyEvent.time > 1);
     }

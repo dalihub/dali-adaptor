@@ -38,10 +38,14 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
 #include <dali/internal/system/common/system-error-print.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace
 {
@@ -286,12 +290,12 @@ R ConvertExifNumeric(const ExifEntry& entry)
 
 void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, ExifIfd ifd)
 {
-  auto shortName = std::string(exif_tag_get_name_in_ifd(entry.tag, ifd));
+  auto shortName = exif_tag_get_name_in_ifd(entry.tag, ifd);
   switch(entry.format)
   {
     case EXIF_FORMAT_ASCII:
     {
-      out.Insert(shortName, std::string(reinterpret_cast<char*>(entry.data), entry.size));
+      out.Insert(shortName, Dali::String(Dali::StringView(reinterpret_cast<char*>(entry.data), entry.size)));
       break;
     }
     case EXIF_FORMAT_SHORT:
@@ -357,7 +361,7 @@ void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, E
     {
       std::stringstream ss;
       ss << "EXIF_FORMAT_UNDEFINED, size: " << entry.size << ", components: " << entry.components;
-      out.Insert(shortName, ss.str());
+      out.Insert(shortName, ToDaliString(ss.str()));
     }
   }
 }

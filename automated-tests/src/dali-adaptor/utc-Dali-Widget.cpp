@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,12 +76,12 @@ int UtcDaliWidgetImplOnMethodsP(void)
 
   try
   {
-    widgetImpl.OnCreate(std::string(), Dali::Window());
-    widgetImpl.OnTerminate(std::string(), Dali::Widget::Termination::PERMANENT);
+    widgetImpl.OnCreate(Dali::String(), Dali::Window());
+    widgetImpl.OnTerminate(Dali::String(), Dali::Widget::Termination::PERMANENT);
     widgetImpl.OnPause();
     widgetImpl.OnResume();
     widgetImpl.OnResize(Dali::Window());
-    widgetImpl.OnUpdate(std::string(), 1);
+    widgetImpl.OnUpdate(Dali::String(), 1);
     DALI_TEST_CHECK(true);
   }
   catch(...)
@@ -99,7 +99,7 @@ int UtcDaliWidgetImplSetContentInfoP(void)
 
   try
   {
-    widgetImpl.SetContentInfo(std::string());
+    widgetImpl.SetContentInfo(Dali::String());
     DALI_TEST_CHECK(true);
   }
   catch(...)
@@ -129,7 +129,7 @@ int UtcDaliWidgetImplSetInformationP(void)
 
   try
   {
-    widgetImpl.SetInformation(Dali::Window(), std::string());
+    widgetImpl.SetInformation(Dali::Window(), Dali::String());
     DALI_TEST_CHECK(true);
   }
   catch(...)
@@ -155,7 +155,7 @@ int UtcDaliWidgetImplGetWidgetIdP(void)
   const Widget                     widget     = Widget::New();
   const Internal::Adaptor::Widget& widgetImpl = Internal::Adaptor::GetImplementation(widget);
 
-  DALI_TEST_CHECK(widgetImpl.GetWidgetId().empty());
+  DALI_TEST_CHECK(widgetImpl.GetWidgetId().Empty());
 
   END_TEST;
 }

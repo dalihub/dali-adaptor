@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -125,7 +126,7 @@ public:
    * @param[in] locale Specifies the application's language and region in BCP 47 format (e.g., "en_US", "ko_KR")
    * @SINCE_2_5.10
    */
-  void SetApplicationLocale(const std::string& locale);
+  void SetApplicationLocale(const Dali::String& locale);
 
   /**
    * @brief Copy Constructor.

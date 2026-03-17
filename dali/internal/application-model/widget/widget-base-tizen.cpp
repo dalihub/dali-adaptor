@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
 #include <dali/devel-api/events/key-event-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
@@ -34,6 +35,8 @@
 #include <dlog.h>
 #include <tizen.h>
 #include <widget_base.h>
+
+using Dali::Integration::ToDaliString;
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
@@ -82,13 +85,13 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   Dali::Internal::Adaptor::WidgetApplication::CreateWidgetFunctionPair pair           = application->GetWidgetCreatingFunctionPair(std::string(id));
   Dali::WidgetApplication::CreateWidgetFunction                        createFunction = pair.second;
 
-  Dali::Widget widgetInstance = createFunction(pair.first);
+  Dali::Widget widgetInstance = createFunction(ToDaliString(pair.first));
 
   application->InitializeWidget(instanceHandle, widgetInstance);
 
   application->AddWidget(instanceHandle, widgetInstance, window, std::string(id));
 
-  std::string encodedContentString = "";
+  String encodedContentString = "";
 
   if(bundle_get_count(content))
   {
@@ -96,7 +99,7 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
     int         len;
     bundle_encode(content, &bundleRaw, &len);
     char* encodedContent = reinterpret_cast<char*>(bundleRaw);
-    encodedContentString = std::string(encodedContent);
+    encodedContentString = encodedContent;
     free(bundleRaw);
   }
 
@@ -124,7 +127,7 @@ int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy
     destroyReason = Dali::Widget::Termination::PERMANENT;
   }
 
-  std::string encodedContentString = "";
+  String encodedContentString = "";
 
   if(bundle_get_count(content))
   {
@@ -132,7 +135,7 @@ int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy
     int         len;
     bundle_encode(content, &bundleRaw, &len);
     char* encodedContent = reinterpret_cast<char*>(bundleRaw);
-    encodedContentString = std::string(encodedContent);
+    encodedContentString = encodedContent;
     free(bundleRaw);
   }
 
@@ -196,7 +199,7 @@ int OnInstanceUpdate(widget_base_instance_h instanceHandle, bundle* content, int
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget(instanceHandle);
 
-  std::string encodedContentString = "";
+  String encodedContentString = "";
 
   if(bundle_get_count(content))
   {
@@ -204,7 +207,7 @@ int OnInstanceUpdate(widget_base_instance_h instanceHandle, bundle* content, int
     int         len;
     bundle_encode(content, &bundleRaw, &len);
     char* encodedContent = reinterpret_cast<char*>(bundleRaw);
-    encodedContentString = std::string(encodedContent);
+    encodedContentString = encodedContent;
     free(bundleRaw);
   }
   Internal::Adaptor::GetImplementation(widgetInstance).OnUpdate(encodedContentString, force);

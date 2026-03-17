@@ -48,6 +48,8 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
+#include <dali/integration-api/string-utils.h>
+
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
@@ -74,6 +76,7 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 
+using Dali::Integration::ToDaliString;
 using Dali::TextAbstraction::FontClient;
 
 extern std::string GetSystemCachePath();
@@ -541,7 +544,17 @@ void Adaptor::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 
 void Adaptor::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
+                                       keyEvent.GetLogicalKey(),
+                                       keyEvent.GetKeyString(),
+                                       keyEvent.GetKeyCode(),
+                                       keyEvent.GetKeyModifier(),
+                                       keyEvent.GetTime(),
+                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
+                                       keyEvent.GetCompose(),
+                                       keyEvent.GetDeviceName(),
+                                       keyEvent.GetDeviceClass(),
+                                       keyEvent.GetDeviceSubclass());
   convertedEvent.receiveTime = keyEvent.GetReceiveTime();
   mWindows.front()->FeedKeyEvent(convertedEvent);
 }

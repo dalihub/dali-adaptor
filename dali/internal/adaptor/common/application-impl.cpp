@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/object/object-registry.h>
 
@@ -49,6 +50,9 @@
 
 // To disable a macro with the same name from one of OpenGL headers
 #undef Status
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -182,7 +186,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mIsPreInitializedDataReleased(false),
   mSlotDelegate(this),
   mUIThreadLoader(nullptr),
-  mScreen(windowData.GetScreen())
+  mScreen(ToStdString(windowData.GetScreen()))
 {
   // Set mName from command-line args
   if(argc && (*argc > 0))
@@ -288,7 +292,7 @@ void Application::ChangePreInitializedWindowInfo()
   {
     mMainWindowName = windowName;
   }
-  mMainWindow.SetClass(mMainWindowName, windowClassName);
+  mMainWindow.SetClass(ToDaliString(mMainWindowName), ToDaliString(windowClassName));
 
   // The real screen size may be different from the value of the preinitialized state. Update it.
   Dali::Internal::Adaptor::WindowSystem::UpdateScreenSize();
@@ -345,7 +349,7 @@ void Application::CreateWindow()
   windowData.SetTransparency(mMainWindowOpacity);
   windowData.SetWindowType(mDefaultWindowType);
   windowData.SetFrontBufferRendering(mIsMainWindowFrontBufferRendering);
-  windowData.SetScreen(mScreen);
+  windowData.SetScreen(ToDaliString(mScreen));
 
   DALI_LOG_RELEASE_INFO("Create Default Window\n");
 

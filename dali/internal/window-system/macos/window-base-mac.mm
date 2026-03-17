@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/common/egl-include.h>
@@ -35,6 +36,7 @@
 
 #include <cmath>
 
+using Dali::Integration::ToDaliString;
 using Dali::Internal::Adaptor::WindowBaseCocoa;
 
 // Angle is default selecting CGL as its backend and because
@@ -158,7 +160,7 @@ struct WindowBaseCocoa::Impl final
 
 private:
   uint32_t GetKeyModifiers(NSEvent *event) const noexcept;
-  std::string GetKeyName(NSEvent *event) const;
+  Dali::String GetKeyName(NSEvent *event) const;
 };
 
 WindowBaseCocoa::Impl::Impl(
@@ -282,7 +284,7 @@ void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State k
 {
   if(Dali::Adaptor::IsAvailable())
   {
-    const std::string empty;
+    const Dali::String empty;
 
     Integration::KeyEvent keyEvent(
       GetKeyName(event),
@@ -347,7 +349,7 @@ uint32_t WindowBaseCocoa::Impl::GetKeyModifiers(NSEvent *event) const noexcept
   return modifiers;
 }
 
-std::string WindowBaseCocoa::Impl::GetKeyName(NSEvent *event) const
+ Dali::String WindowBaseCocoa::Impl::GetKeyName(NSEvent *event) const
 {
   switch (event.keyCode)
   {

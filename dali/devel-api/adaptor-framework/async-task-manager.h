@@ -141,7 +141,7 @@ public:
    * @SINCE_2_3.4
    * @return The name of this task.
    */
-  virtual std::string_view GetTaskName() const
+  virtual Dali::StringView GetTaskName() const
   {
     Dali::DaliPrintBackTrace();
     return "";

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
@@ -27,18 +28,21 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/actors/actor.h>
 
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
+
 namespace Dali
 {
-Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
+Window Window::New(PositionSize posSize, const Dali::String& name, bool isTransparent)
 {
   WindowData windowData;
   windowData.SetPositionSize(posSize);
   windowData.SetTransparency(isTransparent);
   windowData.SetWindowType(WindowType::NORMAL);
-  return Dali::Window::New(name, "", windowData);
+  return Dali::Window::New(name, String(""), windowData);
 }
 
-Window Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
+Window Window::New(const Dali::String& name, const Dali::String& className, const WindowData& windowData)
 {
   Window newWindow;
 
@@ -54,7 +58,7 @@ Window Window::New(const std::string& name, const std::string& className, const 
   if(isNewWindowAllowed)
   {
     Any                        surface;
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, name, className, windowData, false);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 
@@ -139,9 +143,9 @@ Uint16Pair Window::GetDpi() const
   return GetImplementation(*this).GetDpi();
 }
 
-void Window::SetClass(std::string name, std::string klass)
+void Window::SetClass(Dali::String name, Dali::String klass)
 {
-  GetImplementation(*this).SetClass(name, klass);
+  GetImplementation(*this).SetClass(ToStdString(name), ToStdString(klass));
 }
 
 void Window::Raise()
@@ -219,14 +223,14 @@ unsigned int Window::GetSupportedAuxiliaryHintCount() const
   return GetImplementation(*this).GetSupportedAuxiliaryHintCount();
 }
 
-std::string Window::GetSupportedAuxiliaryHint(unsigned int index) const
+Dali::String Window::GetSupportedAuxiliaryHint(unsigned int index) const
 {
-  return GetImplementation(*this).GetSupportedAuxiliaryHint(index);
+  return ToDaliString(GetImplementation(*this).GetSupportedAuxiliaryHint(index));
 }
 
-unsigned int Window::AddAuxiliaryHint(const std::string& hint, const std::string& value)
+unsigned int Window::AddAuxiliaryHint(const Dali::String& hint, const Dali::String& value)
 {
-  return GetImplementation(*this).AddAuxiliaryHint(hint, value);
+  return GetImplementation(*this).AddAuxiliaryHint(ToStdString(hint), ToStdString(value));
 }
 
 bool Window::RemoveAuxiliaryHint(unsigned int id)
@@ -234,19 +238,19 @@ bool Window::RemoveAuxiliaryHint(unsigned int id)
   return GetImplementation(*this).RemoveAuxiliaryHint(id);
 }
 
-bool Window::SetAuxiliaryHintValue(unsigned int id, const std::string& value)
+bool Window::SetAuxiliaryHintValue(unsigned int id, const Dali::String& value)
 {
-  return GetImplementation(*this).SetAuxiliaryHintValue(id, value);
+  return GetImplementation(*this).SetAuxiliaryHintValue(id, ToStdString(value));
 }
 
-std::string Window::GetAuxiliaryHintValue(unsigned int id) const
+Dali::String Window::GetAuxiliaryHintValue(unsigned int id) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintValue(id);
+  return ToDaliString(GetImplementation(*this).GetAuxiliaryHintValue(id));
 }
 
-unsigned int Window::GetAuxiliaryHintId(const std::string& hint) const
+unsigned int Window::GetAuxiliaryHintId(const Dali::String& hint) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintId(hint);
+  return GetImplementation(*this).GetAuxiliaryHintId(ToStdString(hint));
 }
 
 void Window::SetInputRegion(const Rect<int>& inputRegion)

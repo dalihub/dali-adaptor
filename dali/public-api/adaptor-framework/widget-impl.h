@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/common/dali-string-view.h>
+#include <dali/public-api/common/dali-string.h>
 
 namespace Dali
 {
@@ -71,7 +73,7 @@ public:
    * @param[in] contentInfo Information from WidgetView for creating. It contains previous status of widget which is sent by SetContentInfo before.
    * @param[in] window Window handle for widget
    */
-  virtual void OnCreate(const std::string& contentInfo, Dali::Window window);
+  virtual void OnCreate(const Dali::String& contentInfo, Dali::Window window);
 
   /**
    * @brief The user should override this function to determine when they terminate widget.
@@ -80,7 +82,7 @@ public:
    * @param[in] contentInfo Data from WidgetView for deleting
    * @param[in] type Termination type. When user delete widget view, termination type is PERMANENT.
    */
-  virtual void OnTerminate(const std::string& contentInfo, Dali::Widget::Termination type);
+  virtual void OnTerminate(const Dali::String& contentInfo, Dali::Widget::Termination type);
 
   /**
    * @brief The user should override this function to determine when they pause widget.
@@ -109,7 +111,7 @@ public:
    * @param[in] contentInfo Data from WidgetView for updating
    * @param[in] force Although the widget is paused, if it is true, the widget can be updated
    */
-  virtual void OnUpdate(const std::string& contentInfo, int force);
+  virtual void OnUpdate(const Dali::String& contentInfo, int force);
 
   // From ConnectionTrackerInterface
 
@@ -129,7 +131,7 @@ public:
    * @SINCE_1_3_5
    * @param[in] contentInfo Content info is kind of context information which contains current status of widget.
    */
-  void SetContentInfo(const std::string& contentInfo);
+  void SetContentInfo(const Dali::String& contentInfo);
 
   /**
    * @brief Check Widget is using key
@@ -174,7 +176,7 @@ public:
    * @param window The window to set the information of widget
    * @param widgetId The Id of widget
    */
-  void SetInformation(Dali::Window window, const std::string& widgetId);
+  void SetInformation(Dali::Window window, const Dali::String& widgetId);
 
   /**
    * @brief Get the Window of widget
@@ -188,7 +190,7 @@ public:
    *
    * @return the id of widget
    */
-  std::string GetWidgetId() const;
+  Dali::String GetWidgetId() const;
 
 private:
   Impl* mImpl;

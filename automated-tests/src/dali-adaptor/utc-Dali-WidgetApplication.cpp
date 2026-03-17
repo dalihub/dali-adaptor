@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
 #include <dali/public-api/adaptor-framework/widget.h>
 
 using namespace Dali;
+using Dali::Integration::ToDaliString;
 
 void utc_dali_widget_application_startup(void)
 {
@@ -34,7 +36,7 @@ void utc_dali_widget_application_cleanup(void)
 
 namespace
 {
-Widget CreateWidgetFunction(const std::string&)
+Widget CreateWidgetFunction(const Dali::String&)
 {
   return Dali::Widget();
 }
@@ -46,7 +48,7 @@ int UtcDaliWidgetApplicationRegisterWidgetCreatingFunctionNegative(void)
   try
   {
     std::string arg1;
-    instance.RegisterWidgetCreatingFunction(arg1, &CreateWidgetFunction);
+    instance.RegisterWidgetCreatingFunction(ToDaliString(arg1), &CreateWidgetFunction);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -81,7 +83,7 @@ int UtcDaliWidgetApplicationConstructorsPositive(void)
 
 int UtcDaliWidgetApplicationNewP(void)
 {
-  WidgetApplication widget1 = WidgetApplication::New(nullptr, nullptr, std::string());
+  WidgetApplication widget1 = WidgetApplication::New(nullptr, nullptr, Dali::StringView());
   DALI_TEST_CHECK(widget1);
 
   END_TEST;

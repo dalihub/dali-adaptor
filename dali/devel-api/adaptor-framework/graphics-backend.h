@@ -22,6 +22,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-string-view.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -65,7 +66,7 @@ DALI_ADAPTOR_API void SetGraphicsBackend(Backend backend);
  * @SINCE_2_4.27
  * @return A text string with information about the graphics backend.
  */
-DALI_ADAPTOR_API const std::string& GetBackendInformation();
+DALI_ADAPTOR_API Dali::StringView GetBackendInformation();
 
 } // namespace Graphics
 

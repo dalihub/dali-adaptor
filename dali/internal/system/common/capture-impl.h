@@ -36,6 +36,7 @@
 #include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -257,9 +258,9 @@ private: // For CaptureFileSaveTask
     /**
      * @copydoc Dali::AsyncTask::GetTaskName()
      */
-    std::string_view GetTaskName() const override
+    Dali::StringView GetTaskName() const override
     {
-      return "CaptureFileSaveTask";
+      return Dali::StringView("CaptureFileSaveTask");
     }
 
   private:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,19 @@
 #include <dali/public-api/adaptor-framework/widget-application.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/common/dali-string-view.h>
+
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/system/common/widget-application-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
-WidgetApplication WidgetApplication::New(int* argc, char** argv[], const std::string& stylesheet)
+WidgetApplication WidgetApplication::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
   WindowData                              windowData;
-  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet, windowData);
+  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, ToStdString(stylesheet), windowData);
   return WidgetApplication(internal.Get());
 }
 
@@ -46,9 +51,9 @@ WidgetApplication::WidgetApplication(WidgetApplication&& rhs) noexcept = default
 
 WidgetApplication& WidgetApplication::operator=(WidgetApplication&& rhs) noexcept = default;
 
-void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widgetName, CreateWidgetFunction createFunction)
+void WidgetApplication::RegisterWidgetCreatingFunction(const Dali::String& widgetName, CreateWidgetFunction createFunction)
 {
-  Internal::Adaptor::GetImplementation(*this).RegisterWidgetCreatingFunction(widgetName, createFunction);
+  Internal::Adaptor::GetImplementation(*this).RegisterWidgetCreatingFunction(ToStdString(widgetName), createFunction);
 }
 
 WidgetApplication::WidgetApplication(Internal::Adaptor::WidgetApplication* widgetApplication)

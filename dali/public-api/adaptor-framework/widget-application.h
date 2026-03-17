@@ -2,7 +2,7 @@
 #define DALI_WIDGET_APPLICATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/common/dali-string-view.h>
+#include <dali/public-api/common/dali-string.h>
 
 namespace Dali
 {
@@ -67,7 +69,7 @@ class Widget;
  *     mApplication.InitSignal().Connect( this, &ExampleController::Create );
  *   }
  *
- *   static Widget CreateWidgetFunction(const std::string& widgetName)
+ *   static Widget CreateWidgetFunction(const Dali::String& widgetName)
  *   {
  *     MyWidget widget = MyWidget::New();
  *     return widget;
@@ -106,7 +108,7 @@ public:
    * @brief This is the typedef for Widget creator.
    * @SINCE_1_3_5
    */
-  typedef Widget (*CreateWidgetFunction)(const std::string&);
+  typedef Widget (*CreateWidgetFunction)(const Dali::String&);
 
 public:
   /**
@@ -119,7 +121,7 @@ public:
    * @return A handle to the WidgetApplication
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static WidgetApplication New(int* argc, char** argv[], const std::string& stylesheet);
+  static WidgetApplication New(int* argc, char** argv[], Dali::StringView stylesheet);
 
   /**
    * @brief The default constructor.
@@ -174,7 +176,7 @@ public:
    * @param[in] widgetName  Name of widget
    * @param[in] createFunction     Function pointer for widget creation.
    */
-  void RegisterWidgetCreatingFunction(const std::string& widgetName, CreateWidgetFunction createFunction);
+  void RegisterWidgetCreatingFunction(const Dali::String& widgetName, CreateWidgetFunction createFunction);
 
 public: // Not intended for application developers
   /// @cond internal

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/object/any.h>
 
 // INTERNAL HEADERS
@@ -27,6 +28,8 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
+
+using Dali::Integration::ToDaliString;
 
 namespace Dali
 {
@@ -211,9 +214,9 @@ void WindowBaseWin::OnKeyDown(int type, TWinEventInfo* event)
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 
     int         keyCode = event->wParam;
-    std::string keyName(WindowsPlatform::GetKeyName(keyCode));
+    String      keyName(ToDaliString(WindowsPlatform::GetKeyName(keyCode)));
     std::string keyString;
-    std::string emptyString;
+    String      emptyString;
 
     int           modifier(0);
     unsigned long time(0);
@@ -221,7 +224,7 @@ void WindowBaseWin::OnKeyDown(int type, TWinEventInfo* event)
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back(event->wParam);
 
-    Integration::KeyEvent keyEvent(keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    Integration::KeyEvent keyEvent(keyName, emptyString, ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::DOWN, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
@@ -235,9 +238,9 @@ void WindowBaseWin::OnKeyUp(int type, TWinEventInfo* event)
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 
     int         keyCode = event->wParam;
-    std::string keyName(WindowsPlatform::GetKeyName(keyCode));
+    String      keyName(ToDaliString(WindowsPlatform::GetKeyName(keyCode)));
     std::string keyString;
-    std::string emptyString;
+    String      emptyString;
 
     int           modifier(0);
     unsigned long time(0);
@@ -245,7 +248,7 @@ void WindowBaseWin::OnKeyUp(int type, TWinEventInfo* event)
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     keyString.push_back(event->wParam);
 
-    Integration::KeyEvent keyEvent(keyName, emptyString, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    Integration::KeyEvent keyEvent(keyName, emptyString, ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::UP, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
