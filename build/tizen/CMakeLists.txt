@@ -405,9 +405,8 @@ SET( tizencanvasrendererdevelapidir ${tizenadaptorframeworkdevelapidir}/canvas-r
 SET( tizenwebenginedevelapidir ${tizenadaptorframeworkdevelapidir}/web-engine )
 SET( tizenatspiinterfacesdevelapidir ${tizenadaptordevelapidir}/atspi-interfaces )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
+SET( tizenwatchdevelapidir ${tizenadaptordevelapidir}/watch )
 SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
-SET( tizenwatchpublicapidir ${tizenadaptorpublicapidir}/watch )
-SET( tizencapturepublicapidir ${tizenadaptorpublicapidir}/capture )
 
 # Android framework headers for Android build
 SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework/android )
@@ -416,6 +415,7 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
 INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
+INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptordevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_widget_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
@@ -423,7 +423,8 @@ INSTALL( FILES ${devel_api_adaptor_framework_egl_header_files} DESTINATION ${tiz
 INSTALL( FILES ${devel_api_adaptor_framework_canvas_renderer_header_files} DESTINATION ${tizencanvasrendererdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_web_engine_header_files} DESTINATION ${tizenwebenginedevelapidir} )
 INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
-INSTALL( FILES ${text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
+INSTALL( FILES ${devel_api_text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
+INSTALL( FILES ${devel_api_watch_header_files} DESTINATION ${tizenwatchdevelapidir} )
 
 # Install Android framework headers for Android build
 INSTALL( FILES ${adaptor_integration_api_android_header_files} DESTINATION ${androidadaptorintegrationapidir} )
@@ -442,9 +443,6 @@ IF( NOT UBUNTU_PROFILE AND NOT ANDROID_PROFILE AND NOT WINDOWS_PROFILE AND NOT M
 ENDIF()
 
 INSTALL( FILES ${adaptor_dali_header_file} DESTINATION ${tizenadaptordaliheaderdir} )
-INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptorpublicapidir} )
-INSTALL( FILES ${public_dali_watch_header_files} DESTINATION ${tizenwatchpublicapidir} )
-INSTALL( FILES ${public_dali_capture_header_files} DESTINATION ${tizencapturepublicapidir} )
 
 IF( ANDROID_PROFILE )
   SET( daliShaderbinCacheDir ${CMAKE_INSTALL_PREFIX}/core/shaderbin/)

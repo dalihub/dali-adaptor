@@ -2,6 +2,7 @@
 
 SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/application.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/capture.cpp
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.cpp
   ${adaptor_public_api_dir}/adaptor-framework/key.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window.cpp
@@ -9,7 +10,6 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/native-image.cpp
   ${adaptor_public_api_dir}/adaptor-framework/ui-context.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
-  ${adaptor_public_api_dir}/adaptor-framework/capture.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
 )
 
