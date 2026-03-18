@@ -19,8 +19,8 @@
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dlfcn.h>
 #include <sstream>
 

@@ -19,9 +19,9 @@
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 #include <algorithm>
+#include <dali/devel-api/object/type-registry.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>

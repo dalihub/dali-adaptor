@@ -19,6 +19,7 @@
 #include <dali/internal/system/common/object-profiler.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/string-utils.h>
@@ -26,10 +27,9 @@
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/object/type-registry.h>
 
-#include <stdlib.h>
 #include <algorithm> // for std::find_if
+#include <stdlib.h>
 
 using std::string;
 using namespace Dali::Integration::Profiling;

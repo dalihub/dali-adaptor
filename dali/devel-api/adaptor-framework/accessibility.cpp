@@ -15,12 +15,12 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-info.h>
+#include <dali/devel-api/object/type-registry-helper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/object/type-info.h>
-#include <dali/public-api/object/type-registry-helper.h>
 #include <string_view>
 #include <unordered_map>
 

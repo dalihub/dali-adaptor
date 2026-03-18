@@ -20,10 +20,10 @@
 #include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/singleton-service.h>
-#include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 #include <cmath>
+#include <dali/devel-api/common/singleton-service.h>
+#include <dali/devel-api/object/type-registry.h>
+#include <dali/integration-api/debug.h>
 
 namespace // unnamed namespace
 {

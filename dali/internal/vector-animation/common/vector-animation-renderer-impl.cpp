@@ -19,7 +19,7 @@
 #include <dali/internal/vector-animation/common/vector-animation-renderer-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 
