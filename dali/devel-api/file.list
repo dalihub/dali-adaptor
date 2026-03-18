@@ -35,6 +35,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/physical-keyboard.cpp
@@ -93,6 +94,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-relative-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.h
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.h
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.h
   ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.h
   ${adaptor_devel_api_dir}/adaptor-framework/pixel-buffer.h
