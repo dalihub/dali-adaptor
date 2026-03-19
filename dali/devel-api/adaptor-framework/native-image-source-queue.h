@@ -1,5 +1,5 @@
-#ifndef DALI_NATIVE_IMAGE_QUEUE_H
-#define DALI_NATIVE_IMAGE_QUEUE_H
+#ifndef DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
+#define DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -40,22 +40,24 @@ class NativeImageQueue;
 }
 } // namespace Internal DALI_INTERNAL
 
-class NativeImageQueue;
+class NativeImageSourceQueue;
 
 /**
- * @brief Pointer to Dali::NativeImageQueue.
+ * @brief Pointer to Dali::NativeImageSourceQueue.
  */
-typedef Dali::IntrusivePtr<Dali::NativeImageQueue> NativeImageQueuePtr;
+typedef Dali::IntrusivePtr<Dali::NativeImageSourceQueue> NativeImageSourceQueuePtr;
 
 /**
  * @brief Used for displaying native images.
  *
+ * @deprecated Use NativeImageQueue instead. This is kept for legacy apps.
+ *
  * NativeImage is a platform specific way of providing pixel data to the GPU for rendering,for example via an EGL image.
- * NativeImageQueue can be created internally or externally by native image.
+ * NativeImageSourceQueue can be created internally or externally by native image.
  * It has a queue which handles some image buffers.
  * Someone should fill the buffers and enqueue them, then DALi will show them.
  */
-class DALI_ADAPTOR_API NativeImageQueue : public NativeImageInterface
+class DALI_ADAPTOR_API NativeImageSourceQueue : public NativeImageInterface
 {
 public:
   /**
@@ -73,26 +75,7 @@ public:
   };
 
   /**
-   * @brief Enumeration for buffer access types when dequeuing buffers from the queue.
-   * @note These values can be combined using bitwise OR to specify multiple access types.
-   *       For example: BufferAccessType::READ | BufferAccessType::WRITE
-   */
-  enum BufferAccessType
-  {
-    READ  = 0x01, ///< Read access to the buffer (can read buffer contents)
-    WRITE = 0x10  ///< Write access to the buffer (can modify buffer contents)
-  };
-
-  /**
-   * @brief Enumeration for queue usage types.
-   */
-  enum QueueUsageType
-  {
-    ENQUEUE_DEQUEUE = 0x01 ///< Enqueue and dequeue operations will be used
-  };
-
-  /**
-   * @brief Creates a new NativeImageQueue.
+   * @brief Creates a new NativeImageSourceQueue.
    *        Depending on hardware, the width and height may have to be a power of two.
    *        It will use 3, or defined by DALI_TBM_SURFACE_QUEUE_SIZE as default.
    * @param[in] width The width of the image
@@ -100,35 +83,14 @@ public:
    * @param[in] colorFormat The color format of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageQueuePtr New(uint32_t width, uint32_t height, ColorFormat colorFormat);
-
-  /**
-   * @brief Creates a new NativeImageQueue with the queue size.
-   *        Depending on hardware, the width and height may have to be a power of two.
-   * @note Since queueCount can increase the memory usage, we recommened queueCount value is less or equal than 3.
-   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
-   * @param[in] width The width of the image
-   * @param[in] height The height of the image
-   * @param[in] colorFormat The color format of the image
-   * @return A smart-pointer to a newly allocated image
-   */
-  static NativeImageQueuePtr New(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat);
-
-  /**
-   * @brief Creates a new NativeImageQueue from an existing native image.
-   *
-   * @param[in] nativeImageQueue must be a any handle with native image
-   * @return A smart-pointer to a newly allocated image
-   * @see NativeImageInterface
-   */
-  static NativeImageQueuePtr New(Any nativeImageQueue);
+  static NativeImageSourceQueuePtr New(uint32_t width, uint32_t height, ColorFormat colorFormat);
 
   /**
    * @brief Retrieves the internal native image.
    *
    * @return Any object containing the internal native image queue
    */
-  Any GetNativeImageQueue();
+  Any GetNativeImageSourceQueue();
 
   /**
    * @brief Sets the size of the image.
@@ -137,80 +99,6 @@ public:
    * @param[in] height The height of the image
    */
   void SetSize(uint32_t width, uint32_t height);
-
-  /**
-   * @brief Ignores a source image which is inserted to the queue.
-   *
-   * @note This can be called from worker threads.
-   */
-  void IgnoreSourceImage();
-
-  /**
-   * @brief Checks if the buffer can be got from the queue.
-   *
-   * Check the available buffer using this API before call DequeueBuffer()
-   * @return True if the buffer can be got from the queue.
-   */
-  bool CanDequeueBuffer();
-
-  /**
-   * @brief Dequeue buffer from the queue.
-   *
-   * Acquire buffer and information of the queue.
-   * It returns the information of the buffer.
-   * @param[out] width The width of the buffer
-   * @param[out] height The height of the buffer
-   * @param[out] stride The stride of the buffer
-   * @return A pointer to the buffer
-   */
-  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride);
-
-  /**
-   * @brief Dequeue buffer from the queue with specified access type.
-   *
-   * Acquire buffer and information of the queue with the specified buffer access type.
-   * It returns the information of the buffer.
-   * @param[out] width The width of the buffer
-   * @param[out] height The height of the buffer
-   * @param[out] stride The stride of the buffer
-   * @param[in] type The buffer access type (READ, WRITE, or READ|WRITE)
-   * @return A pointer to the buffer
-   */
-  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride, BufferAccessType type);
-
-  /**
-   * @brief Enqueue buffer to the queue.
-   *
-   * Enqueue buffer to the queue
-   * this requests the release of the buffer internally.
-   * @param[in] buffer A pointer of buffer
-   * @return True if success
-   */
-  bool EnqueueBuffer(uint8_t* buffer);
-
-  /**
-   * @brief Cancel dequeued buffer.
-   *
-   * Cancel a buffer that was previously dequeued but not enqueued.
-   * This releases the buffer back to the queue without processing it.
-   * @param[in] buffer A pointer to the buffer to cancel
-   */
-  void CancelDequeuedBuffer(uint8_t* buffer);
-
-  /**
-   * @brief Free all released buffers.
-   */
-  void FreeReleasedBuffers();
-
-  /**
-   * @brief Sets a hint for queue usage type.
-   *
-   * Call this method to specify what type of queue operations will be used.
-   * This hint allows the implementation to prepare appropriate queue management.
-   * @param[in] type The queue usage type
-   * @note This should be called before DequeueBuffer and EnqueueBuffer.
-   */
-  void SetQueueUsageHint(QueueUsageType type);
 
   /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()
@@ -295,11 +183,6 @@ private: // native image
    */
   void PostRender() override;
 
-  /**
-   * @copydoc Dali::NativeImageInterface::GetExtension()
-   */
-  NativeImageInterface::Extension* GetExtension() override;
-
 private:
   /// @cond internal
   /**
@@ -308,16 +191,16 @@ private:
    * @param[in] width The width of the image
    * @param[in] height The height of the image
    * @param[in] colorFormat The color format of the image
-   * @param[in] nativeImageQueue contains either: native image or is empty
+   * @param[in] nativeImageSourceQueue contains either: native image or is empty
    */
-  DALI_INTERNAL NativeImageQueue(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageQueue);
+  DALI_INTERNAL NativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
    *
    * The implementation should destroy the NativeImage resources.
    */
-  DALI_INTERNAL ~NativeImageQueue() override;
+  DALI_INTERNAL ~NativeImageSourceQueue() override;
 
   /**
    * @brief Undefined copy constructor.
@@ -325,7 +208,7 @@ private:
    * This avoids accidental calls to a default copy constructor.
    * @param[in] nativeImageQueue A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageQueue(const NativeImageQueue& nativeImageQueue);
+  DALI_INTERNAL NativeImageSourceQueue(const NativeImageSourceQueue& nativeImageSourceQueue);
 
   /**
    * @brief Undefined assignment operator.
@@ -333,7 +216,7 @@ private:
    * This avoids accidental calls to a default assignment operator.
    * @param[in] rhs A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageQueue& operator=(const NativeImageQueue& rhs);
+  DALI_INTERNAL NativeImageSourceQueue& operator=(const NativeImageSourceQueue& rhs);
   /// @endcond
 
 private:
@@ -343,19 +226,8 @@ private:
 };
 
 /**
- * @brief Bitwise OR operator for BufferAccessType.
- * @param[in] lhs Left-hand side operand
- * @param[in] rhs Right-hand side operand
- * @return Combined buffer access type
- */
-constexpr NativeImageQueue::BufferAccessType operator|(NativeImageQueue::BufferAccessType lhs, NativeImageQueue::BufferAccessType rhs)
-{
-  return static_cast<NativeImageQueue::BufferAccessType>(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
-}
-
-/**
  * @}
  */
 } // namespace Dali
 
-#endif // DALI_NATIVE_IMAGE_QUEUE_H
+#endif // DALI_NATIVE_IMAGE_SOURCE_QUEUE_H

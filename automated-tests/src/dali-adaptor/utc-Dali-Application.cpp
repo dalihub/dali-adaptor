@@ -18,11 +18,13 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/application-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <stdlib.h>
 
 #include <adaptor-environment-variable.h> ///< for Dali::SetTestEnvironmentVariable
 
 using namespace Dali;
+using Dali::Integration::ToStdString;
 
 void utc_dali_application_startup(void)
 {
@@ -603,7 +605,7 @@ int UtcDaliApplicationGetResourcePathP(void)
 {
   Application application = Application::New();
   std::string result("**invalid path**"); // Calling GetResourcePath should replace this with a system dependent path or "".
-  result = application.GetResourcePath();
+  result = ToStdString(application.GetResourcePath());
   DALI_TEST_CHECK(result != "**invalid path**");
 
   END_TEST;
@@ -613,7 +615,7 @@ int UtcDaliApplicationGetRegionP(void)
 {
   Application application = Application::New();
   std::string result;
-  result = application.GetRegion();
+  result = ToStdString(application.GetRegion());
   DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
 
   END_TEST;
@@ -623,7 +625,7 @@ int UtcDaliApplicationGetLanguageP(void)
 {
   Application application = Application::New();
   std::string result;
-  result = application.GetLanguage();
+  result = ToStdString(application.GetLanguage());
   DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
 
   END_TEST;

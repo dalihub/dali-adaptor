@@ -20,9 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-backend-impl.h>
+
+using Dali::Integration::ToDaliStringView;
 
 namespace Dali::Graphics
 {
@@ -36,8 +39,8 @@ void SetGraphicsBackend(Backend backend)
   Internal::SetGraphicsBackend(backend);
 }
 
-const std::string& GetBackendInformation()
+Dali::StringView GetBackendInformation()
 {
-  return Internal::GetBackendInformation();
+  return ToDaliStringView(Internal::GetBackendInformation());
 }
 } // namespace Dali::Graphics

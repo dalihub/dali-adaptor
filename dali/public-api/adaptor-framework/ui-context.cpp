@@ -19,9 +19,12 @@
 #include <dali/public-api/adaptor-framework/ui-context.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/string-utils.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/ui-context-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -68,9 +71,9 @@ void UiContext::FlushUpdateMessages()
   Internal::Adaptor::GetImplementation(*this).FlushUpdateMessages();
 }
 
-void UiContext::SetApplicationLocale(const std::string& locale)
+void UiContext::SetApplicationLocale(const Dali::String& locale)
 {
-  Internal::Adaptor::GetImplementation(*this).SetApplicationLocale(locale);
+  Internal::Adaptor::GetImplementation(*this).SetApplicationLocale(ToStdString(locale));
 }
 
 } // namespace Dali

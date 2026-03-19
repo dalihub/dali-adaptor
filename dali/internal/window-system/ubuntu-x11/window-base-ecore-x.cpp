@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,12 @@
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
+
+using Dali::Integration::ToDaliString;
 
 namespace Dali
 {
@@ -579,7 +582,7 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::DOWN, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
@@ -620,7 +623,7 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    Integration::KeyEvent keyEvent(ToDaliString(keyName), ToDaliString(logicalKey), ToDaliString(keyString), keyCode, modifier, time, Integration::KeyEvent::UP, ToDaliString(compose), ToDaliString(std::string(DEFAULT_DEVICE_NAME)), DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);

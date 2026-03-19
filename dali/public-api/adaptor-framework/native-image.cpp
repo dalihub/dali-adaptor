@@ -22,8 +22,12 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/imaging/common/native-image-impl.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -58,9 +62,9 @@ bool NativeImage::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint
   return mImpl->GetPixels(pixbuf, width, height, pixelFormat);
 }
 
-bool NativeImage::EncodeToFile(const std::string& filename) const
+bool NativeImage::EncodeToFile(const String& filename) const
 {
-  return mImpl->EncodeToFile(filename);
+  return mImpl->EncodeToFile(ToStdString(filename));
 }
 
 void NativeImage::SetSource(Any source)
@@ -113,14 +117,17 @@ int NativeImage::GetTextureTarget() const
   return mImpl->GetTextureTarget();
 }
 
-bool NativeImage::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImage::ApplyNativeFragmentShader(String& shader)
 {
   return ApplyNativeFragmentShader(shader, 1);
 }
 
-bool NativeImage::ApplyNativeFragmentShader(std::string& shader, int mask)
+bool NativeImage::ApplyNativeFragmentShader(String& shader, int mask)
 {
-  return mImpl->ApplyNativeFragmentShader(shader, mask);
+  std::string stdShader   = ToStdString(shader);
+  bool        returnValue = mImpl->ApplyNativeFragmentShader(stdShader, mask);
+  shader                  = ToDaliString(stdShader);
+  return returnValue;
 }
 
 const char* NativeImage::GetCustomSamplerTypename() const

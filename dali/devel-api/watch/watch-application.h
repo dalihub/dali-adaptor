@@ -127,7 +127,7 @@ public:
    * @param[in]      stylesheet  The path to user defined theme file
    * @return A handle to the WatchApplication
    */
-  static WatchApplication New(int* argc, char** argv[], const std::string& stylesheet);
+  static WatchApplication New(int* argc, char** argv[], Dali::StringView stylesheet);
 
   /**
    * @brief Construct an empty handle

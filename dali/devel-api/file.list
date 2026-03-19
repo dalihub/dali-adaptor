@@ -35,6 +35,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/physical-keyboard.cpp
@@ -70,6 +71,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-backend.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.h
   ${adaptor_devel_api_dir}/adaptor-framework/environment-variable.h
@@ -92,6 +94,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-relative-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.h
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.h
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.h
   ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.h
   ${adaptor_devel_api_dir}/adaptor-framework/pixel-buffer.h
@@ -124,7 +127,6 @@ SET( devel_api_adaptor_framework_header_files
 )
 
 SET( devel_api_adaptor_framework_egl_header_files
-  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
 )
 
@@ -204,7 +206,7 @@ SET( devel_api_text_abstraction_src_files
 )
 
 
-SET( text_abstraction_header_files
+SET( devel_api_text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/bidirectional-support.h
    ${adaptor_devel_api_dir}/text-abstraction/bitmap-font.h
    ${adaptor_devel_api_dir}/text-abstraction/font-client.h
@@ -226,4 +228,15 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/emoji-character-properties.h
    ${adaptor_devel_api_dir}/text-abstraction/emoji-helper.h
    ${adaptor_devel_api_dir}/text-abstraction/defined-characters.h
+)
+
+
+SET( adaptor_dali_wearable_header_file
+  ${adaptor_devel_api_dir}/watch/dali-wearable.h
+)
+
+
+SET( devel_api_watch_header_files
+  ${adaptor_devel_api_dir}/watch/watch-application.h
+  ${adaptor_devel_api_dir}/watch/watch-time.h
 )

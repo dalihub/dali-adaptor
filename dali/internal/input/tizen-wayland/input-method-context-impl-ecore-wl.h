@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/internal/system/linux/dali-ecore.h>
 
 #include <dali/integration-api/events/key-event-integ.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
@@ -30,6 +31,8 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 #include <queue>
+
+using Dali::Integration::ToPropertyValue;
 
 namespace Dali
 {
@@ -62,14 +65,14 @@ public:
     static TxEvent Commit(void* data, ImfContext* imfContext, std::string commitText)
     {
       TxEvent e{TxEventType::COMMIT, data, imfContext};
-      e.eventValue.PushBack(commitText);
+      e.eventValue.PushBack(ToPropertyValue(commitText));
       return e;
     }
 
     static TxEvent PreEdit(void* data, ImfContext* imfContext, std::string preEditString, int cursorPosition)
     {
       TxEvent e{TxEventType::PREEDIT, data, imfContext};
-      e.eventValue.PushBack(preEditString);
+      e.eventValue.PushBack(ToPropertyValue(preEditString));
       e.eventValue.PushBack(cursorPosition);
       return e;
     }
@@ -85,16 +88,16 @@ public:
     static TxEvent PrivateCommand(void* data, ImfContext* imfContext, std::string privateCommandSendEvent)
     {
       TxEvent e{TxEventType::PRIVATE_COMMAND, data, imfContext};
-      e.eventValue.PushBack(privateCommandSendEvent);
+      e.eventValue.PushBack(ToPropertyValue(privateCommandSendEvent));
       return e;
     }
 
     static TxEvent CommitContent(void* data, ImfContext* imfContext, std::string contentUri, std::string description, std::string mimeTypes)
     {
       TxEvent e{TxEventType::COMMIT_CONTENT, data, imfContext};
-      e.eventValue.PushBack(contentUri);
-      e.eventValue.PushBack(description);
-      e.eventValue.PushBack(mimeTypes);
+      e.eventValue.PushBack(ToPropertyValue(contentUri));
+      e.eventValue.PushBack(ToPropertyValue(description));
+      e.eventValue.PushBack(ToPropertyValue(mimeTypes));
       return e;
     }
 

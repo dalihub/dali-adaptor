@@ -19,8 +19,12 @@
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/imaging/common/native-image-factory.h>
 #include <dali/internal/imaging/common/native-image-queue-impl.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -152,14 +156,17 @@ int NativeImageQueue::GetTextureTarget() const
   return mImpl->GetTextureTarget();
 }
 
-bool NativeImageQueue::ApplyNativeFragmentShader(std::string& shader)
+bool NativeImageQueue::ApplyNativeFragmentShader(String& shader)
 {
   return ApplyNativeFragmentShader(shader, 1);
 }
 
-bool NativeImageQueue::ApplyNativeFragmentShader(std::string& shader, int mask)
+bool NativeImageQueue::ApplyNativeFragmentShader(String& shader, int mask)
 {
-  return mImpl->ApplyNativeFragmentShader(shader, mask);
+  std::string stdShader   = ToStdString(shader);
+  bool        returnValue = mImpl->ApplyNativeFragmentShader(stdShader, mask);
+  shader                  = ToDaliString(stdShader);
+  return returnValue;
 }
 
 const char* NativeImageQueue::GetCustomSamplerTypename() const

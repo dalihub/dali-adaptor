@@ -82,7 +82,7 @@ uint32_t gThreadId = 0u; // Only for debug
 const char* GetTaskName(AsyncTaskPtr task)
 {
   // Note
-  return task ? task->GetTaskName().data() : "(nil)";
+  return task ? task->GetTaskName().Data() : "(nil)";
 }
 
 } // unnamed namespace

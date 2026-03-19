@@ -19,15 +19,18 @@
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/actors/actor-devel.h>
-#include <dali/integration-api/debug.h>
-#include <dali/public-api/actors/layer.h>
-#include <dali/public-api/object/type-info.h>
 #include <algorithm>
+#include <dali/devel-api/actors/actor-devel.h>
+#include <dali/devel-api/object/type-info.h>
+#include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
+#include <dali/public-api/actors/layer.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali::Accessibility
 {
@@ -113,7 +116,7 @@ Address ActorAccessible::GetAddress() const
 
 std::string ActorAccessible::GetName() const
 {
-  return Self().GetProperty<std::string>(Dali::Actor::Property::NAME);
+  return ToStdString(Self().GetProperty<Dali::String>(Dali::Actor::Property::NAME));
 }
 
 std::string ActorAccessible::GetDescription() const

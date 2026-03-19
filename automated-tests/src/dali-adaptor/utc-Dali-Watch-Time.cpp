@@ -20,7 +20,7 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <stdlib.h>
-#include "public-api/dali-wearable.h"
+#include "devel-api/dali-wearable.h"
 #define TIMEZONE_BUFFER_MAX 102
 
 using namespace Dali;

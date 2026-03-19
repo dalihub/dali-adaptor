@@ -21,6 +21,7 @@
 // INTERNAL INCLUDE
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/events/key-event-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
@@ -34,6 +35,10 @@
 #include <dlfcn.h>
 #include <dlog.h>
 #include <tizen.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
+
 namespace Dali
 {
 namespace Internal
@@ -181,7 +186,7 @@ WidgetApplicationTizen::CreateWidgetFunctionPair WidgetApplicationTizen::GetWidg
 void WidgetApplicationTizen::AddWidget(void* widgetBaseInstance, Dali::Widget widget, Dali::Window window, const std::string& widgetId)
 {
   mWidgetInstanceContainer.push_back(WidgetInstancePair(widgetBaseInstance, widget));
-  Internal::Adaptor::GetImplementation(widget).SetInformation(window, widgetId);
+  Internal::Adaptor::GetImplementation(widget).SetInformation(window, ToDaliString(widgetId));
 }
 
 Dali::Widget WidgetApplicationTizen::GetWidget(void* widgetBaseInstance) const
@@ -224,7 +229,7 @@ void* WidgetApplicationTizen::GetWidgetInstanceFromWidgetId(std::string& widgetI
 {
   for(auto&& iter : mWidgetInstanceContainer)
   {
-    if(widgetId == Internal::Adaptor::GetImplementation((iter).second).GetWidgetId())
+    if(widgetId == ToStdString(Internal::Adaptor::GetImplementation((iter).second).GetWidgetId()))
     {
       return (iter).first;
     }

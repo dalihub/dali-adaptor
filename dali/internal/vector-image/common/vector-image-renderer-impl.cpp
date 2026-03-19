@@ -16,12 +16,12 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
 #include <algorithm>
+#include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 
 #ifndef THORVG_SUPPORT
 // INTERNAL INCLUDES

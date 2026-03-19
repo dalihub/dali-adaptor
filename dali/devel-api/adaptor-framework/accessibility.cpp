@@ -15,12 +15,12 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-info.h>
+#include <dali/devel-api/object/type-registry-helper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/object/type-info.h>
-#include <dali/public-api/object/type-registry-helper.h>
 #include <string_view>
 #include <unordered_map>
 
@@ -41,9 +41,12 @@
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali::Accessibility
 {
@@ -489,7 +492,7 @@ public:
 
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
-    attributes["class"] = type.GetName();
+    attributes["class"] = ToStdString(type.GetName());
 
     return attributes;
   }

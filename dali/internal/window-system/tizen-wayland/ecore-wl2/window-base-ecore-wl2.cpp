@@ -33,6 +33,7 @@
 // EXTERNAL_HEADERS
 #include <Ecore_Input.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/events/mouse-button.h>
@@ -44,6 +45,9 @@
 #endif
 
 #include <wayland-egl-tizen.h>
+
+using Dali::Integration::ToDaliString;
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -1700,10 +1704,10 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
   if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    std::string keyName(keyEvent->keyname);
-    std::string logicalKey("");
-    std::string keyString("");
-    std::string compose("");
+    String keyName(keyEvent->keyname);
+    String logicalKey("");
+    String keyString("");
+    String compose("");
 
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_KEY_DOWN");
 
@@ -1720,7 +1724,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 
     int keyCode = 0;
-    GetKeyCode(keyName, keyCode); // Get key code dynamically.
+    GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
 
     if(keyCode == 0)
     {
@@ -1758,7 +1762,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 #endif
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, ToDaliString(deviceName), deviceClass, deviceSubclass);
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1786,10 +1790,10 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     }
 #endif // Since ecore 1.23 version
 
-    std::string keyName(keyEvent->keyname);
-    std::string logicalKey("");
-    std::string keyString("");
-    std::string compose("");
+    String keyName(keyEvent->keyname);
+    String logicalKey("");
+    String keyString("");
+    String compose("");
 
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_KEY_UP");
 
@@ -1806,7 +1810,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     }
 
     int keyCode = 0;
-    GetKeyCode(keyName, keyCode); // Get key code dynamically.
+    GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
 
     if(keyCode == 0)
     {
@@ -1836,7 +1840,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, ToDaliString(deviceName), deviceClass, deviceSubclass);
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
@@ -1925,7 +1929,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
         EINA_LIST_FOREACH(message->options, l, data)
         {
           DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), option: %s\n", mEcoreWindow, (char*)data);
-          std::string option(static_cast<char*>(data));
+          String option(static_cast<char*>(data));
           options.Add(option);
         }
       }

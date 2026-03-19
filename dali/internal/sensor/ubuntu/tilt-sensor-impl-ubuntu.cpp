@@ -21,8 +21,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 
 namespace // unnamed namespace
 {
@@ -40,7 +40,7 @@ Dali::BaseHandle GetInstance()
 
 Dali::TypeRegistration typeRegistration(typeid(Dali::TiltSensor), typeid(Dali::BaseHandle), GetInstance);
 
-Dali::SignalConnectorType signalConnector1(typeRegistration, SIGNAL_TILTED, Dali::Internal::Adaptor::TiltSensor::DoConnectSignal);
+Dali::SignalConnectorType signalConnector1(typeRegistration, Dali::String(SIGNAL_TILTED), Dali::Internal::Adaptor::TiltSensor::DoConnectSignal);
 
 } // unnamed namespace
 
@@ -147,12 +147,12 @@ Radian TiltSensorUbuntu::GetRotationThreshold() const
   return mRotationThreshold;
 }
 
-bool TiltSensorUbuntu::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
+bool TiltSensorUbuntu::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const Dali::String& signalName, FunctorDelegate* functor)
 {
   bool        connected(true);
   TiltSensor* sensor = dynamic_cast<TiltSensor*>(object);
 
-  if(sensor && (SIGNAL_TILTED == signalName))
+  if(sensor && (signalName == SIGNAL_TILTED))
   {
     sensor->TiltedSignal().Connect(tracker, functor);
   }

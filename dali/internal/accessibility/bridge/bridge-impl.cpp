@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/actors/layer.h>
 #include <iostream>
 #include <unordered_map>
@@ -196,9 +197,9 @@ public:
 
     uint32_t keyType   = (keyEvent.GetState() == Dali::KeyEvent::DOWN ? 0U : 1U);
     auto     timeStamp = static_cast<std::int32_t>(keyEvent.GetTime());
-    bool     isText    = !keyEvent.GetKeyString().empty();
+    bool     isText    = !keyEvent.GetKeyString().Empty();
 
-    ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, keyEvent.GetKeyName(), isText);
+    ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, Dali::Integration::ToStdString(keyEvent.GetKeyName()), isText);
 
     auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply)
     {

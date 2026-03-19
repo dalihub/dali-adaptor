@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/events/key-event.h>
-#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
@@ -337,7 +337,7 @@ bool InputMethodContextWin::FilterEventKey(const Dali::KeyEvent& keyEvent)
 {
   bool eventHandled(false);
 
-  if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().c_str()))
+  if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().CStr()))
   {
     //check whether it's key down or key up event
     if(keyEvent.GetState() == Dali::KeyEvent::DOWN)

@@ -55,7 +55,6 @@ int FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_RGBA1010102, TBM_FORMAT_BGRA1010102
 };
 // clang-format on
-
 const char* SAMPLER_TYPE = "samplerExternalOES";
 
 constexpr int32_t NUM_FORMATS_BLENDING_REQUIRED = 18;

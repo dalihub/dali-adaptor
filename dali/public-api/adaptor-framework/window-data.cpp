@@ -34,7 +34,7 @@ struct WindowData::Impl
   bool            mIsTransparent;          ///< The transparency of the Window
   WindowType      mWindowType;             ///< The window type of the Window
   bool            mIsFrontBufferRendering; ///< The front buffer rendering of the Window
-  std::string     mScreen;                 ///< The current screen for supporting multiple screen
+  Dali::String    mScreen;                 ///< The current screen for supporting multiple screen
 };
 
 WindowData::WindowData()
@@ -84,12 +84,12 @@ bool WindowData::GetFrontBufferRendering() const
   return mImpl->mIsFrontBufferRendering;
 }
 
-void WindowData::SetScreen(const std::string& screen)
+void WindowData::SetScreen(const Dali::String& screen)
 {
   mImpl->mScreen = screen;
 }
 
-std::string WindowData::GetScreen() const
+Dali::String WindowData::GetScreen() const
 {
   return mImpl->mScreen;
 }

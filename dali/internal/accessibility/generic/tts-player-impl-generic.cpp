@@ -19,7 +19,7 @@
 #include <dali/internal/accessibility/generic/tts-player-impl-generic.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/object/type-registry.h>
 
 #include <memory>
 namespace Dali

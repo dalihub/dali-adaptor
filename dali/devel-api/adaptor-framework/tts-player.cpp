@@ -19,8 +19,11 @@
 #include <dali/devel-api/adaptor-framework/tts-player.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+
+using Dali::Integration::ToStdString;
 
 namespace Dali
 {
@@ -52,9 +55,9 @@ TtsPlayer::TtsPlayer(TtsPlayer&& rhs) noexcept = default;
 
 TtsPlayer& TtsPlayer::operator=(TtsPlayer&& rhs) noexcept = default;
 
-void TtsPlayer::Play(const std::string& text)
+void TtsPlayer::Play(const Dali::String& text)
 {
-  GetImplementation(*this).Play(text);
+  GetImplementation(*this).Play(ToStdString(text));
 }
 
 void TtsPlayer::Stop()

@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <cstdint> ///< for uint8_t
-#include <string>
 
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/images/pixel.h>
@@ -133,7 +133,7 @@ public:
    *                     The two valid encoding are (".jpeg"|".jpg") and ".png".
    * @return    @c true if the pixels were written, and @c false otherwise
    */
-  bool EncodeToFile(const std::string& filename) const;
+  bool EncodeToFile(const Dali::String& filename) const;
 
   /**
    * @brief Sets an existing source.
@@ -169,14 +169,14 @@ public: // native image
   int GetTextureTarget() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string&)
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String&)
    */
-  bool ApplyNativeFragmentShader(std::string& shader) override;
+  bool ApplyNativeFragmentShader(Dali::String& shader) override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string&, int)
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String&, int)
    */
-  bool ApplyNativeFragmentShader(std::string& shader, int mask) override;
+  bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()

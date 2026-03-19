@@ -19,7 +19,7 @@
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>

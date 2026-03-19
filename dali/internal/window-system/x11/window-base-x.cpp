@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,11 @@
 
 // EXTERNAL_HEADERS
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
 
+using Dali::Integration::ToDaliString;
 using Dali::Internal::Adaptor::WindowSystem::WindowSystemX;
 
 namespace Dali
@@ -552,21 +554,21 @@ void WindowBaseX::OnMouseWheel(void* data, WindowSystemBase::Event type, WindowS
 
 Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* keyEvent, Integration::KeyEvent::State state)
 {
-  std::string keyName(keyEvent->keyname);
-  std::string logicalKey("");
-  std::string keyString("");
-  std::string compose("");
+  String keyName(ToDaliString(keyEvent->keyname));
+  String logicalKey("");
+  String keyString("");
+  String compose("");
 
   // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
   if(!keyEvent->compose.empty())
   {
-    compose   = keyEvent->compose;
-    keyString = keyEvent->compose;
+    compose   = ToDaliString(keyEvent->compose);
+    keyString = ToDaliString(keyEvent->compose);
   }
   // Ensure key symbol is not NULL as keys like SHIFT have a null string.
   if(!keyEvent->key.empty())
   {
-    logicalKey = keyEvent->key;
+    logicalKey = ToDaliString(keyEvent->key);
   }
 
   int           keyCode = keyEvent->keyCode;

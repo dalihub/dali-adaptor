@@ -18,9 +18,11 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 using namespace Dali;
+using Dali::Integration::ToDaliString;
 
 void utc_dali_window_startup(void)
 {
@@ -574,7 +576,7 @@ int UtcDaliWindowAddAuxiliaryHintNegative(void)
   {
     std::string arg1;
     std::string arg2;
-    instance.AddAuxiliaryHint(arg1, arg2);
+    instance.AddAuxiliaryHint(ToDaliString(arg1), ToDaliString(arg2));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -685,7 +687,7 @@ int UtcDaliWindowSetAuxiliaryHintValueNegative(void)
   {
     unsigned int arg1(0u);
     std::string  arg2;
-    instance.SetAuxiliaryHintValue(arg1, arg2);
+    instance.SetAuxiliaryHintValue(arg1, ToDaliString(arg2));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -904,7 +906,7 @@ int UtcDaliWindowSetClassNegative(void)
   {
     std::string arg1;
     std::string arg2;
-    instance.SetClass(arg1, arg2);
+    instance.SetClass(ToDaliString(arg1), ToDaliString(arg2));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1056,7 +1058,7 @@ int UtcDaliWindowGetAuxiliaryHintIdNegative(void)
   try
   {
     std::string arg1;
-    instance.GetAuxiliaryHintId(arg1);
+    instance.GetAuxiliaryHintId(ToDaliString(arg1));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

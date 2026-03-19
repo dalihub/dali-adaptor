@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <tts.h>
 
-#include <dali/public-api/object/type-registry.h>
+#include <dali/devel-api/object/type-registry.h>
 
 namespace Dali
 {
