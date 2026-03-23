@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_AUTOMATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,13 @@ void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData);
  * @param[in] sendData interface to transmit data to the client
  */
 void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData);
+
+/**
+ * @brief Dumps all of the the memory pool stats to the client
+ * @param[in] clientId unique network client id
+ * @param[in] sendData interface to transmit data to the client
+ */
+void DumpMemoryPools(unsigned clientId, ClientSendDataInterface* sendData);
 
 /**
  * @brief Sets a custom command.
