@@ -99,7 +99,7 @@ struct KeyCodeMap
 /**
  * Get the device name
  */
-void GetDeviceName(const char* ecoreDeviceName, std::string& result)
+void GetDeviceName(const char* ecoreDeviceName, Dali::String& result)
 {
   if(ecoreDeviceName)
   {
@@ -1402,7 +1402,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
-    std::string            deviceName;
+    Dali::String           deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
@@ -1455,7 +1455,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
-    std::string            deviceName;
+    Dali::String           deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
@@ -1495,7 +1495,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
-    std::string            deviceName;
+    Dali::String           deviceName;
 
     GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
@@ -1664,7 +1664,7 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::D
 
     if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
     {
-      std::string deviceName;
+      Dali::String deviceName;
       GetDeviceName(ecore_device_name_get(mouseInOutEvent->dev), deviceName);
 
       Integration::Point point;
@@ -1746,7 +1746,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    std::string            deviceName;
+    Dali::String           deviceName;
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1762,7 +1762,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 #endif
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, ToDaliString(deviceName), deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1832,7 +1832,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
       keyString = keyEvent->string;
     }
 
-    std::string            deviceName;
+    Dali::String           deviceName;
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1840,7 +1840,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, ToDaliString(deviceName), deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 

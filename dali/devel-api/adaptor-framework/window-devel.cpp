@@ -206,15 +206,15 @@ void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent)
 
 void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(ToDaliString(keyEvent.GetKeyName()),
-                                       ToDaliString(keyEvent.GetLogicalKey()),
-                                       ToDaliString(keyEvent.GetKeyString()),
+  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
+                                       keyEvent.GetLogicalKey(),
+                                       keyEvent.GetKeyString(),
                                        keyEvent.GetKeyCode(),
                                        keyEvent.GetKeyModifier(),
                                        keyEvent.GetTime(),
                                        static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
                                        keyEvent.GetCompose(),
-                                       ToDaliString(keyEvent.GetDeviceName()),
+                                       keyEvent.GetDeviceName(),
                                        keyEvent.GetDeviceClass(),
                                        keyEvent.GetDeviceSubclass());
   convertedEvent.receiveTime = keyEvent.GetReceiveTime();

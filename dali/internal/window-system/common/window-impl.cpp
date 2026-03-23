@@ -1126,7 +1126,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  mLastKeyEvent = Dali::DevelKeyEvent::New(ToStdString(keyEvent.keyName), ToStdString(keyEvent.logicalKey), ToStdString(keyEvent.keyString), keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), ToStdString(keyEvent.compose), ToStdString(keyEvent.deviceName), keyEvent.deviceClass, keyEvent.deviceSubclass);
+  mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   DevelKeyEvent::SetWindowId(mLastKeyEvent, keyEvent.windowId);
   FeedKeyEvent(keyEvent);
 }

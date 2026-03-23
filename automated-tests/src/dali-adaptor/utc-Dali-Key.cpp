@@ -24,6 +24,7 @@
 #include <dali-test-suite-utils.h>
 #include <dali.h>
 #include <dali/devel-api/events/key-event-devel.h>
+#include <dali/integration-api/string-utils.h>
 #include <stdlib.h>
 #include <iostream>
 
@@ -97,7 +98,7 @@ const std::size_t KEY_LOOKUP_COUNT = (sizeof(KeyLookupTable)) / (sizeof(KeyLooku
 // Generate a KeyPressEvent to send to Core
 Dali::KeyEvent GenerateKeyPress(const std::string& keyName)
 {
-  Dali::KeyEvent keyPress = DevelKeyEvent::New(keyName, "", "", -1, 0, 0lu, Dali::KeyEvent::DOWN, "", "", Device::Class::NONE, Device::Subclass::NONE); // set name to test, key string to i and modifier to shift
+  Dali::KeyEvent keyPress = DevelKeyEvent::New(Integration::ToDaliString(keyName), "", "", -1, 0, 0lu, Dali::KeyEvent::DOWN, "", "", Device::Class::NONE, Device::Subclass::NONE); // set name to test, key string to i and modifier to shift
   return keyPress;
 }
 

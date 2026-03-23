@@ -519,7 +519,7 @@ void GlWindow::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void GlWindow::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  Dali::KeyEvent event = Dali::DevelKeyEvent::New(ToStdString(keyEvent.keyName), ToStdString(keyEvent.logicalKey), ToStdString(keyEvent.keyString), keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), ToStdString(keyEvent.compose), ToStdString(keyEvent.deviceName), keyEvent.deviceClass, keyEvent.deviceSubclass);
+  Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   Dali::DevelKeyEvent::SetWindowId(event, keyEvent.windowId);
   Dali::GlWindow handle(this);
   mKeyEventSignal.Emit(event);
