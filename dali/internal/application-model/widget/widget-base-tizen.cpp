@@ -114,8 +114,12 @@ int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy
 {
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(classData);
 
+  char* id;
+  widget_base_context_get_id(instanceHandle, &id);
+
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget(instanceHandle);
+  DALI_LOG_RELEASE_INFO("Widget Instance destroy (win:%p, cnt:%d) (id:%s)\n", &widgetInstance, application->GetWidgetCount(), std::string(id).c_str());
 
   Dali::Widget::Termination destroyReason = Dali::Widget::Termination::TEMPORARY;
 
