@@ -22,11 +22,11 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
-class Any;
 typedef Dali::Rect<int> DisplayArea;
 
 /**
@@ -37,7 +37,43 @@ typedef Dali::Rect<int> DisplayArea;
 class VideoPlayerPlugin
 {
 public:
+  /**
+   * @brief Enum for external player handle type
+   *
+   * This enum identifies the type of player handle passed to VideoView.
+   * It is used when creating a VideoView with an externally managed player.
+   */
+  enum class PlayerHandleType : int
+  {
+    NONE = 0,         ///< No type specified
+    DEFAULT = 1,      ///< Default player
+    EXTERNAL = 2,     ///< External player
+  };
+
+  /**
+   * @brief Structure to pass player handle with type information
+   *
+   * This structure wraps a player handle together with its type information.
+   * It is used internally when creating a VideoView with an externally managed player.
+   */
+  struct PlayerHandle
+  {
+    PlayerHandleType playerType;  ///< Type of the player handle
+    Any handle;                   ///< Player handle
+  };
+
   typedef Signal<void()> VideoPlayerSignalType;
+
+  /**
+   * @brief Enumeration for player event type
+   */
+  enum class PlayerEventType : int
+  {
+    PLAYBACK_FINISHED,
+    ERROR
+  };
+
+  typedef Signal<void(PlayerEventType)> VideoPlayerEventSignalType;
 
   /**
    * @brief Video display rotation option
@@ -224,6 +260,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual VideoPlayerSignalType& FinishedSignal() = 0;
+
+  /**
+   * @brief Connect to this signal to be notified when a video playback have evented.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual VideoPlayerEventSignalType& EventSignal() = 0;
 
   /**
    * @brief Seeks forward by the specified number of milliseconds.

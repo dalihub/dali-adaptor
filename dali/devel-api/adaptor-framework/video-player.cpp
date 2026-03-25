@@ -64,6 +64,18 @@ VideoPlayer VideoPlayer::New(Dali::Actor actor, VideoSyncMode syncMode)
   return VideoPlayer(player.Get());
 }
 
+VideoPlayer VideoPlayer::New(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode)
+{
+  Internal::Adaptor::VideoPlayerPtr player = Internal::Adaptor::VideoPlayer::New();
+
+  if(player)
+  {
+    player->Initialize(actor, playerHandle, syncMode);
+  }
+
+  return VideoPlayer(player.Get());
+}
+
 VideoPlayer::VideoPlayer(const VideoPlayer& player) = default;
 
 VideoPlayer& VideoPlayer::operator=(const VideoPlayer& player) = default;
@@ -165,6 +177,11 @@ Dali::VideoPlayerPlugin::DisplayRotation VideoPlayer::GetDisplayRotation()
 Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
 {
   return GetImplementation(*this).FinishedSignal();
+}
+
+Dali::VideoPlayerPlugin::VideoPlayerEventSignalType& VideoPlayer::EventSignal()
+{
+  return GetImplementation(*this).EventSignal();
 }
 
 void VideoPlayer::Forward(int millisecond)

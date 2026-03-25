@@ -256,7 +256,12 @@ struct _Logger
 
   ~_Logger()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: %s", mFile, mLine, mTmp.str().c_str());
+    std::string log = mTmp.str();
+    if(!log.empty() && log.back() == '\n')
+    {
+      log.pop_back();
+    }
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: %s\n", mFile, mLine, log.c_str());
   }
 
   template<typename T>
@@ -285,12 +290,12 @@ struct _LoggerScope
   : mFile(file),
     mLine(line)
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: +", mFile, mLine);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: +\n", mFile, mLine);
   }
 
   ~_LoggerScope()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: -", mFile, mLine);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: -\n", mFile, mLine);
   }
 };
 

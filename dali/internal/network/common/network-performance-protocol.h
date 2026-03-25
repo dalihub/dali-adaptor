@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_PROTOCOL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,16 @@ const unsigned int MAX_COMMAND_STRING_LENGTH = 256; ///< maximum length of a com
  */
 enum CommandId
 {
-  HELP_MESSAGE                = 0, ///<  help message
-  ENABLE_METRIC               = 1, ///< enable metric
-  DISABLE_METRIC              = 2, ///< disable metric
-  LIST_METRICS_AVAILABLE      = 3, ///< list  metrics that are available
-  ENABLE_TIME_MARKER_BIT_MASK = 4, ///< bit mask of time markers to enable
-  SET_PROPERTIES              = 5, ///< set property
-  DUMP_SCENE_GRAPH            = 6, ///< dump the scene graph
-  DUMP_RENDER_TASKS           = 7, ///< Dump the render tasks for all windows
-  CUSTOM_COMMAND              = 8, ///< custom command for the application
+  HELP_MESSAGE                = 0,    ///<  help message
+  ENABLE_METRIC               = 1,    ///< enable metric
+  DISABLE_METRIC              = 2,    ///< disable metric
+  LIST_METRICS_AVAILABLE      = 3,    ///< list  metrics that are available
+  ENABLE_TIME_MARKER_BIT_MASK = 4,    ///< bit mask of time markers to enable
+  SET_PROPERTIES              = 5,    ///< set property
+  DUMP_SCENE_GRAPH            = 6,    ///< dump the scene graph
+  DUMP_RENDER_TASKS           = 7,    ///< Dump the render tasks for all windows
+  DUMP_MEMORY_POOLS           = 8,    ///< Dump the memory pool stats
+  CUSTOM_COMMAND              = 4095, ///< custom command for the application
   UNKNOWN_COMMAND             = 4096
 };
 

@@ -22,6 +22,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/profiling.h>
 #include <dali/integration-api/stream-operators.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/dali-core.h>
@@ -630,6 +631,16 @@ void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData)
   std::string header(buf);
   json = buf + json;
   sendData->SendData(json.c_str(), json.length(), clientId);
+}
+
+void DumpMemoryPools(unsigned clientId, ClientSendDataInterface* sendData)
+{
+  // Need a profiling interface.
+  // We have Profiling namespace in integration, it's mostly just compile time sizes
+
+  std::string poolLog = Integration::Profiling::LogMemoryPools();
+
+  sendData->SendData(poolLog.c_str(), poolLog.length(), clientId);
 }
 
 void SetCustomCommand(const std::string& message)

@@ -77,6 +77,15 @@ public:
   static VideoPlayer New(Dali::Actor actor, VideoSyncMode syncMode);
 
   /**
+   * @brief Creates a new instance of a VideoPlayer wrapper using an existing player handle with actor for synchronization.
+   *
+   * @param[in] actor video view's actor instance for synchronization
+   * @param[in] playerHandle The externally created native player handle with type information
+   * @param[in] syncMode The synchronization mode between the UI and VideoPlayer.
+   */
+  static VideoPlayer New(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode);
+
+  /**
    * @brief Copy constructor.
    *
    * @SINCE_1_1.38
@@ -252,6 +261,13 @@ public:
    * @return A signal object to connect with.
    */
   Dali::VideoPlayerPlugin::VideoPlayerSignalType& FinishedSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when a video playback have evented.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::VideoPlayerPlugin::VideoPlayerEventSignalType& EventSignal();
 
   /**
    * @brief Seeks forward by the specified number of milliseconds.

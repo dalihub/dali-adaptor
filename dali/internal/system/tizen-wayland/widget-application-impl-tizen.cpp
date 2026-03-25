@@ -77,7 +77,7 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
   }
 
   bool           consumed     = true;
-  std::string    keyEventName = std::string(keyName);
+  Dali::String   keyEventName = Dali::String(keyName);
   Dali::KeyEvent event        = Dali::DevelKeyEvent::New(keyEventName, "", "", keyCode, 0, timestamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
 
   if(application)

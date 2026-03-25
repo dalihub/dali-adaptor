@@ -69,11 +69,13 @@ ApplicationController::ApplicationController(PositionSize windowPositionSize, bo
   mFrameworkFactory = std::unique_ptr<FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
 
   // We don't need Framework, just set backend type
-  mFrameworkFactory->SetFrameworkBackend(FrameworkBackend::GLIB);
+  mFrameworkFactory->SetFrameworkBackend(FrameworkBackend::DEFAULT);
 }
 
 ApplicationController::~ApplicationController()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::~ApplicationController\n");
+
   mUiContext.Reset();
 
   SingletonService service = SingletonService::Get();
@@ -90,6 +92,8 @@ ApplicationController::~ApplicationController()
 
 void ApplicationController::PreInitialize()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PreInitialize\n");
+
   UpdateEnvironmentOptions();
 
   CreateWindow();
@@ -109,6 +113,8 @@ void ApplicationController::PreInitialize()
 
 void ApplicationController::PostInitialize()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PostInitialize\n");
+
   mAdaptor->NotifySceneCreated();
 
   // Ensure the join of Font thread at this point
@@ -117,6 +123,8 @@ void ApplicationController::PostInitialize()
 
 void ApplicationController::PrePause()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PrePause\n");
+
   if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->ApplicationPaused();
@@ -128,10 +136,13 @@ void ApplicationController::PrePause()
 
 void ApplicationController::PostPause()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PostPause\n");
 }
 
 void ApplicationController::PreResume()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PreResume\n");
+
   if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->ApplicationResumed();
@@ -143,18 +154,24 @@ void ApplicationController::PreResume()
 
 void ApplicationController::PostResume()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PostResume\n");
+
   CoreEventInterface& coreEventInterface = Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor.get());
   coreEventInterface.ProcessCoreEvents();
 }
 
 void ApplicationController::PreTerminate()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PreTerminate\n");
+
   Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
   GetImplementation(lifecycleController).OnTerminate();
 }
 
 void ApplicationController::PostTerminate()
 {
+  DALI_LOG_RELEASE_INFO("ApplicationController::PostTerminate\n");
+
   if(mAdaptor)
   {
     // Ensure that the render-thread is not using the surface(window) after we delete it
