@@ -102,11 +102,7 @@ private:
 
 private:
 #ifdef THORVG_SUPPORT
-#ifdef THORVG_VERSION_1
-  tvg::SwCanvas*                 mSwCanvas{nullptr};
-#else
   std::unique_ptr<tvg::SwCanvas> mSwCanvas{nullptr};
-#endif
   tvg::Picture*                  mPicture{nullptr}; ///< The pointer to the picture
 #else
   NSVGimage*      mParsedImage{nullptr};

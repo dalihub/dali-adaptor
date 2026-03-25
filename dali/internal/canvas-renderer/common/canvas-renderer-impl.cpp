@@ -67,15 +67,11 @@ CanvasRenderer::~CanvasRenderer()
   try
   {
     // Terminate ThorVG Engine
-#ifdef THORVG_VERSION_1
-    tvg::Initializer::term();
-#else
     tvg::Initializer::term(tvg::CanvasEngine::Sw);
-#endif
   }
   catch(const std::exception& ex)
   {
-    DALI_LOG_ERROR("Exception during tvg::Initializer::term()! : %s\n", ex.what());
+    DALI_LOG_ERROR("Exception during tvg::Initializer::term(tvg::CanvasEngine::Sw)! : %s\n", ex.what());
   }
 #endif
 }
@@ -83,11 +79,7 @@ CanvasRenderer::~CanvasRenderer()
 void CanvasRenderer::Initialize(const Vector2& viewBox)
 {
 #ifdef THORVG_SUPPORT
-#ifdef THORVG_VERSION_1
-  if(tvg::Initializer::init(0 /*threads*/) != tvg::Result::Success)
-#else
   if(tvg::Initializer::init(tvg::CanvasEngine::Sw, 0 /*threads*/) != tvg::Result::Success)
-#endif
   {
     DALI_LOG_ERROR("ThorVG engine initialize failed\n");
   }
@@ -135,22 +127,14 @@ bool CanvasRenderer::Commit()
     mChanged = false;
   }
 
-#ifdef THORVG_VERSION_1
-  if(mTvgCanvas->remove() != tvg::Result::Success)
-#else
   if(mTvgCanvas->clear() != tvg::Result::Success)
-#endif
   {
     DALI_LOG_ERROR("ThorVG canvas clear fail [%p]\n", this);
     return false;
   }
 
-#ifdef THORVG_VERSION_1
-  mTvgRoot = tvg::Scene::gen();
-#else
   auto scene = tvg::Scene::gen();
   mTvgRoot   = scene.get();
-#endif
   for(auto& it : mDrawables)
   {
     PushDrawableToGroup(it, mTvgRoot);
@@ -163,11 +147,7 @@ bool CanvasRenderer::Commit()
     mTvgRoot->scale(scaleX < scaleY ? scaleX : scaleY);
   }
 
-#ifdef THORVG_VERSION_1
-  if(mTvgCanvas->add(mTvgRoot) != tvg::Result::Success)
-#else
   if(mTvgCanvas->push(move(scene)) != tvg::Result::Success)
-#endif
   {
     DALI_LOG_ERROR("ThorVG canvas push fail [%p]\n", this);
     return false;
@@ -454,11 +434,7 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
       }
 
       tvg::Fill* tvgDuplicatedFillGradient = tvgFillGradient->duplicate();
-#ifdef THORVG_VERSION_1
-      if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->fill(tvgDuplicatedFillGradient) != tvg::Result::Success)
-#else
       if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->fill(std::unique_ptr<tvg::Fill>(tvgDuplicatedFillGradient)) != tvg::Result::Success)
-#endif
       {
         DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
         return;
@@ -478,11 +454,7 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
       }
 
       tvg::Fill* tvgDuplicatedStrokeGradient = tvgStrokeGradient->duplicate();
-#ifdef THORVG_VERSION_1
-      if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->strokeFill(tvgDuplicatedStrokeGradient) != tvg::Result::Success)
-#else
       if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->stroke(std::unique_ptr<tvg::Fill>(tvgDuplicatedStrokeGradient)) != tvg::Result::Success)
-#endif
       {
         DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
         return;
@@ -515,56 +487,14 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
       }
     }
 
-#ifdef THORVG_VERSION_1
-    switch(drawableImpl.GetCompositionType())
-    {
-      case Drawable::CompositionType::NONE:
-      default:
-      {
-        break;
-      }
-      case Drawable::CompositionType::CLIP_PATH:
-      {
-        if(tvgDuplicatedObject->clip(static_cast<tvg::Shape*>(tvgDuplicatedCompositeObject)) != tvg::Result::Success)
-        {
-          DALI_LOG_ERROR("Tvg composite by clip fail [%p]\n", this);
-          return;
-        }
-        break;
-      }
-      case Drawable::CompositionType::ALPHA_MASK:
-      {
-        if(tvgDuplicatedObject->mask(tvgDuplicatedCompositeObject, tvg::MaskMethod::Alpha) != tvg::Result::Success)
-        {
-          DALI_LOG_ERROR("Tvg composite by alpha mask fail [%p]\n", this);
-          return;
-        }
-        break;
-      }
-      case Drawable::CompositionType::ALPHA_MASK_INVERSE:
-      {
-        if(tvgDuplicatedObject->mask(tvgDuplicatedCompositeObject, tvg::MaskMethod::InvAlpha) != tvg::Result::Success)
-        {
-          DALI_LOG_ERROR("Tvg composite by alpha mask inverse fail [%p]\n", this);
-          return;
-        }
-        break;
-      }
-    }
-#else
     if(tvgDuplicatedObject->composite(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
     {
       DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
       return;
     }
-#endif
   }
 
-#ifdef THORVG_VERSION_1
-  if(parent->add(tvgDuplicatedObject) != tvg::Result::Success)
-#else
   if(parent->push(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject)) != tvg::Result::Success)
-#endif
   {
     DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
     return;

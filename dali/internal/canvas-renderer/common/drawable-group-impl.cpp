@@ -64,11 +64,7 @@ DrawableGroup::~DrawableGroup()
 void DrawableGroup::Initialize()
 {
 #ifdef THORVG_SUPPORT
-#ifdef THORVG_VERSION_1
-  mTvgScene = tvg::Scene::gen();
-#else
   mTvgScene = tvg::Scene::gen().release();
-#endif
   if(!mTvgScene)
   {
     DALI_LOG_ERROR("DrawableGroup is null [%p]\n", this);
@@ -142,11 +138,7 @@ bool DrawableGroup::RemoveAllDrawables()
 
   mDrawables.clear();
 
-#ifdef THORVG_VERSION_1
-  if(static_cast<tvg::Scene*>(mTvgScene)->remove() != tvg::Result::Success)
-#else
   if(static_cast<tvg::Scene*>(mTvgScene)->clear() != tvg::Result::Success)
-#endif
   {
     DALI_LOG_ERROR("RemoveAllDrawables() fail.\n");
     return false;

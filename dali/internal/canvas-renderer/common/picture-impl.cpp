@@ -61,11 +61,7 @@ Picture::~Picture()
 void Picture::Initialize()
 {
 #ifdef THORVG_SUPPORT
-#ifdef THORVG_VERSION_1
-  mTvgPicture = tvg::Picture::gen();
-#else
   mTvgPicture = tvg::Picture::gen().release();
-#endif
   if(!mTvgPicture)
   {
     DALI_LOG_ERROR("Picture is null [%p]\n", this);
