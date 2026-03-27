@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
+#include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
@@ -67,7 +68,7 @@ public:
   Dali::Accessibility::Role                     GetRole() const override;
   Dali::Accessibility::States                   GetStates() override;
   Dali::Accessibility::Attributes               GetAttributes() const override;
-  void InitDefaultFeatures() override;
+  void                                          InitDefaultFeatures() override;
 
   /**
    * @brief Gets the Accessible object from the window.
@@ -110,7 +111,7 @@ public:
   std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) override;
 
 private:
-  std::shared_ptr<Collection>   mCollection{nullptr};
+  std::shared_ptr<Collection> mCollection{nullptr};
 };
 } //namespace Dali::Accessibility
 
@@ -421,7 +422,7 @@ public:
     using Type = Dali::Accessibility::AtspiInterfaceType<I>;
 
     std::shared_ptr<Type> result;
-    auto* currentObject = FindCurrentObject();
+    auto*                 currentObject = FindCurrentObject();
     DALI_ASSERT_ALWAYS(currentObject && "Current BridgeBase's Accessible should not be nullptr"); // FindCurrentObject() throws domain_error
 
     if(!(result = currentObject->GetFeature<Type>()))
