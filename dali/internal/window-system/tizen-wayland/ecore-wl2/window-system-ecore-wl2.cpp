@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,8 +97,8 @@ void Initialize()
 
 void Shutdown()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     EcoreShutdown();
   }
@@ -106,8 +106,8 @@ void Shutdown()
 
 void GetScreenSize(int32_t& width, int32_t& height)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     if(gScreenWidth == 0 || gScreenHeight == 0)
     {
@@ -208,8 +208,8 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
 
 void UpdateScreenSize()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
     if(display)
@@ -231,8 +231,8 @@ void UpdateScreenSize()
 
 bool SetKeyboardRepeatInfo(float rate, float delay)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     return ecore_wl2_input_keyboard_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
@@ -242,8 +242,8 @@ bool SetKeyboardRepeatInfo(float rate, float delay)
 
 bool GetKeyboardRepeatInfo(float& rate, float& delay)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     double           rateVal, delayVal;

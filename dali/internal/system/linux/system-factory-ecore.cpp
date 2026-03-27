@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,41 +35,32 @@ namespace Adaptor
 {
 std::unique_ptr<CallbackManager> SystemFactoryEcore::CreateCallbackManager()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::GLIB)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
   {
     return Utils::MakeUnique<GlibCallbackManager>();
   }
-  else
-  {
-    return Utils::MakeUnique<EcoreCallbackManager>();
-  }
+  return Utils::MakeUnique<EcoreCallbackManager>();
 }
 
 std::unique_ptr<FileDescriptorMonitor> SystemFactoryEcore::CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::GLIB)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
   {
     return Utils::MakeUnique<FileDescriptorMonitorGlib>(fileDescriptor, callback, eventBitmask);
   }
-  else
-  {
-    return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
-  }
+  return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
 }
 
 TimerPtr SystemFactoryEcore::CreateTimer(uint32_t milliSec)
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::GLIB)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory != nullptr && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::GLIB)
   {
     return TimerGlib::New(milliSec);
   }
-  else
-  {
-    return TimerEcore::New(milliSec);
-  }
+  return TimerEcore::New(milliSec);
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()
