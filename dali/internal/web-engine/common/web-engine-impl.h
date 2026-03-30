@@ -59,13 +59,13 @@ public:
    * @brief Get context of web engine
    *
    */
-  static Dali::WebEngineContext* GetContext();
+  static Dali::WebEngineContext* GetContext(bool isIncognito);
 
   /**
    * @brief Get cookie manager of web engine
    *
    */
-  static Dali::WebEngineCookieManager* GetCookieManager();
+  static Dali::WebEngineCookieManager* GetCookieManager(bool isIncognito);
 
   /**
    * @copydoc Dali::WebEngine::Create()
@@ -81,6 +81,11 @@ public:
    * @copydoc Dali::WebEngine::Destroy()
    */
   void Destroy();
+
+  /**
+   * @copydoc Dali::WebEngine::IsIncognito()
+   */
+  bool IsIncognito() const;
 
   /**
    * @copydoc Dali::WebEngine::GetPlugin()

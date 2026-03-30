@@ -219,8 +219,8 @@ public:
   using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
   using DestroyWebEngineFunction = void (*)(Dali::WebEnginePlugin* plugin);
 
-  using GetWebEngineContext       = Dali::WebEngineContext* (*)();
-  using GetWebEngineCookieManager = Dali::WebEngineCookieManager* (*)();
+  using GetWebEngineContext       = Dali::WebEngineContext* (*)(bool);
+  using GetWebEngineCookieManager = Dali::WebEngineCookieManager* (*)(bool);
 
   void*                    mHandle;              ///< Handle for the loaded library
   CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
@@ -244,7 +244,7 @@ WebEnginePtr WebEngine::New(int32_t type)
   return instance;
 }
 
-Dali::WebEngineContext* WebEngine::GetContext()
+Dali::WebEngineContext* WebEngine::GetContext(bool isIncognito)
 {
   if(!WebEnginePluginObject::GetInstance().InitializeContextHandle())
   {
@@ -253,13 +253,13 @@ Dali::WebEngineContext* WebEngine::GetContext()
 
   if(WebEnginePluginObject::GetInstance().mGetWebEngineContextPtr)
   {
-    return WebEnginePluginObject::GetInstance().mGetWebEngineContextPtr();
+    return WebEnginePluginObject::GetInstance().mGetWebEngineContextPtr(isIncognito);
   }
 
   return nullptr;
 }
 
-Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
+Dali::WebEngineCookieManager* WebEngine::GetCookieManager(bool isIncognito)
 {
   if(!WebEnginePluginObject::GetInstance().InitializeCookieManagerHandle())
   {
@@ -268,7 +268,7 @@ Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
 
   if(WebEnginePluginObject::GetInstance().mGetWebEngineCookieManagerPtr)
   {
-    return WebEnginePluginObject::GetInstance().mGetWebEngineCookieManagerPtr();
+    return WebEnginePluginObject::GetInstance().mGetWebEngineCookieManagerPtr(isIncognito);
   }
 
   return nullptr;
@@ -324,6 +324,11 @@ void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** ar
 void WebEngine::Destroy()
 {
   mPlugin->Destroy();
+}
+
+bool WebEngine::IsIncognito() const
+{
+  return mPlugin->IsIncognito();
 }
 
 Dali::WebEnginePlugin* WebEngine::GetPlugin() const

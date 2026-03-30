@@ -323,6 +323,13 @@ public:
   virtual void Destroy() = 0;
 
   /**
+   * @brief Check if WebEngine is in incognito mode.
+   *
+   * @return true if incognito, false otherwise
+   */
+  virtual bool IsIncognito() const = 0;
+
+  /**
    * @brief Get settings of WebEngine.
    */
   virtual WebEngineSettings& GetSettings() const = 0;
