@@ -73,12 +73,12 @@ public:
   /**
    * @brief Get context of WebEngine.
    */
-  static Dali::WebEngineContext* GetContext();
+  static Dali::WebEngineContext* GetContext(bool isIncognito);
 
   /**
    * @brief Get cookie manager of WebEngine.
    */
-  static Dali::WebEngineCookieManager* GetCookieManager();
+  static Dali::WebEngineCookieManager* GetCookieManager(bool isIncognito);
 
   /**
    * @brief Copy constructor.
@@ -145,6 +145,11 @@ public:
    * @brief Destroy WebEngine instance.
    */
   void Destroy();
+
+  /**
+   * @brief Check if WebEngine is in incognito mode.
+   */
+  bool IsIncognito() const;
 
   /**
    * @brief Gets web engine plugin.
