@@ -23,6 +23,8 @@
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/rendering/decorated-visual-renderer.h>
+#include <dali/integration-api/rendering/visual-renderer.h>
 #include <dali/integration-api/stream-operators.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/dali-core.h>
