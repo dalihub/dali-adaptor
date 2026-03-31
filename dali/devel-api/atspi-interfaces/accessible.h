@@ -290,6 +290,12 @@ public:
     DUMP_SHORT_SHOWING_ONLY = 1,
     DUMP_FULL               = 2,
     DUMP_FULL_SHOWING_ONLY  = 3,
+    // LZ4-compressed payload (base64-encoded string) for very large DumpTree responses.
+    // Numeric mapping must match aurum/at-spi2-core for client/server agreement.
+    DUMP_FULL_SHOWING_ONLY_LZ4 = 4,
+    // LZ4-compressed payload for very large DumpTree responses with FULL semantics
+    // (i.e., include non-showing nodes).
+    DUMP_FULL_LZ4 = 5,
   };
 
   /**
