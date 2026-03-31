@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,9 +96,9 @@ int UtcDaliGraphicsFramebufferAttachDepth(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
   END_TEST;
 }
@@ -134,9 +134,9 @@ int UtcDaliGraphicsFramebufferAttachStencil(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
   END_TEST;
 }
@@ -172,9 +172,103 @@ int UtcDaliGraphicsFramebufferAttachDepthStencil(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  END_TEST;
+}
+
+int UtcDaliGraphicsFramebufferAttachAuto(void)
+{
+  TestGraphicsApplication app;
+  tet_infoline("UtcDaliGraphicsFramebufferAttachAuto - Test for GLES specific behavior");
+
+  auto& gl = app.GetGlAbstraction();
+
+  uint32_t width  = 16u;
+  uint32_t height = 24u;
+
+  FrameBuffer framebuffer = FrameBuffer::New(width, height, FrameBuffer::Attachment::AUTO);
+
+  DALI_TEST_CHECK(framebuffer);
+
+  Texture dummyColorTexture = CreateTexture(TextureType::TEXTURE_2D, Pixel::RGBA8888, width, height);
+  Actor   dummyActor        = CreateRenderableActor(dummyColorTexture);
+  framebuffer.AttachColorTexture(dummyColorTexture);
+
+  app.GetScene().Add(dummyActor);
+
+  auto renderTask = CreateRenderTask(app, framebuffer);
+
+  DALI_TEST_CHECK(renderTask);
+
+  app.SendNotification();
+  app.Render(16); // The above actor will get rendered and drawn once.
+
+  // TODO : Need to pass below UTC. For now, let we throw it to test all other UTCs.
+
+  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  auto sourceActor = renderTask.GetSourceActor();
+  auto renderer    = sourceActor.GetRendererAt(0);
+  renderer.SetProperty(Renderer::Property::DEPTH_TEST_MODE, DepthTestMode::ON);
+
+  app.SendNotification();
+  app.Render(16); // The above actor will get rendered and drawn once.
+
+  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  sourceActor.SetProperty(Actor::Property::CLIPPING_MODE, ClippingMode::CLIP_CHILDREN); // Requires stencil
+
+  app.SendNotification();
+  app.Render(16); // The above actor will get rendered and drawn once.
+
+  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  renderer.SetProperty(Renderer::Property::DEPTH_TEST_MODE, DepthTestMode::OFF);
+
+  app.SendNotification();
+  app.Render(16); // The above actor will get rendered and drawn once.
+
+  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_TRUE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+  sourceActor.SetProperty(Actor::Property::CLIPPING_MODE, ClippingMode::DISABLED); // Do not use stencil
+
+  app.SendNotification();
+  app.Render(16); // The above actor will get rendered and drawn once.
+
+  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
   END_TEST;
 }
@@ -212,9 +306,9 @@ int UtcDaliGraphicsFramebufferAttachDepthTexture(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 0u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
   END_TEST;
 }
@@ -253,9 +347,9 @@ int UtcDaliGraphicsFramebufferAttachDepthStencilTexture(void)
     DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 1u, TEST_LOCATION);
     DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 1u, TEST_LOCATION);
     DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 1u, TEST_LOCATION);
-    DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-    DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-    DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+    DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
     UnparentAndReset(dummyActor);
   }
@@ -302,9 +396,9 @@ int UtcDaliGraphicsFramebufferAttachStencilAndDepthTexture(void)
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 1u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+  DALI_TEST_EQUALS(gl.CheckFramebufferRenderbufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
 
   END_TEST;
 }

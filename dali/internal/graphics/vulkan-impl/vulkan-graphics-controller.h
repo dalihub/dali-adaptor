@@ -232,6 +232,14 @@ public:
   UniquePtr<Graphics::Framebuffer> CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer) override;
 
   /**
+   * @brief Updates the renderbuffer usage for an existing Framebuffer
+   *
+   * @param[in] framebuffer The framebuffer to update
+   * @param[in] depthStencilState The new depth/stencil state
+   */
+  void UpdateFramebufferRenderbufferUsage(Graphics::Framebuffer& framebuffer, const Graphics::DepthStencilState& depthStencilState) override;
+
+  /**
    * @brief Creates new Pipeline object
    *
    * @param[in] pipelineCreateInfo The valid PipelineCreateInfo structure
@@ -440,11 +448,6 @@ public: // ResourceId relative API.
    * @return Pointer of Graphics::Texture.
    */
   UniquePtr<Graphics::Texture> ReleaseTextureFromResourceId(uint32_t resourceId) override;
-
-  /**
-   * @return true if there is a clip space transform matrix
-   */
-  bool HasClipMatrix() const override;
 
   /**
    * @return the clip space transform matrix
