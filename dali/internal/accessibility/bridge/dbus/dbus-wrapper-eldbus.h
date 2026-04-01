@@ -134,7 +134,7 @@ struct EldbusDBusWrapper : public DBusWrapper
 
 #undef DEFINE_TYPE
 
-  std::shared_ptr<Connection> eldbus_address_connection_get_impl(const std::string& addr) override
+  std::shared_ptr<Connection> dbus_address_connection_get_impl(const std::string& addr) override
   {
     eldbus_init();
     auto p = eldbus_address_connection_get(addr.c_str());
@@ -143,35 +143,35 @@ struct EldbusDBusWrapper : public DBusWrapper
     return w;
   }
 
-#define eldbus_message_iter_arguments_append_impl_basic(type, sig)                            \
-  void eldbus_message_iter_arguments_append_impl(const MessageIterPtr& it, type src) override \
+#define dbus_message_iter_arguments_append_impl_basic(type, sig)                            \
+  void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, type src) override \
   {                                                                                           \
     eldbus_message_iter_arguments_append(get(it), #sig, src);                                 \
   }                                                                                           \
-  bool eldbus_message_iter_get_and_next_impl(const MessageIterPtr& it, type& dst) override    \
+  bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, type& dst) override    \
   {                                                                                           \
     return eldbus_message_iter_get_and_next(get(it), (#sig)[0], &dst);                        \
   }
 
   // clang-format off
-  eldbus_message_iter_arguments_append_impl_basic(uint8_t, y)
-  eldbus_message_iter_arguments_append_impl_basic(uint16_t, q)
-  eldbus_message_iter_arguments_append_impl_basic(uint32_t, u)
-  eldbus_message_iter_arguments_append_impl_basic(uint64_t, t)
-  eldbus_message_iter_arguments_append_impl_basic(int16_t, n)
-  eldbus_message_iter_arguments_append_impl_basic(int32_t, i)
-  eldbus_message_iter_arguments_append_impl_basic(int64_t, x)
-  eldbus_message_iter_arguments_append_impl_basic(double, d)
+  dbus_message_iter_arguments_append_impl_basic(uint8_t, y)
+  dbus_message_iter_arguments_append_impl_basic(uint16_t, q)
+  dbus_message_iter_arguments_append_impl_basic(uint32_t, u)
+  dbus_message_iter_arguments_append_impl_basic(uint64_t, t)
+  dbus_message_iter_arguments_append_impl_basic(int16_t, n)
+  dbus_message_iter_arguments_append_impl_basic(int32_t, i)
+  dbus_message_iter_arguments_append_impl_basic(int64_t, x)
+  dbus_message_iter_arguments_append_impl_basic(double, d)
   // clang-format on
 
-#undef eldbus_message_iter_arguments_append_impl_basic
+#undef dbus_message_iter_arguments_append_impl_basic
 
-  void eldbus_message_iter_arguments_append_impl(const MessageIterPtr& it, bool src) override
+  void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, bool src) override
   {
     eldbus_message_iter_arguments_append(get(it), "b", src ? 1 : 0);
   }
 
-  bool eldbus_message_iter_get_and_next_impl(const MessageIterPtr& it, bool& dst) override
+  bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, bool& dst) override
   {
     unsigned char q;
     auto          z = eldbus_message_iter_get_and_next(get(it), 'b', &q);
@@ -179,12 +179,12 @@ struct EldbusDBusWrapper : public DBusWrapper
     return z;
   }
 
-  void eldbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const std::string& src) override
+  void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const std::string& src) override
   {
     eldbus_message_iter_arguments_append(get(it), "s", src.c_str());
   }
 
-  bool eldbus_message_iter_get_and_next_impl(const MessageIterPtr& it, std::string& dst) override
+  bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, std::string& dst) override
   {
     auto        iter = get(it);
     const char* q;
@@ -199,12 +199,12 @@ struct EldbusDBusWrapper : public DBusWrapper
     return true;
   }
 
-  void eldbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const ObjectPath& src) override
+  void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const ObjectPath& src) override
   {
     eldbus_message_iter_arguments_append(get(it), "o", src.value.c_str());
   }
 
-  bool eldbus_message_iter_get_and_next_impl(const MessageIterPtr& it, ObjectPath& dst) override
+  bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, ObjectPath& dst) override
   {
     const char* q;
     if(!eldbus_message_iter_get_and_next(get(it), 'o', &q))
@@ -215,13 +215,13 @@ struct EldbusDBusWrapper : public DBusWrapper
     return true;
   }
 
-  MessageIterPtr eldbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) override
+  MessageIterPtr dbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) override
   {
     auto z = eldbus_message_iter_container_new(get(it), type, !sig.empty() ? sig.c_str() : NULL);
     return create(z, get(it), true);
   }
 
-  MessageIterPtr eldbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type) override
+  MessageIterPtr dbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type) override
   {
     Eldbus_Message_Iter* entry;
     if(!eldbus_message_iter_get_and_next(get(it), type, &entry))
@@ -231,22 +231,22 @@ struct EldbusDBusWrapper : public DBusWrapper
     return create(entry, get(it), false);
   }
 
-  MessageIterPtr eldbus_message_iter_get_impl(const MessagePtr& msg, bool) override
+  MessageIterPtr dbus_message_iter_get_impl(const MessagePtr& msg, bool) override
   {
     return create(eldbus_message_iter_get(get(msg)), nullptr, false);
   }
 
-  MessagePtr eldbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)
+  MessagePtr dbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)
   {
     return create(eldbus_proxy_method_call_new(get(proxy), funcName.c_str()), true);
   }
 
-  MessagePtr eldbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg) override
+  MessagePtr dbus_proxy_send_and_block_impl(const ProxyPtr& proxy, const MessagePtr& msg) override
   {
     return create(eldbus_proxy_send_and_block(get(proxy), release(msg), ELDBUS_CALL_TIMEOUT), true);
   }
 
-  bool eldbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text) override
+  bool dbus_message_error_get_impl(const MessagePtr& msg, std::string& name, std::string& text) override
   {
     const char *errname, *errmsg;
     if(eldbus_message_error_get(get(msg), &errname, &errmsg))
@@ -258,7 +258,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     return false;
   }
 
-  std::string eldbus_message_signature_get_impl(const MessagePtr& msg) override
+  std::string dbus_message_signature_get_impl(const MessagePtr& msg) override
   {
     return eldbus_message_signature_get(get(msg));
   }
@@ -281,7 +281,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     delete d;
   }
 
-  PendingPtr eldbus_proxy_send_impl(const ProxyPtr& proxy, const MessagePtr& msg, const SendCallback& callback) override
+  PendingPtr dbus_proxy_send_impl(const ProxyPtr& proxy, const MessagePtr& msg, const SendCallback& callback) override
   {
     auto cb      = new SendCallback{callback};
     auto pending = eldbus_proxy_send(get(proxy), release(msg), callAsyncCb, cb, ELDBUS_CALL_TIMEOUT);
@@ -296,7 +296,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     return create(pending, false);
   }
 
-  std::string eldbus_proxy_interface_get_impl(const ProxyPtr& proxy) override
+  std::string dbus_proxy_interface_get_impl(const ProxyPtr& proxy) override
   {
     return eldbus_proxy_interface_get(get(proxy));
   }
@@ -307,7 +307,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     (*p)(msg);
   }
 
-  void eldbus_proxy_signal_handler_add_impl(const ProxyPtr& proxy, const std::string& member, const std::function<void(const MessagePtr&)>& cb) override
+  void dbus_proxy_signal_handler_add_impl(const ProxyPtr& proxy, const std::string& member, const std::function<void(const MessagePtr&)>& cb) override
   {
     auto tmp = new std::function<void(const Eldbus_Message* msg)>{
       [cb](const Eldbus_Message* msg)
@@ -325,37 +325,37 @@ struct EldbusDBusWrapper : public DBusWrapper
     }
   }
 
-  std::string eldbus_message_iter_signature_get_impl(const MessageIterPtr& iter) override
+  std::string dbus_message_iter_signature_get_impl(const MessageIterPtr& iter) override
   {
     return eldbus_message_iter_signature_get(get(iter));
   }
 
-  MessagePtr eldbus_message_method_return_new_impl(const MessagePtr& msg) override
+  MessagePtr dbus_message_method_return_new_impl(const MessagePtr& msg) override
   {
     return create(eldbus_message_method_return_new(get(msg)), true);
   }
 
-  MessagePtr eldbus_message_error_new_impl(const MessagePtr& msg, const std::string& err, const std::string& txt) override
+  MessagePtr dbus_message_error_new_impl(const MessagePtr& msg, const std::string& err, const std::string& txt) override
   {
     return create(eldbus_message_error_new(get(msg), err.c_str(), txt.c_str()), true);
   }
 
-  PendingPtr eldbus_connection_send_impl(const ConnectionPtr& conn, const MessagePtr& msg) override
+  PendingPtr dbus_connection_send_impl(const ConnectionPtr& conn, const MessagePtr& msg) override
   {
     return create(eldbus_connection_send(get(conn), release(msg), NULL, NULL, -1));
   }
 
-  MessagePtr eldbus_message_signal_new_impl(const std::string& path, const std::string& iface, const std::string& name) override
+  MessagePtr dbus_message_signal_new_impl(const std::string& path, const std::string& iface, const std::string& name) override
   {
     return create(eldbus_message_signal_new(path.c_str(), iface.c_str(), name.c_str()), true);
   }
 
-  MessagePtr eldbus_message_ref_impl(const MessagePtr& msg) override
+  MessagePtr dbus_message_ref_impl(const MessagePtr& msg) override
   {
     return create(eldbus_message_ref(get(msg)), true);
   }
 
-  ConnectionPtr eldbus_connection_get_impl(ConnectionType type) override
+  ConnectionPtr dbus_connection_get_impl(ConnectionType type) override
   {
     Eldbus_Connection_Type eldbusType = ELDBUS_CONNECTION_TYPE_SYSTEM;
     switch(type)
@@ -381,32 +381,32 @@ struct EldbusDBusWrapper : public DBusWrapper
     return w;
   }
 
-  std::string eldbus_connection_unique_name_get_impl(const ConnectionPtr& conn) override
+  std::string dbus_connection_unique_name_get_impl(const ConnectionPtr& conn) override
   {
     return eldbus_connection_unique_name_get(get(conn));
   }
 
-  ObjectPtr eldbus_object_get_impl(const ConnectionPtr& conn, const std::string& bus, const std::string& path) override
+  ObjectPtr dbus_object_get_impl(const ConnectionPtr& conn, const std::string& bus, const std::string& path) override
   {
     return create(eldbus_object_get(get(conn), bus.c_str(), path.c_str()), true);
   }
 
-  ProxyPtr eldbus_proxy_get_impl(const ObjectPtr& obj, const std::string& interface) override
+  ProxyPtr dbus_proxy_get_impl(const ObjectPtr& obj, const std::string& interface) override
   {
     return create(eldbus_proxy_get(get(obj), interface.c_str()), false);
   }
 
-  ProxyPtr eldbus_proxy_copy_impl(const ProxyPtr& ptr) override
+  ProxyPtr dbus_proxy_copy_impl(const ProxyPtr& ptr) override
   {
     return create(get(ptr), false);
   }
 
-  void eldbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus) override
+  void dbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus) override
   {
     eldbus_name_request(get(conn), bus.c_str(), ELDBUS_NAME_REQUEST_FLAG_DO_NOT_QUEUE, nullptr, nullptr);
   }
 
-  void eldbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus) override
+  void dbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus) override
   {
     eldbus_name_release(get(conn), bus.c_str(), nullptr, nullptr);
   }
