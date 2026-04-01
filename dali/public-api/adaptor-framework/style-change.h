@@ -18,9 +18,6 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
-
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 

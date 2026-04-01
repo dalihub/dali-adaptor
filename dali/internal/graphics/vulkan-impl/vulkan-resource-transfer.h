@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/thread-pool.h>
 #include <dali/graphics-api/graphics-types.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>

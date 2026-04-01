@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/map-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>

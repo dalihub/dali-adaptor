@@ -26,9 +26,9 @@
 #include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
 #include <dali/devel-api/adaptor-framework/pointer-constraints-event.h>
 #include <dali/devel-api/adaptor-framework/window-blur-info.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {

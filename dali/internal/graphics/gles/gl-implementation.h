@@ -21,11 +21,11 @@
 // EXTERNAL INCLUDES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <cstdlib>
 #include <cstring>
 #include <memory>

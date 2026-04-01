@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/list-wrapper.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>

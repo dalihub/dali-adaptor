@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_PASS_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/graphics-api/graphics-render-pass-create-info.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali::Graphics::Vulkan
 {

@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
+#include <dali/devel-api/common/list-wrapper.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/devel-api/threading/thread.h>
@@ -26,7 +27,6 @@
 #include <dali/integration-api/adaptor-framework/round-robin-container-view.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/integration-api/processor-interface.h>
-#include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <memory>
 

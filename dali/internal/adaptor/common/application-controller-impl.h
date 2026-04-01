@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/application-controller.h>

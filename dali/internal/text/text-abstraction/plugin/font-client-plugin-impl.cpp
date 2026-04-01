@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-loader.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/platform-abstraction.h>
@@ -33,7 +34,6 @@
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 // EXTERNAL INCLUDES
 #include <fontconfig/fontconfig.h>

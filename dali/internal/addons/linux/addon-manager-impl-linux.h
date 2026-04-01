@@ -1,7 +1,7 @@
 #ifndef DALI_ADDON_MANAGER_IMPL_LINUX
 #define DALI_ADDON_MANAGER_IMPL_LINUX
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/internal/addons/common/addon-manager.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 
 #include <memory>
 #include <string>

@@ -22,9 +22,9 @@
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
 

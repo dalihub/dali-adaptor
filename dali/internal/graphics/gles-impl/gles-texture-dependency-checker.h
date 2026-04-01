@@ -23,7 +23,7 @@
 #include <unordered_set>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 
 namespace Dali::Graphics
 {

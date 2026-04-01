@@ -24,7 +24,6 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/common/list-wrapper.h>
 
 #include <algorithm> // for std::find
 #include <mutex>
