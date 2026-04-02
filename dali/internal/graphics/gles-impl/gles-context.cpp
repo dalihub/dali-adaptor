@@ -1058,7 +1058,7 @@ void Context::ResolveStandaloneUniforms(const UniformBufferBindingDescriptor& st
   }
 }
 
-void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
+void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, GLES::TextureDependencyChecker& dependencyChecker)
 {
   auto* gl = mImpl->GetGL();
   if(DALI_UNLIKELY(!gl)) // Early out if no gl
@@ -1081,6 +1081,12 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   {
     // bind framebuffer and swap.
     auto framebuffer = renderTarget.GetFramebuffer();
+
+    // Check whether we have any eglSyncWait here - If their any Context exist
+    // who read the attached texture of this framebuffer.
+    // Must be called before bind framebuffer.
+    dependencyChecker.CheckFramebufferNeedsSync(this, framebuffer);
+
     framebuffer->Bind();
   }
 

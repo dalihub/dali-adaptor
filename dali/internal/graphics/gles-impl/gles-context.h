@@ -138,7 +138,7 @@ public:
    *
    * @param[in] renderPass render pass object to begin
    */
-  void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin);
+  void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, TextureDependencyChecker& dependencyChecker);
 
   /**
    * @brief Ends render pass

@@ -337,8 +337,18 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     const auto* currentSurfaceContext = GetSurfaceContext(surfaceInterface);
     mSyncPool.ProcessDiscardSyncObjects(currentSurfaceContext);
 
+    // Create sync for next frame FBO target.
+    bool syncCreated = mTextureDependencyChecker.MarkFramebufferTextureRead(currentSurfaceContext);
+
+    // Create sync for next frame native texture.
     GLES::Framebuffer* framebuffer = renderTarget->GetFramebuffer();
-    mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
+    syncCreated |= mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
+
+    if(syncCreated)
+    {
+      // Need to call glFlush() after create sync object.
+      mGlAbstraction->Flush();
+    }
   }
   else
   {
@@ -818,7 +828,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
           mGraphics->ActivateResourceContext();
         }
 
-        mCurrentContext->BeginRenderPass(descriptor);
+        mCurrentContext->BeginRenderPass(descriptor, mTextureDependencyChecker);
 
         break;
       }
