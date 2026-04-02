@@ -405,10 +405,7 @@ public:
   void DiscardResource(GLES::Texture* texture)
   {
     mDiscardTextureSet.insert(texture);
-    if(texture->IsNativeTexture())
-    {
-      mTextureDependencyChecker.DiscardNativeTexture(texture);
-    }
+    mTextureDependencyChecker.DiscardTexture(texture);
   }
 
   /**
