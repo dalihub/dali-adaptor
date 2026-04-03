@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#ifdef THORVG_VERSION_1
+#include <dali/internal/vector-animation/common/vector-animation-renderer-native.h>
+#else
 #include <dlfcn.h>
+#endif
 
 namespace Dali
 {
@@ -28,12 +32,14 @@ namespace Internal
 {
 namespace Adaptor
 {
+#ifndef THORVG_VERSION_1
 namespace
 {
 // The default plugin name
 const char* DEFAULT_OBJECT_NAME("libdali2-vector-animation-renderer-plugin.so");
 
 } // namespace
+#endif
 
 VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy(const std::string& sharedObjectName)
 : mSharedObjectName(),
@@ -42,6 +48,7 @@ VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy(const std
   mCreateVectorAnimationRendererPtr(NULL),
   mDefaultSignal()
 {
+#ifndef THORVG_VERSION_1
   if(!sharedObjectName.empty())
   {
     mSharedObjectName = sharedObjectName;
@@ -50,6 +57,9 @@ VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy(const std
   {
     mSharedObjectName = DEFAULT_OBJECT_NAME;
   }
+#else
+  mSharedObjectName = sharedObjectName;
+#endif
 
   Initialize();
 }
@@ -61,15 +71,20 @@ VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
     delete mPlugin;
     mPlugin = NULL;
 
+#ifndef THORVG_VERSION_1
     if(mLibHandle && dlclose(mLibHandle))
     {
       DALI_LOG_ERROR("Error closing vector animation renderer plugin library: %s\n", dlerror());
     }
+#endif
   }
 }
 
 void VectorAnimationRendererPluginProxy::Initialize()
 {
+#ifdef THORVG_VERSION_1
+  mPlugin = VectorAnimationRendererNative::Create();
+#else
   mLibHandle = dlopen(mSharedObjectName.c_str(), RTLD_LAZY);
 
   char* error = dlerror();
@@ -95,6 +110,7 @@ void VectorAnimationRendererPluginProxy::Initialize()
     DALI_LOG_ERROR("VectorAnimationRendererPluginProxy::Initialize: Plugin creation failed\n");
     return;
   }
+#endif
 }
 
 void VectorAnimationRendererPluginProxy::Finalize()

@@ -1,7 +1,28 @@
-
 # module: vector-animation, backend: common
-SET( adaptor_vector_animation_common_src_files 
-    ${adaptor_vector_animation_dir}/common/vector-animation-renderer-impl.cpp 
+SET( adaptor_vector_animation_common_src_files
+    ${adaptor_vector_animation_dir}/common/vector-animation-renderer-impl.cpp
     ${adaptor_vector_animation_dir}/common/vector-animation-renderer-plugin-proxy.cpp
 )
 
+IF( NOT THORVG_VERSION VERSION_LESS "1.0.0" )
+  # Built-in native renderer base class (shared by all backends)
+  SET( adaptor_vector_animation_common_src_files
+      ${adaptor_vector_animation_common_src_files}
+      ${adaptor_vector_animation_dir}/common/vector-animation-renderer-native.cpp
+      ${adaptor_vector_animation_dir}/common/vector-animation-renderer-event-manager.cpp
+  )
+
+  IF( NOT UBUNTU_PROFILE AND NOT ANDROID_PROFILE AND NOT WINDOWS_PROFILE AND NOT MACOS_PROFILE )
+    # NativeImageQueue-based rendering for Tizen devices
+    SET( adaptor_vector_animation_common_src_files
+        ${adaptor_vector_animation_common_src_files}
+        ${adaptor_vector_animation_dir}/tizen/vector-animation-renderer-native-tizen.cpp
+    )
+  ELSE()
+    # CPU-based rendering for non-Tizen platforms
+    SET( adaptor_vector_animation_common_src_files
+        ${adaptor_vector_animation_common_src_files}
+        ${adaptor_vector_animation_dir}/generic/vector-animation-renderer-native-generic.cpp
+    )
+  ENDIF()
+ENDIF()
