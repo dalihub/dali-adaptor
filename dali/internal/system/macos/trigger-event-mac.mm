@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,9 @@ struct TriggerEvent::Impl final
   std::unique_ptr<CallbackBase> mCallback;
   NotificationObserver *mReceiver;
   NSString *mName;
-  TriggerEventInterface::Options mOptions;
 
-  Impl(CallbackBase *callback, TriggerEventInterface::Options options)
-    : mCallback(callback), mOptions(options)
+  Impl(CallbackBase *callback)
+    : mCallback(callback)
   {
     const auto myId = mNameId.fetch_add(1, std::memory_order_relaxed);
 
@@ -79,9 +78,9 @@ private:
 
 std::atomic<uint64_t> TriggerEvent::Impl::mNameId{0};
 
-TriggerEvent::TriggerEvent(CallbackBase *callback, TriggerEventInterface::Options options)
+TriggerEvent::TriggerEvent(CallbackBase *callback)
   : mCallback(callback),
-    mImpl(std::make_unique<Impl>(MakeCallback(this, &TriggerEvent::Triggered), options))
+    mImpl(std::make_unique<Impl>(MakeCallback(this, &TriggerEvent::Triggered)))
 {
 }
 
@@ -99,11 +98,6 @@ void TriggerEvent::Trigger()
 void TriggerEvent::Triggered()
 {
   CallbackBase::Execute(*mCallback);
-
-  if (mImpl->mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
-  {
-    delete this;
-  }
 }
 
 }

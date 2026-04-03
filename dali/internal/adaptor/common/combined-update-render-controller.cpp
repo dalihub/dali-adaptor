@@ -132,7 +132,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mCore(adaptorInterfaces.GetCore()),
   mEnvironmentOptions(environmentOptions),
   mNotificationTrigger(adaptorInterfaces.GetProcessCoreEventsTrigger()),
-  mSleepTrigger(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER)),
+  mSleepTrigger(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest))),
   mPreRenderCallback(nullptr),
   mTextureUploadManager(adaptorInterfaces.GetTextureUploadManager()),
   mUpdateRenderThread(nullptr),

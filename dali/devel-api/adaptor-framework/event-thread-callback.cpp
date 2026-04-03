@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ struct EventThreadCallback::Impl
 EventThreadCallback::EventThreadCallback(CallbackBase* callback)
 : mImpl(new Impl())
 {
-  mImpl->eventTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+  mImpl->eventTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(callback));
   mImpl->id           = mImpl->eventTrigger->GetId();
 }
 

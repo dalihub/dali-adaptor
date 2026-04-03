@@ -519,8 +519,7 @@ public:
 
     if(!mRenderNotification)
     {
-      mRenderNotification = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
-                                                                              TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+      mRenderNotification = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender)));
       DALI_LOG_DEBUG_INFO("mRenderNotification Trigger Id(%u)\n", mRenderNotification->GetId());
     }
 

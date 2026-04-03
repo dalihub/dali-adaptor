@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 
 namespace Dali
 {
-TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback)
 {
-  return TriggerEventFactory::TriggerEventPtr(new Internal::Adaptor::TriggerEvent(callback, options));
+  return TriggerEventFactory::TriggerEventPtr(new Internal::Adaptor::TriggerEvent(callback));
 }
 
 void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,9 @@ namespace Internal
 {
 namespace Adaptor
 {
-TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+TriggerEvent::TriggerEvent(CallbackBase* callback)
 : mCallback(callback),
-  mThreadID(-1),
-  mOptions(options)
+  mThreadID(-1)
 {
   // Create accompanying file descriptor.
   mThreadID = WindowsPlatform::GetCurrentThreadId();
@@ -79,12 +78,6 @@ void TriggerEvent::Triggered()
 {
   // Call the connected callback
   CallbackBase::Execute(*mCallback);
-
-  // check if we should delete ourselves after the trigger
-  if(mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
-  {
-    delete this;
-  }
 }
 
 } // namespace Adaptor

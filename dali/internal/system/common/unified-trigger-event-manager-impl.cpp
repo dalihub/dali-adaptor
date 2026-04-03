@@ -109,11 +109,11 @@ UnifiedTriggerEventManager::~UnifiedTriggerEventManager()
   mDiscardedEvents.clear();
 }
 
-TriggerEvent* UnifiedTriggerEventManager::GenerateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+TriggerEvent* UnifiedTriggerEventManager::GenerateTriggerEvent(CallbackBase* callback)
 {
-  auto* triggerEvent = new Internal::Adaptor::TriggerEvent(this, callback, options);
+  auto* triggerEvent = new Internal::Adaptor::TriggerEvent(this, callback);
   mValidEventsId.insert(triggerEvent->GetId());
-  DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u) options:%d\n", triggerEvent, triggerEvent->GetId(), static_cast<int>(options));
+  DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u)\n", triggerEvent, triggerEvent->GetId());
   return triggerEvent;
 }
 

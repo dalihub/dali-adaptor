@@ -90,7 +90,7 @@ void OffscreenRenderSurfaceEgl::AddPostRenderSyncCallback(std::unique_ptr<Callba
 {
   if(!mPostRenderTrigger)
   {
-    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &OffscreenRenderSurfaceEgl::ProcessPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &OffscreenRenderSurfaceEgl::ProcessPostRender));
 
     DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
@@ -102,7 +102,7 @@ void OffscreenRenderSurfaceEgl::AddPostRenderAsyncCallback(std::unique_ptr<Callb
 {
   if(!mPostRenderTrigger)
   {
-    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &OffscreenRenderSurfaceEgl::ProcessPostRender), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &OffscreenRenderSurfaceEgl::ProcessPostRender));
 
     DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
