@@ -67,6 +67,7 @@
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/system/common/thread-controller.h>
+#include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>
@@ -140,6 +141,8 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
 
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
+
+  Dali::Internal::Adaptor::ThreadSettings::SetCurrentThreadAsUiThread();
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -1361,6 +1364,16 @@ int32_t Adaptor::GetRenderThreadId() const
     return mThreadController->GetThreadId();
   }
   return 0;
+}
+
+int32_t Adaptor::GetUiThreadId() const
+{
+  return Dali::Internal::Adaptor::ThreadSettings::GetUiThreadId();
+}
+
+int32_t Adaptor::GetMainThreadId() const
+{
+  return Dali::Internal::Adaptor::ThreadSettings::GetMainThreadId();
 }
 
 void Adaptor::RequestUpdateOnce()

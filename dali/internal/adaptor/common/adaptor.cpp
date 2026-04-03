@@ -336,6 +336,16 @@ int32_t Adaptor::GetRenderThreadId() const
   return mImpl->GetRenderThreadId();
 }
 
+int32_t Adaptor::GetUiThreadId() const
+{
+  return mImpl->GetUiThreadId();
+}
+
+int32_t Adaptor::GetMainThreadId() const
+{
+  return mImpl->GetMainThreadId();
+}
+
 Adaptor::Adaptor()
 : mImpl(NULL)
 {

@@ -33,9 +33,13 @@ namespace ThreadSettings
 {
 int32_t GetThreadId()
 {
-  return static_cast<int>(syscall(SYS_gettid));
+  return static_cast<int32_t>(syscall(SYS_gettid));
 }
 
+int32_t GetMainThreadId()
+{
+  return static_cast<int32_t>(getpid());
+}
 } // namespace ThreadSettings
 } // namespace Adaptor
 } // namespace Internal
