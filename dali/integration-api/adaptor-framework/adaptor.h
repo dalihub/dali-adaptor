@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ADAPTOR_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -491,6 +491,36 @@ public:
    * @brief Called when the window is fully hidden.
    */
   void OnWindowHidden();
+
+  /**
+   * @brief Gets the render thread ID of DALi.
+   *
+   * @return The render thread ID.
+   *
+   * @note Returns a valid thread ID only if the render thread has started and the system supports
+   *       thread ID retrieval. Otherwise, returns 0.
+   */
+  int32_t GetRenderThreadId() const;
+
+  /**
+   * @brief Gets the UI thread ID of DALi.
+   *
+   * @return The UI thread ID.
+   *
+   * @note Returns a valid thread ID only if the adaptor has been initialized and the system supports
+   *       thread ID retrieval. Otherwise, returns 0.
+   */
+  int32_t GetUiThreadId() const;
+
+  /**
+   * @brief Gets the main thread ID of DALi.
+   *
+   * @return The main thread ID.
+   *
+   * @note Returns a valid thread ID only if the system supports thread ID retrieval.
+   *       Otherwise, returns 0.
+   */
+  int32_t GetMainThreadId() const;
 
 public: // Signals
   /**

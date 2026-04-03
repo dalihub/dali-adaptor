@@ -61,11 +61,6 @@ bool UiContext::AddIdle(CallbackBase* callback)
   return Internal::Adaptor::GetImplementation(*this).AddIdle(callback);
 }
 
-int32_t UiContext::GetRenderThreadId()
-{
-  return Internal::Adaptor::GetImplementation(*this).GetRenderThreadId();
-}
-
 void UiContext::FlushUpdateMessages()
 {
   Internal::Adaptor::GetImplementation(*this).FlushUpdateMessages();
