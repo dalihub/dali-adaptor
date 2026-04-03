@@ -21,6 +21,7 @@
 #include <Eldbus.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/accessibility/bridge/dbus/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 #define DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
@@ -145,12 +146,12 @@ struct EldbusDBusWrapper : public DBusWrapper
 
 #define dbus_message_iter_arguments_append_impl_basic(type, sig)                            \
   void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, type src) override \
-  {                                                                                           \
-    eldbus_message_iter_arguments_append(get(it), #sig, src);                                 \
-  }                                                                                           \
+  {                                                                                         \
+    eldbus_message_iter_arguments_append(get(it), #sig, src);                               \
+  }                                                                                         \
   bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, type& dst) override    \
-  {                                                                                           \
-    return eldbus_message_iter_get_and_next(get(it), (#sig)[0], &dst);                        \
+  {                                                                                         \
+    return eldbus_message_iter_get_and_next(get(it), (#sig)[0], &dst);                      \
   }
 
   // clang-format off
@@ -162,7 +163,6 @@ struct EldbusDBusWrapper : public DBusWrapper
   dbus_message_iter_arguments_append_impl_basic(int32_t, i)
   dbus_message_iter_arguments_append_impl_basic(int64_t, x)
   dbus_message_iter_arguments_append_impl_basic(double, d)
-  // clang-format on
 
 #undef dbus_message_iter_arguments_append_impl_basic
 
@@ -170,6 +170,7 @@ struct EldbusDBusWrapper : public DBusWrapper
   {
     eldbus_message_iter_arguments_append(get(it), "b", src ? 1 : 0);
   }
+  // clang-format on
 
   bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, bool& dst) override
   {
@@ -311,9 +312,9 @@ struct EldbusDBusWrapper : public DBusWrapper
   {
     auto tmp = new std::function<void(const Eldbus_Message* msg)>{
       [cb](const Eldbus_Message* msg)
-      {
-        cb(create(msg, false));
-      }};
+    {
+      cb(create(msg, false));
+    }};
     auto handler = eldbus_proxy_signal_handler_add(get(proxy), member.c_str(), listenerCallback, tmp);
     if(handler)
     {
@@ -413,15 +414,15 @@ struct EldbusDBusWrapper : public DBusWrapper
 
   struct Implementation
   {
-    Eldbus_Service_Interface_Desc             dsc;
-    std::vector<std::vector<Eldbus_Arg_Info>> argsInfos;
-    std::vector<Eldbus_Method>                methods;
-    std::vector<Eldbus_Signal>                signals;
-    std::vector<Eldbus_Property>              properties;
+    Eldbus_Service_Interface_Desc                              dsc;
+    std::vector<std::vector<Eldbus_Arg_Info>>                  argsInfos;
+    std::vector<Eldbus_Method>                                 methods;
+    std::vector<Eldbus_Signal>                                 signals;
+    std::vector<Eldbus_Property>                               properties;
     std::unordered_map<std::string, DBusWrapper::MethodInfo>   methodsMap;
     std::unordered_map<std::string, DBusWrapper::PropertyInfo> propertiesMap;
     std::unordered_map<unsigned int, DBusWrapper::SignalInfo>  signalsMap;
-    DBusWrapper::ConnectionWeakPtr connection;
+    DBusWrapper::ConnectionWeakPtr                             connection;
   };
 
   struct GlobalEntries
@@ -518,7 +519,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     }
     DBus::DBusServer::CurrentObjectSetter currentObjectSetter(connection, eldbus_message_path_get(message));
     auto                                  reply = it->second.setCallback(create(message, false), create(iter, nullptr, false));
-    Eldbus_Message* ret = nullptr;
+    Eldbus_Message*                       ret   = nullptr;
     if(!reply.empty())
     {
       ret = eldbus_message_error_new(message, "org.freedesktop.DBus.Error.Failed", reply.c_str());
@@ -591,7 +592,7 @@ struct EldbusDBusWrapper : public DBusWrapper
 
     for(auto& ee : dscrMethods)
     {
-      auto key = ee.memberName;
+      const auto& key = ee.memberName;
       DBUS_DEBUG("adding method %s", ee.memberName.c_str());
       for(auto& r : ee.in)
       {
@@ -613,7 +614,7 @@ struct EldbusDBusWrapper : public DBusWrapper
 
     for(auto& ee : dscrProperties)
     {
-      auto key = ee.memberName;
+      const auto& key = ee.memberName;
       DBUS_DEBUG("adding property %s", ee.memberName.c_str());
       auto& e = (propertiesMap[key] = std::move(ee));
       properties.push_back({});
@@ -677,13 +678,13 @@ struct EldbusDBusWrapper : public DBusWrapper
   {
     auto callbackLambdaPtr = new std::function<void(Eldbus_Proxy_Event_Property_Changed * epc)>{
       [cb, name, interface](Eldbus_Proxy_Event_Property_Changed* ev)
+    {
+      const char* ifc = eldbus_proxy_interface_get(ev->proxy);
+      if(ev->name && ev->name == name && ifc && interface == ifc)
       {
-        const char* ifc = eldbus_proxy_interface_get(ev->proxy);
-        if(ev->name && ev->name == name && ifc && interface == ifc)
-        {
-          cb(ev->value);
-        }
-      }};
+        cb(ev->value);
+      }
+    }};
     auto p = get(proxy);
     eldbus_proxy_event_callback_add(p, ELDBUS_PROXY_EVENT_PROPERTY_CHANGED, listenerEventChangedCallback, callbackLambdaPtr);
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);
