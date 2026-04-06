@@ -213,7 +213,7 @@ void Capture::CreateFrameBuffer()
   if(!mFrameBuffer)
   {
     // Create a FrameBuffer object with depth attachments.
-    mFrameBuffer = Dali::FrameBuffer::New(mTexture.GetWidth(), mTexture.GetHeight(), Dali::FrameBuffer::Attachment::DEPTH);
+    mFrameBuffer = Dali::FrameBuffer::New(mTexture.GetWidth(), mTexture.GetHeight(), Dali::FrameBuffer::Attachment::AUTO);
     // Add a color attachment to the FrameBuffer object.
     mFrameBuffer.AttachColorTexture(mTexture);
   }
