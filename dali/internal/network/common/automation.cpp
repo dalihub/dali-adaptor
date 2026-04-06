@@ -494,8 +494,8 @@ void DumpFrameBuffer(std::ostringstream& msg, FrameBuffer fbo)
     msg << "\"ColorAttachmentCount\":" << int(Dali::DevelFrameBuffer::GetColorAttachmentCount(fbo)) << ",\n";
     FrameBuffer::Attachment::Mask mask = Dali::DevelFrameBuffer::GetMask(fbo);
 
-    msg << "\"DepthAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::DEPTH) > 0 ? "Implicit" : "None")) << ",\n";
-    msg << "\"DepthStencilAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthStencilTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::STENCIL) > 0 ? "Implicit" : "None")) << "\n";
+    msg << "\"DepthAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthTexture(fbo) ? "Explicit" : ((mask == FrameBuffer::Attachment::Mask::AUTO) ? "Auto" : ((mask & FrameBuffer::Attachment::Mask::DEPTH) > 0 ? "Implicit" : "None"))) << ",\n";
+    msg << "\"DepthStencilAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthStencilTexture(fbo) ? "Explicit" : ((mask == FrameBuffer::Attachment::Mask::AUTO) ? "Auto" : ((mask & FrameBuffer::Attachment::Mask::STENCIL) > 0 ? "Implicit" : "None"))) << "\n";
   }
   msg << "}\n";
 }

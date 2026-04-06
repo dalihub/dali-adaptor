@@ -70,7 +70,7 @@ void OffscreenRenderSurfaceEgl::SetNativeImage(Dali::NativeImageInterfacePtr nat
     mWidth  = mNativeTexture.GetWidth();
     mHeight = mNativeTexture.GetHeight();
 
-    mFrameBuffer = Dali::FrameBuffer::New(mWidth, mHeight, Dali::FrameBuffer::Attachment::DEPTH_STENCIL);
+    mFrameBuffer = Dali::FrameBuffer::New(mWidth, mHeight, Dali::FrameBuffer::Attachment::AUTO);
 
     mRenderTask.SetFrameBuffer(mFrameBuffer);
     mRenderTask.GetCameraActor().SetInvertYAxis(true);
