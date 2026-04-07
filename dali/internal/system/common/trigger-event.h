@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRIGGER_EVENT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,9 @@ public:
    *
    * @param[in] manager The manager of this callback. nullptr if it have it's own trigger logic.
    * @param[in] callback The callback to call
-   * @param[in] options Trigger event options.
    * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback, TriggerEventInterface::Options options);
+  TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback);
 
   /**
    * Destructor
@@ -107,8 +106,7 @@ private:
   Dali::UnifiedTriggerEventManager mTriggerManager;
   CallbackBase*                    mCallback;
 
-  const uint32_t                 mId;
-  TriggerEventInterface::Options mOptions;
+  const uint32_t mId;
 
   // Be used only if manager is null.
   std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,8 +167,7 @@ void GlWindowRenderThread::RequestWindowRotate(int windowAngle)
 {
   if(!mWindowRotationTrigger)
   {
-    mWindowRotationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted),
-                                                                               TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mWindowRotationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted)));
     DALI_LOG_DEBUG_INFO("mWindowRotationTrigger Trigger Id(%u)\n", mWindowRotationTrigger->GetId());
   }
 

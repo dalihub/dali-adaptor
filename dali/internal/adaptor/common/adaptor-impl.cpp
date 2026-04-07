@@ -214,7 +214,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
     mMemoryPoolTimer.Start();
   }
 
-  mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+  mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents)));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
 
   GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());

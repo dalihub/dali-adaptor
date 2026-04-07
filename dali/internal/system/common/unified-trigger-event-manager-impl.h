@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_UNIFIED_TRIGGER_EVENT_MANAGER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,9 @@ public:
    * @brief Generate new trigger events that unified tirgger event manager could control.
    *
    * @param[in] callback Callback when event triggerd
-   * @param[in] options Additional option flags for trigger
    * @return New generated event trigger pointer.
    */
-  TriggerEvent* GenerateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
+  TriggerEvent* GenerateTriggerEvent(CallbackBase* callback);
 
   /**
    * @brief Discard trigger events. This will be deleted at the end of Triggered() API.

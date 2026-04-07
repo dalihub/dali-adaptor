@@ -43,11 +43,10 @@ namespace
 static uint32_t gUniqueEventId = 0u;
 }
 
-TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback, TriggerEventInterface::Options options)
+TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback)
 : mTriggerManager(manager),
   mCallback(callback),
   mId(++gUniqueEventId),
-  mOptions(options),
   mFileDescriptorMonitor(),
   mFileDescriptor(-1)
 {
@@ -57,7 +56,7 @@ TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* ca
     mFileDescriptor = eventfd(0, EFD_NONBLOCK);
     if(mFileDescriptor >= 0)
     {
-      DALI_LOG_DEBUG_INFO("Create TrigerEvent[%p] Id(%u), eventfd:%d option:%d\n", this, mId, mFileDescriptor, static_cast<int>(options));
+      DALI_LOG_DEBUG_INFO("Create TrigerEvent[%p] Id(%u), eventfd:%d\n", this, mId, mFileDescriptor);
       // Now Monitor the created event file descriptor
       mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
     }
@@ -145,19 +144,10 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
     }
   }
 
-  // Save value to prevent duplicate deletion
-  TriggerEventInterface::Options options = mOptions;
-
   // Call the connected callback
   if(DALI_LIKELY(mCallback))
   {
     CallbackBase::Execute(*mCallback);
-  }
-
-  // check if we should delete ourselves after the trigger
-  if(options == TriggerEventInterface::DELETE_AFTER_TRIGGER)
-  {
-    Dali::TriggerEventFactory::DestroyTriggerEvent(this);
   }
 }
 

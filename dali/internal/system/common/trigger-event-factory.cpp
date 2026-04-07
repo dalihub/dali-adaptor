@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,17 @@
 
 namespace Dali
 {
-TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(Dali::CallbackBase* callback, Dali::TriggerEventInterface::Options options)
+TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(Dali::CallbackBase* callback)
 {
   auto unifiedTriggerEventManager = Internal::Adaptor::UnifiedTriggerEventManager::Get();
   if(DALI_LIKELY(unifiedTriggerEventManager))
   {
-    return TriggerEventFactory::TriggerEventPtr(GetImplementation(unifiedTriggerEventManager).GenerateTriggerEvent(callback, options));
+    return TriggerEventFactory::TriggerEventPtr(GetImplementation(unifiedTriggerEventManager).GenerateTriggerEvent(callback));
   }
   else
   {
-    auto* triggerEvent = new Internal::Adaptor::TriggerEvent(nullptr, callback, options);
-    DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u) options:%d without unified trigger event manager!\n", triggerEvent, triggerEvent->GetId(), static_cast<int>(options));
+    auto* triggerEvent = new Internal::Adaptor::TriggerEvent(nullptr, callback);
+    DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u) without unified trigger event manager!\n", triggerEvent, triggerEvent->GetId());
     return TriggerEventFactory::TriggerEventPtr(triggerEvent);
   }
 }
