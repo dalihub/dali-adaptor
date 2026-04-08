@@ -374,9 +374,9 @@ bool ExcludeProperty(int propIndex)
   // all of these are repeat properties of values in vectors....
   // We don't really need these in the UI
   return (propIndex == Dali::Actor::Property::NAME ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_X ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_Y ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_Z ||
+          propIndex == Dali::Actor::Property::PIVOT_X ||
+          propIndex == Dali::Actor::Property::PIVOT_Y ||
+          propIndex == Dali::Actor::Property::PIVOT_Z ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_X ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Y ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Z ||
@@ -439,7 +439,7 @@ std::string DumpJson(Dali::Actor actor, int level)
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformSize", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOffsetSizeMode", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOrigin", msg);
-        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformAnchorPoint", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformPivot", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "extraSize", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "visualMixColor", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "visualPreMultipliedAlpha", msg);
