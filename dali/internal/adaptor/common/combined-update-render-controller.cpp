@@ -890,7 +890,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     graphics.RenderStart();
 
     bool postRenderRequired = false;
-    if((!uploadOnly && updateStatus.RendererAdded()) || surfaceResized)
+    if((!uploadOnly && updateStatus.RendererAdded()) || updateStatus.NeedsForceRendering() || surfaceResized)
     {
       postRenderRequired = true;
 
