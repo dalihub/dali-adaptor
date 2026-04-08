@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,6 +156,12 @@ public:
    * @brief Request to scene full update next render time.
    */
   void RequestFullUpdate();
+
+  /**
+   * @brief Requests forced rendering for this scene holder.
+   * @param[in] frameCount The number of frames to rendering forcibly.
+   */
+  void SetForceRendering(uint32_t frameCount);
 
   /**
    * @brief Pause the rendering of the scene holder.

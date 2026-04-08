@@ -816,6 +816,14 @@ DALI_ADAPTOR_API void SetScreen(Window window, const std::string& screenName);
 DALI_ADAPTOR_API std::string GetScreen(Window window);
 
 /**
+ * @brief Request to rendering forcibly for this window
+ *
+ * @param[in] window The window instance
+ * @param[in] frameCount The number of frames to render forcibly.
+ */
+DALI_ADAPTOR_API void SetForceRendering(Window window, uint32_t frameCount);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

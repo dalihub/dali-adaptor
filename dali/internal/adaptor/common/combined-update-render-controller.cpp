@@ -885,7 +885,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     graphics.RenderStart();
 
-    if((!uploadOnly && updateStatus.RendererAdded()) || surfaceResized)
+    if((!uploadOnly && updateStatus.RendererAdded()) || updateStatus.NeedsForceRendering() || surfaceResized)
     {
       // Go through each window
       windows.clear();

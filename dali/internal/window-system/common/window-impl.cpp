@@ -1094,7 +1094,7 @@ void Window::OnKeyboardRepeatSettingsChanged()
 
 void Window::OnWindowRedrawRequest()
 {
-  mAdaptor->RenderOnce();
+  SetForceRendering(1u);
 }
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
