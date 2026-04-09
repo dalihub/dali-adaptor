@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,13 @@ namespace Adaptor
  * Specify the Graphics Backend to use.
  * Can be "GLES" or "VULKAN", or the appropriate integer value from Graphics::Backend.
  */
-#define DALI_GRAPHICS_BACKEND "DALI_GRAPHICS_BACKEND"
+#define DALI_ENV_GRAPHICS_BACKEND "DALI_GRAPHICS_BACKEND"
+
+/**
+ * Specify the priority of current graphics context to use.
+ * Can be "LOW", "MEDIUM", "HIGH", "REALTIME", or the appropriate integer value from Graphics::ContextPriority.
+ */
+#define DALI_ENV_GRAPHICS_CONTEXT_PRIORITY "DALI_GRAPHICS_CONTEXT_PRIORITY"
 
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 

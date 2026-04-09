@@ -50,9 +50,19 @@
 #define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 #endif
 
+#ifndef VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME
+#define VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME "VK_EXT_global_priority"
+#endif
+
+#ifndef VK_EXT_GLOBAL_PRIORITY_EXTENSION_QUERY_NAME
+#define VK_EXT_GLOBAL_PRIORITY_EXTENSION_QUERY_NAME "VK_EXT_global_priority_query"
+#endif
+
 #ifndef VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME
 #define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
 #endif
+
+#define DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT (VK_EXT_global_priority && VK_EXT_global_priority_query)
 
 // EXTERNAL INCLUDES
 #include <iostream>
@@ -90,6 +100,119 @@ auto reqLayers = std::vector<const char*>{
 const bool gEnableValidationLayers = false;
 #else
 const bool gEnableValidationLayers = true;
+#endif
+
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+struct Device::GlobalPrioritySupportedInfo
+{
+  static constexpr uint32_t                   MAX_CONTEXT_PROIRITY_COUNT                                 = static_cast<uint32_t>(Dali::Graphics::ContextPriority::REALTIME) + 1;
+  static constexpr vk::QueueGlobalPriorityEXT gContextToGlobalPriortyConvert[MAX_CONTEXT_PROIRITY_COUNT] = {vk::QueueGlobalPriorityEXT::eLow, vk::QueueGlobalPriorityEXT::eMedium, vk::QueueGlobalPriorityEXT::eHigh, vk::QueueGlobalPriorityEXT::eRealtime};
+
+  GlobalPrioritySupportedInfo(Dali::Graphics::ContextPriority contextPriority)
+  : mContextPriority(contextPriority)
+  {
+  }
+
+  void ChangeContextPriority(Dali::Graphics::ContextPriority contextPriority)
+  {
+    mContextPriority = contextPriority;
+  }
+
+  /**
+   * @brief Prepare pre-calculated global priority supportness map per each queue family index.
+   * @note Should be called only 1 time when physical device decided.
+   * @param[in] physicalDevice The physical device.
+   */
+  void PrepareSupportedGlobalPriortyMap(const vk::PhysicalDevice& physicalDevice)
+  {
+    // Query global priority properties for the specific queue family
+    // We need to query all queue families and access the specific one
+    uint32_t queueFamilyProperties2Count = 0u;
+    physicalDevice.getQueueFamilyProperties2(&queueFamilyProperties2Count, nullptr);
+
+    std::vector<vk::QueueFamilyProperties2>                 queueFamilyProperties2(queueFamilyProperties2Count);
+    std::vector<vk::QueueFamilyGlobalPriorityPropertiesEXT> globalPriorityProperties(queueFamilyProperties2Count);
+
+    for(size_t i = 0; i < queueFamilyProperties2Count; ++i)
+    {
+      globalPriorityProperties[i].sType = vk::StructureType::eQueueFamilyGlobalPriorityPropertiesEXT;
+      globalPriorityProperties[i].pNext = nullptr;
+      queueFamilyProperties2[i].sType   = vk::StructureType::eQueueFamilyProperties2;
+      queueFamilyProperties2[i].pNext   = &globalPriorityProperties[i];
+    }
+
+    physicalDevice.getQueueFamilyProperties2(&queueFamilyProperties2Count, queueFamilyProperties2.data());
+
+    for(int32_t contextPriorityType = static_cast<int32_t>(Dali::Graphics::ContextPriority::LOW); contextPriorityType <= static_cast<int32_t>(Dali::Graphics::ContextPriority::REALTIME); ++contextPriorityType)
+    {
+      auto& priorityMap = mSupportedGlobalPriortyMap[contextPriorityType];
+      priorityMap.clear();
+      priorityMap.resize(queueFamilyProperties2Count, vk::QueueGlobalPriorityEXT::eMedium);
+
+      for(uint32_t queueFamilyIndex = 0; queueFamilyIndex < queueFamilyProperties2Count; ++queueFamilyIndex)
+      {
+        const auto& props = globalPriorityProperties[queueFamilyIndex];
+        bool        found = false;
+
+        // Try to found preferred priority top to bottom
+        for(int32_t preferredPriorityType = contextPriorityType; preferredPriorityType >= static_cast<int32_t>(Dali::Graphics::ContextPriority::LOW); --preferredPriorityType)
+        {
+          for(uint32_t i = 0; i < props.priorityCount; ++i)
+          {
+            if(props.priorities[i] == gContextToGlobalPriortyConvert[preferredPriorityType])
+            {
+              found = true;
+              break;
+            }
+          }
+          if(found)
+          {
+            priorityMap[queueFamilyIndex] = gContextToGlobalPriortyConvert[preferredPriorityType];
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * @brief Append global priority creation info as input's queueCreationInfo.
+   * @param[in] queueCreationInfo The device queue creation info to append priority info
+   * @param[in, out] globalPriorityCreationInfoReferenceHolder Memory blocks for global priority creation info.
+   */
+  void AppendGlobalPriorityInfo(vk::DeviceQueueCreateInfo& queueCreateInfo, std::vector<vk::DeviceQueueGlobalPriorityCreateInfoEXT>& globalPriorityCreationInfoReferenceHolder) const
+  {
+    auto queueFamilyIndex    = queueCreateInfo.queueFamilyIndex;
+    auto queueGlobalPriority = DALI_LIKELY(queueFamilyIndex < mSupportedGlobalPriortyMap[static_cast<uint32_t>(mContextPriority)].size()) ? mSupportedGlobalPriortyMap[static_cast<uint32_t>(mContextPriority)][queueFamilyIndex]
+                                                                                                                                          : vk::QueueGlobalPriorityEXT::eMedium;
+    if(queueGlobalPriority != vk::QueueGlobalPriorityEXT::eMedium)
+    {
+      assert(globalPriorityCreationInfoReferenceHolder.size() < globalPriorityCreationInfoReferenceHolder.capacity() && "reference holder memory pointer should not be changed!");
+      globalPriorityCreationInfoReferenceHolder.emplace_back();
+      auto& globalPriorityCreateInfo = globalPriorityCreationInfoReferenceHolder.back();
+
+      globalPriorityCreateInfo.sType = vk::StructureType::eDeviceQueueGlobalPriorityCreateInfoEXT;
+      globalPriorityCreateInfo.setGlobalPriority(queueGlobalPriority)
+        .setPNext(queueCreateInfo.pNext);
+      queueCreateInfo.setPNext(&globalPriorityCreateInfo);
+      DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Applying global priority %u to queue family %u\n", static_cast<uint32_t>(queueGlobalPriority), queueFamilyIndex);
+    }
+    else
+    {
+      DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "Skip global priority set to queue family %u. (Default as eMedium)\n", queueFamilyIndex);
+    }
+  }
+
+private:
+  Dali::Graphics::ContextPriority mContextPriority; ///< Globaly defined context priority.
+
+  // Pre-calculated priority result map per [Dali::Graphics::ContextPriority][queueFamilyIndex].
+  std::vector<vk::QueueGlobalPriorityEXT> mSupportedGlobalPriortyMap[MAX_CONTEXT_PROIRITY_COUNT];
+};
+#else
+struct Device::GlobalPrioritySupportedInfo
+{
+};
 #endif
 
 Device::Device()
@@ -135,8 +258,24 @@ Device::~Device()
 }
 
 // Create methods -----------------------------------------------------------------------------------------------
-void Device::Create()
+void Device::Create(Dali::Graphics::ContextPriority contextPriority)
 {
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+  if(DALI_LIKELY(!mGlobalPrioritySupportedInfo))
+  {
+    mGlobalPrioritySupportedInfo.reset(new GlobalPrioritySupportedInfo(contextPriority));
+
+    if(DALI_UNLIKELY(mPhysicalDevice))
+    {
+      mGlobalPrioritySupportedInfo->PrepareSupportedGlobalPriortyMap(mPhysicalDevice);
+    }
+  }
+  else
+  {
+    mGlobalPrioritySupportedInfo->ChangeContextPriority(contextPriority);
+  }
+#endif
+
   auto extensions     = PrepareDefaultInstanceExtensions();
   auto instanceLayers = vk::enumerateInstanceLayerProperties();
 
@@ -170,12 +309,20 @@ void Device::CreateDevice(SurfaceImpl* surface)
                                       VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, // For querying plane-specific requirements
                                       VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,  // For hardware YUV->RGB conversion
                                       VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,         // For multi-format image views for multi-plane
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+                                      VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME,       // For context priority
+                                      VK_EXT_GLOBAL_PRIORITY_EXTENSION_QUERY_NAME, // For context priority query
+#endif
                                       VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME}; // For advanced blending operations
 
   // Query available extensions
   auto availableExtensions = mPhysicalDevice.enumerateDeviceExtensionProperties().value;
 
   bool hasAdvancedBlendExtension = false;
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+  bool hasGlobalPriorityExtension      = false;
+  bool hasGlobalPriorityQueryExtension = false;
+#endif
 
   // Filter only those extensions actually supported by the device
   std::vector<const char*> enabledExtensions;
@@ -195,6 +342,16 @@ void Device::CreateDevice(SurfaceImpl* surface)
     if(found)
     {
       enabledExtensions.push_back(extensionName);
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+      if(!hasGlobalPriorityExtension && std::strcmp(extensionName, VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME) == 0)
+      {
+        hasGlobalPriorityExtension = true;
+      }
+      if(!hasGlobalPriorityQueryExtension && std::strcmp(extensionName, VK_EXT_GLOBAL_PRIORITY_EXTENSION_QUERY_NAME) == 0)
+      {
+        hasGlobalPriorityQueryExtension = true;
+      }
+#endif
       if(!hasAdvancedBlendExtension && std::strcmp(extensionName, VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME) == 0)
       {
         hasAdvancedBlendExtension = true;
@@ -206,9 +363,18 @@ void Device::CreateDevice(SurfaceImpl* surface)
     }
   }
 
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+  hasGlobalPriorityExtension &= hasGlobalPriorityQueryExtension;
+#endif
+
   auto deviceFeatures2 = mPhysicalDevice.getFeatures2<vk::PhysicalDeviceFeatures2,
                                                       vk::PhysicalDeviceSamplerYcbcrConversionFeatures,
-                                                      vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>();
+                                                      vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+                                                      ,
+                                                      vk::PhysicalDeviceGlobalPriorityQueryFeaturesEXT
+#endif
+                                                      >();
 
   // Check whether samplerYcbcrConversion feature is supported
   vk::PhysicalDeviceSamplerYcbcrConversionFeatures const& samplerYcbcrConversionFeatures =
@@ -264,6 +430,11 @@ void Device::CreateDevice(SurfaceImpl* surface)
   }
 
   auto queueInfos = GetQueueCreateInfos();
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+  // Need to keep some memory of global priority creation info during queueInfos alive.
+  std::vector<vk::DeviceQueueGlobalPriorityCreateInfoEXT> globalInfoReferenceHolder;
+  globalInfoReferenceHolder.reserve(queueInfos.size());
+#endif
   {
     auto maxQueueCountPerFamily = 0u;
     for(auto&& info : queueInfos)
@@ -305,6 +476,8 @@ void Device::CreateDevice(SurfaceImpl* surface)
         .setPQueueCreateInfos(queueInfos.data())
         .setQueueCreateInfoCount(U32(queueInfos.size()));
 
+      void* pNextChain = nullptr;
+
       if(mIsAdvancedBlendingSupported)
       {
         // Enable advanced blending features if supported
@@ -312,8 +485,40 @@ void Device::CreateDevice(SurfaceImpl* surface)
 
         DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "advancedBlendCoherentOperations: %s\n", advancedBlendFeatures.advancedBlendCoherentOperations ? "TRUE" : "FALSE");
 
-        info.setPNext(&advancedBlendFeatures);
+        advancedBlendFeatures.setPNext(pNextChain);
+        pNextChain = &advancedBlendFeatures;
       }
+
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+      if(hasGlobalPriorityExtension)
+      {
+        auto& extendedGlobalPriorityQueryFeatures = deviceFeatures2.get<vk::PhysicalDeviceGlobalPriorityQueryFeaturesEXT>();
+        if(extendedGlobalPriorityQueryFeatures.globalPriorityQuery)
+        {
+          DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "globalPriorityQuery supported and enabled\n");
+          extendedGlobalPriorityQueryFeatures.pNext = pNextChain;
+          pNextChain                                = &extendedGlobalPriorityQueryFeatures;
+
+          // Check each queue family for global priority support before applying
+          for(auto& info : queueInfos)
+          {
+            mGlobalPrioritySupportedInfo->AppendGlobalPriorityInfo(info, globalInfoReferenceHolder);
+          }
+        }
+        else
+        {
+          DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "globalPriorityQuery supported but disabled\n");
+        }
+      }
+      else
+      {
+        DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "globalPriorityQuery extension not supported\n");
+      }
+#else
+      DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "globalPriorityQuery not supported as source code level\n");
+#endif
+
+      info.setPNext(pNextChain);
 
       mLogicalDevice = VkAssert(mPhysicalDevice.createDevice(info, *mAllocator));
 
@@ -861,6 +1066,13 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 
   InitializePhysicalDeviceProperties();
   GetQueueFamilyProperties();
+
+#if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
+  if(DALI_LIKELY(mGlobalPrioritySupportedInfo))
+  {
+    mGlobalPrioritySupportedInfo->PrepareSupportedGlobalPriortyMap(mPhysicalDevice);
+  }
+#endif
 
   Integration::Log::LogMessage(Integration::Log::INFO,
                                "Vulkan information:\n"

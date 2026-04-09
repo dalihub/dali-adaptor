@@ -65,7 +65,7 @@ public:
   ~Device();
 
 public: // Create methods
-  void Create();
+  void Create(Dali::Graphics::ContextPriority contextPriority);
 
   void CreateDevice(SurfaceImpl* surface);
 
@@ -202,6 +202,9 @@ private: // Members
   std::vector<Queue*>                 mComputeQueues;
 
   CommandPoolMap mCommandPools; // Per logical device...
+
+  struct GlobalPrioritySupportedInfo;
+  std::unique_ptr<GlobalPrioritySupportedInfo> mGlobalPrioritySupportedInfo{nullptr};
 
   std::unordered_map<Graphics::SurfaceId, DeviceWindow> mSurfaceMap;
   bool                                                  mSurfaceResized{false};

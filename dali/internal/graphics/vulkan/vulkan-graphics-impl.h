@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,13 @@ public:
                  Integration::DepthBufferAvailable         depthBufferAvailable,
                  Integration::StencilBufferAvailable       stencilBufferRequired,
                  Integration::PartialUpdateAvailable       partialUpdateRequired,
-                 int                                       multiSamplingLevel);
+                 int                                       multiSamplingLevel,
+                 Dali::Graphics::ContextPriority           contextPriority);
 
   ~VulkanGraphics();
 
   void Initialize(const Dali::DisplayConnection& displayConnection) override;
-  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override;
 
   void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 

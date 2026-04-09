@@ -77,7 +77,8 @@ namespace Adaptor
 EglImplementation::EglImplementation(int                                 multiSamplingLevel,
                                      Integration::DepthBufferAvailable   depthBufferRequired,
                                      Integration::StencilBufferAvailable stencilBufferRequired,
-                                     Integration::PartialUpdateAvailable partialUpdateRequired)
+                                     Integration::PartialUpdateAvailable partialUpdateRequired,
+                                     Dali::Graphics::ContextPriority     contextPriority)
 : mContextAttribs(),
   mEglNativeDisplay(0),
   mEglNativeWindow(0),
@@ -90,6 +91,7 @@ EglImplementation::EglImplementation(int                                 multiSa
   mMultiSamplingLevel(multiSamplingLevel),
   mGlesVersion(30),
   mColorDepth(COLOR_DEPTH_24),
+  mContextPriority(contextPriority),
   mGlesInitialized(false),
   mIsOwnSurface(true),
   mIsWindow(true),
@@ -786,6 +788,37 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
     mContextAttribs.Reserve(3);
     mContextAttribs.PushBack(EGL_CONTEXT_CLIENT_VERSION);
     mContextAttribs.PushBack(mGlesVersion / 10);
+  }
+
+  if(mContextPriority != Dali::Graphics::ContextPriority::MEDIUM)
+  {
+    configAttribs.PushBack(EGL_CONTEXT_PRIORITY_LEVEL_IMG);
+    switch(mContextPriority)
+    {
+      case Dali::Graphics::ContextPriority::LOW:
+      {
+        DALI_LOG_DEBUG_INFO("eglChooseConfig with ContextPriority::LOW\n");
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_LOW_IMG);
+        break;
+      }
+      case Dali::Graphics::ContextPriority::MEDIUM:
+      default:
+      {
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_MEDIUM_IMG);
+        break;
+      }
+      case Dali::Graphics::ContextPriority::REALTIME:
+      {
+        DALI_LOG_DEBUG_INFO("ContextPriority::REALTIME not supported now.\n");
+        DALI_FALLTHROUGH;
+      }
+      case Dali::Graphics::ContextPriority::HIGH:
+      {
+        DALI_LOG_DEBUG_INFO("eglChooseConfig with ContextPriority::HIGH\n");
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_HIGH_IMG);
+        break;
+      }
+    }
   }
   mContextAttribs.PushBack(EGL_NONE);
 

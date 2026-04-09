@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,13 @@ public:
    * @param[in] depthBufferRequired Whether the depth buffer is required
    * @param[in] stencilBufferRequired Whether the stencil buffer is required
    * @param[in] partialUpdatedRequired Whether the partial update is required
+   * @param[in] contextPriority The priority of context required
    */
   EglImplementation(int                                 multiSamplingLevel,
                     Integration::DepthBufferAvailable   depthBufferRequired,
                     Integration::StencilBufferAvailable stencilBufferRequired,
-                    Integration::PartialUpdateAvailable partialUpdateRequired);
+                    Integration::PartialUpdateAvailable partialUpdateRequired,
+                    Dali::Graphics::ContextPriority     contextPriority);
 
   /**
    * Destructor
@@ -251,6 +253,8 @@ private:
   int32_t mGlesVersion;
 
   ColorDepth mColorDepth;
+
+  Dali::Graphics::ContextPriority mContextPriority;
 
   bool mGlesInitialized;
   bool mIsOwnSurface;

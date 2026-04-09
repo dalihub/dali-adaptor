@@ -889,6 +889,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
 
       const bool updateGraphicsRequired = !recreateGraphicsRequired &&
                                           (mEnvironmentOptions->GetMultiSamplingLevel() != newEnvironmentOptions.GetMultiSamplingLevel() ||
+                                           mEnvironmentOptions->GetGraphicsContextPriority() != newEnvironmentOptions.GetGraphicsContextPriority() ||
                                            updateCoreRequired);
 
       const bool updateThreadController = (mEnvironmentOptions->GetRenderRefreshRate() != newEnvironmentOptions.GetRenderRefreshRate() ||
@@ -952,7 +953,9 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
 
         int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
 
-        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+        auto contextPriority = mEnvironmentOptions->GetGraphicsContextPriority();
+
+        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel, contextPriority);
       }
 
       // Update core relative variables.
