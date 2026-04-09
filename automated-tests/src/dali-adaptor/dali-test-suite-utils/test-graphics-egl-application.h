@@ -43,7 +43,7 @@ class TestGraphicsImpl : public Graphics::GraphicsInterface
 {
 public:
   TestGraphicsImpl()
-  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Dali::Integration::DepthBufferAvailable::TRUE, Dali::Integration::StencilBufferAvailable::TRUE, Dali::Integration::PartialUpdateAvailable::TRUE, 4)
+  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Dali::Integration::DepthBufferAvailable::TRUE, Dali::Integration::StencilBufferAvailable::TRUE, Dali::Integration::PartialUpdateAvailable::TRUE, 4, Dali::Graphics::ContextPriority::DEFAULT)
   {
   }
   virtual ~TestGraphicsImpl() = default;
@@ -70,13 +70,14 @@ public:
    * @param[in] partialRendering True if partial rendering is required
    * @param[in] msaa level of anti-aliasing required (-1 = off)
    */
-  void Initialize(const Dali::DisplayConnection& dc, bool depth, bool stencil, bool partialRendering, int msaa) override
+  void Initialize(const Dali::DisplayConnection& dc, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override
   {
     TraceCallStack::NamedParams namedParams;
     namedParams["depth"] << depth;
     namedParams["stencil"] << stencil;
     namedParams["partialRendering"] << partialRendering;
     namedParams["msaa"] << msaa;
+    namedParams["contextPriority"] << static_cast<int32_t>(contextPriority);
     mCallstack.PushCall("Initialize()", "");
   }
 

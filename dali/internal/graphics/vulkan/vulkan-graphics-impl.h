@@ -42,12 +42,13 @@ public:
                  Integration::DepthBufferAvailable         depthBufferAvailable,
                  Integration::StencilBufferAvailable       stencilBufferRequired,
                  Integration::PartialUpdateAvailable       partialUpdateRequired,
-                 int                                       multiSamplingLevel);
+                 int                                       multiSamplingLevel,
+                 Dali::Graphics::ContextPriority           contextPriority);
 
   ~VulkanGraphics();
 
   void Initialize(const Dali::DisplayConnection& displayConnection) override;
-  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override;
 
   void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 

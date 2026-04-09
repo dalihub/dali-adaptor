@@ -25,18 +25,13 @@
 #include <limits>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface-enum.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-base.h>
 
 namespace Dali
 {
-enum ColorDepth
-{
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
-
 namespace Integration
 {
 class RenderSurfaceInterface;
@@ -53,55 +48,6 @@ namespace Graphics
 class SurfaceFactory;
 
 /**
- * @brief Surface identifier
- *
- * The surface id is used as the index for windows in the vulkan implementation
- */
-using SurfaceId                    = uint32_t;
-const SurfaceId INVALID_SURFACE_ID = std::numeric_limits<SurfaceId>::max();
-
-enum class DepthStencilMode
-{
-  /**
-   * No depth/stencil at all
-   */
-  NONE,
-
-  /**
-   * Optimal depth ( chosen by the implementation )
-   */
-  DEPTH_OPTIMAL,
-
-  /**
-   * Optimal depth and stencil ( chosen by the implementation )
-   */
-  DEPTH_STENCIL_OPTIMAL,
-
-  /**
-   * Depth and stencil with explicit format set in depthStencilFormat
-   */
-  DEPTH_STENCIL_EXPLICIT,
-};
-
-enum class SwapchainBufferingMode
-{
-  OPTIMAL = 0,
-
-  DOUBLE_BUFFERING = 2,
-
-  TRIPLE_BUFFERING = 3,
-};
-
-struct GraphicsCreateInfo
-{
-  uint32_t               surfaceWidth;
-  uint32_t               surfaceHeight;
-  DepthStencilMode       depthStencilMode;
-  SwapchainBufferingMode swapchainBufferingMode;
-  ColorDepth             colorDepth;
-};
-
-/**
  * Factory interface for creating Graphics Factory implementation
  */
 class GraphicsInterface
@@ -115,12 +61,14 @@ public:
     Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
     Integration::PartialUpdateAvailable partialUpdateRequired,
-    int                                 multiSamplingLevel)
+    int                                 multiSamplingLevel,
+    Dali::Graphics::ContextPriority     contextPriority)
   : mCreateInfo(info),
     mDepthBufferRequired(depthBufferRequired),
     mStencilBufferRequired(stencilBufferRequired),
     mPartialUpdateRequired(partialUpdateRequired),
-    mMultiSamplingLevel(multiSamplingLevel)
+    mMultiSamplingLevel(multiSamplingLevel),
+    mContextPriority(contextPriority)
   {
   }
 
@@ -147,8 +95,9 @@ public:
    * @param[in] stencil True if stencil buffer is required
    * @param[in] partialRendering True if partial rendering is required
    * @param[in] msaa level of anti-aliasing required (-1 = off)
+   * @param[in] contextPriority Priority of context
    */
-  virtual void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) = 0;
+  virtual void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) = 0;
 
   /**
    * Initialize the graphics API subsystem
@@ -369,15 +318,25 @@ public:
   };
 
   /**
+   * Get proirity of context
+   * @return The priority of context
+   */
+  const Dali::Graphics::ContextPriority GetContextPriority() const
+  {
+    return mContextPriority;
+  };
+
+  /**
    * @brief Set the graphics requirements
    * @note We must call this API before Initialize()
    */
-  void UpdateGraphicsRequired(Integration::DepthBufferAvailable depth, Integration::StencilBufferAvailable stencil, Integration::PartialUpdateAvailable partial, int multiSamplingLevel)
+  void UpdateGraphicsRequired(Integration::DepthBufferAvailable depth, Integration::StencilBufferAvailable stencil, Integration::PartialUpdateAvailable partial, int multiSamplingLevel, Dali::Graphics::ContextPriority contextPriority)
   {
     mDepthBufferRequired   = depth;
     mStencilBufferRequired = stencil;
     mPartialUpdateRequired = partial;
     mMultiSamplingLevel    = multiSamplingLevel;
+    mContextPriority       = contextPriority;
   }
 
   /**
@@ -463,6 +422,7 @@ protected:
   Integration::StencilBufferAvailable mStencilBufferRequired; ///< Whether the stencil buffer is required
   Integration::PartialUpdateAvailable mPartialUpdateRequired; ///< Whether the partial update is required
   int                                 mMultiSamplingLevel;    ///< The multiple sampling level
+  Dali::Graphics::ContextPriority     mContextPriority;       ///< The priority of current graphics system
 };
 
 } // namespace Graphics

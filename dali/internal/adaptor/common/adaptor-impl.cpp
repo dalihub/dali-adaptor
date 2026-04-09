@@ -889,10 +889,11 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
                                        mEnvironmentOptions->GetRenderToFboInterval() != newEnvironmentOptions.GetRenderToFboInterval() ||
                                        mEnvironmentOptions->PartialUpdateRequired() != newEnvironmentOptions.PartialUpdateRequired() ||
                                        mEnvironmentOptions->DepthBufferRequired() != newEnvironmentOptions.DepthBufferRequired() ||
-                                       mEnvironmentOptions->StencilBufferRequired() != newEnvironmentOptions.StencilBufferRequired());
+                                       mEnvironmentOptions->StencilBufferRequired() != newEnvironmentOptions.StencilBufferRequired() ||
+                                       mEnvironmentOptions->GetMultiSamplingLevel() != newEnvironmentOptions.GetMultiSamplingLevel());
 
       const bool updateGraphicsRequired = !recreateGraphicsRequired &&
-                                          (mEnvironmentOptions->GetMultiSamplingLevel() != newEnvironmentOptions.GetMultiSamplingLevel() ||
+                                          (mEnvironmentOptions->GetGraphicsContextPriority() != newEnvironmentOptions.GetGraphicsContextPriority() ||
                                            updateCoreRequired);
 
       const bool updateThreadController = (mEnvironmentOptions->GetRenderRefreshRate() != newEnvironmentOptions.GetRenderRefreshRate() ||
@@ -959,7 +960,8 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
           depthBufferRequired ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE,
           stencilBufferRequired ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE,
           partialUpdateRequired ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE,
-          multiSamplingLevel);
+          multiSamplingLevel,
+          mEnvironmentOptions->GetGraphicsContextPriority());
       }
 
       if(DALI_UNLIKELY(updateCoreRequired))

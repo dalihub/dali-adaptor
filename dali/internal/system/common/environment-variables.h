@@ -117,7 +117,13 @@ namespace Adaptor
  * Specify the Graphics Backend to use.
  * Can be "GLES" or "VULKAN", or the appropriate integer value from Graphics::Backend.
  */
-#define DALI_GRAPHICS_BACKEND "DALI_GRAPHICS_BACKEND"
+#define DALI_ENV_GRAPHICS_BACKEND "DALI_GRAPHICS_BACKEND"
+
+/**
+ * Specify the priority of current graphics context to use.
+ * Can be "LOW", "MEDIUM", "HIGH", "REALTIME", or the appropriate integer value from Graphics::ContextPriority.
+ */
+#define DALI_ENV_GRAPHICS_CONTEXT_PRIORITY "DALI_GRAPHICS_CONTEXT_PRIORITY"
 
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 

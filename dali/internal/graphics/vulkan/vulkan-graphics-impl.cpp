@@ -35,8 +35,9 @@ VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
                                Integration::DepthBufferAvailable         depthBufferAvailable,
                                Integration::StencilBufferAvailable       stencilBufferRequired,
                                Integration::PartialUpdateAvailable       partialUpdateRequired,
-                               int                                       multiSamplingLevel)
-: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/, multiSamplingLevel),
+                               int                                       multiSamplingLevel,
+                               Dali::Graphics::ContextPriority           contextPriority)
+: GraphicsInterface(info, depthBufferAvailable, stencilBufferRequired, Integration::PartialUpdateAvailable::FALSE /*partialUpdateRequired*/, multiSamplingLevel, contextPriority),
   mGraphicsController()
 {
 }
@@ -46,18 +47,19 @@ VulkanGraphics::~VulkanGraphics() = default;
 void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 {
   // Pass down depth/stencil req, partial rendering & msaa level
-  mGraphicsDevice.Create();
+  mGraphicsDevice.Create(mContextPriority);
 
   mGraphicsController.Initialize(*this, mGraphicsDevice);
   InitializeGraphicsAPI(displayConnection);
 }
 
-void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
+void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority)
 {
   GraphicsInterface::UpdateGraphicsRequired(static_cast<Integration::DepthBufferAvailable>(depth),
                                             static_cast<Integration::StencilBufferAvailable>(stencil),
                                             Integration::PartialUpdateAvailable::FALSE, // static_cast<Integration::PartialUpdateAvailable>(partialRendering),
-                                            msaa);
+                                            msaa,
+                                            contextPriority);
 
   Initialize(displayConnection);
 }

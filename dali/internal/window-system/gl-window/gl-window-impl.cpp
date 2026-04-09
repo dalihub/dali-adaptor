@@ -806,7 +806,9 @@ void GlWindow::InitializeGraphics()
     Graphics::GraphicsInterface* graphics = mGraphics.get();
 
     mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
-    graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
+
+    auto contextPriority = Dali::Graphics::ContextPriority::MEDIUM; ///< TODO : Need to make API to support it.
+    graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA, contextPriority);
 
     // Create Render Thread
     mGlWindowRenderThread = std::unique_ptr<Dali::Internal::Adaptor::GlWindowRenderThread>(new GlWindowRenderThread(mPositionSize, mColorDepth));

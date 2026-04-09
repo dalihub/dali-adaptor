@@ -51,7 +51,8 @@ public:
     Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
     Integration::PartialUpdateAvailable partialUpdateRequired,
-    int                                 multiSamplingLevel);
+    int                                 multiSamplingLevel,
+    Dali::Graphics::ContextPriority     contextPriority);
 
   /**
    * Destructor
@@ -66,7 +67,7 @@ public:
   /**
    * @copydoc Dali::Graphics::GraphicsInterface::Initialize(bool,bool,bool,int)
    */
-  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override;
 
   /**
    * @copydoc Dali::Graphics::GraphicsInterface::InitializeGraphicsAPI()

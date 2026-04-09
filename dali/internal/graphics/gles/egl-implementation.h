@@ -46,11 +46,13 @@ public:
    * @param[in] depthBufferRequired Whether the depth buffer is required
    * @param[in] stencilBufferRequired Whether the stencil buffer is required
    * @param[in] partialUpdatedRequired Whether the partial update is required
+   * @param[in] contextPriority The priority of context required
    */
   EglImplementation(int                                 multiSamplingLevel,
                     Integration::DepthBufferAvailable   depthBufferRequired,
                     Integration::StencilBufferAvailable stencilBufferRequired,
-                    Integration::PartialUpdateAvailable partialUpdateRequired);
+                    Integration::PartialUpdateAvailable partialUpdateRequired,
+                    Dali::Graphics::ContextPriority     contextPriority);
 
   /**
    * Destructor
@@ -299,6 +301,8 @@ private:
   int32_t mGlesVersion;
 
   ColorDepth mColorDepth;
+
+  Dali::Graphics::ContextPriority mContextPriority;
 
   bool mGlesInitialized;
   bool mIsOwnSurface;
