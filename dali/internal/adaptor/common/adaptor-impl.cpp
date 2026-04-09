@@ -32,6 +32,7 @@
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/wheel-event.h>
@@ -48,7 +49,7 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-#include <dali/integration-api/string-utils.h>
+#include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
@@ -219,6 +220,9 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
   mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents)));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
+
+  // Register file download plugin proxy to use TriggerEvent.
+  Dali::FileDownloadPluginProxy::RegisterEventThreadCallback();
 
   GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());
 
@@ -512,6 +516,9 @@ void Adaptor::Stop()
     GetCore().SceneDestroyed();
 
     RemoveSystemInformation();
+
+    // Unregister file download plugin proxy before state become STOPPED.
+    Dali::FileDownloadPluginProxy::UnregisterEventThreadCallback();
 
     // Note: Must change the state at end of function.
     mState = STOPPED;

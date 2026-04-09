@@ -274,9 +274,10 @@ Feedback plugin to play haptic and audio feedback for Dali
 %define font_application_path    %TZ_SYS_RO_SHARE/app_fonts/
 %define font_configuration_file  %TZ_SYS_ETC/fonts/conf.avail/99-slp.conf
 
-%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
-%define system_cache_dir  /home/owner/.cache/dali_common_caches/
-%define dali_plugin_sound_files  /plugins/sounds/
+%define user_shader_cache_dir %{dali_data_ro_dir}/core/shaderbin/
+%define system_cache_dir      /home/owner/.cache/dali_common_caches/
+
+%define dali_plugin_sound_files_install_dir /plugins/sounds/
 
 ##############################
 # Preparation
@@ -667,9 +668,12 @@ exit 0
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
 %{_libdir}/libdali2-adaptor.so.2.0.0
+
+# Internal so files
 %{_libdir}/libdali2-adaptor-gles.so
 %{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
+%{_libdir}/libdali2-file-download-plugin-curl.so
 
 %if "%{mv_prj}" != "1"
 %{_libdir}/libdali2-adaptor-application-widget.so*
@@ -690,7 +694,7 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-feedback-plugin.so*
-%{dali_plugin_sound_files}/*
+%{dali_plugin_sound_files_install_dir}/*
 
 #################################################
 

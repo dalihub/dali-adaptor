@@ -1,7 +1,13 @@
 # Add local source files here
 
 SET( feedback_plugin_src_files
-      ${plugin_src_dir}/dali-feedback.cpp
+  ${plugin_src_dir}/feedback/dali-feedback.cpp
 )
 
-SET( dali_plugin_sound_files ${plugin_src_dir}/sounds/touch.wav )
+SET( feedback_plugin_dali_sound_files
+  ${plugin_src_dir}/feedback/sounds/touch.wav
+)
+
+SET( file_download_plugin_curl_src_files
+  ${plugin_src_dir}/file-download/file-download-curl.cpp
+)

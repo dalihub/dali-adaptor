@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
 using namespace tizen_cpp;
@@ -772,6 +773,12 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       if(mUseUiThread)
       {
+        {
+          // Ensure to load file-download-plugin at main thread, not ui-thread.
+          Dali::Vector<uint8_t> dummyBuffer;
+          size_t                dummyBufferSize;
+          [[maybe_unused]] auto _ = TizenPlatform::Network::DownloadRemoteFileIntoMemory("", dummyBuffer, dummyBufferSize, 1);
+        }
         hint |= AppCoreUiBase::HINT_DUAL_THREAD;
       }
 #endif

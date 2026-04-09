@@ -1,13 +1,13 @@
-IF( (NOT UBUNTU_PROFILE) )
+MESSAGE(STATUS ${ROOT_SRC_DIR}/plugins )
+SET( plugin_src_dir ${ROOT_SRC_DIR}/plugins )
+
+INCLUDE( ${plugin_src_dir}/file.list )
+
+IF( ENABLE_FEEDBACK AND (NOT UBUNTU_PROFILE) )
   PKG_CHECK_MODULES(FEEDBACK feedback)
   PKG_CHECK_MODULES(MMFSOUND mm-sound)
 
   SET(PLUGIN_TARGET dali2-feedback-plugin )
-
-  MESSAGE(STATUS ${ROOT_SRC_DIR}/plugins )
-  SET( plugin_src_dir ${ROOT_SRC_DIR}/plugins )
-
-  INCLUDE( ${plugin_src_dir}/file.list )
 
   SET( PLUGIN_SOURCES ${feedback_plugin_src_files})
 
@@ -34,6 +34,63 @@ IF( (NOT UBUNTU_PROFILE) )
   #SET( dalisounddir ${dataReadOnlyDir}/plugins/sounds/ )
   SET( dalisounddir ${CMAKE_INSTALL_PREFIX}/../plugins/sounds/ )
     #EXIT(${dalisounddir})
-  INSTALL( FILES ${dali_plugin_sound_files} DESTINATION ${dalisounddir} )
+  INSTALL( FILES ${feedback_plugin_dali_sound_files} DESTINATION ${dalisounddir} )
   INSTALL( TARGETS ${PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
+ENDIF()
+
+# File Download curl plugin
+PKG_CHECK_MODULES(CURL libcurl)
+
+# TODO : Need to support on MacOS as wll. Currently, it show some unknown linker error. So, we will check on MacOS later.
+IF( CURL_FOUND AND (NOT MACOS_PROFILE) )
+  MESSAGE( STATUS "CURL found : ${CURL_VERSION} dali2-file-download-plugin-curl will be built" )
+  SET( FILE_DOWNLOAD_PLUGIN_TARGET dali2-file-download-plugin-curl )
+
+  SET( FILE_DOWNLOAD_PLUGIN_SOURCES ${file_download_plugin_curl_src_files})
+
+  ADD_LIBRARY( ${FILE_DOWNLOAD_PLUGIN_TARGET} ${LIBTYPE} ${FILE_DOWNLOAD_PLUGIN_SOURCES} )
+
+  SET(DALI_FILE_DOWNLOAD_PLUGIN_CFLAGS
+    ${DALICORE_CFLAGS}
+    ${CURL_CFLAGS}
+    ${DALI_ADAPTOR_CFLAGS}
+    ${COVERAGE}
+    -Wall
+  )
+
+  SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
+    ${DALICORE_LDFLAGS}
+    ${COVERAGE}
+    dali2-adaptor
+    -ldl -rdynamic
+  )
+
+  SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
+    ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
+    ${CURL_LDFLAGS}
+  )
+
+  TARGET_LINK_LIBRARIES( ${FILE_DOWNLOAD_PLUGIN_TARGET} PRIVATE
+    ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
+  )
+
+  TARGET_COMPILE_OPTIONS( ${FILE_DOWNLOAD_PLUGIN_TARGET} PRIVATE
+    ${DALI_FILE_DOWNLOAD_PLUGIN_CFLAGS}
+  )
+
+  INCLUDE_DIRECTORIES(
+    ${CURL_INCLUDE_DIRS}
+    ${ROOT_SRC_DIR}
+    ${THIRD_PARTY_MACOS_PLATFORM}
+  )
+
+  INSTALL( TARGETS ${FILE_DOWNLOAD_PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
+
+  # Linker Test for curl
+  SET(LINKER_TEST_PLUGIN_CURL_NAME ${DALI_ADAPTOR_PREFIX}linker-test-curl)
+  ADD_EXECUTABLE(${LINKER_TEST_PLUGIN_CURL_NAME} linker-test-file-download-plugin.cpp)
+  TARGET_COMPILE_OPTIONS(${LINKER_TEST_PLUGIN_CURL_NAME} PRIVATE -I${ROOT_SRC_DIR} ${DALI_CFLAGS} ${COVERAGE})
+  TARGET_LINK_LIBRARIES(${LINKER_TEST_PLUGIN_CURL_NAME} ${name} ${COVERAGE} ${DALI_CFLAGS} ${FILE_DOWNLOAD_PLUGIN_TARGET})
+ELSE()
+  MESSAGE( STATUS "CURL not found, dali2-file-download-plugin-curl will not be built" )
 ENDIF()
