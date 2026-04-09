@@ -162,16 +162,6 @@ public: // from Dali::Integration::RenderSurfaceInterface
    */
   void MakeContextCurrent() override;
 
-  /**
-   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDepthBufferRequired()
-   */
-  Integration::DepthBufferAvailable GetDepthBufferRequired() override;
-
-  /**
-   * @copydoc Dali::Integration::RenderSurfaceInterface::GetStencilBufferRequired()
-   */
-  Integration::StencilBufferAvailable GetStencilBufferRequired() override;
-
 private:
   /**
    * @copydoc Dali::Integration::RenderSurfaceInterface::ReleaseLock()

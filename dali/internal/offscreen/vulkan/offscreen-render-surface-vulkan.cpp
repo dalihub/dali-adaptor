@@ -135,16 +135,6 @@ void OffscreenRenderSurfaceVulkan::MakeContextCurrent()
 {
 }
 
-Integration::DepthBufferAvailable OffscreenRenderSurfaceVulkan::GetDepthBufferRequired()
-{
-  return Integration::DepthBufferAvailable::TRUE;
-}
-
-Integration::StencilBufferAvailable OffscreenRenderSurfaceVulkan::GetStencilBufferRequired()
-{
-  return Integration::StencilBufferAvailable::TRUE;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

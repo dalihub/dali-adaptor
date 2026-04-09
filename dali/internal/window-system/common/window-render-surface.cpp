@@ -1075,16 +1075,6 @@ void WindowRenderSurface::MakeContextCurrent()
   mGraphics->MakeContextCurrent(mSurfaceId);
 }
 
-Integration::DepthBufferAvailable WindowRenderSurface::GetDepthBufferRequired()
-{
-  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
-}
-
-Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequired()
-{
-  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
-}
-
 void WindowRenderSurface::InitializeImeSurface()
 {
   if(!mIsImeWindowSurface)

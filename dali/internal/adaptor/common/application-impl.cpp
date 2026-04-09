@@ -127,6 +127,7 @@ Application::~Application()
   if(mUIThreadLoader)
   {
     delete mUIThreadLoader;
+
   }
 }
 

@@ -175,16 +175,6 @@ public:
   void KeepRendering(float durationSeconds);
 
   /**
-   * @copydoc Dali::Window::SetPartialUpdateEnabled()
-   */
-  void SetPartialUpdateEnabled(bool enabled);
-
-  /**
-   * @copydoc Dali::Window::IsPartialUpdateEnabled()
-   */
-  bool IsPartialUpdateEnabled() const;
-
-  /**
    * @brief Get window resource ID assigned by window manager
    *
    * @return The resource ID of the window

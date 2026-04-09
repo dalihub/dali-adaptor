@@ -83,7 +83,7 @@ void TestApplication::CreateScene()
   rtInfo.SetExtent({mSurfaceWidth, mSurfaceHeight});
   rtInfo.SetSurface(mRenderSurface);
 
-  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)), 0, 0);
+  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)), 0, 0, Dali::ScenePolicyFlagBits::DEPTH_BUFFER_ENABLED | ScenePolicyFlagBits::STENCIL_BUFFER_ENABLED | ScenePolicyFlagBits::PARTIAL_UPDATE_ENABLED);
   mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
 
   mScenes.push_back(mScene);

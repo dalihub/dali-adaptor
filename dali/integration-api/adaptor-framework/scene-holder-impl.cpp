@@ -529,6 +529,46 @@ int32_t SceneHolder::GetNativeId() const
   return mScene.GetNativeId();
 }
 
+void SceneHolder::SetDepthBufferEnabled(bool enabled)
+{
+  mScene.SetDepthBufferEnabled(enabled);
+}
+
+bool SceneHolder::IsDepthBufferEnabled() const
+{
+  return mScene.IsDepthBufferEnabled();
+}
+
+void SceneHolder::SetStencilBufferEnabled(bool enabled)
+{
+  mScene.SetStencilBufferEnabled(enabled);
+}
+
+bool SceneHolder::IsStencilBufferEnabled() const
+{
+  return mScene.IsStencilBufferEnabled();
+}
+
+void SceneHolder::SetMultiSampledAntiAliasingEnabled(bool enabled)
+{
+  mScene.SetMultiSampledAntiAliasingEnabled(enabled);
+}
+
+bool SceneHolder::IsMultiSampledAntiAliasingEnabled() const
+{
+  return mScene.IsMultiSampledAntiAliasingEnabled();
+}
+
+void SceneHolder::SetPartialUpdateEnabled(bool enabled)
+{
+  mScene.SetPartialUpdateEnabled(enabled);
+}
+
+bool SceneHolder::IsPartialUpdateEnabled() const
+{
+  return mScene.IsPartialUpdateEnabled();
+}
+
 void SceneHolder::FocusChanged(bool focusIn)
 {
   // Emit the focus changed signal

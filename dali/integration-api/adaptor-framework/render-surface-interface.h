@@ -210,18 +210,6 @@ public:
    */
   virtual void MakeContextCurrent() = 0;
 
-  /**
-   * @brief Get whether the depth buffer is required
-   * @return TRUE if the depth buffer is required
-   */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() = 0;
-
-  /**
-   * @brief Get whether the stencil buffer is required
-   * @return TRUE if the stencil buffer is required
-   */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
-
 public:
   void SetAdaptor(Dali::Internal::Adaptor::AdaptorInternalServices& adaptor)
   {
