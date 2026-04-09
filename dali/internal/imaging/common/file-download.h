@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,33 +30,6 @@ namespace TizenPlatform
 {
 namespace Network
 {
-/**
- * Set up the cURL environment - this will ensure curl_global_init is called on startup
- * and curl_global_cleanup is called on shutdown.
- * Having this environment enables curl to be used in a single or multi-threaded
- * program safely.
- */
-class CurlEnvironment
-{
-public:
-  /**
-   * Constructor calls curl_global_init()
-   */
-  CurlEnvironment();
-
-  /**
-   * Destructor calls curl_global_cleanup()
-   */
-  ~CurlEnvironment();
-
-  // Moveable but not copyable
-
-  CurlEnvironment(const CurlEnvironment&)            = delete;
-  CurlEnvironment& operator=(const CurlEnvironment&) = delete;
-  CurlEnvironment(CurlEnvironment&&)                 = default;
-  CurlEnvironment& operator=(CurlEnvironment&&)      = default;
-};
-
 /**
  * Download a requested file into a memory buffer.
  *

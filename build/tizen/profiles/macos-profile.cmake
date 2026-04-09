@@ -21,6 +21,7 @@ SET( SOURCES
         ${adaptor_input_common_src_files}
         ${adaptor_input_macos_src_files}
         ${adaptor_integration_api_src_files}
+        ${adaptor_integration_api_file_download_plugin_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
         ${adaptor_offscreen_common_src_files}
@@ -76,7 +77,6 @@ IF( ENABLE_TRACE )
       )
 ENDIF()
 
-FIND_PACKAGE( curl REQUIRED )
 FIND_LIBRARY( EXIF_LIBRARY NAMES libexif )
 IF(NOT EXIF_LIBRARY)
   PKG_CHECK_MODULES( libexif REQUIRED IMPORTED_TARGET libexif )
@@ -116,7 +116,6 @@ FIND_LIBRARY(Cocoa Cocoa)
 
 # Set the linker flags
 SET(REQUIRED_LIBS
-  CURL::libcurl
   ${GETOPT_LIBRARY}
   ${EXIF_LIBRARY}
   ${PNG_LIBRARIES}
