@@ -266,7 +266,7 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     Vector2 positionTransition     = position + size / 2;
     mCameraActor.SetProperty(Dali::Actor::Property::POSITION, Vector3(positionTransition.x, positionTransition.y, cameraDefaultZPosition));
     mCameraActor.SetProperty(Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::TOP_LEFT);
-    mCameraActor.SetProperty(Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER);
+    mCameraActor.SetProperty(Dali::Actor::Property::PIVOT, Pivot::CENTER);
   }
 
   // Camera must be scene on. Add camera to window.
