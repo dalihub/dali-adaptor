@@ -22,12 +22,13 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/system/common/system-error-print.h>
 
-#include <cstdint>
 #include <dlfcn.h>
+#include <atomic>
+#include <cstdint>
 #include <cstring>
 #include <limits>
-#include <atomic>
 #include <mutex>
 #include <vector>
 
@@ -111,8 +112,8 @@ std::string Base64Encode(const uint8_t* data, size_t len)
 
   for(size_t i = 0; i < len; i += 3)
   {
-    uint32_t n = 0;
-    size_t remain = len - i;
+    uint32_t n      = 0;
+    size_t   remain = len - i;
     n |= static_cast<uint32_t>(data[i]) << 16;
     if(remain > 1) n |= static_cast<uint32_t>(data[i + 1]) << 8;
     if(remain > 2) n |= static_cast<uint32_t>(data[i + 2]);
@@ -129,37 +130,74 @@ struct Lz4Api
 {
   void* handle{nullptr};
 
-  int (*compressBound)(int) = nullptr;
+  int (*compressBound)(int)                            = nullptr;
   int (*compressDefault)(const char*, char*, int, int) = nullptr;
-  int (*decompressSafe)(const char*, char*, int, int) = nullptr;
+  int (*decompressSafe)(const char*, char*, int, int)  = nullptr;
 
   // This file only needs compression. Decompression is not used here.
-  bool ok() const { return compressBound && compressDefault; }
+  bool ok() const
+  {
+    return compressBound && compressDefault;
+  }
 };
 
 Lz4Api& GetLz4Api()
 {
-  static Lz4Api api;
+  static Lz4Api         api;
   static std::once_flag once;
-  std::call_once(once, [](){
+  std::call_once(once, []()
+  {
+    DALI_LOG_DEBUG_INFO("LZ4 library loading...\n");
+
     // Avoid link-time dependency by loading at runtime.
     const char* candidates[] = {"liblz4.so.1", "liblz4.so"};
     for(const char* name : candidates)
     {
       api.handle = dlopen(name, RTLD_LAZY);
-      if(api.handle) break;
+      if(api.handle)
+      {
+        break;
+      }
+      else
+      {
+        DALI_LOG_RELEASE_INFO("LZ4 library not found \"%s\", dlerror(): %s\n", name, dlerror());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+      }
     }
 
     // If the library wasn't found by name, it might already be loaded by other components.
     // Try resolving from RTLD_DEFAULT as a best-effort fallback.
     if(!api.handle)
     {
+      DALI_LOG_RELEASE_INFO("LZ4 library not found, but try to load from RTLD_DEFAULT: handle=%p\n", RTLD_DEFAULT);
       api.handle = RTLD_DEFAULT;
     }
 
-    api.compressBound = reinterpret_cast<int(*)(int)>(dlsym(api.handle, "LZ4_compressBound"));
-    api.compressDefault = reinterpret_cast<int(*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_compress_default"));
-    api.decompressSafe = reinterpret_cast<int(*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_decompress_safe"));
+    if(DALI_LIKELY(api.handle))
+    {
+      api.compressBound   = reinterpret_cast<int (*)(int)>(dlsym(api.handle, "LZ4_compressBound"));
+      api.compressDefault = reinterpret_cast<int (*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_compress_default"));
+      api.decompressSafe  = reinterpret_cast<int (*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_decompress_safe"));
+      if(!api.ok())
+      {
+        DALI_LOG_ERROR("LZ4 library loaded but required functions not found: compressBound=%p compressDefault=%p decompressSafe=%p, dlerror(): %s\n",
+                       api.compressBound,
+                       api.compressDefault,
+                       api.decompressSafe,
+                       dlerror());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+        api.handle          = nullptr; // Mark as not usable
+        api.compressBound   = nullptr;
+        api.compressDefault = nullptr;
+        api.decompressSafe  = nullptr;
+      }
+      DALI_LOG_DEBUG_INFO("LZ4 library loaded successfully: handle=%p\n", api.handle);
+    }
+    else
+    {
+      DALI_LOG_ERROR("LZ4 library not found!\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
   });
   return api;
 }
@@ -169,41 +207,30 @@ std::string Lz4CompressToBase64Payload(const std::string& input)
   auto& api = GetLz4Api();
   if(!api.ok())
   {
-    static std::atomic_bool s_loggedLz4Unavailable{false};
-    if(!s_loggedLz4Unavailable.exchange(true))
-    {
-    const auto compressBoundFn     = reinterpret_cast<std::uintptr_t>(api.compressBound);
-    const auto compressDefaultFn   = reinterpret_cast<std::uintptr_t>(api.compressDefault);
-    DALI_LOG_RELEASE_INFO(
-      "LZ4 compress api not ok: handle=%p compressBound_fn=%llu compressDefault_fn=%llu",
-      api.handle,
-      static_cast<unsigned long long>(compressBoundFn),
-      static_cast<unsigned long long>(compressDefaultFn));
-    }
     return {};
   }
 
   const auto maxIntInputSize = static_cast<std::size_t>(static_cast<uint32_t>(std::numeric_limits<int>::max()));
   if(input.size() > maxIntInputSize)
   {
-    DALI_LOG_RELEASE_INFO("LZ4 compress skipped: input too large input_bytes=%zu", input.size());
+    DALI_LOG_RELEASE_INFO("LZ4 compress skipped: input too large input_bytes=%zu\n", input.size());
     return {};
   }
 
-  const int srcSize = static_cast<int>(input.size());
+  const int srcSize    = static_cast<int>(input.size());
   const int maxDstSize = api.compressBound(srcSize);
   if(maxDstSize <= 0)
   {
-    DALI_LOG_RELEASE_INFO("LZ4 compress failed: compressBound<=0 src_bytes=%d maxDstSize=%d", srcSize, maxDstSize);
+    DALI_LOG_RELEASE_INFO("LZ4 compress failed: compressBound<=0 src_bytes=%d maxDstSize=%d\n", srcSize, maxDstSize);
     return {};
   }
 
   std::vector<char> dst(static_cast<size_t>(maxDstSize));
-  const int compressedSize = api.compressDefault(input.data(), dst.data(), srcSize, maxDstSize);
+  const int         compressedSize = api.compressDefault(input.data(), dst.data(), srcSize, maxDstSize);
   if(compressedSize <= 0)
   {
     DALI_LOG_RELEASE_INFO(
-      "LZ4 compress failed: compress_default<=0 src_bytes=%d maxDstSize=%d compressedSize=%d",
+      "LZ4 compress failed: compress_default<=0 src_bytes=%d maxDstSize=%d compressedSize=%d\n",
       srcSize,
       maxDstSize,
       compressedSize);
@@ -220,7 +247,7 @@ std::string Lz4CompressToBase64Payload(const std::string& input)
   std::memcpy(payload.data() + 4, dst.data(), static_cast<size_t>(compressedSize));
 
   const auto b64 = Base64Encode(payload.data(), payload.size());
-  DALI_LOG_RELEASE_INFO("LZ4 compress: src_bytes=%d comp_bytes=%d payload_bytes=%zu b64_chars=%zu",
+  DALI_LOG_RELEASE_INFO("LZ4 compress: src_bytes=%d comp_bytes=%d payload_bytes=%zu b64_chars=%zu\n",
                         srcSize, compressedSize, payload.size(), b64.size());
 
   std::string out;
@@ -235,17 +262,17 @@ std::string DumpJsonWithLz4Compression(Accessible* root, Accessible::DumpDetailL
   // Generate JSON with requested semantics, then compress final string
   // to reduce DBus payload size.
   const auto json = DumpJson(root, jsonDetailLevel, true);
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu", logTag, json.size());
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu\n", logTag, json.size());
   auto lz4Payload = Lz4CompressToBase64Payload(json);
   if(lz4Payload.empty())
   {
-    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) compression failed, json_chars=%zu", logTag, json.size());
-    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu", logTag, json.size());
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) compression failed, json_chars=%zu\n", logTag, json.size());
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, json.size());
     return json;
   }
   const auto markerLen = std::strlen(LZ4_MARKER);
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) payload_b64_chars=%zu total_xfer_chars=%zu", logTag, lz4Payload.size() - markerLen, lz4Payload.size());
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu", logTag, lz4Payload.size());
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) payload_b64_chars=%zu total_xfer_chars=%zu\n", logTag, lz4Payload.size() - markerLen, lz4Payload.size());
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, lz4Payload.size());
   return lz4Payload;
 }
 
@@ -457,7 +484,7 @@ std::string Accessible::DumpTree(DumpDetailLevel detailLevel)
   }
 
   const auto out = DumpJson(this, detailLevel, true);
-  DALI_LOG_RELEASE_INFO("DumpTree(root) detail_level=%d out_chars=%zu", static_cast<int>(detailLevel), out.size());
+  DALI_LOG_RELEASE_INFO("DumpTree(root) detail_level=%d out_chars=%zu\n", static_cast<int>(detailLevel), out.size());
   return out;
 }
 
