@@ -697,7 +697,7 @@ using ObjectPath = ObjectPath;
  * expects DBUS variant holding either string or int.
  */
 template<typename A>
-struct EldbusVariant
+struct DbusVariant
 {
   A value;
 };
@@ -1569,12 +1569,12 @@ struct signature<std::array<A, N>> : signature_helper<signature<std::array<A, N>
 };
 
 /**
- * @brief Signature class for marshalling EldbusVariant type
+ * @brief Signature class for marshalling DbusVariant type
  *
  * This marshals variant's content as DBUS v ascii character type code.
  */
 template<typename A>
-struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>>>
+struct signature<DbusVariant<A>> : signature_helper<signature<DbusVariant<A>>>
 {
   static constexpr auto name_v = concat("variant<", concat(signature<A>::name_v, ">"));
   static constexpr auto sig_v  = concat("v");
@@ -1582,7 +1582,7 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
   /**
    * @brief Marshals value v as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, const EldbusVariant<A>& v)
+  static void set(const DBusWrapper::MessageIterPtr& iter, const DbusVariant<A>& v)
   {
     set(iter, v.value);
   }
@@ -1599,7 +1599,7 @@ struct signature<EldbusVariant<A>> : signature_helper<signature<EldbusVariant<A>
   /**
    * @brief Marshals value from marshalled type into variable v
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, EldbusVariant<A>& v)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, DbusVariant<A>& v)
   {
     auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'v');
     if(!s)
@@ -1852,7 +1852,7 @@ RETTYPE call(CallId callId, const ConnectionState& connectionState, bool propert
   if(!reply)
   {
     DBUS_DEBUG("call %d: failed", callId.id);
-    return Error{"eldbus returned null as reply"};
+    return Error{"dbus returned null as reply"};
   }
   std::string errname, errmsg;
   if(DBUS_W->dbus_message_error_get_impl(reply, errname, errmsg))
@@ -1890,7 +1890,7 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
     if(!reply)
     {
       DBUS_DEBUG("call %d: failed", callId.id);
-      callback(Error{"eldbus returned null as reply"});
+      callback(Error{"dbus returned null as reply"});
     }
     else
     {
@@ -1936,7 +1936,7 @@ inline void displayDebugCallInfoProperty(CallId callId, const std::string& funcN
 using StringStorage = DBusWrapper::StringStorage;
 
 template<typename A, typename... ARGS>
-struct EldbusArgGenerator_Helper
+struct DbusArgGenerator_Helper
 {
   static void add(std::vector<std::pair<std::string, std::string>>& r)
   {
@@ -1945,12 +1945,12 @@ struct EldbusArgGenerator_Helper
     assert(!sig.empty());
     auto name = "p" + std::to_string(s + 1);
     r.push_back({std::move(sig), std::move(name)});
-    EldbusArgGenerator_Helper<ARGS...>::add(r);
+    DbusArgGenerator_Helper<ARGS...>::add(r);
   }
 };
 
 template<>
-struct EldbusArgGenerator_Helper<void>
+struct DbusArgGenerator_Helper<void>
 {
   static void add(std::vector<std::pair<std::string, std::string>>&)
   {
@@ -1958,14 +1958,14 @@ struct EldbusArgGenerator_Helper<void>
 };
 
 template<>
-struct EldbusArgGenerator_Helper<ValueOrError<void>, void>
+struct DbusArgGenerator_Helper<ValueOrError<void>, void>
 {
   static void add(std::vector<std::pair<std::string, std::string>>&)
   {
   }
 };
 template<>
-struct EldbusArgGenerator_Helper<ValueOrError<>, void>
+struct DbusArgGenerator_Helper<ValueOrError<>, void>
 {
   static void add(std::vector<std::pair<std::string, std::string>>&)
   {
@@ -1973,11 +1973,11 @@ struct EldbusArgGenerator_Helper<ValueOrError<>, void>
 };
 
 template<typename... ARGS>
-struct EldbusArgGenerator_Helper<std::tuple<ARGS...>>
+struct DbusArgGenerator_Helper<std::tuple<ARGS...>>
 {
   static void add(std::vector<std::pair<std::string, std::string>>& r)
   {
-    EldbusArgGenerator_Helper<ARGS..., void>::add(r);
+    DbusArgGenerator_Helper<ARGS..., void>::add(r);
   }
 };
 
@@ -2005,9 +2005,9 @@ struct dbus_interface_traits<RetType(ARGS...)>
 };
 
 template<typename T>
-struct EldbusArgGenerator_Args;
+struct DbusArgGenerator_Args;
 template<typename RetType, typename... ARGS>
-struct EldbusArgGenerator_Args<RetType(ARGS...)>
+struct DbusArgGenerator_Args<RetType(ARGS...)>
 {
   static std::string name()
   {
@@ -2016,15 +2016,15 @@ struct EldbusArgGenerator_Args<RetType(ARGS...)>
   static std::vector<std::pair<std::string, std::string>> get()
   {
     std::vector<std::pair<std::string, std::string>> tmp;
-    EldbusArgGenerator_Helper<ARGS..., void>::add(tmp);
+    DbusArgGenerator_Helper<ARGS..., void>::add(tmp);
     return tmp;
   }
 };
 
 template<typename T>
-struct EldbusArgGenerator_ReturnType;
+struct DbusArgGenerator_ReturnType;
 template<typename RetType, typename... ARGS>
-struct EldbusArgGenerator_ReturnType<RetType(ARGS...)>
+struct DbusArgGenerator_ReturnType<RetType(ARGS...)>
 {
   static std::string name()
   {
@@ -2033,15 +2033,15 @@ struct EldbusArgGenerator_ReturnType<RetType(ARGS...)>
   static std::vector<std::pair<std::string, std::string>> get()
   {
     std::vector<std::pair<std::string, std::string>> tmp;
-    EldbusArgGenerator_Helper<RetType, void>::add(tmp);
+    DbusArgGenerator_Helper<RetType, void>::add(tmp);
     return tmp;
   }
 };
 
 template<typename T>
-struct EldbusArgGenerator_ReturnType;
+struct DbusArgGenerator_ReturnType;
 template<typename... ARGS>
-struct EldbusArgGenerator_ReturnType<void(ARGS...)>
+struct DbusArgGenerator_ReturnType<void(ARGS...)>
 {
   static std::string name()
   {
@@ -2183,7 +2183,7 @@ public:
   struct Property
   {
     using RetType        = typename detail::dbus_interface_return_type_traits<T>::type;
-    using VariantRetType = typename detail::dbus_interface_return_type_traits<EldbusVariant<T>>::type;
+    using VariantRetType = typename detail::dbus_interface_return_type_traits<DbusVariant<T>>::type;
     const detail::ConnectionState&  connectionState;
     std::string                     propName;
     std::string                     info;
@@ -2236,7 +2236,7 @@ public:
     {
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Set", info, connectionInfo->interfaceName, propName);
-      EldbusVariant<T> variantValue{std::move(r)};
+      DbusVariant<T> variantValue{std::move(r)};
       return detail::call<ValueOrError<void>>(callId, connectionState, true, "Set", connectionInfo->interfaceName, propName, variantValue);
     }
 
@@ -2251,7 +2251,7 @@ public:
     {
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Set", info, connectionInfo->interfaceName, propName);
-      EldbusVariant<T> variantValue{std::move(r)};
+      DbusVariant<T> variantValue{std::move(r)};
       detail::asyncCall<ValueOrError<void>>(callId, connectionState, true, "Set", std::move(callback), connectionInfo->interfaceName, propName, variantValue);
     }
   };
@@ -2328,7 +2328,7 @@ public:
       std::string errname, aux;
       if(DBUS_W->dbus_message_error_get_impl(msg, errname, aux))
       {
-        DBUS_DEBUG("call %d: Eldbus error: %s %s", callId.id, errname.c_str(), aux.c_str());
+        DBUS_DEBUG("call %d: dbus error: %s %s", callId.id, errname.c_str(), aux.c_str());
         return;
       }
       DBUS_DEBUG("call %d: received signal with signature '%s'", callId.id, DBUS_W->dbus_message_signature_get_impl(msg).c_str());
@@ -2405,10 +2405,10 @@ public:
     MethodInfo     mi;
     methods.push_back(std::move(mi));
     auto& z      = methods.back();
-    z.in         = detail::EldbusArgGenerator_Args<T>::get();
-    z.out        = detail::EldbusArgGenerator_ReturnType<T>::get();
+    z.in         = detail::DbusArgGenerator_Args<T>::get();
+    z.out        = detail::DbusArgGenerator_ReturnType<T>::get();
     z.memberName = memberName;
-    DBUS_DEBUG("call %d: method %s, in %s, out %s", callId.id, memberName.c_str(), detail::EldbusArgGenerator_Args<T>::name().c_str(), detail::EldbusArgGenerator_ReturnType<T>::name().c_str());
+    DBUS_DEBUG("call %d: method %s, in %s, out %s", callId.id, memberName.c_str(), detail::DbusArgGenerator_Args<T>::name().c_str(), detail::DbusArgGenerator_ReturnType<T>::name().c_str());
     z.callback = construct<T>(callId, callback);
     z.id       = callId;
   }
@@ -2517,7 +2517,7 @@ public:
     signals.push_back({});
     auto& z      = signals.back();
     z.memberName = memberName;
-    z.args       = detail::EldbusArgGenerator_Args<void(ARGS...)>::get(DBUS_W->Strings);
+    z.args       = detail::DbusArgGenerator_Args<void(ARGS...)>::get(DBUS_W->Strings);
     z.id         = callId;
     DBUS_DEBUG("call %d: signal %s", callId.id, memberName.c_str());
     return SignalId{callId};
