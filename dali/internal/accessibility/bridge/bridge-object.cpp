@@ -87,7 +87,7 @@ void BridgeObject::Emit(std::shared_ptr<Accessible> obj, ObjectPropertyChangeEve
 
   if(eventName != eventMap.end())
   {
-    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj.get(), 1.0f, [=, weakObj = std::weak_ptr<Accessible>(obj)]()
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj.get(), 1.0f, [=, this, weakObj = std::weak_ptr<Accessible>(obj)]()
     {
       if(auto accessible = weakObj.lock())
       {
@@ -211,7 +211,7 @@ void BridgeObject::EmitStateChanged(std::shared_ptr<Accessible> obj, State state
 
   if(stateName != stateMap.end())
   {
-    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj.get(), 1.0f, [=, weakObj = std::weak_ptr<Accessible>(obj)]()
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj.get(), 1.0f, [=, this, weakObj = std::weak_ptr<Accessible>(obj)]()
     {
       if(auto accessible = weakObj.lock())
       {
@@ -236,7 +236,7 @@ void BridgeObject::EmitBoundsChanged(std::shared_ptr<Accessible> obj, Dali::Rect
     return;
   }
 
-  AddCoalescableMessage(CoalescableMessages::BOUNDS_CHANGED, obj.get(), 1.0f, [=, weakObj = std::weak_ptr<Accessible>(obj), rect = std::move(rect)]()
+  AddCoalescableMessage(CoalescableMessages::BOUNDS_CHANGED, obj.get(), 1.0f, [=, this, weakObj = std::weak_ptr<Accessible>(obj), rect = std::move(rect)]()
   {
     if(auto accessible = weakObj.lock())
     {
@@ -263,7 +263,7 @@ void BridgeObject::EmitPostRender(std::shared_ptr<Accessible> obj)
     return;
   }
 
-  AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj.get(), 0.5f, [=, weakObj = std::weak_ptr<Accessible>(obj)]()
+  AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj.get(), 0.5f, [=, this, weakObj = std::weak_ptr<Accessible>(obj)]()
   {
     if(auto accessible = weakObj.lock())
     {

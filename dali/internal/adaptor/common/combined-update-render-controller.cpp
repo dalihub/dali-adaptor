@@ -420,7 +420,7 @@ void CombinedUpdateRenderController::ResizeSurface()
   {
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
-    mSurfaceResized++;
+    mSurfaceResized = (mSurfaceResized + 1);
 
     if(mThreadMode != ThreadMode::RUN_IF_REQUESTED)
     {
@@ -521,8 +521,8 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
         return;
       }
 
-      mUpdateRenderRunCount++;         // Increase the update request count
-      mUseElapsedTimeAfterWait = TRUE; // The elapsed time should be used. We want animations to proceed.
+      mUpdateRenderRunCount    = (mUpdateRenderRunCount + 1); // Increase the update request count
+      mUseElapsedTimeAfterWait = TRUE;                        // The elapsed time should be used. We want animations to proceed.
       break;
     }
   }
@@ -1177,7 +1177,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
   // requested number of cycles
   if(mUpdateRenderRunCount > 0)
   {
-    --mUpdateRenderRunCount;
+    mUpdateRenderRunCount = (mUpdateRenderRunCount - 1);
   }
 
   // Keep the update-render thread alive if this thread is NOT to be destroyed
@@ -1236,7 +1236,7 @@ void CombinedUpdateRenderController::SurfaceResized(uint32_t resizedCount)
 
   if(mSurfaceResized >= resizedCount)
   {
-    mSurfaceResized -= resizedCount;
+    mSurfaceResized = (mSurfaceResized - resizedCount);
   }
   else
   {

@@ -1280,7 +1280,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
   // Aging full-swap flags.
-  mFullSwapFlag >>= 1u;
+  mFullSwapFlag = (mFullSwapFlag >> 1u);
 
   // Specialize that damagedRects is empty.
   // Note that we cannot use mFullSwapFlag here, since full swap could be changed between PreRender~PostRender.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ bool NetworkPerformanceServer::IsRunning() const
 
 void NetworkPerformanceServer::ClientThread(NetworkPerformanceClient* client)
 {
-  mClientCount++;
+  mClientCount = (mClientCount + 1);
 
   SocketInterface& socket(client->GetSocket());
 
@@ -262,7 +262,7 @@ void NetworkPerformanceServer::DeleteClient(NetworkPerformanceClient* client)
       delete client;
 
       // if there server is shutting down, it waits for client count to hit zero
-      mClientCount--;
+      mClientCount = (mClientCount - 1);
 
       return;
     }

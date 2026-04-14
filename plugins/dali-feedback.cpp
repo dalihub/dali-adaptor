@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ void DaliFeedback::StopHaptic()
 int DaliFeedback::PlaySound(const std::string& fileName)
 {
   int handle    = -1;
-  int errorCode = mm_sound_play_keysound(fileName.c_str(), VOLUME_TYPE_SYSTEM & VOLUME_GAIN_TOUCH);
+  int errorCode = mm_sound_play_keysound(fileName.c_str(), static_cast<int>(VOLUME_TYPE_SYSTEM) & static_cast<int>(VOLUME_GAIN_TOUCH));
   if(errorCode < 0)
   {
     DEBUG_PRINTF("PlaySound() %s failed with error code = %d\n", fileName.c_str(), errorCode);

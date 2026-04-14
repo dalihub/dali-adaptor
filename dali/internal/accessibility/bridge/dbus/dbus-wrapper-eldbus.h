@@ -654,7 +654,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     DALI_ASSERT_ALWAYS(v && "Eldbus register failed!");
     GlobalEntries::Get().Add(v, std::move(impl));
     DBUS_DEBUG("registering interface %p (%d)", v, fallback ? 1 : 0);
-    destructors.push_back([=]()
+    destructors.push_back([=, this]()
     {
       DBUS_DEBUG("unregistering interface %p", v);
       GlobalEntries::Get().Erase(v);

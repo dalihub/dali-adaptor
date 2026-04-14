@@ -66,7 +66,7 @@ int UtcDaliReadFileNew2(void)
 
   DALI_TEST_CHECK(buffer.Size() == 0);
 
-  DALI_TEST_CHECK(fileSize == 0);
+  DALI_TEST_CHECK(static_cast<std::streamoff>(fileSize) == 0);
 
   //positive case
   errorCode = FileLoader::ReadFile(TEST_RESOURCE_DIR "/test.txt", fileSize, buffer, FileLoader::TEXT);
@@ -75,7 +75,7 @@ int UtcDaliReadFileNew2(void)
 
   DALI_TEST_CHECK(buffer.Size() > 0);
 
-  DALI_TEST_CHECK(fileSize != 0);
+  DALI_TEST_CHECK(static_cast<std::streamoff>(fileSize) != 0);
 
   END_TEST;
 }
@@ -87,12 +87,12 @@ int UtcDaliReadFileNew3(void)
   //negative case
   fileSize = FileLoader::GetFileSize(TEST_RESOURCE_DIR "/not_exist.txt");
 
-  DALI_TEST_CHECK(fileSize == 0);
+  DALI_TEST_CHECK(static_cast<std::streamoff>(fileSize) == 0);
 
   //positive case
   fileSize = FileLoader::GetFileSize(TEST_RESOURCE_DIR "/test.txt");
 
-  DALI_TEST_CHECK(fileSize != 0);
+  DALI_TEST_CHECK(static_cast<std::streamoff>(fileSize) != 0);
 
   END_TEST;
 }
