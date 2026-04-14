@@ -106,15 +106,6 @@ public:
   bool AddIdle(CallbackBase* callback);
 
   /**
-   * @brief Gets the render thread id of DALi.
-   *
-   * @note If render thread id getter doesn't supported, it will return 0 as default.
-   * @return The render thread id
-   * @SINCE_2_5.10
-   */
-  int32_t GetRenderThreadId();
-
-  /**
    * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
    * @SINCE_2_5.10
    */

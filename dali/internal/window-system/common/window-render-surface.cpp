@@ -591,8 +591,7 @@ void WindowRenderSurface::Initialize()
   // Create frame rendered trigger.
   if(!mFrameRenderedTrigger)
   {
-    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
-                                                                              TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback)));
     DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
   }
 }
@@ -626,8 +625,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 {
   if(!mPostRenderTrigger)
   {
-    mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
     DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
 
@@ -1094,8 +1092,7 @@ void WindowRenderSurface::InitializeImeSurface()
     mIsImeWindowSurface = true;
     if(!mPostRenderTrigger)
     {
-      mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                             TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+      mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
       DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
     }
   }

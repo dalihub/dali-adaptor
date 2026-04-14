@@ -883,7 +883,7 @@ std::string Application::GetDataPath()
 
 void Application::FlushUpdateMessages()
 {
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
+  mAdaptor->FlushUpdateMessages();
 }
 
 void Application::SetApplicationLocale(const std::string& locale)
@@ -921,7 +921,25 @@ int32_t Application::GetRenderThreadId() const
 {
   if(mAdaptor)
   {
-    return Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetRenderThreadId();
+    return mAdaptor->GetRenderThreadId();
+  }
+  return 0;
+}
+
+int32_t Application::GetUiThreadId() const
+{
+  if(mAdaptor)
+  {
+    return mAdaptor->GetUiThreadId();
+  }
+  return 0;
+}
+
+int32_t Application::GetMainThreadId() const
+{
+  if(mAdaptor)
+  {
+    return mAdaptor->GetMainThreadId();
   }
   return 0;
 }

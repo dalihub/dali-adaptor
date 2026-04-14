@@ -23,6 +23,8 @@
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/rendering/decorated-visual-renderer.h>
+#include <dali/integration-api/rendering/visual-renderer.h>
 #include <dali/integration-api/stream-operators.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/dali-core.h>
@@ -372,9 +374,9 @@ bool ExcludeProperty(int propIndex)
   // all of these are repeat properties of values in vectors....
   // We don't really need these in the UI
   return (propIndex == Dali::Actor::Property::NAME ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_X ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_Y ||
-          propIndex == Dali::Actor::Property::ANCHOR_POINT_Z ||
+          propIndex == Dali::Actor::Property::PIVOT_X ||
+          propIndex == Dali::Actor::Property::PIVOT_Y ||
+          propIndex == Dali::Actor::Property::PIVOT_Z ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_X ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Y ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Z ||
@@ -437,7 +439,7 @@ std::string DumpJson(Dali::Actor actor, int level)
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformSize", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOffsetSizeMode", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "transformOrigin", msg);
-        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformAnchorPoint", msg);
+        AppendRendererPropertyNameAndValue(visualRenderer, i, "transformPivot", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "extraSize", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "visualMixColor", msg);
         AppendRendererPropertyNameAndValue(visualRenderer, i, "visualPreMultipliedAlpha", msg);
@@ -492,8 +494,8 @@ void DumpFrameBuffer(std::ostringstream& msg, FrameBuffer fbo)
     msg << "\"ColorAttachmentCount\":" << int(Dali::DevelFrameBuffer::GetColorAttachmentCount(fbo)) << ",\n";
     FrameBuffer::Attachment::Mask mask = Dali::DevelFrameBuffer::GetMask(fbo);
 
-    msg << "\"DepthAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::DEPTH) > 0 ? "Implicit" : "None")) << ",\n";
-    msg << "\"DepthStencilAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthStencilTexture(fbo) ? "Explicit" : ((mask & FrameBuffer::Attachment::Mask::STENCIL) > 0 ? "Implicit" : "None")) << "\n";
+    msg << "\"DepthAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthTexture(fbo) ? "Explicit" : ((mask == FrameBuffer::Attachment::Mask::AUTO) ? "Auto" : ((mask & FrameBuffer::Attachment::Mask::DEPTH) > 0 ? "Implicit" : "None"))) << ",\n";
+    msg << "\"DepthStencilAttachment\":" << Quote(Dali::DevelFrameBuffer::GetDepthStencilTexture(fbo) ? "Explicit" : ((mask == FrameBuffer::Attachment::Mask::AUTO) ? "Auto" : ((mask & FrameBuffer::Attachment::Mask::STENCIL) > 0 ? "Implicit" : "None"))) << "\n";
   }
   msg << "}\n";
 }

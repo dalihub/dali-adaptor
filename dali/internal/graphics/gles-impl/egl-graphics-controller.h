@@ -258,6 +258,11 @@ public:
   Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override;
 
   /**
+   * @copydoc Dali::Graphics::UpdateFramebufferRenderbufferUsage()
+   */
+  void UpdateFramebufferRenderbufferUsage(Framebuffer& framebuffer, const DepthStencilState& depthStencilState) override;
+
+  /**
    * @copydoc Dali::Graphics::CreatePipeline()
    */
   Graphics::UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline) override;
@@ -400,10 +405,7 @@ public:
   void DiscardResource(GLES::Texture* texture)
   {
     mDiscardTextureSet.insert(texture);
-    if(texture->IsNativeTexture())
-    {
-      mTextureDependencyChecker.DiscardNativeTexture(texture);
-    }
+    mTextureDependencyChecker.DiscardTexture(texture);
   }
 
   /**
@@ -947,7 +949,6 @@ public:
     return mUseProgramBinary;
   }
 
-  bool          HasClipMatrix() const override;
   const Matrix& GetClipMatrix(const RenderTarget* renderTarget) const override;
 
   uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;

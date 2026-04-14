@@ -21,11 +21,11 @@
 // EXTERNAL INCLUDES
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
@@ -791,7 +791,12 @@ public:
 
   void RenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) override
   {
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
+
     glRenderbufferStorage(target, internalformat, width, height);
+
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
+    { oss << "glRenderbufferStorage target : " << target << ", format : " << internalformat << ", size : " << width << "x" << height; });
   }
 
   void SampleCoverage(GLclampf value, GLboolean invert) override
@@ -1173,7 +1178,12 @@ public:
 
   void RenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height) override
   {
+    DALI_TIME_CHECKER_BEGIN(mTimeCheckerFilter);
+
     mImpl->RenderbufferStorageMultisample(target, samples, internalformat, width, height);
+
+    DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(mTimeCheckerFilter, [&](std::ostringstream& oss)
+    { oss << "glRenderbufferStorageMultisample target : " << target << ", samples : " << samples << ", format : " << internalformat << ", size : " << width << "x" << height; });
   }
 
   void FramebufferTexture2DMultisample(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples) override

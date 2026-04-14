@@ -178,6 +178,16 @@ public:
    */
   int32_t GetRenderThreadId() const;
 
+  /**
+   * @copydoc Dali::DevelApplication::GetUiThreadId()
+   */
+  int32_t GetUiThreadId() const;
+
+  /**
+   * @copydoc Dali::DevelApplication::GetMainThreadId()
+   */
+  int32_t GetMainThreadId() const;
+
 public: // From Framework::Observer
   /**
    * Called when the framework is initialised.

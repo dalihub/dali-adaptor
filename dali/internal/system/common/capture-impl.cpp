@@ -19,10 +19,10 @@
 #include <dali/internal/system/common/capture-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/pixel-data-integ.h>
 #include <dali/integration-api/trace.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <string.h>
 #include <fstream>
@@ -220,7 +220,7 @@ void Capture::CreateFrameBuffer()
   if(!mFrameBuffer)
   {
     // Create a FrameBuffer object with depth attachments.
-    mFrameBuffer = Dali::FrameBuffer::New(mTexture.GetWidth(), mTexture.GetHeight(), Dali::FrameBuffer::Attachment::DEPTH);
+    mFrameBuffer = Dali::FrameBuffer::New(mTexture.GetWidth(), mTexture.GetHeight(), Dali::FrameBuffer::Attachment::AUTO);
     // Add a color attachment to the FrameBuffer object.
     mFrameBuffer.AttachColorTexture(mTexture);
   }
@@ -266,7 +266,7 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     Vector2 positionTransition     = position + size / 2;
     mCameraActor.SetProperty(Dali::Actor::Property::POSITION, Vector3(positionTransition.x, positionTransition.y, cameraDefaultZPosition));
     mCameraActor.SetProperty(Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::TOP_LEFT);
-    mCameraActor.SetProperty(Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER);
+    mCameraActor.SetProperty(Dali::Actor::Property::PIVOT, Pivot::CENTER);
   }
 
   // Camera must be scene on. Add camera to window.

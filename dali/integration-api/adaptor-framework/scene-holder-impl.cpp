@@ -292,6 +292,11 @@ void SceneHolder::RequestFullUpdate()
   mScene.RequestFullUpdate();
 }
 
+void SceneHolder::SetForceRendering(uint32_t frameCount)
+{
+  mScene.SetForceRendering(frameCount);
+}
+
 void SceneHolder::Pause()
 {
   Reset();

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
 #include <functional>
+#include <memory>
 #include <string>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <dali/devel-api/watch/watch-application.h>

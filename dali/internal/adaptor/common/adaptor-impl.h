@@ -19,10 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/signals/callback.h>
@@ -520,11 +520,19 @@ public:
   bool IsMultipleWindowSupported() const;
 
   /**
-   * @brief Gets the render thread id of DALi.
-   * @note If render thread id getter doesn't supported, it will return 0 as default.
-   * @return The render thread id.
+   * @copydoc Dali::Adaptor::GetRenderThreadId
    */
   int32_t GetRenderThreadId() const;
+
+  /**
+   * @copydoc Dali::Adaptor::GetUiThreadId
+   */
+  int32_t GetUiThreadId() const;
+
+  /**
+   * @copydoc Dali::Adaptor::GetMainThreadId
+   */
+  int32_t GetMainThreadId() const;
 
 public: // AdaptorInternalServices
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -329,6 +329,21 @@ void Adaptor::OnWindowShown()
 void Adaptor::OnWindowHidden()
 {
   mImpl->OnWindowHidden();
+}
+
+int32_t Adaptor::GetRenderThreadId() const
+{
+  return mImpl->GetRenderThreadId();
+}
+
+int32_t Adaptor::GetUiThreadId() const
+{
+  return mImpl->GetUiThreadId();
+}
+
+int32_t Adaptor::GetMainThreadId() const
+{
+  return mImpl->GetMainThreadId();
 }
 
 Adaptor::Adaptor()

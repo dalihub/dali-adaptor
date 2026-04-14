@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
 // EXTERNAL INCLUDES
+#include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-common.h>
 #include <algorithm>
@@ -173,6 +174,8 @@ T0* CastObject(T1* apiObject)
 
 // Maximum size of texture upload buffer.
 const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
+
+constexpr Dali::Graphics::GraphicsFeatureFlags DEFAULT_GRAPHICS_FEATURE_FLAGS = 0 | Dali::Graphics::GraphicsFeatureFlagBits::RUNTIME_RENDERBUFFER_ATTACHMENT_CHANGE_BIT;
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, false);
 
@@ -334,8 +337,18 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     const auto* currentSurfaceContext = GetSurfaceContext(surfaceInterface);
     mSyncPool.ProcessDiscardSyncObjects(currentSurfaceContext);
 
+    // Create sync for next frame FBO target.
+    bool syncCreated = mTextureDependencyChecker.MarkFramebufferTextureRead(currentSurfaceContext);
+
+    // Create sync for next frame native texture.
     GLES::Framebuffer* framebuffer = renderTarget->GetFramebuffer();
-    mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
+    syncCreated |= mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
+
+    if(syncCreated)
+    {
+      // Need to call glFlush() after create sync object.
+      mGlAbstraction->Flush();
+    }
   }
   else
   {
@@ -399,6 +412,16 @@ Graphics::UniquePtr<Framebuffer> EglGraphicsController::CreateFramebuffer(
   const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer)
 {
   return NewObject<GLES::Framebuffer>(framebufferCreateInfo, *this, std::move(oldFramebuffer));
+}
+
+void EglGraphicsController::UpdateFramebufferRenderbufferUsage(Framebuffer& framebuffer, const DepthStencilState& depthStencilState)
+{
+  // Cast to GLES::Framebuffer and update
+  auto* glesFramebuffer = static_cast<GLES::Framebuffer*>(&framebuffer);
+  if(glesFramebuffer)
+  {
+    glesFramebuffer->UpdateDepthStencilState(depthStencilState);
+  }
 }
 
 Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(
@@ -805,7 +828,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
           mGraphics->ActivateResourceContext();
         }
 
-        mCurrentContext->BeginRenderPass(descriptor);
+        mCurrentContext->BeginRenderPass(descriptor, mTextureDependencyChecker);
 
         break;
       }
@@ -1266,11 +1289,6 @@ Graphics::UniquePtr<Graphics::Texture> EglGraphicsController::ReleaseTextureFrom
   return texture;
 }
 
-bool EglGraphicsController::HasClipMatrix() const
-{
-  return false;
-}
-
 const Matrix& EglGraphicsController::GetClipMatrix(const RenderTarget* renderTarget) const
 {
   return Matrix::IDENTITY;
@@ -1278,13 +1296,24 @@ const Matrix& EglGraphicsController::GetClipMatrix(const RenderTarget* renderTar
 
 uint32_t EglGraphicsController::GetDeviceLimitation(Dali::Graphics::DeviceCapability capability)
 {
-  if(capability == DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT)
+  switch(capability)
   {
-    GLint i = 0;
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &i);
-    return i;
+    case DeviceCapability::MIN_UNIFORM_BUFFER_OFFSET_ALIGNMENT:
+    {
+      GLint i = 0;
+      glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &i);
+      return i;
+    }
+    case DeviceCapability::SUPPORTED_GRAPHICS_FEATURE_FLAGS:
+    {
+      return static_cast<uint32_t>(DEFAULT_GRAPHICS_FEATURE_FLAGS);
+    }
+    case DeviceCapability::SUPPORTED_DYNAMIC_STATES:
+    default:
+    {
+      return 0u;
+    }
   }
-  return 0u;
 }
 
 bool EglGraphicsController::IsCompatible(const Graphics::RenderTarget& renderTargetA, const Graphics::RenderTarget& renderTargetB, const Graphics::RenderPass& renderPassA, const Graphics::RenderPass& renderPassB)

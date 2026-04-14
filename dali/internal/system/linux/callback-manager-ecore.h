@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/list-wrapper.h>
+#include <dali/devel-api/common/list-wrapper.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>

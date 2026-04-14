@@ -92,14 +92,9 @@ bool UiContext::AddIdle(CallbackBase* callback)
   return mAdaptor->AddIdle(callback, true);
 }
 
-int32_t UiContext::GetRenderThreadId()
-{
-  return Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetRenderThreadId();
-}
-
 void UiContext::FlushUpdateMessages()
 {
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
+  mAdaptor->FlushUpdateMessages();
 }
 
 void UiContext::SetApplicationLocale(const std::string& locale)

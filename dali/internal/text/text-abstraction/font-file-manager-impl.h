@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_FILE_MANAGER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-file-manager.h>

@@ -21,8 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/unique-ptr.h>
 #include <dali/public-api/math/rect.h>
-#include <memory>
-#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-enumerations.h>

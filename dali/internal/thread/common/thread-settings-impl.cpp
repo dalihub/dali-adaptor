@@ -32,6 +32,11 @@ namespace Adaptor
 {
 namespace ThreadSettings
 {
+namespace
+{
+int32_t gUiThreadId = 0;
+}
+
 void SetThreadName(const std::string& threadName)
 {
   int err = prctl(PR_SET_NAME, threadName.c_str());
@@ -39,6 +44,17 @@ void SetThreadName(const std::string& threadName)
   {
     DALI_LOG_ERROR("prctl(PR_SET_NAME, %s) failed\n", threadName.c_str());
   }
+}
+
+void SetCurrentThreadAsUiThread()
+{
+  gUiThreadId = GetThreadId();
+  DALI_LOG_RELEASE_INFO("SetCurrentThreadAsUiThread: UI thread id = %d\n", gUiThreadId);
+}
+
+int32_t GetUiThreadId()
+{
+  return gUiThreadId;
 }
 
 } // namespace ThreadSettings

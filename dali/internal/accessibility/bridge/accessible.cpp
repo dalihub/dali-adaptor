@@ -22,6 +22,15 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/system/common/system-error-print.h>
+
+#include <dlfcn.h>
+#include <atomic>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <mutex>
+#include <vector>
 
 namespace Dali::Accessibility
 {
@@ -42,6 +51,8 @@ constexpr const char* KEY_CHILDREN{"children"};
 constexpr const char* VAL_TOOLKIT{"dali"};
 constexpr const char* KEY_APPNAME{"appname"};
 constexpr const char* KEY_PATH{"path"};
+
+constexpr const char* LZ4_MARKER{"lz4b64:"};
 
 // Function to escape special characters in a string
 std::string EscapeString(const std::string& input)
@@ -83,6 +94,197 @@ const auto Quote = [](const std::string& input, bool escape = false) -> std::str
   std::string escapedQuote{ESCAPED_QUOTE};
   return escapedQuote + (escape ? EscapeString(input) : input) + ESCAPED_QUOTE;
 };
+
+// --------------------------
+// Base64 + LZ4 helpers (no build-time headers required)
+// --------------------------
+
+const std::string BASE64_TABLE{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+
+std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, bool isRoot);
+
+std::string Base64Encode(const uint8_t* data, size_t len)
+{
+  if(len == 0) return {};
+
+  std::string out;
+  out.reserve(((len + 2) / 3) * 4);
+
+  for(size_t i = 0; i < len; i += 3)
+  {
+    uint32_t n      = 0;
+    size_t   remain = len - i;
+    n |= static_cast<uint32_t>(data[i]) << 16;
+    if(remain > 1) n |= static_cast<uint32_t>(data[i + 1]) << 8;
+    if(remain > 2) n |= static_cast<uint32_t>(data[i + 2]);
+
+    out.push_back(BASE64_TABLE[(n >> 18) & 0x3F]);
+    out.push_back(BASE64_TABLE[(n >> 12) & 0x3F]);
+    out.push_back(remain > 1 ? BASE64_TABLE[(n >> 6) & 0x3F] : '=');
+    out.push_back(remain > 2 ? BASE64_TABLE[n & 0x3F] : '=');
+  }
+  return out;
+}
+
+struct Lz4Api
+{
+  void* handle{nullptr};
+
+  int (*compressBound)(int)                            = nullptr;
+  int (*compressDefault)(const char*, char*, int, int) = nullptr;
+  int (*decompressSafe)(const char*, char*, int, int)  = nullptr;
+
+  // This file only needs compression. Decompression is not used here.
+  bool ok() const
+  {
+    return compressBound && compressDefault;
+  }
+};
+
+Lz4Api& GetLz4Api()
+{
+  static Lz4Api         api;
+  static std::once_flag once;
+  std::call_once(once, []()
+  {
+    DALI_LOG_DEBUG_INFO("LZ4 library loading...\n");
+
+    // Avoid link-time dependency by loading at runtime.
+    const char* candidates[] = {"liblz4.so.1", "liblz4.so"};
+    for(const char* name : candidates)
+    {
+      api.handle = dlopen(name, RTLD_LAZY);
+      if(api.handle)
+      {
+        break;
+      }
+      else
+      {
+        DALI_LOG_RELEASE_INFO("LZ4 library not found \"%s\", dlerror(): %s\n", name, dlerror());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+      }
+    }
+
+    // If the library wasn't found by name, it might already be loaded by other components.
+    // Try resolving from RTLD_DEFAULT as a best-effort fallback.
+    if(!api.handle)
+    {
+      DALI_LOG_RELEASE_INFO("LZ4 library not found, but try to load from RTLD_DEFAULT: handle=%p\n", RTLD_DEFAULT);
+      api.handle = RTLD_DEFAULT;
+    }
+
+    if(DALI_LIKELY(api.handle))
+    {
+      api.compressBound   = reinterpret_cast<int (*)(int)>(dlsym(api.handle, "LZ4_compressBound"));
+      api.compressDefault = reinterpret_cast<int (*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_compress_default"));
+      api.decompressSafe  = reinterpret_cast<int (*)(const char*, char*, int, int)>(dlsym(api.handle, "LZ4_decompress_safe"));
+      if(!api.ok())
+      {
+        DALI_LOG_ERROR("LZ4 library loaded but required functions not found: compressBound=%p compressDefault=%p decompressSafe=%p, dlerror(): %s\n",
+                       api.compressBound,
+                       api.compressDefault,
+                       api.decompressSafe,
+                       dlerror());
+        DALI_PRINT_SYSTEM_ERROR_LOG();
+
+        if(DALI_UNLIKELY((api.handle != RTLD_DEFAULT) && dlclose(api.handle)))
+        {
+          DALI_LOG_ERROR("Error closing LZ4 library : %s\n", dlerror());
+          DALI_PRINT_SYSTEM_ERROR_LOG();
+        }
+
+        api.handle          = nullptr; // Mark as not usable
+        api.compressBound   = nullptr;
+        api.compressDefault = nullptr;
+        api.decompressSafe  = nullptr;
+      }
+      else
+      {
+        DALI_LOG_DEBUG_INFO("LZ4 library loaded successfully: handle=%p\n", api.handle);
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR("LZ4 library not found!\n");
+      DALI_PRINT_SYSTEM_ERROR_LOG();
+    }
+  });
+  return api;
+}
+
+std::string Lz4CompressToBase64Payload(const std::string& input)
+{
+  auto& api = GetLz4Api();
+  if(!api.ok())
+  {
+    return {};
+  }
+
+  const auto maxIntInputSize = static_cast<std::size_t>(static_cast<uint32_t>(std::numeric_limits<int>::max()));
+  if(input.size() > maxIntInputSize)
+  {
+    DALI_LOG_RELEASE_INFO("LZ4 compress skipped: input too large input_bytes=%zu\n", input.size());
+    return {};
+  }
+
+  const int srcSize    = static_cast<int>(input.size());
+  const int maxDstSize = api.compressBound(srcSize);
+  if(maxDstSize <= 0)
+  {
+    DALI_LOG_RELEASE_INFO("LZ4 compress failed: compressBound<=0 src_bytes=%d maxDstSize=%d\n", srcSize, maxDstSize);
+    return {};
+  }
+
+  std::vector<char> dst(static_cast<size_t>(maxDstSize));
+  const int         compressedSize = api.compressDefault(input.data(), dst.data(), srcSize, maxDstSize);
+  if(compressedSize <= 0)
+  {
+    DALI_LOG_RELEASE_INFO(
+      "LZ4 compress failed: compress_default<=0 src_bytes=%d maxDstSize=%d compressedSize=%d\n",
+      srcSize,
+      maxDstSize,
+      compressedSize);
+    return {};
+  }
+
+  // Payload format: [u32 little-endian original size] + compressed bytes
+  std::vector<uint8_t> payload;
+  payload.resize(4 + static_cast<size_t>(compressedSize));
+  payload[0] = static_cast<uint8_t>(srcSize & 0xFF);
+  payload[1] = static_cast<uint8_t>((srcSize >> 8) & 0xFF);
+  payload[2] = static_cast<uint8_t>((srcSize >> 16) & 0xFF);
+  payload[3] = static_cast<uint8_t>((srcSize >> 24) & 0xFF);
+  std::memcpy(payload.data() + 4, dst.data(), static_cast<size_t>(compressedSize));
+
+  const auto b64 = Base64Encode(payload.data(), payload.size());
+  DALI_LOG_RELEASE_INFO("LZ4 compress: src_bytes=%d comp_bytes=%d payload_bytes=%zu b64_chars=%zu\n",
+                        srcSize, compressedSize, payload.size(), b64.size());
+
+  std::string out;
+  out.reserve(std::strlen(LZ4_MARKER) + b64.size());
+  out.append(LZ4_MARKER);
+  out.append(b64);
+  return out;
+}
+
+std::string DumpJsonWithLz4Compression(Accessible* root, Accessible::DumpDetailLevel jsonDetailLevel, const char* logTag)
+{
+  // Generate JSON with requested semantics, then compress final string
+  // to reduce DBus payload size.
+  const auto json = DumpJson(root, jsonDetailLevel, true);
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu\n", logTag, json.size());
+  auto lz4Payload = Lz4CompressToBase64Payload(json);
+  if(lz4Payload.empty())
+  {
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) compression failed, json_chars=%zu\n", logTag, json.size());
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, json.size());
+    return json;
+  }
+  const auto markerLen = std::strlen(LZ4_MARKER);
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) payload_b64_chars=%zu total_xfer_chars=%zu\n", logTag, lz4Payload.size() - markerLen, lz4Payload.size());
+  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, lz4Payload.size());
+  return lz4Payload;
+}
 
 // Helper function to check if we should include only showing nodes or not.
 const auto IncludeShowingOnly = [](Accessible::DumpDetailLevel detailLevel) -> bool
@@ -281,7 +483,19 @@ bool Accessible::IsProxy() const
 
 std::string Accessible::DumpTree(DumpDetailLevel detailLevel)
 {
-  return DumpJson(this, detailLevel, true);
+  if(detailLevel == DumpDetailLevel::DUMP_FULL_SHOWING_ONLY_LZ4)
+  {
+    return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL_SHOWING_ONLY, "FULL_SHOWING_ONLY_LZ4");
+  }
+
+  if(detailLevel == DumpDetailLevel::DUMP_FULL_LZ4)
+  {
+    return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL, "FULL_LZ4");
+  }
+
+  const auto out = DumpJson(this, detailLevel, true);
+  DALI_LOG_RELEASE_INFO("DumpTree(root) detail_level=%d out_chars=%zu\n", static_cast<int>(detailLevel), out.size());
+  return out;
 }
 
 bool Accessible::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type) const

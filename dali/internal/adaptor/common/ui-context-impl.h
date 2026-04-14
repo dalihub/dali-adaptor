@@ -76,11 +76,6 @@ public:
   bool AddIdle(CallbackBase* callback);
 
   /**
-   * @copydoc Dali::UiContext::GetRenderThreadId()
-   */
-  int32_t GetRenderThreadId();
-
-  /**
    * @copydoc Dali::UiContext::FlushUpdateMessages()
    */
   void FlushUpdateMessages();

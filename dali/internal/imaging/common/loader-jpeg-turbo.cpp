@@ -281,11 +281,40 @@ TransformFunction GetTransformFunction(const TransformFunctionArray& functions,
   return function;
 }
 
+template<typename T>
+void SafeMemCpy(T* dest, const void* src, size_t count)
+{
+  if(count > 0)
+  {
+    DALI_ASSERT_ALWAYS(dest != nullptr && src != nullptr);
+    DALI_ASSERT_ALWAYS(count < std::numeric_limits<size_t>::max() / sizeof(T)); ///< To avoid overflow in the loop counter
+    DALI_ASSERT_ALWAYS((reinterpret_cast<uintptr_t>(dest) % alignof(T)) == 0);  ///< To ensure proper alignment of the destination pointer
+
+    uint8_t*       destBytePtr = reinterpret_cast<uint8_t*>(dest);
+    const uint8_t* srcBytePtr  = reinterpret_cast<const uint8_t*>(src);
+
+    size_t byteCount = count * sizeof(T);
+    for(size_t i = 0; i < byteCount; ++i)
+    {
+      *(destBytePtr++) = *(srcBytePtr++);
+    }
+  }
+}
+
 // Storing Exif fields as properties
 template<class R, class V>
 R ConvertExifNumeric(const ExifEntry& entry)
 {
-  return static_cast<R>((*reinterpret_cast<V*>(entry.data)));
+  V value = 0;
+  if(entry.size >= sizeof(V))
+  {
+    SafeMemCpy(&value, entry.data, 1);
+  }
+  if constexpr(std::is_same_v<R, int32_t> && std::is_unsigned_v<V>)
+  {
+    return static_cast<int32_t>(static_cast<uint32_t>(value));
+  }
+  return static_cast<R>(value);
 }
 
 void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, ExifIfd ifd)
@@ -300,22 +329,22 @@ void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, E
     }
     case EXIF_FORMAT_SHORT:
     {
-      out.Insert(shortName, ConvertExifNumeric<int, uint16_t>(entry));
+      out.Insert(shortName, ConvertExifNumeric<int32_t, uint16_t>(entry));
       break;
     }
     case EXIF_FORMAT_LONG:
     {
-      out.Insert(shortName, ConvertExifNumeric<int, uint32_t>(entry));
+      out.Insert(shortName, ConvertExifNumeric<int32_t, uint32_t>(entry));
       break;
     }
     case EXIF_FORMAT_SSHORT:
     {
-      out.Insert(shortName, ConvertExifNumeric<int, int16_t>(entry));
+      out.Insert(shortName, ConvertExifNumeric<int32_t, int16_t>(entry));
       break;
     }
     case EXIF_FORMAT_SLONG:
     {
-      out.Insert(shortName, ConvertExifNumeric<int, int32_t>(entry));
+      out.Insert(shortName, ConvertExifNumeric<int32_t, int32_t>(entry));
       break;
     }
     case EXIF_FORMAT_FLOAT:
@@ -330,29 +359,39 @@ void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, E
     }
     case EXIF_FORMAT_RATIONAL:
     {
-      auto                  values = reinterpret_cast<unsigned int*>(entry.data);
       Dali::Property::Array array;
-      array.Add(static_cast<int>(values[0]));
-      array.Add(static_cast<int>(values[1]));
+      if(entry.size >= sizeof(uint32_t) * 2)
+      {
+        uint32_t numerator = 0, denominator = 0;
+        SafeMemCpy(&numerator, entry.data, 1);
+        SafeMemCpy(&denominator, entry.data + sizeof(uint32_t), 1);
+        array.Add(static_cast<int>(numerator));
+        array.Add(static_cast<int>(denominator));
+      }
       out.Insert(shortName, array);
       break;
     }
     case EXIF_FORMAT_SBYTE:
     {
-      out.Insert(shortName, "EXIF_FORMAT_SBYTE Unsupported");
+      out.Insert(shortName, ConvertExifNumeric<int32_t, int8_t>(entry));
       break;
     }
     case EXIF_FORMAT_BYTE:
     {
-      out.Insert(shortName, "EXIF_FORMAT_BYTE Unsupported");
+      out.Insert(shortName, ConvertExifNumeric<int32_t, uint8_t>(entry));
       break;
     }
     case EXIF_FORMAT_SRATIONAL:
     {
-      auto                  values = reinterpret_cast<int*>(entry.data);
       Dali::Property::Array array;
-      array.Add(values[0]);
-      array.Add(values[1]);
+      if(entry.size >= sizeof(int32_t) * 2)
+      {
+        int32_t numerator = 0, denominator = 0;
+        SafeMemCpy(&numerator, entry.data, 1);
+        SafeMemCpy(&denominator, entry.data + sizeof(int32_t), 1);
+        array.Add(numerator);
+        array.Add(denominator);
+      }
       out.Insert(shortName, array);
       break;
     }

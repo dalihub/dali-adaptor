@@ -32,6 +32,11 @@ int32_t GetThreadId()
   return 0;
 }
 
+int32_t GetMainThreadId()
+{
+  // TODO: Need to implement
+  return 0;
+}
 } // namespace ThreadSettings
 } // namespace Adaptor
 } // namespace Internal

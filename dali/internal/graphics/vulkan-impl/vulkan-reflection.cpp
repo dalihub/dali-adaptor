@@ -19,6 +19,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-reflection.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program-impl.h>
@@ -26,7 +27,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 // EXTERNAL INCLUDES
 #include <third-party/SPIRV-Reflect/spirv_reflect.h>

@@ -65,14 +65,14 @@ WebEngine WebEngine::New(int32_t type)
   return WebEngine(engine.Get());
 }
 
-Dali::WebEngineContext* WebEngine::GetContext()
+Dali::WebEngineContext* WebEngine::GetContext(bool isIncognito)
 {
-  return Internal::Adaptor::WebEngine::GetContext();
+  return Internal::Adaptor::WebEngine::GetContext(isIncognito);
 }
 
-Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
+Dali::WebEngineCookieManager* WebEngine::GetCookieManager(bool isIncognito)
 {
-  return Internal::Adaptor::WebEngine::GetCookieManager();
+  return Internal::Adaptor::WebEngine::GetCookieManager(isIncognito);
 }
 
 WebEngine::WebEngine(const WebEngine& webEngine) = default;
@@ -101,6 +101,11 @@ void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** ar
 void WebEngine::Destroy()
 {
   GetImplementation(*this).Destroy();
+}
+
+bool WebEngine::IsIncognito() const
+{
+  return GetImplementation(*this).IsIncognito();
 }
 
 Dali::WebEnginePlugin* WebEngine::GetPlugin() const

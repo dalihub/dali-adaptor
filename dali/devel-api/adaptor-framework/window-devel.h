@@ -26,9 +26,9 @@
 #include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
 #include <dali/devel-api/adaptor-framework/pointer-constraints-event.h>
 #include <dali/devel-api/adaptor-framework/window-blur-info.h>
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {
@@ -788,6 +788,14 @@ DALI_ADAPTOR_API void SetScreen(Window window, const std::string& screenName);
  * @return The name of the screen as a string.
  */
 DALI_ADAPTOR_API std::string GetScreen(Window window);
+
+/**
+ * @brief Request to rendering forcibly for this window
+ *
+ * @param[in] window The window instance
+ * @param[in] frameCount The number of frames to render forcibly.
+ */
+DALI_ADAPTOR_API void SetForceRendering(Window window, uint32_t frameCount);
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.

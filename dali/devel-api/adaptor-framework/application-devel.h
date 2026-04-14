@@ -84,12 +84,37 @@ DALI_ADAPTOR_API Application DownCast(Dali::RefObject* refObject);
 DALI_ADAPTOR_API CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Application application);
 
 /**
- * @brief Gets the render thread id of DALi.
- * @note If render thread id getter doesn't supported, it will return 0 as default.
- * @param application A handle to the Application
- * @return The render thread id.
+ * @brief Gets the render thread ID of DALi.
+ *
+ * @param[in] application A handle to the Application
+ * @return The render thread ID.
+ *
+ * @note Returns a valid thread ID only if the render thread has started and the system supports
+ *       thread ID retrieval. Otherwise, returns 0.
  */
 DALI_ADAPTOR_API int32_t GetRenderThreadId(Application application);
+
+/**
+ * @brief Gets the UI thread ID of DALi.
+ *
+ * @param[in] application A handle to the Application
+ * @return The UI thread ID.
+ *
+ * @note Returns a valid thread ID only if the adaptor has been initialized and the system supports
+ *       thread ID retrieval. Otherwise, returns 0.
+ */
+DALI_ADAPTOR_API int32_t GetUiThreadId(Application application);
+
+/**
+ * @brief Gets the main thread ID of DALi.
+ *
+ * @param[in] application A handle to the Application
+ * @return The main thread ID.
+ *
+ * @note Returns a valid thread ID only if the system supports thread ID retrieval.
+ *       Otherwise, returns 0.
+ */
+DALI_ADAPTOR_API int32_t GetMainThreadId(Application application);
 
 /**
  * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
