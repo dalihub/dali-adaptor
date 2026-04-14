@@ -365,9 +365,9 @@ vk::Pipeline PipelineCacheManager::GetOrCreatePipeline(const vk::GraphicsPipelin
     {
       mCacheMutex.unlock();
 #if defined(DEBUG_ENABLED)
-      auto endTime = std::chrono::high_resolution_clock::now();
+      auto endTime  = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][Memory] pipeline cache HIT : hash:%zu, lookup_time:%ld μs\n", hash, duration.count());
+      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][Memory] pipeline cache HIT : hash:%zu, lookup_time:%ld μs\n", hash, duration.count());
 #endif
       return it->second.get();
     }
@@ -383,14 +383,14 @@ vk::Pipeline PipelineCacheManager::GetOrCreatePipeline(const vk::GraphicsPipelin
   {
     mCacheMutex.unlock();
 #if defined(DEBUG_ENABLED)
-    auto endTime = std::chrono::high_resolution_clock::now();
+    auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][Memory] pipeline cache HIT(late) : hash:%zu, lookup_time:%ld μs\n", hash, duration.count());
+    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][Memory] pipeline cache HIT(late) : hash:%zu, lookup_time:%ld μs\n", hash, duration.count());
 #endif
     return it->second.get();
   }
 
-  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][Memory] pipeline cache MISS, need to create file cache: hash:%zu, cache_size:%zu\n", hash, mPipelineMap.size());
+  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][Memory] pipeline cache MISS, need to create file cache: hash:%zu, cache_size:%zu\n", hash, mPipelineMap.size());
 
   // Create and store pipeline
 #if defined(DEBUG_ENABLED)
@@ -399,7 +399,7 @@ vk::Pipeline PipelineCacheManager::GetOrCreatePipeline(const vk::GraphicsPipelin
   auto [result, pipeline] = mDevice.GetLogicalDevice().createGraphicsPipelineUnique(*mVulkanCache, createInfo, mDevice.GetAllocator());
 
 #if defined(DEBUG_ENABLED)
-  auto creationEndTime = std::chrono::high_resolution_clock::now();
+  auto creationEndTime  = std::chrono::high_resolution_clock::now();
   auto creationDuration = std::chrono::duration_cast<std::chrono::microseconds>(creationEndTime - creationStartTime);
 #endif
 
@@ -414,16 +414,15 @@ vk::Pipeline PipelineCacheManager::GetOrCreatePipeline(const vk::GraphicsPipelin
 
   // Performance measurement for cache miss
 #if defined(DEBUG_ENABLED)
-  auto endTime = std::chrono::high_resolution_clock::now();
+  auto endTime       = std::chrono::high_resolution_clock::now();
   auto totalDuration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 
-  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] create pipeline using cash: hash:%zu, total_time:%ld μs, creation_time:%ld μs, cache_size:%zu\n",
-                 hash, totalDuration.count(), creationDuration.count(), mPipelineMap.size());
+  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] create pipeline using cash: hash:%zu, total_time:%ld μs, creation_time:%ld μs, cache_size:%zu\n",
+                hash, totalDuration.count(), creationDuration.count(), mPipelineMap.size());
 #endif
 
   return newIt->second.get();
 }
-
 
 void PipelineCacheManager::RemovePipelineFromCache(vk::Pipeline pipeline)
 {
@@ -436,7 +435,7 @@ void PipelineCacheManager::RemovePipelineFromCache(vk::Pipeline pipeline)
       // Move ownership to orphaned list instead of destroying immediately
       mOrphanedPipelines.push_back(std::move(it->second));
       mPipelineMap.erase(it);
-      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][Memory] Moved pipeline %p to orphaned list for safe destruction\n", static_cast<VkPipeline>(pipeline));
+      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][Memory] Moved pipeline %p to orphaned list for safe destruction\n", static_cast<VkPipeline>(pipeline));
       break;
     }
   }
@@ -452,7 +451,7 @@ size_t PipelineCacheManager::ComputePipelineHash(const vk::GraphicsPipelineCreat
 
 void PipelineCacheManager::InitializeVulkanCache()
 {
-  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] Enable Pipeline Cache \n");
+  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Enable Pipeline Cache \n");
 
   std::vector<uint8_t> cacheData;
   if(LoadAndValidateCache(cacheData))
@@ -465,11 +464,11 @@ void PipelineCacheManager::InitializeVulkanCache()
     if(result == vk::Result::eSuccess)
     {
       mVulkanCache = std::move(pipelineCache);
-      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] Cache HIT, Create PipelineCache using existing cache, data'size :%d \n", cacheData.size());
+      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Cache HIT, Create PipelineCache using existing cache, data'size :%d \n", cacheData.size());
     }
     else
     {
-      DALI_LOG_WARNING("Vulkan cache creation failed: %s\n", vk::to_string(result));
+      DALI_LOG_WARNING("Vulkan cache creation failed: %s\n", vk::to_string(result).c_str());
       CreateNewVulkanCache();
     }
   }
@@ -486,7 +485,7 @@ void PipelineCacheManager::CreateNewVulkanCache()
   if(result == vk::Result::eSuccess)
   {
     mVulkanCache = std::move(pipelineCache);
-    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] Cache MISS, Create PipelineCache without exisiting cache \n");
+    DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Cache MISS, Create PipelineCache without exisiting cache \n");
   }
   else
   {
@@ -567,7 +566,7 @@ bool PipelineCacheManager::LoadAndValidateCache(std::vector<uint8_t>& data)
   }
 
   data.swap(fileData);
-  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] Find exisiting cache from file(%s) for creating Vulkan Pipeline Cache, data'size :%d\n", mCacheFilePath.c_str(), data.size());
+  DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Find exisiting cache from file(%s) for creating Vulkan Pipeline Cache, data'size :%d\n", mCacheFilePath.c_str(), data.size());
   return true;
 }
 
@@ -591,7 +590,7 @@ void PipelineCacheManager::SaveCacheData()
     // Check if the operation was successful
     if(result != vk::Result::eSuccess || cacheData.empty())
     {
-      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "Failed to load Vulkan pipeline cache data: %s\n", vk::to_string(result));
+      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "Failed to load Vulkan pipeline cache data: %s\n", vk::to_string(result).c_str());
       return;
     }
 
@@ -619,7 +618,7 @@ void PipelineCacheManager::SaveCacheData()
       std::ofstream file(filePath, std::ios::binary | std::ios::trunc);
       file.write(reinterpret_cast<const char*>(&header), sizeof(header));
       file.write(reinterpret_cast<const char*>(cacheData.data()), cacheData.size());
-      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose,"[Pipeline Cache][File] Save new Pipeline to cache Data size:%d, path:%s \n",cacheData.size(), mCacheFilePath.c_str());
+      DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Save new Pipeline to cache Data size:%d, path:%s \n", cacheData.size(), mCacheFilePath.c_str());
     }
   }
   catch(const std::exception& e)
