@@ -186,12 +186,22 @@ Lz4Api& GetLz4Api()
                        api.decompressSafe,
                        dlerror());
         DALI_PRINT_SYSTEM_ERROR_LOG();
+
+        if(DALI_UNLIKELY((api.handle != RTLD_DEFAULT) && dlclose(api.handle)))
+        {
+          DALI_LOG_ERROR("Error closing LZ4 library : %s\n", dlerror());
+          DALI_PRINT_SYSTEM_ERROR_LOG();
+        }
+
         api.handle          = nullptr; // Mark as not usable
         api.compressBound   = nullptr;
         api.compressDefault = nullptr;
         api.decompressSafe  = nullptr;
       }
-      DALI_LOG_DEBUG_INFO("LZ4 library loaded successfully: handle=%p\n", api.handle);
+      else
+      {
+        DALI_LOG_DEBUG_INFO("LZ4 library loaded successfully: handle=%p\n", api.handle);
+      }
     }
     else
     {
