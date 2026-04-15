@@ -23,11 +23,10 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/common/singleton-service.h>
 #include <dali/public-api/adaptor-framework/application.h>
 
+#include <dali/internal/adaptor/common/application-controller-impl.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
@@ -38,23 +37,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace Launchpad
-{
-/**
- * @brief Launchpad is used to improve application launch performance.
- * When an application is pre-initialized, so files are preloaded, some functions are initialized and a window is made in advance.
- */
-enum State
-{
-  NONE,           ///< The default state
-  PRE_INITIALIZED ///< Application is pre-initialized.
-};
-
-} // namespace Launchpad
-
-class CommandLineOptions;
-class FrameworkFactory;
-
 typedef Dali::Rect<int> PositionSize;
 
 class Application;
@@ -84,16 +66,6 @@ public:
    *
    */
   static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData);
-
-  /**
-   * @copydoc Dali::DevelApplication::PreInitialize()
-   */
-  static void PreInitialize(int* argc, char** argv[]);
-
-  /**
-   * @copydoc Dali::DevelApplication::GetPreInitializeWindow()
-   */
-  static Dali::Window GetPreInitializeWindow();
 
 public:
   /**
@@ -157,21 +129,6 @@ public:
    * @return A pointer to the pre-initialized application
    */
   static ApplicationPtr GetPreInitializedApplication();
-
-  /**
-   * Stores PositionSize of window
-   */
-  void StoreWindowPositionSize(PositionSize positionSize);
-
-  /**
-   * Stores the front buffer rendering status of the window.
-   */
-  void StoreFrontBufferRendering(bool enable);
-
-  /**
-   * Stores the screen of the default window.
-   */
-  void StoreWindowScreen(const std::string& currentScreen);
 
   /**
    * @copydoc Dali::DevelApplication::GetRenderThreadId()
@@ -302,28 +259,6 @@ public: // From Framework::TaskObserver
   void OnTaskDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status) override;
 
 public:
-  /**
-   * Sets a user defined theme file.
-   * This should be called before initialization.
-   * @param[in] stylesheet The path to user defined theme file
-   */
-  void SetStyleSheet(const std::string& stylesheet);
-
-  /**
-   * Sets a command line options.
-   * This is used in case of the preinitialized application.
-   * @param[in] argc A pointer to the number of arguments
-   * @param[in] argv A pointer to the argument list
-   */
-  void SetCommandLineOptions(int* argc, char** argv[]);
-
-  /**
-   * Sets default window type.
-   * This is used in case of the preinitialized application.
-   * @param[in] type the window type for default window
-   */
-  void SetDefaultWindowType(WindowType type);
-
   /**
    * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
    */
@@ -510,60 +445,9 @@ protected:
   Application& operator=(Application&);
 
   /**
-   * Creates the default window
-   */
-  void CreateWindow();
-
-  /**
-   * Creates the adaptor.
-   * It should be called after main window created.
-   */
-  void CreateAdaptor();
-
-  /**
    * Quits from the main loop
    */
   void QuitFromMainLoop();
-
-  /**
-   * Changes information of preInitialized window
-   */
-  void ChangePreInitializedWindowInfo();
-
-  /**
-   * @brief Get latest environment options and apply changeness
-   */
-  void UpdateEnvironmentOptions();
-
-  /**
-   * @brief Ensure to complete adaptor and window creation.
-   */
-  void CompleteAdaptorAndWindowCreate();
-
-public: // For move pre-initialized informations.
-  struct PreInitializeApplicationData
-  {
-    Launchpad::State    mLaunchpadState{Launchpad::NONE};
-    Dali::Window        mMainWindow{};
-    Dali::Adaptor*      mAdaptor{nullptr};
-    UIThreadLoader*     mUIThreadLoader{nullptr};
-    EnvironmentOptions* mEnvironmentOptions{nullptr};
-    bool                mUseUiThread{false};
-    bool                mIsSystemInitialized{false};
-  };
-
-  /**
-   * @brief Release pre-initialized data.
-   * @post Should call ApplyPreInitializedApplicationData().
-   * @note Only have effort if this application pre-initialized.
-   */
-  PreInitializeApplicationData ReleasePreInitializedApplicationData();
-
-  /**
-   * @brief Apply pre-initialized data from previous application.
-   * @note We MUST call this API before OnInit() API calls.
-   */
-  void ApplyPreInitializedApplicationData(PreInitializeApplicationData data);
 
 private:
   AppSignalType                      mInitSignal;
@@ -587,35 +471,15 @@ private:
   LowMemorySignalType                mTaskLowMemorySignal;
   DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
-  std::unique_ptr<Framework>        mFramework;
-  std::unique_ptr<FrameworkFactory> mFrameworkFactory;
-
-  CommandLineOptions* mCommandLineOptions;
-
-  Dali::Adaptor*                      mAdaptor;
-  std::unique_ptr<EnvironmentOptions> mEnvironmentOptions;
-
-  // The Main Window is that window created by the Application during initial startup
-  // (previously this was the only window)
-  Dali::Window  mMainWindow;                       ///< Main Window instance
-  WindowOpacity mMainWindowOpacity;                ///< Window opacity of the main window
-  std::string   mMainWindowName;                   ///< Name of the main window as obtained from environment options
-  bool          mIsMainWindowFrontBufferRendering; ///< Whether front buffer rendering of the main window is enabled
-
-  std::string      mStylesheet;
-  PositionSize     mWindowPositionSize;
-  Launchpad::State mLaunchpadState;
-  WindowType       mDefaultWindowType; ///< Default window's type. It is used when Application is created.
-  bool             mUseRemoteSurface;
-  bool             mUseUiThread;
-  bool             mIsSystemInitialized;
-  bool             mIsPreInitializedDataReleased;
-
+  std::string               mStylesheet;
   SlotDelegate<Application> mSlotDelegate;
 
-  UIThreadLoader*       mUIThreadLoader;
-  std::string           mScreen; ///< Screen for the main window
-  static ApplicationPtr gPreInitializedApplication;
+  std::unique_ptr<Framework> mFramework;
+  ApplicationControllerPtr   mApplicationController;
+  UIThreadLoader*            mUIThreadLoader;
+
+  bool mUseRemoteSurface;
+  bool mUseUiThread;
 };
 
 inline Application& GetImplementation(Dali::Application& application)

@@ -19,6 +19,7 @@
 #include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/application-controller-impl.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/network/common/network-service-impl.h>
 
@@ -72,14 +73,21 @@ void FlushUpdateMessages(Application application)
   Internal::Adaptor::GetImplementation(application).FlushUpdateMessages();
 }
 
-Dali::Window GetPreInitializeWindow()
-{
-  return Internal::Adaptor::Application::GetPreInitializeWindow();
-}
-
 void SetApplicationLocale(Application application, const std::string& locale)
 {
   Internal::Adaptor::GetImplementation(application).SetApplicationLocale(locale);
+}
+
+Dali::Window GetPreInitializedWindow()
+{
+  Dali::Window                                      result;
+  Dali::Internal::Adaptor::ApplicationControllerPtr controller = Dali::Internal::Adaptor::ApplicationController::GetLaunchpadApplicationController();
+
+  if(controller)
+  {
+    result = controller->GetWindow();
+  }
+  return result;
 }
 
 } // namespace DevelApplication
@@ -88,5 +96,5 @@ void SetApplicationLocale(Application application, const std::string& locale)
 
 extern "C" void ApplicationPreInitialize(int* argc, char** argv[])
 {
-  Dali::Internal::Adaptor::Application::PreInitialize(argc, argv);
+  Dali::Internal::Adaptor::ApplicationController::LaunchpadApplicationPreInitialize(argc, argv);
 }

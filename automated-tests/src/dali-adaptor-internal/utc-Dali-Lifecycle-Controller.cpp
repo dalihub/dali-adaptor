@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ int UtcDaliLifecycleControllerSignalPreInit(void)
 
   lifecycleController.PreInitSignal().Connect(&OnPreInit);
 
-  GetImplementation(lifecycleController).OnPreInit(application);
+  GetImplementation(lifecycleController).OnPreInit();
 
   DALI_TEST_CHECK(g_OnPreInitCalled);
 
@@ -128,7 +128,7 @@ int UtcDaliLifecycleControllerSignalInit(void)
 
   lifecycleController.InitSignal().Connect(&OnInit);
 
-  GetImplementation(lifecycleController).OnInit(application);
+  GetImplementation(lifecycleController).OnInit();
 
   DALI_TEST_CHECK(g_OnInitCalled);
 
@@ -146,7 +146,7 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 
   lifecycleController.TerminateSignal().Connect(&OnTerminate);
 
-  GetImplementation(lifecycleController).OnTerminate(application);
+  GetImplementation(lifecycleController).OnTerminate();
 
   DALI_TEST_CHECK(g_OnTerminateCalled);
 
@@ -164,7 +164,7 @@ int UtcDaliLifecycleControllerSignalPause(void)
 
   lifecycleController.PauseSignal().Connect(&OnPause);
 
-  GetImplementation(lifecycleController).OnPause(application);
+  GetImplementation(lifecycleController).OnPause();
 
   DALI_TEST_CHECK(g_OnPauseCalled);
 
@@ -182,7 +182,7 @@ int UtcDaliLifecycleControllerSignalResume(void)
 
   lifecycleController.ResumeSignal().Connect(&OnResume);
 
-  GetImplementation(lifecycleController).OnResume(application);
+  GetImplementation(lifecycleController).OnResume();
 
   DALI_TEST_CHECK(g_OnResumeCalled);
 
@@ -200,7 +200,7 @@ int UtcDaliLifecycleControllerSignalReset(void)
 
   lifecycleController.ResetSignal().Connect(&OnReset);
 
-  GetImplementation(lifecycleController).OnReset(application);
+  GetImplementation(lifecycleController).OnReset();
 
   DALI_TEST_CHECK(g_OnResetCalled);
 
@@ -218,7 +218,7 @@ int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 
   lifecycleController.LanguageChangedSignal().Connect(&OnLanguageChanged);
 
-  GetImplementation(lifecycleController).OnLanguageChanged(application);
+  GetImplementation(lifecycleController).OnLanguageChanged();
 
   DALI_TEST_CHECK(g_OnLanguageChangedCalled);
 

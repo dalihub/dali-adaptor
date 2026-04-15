@@ -25,9 +25,9 @@
 
 namespace Dali
 {
-ApplicationController ApplicationController::New(PositionSize windowPositionSize, bool useUiThread)
+ApplicationController ApplicationController::New(PositionSize windowPositionSize)
 {
-  Internal::Adaptor::ApplicationControllerPtr internal = Internal::Adaptor::ApplicationController::New(windowPositionSize, useUiThread);
+  Internal::Adaptor::ApplicationControllerPtr internal = Internal::Adaptor::ApplicationController::New(windowPositionSize);
 
   return ApplicationController(internal.Get());
 }

@@ -24,7 +24,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
-#include <dali/public-api/adaptor-framework/application.h>
 
 namespace Dali
 {
@@ -93,55 +92,6 @@ public:
 public:
   /**
    * Called when the framework will be initialised.
-   *
-   * @param[in] app The application instance
-   */
-  void OnPreInit(Dali::Application& app);
-
-  /**
-   * Called when the framework is initialised.
-   *
-   * @param[in] app The application instance
-   */
-  void OnInit(Dali::Application& app);
-
-  /**
-   * Called when the framework is terminated.
-   *
-   * @param[in] app The application instance
-   */
-  void OnTerminate(Dali::Application& app);
-
-  /**
-   * Called when the framework is paused.
-   *
-   * @param[in] app The application instance
-   */
-  void OnPause(Dali::Application& app);
-
-  /**
-   * Called when the framework resumes from a paused state.
-   *
-   * @param[in] app The application instance
-   */
-  void OnResume(Dali::Application& app);
-
-  /**
-   * Called when the framework informs the application that it should reset itself.
-   *
-   * @param[in] app The application instance
-   */
-  void OnReset(Dali::Application& app);
-
-  /**
-   * Called when the framework informs the application that the language of the device has changed.
-   *
-   * @param[in] app The application instance
-   */
-  void OnLanguageChanged(Dali::Application& app);
-
-  /**
-   * Called when the framework will be initialised.
    */
   void OnPreInit();
 
@@ -164,6 +114,16 @@ public:
    * Called when the framework resumes from a paused state.
    */
   void OnResume();
+
+  /**
+   * Called when the framework informs the application that it should reset itself.
+   */
+  void OnReset();
+
+  /**
+   * Called when the framework informs the application that the language of the device has changed.
+   */
+  void OnLanguageChanged();
 
 protected:
   /**

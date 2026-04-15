@@ -123,18 +123,18 @@ DALI_ADAPTOR_API int32_t GetMainThreadId(Application application);
 DALI_ADAPTOR_API void FlushUpdateMessages(Application application);
 
 /**
- * @brief Get window from pre-initialized application.
- * @note Only available pre-initialized application case. If application already created, it will return empty handle.
- * @return Pre initialized window, or empty handle if no pre-initialized application exist.
- */
-DALI_ADAPTOR_API Dali::Window GetPreInitializeWindow();
-
-/**
  * @brief Set the application's language independently of the system language.
  * @param application A handle to the Application.
  * @param[in] locale Specifies the application's language and region in BCP 47 format (e.g., "en_US", "ko_KR").
  */
 DALI_ADAPTOR_API void SetApplicationLocale(Application application, const std::string& locale);
+
+/**
+ * @brief Get window from pre-initialized application.
+ * @note Only available pre-initialized application case. If application already created, it will return empty handle.
+ * @return Pre initialized window, or empty handle if no pre-initialized application exist.
+ */
+DALI_ADAPTOR_API Dali::Window GetPreInitializedWindow();
 
 } // namespace DevelApplication
 
