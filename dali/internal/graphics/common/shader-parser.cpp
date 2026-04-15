@@ -59,6 +59,7 @@ const std::unordered_set<std::string_view> gExceptUniformBlockNames{
   "SharedVertexBlock",       ///< For instance-rendering.example
   "UtcVertBlock",            ///< For UTC
   "UtcFragBlock",            ///< For UTC
+  "Bones",                   ///< For Scene3D model with skin
 };
 #endif
 } // namespace
