@@ -231,7 +231,7 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addMethod<DBus::ValueOrError<RET...>(ARGS...)>(
         funcName,
-        [=, this](ARGS... args) -> DBus::ValueOrError<RET...>
+        [self, funcPtr](ARGS... args) -> DBus::ValueOrError<RET...>
       {
         try
         {
@@ -254,7 +254,7 @@ public:
   {
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(funcName,
-                          [=, this]() -> DBus::ValueOrError<T>
+                          [self, funcPtr]() -> DBus::ValueOrError<T>
       {
         try
         {
@@ -277,7 +277,7 @@ public:
                                  void (SELF::*funcPtr)(T))
   {
     if(auto self = dynamic_cast<SELF*>(this))
-      desc.addProperty<T>(funcName, {}, [=, this](T t) -> DBus::ValueOrError<void>
+      desc.addProperty<T>(funcName, {}, [self, funcPtr](T t) -> DBus::ValueOrError<void>
       {
         try
         {
@@ -303,7 +303,7 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(
         funcName,
-        [=, this]() -> DBus::ValueOrError<T>
+        [self, funcPtrGet]() -> DBus::ValueOrError<T>
       {
         try
         {
@@ -314,7 +314,7 @@ public:
           return DBus::Error{e.what()};
         }
       },
-        [=, this](T t) -> DBus::ValueOrError<void>
+        [self, funcPtrSet](T t) -> DBus::ValueOrError<void>
       {
         try
         {
@@ -340,7 +340,7 @@ public:
     if(auto self = dynamic_cast<SELF*>(this))
       desc.addProperty<T>(
         funcName,
-        [=, this]() -> DBus::ValueOrError<T>
+        [self, funcPtrGet]() -> DBus::ValueOrError<T>
       {
         try
         {
@@ -351,7 +351,7 @@ public:
           return DBus::Error{e.what()};
         }
       },
-        [=, this](T t) -> DBus::ValueOrError<void>
+        [self, funcPtrSet](T t) -> DBus::ValueOrError<void>
       {
         try
         {

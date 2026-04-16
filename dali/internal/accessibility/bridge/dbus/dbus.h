@@ -2441,7 +2441,7 @@ public:
       detail::CallId getterId;
       z.getterId = getterId;
       DBUS_DEBUG("call %d: property %s (get) type %s", getterId.id, memberName.c_str(), detail::signature<T>::name().data());
-      z.getCallback = [=, this](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& dst) -> std::string
+      z.getCallback = [getter, getterId](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& dst) -> std::string
       {
         try
         {
@@ -2470,7 +2470,7 @@ public:
       detail::CallId setterId;
       z.setterId = setterId;
       DBUS_DEBUG("call %d: property %s (set) type %s", setterId.id, memberName.c_str(), detail::signature<T>::name().data());
-      z.setCallback = [=, this](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& src_iter) -> std::string
+      z.setCallback = [setter, setterId](const DBusWrapper::MessagePtr& src, const DBusWrapper::MessageIterPtr& src_iter) -> std::string
       {
         std::tuple<T> value;
         auto          src_signature = DBUS_W->dbus_message_iter_signature_get_impl(src_iter);
@@ -2534,7 +2534,7 @@ private:
                                                                                        typename detail::dbus_interface_traits<T>::SyncCB callback)
   {
     using VEArgs = typename detail::dbus_interface_traits<T>::VEArgs;
-    return [=, this](const DBusWrapper::MessagePtr& msg) -> DBusWrapper::MessagePtr
+    return [callId, callback](const DBusWrapper::MessagePtr& msg) -> DBusWrapper::MessagePtr
     {
       DBUS_DEBUG("call %d: entering", callId.id);
       DBusWrapper::MessagePtr ret  = {};
@@ -2672,7 +2672,7 @@ public:
    *   // process something later on
    *   DBusServer::getCurrentObjectPath(); // this will return empty string
    * };
-   * interface.addAsyncMethod<void()>("m", [=, this](std::function<void(void)> done_cb) {
+   * interface.addAsyncMethod<void()>("m", [](std::function<void(void)> done_cb) {
    *   DBusServer::getCurrentObjectPath(); // this will current object's path
    *
    *   // do some processing later on and call done_cb, when it's done
