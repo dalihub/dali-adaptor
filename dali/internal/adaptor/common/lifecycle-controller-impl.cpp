@@ -153,41 +153,6 @@ void LifecycleController::EmitLanguageChangedSignal()
   }
 }
 
-void LifecycleController::OnPreInit(Dali::Application& app)
-{
-  EmitPreInitSignal();
-}
-
-void LifecycleController::OnInit(Dali::Application& app)
-{
-  EmitInitSignal();
-}
-
-void LifecycleController::OnTerminate(Dali::Application& app)
-{
-  EmitTerminateSignal();
-}
-
-void LifecycleController::OnPause(Dali::Application& app)
-{
-  EmitPauseSignal();
-}
-
-void LifecycleController::OnResume(Dali::Application& app)
-{
-  EmitResumeSignal();
-}
-
-void LifecycleController::OnReset(Dali::Application& app)
-{
-  EmitResetSignal();
-}
-
-void LifecycleController::OnLanguageChanged(Dali::Application& app)
-{
-  EmitLanguageChangedSignal();
-}
-
 void LifecycleController::OnPreInit()
 {
   EmitPreInitSignal();
@@ -211,6 +176,16 @@ void LifecycleController::OnPause()
 void LifecycleController::OnResume()
 {
   EmitResumeSignal();
+}
+
+void LifecycleController::OnReset()
+{
+  EmitResetSignal();
+}
+
+void LifecycleController::OnLanguageChanged()
+{
+  EmitLanguageChangedSignal();
 }
 
 } // namespace Adaptor

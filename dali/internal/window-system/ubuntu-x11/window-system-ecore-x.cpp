@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,25 @@ namespace WindowSystem
 namespace
 {
 static bool gGeometryHittest = false;
+static bool gIsIntialized    = false;
 } // unnamed namespace
 
 void Initialize()
 {
-  ecore_x_init(NULL);
+  if(!gIsIntialized)
+  {
+    ecore_x_init(NULL);
+    gIsIntialized = true;
+  }
 }
 
 void Shutdown()
 {
-  ecore_x_shutdown();
+  if(gIsIntialized)
+  {
+    ecore_x_shutdown();
+    gIsIntialized = false;
+  }
 }
 
 void GetScreenSize(int32_t& width, int32_t& height)
