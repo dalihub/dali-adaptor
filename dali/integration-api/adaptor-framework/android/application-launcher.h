@@ -83,9 +83,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 // This macro facilitates creation of DALi application and launch when DaliView is created.
 // The DALi application controller is passed to the application created by DaliView JNI library.
-#define RUN(Controller)                                 \
-  Application         application = Application::New(); \
-  Controller          controller(application);          \
+#define RUN(Controller)                                                 \
+  Application         application = Application::New(nullptr, nullptr); \
+  Controller          controller(application);                          \
   ApplicationLauncher launcher(application);
 
 #endif // DALI_INTEGRATION_APPLICATION_LAUNCHER_H

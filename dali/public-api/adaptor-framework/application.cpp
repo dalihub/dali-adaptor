@@ -31,52 +31,11 @@ using Dali::Integration::ToStdString;
 
 namespace Dali
 {
-Application Application::New()
-{
-  return New(NULL, NULL);
-}
-
-Application Application::New(int* argc, char** argv[])
-{
-  WindowData windowData;
-  windowData.SetTransparency(false);
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, "", Internal::Adaptor::Framework::NORMAL, false, windowData);
-  return Application(internal.Get());
-}
-
 Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
   WindowData windowData;
   windowData.SetTransparency(false);
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity)
-{
-  WindowData windowData;
-  windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize)
-{
-  WindowData windowData;
-  windowData.SetPositionSize(positionSize);
-  windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
-{
-  WindowData windowData;
-  windowData.SetPositionSize(positionSize);
-  windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   return Application(internal.Get());
 }
 

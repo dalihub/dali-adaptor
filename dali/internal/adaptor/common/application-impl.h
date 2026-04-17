@@ -53,7 +53,6 @@ public:
   typedef Dali::Application::DeviceOrientationChangedSignalType DeviceOrientationChangedSignalType;
   typedef Dali::Application::AppSignalType                      AppSignalType;
   typedef Dali::Application::AppControlSignalType               AppControlSignalType;
-  typedef Dali::Application::WindowOpacity                      WindowOpacity;
 
   /**
    * Create a new application
