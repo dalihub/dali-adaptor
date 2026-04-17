@@ -21,6 +21,7 @@
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <stdlib.h>
 #include <iostream>
+#include "dali/public-api/adaptor-framework/application.h"
 
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
@@ -91,7 +92,7 @@ int UtcDaliLifecycleControllerGet(void)
   DALI_TEST_CHECK(!lifecycleController);
 
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   lifecycleController = LifecycleController::Get();
   DALI_TEST_CHECK(lifecycleController);
@@ -102,7 +103,7 @@ int UtcDaliLifecycleControllerGet(void)
 int UtcDaliLifecycleControllerSignalPreInit(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnPreInitCalled);
 
@@ -120,7 +121,7 @@ int UtcDaliLifecycleControllerSignalPreInit(void)
 int UtcDaliLifecycleControllerSignalInit(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnInitCalled);
 
@@ -138,7 +139,7 @@ int UtcDaliLifecycleControllerSignalInit(void)
 int UtcDaliLifecycleControllerSignalTerminate(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnTerminateCalled);
 
@@ -156,7 +157,7 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 int UtcDaliLifecycleControllerSignalPause(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnPauseCalled);
 
@@ -174,7 +175,7 @@ int UtcDaliLifecycleControllerSignalPause(void)
 int UtcDaliLifecycleControllerSignalResume(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnResumeCalled);
 
@@ -192,7 +193,7 @@ int UtcDaliLifecycleControllerSignalResume(void)
 int UtcDaliLifecycleControllerSignalReset(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnResetCalled);
 
@@ -210,7 +211,7 @@ int UtcDaliLifecycleControllerSignalReset(void)
 int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnLanguageChangedCalled);
 

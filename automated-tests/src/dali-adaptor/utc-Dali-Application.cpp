@@ -86,7 +86,7 @@ void OnDeviceOrientationChangedSignalCallback(DeviceStatus::Orientation::Status 
 
 int UtcDaliApplicationNew01(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
 
   MyTestApp testApp(application);
 
@@ -131,7 +131,10 @@ int UtcDaliApplicationNew04(void)
   const char* argList[1] = {"program"};
   char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New(&argc, &argv, "stylesheet", Application::TRANSPARENT);
+  WindowData windowData;
+  windowData.SetTransparency(true);
+
+  Application application = Application::New(&argc, &argv, "stylesheet", false, windowData);
 
   MyTestApp testApp(application);
 
@@ -146,7 +149,10 @@ int UtcDaliApplicationNew06P(void)
   const char* argList[1] = {"program"};
   char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New(&argc, &argv, "stylesheet", Application::WindowOpacity::OPAQUE, PositionSize(), true);
+  WindowData windowData;
+  windowData.SetTransparency(false);
+
+  Application application = Application::New(&argc, &argv, "stylesheet", true, windowData);
 
   MyTestApp testApp(application);
 
@@ -161,7 +167,10 @@ int UtcDaliApplicationNew07P(void)
   const char* argList[1] = {"program"};
   char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New(&argc, &argv, "stylesheet", Application::WindowOpacity::OPAQUE, PositionSize());
+  WindowData windowData;
+  windowData.SetTransparency(false);
+
+  Application application = Application::New(&argc, &argv, "stylesheet", false, windowData);
 
   MyTestApp testApp(application);
 
@@ -188,7 +197,7 @@ int UtcDaliApplicationNew08P(void)
 
 int UtcDaliApplicationCopyAndAssignment(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   Application copy(application);
   DALI_TEST_CHECK(copy == application);
 
@@ -202,7 +211,7 @@ int UtcDaliApplicationCopyAndAssignment(void)
 
 int UtcDaliApplicationMoveConstructor(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   DALI_TEST_CHECK(application);
   DALI_TEST_EQUALS(1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION);
 
@@ -216,7 +225,7 @@ int UtcDaliApplicationMoveConstructor(void)
 
 int UtcDaliApplicationMoveAssignment(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   DALI_TEST_CHECK(application);
   DALI_TEST_EQUALS(1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION);
 
@@ -317,7 +326,7 @@ int UtcDaliApplicationGetWindowN(void)
 
 int UtcDaliApplicationInitSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.InitSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -343,7 +352,7 @@ int UtcDaliApplicationInitSignalN(void)
 
 int UtcDaliApplicationTerminateSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.TerminateSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -369,7 +378,7 @@ int UtcDaliApplicationTerminateSignalN(void)
 
 int UtcDaliApplicationPauseSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.PauseSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -395,7 +404,7 @@ int UtcDaliApplicationPauseSignalN(void)
 
 int UtcDaliApplicationResumeSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.ResumeSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -421,7 +430,7 @@ int UtcDaliApplicationResumeSignalN(void)
 
 int UtcDaliApplicationResetSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.ResetSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -447,7 +456,7 @@ int UtcDaliApplicationResetSignalN(void)
 
 int UtcDaliApplicationlControlSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.AppControlSignal().Connect(&ApplicationControlSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -473,7 +482,7 @@ int UtcDaliApplicationlControlSignalN(void)
 
 int UtcDaliApplicationLanguageChangedSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.LanguageChangedSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -499,7 +508,7 @@ int UtcDaliApplicationLanguageChangedSignalN(void)
 
 int UtcDaliApplicationRegionChangedSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.RegionChangedSignal().Connect(&ApplicationSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -525,7 +534,7 @@ int UtcDaliApplicationRegionChangedSignalN(void)
 
 int UtcDaliApplicationLowBatterySignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.LowBatterySignal().Connect(&LowBatterySignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -551,7 +560,7 @@ int UtcDaliApplicationLowBatterySignalN(void)
 
 int UtcDaliApplicationLowMemorySignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.LowMemorySignal().Connect(&LowMemorySignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -577,7 +586,7 @@ int UtcDaliApplicationLowMemorySignalN(void)
 
 int UtcDaliApplicationOrientationChangedSignalP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   application.DeviceOrientationChangedSignal().Connect(&OnDeviceOrientationChangedSignalCallback);
   DALI_TEST_CHECK(application);
 
@@ -603,7 +612,7 @@ int UtcDaliApplicationOrientationChangedSignalN(void)
 
 int UtcDaliApplicationGetResourcePathP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   std::string result("**invalid path**"); // Calling GetResourcePath should replace this with a system dependent path or "".
   result = ToStdString(application.GetResourcePath());
   DALI_TEST_CHECK(result != "**invalid path**");
@@ -613,7 +622,7 @@ int UtcDaliApplicationGetResourcePathP(void)
 
 int UtcDaliApplicationGetRegionP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   std::string result;
   result = ToStdString(application.GetRegion());
   DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
@@ -623,7 +632,7 @@ int UtcDaliApplicationGetRegionP(void)
 
 int UtcDaliApplicationGetLanguageP(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   std::string result;
   result = ToStdString(application.GetLanguage());
   DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
@@ -633,7 +642,7 @@ int UtcDaliApplicationGetLanguageP(void)
 
 int UtcDaliApplicationGetObjectRegistryN(void)
 {
-  Application application = Application::New();
+  Application application = Application::New(nullptr, nullptr);
   DALI_TEST_CHECK(!application.GetObjectRegistry());
   END_TEST;
 }
