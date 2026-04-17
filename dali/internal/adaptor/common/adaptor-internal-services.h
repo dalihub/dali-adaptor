@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,11 @@ public:
    * @param[out] windows The list of created windows
    */
   virtual void GetWindowContainerInterface(WindowContainer& windows) = 0;
+
+  /**
+   * @return The environment options
+   */
+  virtual const EnvironmentOptions& GetEnvironmentOptions() const = 0;
 
 protected:
   /**

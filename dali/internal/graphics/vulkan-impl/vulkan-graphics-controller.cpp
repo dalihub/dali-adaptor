@@ -284,6 +284,7 @@ struct VulkanGraphicsController::Impl
     auto retval = mDepthStencilBufferRequestedState != mDepthStencilBufferCurrentState;
 
     // @todo move state vars to surface
+    // They are now in the scene/sceneholder.
     if(surface && mDepthStencilBufferCurrentState != mDepthStencilBufferRequestedState)
     {
       DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "UpdateDepthStencilBuffer(): New state: DEPTH: %d, STENCIL: %d\n", int(mDepthStencilBufferRequestedState & 1), int((mDepthStencilBufferRequestedState >> 1) & 1));

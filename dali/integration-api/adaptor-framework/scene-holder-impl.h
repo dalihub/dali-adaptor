@@ -284,11 +284,6 @@ public:
   void AddFramePresentedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
   /**
-   * @brief Creates the render target for the surface when the surface is created/resized/replaced.
-   */
-  void CreateRenderTarget();
-
-  /**
    * @copydoc Dali::Integration::SceneHolder::GetRenderTaskList()
    */
   Dali::RenderTaskList GetRenderTaskList() const;
@@ -438,6 +433,11 @@ private:
    * Initializes the DPI for this object.
    */
   void InitializeDpi();
+
+  /**
+   * @brief Creates the render target for the surface when the surface is created/resized/replaced.
+   */
+  void CreateRenderTarget();
 
 private:
   static uint32_t mSceneHolderCounter; ///< A counter to track the SceneHolder creation

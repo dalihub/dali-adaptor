@@ -253,10 +253,16 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   int          windowOrientation   = mSurface->GetSurfaceOrientation();
   int          screenOrientation   = mSurface->GetScreenOrientation();
 
-  mScene = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
-
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
+
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(mSurface.get())
+    .SetExtent({static_cast<uint32_t>(surfacePositionSize.width), static_cast<uint32_t>(surfacePositionSize.height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
 
   // Create an observer for the adaptor lifecycle
   mAdaptor->AddObserver(*mLifeCycleObserver);
@@ -265,9 +271,6 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   mSurface->SetAdaptor(*mAdaptor);
   mSurface->SetScene(mScene);
-
-  // Create the render target
-  CreateRenderTarget();
 
   OnAdaptorSet(adaptor);
 

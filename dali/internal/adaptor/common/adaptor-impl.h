@@ -592,6 +592,10 @@ public: // AdaptorInternalServices
   {
     return mConfigurationManager.get();
   }
+  const EnvironmentOptions& GetEnvironmentOptions() const override
+  {
+    return *mEnvironmentOptions;
+  }
 
 public: // Signals
   /**

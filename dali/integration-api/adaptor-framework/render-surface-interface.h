@@ -90,8 +90,10 @@ public:
     mDisplayConnection(nullptr),
     mScene(),
     mFullSwapFlag(1u),
-    mDepthBufferRequired(Integration::DepthBufferAvailable::FALSE),
-    mStencilBufferRequired(Integration::StencilBufferAvailable::FALSE)
+    mDepthBufferRequired(false),
+    mStencilBufferRequired(false),
+    mPartialUpdateRequired(false),
+    mMSAALevel(0)
   {
   }
 
@@ -295,10 +297,11 @@ protected:
   volatile unsigned int mFullSwapFlag; ///< Whether the full surface swap is required.
 
 private:
-  Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required
-  Integration::StencilBufferAvailable mStencilBufferRequired; ///< Whether the stencil buffer is required
-
-  Vector4 mBackgroundColor; ///< The background color of the surface
+  bool    mDepthBufferRequired;   ///< Whether the depth buffer is required
+  bool    mStencilBufferRequired; ///< Whether the stencil buffer is required
+  bool    mPartialUpdateRequired; ///< Whether partial update is required
+  int     mMSAALevel;             ///< multi-sample-anti-aliasing level (0 - not required)
+  Vector4 mBackgroundColor;       ///< The background color of the surface
 };
 
 } // Namespace Integration
