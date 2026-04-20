@@ -18,6 +18,9 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>

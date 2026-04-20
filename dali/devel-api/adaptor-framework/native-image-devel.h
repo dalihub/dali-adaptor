@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>

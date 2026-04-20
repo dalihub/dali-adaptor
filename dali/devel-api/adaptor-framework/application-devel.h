@@ -22,6 +22,7 @@
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <string>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>

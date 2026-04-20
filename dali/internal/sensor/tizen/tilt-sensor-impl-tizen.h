@@ -2,7 +2,7 @@
 #define DALI_SENSOR_TIZEN_TILT_SENSOR_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #endif
 
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/object/base-object.h>
 #include <deque>
 
@@ -116,7 +117,7 @@ public:
    * @return True if the signal was connected.
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
-  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor);
+  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const Dali::String& signalName, FunctorDelegate* functor);
 
   /**
    * Update sensor data

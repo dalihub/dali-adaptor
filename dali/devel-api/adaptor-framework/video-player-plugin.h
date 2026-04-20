@@ -24,6 +24,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <string>
 
 namespace Dali
 {
@@ -45,9 +46,9 @@ public:
    */
   enum class PlayerHandleType : int
   {
-    NONE = 0,         ///< No type specified
-    DEFAULT = 1,      ///< Default player
-    EXTERNAL = 2,     ///< External player
+    NONE     = 0, ///< No type specified
+    DEFAULT  = 1, ///< Default player
+    EXTERNAL = 2, ///< External player
   };
 
   /**
@@ -58,8 +59,8 @@ public:
    */
   struct PlayerHandle
   {
-    PlayerHandleType playerType;  ///< Type of the player handle
-    Any handle;                   ///< Player handle
+    PlayerHandleType playerType; ///< Type of the player handle
+    Any              handle;     ///< Player handle
   };
 
   typedef Signal<void()> VideoPlayerSignalType;

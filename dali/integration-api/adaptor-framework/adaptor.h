@@ -26,6 +26,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
