@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,13 @@ struct GifCachedColorData
 };
 
 // Forward declaration
-struct GifAccessor;
+struct GifAccessorBase
+{
+  GifAccessorBase()          = default;
+  virtual ~GifAccessorBase() = default;
+
+  GifFileType* gif = nullptr;
+};
 
 struct LoaderInfo
 {
@@ -201,12 +207,12 @@ struct LoaderInfo
     int            position, length; // yes - gif uses ints for file sizes.
   };
 
-  FileData                     fileData;
-  GifAnimationData             animated;
-  GifCachedColorData           cachedColor;
-  std::unique_ptr<GifAccessor> gifAccessor{nullptr};
-  int                          imageNumber{0};
-  FileInfo                     fileInfo;
+  FileData                         fileData;
+  GifAnimationData                 animated;
+  GifCachedColorData               cachedColor;
+  std::unique_ptr<GifAccessorBase> gifAccessor{nullptr};
+  int                              imageNumber{0};
+  FileInfo                         fileInfo;
 };
 
 struct ImageProperties
@@ -219,7 +225,7 @@ struct ImageProperties
 /**
  * Class to access gif open/close using riaa
  */
-struct GifAccessor
+struct GifAccessor : public GifAccessorBase
 {
   /**
    * Constructor
@@ -276,8 +282,6 @@ struct GifAccessor
     fi->position += length;
     return length;
   }
-
-  GifFileType* gif = nullptr;
 };
 
 bool LoaderInfo::FileData::LoadFile()
