@@ -44,8 +44,6 @@ namespace
 {
 #ifndef DALI_PROFILE_UBUNTU
 const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 20;
-#else
-const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
 #endif
 const uint32_t CHECK_EXTENSION_NUMBER                  = 4;
 const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
@@ -263,7 +261,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
                        << "Vendor: " << vendorStr << std::endl
                        << "Version: " << versionStr << std::endl
                        << "Client APIs: " << clientStr;
-    Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
+    Graphics::Internal::SetBackendInformation(backendInformation.str());
   }
 
   return mGlesInitialized;

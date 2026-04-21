@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_APPLICATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,8 +102,7 @@ private:
   std::unique_ptr<EnvironmentOptions> mEnvironmentOptions{};
   std::unique_ptr<FrameworkFactory>   mFrameworkFactory{};
 
-  Dali::OffscreenApplication::FrameworkBackend mFrameworkBackend;
-  Dali::OffscreenApplication::RenderMode       mRenderMode;
+  Dali::OffscreenApplication::RenderMode mRenderMode;
 
   bool mIsAdaptorStarted{false};
   bool mIsAdaptorStoped{false};

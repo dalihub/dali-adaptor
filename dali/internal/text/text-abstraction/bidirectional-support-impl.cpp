@@ -32,13 +32,6 @@ namespace Internal
 {
 namespace
 {
-typedef unsigned char BidiDirection;
-
-// Internal charcter's direction.
-const BidiDirection LEFT_TO_RIGHT = 0u;
-const BidiDirection NEUTRAL       = 1u;
-const BidiDirection RIGHT_TO_LEFT = 2u;
-
 /**
  * @param[in] paragraphDirection The FriBiDi paragraph's direction.
  *

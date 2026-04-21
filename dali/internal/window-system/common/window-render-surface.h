@@ -80,14 +80,14 @@ public: // API
    *
    * @return The native window handle
    */
-  Any GetNativeWindow();
+  Any GetNativeWindow() override;
 
   /**
    * @brief Get the native window id
    *
    * @return The native window id
    */
-  int GetNativeWindowId();
+  int GetNativeWindowId() override;
 
 public: // API
   Graphics::SurfaceId GetSurfaceId() const
@@ -355,8 +355,7 @@ private:
 
   using FrameCallbackInfoContainer = std::vector<std::unique_ptr<FrameCallbackInfo>>;
 
-private: // Data
-  Dali::DisplayConnection*             mDisplayConnection;
+private:                                              // Data
   PositionSize                         mPositionSize; ///< Position
   std::unique_ptr<WindowBase>          mWindowBase;
   ThreadSynchronizationInterface*      mThreadSynchronization;
@@ -376,12 +375,12 @@ private: // Data
   uint32_t                             mDpiHorizontal;
   uint32_t                             mDpiVertical;
   std::vector<Rect<int>>               mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
-  bool                                 mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
-  bool                                 mIsImeWindowSurface;
-  bool                                 mNeedWindowRotationAcknowledgement;
-  bool                                 mIsWindowOrientationChanging;
-  bool                                 mIsFrontBufferRendering;
-  bool                                 mIsFrontBufferRenderingChanged;
+
+  bool mIsImeWindowSurface;
+  bool mNeedWindowRotationAcknowledgement;
+  bool mIsWindowOrientationChanging;
+  bool mIsFrontBufferRendering;
+  bool mIsFrontBufferRenderingChanged;
 
 }; // class WindowRenderSurface
 

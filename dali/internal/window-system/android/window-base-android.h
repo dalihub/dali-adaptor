@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ANDROID_WINDOW_BASE_ANDROID_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -643,7 +643,6 @@ private:
   ANativeWindow* mWindow;         ///< Native window handle
   bool           mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
   bool           mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
-  bool           mRotationAppSet : 1;
 };
 
 } // namespace Adaptor

@@ -462,7 +462,6 @@ private:
    */
   void AllocateCommandBuffers(bool doubleBuffered);
 
-  Storage                              mStorageType;
   std::unique_ptr<StoredCommandBuffer> mStoredCommandBuffer; ///< Copy of all cmds
 
   std::vector<CommandBufferImpl*> mCommandBufferImpl; ///< There are as many elements as there are swapchain images

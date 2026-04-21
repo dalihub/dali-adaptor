@@ -34,6 +34,7 @@ namespace
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_FONT_CLIENT");
 #endif
 
+static constexpr float FROM_266 = 1.0f / 64.0f;
 } // namespace
 
 namespace Dali
@@ -42,9 +43,6 @@ namespace TextAbstraction
 {
 namespace Internal
 {
-const char* const  DEFAULT_LANGUAGE        = "en";
-const unsigned int DEFAULT_LANGUAGE_LENGTH = 2u;
-const float        FROM_266                = 1.0f / 64.0f;
 
 const hb_script_t SCRIPT_TO_HARFBUZZ[] =
   {
@@ -203,7 +201,7 @@ struct Shaping::Plugin
             unsigned int previousCluster         = cluster;
             Length       numberOfGlyphsInCluster = 0u;
 
-            while((cluster == previousCluster))
+            while(cluster == previousCluster)
             {
               ++numberOfGlyphsInCluster;
               previousCluster = cluster;

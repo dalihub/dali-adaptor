@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
+#include <memory> ///< for std::unique_ptr
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
@@ -30,5 +31,5 @@ namespace Dali::Internal::Adaptor
  * @param display The X Display to cast
  * @return The Any with the appropriate cast
  */
-Any CastToNativeGraphicsType(XDisplay* display);
+std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display);
 } // namespace Dali::Internal::Adaptor

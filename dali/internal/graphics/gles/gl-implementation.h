@@ -1596,7 +1596,7 @@ public:
     mImpl->GetInternalformativ(target, internalformat, pname, bufSize, params);
   }
 
-  void BlendBarrier(void)
+  void BlendBarrier(void) override
   {
     if(mGlExtensionSupportedCacheList.IsSupported(GlExtensionCache::GlExtensionCheckerType::BLEND_EQUATION_ADVANCED))
     {

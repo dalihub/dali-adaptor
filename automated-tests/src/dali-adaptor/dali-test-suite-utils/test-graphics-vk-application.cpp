@@ -92,7 +92,7 @@ void TestGraphicsApplication::CreateCore()
 void TestGraphicsApplication::CreateScene()
 {
   Graphics::RenderTargetCreateInfo createInfo{};
-  createInfo.SetSurface({nullptr})
+  createInfo.SetSurface(nullptr)
     .SetExtent({mSurfaceWidth, mSurfaceHeight})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 

@@ -36,13 +36,12 @@ namespace
 // These match the GL specification
 // const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
 // const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
-const int32_t GL_WRAP_DEFAULT = GL_CLAMP_TO_EDGE;
+// const int32_t DALI_WRAP_DEFAULT = GL_CLAMP_TO_EDGE;
 
 // These are the Dali defaults
 const int32_t DALI_MINIFY_DEFAULT  = GL_LINEAR;
 const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
-
-constexpr uint32_t CLEAR_CACHED_CONTEXT_THRESHOLD = 100u;
+const int32_t DALI_WRAP_DEFAULT    = GL_CLAMP_TO_EDGE;
 } // namespace
 
 namespace Dali::Graphics::GLES
@@ -155,8 +154,8 @@ bool Texture::InitializeNativeImage()
     // Apply default sampling parameters
     SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, DALI_MINIFY_DEFAULT);
     SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, DALI_MAGNIFY_DEFAULT);
-    SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
-    SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
+    SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, DALI_WRAP_DEFAULT);
+    SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, DALI_WRAP_DEFAULT);
 
     // platform specific implementation decides on what GL extension to use
     if(nativeImage->TargetTexture() != 0u)
@@ -243,8 +242,8 @@ bool Texture::InitializeTexture()
         // Default texture filtering (to be set later via command buffer binding)
         SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
         SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
-        SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
-        SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
+        SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, DALI_WRAP_DEFAULT);
+        SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, DALI_WRAP_DEFAULT);
 
         // Reset texture bind after using.
         context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), 0);
@@ -265,8 +264,8 @@ bool Texture::InitializeTexture()
 
         SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
         SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
-        SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
-        SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
+        SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, DALI_WRAP_DEFAULT);
+        SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, DALI_WRAP_DEFAULT);
 
         if(mCreateInfo.allocationPolicy == Graphics::TextureAllocationPolicy::CREATION || mCreateInfo.data)
         {
@@ -304,7 +303,7 @@ bool Texture::InitializeTexture()
 
         mTextureId = texture;
 
-        SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, GL_WRAP_DEFAULT);
+        SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, DALI_WRAP_DEFAULT);
 
         // Reset texture bind after using.
         context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), 0);
@@ -389,11 +388,11 @@ void Texture::Bind(const TextureBinding& binding) const
   {
     SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, DALI_MINIFY_DEFAULT);
     SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, DALI_MAGNIFY_DEFAULT);
-    SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
-    SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
+    SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, DALI_WRAP_DEFAULT);
+    SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, DALI_WRAP_DEFAULT);
     if(mGlTarget == GL_TEXTURE_CUBE_MAP)
     {
-      SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, GL_WRAP_DEFAULT);
+      SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, DALI_WRAP_DEFAULT);
     }
   }
 
@@ -458,7 +457,7 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
   }
   auto begin = reinterpret_cast<const uint8_t*>(pData);
 
-  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, inStride));
+  outputBuffer = it->pConversionFunc(begin, sizeInBytes, width, height, inStride);
   return !outputBuffer.empty();
 }
 

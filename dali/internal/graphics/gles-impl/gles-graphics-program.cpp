@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ inline bool memcmp4(A* a, B* b, uint32_t size)
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
   while(size-- && *pa++ == *pb++);
-  return (static_cast<size_t>(-1lu) == size);
+  return (static_cast<uint32_t>(-1lu) == size);
 };
 
 /**

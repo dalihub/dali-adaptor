@@ -885,10 +885,14 @@ TextAbstraction::FontId SetupBitmapFont()
 
       DALI_ASSERT_ALWAYS(utf8.size() <= 6u);
 
+#if !defined(__clang__) && defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
       std::copy(utf8.begin(), utf8.end(), this->utf8);
+#if !defined(__clang__) && defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
     }
     std::string url;
     uint8_t     utf8[6];
