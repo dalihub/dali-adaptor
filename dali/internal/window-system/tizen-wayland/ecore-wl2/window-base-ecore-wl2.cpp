@@ -2583,7 +2583,8 @@ void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
-  ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  mMoveResizeSerial = (mMoveResizeSerial + 1);
+  ecore_wl2_window_sync_geometry_set(mEcoreWindow, mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
 void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
@@ -2594,7 +2595,8 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
-  ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  mMoveResizeSerial = (mMoveResizeSerial + 1);
+  ecore_wl2_window_sync_geometry_set(mEcoreWindow, mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
 void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)

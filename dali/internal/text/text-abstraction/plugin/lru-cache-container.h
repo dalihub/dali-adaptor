@@ -151,11 +151,11 @@ public:
       return temp;
     }
 
-    bool operator==(const iterator& rhs)
+    bool operator==(const iterator& rhs) const
     {
       return id == rhs.id && (&owner) == (&rhs.owner);
     }
-    bool operator!=(const iterator& rhs)
+    bool operator!=(const iterator& rhs) const
     {
       return id != rhs.id || (&owner) != (&rhs.owner);
     }

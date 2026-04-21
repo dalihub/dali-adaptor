@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <stdlib.h>
 #include <iostream>
+#include "dali/public-api/adaptor-framework/application.h"
 
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
@@ -91,7 +92,7 @@ int UtcDaliLifecycleControllerGet(void)
   DALI_TEST_CHECK(!lifecycleController);
 
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   lifecycleController = LifecycleController::Get();
   DALI_TEST_CHECK(lifecycleController);
@@ -102,7 +103,7 @@ int UtcDaliLifecycleControllerGet(void)
 int UtcDaliLifecycleControllerSignalPreInit(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnPreInitCalled);
 
@@ -110,7 +111,7 @@ int UtcDaliLifecycleControllerSignalPreInit(void)
 
   lifecycleController.PreInitSignal().Connect(&OnPreInit);
 
-  GetImplementation(lifecycleController).OnPreInit(application);
+  GetImplementation(lifecycleController).OnPreInit();
 
   DALI_TEST_CHECK(g_OnPreInitCalled);
 
@@ -120,7 +121,7 @@ int UtcDaliLifecycleControllerSignalPreInit(void)
 int UtcDaliLifecycleControllerSignalInit(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnInitCalled);
 
@@ -128,7 +129,7 @@ int UtcDaliLifecycleControllerSignalInit(void)
 
   lifecycleController.InitSignal().Connect(&OnInit);
 
-  GetImplementation(lifecycleController).OnInit(application);
+  GetImplementation(lifecycleController).OnInit();
 
   DALI_TEST_CHECK(g_OnInitCalled);
 
@@ -138,7 +139,7 @@ int UtcDaliLifecycleControllerSignalInit(void)
 int UtcDaliLifecycleControllerSignalTerminate(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnTerminateCalled);
 
@@ -146,7 +147,7 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 
   lifecycleController.TerminateSignal().Connect(&OnTerminate);
 
-  GetImplementation(lifecycleController).OnTerminate(application);
+  GetImplementation(lifecycleController).OnTerminate();
 
   DALI_TEST_CHECK(g_OnTerminateCalled);
 
@@ -156,7 +157,7 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 int UtcDaliLifecycleControllerSignalPause(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnPauseCalled);
 
@@ -164,7 +165,7 @@ int UtcDaliLifecycleControllerSignalPause(void)
 
   lifecycleController.PauseSignal().Connect(&OnPause);
 
-  GetImplementation(lifecycleController).OnPause(application);
+  GetImplementation(lifecycleController).OnPause();
 
   DALI_TEST_CHECK(g_OnPauseCalled);
 
@@ -174,7 +175,7 @@ int UtcDaliLifecycleControllerSignalPause(void)
 int UtcDaliLifecycleControllerSignalResume(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnResumeCalled);
 
@@ -182,7 +183,7 @@ int UtcDaliLifecycleControllerSignalResume(void)
 
   lifecycleController.ResumeSignal().Connect(&OnResume);
 
-  GetImplementation(lifecycleController).OnResume(application);
+  GetImplementation(lifecycleController).OnResume();
 
   DALI_TEST_CHECK(g_OnResumeCalled);
 
@@ -192,7 +193,7 @@ int UtcDaliLifecycleControllerSignalResume(void)
 int UtcDaliLifecycleControllerSignalReset(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnResetCalled);
 
@@ -200,7 +201,7 @@ int UtcDaliLifecycleControllerSignalReset(void)
 
   lifecycleController.ResetSignal().Connect(&OnReset);
 
-  GetImplementation(lifecycleController).OnReset(application);
+  GetImplementation(lifecycleController).OnReset();
 
   DALI_TEST_CHECK(g_OnResetCalled);
 
@@ -210,7 +211,7 @@ int UtcDaliLifecycleControllerSignalReset(void)
 int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 {
   TestApplication app;
-  Application     application = Application::New();
+  Application     application = Application::New(nullptr, nullptr);
 
   DALI_TEST_CHECK(!g_OnLanguageChangedCalled);
 
@@ -218,7 +219,7 @@ int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 
   lifecycleController.LanguageChangedSignal().Connect(&OnLanguageChanged);
 
-  GetImplementation(lifecycleController).OnLanguageChanged(application);
+  GetImplementation(lifecycleController).OnLanguageChanged();
 
   DALI_TEST_CHECK(g_OnLanguageChangedCalled);
 

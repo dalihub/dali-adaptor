@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/ui-context.h>

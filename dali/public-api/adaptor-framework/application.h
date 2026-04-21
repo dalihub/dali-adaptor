@@ -104,7 +104,7 @@ class Application;
  * Callbacks of all signals in DALi except the task signals are emitted on the UI thread. (e.g., Timer callbacks are emitted on the UI thread.)
  *
  * To enable the UI Thread, you can use this method. you have to set True to the useUiThread.
- * Dali::Application::New(int *argc, char **argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
+ * Dali::Application::New(int *argc, char **argv[], Dali::StringView stylesheet, bool useUiThread, WindowData& windowData)
  *
  *
  * This class accepts command line arguments as well. The following options are supported:
@@ -128,27 +128,8 @@ public:
   typedef Signal<void(Application&)>                      AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
   typedef Signal<void(Application&, void*)>               AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
 
-  /**
-   * @brief Enumeration for deciding whether a Dali application window is opaque or transparent.
-   * @SINCE_1_0.0
-   */
-  enum WindowOpacity
-  {
-    OPAQUE      = 0, ///< The window will be opaque @SINCE_1_0.0
-    TRANSPARENT = 1  ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor() @SINCE_1_0.0
-  };
-
 public:
   /**
-   * @brief This is the constructor for applications without an argument list.
-   * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
-   * @return A handle to the Application
-   */
-  static Application New();
-
-  /**
    * @brief This is the constructor for applications.
    *
    * @SINCE_1_0.0
@@ -156,76 +137,14 @@ public:
    * @PRIVILEGE_DISPLAY
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer to the argument list
-   * @return A handle to the Application
-   */
-  static Application New(int* argc, char** argv[]);
-
-  /**
-   * @brief This is the constructor for applications with a name.
-   *
-   * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc        A pointer to the number of arguments
-   * @param[in,out]  argv        A pointer to the argument list
-   * @param[in]      stylesheet  The path to user defined theme file
+   * @param[in]      stylesheet  The path to user defined theme file (optional)
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New(int* argc, char** argv[], Dali::StringView stylesheet);
+  static Application New(int* argc, char** argv[], Dali::StringView stylesheet = "");
 
   /**
-   * @brief This is the constructor for applications with a name.
-   *
-   * @SINCE_1_0.0
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc          A pointer to the number of arguments
-   * @param[in,out]  argv          A pointer to the argument list
-   * @param[in]      stylesheet    The path to user defined theme file
-   * @param[in]      windowOpacity A member of WindowOpacity
-   * @return A handle to the Application
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
-   */
-  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity);
-
-  /**
-   * @brief This is the constructor for applications.
-   *
-   * @SINCE_1_2.60
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc          A pointer to the number of arguments
-   * @param[in,out]  argv          A pointer to the argument list
-   * @param[in]      stylesheet    The path to user defined theme file
-   * @param[in]      windowOpacity A member of WindowOpacity
-   * @param[in]      positionSize  A position and a size of the window
-   * @return A handle to the Application
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
-   */
-  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize);
-
-  /**
-   * @brief This is the constructor for applications.
-   *
-   * @SINCE_2_1.20
-   * @PRIVLEVEL_PUBLIC
-   * @PRIVILEGE_DISPLAY
-   * @param[in,out]  argc          A pointer to the number of arguments
-   * @param[in,out]  argv          A pointer to the argument list
-   * @param[in]      stylesheet    The path to user defined theme file
-   * @param[in]      windowOpacity A member of WindowOpacity
-   * @param[in]      positionSize  A position and a size of the window
-   * @param[in]      useUiThread  True if the application would create a UI thread
-   * @return A handle to the Application
-   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.<BR>
-   * UI thread is an additional thread that DALi creates for UI events.
-   * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
-   */
-  static Application New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread);
-
-  /**
-   * @brief This is the constructor for applications.
+   * @brief This is the constructor for applications with full window control.
    *
    * @SINCE_2_2.23
    * @PRIVLEVEL_PUBLIC

@@ -22,6 +22,7 @@
 #include <dali/devel-api/adaptor-framework/video-sync-mode.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/object/base-handle.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>

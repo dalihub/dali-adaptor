@@ -289,7 +289,7 @@ public:
       return;
     }
 
-    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg)
+    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([this, callback](DBus::ValueOrError<std::string, bool, int32_t> msg)
     {
       if(!msg)
       {
@@ -450,7 +450,7 @@ public:
     mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
-    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState)
+    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [this](int32_t id, std::string readingState)
     {
       auto it = mDirectReadingCallbacks.find(id);
       if(it != mDirectReadingCallbacks.end())
@@ -980,7 +980,7 @@ public:
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
   {
-    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]()
+    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [this, socket, x, y]()
     {
       auto client = CreateSocketClient(socket->GetAddress());
 

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -51,10 +52,9 @@ public:
    * @brief Creates an ApplicationController instance.
    *
    * @param[in] windowPositionSize The position and size of the window
-   * @param[in] useUiThread Whether to use UI thread
    * @return A handle to the ApplicationController
    */
-  static ApplicationController New(PositionSize windowPositionSize, bool useUiThread);
+  static ApplicationController New(PositionSize windowPositionSize);
 
   /**
    * @brief Constructs an empty handle.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,29 +45,7 @@ WidgetApplicationPtr WidgetApplication::New(
   const std::string& stylesheet,
   const WindowData&  windowData)
 {
-  bool                                                         preInitializedDataSetted = false;
-  Internal::Adaptor::Application::PreInitializeApplicationData preInitializedData;
-
-  // WidgetApplication can't use pre-initialized application.
-  // So get pre-initialized window / adaptor and reset it.
-  // Note tat we should reset pre-initialized application to remove abort handler.
-  Internal::Adaptor::ApplicationPtr preInitializedApplication = Internal::Adaptor::Application::GetPreInitializedApplication();
-
-  if(preInitializedApplication)
-  {
-    DALI_LOG_RELEASE_INFO("WidgetApplication willnot use pre-initialized application. Destroy it first.\n");
-    preInitializedData = preInitializedApplication->ReleasePreInitializedApplicationData();
-    preInitializedApplication.Reset();
-    preInitializedDataSetted = true;
-  }
-
-  // WidgetApplicationPtr //widgetApplication( new WidgetApplication (argc, argv, stylesheet ) );
   auto widgetApplicationPtr = WidgetApplicationFactory::Create(argc, argv, stylesheet, windowData);
-
-  if(preInitializedDataSetted)
-  {
-    widgetApplicationPtr->ApplyPreInitializedApplicationData(std::move(preInitializedData));
-  }
   return widgetApplicationPtr;
 }
 

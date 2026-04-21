@@ -31,145 +31,17 @@ using Dali::Integration::ToStdString;
 
 namespace Dali
 {
-Application Application::New()
-{
-  return New(NULL, NULL);
-}
-
-Application Application::New(int* argc, char** argv[])
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, "", Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
-  return Application(internal.Get());
-}
-
 Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(ToStdString(stylesheet)); //@todo THis is now a copy...
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, WindowOpacity windowOpacity)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(ToStdString(stylesheet));
-
-    internal->GetWindow().SetTransparency((windowOpacity == Application::TRANSPARENT));
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(ToStdString(stylesheet));
-
-    internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
-  }
-  return Application(internal.Get());
-}
-
-Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, bool useUiThread)
-{
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(ToStdString(stylesheet));
-
-    internal->GetWindow().SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(positionSize);
-  }
-  else
-  {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowOpacity == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
-  }
+  WindowData windowData;
+  windowData.SetTransparency(false);
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, false, windowData);
   return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet, bool useUiThread, WindowData& windowData)
 {
-  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if(internal)
-  {
-    // pre-initialized application
-    internal->SetCommandLineOptions(argc, argv);
-    internal->SetStyleSheet(ToStdString(stylesheet));
-
-    // Set defaut Window type
-    internal->SetDefaultWindowType(windowData.GetWindowType());
-    internal->GetWindow().SetTransparency(windowData.GetTransparency());
-
-    // Store only the value before adaptor is created
-    internal->StoreWindowPositionSize(windowData.GetPositionSize());
-
-    // Set front buffer rendering
-    internal->StoreFrontBufferRendering(windowData.GetFrontBufferRendering());
-
-    // Set screen for default window
-    internal->StoreWindowScreen(ToStdString(windowData.GetScreen()));
-  }
-  else
-  {
-    internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
-  }
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::New(argc, argv, ToStdString(stylesheet), Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
   return Application(internal.Get());
 }
 

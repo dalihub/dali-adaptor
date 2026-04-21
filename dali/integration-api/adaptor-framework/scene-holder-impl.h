@@ -34,6 +34,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <atomic>
 #include <memory>
+#include <string>
 #include <vector>
 
 // INTERNAL INCLUDES

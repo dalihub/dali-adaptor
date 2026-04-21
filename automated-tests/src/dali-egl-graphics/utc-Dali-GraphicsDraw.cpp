@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/devel-api/object/property-map-devel.h>
 
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-actor-utils.h>
@@ -75,8 +76,8 @@ int UtcDaliGraphicsDrawIntegerVertexAttribs(void)
   gl.SetAttribLocations(aLocs);
   gl.SetAttribTypes(aTypes);
 
-  TextureSet    textureSet = CreateTextureSet(Pixel::RGBA8888, 200, 200);
-  Property::Map vertexFormat{{"aPos", Property::VECTOR2}, {"aCount", Property::INTEGER}};
+  TextureSet    textureSet   = CreateTextureSet(Pixel::RGBA8888, 200, 200);
+  Property::Map vertexFormat = CreatePropertyMap({{"aPos", Property::VECTOR2}, {"aCount", Property::INTEGER}});
   VertexBuffer  vertexBuffer = VertexBuffer::New(vertexFormat);
 
   struct VertexFormat

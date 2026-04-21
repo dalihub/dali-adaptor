@@ -9,9 +9,6 @@
 
 #undef ERROR
 
-#undef OPAQUE
-#undef TRANSPARENT
-
 #undef TRUE
 #undef FALSE
 

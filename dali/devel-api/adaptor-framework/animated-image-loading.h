@@ -22,6 +22,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/base-handle.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>

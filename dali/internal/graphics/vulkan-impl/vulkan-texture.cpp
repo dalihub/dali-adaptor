@@ -1271,7 +1271,7 @@ Texture::Texture(const Dali::Graphics::TextureCreateInfo& createInfo, VulkanGrap
     }
   }
 
-  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr, mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
+  DALI_LOG_INFO(gVulkanFilter, Debug::Verbose, "createInfo.nativeImagePtr: %p, mIsNativeImage: %d, width: %u, height: %u\n", createInfo.nativeImagePtr.Get(), mIsNativeImage, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetWidth() : 0u, createInfo.nativeImagePtr ? createInfo.nativeImagePtr->GetHeight() : 0u);
 
   // Depth formats like VK_FORMAT_D16_UNORM don't support linear filtering
   // Use dedicated depth texture sampler (using nearest filtering) for depth formats

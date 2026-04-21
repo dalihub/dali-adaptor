@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 #include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <cmath>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <cmath>
 
 namespace // unnamed namespace
 {
@@ -64,9 +64,9 @@ static void sensor_changed_cb(sensor_h sensor, sensor_event_s* event, void* user
   return;
 }
 
-static std::string get_sensor_error_string(int errorValue)
+static Dali::String get_sensor_error_string(int errorValue)
 {
-  std::string ret;
+  Dali::String ret;
 
   switch(errorValue)
   {
@@ -126,7 +126,7 @@ bool TiltSensorTizen::Connect()
 
   if(ret < 0)
   {
-    DALI_LOG_ERROR("sensor_is_supported() failed : %s\n", get_sensor_error_string(ret).c_str());
+    DALI_LOG_ERROR("sensor_is_supported() failed : %s\n", get_sensor_error_string(ret).CStr());
     return false;
   }
 
@@ -142,7 +142,7 @@ bool TiltSensorTizen::Connect()
 
     if(ret < 0)
     {
-      DALI_LOG_ERROR("sensor_is_supported() failed : %s\n", get_sensor_error_string(ret).c_str());
+      DALI_LOG_ERROR("sensor_is_supported() failed : %s\n", get_sensor_error_string(ret).CStr());
       return false;
     }
 
@@ -159,7 +159,7 @@ bool TiltSensorTizen::Connect()
 
   if(ret < 0)
   {
-    DALI_LOG_ERROR("sensor_get_default_sensor() failed : %s\n", get_sensor_error_string(ret).c_str());
+    DALI_LOG_ERROR("sensor_get_default_sensor() failed : %s\n", get_sensor_error_string(ret).CStr());
     return false;
   }
 
@@ -167,7 +167,7 @@ bool TiltSensorTizen::Connect()
 
   if(ret < 0)
   {
-    DALI_LOG_ERROR("sensor_create_listener() failed : %s\n", get_sensor_error_string(ret).c_str());
+    DALI_LOG_ERROR("sensor_create_listener() failed : %s\n", get_sensor_error_string(ret).CStr());
     return false;
   }
 
@@ -216,7 +216,7 @@ bool TiltSensorTizen::Start()
     ret     = sensor_listener_start(mSensorListener);
     if(ret != SENSOR_ERROR_NONE)
     {
-      DALI_LOG_ERROR("sensor_listener_start() failed : %s\n", get_sensor_error_string(ret).c_str());
+      DALI_LOG_ERROR("sensor_listener_start() failed : %s\n", get_sensor_error_string(ret).CStr());
       Disconnect();
       return false;
     }
@@ -310,7 +310,7 @@ Radian TiltSensorTizen::GetRotationThreshold() const
   return mRotationThreshold;
 }
 
-bool TiltSensorTizen::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
+bool TiltSensorTizen::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const Dali::String& signalName, FunctorDelegate* functor)
 {
   bool        connected(true);
   TiltSensor* sensor = dynamic_cast<TiltSensor*>(object);
