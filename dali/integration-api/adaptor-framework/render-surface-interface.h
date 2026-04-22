@@ -30,6 +30,7 @@
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/weak-handle.h>
+#include <atomic>
 
 namespace Dali
 {
@@ -262,6 +263,104 @@ public:
     return mFullSwapFlag;
   }
 
+  /**
+   * @brief Sets whether the depth buffer is required for this surface.
+   * @param[in] enable True if depth buffer is required
+   */
+  void SetDepthBufferRequired(bool enable)
+  {
+    mDepthBufferRequired = enable;
+  }
+
+  /**
+   * @brief Gets whether the depth buffer is required for this surface.
+   * @return True if depth buffer is required
+   */
+  virtual bool GetDepthBufferRequired() const
+  {
+    return mDepthBufferRequired;
+  }
+
+  /**
+   * @brief Sets whether the stencil buffer is required for this surface.
+   * @param[in] enable True if stencil buffer is required
+   */
+  void SetStencilBufferRequired(bool enable)
+  {
+    mStencilBufferRequired = enable;
+  }
+
+  /**
+   * @brief Gets whether the stencil buffer is required for this surface.
+   * @return True if stencil buffer is required
+   */
+  virtual bool GetStencilBufferRequired() const
+  {
+    return mStencilBufferRequired;
+  }
+
+  /**
+   * @brief Sets whether partial update is required for this surface.
+   * @param[in] enable True if partial update is required
+   */
+  void SetPartialUpdateRequired(bool enable)
+  {
+    mPartialUpdateRequired = enable;
+  }
+
+  /**
+   * @brief Gets whether partial update is required for this surface.
+   * @return True if partial update is required
+   */
+  bool GetPartialUpdateRequired() const
+  {
+    return mPartialUpdateRequired;
+  }
+
+  /**
+   * @brief Sets the multi-sample anti-aliasing level for this surface.
+   * @param[in] level The MSAA level (0 = disabled)
+   */
+  void SetMSAALevel(int level)
+  {
+    mMSAALevel = level;
+  }
+
+  /**
+   * @brief Gets the multi-sample anti-aliasing level for this surface.
+   * @return The MSAA level (0 = disabled)
+   */
+  virtual int GetMSAALevel() const
+  {
+    return mMSAALevel;
+  }
+
+  /**
+   * @brief Marks that the surface EGL config needs to be rebuilt.
+   * @note Thread-safe: may be called from the main thread while the render thread reads it.
+   */
+  void SetSurfaceConfigDirty()
+  {
+    mSurfaceConfigDirty.store(true, std::memory_order_release);
+  }
+
+  /**
+   * @brief Checks whether the surface EGL config needs to be rebuilt.
+   * @return True if the config is dirty and needs rebuilding
+   */
+  bool IsSurfaceConfigDirty() const
+  {
+    return mSurfaceConfigDirty.load(std::memory_order_acquire);
+  }
+
+  /**
+   * @brief Clears the surface config dirty flag after rebuild.
+   */
+  void ClearSurfaceConfigDirty()
+  {
+    mSurfaceConfigDirty.store(false, std::memory_order_release);
+  }
+
 private:
   /**
    * @brief Undefined copy constructor. RenderSurface cannot be copied
@@ -285,11 +384,12 @@ protected:
   volatile unsigned int mFullSwapFlag; ///< Whether the full surface swap is required.
 
 private:
-  bool    mDepthBufferRequired;   ///< Whether the depth buffer is required
-  bool    mStencilBufferRequired; ///< Whether the stencil buffer is required
-  bool    mPartialUpdateRequired; ///< Whether partial update is required
-  int     mMSAALevel;             ///< multi-sample-anti-aliasing level (0 - not required)
-  Vector4 mBackgroundColor;       ///< The background color of the surface
+  std::atomic<bool> mSurfaceConfigDirty{false}; ///< True if EGL config needs rebuilding (set from main thread, read on render thread)
+  bool              mDepthBufferRequired;       ///< Whether the depth buffer is required
+  bool              mStencilBufferRequired;     ///< Whether the stencil buffer is required
+  bool              mPartialUpdateRequired;     ///< Whether partial update is required
+  int               mMSAALevel;                 ///< multi-sample-anti-aliasing level (0 - not required)
+  Vector4           mBackgroundColor;           ///< The background color of the surface
 };
 
 } // Namespace Integration

@@ -76,6 +76,20 @@ private:
    */
   virtual void UseExistingRenderable(unsigned int surfaceId) = 0;
 
+public: // From RenderSurfaceInterface
+  bool GetDepthBufferRequired() const override
+  {
+    return false;
+  }
+  bool GetStencilBufferRequired() const override
+  {
+    return false;
+  }
+  int GetMSAALevel() const override
+  {
+    return 0;
+  }
+
 protected:
   // Undefined
   PixmapRenderSurface(const PixmapRenderSurface&) = delete;

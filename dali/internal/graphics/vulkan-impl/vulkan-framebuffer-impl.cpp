@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,11 +268,19 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* render
     // Test renderpass first
     if(element.renderPass != nullptr)
     {
-      auto firstAttachment = element.renderPass->GetCreateInfo().attachments->front();
-      if(firstAttachment.loadOp == matchLoadOp &&
-         firstAttachment.storeOp == matchStoreOp)
+      auto& attachments = element.renderPass->GetCreateInfo().attachments;
+      if(attachments && !attachments->empty())
       {
-        return element.renderPassImpl;
+        auto firstAttachment = attachments->front();
+        if(firstAttachment.loadOp == matchLoadOp &&
+           firstAttachment.storeOp == matchStoreOp)
+        {
+          return element.renderPassImpl;
+        }
+      }
+      else
+      {
+        DALI_LOG_ERROR("Framebuffer's Renderpass has no attachments\n");
       }
     }
     else

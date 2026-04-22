@@ -179,6 +179,21 @@ public:
   void InvalidateCachedPipeline(GLES::Pipeline* pipeline);
 
   /**
+   * @brief Discards non-shareable GL objects cached in this context.
+   *
+   * Call this when the underlying EGL context has been destroyed and a
+   * replacement context has been created (e.g. after reconfiguring the
+   * surface's depth/stencil/MSAA selection). VAOs, FBOs, queries, and
+   * program pipelines are not shared across EGL contexts, so any ids
+   * cached here refer to objects the driver has already freed.
+   *
+   * Cached ids are dropped without issuing glDelete* calls because the
+   * ids are invalid in the new context and may collide with unrelated
+   * objects. Shared resources (textures, buffers, programs) are untouched.
+   */
+  void DiscardNonShareableCache();
+
+  /**
    * @brief Sets up EGL context for native rendering
    *
    * - The native rendering uses dedicated context

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,19 +229,105 @@ void EglGraphics::EglInitialize()
 
 Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height)
 {
-  // Create the OpenGL context for this window
-  mEglImplementation->ChooseConfig(true, colorDepth);
+  // Use global defaults for depth/stencil/MSAA
+  return CreateSurface(surfaceFactory, windowBase, colorDepth, width, height,
+                       mDepthBufferRequired == Integration::DepthBufferAvailable::TRUE,
+                       mStencilBufferRequired == Integration::StencilBufferAvailable::TRUE,
+                       mMultiSamplingLevel);
+}
+
+Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel)
+{
+  // Choose config with per-surface depth/stencil/MSAA settings
+  mEglImplementation->ChooseConfig(true, colorDepth, depthBufferRequired, stencilBufferRequired, multiSamplingLevel);
+  EGLConfig config = mEglImplementation->GetConfig();
+
+  // Create the OpenGL context for this window using the chosen config
   EGLContext context = 0;
-  mEglImplementation->CreateWindowContext(context);
+  mEglImplementation->CreateWindowContext(context, config);
 
   auto window     = windowBase->CreateWindow(width, height);
   auto eglWindow  = reinterpret_cast<EGLNativeWindowType>(window.Get<void*>());
-  auto eglSurface = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth);
+  auto eglSurface = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth, config);
 
   auto surfaceId         = ++mBaseSurfaceId;
-  mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context};
+  mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context, config, eglWindow, depthBufferRequired, stencilBufferRequired, multiSamplingLevel};
 
   return surfaceId;
+}
+
+bool EglGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  if(DALI_UNLIKELY(search == mSurfaceMap.end()))
+  {
+    DALI_LOG_ERROR("Invalid surface id [%u] used! Ignore\n", surfaceId);
+    return false;
+  }
+
+  auto& entry = search->second;
+
+  // Check if config actually changed
+  if(entry.depthBuffer == depthBufferRequired &&
+     entry.stencilBuffer == stencilBufferRequired &&
+     entry.msaaLevel == multiSamplingLevel)
+  {
+    return false; // No change needed
+  }
+
+  // Destroy old EGL surface and context only.
+  // The native window is independent of the EGL config and can be reused.
+  mEglImplementation->DestroySurface(entry.surface);
+  mEglImplementation->DestroyContext(entry.context);
+
+  // Choose new config with updated depth/stencil/MSAA settings
+  if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32, depthBufferRequired, stencilBufferRequired, multiSamplingLevel))
+  {
+    DALI_LOG_ERROR("Failed to choose EGL config for reconfigured surface\n");
+    return false;
+  }
+  EGLConfig newConfig = mEglImplementation->GetConfig();
+
+  // Create new context with new config, sharing with the resource context
+  EGLContext newContext = 0;
+  mEglImplementation->CreateWindowContext(newContext, newConfig);
+
+  // Reuse the cached native window handle from initial CreateSurface.
+  // We must NOT call windowBase->GetNativeWindow() here because it may
+  // return a different value than what CreateWindow() returned (e.g. on
+  // X11 where GetNativeWindow returns the raw ecore window but CreateWindow
+  // widens it to a 64-bit X11 Window handle).
+  // We also must NOT call windowBase->CreateWindow() again because that
+  // may allocate new resources (e.g. a wl_egl_window on Wayland). The
+  // existing native window handle is still valid and can be reused with
+  // a new EGL surface and context.
+  auto newSurface = mEglImplementation->CreateSurfaceWindow(entry.nativeWindow, COLOR_DEPTH_32, newConfig);
+
+  // Update map entry
+  entry.surface       = newSurface;
+  entry.context       = newContext;
+  entry.config        = newConfig;
+  entry.depthBuffer   = depthBufferRequired;
+  entry.stencilBuffer = stencilBufferRequired;
+  entry.msaaLevel     = multiSamplingLevel;
+
+  return true;
+}
+
+void EglGraphics::ResetSurfaceState()
+{
+  // Called after ReconfigureSurface has destroyed and recreated the window's
+  // EGL context. Shareable resources (textures, buffers, programs) survive via
+  // the share group, but VAOs/FBOs/queries/program-pipelines do not — drop any
+  // cached ids for those before issuing any further GL calls, otherwise the
+  // next BindVertexArray will bind an id the driver no longer owns and draws
+  // will silently produce no geometry.
+  auto* currentContext = mGraphicsController.GetCurrentContext();
+  if(currentContext)
+  {
+    currentContext->DiscardNonShareableCache();
+    currentContext->ResetGLESState(true);
+  }
 }
 
 void EglGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
@@ -281,6 +367,10 @@ bool EglGraphics::ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int h
   EGLNativeWindowType eglWindow = window.Get<EGLNativeWindowType>();
   auto&               context   = search->second.context;
   auto&               surface   = search->second.surface;
+
+  // Update cached native window handle since we destroyed and recreated it
+  search->second.nativeWindow = eglWindow;
+
   return mEglImplementation->ReplaceSurfaceWindow(eglWindow, surface, context); // Should update the map.
 }
 

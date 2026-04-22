@@ -84,6 +84,21 @@ public:
   Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height) override;
 
   /**
+   * @copydoc Dali::Graphics::GraphicsInterface::CreateSurface() with per-surface config
+   */
+  Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel) override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::ReconfigureSurface()
+   */
+  bool ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel) override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::ResetSurfaceState()
+   */
+  void ResetSurfaceState() override;
+
+  /**
    * @copydoc Dali::Graphics::GraphicsInterface::DestroySurface()
    */
   void DestroySurface(Graphics::SurfaceId surfaceId) override;
@@ -330,9 +345,14 @@ private:
 private:
   struct EglSurfaceContext
   {
-    WindowBase* windowBase;
-    EGLSurface  surface;
-    EGLContext  context;
+    WindowBase*         windowBase;
+    EGLSurface          surface;
+    EGLContext          context;
+    EGLConfig           config;        ///< Per-surface EGL config
+    EGLNativeWindowType nativeWindow;  ///< Cached native window handle (from CreateWindow)
+    bool                depthBuffer;   ///< Whether depth buffer was requested
+    bool                stencilBuffer; ///< Whether stencil buffer was requested
+    int                 msaaLevel;     ///< MSAA level requested
   };
 
   ///<@todo Should SurfaceId be sequential from here, or just a hash of the surface ptr?

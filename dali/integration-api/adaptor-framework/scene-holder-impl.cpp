@@ -532,6 +532,11 @@ int32_t SceneHolder::GetNativeId() const
 void SceneHolder::SetDepthBufferEnabled(bool enabled)
 {
   mScene.SetDepthBufferEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetDepthBufferRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
 }
 
 bool SceneHolder::IsDepthBufferEnabled() const
@@ -542,6 +547,11 @@ bool SceneHolder::IsDepthBufferEnabled() const
 void SceneHolder::SetStencilBufferEnabled(bool enabled)
 {
   mScene.SetStencilBufferEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetStencilBufferRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
 }
 
 bool SceneHolder::IsStencilBufferEnabled() const
@@ -552,6 +562,11 @@ bool SceneHolder::IsStencilBufferEnabled() const
 void SceneHolder::SetMultiSampledAntiAliasingEnabled(bool enabled)
 {
   mScene.SetMultiSampledAntiAliasingEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetMSAALevel(enabled ? 1 : 0);
+    mSurface->SetSurfaceConfigDirty();
+  }
 }
 
 bool SceneHolder::IsMultiSampledAntiAliasingEnabled() const
@@ -562,6 +577,11 @@ bool SceneHolder::IsMultiSampledAntiAliasingEnabled() const
 void SceneHolder::SetPartialUpdateEnabled(bool enabled)
 {
   mScene.SetPartialUpdateEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetPartialUpdateRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
 }
 
 bool SceneHolder::IsPartialUpdateEnabled() const

@@ -124,6 +124,20 @@ public: // API
    */
   virtual void AddPostRenderAsyncCallback(std::unique_ptr<CallbackBase> callback) = 0;
 
+public: // From RenderSurfaceInterface
+  bool GetDepthBufferRequired() const override
+  {
+    return false;
+  }
+  bool GetStencilBufferRequired() const override
+  {
+    return false;
+  }
+  int GetMSAALevel() const override
+  {
+    return 0;
+  }
+
 protected:
   // Undefined
   OffscreenRenderSurface(const OffscreenRenderSurface&) = delete;
