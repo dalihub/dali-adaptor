@@ -231,13 +231,3 @@ SET( devel_api_text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/defined-characters.h
 )
 
-
-SET( adaptor_dali_wearable_header_file
-  ${adaptor_devel_api_dir}/watch/dali-wearable.h
-)
-
-
-SET( devel_api_watch_header_files
-  ${adaptor_devel_api_dir}/watch/watch-application.h
-  ${adaptor_devel_api_dir}/watch/watch-time.h
-)

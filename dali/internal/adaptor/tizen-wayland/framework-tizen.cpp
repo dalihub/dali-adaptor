@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,14 +71,8 @@ struct FrameworkTizen::Impl
   // Constructor
   Impl(void* data, Type type, bool isUiThread)
   {
-    mFramework = static_cast<FrameworkTizen*>(data);
-    mUiThread  = isUiThread;
-#ifndef APPCORE_WATCH_AVAILABLE
-    if(type == WATCH)
-    {
-      throw Dali::DaliException("", "Watch Application is not supported.");
-    }
-#endif
+    mFramework       = static_cast<FrameworkTizen*>(data);
+    mUiThread        = isUiThread;
     mApplicationType = type;
 
     std::string pluginName;
@@ -92,11 +86,6 @@ struct FrameworkTizen::Impl
       case WIDGET:
       {
         pluginName = MakePluginName("widget");
-        break;
-      }
-      case WATCH:
-      {
-        pluginName = MakePluginName("watch");
         break;
       }
 #ifdef COMPONENT_APPLICATION_SUPPORT

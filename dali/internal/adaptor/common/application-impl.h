@@ -477,7 +477,6 @@ private:
   ApplicationControllerPtr   mApplicationController;
   UIThreadLoader*            mUIThreadLoader;
 
-  bool mUseRemoteSurface;
   bool mUseUiThread;
 };
 

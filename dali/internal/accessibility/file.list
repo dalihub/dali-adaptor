@@ -27,10 +27,6 @@ SET( adaptor_accessibility_tizen_mobile_src_files
 SET( adaptor_accessibility_tizen_tv_src_files
 )
 
-# module: accessibility, backend: tizen-wearable profile
-SET( adaptor_accessibility_tizen_wearable_src_files
-)
-
 # module: accessibility, backend: ubuntu
 SET( adaptor_accessibility_ubuntu_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp

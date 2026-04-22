@@ -410,7 +410,6 @@ SET( tizencanvasrendererdevelapidir ${tizenadaptorframeworkdevelapidir}/canvas-r
 SET( tizenwebenginedevelapidir ${tizenadaptorframeworkdevelapidir}/web-engine )
 SET( tizenatspiinterfacesdevelapidir ${tizenadaptordevelapidir}/atspi-interfaces )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
-SET( tizenwatchdevelapidir ${tizenadaptordevelapidir}/watch )
 SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
 
 # Android framework headers for Android build
@@ -430,7 +429,6 @@ INSTALL( FILES ${devel_api_adaptor_framework_canvas_renderer_header_files} DESTI
 INSTALL( FILES ${devel_api_adaptor_framework_web_engine_header_files} DESTINATION ${tizenwebenginedevelapidir} )
 INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
 INSTALL( FILES ${devel_api_text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
-INSTALL( FILES ${devel_api_watch_header_files} DESTINATION ${tizenwatchdevelapidir} )
 
 # Install Android framework headers for Android build
 INSTALL( FILES ${adaptor_integration_api_android_header_files} DESTINATION ${androidadaptorintegrationapidir} )

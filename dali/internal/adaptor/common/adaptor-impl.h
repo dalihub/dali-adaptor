@@ -387,12 +387,6 @@ public:
   Any GetGraphicsDisplay();
 
   /**
-   * Sets use remote surface for Surface output
-   * @param[in] useRemoteSurface True if the remote surface is used
-   */
-  void SetUseRemoteSurface(bool useRemoteSurface);
-
-  /**
    * @brief Generate display connector as input type.
    * @note We should call this API before adaptor started.
    * @param[in] type Type of render surface interface of main window
@@ -810,7 +804,6 @@ private:                                          // Data
   Mutex                                mMutex;                       ///< Mutex
   ThreadMode                           mThreadMode;                  ///< The thread mode
   const bool                           mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
-  bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,6 @@
 // EXTERNAL INCLUDES
 #include <app_common.h>
 #include <system_settings.h>
-
-#ifdef APPCORE_WATCH_AVAILABLE
-#include <screen_connector_provider.h>
-#endif
-
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 
 #include <aul.h>
 #include <unistd.h>
@@ -123,22 +117,6 @@ void Adaptor::GetAppId(std::string& appId)
 
 void Adaptor::SurfaceInitialized()
 {
-#ifdef APPCORE_WATCH_AVAILABLE
-  if(!mUseRemoteSurface)
-  {
-    return;
-  }
-  char* appId;
-  app_get_id(&appId);
-
-  // Use strdup() in app_get_id(), so need to free memory
-  if(appId)
-  {
-    Ecore_Wl2_Window* ecoreWlWindow = AnyCast<Ecore_Wl2_Window*>(mWindows.front()->GetNativeHandle());
-    screen_connector_provider_remote_enable(appId, ecore_wl2_window_surface_get(ecoreWlWindow));
-    free(appId);
-  }
-#endif
 }
 
 void Adaptor::SetupSystemInformation()

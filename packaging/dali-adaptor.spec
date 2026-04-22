@@ -31,15 +31,6 @@ Requires:       giflib
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
 
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%if "%{mv_prj}" != "1"
-BuildRequires:  pkgconfig(capi-appfw-watch-application)
-BuildRequires:  pkgconfig(appcore-watch)
-%endif
-%endif
-
 # if 'mv_prj' is defined, this build targets the robot profile.
 %if "%{mv_prj}" != "1"
 BuildRequires:  pkgconfig(screen_connector_provider)
@@ -185,21 +176,6 @@ Conflicts:      %{name}-profile_common
 Requires:       %{name}
 %description profile_tv
 The DALi Tizen Adaptor for tv.
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%package profile_wearable
-Summary:        The DALi Tizen Adaptor for wearable
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_ivi
-Conflicts:      %{name}-profile_common
-Requires:       %{name}
-%description profile_wearable
-The DALi Tizen Adaptor for wearable.
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
@@ -419,22 +395,6 @@ popd
 
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-
-mkdir -p wearable
-pushd wearable
-
-cmake -DENABLE_PROFILE=WEARABLE $cmake_flags ..
-
-# Build.
-make %{?jobs:-j%jobs}
-popd
-
-%endif
-
-#######################################################################
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 
@@ -500,19 +460,6 @@ make clean # So that we can gather symbol/size information for only one profile 
 popd
 %endif
 
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-pushd wearable
-%make_install
-%if "%{?profile}" != "wearable"
-pushd  %{buildroot}%{_libdir}
-cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.wearable # If we're only building this profile, then there's no need to copy the lib
-popd
-make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
-%endif
-popd
-%endif
-
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 pushd ivi
@@ -556,7 +503,7 @@ exit 0
 
 %post
 pushd %{_libdir}
-for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
+for i in mobile tv ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
 popd
 /sbin/ldconfig
 rm -rf %{system_cache_dir}shader/  # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
@@ -602,24 +549,6 @@ popd
 exit 0
 
 %postun profile_tv
-/sbin/ldconfig
-exit 0
-%endif
-
-##############################
-# Wearable Profile Commands
-# No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%post profile_wearable
-%if "%{?profile}" != "wearable"
-pushd %{_libdir}
-ln -sf libdali2-adaptor.so.wearable libdali2-adaptor.so.2.0.0
-popd
-%endif
-/sbin/ldconfig
-exit 0
-
-%postun profile_wearable
 /sbin/ldconfig
 exit 0
 %endif
@@ -677,7 +606,6 @@ exit 0
 
 %if "%{mv_prj}" != "1"
 %{_libdir}/libdali2-adaptor-application-widget.so*
-%{_libdir}/libdali2-adaptor-application-watch.so*
 %{_libdir}/libdali2-adaptor-application-component-based.so*
 %endif
 
@@ -722,16 +650,6 @@ exit 0
 %defattr(-,root,root,-)
 %if "%{?profile}" != "tv"
 %{_libdir}/libdali2-adaptor.so.tv
-%endif
-%endif
-
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%files profile_wearable
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%if "%{?profile}" != "wearable"
-%{_libdir}/libdali2-adaptor.so.wearable
 %endif
 %endif
 

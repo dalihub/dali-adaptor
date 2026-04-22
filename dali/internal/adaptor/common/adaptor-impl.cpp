@@ -868,11 +868,6 @@ Any Adaptor::GetGraphicsDisplay()
   return display;
 }
 
-void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)
-{
-  mUseRemoteSurface = useRemoteSurface;
-}
-
 void Adaptor::GenerateDisplayConnector(Dali::Integration::RenderSurfaceInterface::Type type)
 {
   if(DALI_UNLIKELY(mDisplayConnection))
@@ -1524,7 +1519,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mMutex(),
   mThreadMode(threadMode),
   mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
-  mUseRemoteSurface(false),
   mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT)
 {
   DALI_ASSERT_ALWAYS(!IsAvailable() && "Cannot create more than one Adaptor per thread");

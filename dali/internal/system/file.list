@@ -65,11 +65,6 @@ SET( adaptor_system_tizen_wayland_widget_src_files
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
 )
 
-# module: system, backend: tizen-wearable
-SET( adaptor_system_tizen_wearable_src_files
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp
-)
-
 # module: system, backend: ubuntu-x11
 SET( adaptor_system_ubuntu_x11_src_files
     ${adaptor_system_dir}/common/shared-file.cpp

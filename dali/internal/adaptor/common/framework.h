@@ -23,9 +23,6 @@
 #include <functional>
 #include <memory>
 #include <string>
-#ifdef APPCORE_WATCH_AVAILABLE
-#include <dali/devel-api/watch/watch-application.h>
-#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/abort-handler.h>
@@ -54,7 +51,6 @@ public:
   enum Type
   {
     NORMAL,   ///< normal appFramework
-    WATCH,    ///< watch appFramework
     WIDGET,   ///< widget appFramework
     COMPONENT ///< component appFramework
   };
@@ -109,29 +105,6 @@ public:
     virtual void OnAppControl(void*)
     {
     }
-
-#ifdef APPCORE_WATCH_AVAILABLE
-    /**
-     * Invoked at every second
-     */
-    virtual void OnTimeTick(WatchTime&)
-    {
-    }
-
-    /**
-     * Invoked at every second in ambient mode
-     */
-    virtual void OnAmbientTick(WatchTime&)
-    {
-    }
-
-    /**
-     * Invoked when the device enters or exits ambient mode
-     */
-    virtual void OnAmbientChanged(bool ambient)
-    {
-    }
-#endif
 
     /**
      * Invoked when the language of the device is changed.
