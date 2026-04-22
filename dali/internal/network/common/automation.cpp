@@ -568,8 +568,10 @@ void DumpWindow(std::ostringstream& msg, Window window)
   msg << "\"IsVisible\":" << (window.IsVisible() ? "true" : "false") << ",\n";
   msg << "\"Size\":[" << size.GetWidth() << "," << size.GetHeight() << "],\n";
   msg << "\"Position\":[" << pos.GetX() << "," << pos.GetY() << "],\n";
+  msg << "\"DepthBuffer\":" << (window.IsDepthBufferEnabled() ? "true" : "false") << ",\n";
+  msg << "\"StencilBuffer\":" << (window.IsStencilBufferEnabled() ? "true" : "false") << ",\n";
   msg << "\"PartialUpdate\":" << (window.IsPartialUpdateEnabled() ? "true" : "false") << ",\n";
-
+  msg << "\"MSAA\":" << (window.IsMultiSampledAntiAliasingEnabled() ? "true" : "false") << ",\n";
   msg << "\"RenderTaskList\":";
   DumpRenderTaskList(msg, window.GetRenderTaskList());
   msg << "\n}\n";
@@ -588,6 +590,7 @@ std::string GetRenderTasks()
     }
     msg << "\"Window " << windowIndex << "\":";
     DumpWindow(msg, window);
+    ++windowIndex;
   }
   msg << "}\n";
   return msg.str();
