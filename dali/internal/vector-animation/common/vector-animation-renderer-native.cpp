@@ -24,6 +24,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/rendering/texture-set.h>
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <sstream>
@@ -33,6 +34,46 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gVectorAnimationLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VECTOR_ANIMATION");
 #endif
+
+/**
+ * @brief Applies aspect-fit scaling and translation to the given ThorVG picture.
+ *
+ * Calculates the scale that fits the animation within the target area while
+ * preserving aspect ratio, then sets the picture size and translate accordingly.
+ *
+ * @param[in] picture       The ThorVG picture to scale and position
+ * @param[in] defaultWidth  Default width from the source file
+ * @param[in] defaultHeight Default height from the source file
+ * @param[in] targetWidth   Target rendering width
+ * @param[in] targetHeight  Target rendering height
+ */
+void ApplyAspectFitSize(tvg::Picture* picture, uint32_t defaultWidth, uint32_t defaultHeight, uint32_t targetWidth, uint32_t targetHeight)
+{
+  if(!picture || defaultWidth == 0 || defaultHeight == 0)
+  {
+    return;
+  }
+
+  if(targetWidth > 0 && targetHeight > 0)
+  {
+    const float targetW   = static_cast<float>(targetWidth);
+    const float targetH   = static_cast<float>(targetHeight);
+    const float defaultW  = static_cast<float>(defaultWidth);
+    const float defaultH  = static_cast<float>(defaultHeight);
+
+    const float scale = std::min(targetW / defaultW, targetH / defaultH);
+
+    const float newW = defaultW * scale;
+    const float newH = defaultH * scale;
+
+    const float tx = (targetW - newW) * 0.5f;
+    const float ty = (targetH - newH) * 0.5f;
+
+    picture->size(newW, newH);
+    picture->translate(tx, ty);
+  }
+}
+
 } // unnamed namespace
 
 namespace Dali
@@ -171,10 +212,7 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
   mDuration   = mAnimation->duration();
   mFrameRate  = (mDuration > 0.0f) ? (static_cast<float>(mTotalFrame) / mDuration) : 60.0f;
 
-  if(mTargetWidth > 0 && mTargetHeight > 0)
-  {
-    picture->size(static_cast<float>(mTargetWidth), static_cast<float>(mTargetHeight));
-  }
+  ApplyAspectFitSize(picture, mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
 
   if(!mCanvas)
   {
@@ -247,10 +285,7 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
   mDuration   = mAnimation->duration();
   mFrameRate  = (mDuration > 0.0f) ? (static_cast<float>(mTotalFrame) / mDuration) : 60.0f;
 
-  if(mTargetWidth > 0 && mTargetHeight > 0)
-  {
-    picture->size(static_cast<float>(mTargetWidth), static_cast<float>(mTargetHeight));
-  }
+  ApplyAspectFitSize(picture, mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
 
   if(!mCanvas)
   {
@@ -369,7 +404,7 @@ void VectorAnimationRendererNative::UpdateSizeIfNeeded()
   {
     if(mAnimation && mAnimation->picture())
     {
-      mAnimation->picture()->size(static_cast<float>(mTargetWidth), static_cast<float>(mTargetHeight));
+      ApplyAspectFitSize(mAnimation->picture(), mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
     }
     mPendingSizeUpdate = false;
   }
