@@ -41,8 +41,7 @@ ENDIF()
 # File Download curl plugin
 PKG_CHECK_MODULES(CURL libcurl)
 
-# TODO : Need to support on MacOS as wll. Currently, it show some unknown linker error. So, we will check on MacOS later.
-IF( CURL_FOUND AND (NOT MACOS_PROFILE) )
+IF( CURL_FOUND)
   MESSAGE( STATUS "CURL found : ${CURL_VERSION} dali2-file-download-plugin-curl will be built" )
   SET( FILE_DOWNLOAD_PLUGIN_TARGET dali2-file-download-plugin-curl )
 
@@ -62,13 +61,30 @@ IF( CURL_FOUND AND (NOT MACOS_PROFILE) )
     ${DALICORE_LDFLAGS}
     ${COVERAGE}
     dali2-adaptor
-    -ldl -rdynamic
+    -ldl
+    -rdynamic
   )
 
-  SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
-    ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
-    ${CURL_LDFLAGS}
-  )
+  IF (APPLE)
+    FIND_PACKAGE( curl REQUIRED )
+    SET(REQUIRED_LIBS_CURL_PLUGIN CURL::libcurl)
+
+    SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
+      ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
+      ${REQUIRED_LIBS_CURL_PLUGIN}
+      "-framework SystemConfiguration"
+      "-framework CoreFoundation"
+      "-framework CoreServices"
+      -lssl
+      -lcrypto
+      -lz
+    )
+  ELSE()
+    SET(DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
+      ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
+      ${CURL_LDFLAGS}
+    )
+  ENDIF()
 
   TARGET_LINK_LIBRARIES( ${FILE_DOWNLOAD_PLUGIN_TARGET} PRIVATE
     ${DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS}
@@ -89,8 +105,8 @@ IF( CURL_FOUND AND (NOT MACOS_PROFILE) )
   # Linker Test for curl
   SET(LINKER_TEST_PLUGIN_CURL_NAME ${DALI_ADAPTOR_PREFIX}linker-test-curl)
   ADD_EXECUTABLE(${LINKER_TEST_PLUGIN_CURL_NAME} linker-test-file-download-plugin.cpp)
-  TARGET_COMPILE_OPTIONS(${LINKER_TEST_PLUGIN_CURL_NAME} PRIVATE -I${ROOT_SRC_DIR} ${DALI_CFLAGS} ${COVERAGE})
-  TARGET_LINK_LIBRARIES(${LINKER_TEST_PLUGIN_CURL_NAME} ${name} ${COVERAGE} ${DALI_CFLAGS} ${FILE_DOWNLOAD_PLUGIN_TARGET})
+  TARGET_COMPILE_OPTIONS(${LINKER_TEST_PLUGIN_CURL_NAME} PRIVATE -I${ROOT_SRC_DIR} ${DALI_CFLAGS} ${DALI_FILE_DOWNLOAD_PLUGIN_CFLAGS} ${COVERAGE})
+  TARGET_LINK_LIBRARIES(${LINKER_TEST_PLUGIN_CURL_NAME} ${name} ${COVERAGE} ${DALI_CFLAGS} ${DALI_FILE_DOWNLOAD_PLUGIN_CFLAGS} ${FILE_DOWNLOAD_PLUGIN_TARGET})
 ELSE()
   MESSAGE( STATUS "CURL not found, dali2-file-download-plugin-curl will not be built" )
 ENDIF()
