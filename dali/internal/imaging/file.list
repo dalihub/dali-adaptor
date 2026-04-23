@@ -22,6 +22,7 @@ SET( adaptor_imaging_common_src_files
     ${adaptor_imaging_dir}/common/pixel-manipulation.cpp
     ${adaptor_imaging_dir}/common/gif-loading.cpp
     ${adaptor_imaging_dir}/common/webp-loading.cpp
+    ${adaptor_imaging_dir}/common/file-download.cpp
 )
 
 SET( adaptor_imaging_common_egl_src_files
@@ -35,7 +36,6 @@ SET( adaptor_imaging_common_dynamic_src_files
 
 # module: imaging, backend: tizen
 SET( adaptor_imaging_tizen_src_files
-    ${adaptor_imaging_dir}/common/file-download.cpp
 )
 
 # module: imaging, backend: tizen/egl
@@ -54,7 +54,6 @@ SET( adaptor_imaging_tizen_vulkan_src_files
 
 # module: imaging, backend: ubuntu
 SET( adaptor_imaging_ubuntu_src_files
-    ${adaptor_imaging_dir}/common/file-download.cpp
 )
 
 # module: imaging, backend: ubuntu-x11/egl
@@ -71,7 +70,6 @@ SET( adaptor_imaging_ubuntu_x11_vulkan_src_files
 
 # module: imaging, backend: libuv-x11/glib
 SET( adaptor_imaging_x11_src_files
-    ${adaptor_imaging_dir}/common/file-download.cpp
 )
 
 # module: imaging, backend: libuv-x11/glib / egl
@@ -88,7 +86,6 @@ SET( adaptor_imaging_x11_vulkan_src_files
 
 # module: imaging, backend: android
 SET( adaptor_imaging_android_src_files
-    ${adaptor_imaging_dir}/common/file-download.cpp
 )
 
 # module: imaging, backend: android, egl
@@ -105,15 +102,12 @@ SET( adaptor_imaging_vulkan_android_src_files
 
 # module: imaging, backend: windows
 SET( adaptor_imaging_windows_src_files
-    ${adaptor_imaging_dir}/windows/curl-environment-win.cpp
-    ${adaptor_imaging_dir}/windows/file-download-win.cpp
     ${adaptor_imaging_dir}/windows/native-image-factory-win.cpp
     ${adaptor_imaging_dir}/windows/native-image-impl-win.cpp
 )
 
 # module: imaging, backend: macos
 SET( adaptor_imaging_macos_src_files
-    ${adaptor_imaging_dir}/common/file-download.cpp
     ${adaptor_imaging_dir}/macos/native-image-factory-mac.cpp
     ${adaptor_imaging_dir}/macos/native-image-impl-mac.cpp
 )

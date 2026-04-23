@@ -25,6 +25,7 @@ SET( SOURCES
         ${adaptor_input_common_src_files}
         ${adaptor_input_generic_src_files}
         ${adaptor_integration_api_src_files}
+        ${adaptor_integration_api_file_download_plugin_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
         ${adaptor_offscreen_common_src_files}
@@ -111,7 +112,6 @@ SET( PROFILE_INCLUDE_DIRECTORIES
         ${PNG_INCLUDE_DIRS}
         ${LIBEXIF_INCLUDE_DIRS}
         ${LIBDRM_INCLUDE_DIRS}
-        ${LIBCURL_INCLUDE_DIRS}
         ${LIBCRYPTO_INCLUDE_DIRS}
         ${HARFBUZZ_INCLUDE_DIRS}
         ${FRIBIDI_INCLUDE_DIRS}
@@ -138,7 +138,6 @@ ADD_COMPILE_OPTIONS(
   ${CAPI_SYSTEM_SENSOR_CFLAGS}
   ${LIBDRM_CFLAGS}
   ${LIBEXIF_CFLAGS}
-  ${LIBCURL_CFLAGS}
   ${LIBCRYPTO_CFLAGS}
   ${UTILX_CFLAGS}
 )
@@ -152,7 +151,6 @@ SET(REQUIRED_LIBS
   ${PNG_LDFLAGS}
   ${LIBEXIF_LDFLAGS}
   ${LIBDRM_LDFLAGS}
-  ${LIBCURL_LDFLAGS}
   ${LIBCRYPTO_LDFLAGS}
   ${HARFBUZZ_LDFLAGS}
   ${FRIBIDI_LDFLAGS}

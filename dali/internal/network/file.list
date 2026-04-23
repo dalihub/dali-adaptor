@@ -1,16 +1,15 @@
 
 # module: network, backend: common
-SET( adaptor_network_common_src_files 
+SET( adaptor_network_common_src_files
     ${adaptor_network_dir}/common/network-service-impl.cpp
     ${adaptor_network_dir}/common/socket-factory.cpp
     ${adaptor_network_dir}/common/socket-impl.cpp
 )
 
 # module: network, backend: common
-SET( adaptor_performance_logging_src_files 
-    ${adaptor_network_dir}/common/network-performance-protocol.cpp 
-    ${adaptor_network_dir}/common/network-performance-client.cpp 
-    ${adaptor_network_dir}/common/network-performance-server.cpp 
+SET( adaptor_performance_logging_src_files
+    ${adaptor_network_dir}/common/network-performance-protocol.cpp
+    ${adaptor_network_dir}/common/network-performance-client.cpp
+    ${adaptor_network_dir}/common/network-performance-server.cpp
     ${adaptor_network_dir}/common/automation.cpp
 )
-

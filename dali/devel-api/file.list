@@ -80,6 +80,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/feedback-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/feedback-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/file-loader.h
+  ${adaptor_devel_api_dir}/adaptor-framework/file-download-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/tts-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/file-stream.h
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-capabilities.h

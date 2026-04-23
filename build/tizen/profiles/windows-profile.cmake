@@ -17,6 +17,7 @@ SET( SOURCES
         ${adaptor_imaging_common_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_integration_api_src_files}
+        ${adaptor_integration_api_file_download_plugin_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
         ${adaptor_offscreen_common_src_files}
@@ -65,7 +66,6 @@ ENDIF()
 SET_SOURCE_FILES_PROPERTIES( ${static_libraries_libunibreak_src_files} PROPERTIES LANGUAGE CXX )
 
 FIND_PACKAGE( pthreads REQUIRED )
-FIND_PACKAGE( curl REQUIRED )
 FIND_LIBRARY( GETOPT_LIBRARY NAMES getopt )
 FIND_LIBRARY( EXIF_LIBRARY NAMES libexif )
 
@@ -89,7 +89,6 @@ ADD_DEFINITIONS( -DDALI_WEBP_AVAILABLE )
 # Set the linker flags
 SET( REQUIRED_LIBS
         PThreads4W::PThreads4W
-        CURL::libcurl
         ${GETOPT_LIBRARY}
         ${EXIF_LIBRARY}
         ${PNG_LIBRARIES}

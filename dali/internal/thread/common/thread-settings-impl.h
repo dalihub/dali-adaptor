@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 #include <cstdint>
 #include <string>
 
@@ -41,6 +42,12 @@ namespace ThreadSettings
 void SetThreadName(const std::string& threadName);
 
 /**
+ * @brief Set the current thread as the UI thread.
+ * @note This should be called from the UI thread.
+ */
+void SetCurrentThreadAsUiThread();
+
+/**
  * @brief Get the thread id.
  * @note If thread id getter doesn't supported, it will return 0 as default.
  * @return The thread id.
@@ -53,12 +60,6 @@ int32_t GetThreadId();
  * @return The main thread id.
  */
 int32_t GetMainThreadId();
-
-/**
- * @brief Set the current thread as the UI thread.
- * @note This should be called from the UI thread.
- */
-void SetCurrentThreadAsUiThread();
 
 /**
  * @brief Get the UI thread id, which DALi::Adaptor runs on.

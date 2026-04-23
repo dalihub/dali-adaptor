@@ -26,4 +26,19 @@ void SetThreadName(const std::string& threadName)
 {
   Internal::Adaptor::ThreadSettings::SetThreadName(threadName);
 }
+
+int32_t GetThreadId()
+{
+  return Internal::Adaptor::ThreadSettings::GetThreadId();
+}
+
+int32_t GetMainThreadId()
+{
+  return Internal::Adaptor::ThreadSettings::GetMainThreadId();
+}
+
+int32_t GetUiThreadId()
+{
+  return Internal::Adaptor::ThreadSettings::GetUiThreadId();
+}
 } // namespace Dali
