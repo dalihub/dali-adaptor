@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <thorvg.h>
+#include <thorvg_lottie.h>
 #include <dali/devel-api/adaptor-framework/vector-animation-renderer-plugin.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/devel-api/common/vector-wrapper.h>
@@ -180,6 +181,23 @@ protected:
     uint32_t      mHeight{0}; ///< Height in pixels
   };
 
+  class PropertyCallback
+  {
+  public:
+    PropertyCallback() = default;
+    ~PropertyCallback() = default;
+
+    PropertyCallback(PropertyCallback&&) = default;
+    PropertyCallback& operator=(PropertyCallback&&) = default;
+    PropertyCallback(const PropertyCallback&) = delete;
+    PropertyCallback& operator=(const PropertyCallback&) = delete;
+
+    std::string                   keyPath;
+    VectorProperty                property{VectorProperty::FILL_COLOR};
+    std::unique_ptr<CallbackBase> callback;
+    int32_t                       id{0};
+  };
+
   /// @brief Creates a new RenderingData instance. Overridable for subclass extension.
   virtual std::shared_ptr<RenderingData> CreateRenderingData() = 0;
 
@@ -253,6 +271,9 @@ protected:
   uint32_t              mTargetHeight;    ///< Target rendering height
   std::atomic<float>    mFrameRate;       ///< Frame rate (FPS)
   float                 mDuration;        ///< Duration in seconds
+
+  // Dynamic property callbacks (STL container)
+  std::vector<std::shared_ptr<PropertyCallback>> mPropertyCallbacks; ///< Dynamic property callbacks
 
   // Atomic bools (accessed from multiple threads, must not use bit-fields)
   std::atomic<bool> mResourceReady;          ///< Resource loaded and ready

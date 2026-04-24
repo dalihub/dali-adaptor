@@ -105,6 +105,7 @@ VectorAnimationRendererNative::VectorAnimationRendererNative()
   mTargetHeight(0),
   mFrameRate(0.0f),
   mDuration(0.0f),
+  mPropertyCallbacks(),
   mResourceReady(false),
   mResourceReadyTriggered(false),
   mPendingSizeUpdate(false),
@@ -151,6 +152,10 @@ void VectorAnimationRendererNative::Finalize()
   // Unregister from manager
   VectorAnimationRendererEventManager::Get().RemoveEventHandler(*this);
 
+  // Clear property callbacks before animation to prevent dangling raw pointer
+  // passed to thorvg overrideProperty()
+  mPropertyCallbacks.clear();
+
   if(mCanvas)
   {
     mCanvas->sync();
@@ -178,7 +183,7 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
 
   if(!mAnimation)
   {
-    mAnimation = std::unique_ptr<tvg::Animation>(tvg::Animation::gen());
+    mAnimation = std::unique_ptr<tvg::Animation>(tvg::LottieAnimation::gen());
   }
 
   if(!mAnimation)
@@ -251,7 +256,7 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
 
   if(!mAnimation)
   {
-    mAnimation = std::unique_ptr<tvg::Animation>(tvg::Animation::gen());
+    mAnimation = std::unique_ptr<tvg::Animation>(tvg::LottieAnimation::gen());
   }
 
   if(!mAnimation)
@@ -478,12 +483,127 @@ void VectorAnimationRendererNative::InvalidateBuffer()
 void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id)
 {
   Dali::Mutex::ScopedLock lock(mMutex);
-  // ThorVG does not support rlottie-style per-frame dynamic property callbacks.
-  // A colleague is implementing this feature separately.
-  if(callback)
+  if(!mAnimation || !callback)
   {
     delete callback;
+    return;
   }
+
+  static auto wrapper = [](float frameNo, void* value, void* data) -> bool {
+      auto cbObj = static_cast<PropertyCallback*>(data);
+      if (!cbObj || !cbObj->callback) return false;
+
+      Property::Value val = CallbackBase::ExecuteReturn<Property::Value>(*(cbObj->callback), cbObj->id, cbObj->property, static_cast<uint32_t>(frameNo));
+
+      switch (cbObj->property) {
+          case VectorProperty::FILL_COLOR:
+          case VectorProperty::STROKE_COLOR: {
+              struct TVGRGB32 { int32_t r, g, b; };
+              auto color = static_cast<TVGRGB32*>(value);
+              Vector3 vec(1.0f, 1.0f, 1.0f);
+              if (val.Get(vec)) {
+                  color->r = std::min(255, std::max(0, (int)(vec.r * 255.0f)));
+                  color->g = std::min(255, std::max(0, (int)(vec.g * 255.0f)));
+                  color->b = std::min(255, std::max(0, (int)(vec.b * 255.0f)));
+                  return true;
+              }
+              break;
+          }
+          case VectorProperty::TRANSFORM_OPACITY:
+          case VectorProperty::FILL_OPACITY:
+          case VectorProperty::STROKE_OPACITY: {
+              auto opacity = static_cast<uint8_t*>(value);
+              float o = 100.0f;
+              if (val.Get(o)) {
+                  *opacity = std::min(255, std::max(0, (int)(o / 100.0f * 255.0f)));
+                  return true;
+              }
+              break;
+          }
+          case VectorProperty::STROKE_WIDTH:
+          case VectorProperty::TRANSFORM_ROTATION: {
+              auto scalar = static_cast<float*>(value);
+              float s = 0.0f;
+              if (val.Get(s)) {
+                  *scalar = s;
+                  return true;
+              }
+              break;
+          }
+          case VectorProperty::TRIM_START: {
+              auto scalar = static_cast<float*>(value);
+              float s = 0.0f;
+              if (val.Get(s)) {
+                  *scalar = s;
+                  return true;
+              }
+              break;
+          }
+          case VectorProperty::TRIM_END: {
+              auto range = static_cast<float*>(value);
+              Vector2 vec2;
+              if (val.Get(vec2)) {
+                  range[0] = vec2.x;
+                  range[1] = vec2.y;
+                  return true;
+              }
+              float s = 0.0f;
+              if (val.Get(s)) {
+                  range[0] = 0.0f;
+                  range[1] = s;
+                  return true;
+              }
+              break;
+          }
+          case VectorProperty::TRANSFORM_POSITION:
+          case VectorProperty::TRANSFORM_SCALE: {
+              struct TVGPoint { float x, y; };
+              auto pt = static_cast<TVGPoint*>(value);
+              Vector2 vec2(0.0f, 0.0f);
+              if (val.Get(vec2)) {
+                  pt->x = vec2.x;
+                  pt->y = vec2.y;
+                  return true;
+              }
+              break;
+          }
+          default: break;
+      }
+      return false;
+  };
+
+  // Common path for all properties
+  tvg::LottiePropertyId lottieProp = tvg::LottiePropertyId::Unknown;
+  switch (property) {
+    case VectorProperty::FILL_COLOR:       lottieProp = tvg::LottiePropertyId::FillColor;          break;
+    case VectorProperty::FILL_OPACITY:     lottieProp = tvg::LottiePropertyId::FillOpacity;        break;
+    case VectorProperty::STROKE_COLOR:     lottieProp = tvg::LottiePropertyId::StrokeColor;        break;
+    case VectorProperty::STROKE_OPACITY:   lottieProp = tvg::LottiePropertyId::StrokeOpacity;      break;
+    case VectorProperty::STROKE_WIDTH:     lottieProp = tvg::LottiePropertyId::StrokeWidth;        break;
+    case VectorProperty::TRIM_START:       lottieProp = tvg::LottiePropertyId::TrimStart;          break;
+    case VectorProperty::TRIM_END:         lottieProp = tvg::LottiePropertyId::TrimEnd;            break;
+    case VectorProperty::TRANSFORM_POSITION: lottieProp = tvg::LottiePropertyId::TransformPosition; break;
+    case VectorProperty::TRANSFORM_SCALE:  lottieProp = tvg::LottiePropertyId::TransformScale;     break;
+    case VectorProperty::TRANSFORM_ROTATION: lottieProp = tvg::LottiePropertyId::TransformRotation; break;
+    case VectorProperty::TRANSFORM_OPACITY: lottieProp = tvg::LottiePropertyId::TransformOpacity;  break;
+    default: delete callback; return; // unsupported – must free since callback ownership not yet transferred
+  }
+
+  // Remove existing callback for the same keypath and property to prevent bloat/conflict
+  mPropertyCallbacks.erase(std::remove_if(mPropertyCallbacks.begin(), mPropertyCallbacks.end(),
+                                         [&](const std::shared_ptr<PropertyCallback>& p) {
+                                           return p->keyPath == keyPath && p->property == property;
+                                         }),
+                          mPropertyCallbacks.end());
+
+  auto cb = std::make_shared<PropertyCallback>();
+  cb->keyPath  = keyPath;
+  cb->property = property;
+  cb->callback = std::unique_ptr<CallbackBase>(callback);
+  cb->id       = id;
+  mPropertyCallbacks.push_back(cb);
+
+  static_cast<tvg::LottieAnimation*>(mAnimation.get())->overrideProperty(keyPath.c_str(), lottieProp, wrapper, cb.get());
 }
 
 void VectorAnimationRendererNative::KeepRasterizedBuffer()
