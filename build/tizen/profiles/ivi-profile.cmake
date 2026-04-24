@@ -3,10 +3,10 @@
 # Set the sources
 SET( SOURCES
     ${adaptor_accessibility_common_src_files}
-    ${adaptor_accessibility_tizen_wayland_src_files}
+    ${adaptor_accessibility_tizen_src_files}
     ${adaptor_accessibility_tizen_ivi_src_files}
     ${adaptor_adaptor_common_src_files}
-    ${adaptor_adaptor_tizen_wayland_src_files}
+    ${adaptor_adaptor_tizen_src_files}
     ${adaptor_canvas_renderer_tizen_src_files}
     ${adaptor_clipboard_tizen_wayland_src_files}
     ${adaptor_drag_and_drop_tizen_wayland_src_files}
@@ -33,8 +33,8 @@ SET( SOURCES
     ${adaptor_sensor_tizen_src_files}
     ${adaptor_styling_common_src_files}
     ${adaptor_system_common_src_files}
-    ${adaptor_system_linux_src_files}
-    ${adaptor_system_tizen_wayland_src_files}
+    ${adaptor_system_linux_ecore_src_files}
+    ${adaptor_system_tizen_src_files}
     ${adaptor_text_common_src_files}
     ${adaptor_resampler_src_files}
     ${adaptor_vector_animation_common_src_files}
@@ -120,6 +120,6 @@ ENDIF()
 IF( NOT ROBOT_PROFILE )
     SET( SOURCES ${SOURCES}
         ${adaptor_widget_public_api_src_files}
-        ${adaptor_system_tizen_wayland_widget_src_files}
+        ${adaptor_system_tizen_widget_src_files}
     )
 ENDIF()

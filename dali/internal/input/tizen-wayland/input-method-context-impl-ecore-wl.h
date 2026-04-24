@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <dali/internal/input/linux/dali-ecore-imf.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/events/key-event-integ.h>

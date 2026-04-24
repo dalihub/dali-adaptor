@@ -15,7 +15,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
 
 // EXTERNAL INCLUDES
 #include <dlfcn.h>

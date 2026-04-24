@@ -1,8 +1,5 @@
-#ifndef DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_H
-#define DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_H
-
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +15,27 @@
  *
  */
 
-#pragma GCC system_header
-#include <Ecore.h>
+#include <dali/internal/accessibility/common/tts-player-factory.h>
+#include <dali/internal/accessibility/tizen/tts-player-impl-tizen.h>
 
-#endif /* DALI_INTERNAL_SYSTEM_LINUX_DALI_ECORE_H */
+namespace Dali
+{
+namespace Internal
+{
+namespace Adaptor
+{
+class TtsPlayer;
+namespace TtsPlayerFactory
+{
+std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
+{
+  return TtsPlayerTizen::New(mode);
+}
+
+} // namespace TtsPlayerFactory
+
+} // namespace Adaptor
+
+} // namespace Internal
+
+} // namespace Dali

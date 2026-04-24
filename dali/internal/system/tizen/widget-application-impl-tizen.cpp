@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/tizen-wayland/widget-application-impl-tizen.h>
+#include <dali/internal/system/tizen/widget-application-impl-tizen.h>
 
 // INTERNAL INCLUDE
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -24,7 +24,7 @@
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
+#include <dali/internal/system/tizen/widget-controller-tizen.h>
 
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@
  *
  */
 
+// EXTERNAL HEADERS
+#include <Ecore.h>
+#include <Ecore_X.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-base.h>
-
-// EXTERNAL HEADERS
-#include <dali/internal/system/linux/dali-ecore-x.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {

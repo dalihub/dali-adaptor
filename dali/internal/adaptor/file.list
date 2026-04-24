@@ -13,12 +13,12 @@ SET( adaptor_adaptor_common_src_files
     ${adaptor_adaptor_dir}/common/ui-context-impl.cpp
 )
 
-# module: adaptor, backend: tizen-wayland
-SET( adaptor_adaptor_tizen_wayland_src_files
+# module: adaptor, backend: tizen
+SET( adaptor_adaptor_tizen_src_files
     ${adaptor_adaptor_dir}/glib/framework-glib.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/adaptor-impl-tizen.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/framework-factory-tizen.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/framework-tizen.cpp
+    ${adaptor_adaptor_dir}/tizen/adaptor-impl-tizen.cpp
+    ${adaptor_adaptor_dir}/tizen/framework-factory-tizen.cpp
+    ${adaptor_adaptor_dir}/tizen/framework-tizen.cpp
 )
 
 # module: adaptor, backend: libuv-x11
@@ -67,8 +67,8 @@ SET( adaptor_adaptor_windows_src_files
 )
 
 SET( adaptor_adaptor_component_application_src_files
-    ${adaptor_adaptor_dir}/tizen-wayland/component-application.cpp
-    ${adaptor_adaptor_dir}/tizen-wayland/component-application-impl.cpp
+    ${adaptor_adaptor_dir}/tizen/component-application.cpp
+    ${adaptor_adaptor_dir}/tizen/component-application-impl.cpp
 )
 
 # module: adaptor, backend: macos

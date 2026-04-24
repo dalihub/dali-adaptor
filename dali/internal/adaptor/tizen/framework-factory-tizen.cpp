@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/tizen-wayland/framework-factory-tizen.h>
+#include <dali/internal/adaptor/tizen/framework-factory-tizen.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/glib/framework-glib.h>
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali

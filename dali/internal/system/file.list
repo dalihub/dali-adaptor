@@ -27,7 +27,7 @@ SET( adaptor_system_common_src_files
 )
 
 # module: system, backend: linux
-SET( adaptor_system_linux_src_files
+SET( adaptor_system_linux_ecore_src_files
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
@@ -39,14 +39,14 @@ SET( adaptor_system_linux_src_files
     ${adaptor_system_dir}/glib/callback-manager-glib.cpp
     ${adaptor_system_dir}/glib/file-descriptor-monitor-glib.cpp
     ${adaptor_system_dir}/glib/timer-impl-glib.cpp
-    ${adaptor_system_dir}/linux/callback-manager-ecore.cpp
-    ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp
-    ${adaptor_system_dir}/linux/system-factory-ecore.cpp
-    ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
+    ${adaptor_system_dir}/linux/ecore/callback-manager-ecore.cpp
+    ${adaptor_system_dir}/linux/ecore/file-descriptor-monitor-ecore.cpp
+    ${adaptor_system_dir}/linux/ecore/system-factory-ecore.cpp
+    ${adaptor_system_dir}/linux/ecore/timer-impl-ecore.cpp
 )
 
-# module: system, backend: tizen-wayland
-SET( adaptor_system_tizen_wayland_src_files
+# module: system, backend: tizen
+SET( adaptor_system_tizen_src_files
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
@@ -55,14 +55,14 @@ SET( adaptor_system_tizen_wayland_src_files
     ${adaptor_system_dir}/common/unified-trigger-event-manager-impl.cpp
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/generic/system-error-print-generic.cpp
-    ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
-    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
+    ${adaptor_system_dir}/tizen/logging-tizen.cpp
+    ${adaptor_system_dir}/tizen/system-settings-tizen.cpp
 )
 
-# module: system, backend: tizen-wayland(widget)
-SET( adaptor_system_tizen_wayland_widget_src_files
-    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
-    ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
+# module: system, backend: tizen(widget)
+SET( adaptor_system_tizen_widget_src_files
+    ${adaptor_system_dir}/tizen/widget-application-impl-tizen.cpp
+    ${adaptor_system_dir}/tizen/widget-controller-tizen.cpp
 )
 
 # module: system, backend: ubuntu-x11

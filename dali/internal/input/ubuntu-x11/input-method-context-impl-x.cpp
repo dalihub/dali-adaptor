@@ -19,6 +19,7 @@
 #include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
@@ -33,7 +34,6 @@
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/public-api/adaptor-framework/key.h>
 
 using Dali::Integration::ToStdString;

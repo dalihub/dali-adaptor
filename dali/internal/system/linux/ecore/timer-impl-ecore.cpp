@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/linux/timer-impl-ecore.h>
+#include <dali/internal/system/linux/ecore/timer-impl-ecore.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
-
-#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {

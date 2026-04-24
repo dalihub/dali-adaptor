@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/linux/callback-manager-ecore.h>
+#include <dali/internal/system/linux/ecore/callback-manager-ecore.h>
 
 // EXTERNAL INCLUDES
-#include <dali/internal/system/linux/dali-ecore.h>
-
+#include <Ecore.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES

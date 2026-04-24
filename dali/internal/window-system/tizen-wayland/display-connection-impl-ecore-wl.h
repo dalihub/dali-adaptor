@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <Ecore_Wl2.h>
+
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
 namespace Dali

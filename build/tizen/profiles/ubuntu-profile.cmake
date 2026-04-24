@@ -32,7 +32,7 @@ SET( SOURCES
         ${adaptor_sensor_ubuntu_src_files}
         ${adaptor_styling_common_src_files}
         ${adaptor_system_common_src_files}
-        ${adaptor_system_linux_src_files}
+        ${adaptor_system_linux_ecore_src_files}
         ${adaptor_system_ubuntu_x11_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_text_ubuntu_src_files}

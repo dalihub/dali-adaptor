@@ -15,11 +15,11 @@
  *
  */
 
+#include <Ecore_X.h>
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
 
 using namespace Dali;
 using Dali::Integration::ToDaliString;

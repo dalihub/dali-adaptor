@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/system/linux/dali-ecore-x.h>
+#include <Ecore_X.h>
 #include <memory>
 
 // INTERNAL INCLUDES

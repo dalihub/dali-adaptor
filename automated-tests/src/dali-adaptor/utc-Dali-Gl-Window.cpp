@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/gl-window.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <test-addon-manager.h>
 
 using namespace Dali;

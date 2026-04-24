@@ -23,7 +23,6 @@
 #include <X11/Xutil.h>
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>

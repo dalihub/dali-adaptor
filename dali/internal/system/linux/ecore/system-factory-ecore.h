@@ -1,5 +1,8 @@
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_SYSTEM_FACTORY_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_SYSTEM_FACTORY_H
+
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +18,8 @@
  *
  */
 
-#include <dali/internal/accessibility/common/tts-player-factory.h>
-#include <dali/internal/accessibility/tizen-wayland/tts-player-impl-tizen.h>
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/system-factory.h>
 
 namespace Dali
 {
@@ -24,18 +27,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-class TtsPlayer;
-namespace TtsPlayerFactory
+class SystemFactoryEcore : public SystemFactory
 {
-std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
-{
-  return TtsPlayerTizen::New(mode);
-}
-
-} // namespace TtsPlayerFactory
+public:
+  std::unique_ptr<CallbackManager>       CreateCallbackManager() override;
+  std::unique_ptr<FileDescriptorMonitor> CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask) override;
+  TimerPtr                               CreateTimer(uint32_t milliSec) override;
+};
 
 } // namespace Adaptor
-
 } // namespace Internal
-
 } // namespace Dali
+
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_SYSTEM_FACTORY_H

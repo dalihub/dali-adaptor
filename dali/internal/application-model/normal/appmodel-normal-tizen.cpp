@@ -19,6 +19,7 @@
 #include <dali/internal/application-model/normal/appmodel-normal-tizen.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <app_common.h>
 #include <app_control_internal.h>
 #include <appcore_base.h>
@@ -41,9 +42,8 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
 #include <dali/internal/imaging/common/file-download.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 
 using namespace tizen_cpp;
 

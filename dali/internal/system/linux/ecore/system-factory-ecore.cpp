@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/linux/system-factory-ecore.h>
+#include <dali/internal/system/linux/ecore/system-factory-ecore.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/system/glib/callback-manager-glib.h>
 #include <dali/internal/system/glib/file-descriptor-monitor-glib.h>
 #include <dali/internal/system/glib/timer-impl-glib.h>
-#include <dali/internal/system/linux/callback-manager-ecore.h>
-#include <dali/internal/system/linux/file-descriptor-monitor-ecore.h>
-#include <dali/internal/system/linux/timer-impl-ecore.h>
+#include <dali/internal/system/linux/ecore/callback-manager-ecore.h>
+#include <dali/internal/system/linux/ecore/file-descriptor-monitor-ecore.h>
+#include <dali/internal/system/linux/ecore/timer-impl-ecore.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali

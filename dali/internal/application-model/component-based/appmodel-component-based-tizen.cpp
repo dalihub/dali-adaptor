@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/application-model/component-based/appmodel-component-based-tizen.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <dlog.h>
 
 // CONDITIONAL INCLUDES
@@ -34,8 +35,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
-#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
 
 namespace Dali
 {
