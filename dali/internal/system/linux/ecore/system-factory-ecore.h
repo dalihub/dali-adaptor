@@ -30,6 +30,7 @@ namespace Adaptor
 class SystemFactoryEcore : public SystemFactory
 {
 public:
+  std::unique_ptr<EventLoop>             CreateEventLoop() override;
   std::unique_ptr<CallbackManager>       CreateCallbackManager() override;
   std::unique_ptr<FileDescriptorMonitor> CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask) override;
   TimerPtr                               CreateTimer(uint32_t milliSec) override;

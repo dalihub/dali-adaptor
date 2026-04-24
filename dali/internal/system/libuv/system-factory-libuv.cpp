@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <dali/internal/system/libuv/system-factory-libuv.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/system/common/event-loop.h>
 #include <dali/internal/system/libuv/callback-manager-libuv.h>
 #include <dali/internal/system/libuv/file-descriptor-monitor-libuv.h>
 #include <dali/internal/system/libuv/timer-impl-libuv.h>
@@ -42,6 +43,11 @@ std::unique_ptr<FileDescriptorMonitor> SystemFactoryLibuv::CreateFileDescriptorM
 TimerPtr SystemFactoryLibuv::CreateTimer(uint32_t milliSec)
 {
   return TimerLibuv::New(milliSec);
+}
+
+std::unique_ptr<EventLoop> SystemFactoryLibuv::CreateEventLoop()
+{
+  return std::unique_ptr<EventLoop>(nullptr);
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()

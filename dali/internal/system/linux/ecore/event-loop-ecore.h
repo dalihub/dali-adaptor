@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_SYSTEM_FACTORY_H
-#define DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_SYSTEM_FACTORY_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_ECORE_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_ECORE_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/system/common/event-loop.h>
 
 namespace Dali
 {
@@ -27,17 +27,17 @@ namespace Internal
 {
 namespace Adaptor
 {
-class SystemFactoryGlib : public SystemFactory
+class EventLoopEcore : public EventLoop
 {
 public:
-  std::unique_ptr<EventLoop>             CreateEventLoop() override;
-  std::unique_ptr<CallbackManager>       CreateCallbackManager() override;
-  std::unique_ptr<FileDescriptorMonitor> CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask) override;
-  TimerPtr                               CreateTimer(uint32_t milliSec) override;
+  void Initialize(int argc, char** argv) override;
+  void Shutdown() override;
+  void Run() override;
+  void Quit() override;
 };
 
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_SYSTEM_FACTORY_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_ECORE_H

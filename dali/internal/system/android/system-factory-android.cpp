@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <dali/internal/system/android/callback-manager-android.h>
 #include <dali/internal/system/android/file-descriptor-monitor-android.h>
 #include <dali/internal/system/android/timer-impl-android.h>
+#include <dali/internal/system/common/event-loop.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali
@@ -42,6 +43,11 @@ std::unique_ptr<FileDescriptorMonitor> SystemFactoryAndroid::CreateFileDescripto
 TimerPtr SystemFactoryAndroid::CreateTimer(uint32_t milliSec)
 {
   return TimerAndroid::New(milliSec);
+}
+
+std::unique_ptr<EventLoop> SystemFactoryAndroid::CreateEventLoop()
+{
+  return std::unique_ptr<EventLoop>(nullptr);
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()

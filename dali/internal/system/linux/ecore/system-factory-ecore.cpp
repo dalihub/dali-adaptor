@@ -23,6 +23,7 @@
 #include <dali/internal/system/glib/file-descriptor-monitor-glib.h>
 #include <dali/internal/system/glib/timer-impl-glib.h>
 #include <dali/internal/system/linux/ecore/callback-manager-ecore.h>
+#include <dali/internal/system/linux/ecore/event-loop-ecore.h>
 #include <dali/internal/system/linux/ecore/file-descriptor-monitor-ecore.h>
 #include <dali/internal/system/linux/ecore/timer-impl-ecore.h>
 #include <dali/internal/window-system/common/display-utils.h>
@@ -61,6 +62,11 @@ TimerPtr SystemFactoryEcore::CreateTimer(uint32_t milliSec)
     return TimerGlib::New(milliSec);
   }
   return TimerEcore::New(milliSec);
+}
+
+std::unique_ptr<EventLoop> SystemFactoryEcore::CreateEventLoop()
+{
+  return Utils::MakeUnique<EventLoopEcore>();
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()

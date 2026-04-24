@@ -40,6 +40,7 @@ SET( adaptor_system_linux_ecore_src_files
     ${adaptor_system_dir}/glib/file-descriptor-monitor-glib.cpp
     ${adaptor_system_dir}/glib/timer-impl-glib.cpp
     ${adaptor_system_dir}/linux/ecore/callback-manager-ecore.cpp
+    ${adaptor_system_dir}/linux/ecore/event-loop-ecore.cpp
     ${adaptor_system_dir}/linux/ecore/file-descriptor-monitor-ecore.cpp
     ${adaptor_system_dir}/linux/ecore/system-factory-ecore.cpp
     ${adaptor_system_dir}/linux/ecore/timer-impl-ecore.cpp

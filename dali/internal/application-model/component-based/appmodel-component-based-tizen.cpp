@@ -19,23 +19,20 @@
 #include <dali/internal/application-model/component-based/appmodel-component-based-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <Ecore.h>
 #include <dlog.h>
 
 // CONDITIONAL INCLUDES
 #ifdef COMPONENT_APPLICATION_SUPPORT
 #include <component_based_app_base.h>
 #endif
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif // DALI_ELDBUS_AVAILABLE
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen/framework-tizen.h>
+#include <dali/internal/system/common/event-loop.h>
+#include <dali/internal/system/common/system-factory.h>
 
 namespace Dali
 {
@@ -75,24 +72,13 @@ extern "C" DALI_ADAPTOR_API void AppExit(AppModelComponentBased* p)
   p->AppExit();
 }
 
-namespace
-{
-#if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
-#endif
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FRAMEWORK, true);
-
-const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
-const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
-} // anonymous namespace
-
 struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 {
   int AppMain(void* data)
   {
     int ret = TIZEN_ERROR_NOT_SUPPORTED;
 #ifdef COMPONENT_APPLICATION_SUPPORT
-    FrameworkTizen* mFramework = static_cast<FrameworkTizen*>(data);
+    mFramework = static_cast<FrameworkTizen*>(data);
 
     /*Crate component_based_app_base_lifecycle_callback*/
     component_based_app_base_lifecycle_callback_s callback;
@@ -103,7 +89,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     callback.terminate = ComponentAppTerminate;
     callback.fini      = ComponentAppFinish;
 
-    ret = component_based_app_base_main(*mFramework->GetArgc(), *mFramework->GetArgv(), &callback, mFramework);
+    ret = component_based_app_base_main(*mFramework->GetArgc(), *mFramework->GetArgv(), &callback, mAppModelComponentBased);
 #else
     DALI_LOG_ERROR("component application feature is not supported");
 #endif
@@ -113,35 +99,51 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   static void AppInit(int argc, char** argv, void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-    ecore_init();
-    ecore_app_args_set(argc, (const char**)argv);
-#pragma GCC diagnostic pop
-
-#ifdef DALI_ELDBUS_AVAILABLE
-    // Initialize ElDBus.
-    DALI_LOG_INFO(gDBusLogging, Debug::General, "Starting DBus Initialization\n");
-    eldbus_init();
-#endif
+    auto* impl       = static_cast<AppModelComponentBased*>(data)->mImpl;
+    impl->mEventLoop = GetSystemFactory()->CreateEventLoop();
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Initialize(argc, argv);
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppRun(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
-    ecore_main_loop_begin();
+    auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Run();
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppExit(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
-    ecore_main_loop_quit();
+    auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Quit();
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void* ComponentAppCreate(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppCreate() emitted", __MODULE__, __func__, __LINE__);
-    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    auto*                impl      = static_cast<AppModelComponentBased*>(data)->mImpl;
+    FrameworkTizen*      framework = impl->mFramework;
     Framework::Observer* observer  = &framework->GetObserver();
     observer->OnInit();
 
@@ -151,19 +153,23 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   static void ComponentAppTerminate(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppTerminate() emitted", __MODULE__, __func__, __LINE__);
-    Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    auto*                impl     = static_cast<AppModelComponentBased*>(data)->mImpl;
+    Framework::Observer* observer = &impl->mFramework->GetObserver();
     observer->OnTerminate();
   }
 
   static void ComponentAppFinish(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppFinish() emitted", __MODULE__, __func__, __LINE__);
-    ecore_shutdown();
-
-    if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
+    auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
+    if(impl->mEventLoop)
     {
-      Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
-      ecore_shutdown();
+      impl->mEventLoop->Shutdown();
+      impl->mEventLoop.reset();
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
@@ -175,15 +181,19 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   }
 
   Impl(void* data)
+  : mEventLoop(),
+    mAppModelComponentBased(static_cast<AppModelComponentBased*>(data)),
+    mFramework(nullptr)
   {
-    mAppModelComponentBased = static_cast<AppModelComponentBased*>(data);
   }
 
   ~Impl()
   {
   }
 
-  AppModelComponentBased* mAppModelComponentBased;
+  std::unique_ptr<EventLoop> mEventLoop;
+  AppModelComponentBased*    mAppModelComponentBased;
+  FrameworkTizen*            mFramework;
 };
 
 AppModelComponentBased::AppModelComponentBased()
