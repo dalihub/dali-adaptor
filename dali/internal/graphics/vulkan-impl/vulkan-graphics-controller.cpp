@@ -826,10 +826,20 @@ UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateImmediateComm
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-  auto renderPass = UniquePtr<Graphics::RenderPass>(new Vulkan::RenderPass(renderPassCreateInfo, *this));
+  // Reuse the existing front-end object when the caller hands one back — its
+  // address may be cached in FramebufferImpl::mRenderPasses from earlier
+  // frames, so creating a fresh object would leave those entries dangling.
+  // Reinitialize() notifies registered observers so they drop stale backend
+  // RenderPassImpl handles tied to the previous load/store ops or attachment
+  // shape.
+  if(oldRenderPass)
+  {
+    static_cast<Vulkan::RenderPass*>(oldRenderPass.get())->Reinitialize(renderPassCreateInfo);
+    return std::move(oldRenderPass);
+  }
 
-  // Don't create actual vulkan resource here. It will instead be done on demand. (e.g. framebuffer creation, CommandBuffer::BeginRenderPass())10
-  return renderPass;
+  // Don't create actual vulkan resource here. It will instead be done on demand. (e.g. framebuffer creation, CommandBuffer::BeginRenderPass())
+  return UniquePtr<Graphics::RenderPass>(new Vulkan::RenderPass(renderPassCreateInfo, *this));
 }
 
 UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,54 @@ RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, VulkanG
   }
 }
 
-RenderPass::~RenderPass() = default;
+RenderPass::~RenderPass()
+{
+  // Notify observers before destruction so they drop any cached raw pointer
+  // to this object — otherwise FramebufferImpl::mRenderPasses would be left
+  // with a dangling entry.
+  mObserverNotifying = true;
+  for(auto* observer : mLifecycleObservers)
+  {
+    observer->RenderPassInvalidated(this);
+  }
+  // No need to clear mObserverNotifying — we're being destroyed.
+}
+
+void RenderPass::Reinitialize(const Graphics::RenderPassCreateInfo& createInfo)
+{
+  mCreateInfo = createInfo;
+  mAttachments.clear();
+  if(createInfo.attachments)
+  {
+    mAttachments.insert(mAttachments.end(), createInfo.attachments->begin(), createInfo.attachments->end());
+    mCreateInfo.attachments = &mAttachments;
+  }
+  else
+  {
+    mCreateInfo.attachments = nullptr;
+  }
+
+  // Load/store ops or attachment shape may have changed; cached backend
+  // RenderPassImpl handles in observing Framebuffers no longer reflect this
+  // object's state. Clear them so the next lookup re-matches or recreates.
+  mObserverNotifying = true;
+  for(auto* observer : mLifecycleObservers)
+  {
+    observer->RenderPassInvalidated(this);
+  }
+  mObserverNotifying = false;
+}
+
+void RenderPass::AddLifecycleObserver(LifecycleObserver& observer)
+{
+  DALI_ASSERT_ALWAYS(!mObserverNotifying && "Cannot add observer while notifying RenderPass::LifecycleObservers");
+  mLifecycleObservers.insert(&observer);
+}
+
+void RenderPass::RemoveLifecycleObserver(LifecycleObserver& observer)
+{
+  DALI_ASSERT_ALWAYS(!mObserverNotifying && "Cannot remove observer while notifying RenderPass::LifecycleObservers");
+  mLifecycleObservers.erase(&observer);
+}
 
 } // namespace Dali::Graphics::Vulkan
