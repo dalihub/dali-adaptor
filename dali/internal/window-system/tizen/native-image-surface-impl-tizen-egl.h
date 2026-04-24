@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
-#define DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
+#ifndef DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_NATIVE_IMAGE_SURFACE_IMPL_TIZEN_EGL_H
+#define DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_NATIVE_IMAGE_SURFACE_IMPL_TIZEN_EGL_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -36,18 +36,18 @@ namespace Internal
 {
 namespace Adaptor
 {
-class NativeImageSurfaceEcoreWl : public Dali::Internal::Adaptor::NativeImageSurface
+class NativeImageSurfaceTizen : public Dali::Internal::Adaptor::NativeImageSurface
 {
 public:
   /**
    * @param [in] queue the NativeImageQueue pointer
    */
-  NativeImageSurfaceEcoreWl(Dali::NativeImageQueuePtr queue);
+  NativeImageSurfaceTizen(Dali::NativeImageQueuePtr queue);
 
   /**
    * @brief Destructor
    */
-  ~NativeImageSurfaceEcoreWl() = default;
+  ~NativeImageSurfaceTizen() = default;
 
 public:
   /**
@@ -108,4 +108,4 @@ private:                                                           // Data
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_WAYLAND_NATIVE_IMAGE_SURFACE_IMPL_ECORE_WL_EGL_H
+#endif // DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_NATIVE_IMAGE_SURFACE_IMPL_TIZEN_EGL_H

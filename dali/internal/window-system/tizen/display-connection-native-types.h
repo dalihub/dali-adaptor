@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +18,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/window-system/tizen-wayland/display-connection-native-types.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/common/egl-include.h>
+#include <dali/public-api/object/any.h>
+#include <wayland-client.h>
 
 namespace Dali::Internal::Adaptor
 {
-Any CastToNativeGraphicsType(wl_display* display)
-{
-  return {static_cast<EGLNativeDisplayType>(display)};
-}
-
+/**
+ * Returns the Any cast of the given display to the native graphics type.
+ * @param display The Wayland Display to cast
+ * @return The Any with the appropriate cast
+ */
+Any CastToNativeGraphicsType(wl_display* display);
 } // namespace Dali::Internal::Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/window-system/tizen-wayland/display-connection-native-types.h>
+#include <dali/internal/window-system/tizen/display-connection-native-types.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/common/graphics-library.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) Any CastToNativeGraphicsType(wl_display* display)
+Any CastToNativeGraphicsType(wl_display* display)
 {
-  return GraphicsLibrary::CastToNativeGraphicsType(display);
+  return {static_cast<EGLNativeDisplayType>(display)};
 }
 
 } // namespace Dali::Internal::Adaptor

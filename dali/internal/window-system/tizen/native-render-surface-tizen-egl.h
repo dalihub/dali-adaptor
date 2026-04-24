@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZEN_NATIVE_SURFACE_TIZEN_EGL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZEN_NATIVE_SURFACE_TIZEN_EGL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class EglInterface;
 /**
  * Ecore Wayland Native implementation of render surface.
  */
-class NativeRenderSurfaceEcoreWl : public Dali::NativeRenderSurface
+class NativeRenderSurfaceTizen : public Dali::NativeRenderSurface
 {
 public:
   /**
@@ -47,12 +47,12 @@ public:
    * @param [in] surface the native surface handle
    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
    */
-  NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent = false);
+  NativeRenderSurfaceTizen(SurfaceSize surfaceSize, Any surface, bool isTransparent = false);
 
   /**
    * @brief Destructor
    */
-  virtual ~NativeRenderSurfaceEcoreWl();
+  virtual ~NativeRenderSurfaceTizen();
 
 public:
   /**
@@ -211,4 +211,4 @@ private: // Data
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZEN_NATIVE_SURFACE_TIZEN_EGL_H

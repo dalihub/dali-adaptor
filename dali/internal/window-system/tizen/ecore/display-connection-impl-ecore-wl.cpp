@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
+#include <dali/internal/window-system/tizen/ecore/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
 #include <dali/devel-api/common/vector-wrapper.h>
@@ -26,7 +26,7 @@
 #include <utility> ///< for std::pair
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/tizen-wayland/display-connection-native-types.h>
+#include <dali/internal/window-system/tizen/display-connection-native-types.h>
 
 namespace Dali::Internal::Adaptor
 {

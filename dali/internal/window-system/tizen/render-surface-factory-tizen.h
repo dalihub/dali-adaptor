@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL2_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL2_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_TIZEN_H
+#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_TIZEN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-class RenderSurfaceFactoryEcoreWl2 : public RenderSurfaceFactory
+class RenderSurfaceFactoryTizen : public RenderSurfaceFactory
 {
 public:
   std::unique_ptr<WindowRenderSurface> CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent = false) override;
@@ -42,4 +42,4 @@ public:
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_ECORE_WL2_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_RENDER_SURFACE_FACTORY_TIZEN_H

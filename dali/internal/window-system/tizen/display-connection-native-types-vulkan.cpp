@@ -15,14 +15,14 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/window-system/common/native-image-surface-factory.h>
-#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl-egl.h>
+// EXTERNAL INCLUDES
+#include <dali/internal/window-system/tizen/display-connection-native-types.h>
 
 namespace Dali::Internal::Adaptor
 {
-std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
+Any CastToNativeGraphicsType(wl_display* display)
 {
-  return std::make_unique<Internal::Adaptor::NativeImageSurfaceEcoreWl>(queue);
+  return {display};
 }
+
 } // namespace Dali::Internal::Adaptor

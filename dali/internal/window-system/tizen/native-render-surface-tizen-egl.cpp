@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl-egl.h>
+#include <dali/internal/window-system/tizen/native-render-surface-tizen-egl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -44,7 +44,7 @@ Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 // The callback of tbm_surface_queue_add_acquirable_cb()
 static void TbmAcquirableCallback(tbm_surface_queue_h queue, void* data)
 {
-  NativeRenderSurfaceEcoreWl* surface = static_cast<NativeRenderSurfaceEcoreWl*>(data);
+  NativeRenderSurfaceTizen* surface = static_cast<NativeRenderSurfaceTizen*>(data);
   if(surface)
   {
     surface->TriggerFrameRenderedCallback();
@@ -83,7 +83,7 @@ inline bool IsColorDepth32Required(const tbm_format format)
 
 } // unnamed namespace
 
-NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent)
+NativeRenderSurfaceTizen::NativeRenderSurfaceTizen(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 : mRenderNotification(NULL),
   mGraphics(NULL),
   mEGL(nullptr),
@@ -114,7 +114,7 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, 
   }
 }
 
-NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
+NativeRenderSurfaceTizen::~NativeRenderSurfaceTizen()
 {
   if(mEGLSurface)
   {
@@ -138,17 +138,17 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* renderNotification)
+void NativeRenderSurfaceTizen::SetRenderNotification(TriggerEventInterface* renderNotification)
 {
   mRenderNotification = renderNotification;
 }
 
-Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
+Any NativeRenderSurfaceTizen::GetNativeRenderable()
 {
   return mTbmQueue;
 }
 
-void NativeRenderSurfaceEcoreWl::TriggerFrameRenderedCallback()
+void NativeRenderSurfaceTizen::TriggerFrameRenderedCallback()
 {
   if(mFrameRenderedCallback)
   {
@@ -156,7 +156,7 @@ void NativeRenderSurfaceEcoreWl::TriggerFrameRenderedCallback()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::SetFrameRenderedCallback(CallbackBase* callback)
+void NativeRenderSurfaceTizen::SetFrameRenderedCallback(CallbackBase* callback)
 {
   mFrameRenderedCallback = std::unique_ptr<EventThreadCallback>(new EventThreadCallback(callback));
   DALI_LOG_DEBUG_INFO("SetFrameRenderedCallback Trigger Id(%d)\n", mFrameRenderedCallback->GetId());
@@ -168,12 +168,12 @@ void NativeRenderSurfaceEcoreWl::SetFrameRenderedCallback(CallbackBase* callback
   }
 }
 
-PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
+PositionSize NativeRenderSurfaceTizen::GetPositionSize() const
 {
   return PositionSize(0, 0, static_cast<int>(mSurfaceSize.GetWidth()), static_cast<int>(mSurfaceSize.GetHeight()));
 }
 
-void NativeRenderSurfaceEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
+void NativeRenderSurfaceTizen::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
   // calculate DPI
   float xres, yres;
@@ -186,17 +186,17 @@ void NativeRenderSurfaceEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int(yres + 0.5f);
 }
 
-int NativeRenderSurfaceEcoreWl::GetSurfaceOrientation() const
+int NativeRenderSurfaceTizen::GetSurfaceOrientation() const
 {
   return 0;
 }
 
-int NativeRenderSurfaceEcoreWl::GetScreenOrientation() const
+int NativeRenderSurfaceTizen::GetScreenOrientation() const
 {
   return 0;
 }
 
-void NativeRenderSurfaceEcoreWl::InitializeGraphics()
+void NativeRenderSurfaceTizen::InitializeGraphics()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
@@ -217,7 +217,7 @@ void NativeRenderSurfaceEcoreWl::InitializeGraphics()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::CreateSurface()
+void NativeRenderSurfaceTizen::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
@@ -225,17 +225,17 @@ void NativeRenderSurfaceEcoreWl::CreateSurface()
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
   mEGLSurface = eglImpl.CreateSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(mTbmQueue), mColorDepth);
-  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::CreateSurface mTbmQueue(%p), mOwnSurface(%d), create surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceTizen::CreateSurface mTbmQueue(%p), mOwnSurface(%d), create surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
 }
 
-void NativeRenderSurfaceEcoreWl::DestroySurface()
+void NativeRenderSurfaceTizen::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
   auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroySurface mTbmQueue(%p), mOwnSurface(%d), surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceTizen::DestroySurface mTbmQueue(%p), mOwnSurface(%d), surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
   eglImpl.DestroySurface(mEGLSurface);
   mEGLSurface = NULL;
 
@@ -246,7 +246,7 @@ void NativeRenderSurfaceEcoreWl::DestroySurface()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::CreateContext()
+void NativeRenderSurfaceTizen::CreateContext()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
@@ -254,22 +254,22 @@ void NativeRenderSurfaceEcoreWl::CreateContext()
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
   eglImpl.CreateWindowContext(mEGLContext);
-  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::CreateContext mTbmQueue(%p), mOwnSurface(%d), create context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceTizen::CreateContext mTbmQueue(%p), mOwnSurface(%d), create context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
 }
 
-void NativeRenderSurfaceEcoreWl::DestroyContext()
+void NativeRenderSurfaceTizen::DestroyContext()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
   auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroyContext mTbmQueue(%p), mOwnSurface(%d), destroy context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceTizen::DestroyContext mTbmQueue(%p), mOwnSurface(%d), destroy context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
   eglImpl.DestroyContext(mEGLContext);
   mEGLContext = NULL;
 }
 
-bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
+bool NativeRenderSurfaceTizen::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
@@ -284,7 +284,7 @@ bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
   return eglImpl.ReplaceSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(mTbmQueue), mEGLSurface, mEGLContext);
 }
 
-void NativeRenderSurfaceEcoreWl::MoveResize(Dali::PositionSize positionSize)
+void NativeRenderSurfaceTizen::MoveResize(Dali::PositionSize positionSize)
 {
   tbm_surface_queue_error_e error = TBM_SURFACE_QUEUE_ERROR_NONE;
 
@@ -299,16 +299,16 @@ void NativeRenderSurfaceEcoreWl::MoveResize(Dali::PositionSize positionSize)
   mSurfaceSize.SetHeight(static_cast<uint16_t>(positionSize.height));
 }
 
-void NativeRenderSurfaceEcoreWl::Resize(Dali::Uint16Pair size)
+void NativeRenderSurfaceTizen::Resize(Dali::Uint16Pair size)
 {
   MoveResize(PositionSize(0, 0, size.GetWidth(), size.GetHeight()));
 }
 
-void NativeRenderSurfaceEcoreWl::StartRender()
+void NativeRenderSurfaceTizen::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool NativeRenderSurfaceTizen::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   // Not support partial update
   clippingRect = Rect<int32_t>(0, 0, mSurfaceSize.GetWidth(), mSurfaceSize.GetHeight());
@@ -348,7 +348,7 @@ bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vect
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender()
+void NativeRenderSurfaceTizen::PostRender()
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if(eglGraphics)
@@ -375,22 +375,22 @@ void NativeRenderSurfaceEcoreWl::PostRender()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::StopRender()
+void NativeRenderSurfaceTizen::StopRender()
 {
   ReleaseLock();
 }
 
-void NativeRenderSurfaceEcoreWl::SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization)
+void NativeRenderSurfaceTizen::SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization)
 {
   mThreadSynchronization = &threadSynchronization;
 }
 
-Dali::Integration::RenderSurfaceInterface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
+Dali::Integration::RenderSurfaceInterface::Type NativeRenderSurfaceTizen::GetSurfaceType()
 {
   return Dali::Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE;
 }
 
-void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
+void NativeRenderSurfaceTizen::MakeContextCurrent()
 {
   if(mEGL != nullptr)
   {
@@ -398,17 +398,17 @@ void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
   }
 }
 
-Integration::DepthBufferAvailable NativeRenderSurfaceEcoreWl::GetDepthBufferRequired()
+Integration::DepthBufferAvailable NativeRenderSurfaceTizen::GetDepthBufferRequired()
 {
   return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
 }
 
-Integration::StencilBufferAvailable NativeRenderSurfaceEcoreWl::GetStencilBufferRequired()
+Integration::StencilBufferAvailable NativeRenderSurfaceTizen::GetStencilBufferRequired()
 {
   return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
 }
 
-void NativeRenderSurfaceEcoreWl::ReleaseLock()
+void NativeRenderSurfaceTizen::ReleaseLock()
 {
   if(mThreadSynchronization)
   {
@@ -416,7 +416,7 @@ void NativeRenderSurfaceEcoreWl::ReleaseLock()
   }
 }
 
-void NativeRenderSurfaceEcoreWl::CreateNativeRenderable()
+void NativeRenderSurfaceTizen::CreateNativeRenderable()
 {
   int width  = static_cast<int>(mSurfaceSize.GetWidth());
   int height = static_cast<int>(mSurfaceSize.GetHeight());

@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H
-#define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H
+#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H
+#define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,24 @@
  *
  */
 
-#include <dali/internal/window-system/common/window-factory.h>
-
+#include <dali/internal/window-system/common/display-connection-factory.h>
+#include <dali/internal/window-system/common/display-utils.h>
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
-class WindowFactoryEcoreWl2 : public WindowFactory
+class DisplayConnectionFactoryEcoreWl : public DisplayConnectionFactory
 {
 public:
-  std::unique_ptr<WindowBase> CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent) override;
+  std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> CreateDisplayConnection() override;
 };
 
 } // namespace Adaptor
+
 } // namespace Internal
+
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL2_H
+#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H

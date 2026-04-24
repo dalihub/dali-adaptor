@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
  *
  */
 
-#include <dali/internal/window-system/tizen-wayland/display-connection-factory-ecore-wl.h>
-#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
+// CLASS HEADER
+#include <dali/internal/window-system/tizen/ecore/window-factory-ecore-wl2.h>
+
+// INTERNAL HEADERS
+#include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/tizen/ecore/window-base-ecore-wl2.h>
 
 namespace Dali
 {
@@ -24,16 +28,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryEcoreWl::CreateDisplayConnection()
+std::unique_ptr<WindowBase> WindowFactoryEcoreWl2::CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique<DisplayConnectionEcoreWl>();
+  return Utils::MakeUnique<WindowBaseEcoreWl2>(positionSize, surface, isTransparent);
 }
 
-// this should be created from somewhere
-std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
+// this should be created from Window impl
+std::unique_ptr<WindowFactory> GetWindowFactory()
 {
-  // returns X display factory
-  return Utils::MakeUnique<DisplayConnectionFactoryEcoreWl>();
+  // returns Window factory
+  return Utils::MakeUnique<WindowFactoryEcoreWl2>();
 }
 
 } // namespace Adaptor

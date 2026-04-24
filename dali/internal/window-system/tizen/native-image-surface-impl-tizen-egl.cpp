@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/native-image-surface-impl-ecore-wl-egl.h>
+#include <dali/internal/window-system/tizen/native-image-surface-impl-tizen-egl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -70,7 +70,7 @@ inline bool IsColorDepth32Required(const tbm_format format)
 }
 } // namespace
 
-NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageQueuePtr queue)
+NativeImageSurfaceTizen::NativeImageSurfaceTizen(Dali::NativeImageQueuePtr queue)
 : mDisplayConnection(nullptr),
   mGraphics(nullptr),
   mEGL(nullptr),
@@ -96,7 +96,7 @@ NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageQueuePtr q
   }
 }
 
-bool NativeImageSurfaceEcoreWl::SetGraphicsConfig(bool depth, bool stencil, int msaa, int version)
+bool NativeImageSurfaceTizen::SetGraphicsConfig(bool depth, bool stencil, int msaa, int version)
 {
   // Setup the configuration
   // The GLES version support is done by the caller
@@ -116,12 +116,12 @@ bool NativeImageSurfaceEcoreWl::SetGraphicsConfig(bool depth, bool stencil, int 
   return true;
 }
 
-Any NativeImageSurfaceEcoreWl::GetNativeRenderable()
+Any NativeImageSurfaceTizen::GetNativeRenderable()
 {
   return mTbmQueue;
 }
 
-void NativeImageSurfaceEcoreWl::InitializeGraphics()
+void NativeImageSurfaceTizen::InitializeGraphics()
 {
   std::unique_ptr<EglGraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<EglGraphicsFactory>(*(new EnvironmentOptions()));
   auto                                graphicsFactory    = *graphicsFactoryPtr.get();
@@ -159,7 +159,7 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
   }
 }
 
-void NativeImageSurfaceEcoreWl::TerminateGraphics()
+void NativeImageSurfaceTizen::TerminateGraphics()
 {
   auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
@@ -176,12 +176,12 @@ void NativeImageSurfaceEcoreWl::TerminateGraphics()
   }
 }
 
-void NativeImageSurfaceEcoreWl::PreRender()
+void NativeImageSurfaceTizen::PreRender()
 {
   MakeContextCurrent();
 }
 
-void NativeImageSurfaceEcoreWl::PostRender()
+void NativeImageSurfaceTizen::PostRender()
 {
   auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
@@ -192,7 +192,7 @@ void NativeImageSurfaceEcoreWl::PostRender()
   }
 }
 
-void NativeImageSurfaceEcoreWl::MakeContextCurrent()
+void NativeImageSurfaceTizen::MakeContextCurrent()
 {
   if(mEGL != nullptr)
   {
@@ -207,7 +207,7 @@ void NativeImageSurfaceEcoreWl::MakeContextCurrent()
   }
 }
 
-bool NativeImageSurfaceEcoreWl::CanRender()
+bool NativeImageSurfaceTizen::CanRender()
 {
   return tbm_surface_queue_can_dequeue(mTbmQueue, 0);
 }

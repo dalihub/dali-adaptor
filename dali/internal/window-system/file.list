@@ -23,39 +23,39 @@ SET( adaptor_window_system_common_dynamic_src_files
     ${adaptor_window_system_dir}/common/render-surface-factory-dynamic.cpp
 )
 
-# module: window-system, backend: tizen-wayland
+# module: window-system, backend: tizen
 SET( adaptor_window_system_tizen_wayland_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/display-connection-factory-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/display-connection-impl-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-base-ecore-wl2.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-system-ecore-wl2.cpp
+    ${adaptor_window_system_dir}/tizen/ecore/display-connection-factory-ecore-wl.cpp
+    ${adaptor_window_system_dir}/tizen/ecore/display-connection-impl-ecore-wl.cpp
+    ${adaptor_window_system_dir}/tizen/ecore/window-base-ecore-wl2.cpp
+    ${adaptor_window_system_dir}/tizen/ecore/window-factory-ecore-wl2.cpp
+    ${adaptor_window_system_dir}/tizen/ecore/window-system-ecore-wl2.cpp
 )
 
-# module: window-system, backend: tizen-wayland/egl
+# module: window-system, backend: tizen/egl
 SET( adaptor_window_system_tizen_wayland_egl_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-egl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-factory-ecore-wl-egl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-impl-ecore-wl-egl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/native-render-surface-ecore-wl-egl.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2-egl.cpp
+    ${adaptor_window_system_dir}/tizen/display-connection-native-types-egl.cpp
+    ${adaptor_window_system_dir}/tizen/native-image-surface-factory-tizen-egl.cpp
+    ${adaptor_window_system_dir}/tizen/native-image-surface-impl-tizen-egl.cpp
+    ${adaptor_window_system_dir}/tizen/native-render-surface-tizen-egl.cpp
+    ${adaptor_window_system_dir}/tizen/render-surface-factory-tizen-egl.cpp
 )
 
-# module: window-system, backend: tizen-wayland/vulkan
+# module: window-system, backend: tizen/vulkan
 SET( adaptor_window_system_tizen_wayland_vulkan_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-vulkan.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/native-image-surface-factory-ecore-wl-vulkan.cpp
-    ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2-vulkan.cpp
+    ${adaptor_window_system_dir}/tizen/display-connection-native-types-vulkan.cpp
+    ${adaptor_window_system_dir}/tizen/native-image-surface-factory-tizen-vulkan.cpp
+    ${adaptor_window_system_dir}/tizen/render-surface-factory-tizen-vulkan.cpp
 )
 
-# module: window-system, backend: tizen-wayland/dynamic
+# module: window-system, backend: tizen/dynamic
 SET( adaptor_window_system_tizen_wayland_dynamic_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/display-connection-native-types-dynamic.cpp
+    ${adaptor_window_system_dir}/tizen/display-connection-native-types-dynamic.cpp
 )
 
-# module: window-system, backend: tizen-wayland/graphics-library
+# module: window-system, backend: tizen/graphics-library
 SET( adaptor_window_system_tizen_wayland_graphics_library_src_files
-    ${adaptor_window_system_dir}/tizen-wayland/graphics-library-functions-tizen-wayland.cpp
+    ${adaptor_window_system_dir}/tizen/graphics-library-functions-tizen-wayland.cpp
 )
 
 # module: window-system, backend: x11

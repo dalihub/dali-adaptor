@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
@@ -17,16 +15,14 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <Ecore_Wl2.h>
-#include <dali/public-api/object/any.h>
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/native-image-surface-factory.h>
+#include <dali/internal/window-system/tizen/native-image-surface-impl-tizen-egl.h>
 
 namespace Dali::Internal::Adaptor
 {
-/**
- * Returns the Any cast of the given display to the native graphics type.
- * @param display The Wayland Display to cast
- * @return The Any with the appropriate cast
- */
-Any CastToNativeGraphicsType(wl_display* display);
+std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
+{
+  return std::make_unique<Internal::Adaptor::NativeImageSurfaceTizen>(queue);
+}
 } // namespace Dali::Internal::Adaptor

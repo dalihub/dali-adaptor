@@ -1,8 +1,5 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H
-#define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H
-
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +15,27 @@
  *
  */
 
-#include <dali/internal/window-system/common/display-connection-factory.h>
-#include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/tizen/ecore/display-connection-factory-ecore-wl.h>
+#include <dali/internal/window-system/tizen/ecore/display-connection-impl-ecore-wl.h>
+
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
-class DisplayConnectionFactoryEcoreWl : public DisplayConnectionFactory
+std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryEcoreWl::CreateDisplayConnection()
 {
-public:
-  std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> CreateDisplayConnection() override;
-};
+  return Utils::MakeUnique<DisplayConnectionEcoreWl>();
+}
+
+// this should be created from somewhere
+std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
+{
+  // returns X display factory
+  return Utils::MakeUnique<DisplayConnectionFactoryEcoreWl>();
+}
 
 } // namespace Adaptor
-
 } // namespace Internal
-
 } // namespace Dali
-
-#endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_FACTORY_ECORE_WL_H
