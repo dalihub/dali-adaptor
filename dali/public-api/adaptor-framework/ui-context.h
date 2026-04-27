@@ -105,13 +105,15 @@ public:
   bool AddIdle(CallbackBase* callback);
 
   /**
-   * @brief Gets the render thread id of DALi.
+   * @brief Removes a previously added idle callback.
    *
-   * @note If render thread id getter doesn't supported, it will return 0 as default.
-   * @return The render thread id
-   * @SINCE_2_5.10
+   * @param[in] callback The callback to remove
+   *
+   * @note Function must be called from main event thread only
+   * @note Ownership of the callback is NOT returned; the callback is deleted.
+   * @SINCE_2_5.20
    */
-  int32_t GetRenderThreadId();
+  void RemoveIdle(CallbackBase* callback);
 
   /**
    * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
