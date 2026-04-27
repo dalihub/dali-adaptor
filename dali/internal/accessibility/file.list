@@ -15,10 +15,6 @@ SET( adaptor_accessibility_tizen_src_files
 SET( adaptor_accessibility_tizen_common_src_files
 )
 
-# module: accessibility, backend: tizen-ivi profile
-SET( adaptor_accessibility_tizen_ivi_src_files
-)
-
 # module: accessibility, backend: tizen-mobile profile
 SET( adaptor_accessibility_tizen_mobile_src_files
 )
