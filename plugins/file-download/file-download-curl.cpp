@@ -70,20 +70,32 @@ const char* DALI_ENV_CURLOPT_VERBOSE_MODE = "DALI_CURLOPT_VERBOSE_MODE";
 const char* DALI_ENV_CURLOPT_MAXREDIRS    = "DALI_CURLOPT_MAXREDIRS";
 const char* HTTP_PROXY_ENV                = "http_proxy";
 
-inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, std::string prefix)
-{
-  if(result != CURLE_OK)
-  {
-    if(errorBuffer != nullptr)
-    {
-      DALI_LOG_ERROR("%s \"%s\" with error code %d\n", prefix.c_str(), url.c_str(), result);
-    }
-    else
-    {
-      DALI_LOG_ERROR("%s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
-    }
+// Helper to print the curl error codes.
+// Use macro, ensure to print the line number.
+#define LOG_CURL_RESULT(result, errorBuffer, url, prefix)                                                                                  \
+  {                                                                                                                                        \
+    if(DALI_UNLIKELY(result != CURLE_OK))                                                                                                  \
+    {                                                                                                                                      \
+      if(errorBuffer != nullptr)                                                                                                           \
+      {                                                                                                                                    \
+        DALI_LOG_ERROR("%s \"%s\" with error code %d\n", std::string(prefix).c_str(), std::string(url).c_str(), result);                   \
+      }                                                                                                                                    \
+      else                                                                                                                                 \
+      {                                                                                                                                    \
+        DALI_LOG_ERROR("%s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, errorBuffer); \
+      }                                                                                                                                    \
+    }                                                                                                                                      \
   }
-}
+
+#define CHECK_CURL_RESULT_AND_RETURN_FALSE(curlResult, prefix) \
+  {                                                            \
+    if(DALI_UNLIKELY(curlResult != CURLE_OK))                  \
+    {                                                          \
+      LOG_CURL_RESULT(curlResult, errorBuffer, url, prefix);   \
+      DALI_LOG_ERROR("CURL error occured!\n");                 \
+      return false;                                            \
+    }                                                          \
+  }
 
 std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t width)
 {
@@ -238,42 +250,33 @@ size_t FUNCTION_CALL_FROM_CURL_PREFIX WriteFunction(void* input, size_t uSize, s
 }
 #endif
 
-void InitWriteFunction(CURL* curlHandle)
-{
-#ifdef DALI_PROFILE_WINDOWS
-  curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, WriteFunction);
-#else
-  curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, nullptr);
-#endif
-}
-
-void ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::string& userAgent, const std::string& proxy)
+bool ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::string& userAgent, const std::string& proxy, char* errorBuffer)
 {
   const auto verboseMode = GetCurloptVerboseMode(); // 0 : off, 1 : on
 
   const long maximumRedirectionCounts = GetCurloptMaximumRedirectionCount(); // 5 for default
 
-  curl_easy_setopt(curlHandle, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, verboseMode);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_URL, url.c_str()), "CURLOPT_URL");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, verboseMode), "CURLOPT_VERBOSE");
 
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
   // Removed CURLOPT_FAILONERROR option
-  curl_easy_setopt(curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS);
-  curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS);
-  curl_easy_setopt(curlHandle, CURLOPT_HEADER, INCLUDE_HEADER);
-  curl_easy_setopt(curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY);
-  curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L);
-  curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
-  curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, maximumRedirectionCounts);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_CONNECTTIMEOUT, CONNECTION_TIMEOUT_SECONDS), "CURLOPT_CONNECTTIMEOUT");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS), "CURLOPT_TIMEOUT");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, INCLUDE_HEADER), "CURLOPT_HEADER");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY), "CURLOPT_NOBODY");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L), "CURLOPT_NOSIGNAL");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L), "CURLOPT_FOLLOWLOCATION");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, maximumRedirectionCounts), "CURLOPT_MAXREDIRS");
 
   if(DALI_LIKELY(!userAgent.empty()))
   {
-    curl_easy_setopt(curlHandle, CURLOPT_USERAGENT, userAgent.c_str());
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_USERAGENT, userAgent.c_str()), "CURLOPT_USERAGENT");
   }
 
   if(verboseMode != 0)
   {
-    curl_easy_setopt(curlHandle, CURLOPT_DEBUGFUNCTION, CurloptVerboseLogTrace);
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_DEBUGFUNCTION, CurloptVerboseLogTrace), "CURLOPT_DEBUGFUNCTION");
   }
 
   // If the proxy variable is set, ensure it's also used.
@@ -281,14 +284,14 @@ void ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::s
   // is overriding it.
   if(!proxy.empty())
   {
-    curl_easy_setopt(curlHandle, CURLOPT_PROXY, proxy.c_str());
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_PROXY, proxy.c_str()), "CURLOPT_PROXY");
   }
+
+  return true;
 }
 
-CURLcode DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize)
+bool DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize, const std::string& url, char* errorBuffer)
 {
-  CURLcode result(CURLE_OK);
-
   // create
   Dali::FileStream fileWriter(dataBuffer, dataSize, FileStream::WRITE | FileStream::BINARY);
   FILE*            dataBufferFilePointer = fileWriter.GetFile();
@@ -298,40 +301,45 @@ CURLcode DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataB
     setbuf(dataBufferFilePointer, NULL); // Turn buffering off
 
     // we only want the body which contains the file data
-    curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER);
-    curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY);
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER), "CURLOPT_HEADER");
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY), "CURLOPT_NOBODY");
 
     // disable the write callback, and get curl to write directly into our data buffer
-    InitWriteFunction(curlHandle);
-    curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, dataBufferFilePointer);
+#ifdef DALI_PROFILE_WINDOWS
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, WriteFunction), "CURLOPT_WRITEFUNCTION");
+#else
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, nullptr), "CURLOPT_WRITEFUNCTION");
+#endif
+
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, dataBufferFilePointer), "CURLOPT_WRITEDATA");
 
     // synchronous request of the body data
-    result = curl_easy_perform(curlHandle);
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download image file with fixed size");
   }
   else
   {
     DALI_LOG_ERROR("Fail to open buffer writter with size : %zu!\n", dataSize);
     // @todo : Need to check that is it correct error code?
-    result = CURLE_READ_ERROR;
+    CHECK_CURL_RESULT_AND_RETURN_FALSE(CURLE_READ_ERROR, "Dali::FileStream fileWriter create failed!");
   }
-  return result;
+  return true;
 }
 
-CURLcode DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize)
+bool DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize, const std::string& url, char* errorBuffer)
 {
   // create
   std::vector<ChunkData> chunks;
 
   // we only want the body which contains the file data
-  curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER);
-  curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER), "CURLOPT_HEADER");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY), "CURLOPT_NOBODY");
 
   // Enable the write callback.
-  curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, ChunkLoader);
-  curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &chunks);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, ChunkLoader), "CURLOPT_WRITEFUNCTION");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &chunks), "CURLOPT_WRITEDATA");
 
   // synchronous request of the body data
-  CURLcode result = curl_easy_perform(curlHandle);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download image file by chunk");
 
   // chunks should now contain all of the chunked data. Reassemble into a single vector
   dataSize = 0;
@@ -351,7 +359,7 @@ CURLcode DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBu
     }
   }
 
-  return result;
+  return true;
 }
 
 bool DownloadFile(CURL*                  curlHandle,
@@ -363,70 +371,56 @@ bool DownloadFile(CURL*                  curlHandle,
                   const std::string&     proxy,
                   char*                  errorBuffer)
 {
-  CURLcode result(CURLE_OK);
-
-  // setup curl to download just the header so we can extract the content length
-  ConfigureCurlOptions(curlHandle, url, userAgent, proxy);
-  curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, DummyWrite);
+  bool result = false;
   if(errorBuffer != nullptr)
   {
     errorBuffer[0] = 0;
   }
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_ERRORBUFFER, errorBuffer), "CURLOPT_ERRORBUFFER");
 
-  // perform the request to get the header
-  result = curl_easy_perform(curlHandle);
-
-  if(result != CURLE_OK)
+  // setup curl to download just the header so we can extract the content length
+  if(DALI_UNLIKELY(!ConfigureCurlOptions(curlHandle, url, userAgent, proxy, errorBuffer)))
   {
-    if(errorBuffer != nullptr)
-    {
-      DALI_LOG_ERROR("Failed to download http header for \"%s\" with error code %d (%s)\n", url.c_str(), result, &errorBuffer[0]);
-    }
-    else
-    {
-      DALI_LOG_ERROR("Failed to download http header for \"%s\" with error code %d\n", url.c_str(), result);
-    }
+    DALI_LOG_ERROR("Fail to set curlopt!\n");
     return false;
   }
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, DummyWrite), "CURLOPT_WRITEFUNCTION");
+
+  // perform the request to get the header
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download http header for");
 
   // get the content length, -1 == size is not known
   curl_off_t size{0};
-  curl_easy_getinfo(curlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &size);
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_getinfo(curlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &size), "Fail to get size of content");
 
   if(size == -1)
   {
-    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize);
+    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
   }
   else if(size >= static_cast<curl_off_t>(maximumAllowedSizeBytes))
   {
     DALI_LOG_ERROR("File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
-    return false;
+    result = false;
   }
   else
   {
     // If we know the size up front, allocate once and avoid chunk copies.
     dataSize = static_cast<size_t>(size);
-    result   = DownloadFileDataWithSize(curlHandle, dataBuffer, dataSize);
-    if(result != CURLE_OK)
+    result   = DownloadFileDataWithSize(curlHandle, dataBuffer, dataSize, url, errorBuffer);
+    if(!result)
     {
-      LogCurlResult(result, errorBuffer, url, "Failed to download file, trying to load by chunk");
+      DALI_LOG_DEBUG_INFO("Failed to download file, trying to load by chunk. \"%s\"\n", url.c_str());
       // In the case where the size is wrong (e.g. on a proxy server that rewrites data),
       // the data buffer will be corrupt. In this case, try again using the chunk writer.
-      result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize);
+      result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
     }
   }
 
-  LogCurlResult(result, errorBuffer, url, "Failed to download image file");
-
-  if(result != CURLE_OK)
-  {
-    return false;
-  }
-  else if(DALI_UNLIKELY(dataSize == 0u))
+  if(DALI_UNLIKELY(result && dataSize == 0u))
   {
     DALI_LOG_ERROR("Warning : Download data size is 0! url : %s\n", url.c_str());
   }
-  return true;
+  return result;
 }
 
 } // unnamed namespace
@@ -606,7 +600,6 @@ bool CurlFileDownloader::DownloadRemoteFileIntoMemory(const std::string&     url
   if(curlHandle)
   {
     std::vector<char> errorBuffer(CURL_ERROR_SIZE);
-    curl_easy_setopt(curlHandle, CURLOPT_ERRORBUFFER, &errorBuffer[0]);
     result = DownloadFile(curlHandle, url, dataBuffer, dataSize, maximumAllowedSizeBytes, mImpl->GetUserAgent(), mImpl->GetProxy(), &errorBuffer[0]);
 
     // clean up session
