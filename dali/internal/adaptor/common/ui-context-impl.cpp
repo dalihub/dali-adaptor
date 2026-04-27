@@ -92,6 +92,11 @@ bool UiContext::AddIdle(CallbackBase* callback)
   return mAdaptor->AddIdle(callback, true);
 }
 
+void UiContext::RemoveIdle(CallbackBase* callback)
+{
+  mAdaptor->RemoveIdle(callback);
+}
+
 void UiContext::FlushUpdateMessages()
 {
   mAdaptor->FlushUpdateMessages();
