@@ -54,7 +54,7 @@ Dali::PhysicalKeyboard PhysicalKeyboard::Get()
     if(handle)
     {
       // If so, downcast the handle of singleton to focus manager
-      keyboardHandle = Dali::PhysicalKeyboard(dynamic_cast<PhysicalKeyboard*>(handle.GetObjectPtr()));
+      keyboardHandle = Dali::PhysicalKeyboard(static_cast<PhysicalKeyboard*>(handle.GetObjectPtr()));
     }
   }
 

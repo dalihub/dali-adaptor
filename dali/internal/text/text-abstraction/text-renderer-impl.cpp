@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ TextAbstraction::TextRenderer TextRenderer::Get()
     if(handle)
     {
       // If so, downcast the handle
-      TextRenderer* impl = dynamic_cast<Internal::TextRenderer*>(handle.GetObjectPtr());
+      TextRenderer* impl = static_cast<Internal::TextRenderer*>(handle.GetObjectPtr());
       shapingHandle      = TextAbstraction::TextRenderer(impl);
     }
     else // create and register the object

@@ -44,7 +44,7 @@ Dali::UiContext UiContext::Get()
     if(handle)
     {
       // If so, downcast the handle of singleton
-      uiContext = Dali::UiContext(dynamic_cast<Internal::Adaptor::UiContext*>(handle.GetObjectPtr()));
+      uiContext = Dali::UiContext(static_cast<Internal::Adaptor::UiContext*>(handle.GetObjectPtr()));
     }
   }
   return uiContext;
