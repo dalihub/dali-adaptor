@@ -39,19 +39,15 @@ struct BitmapResourceType
   /**
    * Constructor.
    * @param[in] size The requested size for the bitmap.
-   * @param[in] scalingMode The method to use to map the source bitmap to the desired
-   * dimensions.
    * @param[in] samplingMode The filter to use if the bitmap needs to be downsampled
    * to the requested size.
    * @param[in] orientationCorrection Whether to use bitmap metadata to rotate or
    * flip the bitmap, e.g., from portrait to landscape.
    */
   BitmapResourceType(ImageDimensions    size                  = ImageDimensions(0, 0),
-                     FittingMode::Type  scalingMode           = FittingMode::DEFAULT,
                      SamplingMode::Type samplingMode          = SamplingMode::DEFAULT,
                      bool               orientationCorrection = true)
   : size(size),
-    scalingMode(scalingMode),
     samplingMode(samplingMode),
     orientationCorrection(orientationCorrection)
   {
@@ -66,7 +62,6 @@ struct BitmapResourceType
    * Attributes are copied from the request.
    */
   ImageDimensions    size;
-  FittingMode::Type  scalingMode;
   SamplingMode::Type samplingMode;
   bool               orientationCorrection;
 

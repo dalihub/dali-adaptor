@@ -72,18 +72,16 @@ public:
    * @note This function will load the entire animated image into memory if not already loaded.
    * @param[in] frameIndex The frame index to load.
    * @param[in] size The width and height to fit the loaded image to.
-   * @param[in] fittingMode The FittingMode of the resource to load
    * @param[in] samplingMode The SamplingMode of the resource to load
    *
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
   Dali::Devel::PixelBuffer LoadFrame(uint32_t                 frameIndex,
                                      ImageDimensions          size,
-                                     Dali::FittingMode::Type  fittingMode,
                                      Dali::SamplingMode::Type samplingMode)
   {
     Dali::Devel::PixelBuffer pixelBuffer = LoadFrame(frameIndex, size);
-    return Dali::Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, size, fittingMode, samplingMode);
+    return Dali::Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, size, samplingMode);
   }
 
 public:

@@ -62,11 +62,14 @@ const char* GetPixelFormatName(Dali::Pixel::Format format);
  * @brief Work out the true desired width and height, accounting for special
  * rules for zeros in either or both input requested dimensions.
  *
+ * The desired dimensions are extended along the source aspect ratio so that the
+ * decoded bitmap preserves source pixels that would be cropped at layout time.
+ *
  * @param[in] rawDimensions Width and height of image before processing.
  * @param[in] requestedDimensions Width and height of area to scale image into. Can be zero.
  * @return Dimensions of area to scale image into after special rules are applied.
  */
-ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions, FittingMode::Type fittingMode);
+ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions);
 
 /**
  * @defgroup BitmapOperations Bitmap-to-Bitmap Image operations.
@@ -87,7 +90,7 @@ ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageD
  *         bitmap passed-in, or the original bitmap passed in if the attributes
  *         have no effect.
  */
-Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode = FittingMode::DEFAULT, SamplingMode::Type samplingMode = SamplingMode::DEFAULT);
+Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode = SamplingMode::DEFAULT);
 
 /**
  * @brief Apply downscaling to a bitmap according to requested attributes.
@@ -95,7 +98,6 @@ Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap
  **/
 Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
                                          ImageDimensions          desired,
-                                         FittingMode::Type        fittingMode,
                                          SamplingMode::Type       samplingMode);
 /**@}*/
 
@@ -128,7 +130,6 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
                           uint32_t           inputStride,
                           uint32_t           desiredWidth,
                           uint32_t           desiredHeight,
-                          FittingMode::Type  fittingMode,
                           SamplingMode::Type samplingMode,
                           unsigned&          outWidth,
                           unsigned&          outHeight,

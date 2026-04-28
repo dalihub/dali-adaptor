@@ -63,10 +63,9 @@ AnimatedImageLoading::~AnimatedImageLoading()
 
 Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t                 frameIndex,
                                                          ImageDimensions          size,
-                                                         Dali::FittingMode::Type  fittingMode,
                                                          Dali::SamplingMode::Type samplingMode)
 {
-  return GetImplementation(*this).LoadFrame(frameIndex, size, fittingMode, samplingMode);
+  return GetImplementation(*this).LoadFrame(frameIndex, size, samplingMode);
 }
 
 bool AnimatedImageLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
