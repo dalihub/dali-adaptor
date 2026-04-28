@@ -25,8 +25,8 @@
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/integration-api/scene.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/weak-handle.h>
