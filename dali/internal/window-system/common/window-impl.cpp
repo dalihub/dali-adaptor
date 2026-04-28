@@ -389,16 +389,6 @@ void Window::KeepRendering(float durationSeconds)
   mScene.KeepRendering(durationSeconds);
 }
 
-void Window::SetPartialUpdateEnabled(bool enabled)
-{
-  mScene.SetPartialUpdateEnabled(enabled);
-}
-
-bool Window::IsPartialUpdateEnabled() const
-{
-  return mScene.IsPartialUpdateEnabled();
-}
-
 std::string Window::GetNativeResourceId() const
 {
   return mWindowBase->GetNativeWindowResourceId();

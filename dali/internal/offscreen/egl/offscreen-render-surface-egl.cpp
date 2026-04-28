@@ -264,16 +264,6 @@ void OffscreenRenderSurfaceEgl::MakeContextCurrent()
   mEglGraphics->GetEglImplementation().MakeContextCurrent(nullptr, mEGLContext);
 }
 
-Integration::DepthBufferAvailable OffscreenRenderSurfaceEgl::GetDepthBufferRequired()
-{
-  return Integration::DepthBufferAvailable::TRUE;
-}
-
-Integration::StencilBufferAvailable OffscreenRenderSurfaceEgl::GetStencilBufferRequired()
-{
-  return Integration::StencilBufferAvailable::TRUE;
-}
-
 void OffscreenRenderSurfaceEgl::ProcessPostRender()
 {
   if(mPostRenderSyncCallback)

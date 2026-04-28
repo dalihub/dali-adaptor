@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,15 @@ public:
   bool CreateWindowContext(EGLContext& eglContext) override;
 
   /**
+   * @brief Create the OpenGL context for the window using a specific EGL config.
+   *
+   * @param[out] eglContext The created EGL context
+   * @param[in] config The EGL config to use for context creation
+   * @return true if successful
+   */
+  bool CreateWindowContext(EGLContext& eglContext, EGLConfig config);
+
+  /**
    * Destroy the OpenGL context.
    */
   void DestroyContext(EGLContext& eglContext) override;
@@ -154,9 +163,42 @@ public:
   bool ChooseConfig(bool isWindowType, ColorDepth depth) override;
 
   /**
+   * @brief Choose config with per-surface depth/stencil/MSAA settings.
+   *
+   * This overload allows each window surface to have its own EGL config
+   * rather than using the global defaults from the environment options.
+   *
+   * @param[in] isWindowType Whether the config is for a window type
+   * @param[in] depth Color depth
+   * @param[in] depthBufferRequired Whether depth buffer is required
+   * @param[in] stencilBufferRequired Whether stencil buffer is required
+   * @param[in] multiSamplingLevel The multi-sampling level required
+   * @return true on success, false on failure
+   */
+  bool ChooseConfig(bool isWindowType, ColorDepth depth,
+                    bool depthBufferRequired, bool stencilBufferRequired,
+                    int multiSamplingLevel);
+
+  /**
+   * @brief Gets the currently chosen EGL config.
+   * @return The EGL config
+   */
+  EGLConfig GetConfig() const;
+
+  /**
    * @copydoc EglInterface::CreateSurfaceWindow
    */
   EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth) override;
+
+  /**
+   * @brief Create the OpenGL surface using a window with a specific EGL config.
+   *
+   * @param[in] window The native window to create the surface on
+   * @param[in] depth Bit per pixel value (ex. 32 or 24)
+   * @param[in] config The EGL config to use for surface creation
+   * @return Handle to an EGL window surface
+   */
+  EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config);
 
   /**
    * Create the OpenGL surface using a pixmap

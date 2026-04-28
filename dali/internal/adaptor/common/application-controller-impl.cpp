@@ -358,6 +358,8 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
   Dali::Any                        surface;
   Dali::Internal::Adaptor::Window* window = Dali::Internal::Adaptor::Window::New(surface, finalWindowName, windowClassName, activeWindowData, isPreInitialize);
   mMainWindow                             = Dali::Window(window);
+
+  // No scene yet; too early to set depth/stencil/partialupdate/msaa params.
 }
 
 void ApplicationController::CreateAdaptor()
@@ -382,6 +384,11 @@ void ApplicationController::CreateAdaptor()
 
   UiContext& uiControlImpl = Internal::Adaptor::GetImplementation(mUiContext);
   uiControlImpl.SetDefaultWindow(mMainWindow);
+
+  mMainWindow.SetDepthBufferEnabled(mEnvironmentOptions->DepthBufferRequired());
+  mMainWindow.SetStencilBufferEnabled(mEnvironmentOptions->StencilBufferRequired());
+  mMainWindow.SetPartialUpdateEnabled(mEnvironmentOptions->PartialUpdateRequired());
+  mMainWindow.SetMultiSampledAntiAliasingEnabled(mEnvironmentOptions->GetMultiSamplingLevel() > 0);
 }
 
 void ApplicationController::UpdateEnvironmentOptions()

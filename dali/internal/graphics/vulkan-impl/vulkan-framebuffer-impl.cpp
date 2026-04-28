@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,6 +137,17 @@ FramebufferImpl::FramebufferImpl(Device&            graphicsDevice,
 
 void FramebufferImpl::Destroy()
 {
+  // Deregister from any RenderPasses we observe. Each non-null entry was
+  // registered via AddLifecycleObserver; RenderPass::mLifecycleObservers is
+  // a set so double-removal (if two entries shared a renderPass) is a no-op.
+  for(auto& element : mRenderPasses)
+  {
+    if(element.renderPass)
+    {
+      element.renderPass->RemoveLifecycleObserver(*this);
+    }
+  }
+
   auto device = mGraphicsDevice->GetLogicalDevice();
 
   mRenderPasses.clear();
@@ -150,6 +161,34 @@ void FramebufferImpl::Destroy()
     device.destroyFramebuffer(mFramebuffer, allocator);
   }
   mFramebuffer = nullptr;
+}
+
+void FramebufferImpl::RenderPassInvalidated(const Vulkan::RenderPass* renderPass)
+{
+  // Forget the front-end RenderPass association, but keep the backend
+  // RenderPassImpl handle — mRenderPasses[0] in particular is the "primary"
+  // impl this framebuffer was built with and is used as the template in
+  // CreateMatchingInfo; removing it would leave the vector empty and cause
+  // an out-of-bounds read on the next GetImplFromRenderPass call.
+  //
+  // Nulling element.renderPass forces the next lookup into the match-by-impl
+  // branch, which will either re-associate this impl with the reinitialized
+  // front-end (if load/store ops still match) or fall through to create a
+  // new impl for the new ops. Attachment-shape changes are handled separately
+  // by the Vulkan swapchain rebuild path, so we don't need to evict impls
+  // here.
+  //
+  // We intentionally stay registered with the RenderPass — on reinitialize,
+  // the RenderPass keeps living, and future re-associations should also
+  // receive invalidations. For the destruction path, the RenderPass
+  // destructor drops its observer set on its way out.
+  for(auto& element : mRenderPasses)
+  {
+    if(element.renderPass == renderPass)
+    {
+      element.renderPass = nullptr;
+    }
+  }
 }
 
 uint32_t FramebufferImpl::GetWidth() const
@@ -268,11 +307,19 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* render
     // Test renderpass first
     if(element.renderPass != nullptr)
     {
-      auto firstAttachment = element.renderPass->GetCreateInfo().attachments->front();
-      if(firstAttachment.loadOp == matchLoadOp &&
-         firstAttachment.storeOp == matchStoreOp)
+      auto& attachments = element.renderPass->GetCreateInfo().attachments;
+      if(attachments && !attachments->empty())
       {
-        return element.renderPassImpl;
+        auto firstAttachment = attachments->front();
+        if(firstAttachment.loadOp == matchLoadOp &&
+           firstAttachment.storeOp == matchStoreOp)
+        {
+          return element.renderPassImpl;
+        }
+      }
+      else
+      {
+        DALI_LOG_ERROR("Framebuffer's Renderpass has no attachments\n");
       }
     }
     else
@@ -284,6 +331,7 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* render
          createInfo.attachmentDescriptions[0].storeOp == VkStoreOpType(matchStoreOp).storeOp)
       {
         element.renderPass = const_cast<RenderPass*>(renderPass);
+        element.renderPass->AddLifecycleObserver(*this);
         return element.renderPassImpl;
       }
     }
@@ -291,8 +339,10 @@ RenderPassHandle FramebufferImpl::GetImplFromRenderPass(const RenderPass* render
 
   RenderPassImpl::CreateInfo createInfo;
   RenderPassImpl::CreateMatchingInfo(mRenderPasses[0].renderPassImpl, matchLoadOp, matchStoreOp, createInfo);
-  auto renderPassImpl = RenderPassHandle(RenderPassImpl::New(*mGraphicsDevice, createInfo));
-  mRenderPasses.emplace_back(RenderPassMapElement{const_cast<RenderPass*>(renderPass), renderPassImpl});
+  auto  renderPassImpl = RenderPassHandle(RenderPassImpl::New(*mGraphicsDevice, createInfo));
+  auto* rawRenderPass  = const_cast<RenderPass*>(renderPass);
+  mRenderPasses.emplace_back(RenderPassMapElement{rawRenderPass, renderPassImpl});
+  rawRenderPass->AddLifecycleObserver(*this);
 
   return renderPassImpl;
 }
@@ -312,6 +362,10 @@ void FramebufferImpl::AddRenderPass(RenderPass* renderPass, Vulkan::RenderPassHa
   if(!found)
   {
     mRenderPasses.emplace_back(RenderPassMapElement{renderPass, renderPassImpl});
+  }
+  if(renderPass)
+  {
+    renderPass->AddLifecycleObserver(*this);
   }
 }
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
 namespace Dali::Graphics::Vulkan
 {
 class Device;
-class RenderPass;
 
 /**
  * FramebufferImpl encapsulates following objects:
@@ -36,7 +36,7 @@ class RenderPass;
  * - ImageViews
  * - RenderPasses
  */
-class FramebufferImpl
+class FramebufferImpl : public RenderPass::LifecycleObserver
 {
 public:
   /**
@@ -99,6 +99,13 @@ public:
                   bool               hasDepthAttachment);
 
   void Destroy();
+
+  /**
+   * RenderPass::LifecycleObserver. Drops any RenderPassMapElement whose
+   * front-end pointer matches, so subsequent GetImplFromRenderPass calls
+   * re-match or regenerate.
+   */
+  void RenderPassInvalidated(const Vulkan::RenderPass* renderPass) override;
 
   [[nodiscard]] uint32_t GetWidth() const;
 

@@ -111,6 +111,31 @@ public:
     return 0;
   }
 
+  Graphics::SurfaceId CreateSurface(
+    Graphics::SurfaceFactory*      factory,
+    Internal::Adaptor::WindowBase* windowBase,
+    ColorDepth                     colorDepth,
+    int                            width,
+    int                            height,
+    bool                           depthBufferRequired,
+    bool                           stencilBufferRequired,
+    int                            multiSamplingLevel) override
+  {
+    mCallstack.PushCall("CreateSurface(depth, stencil, msaa)", "");
+    return 0;
+  }
+
+  bool ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel) override
+  {
+    mCallstack.PushCall("ReconfigureSurface()", "");
+    return true;
+  }
+
+  void ResetSurfaceState() override
+  {
+    mCallstack.PushCall("ResetSurfaceState()", "");
+  }
+
   void DestroySurface(Graphics::SurfaceId surfaceId) override
   {
     mCallstack.PushCall("DestroySurface()", "");

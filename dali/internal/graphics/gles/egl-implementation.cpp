@@ -57,6 +57,11 @@ const char*    EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_w
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
 
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gEglLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_EGL");
+#endif
+
 } // namespace
 
 namespace Dali
@@ -360,6 +365,32 @@ bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
   return true;
 }
 
+bool EglImplementation::CreateWindowContext(EGLContext& eglContext, EGLConfig config)
+{
+  // make sure a context isn't created twice
+  DALI_ASSERT_ALWAYS((eglContext == 0) && "EGL context recreated");
+
+  {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss)
+    {
+      oss << "[display:" << mEglDisplay << ", share_context:" << mEglContext << ", config:" << config << "]";
+    });
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateContext");
+    eglContext = eglCreateContext(mEglDisplay, config, mEglContext, &(mContextAttribs[0]));
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss)
+    {
+      oss << "[context:" << eglContext << "]";
+    });
+  }
+  TEST_EGL_ERROR("eglCreateContext render thread");
+
+  DALI_ASSERT_ALWAYS(EGL_NO_CONTEXT != eglContext && "EGL context not created");
+
+  mEglWindowContexts.push_back(eglContext);
+
+  return true;
+}
+
 void EglImplementation::DestroyContext(EGLContext& eglContext)
 {
   if(eglContext)
@@ -651,11 +682,14 @@ void EglImplementation::WaitGL()
 
 bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 {
-  if(mEglConfig && isWindowType == mIsWindow && mColorDepth == depth)
-  {
-    return true;
-  }
+  return ChooseConfig(isWindowType, depth, mDepthBufferRequired, mStencilBufferRequired, mMultiSamplingLevel);
+}
 
+bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
+                                     bool depthBufferRequired, bool stencilBufferRequired,
+                                     int multiSamplingLevel)
+{
+  DALI_LOG_INFO(gEglLogFilter, Debug::General, "EglImplementation::ChooseConfig(isWindowType:%s, colorDepth:%s, depthBuffer:%s, stencilBuffer:%s, msaa:%d\n", isWindowType ? "true" : "false", depth == COLOR_DEPTH_24 ? "24" : "32", depthBufferRequired ? "true" : "false", stencilBufferRequired ? "true" : "false", multiSamplingLevel);
   mColorDepth = depth;
   mIsWindow   = isWindowType;
 
@@ -702,23 +736,25 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   configAttribs.PushBack(8);
 
   configAttribs.PushBack(EGL_DEPTH_SIZE);
-  configAttribs.PushBack(mDepthBufferRequired ? 24 : 0);
+  configAttribs.PushBack(depthBufferRequired ? 24 : 0);
   configAttribs.PushBack(EGL_STENCIL_SIZE);
-  configAttribs.PushBack(mStencilBufferRequired ? 8 : 0);
+  configAttribs.PushBack(stencilBufferRequired ? 8 : 0);
 
-  if(mMultiSamplingLevel != EGL_DONT_CARE)
+  if(multiSamplingLevel != EGL_DONT_CARE && multiSamplingLevel > 0)
   {
     configAttribs.PushBack(EGL_SAMPLES);
-    configAttribs.PushBack(mMultiSamplingLevel);
+    configAttribs.PushBack(multiSamplingLevel);
     configAttribs.PushBack(EGL_SAMPLE_BUFFERS);
     configAttribs.PushBack(1);
   }
 
   configAttribs.PushBack(EGL_NONE);
 
+  EGLConfig newConfig = nullptr;
+
   DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-  auto ret = eglChooseConfig(mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs);
+  auto ret = eglChooseConfig(mEglDisplay, &(configAttribs[0]), &newConfig, 1, &numConfigs);
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglChooseConfig");
   DALI_TRACE_END(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
 
@@ -729,7 +765,6 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   {
     if(mGlesVersion >= 30)
     {
-      mEglConfig = NULL;
       DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
       return false;
     }
@@ -772,6 +807,10 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
     return false;
   }
+
+  // Store the chosen config
+  mEglConfig = newConfig;
+
   Integration::Log::LogMessage(Integration::Log::INFO, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10);
 
   mContextAttribs.Clear();
@@ -792,6 +831,11 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   mContextAttribs.PushBack(EGL_NONE);
 
   return true;
+}
+
+EGLConfig EglImplementation::GetConfig() const
+{
+  return mEglConfig;
 }
 
 EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth)
@@ -822,6 +866,34 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
   DALI_ASSERT_ALWAYS(mCurrentEglSurface && "Create window surface failed");
 
   return mCurrentEglSurface;
+}
+
+EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config)
+{
+  mEglNativeWindow = window;
+  mColorDepth      = depth;
+  mIsWindow        = true;
+
+  EGLSurface surface = nullptr;
+
+  {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss)
+    {
+      oss << "[display:" << mEglDisplay << ", config:" << config << ", native:" << mEglNativeWindow << "]";
+    });
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateWindowSurface");
+    surface = eglCreateWindowSurface(mEglDisplay, config, mEglNativeWindow, NULL);
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss)
+    {
+      oss << "[window surface:" << surface << "]";
+    });
+  }
+
+  TEST_EGL_ERROR("eglCreateWindowSurface");
+
+  DALI_ASSERT_ALWAYS(surface && "Create window surface with config failed");
+
+  return surface;
 }
 
 EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, ColorDepth depth)

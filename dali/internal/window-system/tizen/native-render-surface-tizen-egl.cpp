@@ -398,16 +398,6 @@ void NativeRenderSurfaceTizen::MakeContextCurrent()
   }
 }
 
-Integration::DepthBufferAvailable NativeRenderSurfaceTizen::GetDepthBufferRequired()
-{
-  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
-}
-
-Integration::StencilBufferAvailable NativeRenderSurfaceTizen::GetStencilBufferRequired()
-{
-  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
-}
-
 void NativeRenderSurfaceTizen::ReleaseLock()
 {
   if(mThreadSynchronization)
