@@ -23,8 +23,8 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES

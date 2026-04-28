@@ -21,7 +21,7 @@
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/intrusive-ptr.h>
-#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
