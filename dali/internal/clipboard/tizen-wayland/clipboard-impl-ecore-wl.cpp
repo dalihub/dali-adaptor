@@ -538,7 +538,7 @@ Dali::Clipboard Clipboard::Get()
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      clipboard = Dali::Clipboard(static_cast<Clipboard*>(handle.GetObjectPtr()));
     }
     else
     {

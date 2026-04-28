@@ -43,7 +43,7 @@ Dali::LifecycleController LifecycleController::Get()
     if(handle)
     {
       // If so, downcast the handle
-      lifecycleController = Dali::LifecycleController(dynamic_cast<LifecycleController*>(handle.GetObjectPtr()));
+      lifecycleController = Dali::LifecycleController(static_cast<LifecycleController*>(handle.GetObjectPtr()));
     }
     else
     {

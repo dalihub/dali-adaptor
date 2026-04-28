@@ -51,7 +51,7 @@ Dali::UnifiedTriggerEventManager UnifiedTriggerEventManager::Get()
     if(handle)
     {
       // If so, downcast the handle
-      unifiedTriggerEventManager = Dali::UnifiedTriggerEventManager(dynamic_cast<UnifiedTriggerEventManager*>(handle.GetObjectPtr()));
+      unifiedTriggerEventManager = Dali::UnifiedTriggerEventManager(static_cast<UnifiedTriggerEventManager*>(handle.GetObjectPtr()));
     }
     else
     {

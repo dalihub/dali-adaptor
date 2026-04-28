@@ -62,7 +62,7 @@ Dali::SoundPlayer SoundPlayer::Get()
     if(handle)
     {
       // If so, downcast the handle
-      player = Dali::SoundPlayer(dynamic_cast<SoundPlayer*>(handle.GetObjectPtr()));
+      player = Dali::SoundPlayer(static_cast<SoundPlayer*>(handle.GetObjectPtr()));
     }
     else
     {

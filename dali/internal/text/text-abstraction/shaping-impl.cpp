@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -333,7 +333,7 @@ TextAbstraction::Shaping Shaping::Get()
     if(handle)
     {
       // If so, downcast the handle
-      Shaping* impl = dynamic_cast<Internal::Shaping*>(handle.GetObjectPtr());
+      Shaping* impl = static_cast<Internal::Shaping*>(handle.GetObjectPtr());
       shapingHandle = TextAbstraction::Shaping(impl);
     }
     else // create and register the object

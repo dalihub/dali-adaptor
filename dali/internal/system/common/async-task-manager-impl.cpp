@@ -622,7 +622,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
     if(handle)
     {
       // If so, downcast the handle of singleton
-      manager = Dali::AsyncTaskManager(dynamic_cast<Internal::Adaptor::AsyncTaskManager*>(handle.GetObjectPtr()));
+      manager = Dali::AsyncTaskManager(static_cast<Internal::Adaptor::AsyncTaskManager*>(handle.GetObjectPtr()));
     }
 
     if(!manager)
