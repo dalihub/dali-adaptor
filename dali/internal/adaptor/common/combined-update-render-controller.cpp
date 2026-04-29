@@ -331,10 +331,12 @@ void CombinedUpdateRenderController::RequestUpdateOnce(UpdateMode updateMode)
   {
     ++mUpdateRequestCount;
   }
+  DALI_LOG_DEBUG_INFO("RequestUpdate once. updateMode : %d, mUpdateRequestCount : %u\n", static_cast<int>(updateMode), mUpdateRequestCount);
 
   if(IsUpdateRenderThreadPaused() || updateMode == UpdateMode::FORCE_RENDER)
   {
     LOG_EVENT_TRACE;
+    DALI_LOG_DEBUG_INFO("RunUpdateRenderThread once\n");
 
     // Run Update/Render once
     RunUpdateRenderThread(ONCE, AnimationProgression::NONE, updateMode);
@@ -500,12 +502,19 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
+  int32_t oldUpdateRenderRunCount = mUpdateRenderRunCount;
+
   switch(mThreadMode)
   {
     case ThreadMode::NORMAL:
     {
       mUpdateRenderRunCount    = numberOfCycles;
       mUseElapsedTimeAfterWait = (animationProgression == AnimationProgression::USE_ELAPSED_TIME);
+
+      if(DALI_UNLIKELY(oldUpdateRenderRunCount != numberOfCycles))
+      {
+        DALI_LOG_DEBUG_INFO("mUpdateRenderRunCount changed (%d -> %d) AnimationProgression : %u UpdateMode : %d\n", oldUpdateRenderRunCount, numberOfCycles, mUseElapsedTimeAfterWait, static_cast<int>(updateMode));
+      }
       break;
     }
     case ThreadMode::RUN_IF_REQUESTED:
@@ -519,6 +528,8 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
 
       mUpdateRenderRunCount++;         // Increase the update request count
       mUseElapsedTimeAfterWait = TRUE; // The elapsed time should be used. We want animations to proceed.
+
+      DALI_LOG_DEBUG_INFO("mUpdateRenderRunCount changed (%d -> %d) UpdateMode : %d\n", oldUpdateRenderRunCount, mUpdateRenderRunCount, static_cast<int>(updateMode));
       break;
     }
   }
@@ -565,6 +576,7 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
   {
     --mUpdateRequestCount;
   }
+  DALI_LOG_DEBUG_INFO("ProcessSleepRequest mUpdateRequestCount : %u\n", mUpdateRequestCount);
 
   // Can sleep if our update-request count is 0
   // Update/Render thread can choose to carry on updating if it determines more update/renders are required
@@ -1143,7 +1155,9 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
     timeToSleepUntil = 0;
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
+    DALI_LOG_DEBUG_INFO("UpdateRenderThread sleep (%d == 0 || (%u && !%d && !%u))\n", mUpdateRenderRunCount, mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
     mUpdateRenderThreadWaitCondition.Wait(updateLock);
+    DALI_LOG_DEBUG_INFO("UpdateRenderThread awake\n");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
 
     if(!mUseElapsedTimeAfterWait)
