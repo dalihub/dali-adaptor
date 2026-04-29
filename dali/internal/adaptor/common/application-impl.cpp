@@ -87,7 +87,6 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mFramework(nullptr),
   mApplicationController(nullptr),
   mUIThreadLoader(nullptr),
-  mUseRemoteSurface(false),
   mUseUiThread(useUiThread)
 {
   PositionSize initSize = windowData.GetPositionSize();
@@ -119,8 +118,6 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   }
 
   mFramework = mApplicationController->GetFrameworkFactory()->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
-
-  mUseRemoteSurface = (applicationType == Framework::WATCH);
 }
 
 Application::~Application()
@@ -130,6 +127,7 @@ Application::~Application()
   if(mUIThreadLoader)
   {
     delete mUIThreadLoader;
+
   }
 }
 
@@ -175,8 +173,6 @@ void Application::OnInit()
   mApplicationController->PreInitialize();
 
   mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
-
-  Adaptor::GetImplementation(*mApplicationController->GetAdaptor()).SetUseRemoteSurface(mUseRemoteSurface);
 
   // Initialize StyleMonitor here.
   Dali::StyleMonitor styleMonitor = Dali::StyleMonitor::Get();

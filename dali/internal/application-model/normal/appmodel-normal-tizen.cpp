@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,17 +32,14 @@
 #include <app_core_ui_base.hh>
 #include <app_event_internal.hh>
 
-// CONDITIONAL INCLUDES
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif // DALI_ELDBUS_AVAILABLE
-
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
-#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
+#include <dali/internal/imaging/common/file-download.h>
+#include <dali/internal/system/common/event-loop.h>
+#include <dali/internal/system/common/system-factory.h>
 
 using namespace tizen_cpp;
 
@@ -85,13 +82,7 @@ extern "C" DALI_ADAPTOR_API void AppExit(AppModelNormal* p)
 
 namespace
 {
-#if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
-#endif
-
-const char* TIZEN_GLIB_CONTEXT_ENV        = "TIZEN_GLIB_CONTEXT";
-const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
-const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
+const char* TIZEN_GLIB_CONTEXT_ENV = "TIZEN_GLIB_CONTEXT";
 } // anonymous namespace
 
 namespace AppCore
@@ -559,47 +550,55 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     void OnLoopInit(int argc, char** argv) override
     {
       print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopInit() emitted", __MODULE__, __func__, __LINE__);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-      ecore_init();
-      ecore_app_args_set(argc, (const char**)argv);
-#pragma GCC diagnostic pop
-
-#ifdef DALI_ELDBUS_AVAILABLE
-      // Initialize ElDBus.
-      DALI_LOG_INFO(gDBusLogging, Debug::General, "Starting DBus Initialization\n");
-      eldbus_init();
-#endif
+      mEventLoop = GetSystemFactory()->CreateEventLoop();
+      if(mEventLoop)
+      {
+        mEventLoop->Initialize(argc, argv);
+      }
+      else
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+      }
     }
 
     void OnLoopFinish() override
     {
       print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopFinish() emitted", __MODULE__, __func__, __LINE__);
-      ecore_shutdown();
-
-      if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
+      if(mEventLoop)
       {
-        Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
-        ecore_shutdown();
+        mEventLoop->Shutdown();
+        mEventLoop.reset();
       }
-
-#ifdef DALI_ELDBUS_AVAILABLE
-      // Shutdown ELDBus.
-      DALI_LOG_INFO(gDBusLogging, Debug::General, "Shutting down DBus\n");
-      eldbus_shutdown();
-#endif
+      else
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      }
     }
 
     void OnLoopRun() override
     {
       print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopRun() emitted", __MODULE__, __func__, __LINE__);
-      ecore_main_loop_begin();
+      if(mEventLoop)
+      {
+        mEventLoop->Run();
+      }
+      else
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      }
     }
 
     void OnLoopExit() override
     {
       print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopExit() emitted", __MODULE__, __func__, __LINE__);
-      ecore_main_loop_quit();
+      if(mEventLoop)
+      {
+        mEventLoop->Quit();
+      }
+      else
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      }
     }
 
   private:
@@ -734,13 +733,14 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     }
 
   private:
-    FrameworkTizen*           mFramework;
-    std::shared_ptr<AppEvent> mLanguageChanged;
-    std::shared_ptr<AppEvent> mDeviceOrientationChanged;
-    std::shared_ptr<AppEvent> mRegionFormatChanged;
-    std::shared_ptr<AppEvent> mLowBattery;
-    std::shared_ptr<AppEvent> mLowMemory;
-    bool                      mUseUiThread;
+    FrameworkTizen*            mFramework;
+    std::shared_ptr<AppEvent>  mLanguageChanged;
+    std::shared_ptr<AppEvent>  mDeviceOrientationChanged;
+    std::shared_ptr<AppEvent>  mRegionFormatChanged;
+    std::shared_ptr<AppEvent>  mLowBattery;
+    std::shared_ptr<AppEvent>  mLowMemory;
+    bool                       mUseUiThread;
+    std::unique_ptr<EventLoop> mEventLoop;
   };
 
   int AppMain(void* data)
@@ -772,6 +772,12 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       if(mUseUiThread)
       {
+        {
+          // Ensure to load file-download-plugin at main thread, not ui-thread.
+          Dali::Vector<uint8_t> dummyBuffer;
+          size_t                dummyBufferSize;
+          [[maybe_unused]] auto _ = TizenPlatform::Network::DownloadRemoteFileIntoMemory("", dummyBuffer, dummyBufferSize, 1);
+        }
         hint |= AppCoreUiBase::HINT_DUAL_THREAD;
       }
 #endif

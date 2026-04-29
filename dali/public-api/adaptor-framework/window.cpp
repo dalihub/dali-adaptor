@@ -353,6 +353,36 @@ void Window::KeepRendering(float durationSeconds)
   GetImplementation(*this).KeepRendering(durationSeconds);
 }
 
+void Window::SetDepthBufferEnabled(bool enabled)
+{
+  GetImplementation(*this).SetDepthBufferEnabled(enabled);
+}
+
+bool Window::IsDepthBufferEnabled() const
+{
+  return GetImplementation(*this).IsDepthBufferEnabled();
+}
+
+void Window::SetStencilBufferEnabled(bool enabled)
+{
+  GetImplementation(*this).SetStencilBufferEnabled(enabled);
+}
+
+bool Window::IsStencilBufferEnabled() const
+{
+  return GetImplementation(*this).IsStencilBufferEnabled();
+}
+
+void Window::SetMultiSampledAntiAliasingEnabled(bool enabled)
+{
+  GetImplementation(*this).SetMultiSampledAntiAliasingEnabled(enabled);
+}
+
+bool Window::IsMultiSampledAntiAliasingEnabled() const
+{
+  return GetImplementation(*this).IsMultiSampledAntiAliasingEnabled();
+}
+
 void Window::SetPartialUpdateEnabled(bool enabled)
 {
   GetImplementation(*this).SetPartialUpdateEnabled(enabled);

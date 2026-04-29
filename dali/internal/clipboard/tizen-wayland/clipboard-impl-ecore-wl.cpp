@@ -19,14 +19,16 @@
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <Ecore_Wl2.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
-#include <dali/public-api/adaptor-framework/timer.h>
 #include <unistd.h>
 #include <algorithm>
 #include <map>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 
 namespace Dali
 {
@@ -536,7 +538,7 @@ Dali::Clipboard Clipboard::Get()
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      clipboard = Dali::Clipboard(static_cast<Clipboard*>(handle.GetObjectPtr()));
     }
     else
     {

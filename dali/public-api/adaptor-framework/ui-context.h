@@ -106,6 +106,17 @@ public:
   bool AddIdle(CallbackBase* callback);
 
   /**
+   * @brief Removes a previously added idle callback.
+   *
+   * @param[in] callback The callback to remove
+   *
+   * @note Function must be called from main event thread only
+   * @note Ownership of the callback is NOT returned; the callback is deleted.
+   * @SINCE_2_5.20
+   */
+  void RemoveIdle(CallbackBase* callback);
+
+  /**
    * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
    * @SINCE_2_5.10
    */

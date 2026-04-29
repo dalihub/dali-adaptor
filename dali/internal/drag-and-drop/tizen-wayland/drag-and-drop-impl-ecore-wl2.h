@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DRAG_AND_DROP_ECORE_WL2_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <Ecore.h>
+#include <Ecore_Wl2.h>
+
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <map>
 
 namespace Dali

@@ -69,7 +69,7 @@ Dali::StyleMonitor StyleMonitor::Get()
     if(handle)
     {
       // If so, downcast the handle
-      styleMonitor = Dali::StyleMonitor(dynamic_cast<StyleMonitor*>(handle.GetObjectPtr()));
+      styleMonitor = Dali::StyleMonitor(static_cast<StyleMonitor*>(handle.GetObjectPtr()));
     }
     else
     {

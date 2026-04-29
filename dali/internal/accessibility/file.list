@@ -6,17 +6,13 @@ SET( adaptor_accessibility_common_src_files
 )
 
 # module: accessibility, backend: tizen-wayland
-SET( adaptor_accessibility_tizen_wayland_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tts-player-factory-tizen.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/tts-player-impl-tizen.cpp
+SET( adaptor_accessibility_tizen_src_files
+    ${adaptor_accessibility_dir}/tizen/tts-player-factory-tizen.cpp
+    ${adaptor_accessibility_dir}/tizen/tts-player-impl-tizen.cpp
 )
 
 # module: accessibility, backend: tizen-common profile
 SET( adaptor_accessibility_tizen_common_src_files
-)
-
-# module: accessibility, backend: tizen-ivi profile
-SET( adaptor_accessibility_tizen_ivi_src_files
 )
 
 # module: accessibility, backend: tizen-mobile profile
@@ -25,10 +21,6 @@ SET( adaptor_accessibility_tizen_mobile_src_files
 
 # module: accessibility, backend: tizen-tv profile
 SET( adaptor_accessibility_tizen_tv_src_files
-)
-
-# module: accessibility, backend: tizen-wearable profile
-SET( adaptor_accessibility_tizen_wearable_src_files
 )
 
 # module: accessibility, backend: ubuntu

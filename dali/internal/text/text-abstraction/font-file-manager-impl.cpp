@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ TextAbstraction::FontFileManager FontFileManager::Get()
     if(handle)
     {
       // If so, downcast the handle
-      FontFileManager* impl = dynamic_cast<Internal::FontFileManager*>(handle.GetObjectPtr());
+      FontFileManager* impl = static_cast<Internal::FontFileManager*>(handle.GetObjectPtr());
       fontFileManagerHandle = TextAbstraction::FontFileManager(impl);
     }
     else // create and register the object

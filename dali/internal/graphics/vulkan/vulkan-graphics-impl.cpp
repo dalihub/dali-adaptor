@@ -105,6 +105,28 @@ Graphics::SurfaceId VulkanGraphics::CreateSurface(
   return surfaceId;
 }
 
+Graphics::SurfaceId VulkanGraphics::CreateSurface(
+  Graphics::SurfaceFactory*      surfaceFactory,
+  Internal::Adaptor::WindowBase* windowBase,
+  ColorDepth                     colorDepth,
+  int                            width,
+  int                            height,
+  bool                           depthBufferRequired,
+  bool                           stencilBufferRequired,
+  int                            multiSamplingLevel)
+{
+  // For Vulkan, depth/stencil/MSAA are handled at swapchain/pipeline/framebuffer level, not at surface creation.
+  // Delegate to the base CreateSurface for now.
+  return CreateSurface(surfaceFactory, windowBase, colorDepth, width, height);
+}
+
+bool VulkanGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel)
+{
+  // For Vulkan, depth/stencil/MSAA are handled at swapchain/pipeline/framebuffer level, not at surface config.
+  // No EGL-style reconfiguration needed.
+  return true;
+}
+
 void VulkanGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
 {
   mGraphicsDevice.DestroySurface(surfaceId);

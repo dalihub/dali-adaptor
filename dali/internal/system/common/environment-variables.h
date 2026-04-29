@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,8 +121,6 @@ namespace Adaptor
 
 #define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
 
-#define DALI_WATCH_REFRESH_RATE "DALI_WATCH_REFRESH_RATE"
-
 #define DALI_WIDGET_REFRESH_RATE "DALI_WIDGET_REFRESH_RATE"
 
 #define DALI_ENV_MULTI_SAMPLING_LEVEL "DALI_MULTI_SAMPLING_LEVEL"
@@ -181,10 +179,8 @@ namespace Adaptor
 // Description Cache
 #define DALI_ENV_MAX_NUMBER_OF_DESCRIPTION_CACHE "DALI_DESCRIPTION_CACHE_MAX"
 
-// Curl relative environments
-#define DALI_ENV_CURLOPT_VERBOSE_MODE "DALI_CURLOPT_VERBOSE_MODE"
-
-#define DALI_ENV_CURLOPT_MAXREDIRS "DALI_CURLOPT_MAXREDIRS"
+// File download plugin configuration
+#define DALI_ENV_FILE_DOWNLOAD_PLUGIN_NAME "DALI_FILE_DOWNLOAD_PLUGIN_NAME"
 
 // Debug relative environments
 #define DALI_ENV_PRINT_LOG_LEVEL "DALI_PRINT_LOG_LEVEL"

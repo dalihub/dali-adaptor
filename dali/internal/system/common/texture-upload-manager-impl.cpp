@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ Dali::Devel::TextureUploadManager TextureUploadManager::Get()
     if(handle)
     {
       // If so, downcast the handle of singleton
-      manager = Dali::Devel::TextureUploadManager(dynamic_cast<Internal::Adaptor::TextureUploadManager*>(handle.GetObjectPtr()));
+      manager = Dali::Devel::TextureUploadManager(static_cast<Internal::Adaptor::TextureUploadManager*>(handle.GetObjectPtr()));
     }
 
     if(!manager)

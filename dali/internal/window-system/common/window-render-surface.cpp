@@ -716,7 +716,8 @@ void WindowRenderSurface::CreateSurface()
 
   std::unique_ptr<Graphics::SurfaceFactory> surfaceFactory = Graphics::SurfaceFactory::New(*this);
 
-  mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height);
+  mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height,
+                                        GetDepthBufferRequired(), GetStencilBufferRequired(), GetMSAALevel());
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
@@ -832,6 +833,29 @@ void WindowRenderSurface::StartRender()
 bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   InitializeGraphics();
+
+  // Check if surface config needs rebuilding (e.g. depth/stencil/MSAA changed)
+  if(IsSurfaceConfigDirty() && mGraphics && mSurfaceId != Graphics::INVALID_SURFACE_ID)
+  {
+    ClearSurfaceConfigDirty();
+    if(mGraphics->ReconfigureSurface(mSurfaceId, GetDepthBufferRequired(), GetStencilBufferRequired(), GetMSAALevel()))
+    {
+      // Route through ActivateSurfaceContext rather than MakeContextCurrent so the
+      // graphics controller's "current context" pointer is switched to this surface's
+      // GLES::Context. The caller chain reached PreRender with the resource context
+      // active (see CombinedUpdateRenderController), so without this switch the
+      // cache-invalidation below would hit the wrong Context object.
+      mGraphics->ActivateSurfaceContext(this);
+
+      // The new EGL context shares with the resource context, so textures/buffers/
+      // programs survive, but VAOs/FBOs/queries don't — drop any cached ids and
+      // re-initialise GL state to defaults so the render pipeline rebuilds them.
+      mGraphics->ResetSurfaceState();
+
+      // Force a full swap so the entire surface is redrawn with correct state.
+      SetFullSwapCurrentFrame();
+    }
+  }
 
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
@@ -1073,16 +1097,6 @@ Dali::Integration::RenderSurfaceInterface::Type WindowRenderSurface::GetSurfaceT
 void WindowRenderSurface::MakeContextCurrent()
 {
   mGraphics->MakeContextCurrent(mSurfaceId);
-}
-
-Integration::DepthBufferAvailable WindowRenderSurface::GetDepthBufferRequired()
-{
-  return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
-}
-
-Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequired()
-{
-  return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
 }
 
 void WindowRenderSurface::InitializeImeSurface()

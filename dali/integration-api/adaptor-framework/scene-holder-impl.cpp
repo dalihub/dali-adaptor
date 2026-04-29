@@ -253,10 +253,16 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   int          windowOrientation   = mSurface->GetSurfaceOrientation();
   int          screenOrientation   = mSurface->GetScreenOrientation();
 
-  mScene = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
-
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
+
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(mSurface.get())
+    .SetExtent({static_cast<uint32_t>(surfacePositionSize.width), static_cast<uint32_t>(surfacePositionSize.height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
 
   // Create an observer for the adaptor lifecycle
   mAdaptor->AddObserver(*mLifeCycleObserver);
@@ -265,9 +271,6 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   mSurface->SetAdaptor(*mAdaptor);
   mSurface->SetScene(mScene);
-
-  // Create the render target
-  CreateRenderTarget();
 
   OnAdaptorSet(adaptor);
 
@@ -524,6 +527,66 @@ bool SceneHolder::IsGeometryHittestEnabled()
 int32_t SceneHolder::GetNativeId() const
 {
   return mScene.GetNativeId();
+}
+
+void SceneHolder::SetDepthBufferEnabled(bool enabled)
+{
+  mScene.SetDepthBufferEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetDepthBufferRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
+}
+
+bool SceneHolder::IsDepthBufferEnabled() const
+{
+  return mScene.IsDepthBufferEnabled();
+}
+
+void SceneHolder::SetStencilBufferEnabled(bool enabled)
+{
+  mScene.SetStencilBufferEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetStencilBufferRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
+}
+
+bool SceneHolder::IsStencilBufferEnabled() const
+{
+  return mScene.IsStencilBufferEnabled();
+}
+
+void SceneHolder::SetMultiSampledAntiAliasingEnabled(bool enabled)
+{
+  mScene.SetMultiSampledAntiAliasingEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetMSAALevel(enabled ? 1 : 0);
+    mSurface->SetSurfaceConfigDirty();
+  }
+}
+
+bool SceneHolder::IsMultiSampledAntiAliasingEnabled() const
+{
+  return mScene.IsMultiSampledAntiAliasingEnabled();
+}
+
+void SceneHolder::SetPartialUpdateEnabled(bool enabled)
+{
+  mScene.SetPartialUpdateEnabled(enabled);
+  if(mSurface)
+  {
+    mSurface->SetPartialUpdateRequired(enabled);
+    mSurface->SetSurfaceConfigDirty();
+  }
+}
+
+bool SceneHolder::IsPartialUpdateEnabled() const
+{
+  return mScene.IsPartialUpdateEnabled();
 }
 
 void SceneHolder::FocusChanged(bool focusIn)

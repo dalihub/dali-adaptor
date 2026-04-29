@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/math/int-pair.h>
 
 namespace Dali
 {

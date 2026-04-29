@@ -2,7 +2,7 @@
 #define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
+#include <Ecore_X.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 #include <dali/public-api/dali-adaptor-common.h>

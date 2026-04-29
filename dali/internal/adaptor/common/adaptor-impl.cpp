@@ -32,6 +32,7 @@
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/wheel-event.h>
@@ -48,7 +49,7 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-#include <dali/integration-api/string-utils.h>
+#include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
@@ -171,22 +172,12 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   // Create the AddOnManager
   mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
 
+  //@todo Need to pass this thru to core still...
+
   Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEFAULT;
   if(0u != mEnvironmentOptions->GetRenderToFboInterval())
   {
     corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
-  }
-  if(Integration::DepthBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetDepthBufferRequired())
-  {
-    corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
-  }
-  if(Integration::StencilBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetStencilBufferRequired())
-  {
-    corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
-  }
-  if(Integration::PartialUpdateAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetPartialUpdateRequired())
-  {
-    corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
   }
 
   mCore = Integration::Core::New(*this,
@@ -219,6 +210,9 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
   mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents)));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
+
+  // Register file download plugin proxy to use TriggerEvent.
+  Dali::FileDownloadPluginProxy::RegisterEventThreadCallback();
 
   GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());
 
@@ -512,6 +506,9 @@ void Adaptor::Stop()
     GetCore().SceneDestroyed();
 
     RemoveSystemInformation();
+
+    // Unregister file download plugin proxy before state become STOPPED.
+    Dali::FileDownloadPluginProxy::UnregisterEventThreadCallback();
 
     // Note: Must change the state at end of function.
     mState = STOPPED;
@@ -861,11 +858,6 @@ Any Adaptor::GetGraphicsDisplay()
   return display;
 }
 
-void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)
-{
-  mUseRemoteSurface = useRemoteSurface;
-}
-
 void Adaptor::GenerateDisplayConnector(Dali::Integration::RenderSurfaceInterface::Type type)
 {
   if(DALI_UNLIKELY(mDisplayConnection))
@@ -955,41 +947,32 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       }
 
       // Update graphics relative variables.
+      const bool depthBufferRequired   = mEnvironmentOptions->DepthBufferRequired();
+      const bool stencilBufferRequired = mEnvironmentOptions->StencilBufferRequired();
+      const bool partialUpdateRequired = mEnvironmentOptions->PartialUpdateRequired();
+      const int  multiSamplingLevel    = mEnvironmentOptions->GetMultiSamplingLevel();
+
+      // Update graphics relative variables.
       if(DALI_UNLIKELY(updateGraphicsRequired))
       {
-        // Update graphics relative variables.
-        auto depthBufferRequired   = (mEnvironmentOptions->DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
-        auto stencilBufferRequired = (mEnvironmentOptions->StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
-        auto partialUpdateRequired = (mEnvironmentOptions->PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
-
-        int multiSamplingLevel = mEnvironmentOptions->GetMultiSamplingLevel();
-
-        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+        mGraphicsLibraryHandle->GetGraphicsInterface().UpdateGraphicsRequired(
+          depthBufferRequired ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE,
+          stencilBufferRequired ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE,
+          partialUpdateRequired ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE,
+          multiSamplingLevel);
       }
 
-      // Update core relative variables.
-      // DevNote : We should change core policy after update graphics interface.
       if(DALI_UNLIKELY(updateCoreRequired))
       {
-        Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEFAULT;
-        if(0u != mEnvironmentOptions->GetRenderToFboInterval())
+        // Update core relative variables.
+        if(!mWindows.empty())
         {
-          corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
+          auto window = mWindows[0];
+          window->SetDepthBufferEnabled(depthBufferRequired);
+          window->SetStencilBufferEnabled(stencilBufferRequired);
+          window->SetPartialUpdateEnabled(partialUpdateRequired);
+          window->SetMultiSampledAntiAliasingEnabled(multiSamplingLevel > 0);
         }
-        if(Integration::DepthBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetDepthBufferRequired())
-        {
-          corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
-        }
-        if(Integration::StencilBufferAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetStencilBufferRequired())
-        {
-          corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
-        }
-        if(Integration::PartialUpdateAvailable::TRUE == mGraphicsLibraryHandle->GetGraphicsInterface().GetPartialUpdateRequired())
-        {
-          corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
-        }
-        mCore->ChangeCorePolicy(corePolicyFlags);
-
         if(DALI_UNLIKELY(recreateGraphicsRequired))
         {
           mCore->ChangeGraphicsController(mGraphicsLibraryHandle->GetGraphicsInterface().GetController());
@@ -1517,7 +1500,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mMutex(),
   mThreadMode(threadMode),
   mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
-  mUseRemoteSurface(false),
   mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT)
 {
   DALI_ASSERT_ALWAYS(!IsAvailable() && "Cannot create more than one Adaptor per thread");

@@ -1,6 +1,6 @@
 # NOTES
 # This spec file is used to build DALi Adaptor for different Tizen Profiles
-# Current profiles are:  Mobile, TV, Wearable, Common
+# Current profiles are:  Mobile, TV, Common
 #
 # The profile variable is defined outside of the spec file in a build.conf file.
 # It will contain the profile and whether or not to build with X11 or Wayland
@@ -11,13 +11,13 @@
 
 # Do not provide .so automatically for the extensions.
 # This if statement is for backward compatibility with GBM/Obsolete build systems
-%if "%{?profile}" != "wearable" && "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%global __provides_exclude_from ^.*\\.(wearable|mobile|tv|ivi|common)$
+%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "common"
+%global __provides_exclude_from ^.*\\.(mobile|tv|common)$
 %endif
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.18
+Version:    2.5.19
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -30,15 +30,6 @@ Requires:       giflib
 
 %define tizen_platform_config_supported 1
 BuildRequires:  pkgconfig(libtzplatform-config)
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%if "%{mv_prj}" != "1"
-BuildRequires:  pkgconfig(capi-appfw-watch-application)
-BuildRequires:  pkgconfig(appcore-watch)
-%endif
-%endif
 
 # if 'mv_prj' is defined, this build targets the robot profile.
 %if "%{mv_prj}" != "1"
@@ -159,13 +150,11 @@ The DALi Tizen Adaptor with the Vulkan library.
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 %package profile_mobile
 Summary:        The DALi Tizen Adaptor for mobile
 Provides:       %{name}-compat = %{version}-%{release}
 Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_wearable
-Conflicts:      %{name}-profile_ivi
 Conflicts:      %{name}-profile_common
 Requires:       %{name}
 %description profile_mobile
@@ -174,13 +163,11 @@ The DALi Tizen Adaptor for mobile.
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %package profile_tv
 Summary:        The DALi Tizen Adaptor for tv
 Provides:       %{name}-compat = %{version}-%{release}
 Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_wearable
-Conflicts:      %{name}-profile_ivi
 Conflicts:      %{name}-profile_common
 Requires:       %{name}
 %description profile_tv
@@ -188,46 +175,14 @@ The DALi Tizen Adaptor for tv.
 %endif
 
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%package profile_wearable
-Summary:        The DALi Tizen Adaptor for wearable
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_ivi
-Conflicts:      %{name}-profile_common
-Requires:       %{name}
-%description profile_wearable
-The DALi Tizen Adaptor for wearable.
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%package profile_ivi
-Summary:        The DALi Tizen Adaptor for ivi
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_wearable
-Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_common
-Requires:       %{name}
-%description profile_ivi
-The DALi Tizen Adaptor for ivi.
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
 # Currently Tizen Common we use does not have wayland extensions like xdg-shell
 %package profile_common
 Summary:        The DALi Tizen Adaptor for common
 Provides:       %{name}-compat = %{version}-%{release}
 Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_wearable
 Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_ivi
 Requires:       %{name}
 %description profile_common
 The DALi Tizen Adaptor for common.
@@ -274,9 +229,10 @@ Feedback plugin to play haptic and audio feedback for Dali
 %define font_application_path    %TZ_SYS_RO_SHARE/app_fonts/
 %define font_configuration_file  %TZ_SYS_ETC/fonts/conf.avail/99-slp.conf
 
-%define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
-%define system_cache_dir  /home/owner/.cache/dali_common_caches/
-%define dali_plugin_sound_files  /plugins/sounds/
+%define user_shader_cache_dir %{dali_data_ro_dir}/core/shaderbin/
+%define system_cache_dir      /home/owner/.cache/dali_common_caches/
+
+%define dali_plugin_sound_files_install_dir /plugins/sounds/
 
 ##############################
 # Preparation
@@ -387,7 +343,7 @@ cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if mobile || "undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 
 mkdir -p mobile
 pushd mobile
@@ -403,7 +359,7 @@ popd
 #######################################################################
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
 
 mkdir -p tv
 pushd tv
@@ -417,42 +373,10 @@ popd
 %endif
 
 #######################################################################
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-
-mkdir -p wearable
-pushd wearable
-
-cmake -DENABLE_PROFILE=WEARABLE $cmake_flags ..
-
-# Build.
-make %{?jobs:-j%jobs}
-popd
-
-%endif
-
-#######################################################################
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-
-mkdir -p ivi
-pushd ivi
-
-cmake -DENABLE_PROFILE=IVI $cmake_flags ..
-
-# Build.
-make %{?jobs:-j%jobs}
-popd
-
-%endif
-
-#######################################################################
 # common
 # This is for backward-compatibility. This does not deteriorate 4.0 Configurability
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
 
 mkdir -p common
 pushd common
@@ -474,7 +398,7 @@ rm -rf %{buildroot}
 pushd %{_builddir}/%{name}-%{version}/build/tizen
 
 # if mobile || "undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 pushd mobile
 %make_install
 %if "%{?profile}" != "mobile"
@@ -487,7 +411,7 @@ popd
 %endif
 
 # if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
 pushd tv
 %make_install
 %if "%{?profile}" != "tv"
@@ -499,34 +423,8 @@ make clean # So that we can gather symbol/size information for only one profile 
 popd
 %endif
 
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-pushd wearable
-%make_install
-%if "%{?profile}" != "wearable"
-pushd  %{buildroot}%{_libdir}
-cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.wearable # If we're only building this profile, then there's no need to copy the lib
-popd
-make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
-%endif
-popd
-%endif
-
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-pushd ivi
-%make_install
-%if "%{?profile}" != "ivi"
-pushd  %{buildroot}%{_libdir}
-cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.ivi # If we're only building this profile, then there's no need to copy the lib
-popd
-make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
-%endif
-popd
-%endif
-
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
 pushd common
 %make_install
 # No clean so we can gather symbol/size information for the common profile
@@ -555,7 +453,7 @@ exit 0
 
 %post
 pushd %{_libdir}
-for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
+for i in mobile tv; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
 popd
 /sbin/ldconfig
 rm -rf %{system_cache_dir}shader/  # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
@@ -572,7 +470,7 @@ exit 0
 # Mobile Profile Commands
 # if mobile || "undefined"
 # No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 %post profile_mobile
 %if "%{?profile}" != "mobile"
 pushd %{_libdir}
@@ -590,7 +488,7 @@ exit 0
 ##############################
 # TV Profile Commands
 # No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %post profile_tv
 %if "%{?profile}" != "tv"
 pushd %{_libdir}
@@ -606,44 +504,8 @@ exit 0
 %endif
 
 ##############################
-# Wearable Profile Commands
-# No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%post profile_wearable
-%if "%{?profile}" != "wearable"
-pushd %{_libdir}
-ln -sf libdali2-adaptor.so.wearable libdali2-adaptor.so.2.0.0
-popd
-%endif
-/sbin/ldconfig
-exit 0
-
-%postun profile_wearable
-/sbin/ldconfig
-exit 0
-%endif
-
-##############################
-# IVI Profile Commands
-# No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%post profile_ivi
-%if "%{?profile}" != "ivi"
-pushd %{_libdir}
-ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.2.0.0
-popd
-%endif
-/sbin/ldconfig
-exit 0
-
-%postun profile_ivi
-/sbin/ldconfig
-exit 0
-%endif
-
-##############################
 # Common Profile Commands
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
 %post profile_common
 /sbin/ldconfig
 exit 0
@@ -667,13 +529,15 @@ exit 0
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
 %{_libdir}/libdali2-adaptor.so.2.0.0
+
+# Internal so files
 %{_libdir}/libdali2-adaptor-gles.so
 %{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
+%{_libdir}/libdali2-file-download-plugin-curl.so
 
 %if "%{mv_prj}" != "1"
 %{_libdir}/libdali2-adaptor-application-widget.so*
-%{_libdir}/libdali2-adaptor-application-watch.so*
 %{_libdir}/libdali2-adaptor-application-component-based.so*
 %endif
 
@@ -690,19 +554,19 @@ exit 0
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-feedback-plugin.so*
-%{dali_plugin_sound_files}/*
+%{dali_plugin_sound_files_install_dir}/*
 
 #################################################
 
 # if common ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
 %files profile_common
 %manifest dali-adaptor.manifest
 # default .so files are housed in the main pkg.
 %endif
 
 # if mobile || "undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
+%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 %files profile_mobile
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
@@ -712,32 +576,12 @@ exit 0
 %endif
 
 # if tv ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
+%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
 %files profile_tv
 %manifest dali-adaptor.manifest
 %defattr(-,root,root,-)
 %if "%{?profile}" != "tv"
 %{_libdir}/libdali2-adaptor.so.tv
-%endif
-%endif
-
-# if wearable || "undefined"
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
-%files profile_wearable
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%if "%{?profile}" != "wearable"
-%{_libdir}/libdali2-adaptor.so.wearable
-%endif
-%endif
-
-# if ivi ||"undefined"
-%if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%files profile_ivi
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%if "%{?profile}" != "ivi"
-%{_libdir}/libdali2-adaptor.so.ivi
 %endif
 %endif
 

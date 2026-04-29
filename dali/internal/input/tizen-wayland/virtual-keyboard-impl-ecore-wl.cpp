@@ -19,6 +19,7 @@
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <algorithm>
@@ -27,7 +28,6 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/system/common/locale-utils.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {

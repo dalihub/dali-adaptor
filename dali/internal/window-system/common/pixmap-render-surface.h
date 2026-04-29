@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,22 +59,6 @@ public: // API
    */
   virtual void SetRenderNotification(TriggerEventInterface* renderNotification) = 0;
 
-  /**
-   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDepthBufferRequired()
-   */
-  Integration::DepthBufferAvailable GetDepthBufferRequired() override
-  {
-    return mGraphics ? mGraphics->GetDepthBufferRequired() : Integration::DepthBufferAvailable::FALSE;
-  }
-
-  /**
-   * @copydoc Dali::Integration::RenderSurfaceInterface::GetStencilBufferRequired()
-   */
-  Integration::StencilBufferAvailable GetStencilBufferRequired() override
-  {
-    return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
-  }
-
 private:
   /**
    * Second stage construction
@@ -91,6 +75,20 @@ private:
    * @param surfaceId the id of the surface
    */
   virtual void UseExistingRenderable(unsigned int surfaceId) = 0;
+
+public: // From RenderSurfaceInterface
+  bool GetDepthBufferRequired() const override
+  {
+    return false;
+  }
+  bool GetStencilBufferRequired() const override
+  {
+    return false;
+  }
+  int GetMSAALevel() const override
+  {
+    return 0;
+  }
 
 protected:
   // Undefined

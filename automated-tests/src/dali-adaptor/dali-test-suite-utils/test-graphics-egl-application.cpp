@@ -66,11 +66,7 @@ void TestGraphicsApplication::CreateCore()
   mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mGraphicsController.ActivateResourceContext();
 
-  Dali::Integration::CorePolicyFlags corePolicyFlags = Dali::Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Dali::Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
-  if(mPartialUpdateEnabled)
-  {
-    corePolicyFlags |= Dali::Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
-  }
+  Dali::Integration::CorePolicyFlags corePolicyFlags = Dali::Integration::CorePolicyFlags::DEFAULT;
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -84,15 +80,13 @@ void TestGraphicsApplication::CreateCore()
 
 void TestGraphicsApplication::CreateScene()
 {
-  mScene = Dali::Integration::Scene::New(Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)));
-  mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
-
   Graphics::RenderTargetCreateInfo createInfo{};
   createInfo.SetSurface({nullptr})
     .SetExtent({mSurfaceWidth, mSurfaceHeight})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
-  // mRenderTarget = mGraphicsController.CreateRenderTarget(createInfo, nullptr);
-  mScene.SetSurfaceRenderTarget(createInfo);
+
+  mScene = Dali::Integration::Scene::New(createInfo, Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)));
+  mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
 }
 
 void TestGraphicsApplication::InitializeCore()

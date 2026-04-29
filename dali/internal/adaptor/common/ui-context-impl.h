@@ -77,6 +77,11 @@ public:
   bool AddIdle(CallbackBase* callback);
 
   /**
+   * @copydoc Dali::UiContext::RemoveIdle()
+   */
+  void RemoveIdle(CallbackBase* callback);
+
+  /**
    * @copydoc Dali::UiContext::FlushUpdateMessages()
    */
   void FlushUpdateMessages();

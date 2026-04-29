@@ -23,7 +23,6 @@
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
@@ -589,12 +588,67 @@ public:
   void KeepRendering(float durationSeconds);
 
   /**
+   * @brief Sets whether the window has a depth buffer or not.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if a depth buffer should be created.
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window).
+   */
+  void SetDepthBufferEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has a depth buffer
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has a depth buffer
+   */
+  bool IsDepthBufferEnabled() const;
+
+  /**
+   * @brief Sets whether the window has a depth buffer or not.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if a depth buffer should be created.
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window).
+   */
+  void SetStencilBufferEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has a stencil buffer
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has a stencil buffer
+   */
+  bool IsStencilBufferEnabled() const;
+
+  /**
+   * @brief Sets whether the window has MSAA.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if MSAA should be initialized
+   */
+  void SetMultiSampledAntiAliasingEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has MSAA
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has MSAA
+   */
+  bool IsMultiSampledAntiAliasingEnabled() const;
+
+  /**
    * @brief Sets whether the window will update partial area or full area.
    *
    * @SINCE_2_2.33
    * @param[in] enabled True if the window should update partial area
-   * @note This doesn't change the global value which is set by the environment variable.
-   * This works when partial update is enabled by the environment variable. If the partial update is disabled by the environment variable, it changes nothing.
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window)
    */
   void SetPartialUpdateEnabled(bool enabled);
 

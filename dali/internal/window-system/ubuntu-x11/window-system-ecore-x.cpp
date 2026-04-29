@@ -15,15 +15,15 @@
  *
  */
 
-// INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/keyboard.h>
-#include <dali/internal/window-system/common/window-system.h>
-
 // EXTERNAL_HEADERS
+#include <Ecore_X.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/system/linux/dali-ecore-x.h>
+
+// INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
 {

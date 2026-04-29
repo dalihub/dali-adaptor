@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <dali/internal/system/glib/system-factory-glib.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/system/common/event-loop.h>
 #include <dali/internal/system/glib/callback-manager-glib.h>
 #include <dali/internal/system/glib/file-descriptor-monitor-glib.h>
 #include <dali/internal/system/glib/timer-impl-glib.h>
@@ -42,6 +43,11 @@ std::unique_ptr<FileDescriptorMonitor> SystemFactoryGlib::CreateFileDescriptorMo
 TimerPtr SystemFactoryGlib::CreateTimer(uint32_t milliSec)
 {
   return TimerGlib::New(milliSec);
+}
+
+std::unique_ptr<EventLoop> SystemFactoryGlib::CreateEventLoop()
+{
+  return std::unique_ptr<EventLoop>(nullptr);
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()

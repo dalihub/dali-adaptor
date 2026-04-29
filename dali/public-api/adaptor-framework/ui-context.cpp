@@ -61,6 +61,11 @@ bool UiContext::AddIdle(CallbackBase* callback)
   return Internal::Adaptor::GetImplementation(*this).AddIdle(callback);
 }
 
+void UiContext::RemoveIdle(CallbackBase* callback)
+{
+  Internal::Adaptor::GetImplementation(*this).RemoveIdle(callback);
+}
+
 void UiContext::FlushUpdateMessages()
 {
   Internal::Adaptor::GetImplementation(*this).FlushUpdateMessages();

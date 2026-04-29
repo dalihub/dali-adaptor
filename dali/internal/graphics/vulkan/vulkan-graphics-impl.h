@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,23 @@ public:
     ColorDepth                     colorDepth,
     int                            width,
     int                            height) override;
+
+  Graphics::SurfaceId CreateSurface(
+    Graphics::SurfaceFactory*      surfaceFactory,
+    Internal::Adaptor::WindowBase* windowBase,
+    ColorDepth                     colorDepth,
+    int                            width,
+    int                            height,
+    bool                           depthBufferRequired,
+    bool                           stencilBufferRequired,
+    int                            multiSamplingLevel) override;
+
+  bool ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel) override;
+
+  void ResetSurfaceState() override
+  {
+    // No-op for Vulkan backend
+  }
 
   void DestroySurface(Graphics::SurfaceId) override;
 

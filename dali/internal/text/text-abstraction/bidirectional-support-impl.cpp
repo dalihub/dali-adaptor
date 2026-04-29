@@ -352,7 +352,7 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
     if(handle)
     {
       // If so, downcast the handle
-      BidirectionalSupport* impl = dynamic_cast<Internal::BidirectionalSupport*>(handle.GetObjectPtr());
+      BidirectionalSupport* impl = static_cast<Internal::BidirectionalSupport*>(handle.GetObjectPtr());
       bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(impl);
     }
     else // create and register the object

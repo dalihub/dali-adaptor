@@ -23,8 +23,8 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
@@ -387,12 +387,6 @@ public:
   Any GetGraphicsDisplay();
 
   /**
-   * Sets use remote surface for Surface output
-   * @param[in] useRemoteSurface True if the remote surface is used
-   */
-  void SetUseRemoteSurface(bool useRemoteSurface);
-
-  /**
    * @brief Generate display connector as input type.
    * @note We should call this API before adaptor started.
    * @param[in] type Type of render surface interface of main window
@@ -597,6 +591,10 @@ public: // AdaptorInternalServices
   const ConfigurationManager* GetConfigurationManager() const
   {
     return mConfigurationManager.get();
+  }
+  const EnvironmentOptions& GetEnvironmentOptions() const override
+  {
+    return *mEnvironmentOptions;
   }
 
 public: // Signals
@@ -810,7 +808,6 @@ private:                                          // Data
   Mutex                                mMutex;                       ///< Mutex
   ThreadMode                           mThreadMode;                  ///< The thread mode
   const bool                           mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
-  bool                                 mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager

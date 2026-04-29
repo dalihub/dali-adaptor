@@ -82,7 +82,7 @@ TextAbstraction::Segmentation Segmentation::Get()
     if(handle)
     {
       // If so, downcast the handle
-      Segmentation* impl = dynamic_cast<Internal::Segmentation*>(handle.GetObjectPtr());
+      Segmentation* impl = static_cast<Internal::Segmentation*>(handle.GetObjectPtr());
       segmentationHandle = TextAbstraction::Segmentation(impl);
     }
     else // create and register the object

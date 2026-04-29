@@ -30,7 +30,7 @@
 #include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/events/hover-event.h>
 #include <dali/public-api/events/touch-event.h>
-#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/object/base-object.h>
 #include <atomic>
 #include <memory>
@@ -252,6 +252,79 @@ public:
   int32_t GetNativeId() const;
 
   /**
+   * @brief Sets whether the window has a depth buffer or not.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if a depth buffer should be created.
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window).
+   */
+  void SetDepthBufferEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has a depth buffer
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has a depth buffer
+   */
+  bool IsDepthBufferEnabled() const;
+
+  /**
+   * @brief Sets whether the window has a depth buffer or not.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if a depth buffer should be created.
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window).
+   */
+  void SetStencilBufferEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has a stencil buffer
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has a stencil buffer
+   */
+  bool IsStencilBufferEnabled() const;
+
+  /**
+   * @brief Sets whether the window has MSAA.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if MSAA should be initialized
+   */
+  void SetMultiSampledAntiAliasingEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window has MSAA
+   *
+   * @SINCE_2_5.20
+   * @return True if the window has MSAA
+   */
+  bool IsMultiSampledAntiAliasingEnabled() const;
+
+  /**
+   * @brief Sets whether the window will update partial area or full area.
+   *
+   * @SINCE_2_5.20
+   * @param[in] enabled True if the window should update partial area
+   * @note This is an alternative to setting the environment variable.
+   * There is no longer a global setting; the environment variable will
+   * only affect the main window (the automatically generated window)
+   */
+  void SetPartialUpdateEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window will update partial area.
+   *
+   * @SINCE_2_5.20
+   * @return True if the window should update partial area
+   */
+  bool IsPartialUpdateEnabled() const;
+
+  /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
    * @param[in] callback The function to call
@@ -282,11 +355,6 @@ public:
    * @note Ownership of the callback is passed onto this class.
    */
   void AddFramePresentedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId);
-
-  /**
-   * @brief Creates the render target for the surface when the surface is created/resized/replaced.
-   */
-  void CreateRenderTarget();
 
   /**
    * @copydoc Dali::Integration::SceneHolder::GetRenderTaskList()
@@ -438,6 +506,11 @@ private:
    * Initializes the DPI for this object.
    */
   void InitializeDpi();
+
+  /**
+   * @brief Creates the render target for the surface when the surface is created/resized/replaced.
+   */
+  void CreateRenderTarget();
 
 private:
   static uint32_t mSceneHolderCounter; ///< A counter to track the SceneHolder creation

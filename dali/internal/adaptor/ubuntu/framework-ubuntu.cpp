@@ -18,12 +18,10 @@
 #include <dali/internal/adaptor/ubuntu/framework-ubuntu.h>
 
 // EXTERNAL INCLUDES
+#include <Ecore.h>
+#include <Efreet.h>
+#include <Elementary.h>
 #include <X11/Xlib.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/linux/dali-ecore.h>
-#include <dali/internal/system/linux/dali-efreet.h>
-#include <dali/internal/system/linux/dali-elementary.h>
 
 namespace Dali
 {

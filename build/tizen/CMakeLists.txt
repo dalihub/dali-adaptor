@@ -402,6 +402,7 @@ ENDIF()
 SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
 SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
 SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
+SET( tizenadaptorfiledownloadapidir ${tizenadaptorintegrationapidir}/file-download )
 SET( tizenadaptorapplicationapidir ${INCLUDE_DIR}/dali/internal/application-model )
 SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
@@ -409,7 +410,6 @@ SET( tizencanvasrendererdevelapidir ${tizenadaptorframeworkdevelapidir}/canvas-r
 SET( tizenwebenginedevelapidir ${tizenadaptorframeworkdevelapidir}/web-engine )
 SET( tizenatspiinterfacesdevelapidir ${tizenadaptordevelapidir}/atspi-interfaces )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
-SET( tizenwatchdevelapidir ${tizenadaptordevelapidir}/watch )
 SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
 
 # Android framework headers for Android build
@@ -418,6 +418,7 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 # Install headers
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
 INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
+INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
 INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptordevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
@@ -428,7 +429,6 @@ INSTALL( FILES ${devel_api_adaptor_framework_canvas_renderer_header_files} DESTI
 INSTALL( FILES ${devel_api_adaptor_framework_web_engine_header_files} DESTINATION ${tizenwebenginedevelapidir} )
 INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
 INSTALL( FILES ${devel_api_text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
-INSTALL( FILES ${devel_api_watch_header_files} DESTINATION ${tizenwatchdevelapidir} )
 
 # Install Android framework headers for Android build
 INSTALL( FILES ${adaptor_integration_api_android_header_files} DESTINATION ${androidadaptorintegrationapidir} )
@@ -599,9 +599,7 @@ MESSAGE( STATUS "CMAKE_SYSROOT:                    ${CMAKE_SYSROOT}")
 MESSAGE( STATUS "CMAKE_SYSTEM_INCLUDE_PATH:        ${CMAKE_SYSTEM_INCLUDE_PATH}")
 MESSAGE( STATUS "CMAKE_SYSTEM_LIBRARY_PATH:        ${CMAKE_SYSTEM_LIBRARY_PATH}")
 
-IF( enable_feedback )
-  ADD_SUBDIRECTORY( plugins )
-ENDIF()
+ADD_SUBDIRECTORY( plugins )
 
 IF( ENABLE_APPMODEL )
 IF (ROBOT_PROFILE)

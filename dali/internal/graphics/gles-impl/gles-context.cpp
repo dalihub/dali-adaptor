@@ -1524,6 +1524,21 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   }
 }
 
+void Context::DiscardNonShareableCache()
+{
+  // The EGL context these ids belong to has been destroyed. Do NOT call
+  // glDeleteVertexArrays — the ids are invalid in the new context and may
+  // collide with VAOs the new context will generate.
+  mImpl->mProgramVAOMap.clear();
+  mImpl->mDiscardedVAOList.clear();
+  mImpl->mProgramVAOCurrentState = 0u;
+
+  // Pipeline objects themselves are not GL objects and survive, but the
+  // cached "currently bound" pipeline no longer reflects driver state.
+  mImpl->mCurrentPipeline           = nullptr;
+  mImpl->mCurrentIndexBufferBinding = {};
+}
+
 void Context::PrepareForNativeRendering()
 {
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);

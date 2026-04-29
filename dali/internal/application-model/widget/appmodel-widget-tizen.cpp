@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,13 @@
 #include <tizen.h>
 #include <widget_base.h>
 
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif // DALI_ELDBUS_AVAILABLE
-
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
-#include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/adaptor/tizen/framework-tizen.h>
+#include <dali/internal/system/common/event-loop.h>
+#include <dali/internal/system/common/system-factory.h>
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
@@ -81,13 +77,7 @@ extern "C" DALI_ADAPTOR_API void AppExit(AppModelWidget* p)
 
 namespace
 {
-#if defined(DEBUG_ENABLED)
-Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
-#endif
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FRAMEWORK, true);
-
-const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
-const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
+AppModelWidget* gAppModelWidget = nullptr;
 } // anonymous namespace
 
 namespace AppCoreWidget
@@ -202,14 +192,16 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
   static int WidgetAppCreate(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WidgetAppCreate() emitted", __MODULE__, __func__, __LINE__);
+    auto* impl = static_cast<AppModelWidget*>(data)->mImpl;
     widget_base_on_create();
-    return static_cast<int>(static_cast<FrameworkTizen*>(data)->Create());
+    return static_cast<int>(impl->mFramework->Create());
   }
 
   static int WidgetAppTerminate(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > WidgetAppTerminate() emitted", __MODULE__, __func__, __LINE__);
-    Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    auto*                impl     = static_cast<AppModelWidget*>(data)->mImpl;
+    Framework::Observer* observer = &impl->mFramework->GetObserver();
     observer->OnTerminate();
 
     widget_base_on_terminate();
@@ -219,47 +211,58 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
   static void AppInit(int argc, char** argv, void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-    ecore_init();
-    ecore_app_args_set(argc, (const char**)argv);
-#pragma GCC diagnostic pop
-
-#ifdef DALI_ELDBUS_AVAILABLE
-    // Initialize ElDBus.
-    DALI_LOG_INFO(gDBusLogging, Debug::General, "Starting DBus Initialization\n");
-    eldbus_init();
-#endif
+    auto* impl       = static_cast<AppModelWidget*>(data)->mImpl;
+    impl->mEventLoop = GetSystemFactory()->CreateEventLoop();
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Initialize(argc, argv);
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppFinish(void)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppFinish() emitted", __MODULE__, __func__, __LINE__);
-    ecore_shutdown();
-
-    if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
+    if(gAppModelWidget->mImpl->mEventLoop)
     {
-      Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
-      ecore_shutdown();
+      gAppModelWidget->mImpl->mEventLoop->Shutdown();
+      gAppModelWidget->mImpl->mEventLoop.reset();
     }
-
-#ifdef DALI_ELDBUS_AVAILABLE
-    // Shutdown ELDBus.
-    DALI_LOG_INFO(gDBusLogging, Debug::General, "Shutting down DBus\n");
-    eldbus_shutdown();
-#endif
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppRun(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
-    ecore_main_loop_begin();
+    auto* impl = static_cast<AppModelWidget*>(data)->mImpl;
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Run();
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppExit(void* data)
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
-    ecore_main_loop_quit();
+    auto* impl = static_cast<AppModelWidget*>(data)->mImpl;
+    if(impl->mEventLoop)
+    {
+      impl->mEventLoop->Quit();
+    }
+    else
+    {
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+    }
   }
 
   static void AppLanguageChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
@@ -397,13 +400,14 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
       DALI_LOG_ERROR("widget feature is not supported");
       return TIZEN_ERROR_NOT_SUPPORTED;
     }
-    FrameworkTizen* mFramework = static_cast<FrameworkTizen*>(data);
+    mFramework      = static_cast<FrameworkTizen*>(data);
+    gAppModelWidget = mAppModelWidget;
 
-    AppCoreWidget::AppAddEventHandler(&handlers[AppCoreWidget::LOW_BATTERY], AppCoreWidget::LOW_BATTERY, AppBatteryLow, mFramework);
-    AppCoreWidget::AppAddEventHandler(&handlers[AppCoreWidget::LOW_MEMORY], AppCoreWidget::LOW_MEMORY, AppMemoryLow, mFramework);
-    AppCoreWidget::AppAddEventHandler(&handlers[AppCoreWidget::DEVICE_ORIENTATION_CHANGED], AppCoreWidget::DEVICE_ORIENTATION_CHANGED, AppDeviceOrientationChanged, mFramework);
-    AppCoreWidget::AppAddEventHandler(&handlers[AppCoreWidget::LANGUAGE_CHANGED], AppCoreWidget::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
-    AppCoreWidget::AppAddEventHandler(&handlers[AppCoreWidget::REGION_FORMAT_CHANGED], AppCoreWidget::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
+    AppCoreWidget::AppAddEventHandler(&mHandlers[AppCoreWidget::LOW_BATTERY], AppCoreWidget::LOW_BATTERY, AppBatteryLow, mFramework);
+    AppCoreWidget::AppAddEventHandler(&mHandlers[AppCoreWidget::LOW_MEMORY], AppCoreWidget::LOW_MEMORY, AppMemoryLow, mFramework);
+    AppCoreWidget::AppAddEventHandler(&mHandlers[AppCoreWidget::DEVICE_ORIENTATION_CHANGED], AppCoreWidget::DEVICE_ORIENTATION_CHANGED, AppDeviceOrientationChanged, mFramework);
+    AppCoreWidget::AppAddEventHandler(&mHandlers[AppCoreWidget::LANGUAGE_CHANGED], AppCoreWidget::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
+    AppCoreWidget::AppAddEventHandler(&mHandlers[AppCoreWidget::REGION_FORMAT_CHANGED], AppCoreWidget::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
 
     widget_base_ops ops = widget_base_get_default_ops();
     print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 4");
@@ -416,7 +420,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
     ops.exit      = AppExit;
 
     print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 5");
-    int result = widget_base_init(ops, *mFramework->GetArgc(), *mFramework->GetArgv(), mFramework);
+    int result = widget_base_init(ops, *mFramework->GetArgc(), *mFramework->GetArgv(), mAppModelWidget);
 
     widget_base_fini();
     print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 6");
@@ -424,17 +428,21 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
   }
 
   Impl(void* data)
-  : handlers{nullptr, nullptr, nullptr, nullptr, nullptr}
+  : mHandlers{nullptr, nullptr, nullptr, nullptr, nullptr},
+    mEventLoop(),
+    mAppModelWidget(static_cast<AppModelWidget*>(data)),
+    mFramework(nullptr)
   {
-    mAppModelWidget = static_cast<AppModelWidget*>(data);
   }
 
   ~Impl()
   {
   }
 
+  AppCoreWidget::AppEventHandlerPtr mHandlers[5];
+  std::unique_ptr<EventLoop>        mEventLoop;
   AppModelWidget*                   mAppModelWidget;
-  AppCoreWidget::AppEventHandlerPtr handlers[5];
+  FrameworkTizen*                   mFramework;
 }; // Impl
 
 AppModelWidget::AppModelWidget()

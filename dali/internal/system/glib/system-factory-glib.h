@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_SYSTEM_FACTORY_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ namespace Adaptor
 class SystemFactoryGlib : public SystemFactory
 {
 public:
+  std::unique_ptr<EventLoop>             CreateEventLoop() override;
   std::unique_ptr<CallbackManager>       CreateCallbackManager() override;
   std::unique_ptr<FileDescriptorMonitor> CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask) override;
   TimerPtr                               CreateTimer(uint32_t milliSec) override;

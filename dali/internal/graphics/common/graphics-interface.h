@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-controller.h>
 #include <dali/integration-api/core-enumerations.h>
-#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/math/int-pair.h>
 #include <limits>
 
 // INTERNAL INCLUDES
@@ -184,6 +184,57 @@ public:
     ColorDepth                           colorDepth,
     int                                  width,
     int                                  height) = 0;
+
+  /**
+   * @brief Create the graphics surface with per-surface depth/stencil/MSAA configuration.
+   *
+   * This overload allows each window to specify its own depth buffer, stencil buffer,
+   * and MSAA requirements rather than using the global defaults from GraphicsCreateInfo.
+   *
+   * @param[in] factory The factory used to generate a graphics surface for a window
+   * @param[in] windowBase The base window to generate a graphics surface for
+   * @param[in] colorDepth The color depth of the window
+   * @param[in] width The width of the window (After rotation applied)
+   * @param[in] height The height of the window (After rotation applied)
+   * @param[in] depthBufferRequired Whether depth buffer is required for this surface
+   * @param[in] stencilBufferRequired Whether stencil buffer is required for this surface
+   * @param[in] multiSamplingLevel The MSAA level for this surface (0 = disabled)
+   * @return the Id of the graphics surface/swapchain pair.
+   */
+  virtual Graphics::SurfaceId CreateSurface(
+    Graphics::SurfaceFactory*            factory,
+    Dali::Internal::Adaptor::WindowBase* windowBase,
+    ColorDepth                           colorDepth,
+    int                                  width,
+    int                                  height,
+    bool                                 depthBufferRequired,
+    bool                                 stencilBufferRequired,
+    int                                  multiSamplingLevel) = 0;
+
+  /**
+   * @brief Reconfigure an existing surface with new depth/stencil/MSAA settings.
+   *
+   * The new context shares resources with the existing resource context.
+   *
+   * @param[in] surfaceId The surface ID to reconfigure
+   * @param[in] depthBufferRequired Whether depth buffer is required
+   * @param[in] stencilBufferRequired Whether stencil buffer is required
+   * @param[in] multiSamplingLevel The MSAA level (0 = disabled)
+   * @return true if the surface was successfully reconfigured
+   */
+  virtual bool ReconfigureSurface(Graphics::SurfaceId surfaceId,
+                                  bool                depthBufferRequired,
+                                  bool                stencilBufferRequired,
+                                  int                 multiSamplingLevel) = 0;
+
+  /**
+   * Reset the surface's gpu state cache and re-initializes gpu state to defaults.
+   *
+   * This must be called after creating a new context when the state
+   * has been invalidated (e.g. after ReconfigureSurface).
+   * The context must already be current when this is called.
+   */
+  virtual void ResetSurfaceState() = 0;
 
   /**
    * Destroy the graphics surface and it's resources.
