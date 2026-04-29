@@ -508,7 +508,19 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
   {
     case ThreadMode::NORMAL:
     {
-      mUpdateRenderRunCount    = numberOfCycles;
+      if(updateMode == UpdateMode::FORCE_RENDER)
+      {
+        // numberOfCycles could be ONCE even if thread is running. Do not change it as ONCE if CONTINUOUS.
+        if(numberOfCycles == CONTINUOUS ||
+           oldUpdateRenderRunCount != CONTINUOUS)
+        {
+          mUpdateRenderRunCount = numberOfCycles;
+        }
+      }
+      else
+      {
+        mUpdateRenderRunCount = numberOfCycles;
+      }
       mUseElapsedTimeAfterWait = (animationProgression == AnimationProgression::USE_ELAPSED_TIME);
 
       if(DALI_UNLIKELY(oldUpdateRenderRunCount != numberOfCycles))
