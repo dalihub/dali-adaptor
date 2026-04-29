@@ -90,7 +90,7 @@ public:
   using WindowCreatedSignalType = Dali::Adaptor::WindowCreatedSignalType;
   using LocaleChangedSignalType = Dali::Adaptor::LocaleChangedSignalType;
 
-  using SurfaceSize = Uint16Pair; ///< Surface size type
+  using SurfaceSize = Int32Pair; ///< Surface size type
 
   /**
    * Creates a New Adaptor

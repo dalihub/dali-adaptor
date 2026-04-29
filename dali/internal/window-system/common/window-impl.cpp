@@ -786,7 +786,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
   {
     mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, newRect.width, newRect.height));
 
-    Uint16Pair newSize(newRect.width, newRect.height);
+    Dali::Window::WindowSize newSize(newRect.width, newRect.height);
 
     mWindowWidth  = newRect.width;
     mWindowHeight = newRect.height;
@@ -1746,7 +1746,7 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
   if(resize)
   {
-    Uint16Pair newSize(newRect.width, newRect.height);
+    Adaptor::SurfaceSize newSize(newRect.width, newRect.height);
 
     mWindowWidth  = newRect.width;
     mWindowHeight = newRect.height;

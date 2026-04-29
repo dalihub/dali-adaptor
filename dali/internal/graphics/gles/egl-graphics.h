@@ -170,7 +170,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::Resize()
    */
-  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair positionSize) override;
+  void Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size) override;
 
   /**
    * @copydoc Graphics::GraphicsInterface::GetBufferAge()

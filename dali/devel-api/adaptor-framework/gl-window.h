@@ -63,7 +63,7 @@ class KeyEvent;
 class DALI_ADAPTOR_API GlWindow : public BaseHandle
 {
 public:
-  using WindowSize = Uint16Pair;
+  using WindowSize = Int32Pair;
 
   typedef Signal<void(const KeyEvent&)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
   typedef Signal<void(const TouchEvent&)> TouchEventSignalType;        ///< GlWindow Touch Event signal type

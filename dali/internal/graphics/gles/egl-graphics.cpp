@@ -125,7 +125,7 @@ void EglGraphics::Resume()
   }
 }
 
-void EglGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
+void EglGraphics::Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size)
 {
   if(surface)
   {

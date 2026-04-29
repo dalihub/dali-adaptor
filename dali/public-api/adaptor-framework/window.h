@@ -39,7 +39,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::Rect<int32_t> PositionSize;
 
 namespace Internal DALI_INTERNAL
 {
@@ -49,8 +49,6 @@ class Window;
 }
 } //namespace Internal DALI_INTERNAL
 
-class DragAndDropDetector;
-class Orientation;
 class Actor;
 class Layer;
 class RenderTaskList;
@@ -67,8 +65,8 @@ class KeyEvent;
 class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
-  using WindowSize     = Uint16Pair; ///< Window size type @SINCE_1_2.60
-  using WindowPosition = Int32Pair;  ///< Window position type @SINCE_2_1.45
+  using WindowSize     = Int32Pair; ///< Window size type @SINCE_1_2.60
+  using WindowPosition = Int32Pair; ///< Window position type @SINCE_2_1.45
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35

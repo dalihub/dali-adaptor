@@ -183,7 +183,7 @@ void VulkanGraphics::Resume()
   mGraphicsController.Resume();
 }
 
-void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
+void VulkanGraphics::Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size)
 {
   if(surface)
   {

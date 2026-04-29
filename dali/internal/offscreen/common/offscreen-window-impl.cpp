@@ -78,7 +78,7 @@ void OffscreenWindow::SetNativeImage(Dali::NativeImageInterfacePtr nativeImage)
       // Set scene size
       SurfaceResized(static_cast<float>(mWidth), static_cast<float>(mHeight));
 
-      Uint16Pair newSize(mWidth, mHeight);
+      Adaptor::SurfaceSize newSize(mWidth, mHeight);
 
       mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
       mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);

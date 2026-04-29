@@ -857,7 +857,7 @@ int UtcDaliWindowSetSizeNegative(void)
   Dali::Window instance;
   try
   {
-    Dali::Uint16Pair arg1;
+    Dali::Int32Pair arg1;
     instance.SetSize(arg1);
     DALI_TEST_CHECK(false); // Should not get here
   }

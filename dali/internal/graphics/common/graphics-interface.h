@@ -259,7 +259,7 @@ public:
    * @param[in] surface The surface whose context to resize
    * @param[in] size The new size of the surface
    */
-  virtual void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size) = 0;
+  virtual void Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size) = 0;
 
   /**
    * Get the buffer age of the surface. 0 means that the back buffer

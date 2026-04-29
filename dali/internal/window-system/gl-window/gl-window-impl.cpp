@@ -392,8 +392,8 @@ void GlWindow::SetPositionSize(PositionSize positionSize)
   // If window's size or position is changed, the signal will be emitted to user.
   if(needToMove || needToResize)
   {
-    Uint16Pair     newSize(mPositionSize.width, mPositionSize.height);
-    Dali::GlWindow handle(this);
+    Dali::GlWindow::WindowSize newSize(mPositionSize.width, mPositionSize.height);
+    Dali::GlWindow             handle(this);
     mResizeSignal.Emit(newSize);
 
     if(mGlWindowRenderThread)
@@ -544,7 +544,7 @@ void GlWindow::OnRotation(const RotationEvent& rotation)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {
@@ -861,7 +861,7 @@ void GlWindow::UpdateScreenRotation(int newAngle)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {

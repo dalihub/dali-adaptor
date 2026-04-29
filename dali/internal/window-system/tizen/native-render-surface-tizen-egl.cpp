@@ -299,7 +299,7 @@ void NativeRenderSurfaceTizen::MoveResize(Dali::PositionSize positionSize)
   mSurfaceSize.SetHeight(static_cast<uint16_t>(positionSize.height));
 }
 
-void NativeRenderSurfaceTizen::Resize(Dali::Uint16Pair size)
+void NativeRenderSurfaceTizen::Resize(SurfaceSize size)
 {
   MoveResize(PositionSize(0, 0, size.GetWidth(), size.GetHeight()));
 }

@@ -2076,7 +2076,7 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
   {
     Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
-    Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
+    SurfaceSize        newSize(newPositionSize.width, newPositionSize.height);
 
     mWindowPositionSize.width  = orgPositionSize.width;
     mWindowPositionSize.height = orgPositionSize.height;

@@ -170,7 +170,7 @@ void OffscreenRenderSurfaceEgl::MoveResize(Dali::PositionSize positionSize)
 {
 }
 
-void OffscreenRenderSurfaceEgl::Resize(Uint16Pair size)
+void OffscreenRenderSurfaceEgl::Resize(SurfaceSize size)
 {
 }
 

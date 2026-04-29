@@ -51,7 +51,7 @@ class AdaptorInternalServices;
  * @brief The position and size of the render surface.
  */
 using PositionSize = Dali::Rect<int>;
-using SurfaceSize  = Uint16Pair;
+using SurfaceSize  = Int32Pair;
 
 namespace Integration
 {
@@ -162,7 +162,7 @@ public:
    * @brief Sets the size of the surface.
    * @param[in] size The new size of the surface
    */
-  virtual void Resize(Uint16Pair size) = 0;
+  virtual void Resize(SurfaceSize size) = 0;
 
   /**
    * @brief Called when Render thread has started

@@ -810,7 +810,7 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   mWindowBase->MoveResize(positionSize);
 }
 
-void WindowRenderSurface::Resize(Uint16Pair size)
+void WindowRenderSurface::Resize(SurfaceSize size)
 {
   Dali::PositionSize positionSize;
 
@@ -972,7 +972,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
 
     // Resize case
-    Uint16Pair size;
+    SurfaceSize size;
 
     if(totalAngle == 0 || totalAngle == 180)
     {

@@ -97,7 +97,7 @@ void OffscreenRenderSurfaceVulkan::MoveResize(Dali::PositionSize positionSize)
 {
 }
 
-void OffscreenRenderSurfaceVulkan::Resize(Uint16Pair size)
+void OffscreenRenderSurfaceVulkan::Resize(SurfaceSize size)
 {
 }
 

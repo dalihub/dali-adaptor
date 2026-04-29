@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public:
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseRelativeEvent&)>                   MouseRelativeEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
-  typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
+  typedef Signal<void(Dali::Int32Pair&)>                                               ResizeCompletedSignalType;
   typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
   typedef Signal<void(const Dali::Int32Pair&, bool, bool)>                             PointerConstraintsSignalType;
 

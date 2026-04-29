@@ -214,7 +214,7 @@ public:
     mCallstack.PushCall("Resume()", "");
   }
 
-  void Resize(Dali::Integration::RenderSurfaceInterface* surface, Uint16Pair size) override
+  void Resize(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize size) override
   {
     mCallstack.PushCall("Resize()", "");
   }
