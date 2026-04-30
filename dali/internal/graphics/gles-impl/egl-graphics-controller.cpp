@@ -246,8 +246,6 @@ void EglGraphicsController::SetResourceBindingHints(const std::vector<SceneResou
 
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
-  uint32_t totalNumCmds    = 0;
-  uint32_t totalNumBuffers = 0;
   for(auto& cmdbuf : submitInfo.cmdBuffer)
   {
     // Push command buffers
@@ -255,8 +253,6 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
     mCapacity += commandBuffer->GetCapacity();
     uint32_t              numCmds = 0;
     [[maybe_unused]] auto cmdPtr  = commandBuffer->GetCommands(numCmds);
-    totalNumCmds += numCmds;
-    totalNumBuffers++;
     mCommandQueue.push(commandBuffer);
   }
 
@@ -518,7 +514,7 @@ const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Gr
 void EglGraphicsController::CreateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this, mGlAbstraction);
-  mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
+  mSurfaceContexts.push_back(std::make_pair(surface, std::move(context)));
 }
 
 void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)

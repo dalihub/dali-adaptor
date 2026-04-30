@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
@@ -50,7 +51,13 @@ Any DisplayConnectionX11::GetDisplay()
 
 Any DisplayConnectionX11::GetNativeGraphicsDisplay()
 {
-  return CastToNativeGraphicsType(mDisplay);
+  std::unique_ptr<Any> nativeGraphicsDisplay = CastToNativeGraphicsType(mDisplay);
+  if(!nativeGraphicsDisplay)
+  {
+    DALI_LOG_ERROR("Failed to cast native graphics display\n");
+    return Any();
+  }
+  return *(nativeGraphicsDisplay.release());
 }
 
 void DisplayConnectionX11::ConsumeEvents()

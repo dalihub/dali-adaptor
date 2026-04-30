@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SOCKET_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,6 @@ private:
   bool mBound : 1;            ///< whether the socket is bound
   bool mListening : 1;        ///< whether the socket is being listen to
   bool mQuitPipeCreated : 1;  ///< whether the quit pipe has been created
-  bool mBlocked : 1;          ///< whether the socket is blocked waiting for a connection
 };
 
 } // namespace Adaptor

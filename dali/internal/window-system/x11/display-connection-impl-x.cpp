@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 
 // CLASS HEADER
 #include <dali/internal/window-system/x11/display-connection-impl-x.h>
+
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/x11/display-connection-native-types.h>
@@ -38,7 +41,13 @@ Any DisplayConnectionX11::GetDisplay()
 
 Any DisplayConnectionX11::GetNativeGraphicsDisplay()
 {
-  return CastToNativeGraphicsType(mDisplay);
+  std::unique_ptr<Any> nativeGraphicsDisplay = CastToNativeGraphicsType(mDisplay);
+  if(!nativeGraphicsDisplay)
+  {
+    DALI_LOG_ERROR("Failed to cast native graphics display\n");
+    return Any();
+  }
+  return *(nativeGraphicsDisplay.release());
 }
 
 void DisplayConnectionX11::ConsumeEvents()

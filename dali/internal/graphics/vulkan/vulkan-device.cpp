@@ -102,12 +102,6 @@ auto reqLayers = std::vector<const char*>{
   // Don't add VK_LAYER_RENDERDOC_Capture, set ENABLE_VULKAN_RENDERDOC_CAPTURE=1 environment variable
   "VK_LAYER_KHRONOS_validation"};
 
-#if NDEBUG
-const bool gEnableValidationLayers = false;
-#else
-const bool gEnableValidationLayers = true;
-#endif
-
 #if DALI_VK_EXT_GLOBAL_PRIORITY_SUPPORT
 struct Device::GlobalPrioritySupportedInfo
 {
@@ -1193,7 +1187,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
                      << VK_API_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion) << std::endl
                      << "Device Name: " << (const char*)mPhysicalDeviceProperties.deviceName << std::endl
                      << "Driver Version: " << std::hex << mPhysicalDeviceProperties.driverVersion;
-  Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
+  Graphics::Internal::SetBackendInformation(backendInformation.str());
 
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
 

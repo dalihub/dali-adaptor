@@ -237,7 +237,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     return create(eldbus_message_iter_get(get(msg)), nullptr, false);
   }
 
-  MessagePtr dbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName)
+  MessagePtr dbus_proxy_method_call_new_impl(const ProxyPtr& proxy, const std::string& funcName) override
   {
     return create(eldbus_proxy_method_call_new(get(proxy), funcName.c_str()), true);
   }

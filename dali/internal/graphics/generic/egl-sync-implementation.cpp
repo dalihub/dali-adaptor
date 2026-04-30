@@ -41,19 +41,19 @@ namespace Internal
 namespace Adaptor
 {
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
-: mEglSync(NULL),
+: mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-  mEglSync = eglCreateSync(display, EGL_SYNC_FENCE, NULL);
+  mEglSync = eglCreateSync(display, EGL_SYNC_FENCE, nullptr);
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "eglCreateSync");
 
   if(mEglSync == EGL_NO_SYNC)
   {
     DALI_LOG_ERROR("eglCreateSync failed %#0.4x\n", eglGetError());
-    mEglSync = NULL;
+    mEglSync = nullptr;
   }
   else
   {
@@ -63,7 +63,7 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType ty
 
 EglSyncObject::~EglSyncObject()
 {
-  if(mEglSync != NULL && mEglImplementation.IsGlesInitialized())
+  if(mEglSync != nullptr && mEglImplementation.IsGlesInitialized())
   {
     DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
     eglDestroySync(mEglImplementation.GetDisplay(), mEglSync);
@@ -85,7 +85,7 @@ bool EglSyncObject::IsSynced()
 {
   bool synced = false;
 
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
 
@@ -113,7 +113,7 @@ bool EglSyncObject::IsSynced()
 
 void EglSyncObject::Wait()
 {
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
 
@@ -137,7 +137,7 @@ void EglSyncObject::ClientWait()
 #if defined(DEBUG_ENABLED)
   bool synced = false;
 #endif
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
 
@@ -174,10 +174,14 @@ void EglSyncObject::DestroySyncObject()
 {
 }
 
+struct EglSyncImplementation::Impl
+{
+};
+
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation(NULL),
-  mSyncInitialized(false),
-  mSyncInitializeFailed(false)
+: mEglImplementation(nullptr),
+  mSyncObjects(),
+  mImpl(nullptr)
 {
 }
 

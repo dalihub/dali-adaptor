@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,10 +40,8 @@ const unsigned MAX_TEXTURE_DIMENSION = 4096;
 const unsigned MAX_IMAGE_DATA_SIZE = MAX_TEXTURE_DIMENSION * MAX_TEXTURE_DIMENSION;
 
 const uint8_t PKM_10_VERSION_MAJOR = '1';
-const uint8_t PKM_10_VERSION_MINOR = '0';
 
 const uint8_t PKM_20_VERSION_MAJOR = '2';
-const uint8_t PKM_20_VERSION_MINOR = '0';
 
 typedef uint8_t Byte;
 

@@ -90,8 +90,8 @@ std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageQueuePtr
 /**
  * @brief Casts a void pointer to a native graphics type.
  * @param[in] pointer The void pointer to cast.
- * @return An Any object containing the native graphics type.
+ * @return An unique pointer to an Any object containing the native graphics type.
  */
-Any CastToNativeGraphicsType(void*);
+std::unique_ptr<Any> CastToNativeGraphicsType(void*);
 
 } // namespace Dali::Internal::Adaptor::GraphicsLibrary

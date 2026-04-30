@@ -25,8 +25,6 @@
 
 #include "dali/internal/window-system/common/window-render-surface.h"
 
-extern "C" std::vector<uint32_t> GraphicsGetBuiltinShader(const std::string& tag);
-
 namespace Dali
 {
 namespace Graphics

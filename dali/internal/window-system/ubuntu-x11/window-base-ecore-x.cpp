@@ -48,8 +48,6 @@ const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
 const char* DESKTOP_STARTUP_ID_ENV = "DESKTOP_STARTUP_ID";
 
-const unsigned int PRIMARY_TOUCH_BUTTON_ID(1);
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
@@ -261,7 +259,6 @@ WindowBaseEcoreX::WindowBaseEcoreX(Dali::PositionSize positionSize, Any surface,
   mEcoreWindow(0),
   mOwnSurface(false),
   mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet(false),
   mWindowRotationAngle(0)
 {
   Initialize(positionSize, surface, isTransparent);

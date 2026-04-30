@@ -183,9 +183,8 @@ void AsyncTaskThread::Run()
 
 struct AsyncTaskManager::TasksCompletedImpl
 {
-  TasksCompletedImpl(AsyncTaskManager& manager, EventThreadCallback* trigger)
-  : mManager(manager),
-    mTrigger(trigger),
+  TasksCompletedImpl(EventThreadCallback* trigger)
+  : mTrigger(trigger),
     mEmitCompletedTaskTriggered(false)
   {
   }
@@ -511,7 +510,6 @@ private:
   };
 
 private:
-  AsyncTaskManager&    mManager; ///< Owner of this CacheImpl.
   EventThreadCallback* mTrigger; ///< EventThread callback trigger. (Not owned.)
 
   Dali::AsyncTaskManager::TasksCompletedId mTasksCompletedCount{0u};
@@ -656,7 +654,7 @@ AsyncTaskManager::AsyncTaskManager()
   mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),
-  mTasksCompletedImpl(new TasksCompletedImpl(*this, mTrigger.get())),
+  mTasksCompletedImpl(new TasksCompletedImpl(mTrigger.get())),
   mCacheImpl(new CacheImpl(*this)),
   mProcessorRegistered(false)
 {

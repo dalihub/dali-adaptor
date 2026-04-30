@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,7 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 WindowBaseAndroid::WindowBaseAndroid(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mWindow(nullptr),
   mOwnSurface(false),
-  mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet(false)
+  mIsTransparent(false) // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
 {
   Initialize(positionSize, surface, isTransparent);
 }

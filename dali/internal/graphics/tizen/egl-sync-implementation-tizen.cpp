@@ -43,11 +43,11 @@
 namespace
 {
 // function pointers
-static PFNEGLCREATESYNCKHRPROC           eglCreateSyncKHR           = NULL;
-static PFNEGLCLIENTWAITSYNCKHRPROC       eglClientWaitSyncKHR       = NULL;
-static PFNEGLDESTROYSYNCKHRPROC          eglDestroySyncKHR          = NULL;
-static PFNEGLWAITSYNCKHRPROC             eglWaitSyncKHR             = NULL;
-static PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID = NULL;
+static PFNEGLCREATESYNCKHRPROC           eglCreateSyncKHR           = nullptr;
+static PFNEGLCLIENTWAITSYNCKHRPROC       eglClientWaitSyncKHR       = nullptr;
+static PFNEGLDESTROYSYNCKHRPROC          eglDestroySyncKHR          = nullptr;
+static PFNEGLWAITSYNCKHRPROC             eglWaitSyncKHR             = nullptr;
+static PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID = nullptr;
 
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 
@@ -75,7 +75,7 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType ty
   EGLenum    syncType = (eglDupNativeFenceFDANDROID && type == SyncType::NATIVE_FENCE_SYNC) ? EGL_SYNC_NATIVE_FENCE_ANDROID : EGL_SYNC_FENCE_KHR;
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-  mEglSync = eglCreateSyncKHR(display, syncType, NULL);
+  mEglSync = eglCreateSyncKHR(display, syncType, nullptr);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
   {
     oss << "eglCreateSyncKHR(" << ((syncType == EGL_SYNC_FENCE_KHR) ? "EGL_SYNC_FENCE_KHR" : "EGL_SYNC_NATIVE_FENCE_ANDROID") << ")";
@@ -83,7 +83,7 @@ EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType ty
   if(mEglSync == EGL_NO_SYNC_KHR)
   {
     DALI_LOG_ERROR("eglCreateSyncKHR failed %#0.4x\n", eglGetError());
-    mEglSync = NULL;
+    mEglSync = nullptr;
   }
   else
   {
@@ -100,7 +100,7 @@ bool EglSyncObject::IsSynced()
 {
   bool synced = false;
 
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
 
@@ -128,7 +128,7 @@ bool EglSyncObject::IsSynced()
 
 void EglSyncObject::Wait()
 {
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
 
@@ -152,7 +152,7 @@ void EglSyncObject::ClientWait()
 #if defined(DEBUG_ENABLED)
   bool synced = false;
 #endif
-  if(mEglSync != NULL)
+  if(mEglSync != nullptr)
   {
     DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
 
@@ -176,7 +176,7 @@ void EglSyncObject::ClientWait()
 
 int32_t EglSyncObject::DuplicateNativeFenceFD()
 {
-  if(mEglSync == NULL)
+  if(mEglSync == nullptr)
   {
     DALI_LOG_ERROR("EGL sync object is not created.\n");
     return -1;
@@ -242,10 +242,22 @@ void EglSyncObject::DestroySyncObject()
   }
 }
 
+struct EglSyncImplementation::Impl
+{
+  Impl()
+  : mSyncInitialized(false),
+    mSyncInitializeFailed(false)
+  {
+  }
+
+  bool mSyncInitialized : 1;
+  bool mSyncInitializeFailed : 1;
+};
+
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation(NULL),
-  mSyncInitialized(false),
-  mSyncInitializeFailed(false)
+: mEglImplementation(nullptr),
+  mSyncObjects(),
+  mImpl(new Impl())
 {
 }
 
@@ -266,7 +278,7 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
 Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  if(mSyncInitialized == false)
+  if(mImpl->mSyncInitialized == false)
   {
     InitializeEglSync();
   }
@@ -280,7 +292,7 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
 
-  if(mSyncInitialized == false)
+  if(mImpl->mSyncInitialized == false)
   {
     InitializeEglSync();
   }
@@ -291,7 +303,7 @@ void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstracti
 
 void EglSyncImplementation::InitializeEglSync()
 {
-  if(!mSyncInitializeFailed)
+  if(!mImpl->mSyncInitializeFailed)
   {
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglGetProcAddress");
     eglCreateSyncKHR           = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
@@ -306,13 +318,10 @@ void EglSyncImplementation::InitializeEglSync()
     }
   }
 
-  if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglWaitSyncKHR && eglDestroySyncKHR)
+  mImpl->mSyncInitialized = true;
+  if(!(eglCreateSyncKHR && eglClientWaitSyncKHR && eglWaitSyncKHR && eglDestroySyncKHR))
   {
-    mSyncInitialized = true;
-  }
-  else
-  {
-    mSyncInitializeFailed = true;
+    mImpl->mSyncInitializeFailed = true;
   }
 }
 
@@ -362,7 +371,7 @@ void NativeFence::CloseFD(int32_t fenceFd)
 #else
 
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
-: mEglSync(NULL),
+: mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
 }
@@ -393,10 +402,14 @@ void EglSyncObject::DestroySyncObject()
 {
 }
 
+struct EglSyncImplementation::Impl
+{
+};
+
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation(NULL),
-  mSyncInitialized(false),
-  mSyncInitializeFailed(false)
+: mEglImplementation(nullptr),
+  mSyncObjects(),
+  mImpl(nullptr)
 {
 }
 

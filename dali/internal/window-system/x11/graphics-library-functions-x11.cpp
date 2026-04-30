@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 #include <dali/public-api/dali-adaptor-common.h>
 
 extern "C" {
-DALI_ADAPTOR_API Dali::Any CastToNativeGraphicsType(void* display)
+DALI_ADAPTOR_API Dali::Any* CastToNativeGraphicsType(void* display)
 {
-  return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<::Display*>(display));
+  return Dali::Internal::Adaptor::CastToNativeGraphicsType(static_cast<::Display*>(display)).release();
 }
 } // extern "C"

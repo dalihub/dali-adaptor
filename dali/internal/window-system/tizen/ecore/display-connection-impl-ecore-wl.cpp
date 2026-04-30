@@ -194,7 +194,13 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
 
 Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
 {
-  return CastToNativeGraphicsType(mDisplay);
+  std::unique_ptr<Any> nativeGraphicsDisplay = CastToNativeGraphicsType(mDisplay);
+  if(!nativeGraphicsDisplay)
+  {
+    DALI_LOG_ERROR("Failed to cast native graphics display\n");
+    return Any();
+  }
+  return *(nativeGraphicsDisplay.release());
 }
 
 } // namespace Dali::Internal::Adaptor

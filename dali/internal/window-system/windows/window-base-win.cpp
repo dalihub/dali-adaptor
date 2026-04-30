@@ -42,8 +42,6 @@ namespace
 const Device::Class::Type    DEFAULT_DEVICE_CLASS    = Device::Class::NONE;
 const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
-const unsigned int PRIMARY_TOUCH_BUTTON_ID(1);
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
@@ -53,8 +51,7 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 WindowBaseWin::WindowBaseWin(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mWin32Window(0),
   mOwnSurface(false),
-  mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet(false)
+  mIsTransparent(false) // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
 {
   Initialize(positionSize, surface, isTransparent);
 }

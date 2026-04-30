@@ -524,8 +524,7 @@ void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<in
 } // unnamed namespace
 
 WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
-: mDisplayConnection(nullptr),
-  mPositionSize(positionSize),
+: mPositionSize(positionSize),
   mWindowBase(),
   mThreadSynchronization(nullptr),
   mRenderNotification(nullptr),
@@ -542,7 +541,6 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mScreenRotationAngle(0),
   mDpiHorizontal(0),
   mDpiVertical(0),
-  mOwnSurface(false),
   mIsImeWindowSurface(false),
   mNeedWindowRotationAcknowledgement(false),
   mIsWindowOrientationChanging(false),
@@ -591,7 +589,7 @@ void WindowRenderSurface::Initialize()
   // Create frame rendered trigger.
   if(!mFrameRenderedTrigger)
   {
-    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback)));
+    mFrameRenderedTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback));
     DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
   }
 }
@@ -625,7 +623,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 {
   if(!mPostRenderTrigger)
   {
-    mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
+    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender));
     DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
 
@@ -1106,7 +1104,7 @@ void WindowRenderSurface::InitializeImeSurface()
     mIsImeWindowSurface = true;
     if(!mPostRenderTrigger)
     {
-      mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
+      mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender));
       DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
     }
   }

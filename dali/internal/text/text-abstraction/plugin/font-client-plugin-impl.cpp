@@ -99,13 +99,10 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 /**
  * Conversion from Fractional26.6 to float
  */
-const float    FROM_266           = 1.0f / 64.0f;
-const float    POINTS_PER_INCH    = 72.f;
-const uint32_t FONT_AXIS_NAME_LEN = 4;
-const uint32_t FROM_16DOT16       = (1 << 16);
+constexpr float FROM_266        = 1.0f / 64.0f;
+constexpr float POINTS_PER_INCH = 72.f;
 
-const uint32_t ELLIPSIS_CHARACTER     = 0x2026;
-const uint32_t CUSTOM_FONTS_MAX_COUNT = 10u;
+constexpr uint32_t ELLIPSIS_CHARACTER = 0x2026;
 
 } // namespace
 
@@ -320,7 +317,7 @@ void FontClient::Plugin::CacheFontDataFromFile(const FontPath& fontPath) const
     return;
   }
 
-  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %zu, size : %ld, path : %s\n", fontFileBuffer.Size(), static_cast<long>(fileSize), fontPath.c_str());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %u, size : %ld, path : %s\n", static_cast<uint32_t>(fontFileBuffer.Size()), static_cast<long>(fileSize), fontPath.c_str());
 
   // Cache font file
   mFontFileManager.CacheFontFile(fontPath, std::move(fontFileBuffer), fileSize);

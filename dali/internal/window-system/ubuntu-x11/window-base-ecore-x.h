@@ -654,7 +654,6 @@ private:
   Ecore_X_Window                     mEcoreWindow;    ///< Native window handle
   bool                               mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
   bool                               mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
-  bool                               mRotationAppSet : 1;
   int                                mWindowRotationAngle;
 };
 

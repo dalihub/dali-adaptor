@@ -53,14 +53,6 @@ public:
    */
   static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
-  AnimatedImageLoading() = default;
-
-  // Moveable but not copyable
-  AnimatedImageLoading(const AnimatedImageLoading&);
-  AnimatedImageLoading& operator=(const AnimatedImageLoading&);
-  AnimatedImageLoading(AnimatedImageLoading&&) noexcept            = default;
-  AnimatedImageLoading& operator=(AnimatedImageLoading&&) noexcept = default;
-
   /**
    * @brief Destructor
    */
@@ -120,6 +112,16 @@ public:
    * @return true if loading succeeded, false otherwise.
    */
   virtual bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) = 0;
+
+protected:
+  AnimatedImageLoading() = default;
+
+private:
+  // Not movable and not copyable
+  AnimatedImageLoading(const AnimatedImageLoading&)                = delete;
+  AnimatedImageLoading& operator=(const AnimatedImageLoading&)     = delete;
+  AnimatedImageLoading(AnimatedImageLoading&&) noexcept            = delete;
+  AnimatedImageLoading& operator=(AnimatedImageLoading&&) noexcept = delete;
 
 private:
   /**

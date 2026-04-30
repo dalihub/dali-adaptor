@@ -43,7 +43,10 @@ static inline int resampler_range_check(int v, int h) { (void)h; resampler_asser
 
 #define RESAMPLER_DEBUG 0
 
-#define M_PI 3.14159265358979323846
+#ifdef M_PI
+#undef M_PI
+#endif
+#define M_PI 3.14159265358979323846 ///< undef and define again for M_PI macro. 2026-04-23 eunkiki.hong@samsung.com
 
 // Float to int cast with truncation.
 static inline int cast_to_int(Resample_Real i)
@@ -334,7 +337,7 @@ static double bessel0(double x)
    return sum;
 }
 
-static const Resample_Real KAISER_ALPHA = 4.0;
+// static const Resample_Real KAISER_ALPHA = 4.0; ///< Remove unused code warning. 2026-04-23 eunkiki.hong@samsung.com
 static double kaiser(double alpha, double half_width, double x)
 {
    const double ratio = (x / half_width);

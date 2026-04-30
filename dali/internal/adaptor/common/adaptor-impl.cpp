@@ -208,7 +208,7 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
     mMemoryPoolTimer.Start();
   }
 
-  mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents)));
+  mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
 
   // Register file download plugin proxy to use TriggerEvent.

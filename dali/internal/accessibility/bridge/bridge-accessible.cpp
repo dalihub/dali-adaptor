@@ -632,7 +632,7 @@ Accessible* BridgeAccessible::FindSelf() const
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
   auto self                     = FindSelf();
-  auto findObjectByRelationType = [this, &self](RelationType relationType)
+  auto findObjectByRelationType = [&self](RelationType relationType)
   {
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
@@ -727,11 +727,11 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto description       = self->GetDescription();
   auto indexInParent     = static_cast<int32_t>(self->GetIndexInParent());
 
-  auto  parent                   = self->GetParent();
-  auto  parentRole               = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
-  auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
-  auto  parentStateSet           = parent ? parent->GetStates() : States{};
-  bool  isSelectedInParent       = false;
+  auto parent             = self->GetParent();
+  auto parentRole         = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
+  auto parentChildCount   = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
+  auto parentStateSet     = parent ? parent->GetStates() : States{};
+  bool isSelectedInParent = false;
   if(auto parentSelectionInterface = parent->GetFeature<Selection>())
   {
     isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);

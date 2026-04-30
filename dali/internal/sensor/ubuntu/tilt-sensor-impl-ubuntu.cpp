@@ -30,8 +30,6 @@ const char* const SIGNAL_TILTED = "tilted";
 
 const int NUMBER_OF_SAMPLES = 10;
 
-const float MAX_ACCELEROMETER_XY_VALUE = 9.8f;
-
 // Type Registration
 Dali::BaseHandle GetInstance()
 {
@@ -168,7 +166,6 @@ bool TiltSensorUbuntu::DoConnectSignal(BaseObject* object, ConnectionTrackerInte
 TiltSensorUbuntu::TiltSensorUbuntu()
 : mFrequencyHertz(Dali::TiltSensor::DEFAULT_UPDATE_FREQUENCY),
   mTimerSlot(this),
-  mSensorFrameworkHandle(-1),
   mRoll(0.0f),
   mPitch(0.0f),
   mRotation(Dali::ANGLE_0, Vector3::YAXIS),

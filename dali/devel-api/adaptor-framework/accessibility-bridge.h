@@ -48,8 +48,9 @@ class ProxyAccessible;
  *
  * @note This class is singleton.
  */
-struct DALI_ADAPTOR_API Bridge
+class DALI_ADAPTOR_API Bridge
 {
+public:
   enum class ForceUpResult
   {
     JUST_STARTED,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@
 namespace Dali::Graphics::Vulkan
 {
 Memory::Memory(const Graphics::MapBufferInfo& mapInfo, VulkanGraphicsController& controller)
-: mGraphicsController(controller)
 {
   mMapBufferInfo = mapInfo;
   mMapObjectType = MapObjectType::BUFFER;
 }
 
 Memory::Memory(const Graphics::MapTextureInfo& mapInfo, VulkanGraphicsController& controller)
-: mGraphicsController(controller)
 {
   mMapTextureInfo = mapInfo;
   mMapObjectType  = MapObjectType::TEXTURE;

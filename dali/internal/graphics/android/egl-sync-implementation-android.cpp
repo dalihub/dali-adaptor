@@ -37,7 +37,7 @@ namespace Internal
 namespace Adaptor
 {
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
-: mEglSync(NULL),
+: mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
 }
@@ -69,10 +69,14 @@ bool EglSyncObject::Poll()
   return false;
 }
 
+struct EglSyncImplementation::Impl
+{
+};
+
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation(NULL),
-  mSyncInitialized(false),
-  mSyncInitializeFailed(false)
+: mEglImplementation(nullptr),
+  mSyncObjects(),
+  mImpl(nullptr)
 {
 }
 

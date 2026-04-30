@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_REFLECTION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -246,8 +246,8 @@ public:
   void SortOpaques();
 
 protected:
-  Reflection(Reflection&&) noexcept            = default;
-  Reflection& operator=(Reflection&&) noexcept = default;
+  Reflection(Reflection&&) noexcept            = delete;
+  Reflection& operator=(Reflection&&) noexcept = delete;
 
 private:
   Graphics::EglGraphicsController& mController; ///< The Graphics controller

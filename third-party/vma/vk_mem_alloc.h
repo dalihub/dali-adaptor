@@ -6203,8 +6203,15 @@ private:
 #else 
 class VmaWin32Handle
 {
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wattributes"
+#endif
     // ABI compatibility
-    void* placeholder = VMA_NULL;
+    [[maybe_unused]] void* placeholder = VMA_NULL; ///< Remove unused code warning. 2026-04-23 eunkiki.hong@samsung.com
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
     VMA_RW_MUTEX placeholder2;
 };
 #endif // VMA_EXTERNAL_MEMORY_WIN32

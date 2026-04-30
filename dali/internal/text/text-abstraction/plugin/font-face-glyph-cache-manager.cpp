@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -323,7 +323,9 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
 
 void GlyphCacheManager::RemoveGlyphFromFace(const FT_Face freeTypeFace)
 {
+#if defined(DEBUG_ENABLED)
   uint32_t removedItemCount = 0;
+#endif
 
   auto endIter = mLRUGlyphCache.End();
   for(auto iter = mLRUGlyphCache.Begin(); iter != endIter;)
@@ -332,7 +334,9 @@ void GlyphCacheManager::RemoveGlyphFromFace(const FT_Face freeTypeFace)
     auto keyFace = mLRUGlyphCache.GetKey(iter).mFreeTypeFace;
     if(keyFace == freeTypeFace)
     {
+#if defined(DEBUG_ENABLED)
       ++removedItemCount;
+#endif
       iter = mLRUGlyphCache.Erase(iter);
     }
     else

@@ -49,8 +49,7 @@ VT* ConstGraphicsCast(const GT* object)
 }
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller)
-: CommandBufferResource(createInfo, controller),
-  mStorageType(CommandBuffer::Storage::IMMEDIATE)
+: CommandBufferResource(createInfo, controller)
 {
   AllocateCommandBuffers(true);
   mStoredCommandBuffer = std::make_unique<StoredCommandBuffer>(mCreateInfo, mCreateInfo.fixedCapacity);
@@ -58,7 +57,6 @@ CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, VulkanGraphicsController& controller, CommandBuffer::Storage storageType, bool doubleBuffered)
 : CommandBufferResource(createInfo, controller),
-  mStorageType(storageType),
   mDoubleBuffered(doubleBuffered)
 {
   AllocateCommandBuffers(mDoubleBuffered);
@@ -248,7 +246,6 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          gfxRenderPass
 {
   if(mStoredCommandBuffer)
   {
-
     mStoredCommandBuffer->BeginRenderPass(gfxRenderPass, gfxRenderTarget, renderArea, clearValues);
   }
   else
@@ -534,13 +531,13 @@ void CommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
   }
 }
 
-void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
-                                         BlendFactor srcColorBlendFactor,
-                                         BlendFactor dstColorBlendFactor,
-                                         BlendOp colorBlendOp,
-                                         BlendFactor srcAlphaBlendFactor,
-                                         BlendFactor dstAlphaBlendFactor,
-                                         BlendOp alphaBlendOp)
+void CommandBuffer::SetColorBlendEquation(uint32_t    attachment,
+                                          BlendFactor srcColorBlendFactor,
+                                          BlendFactor dstColorBlendFactor,
+                                          BlendOp     colorBlendOp,
+                                          BlendFactor srcAlphaBlendFactor,
+                                          BlendFactor dstAlphaBlendFactor,
+                                          BlendOp     alphaBlendOp)
 {
   // For now, only support attachment 0 (single color attachment)
   if(attachment != 0)
@@ -566,17 +563,16 @@ void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
       colorBlendOp,
       srcAlphaBlendFactor,
       dstAlphaBlendFactor,
-      alphaBlendOp
-    };
+      alphaBlendOp};
 
     CommandBufferImpl* commandBufferImpl = GetImpl();
     commandBufferImpl->SetColorBlendEquation(attachment, equation);
   }
 }
 
-void CommandBuffer::SetColorBlendAdvanced(uint32_t attachment,
-                                          bool srcPremultiplied,
-                                          bool dstPremultiplied,
+void CommandBuffer::SetColorBlendAdvanced(uint32_t          attachment,
+                                          bool              srcPremultiplied,
+                                          bool              dstPremultiplied,
                                           Graphics::BlendOp blendOp)
 {
   // For now, only support attachment 0 (single color attachment)
