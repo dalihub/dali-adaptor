@@ -35,14 +35,12 @@ namespace ImageLoader
 class ScalingParameters
 {
 public:
-  ScalingParameters(ImageDimensions dimensions = ImageDimensions(), FittingMode::Type fittingMode = FittingMode::DEFAULT, SamplingMode::Type samplingMode = SamplingMode::DEFAULT)
+  ScalingParameters(ImageDimensions dimensions = ImageDimensions(), SamplingMode::Type samplingMode = SamplingMode::DEFAULT)
   : dimensions(dimensions),
-    scalingMode(fittingMode),
     samplingMode(samplingMode)
   {
   }
   const ImageDimensions    dimensions;
-  const FittingMode::Type  scalingMode;
   const SamplingMode::Type samplingMode;
 };
 

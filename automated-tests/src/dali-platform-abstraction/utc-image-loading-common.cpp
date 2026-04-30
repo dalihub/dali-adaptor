@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,55 +37,41 @@ void utc_dali_loading_startup(void)
 
   // Setup some loading parameters to engage post-processing stages:
 
-  ImageParameters scaleToFillAttributes;
-  scaleToFillAttributes.second.first = FittingMode::SCALE_TO_FILL;
-  scaleToFillAttributes.first        = ImageDimensions(160, 120);
-  gCancelAttributes.push_back(scaleToFillAttributes);
+  ImageParameters defaultAttributes;
+  defaultAttributes.first = ImageDimensions(160, 120);
+  gCancelAttributes.push_back(defaultAttributes);
 
   // Hit the derived dimensions code:
-  ImageParameters scaleToFillAttributesDeriveWidth = scaleToFillAttributes;
-  scaleToFillAttributesDeriveWidth.first           = ImageDimensions(0, 120);
-  gCancelAttributes.push_back(scaleToFillAttributesDeriveWidth);
+  ImageParameters deriveWidthAttributes;
+  deriveWidthAttributes.first = ImageDimensions(0, 120);
+  gCancelAttributes.push_back(deriveWidthAttributes);
 
-  ImageParameters scaleToFillAttributesDeriveHeight = scaleToFillAttributes;
-  scaleToFillAttributesDeriveHeight.first           = ImageDimensions(160, 0);
-  gCancelAttributes.push_back(scaleToFillAttributesDeriveHeight);
+  ImageParameters deriveHeightAttributes;
+  deriveHeightAttributes.first = ImageDimensions(160, 0);
+  gCancelAttributes.push_back(deriveHeightAttributes);
 
   // Try to push a tall crop:
-  ImageParameters scaleToFillAttributesTall  = scaleToFillAttributes;
-  scaleToFillAttributesTall.first            = ImageDimensions(160, 480);
-  ImageParameters scaleToFillAttributesTall2 = scaleToFillAttributes;
-  scaleToFillAttributesTall2.first           = ImageDimensions(160, 509);
-  ImageParameters scaleToFillAttributesTall3 = scaleToFillAttributes;
-  scaleToFillAttributesTall3.first           = ImageDimensions(37, 251);
-  gCancelAttributes.push_back(scaleToFillAttributesTall);
-  gCancelAttributes.push_back(scaleToFillAttributesTall2);
-  gCancelAttributes.push_back(scaleToFillAttributesTall3);
+  ImageParameters tallAttributes1;
+  tallAttributes1.first = ImageDimensions(160, 480);
+  ImageParameters tallAttributes2;
+  tallAttributes2.first = ImageDimensions(160, 509);
+  ImageParameters tallAttributes3;
+  tallAttributes3.first = ImageDimensions(37, 251);
+  gCancelAttributes.push_back(tallAttributes1);
+  gCancelAttributes.push_back(tallAttributes2);
+  gCancelAttributes.push_back(tallAttributes3);
 
   // Try to push a wide crop:
-  ImageParameters scaleToFillAttributesWide  = scaleToFillAttributes;
-  scaleToFillAttributesWide.first            = ImageDimensions(320, 60);
-  ImageParameters scaleToFillAttributesWide2 = scaleToFillAttributes;
-  scaleToFillAttributesWide2.first           = ImageDimensions(317, 60);
-  ImageParameters scaleToFillAttributesWide3 = scaleToFillAttributes;
-  scaleToFillAttributesWide3.first           = ImageDimensions(317, 53);
-  gCancelAttributes.push_back(scaleToFillAttributesWide);
-  gCancelAttributes.push_back(scaleToFillAttributesWide2);
-  gCancelAttributes.push_back(scaleToFillAttributesWide3);
+  ImageParameters wideAttributes1;
+  wideAttributes1.first = ImageDimensions(320, 60);
+  ImageParameters wideAttributes2;
+  wideAttributes2.first = ImageDimensions(317, 60);
+  ImageParameters wideAttributes3;
+  wideAttributes3.first = ImageDimensions(317, 53);
+  gCancelAttributes.push_back(wideAttributes1);
+  gCancelAttributes.push_back(wideAttributes2);
+  gCancelAttributes.push_back(wideAttributes3);
 
-  ImageParameters shrinkToFitAttributes = scaleToFillAttributes;
-  shrinkToFitAttributes.second.first    = FittingMode::SHRINK_TO_FIT;
-  gCancelAttributes.push_back(shrinkToFitAttributes);
-
-  ImageParameters fitWidthAttributes = scaleToFillAttributes;
-  fitWidthAttributes.second.first    = FittingMode::FIT_WIDTH;
-  gCancelAttributes.push_back(fitWidthAttributes);
-
-  ImageParameters fitHeightAttributes = scaleToFillAttributes;
-  fitHeightAttributes.second.first    = FittingMode::FIT_HEIGHT;
-  gCancelAttributes.push_back(fitHeightAttributes);
-
-  ///@ToDo: Add attribute variants for all scale modes.
   ///@ToDo: Add attribute variants for all filter modes.
 
   // Pad the array to a prime number to mitigate any accidental periodic
