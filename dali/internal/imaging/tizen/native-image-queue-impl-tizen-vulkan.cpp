@@ -198,7 +198,7 @@ tbm_surface_queue_h NativeImageQueueTizenVulkan::GetSurfaceFromAny(Any source) c
     return nullptr;
   }
 
-  if(source.GetType() == typeid(tbm_surface_queue_h))
+  if(source.IsType<tbm_surface_queue_h>())
   {
     return AnyCast<tbm_surface_queue_h>(source);
   }

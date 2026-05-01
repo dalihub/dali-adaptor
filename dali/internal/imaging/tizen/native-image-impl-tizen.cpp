@@ -184,7 +184,7 @@ tbm_surface_h NativeImageTizen::GetSurfaceFromAny(Any source) const
     return NULL;
   }
 
-  if(source.GetType() == typeid(tbm_surface_h))
+  if(source.IsType<tbm_surface_h>())
   {
     return AnyCast<tbm_surface_h>(source);
   }

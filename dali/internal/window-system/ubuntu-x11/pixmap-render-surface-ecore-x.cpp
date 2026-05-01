@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -367,11 +367,11 @@ unsigned int PixmapRenderSurfaceEcoreX::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS(((surface.GetType() == typeid(XWindow)) ||
-                        (surface.GetType() == typeid(Ecore_X_Window))) &&
+    DALI_ASSERT_ALWAYS(((surface.IsType<XWindow>()) ||
+                        (surface.IsType<Ecore_X_Window>())) &&
                        "Surface type is invalid");
 
-    if(surface.GetType() == typeid(Ecore_X_Window))
+    if(surface.IsType<Ecore_X_Window>())
     {
       surfaceId = AnyCast<Ecore_X_Window>(surface);
     }
