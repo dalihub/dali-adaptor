@@ -128,9 +128,10 @@ public:
    *
    * If Widget Application consume key event, this api is not called.
    *
+   * @param[in] window The window.
    * @param[in] event The key event.
    */
-  void OnWindowKeyEvent(Dali::KeyEvent event);
+  void OnWindowKeyEvent(Dali::Window window, Dali::KeyEvent event);
 
   /**
    * @brief Feed keyEvent to Widget.

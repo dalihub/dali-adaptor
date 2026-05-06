@@ -27,6 +27,7 @@
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <thread>
 
@@ -273,6 +274,14 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     mScene.SetGeometryHittestEnabled(isGeometry);
 
     mScene.SetNativeId(GetNativeId());
+
+    // Connect SceneHolder's wrapped signals (with SceneHolder prepended) to Window's re-emit methods
+    // so that Window handle can be passed as the first argument to the public Window signals.
+    SceneHolder::KeyEventSignal().Connect(this, &Window::OnSceneKeyEvent);
+    SceneHolder::TouchedSignal().Connect(this, &Window::OnSceneTouchEvent);
+    SceneHolder::WheelEventSignal().Connect(this, &Window::OnSceneWheelEvent);
+    SceneHolder::InterceptKeyEventSignal().Connect(this, &Window::OnSceneInterceptKeyEvent);
+    SceneHolder::KeyEventMonitorSignal().Connect(this, &Window::OnSceneKeyEventMonitor);
   }
 
   // If this window is created by pre loader process, window show()'s calling should be delayed.
@@ -936,6 +945,21 @@ bool Window::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool
   return mWindowBase->UngrabKeyList(key, result);
 }
 
+Window::TouchEventSignalType& Window::TouchEventSignal()
+{
+  return mTouchEventSignal;
+}
+
+Window::WheelEventSignalType& Window::WheelEventSignal()
+{
+  return mWheelEventSignal;
+}
+
+Window::InterceptKeyEventSignalType& Window::InterceptKeyEventSignal()
+{
+  return mInterceptKeyEventSignal;
+}
+
 void Window::OnIconifyChanged(bool iconified)
 {
   const bool   isActuallyChanged = (iconified != mIconified);
@@ -1258,7 +1282,7 @@ void Window::OnAccessibilityDisabled()
   InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
 }
 
-bool Window::OnAccessibilityInterceptKeyEvent(Dali::KeyEvent keyEvent)
+bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::KeyEvent keyEvent)
 {
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
 
@@ -1284,6 +1308,42 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::KeyEvent keyEvent)
   // to finish. If the event turns out not to be consumed by the remote client,
   // then it is fed back to the window from the D-Bus callback.
   return emitted;
+}
+
+void Window::OnSceneKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
+{
+  if(!mKeyEventSignal.Empty())
+  {
+    Dali::Window handle(this);
+    mKeyEventSignal.Emit(handle, keyEvent);
+  }
+}
+
+void Window::OnSceneTouchEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::TouchEvent touchEvent)
+{
+  Dali::Window handle(this);
+  mTouchEventSignal.Emit(handle, touchEvent);
+}
+
+void Window::OnSceneWheelEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::WheelEvent wheelEvent)
+{
+  Dali::Window handle(this);
+  mWheelEventSignal.Emit(handle, wheelEvent);
+}
+
+bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
+{
+  Dali::Window handle(this);
+  return mInterceptKeyEventSignal.Emit(handle, keyEvent);
+}
+
+void Window::OnSceneKeyEventMonitor(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
+{
+  if(!mKeyEventMonitorSignal.Empty())
+  {
+    Dali::Window handle(this);
+    mKeyEventMonitorSignal.Emit(handle, keyEvent);
+  }
 }
 
 void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)

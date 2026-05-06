@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,15 +53,15 @@ namespace Integration
 class DALI_ADAPTOR_API SceneHolder : public BaseHandle
 {
 public:
-  typedef Signal<void(Dali::KeyEvent)> KeyEventSignalType; ///< Key event signal type
+  typedef Signal<void(Dali::Integration::SceneHolder, Dali::KeyEvent)> KeyEventSignalType; ///< Key event signal type
 
-  typedef Signal<bool(Dali::KeyEvent)> KeyEventGeneratedSignalType; ///< Key event generated signal type
+  typedef Signal<bool(Dali::Integration::SceneHolder, Dali::KeyEvent)> KeyEventGeneratedSignalType; ///< Key event generated signal type
 
-  typedef Signal<void(Dali::TouchEvent)> TouchEventSignalType; ///< Touch signal type
+  typedef Signal<void(Dali::Integration::SceneHolder, Dali::TouchEvent)> TouchEventSignalType; ///< Touch signal type
 
-  typedef Signal<void(Dali::WheelEvent)> WheelEventSignalType; ///< Touched signal type
+  typedef Signal<void(Dali::Integration::SceneHolder, Dali::WheelEvent)> WheelEventSignalType; ///< Touched signal type
 
-  typedef Signal<bool(Dali::WheelEvent)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
+  typedef Signal<bool(Dali::Integration::SceneHolder, Dali::WheelEvent)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
 
   typedef Signal<void(Dali::Integration::SceneHolder, bool)> FocusChangedGeneratedSignalType; ///<  Focus changed generated signal type
 
@@ -230,7 +230,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(KeyEvent event);
+   *   void YourCallbackName(SceneHolder sceneHolder, KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -241,7 +241,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(KeyEvent event);
+   *   bool YourCallbackName(SceneHolder sceneHolder, KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -254,7 +254,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(KeyEvent event);
+   *   bool YourCallbackName(SceneHolder sceneHolder, KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -265,7 +265,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(KeyEvent event);
+   *   void YourCallbackName(SceneHolder sceneHolder, KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -280,7 +280,7 @@ public:
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName( TouchEvent event );
+   *   void YourCallbackName( SceneHolder sceneHolder, TouchEvent event );
    * @endcode
    * @return The touch signal to connect to
    * @note Motion events are not emitted.
@@ -292,7 +292,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(WheelEvent event);
+   *   void YourCallbackName(SceneHolder sceneHolder, WheelEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -307,7 +307,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(WheelEvent event);
+   *   bool YourCallbackName(SceneHolder sceneHolder, WheelEvent event);
    * @endcode
    * @return The signal to connect to
    */

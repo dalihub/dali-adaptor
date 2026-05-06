@@ -23,7 +23,6 @@
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
@@ -70,8 +69,8 @@ public:
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType    = Signal<void(KeyEvent)>;    ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType  = Signal<void(TouchEvent)>;  ///< Touch signal type @SINCE_1_9.28
+  using KeyEventSignalType    = Signal<void(Window, KeyEvent)>;   ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType  = Signal<void(Window, TouchEvent)>; ///< Touch signal type @SINCE_1_9.28
 
 public:
   // Methods
@@ -694,7 +693,7 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(KeyEvent event);
+   *   void YourCallbackName(Window window, KeyEvent event);
    * @endcode
    *
    * @SINCE_1_9.21
@@ -711,7 +710,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(TouchEvent event);
+   *   void YourCallbackName(Window window, TouchEvent event);
    * @endcode
    *
    * @SINCE_1_9.28

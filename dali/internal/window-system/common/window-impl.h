@@ -63,11 +63,16 @@ class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler:
 public:
   typedef Dali::Window::FocusChangeSignalType                        FocusChangeSignalType;
   typedef Dali::Window::ResizeSignalType                             ResizeSignalType;
+  typedef Dali::Window::KeyEventSignalType                           KeyEventSignalType;
+  typedef Dali::Window::TouchEventSignalType                         TouchEventSignalType;
+  typedef Dali::DevelWindow::KeyEventSignalType                      KeyEventMonitorSignalType;
+  typedef Dali::DevelWindow::WheelEventSignalType                    WheelEventSignalType;
   typedef Dali::DevelWindow::VisibilityChangedSignalType             VisibilityChangedSignalType;
   typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
   typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
   typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
+  typedef Dali::DevelWindow::InterceptKeyEventSignalType             InterceptKeyEventSignalType;
   typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
   typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
   typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
@@ -118,6 +123,21 @@ public:
    * @copydoc Dali::Window::Lower()
    */
   void Lower();
+
+  /**
+   * @copydoc Dali::Window::TouchEventSignal()
+   */
+  TouchEventSignalType& TouchEventSignal();
+
+  /**
+   * @copydoc Dali::DevelWindow::WheelEventSignal()
+   */
+  WheelEventSignalType& WheelEventSignal();
+
+  /**
+   * @copydoc Dali::DevelWindow::InterceptKeyEventSignal()
+   */
+  InterceptKeyEventSignalType& InterceptKeyEventSignal();
 
   /**
    * @copydoc Dali::Window::Activate()
@@ -831,7 +851,52 @@ private:
    * @param[in] keyEvent The key event
    * @return Always true, meaning that the event is consumed
    */
-  bool OnAccessibilityInterceptKeyEvent(Dali::KeyEvent keyEvent);
+  bool OnAccessibilityInterceptKeyEvent(Dali::Window window, Dali::KeyEvent keyEvent);
+
+  /**
+   * @brief Called when key event is received from SceneHolder.
+   * Re-emits the event via mKeyEventSignal with Window as the first parameter.
+   *
+   * @param[in] sceneHolder The SceneHolder that emitted the signal
+   * @param[in] keyEvent The key event
+   */
+  void OnSceneKeyEvent(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
+
+  /**
+   * @brief Called when touch event is received from SceneHolder.
+   * Re-emits the event via mTouchEventSignal with Window as the first parameter.
+   *
+   * @param[in] sceneHolder The SceneHolder that emitted the signal
+   * @param[in] touchEvent The touch event
+   */
+  void OnSceneTouchEvent(Dali::Integration::SceneHolder sceneHolder, Dali::TouchEvent touchEvent);
+
+  /**
+   * @brief Called when wheel event is received from SceneHolder.
+   * Re-emits the event via mWheelEventSignal with Window as the first parameter.
+   *
+   * @param[in] sceneHolder The SceneHolder that emitted the signal
+   * @param[in] wheelEvent The wheel event
+   */
+  void OnSceneWheelEvent(Dali::Integration::SceneHolder sceneHolder, Dali::WheelEvent wheelEvent);
+
+  /**
+   * @brief Called when intercept key event is received from SceneHolder.
+   * Re-emits the event via mInterceptKeyEventSignal with Window as the first parameter.
+   *
+   * @param[in] sceneHolder The SceneHolder that emitted the signal
+   * @param[in] keyEvent The key event
+   */
+  bool OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
+
+  /**
+   * @brief Called when key event monitor is received from SceneHolder.
+   * Re-emits the event via mKeyEventMonitorSignal with Window as the first parameter.
+   *
+   * @param[in] sceneHolder The SceneHolder that emitted the signal
+   * @param[in] keyEvent The key event
+   */
+  void OnSceneKeyEventMonitor(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
 
   /**
    * @brief Called when the window rotation is finished.
@@ -1001,6 +1066,42 @@ public: // Signals
   }
 
   /**
+   * @copydoc Dali::Window::KeyEventSignal()
+   *
+   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::KeyEventSignal()
+   * which returns Signal<void(const KeyEvent&)>.
+   * Window provides its own signal that includes a Window parameter.
+   */
+  KeyEventSignalType& KeyEventSignal()
+  {
+    return mKeyEventSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::TouchedSignal()
+   *
+   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::TouchedSignal()
+   * which returns Signal<void(const TouchEvent&)>.
+   * Window provides its own signal that includes a Window parameter.
+   */
+  TouchEventSignalType& TouchedSignal()
+  {
+    return mTouchEventSignal;
+  }
+
+  /**
+   * @copydoc Dali::DevelWindow::KeyEventMonitorSignal()
+   *
+   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::KeyEventMonitorSignal()
+   * which returns Signal<void(const KeyEvent&)>.
+   * Window provides its own signal that includes a Window parameter.
+   */
+  KeyEventMonitorSignalType& KeyEventMonitorSignal()
+  {
+    return mKeyEventMonitorSignal;
+  }
+
+  /**
    * @brief This signal is emitted when the window is requesting to be deleted
    *
    * It is internal signal in Dali-adaptor.
@@ -1145,6 +1246,11 @@ private:
   SignalType                              mDeleteRequestSignal;
   FocusChangeSignalType                   mFocusChangeSignal;
   ResizeSignalType                        mResizeSignal;
+  KeyEventSignalType                      mKeyEventSignal;
+  TouchEventSignalType                    mTouchEventSignal;
+  WheelEventSignalType                    mWheelEventSignal;
+  InterceptKeyEventSignalType             mInterceptKeyEventSignal;
+  KeyEventMonitorSignalType               mKeyEventMonitorSignal;
   VisibilityChangedSignalType             mVisibilityChangedSignal;
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
