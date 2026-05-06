@@ -65,8 +65,8 @@ class DALI_ADAPTOR_API GlWindow : public BaseHandle
 public:
   using WindowSize = Int32Pair;
 
-  typedef Signal<void(const KeyEvent&)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
-  typedef Signal<void(const TouchEvent&)> TouchEventSignalType;        ///< GlWindow Touch Event signal type
+  typedef Signal<void(KeyEvent)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
+  typedef Signal<void(TouchEvent)> TouchEventSignalType;        ///< GlWindow Touch Event signal type
   typedef Signal<void(GlWindow, bool)>    FocusChangeSignalType;       ///< GlWindow Focus signal type
   typedef Signal<void(WindowSize)>        ResizeSignalType;            ///< GlWindow resize signal type
   typedef Signal<void(GlWindow, bool)>    VisibilityChangedSignalType; ///< GlWindow visibility change signal type
@@ -428,7 +428,7 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(KeyEvent event);
    * @endcode
    *
    * @return The signal to connect to
@@ -444,7 +444,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const TouchEvent& event);
+   *   void YourCallbackName(TouchEvent event);
    * @endcode
    *
    * @return The touch signal to connect to

@@ -1258,7 +1258,7 @@ void Window::OnAccessibilityDisabled()
   InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
 }
 
-bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
+bool Window::OnAccessibilityInterceptKeyEvent(Dali::KeyEvent keyEvent)
 {
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
 

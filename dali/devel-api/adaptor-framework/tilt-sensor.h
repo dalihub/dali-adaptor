@@ -56,7 +56,7 @@ class TiltSensor;
  *    }
  *  }
  *
- *  void OnTilted( const TiltSensor& sensor )
+ *  void OnTilted( TiltSensor sensor )
  *  {
  *    // Query the new values
  *    std::cout << "Roll = " << sensor.GetRoll() << ", Pitch = " << sensor.GetPitch() << std::endl;
@@ -80,7 +80,7 @@ class TiltSensor;
 class DALI_ADAPTOR_API TiltSensor : public BaseHandle
 {
 public:
-  typedef Signal<void(const TiltSensor&)> TiltedSignalType;
+  typedef Signal<void(TiltSensor)> TiltedSignalType;
 
   static const float DEFAULT_UPDATE_FREQUENCY; // 60 hertz
 

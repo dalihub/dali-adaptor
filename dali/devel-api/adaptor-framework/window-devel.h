@@ -43,15 +43,15 @@ struct TouchPoint;
 namespace DevelWindow
 {
 typedef Signal<void()>                                                               EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
-typedef Signal<void(const KeyEvent&)>                                                KeyEventSignalType;                      ///< Key event signal type
-typedef Signal<void(const TouchEvent&)>                                              TouchEventSignalType;                    ///< Touch signal type
-typedef Signal<void(const WheelEvent&)>                                              WheelEventSignalType;                    ///< Wheel signal type
+typedef Signal<void(KeyEvent)>                                                KeyEventSignalType;                      ///< Key event signal type
+typedef Signal<void(TouchEvent)>                                              TouchEventSignalType;                    ///< Touch signal type
+typedef Signal<void(WheelEvent)>                                              WheelEventSignalType;                    ///< Wheel signal type
 typedef Signal<void(Window, bool)>                                                   VisibilityChangedSignalType;             ///< Visibility changed signal type
 typedef Signal<void(Window, WindowEffectState, WindowEffectType)>                    TransitionEffectEventSignalType;         ///< Effect signal type and state
 typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;              ///< Auxiliary message signal type
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
-typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
+typedef Signal<bool(KeyEvent)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
@@ -90,7 +90,7 @@ DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSigna
  *
  * A callback of the following type may be connected:
  * @code
- *   void YourCallbackName(const WheelEvent& event);
+ *   void YourCallbackName(WheelEvent event);
  * @endcode
  * @param[in] window The window instance
  * @return The signal to connect to
@@ -408,7 +408,7 @@ DALI_ADAPTOR_API void FeedTouchPoint(Window window, const Dali::TouchPoint& poin
  * @param[in] window The window instance
  * @param[in] wheelEvent The wheel event
  */
-DALI_ADAPTOR_API void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent);
+DALI_ADAPTOR_API void FeedWheelEvent(Window window, Dali::WheelEvent wheelEvent);
 
 /**
  * @brief Feed (Send) key event to window

@@ -260,7 +260,7 @@ void WidgetApplicationTizen::ConnectKeyEvent(Dali::Window window)
   window.KeyEventSignal().Connect(this, &WidgetApplicationTizen::OnWindowKeyEvent);
 }
 
-void WidgetApplicationTizen::OnWindowKeyEvent(const Dali::KeyEvent& event)
+void WidgetApplicationTizen::OnWindowKeyEvent(Dali::KeyEvent event)
 {
   // If Widget Application consume key event, this api is not called.
   mReceivedKeyEvent = true;

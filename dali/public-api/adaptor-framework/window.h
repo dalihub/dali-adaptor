@@ -70,8 +70,8 @@ public:
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType    = Signal<void(const KeyEvent&)>;    ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType  = Signal<void(const TouchEvent&)>;  ///< Touch signal type @SINCE_1_9.28
+  using KeyEventSignalType    = Signal<void(KeyEvent)>;    ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType  = Signal<void(TouchEvent)>;  ///< Touch signal type @SINCE_1_9.28
 
 public:
   // Methods
@@ -694,7 +694,7 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(KeyEvent event);
    * @endcode
    *
    * @SINCE_1_9.21
@@ -711,7 +711,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const TouchEvent& event);
+   *   void YourCallbackName(TouchEvent event);
    * @endcode
    *
    * @SINCE_1_9.28
