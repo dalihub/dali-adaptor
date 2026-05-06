@@ -944,9 +944,9 @@ unsigned int WindowBaseEcoreX::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS(((surface.GetType() == typeid(XWindow)) || (surface.GetType() == typeid(Ecore_X_Window))) && "Surface type is invalid");
+    DALI_ASSERT_ALWAYS(((surface.IsType<XWindow>()) || (surface.IsType<Ecore_X_Window>())) && "Surface type is invalid");
 
-    if(surface.GetType() == typeid(Ecore_X_Window))
+    if(surface.IsType<Ecore_X_Window>())
     {
       surfaceId = AnyCast<Ecore_X_Window>(surface);
     }

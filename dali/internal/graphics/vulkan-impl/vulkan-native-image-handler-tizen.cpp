@@ -373,7 +373,7 @@ NativeTextureData VulkanNativeImageHandlerTizen::SetFormatAndUsage(const Dali::G
 
   NativeImageInterfacePtr nativeImage       = createInfo.nativeImagePtr;
   Dali::Any               nativeImageHandle = nativeImage->GetNativeImageHandle();
-  if(nativeImageHandle.GetType() == typeid(tbm_surface_h))
+  if(nativeImageHandle.IsType<tbm_surface_h>())
   {
     tbm_surface_h tbmSurface = AnyCast<tbm_surface_h>(nativeImageHandle);
     if(tbm_surface_internal_is_valid(tbmSurface))
@@ -405,7 +405,7 @@ NativeTextureData VulkanNativeImageHandlerTizen::SetFormatAndUsage(const Dali::G
   }
   else
   {
-    DALI_LOG_ERROR("VulkanNativeImageHandlerTizen::SetFormatAndUsage: nativeImageHandle.GetType() != typeid(tbm_surface_h)\n");
+    DALI_LOG_ERROR("VulkanNativeImageHandlerTizen::SetFormatAndUsage: nativeImageHandle.IsType<tbm_surface_h>()\n");
   }
 
   return textureData;

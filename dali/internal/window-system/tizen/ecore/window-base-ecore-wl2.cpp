@@ -1043,7 +1043,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS((surface.GetType() == typeid(Ecore_Wl2_Window*)) && "Surface type is invalid");
+    DALI_ASSERT_ALWAYS((surface.IsType<Ecore_Wl2_Window*>()) && "Surface type is invalid");
 
     mEcoreWindow = AnyCast<Ecore_Wl2_Window*>(surface);
   }

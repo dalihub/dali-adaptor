@@ -526,7 +526,7 @@ uintptr_t WindowBaseWin::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS((surface.GetType() == typeid(WinWindowHandle)) && "Surface type is invalid");
+    DALI_ASSERT_ALWAYS((surface.IsType<WinWindowHandle>()) && "Surface type is invalid");
 
     surfaceId = AnyCast<WinWindowHandle>(surface);
   }

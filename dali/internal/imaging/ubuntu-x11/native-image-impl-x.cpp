@@ -414,7 +414,7 @@ Ecore_X_Pixmap NativeImageX::GetPixmapFromAny(Any pixmap) const
   }
 
   // see if it is of type x11 pixmap
-  if(pixmap.GetType() == typeid(Pixmap))
+  if(pixmap.IsType<Pixmap>())
   {
     // get the x pixmap type
     Pixmap xpixmap = AnyCast<Pixmap>(pixmap);

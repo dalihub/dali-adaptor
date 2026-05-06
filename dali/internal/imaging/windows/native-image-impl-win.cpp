@@ -241,7 +241,7 @@ unsigned int NativeImageWin::GetPixmapFromAny(Any pixmap) const
   }
 
   // see if it is of type Windows pixmap
-  if(pixmap.GetType() == typeid(unsigned int))
+  if(pixmap.IsType<unsigned int>())
   {
     // get the Windows pixmap type
     unsigned int xpixmap = AnyCast<unsigned int>(pixmap);

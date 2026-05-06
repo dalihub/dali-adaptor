@@ -181,7 +181,7 @@ tbm_surface_h NativeImageTizenVulkan::GetSurfaceFromAny(Any source) const
     return nullptr;
   }
 
-  if(source.GetType() == typeid(tbm_surface_h))
+  if(source.IsType<tbm_surface_h>())
   {
     return AnyCast<tbm_surface_h>(source);
   }
