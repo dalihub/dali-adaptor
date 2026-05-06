@@ -284,18 +284,22 @@ public:
     return mSuppressedEvents;
   }
 
+  /**
+   * Detail level for DumpTree JSON. Values 0-1 return a minimal uncompressed JSON field set.
+   * Values 2-4 return the full field set as plain JSON. Values 5-7 mirror 2-4 but prefer
+   * LZ4+base64 wire encoding, falling back to plain JSON when compression is unavailable or fails.
+   * Numeric mapping must match AtspiDumpDetailLevelType (at-spi2-core) / aurum.
+   */
   enum class DumpDetailLevel
   {
-    DUMP_SHORT              = 0,
-    DUMP_SHORT_SHOWING_ONLY = 1,
-    DUMP_FULL               = 2,
-    DUMP_FULL_SHOWING_ONLY  = 3,
-    // LZ4-compressed payload (base64-encoded string) for very large DumpTree responses.
-    // Numeric mapping must match aurum/at-spi2-core for client/server agreement.
-    DUMP_FULL_SHOWING_ONLY_LZ4 = 4,
-    // LZ4-compressed payload for very large DumpTree responses with FULL semantics
-    // (i.e., include non-showing nodes).
-    DUMP_FULL_LZ4 = 5,
+    DUMP_SHORT                                    = 0,
+    DUMP_SHORT_SHOWING_ONLY                       = 1,
+    DUMP_FULL                                     = 2,
+    DUMP_FULL_SHOWING_ONLY                        = 3,
+    DUMP_FULL_EFFECTIVE_SHOWING_ONLY              = 4,
+    DUMP_FULL_COMPRESSION                         = 5,
+    DUMP_FULL_COMPRESSION_SHOWING_ONLY            = 6,
+    DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY  = 7,
   };
 
   /**
