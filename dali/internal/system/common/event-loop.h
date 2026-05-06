@@ -17,6 +17,9 @@
  * limitations under the License.
  */
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 namespace Internal
@@ -31,7 +34,7 @@ namespace Adaptor
  * implementation (e.g., ecore_init/ecore_shutdown/ecore_main_loop_begin/
  * ecore_main_loop_quit for Ecore).
  */
-class EventLoop
+class DALI_ADAPTOR_API EventLoop
 {
 public:
   EventLoop()          = default;
