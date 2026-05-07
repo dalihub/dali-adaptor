@@ -831,7 +831,7 @@ private:
    * @param[in] keyEvent The key event
    * @return Always true, meaning that the event is consumed
    */
-  bool OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent);
+  bool OnAccessibilityInterceptKeyEvent(Dali::KeyEvent keyEvent);
 
   /**
    * @brief Called when the window rotation is finished.

@@ -119,7 +119,7 @@ class DALI_ADAPTOR_API Adaptor
 {
 public:
   typedef Signal<void(Adaptor&)>                        AdaptorSignalType;       ///< Generic Type for adaptor signals
-  typedef Signal<void(Dali::Integration::SceneHolder&)> WindowCreatedSignalType; ///< SceneHolder created signal type
+  typedef Signal<void(Dali::Integration::SceneHolder)> WindowCreatedSignalType; ///< SceneHolder created signal type
   typedef Signal<void(std::string)>                     LocaleChangedSignalType; ///< Locale changed signal type
 
   using SurfaceSize = Int32Pair; ///< Surface size type

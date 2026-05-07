@@ -130,7 +130,7 @@ public:
    *
    * @param[in] event The key event.
    */
-  void OnWindowKeyEvent(const Dali::KeyEvent& event);
+  void OnWindowKeyEvent(Dali::KeyEvent event);
 
   /**
    * @brief Feed keyEvent to Widget.

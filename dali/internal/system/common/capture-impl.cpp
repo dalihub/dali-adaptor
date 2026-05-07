@@ -358,7 +358,7 @@ void Capture::UnsetResources()
   }
 }
 
-void Capture::OnRenderFinished(Dali::RenderTask& task)
+void Capture::OnRenderFinished(Dali::RenderTask task)
 {
   if(!mRenderTask || mRenderTask != task)
   {

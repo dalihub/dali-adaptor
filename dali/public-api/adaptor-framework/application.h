@@ -125,8 +125,8 @@ public:
   typedef Signal<void(DeviceStatus::Battery::Status)>     LowBatterySignalType;               ///< Application device signal type @SINCE_1_2.62
   typedef Signal<void(DeviceStatus::Memory::Status)>      LowMemorySignalType;                ///< Application device signal type @SINCE_1_2.62
   typedef Signal<void(DeviceStatus::Orientation::Status)> DeviceOrientationChangedSignalType; ///< Application device orientation changed signal type @SINCE_2_2.1
-  typedef Signal<void(Application&)>                      AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
-  typedef Signal<void(Application&, void*)>               AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application)>                      AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application, void*)>               AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
 
 public:
   /**

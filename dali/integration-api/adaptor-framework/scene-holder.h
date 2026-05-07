@@ -53,15 +53,15 @@ namespace Integration
 class DALI_ADAPTOR_API SceneHolder : public BaseHandle
 {
 public:
-  typedef Signal<void(const Dali::KeyEvent&)> KeyEventSignalType; ///< Key event signal type
+  typedef Signal<void(Dali::KeyEvent)> KeyEventSignalType; ///< Key event signal type
 
-  typedef Signal<bool(const Dali::KeyEvent&)> KeyEventGeneratedSignalType; ///< Key event generated signal type
+  typedef Signal<bool(Dali::KeyEvent)> KeyEventGeneratedSignalType; ///< Key event generated signal type
 
-  typedef Signal<void(const Dali::TouchEvent&)> TouchEventSignalType; ///< Touch signal type
+  typedef Signal<void(Dali::TouchEvent)> TouchEventSignalType; ///< Touch signal type
 
-  typedef Signal<void(const Dali::WheelEvent&)> WheelEventSignalType; ///< Touched signal type
+  typedef Signal<void(Dali::WheelEvent)> WheelEventSignalType; ///< Touched signal type
 
-  typedef Signal<bool(const Dali::WheelEvent&)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
+  typedef Signal<bool(Dali::WheelEvent)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
 
   typedef Signal<void(Dali::Integration::SceneHolder, bool)> FocusChangedGeneratedSignalType; ///<  Focus changed generated signal type
 
@@ -230,7 +230,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -241,7 +241,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(const KeyEvent& event);
+   *   bool YourCallbackName(KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -254,7 +254,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(const KeyEvent& event);
+   *   bool YourCallbackName(KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -265,7 +265,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(KeyEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -292,7 +292,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const WheelEvent& event);
+   *   void YourCallbackName(WheelEvent event);
    * @endcode
    * @return The signal to connect to
    */
@@ -307,7 +307,7 @@ public:
    *
    * A callback of the following type may be connected:
    * @code
-   *   bool YourCallbackName(const WheelEvent& event);
+   *   bool YourCallbackName(WheelEvent event);
    * @endcode
    * @return The signal to connect to
    */
