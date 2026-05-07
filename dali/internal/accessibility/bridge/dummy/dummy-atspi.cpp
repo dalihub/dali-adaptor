@@ -18,13 +18,13 @@
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
+#include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 
 namespace Dali::Accessibility
 {
 
-CollectionImpl::CollectionImpl(std::weak_ptr<Accessible> accessible)
+CollectionImpl::CollectionImpl(Dali::WeakPtr<Accessible> accessible)
 {
 }
 
@@ -82,7 +82,7 @@ Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Access
   return nullptr;
 }
 
-std::shared_ptr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()
+Dali::SharedPtr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()
 {
   return Accessibility::DummyBridge::GetInstance();
 }

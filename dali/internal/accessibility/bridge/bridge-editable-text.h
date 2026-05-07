@@ -40,7 +40,7 @@ protected:
    *
    * @return The EditableText object
    */
-  std::shared_ptr<Dali::Accessibility::EditableText> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::EditableText> FindSelf() const;
 
 public:
   /**

@@ -50,7 +50,7 @@ protected:
    *
    * @return The Value object
    */
-  std::shared_ptr<Dali::Accessibility::Value> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Value> FindSelf() const;
 
 public:
   /**

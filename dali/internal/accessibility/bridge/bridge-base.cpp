@@ -283,10 +283,10 @@ bool ApplicationAccessible::IsScrollable() const
 
 void ApplicationAccessible::InitDefaultFeatures()
 {
-  mCollection = std::make_shared<CollectionImpl>(weak_from_this());
-  AddFeature<Application>(shared_from_this());
-  AddFeature<Collection>(shared_from_this());
-  AddFeature<Socket>(shared_from_this());
+  mCollection = Dali::MakeShared<CollectionImpl>(WeakFromThis());
+  AddFeature<Application>(SharedFromThis());
+  AddFeature<Collection>(SharedFromThis());
+  AddFeature<Socket>(SharedFromThis());
 }
 
 std::vector<Accessible*> ApplicationAccessible::GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount)
@@ -313,7 +313,7 @@ std::vector<Accessible*> ApplicationAccessible::GetMatchesInMatches(MatchRule fi
 
 // BridgeBase implementation
 BridgeBase::BridgeBase()
-: mApplication{std::make_shared<ApplicationAccessible>()}
+: mApplication{Dali::MakeShared<ApplicationAccessible>()}
 {
   mApplication->InitDefaultFeatures();
 }
@@ -625,7 +625,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
 {
   if(path == "root")
   {
-    return mApplication.get();
+    return const_cast<ApplicationAccessible*>(mApplication.Get());
   }
 
   auto accessible = GetAccessible(path);
@@ -634,7 +634,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
     throw std::domain_error{"unknown object '" + path + "'"};
   }
 
-  return accessible.get();
+  return accessible.Get();
 }
 
 Accessible* BridgeBase::Find(const Address& ptr) const

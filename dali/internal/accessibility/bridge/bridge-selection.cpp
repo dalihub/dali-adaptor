@@ -36,7 +36,7 @@ void BridgeSelection::RegisterInterfaces()
   mDbusServer.addInterface("/", desc, true);
 }
 
-std::shared_ptr<Selection> BridgeSelection::FindSelf() const
+Dali::SharedPtr<Selection> BridgeSelection::FindSelf() const
 {
   return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::SELECTION>();
 }

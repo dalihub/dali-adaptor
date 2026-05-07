@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/list-wrapper.h>
 #include <dali/public-api/actors/layer.h>
+#include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
@@ -47,7 +48,7 @@ class ApplicationAccessible : public Dali::Accessibility::Accessible,
                               public Dali::Accessibility::Application,
                               public Dali::Accessibility::Collection,
                               public Dali::Accessibility::Socket,
-                              public std::enable_shared_from_this<ApplicationAccessible>
+                              public Dali::EnableSharedFromThis<ApplicationAccessible>
 {
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
@@ -111,7 +112,7 @@ public:
   std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) override;
 
 private:
-  std::shared_ptr<Collection> mCollection{nullptr};
+  Dali::SharedPtr<Collection> mCollection;
 };
 } //namespace Dali::Accessibility
 
@@ -218,7 +219,7 @@ public:
    */
   Dali::Accessibility::Accessible* GetApplication() const override
   {
-    return mApplication.get();
+    return const_cast<Dali::Accessibility::ApplicationAccessible*>(mApplication.Get());
   }
 
   /**
@@ -421,7 +422,7 @@ public:
   {
     using Type = Dali::Accessibility::AtspiInterfaceType<I>;
 
-    std::shared_ptr<Type> result;
+    Dali::SharedPtr<Type> result;
     auto*                 currentObject = FindCurrentObject();
     DALI_ASSERT_ALWAYS(currentObject && "Current BridgeBase's Accessible should not be nullptr"); // FindCurrentObject() throws domain_error
 
@@ -473,7 +474,7 @@ protected:
   using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::WeakHandle<Dali::Actor>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
-  std::shared_ptr<Dali::Accessibility::ApplicationAccessible> mApplication;
+  Dali::SharedPtr<Dali::Accessibility::ApplicationAccessible> mApplication;
 
   DefaultLabelsType mDefaultLabels;
   bool              mIsScreenReaderSuppressed = false;

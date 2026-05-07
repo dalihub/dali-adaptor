@@ -27,6 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
+#include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/math/rect.h>
 
 /**
@@ -63,7 +64,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitStateChanged()
    */
-  void EmitStateChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::State state, int newValue, int reserved) override;
+  void EmitStateChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::State state, int newValue, int reserved) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
@@ -73,17 +74,17 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void Emit(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
+  void Emit(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
    */
-  void EmitBoundsChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Rect<int> rect) override;
+  void EmitBoundsChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Rect<int> rect) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitPostRender()
    */
-  void EmitPostRender(std::shared_ptr<Dali::Accessibility::Accessible> obj) override;
+  void EmitPostRender(Dali::SharedPtr<Dali::Accessibility::Accessible> obj) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()

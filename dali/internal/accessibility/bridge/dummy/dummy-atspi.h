@@ -20,14 +20,15 @@
 
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/public-api/common/shared-ptr.h>
 
 namespace Dali::Accessibility
 {
 struct DummyBridge : Dali::Accessibility::Bridge
 {
-  static std::shared_ptr<DummyBridge> GetInstance()
+  static Dali::SharedPtr<DummyBridge> GetInstance()
   {
-    static auto instance = std::make_shared<DummyBridge>();
+    static auto instance = Dali::MakeShared<DummyBridge>();
 
     return instance;
   }
@@ -161,7 +162,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitStateChanged(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::State state, int newValue, int reserved) override
+  void EmitStateChanged(SharedPtr<Accessibility::Accessible> obj, Accessibility::State state, int newValue, int reserved) override
   {
   }
 
@@ -169,15 +170,15 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void Emit(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::ObjectPropertyChangeEvent event) override
+  void Emit(SharedPtr<Accessibility::Accessible> obj, Accessibility::ObjectPropertyChangeEvent event) override
   {
   }
 
-  void EmitBoundsChanged(std::shared_ptr<Accessibility::Accessible> obj, Rect<int> rect) override
+  void EmitBoundsChanged(SharedPtr<Accessibility::Accessible> obj, Rect<int> rect) override
   {
   }
 
-  void EmitPostRender(std::shared_ptr<Accessibility::Accessible> obj) override
+  void EmitPostRender(SharedPtr<Accessibility::Accessible> obj) override
   {
   }
 
@@ -237,7 +238,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  bool AddAccessible(uint32_t actorId, SharedPtr<Accessible> accessible) override
   {
     return false;
   }
@@ -246,14 +247,14 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  std::shared_ptr<Accessible> GetAccessible(Actor actor) const override
+  SharedPtr<Accessible> GetAccessible(Actor actor) const override
   {
-    return nullptr;
+    return {};
   }
 
-  std::shared_ptr<Accessible> GetAccessible(const std::string& path) const override
+  SharedPtr<Accessible> GetAccessible(const std::string& path) const override
   {
-    return nullptr;
+    return {};
   }
 
   bool ShouldIncludeHidden() const override

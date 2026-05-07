@@ -37,7 +37,7 @@ protected:
    *
    * @return The Hyperlink object
    */
-  std::shared_ptr<Dali::Accessibility::Hyperlink> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Hyperlink> FindSelf() const;
 
 public:
   /**

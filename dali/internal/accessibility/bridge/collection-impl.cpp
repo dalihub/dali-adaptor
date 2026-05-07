@@ -283,9 +283,9 @@ struct Comparer
    */
   struct ComparerStates
   {
-    States mRequested;
-    States mObject;
-    const Mode   mMode = Mode::INVALID;
+    States     mRequested;
+    States     mObject;
+    const Mode mMode = Mode::INVALID;
 
     ComparerStates(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::STATES_MATCH_TYPE)>(*rule)))
@@ -547,7 +547,7 @@ void SortMatchedResult(std::vector<Accessible*>& result, SortOrder sortBy)
 
 } // namespace
 
-CollectionImpl::CollectionImpl(std::weak_ptr<Accessible> accessible)
+CollectionImpl::CollectionImpl(Dali::WeakPtr<Accessible> accessible)
 : mAccessible(std::move(accessible))
 {
 }
@@ -558,9 +558,9 @@ std::vector<Accessible*> CollectionImpl::GetMatches(MatchRule rule, uint32_t sor
   auto                     matcher = Comparer{&rule};
   std::set<Accessible*>    visitedNodes;
 
-  if(auto accessible = mAccessible.lock())
+  if(auto accessible = mAccessible.Lock())
   {
-    VisitNodes(accessible.get(), res, matcher, maxCount, visitedNodes);
+    VisitNodes(accessible.Get(), res, matcher, maxCount, visitedNodes);
     SortMatchedResult(res, static_cast<SortOrder>(sortBy));
   }
   return res;
@@ -573,9 +573,9 @@ std::vector<Accessible*> CollectionImpl::GetMatchesInMatches(MatchRule firstRule
   auto                     firstMatcher = Comparer{&firstRule};
   std::set<Accessible*>    visitedNodes;
 
-  if(auto accessible = mAccessible.lock())
+  if(auto accessible = mAccessible.Lock())
   {
-    VisitNodes(accessible.get(), firstRes, firstMatcher, firstCount, visitedNodes);
+    VisitNodes(accessible.Get(), firstRes, firstMatcher, firstCount, visitedNodes);
 
     if(!firstRes.empty())
     {
