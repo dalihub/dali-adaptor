@@ -748,6 +748,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   {
     LOG_UPDATE_RENDER_TRACE;
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
 
     // For thread safe
     bool                                       uploadOnly     = mUploadWithoutRendering;
@@ -839,6 +840,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     AddPerformanceMarker(PerformanceInterface::UPDATE_START);
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE");
     mCore.Update(frameDelta,
                  currentTime,
                  nextFrameTime,
@@ -846,6 +848,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                  renderToFboEnabled,
                  isRenderingToFbo,
                  uploadOnly);
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE");
     AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
@@ -901,10 +904,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
     TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
     // Upload shared resources and process render messages
     TRACE_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
     mCore.PreRender(renderStatus, mForceClear);
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_PRE_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
 
     graphics.RenderStart();
@@ -923,6 +929,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         if(scene && windowSurface)
         {
           TRACE_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
+          TIME_CHECKER_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
           Integration::RenderStatus         windowRenderStatus;
           Integration::ScenePreRenderStatus scenePreRenderStatus;
 
@@ -1023,12 +1030,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
     if(!uploadOnly)
     {
       graphics.PostRender();
     }
 
     mCore.PostRender();
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_POST_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_POST_RENDER");
 
     //////////////////////////////
@@ -1043,6 +1052,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceDeleted();
     }
 
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_RENDER");
     AddPerformanceMarker(PerformanceInterface::RENDER_END);
 
@@ -1103,6 +1113,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
 
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
@@ -1167,9 +1178,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
     timeToSleepUntil = 0;
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     DALI_LOG_DEBUG_INFO("UpdateRenderThread sleep (%d == 0 || (%u && !%d && !%u))\n", mUpdateRenderRunCount, mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
     mUpdateRenderThreadWaitCondition.Wait(updateLock);
     DALI_LOG_DEBUG_INFO("UpdateRenderThread awake\n");
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
 
     if(!mUseElapsedTimeAfterWait)

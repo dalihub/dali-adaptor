@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,6 +145,11 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_COMBINED, false);
 #define TRACE_UPDATE_RENDER_BEGIN(tag) DALI_TRACE_BEGIN(gTraceFilter, tag)
 #define TRACE_UPDATE_RENDER_END(tag) DALI_TRACE_END(gTraceFilter, tag)
 #define TRACE_UPDATE_RENDER_SCOPE(tag) DALI_TRACE_SCOPE(gTraceFilter, tag)
+
+DALI_INIT_TIME_CHECKER_FILTER_WITH_DEFAULT_THRESHOLD(gTimeCheckerFilter, DALI_COMBINED_THRESHOLD_TIME, 48);
+#define TIME_CHECKER_UPDATE_RENDER_BEGIN(tag) DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter)
+#define TIME_CHECKER_UPDATE_RENDER_END(tag) DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, tag)
+#define TIME_CHECKER_UPDATE_RENDER_SCOPE(tag) DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, tag)
 
 } // unnamed namespace
 
