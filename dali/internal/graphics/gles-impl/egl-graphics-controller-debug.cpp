@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,11 @@
 namespace Dali::Graphics
 {
 #if defined(DEBUG_ENABLED)
+namespace
+{
 const char* GRAPHICS_CMDBUF_OUTFILE_ENV = "GRAPHICS_CMDBUF_OUTFILE";
 const char* GRAPHICS_DUMP_TRIGGER_FILE  = "/tmp/dump_cmd_buf";
+} // namespace
 
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {

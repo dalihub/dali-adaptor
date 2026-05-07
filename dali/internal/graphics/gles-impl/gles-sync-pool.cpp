@@ -25,12 +25,14 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gLogSyncFilter;
-#endif
-
 namespace Dali::Graphics::GLES
 {
+namespace
+{
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
+#endif
+} // namespace
 
 struct SyncPool::SharedSyncObject::Impl
 {

@@ -41,12 +41,12 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gPixmapRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_PIXMAP_RENDER_SURFACE_ECORE_X");
 #endif
 
-namespace
-{
 static const int INITIAL_PRODUCE_BUFFER_INDEX = 0;
 static const int INITIAL_CONSUME_BUFFER_INDEX = 1;
 } // namespace

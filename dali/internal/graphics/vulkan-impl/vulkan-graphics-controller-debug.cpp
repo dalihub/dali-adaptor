@@ -29,8 +29,11 @@
 namespace Dali::Graphics
 {
 #if defined(DEBUG_ENABLED)
+namespace
+{
 const char* GRAPHICS_CMDBUF_OUTFILE_ENV = "GRAPHICS_CMDBUF_OUTFILE";
 const char* GRAPHICS_DUMP_TRIGGER_FILE  = "/tmp/dump_cmd_buf";
+} // namespace
 
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {

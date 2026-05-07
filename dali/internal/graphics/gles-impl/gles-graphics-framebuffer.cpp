@@ -80,13 +80,13 @@ struct DEPTH_STENCIL_ATTACHMENT_TYPE
   Dali::GLenum attachment{GL_NONE};
 };
 
-} // anonymous namespace
+Context* gSharedContext = nullptr; ///< The bind available context
 
-Context* Framebuffer::mSharedContext = nullptr;
+} // anonymous namespace
 
 void Framebuffer::SetSharedContext(Context* context)
 {
-  mSharedContext = context;
+  gSharedContext = context;
 }
 
 Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
@@ -117,9 +117,9 @@ Framebuffer::~Framebuffer() = default;
 bool Framebuffer::InitializeResource()
 {
   auto* gl = mController.GetGL();
-  if(DALI_LIKELY(gl) && mSharedContext && !mInitialized)
+  if(DALI_LIKELY(gl) && gSharedContext && !mInitialized)
   {
-    DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is create at another context!");
+    DALI_ASSERT_DEBUG(gSharedContext == mController.GetCurrentContext() && "Framebuffer is create at another context!");
     mInitialized = true;
 
     gl->GenFramebuffers(1, &mFramebufferId);
@@ -167,7 +167,7 @@ bool Framebuffer::InitializeResource()
     gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Update framebuffer state cache here.
-    auto& glStateCache          = mSharedContext->GetGLStateCache();
+    auto& glStateCache          = gSharedContext->GetGLStateCache();
     auto& framebufferStateCache = glStateCache.mFrameBufferStateCache;
 
     framebufferStateCache.FrameBufferCreated(mFramebufferId);
@@ -204,10 +204,10 @@ void Framebuffer::DestroyResource()
         gl->DeleteFramebuffers(1, &mFramebufferId);
       }
 
-      if(mSharedContext)
+      if(gSharedContext)
       {
         // Update framebuffer state cache here.
-        auto& framebufferStateCache = mSharedContext->GetGLStateCache().mFrameBufferStateCache;
+        auto& framebufferStateCache = gSharedContext->GetGLStateCache().mFrameBufferStateCache;
         framebufferStateCache.FrameBufferDeleted(mFramebufferId);
       }
 
@@ -231,15 +231,15 @@ void Framebuffer::DiscardResource()
 void Framebuffer::Bind()
 {
   auto* gl = mController.GetGL();
-  if(DALI_LIKELY(gl) && mSharedContext)
+  if(DALI_LIKELY(gl) && gSharedContext)
   {
-    DALI_ASSERT_DEBUG(mSharedContext == mController.GetCurrentContext() && "Framebuffer is bound to another context!");
+    DALI_ASSERT_DEBUG(gSharedContext == mController.GetCurrentContext() && "Framebuffer is bound to another context!");
     gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
 
     PrepareRenderBuffer();
 
     // Update framebuffer state cache here.
-    auto& framebufferStateCache = mSharedContext->GetGLStateCache().mFrameBufferStateCache;
+    auto& framebufferStateCache = gSharedContext->GetGLStateCache().mFrameBufferStateCache;
     framebufferStateCache.SetCurrentFrameBuffer(mFramebufferId);
   }
 }

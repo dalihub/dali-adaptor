@@ -41,10 +41,6 @@ static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "  layout(blend_support_all_equations) out;\n"
   "#endif\n";
 
-#if defined(DEBUG_ENABLED)
-Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
-#endif
-
 extern std::string GetSystemProgramBinaryPath();
 extern std::string GetCustomProgramBinaryPath();
 
@@ -52,6 +48,10 @@ namespace
 {
 const char* VERSION_SEPARATOR = "-";
 const char* SHADER_SUFFIX     = ".shader";
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
+#endif
 } // namespace
 
 namespace Dali::Graphics::GLES
