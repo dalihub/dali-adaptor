@@ -333,6 +333,9 @@ void SceneHolder::Resume()
 {
   RequestFullUpdate();
 
+  // Request buffer commit forcibly for resume case.
+  SetForceRendering(1u);
+
   Reset();
 
   OnResume();
