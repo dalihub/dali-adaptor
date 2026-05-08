@@ -259,23 +259,11 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
   if(!mCameraActor)
   {
     mUseDefaultCamera = true;
-    mCameraActor      = Dali::CameraActor::New(size);
-    // Because input position and size are for 2 dimentional area,
-    // default z-directional position of the camera is required to be used for the new camera position.
-    float   cameraDefaultZPosition = mCameraActor.GetProperty<float>(Dali::Actor::Property::POSITION_Z);
-    Vector2 positionTransition     = position + size / 2;
-    mCameraActor.SetProperty(Dali::Actor::Property::POSITION, Vector3(positionTransition.x, positionTransition.y, cameraDefaultZPosition));
-    mCameraActor.SetProperty(Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::TOP_LEFT);
-    mCameraActor.SetProperty(Dali::Actor::Property::PIVOT, Pivot::CENTER);
   }
-
-  // Camera must be scene on. Add camera to window.
-  if(!mCameraActor.GetProperty<bool>(Dali::Actor::Property::CONNECTED_TO_SCENE))
+  if(!mUseDefaultCamera && !mCameraActor.GetProperty<bool>(Dali::Actor::Property::CONNECTED_TO_SCENE))
   {
-    if(!mUseDefaultCamera)
-    {
-      DALI_LOG_ERROR("Camera must be on scene. Camera is connected to window now.\n");
-    }
+    // Camera must be scene on. Add camera to window.
+    DALI_LOG_ERROR("Camera must be on scene. Camera is connected to window now.\n");
     sceneHolder.Add(mCameraActor);
     mSceneOffCameraAfterCaptureFinished = true;
   }
@@ -292,7 +280,15 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
   mRenderTask.SetOrderIndex(ORDER_INDEX_CAPTURE_RENDER_TASK);
   mRenderTask.SetRefreshRate(Dali::RenderTask::REFRESH_ONCE);
   mRenderTask.SetSourceActor(source);
-  mRenderTask.SetCameraActor(mCameraActor);
+  if(mUseDefaultCamera)
+  {
+    Vector2 positionTransition = position + size / 2;
+    mRenderTask.SetBuiltinCameraActor(Dali::RenderTask::BuiltinCameraType::ATTACHED_TO_SCENE, size, Property::Map().Add(Dali::Actor::Property::POSITION_X, positionTransition.x).Add(Dali::Actor::Property::POSITION_Y, positionTransition.y).Add(Dali::Actor::Property::NAME, "CaptureDefaultCamera").Add(Dali::Actor::Property::PARENT_ORIGIN, ParentOrigin::TOP_LEFT).Add(Dali::Actor::Property::PIVOT, Pivot::CENTER));
+  }
+  else
+  {
+    mRenderTask.SetCameraActor(mCameraActor);
+  }
   mRenderTask.SetScreenToFrameBufferFunction(Dali::RenderTask::FULLSCREEN_FRAMEBUFFER_FUNCTION);
   mRenderTask.SetFrameBuffer(mFrameBuffer);
   mRenderTask.SetClearColor(clearColor);
@@ -309,13 +305,9 @@ void Capture::UnsetRenderTask()
 
   if(mSceneOffCameraAfterCaptureFinished && mCameraActor)
   {
-    if(!mUseDefaultCamera)
-    {
-      DALI_LOG_ERROR("Camera is disconnected from window now.\n");
-    }
+    DALI_LOG_ERROR("Camera is disconnected from window now.\n");
     mSceneOffCameraAfterCaptureFinished = false;
     mCameraActor.Unparent();
-    mCameraActor.Reset();
   }
 
   Dali::Integration::SceneHolder sceneHolder = mSceneHolderHandle.GetHandle();
@@ -333,7 +325,7 @@ void Capture::UnsetRenderTask()
 
 bool Capture::IsRenderTaskSetup()
 {
-  return mCameraActor && mRenderTask;
+  return (mUseDefaultCamera || mCameraActor) && mRenderTask;
 }
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
