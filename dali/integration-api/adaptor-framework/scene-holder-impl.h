@@ -40,6 +40,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/public-api/signals/slot-delegate.h>
 
 namespace Dali
 {
@@ -371,7 +372,7 @@ public:
    */
   Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventSignal()
   {
-    return mScene.KeyEventSignal();
+    return mSceneHolderKeyEventSignal;
   }
 
   /**
@@ -379,7 +380,7 @@ public:
    */
   Dali::Integration::SceneHolder::KeyEventGeneratedSignalType& KeyEventGeneratedSignal()
   {
-    return mScene.KeyEventGeneratedSignal();
+    return mSceneHolderKeyEventGeneratedSignal;
   }
 
   /**
@@ -387,7 +388,7 @@ public:
    */
   Dali::Integration::SceneHolder::KeyEventGeneratedSignalType& InterceptKeyEventSignal()
   {
-    return mScene.InterceptKeyEventSignal();
+    return mSceneHolderInterceptKeyEventSignal;
   }
 
   /**
@@ -395,7 +396,7 @@ public:
    */
   Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventMonitorSignal()
   {
-    return mScene.KeyEventMonitorSignal();
+    return mSceneHolderKeyEventMonitorSignal;
   }
 
   /**
@@ -403,7 +404,7 @@ public:
    */
   Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal()
   {
-    return mScene.TouchedSignal();
+    return mSceneHolderTouchEventSignal;
   }
 
   /**
@@ -411,7 +412,7 @@ public:
    */
   Dali::Integration::SceneHolder::WheelEventSignalType& WheelEventSignal()
   {
-    return mScene.WheelEventSignal();
+    return mSceneHolderWheelEventSignal;
   }
 
   /**
@@ -419,7 +420,7 @@ public:
    */
   Dali::Integration::SceneHolder::WheelEventGeneratedSignalType& WheelEventGeneratedSignal()
   {
-    return mScene.WheelEventGeneratedSignal();
+    return mSceneHolderWheelEventGeneratedSignal;
   }
 
   /**
@@ -473,23 +474,31 @@ private: // The following methods can be overridden if required
    * @brief Called by the base class to inform deriving classes that the adaptor has been set.
    * @param[in] adaptor The adaptor
    */
-  virtual void OnAdaptorSet(Dali::Adaptor& adaptor) {};
+  virtual void OnAdaptorSet(Dali::Adaptor& adaptor)
+  {
+  }
 
   /**
    * @brief Called by the base class to inform deriving classes that a new surface has been set.
    * @param[in] surface The new render surface
    */
-  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface) {};
+  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
+  {
+  }
 
   /**
    * @brief Called by the base class to inform deriving classes that we are being paused.
    */
-  virtual void OnPause() {};
+  virtual void OnPause()
+  {
+  }
 
   /**
    * @brief Called by the base class to inform deriving classes that we are resuming from a paused state.
    */
-  virtual void OnResume() {};
+  virtual void OnResume()
+  {
+  }
 
   /**
    * Recalculate the position if required
@@ -499,7 +508,7 @@ private: // The following methods can be overridden if required
   virtual Vector2 RecalculatePosition(const Vector2& position)
   {
     return position;
-  };
+  }
 
 private:
   /**
@@ -512,6 +521,41 @@ private:
    */
   void CreateRenderTarget();
 
+  /**
+   * @brief Bridge callback: receives KeyEvent from Core Scene and re-emits via mSceneHolderKeyEventSignal with SceneHolder prepended.
+   */
+  void OnSceneKeyEvent(Dali::KeyEvent event);
+
+  /**
+   * @brief Bridge callback: receives TouchEvent from Core Scene and re-emits via mSceneHolderTouchEventSignal with SceneHolder prepended.
+   */
+  void OnSceneTouchEvent(Dali::TouchEvent event);
+
+  /**
+   * @brief Bridge callback: receives WheelEvent from Core Scene and re-emits via mSceneHolderWheelEventSignal with SceneHolder prepended.
+   */
+  void OnSceneWheelEvent(Dali::WheelEvent event);
+
+  /**
+   * @brief Bridge callback: receives KeyEvent from Core Scene monitor and re-emits via mSceneHolderKeyEventMonitorSignal with SceneHolder prepended.
+   */
+  void OnSceneKeyEventMonitor(Dali::KeyEvent event);
+
+  /**
+   * @brief Bridge callback: receives generated KeyEvent from Core Scene and re-emits via mSceneHolderKeyEventGeneratedSignal with SceneHolder prepended.
+   */
+  bool OnSceneKeyEventGenerated(Dali::KeyEvent event);
+
+  /**
+   * @brief Bridge callback: receives intercepted KeyEvent from Core Scene and re-emits via mSceneHolderInterceptKeyEventSignal with SceneHolder prepended.
+   */
+  bool OnSceneInterceptKeyEvent(Dali::KeyEvent event);
+
+  /**
+   * @brief Bridge callback: receives generated WheelEvent from Core Scene and re-emits via mSceneHolderWheelEventGeneratedSignal with SceneHolder prepended.
+   */
+  bool OnSceneWheelEventGenerated(Dali::WheelEvent event);
+
 private:
   static uint32_t mSceneHolderCounter; ///< A counter to track the SceneHolder creation
 
@@ -520,6 +564,16 @@ private:
   Dali::TouchEvent                                                mLastTouchEvent;
   Dali::HoverEvent                                                mLastHoverEvent;
   Dali::Integration::SceneHolder::FocusChangedGeneratedSignalType mFocusChangedGeneratedSignal;
+
+  // Owned signals that wrap Core Scene signals with SceneHolder as first argument
+  Dali::Integration::SceneHolder::KeyEventSignalType            mSceneHolderKeyEventSignal;
+  Dali::Integration::SceneHolder::KeyEventSignalType            mSceneHolderKeyEventMonitorSignal;
+  Dali::Integration::SceneHolder::TouchEventSignalType          mSceneHolderTouchEventSignal;
+  Dali::Integration::SceneHolder::WheelEventSignalType          mSceneHolderWheelEventSignal;
+  Dali::Integration::SceneHolder::KeyEventGeneratedSignalType   mSceneHolderKeyEventGeneratedSignal;
+  Dali::Integration::SceneHolder::KeyEventGeneratedSignalType   mSceneHolderInterceptKeyEventSignal;
+  Dali::Integration::SceneHolder::WheelEventGeneratedSignalType mSceneHolderWheelEventGeneratedSignal;
+  Dali::SlotDelegate<SceneHolder>                               mSceneSignalBridgeSlot;
 
 protected:
   uint32_t                 mId;    ///< A unique ID to identify the SceneHolder starting from 0
@@ -531,14 +585,15 @@ protected:
 
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
 
-  Uint16Pair mDpi; ///< The DPI for this SceneHolder.
-
-  bool                                               mAdaptorStarted; ///< Whether the adaptor has started or not
-  bool                                               mVisible : 1;    ///< Whether the scene is visible or not
-  bool                                               mHandledMultiTouch : 1;
   Integration::TouchEvent                            mPreviousTouchEvent;
   Integration::HoverEvent                            mPreviousHoverEvent;
   Integration::TouchEventCombiner::EventDispatchType mPreviousType;
+
+  Uint16Pair mDpi; ///< The DPI for this SceneHolder.
+
+  bool mAdaptorStarted; ///< Whether the adaptor has started or not
+  bool mVisible : 1;    ///< Whether the scene is visible or not
+  bool mHandledMultiTouch : 1;
 };
 
 } // namespace Adaptor

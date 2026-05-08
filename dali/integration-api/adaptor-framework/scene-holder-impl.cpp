@@ -28,6 +28,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
@@ -67,18 +68,22 @@ private: // Adaptor::LifeCycleObserver interface
   void OnStart() override
   {
     mAdaptorStarted = true;
-  };
-  void OnPause() override {};
-  void OnResume() override {};
+  }
+  void OnPause() override
+  {
+  }
+  void OnResume() override
+  {
+  }
   void OnStop() override
   {
     // Mark adaptor as stopped;
     mAdaptorStarted = false;
-  };
+  }
   void OnDestroy() override
   {
     mAdaptor = nullptr;
-  };
+  }
 
 private:
   Adaptor*& mAdaptor;
@@ -90,16 +95,24 @@ SceneHolder::SceneHolder()
   mLastTouchEvent(),
   mLastHoverEvent(),
   mFocusChangedGeneratedSignal(),
+  mSceneHolderKeyEventSignal(),
+  mSceneHolderKeyEventMonitorSignal(),
+  mSceneHolderTouchEventSignal(),
+  mSceneHolderWheelEventSignal(),
+  mSceneHolderKeyEventGeneratedSignal(),
+  mSceneHolderInterceptKeyEventSignal(),
+  mSceneHolderWheelEventGeneratedSignal(),
+  mSceneSignalBridgeSlot(this),
   mId(mSceneHolderCounter++),
   mSurface(nullptr),
   mAdaptor(nullptr),
+  mPreviousTouchEvent(),
+  mPreviousHoverEvent(),
+  mPreviousType(Integration::TouchEventCombiner::DISPATCH_NONE),
   mDpi(),
   mAdaptorStarted(false),
   mVisible(true),
-  mHandledMultiTouch(false),
-  mPreviousTouchEvent(),
-  mPreviousHoverEvent(),
-  mPreviousType(Integration::TouchEventCombiner::DISPATCH_NONE)
+  mHandledMultiTouch(false)
 {
 }
 
@@ -263,6 +276,15 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
   mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
+
+  // Connect Core Scene signals to SceneHolder bridge callbacks
+  mScene.KeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEvent);
+  mScene.KeyEventMonitorSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventMonitor);
+  mScene.TouchedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneTouchEvent);
+  mScene.WheelEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneWheelEvent);
+  mScene.KeyEventGeneratedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventGenerated);
+  mScene.InterceptKeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneInterceptKeyEvent);
+  mScene.WheelEventGeneratedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneWheelEventGenerated);
 
   // Create an observer for the adaptor lifecycle
   mAdaptor->AddObserver(*mLifeCycleObserver);
@@ -671,6 +693,48 @@ void SceneHolder::InitializeDpi()
 
   mDpi.SetX(dpiHorizontal);
   mDpi.SetY(dpiVertical);
+}
+
+void SceneHolder::OnSceneKeyEvent(Dali::KeyEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  mSceneHolderKeyEventSignal.Emit(handle, event);
+}
+
+void SceneHolder::OnSceneKeyEventMonitor(Dali::KeyEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  mSceneHolderKeyEventMonitorSignal.Emit(handle, event);
+}
+
+void SceneHolder::OnSceneTouchEvent(Dali::TouchEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  mSceneHolderTouchEventSignal.Emit(handle, event);
+}
+
+void SceneHolder::OnSceneWheelEvent(Dali::WheelEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  mSceneHolderWheelEventSignal.Emit(handle, event);
+}
+
+bool SceneHolder::OnSceneKeyEventGenerated(Dali::KeyEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  return mSceneHolderKeyEventGeneratedSignal.Emit(handle, event);
+}
+
+bool SceneHolder::OnSceneInterceptKeyEvent(Dali::KeyEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  return mSceneHolderInterceptKeyEventSignal.Emit(handle, event);
+}
+
+bool SceneHolder::OnSceneWheelEventGenerated(Dali::WheelEvent event)
+{
+  Dali::Integration::SceneHolder handle(this);
+  return mSceneHolderWheelEventGeneratedSignal.Emit(handle, event);
 }
 
 } // namespace Adaptor
