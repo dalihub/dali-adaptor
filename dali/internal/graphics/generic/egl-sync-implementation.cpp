@@ -25,12 +25,12 @@
 #include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
+namespace
+{
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
 #endif
 
-namespace
-{
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 } // namespace
 
