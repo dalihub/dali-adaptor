@@ -1095,7 +1095,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirect
   return direction;
 }
 
-Rect<int> InputMethodContextEcoreWl::GetInputMethodArea()
+BoundsInteger InputMethodContextEcoreWl::GetInputMethodArea()
 {
   int xPos, yPos, width, height;
 
@@ -1111,7 +1111,7 @@ Rect<int> InputMethodContextEcoreWl::GetInputMethodArea()
     // return 0 as real size unknown.
   }
 
-  return Rect<int>(xPos, yPos, width, height);
+  return BoundsInteger(xPos, yPos, width, height);
 }
 
 void InputMethodContextEcoreWl::ApplyOptions(const InputMethodOptions& options)

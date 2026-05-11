@@ -121,7 +121,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Component::GetExtents()
    */
-  Dali::Rect<float> GetExtents(CoordinateType type) const override;
+  Dali::Bounds GetExtents(CoordinateType type) const override;
 
   /**
    * @copydoc Dali::Accessibility::Collection::GetMatches()
@@ -168,7 +168,7 @@ public:
    *
    * @param rect The rectangle for changed bounds
    */
-  void EmitBoundsChanged(Rect<int> rect);
+  void EmitBoundsChanged(BoundsInteger rect);
 
   /**
    * @brief Emits "showing" event.

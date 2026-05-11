@@ -298,7 +298,7 @@ public:
   /**
    * @copydoc Dali::Window::SetInputRegion()
    */
-  virtual void SetInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void SetInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @copydoc Dali::Window::SetType()
@@ -468,13 +468,13 @@ public:
    * @brief Includes input region.
    * @param[in] inputRegion The added region to accept input events.
    */
-  virtual void IncludeInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void IncludeInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @brief Excludes input region.
    * @param[in] inputRegion The subtracted region to except input events.
    */
-  virtual void ExcludeInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void ExcludeInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @brief Sets the pointer constraints lock.

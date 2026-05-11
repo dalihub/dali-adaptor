@@ -39,7 +39,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 namespace Internal DALI_INTERNAL
 {
@@ -65,11 +65,11 @@ class DALI_ADAPTOR_API GlWindow : public BaseHandle
 public:
   using WindowSize = Int32Pair;
 
-  typedef Signal<void(KeyEvent)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
-  typedef Signal<void(TouchEvent)> TouchEventSignalType;        ///< GlWindow Touch Event signal type
-  typedef Signal<void(GlWindow, bool)>    FocusChangeSignalType;       ///< GlWindow Focus signal type
-  typedef Signal<void(WindowSize)>        ResizeSignalType;            ///< GlWindow resize signal type
-  typedef Signal<void(GlWindow, bool)>    VisibilityChangedSignalType; ///< GlWindow visibility change signal type
+  typedef Signal<void(KeyEvent)>       KeyEventSignalType;          ///< GlWindow Key Event signal type
+  typedef Signal<void(TouchEvent)>     TouchEventSignalType;        ///< GlWindow Touch Event signal type
+  typedef Signal<void(GlWindow, bool)> FocusChangeSignalType;       ///< GlWindow Focus signal type
+  typedef Signal<void(WindowSize)>     ResizeSignalType;            ///< GlWindow resize signal type
+  typedef Signal<void(GlWindow, bool)> VisibilityChangedSignalType; ///< GlWindow visibility change signal type
 
 public:
   // Enumerations
@@ -291,7 +291,7 @@ public:
    *
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @brief Sets a transparent window's visual state to opaque.

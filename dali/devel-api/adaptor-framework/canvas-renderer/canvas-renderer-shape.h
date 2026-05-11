@@ -2,7 +2,7 @@
 #define DALI_CANVAS_RENDERER_SHAPE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public:
    * @param[in] roundedCorner The radius of the rounded corner and should be in range [ 0 to w/2 ]
    * @return Returns True when it's successful. False otherwise.
    */
-  bool AddRect(Rect<float> rect, Vector2 roundedCorner);
+  bool AddRect(Bounds rect, Vector2 roundedCorner);
 
   /**
    * @brief Append a circle with given center and x,y-axis radius.

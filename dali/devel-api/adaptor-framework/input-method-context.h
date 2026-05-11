@@ -2,7 +2,7 @@
 #define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,8 +244,8 @@ public:
     bool        preeditResetRequired : 1; ///< flag if preedit reset is required.
   };
 
-  typedef Signal<void(InputMethodContext)>                                        ActivatedSignalType;     ///< Keyboard actived signal
-  typedef Signal<CallbackData(InputMethodContext, const EventData&)>              KeyboardEventSignalType; ///< keyboard events
+  typedef Signal<void(InputMethodContext)>                                         ActivatedSignalType;     ///< Keyboard actived signal
+  typedef Signal<CallbackData(InputMethodContext, const EventData&)>               KeyboardEventSignalType; ///< keyboard events
   typedef Signal<void()>                                                           VoidSignalType;
   typedef Signal<void(bool)>                                                       StatusSignalType;
   typedef Signal<void(KeyboardType)>                                               KeyboardTypeSignalType;    ///< keyboard type
@@ -406,7 +406,7 @@ public:
    * the values then taken down.  So ideally GetInputMethodArea() should be called after Show().
    * @return rect which is keyboard panel x, y, width, height
    */
-  Dali::Rect<int> GetInputMethodArea();
+  Dali::BoundsInteger GetInputMethodArea();
 
   /**
    * @brief Set one or more of the Input Method options

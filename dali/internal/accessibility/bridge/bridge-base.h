@@ -98,7 +98,7 @@ public:
   void                         SetOffset(std::int32_t x, std::int32_t y) override;
 
   // Component
-  Dali::Rect<float>                   GetExtents(Dali::Accessibility::CoordinateType type) const override;
+  Dali::Bounds                        GetExtents(Dali::Accessibility::CoordinateType type) const override;
   Dali::Accessibility::ComponentLayer GetLayer() const override;
   std::int16_t                        GetMdiZOrder() const override;
   bool                                GrabFocus() override;

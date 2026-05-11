@@ -955,7 +955,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Need to present if previous frame had rendered to scene.
           bool presentRequired = !isRenderingSkipped && (hadRenderedToScene || willRenderToScene);
 
-          Rect<int> clippingRect; // Empty for fbo rendering
+          BoundsInteger clippingRect; // Empty for fbo rendering
 
           // Ensure surface can be drawn to; merge damaged areas for previous frames
           windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
@@ -1007,7 +1007,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
             if(fullSwap)
             {
-              clippingRect = Rect<int>();
+              clippingRect = BoundsInteger();
             }
 
             // Render the surface (Present & SwapBuffers)

@@ -389,7 +389,7 @@ public:
    * @param[in] obj The accessible object
    * @param[in] rect The rectangle for changed bounds
    **/
-  virtual void EmitBoundsChanged(SharedPtr<Accessible> obj, Rect<int> rect) = 0;
+  virtual void EmitBoundsChanged(SharedPtr<Accessible> obj, BoundsInteger rect) = 0;
 
   /**
    * @brief Emits org.a11y.atspi.Event.Window.PostRender on the AT-SPI bus.

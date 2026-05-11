@@ -322,7 +322,7 @@ unsigned int GlWindow::GetAuxiliaryHintId(const std::string& hint) const
   return mWindowBase->GetAuxiliaryHintId(hint);
 }
 
-void GlWindow::SetInputRegion(const Rect<int>& inputRegion)
+void GlWindow::SetInputRegion(const BoundsInteger& inputRegion)
 {
   mWindowBase->SetInputRegion(inputRegion);
 

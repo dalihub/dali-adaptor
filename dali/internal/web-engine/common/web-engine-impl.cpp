@@ -696,12 +696,12 @@ void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::st
   mPlugin->AddDynamicCertificatePath(host, certPath);
 }
 
-Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor)
+Dali::PixelData WebEngine::GetScreenshot(Dali::BoundsInteger viewArea, float scaleFactor)
 {
   return mPlugin->GetScreenshot(viewArea, scaleFactor);
 }
 
-bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+bool WebEngine::GetScreenshotAsynchronously(Dali::BoundsInteger viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
 {
   return mPlugin->GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
 }
@@ -716,7 +716,7 @@ void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::Geo
   mPlugin->RegisterGeolocationPermissionCallback(callback);
 }
 
-void WebEngine::UpdateDisplayArea(Dali::Rect<int32_t> displayArea)
+void WebEngine::UpdateDisplayArea(Dali::BoundsInteger displayArea)
 {
   mPlugin->UpdateDisplayArea(displayArea);
 }

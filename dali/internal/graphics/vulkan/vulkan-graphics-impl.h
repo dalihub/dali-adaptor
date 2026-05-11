@@ -144,7 +144,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SetDamageRegion()
    */
-  void SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion) override;
+  void SetDamageRegion(Graphics::SurfaceId, std::vector<BoundsInteger>& damagedRegion) override;
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
@@ -153,7 +153,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>&) override;
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>&) override;
 
 public: // @todo Consider refactoring these methods out to GraphicsConfig
   /**

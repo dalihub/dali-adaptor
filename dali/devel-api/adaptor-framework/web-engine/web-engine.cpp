@@ -478,12 +478,12 @@ void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::st
   GetImplementation(*this).AddDynamicCertificatePath(host, certPath);
 }
 
-Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor)
+Dali::PixelData WebEngine::GetScreenshot(Dali::BoundsInteger viewArea, float scaleFactor)
 {
   return GetImplementation(*this).GetScreenshot(viewArea, scaleFactor);
 }
 
-bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+bool WebEngine::GetScreenshotAsynchronously(Dali::BoundsInteger viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
 {
   return GetImplementation(*this).GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
 }
@@ -498,7 +498,7 @@ void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::Geo
   GetImplementation(*this).RegisterGeolocationPermissionCallback(callback);
 }
 
-void WebEngine::UpdateDisplayArea(Dali::Rect<int32_t> displayArea)
+void WebEngine::UpdateDisplayArea(Dali::BoundsInteger displayArea)
 {
   GetImplementation(*this).UpdateDisplayArea(displayArea);
 }

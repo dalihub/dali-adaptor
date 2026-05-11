@@ -127,10 +127,10 @@ public:
    * @param[in] endOffset The index of first character after the last one expected
    * @param[in] type The enumeration with type of coordinate system
    *
-   * @return Rect<float> giving the position and size of the specified range of text
+   * @return Bounds giving the position and size of the specified range of text
    * @remarks This method is `GetRangeExtents` in DBus method.
    */
-  virtual Rect<float> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
+  virtual Bounds GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
 };
 
 namespace Internal

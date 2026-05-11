@@ -289,7 +289,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion) override;
+  void SetInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
@@ -439,12 +439,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IncludeInputRegion()
    */
-  void IncludeInputRegion(const Rect<int>& inputRegion) override;
+  void IncludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
    */
-  void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+  void ExcludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()

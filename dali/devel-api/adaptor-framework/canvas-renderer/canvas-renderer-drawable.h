@@ -2,7 +2,7 @@
 #define DALI_CANVAS_RENDERER_DRAWABLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ public:
    * @note The bounding box doesn't indicate the rendering region in the result but primitive region of the object.
    * @return Returns the bounding box information.
    */
-  Rect<float> GetBoundingBox() const;
+  Bounds GetBoundingBox() const;
 
   /**
    * @brief The intersection with clip drawable is determined and only the resulting pixels from own drawable are rendered.

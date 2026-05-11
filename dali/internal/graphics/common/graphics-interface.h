@@ -272,14 +272,14 @@ public:
    * @param[in] surfaceId The surface to define damage regions for
    * @param[in] damagedRegion The damage regions
    */
-  virtual void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion) = 0;
+  virtual void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<BoundsInteger>& damagedRegion) = 0;
 
   /**
    * Swap the surface's buffers. May be done by other mechanisms, depending on
    * the graphics backend.
    */
-  virtual void SwapBuffers(Graphics::SurfaceId surfaceId)                                            = 0;
-  virtual void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects) = 0;
+  virtual void SwapBuffers(Graphics::SurfaceId surfaceId)                                                = 0;
+  virtual void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damageRects) = 0;
 
   /**
    * Get whether the depth buffer is required

@@ -227,7 +227,7 @@ void PixmapRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool PixmapRenderSurfaceEcoreX::PreRender(bool, const std::vector<Rect<int>>&, Rect<int>&)
+bool PixmapRenderSurfaceEcoreX::PreRender(bool, const std::vector<BoundsInteger>&, BoundsInteger&)
 {
   // Nothing to do for pixmaps
   return true;

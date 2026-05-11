@@ -308,10 +308,10 @@ void NativeRenderSurfaceTizen::StartRender()
 {
 }
 
-bool NativeRenderSurfaceTizen::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool NativeRenderSurfaceTizen::PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   // Not support partial update
-  clippingRect = Rect<int32_t>(0, 0, mSurfaceSize.GetWidth(), mSurfaceSize.GetHeight());
+  clippingRect = BoundsInteger(0, 0, mSurfaceSize.GetWidth(), mSurfaceSize.GetHeight());
 
   // Discard old surface if we cannot enqueue to tbm buffer.
   // If we don't acquire & release any buffer, it will be dead lock when we call

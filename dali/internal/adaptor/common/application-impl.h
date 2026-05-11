@@ -37,7 +37,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 class Application;
 typedef IntrusivePtr<Application> ApplicationPtr;

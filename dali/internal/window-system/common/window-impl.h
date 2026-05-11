@@ -279,7 +279,7 @@ public:
   /**
    * @copydoc Dali::Window::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @copydoc Dali::Window::SetType()
@@ -508,12 +508,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::DevelWindow::IncludeInputRegion()
    */
-  void IncludeInputRegion(const Rect<int>& inputRegion);
+  void IncludeInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @copydoc Dali::DevelWindow::ExcludeInputRegion()
    */
-  void ExcludeInputRegion(const Rect<int>& inputRegion);
+  void ExcludeInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @copydoc Dali::DevelWindow::SetNeedsRotationCompletedAcknowledgement()
@@ -994,7 +994,7 @@ private:
    *
    * @param[in] inputRegion the input region
    */
-  void ResetInput(const Rect<int>& inputRegion);
+  void ResetInput(const BoundsInteger& inputRegion);
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**

@@ -283,7 +283,7 @@ unsigned int WindowBaseAndroid::GetAuxiliaryHintId(const std::string& hint) cons
   return 0;
 }
 
-void WindowBaseAndroid::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseAndroid::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -430,11 +430,11 @@ bool WindowBaseAndroid::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseAndroid::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseAndroid::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseAndroid::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseAndroid::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

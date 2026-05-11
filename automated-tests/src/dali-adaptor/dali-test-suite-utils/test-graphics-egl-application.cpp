@@ -208,7 +208,7 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   mRenderStatus.SetNeedsUpdate(false);
   mRenderStatus.SetNeedsPostRender(false);
 
-  std::vector<Rect<int>> damagedRects;
+  std::vector<BoundsInteger> damagedRects;
 
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
   mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
@@ -223,7 +223,7 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects)
+bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<BoundsInteger>& damagedRects)
 {
   DoUpdate(intervalMilliseconds, location);
 
@@ -233,7 +233,7 @@ bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMillis
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
   if(!clippingRect.IsEmpty())
@@ -276,7 +276,7 @@ bool TestGraphicsApplication::GetRenderNeedsPostRender()
 
 bool TestGraphicsApplication::RenderOnly()
 {
-  std::vector<Rect<int>> damagedRects;
+  std::vector<BoundsInteger> damagedRects;
 
   // Update Time values
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
