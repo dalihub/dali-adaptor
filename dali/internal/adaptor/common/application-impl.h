@@ -443,11 +443,6 @@ protected:
   Application(const Application&);
   Application& operator=(Application&);
 
-  /**
-   * Quits from the main loop
-   */
-  void QuitFromMainLoop();
-
 private:
   AppSignalType                      mInitSignal;
   AppSignalType                      mTerminateSignal;
