@@ -963,15 +963,22 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
   if(scene)
   {
-    Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
-    if(clippingRect == surfaceRect)
+    // DevNote : Empty damaged rect mark as full-swap at SwapBuffer time.
+    // Do not assign rects for this case.
+    if(!mDamagedRects.empty())
     {
-      int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
-      if(totalAngle >= 360)
+      Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
+      if(clippingRect == surfaceRect)
       {
-        totalAngle -= 360;
+        int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
+        if(totalAngle >= 360)
+        {
+          totalAngle -= 360;
+        }
+
+        // Set damaged rects as single surface rect.
+        mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
       }
-      mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
     }
   }
 
