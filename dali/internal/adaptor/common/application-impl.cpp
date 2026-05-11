@@ -561,21 +561,13 @@ void Application::Lower()
 
 void Application::Quit()
 {
-  DALI_LOG_RELEASE_INFO("Application::Quit requested!\n");
-  // Actually quit the application.
-  // Force a call to Quit even if adaptor is not running.
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &Application::QuitFromMainLoop), false);
-}
-
-void Application::QuitFromMainLoop()
-{
   DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
-  {
-    bridge->Terminate();
-  }
 
-  mAdaptor->Stop();
+  // Disconnect the DeleteRequestSignal to avoid emitting it after the window is destroyed by AppCore.
+  if(mMainWindow)
+  {
+    GetImplementation(mMainWindow).DeleteRequestSignal().Disconnect(mSlotDelegate, &Application::Quit);
+  }
 
   mFramework->Quit();
   // This will trigger OnTerminate(), below, after the main loop has completed.
@@ -589,7 +581,7 @@ void Application::OnInit()
   // Let we get or update as latest environment options.
   UpdateEnvironmentOptions();
 
-  mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
+  mFramework->AddAbortCallback(MakeCallback(this, &Application::Quit));
 
   // Let we ensure that window and adaptor created now.
   CompleteAdaptorAndWindowCreate();
@@ -640,6 +632,11 @@ void Application::OnTerminate()
 
   Dali::Application application(this);
   mTerminateSignal.Emit(application);
+
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->Terminate();
+  }
 
   if(mAdaptor)
   {

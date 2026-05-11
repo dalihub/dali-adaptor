@@ -512,11 +512,6 @@ protected:
   void CreateAdaptor();
 
   /**
-   * Quits from the main loop
-   */
-  void QuitFromMainLoop();
-
-  /**
    * Changes information of preInitialized window
    */
   void ChangePreInitializedWindowInfo();
