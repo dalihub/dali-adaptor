@@ -19,7 +19,6 @@
 #include <dali/internal/window-system/common/window-impl.h>
 
 // EXTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/orientation.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
@@ -37,7 +36,6 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
@@ -163,8 +161,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
 
   mWindowBase->InsetsChangedSignal().Connect(this, &Window::OnInsetsChanged);
-
-  mOrientation = Orientation::New(this);
 
   // Get OrientationMode
   int screenWidth, screenHeight;
@@ -1179,9 +1175,6 @@ void Window::OnRotation(const RotationEvent& rotation)
 
   mIsWindowRotating = true;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), angle(%d), Window Rotation (%d , %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
-
-  // Notify that the orientation is changed
-  mOrientation->OnOrientationChange(rotation);
 
   mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
 

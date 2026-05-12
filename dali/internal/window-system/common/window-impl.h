@@ -44,19 +44,17 @@ namespace Internal
 {
 namespace Adaptor
 {
-class Orientation;
 class WindowRenderSurface;
 class WindowBase;
 
 class Window;
 using WindowPtr             = IntrusivePtr<Window>;
-using OrientationPtr        = IntrusivePtr<Orientation>;
 using MouseInOutEventPtr    = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
 using MouseRelativeEventPtr = IntrusivePtr<Dali::DevelWindow::MouseRelativeEvent>;
 using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 
 /**
- * Window provides a surface to render onto with orientation & indicator properties.
+ * Window provides a surface to render onto with orientation properties.
  */
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
@@ -1230,7 +1228,6 @@ private:
   std::string          mClassName;
   Dali::Window         mParentWindow;
 
-  OrientationPtr   mOrientation;
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 

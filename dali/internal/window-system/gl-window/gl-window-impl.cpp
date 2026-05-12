@@ -20,7 +20,6 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/gl-window.h>
-#include <dali/devel-api/adaptor-framework/orientation.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/key-event-integ.h>
@@ -31,7 +30,6 @@
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
