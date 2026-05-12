@@ -112,6 +112,7 @@ VectorAnimationRendererNative::VectorAnimationRendererNative()
   mFinalized(false),
   mLoadFailed(false),
   mEnableFixedCache(false),
+  mEnableAspectFit(true),
   mMetadataParsed(false)
 {
 }
@@ -409,7 +410,16 @@ void VectorAnimationRendererNative::UpdateSizeIfNeeded()
   {
     if(mAnimation && mAnimation->picture())
     {
-      ApplyAspectFitSize(mAnimation->picture(), mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
+      if(mEnableAspectFit)
+      {
+        ApplyAspectFitSize(mAnimation->picture(), mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
+      }
+      else
+      {
+        // When aspect fit is disabled, stretch to fill the entire target size
+        mAnimation->picture()->size(static_cast<float>(mTargetWidth), static_cast<float>(mTargetHeight));
+        mAnimation->picture()->translate(0.0f, 0.0f);
+      }
     }
     mPendingSizeUpdate = false;
   }
@@ -617,6 +627,28 @@ void VectorAnimationRendererNative::KeepRasterizedBuffer()
 
   mEnableFixedCache = true;
   mDecodedBuffers.clear();
+}
+
+void VectorAnimationRendererNative::SetEnableAspectFit(bool enable)
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+
+  if(DALI_UNLIKELY(mFinalized))
+  {
+    return;
+  }
+
+  if(mEnableAspectFit != enable)
+  {
+    mEnableAspectFit = enable;
+    mPendingSizeUpdate = true;  // Trigger size update to apply new setting
+  }
+}
+
+bool VectorAnimationRendererNative::IsEnableAspectFit() const
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  return mEnableAspectFit;
 }
 
 VectorAnimationRendererNative::UploadCompletedSignalType& VectorAnimationRendererNative::UploadCompletedSignal()

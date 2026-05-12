@@ -133,6 +133,16 @@ void VectorAnimationRenderer::KeepRasterizedBuffer()
   GetImplementation(*this).KeepRasterizedBuffer();
 }
 
+void VectorAnimationRenderer::SetEnableAspectFit(bool enable)
+{
+  GetImplementation(*this).SetEnableAspectFit(enable);
+}
+
+bool VectorAnimationRenderer::IsEnableAspectFit() const
+{
+  return GetImplementation(*this).IsEnableAspectFit();
+}
+
 VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return GetImplementation(*this).UploadCompletedSignal();

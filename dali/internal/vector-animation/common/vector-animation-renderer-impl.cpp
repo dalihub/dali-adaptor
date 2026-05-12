@@ -136,6 +136,16 @@ void VectorAnimationRenderer::KeepRasterizedBuffer()
   mPlugin.KeepRasterizedBuffer();
 }
 
+void VectorAnimationRenderer::SetEnableAspectFit(bool enable)
+{
+  mPlugin.SetEnableAspectFit(enable);
+}
+
+bool VectorAnimationRenderer::IsEnableAspectFit() const
+{
+  return mPlugin.IsEnableAspectFit();
+}
+
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return mPlugin.UploadCompletedSignal();

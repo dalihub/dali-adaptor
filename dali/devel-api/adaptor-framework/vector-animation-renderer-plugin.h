@@ -185,6 +185,24 @@ public:
   virtual void KeepRasterizedBuffer() = 0;
 
   /**
+   * @brief Sets whether to enable aspect fit scaling.
+   *
+   * When enabled (default), the animation is scaled to fit within the target size
+   * while preserving its aspect ratio. When disabled, the animation stretches to
+   * fill the entire target size.
+   *
+   * @param[in] enable True to enable aspect fit, false to disable
+   */
+  virtual void SetEnableAspectFit(bool enable) = 0;
+
+  /**
+   * @brief Gets whether aspect fit scaling is enabled.
+   *
+   * @return True if aspect fit is enabled, false otherwise
+   */
+  virtual bool IsEnableAspectFit() const = 0;
+
+  /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
    *
    * @return The signal to connect to.
