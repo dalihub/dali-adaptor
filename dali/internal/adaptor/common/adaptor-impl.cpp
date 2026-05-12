@@ -48,6 +48,8 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
+#include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
+
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
@@ -67,6 +69,7 @@
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/system/common/thread-controller.h>
+#include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>
@@ -140,6 +143,8 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
 
   DALI_LOG_RELEASE_INFO("Adaptor::Initialize\n");
+
+  Dali::Internal::Adaptor::ThreadSettings::SetCurrentThreadAsUiThread();
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
@@ -217,6 +222,9 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
   mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
+
+  // Register file download plugin proxy to use TriggerEvent.
+  Dali::FileDownloadPluginProxy::RegisterEventThreadCallback();
 
   GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());
 
@@ -510,6 +518,9 @@ void Adaptor::Stop()
     GetCore().SceneDestroyed();
 
     RemoveSystemInformation();
+
+    // Unregister file download plugin proxy before state become STOPPED.
+    Dali::FileDownloadPluginProxy::UnregisterEventThreadCallback();
 
     // Note: Must change the state at end of function.
     mState = STOPPED;
@@ -1361,6 +1372,16 @@ int32_t Adaptor::GetRenderThreadId() const
     return mThreadController->GetThreadId();
   }
   return 0;
+}
+
+int32_t Adaptor::GetUiThreadId() const
+{
+  return Dali::Internal::Adaptor::ThreadSettings::GetUiThreadId();
+}
+
+int32_t Adaptor::GetMainThreadId() const
+{
+  return Dali::Internal::Adaptor::ThreadSettings::GetMainThreadId();
 }
 
 void Adaptor::RequestUpdateOnce()

@@ -442,7 +442,25 @@ int32_t Application::GetRenderThreadId() const
 {
   if(mApplicationController->GetAdaptor())
   {
-    return Adaptor::GetImplementation(*mApplicationController->GetAdaptor()).GetRenderThreadId();
+    return mApplicationController->GetAdaptor()->GetRenderThreadId();
+  }
+  return 0;
+}
+
+int32_t Application::GetUiThreadId() const
+{
+  if(mApplicationController->GetAdaptor())
+  {
+    return mApplicationController->GetAdaptor()->GetUiThreadId();
+  }
+  return 0;
+}
+
+int32_t Application::GetMainThreadId() const
+{
+  if(mApplicationController->GetAdaptor())
+  {
+    return mApplicationController->GetAdaptor()->GetMainThreadId();
   }
   return 0;
 }

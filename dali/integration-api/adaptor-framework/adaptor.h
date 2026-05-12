@@ -493,11 +493,34 @@ public:
   void OnWindowHidden();
 
   /**
-   * @brief Gets the render thread id of DALi.
-   * @note If render thread id getter doesn't supported, it will return 0 as default.
-   * @return The render thread id.
+   * @brief Gets the render thread ID of DALi.
+   *
+   * @return The render thread ID.
+   *
+   * @note Returns a valid thread ID only if the render thread has started and the system supports
+   *       thread ID retrieval. Otherwise, returns 0.
    */
   int32_t GetRenderThreadId() const;
+
+  /**
+   * @brief Gets the UI thread ID of DALi.
+   *
+   * @return The UI thread ID.
+   *
+   * @note Returns a valid thread ID only if the adaptor has been initialized and the system supports
+   *       thread ID retrieval. Otherwise, returns 0.
+   */
+  int32_t GetUiThreadId() const;
+
+  /**
+   * @brief Gets the main thread ID of DALi.
+   *
+   * @return The main thread ID.
+   *
+   * @note Returns a valid thread ID only if the system supports thread ID retrieval.
+   *       Otherwise, returns 0.
+   */
+  int32_t GetMainThreadId() const;
 
 public: // Signals
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,14 @@
  *
  */
 
-// CLASS HEADER
-#include <dali/internal/thread/common/thread-settings-impl.h>
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 
-// EXTERNAL INCLUDES
-#include <sys/syscall.h>
-#include <sys/types.h>
-#include <unistd.h>
+int main(int argc, char** argv)
+{
+  // Super special method to call curl_global_init() at main thread.
+  Dali::Vector<uint8_t> vector;
+  Dali::FileLoader::DownloadFileSynchronously("", vector);
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
-{
-namespace ThreadSettings
-{
-int32_t GetThreadId()
-{
-  return static_cast<int32_t>(syscall(SYS_gettid));
+  return 0;
 }
-
-int32_t GetMainThreadId()
-{
-  return static_cast<int32_t>(getpid());
-}
-} // namespace ThreadSettings
-} // namespace Adaptor
-} // namespace Internal
-} // namespace Dali

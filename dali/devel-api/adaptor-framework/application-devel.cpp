@@ -69,6 +69,16 @@ int32_t GetRenderThreadId(Application application)
   return Internal::Adaptor::GetImplementation(application).GetRenderThreadId();
 }
 
+int32_t GetUiThreadId(Application application)
+{
+  return Internal::Adaptor::GetImplementation(application).GetUiThreadId();
+}
+
+int32_t GetMainThreadId(Application application)
+{
+  return Internal::Adaptor::GetImplementation(application).GetMainThreadId();
+}
+
 void FlushUpdateMessages(Application application)
 {
   Internal::Adaptor::GetImplementation(application).FlushUpdateMessages();

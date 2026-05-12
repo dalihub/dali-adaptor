@@ -520,11 +520,19 @@ public:
   bool IsMultipleWindowSupported() const;
 
   /**
-   * @brief Gets the render thread id of DALi.
-   * @note If render thread id getter doesn't supported, it will return 0 as default.
-   * @return The render thread id.
+   * @copydoc Dali::Adaptor::GetRenderThreadId
    */
   int32_t GetRenderThreadId() const;
+
+  /**
+   * @copydoc Dali::Adaptor::GetUiThreadId
+   */
+  int32_t GetUiThreadId() const;
+
+  /**
+   * @copydoc Dali::Adaptor::GetMainThreadId
+   */
+  int32_t GetMainThreadId() const;
 
 public: // AdaptorInternalServices
   /**

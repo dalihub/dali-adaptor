@@ -14,5 +14,6 @@ libdali2-adaptor.so.*
 linker-test
 linker-test-gles
 linker-test-vulkan
+plugins/linker-test-curl
 *config.cmake
 *.dylib
