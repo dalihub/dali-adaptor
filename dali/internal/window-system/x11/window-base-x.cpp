@@ -784,7 +784,7 @@ unsigned int WindowBaseX::GetAuxiliaryHintId(const std::string& hint) const
   return 0;
 }
 
-void WindowBaseX::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -966,11 +966,11 @@ bool WindowBaseX::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseX::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseX::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

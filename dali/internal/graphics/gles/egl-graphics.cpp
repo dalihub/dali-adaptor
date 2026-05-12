@@ -147,7 +147,7 @@ int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
   return mEglImplementation->GetBufferAge(search->second.surface);
 }
 
-void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion)
+void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<BoundsInteger>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
   if(DALI_UNLIKELY(search == mSurfaceMap.end()))
@@ -173,7 +173,7 @@ void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
   mEglImplementation->SwapBuffers(search->second.surface);
 }
 
-void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion)
+void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
   if(DALI_UNLIKELY(search == mSurfaceMap.end()))

@@ -234,7 +234,7 @@ public:
    * @param[in] surfaceId The surface to define damage regions for
    * @param[in] damagedRegion The damage regions
    */
-  void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion) override
+  void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<BoundsInteger>& damagedRegion) override
   {
     mCallstack.PushCall("SetDamageRegion()", "");
   }
@@ -247,7 +247,7 @@ public:
   {
     mCallstack.PushCall("SwapBuffers()", "");
   }
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects) override
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damageRects) override
   {
     mCallstack.PushCall("SwapBuffers()", "");
   }
@@ -389,8 +389,8 @@ public:
   void        ProcessEvent(const Dali::Integration::Event& event);
   void        SendNotification();
   bool        Render(uint32_t intervalMilliseconds = DEFAULT_RENDER_INTERVAL, const char* location = NULL);
-  bool        PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects);
-  bool        RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect);
+  bool        PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<BoundsInteger>& damagedRects);
+  bool        RenderWithPartialUpdate(std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect);
   uint32_t    GetUpdateStatus();
   bool        UpdateOnly(uint32_t intervalMilliseconds = DEFAULT_RENDER_INTERVAL);
   bool        RenderOnly();

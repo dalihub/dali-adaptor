@@ -52,7 +52,7 @@ class DALI_ADAPTOR_API WindowRenderSurface : public Dali::Integration::RenderSur
 {
 public:
   using RotationFinishedSignalType = Signal<void()>; ///< The signal of window rotation's finished.
-  using DamagedRectsContainer      = std::vector<Rect<int>>;
+  using DamagedRectsContainer      = std::vector<BoundsInteger>;
 
   /**
    * @brief Uses an window surface to render to.
@@ -240,7 +240,7 @@ public: // from Dali::Integration::RenderSurfaceInterface
   /**
    * @copydoc Dali::Integration::RenderSurfaceInterface::PreRender()
    */
-  bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
+  bool PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurfaceInterface::PostRender()
@@ -310,14 +310,14 @@ private:
    * @param[in] damagedRects List of damaged rects
    * @param[in] clippingRect The rect to clip rendered scene
    */
-  void SetBufferDamagedRects(const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect);
+  void SetBufferDamagedRects(const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect);
 
   /**
    * @brief Swap buffers.
    *
    * @param[in] damagedRects List of damaged rects
    */
-  void SwapBuffers(const std::vector<Rect<int>>& damagedRects);
+  void SwapBuffers(const std::vector<BoundsInteger>& damagedRects);
 
 protected:
   // Undefined
@@ -374,7 +374,7 @@ private:                                              // Data
   int                                  mScreenRotationAngle;
   uint32_t                             mDpiHorizontal;
   uint32_t                             mDpiVertical;
-  std::vector<Rect<int>>               mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
+  std::vector<BoundsInteger>           mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
 
   bool mIsImeWindowSurface;
   bool mNeedWindowRotationAcknowledgement;

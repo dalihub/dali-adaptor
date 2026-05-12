@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_WINDOW_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public:
    * @brief Window damage callback
    * @param[in] damageArea Window damage area
    */
-  virtual void DamageEvent(Dali::Rect<int>& damageArea) = 0;
+  virtual void DamageEvent(Dali::BoundsInteger& damageArea) = 0;
 
   /**
    * @brief Window Focused

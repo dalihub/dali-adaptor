@@ -137,7 +137,7 @@ public:
   /**
    * @copydoc EglInterface::SetDamageRegion
    */
-  void SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects) override;
+  void SetDamageRegion(EGLSurface& eglSurface, std::vector<BoundsInteger>& damagedRects) override;
 
   /**
    * @copydoc EglInterface::SwapBuffers
@@ -147,7 +147,7 @@ public:
   /**
    * @copydoc EglInterface::SwapBuffers
    */
-  void SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects) override;
+  void SwapBuffers(EGLSurface& eglSurface, const std::vector<BoundsInteger>& damagedRects) override;
 
   /**
    * Performs an OpenGL copy buffers command

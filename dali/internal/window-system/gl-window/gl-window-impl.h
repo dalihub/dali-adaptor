@@ -136,7 +136,7 @@ public:
   /**
    * @copydoc Dali::GlWindow::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @copydoc Dali::GlWindow::SetOpaqueState()

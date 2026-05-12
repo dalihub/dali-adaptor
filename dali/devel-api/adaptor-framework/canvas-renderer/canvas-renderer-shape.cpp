@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ CanvasRenderer::Shape::Shape(Internal::Adaptor::Shape* impl)
 {
 }
 
-bool CanvasRenderer::Shape::AddRect(Rect<float> rect, Vector2 roundedCorner)
+bool CanvasRenderer::Shape::AddRect(Bounds rect, Vector2 roundedCorner)
 {
   return GetImplementation(*this).AddRect(rect, roundedCorner);
 }

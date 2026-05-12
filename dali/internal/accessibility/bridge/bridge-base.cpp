@@ -224,7 +224,7 @@ void ApplicationAccessible::SetOffset(std::int32_t x, std::int32_t y)
 }
 
 // Component interface implementation
-Dali::Rect<float> ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateType type) const
+Dali::Bounds ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateType type) const
 {
   using limits = std::numeric_limits<float>;
 

@@ -279,7 +279,7 @@ int UtcDaliGlWindowSetInputRegion(void)
 
   try
   {
-    window.SetInputRegion(Rect<int>(0, 0, 100, 10));
+    window.SetInputRegion(BoundsInteger(0, 0, 100, 10));
 
     DALI_TEST_CHECK(false);
   }

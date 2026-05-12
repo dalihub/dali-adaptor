@@ -130,8 +130,8 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   }
 
   std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Rect<float>                     lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
-  Dali::Rect<float>                     rect;
+  Dali::Bounds                          lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds                          rect;
 
   // Split into lines
   for(auto it = first; it != children.end(); ++it)
@@ -774,8 +774,8 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   auto attributes  = self->GetAttributes();
   auto states      = self->GetStates();
 
-  Dali::Rect<float> screenExtents = self->GetExtents(CoordinateType::SCREEN);
-  Dali::Rect<float> windowExtents = self->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds screenExtents = self->GetExtents(CoordinateType::SCREEN);
+  Dali::Bounds windowExtents = self->GetExtents(CoordinateType::WINDOW);
 
   screenExtents.x += mData->mExtentsOffset.first;
   screenExtents.y += mData->mExtentsOffset.second;
@@ -877,8 +877,8 @@ std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Ac
 
   std::vector<Accessible*> vec;
 
-  Dali::Rect<float> scrollableParentExtents;
-  auto              nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
+  Dali::Bounds scrollableParentExtents;
+  auto         nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
   if(!nonDuplicatedScrollableParents.empty())
   {
     scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);

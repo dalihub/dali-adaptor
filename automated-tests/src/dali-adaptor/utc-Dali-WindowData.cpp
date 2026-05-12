@@ -60,8 +60,8 @@ int UtcDaliWindowData03(void)
 int UtcDaliWindowData04(void)
 {
   // Test SetPositionSize and GetPositionSize
-  WindowData      windowData;
-  Dali::Rect<int> rect(100, 200, 300, 400);
+  WindowData          windowData;
+  Dali::BoundsInteger rect(100, 200, 300, 400);
   windowData.SetPositionSize(rect);
 
   DALI_TEST_CHECK(windowData.GetPositionSize().x == 100);

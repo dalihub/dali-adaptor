@@ -526,7 +526,7 @@ int UtcDaliWindowSetInputRegionNegative(void)
   Dali::Window instance;
   try
   {
-    Dali::Rect<int> arg1;
+    Dali::BoundsInteger arg1;
     instance.SetInputRegion(arg1);
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1240,8 +1240,8 @@ int UtcDaliWindowSetPositionSizeNegative(void)
 {
   try
   {
-    Dali::Window    arg1;
-    Dali::Rect<int> arg2;
+    Dali::Window        arg1;
+    Dali::BoundsInteger arg2;
     DevelWindow::SetPositionSize(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1474,7 +1474,7 @@ int UtcDaliWindowAddInputRegion(void)
   Dali::Window instance;
   try
   {
-    Rect<int> includedInputRegion(0, 0, 720, 640);
+    BoundsInteger includedInputRegion(0, 0, 720, 640);
     DevelWindow::IncludeInputRegion(instance, includedInputRegion);
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1490,10 +1490,10 @@ int UtcDaliWindowSubtractInputRegion(void)
   Dali::Window instance;
   try
   {
-    Rect<int> includedInputRegion(0, 0, 720, 1280);
+    BoundsInteger includedInputRegion(0, 0, 720, 1280);
     DevelWindow::IncludeInputRegion(instance, includedInputRegion);
 
-    Rect<int> excludedInputRegion(0, 641, 720, 640);
+    BoundsInteger excludedInputRegion(0, 641, 720, 640);
     DevelWindow::ExcludeInputRegion(instance, excludedInputRegion);
 
     DALI_TEST_CHECK(false); // Should not get here

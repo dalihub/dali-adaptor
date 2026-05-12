@@ -180,13 +180,13 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SetDamageRegion()
    */
-  void SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion) override;
+  void SetDamageRegion(Graphics::SurfaceId, std::vector<BoundsInteger>& damagedRegion) override;
 
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
   void SwapBuffers(Graphics::SurfaceId surfaceId) override;
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion) override;
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damagedRegion) override;
 
   /**
    * Gets the GL abstraction

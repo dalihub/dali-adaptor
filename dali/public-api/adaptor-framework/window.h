@@ -38,7 +38,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::Rect<int32_t> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 namespace Internal DALI_INTERNAL
 {
@@ -412,7 +412,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @brief Sets a window type.

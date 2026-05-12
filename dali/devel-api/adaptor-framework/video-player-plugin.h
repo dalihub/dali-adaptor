@@ -28,7 +28,7 @@
 
 namespace Dali
 {
-typedef Dali::Rect<int> DisplayArea;
+typedef Dali::BoundsInteger DisplayArea;
 
 /**
  * @brief VideoPlayerPlugin is an abstract interface, used by dali-adaptor to access video player plugin.

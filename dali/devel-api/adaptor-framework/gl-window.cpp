@@ -59,7 +59,7 @@ struct AdaptorGlWindowAddOn : public Dali::AddOn::AddOnBinder
   ADDON_BIND_FUNCTION(GlWindowSetAuxiliaryHintValue, bool(GlWindowImpl&, unsigned int, const std::string&));
   ADDON_BIND_FUNCTION(GlWindowGetAuxiliaryHintValue, std::string(const GlWindowImpl&, unsigned int));
   ADDON_BIND_FUNCTION(GlWindowGetAuxiliaryHintId, unsigned int(const GlWindowImpl&, const std::string&));
-  ADDON_BIND_FUNCTION(GlWindowSetInputRegion, void(GlWindowImpl&, const Rect<int>&));
+  ADDON_BIND_FUNCTION(GlWindowSetInputRegion, void(GlWindowImpl&, const BoundsInteger&));
   ADDON_BIND_FUNCTION(GlWindowSetOpaqueState, void(GlWindowImpl&, bool));
   ADDON_BIND_FUNCTION(GlWindowIsOpaqueState, bool(const GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowSetPositionSize, void(GlWindowImpl&, PositionSize));
@@ -209,7 +209,7 @@ unsigned int GlWindow::GetAuxiliaryHintId(const std::string& hint) const
   return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetAuxiliaryHintId(impl, hint) : 0u;
 }
 
-void GlWindow::SetInputRegion(const Rect<int>& inputRegion)
+void GlWindow::SetInputRegion(const BoundsInteger& inputRegion)
 {
   GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
   if(gAdaptorGlWindowAddOn)

@@ -61,7 +61,7 @@ public:
    * @SINCE_2_2.23
    * @param[in] positionSize Position and Size
    */
-  void SetPositionSize(Dali::Rect<int>& positionSize);
+  void SetPositionSize(Dali::BoundsInteger& positionSize);
 
   /**
    * @brief Gets the PositionSize
@@ -69,7 +69,7 @@ public:
    * @SINCE_2_2.23
    * @return The position and size
    */
-  Dali::Rect<int> GetPositionSize() const;
+  Dali::BoundsInteger GetPositionSize() const;
 
   /**
    * @brief Sets the transparency

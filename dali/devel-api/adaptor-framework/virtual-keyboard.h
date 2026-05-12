@@ -128,7 +128,7 @@ DALI_ADAPTOR_API bool IsPredictionEnabled();
  * the values then taken down.  So ideally GetSizeAndPosition() should be called after Show().
  * @return rect which is keyboard panel x, y, width, height
  */
-DALI_ADAPTOR_API Dali::Rect<int> GetSizeAndPosition();
+DALI_ADAPTOR_API Dali::BoundsInteger GetSizeAndPosition();
 
 /**
  * @brief Rotates the keyboard orientation to the given angle.

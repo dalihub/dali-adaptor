@@ -354,7 +354,7 @@ DALI_ADAPTOR_API bool IsFloatingModeEnabled(Window window);
  * @param[in] window The window instance.
  * @param[in] inputRegion The added region to accept input events.
  */
-DALI_ADAPTOR_API void IncludeInputRegion(Window window, const Rect<int>& inputRegion);
+DALI_ADAPTOR_API void IncludeInputRegion(Window window, const BoundsInteger& inputRegion);
 
 /**
  * @brief Excludes input region.
@@ -371,7 +371,7 @@ DALI_ADAPTOR_API void IncludeInputRegion(Window window, const Rect<int>& inputRe
  * @param[in] window The window instance.
  * @param[in] inputRegion The subtracted region to except input events.
  */
-DALI_ADAPTOR_API void ExcludeInputRegion(Window window, const Rect<int>& inputRegion);
+DALI_ADAPTOR_API void ExcludeInputRegion(Window window, const BoundsInteger& inputRegion);
 
 /**
  * @brief Sets the necessary for window rotation Acknowledgement.

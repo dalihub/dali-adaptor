@@ -79,7 +79,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
    */
-  void EmitBoundsChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Rect<int> rect) override;
+  void EmitBoundsChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::BoundsInteger rect) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitPostRender()

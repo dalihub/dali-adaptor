@@ -609,7 +609,7 @@ int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
   return age;
 }
 
-void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects)
+void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<BoundsInteger>& damagedRects)
 {
   if(!mPartialUpdateRequired)
   {
@@ -627,7 +627,7 @@ void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect
   }
 }
 
-void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects)
+void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<BoundsInteger>& damagedRects)
 {
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
@@ -649,7 +649,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 #endif
 #endif //DALI_PROFILE_UBUNTU
 
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<Rect<int>>&>(damagedRects).data()), damagedRects.size());
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<BoundsInteger>&>(damagedRects).data()), damagedRects.size());
     if(result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());

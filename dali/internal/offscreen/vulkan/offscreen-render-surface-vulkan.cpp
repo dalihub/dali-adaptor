@@ -105,7 +105,7 @@ void OffscreenRenderSurfaceVulkan::StartRender()
 {
 }
 
-bool OffscreenRenderSurfaceVulkan::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool OffscreenRenderSurfaceVulkan::PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   return true;
 }

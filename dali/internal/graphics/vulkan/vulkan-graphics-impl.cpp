@@ -201,7 +201,7 @@ int VulkanGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
   return 0;
 }
 
-void VulkanGraphics::SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion)
+void VulkanGraphics::SetDamageRegion(Graphics::SurfaceId, std::vector<BoundsInteger>& damagedRegion)
 {
 }
 
@@ -209,7 +209,7 @@ void VulkanGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
 {
 }
 
-void VulkanGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects)
+void VulkanGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damageRects)
 {
 }
 

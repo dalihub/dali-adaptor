@@ -2455,9 +2455,9 @@ bool WindowBaseEcoreWl2::IsWindowRotationSupported()
   return false;
 }
 
-Rect<int> WindowBaseEcoreWl2::RecalculateInputRect(const Rect<int>& rect, const Rect<int>& surfaceSize)
+BoundsInteger WindowBaseEcoreWl2::RecalculateInputRect(const BoundsInteger& rect, const BoundsInteger& surfaceSize)
 {
-  Rect<int> newRect;
+  BoundsInteger newRect;
 
   if(mWindowRotationAngle == 90)
   {
@@ -2918,9 +2918,9 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
   return 0;
 }
 
-void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreWl2::SetInputRegion(const BoundsInteger& inputRegion)
 {
-  Rect<int> convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
+  BoundsInteger convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
 
   Eina_Rectangle rect;
   rect.x = convertRegion.x;
@@ -3860,9 +3860,9 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
   return ecore_wl2_window_floating_mode_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreWl2::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
-  Rect<int>      convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
+  BoundsInteger  convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;
@@ -3881,9 +3881,9 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
   }
 }
 
-void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreWl2::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
-  Rect<int>      convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
+  BoundsInteger  convertRegion = RecalculateInputRect(inputRegion, mWindowPositionSize);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;

@@ -174,7 +174,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitBoundsChanged(SharedPtr<Accessibility::Accessible> obj, Rect<int> rect) override
+  void EmitBoundsChanged(SharedPtr<Accessibility::Accessible> obj, BoundsInteger rect) override
   {
   }
 

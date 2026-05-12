@@ -250,13 +250,13 @@ Dali::InputMethodContext::TextDirection InputMethodContextWin::GetTextDirection(
   return direction;
 }
 
-Rect<int> InputMethodContextWin::GetInputMethodArea()
+BoundsInteger InputMethodContextWin::GetInputMethodArea()
 {
   int xPos, yPos, width, height;
 
   width = height = xPos = yPos = 0;
 
-  return Rect<int>(xPos, yPos, width, height);
+  return BoundsInteger(xPos, yPos, width, height);
 }
 
 void InputMethodContextWin::ApplyOptions(const InputMethodOptions& options)

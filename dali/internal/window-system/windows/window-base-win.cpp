@@ -415,7 +415,7 @@ unsigned int WindowBaseWin::GetAuxiliaryHintId(const std::string& hint) const
   return 0;
 }
 
-void WindowBaseWin::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseWin::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -662,11 +662,11 @@ bool WindowBaseWin::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseWin::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseWin::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseWin::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseWin::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

@@ -130,7 +130,7 @@ InputMethodContext::TextDirection InputMethodContext::GetTextDirection()
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetTextDirection();
 }
 
-Rect<int> InputMethodContext::GetInputMethodArea()
+BoundsInteger InputMethodContext::GetInputMethodArea()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputMethodArea();
 }

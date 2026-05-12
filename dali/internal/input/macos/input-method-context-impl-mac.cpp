@@ -238,13 +238,13 @@ Dali::InputMethodContext::TextDirection InputMethodContextCocoa::GetTextDirectio
   return direction;
 }
 
-Rect<int> InputMethodContextCocoa::GetInputMethodArea()
+BoundsInteger InputMethodContextCocoa::GetInputMethodArea()
 {
   int xPos, yPos, width, height;
 
   width = height = xPos = yPos = 0;
 
-  return Rect<int>(xPos, yPos, width, height);
+  return BoundsInteger(xPos, yPos, width, height);
 }
 
 void InputMethodContextCocoa::ApplyOptions(const InputMethodOptions& options)

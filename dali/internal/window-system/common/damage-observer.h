@@ -28,7 +28,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-typedef Rect<int> DamageArea;
+typedef BoundsInteger DamageArea;
 
 /**
  * The DamageObserver can be overridden in order to listen to damage events.

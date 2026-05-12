@@ -221,7 +221,7 @@ bool ActorAccessible::IsScrollable() const
   return false;
 }
 
-Dali::Rect<float> ActorAccessible::GetExtents(CoordinateType type) const
+Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
 {
   Dali::Actor actor   = Self();
   auto        extents = DevelActor::CalculateCurrentScreenExtents(actor);
@@ -232,7 +232,7 @@ Dali::Rect<float> ActorAccessible::GetExtents(CoordinateType type) const
     extents.height = 1.f;
   }
 
-  auto rounded = Dali::Rect<float>{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
+  auto rounded = Dali::Bounds{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
 
   if(type == CoordinateType::WINDOW)
   {
@@ -480,7 +480,7 @@ void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
   }
 }
 
-void ActorAccessible::EmitBoundsChanged(Rect<int> rect)
+void ActorAccessible::EmitBoundsChanged(BoundsInteger rect)
 {
   if(mIsBeingDestroyed)
   {

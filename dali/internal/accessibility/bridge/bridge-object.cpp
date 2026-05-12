@@ -229,7 +229,7 @@ void BridgeObject::EmitStateChanged(Dali::SharedPtr<Accessible> obj, State state
   }
 }
 
-void BridgeObject::EmitBoundsChanged(Dali::SharedPtr<Accessible> obj, Dali::Rect<int> rect)
+void BridgeObject::EmitBoundsChanged(Dali::SharedPtr<Accessible> obj, Dali::BoundsInteger rect)
 {
   if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
   {

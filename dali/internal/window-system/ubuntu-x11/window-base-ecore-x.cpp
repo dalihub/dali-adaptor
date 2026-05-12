@@ -838,7 +838,7 @@ unsigned int WindowBaseEcoreX::GetAuxiliaryHintId(const std::string& hint) const
   return 0;
 }
 
-void WindowBaseEcoreX::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -1033,11 +1033,11 @@ bool WindowBaseEcoreX::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseEcoreX::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseEcoreX::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

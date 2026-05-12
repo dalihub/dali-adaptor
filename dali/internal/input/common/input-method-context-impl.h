@@ -251,9 +251,9 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetInputMethodArea()
    */
-  virtual Dali::Rect<int> GetInputMethodArea()
+  virtual Dali::BoundsInteger GetInputMethodArea()
   {
-    return Dali::Rect<int>();
+    return Dali::BoundsInteger();
   }
 
   /**
