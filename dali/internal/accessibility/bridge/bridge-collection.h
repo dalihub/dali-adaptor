@@ -55,7 +55,7 @@ protected:
    *
    * @return The Collection object
    */
-  std::shared_ptr<Dali::Accessibility::Collection> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Collection> FindSelf() const;
 
 public:
   /**

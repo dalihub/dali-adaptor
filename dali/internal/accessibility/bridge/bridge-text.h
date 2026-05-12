@@ -40,7 +40,7 @@ protected:
    *
    * @return The Text object
    */
-  std::shared_ptr<Dali::Accessibility::Text> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Text> FindSelf() const;
 
 public:
   /**

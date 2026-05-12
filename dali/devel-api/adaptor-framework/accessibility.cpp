@@ -234,19 +234,19 @@ AtspiInterfaces Accessible::DoGetInterfaces() const
   AtspiInterfaces interfaces;
 
   interfaces[AtspiInterface::ACCESSIBLE]    = true; // always true
-  interfaces[AtspiInterface::ACTION]        = GetFeature<Action>() != nullptr;
-  interfaces[AtspiInterface::APPLICATION]   = GetFeature<Application>() != nullptr;
-  interfaces[AtspiInterface::COLLECTION]    = GetFeature<Collection>() != nullptr;
+  interfaces[AtspiInterface::ACTION]        = !GetFeature<Action>().IsEmpty();
+  interfaces[AtspiInterface::APPLICATION]   = !GetFeature<Application>().IsEmpty();
+  interfaces[AtspiInterface::COLLECTION]    = !GetFeature<Collection>().IsEmpty();
   interfaces[AtspiInterface::COMPONENT]     = true; // always true
-  interfaces[AtspiInterface::EDITABLE_TEXT] = GetFeature<EditableText>() != nullptr;
-  interfaces[AtspiInterface::HYPERLINK]     = GetFeature<Hyperlink>() != nullptr;
-  interfaces[AtspiInterface::HYPERTEXT]     = GetFeature<Hypertext>() != nullptr;
-  interfaces[AtspiInterface::SELECTION]     = GetFeature<Selection>() != nullptr;
-  interfaces[AtspiInterface::SOCKET]        = GetFeature<Socket>() != nullptr;
+  interfaces[AtspiInterface::EDITABLE_TEXT] = !GetFeature<EditableText>().IsEmpty();
+  interfaces[AtspiInterface::HYPERLINK]     = !GetFeature<Hyperlink>().IsEmpty();
+  interfaces[AtspiInterface::HYPERTEXT]     = !GetFeature<Hypertext>().IsEmpty();
+  interfaces[AtspiInterface::SELECTION]     = !GetFeature<Selection>().IsEmpty();
+  interfaces[AtspiInterface::SOCKET]        = !GetFeature<Socket>().IsEmpty();
   interfaces[AtspiInterface::TABLE]         = false;
   interfaces[AtspiInterface::TABLE_CELL]    = false;
-  interfaces[AtspiInterface::TEXT]          = GetFeature<Text>() != nullptr;
-  interfaces[AtspiInterface::VALUE]         = GetFeature<Value>() != nullptr;
+  interfaces[AtspiInterface::TEXT]          = !GetFeature<Text>().IsEmpty();
+  interfaces[AtspiInterface::VALUE]         = !GetFeature<Value>().IsEmpty();
 
   return interfaces;
 }
@@ -535,25 +535,22 @@ public:
 
   void OnPostRender()
   {
-    try
+    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
     {
-      if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
-      {
-        bridge->EmitPostRender(shared_from_this());
-      }
+      bridge->EmitPostRender(SharedFromThis());
     }
-    catch(const std::bad_weak_ptr& e)
+    else
     {
-      DALI_LOG_ERROR("bad_weak_ptr exception caught: %s", e.what());
+      DALI_LOG_ERROR("SharedFromThis() returned null - object not managed by SharedPtr");
     }
   }
 }; // AdaptorAccessible
 
-using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
+using ConvertingResult = std::pair<SharedPtr<Accessible>, bool>;
 
 std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult
 {
-  return {nullptr, true};
+  return {{}, true};
 };
 
 } // namespace
@@ -563,17 +560,17 @@ void Accessible::RegisterExternalAccessibleGetter(std::function<ConvertingResult
   convertingFunctor = functor;
 }
 
-std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
+SharedPtr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
 {
   if(!actor)
   {
-    return nullptr;
+    return {};
   }
 
   auto bridge = Bridge::GetCurrentBridge();
   if(DALI_UNLIKELY(!bridge))
   {
-    return nullptr;
+    return {};
   }
 
   // Try finding exsiting accessible object.
@@ -595,7 +592,7 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
     {
       isRoot = (actor == scene.GetRootLayer());
     }
-    accessible = std::make_shared<AdaptorAccessible>(actor, isRoot);
+    accessible = MakeShared<AdaptorAccessible>(actor, isRoot);
   }
 
   if(accessible)
@@ -603,7 +600,7 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
     uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
     if(bridge->AddAccessible(actorId, accessible))
     {
-      if(auto actorAccesible = std::dynamic_pointer_cast<ActorAccessible>(accessible))
+      if(auto actorAccesible = DynamicPointerCast<ActorAccessible>(accessible))
       {
         actorAccesible->StartObservingDestruction();
       }
@@ -611,7 +608,7 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
     }
     else
     {
-      return nullptr;
+      return {};
     }
   }
 
@@ -621,7 +618,7 @@ std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
 Accessible* Accessible::Get(Dali::Actor actor)
 {
   auto accessible = Accessible::GetOwningPtr(actor);
-  return accessible ? accessible.get() : nullptr;
+  return accessible ? accessible.Get() : nullptr;
 }
 
 } //namespace Dali::Accessibility

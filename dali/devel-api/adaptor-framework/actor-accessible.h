@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/base-object-observer.h>
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
 
@@ -32,7 +33,7 @@ class DALI_ADAPTOR_API ActorAccessible : public Dali::Accessibility::Accessible,
                                          public Dali::Accessibility::Collection,
                                          public Dali::ConnectionTracker,
                                          public Dali::BaseObjectObserver,
-                                         public std::enable_shared_from_this<ActorAccessible>
+                                         public Dali::EnableSharedFromThis<ActorAccessible>
 {
 public:
   ActorAccessible() = delete;
@@ -328,7 +329,7 @@ private:
   bool                          mIsBeingDestroyed;
   const uint32_t                mActorId;
   std::map<State, int>          mLastEmittedState;
-  std::shared_ptr<Collection>   mCollection;
+  Dali::SharedPtr<Collection>   mCollection;
 };
 
 } // namespace Dali::Accessibility
