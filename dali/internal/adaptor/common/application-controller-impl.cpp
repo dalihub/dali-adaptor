@@ -248,6 +248,11 @@ void ApplicationController::PostTerminate()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PostTerminate\n");
 
+  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->Terminate();
+  }
+
   if(mAdaptor)
   {
     // Ensure that the render-thread is not using the surface(window) after we delete it
