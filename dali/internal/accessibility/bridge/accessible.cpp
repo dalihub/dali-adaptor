@@ -19,6 +19,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
@@ -27,6 +28,7 @@
 #include <dlfcn.h>
 #include <atomic>
 #include <cstdint>
+#include <exception>
 #include <cstring>
 #include <limits>
 #include <mutex>
@@ -269,27 +271,78 @@ std::string Lz4CompressToBase64Payload(const std::string& input)
 
 std::string DumpJsonWithLz4Compression(Accessible* root, Accessible::DumpDetailLevel jsonDetailLevel, const char* logTag)
 {
-  // Generate JSON with requested semantics, then compress final string
-  // to reduce DBus payload size.
-  const auto json = DumpJson(root, jsonDetailLevel, true);
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu\n", logTag, json.size());
-  auto lz4Payload = Lz4CompressToBase64Payload(json);
-  if(lz4Payload.empty())
+  try
   {
-    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) compression failed, json_chars=%zu\n", logTag, json.size());
-    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, json.size());
-    return json;
+    // Generate JSON with requested semantics, then compress final string
+    // to reduce DBus payload size. On any failure, return plain JSON.
+    const auto json = DumpJson(root, jsonDetailLevel, true);
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu\n", logTag, json.size());
+    auto lz4Payload = Lz4CompressToBase64Payload(json);
+    if(lz4Payload.empty())
+    {
+      DALI_LOG_RELEASE_INFO("DumpTree(root,%s) compression failed, json_chars=%zu\n", logTag, json.size());
+      DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, json.size());
+      return json;
+    }
+    const auto markerLen = std::strlen(LZ4_MARKER);
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) payload_b64_chars=%zu total_xfer_chars=%zu\n", logTag, lz4Payload.size() - markerLen, lz4Payload.size());
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, lz4Payload.size());
+    return lz4Payload;
   }
-  const auto markerLen = std::strlen(LZ4_MARKER);
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) payload_b64_chars=%zu total_xfer_chars=%zu\n", logTag, lz4Payload.size() - markerLen, lz4Payload.size());
-  DALI_LOG_RELEASE_INFO("DumpTree(root,%s) out_chars=%zu\n", logTag, lz4Payload.size());
-  return lz4Payload;
+  catch(const std::exception& e)
+  {
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) exception: %s; returning plain JSON\n", logTag, e.what());
+    return DumpJson(root, jsonDetailLevel, true);
+  }
+  catch(...)
+  {
+    DALI_LOG_RELEASE_INFO("DumpTree(root,%s) unknown exception; returning plain JSON\n", logTag);
+    return DumpJson(root, jsonDetailLevel, true);
+  }
 }
 
 // Helper function to check if we should include only showing nodes or not.
 const auto IncludeShowingOnly = [](Accessible::DumpDetailLevel detailLevel) -> bool
 {
-  return detailLevel == Accessible::DumpDetailLevel::DUMP_SHORT_SHOWING_ONLY || detailLevel == Accessible::DumpDetailLevel::DUMP_FULL_SHOWING_ONLY;
+  switch(detailLevel)
+  {
+    case Accessible::DumpDetailLevel::DUMP_SHORT_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_EFFECTIVE_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY:
+      return true;
+    default:
+      return false;
+  }
+};
+
+const auto ExcludeWorldIgnored = [](Accessible::DumpDetailLevel detailLevel) -> bool
+{
+  switch(detailLevel)
+  {
+    case Accessible::DumpDetailLevel::DUMP_FULL_EFFECTIVE_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY:
+      return true;
+    default:
+      return false;
+  }
+};
+
+const auto IsFullFieldSet = [](Accessible::DumpDetailLevel detailLevel) -> bool
+{
+  switch(detailLevel)
+  {
+    case Accessible::DumpDetailLevel::DUMP_FULL:
+    case Accessible::DumpDetailLevel::DUMP_FULL_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_EFFECTIVE_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION_SHOWING_ONLY:
+    case Accessible::DumpDetailLevel::DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY:
+      return true;
+    default:
+      return false;
+  }
 };
 
 // Helper function to get type name from attributes map.
@@ -383,6 +436,15 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
     return {};
   }
 
+  if(ExcludeWorldIgnored(detailLevel))
+  {
+    const auto actor = node->GetInternalActor();
+    if(actor && actor.GetProperty<bool>(Dali::DevelActor::Property::WORLD_IGNORED))
+    {
+      return {};
+    }
+  }
+
   std::ostringstream msg;
   msg << "{ " << Quote(KEY_APPNAME) << ": " << Quote(address.GetBus()) << ", "
       << Quote(KEY_PATH) << ": " << Quote(ATSPI_PREFIX_PATH + address.GetPath()) << ", "
@@ -420,7 +482,7 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
     msg << ", " << Quote(KEY_TOOLKIT) << ": " << Quote(VAL_TOOLKIT);
   }
 
-  if(detailLevel == Accessible::DumpDetailLevel::DUMP_FULL || detailLevel == Accessible::DumpDetailLevel::DUMP_FULL_SHOWING_ONLY)
+  if(IsFullFieldSet(detailLevel))
   {
     if(auto otherAttrs = GetOtherAttributesString(attributes); !otherAttrs.empty())
     {
@@ -483,19 +545,38 @@ bool Accessible::IsProxy() const
 
 std::string Accessible::DumpTree(DumpDetailLevel detailLevel)
 {
-  if(detailLevel == DumpDetailLevel::DUMP_FULL_SHOWING_ONLY_LZ4)
+  try
   {
-    return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL_SHOWING_ONLY, "FULL_SHOWING_ONLY_LZ4");
-  }
+    switch(detailLevel)
+    {
+      case DumpDetailLevel::DUMP_FULL_COMPRESSION:
+        return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL_COMPRESSION, "FULL_COMPRESSION");
+      case DumpDetailLevel::DUMP_FULL_COMPRESSION_SHOWING_ONLY:
+        return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL_COMPRESSION_SHOWING_ONLY, "FULL_COMPRESSION_SHOWING_ONLY");
+      case DumpDetailLevel::DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY:
+        return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY, "FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY");
+      case DumpDetailLevel::DUMP_FULL:
+      case DumpDetailLevel::DUMP_FULL_SHOWING_ONLY:
+      case DumpDetailLevel::DUMP_FULL_EFFECTIVE_SHOWING_ONLY:
+        break;
+      default:
+        break;
+    }
 
-  if(detailLevel == DumpDetailLevel::DUMP_FULL_LZ4)
+    const auto out = DumpJson(this, detailLevel, true);
+    DALI_LOG_RELEASE_INFO("DumpTree(root) detail_level=%d out_chars=%zu\n", static_cast<int>(detailLevel), out.size());
+    return out;
+  }
+  catch(const std::exception& e)
   {
-    return DumpJsonWithLz4Compression(this, DumpDetailLevel::DUMP_FULL, "FULL_LZ4");
+    DALI_LOG_RELEASE_INFO("DumpTree(root) exception: %s; returning plain JSON\n", e.what());
+    return DumpJson(this, detailLevel, true);
   }
-
-  const auto out = DumpJson(this, detailLevel, true);
-  DALI_LOG_RELEASE_INFO("DumpTree(root) detail_level=%d out_chars=%zu\n", static_cast<int>(detailLevel), out.size());
-  return out;
+  catch(...)
+  {
+    DALI_LOG_RELEASE_INFO("DumpTree(root) unknown exception; returning plain JSON\n");
+    return DumpJson(this, detailLevel, true);
+  }
 }
 
 bool Accessible::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type) const
