@@ -818,7 +818,7 @@ public:
    *
    * @return pixel data of screen shot
    */
-  virtual Dali::PixelData GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor) = 0;
+  virtual Dali::PixelData GetScreenshot(Dali::BoundsInteger viewArea, float scaleFactor) = 0;
 
   /**
    * @brief Request to get snapshot of the specified viewArea of page asynchronously.
@@ -829,7 +829,7 @@ public:
    *
    * @return true if requested successfully, false otherwise
    */
-  virtual bool GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, ScreenshotCapturedCallback callback) = 0;
+  virtual bool GetScreenshotAsynchronously(Dali::BoundsInteger viewArea, float scaleFactor, ScreenshotCapturedCallback callback) = 0;
 
   /**
    * @brief Asynchronously request to check if there is a video playing in the given view.
@@ -851,7 +851,7 @@ public:
    * @brief Update display area.
    * @param[in] displayArea The display area need be updated.
    */
-  virtual void UpdateDisplayArea(Dali::Rect<int32_t> displayArea) = 0;
+  virtual void UpdateDisplayArea(Dali::BoundsInteger displayArea) = 0;
 
   /**
    * @brief Enable video hole.

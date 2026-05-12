@@ -175,11 +175,10 @@ int FUNCTION_CALL_FROM_CURL_PREFIX CurloptVerboseLogTrace(CURL* handle, curl_inf
 
 const int  CONNECTION_TIMEOUT_SECONDS(30L);
 const int  TIMEOUT_SECONDS(120L);
-const long CLOSE_CONNECTION_ON_ERROR = 1L; // 0 == off, 1 == on
-const long EXCLUDE_HEADER            = 0L;
-const long INCLUDE_HEADER            = 1L;
-const long INCLUDE_BODY              = 0L;
-const long EXCLUDE_BODY              = 1L;
+const long EXCLUDE_HEADER = 0L;
+const long INCLUDE_HEADER = 1L;
+const long INCLUDE_BODY   = 0L;
+const long EXCLUDE_BODY   = 1L;
 
 /**
  * @brief Get the Curlopt Verbose Mode value from environment.

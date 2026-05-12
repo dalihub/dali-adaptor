@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,10 +97,6 @@ constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
 
 constexpr std::size_t DEFAULT_DESCRIPTION_CACHE_MAX         = 1024u;
 constexpr std::size_t MINIMUM_SIZE_OF_DESCRIPTION_CACHE_MAX = 3u;
-
-constexpr auto MAX_NUMBER_OF_FACE_SIZE_CACHE_ENV   = "DALI_FACE_SIZE_CACHE_MAX";
-constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV       = "DALI_GLYPH_CACHE_MAX";
-constexpr auto MAX_NUMBER_OF_DESCRIPTION_CACHE_ENV = "DALI_DESCRIPTION_CACHE_MAX";
 
 /**
  * @brief Get maximum size of face size cache size from environment.
@@ -760,7 +756,7 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
        (fontDescription.slant != description.slant))
     {
       // Cache the given font's description if it's different than the matched.
-      CacheValidateFont(std::move(FontDescription(fontDescription)), fontDescriptionId);
+      CacheValidateFont(FontDescription(fontDescription), fontDescriptionId);
     }
 
     // Cache the index and the matched font's description.
@@ -775,7 +771,7 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
 void FontClient::Plugin::CacheHandler::CacheValidateFont(FontDescription&& fontDescription,
                                                          FontDescriptionId validatedFontId)
 {
-  mValidatedFontCache.emplace_back(std::move(FontDescriptionCacheItem(fontDescription, validatedFontId)));
+  mValidatedFontCache.emplace_back(FontDescriptionCacheItem(fontDescription, validatedFontId));
 }
 
 // Fallback
@@ -845,7 +841,7 @@ void FontClient::Plugin::CacheHandler::CacheFallbackFontList(FontDescription&&  
 #endif
 
   // Add the font-list to the cache.
-  mFallbackCache.push_back(std::move(CacheHandler::FallbackCacheItem(std::move(fontDescription), fontList, characterSetList)));
+  mFallbackCache.emplace_back(CacheHandler::FallbackCacheItem(std::move(fontDescription), fontList, characterSetList));
 }
 
 // Font / FontFace
@@ -939,7 +935,7 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
 {
   FontDescription description;
   description.path   = path;
-  description.family = std::move(FontFamily(ftFace->family_name));
+  description.family = FontFamily(ftFace->family_name);
   description.weight = FontWeight::NONE;
   description.width  = FontWidth::NONE;
   description.slant  = FontSlant::NONE;

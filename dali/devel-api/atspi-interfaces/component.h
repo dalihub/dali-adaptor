@@ -37,11 +37,11 @@ public:
    *
    * @param[in] type The enumeration with type of coordinate systems
    *
-   * @return Rect<float> object
+   * @return Bounds object
    *
-   * @see Dali::Rect<float>
+   * @see Dali::Bounds
    */
-  virtual Rect<float> GetExtents(CoordinateType type) const = 0;
+  virtual Bounds GetExtents(CoordinateType type) const = 0;
 
   /**
    * @brief Gets layer current object is localized on.

@@ -40,7 +40,7 @@ protected:
    *
    * @return The Selection object
    */
-  std::shared_ptr<Dali::Accessibility::Selection> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Selection> FindSelf() const;
 
 public:
   /**

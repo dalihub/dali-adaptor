@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
 #include <wayland-client.h>
+#include <memory> ///< for std::unique_ptr
 
 namespace Dali::Internal::Adaptor
 {
@@ -28,5 +29,5 @@ namespace Dali::Internal::Adaptor
  * @param display The Wayland Display to cast
  * @return The Any with the appropriate cast
  */
-Any CastToNativeGraphicsType(wl_display* display);
+std::unique_ptr<Any> CastToNativeGraphicsType(wl_display* display);
 } // namespace Dali::Internal::Adaptor

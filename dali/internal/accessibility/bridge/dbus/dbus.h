@@ -42,8 +42,6 @@
 #define ATSPI_PREFIX_PATH "/org/a11y/atspi/accessible/"
 #define ATSPI_NULL_PATH "/org/a11y/atspi/null"
 
-struct _Eina_Value;
-
 struct ObjectPath
 {
   std::string value;
@@ -193,7 +191,8 @@ struct DBusWrapper
     }
   };
   virtual void        add_interface_impl(bool fallback, const std::string& pathName, const ConnectionPtr& connection, std::vector<std::function<void()>>& destructors, const std::string& interfaceName, std::vector<MethodInfo>& dscrMethods, std::vector<PropertyInfo>& dscrProperties, std::vector<SignalInfo>& dscrSignals) = 0;
-  virtual void        add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const _Eina_Value*)> cb)                                                                                                                                        = 0;
+  virtual void        add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const void*)> cb) = 0;
+  virtual bool        get_from_value_impl(const void* v, void* dst) = 0;
   static DBusWrapper* Installed();
   static void         Install(std::unique_ptr<DBusWrapper>);
 
@@ -2296,10 +2295,10 @@ public:
     detail::displayDebugCallInfoSignal(callId, propertyName, info, connectionInfo->interfaceName);
     DBUS_DEBUG("call %d: adding property", callId.id);
     auto& cI = this->connectionInfo;
-    DBUS_W->add_property_changed_event_listener_impl(connectionState->proxy, cI->interfaceName, propertyName, [callback](const _Eina_Value* newValue)
+    DBUS_W->add_property_changed_event_listener_impl(connectionState->proxy, cI->interfaceName, propertyName, [callback](const void* newValue)
     {
       V val = 0;
-      if(!getFromEinaValue(newValue, &val))
+      if(!DBUS_W->get_from_value_impl(newValue, &val))
       {
         DBUS_DEBUG("unable to get property's value");
         return;
@@ -2355,8 +2354,6 @@ private:
   std::unique_ptr<detail::ConnectionState> connectionState{new detail::ConnectionState};
   std::string                              info;
   std::shared_ptr<ConnectionInfo>          connectionInfo;
-
-  static bool getFromEinaValue(const _Eina_Value* v, void* dst);
 };
 
 /**

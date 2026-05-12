@@ -23,7 +23,6 @@
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
@@ -39,7 +38,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 namespace Internal DALI_INTERNAL
 {
@@ -49,8 +48,6 @@ class Window;
 }
 } //namespace Internal DALI_INTERNAL
 
-class DragAndDropDetector;
-class Orientation;
 class Actor;
 class Layer;
 class RenderTaskList;
@@ -67,13 +64,13 @@ class KeyEvent;
 class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
-  using WindowSize     = Uint16Pair; ///< Window size type @SINCE_1_2.60
-  using WindowPosition = Int32Pair;  ///< Window position type @SINCE_2_1.45
+  using WindowSize     = Int32Pair; ///< Window size type @SINCE_1_2.60
+  using WindowPosition = Int32Pair; ///< Window position type @SINCE_2_1.45
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType    = Signal<void(const KeyEvent&)>;    ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType  = Signal<void(const TouchEvent&)>;  ///< Touch signal type @SINCE_1_9.28
+  using KeyEventSignalType    = Signal<void(Window, KeyEvent)>;   ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType  = Signal<void(Window, TouchEvent)>; ///< Touch signal type @SINCE_1_9.28
 
 public:
   // Methods
@@ -415,7 +412,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @brief Sets a window type.
@@ -696,7 +693,7 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(Window window, KeyEvent event);
    * @endcode
    *
    * @SINCE_1_9.21
@@ -713,7 +710,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const TouchEvent& event);
+   *   void YourCallbackName(Window window, TouchEvent event);
    * @endcode
    *
    * @SINCE_1_9.28

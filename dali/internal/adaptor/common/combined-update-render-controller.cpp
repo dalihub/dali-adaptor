@@ -331,10 +331,12 @@ void CombinedUpdateRenderController::RequestUpdateOnce(UpdateMode updateMode)
   {
     ++mUpdateRequestCount;
   }
+  DALI_LOG_DEBUG_INFO("RequestUpdate once. updateMode : %d, mUpdateRequestCount : %u\n", static_cast<int>(updateMode), mUpdateRequestCount);
 
   if(IsUpdateRenderThreadPaused() || updateMode == UpdateMode::FORCE_RENDER)
   {
     LOG_EVENT_TRACE;
+    DALI_LOG_DEBUG_INFO("RunUpdateRenderThread once\n");
 
     // Run Update/Render once
     RunUpdateRenderThread(ONCE, AnimationProgression::NONE, updateMode);
@@ -504,12 +506,31 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
+  int32_t oldUpdateRenderRunCount = mUpdateRenderRunCount;
+
   switch(mThreadMode)
   {
     case ThreadMode::NORMAL:
     {
-      mUpdateRenderRunCount    = numberOfCycles;
+      if(updateMode == UpdateMode::FORCE_RENDER)
+      {
+        // numberOfCycles could be ONCE even if thread is running. Do not change it as ONCE if CONTINUOUS.
+        if(numberOfCycles == CONTINUOUS ||
+           oldUpdateRenderRunCount != CONTINUOUS)
+        {
+          mUpdateRenderRunCount = numberOfCycles;
+        }
+      }
+      else
+      {
+        mUpdateRenderRunCount = numberOfCycles;
+      }
       mUseElapsedTimeAfterWait = (animationProgression == AnimationProgression::USE_ELAPSED_TIME);
+
+      if(DALI_UNLIKELY(oldUpdateRenderRunCount != numberOfCycles))
+      {
+        DALI_LOG_DEBUG_INFO("mUpdateRenderRunCount changed (%d -> %d) AnimationProgression : %u UpdateMode : %d\n", oldUpdateRenderRunCount, numberOfCycles, mUseElapsedTimeAfterWait, static_cast<int>(updateMode));
+      }
       break;
     }
     case ThreadMode::RUN_IF_REQUESTED:
@@ -523,6 +544,8 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
 
       mUpdateRenderRunCount    = (mUpdateRenderRunCount + 1); // Increase the update request count
       mUseElapsedTimeAfterWait = TRUE;                        // The elapsed time should be used. We want animations to proceed.
+
+      DALI_LOG_DEBUG_INFO("mUpdateRenderRunCount changed (%d -> %d) UpdateMode : %d\n", oldUpdateRenderRunCount, mUpdateRenderRunCount, static_cast<int>(updateMode));
       break;
     }
   }
@@ -569,6 +592,7 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
   {
     --mUpdateRequestCount;
   }
+  DALI_LOG_DEBUG_INFO("ProcessSleepRequest mUpdateRequestCount : %u\n", mUpdateRequestCount);
 
   // Can sleep if our update-request count is 0
   // Update/Render thread can choose to carry on updating if it determines more update/renders are required
@@ -728,6 +752,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   {
     LOG_UPDATE_RENDER_TRACE;
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
 
     // For thread safe
     bool                                       uploadOnly     = mUploadWithoutRendering;
@@ -819,6 +844,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     AddPerformanceMarker(PerformanceInterface::UPDATE_START);
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE");
     mCore.Update(frameDelta,
                  currentTime,
                  nextFrameTime,
@@ -826,6 +852,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                  renderToFboEnabled,
                  isRenderingToFbo,
                  uploadOnly);
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE");
     AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
@@ -881,10 +908,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
     TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
     // Upload shared resources and process render messages
     TRACE_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
     mCore.PreRender(renderStatus, mForceClear);
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_PRE_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
 
     graphics.RenderStart();
@@ -906,6 +936,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         if(scene && windowSurface)
         {
           TRACE_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
+          TIME_CHECKER_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
           Integration::RenderStatus         windowRenderStatus;
           Integration::ScenePreRenderStatus scenePreRenderStatus;
 
@@ -924,7 +955,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Need to present if previous frame had rendered to scene.
           bool presentRequired = !isRenderingSkipped && (hadRenderedToScene || willRenderToScene);
 
-          Rect<int> clippingRect; // Empty for fbo rendering
+          BoundsInteger clippingRect; // Empty for fbo rendering
 
           // Ensure surface can be drawn to; merge damaged areas for previous frames
           windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect);
@@ -976,7 +1007,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
             if(fullSwap)
             {
-              clippingRect = Rect<int>();
+              clippingRect = BoundsInteger();
             }
 
             // Render the surface (Present & SwapBuffers)
@@ -1009,12 +1040,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
     if(postRenderRequired)
     {
       graphics.PostRender();
     }
 
     mCore.PostRender();
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_POST_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_POST_RENDER");
 
     //////////////////////////////
@@ -1029,6 +1062,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceDeleted();
     }
 
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_RENDER");
     AddPerformanceMarker(PerformanceInterface::RENDER_END);
 
@@ -1089,6 +1123,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
 
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
@@ -1153,7 +1188,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
     timeToSleepUntil = 0;
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
+    TIME_CHECKER_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
+    DALI_LOG_DEBUG_INFO("UpdateRenderThread sleep (%d == 0 || (%u && !%d && !%u))\n", mUpdateRenderRunCount, mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
     mUpdateRenderThreadWaitCondition.Wait(updateLock);
+    DALI_LOG_DEBUG_INFO("UpdateRenderThread awake\n");
+    TIME_CHECKER_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
 
     if(!mUseElapsedTimeAfterWait)

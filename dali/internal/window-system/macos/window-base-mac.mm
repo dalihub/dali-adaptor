@@ -744,11 +744,11 @@ bool WindowBaseCocoa::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseCocoa::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseCocoa::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseCocoa::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseCocoa::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

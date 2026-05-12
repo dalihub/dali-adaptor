@@ -77,7 +77,7 @@ class OffscreenWindow;
 class DALI_ADAPTOR_API OffscreenWindow : public Dali::BaseHandle
 {
 public:
-  using WindowSize = Uint16Pair;
+  using WindowSize = Int32Pair;
 
 public:
   /**
@@ -225,7 +225,7 @@ public:
    *
    * This size determines the dimensions of the offscreen framebuffer.
    *
-   * @return The size of the OffscreenWindow as a Uint16Pair (width, height)
+   * @return The size of the OffscreenWindow as a Int32Pair (width, height)
    */
   WindowSize GetSize() const;
 

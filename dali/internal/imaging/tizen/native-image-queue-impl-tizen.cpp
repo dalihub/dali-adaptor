@@ -227,7 +227,7 @@ tbm_surface_queue_h NativeImageQueueTizen::GetSurfaceFromAny(Any source) const
     return nullptr;
   }
 
-  if(source.GetType() == typeid(tbm_surface_queue_h))
+  if(source.IsType<tbm_surface_queue_h>())
   {
     return AnyCast<tbm_surface_queue_h>(source);
   }

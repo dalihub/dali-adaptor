@@ -42,7 +42,7 @@ class SoundPlayer;
 class DALI_ADAPTOR_API SoundPlayer : public BaseHandle
 {
 public:
-  typedef Signal<void(SoundPlayer&)> SoundPlayFinishedSignalType; ///< Sound play finished signal
+  typedef Signal<void(SoundPlayer)> SoundPlayFinishedSignalType; ///< Sound play finished signal
 
   /**
    * @brief Create an uninitialized handle.

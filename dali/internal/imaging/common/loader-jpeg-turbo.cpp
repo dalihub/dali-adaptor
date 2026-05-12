@@ -808,7 +808,7 @@ namespace TizenPlatform
 {
 bool          DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv);
 JpegTransform ConvertExifOrientation(ExifData* exifData);
-bool          TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight);
+bool          TransformSize(int requiredWidth, int requiredHeight, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight);
 
 bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
 {
@@ -939,7 +939,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
   int scaledPostXformWidth  = postXformImageWidth;
   int scaledPostXformHeight = postXformImageHeight;
 
-  TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, scaledPreXformWidth, scaledPreXformHeight, scaledPostXformWidth, scaledPostXformHeight);
+  TransformSize(requiredWidth, requiredHeight, input.scalingParameters.samplingMode, transform, scaledPreXformWidth, scaledPreXformHeight, scaledPostXformWidth, scaledPostXformHeight);
 
   bool result = false;
 
@@ -1245,7 +1245,7 @@ JpegTransform ConvertExifOrientation(ExifData* exifData)
   return transform;
 }
 
-bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight)
+bool TransformSize(int requiredWidth, int requiredHeight, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight)
 {
   bool success = true;
   if(transform == JpegTransform::TRANSPOSE || transform == JpegTransform::ROTATE_90 || transform == JpegTransform::TRANSVERSE || transform == JpegTransform::ROTATE_270)
@@ -1255,7 +1255,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
   }
 
   // Apply the special rules for when there are one or two zeros in requested dimensions:
-  const ImageDimensions correctedDesired = Internal::Platform::CalculateDesiredDimensions(ImageDimensions(postXformImageWidth, postXformImageHeight), ImageDimensions(requiredWidth, requiredHeight), fittingMode);
+  const ImageDimensions correctedDesired = Internal::Platform::CalculateDesiredDimensions(ImageDimensions(postXformImageWidth, postXformImageHeight), ImageDimensions(requiredWidth, requiredHeight));
   requiredWidth                          = correctedDesired.GetWidth();
   requiredHeight                         = correctedDesired.GetHeight();
 
@@ -1309,27 +1309,13 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
         int  scaledHeight       = TJSCALED(postXformImageHeight, factors[i]);
         bool widthLessRequired  = scaledWidth < requiredWidth;
         bool heightLessRequired = scaledHeight < requiredHeight;
-        // If either scaled dimension is smaller than the desired one, we were done at the last iteration
-        if(((fittingMode == FittingMode::SCALE_TO_FILL) || (fittingMode == FittingMode::VISUAL_FITTING)) && (widthLessRequired || heightLessRequired))
+        // Keep both axes at least as large as the requested rectangle so that the
+        // decoded bitmap covers the layout box without scaling up later.
+        if(widthLessRequired || heightLessRequired)
         {
           break;
         }
-        // If both dimensions are smaller than the desired one, we were done at the last iteration:
-        if((fittingMode == FittingMode::SHRINK_TO_FIT) && (widthLessRequired && heightLessRequired))
-        {
-          break;
-        }
-        // If the width is smaller than the desired one, we were done at the last iteration:
-        if(fittingMode == FittingMode::FIT_WIDTH && widthLessRequired)
-        {
-          break;
-        }
-        // If the width is smaller than the desired one, we were done at the last iteration:
-        if(fittingMode == FittingMode::FIT_HEIGHT && heightLessRequired)
-        {
-          break;
-        }
-        // This factor stays is within our fitting mode constraint so remember it:
+        // This factor stays within the constraint so remember it:
         scaleFactorIndex   = i;
         fittedScaledWidth  = scaledWidth;
         fittedScaledHeight = scaledHeight;
@@ -1445,7 +1431,7 @@ bool LoadJpegHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
       int postXformImageWidth  = headerWidth;
       int postXformImageHeight = headerHeight;
 
-      success = TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+      success = TransformSize(requiredWidth, requiredHeight, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
       if(DALI_LIKELY(success))
       {
         headerWidth  = postXformImageWidth;

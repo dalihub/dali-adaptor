@@ -127,7 +127,6 @@ Application::~Application()
   if(mUIThreadLoader)
   {
     delete mUIThreadLoader;
-
   }
 }
 
@@ -145,23 +144,19 @@ void Application::Lower()
 
 void Application::Quit()
 {
-  DALI_LOG_RELEASE_INFO("Application::Quit requested!\n");
-  // Actually quit the application.
-  // Force a call to Quit even if adaptor is not running.
-  Internal::Adaptor::Adaptor::GetImplementation(*mApplicationController->GetAdaptor()).AddIdle(MakeCallback(this, &Application::QuitFromMainLoop), false);
-}
-
-void Application::QuitFromMainLoop()
-{
   DALI_LOG_RELEASE_INFO("Application::Quit processing\n");
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+
   {
-    bridge->Terminate();
+    // Disconnect the DeleteRequestSignal to avoid emitting it after the window is destroyed by AppCore.
+    Dali::Window window = mApplicationController->GetWindow();
+    if(window)
+    {
+      GetImplementation(window).DeleteRequestSignal().Disconnect(mSlotDelegate, &Application::Quit);
+    }
   }
 
-  mApplicationController->GetAdaptor()->Stop();
-
   mFramework->Quit();
+
   // This will trigger OnTerminate(), below, after the main loop has completed.
   DALI_LOG_RELEASE_INFO("Application::Quit finished\n");
 }
@@ -172,7 +167,7 @@ void Application::OnInit()
 
   mApplicationController->PreInitialize();
 
-  mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
+  mFramework->AddAbortCallback(MakeCallback(this, &Application::Quit));
 
   // Initialize StyleMonitor here.
   Dali::StyleMonitor styleMonitor = Dali::StyleMonitor::Get();

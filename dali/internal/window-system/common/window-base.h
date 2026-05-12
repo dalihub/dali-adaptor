@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public:
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseRelativeEvent&)>                   MouseRelativeEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
-  typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
+  typedef Signal<void(Dali::Int32Pair&)>                                               ResizeCompletedSignalType;
   typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
   typedef Signal<void(const Dali::Int32Pair&, bool, bool)>                             PointerConstraintsSignalType;
 
@@ -298,7 +298,7 @@ public:
   /**
    * @copydoc Dali::Window::SetInputRegion()
    */
-  virtual void SetInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void SetInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @copydoc Dali::Window::SetType()
@@ -468,13 +468,13 @@ public:
    * @brief Includes input region.
    * @param[in] inputRegion The added region to accept input events.
    */
-  virtual void IncludeInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void IncludeInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @brief Excludes input region.
    * @param[in] inputRegion The subtracted region to except input events.
    */
-  virtual void ExcludeInputRegion(const Rect<int>& inputRegion) = 0;
+  virtual void ExcludeInputRegion(const BoundsInteger& inputRegion) = 0;
 
   /**
    * @brief Sets the pointer constraints lock.

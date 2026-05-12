@@ -108,8 +108,6 @@ private:
   void PrepareRenderBuffer();
 
 private:
-  static Context* mSharedContext; ///< The bind available context
-
   uint32_t mFramebufferId{0u};
   uint32_t mDepthBufferId{0u};
   uint32_t mStencilBufferId{0u};

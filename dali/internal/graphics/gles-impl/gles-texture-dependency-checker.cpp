@@ -22,14 +22,14 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <algorithm>
 
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gLogSyncFilter;
-#endif
-
 namespace Dali::Graphics::GLES
 {
 namespace
 {
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
+#endif
+
 void FreeAllBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies)
 {
   if(DALI_LIKELY(!Dali::Graphics::EglGraphicsController::IsShuttingDown()))

@@ -100,7 +100,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
   {
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
     auto* impl       = static_cast<AppModelComponentBased*>(data)->mImpl;
-    impl->mEventLoop = GetSystemFactory()->CreateEventLoop();
+    impl->mEventLoop = Dali::Internal::Adaptor::GetSystemFactory()->CreateEventLoop();
     if(impl->mEventLoop)
     {
       impl->mEventLoop->Initialize(argc, argv);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,6 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-const uint32_t EXCESS_BUFFER_COUNT = 4;
-
 template<typename VT, typename GT>
 VT* ConstGraphicsCast(const GT* object)
 {
@@ -576,13 +574,13 @@ void StoredCommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
   command->colorBlend.enabled = enabled;
 }
 
-void StoredCommandBuffer::SetColorBlendEquation(uint32_t attachment,
-  Graphics::BlendFactor srcColorBlendFactor,
-  Graphics::BlendFactor dstColorBlendFactor,
-  Graphics::BlendOp colorBlendOp,
-  Graphics::BlendFactor srcAlphaBlendFactor,
-  Graphics::BlendFactor dstAlphaBlendFactor,
-  Graphics::BlendOp alphaBlendOp)
+void StoredCommandBuffer::SetColorBlendEquation(uint32_t              attachment,
+                                                Graphics::BlendFactor srcColorBlendFactor,
+                                                Graphics::BlendFactor dstColorBlendFactor,
+                                                Graphics::BlendOp     colorBlendOp,
+                                                Graphics::BlendFactor srcAlphaBlendFactor,
+                                                Graphics::BlendFactor dstAlphaBlendFactor,
+                                                Graphics::BlendOp     alphaBlendOp)
 {
   auto command = mCommandPool->AllocateCommand(CommandType::SET_COLOR_BLEND_EQUATION);
 
@@ -592,18 +590,17 @@ void StoredCommandBuffer::SetColorBlendEquation(uint32_t attachment,
     colorBlendOp,
     srcAlphaBlendFactor,
     dstAlphaBlendFactor,
-    alphaBlendOp
-  };
+    alphaBlendOp};
   command->colorBlend.equation = equation;
 }
 
 void StoredCommandBuffer::SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, Graphics::BlendOp blendOp)
 {
-  auto command = mCommandPool->AllocateCommand(CommandType::SET_COLOR_BLEND_ADVANCED);
-  auto& advanced = command->colorBlend.advanced;
+  auto  command             = mCommandPool->AllocateCommand(CommandType::SET_COLOR_BLEND_ADVANCED);
+  auto& advanced            = command->colorBlend.advanced;
   advanced.srcPremultiplied = srcPremultiplied;
   advanced.dstPremultiplied = dstPremultiplied;
-  advanced.blendOp = blendOp;
+  advanced.blendOp          = blendOp;
 }
 
 void StoredCommandBuffer::ClearDepthBuffer()

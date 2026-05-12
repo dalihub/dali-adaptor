@@ -42,12 +42,13 @@ public:
                  Integration::DepthBufferAvailable         depthBufferAvailable,
                  Integration::StencilBufferAvailable       stencilBufferRequired,
                  Integration::PartialUpdateAvailable       partialUpdateRequired,
-                 int                                       multiSamplingLevel);
+                 int                                       multiSamplingLevel,
+                 Dali::Graphics::ContextPriority           contextPriority);
 
   ~VulkanGraphics();
 
   void Initialize(const Dali::DisplayConnection& displayConnection) override;
-  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override;
 
   void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 
@@ -133,7 +134,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::Resize()
    */
-  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair positionSize) override;
+  void Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize positionSize) override;
 
   /**
    * @copydoc Graphics::GraphicsInterface::GetBufferAge()
@@ -143,7 +144,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SetDamageRegion()
    */
-  void SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion) override;
+  void SetDamageRegion(Graphics::SurfaceId, std::vector<BoundsInteger>& damagedRegion) override;
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
@@ -152,7 +153,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>&) override;
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>&) override;
 
 public: // @todo Consider refactoring these methods out to GraphicsConfig
   /**

@@ -54,7 +54,7 @@ constexpr int MERGE_RECTS_LOGIC_THRESHOLD = 50; ///< Threshold of the number of 
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
 #endif
 
-void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const Rect<int>& damagedRects)
+void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const BoundsInteger& damagedRects)
 {
   damagedRectsList.insert(damagedRectsList.begin(), damagedRects);
   if(damagedRectsList.size() > 4) // past triple buffers + current
@@ -63,14 +63,14 @@ void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, c
   }
 }
 
-Rect<int32_t> RecalculateRect0(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+BoundsInteger RecalculateRect0(BoundsInteger& rect, const BoundsInteger& surfaceSize)
 {
   return rect;
 }
 
-Rect<int32_t> RecalculateRect90(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+BoundsInteger RecalculateRect90(BoundsInteger& rect, const BoundsInteger& surfaceSize)
 {
-  Rect<int32_t> newRect;
+  BoundsInteger newRect;
   newRect.x      = surfaceSize.height - (rect.y + rect.height);
   newRect.y      = rect.x;
   newRect.width  = rect.height;
@@ -78,9 +78,9 @@ Rect<int32_t> RecalculateRect90(Rect<int32_t>& rect, const Rect<int32_t>& surfac
   return newRect;
 }
 
-Rect<int32_t> RecalculateRect180(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+BoundsInteger RecalculateRect180(BoundsInteger& rect, const BoundsInteger& surfaceSize)
 {
-  Rect<int32_t> newRect;
+  BoundsInteger newRect;
   newRect.x      = surfaceSize.width - (rect.x + rect.width);
   newRect.y      = surfaceSize.height - (rect.y + rect.height);
   newRect.width  = rect.width;
@@ -88,9 +88,9 @@ Rect<int32_t> RecalculateRect180(Rect<int32_t>& rect, const Rect<int32_t>& surfa
   return newRect;
 }
 
-Rect<int32_t> RecalculateRect270(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+BoundsInteger RecalculateRect270(BoundsInteger& rect, const BoundsInteger& surfaceSize)
 {
-  Rect<int32_t> newRect;
+  BoundsInteger newRect;
   newRect.x      = rect.y;
   newRect.y      = surfaceSize.width - (rect.x + rect.width);
   newRect.width  = rect.height;
@@ -98,7 +98,7 @@ Rect<int32_t> RecalculateRect270(Rect<int32_t>& rect, const Rect<int32_t>& surfa
   return newRect;
 }
 
-using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int32_t>&);
+using RecalculateRectFunction = BoundsInteger (*)(BoundsInteger&, const BoundsInteger&);
 
 RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
 
@@ -220,7 +220,7 @@ void RetrieveMarkedInterval(const std::vector<int>& positionInfos, std::vector<i
  * @param[out] xIntervals The output vector for x axis intervals.
  * @param[out] yIntervals The output vector for y axis intervals.
  */
-void GetDamagedRangesInterval(const std::vector<Rect<int>>& damagedRects, const Rect<int32_t>& surfaceRect, std::vector<int>& xIntervals, std::vector<int>& yIntervals)
+void GetDamagedRangesInterval(const std::vector<BoundsInteger>& damagedRects, const BoundsInteger& surfaceRect, std::vector<int>& xIntervals, std::vector<int>& yIntervals)
 {
   static std::vector<int> rectXPositionInfos;
   static std::vector<int> rectYPositionInfos;
@@ -284,7 +284,7 @@ void GetDamagedRangesInterval(const std::vector<Rect<int>>& damagedRects, const 
  *
  * Now the rectangles who actually contains the all input damaged rectangles collected only.
  */
-void MergeIntersectingRectsAndRotateForLargeCase(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std::vector<BoundsInteger>& damagedRects, int orientation, const BoundsInteger& surfaceRect)
 {
   /**
    * @brief Helper class to clean the damaged rects as surfaceRect on exit.
@@ -292,7 +292,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(Rect<int>& mergingRect, std::ve
   class DamagedRectsCleaner
   {
   public:
-    explicit DamagedRectsCleaner(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, const int orientation, const Rect<int>& surfaceRect)
+    explicit DamagedRectsCleaner(BoundsInteger& mergingRect, std::vector<BoundsInteger>& damagedRects, const int orientation, const BoundsInteger& surfaceRect)
     : mMergingRect(mergingRect),
       mDamagedRects(damagedRects),
       mSurfaceRect(surfaceRect),
@@ -317,11 +317,11 @@ void MergeIntersectingRectsAndRotateForLargeCase(Rect<int>& mergingRect, std::ve
     }
 
   private:
-    Rect<int>&              mMergingRect;
-    std::vector<Rect<int>>& mDamagedRects;
-    const Rect<int>         mSurfaceRect;
-    const int               mOrientation;
-    bool                    mCleanOnReturn;
+    BoundsInteger&              mMergingRect;
+    std::vector<BoundsInteger>& mDamagedRects;
+    const BoundsInteger         mSurfaceRect;
+    const int                   mOrientation;
+    bool                        mCleanOnReturn;
   };
 
   DamagedRectsCleaner damagedRectCleaner(mergingRect, damagedRects, orientation, surfaceRect);
@@ -438,7 +438,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(Rect<int>& mergingRect, std::ve
  * @brief Merges intersecting rectangles and rotates them for small number of damaged rectscases.
  * Time complexity is O(n^2) for merge. Space complexity is O(1) (no extra space used).
  */
-void MergeIntersectingRectsAndRotateForSmallCase(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+void MergeIntersectingRectsAndRotateForSmallCase(BoundsInteger& mergingRect, std::vector<BoundsInteger>& damagedRects, int orientation, const BoundsInteger& surfaceRect)
 {
   uint32_t n = damagedRects.size();
   for(uint32_t i = 0; i < n - 1; i++)
@@ -509,7 +509,7 @@ void MergeIntersectingRectsAndRotateForSmallCase(Rect<int>& mergingRect, std::ve
  * For small numbers of rectangles (n <= MERGE_RECTS_LOGIC_THRESHOLD), the legacy approach is simple and incurs minimal overhead.
  * For larger sets, the legacy approach becomes inefficient due to quadratic time complexity, so the interval-based method is used instead.
  */
-void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+void MergeIntersectingRectsAndRotate(BoundsInteger& mergingRect, std::vector<BoundsInteger>& damagedRects, int orientation, const BoundsInteger& surfaceRect)
 {
   if(damagedRects.size() <= MERGE_RECTS_LOGIC_THRESHOLD)
   {
@@ -524,8 +524,7 @@ void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<in
 } // unnamed namespace
 
 WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
-: mDisplayConnection(nullptr),
-  mPositionSize(positionSize),
+: mPositionSize(positionSize),
   mWindowBase(),
   mThreadSynchronization(nullptr),
   mRenderNotification(nullptr),
@@ -542,7 +541,6 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mScreenRotationAngle(0),
   mDpiHorizontal(0),
   mDpiVertical(0),
-  mOwnSurface(false),
   mIsImeWindowSurface(false),
   mNeedWindowRotationAcknowledgement(false),
   mIsWindowOrientationChanging(false),
@@ -591,7 +589,7 @@ void WindowRenderSurface::Initialize()
   // Create frame rendered trigger.
   if(!mFrameRenderedTrigger)
   {
-    mFrameRenderedTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback)));
+    mFrameRenderedTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback));
     DALI_LOG_DEBUG_INFO("mFrameRenderedTrigger Trigger Id(%u)\n", mFrameRenderedTrigger->GetId());
   }
 }
@@ -625,7 +623,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 {
   if(!mPostRenderTrigger)
   {
-    mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
+    mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender));
     DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
   }
 
@@ -812,7 +810,7 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   mWindowBase->MoveResize(positionSize);
 }
 
-void WindowRenderSurface::Resize(Uint16Pair size)
+void WindowRenderSurface::Resize(SurfaceSize size)
 {
   Dali::PositionSize positionSize;
 
@@ -830,7 +828,7 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   InitializeGraphics();
 
@@ -954,7 +952,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     DALI_LOG_RELEASE_INFO("Window/Screen orientation are changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
 
-    Rect<int> surfaceSize = scene.GetCurrentSurfaceRect();
+    BoundsInteger surfaceSize = scene.GetCurrentSurfaceRect();
     // update surface size
     mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
@@ -974,7 +972,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
 
     // Resize case
-    Uint16Pair size;
+    SurfaceSize size;
 
     if(totalAngle == 0 || totalAngle == 180)
     {
@@ -1004,15 +1002,22 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
   if(scene)
   {
-    Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
-    if(clippingRect == surfaceRect)
+    // DevNote : Empty damaged rect mark as full-swap at SwapBuffer time.
+    // Do not assign rects for this case.
+    if(!mDamagedRects.empty())
     {
-      int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
-      if(totalAngle >= 360)
+      BoundsInteger surfaceRect = scene.GetCurrentSurfaceRect();
+      if(clippingRect == surfaceRect)
       {
-        totalAngle -= 360;
+        int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
+        if(totalAngle >= 360)
+        {
+          totalAngle -= 360;
+        }
+
+        // Set damaged rects as single surface rect.
+        mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
       }
-      mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
     }
   }
 
@@ -1106,7 +1111,7 @@ void WindowRenderSurface::InitializeImeSurface()
     mIsImeWindowSurface = true;
     if(!mPostRenderTrigger)
     {
-      mPostRenderTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender)));
+      mPostRenderTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender));
       DALI_LOG_DEBUG_INFO("mPostRenderTrigger Trigger Id(%u)\n", mPostRenderTrigger->GetId());
     }
   }
@@ -1187,11 +1192,11 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
   }
 }
 
-void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+void WindowRenderSurface::SetBufferDamagedRects(const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   // If scene is not exist, just use stored mPositionSize.
-  Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
-  int32_t   orientation = 0;
+  BoundsInteger surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
+  int32_t       orientation = 0;
 
   // Clear damage rect list first.
   // DevNote : Empty damaged rect mark as full-swap at SwapBuffer time
@@ -1220,7 +1225,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   if(damagedRects.empty())
   {
     // Empty damaged rect. We don't need rendering
-    clippingRect = Rect<int>();
+    clippingRect = BoundsInteger();
     return;
   }
 
@@ -1277,7 +1282,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
   if(!clippingRect.IsEmpty())
   {
-    std::vector<Rect<int>> damagedRegion;
+    std::vector<BoundsInteger> damagedRegion;
     if(scene)
     {
       damagedRegion.push_back(RecalculateRect[orientation](clippingRect, surfaceRect));
@@ -1291,7 +1296,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   }
 }
 
-void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
+void WindowRenderSurface::SwapBuffers(const std::vector<BoundsInteger>& damagedRects)
 {
   // Aging full-swap flags.
   mFullSwapFlag = (mFullSwapFlag >> 1u);

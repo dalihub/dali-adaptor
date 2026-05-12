@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@ Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
 
   int multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
 
+  auto contextPriority = mEnvironmentOptions.GetGraphicsContextPriority();
+
   Graphics::GraphicsCreateInfo info{};
   info.surfaceWidth     = 0; // Not needed initially.
   info.surfaceHeight    = 0;
@@ -67,7 +69,7 @@ Graphics::GraphicsInterface& VulkanGraphicsFactory::Create()
 
   info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Dali::Graphics::VulkanGraphics(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+  auto graphics = new Dali::Graphics::VulkanGraphics(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel, contextPriority);
   return static_cast<Dali::Graphics::GraphicsInterface&>(*graphics);
 }
 

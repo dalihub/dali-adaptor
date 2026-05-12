@@ -31,7 +31,7 @@ struct EventThreadCallback::Impl
 EventThreadCallback::EventThreadCallback(CallbackBase* callback)
 : mImpl(new Impl())
 {
-  mImpl->eventTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(callback));
+  mImpl->eventTrigger = TriggerEventFactory::CreateTriggerEvent(callback);
   mImpl->id           = mImpl->eventTrigger->GetId();
 }
 

@@ -44,7 +44,7 @@ protected:
    *
    * @return The Action object
    */
-  std::shared_ptr<Dali::Accessibility::Action> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Action> FindSelf() const;
 
 public:
   /**

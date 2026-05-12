@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -424,7 +424,7 @@ private:                                  // Attributes
 
   volatile unsigned int mFirstFrameAfterResume; ///< Will be set to check the first frame after resume (for log)
 
-  std::vector<Rect<int>> mDamagedRects; ///< Keeps collected damaged render items rects for one render pass
+  std::vector<BoundsInteger> mDamagedRects; ///< Keeps collected damaged render items rects for one render pass
 };
 
 } // namespace Adaptor

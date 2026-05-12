@@ -40,7 +40,7 @@ public:
   }
 
 public:
-  void Create(Application& app)
+  void Create(Application app)
   {
   }
 };

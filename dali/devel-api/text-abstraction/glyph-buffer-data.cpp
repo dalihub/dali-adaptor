@@ -375,12 +375,10 @@ void GlyphBufferData::Decompress(const GlyphBufferData& __restrict__ inBufferDat
       // Compress for each line
       for(uint32_t y = 0; y < inBufferData.height; ++y)
       {
-        uint32_t x           = 0;
         uint32_t decodedByte = 0;
         while(decodedByte < widthByte)
         {
           const uint8_t v = *(inBufferPtr++);
-          ++x;
           // Compress by RLE
           if(v & 0x80)
           {
@@ -415,7 +413,6 @@ void GlyphBufferData::Decompress(const GlyphBufferData& __restrict__ inBufferDat
                 const uint8_t w0    = (prew0 + ((w >> 4) & 0x0f)) & 0x0f;
                 const uint8_t prew1 = DALI_UNLIKELY(y == 0) ? 0 : (*(outBufferPtr - widthByte + 1)) & 0x0f;
                 const uint8_t w1    = (prew1 + (w & 0x0f)) & 0x0f;
-                ++x;
 
                 *(outBufferPtr++) = (w0 << 4) | w0;
                 *(outBufferPtr++) = (w1 << 4) | w1;
@@ -425,7 +422,6 @@ void GlyphBufferData::Decompress(const GlyphBufferData& __restrict__ inBufferDat
                 const uint8_t w     = ((*(inBufferPtr++)) >> 4) & 0x0f;
                 const uint8_t prew0 = DALI_UNLIKELY(y == 0) ? 0 : (*(outBufferPtr - widthByte)) & 0x0f;
                 const uint8_t w0    = (prew0 + w) & 0x0f;
-                ++x;
 
                 *(outBufferPtr++) = (w0 << 4) | w0;
               }
@@ -439,7 +435,6 @@ void GlyphBufferData::Decompress(const GlyphBufferData& __restrict__ inBufferDat
                 const uint8_t w0    = (prew0 + ((w >> 4) & 0x0f)) & 0x0f;
                 const uint8_t prew1 = DALI_UNLIKELY(y == 0) ? 0 : (*(outBufferPtr - widthByte + 1)) & 0x0f;
                 const uint8_t w1    = (prew1 + (w & 0x0f)) & 0x0f;
-                ++x;
 
                 *(outBufferPtr++) = (w0 << 4) | w0;
                 *(outBufferPtr++) = (w1 << 4) | w1;

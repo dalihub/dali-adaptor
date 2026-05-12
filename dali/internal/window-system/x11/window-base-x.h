@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_BASE_X_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -312,7 +312,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion) override;
+  void SetInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
@@ -462,12 +462,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IncludeInputRegion()
    */
-  void IncludeInputRegion(const Rect<int>& inputRegion) override;
+  void IncludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
    */
-  void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+  void ExcludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()
@@ -671,7 +671,6 @@ private:
   ::Window                                      mWindow;         ///< Native window handle
   bool                                          mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
   bool                                          mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
-  bool                                          mRotationAppSet : 1;
   int                                           mWindowRotationAngle;
 };
 

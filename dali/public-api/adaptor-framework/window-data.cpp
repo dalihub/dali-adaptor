@@ -30,11 +30,11 @@ struct WindowData::Impl
   {
   }
 
-  Dali::Rect<int> mPositionSize;           ///< The position and size of the Window
-  bool            mIsTransparent;          ///< The transparency of the Window
-  WindowType      mWindowType;             ///< The window type of the Window
-  bool            mIsFrontBufferRendering; ///< The front buffer rendering of the Window
-  Dali::String    mScreen;                 ///< The current screen for supporting multiple screen
+  Dali::BoundsInteger mPositionSize;           ///< The position and size of the Window
+  bool                mIsTransparent;          ///< The transparency of the Window
+  WindowType          mWindowType;             ///< The window type of the Window
+  bool                mIsFrontBufferRendering; ///< The front buffer rendering of the Window
+  Dali::String        mScreen;                 ///< The current screen for supporting multiple screen
 };
 
 WindowData::WindowData()
@@ -44,12 +44,12 @@ WindowData::WindowData()
 
 WindowData::~WindowData() = default;
 
-void WindowData::SetPositionSize(Dali::Rect<int>& positionSize)
+void WindowData::SetPositionSize(Dali::BoundsInteger& positionSize)
 {
   mImpl->mPositionSize = positionSize;
 }
 
-Dali::Rect<int> WindowData::GetPositionSize() const
+Dali::BoundsInteger WindowData::GetPositionSize() const
 {
   return mImpl->mPositionSize;
 }

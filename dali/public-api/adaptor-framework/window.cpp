@@ -253,7 +253,7 @@ unsigned int Window::GetAuxiliaryHintId(const Dali::String& hint) const
   return GetImplementation(*this).GetAuxiliaryHintId(ToStdString(hint));
 }
 
-void Window::SetInputRegion(const Rect<int>& inputRegion)
+void Window::SetInputRegion(const BoundsInteger& inputRegion)
 {
   return GetImplementation(*this).SetInputRegion(inputRegion);
 }

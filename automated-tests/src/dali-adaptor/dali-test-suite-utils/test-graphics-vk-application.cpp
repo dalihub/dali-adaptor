@@ -30,7 +30,9 @@ TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
 : mGraphics(GetGraphicsCreateInfo(surfaceWidth, surfaceHeight),
             Dali::Integration::DepthBufferAvailable::FALSE,
             Dali::Integration::StencilBufferAvailable::FALSE,
-            Dali::Integration::PartialUpdateAvailable::FALSE, 0),
+            Dali::Integration::PartialUpdateAvailable::FALSE,
+            0,
+            Dali::Graphics::ContextPriority::DEFAULT),
   mCore(NULL),
   mSurfaceWidth(surfaceWidth),
   mSurfaceHeight(surfaceHeight),
@@ -90,7 +92,7 @@ void TestGraphicsApplication::CreateCore()
 void TestGraphicsApplication::CreateScene()
 {
   Graphics::RenderTargetCreateInfo createInfo{};
-  createInfo.SetSurface({nullptr})
+  createInfo.SetSurface(nullptr)
     .SetExtent({mSurfaceWidth, mSurfaceHeight})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
@@ -211,7 +213,7 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   mRenderStatus.SetNeedsUpdate(false);
   mRenderStatus.SetNeedsPostRender(false);
 
-  std::vector<Rect<int>> damagedRects;
+  std::vector<BoundsInteger> damagedRects;
 
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);
   mCore->PreRenderScene(mScene, mScenePreRenderStatus, damagedRects);
@@ -224,7 +226,7 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects)
+bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<BoundsInteger>& damagedRects)
 {
   DoUpdate(intervalMilliseconds, location);
 
@@ -234,7 +236,7 @@ bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMillis
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
@@ -268,7 +270,7 @@ bool TestGraphicsApplication::GetRenderNeedsPostRender()
 
 bool TestGraphicsApplication::RenderOnly()
 {
-  std::vector<Rect<int>> damagedRects;
+  std::vector<BoundsInteger> damagedRects;
 
   // Update Time values
   mCore->PreRender(mRenderStatus, false /*do not force clear*/);

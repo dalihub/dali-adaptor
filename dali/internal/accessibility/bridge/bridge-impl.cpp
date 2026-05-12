@@ -47,6 +47,7 @@
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/public-api/common/shared-ptr.h>
 
 using namespace Dali::Accessibility;
 
@@ -86,7 +87,7 @@ class BridgeImpl : public virtual BridgeBase,
   Dali::Timer                                                   mReadScreenReaderEnabledTimer;
   Dali::Timer                                                   mForceUpTimer;
   std::string                                                   mPreferredBusName;
-  std::map<uint32_t, std::shared_ptr<Accessible>>               mAccessibles; // Actor.ID to Accessible map
+  std::map<uint32_t, Dali::SharedPtr<Accessible>>               mAccessibles; // Actor.ID to Accessible map
 
 public:
   BridgeImpl() = default;
@@ -106,7 +107,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::AddAccessible()
    */
-  bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  bool AddAccessible(uint32_t actorId, Dali::SharedPtr<Accessible> accessible) override
   {
     mAccessibles[actorId] = std::move(accessible);
     return true;
@@ -123,23 +124,23 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::GetAccessible()
    */
-  std::shared_ptr<Accessible> GetAccessible(Dali::Actor actor) const override
+  Dali::SharedPtr<Accessible> GetAccessible(Dali::Actor actor) const override
   {
     uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
     auto     iter    = mAccessibles.find(actorId);
-    return iter != mAccessibles.end() ? iter->second : nullptr;
+    return iter != mAccessibles.end() ? iter->second : Dali::SharedPtr<Accessible>();
   }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetAccessible()
    */
-  std::shared_ptr<Accessible> GetAccessible(const std::string& path) const override
+  Dali::SharedPtr<Accessible> GetAccessible(const std::string& path) const override
   {
     try
     {
       uint32_t actorId = static_cast<uint32_t>(std::stoi(path));
       auto     iter    = mAccessibles.find(actorId);
-      return iter != mAccessibles.end() ? iter->second : nullptr;
+      return iter != mAccessibles.end() ? iter->second : Dali::SharedPtr<Accessible>();
     }
     catch(const std::invalid_argument& ia)
     {
@@ -167,9 +168,9 @@ public:
 
   void NotifyIncludeHiddenChanged() override
   {
-    for(const auto& iter : mAccessibles)
+    for(auto& iter : mAccessibles)
     {
-      const auto& accessible = iter.second;
+      auto& accessible = iter.second;
       if(accessible->IsHidden())
       {
         auto* parent = dynamic_cast<ActorAccessible*>(accessible->GetParent());
@@ -330,7 +331,7 @@ public:
 
     for(auto& [key, obj] : mAccessibles)
     {
-      if(auto actorAccessible = std::dynamic_pointer_cast<ActorAccessible>(obj))
+      if(auto actorAccessible = Dali::DynamicPointerCast<ActorAccessible>(obj))
       {
         actorAccessible->ClearCache();
       }
@@ -1053,7 +1054,7 @@ static bool INITIALIZED_BRIDGE = false;
  * @return The BridgeImpl instance
  * @note This method is to check environment variable first. If ATSPI is disable using env, it returns dummy bridge instance.
  */
-std::shared_ptr<Bridge> CreateBridge()
+Dali::SharedPtr<Bridge> CreateBridge()
 {
   INITIALIZED_BRIDGE = true;
 
@@ -1067,7 +1068,7 @@ std::shared_ptr<Bridge> CreateBridge()
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
-    return std::make_shared<BridgeImpl>();
+    return Dali::MakeShared<BridgeImpl>();
   }
   catch(const std::exception&)
   {
@@ -1080,16 +1081,16 @@ std::shared_ptr<Bridge> CreateBridge()
 
 // Dali::Accessibility::Bridge class implementation
 
-std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
+Dali::SharedPtr<Bridge> Bridge::GetCurrentBridge()
 {
-  static std::shared_ptr<Bridge> bridge;
+  static Dali::SharedPtr<Bridge> bridge;
 
   // Guard rare case that call this API after Bridge destructor.
   // (Since static bridge didn't be nullptr at static variables destroy case.)
   if(DALI_UNLIKELY(Dali::Accessibility::Bridge::IsTerminated()))
   {
     DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
-    return nullptr;
+    return Dali::SharedPtr<Bridge>();
   }
 
   if(bridge)

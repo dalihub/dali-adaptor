@@ -38,7 +38,7 @@ const char* DALI_TEMP_UPDATE_FPS_FILE("/tmp/dalifps.txt");
 } // unnamed namespace
 
 FpsTracker::FpsTracker(const EnvironmentOptions& environmentOptions)
-: mFpsTrackingSeconds(fabsf(environmentOptions.GetFrameRateLoggingFrequency())),
+: mFpsTrackingSeconds(static_cast<float>(environmentOptions.GetFrameRateLoggingFrequency())),
   mFrameCount(0.0f),
   mElapsedTime(0.0f)
 {
@@ -83,7 +83,7 @@ void FpsTracker::UpdateEnvironmentOptions(const EnvironmentOptions& environmentO
     mFrameCount  = 0.f;
     mElapsedTime = 0.f;
   }
-  mFpsTrackingSeconds = fabsf(environmentOptions.GetFrameRateLoggingFrequency());
+  mFpsTrackingSeconds = static_cast<float>(environmentOptions.GetFrameRateLoggingFrequency());
 }
 
 void FpsTracker::OutputFPSRecord()

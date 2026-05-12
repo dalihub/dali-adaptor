@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_REFLECTION_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,8 +231,8 @@ private:
   void ParseUniformBlockVariables(struct ::SpvReflectBlockVariable* members, uint32_t memberCount, std::vector<FullyQualifiedMember>& flattenedStructs);
 
 protected:
-  Reflection(Reflection&&) noexcept            = default;
-  Reflection& operator=(Reflection&&) noexcept = default;
+  Reflection(Reflection&&) noexcept            = delete;
+  Reflection& operator=(Reflection&&) noexcept = delete;
 
 private:
   VulkanGraphicsController& mController; ///< The Graphics controller

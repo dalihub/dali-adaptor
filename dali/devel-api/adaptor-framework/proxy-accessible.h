@@ -143,9 +143,9 @@ public:
     return Dali::Actor{};
   }
 
-  Rect<float> GetExtents(CoordinateType type) const override
+  Bounds GetExtents(CoordinateType type) const override
   {
-    return mParent ? mParent->GetExtents(type) : Rect<float>{};
+    return mParent ? mParent->GetExtents(type) : Bounds{};
   }
 
   ComponentLayer GetLayer() const override

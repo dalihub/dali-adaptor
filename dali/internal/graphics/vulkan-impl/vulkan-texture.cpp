@@ -1148,7 +1148,7 @@ bool Texture::TryConvertPixelData(const void* pData, uint32_t sizeInBytes, uint3
 
   auto begin = reinterpret_cast<const uint8_t*>(pData);
 
-  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, 0u));
+  outputBuffer = it->pConversionFunc(begin, sizeInBytes, width, height, 0u);
   return !outputBuffer.empty();
 }
 
@@ -1694,7 +1694,7 @@ const TextureProperties& Texture::GetProperties()
 {
   if(!mProperties)
   {
-    mProperties = std::move(std::make_unique<Dali::Graphics::TextureProperties>());
+    mProperties = std::make_unique<Dali::Graphics::TextureProperties>();
 
     auto formatInfo                       = GetFormatInfo(mFormat);
     mProperties->compressed               = formatInfo.compressed;

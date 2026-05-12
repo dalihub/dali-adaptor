@@ -103,7 +103,7 @@ public:
    * @note This method is for static image. If the image is animated image, return empty pixelBuffers.
    * @return true if loading succeeded, false otherwise.
    */
-  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size);
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
 
   /**
    * @brief Get the size of a webp image.

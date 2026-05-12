@@ -576,7 +576,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextX::GetTextDirection()
   return direction;
 }
 
-Rect<int> InputMethodContextX::GetInputMethodArea()
+BoundsInteger InputMethodContextX::GetInputMethodArea()
 {
   int xPos, yPos, width, height;
 
@@ -591,7 +591,7 @@ Rect<int> InputMethodContextX::GetInputMethodArea()
     DALI_LOG_ERROR("VKB Unable to get InputMethodContext Context so GetSize unavailable\n");
   }
 
-  return Rect<int>(xPos, yPos, width, height);
+  return BoundsInteger(xPos, yPos, width, height);
 }
 
 void InputMethodContextX::ApplyOptions(const InputMethodOptions& options)

@@ -44,8 +44,6 @@ namespace
 {
 #ifndef DALI_PROFILE_UBUNTU
 const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 20;
-#else
-const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
 #endif
 const uint32_t CHECK_EXTENSION_NUMBER                  = 4;
 const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
@@ -84,7 +82,8 @@ namespace Adaptor
 EglImplementation::EglImplementation(int                                 multiSamplingLevel,
                                      Integration::DepthBufferAvailable   depthBufferRequired,
                                      Integration::StencilBufferAvailable stencilBufferRequired,
-                                     Integration::PartialUpdateAvailable partialUpdateRequired)
+                                     Integration::PartialUpdateAvailable partialUpdateRequired,
+                                     Dali::Graphics::ContextPriority     contextPriority)
 : mContextAttribs(),
   mEglNativeDisplay(0),
   mEglNativeWindow(0),
@@ -97,6 +96,7 @@ EglImplementation::EglImplementation(int                                 multiSa
   mMultiSamplingLevel(multiSamplingLevel),
   mGlesVersion(30),
   mColorDepth(COLOR_DEPTH_24),
+  mContextPriority(contextPriority),
   mGlesInitialized(false),
   mIsOwnSurface(true),
   mIsWindow(true),
@@ -261,7 +261,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
                        << "Vendor: " << vendorStr << std::endl
                        << "Version: " << versionStr << std::endl
                        << "Client APIs: " << clientStr;
-    Graphics::Internal::SetBackendInformation(std::move(backendInformation.str()));
+    Graphics::Internal::SetBackendInformation(backendInformation.str());
   }
 
   return mGlesInitialized;
@@ -609,7 +609,7 @@ int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
   return age;
 }
 
-void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects)
+void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<BoundsInteger>& damagedRects)
 {
   if(!mPartialUpdateRequired)
   {
@@ -627,7 +627,7 @@ void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect
   }
 }
 
-void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects)
+void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<BoundsInteger>& damagedRects)
 {
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
@@ -649,7 +649,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 #endif
 #endif //DALI_PROFILE_UBUNTU
 
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<Rect<int>>&>(damagedRects).data()), damagedRects.size());
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<BoundsInteger>&>(damagedRects).data()), damagedRects.size());
     if(result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());
@@ -827,6 +827,37 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
     mContextAttribs.Reserve(3);
     mContextAttribs.PushBack(EGL_CONTEXT_CLIENT_VERSION);
     mContextAttribs.PushBack(mGlesVersion / 10);
+  }
+
+  if(mContextPriority != Dali::Graphics::ContextPriority::MEDIUM)
+  {
+    configAttribs.PushBack(EGL_CONTEXT_PRIORITY_LEVEL_IMG);
+    switch(mContextPriority)
+    {
+      case Dali::Graphics::ContextPriority::LOW:
+      {
+        DALI_LOG_DEBUG_INFO("eglChooseConfig with ContextPriority::LOW\n");
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_LOW_IMG);
+        break;
+      }
+      default:
+      {
+        DALI_LOG_DEBUG_INFO("Not supported proirity! [%d] eglChooseConfig with ContextPriority::MEDIUM\n", static_cast<int>(mContextPriority));
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_MEDIUM_IMG);
+        break;
+      }
+      case Dali::Graphics::ContextPriority::REALTIME:
+      {
+        DALI_LOG_DEBUG_INFO("ContextPriority::REALTIME not supported now.\n");
+        DALI_FALLTHROUGH;
+      }
+      case Dali::Graphics::ContextPriority::HIGH:
+      {
+        DALI_LOG_DEBUG_INFO("eglChooseConfig with ContextPriority::HIGH\n");
+        configAttribs.PushBack(EGL_CONTEXT_PRIORITY_HIGH_IMG);
+        break;
+      }
+    }
   }
   mContextAttribs.PushBack(EGL_NONE);
 

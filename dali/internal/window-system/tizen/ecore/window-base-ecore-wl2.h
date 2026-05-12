@@ -445,7 +445,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion) override;
+  void SetInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
@@ -595,12 +595,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IncludeInputRegion()
    */
-  void IncludeInputRegion(const Rect<int>& inputRegion) override;
+  void IncludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
    */
-  void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+  void ExcludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()
@@ -821,9 +821,9 @@ private:
    *
    * @param[in] rect The input region rectangle in current window orientation coordinates.
    * @param[in] surfaceSize The surface dimensions containing width and height for transformation calculations.
-   * @return Rect<int> The transformed input region rectangle in system coordinates.
+   * @return BoundsInteger The transformed input region rectangle in system coordinates.
    */
-  Rect<int> RecalculateInputRect(const Rect<int>& rect, const Rect<int>& surfaceSize);
+  BoundsInteger RecalculateInputRect(const BoundsInteger& rect, const BoundsInteger& surfaceSize);
 
 protected:
   // Undefined

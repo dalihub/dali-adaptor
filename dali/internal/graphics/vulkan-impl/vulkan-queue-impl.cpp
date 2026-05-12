@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,12 @@ SubmissionData& SubmissionData::SetSignalSemaphores(const std::vector<vk::Semaph
 }
 
 // queue
-Queue::Queue(vk::Queue      queue,
-             uint32_t       queueFamilyIndex,
-             uint32_t       queueIndex,
-             vk::QueueFlags queueFlags)
+Queue::Queue(vk::Queue                 queue,
+             [[maybe_unused]] uint32_t queueFamilyIndex,
+             [[maybe_unused]] uint32_t queueIndex,
+             vk::QueueFlags            queueFlags)
 : mQueue(queue),
   mFlags(queueFlags),
-  mQueueFamilyIndex(queueFamilyIndex),
-  mQueueIndex(queueIndex),
   mMutex()
 {
 }

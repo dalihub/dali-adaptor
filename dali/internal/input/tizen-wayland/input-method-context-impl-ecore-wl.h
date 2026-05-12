@@ -256,7 +256,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetInputMethodArea()
    */
-  Dali::Rect<int> GetInputMethodArea() override;
+  Dali::BoundsInteger GetInputMethodArea() override;
 
   /**
    * @copydoc Dali::InputMethodContext::ApplyOptions()

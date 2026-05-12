@@ -26,18 +26,21 @@
 #include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
-#if defined(DEBUG_ENABLED)
-Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
-#endif
-
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
+#endif
+} // namespace
+
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
-: mEglSync(NULL),
+: mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
 }
@@ -69,10 +72,14 @@ bool EglSyncObject::Poll()
   return false;
 }
 
+struct EglSyncImplementation::Impl
+{
+};
+
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation(NULL),
-  mSyncInitialized(false),
-  mSyncInitializeFailed(false)
+: mEglImplementation(nullptr),
+  mSyncObjects(),
+  mImpl(nullptr)
 {
 }
 

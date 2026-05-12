@@ -37,7 +37,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 class Application;
 typedef IntrusivePtr<Application> ApplicationPtr;
@@ -442,11 +442,6 @@ protected:
   // Undefined
   Application(const Application&);
   Application& operator=(Application&);
-
-  /**
-   * Quits from the main loop
-   */
-  void QuitFromMainLoop();
 
 private:
   AppSignalType                      mInitSignal;

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PERFORMANCE_SERVER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public:
   /**
    * @copydoc PerformanceLogger::GetContextId()
    */
-  virtual ContextId GetContextId(const char* name);
+  virtual ContextId GetContextId(const char* name) override;
 
   /**
    * @copydoc PerformanceLogger::RemoveContext()
@@ -88,7 +88,7 @@ public:
    */
   virtual void SetLogging(unsigned int statisticsLogOptions,
                           unsigned int timeStampOutput,
-                          unsigned int logFrequency);
+                          unsigned int logFrequency) override;
 
   /**
    * @copydoc PerformanceLogger::SetLoggingFrequency()

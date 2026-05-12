@@ -40,7 +40,7 @@ protected:
    *
    * @return The Socket object
    */
-  std::shared_ptr<Dali::Accessibility::Socket> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Socket> FindSelf() const;
 
 public:
   /**

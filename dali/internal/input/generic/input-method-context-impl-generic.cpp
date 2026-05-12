@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -192,14 +192,14 @@ Dali::InputMethodContext::TextDirection InputMethodContextGeneric::GetTextDirect
   return direction;
 }
 
-Rect<int> InputMethodContextGeneric::GetInputMethodArea()
+BoundsInteger InputMethodContextGeneric::GetInputMethodArea()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::GetInputMethodArea\n");
 
   int xPos, yPos, width, height;
 
   width = height = xPos = yPos = 0;
-  return Rect<int>(xPos, yPos, width, height);
+  return BoundsInteger(xPos, yPos, width, height);
 }
 
 void InputMethodContextGeneric::ApplyOptions(const InputMethodOptions& options)

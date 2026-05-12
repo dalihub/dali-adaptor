@@ -65,7 +65,7 @@ bool IsPredictionEnabled()
   return Internal::Adaptor::VirtualKeyboard::IsPredictionEnabled();
 }
 
-Rect<int> GetSizeAndPosition()
+BoundsInteger GetSizeAndPosition()
 {
   return Internal::Adaptor::VirtualKeyboard::GetSizeAndPosition();
 }

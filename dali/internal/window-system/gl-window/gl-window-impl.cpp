@@ -322,7 +322,7 @@ unsigned int GlWindow::GetAuxiliaryHintId(const std::string& hint) const
   return mWindowBase->GetAuxiliaryHintId(hint);
 }
 
-void GlWindow::SetInputRegion(const Rect<int>& inputRegion)
+void GlWindow::SetInputRegion(const BoundsInteger& inputRegion)
 {
   mWindowBase->SetInputRegion(inputRegion);
 
@@ -392,8 +392,8 @@ void GlWindow::SetPositionSize(PositionSize positionSize)
   // If window's size or position is changed, the signal will be emitted to user.
   if(needToMove || needToResize)
   {
-    Uint16Pair     newSize(mPositionSize.width, mPositionSize.height);
-    Dali::GlWindow handle(this);
+    Dali::GlWindow::WindowSize newSize(mPositionSize.width, mPositionSize.height);
+    Dali::GlWindow             handle(this);
     mResizeSignal.Emit(newSize);
 
     if(mGlWindowRenderThread)
@@ -544,7 +544,7 @@ void GlWindow::OnRotation(const RotationEvent& rotation)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {
@@ -806,7 +806,9 @@ void GlWindow::InitializeGraphics()
     Graphics::GraphicsInterface* graphics = mGraphics.get();
 
     mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
-    graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
+
+    auto contextPriority = Dali::Graphics::ContextPriority::MEDIUM; ///< TODO : Need to make API to support it.
+    graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA, contextPriority);
 
     // Create Render Thread
     mGlWindowRenderThread = std::unique_ptr<Dali::Internal::Adaptor::GlWindowRenderThread>(new GlWindowRenderThread(mPositionSize, mColorDepth));
@@ -859,7 +861,7 @@ void GlWindow::UpdateScreenRotation(int newAngle)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {

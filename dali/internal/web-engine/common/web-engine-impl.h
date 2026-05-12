@@ -455,12 +455,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetScreenshot()
    */
-  Dali::PixelData GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor);
+  Dali::PixelData GetScreenshot(Dali::BoundsInteger viewArea, float scaleFactor);
 
   /**
    * @copydoc Dali::WebEngine::GetScreenshotAsync()
    */
-  bool GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
+  bool GetScreenshotAsynchronously(Dali::BoundsInteger viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::IsVideoPlaying()
@@ -475,7 +475,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::UpdateDisplayArea()
    */
-  void UpdateDisplayArea(Dali::Rect<int32_t> displayArea);
+  void UpdateDisplayArea(Dali::BoundsInteger displayArea);
 
   /**
    * @copydoc Dali::WebEngine::EnableVideoHole()

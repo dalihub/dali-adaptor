@@ -64,7 +64,6 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
  */
 ImageDimensions GetClosestImageSize(const std::string& filename,
                                     ImageDimensions    size,
-                                    FittingMode::Type  fittingMode,
                                     SamplingMode::Type samplingMode,
                                     bool               orientationCorrection);
 
@@ -73,7 +72,6 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
  */
 ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
                                     ImageDimensions              size,
-                                    FittingMode::Type            fittingMode,
                                     SamplingMode::Type           samplingMode,
                                     bool                         orientationCorrection);
 

@@ -40,6 +40,9 @@ namespace
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_HYPHENATION");
 #endif
 
+#ifdef HYPHEN_LIBRARY_AVAILABLE
+const char* const DEFAULT_LANGUAGE = "en_US";
+#endif
 } // namespace
 
 namespace Dali
@@ -48,8 +51,6 @@ namespace TextAbstraction
 {
 namespace Internal
 {
-const char* const  DEFAULT_LANGUAGE        = "en_US";
-const unsigned int DEFAULT_LANGUAGE_LENGTH = 5u;
 
 struct Hyphenation::HyphenDictionary
 {

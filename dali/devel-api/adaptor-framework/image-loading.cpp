@@ -50,9 +50,9 @@ std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t w
 
 } // namespace
 
-Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
-  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
   Internal::Platform::FileReader fileReader(url);
   FILE* const                    fp = fileReader.GetFile();
@@ -72,9 +72,9 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
   return Dali::Devel::PixelBuffer();
 }
 
-void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuffer>& buffers, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuffer>& buffers, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
-  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
   Internal::Platform::FileReader fileReader(url);
   FILE* const                    fp = fileReader.GetFile();
@@ -88,14 +88,14 @@ void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuf
   }
 }
 
-Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   if(buffer.Empty())
   {
     DALI_LOG_ERROR("buffer is empty!\n");
     return Dali::Devel::PixelBuffer();
   }
-  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
   Internal::Platform::FileReader fileReader(buffer);
   FILE* const                    fp = fileReader.GetFile();
@@ -116,14 +116,14 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
   return Dali::Devel::PixelBuffer();
 }
 
-Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   if(buffer == nullptr)
   {
     DALI_LOG_ERROR("buffer is empty!\n");
     return Dali::Devel::PixelBuffer();
   }
-  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
   Internal::Platform::FileReader fileReader(buffer, bufferSize);
   FILE* const                    fp = fileReader.GetFile();
@@ -146,11 +146,10 @@ Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, Image
 
 ImageDimensions GetClosestImageSize(const std::string& filename,
                                     ImageDimensions    size,
-                                    FittingMode::Type  fittingMode,
                                     SamplingMode::Type samplingMode,
                                     bool               orientationCorrection)
 {
-  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize(filename, size, fittingMode, samplingMode, orientationCorrection);
+  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize(filename, size, samplingMode, orientationCorrection);
 
   dimension.SetWidth(std::min(dimension.GetWidth(), static_cast<uint16_t>(GetMaxTextureSize())));
   dimension.SetHeight(std::min(dimension.GetHeight(), static_cast<uint16_t>(GetMaxTextureSize())));
@@ -160,12 +159,12 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
 
 ImageDimensions GetOriginalImageSize(const std::string& filename, bool orientationCorrection)
 {
-  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
+  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
 }
 
-Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
-  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
   bool                  succeeded;
   Dali::Vector<uint8_t> dataBuffer;

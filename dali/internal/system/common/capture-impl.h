@@ -188,7 +188,7 @@ private:
    *
    * @param[in] task is used for capture.
    */
-  void OnRenderFinished(Dali::RenderTask& task);
+  void OnRenderFinished(Dali::RenderTask task);
 
   /**
    * @brief Callback when timer is finished.

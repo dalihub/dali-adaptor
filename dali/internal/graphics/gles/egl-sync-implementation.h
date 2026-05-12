@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/ordered-set.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <memory> ///< for std::unique_ptr
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -151,11 +152,12 @@ private:
   typedef Integration::OrderedSet<EglSyncObject, false> SyncContainer;
   typedef SyncContainer::Iterator                       SyncIter;
 
-  EglImplementation* mEglImplementation;    ///< Egl implementation (to get display)
-  bool               mSyncInitialized;      ///< Flag to perform initialization on first use
-  bool               mSyncInitializeFailed; ///< Flag to avoid reloading functions if failed once
+  EglImplementation* mEglImplementation; ///< Egl implementation (to get display)
 
   SyncContainer mSyncObjects;
+
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 /**

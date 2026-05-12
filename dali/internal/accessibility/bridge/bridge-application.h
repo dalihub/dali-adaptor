@@ -42,7 +42,7 @@ protected:
    *
    * @return The Application object
    */
-  std::shared_ptr<Dali::Accessibility::Application> FindSelf() const;
+  Dali::SharedPtr<Dali::Accessibility::Application> FindSelf() const;
 
 private:
   virtual void NotifyIncludeHiddenChanged() {};

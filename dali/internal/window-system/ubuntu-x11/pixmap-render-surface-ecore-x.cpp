@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gPixmapRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_PIXMAP_RENDER_SURFACE_ECORE_X");
 #endif
 
-namespace
-{
 static const int INITIAL_PRODUCE_BUFFER_INDEX = 0;
 static const int INITIAL_CONSUME_BUFFER_INDEX = 1;
 } // namespace
@@ -227,7 +227,7 @@ void PixmapRenderSurfaceEcoreX::StartRender()
 {
 }
 
-bool PixmapRenderSurfaceEcoreX::PreRender(bool, const std::vector<Rect<int>>&, Rect<int>&)
+bool PixmapRenderSurfaceEcoreX::PreRender(bool, const std::vector<BoundsInteger>&, BoundsInteger&)
 {
   // Nothing to do for pixmaps
   return true;
@@ -367,11 +367,11 @@ unsigned int PixmapRenderSurfaceEcoreX::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS(((surface.GetType() == typeid(XWindow)) ||
-                        (surface.GetType() == typeid(Ecore_X_Window))) &&
+    DALI_ASSERT_ALWAYS(((surface.IsType<XWindow>()) ||
+                        (surface.IsType<Ecore_X_Window>())) &&
                        "Surface type is invalid");
 
-    if(surface.GetType() == typeid(Ecore_X_Window))
+    if(surface.IsType<Ecore_X_Window>())
     {
       surfaceId = AnyCast<Ecore_X_Window>(surface);
     }

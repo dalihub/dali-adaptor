@@ -48,8 +48,6 @@ const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
 const char* DESKTOP_STARTUP_ID_ENV = "DESKTOP_STARTUP_ID";
 
-const unsigned int PRIMARY_TOUCH_BUTTON_ID(1);
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
@@ -261,7 +259,6 @@ WindowBaseEcoreX::WindowBaseEcoreX(Dali::PositionSize positionSize, Any surface,
   mEcoreWindow(0),
   mOwnSurface(false),
   mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet(false),
   mWindowRotationAngle(0)
 {
   Initialize(positionSize, surface, isTransparent);
@@ -841,7 +838,7 @@ unsigned int WindowBaseEcoreX::GetAuxiliaryHintId(const std::string& hint) const
   return 0;
 }
 
-void WindowBaseEcoreX::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -947,9 +944,9 @@ unsigned int WindowBaseEcoreX::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS(((surface.GetType() == typeid(XWindow)) || (surface.GetType() == typeid(Ecore_X_Window))) && "Surface type is invalid");
+    DALI_ASSERT_ALWAYS(((surface.IsType<XWindow>()) || (surface.IsType<Ecore_X_Window>())) && "Surface type is invalid");
 
-    if(surface.GetType() == typeid(Ecore_X_Window))
+    if(surface.IsType<Ecore_X_Window>())
     {
       surfaceId = AnyCast<Ecore_X_Window>(surface);
     }
@@ -1036,11 +1033,11 @@ bool WindowBaseEcoreX::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseEcoreX::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseEcoreX::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseEcoreX::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

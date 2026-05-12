@@ -532,6 +532,12 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
       return false;
     }
 
+    if(config.input.format != WEBP_LOSSY)
+    {
+      DALI_LOG_ERROR("Unsupported WebP format [%d]. Only lossy or lossless WebP is supported for plane decoding.\n", static_cast<int32_t>(config.input.format));
+      return false;
+    }
+
     int width  = config.input.width;
     int height = config.input.height;
 

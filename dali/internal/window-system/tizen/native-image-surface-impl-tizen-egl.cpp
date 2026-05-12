@@ -130,8 +130,10 @@ void NativeImageSurfaceTizen::InitializeGraphics()
   auto graphics    = mGraphics.get();
   auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
+  auto contextPriority = Dali::Graphics::ContextPriority::MEDIUM; ///< TODO : Need to make API to support it.
+
   mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));
-  eglGraphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
+  eglGraphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA, contextPriority);
 
   mEGL = &eglGraphics->GetEglInterface();
 
@@ -142,12 +144,13 @@ void NativeImageSurfaceTizen::InitializeGraphics()
 
     if(eglImpl.ChooseConfig(true, mColorDepth) == false)
     {
-      DALI_LOG_ERROR("InitializeGraphics: Fail to choose config. Version:%d, ColorDepth:%d, depth:%d, stencil:%d, MSAA:%d",
+      DALI_LOG_ERROR("InitializeGraphics: Fail to choose config. Version:%d, ColorDepth:%d, depth:%d, stencil:%d, MSAA:%d, contextPriority:%d",
                      mGLESVersion,
                      mColorDepth == COLOR_DEPTH_32 ? 32 : 24,
                      mDepth ? 24 : 0,
                      mStencil ? 8 : 0,
-                     mMSAA);
+                     mMSAA,
+                     static_cast<int32_t>(contextPriority));
       return;
     }
 

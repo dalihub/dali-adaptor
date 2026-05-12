@@ -28,7 +28,7 @@
 namespace Dali
 {
 class Any;
-using DisplayArea = Dali::Rect<int>;
+using DisplayArea = Dali::BoundsInteger;
 
 /**
  * @brief CameraPlayerPlugin is an abstract interface, used by dali-adaptor to access camera player plugin.

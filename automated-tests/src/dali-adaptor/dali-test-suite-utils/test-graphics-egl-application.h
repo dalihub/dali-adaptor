@@ -43,7 +43,7 @@ class TestGraphicsImpl : public Graphics::GraphicsInterface
 {
 public:
   TestGraphicsImpl()
-  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Dali::Integration::DepthBufferAvailable::TRUE, Dali::Integration::StencilBufferAvailable::TRUE, Dali::Integration::PartialUpdateAvailable::TRUE, 4)
+  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Dali::Integration::DepthBufferAvailable::TRUE, Dali::Integration::StencilBufferAvailable::TRUE, Dali::Integration::PartialUpdateAvailable::TRUE, 4, Dali::Graphics::ContextPriority::DEFAULT)
   {
   }
   virtual ~TestGraphicsImpl() = default;
@@ -70,13 +70,14 @@ public:
    * @param[in] partialRendering True if partial rendering is required
    * @param[in] msaa level of anti-aliasing required (-1 = off)
    */
-  void Initialize(const Dali::DisplayConnection& dc, bool depth, bool stencil, bool partialRendering, int msaa) override
+  void Initialize(const Dali::DisplayConnection& dc, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override
   {
     TraceCallStack::NamedParams namedParams;
     namedParams["depth"] << depth;
     namedParams["stencil"] << stencil;
     namedParams["partialRendering"] << partialRendering;
     namedParams["msaa"] << msaa;
+    namedParams["contextPriority"] << static_cast<int32_t>(contextPriority);
     mCallstack.PushCall("Initialize()", "");
   }
 
@@ -213,7 +214,7 @@ public:
     mCallstack.PushCall("Resume()", "");
   }
 
-  void Resize(Dali::Integration::RenderSurfaceInterface* surface, Uint16Pair size) override
+  void Resize(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize size) override
   {
     mCallstack.PushCall("Resize()", "");
   }
@@ -233,7 +234,7 @@ public:
    * @param[in] surfaceId The surface to define damage regions for
    * @param[in] damagedRegion The damage regions
    */
-  void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion) override
+  void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<BoundsInteger>& damagedRegion) override
   {
     mCallstack.PushCall("SetDamageRegion()", "");
   }
@@ -246,7 +247,7 @@ public:
   {
     mCallstack.PushCall("SwapBuffers()", "");
   }
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects) override
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damageRects) override
   {
     mCallstack.PushCall("SwapBuffers()", "");
   }
@@ -388,8 +389,8 @@ public:
   void        ProcessEvent(const Dali::Integration::Event& event);
   void        SendNotification();
   bool        Render(uint32_t intervalMilliseconds = DEFAULT_RENDER_INTERVAL, const char* location = NULL);
-  bool        PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects);
-  bool        RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect);
+  bool        PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<BoundsInteger>& damagedRects);
+  bool        RenderWithPartialUpdate(std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect);
   uint32_t    GetUpdateStatus();
   bool        UpdateOnly(uint32_t intervalMilliseconds = DEFAULT_RENDER_INTERVAL);
   bool        RenderOnly();

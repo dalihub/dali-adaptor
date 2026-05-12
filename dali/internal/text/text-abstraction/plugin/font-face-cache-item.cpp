@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -622,7 +622,7 @@ bool FontFaceCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character cha
     // It can be null if the ResetSystemDefaults() method has been called.
     FontDescription description;
     description.path   = mPath;
-    description.family = std::move(FontFamily(mFreeTypeFace->family_name));
+    description.family = FontFamily(mFreeTypeFace->family_name);
     description.weight = FontWeight::NONE;
     description.width  = FontWidth::NONE;
     description.slant  = FontSlant::NONE;

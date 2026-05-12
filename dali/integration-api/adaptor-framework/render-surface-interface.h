@@ -50,8 +50,8 @@ class AdaptorInternalServices;
 /**
  * @brief The position and size of the render surface.
  */
-using PositionSize = Dali::Rect<int>;
-using SurfaceSize  = Uint16Pair;
+using PositionSize = Dali::BoundsInteger;
+using SurfaceSize  = Int32Pair;
 
 namespace Integration
 {
@@ -162,7 +162,7 @@ public:
    * @brief Sets the size of the surface.
    * @param[in] size The new size of the surface
    */
-  virtual void Resize(Uint16Pair size) = 0;
+  virtual void Resize(SurfaceSize size) = 0;
 
   /**
    * @brief Called when Render thread has started
@@ -177,7 +177,7 @@ public:
    * @param[in] damagedRects List of damaged rects this render pass
    * @return True if the operation is successful, False if the operation failed
    */
-  virtual bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) = 0;
+  virtual bool PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect) = 0;
 
   /**
    * @brief Invoked by render thread after Core::RenderScene

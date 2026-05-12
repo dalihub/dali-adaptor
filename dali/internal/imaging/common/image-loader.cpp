@@ -293,7 +293,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
                                 header,
                                 path))
     {
-      const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.scalingMode, resource.samplingMode);
+      const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.samplingMode);
       const Dali::ImageLoader::Input             input(fp, scalingParameters, resource.orientationCorrection);
 
       // Run the image type decoder:
@@ -305,7 +305,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
         pixelBuffer.Reset();
       }
 
-      pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+      pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.samplingMode);
     }
     else
     {
@@ -339,7 +339,7 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
                                 header,
                                 path))
     {
-      const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.scalingMode, resource.samplingMode);
+      const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.samplingMode);
       const Dali::ImageLoader::Input             input(fp, scalingParameters, resource.orientationCorrection);
 
       pixelBuffers.clear();
@@ -357,7 +357,7 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
         bool applyAttributes = true;
         for(auto&& pixelBuffer : pixelBuffers)
         {
-          pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+          pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.samplingMode);
           if(!pixelBuffer)
           {
             applyAttributes = false;
@@ -380,7 +380,7 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
           return false;
         }
 
-        pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+        pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.samplingMode);
         if(pixelBuffer)
         {
           pixelBuffers.push_back(pixelBuffer);
@@ -408,7 +408,6 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
 ///@ToDo: Rename GetClosestImageSize() functions. Make them use the orientation correction and scaling information. Requires jpeg loader to tell us about reorientation. [Is there still a requirement for this functionality at all?]
 ImageDimensions GetClosestImageSize(const std::string& filename,
                                     ImageDimensions    size,
-                                    FittingMode::Type  fittingMode,
                                     SamplingMode::Type samplingMode,
                                     bool               orientationCorrection)
 {
@@ -438,7 +437,7 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
                                 headerFunction,
                                 filename))
     {
-      const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, fittingMode, samplingMode), orientationCorrection);
+      const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, samplingMode), orientationCorrection);
 
       const bool read_res = headerFunction(input, width, height);
       if(!read_res)
@@ -460,7 +459,6 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
 
 ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
                                     ImageDimensions              size,
-                                    FittingMode::Type            fittingMode,
                                     SamplingMode::Type           samplingMode,
                                     bool                         orientationCorrection)
 {
@@ -491,7 +489,7 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
                                     headerFunction,
                                     ""))
         {
-          const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, fittingMode, samplingMode), orientationCorrection);
+          const Dali::ImageLoader::Input input(fp, Dali::ImageLoader::ScalingParameters(size, samplingMode), orientationCorrection);
           const bool                     read_res = headerFunction(input, width, height);
           if(!read_res)
           {

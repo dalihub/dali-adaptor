@@ -307,7 +307,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion(const Rect<int>& inputRegion) override;
+  void SetInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
@@ -457,12 +457,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IncludeInputRegion()
    */
-  void IncludeInputRegion(const Rect<int>& inputRegion) override;
+  void IncludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
    */
-  void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+  void ExcludeInputRegion(const BoundsInteger& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()
@@ -654,7 +654,6 @@ private:
   Ecore_X_Window                     mEcoreWindow;    ///< Native window handle
   bool                               mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
   bool                               mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
-  bool                               mRotationAppSet : 1;
   int                                mWindowRotationAngle;
 };
 

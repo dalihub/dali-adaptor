@@ -238,7 +238,7 @@ void TextureUploadManager::RequestUpload(Dali::Devel::TextureUploadManager::Reso
   {
     Dali::Mutex::ScopedLock lock(mRequestMutex); // Worker-Update thread mutex
 
-    mRequestUploadQueue.push_back(std::move(UploadRequestItem(resourceId, pixelData)));
+    mRequestUploadQueue.push_back(UploadRequestItem(resourceId, pixelData));
   }
 
   // wake up the main thread

@@ -35,7 +35,6 @@ namespace Dali
  *
  * @param [in] url The URL of the image file to load.
  * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
- * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
@@ -43,7 +42,6 @@ namespace Dali
 DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
   const std::string& url,
   ImageDimensions    size                  = ImageDimensions(0, 0),
-  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool               orientationCorrection = true);
 
@@ -56,7 +54,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
  * @param [in] url The URL of the image file to load.
  * @param [out] buffers The loaded PixelBuffer object list or an empty list in case loading failed.
  * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
- * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  */
@@ -64,7 +61,6 @@ DALI_ADAPTOR_API void LoadImagePlanesFromFile(
   const std::string&               url,
   std::vector<Devel::PixelBuffer>& buffers,
   ImageDimensions                  size                  = ImageDimensions(0, 0),
-  FittingMode::Type                fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type               samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool                             orientationCorrection = true);
 
@@ -76,7 +72,6 @@ DALI_ADAPTOR_API void LoadImagePlanesFromFile(
  * @param [in] buffer The encoded buffer of the image to load.
  *                    The buffer is not owned by FileStream and must be valid for entire lifetime of FileStream
  * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
- * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
@@ -84,7 +79,6 @@ DALI_ADAPTOR_API void LoadImagePlanesFromFile(
 DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
   const Dali::Vector<uint8_t>& buffer,
   ImageDimensions              size                  = ImageDimensions(0, 0),
-  FittingMode::Type            fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type           samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool                         orientationCorrection = true);
 
@@ -97,7 +91,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
  *                    The buffer is not owned by FileStream and must be valid for entire lifetime of FileStream
  * @param [in] bufferSize Size of the encoded buffer.
  * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
- * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
@@ -106,7 +99,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
   uint8_t*           buffer,
   size_t             bufferSize,
   ImageDimensions    size                  = ImageDimensions(0, 0),
-  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool               orientationCorrection = true);
 
@@ -118,8 +110,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
  * This function is used to determine the size of an image before it has loaded.
  * @param[in] filename name of the image.
  * @param[in] size The requested size for the image.
- * @param[in] fittingMode The method to use to map the source image to the desired
- * dimensions.
  * @param[in] samplingMode The image filter to use if the image needs to be
  * downsampled to the requested size.
  * @param[in] orientationCorrection Whether to use image metadata to rotate or
@@ -129,7 +119,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
 DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   const std::string& filename,
   ImageDimensions    size                  = ImageDimensions(0, 0),
-  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool               orientationCorrection = true);
 
@@ -148,7 +137,6 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
  *
  * @param [in] url The URL of the image file to load.
  * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
- * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
  * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  *
@@ -157,7 +145,6 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
 DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
   const std::string& url,
   ImageDimensions    size                  = ImageDimensions(0, 0),
-  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool               orientationCorrection = true);
 

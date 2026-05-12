@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/math/rect.h>
 #include <functional>
@@ -48,8 +49,9 @@ class ProxyAccessible;
  *
  * @note This class is singleton.
  */
-struct DALI_ADAPTOR_API Bridge
+class DALI_ADAPTOR_API Bridge
 {
+public:
   enum class ForceUpResult
   {
     JUST_STARTED,
@@ -81,7 +83,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @return true if given accessible is added to the bridge
    */
-  virtual bool AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) = 0;
+  virtual bool AddAccessible(uint32_t actorId, SharedPtr<Accessible> accessible) = 0;
 
   /**
    * @brief Removed the accessible object associated with given actorId from the brige.
@@ -91,12 +93,12 @@ struct DALI_ADAPTOR_API Bridge
   /**
    * @brief Gets the accessible object associated with given actor from the bridge.
    */
-  virtual std::shared_ptr<Accessible> GetAccessible(Actor actor) const = 0;
+  virtual SharedPtr<Accessible> GetAccessible(Actor actor) const = 0;
 
   /**
    * @brief Gets the accessible object associated with given path from the bridge.
    */
-  virtual std::shared_ptr<Accessible> GetAccessible(const std::string& path) const = 0;
+  virtual SharedPtr<Accessible> GetAccessible(const std::string& path) const = 0;
 
   /**
    * @brief Returns true if GetChildren should include hidden objects; false otherwise.
@@ -287,7 +289,7 @@ struct DALI_ADAPTOR_API Bridge
     {
       return ForceUpResult::ALREADY_UP;
     }
-    mData = std::make_shared<Data>();
+    mData = Dali::MakeShared<Data>();
     return ForceUpResult::JUST_STARTED;
   }
 
@@ -362,7 +364,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] newValue Whether the state value is changed to new value or not.
    * @param[in] reserved Reserved. (Currently, this argument is not implemented in dali)
    **/
-  virtual void EmitStateChanged(std::shared_ptr<Accessible> obj, State state, int newValue, int reserved = 0) = 0;
+  virtual void EmitStateChanged(SharedPtr<Accessible> obj, State state, int newValue, int reserved = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
@@ -379,7 +381,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] event Property changed event
    **/
-  virtual void Emit(std::shared_ptr<Accessible> obj, ObjectPropertyChangeEvent event) = 0;
+  virtual void Emit(SharedPtr<Accessible> obj, ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
@@ -387,7 +389,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] rect The rectangle for changed bounds
    **/
-  virtual void EmitBoundsChanged(std::shared_ptr<Accessible> obj, Rect<int> rect) = 0;
+  virtual void EmitBoundsChanged(SharedPtr<Accessible> obj, BoundsInteger rect) = 0;
 
   /**
    * @brief Emits org.a11y.atspi.Event.Window.PostRender on the AT-SPI bus.
@@ -400,7 +402,7 @@ struct DALI_ADAPTOR_API Bridge
    * The actual number of events emitted during a given time interval may be smaller
    * than the number of calls to this method, but at least one is guaranteed.
    */
-  virtual void EmitPostRender(std::shared_ptr<Accessible> obj) = 0;
+  virtual void EmitPostRender(SharedPtr<Accessible> obj) = 0;
 
   /**
    * @brief Emits key event on at-spi bus.
@@ -536,7 +538,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @return The current bridge object
    **/
-  static std::shared_ptr<Bridge> GetCurrentBridge();
+  static Dali::SharedPtr<Bridge> GetCurrentBridge();
 
   /**
    * @brief Blocks auto-initialization of AT-SPI bridge
@@ -610,7 +612,7 @@ protected:
     Actor                                 mCurrentlyHighlightedActor;
     std::pair<std::int32_t, std::int32_t> mExtentsOffset{0, 0};
   };
-  std::shared_ptr<Data> mData;
+  Dali::SharedPtr<Data> mData;
   friend class Accessible;
 
   enum class AutoInitState
@@ -650,7 +652,7 @@ inline bool IsUp()
     return false;
   }
 
-  if(Bridge::GetCurrentBridge() == nullptr)
+  if(Bridge::GetCurrentBridge().IsEmpty())
   {
     return false;
   }

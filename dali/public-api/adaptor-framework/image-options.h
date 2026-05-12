@@ -38,52 +38,14 @@ namespace Dali
 using ImageDimensions = Dali::Uint16Pair;
 
 /**
- * @brief Fitting options, used when resizing images to fit desired dimensions.
- *
- * A fitting mode controls the region of a loaded image to be mapped to the
- * desired image rectangle.
- * All fitting modes preserve the aspect ratio of the image contents.
- * @SINCE_2_5.14
- */
-namespace FittingMode
-{
-/**
- * @brief Enumeration for FittingMode type.
- * @SINCE_2_5.14
- */
-enum Type
-{
-  SHRINK_TO_FIT, ///< Fit full image inside desired width & height, potentially not
-                 ///  filling one of either the desired image width or height with
-                 ///  pixels.
-                 ///  @SINCE_2_5.14
-  SCALE_TO_FILL, ///< Image fills whole desired width & height with image data. The
-                 ///  image is centred in the desired dimensions, exactly touching
-                 ///  in one dimension, with image regions outside the other desired
-                 ///  dimension cropped away.
-                 ///  @SINCE_2_5.14
-  FIT_WIDTH,     ///< Image fills whole width. Height is scaled proportionately to
-                 ///  maintain aspect ratio.
-                 ///  @SINCE_2_5.14
-  FIT_HEIGHT,    ///< Image fills whole height. Width is scaled proportionately to
-                 ///  maintain aspect ratio.
-                 ///  @SINCE_2_5.14
-  VISUAL_FITTING /// < Image is scaled to fit within the desired dimensions.
-                 ///  maintain aspect ratio.
-                 ///  @SINCE_2_3.24
-};
-const Type DEFAULT = SHRINK_TO_FIT;
-} // namespace FittingMode
-
-/**
  * @brief Filtering options, used when resizing images to sample original pixels.
  *
  * A SamplingMode controls how pixels in an input image are sampled and
  * combined to generate each pixel of a destination image during a scaling.
  *
  * NoFilter and Box modes do not guarantee that the output pixel array
- * exactly matches the rectangle specified by the desired dimensions and
- * FittingMode, but all other filter modes do if the desired dimensions are
+ * exactly matches the rectangle specified by the desired dimensions,
+ * but all other filter modes do if the desired dimensions are
  * `<=` the raw dimensions of the input image file.
  * @SINCE_2_5.14
  */

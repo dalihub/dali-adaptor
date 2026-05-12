@@ -130,8 +130,8 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   }
 
   std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Rect<float>                     lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
-  Dali::Rect<float>                     rect;
+  Dali::Bounds                          lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds                          rect;
 
   // Split into lines
   for(auto it = first; it != children.end(); ++it)
@@ -632,7 +632,7 @@ Accessible* BridgeAccessible::FindSelf() const
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
   auto self                     = FindSelf();
-  auto findObjectByRelationType = [this, &self](RelationType relationType)
+  auto findObjectByRelationType = [&self](RelationType relationType)
   {
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
@@ -727,11 +727,11 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto description       = self->GetDescription();
   auto indexInParent     = static_cast<int32_t>(self->GetIndexInParent());
 
-  auto  parent                   = self->GetParent();
-  auto  parentRole               = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
-  auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
-  auto  parentStateSet           = parent ? parent->GetStates() : States{};
-  bool  isSelectedInParent       = false;
+  auto parent             = self->GetParent();
+  auto parentRole         = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
+  auto parentChildCount   = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
+  auto parentStateSet     = parent ? parent->GetStates() : States{};
+  bool isSelectedInParent = false;
   if(auto parentSelectionInterface = parent->GetFeature<Selection>())
   {
     isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
@@ -774,8 +774,8 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   auto attributes  = self->GetAttributes();
   auto states      = self->GetStates();
 
-  Dali::Rect<float> screenExtents = self->GetExtents(CoordinateType::SCREEN);
-  Dali::Rect<float> windowExtents = self->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds screenExtents = self->GetExtents(CoordinateType::SCREEN);
+  Dali::Bounds windowExtents = self->GetExtents(CoordinateType::WINDOW);
 
   screenExtents.x += mData->mExtentsOffset.first;
   screenExtents.y += mData->mExtentsOffset.second;
@@ -877,8 +877,8 @@ std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Ac
 
   std::vector<Accessible*> vec;
 
-  Dali::Rect<float> scrollableParentExtents;
-  auto              nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
+  Dali::Bounds scrollableParentExtents;
+  auto         nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
   if(!nonDuplicatedScrollableParents.empty())
   {
     scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);

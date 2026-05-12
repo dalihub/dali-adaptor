@@ -102,7 +102,7 @@ public:
   /**
    * Performs an OpenGL set damage command with damaged rects
    */
-  virtual void SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects) = 0;
+  virtual void SetDamageRegion(EGLSurface& eglSurface, std::vector<BoundsInteger>& damagedRects) = 0;
 
   /**
    * Performs an OpenGL swap buffers command
@@ -112,7 +112,7 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects) = 0;
+  virtual void SwapBuffers(EGLSurface& eglSurface, const std::vector<BoundsInteger>& damagedRects) = 0;
 
   /**
    * Performs an OpenGL copy buffers command

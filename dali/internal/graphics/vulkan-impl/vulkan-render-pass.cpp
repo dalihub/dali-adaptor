@@ -24,8 +24,7 @@
 namespace Dali::Graphics::Vulkan
 {
 RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, VulkanGraphicsController& controller)
-: mCreateInfo(createInfo),
-  mController(controller)
+: mCreateInfo(createInfo)
 {
   if(createInfo.attachments)
   {

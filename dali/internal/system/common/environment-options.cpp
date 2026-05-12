@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ void SetFromEnvironmentVariable(const char* variable, std::function<void(Type)> 
 
 void SetGraphicsBackendFromEnvironmentVariable(Graphics::Backend& api)
 {
-  const char* charValue = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_GRAPHICS_BACKEND);
+  const char* charValue = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_GRAPHICS_BACKEND);
   if(charValue)
   {
     // Expecting upper/lower case variations of GLES and VULKAN/VK, and 0 and 1 too so just check the first character
@@ -150,6 +150,86 @@ void SetGraphicsBackendFromEnvironmentVariable(Graphics::Backend& api)
           if(stringValue == "VULKAN" || stringValue == "VK")
           {
             api = Graphics::Backend::VULKAN;
+          }
+        }
+        break;
+      }
+    }
+  }
+}
+
+void SetGraphicsContextPriorityFromEnvironmentVariable(Dali::Graphics::ContextPriority& priority)
+{
+  const char* charValue = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_GRAPHICS_CONTEXT_PRIORITY);
+  if(charValue)
+  {
+    // Expecting upper/lower case variations of LOW / MEDIUM / HIGH / REALTIME, and 0 ~ 3 too so just check the first character
+    switch(*charValue)
+    {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      {
+        priority = static_cast<Dali::Graphics::ContextPriority>(*charValue - '0');
+        break;
+      }
+
+      case 'l':
+      case 'L':
+      {
+        std::string stringValue(charValue);
+        if(stringValue.size() == 3)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "LOW")
+          {
+            priority = Dali::Graphics::ContextPriority::LOW;
+          }
+        }
+        break;
+      }
+
+      case 'm':
+      case 'M':
+      {
+        std::string stringValue(charValue);
+        if(stringValue.size() == 6)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "MEDIUM")
+          {
+            priority = Dali::Graphics::ContextPriority::MEDIUM;
+          }
+        }
+        break;
+      }
+
+      case 'h':
+      case 'H':
+      {
+        std::string stringValue(charValue);
+        if(stringValue.size() == 4)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "HIGH")
+          {
+            priority = Dali::Graphics::ContextPriority::HIGH;
+          }
+        }
+        break;
+      }
+
+      case 'r':
+      case 'R':
+      {
+        std::string stringValue(charValue);
+        if(stringValue.size() == 8)
+        {
+          std::transform(stringValue.begin(), stringValue.end(), stringValue.begin(), ::toupper);
+          if(stringValue == "REALTIME")
+          {
+            priority = Dali::Graphics::ContextPriority::REALTIME;
           }
         }
         break;
@@ -296,6 +376,7 @@ EnvironmentOptions::EnvironmentOptions()
   mMultiSamplingLevel(DEFAULT_MULTI_SAMPLING_LEVEL),
   mThreadingMode(ThreadingMode::COMBINED_UPDATE_RENDER),
   mGraphicsBackend(Graphics::Backend::DEFAULT),
+  mGraphicsContextProirity(Dali::Graphics::ContextPriority::DEFAULT),
   mGlesCallAccumulate(false),
   mDepthBufferRequired(DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING),
   mStencilBufferRequired(DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING),
@@ -537,6 +618,11 @@ Graphics::Backend EnvironmentOptions::GetGraphicsBackend() const
   return mGraphicsBackend;
 }
 
+Graphics::ContextPriority EnvironmentOptions::GetGraphicsContextPriority() const
+{
+  return mGraphicsContextProirity;
+}
+
 unsigned int EnvironmentOptions::GetRenderRefreshRate() const
 {
   return mRenderRefreshRate;
@@ -661,6 +747,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   });
 
   SetGraphicsBackendFromEnvironmentVariable(mGraphicsBackend);
+  SetGraphicsContextPriorityFromEnvironmentVariable(mGraphicsContextProirity);
 
   SetFromEnvironmentVariable<int>(DALI_REFRESH_RATE, GreaterThan(mRenderRefreshRate, 1));
 
@@ -735,8 +822,9 @@ void EnvironmentOptions::CopyEnvironmentOptions(const EnvironmentOptions& rhs)
   mGlesCallTime       = rhs.mGlesCallTime;
   mMultiSamplingLevel = rhs.mMultiSamplingLevel;
 
-  mThreadingMode   = rhs.mThreadingMode;
-  mGraphicsBackend = rhs.mGraphicsBackend;
+  mThreadingMode           = rhs.mThreadingMode;
+  mGraphicsBackend         = rhs.mGraphicsBackend;
+  mGraphicsContextProirity = rhs.mGraphicsContextProirity;
 
   mGlesCallAccumulate    = rhs.mGlesCallAccumulate;
   mDepthBufferRequired   = rhs.mDepthBufferRequired;

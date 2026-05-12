@@ -270,6 +270,8 @@ void FileDownloadPluginProxy::UnregisterEventThreadCallback()
     DALI_LOG_DEBUG_INFO("Try to call Trigger during adaptor terminated.\n");
     // Forcibly run trigger event once, to avoid dead-lock
     OnEventThreadCallbackTriggered();
+
+    delete eventThreadCallback;
   }
 }
 

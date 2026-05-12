@@ -39,7 +39,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::Rect<int> PositionSize;
+typedef Dali::BoundsInteger PositionSize;
 
 namespace Internal DALI_INTERNAL
 {
@@ -63,13 +63,13 @@ class KeyEvent;
 class DALI_ADAPTOR_API GlWindow : public BaseHandle
 {
 public:
-  using WindowSize = Uint16Pair;
+  using WindowSize = Int32Pair;
 
-  typedef Signal<void(const KeyEvent&)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
-  typedef Signal<void(const TouchEvent&)> TouchEventSignalType;        ///< GlWindow Touch Event signal type
-  typedef Signal<void(GlWindow, bool)>    FocusChangeSignalType;       ///< GlWindow Focus signal type
-  typedef Signal<void(WindowSize)>        ResizeSignalType;            ///< GlWindow resize signal type
-  typedef Signal<void(GlWindow, bool)>    VisibilityChangedSignalType; ///< GlWindow visibility change signal type
+  typedef Signal<void(KeyEvent)>       KeyEventSignalType;          ///< GlWindow Key Event signal type
+  typedef Signal<void(TouchEvent)>     TouchEventSignalType;        ///< GlWindow Touch Event signal type
+  typedef Signal<void(GlWindow, bool)> FocusChangeSignalType;       ///< GlWindow Focus signal type
+  typedef Signal<void(WindowSize)>     ResizeSignalType;            ///< GlWindow resize signal type
+  typedef Signal<void(GlWindow, bool)> VisibilityChangedSignalType; ///< GlWindow visibility change signal type
 
 public:
   // Enumerations
@@ -291,7 +291,7 @@ public:
    *
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion(const Rect<int>& inputRegion);
+  void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
    * @brief Sets a transparent window's visual state to opaque.
@@ -428,7 +428,7 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const KeyEvent& event);
+   *   void YourCallbackName(KeyEvent event);
    * @endcode
    *
    * @return The signal to connect to
@@ -444,7 +444,7 @@ public: // Signals
    * An interrupted event will also be emitted (if it occurs).
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName(const TouchEvent& event);
+   *   void YourCallbackName(TouchEvent event);
    * @endcode
    *
    * @return The touch signal to connect to

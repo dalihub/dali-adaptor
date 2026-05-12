@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,11 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr const char* KHR_BLEND_EQUATION_ADVANCED        = "GL_KHR_blend_equation_advanced";
+static constexpr const char* KHR_BLEND_EQUATION_ADVANCED = "GL_KHR_blend_equation_advanced";
+
+#ifndef DALI_PROFILE_UBUNTU
 static constexpr const char* EXT_MULTISAMPLED_RENDER_TO_TEXTURE = "GL_EXT_multisampled_render_to_texture";
+#endif //DALI_PROFILE_UBUNTU
 
 } // namespace
 

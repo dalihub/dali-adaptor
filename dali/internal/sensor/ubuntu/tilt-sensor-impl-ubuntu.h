@@ -140,8 +140,6 @@ private:
   Dali::Timer                    mTimer;
   SlotDelegate<TiltSensorUbuntu> mTimerSlot;
 
-  int mSensorFrameworkHandle;
-
   float      mRoll;
   float      mPitch;
   Quaternion mRotation;

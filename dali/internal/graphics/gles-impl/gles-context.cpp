@@ -41,8 +41,6 @@ namespace
 {
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 
-constexpr uint32_t CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD = 100u;
-
 constexpr uint32_t CPU_ALLOCATED_UBO_INDEX       = 0u;
 constexpr uint32_t GPU_ALLOCATED_UBO_INDEX_BEGIN = 1u;
 } // namespace

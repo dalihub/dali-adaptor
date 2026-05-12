@@ -41,11 +41,14 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 )
 
 ADD_COMPILE_OPTIONS(-Wno-switch -Wno-switch-enum -Wno-error=switch -Wno-error=switch-enum)
-ADD_COMPILE_OPTIONS(-Wno-init-list-lifetime)
 INCLUDE(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG(-Wno-class-memaccess HAVE_NO_CLASS_MEMACCESS)
 IF (HAVE_NO_CLASS_MEMACCESS)
   ADD_COMPILE_OPTIONS( -Wno-class-memaccess )
+ENDIF()
+CHECK_CXX_COMPILER_FLAG(-Wno-init-list-lifetime HAVE_NO_INIT_LIST_LIFETIME)
+IF (HAVE_NO_INIT_LIST_LIFETIME)
+  ADD_COMPILE_OPTIONS( -Wno-init-list-lifetime )
 ENDIF()
 
 ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )

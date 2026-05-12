@@ -236,80 +236,21 @@ inline void DebugAssertDualScanlineParameters(const uint8_t* const scanline1,
 }
 
 /**
- * @brief Converts a scaling mode to the definition of which dimensions matter when box filtering as a part of that mode.
- */
-BoxDimensionTest DimensionTestForScalingMode(FittingMode::Type fittingMode)
-{
-  BoxDimensionTest dimensionTest;
-  dimensionTest = BoxDimensionTestEither;
-
-  switch(fittingMode)
-  {
-    // Shrink to fit attempts to make one or zero dimensions smaller than the
-    // desired dimensions and one or two dimensions exactly the same as the desired
-    // ones, so as long as one dimension is larger than the desired size, box
-    // filtering can continue even if the second dimension is smaller than the
-    // desired dimensions:
-    case FittingMode::SHRINK_TO_FIT:
-    {
-      dimensionTest = BoxDimensionTestEither;
-      break;
-    }
-    // Scale to fill mode keeps both dimensions at least as large as desired:
-    case FittingMode::SCALE_TO_FILL:
-    case FittingMode::VISUAL_FITTING:
-    {
-      dimensionTest = BoxDimensionTestBoth;
-      break;
-    }
-    // Y dimension is irrelevant when downscaling in FIT_WIDTH mode:
-    case FittingMode::FIT_WIDTH:
-    {
-      dimensionTest = BoxDimensionTestX;
-      break;
-    }
-    // X Dimension is ignored by definition in FIT_HEIGHT mode:
-    case FittingMode::FIT_HEIGHT:
-    {
-      dimensionTest = BoxDimensionTestY;
-      break;
-    }
-  }
-
-  return dimensionTest;
-}
-
-/**
- * @brief Work out the dimensions for a uniform scaling of the input to map it
- * into the target while effecting ShinkToFit scaling mode.
- */
-ImageDimensions FitForShrinkToFit(ImageDimensions target, ImageDimensions source)
-{
-  // Scale the input by the least extreme of the two dimensions:
-  const float widthScale  = target.GetX() / float(source.GetX());
-  const float heightScale = target.GetY() / float(source.GetY());
-  const float scale       = widthScale < heightScale ? widthScale : heightScale;
-
-  // Do no scaling at all if the result would increase area:
-  if(scale >= 1.0f)
-  {
-    return source;
-  }
-
-  return ImageDimensions(source.GetX() * scale + 0.5f, source.GetY() * scale + 0.5f);
-}
-
-/**
- * @brief Work out the dimensions for a uniform scaling of the input to map it
- * into the target while effecting SCALE_TO_FILL scaling mode.
+ * @brief Work out the dimensions for a uniform scaling of the input that fills
+ * the target rectangle while preserving the source aspect ratio.
+ *
+ * The image is scaled so that both axes meet or exceed the target dimensions.
+ * Excess pixels along one axis are kept (not cropped at this stage) so that the
+ * layout side can adjust the visible region via PIXEL_AREA later.
+ *
  * @note An image scaled into the output dimensions will need either top and
  * bottom or left and right to be cropped away unless the source was pre-cropped
  * to match the destination aspect ratio.
  */
-ImageDimensions FitForScaleToFill(ImageDimensions target, ImageDimensions source)
+ImageDimensions FitToTargetRectangle(ImageDimensions target, ImageDimensions source)
 {
   DALI_ASSERT_DEBUG(source.GetX() > 0 && source.GetY() > 0 && "Zero-area rectangles should not be passed-in");
-  // Scale the input by the least extreme of the two dimensions:
+  // Scale the input by the most extreme of the two dimensions:
   const float widthScale  = target.GetX() / float(source.GetX());
   const float heightScale = target.GetY() / float(source.GetY());
   const float scale       = widthScale > heightScale ? widthScale : heightScale;
@@ -324,88 +265,18 @@ ImageDimensions FitForScaleToFill(ImageDimensions target, ImageDimensions source
 }
 
 /**
- * @brief Work out the dimensions for a uniform scaling of the input to map it
- * into the target while effecting FIT_WIDTH scaling mode.
- */
-ImageDimensions FitForFitWidth(ImageDimensions target, ImageDimensions source)
-{
-  DALI_ASSERT_DEBUG(source.GetX() > 0 && "Cant fit a zero-dimension rectangle.");
-  const float scale = target.GetX() / float(source.GetX());
-
-  // Do no scaling at all if the result would increase area:
-  if(scale >= 1.0f)
-  {
-    return source;
-  }
-  return ImageDimensions(source.GetX() * scale + 0.5f, source.GetY() * scale + 0.5f);
-}
-
-/**
- * @brief Work out the dimensions for a uniform scaling of the input to map it
- * into the target while effecting FIT_HEIGHT scaling mode.
- */
-ImageDimensions FitForFitHeight(ImageDimensions target, ImageDimensions source)
-{
-  DALI_ASSERT_DEBUG(source.GetY() > 0 && "Cant fit a zero-dimension rectangle.");
-  const float scale = target.GetY() / float(source.GetY());
-
-  // Do no scaling at all if the result would increase area:
-  if(scale >= 1.0f)
-  {
-    return source;
-  }
-
-  return ImageDimensions(source.GetX() * scale + 0.5f, source.GetY() * scale + 0.5f);
-}
-
-/**
- * @brief Generate the rectangle to use as the target of a pixel sampling pass
- * (e.g., nearest or linear).
- */
-ImageDimensions FitToScalingMode(ImageDimensions requestedSize, ImageDimensions sourceSize, FittingMode::Type fittingMode)
-{
-  ImageDimensions fitDimensions;
-  switch(fittingMode)
-  {
-    case FittingMode::SHRINK_TO_FIT:
-    {
-      fitDimensions = FitForShrinkToFit(requestedSize, sourceSize);
-      break;
-    }
-    case FittingMode::SCALE_TO_FILL:
-    case FittingMode::VISUAL_FITTING:
-    {
-      fitDimensions = FitForScaleToFill(requestedSize, sourceSize);
-      break;
-    }
-    case FittingMode::FIT_WIDTH:
-    {
-      fitDimensions = FitForFitWidth(requestedSize, sourceSize);
-      break;
-    }
-    case FittingMode::FIT_HEIGHT:
-    {
-      fitDimensions = FitForFitHeight(requestedSize, sourceSize);
-      break;
-    }
-  }
-
-  return fitDimensions;
-}
-
-/**
  * @brief Calculate the number of lines on the X and Y axis that need to be
- * either added or removed with repect to the specified fitting mode.
- * (e.g., nearest or linear).
+ * cropped from the source so that the resulting bitmap covers the requested
+ * box exactly while preserving the source aspect ratio.
+ *
  * @param[in]     sourceSize      The size of the source image
- * @param[in]     fittingMode     The fitting mode to use
  * @param[in/out] requestedSize   The target size that the image will be fitted to.
  *                                If the source image is smaller than the requested size, the source is not scaled up.
  *                                So we reduce the target size while keeping aspect by lowering resolution.
  * @param[out]    scanlinesToCrop The number of scanlines to remove from the image (can be negative to represent Y borders required)
  * @param[out]    columnsToCrop   The number of columns to remove from the image (can be negative to represent X borders required)
  */
-void CalculateBordersFromFittingMode(ImageDimensions sourceSize, FittingMode::Type fittingMode, ImageDimensions& requestedSize, int& scanlinesToCrop, int& columnsToCrop)
+void CalculateCropBorders(ImageDimensions sourceSize, ImageDimensions& requestedSize, int& scanlinesToCrop, int& columnsToCrop)
 {
   const int   sourceWidth(static_cast<int>(sourceSize.GetWidth()));
   const int   sourceHeight(static_cast<int>(sourceSize.GetHeight()));
@@ -413,54 +284,16 @@ void CalculateBordersFromFittingMode(ImageDimensions sourceSize, FittingMode::Ty
   int         finalWidth  = 0;
   int         finalHeight = 0;
 
-  switch(fittingMode)
+  const float sourceAspect(static_cast<float>(sourceWidth) / static_cast<float>(sourceHeight));
+  if(sourceAspect > targetAspect)
   {
-    case FittingMode::FIT_WIDTH:
-    {
-      finalWidth  = sourceWidth;
-      finalHeight = static_cast<int>(static_cast<float>(sourceWidth) / targetAspect);
-      break;
-    }
-
-    case FittingMode::FIT_HEIGHT:
-    {
-      finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * targetAspect);
-      finalHeight = sourceHeight;
-      break;
-    }
-
-    case FittingMode::SHRINK_TO_FIT:
-    {
-      const float sourceAspect(static_cast<float>(sourceWidth) / static_cast<float>(sourceHeight));
-      if(sourceAspect > targetAspect)
-      {
-        finalWidth  = sourceWidth;
-        finalHeight = static_cast<int>(static_cast<float>(sourceWidth) / targetAspect);
-      }
-      else
-      {
-        finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * targetAspect);
-        finalHeight = sourceHeight;
-      }
-      break;
-    }
-
-    case FittingMode::SCALE_TO_FILL:
-    case FittingMode::VISUAL_FITTING:
-    {
-      const float sourceAspect(static_cast<float>(sourceWidth) / static_cast<float>(sourceHeight));
-      if(sourceAspect > targetAspect)
-      {
-        finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * targetAspect);
-        finalHeight = sourceHeight;
-      }
-      else
-      {
-        finalWidth  = sourceWidth;
-        finalHeight = static_cast<int>(static_cast<float>(sourceWidth) / targetAspect);
-      }
-      break;
-    }
+    finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * targetAspect);
+    finalHeight = sourceHeight;
+  }
+  else
+  {
+    finalWidth  = sourceWidth;
+    finalHeight = static_cast<int>(static_cast<float>(sourceWidth) / targetAspect);
   }
 
   // Clamp if overflowed
@@ -504,7 +337,7 @@ Dali::Devel::PixelBuffer MakePixelBuffer(const uint8_t* const pixels, Pixel::For
  * @param[in] requestedHeight Height of area to scale image into. Can be zero.
  * @return Dimensions of area to scale image into after special rules are applied.
  */
-ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmapHeight, uint32_t requestedWidth, uint32_t requestedHeight, FittingMode::Type fittingMode)
+ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmapHeight, uint32_t requestedWidth, uint32_t requestedHeight)
 {
   uint32_t maxSize = Dali::GetMaxTextureSize();
 
@@ -529,30 +362,29 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
     }
   }
 
-  // If both dimensions have values requested, use them both:
+  // If both dimensions have values requested, extend them along the source aspect ratio
+  // so that the decoded bitmap preserves source pixels which would otherwise be discarded
+  // by the loader-side crop. The layout side adjusts the visible region via PIXEL_AREA.
   if(requestedWidth != 0 && requestedHeight != 0)
   {
     DALI_ASSERT_DEBUG((bitmapWidth > 0 && bitmapHeight > 0) && "Bitmap dimensions are zero");
 
-    if(fittingMode == FittingMode::VISUAL_FITTING)
+    uint32_t    adjustedDesiredWidth, adjustedDesiredHeight;
+    const float aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
+    const float aspectOfImageSize   = (float)bitmapHeight / (float)bitmapWidth;
+    if(aspectOfImageSize > aspectOfDesiredSize)
     {
-      uint32_t adjustedDesiredWidth, adjustedDesiredHeight;
-      float    aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
-      float    aspectOfImageSize   = (float)bitmapHeight / (float)bitmapWidth;
-      if(aspectOfImageSize > aspectOfDesiredSize)
-      {
-        adjustedDesiredWidth  = requestedWidth;
-        adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< round up
-      }
-      else
-      {
-        adjustedDesiredWidth  = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
-        adjustedDesiredHeight = requestedHeight;
-      }
-
-      requestedWidth  = adjustedDesiredWidth;
-      requestedHeight = adjustedDesiredHeight;
+      adjustedDesiredWidth  = requestedWidth;
+      adjustedDesiredHeight = (static_cast<uint64_t>(bitmapHeight) * requestedWidth + bitmapWidth / 2) / bitmapWidth; ///< round up
     }
+    else
+    {
+      adjustedDesiredWidth  = (static_cast<uint64_t>(bitmapWidth) * requestedHeight + bitmapHeight / 2) / bitmapHeight; ///< round up
+      adjustedDesiredHeight = requestedHeight;
+    }
+
+    requestedWidth  = adjustedDesiredWidth;
+    requestedHeight = adjustedDesiredHeight;
 
     if(requestedWidth <= maxSize && requestedHeight <= maxSize)
     {
@@ -997,16 +829,16 @@ const char* GetPixelFormatName(Dali::Pixel::Format format)
   return "UNKNOWN";
 }
 
-ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions, FittingMode::Type fittingMode)
+ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions)
 {
-  return CalculateDesiredDimensions(rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight(), fittingMode);
+  return CalculateDesiredDimensions(rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight());
 }
 
 /**
- * @brief Apply cropping and padding for specified fitting mode.
+ * @brief Apply cropping and padding so that the bitmap matches the desired dimensions.
  *
  * Once the bitmap has been (optionally) downscaled to an appropriate size, this method performs alterations
- * based on the fitting mode.
+ * to match the requested rectangle while preserving the source aspect ratio.
  *
  * This will add vertical or horizontal borders if necessary.
  * Crop the source image data vertically or horizontally if necessary.
@@ -1016,13 +848,12 @@ ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageD
  *   GPU scaling to be performed at render time giving the same result with less texture traversal.
  *
  * @param[in] bitmap            The source pixel buffer to perform modifications on.
- * @param[in] desiredDimensions The target dimensions to aim to fill based on the fitting mode.
- * @param[in] fittingMode       The fitting mode to use.
+ * @param[in] desiredDimensions The target dimensions to aim to fill.
  *
- * @return                      A new bitmap with the padding and cropping required for fitting mode applied.
+ * @return                      A new bitmap with the padding and cropping applied.
  *                              If no modification is needed or possible, the passed in bitmap is returned.
  */
-Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode);
+Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions);
 
 /**
  * @brief Adds horizontal or vertical borders to the source image.
@@ -1034,31 +865,30 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
  */
 void AddBorders(PixelBuffer* targetPixels, const uint32_t bytesPerPixel, const ImageDimensions targetDimensions, const ImageDimensions padDimensions);
 
-Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, FittingMode::Type fittingMode, SamplingMode::Type samplingMode)
+Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode)
 {
   if(bitmap)
   {
     // Calculate the desired box, accounting for a possible zero component:
-    const ImageDimensions desiredDimensions = CalculateDesiredDimensions(bitmap.GetWidth(), bitmap.GetHeight(), dimensions.GetWidth(), dimensions.GetHeight(), fittingMode);
+    const ImageDimensions desiredDimensions = CalculateDesiredDimensions(bitmap.GetWidth(), bitmap.GetHeight(), dimensions.GetWidth(), dimensions.GetHeight());
 
     // If a different size than the raw one has been requested, resize the image
     // maximally using a repeated box filter without making it smaller than the
     // requested size in either dimension:
-    bitmap = DownscaleBitmap(bitmap, desiredDimensions, fittingMode, samplingMode);
+    bitmap = DownscaleBitmap(bitmap, desiredDimensions, samplingMode);
 
     // Cut the bitmap according to the desired width and height so that the
     // resulting bitmap has the same aspect ratio as the desired dimensions.
-    // Add crop and add borders if necessary depending on fitting mode.
     if(bitmap)
     {
-      bitmap = CropAndPadForFittingMode(bitmap, desiredDimensions, fittingMode);
+      bitmap = CropAndPadBitmap(bitmap, desiredDimensions);
     }
   }
 
   return bitmap;
 }
 
-Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions, FittingMode::Type fittingMode)
+Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions)
 {
   const uint32_t inputWidth       = bitmap.GetWidth();
   const uint32_t inputHeight      = bitmap.GetHeight();
@@ -1076,7 +906,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
     int scanlinesToCrop = 0;
     int columnsToCrop   = 0;
 
-    CalculateBordersFromFittingMode(ImageDimensions(inputWidth, inputHeight), fittingMode, desiredDimensions, scanlinesToCrop, columnsToCrop);
+    CalculateCropBorders(ImageDimensions(inputWidth, inputHeight), desiredDimensions, scanlinesToCrop, columnsToCrop);
 
     uint32_t desiredWidth(desiredDimensions.GetWidth());
     uint32_t desiredHeight(desiredDimensions.GetHeight());
@@ -1110,8 +940,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP", [&](std::ostringstream& oss)
       {
         oss << "[origin:" << inputWidth << "x" << inputHeight << " ";
-        oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
-        oss << "fittingMode:" << fittingMode << "]";
+        oss << "desired:" << desiredWidth << "x" << desiredHeight << "]";
       });
 
       // Create new PixelBuffer with the desired size.
@@ -1212,7 +1041,6 @@ void AddBorders(PixelBuffer* targetPixels, const uint32_t bytesPerPixel, const I
 
 Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
                                          ImageDimensions          desired,
-                                         FittingMode::Type        fittingMode,
                                          SamplingMode::Type       samplingMode)
 {
   // Source dimensions as loaded from resources (e.g. filesystem):
@@ -1234,17 +1062,17 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     {
       oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
       oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
-      oss << "fittingMode:" << fittingMode << " ";
       oss << "samplingMode:" << samplingMode << "]";
     });
     auto pixelFormat = bitmap.GetPixelFormat();
 
     // Do the fast power of 2 iterated box filter to get to roughly the right side if the filter mode requests that:
     uint32_t shrunkWidth = -1, shrunkHeight = -1, outStrideBytes = -1;
-    DownscaleInPlacePow2(bitmap.GetBuffer(), pixelFormat, bitmapWidth, bitmapHeight, bitmapStrideBytes, desiredWidth, desiredHeight, fittingMode, samplingMode, shrunkWidth, shrunkHeight, outStrideBytes);
+    DownscaleInPlacePow2(bitmap.GetBuffer(), pixelFormat, bitmapWidth, bitmapHeight, bitmapStrideBytes, desiredWidth, desiredHeight, samplingMode, shrunkWidth, shrunkHeight, outStrideBytes);
 
-    // Work out the dimensions of the downscaled bitmap, given the scaling mode and desired dimensions:
-    const ImageDimensions filteredDimensions = FitToScalingMode(ImageDimensions(desiredWidth, desiredHeight), ImageDimensions(shrunkWidth, shrunkHeight), fittingMode);
+    // Work out the dimensions of the downscaled bitmap so both axes meet or exceed the desired box,
+    // preserving the source aspect ratio.
+    const ImageDimensions filteredDimensions = FitToTargetRectangle(ImageDimensions(desiredWidth, desiredHeight), ImageDimensions(shrunkWidth, shrunkHeight));
     const uint32_t        filteredWidth      = filteredDimensions.GetWidth();
     const uint32_t        filteredHeight     = filteredDimensions.GetHeight();
 
@@ -1736,7 +1564,6 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
                           uint32_t           inputStrideBytes,
                           uint32_t           desiredWidth,
                           uint32_t           desiredHeight,
-                          FittingMode::Type  fittingMode,
                           SamplingMode::Type samplingMode,
                           uint32_t&          outWidth,
                           uint32_t&          outHeight,
@@ -1748,7 +1575,9 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
   // Perform power of 2 iterated 4:1 box filtering if the requested filter mode requires it:
   if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR || samplingMode == SamplingMode::BOX_THEN_LANCZOS)
   {
-    const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
+    // Box filter requires both axes to remain larger than the desired size
+    // so that the downscaled bitmap still covers the requested rectangle.
+    const BoxDimensionTest dimensionTest = BoxDimensionTestBoth;
 
     // Check the pixel format is one that is supported:
     switch(pixelFormat)

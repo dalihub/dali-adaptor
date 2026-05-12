@@ -39,8 +39,9 @@ EglGraphics::EglGraphics(
   Integration::DepthBufferAvailable   depthBufferRequired,
   Integration::StencilBufferAvailable stencilBufferRequired,
   Integration::PartialUpdateAvailable partialUpdateRequired,
-  int                                 multiSamplingLevel)
-: GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel),
+  int                                 multiSamplingLevel,
+  Dali::Graphics::ContextPriority     contextPriority)
+: GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel, contextPriority),
   mForcePresentRequired(false)
 {
   if(environmentOptions.GetGlesCallTime() > 0)
@@ -124,7 +125,7 @@ void EglGraphics::Resume()
   }
 }
 
-void EglGraphics::Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair size)
+void EglGraphics::Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size)
 {
   if(surface)
   {
@@ -146,7 +147,7 @@ int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
   return mEglImplementation->GetBufferAge(search->second.surface);
 }
 
-void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion)
+void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<BoundsInteger>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
   if(DALI_UNLIKELY(search == mSurfaceMap.end()))
@@ -172,7 +173,7 @@ void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
   mEglImplementation->SwapBuffers(search->second.surface);
 }
 
-void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion)
+void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damagedRegion)
 {
   auto search = mSurfaceMap.find(surfaceId);
   if(DALI_UNLIKELY(search == mSurfaceMap.end()))
@@ -194,12 +195,13 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
   InitializeGraphicsAPI(displayConnection);
 }
 
-void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority)
 {
   GraphicsInterface::UpdateGraphicsRequired(static_cast<Integration::DepthBufferAvailable>(depth),
                                             static_cast<Integration::StencilBufferAvailable>(stencil),
                                             static_cast<Integration::PartialUpdateAvailable>(partialRendering),
-                                            msaa);
+                                            msaa,
+                                            contextPriority);
 
   // Do not initialize graphics controller for this case.
   EglInitialize();
@@ -221,7 +223,7 @@ Dali::Any EglGraphics::GetDisplay() const
 void EglGraphics::EglInitialize()
 {
   mEglSync            = Utils::MakeUnique<EglSyncImplementation>();
-  mEglImplementation  = Utils::MakeUnique<EglImplementation>(mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired, mPartialUpdateRequired);
+  mEglImplementation  = Utils::MakeUnique<EglImplementation>(mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired, mPartialUpdateRequired, mContextPriority);
   mEglImageExtensions = Utils::MakeUnique<EglImageExtensions>(mEglImplementation.get());
 
   mEglSync->Initialize(mEglImplementation.get()); // The sync impl needs the EglDisplay

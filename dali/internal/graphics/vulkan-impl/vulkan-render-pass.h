@@ -95,7 +95,6 @@ public:
 
 private:
   Graphics::RenderPassCreateInfo               mCreateInfo;
-  VulkanGraphicsController&                    mController;
   std::vector<Graphics::AttachmentDescription> mAttachments;
   std::unordered_set<LifecycleObserver*>       mLifecycleObservers;
   bool                                         mObserverNotifying{false};

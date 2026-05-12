@@ -168,7 +168,7 @@ void ResetGraphicsLibrary(bool reload)
     CallReturnValueFunction<NativeImageFactory* (*)(), NativeImageFactory*>("GetNativeImageFactory", true);
     CallReturnValueFunction<Graphics::SurfaceFactory* (*)(Graphics::NativeWindowInterface&), Graphics::SurfaceFactory*, Graphics::NativeWindowInterface&>("CreateSurfaceFactory", true, dummyWindow);
     CallReturnValueFunction<NativeImageSurface* (*)(NativeImageQueuePtr), NativeImageSurface*, NativeImageQueuePtr>("CreateNativeImageSurface", true, NativeImageQueuePtr());
-    CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", true, nullptr);
+    CallReturnValueFunction<Any* (*)(void*), Any*, void*>("CastToNativeGraphicsType", true, nullptr);
   }
 
   DALI_LOG_DEBUG_INFO("Reset graphics backend library done (reload : %d)\n", reload);
@@ -204,9 +204,9 @@ std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageQueuePtr
   return std::unique_ptr<NativeImageSurface>(CallReturnValueFunction<NativeImageSurface* (*)(NativeImageQueuePtr), NativeImageSurface*, NativeImageQueuePtr>("CreateNativeImageSurface", false, queue));
 }
 
-Any CastToNativeGraphicsType(void* display)
+std::unique_ptr<Any> CastToNativeGraphicsType(void* display)
 {
-  return CallReturnValueFunction<Any (*)(void*), Any, void*>("CastToNativeGraphicsType", false, display);
+  return std::unique_ptr<Any>(CallReturnValueFunction<Any* (*)(void*), Any*, void*>("CastToNativeGraphicsType", false, display));
 }
 
 } // namespace Dali::Internal::Adaptor::GraphicsLibrary

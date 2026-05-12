@@ -172,12 +172,12 @@ bool IsFloatingModeEnabled(Window window)
   return GetImplementation(window).IsFloatingModeEnabled();
 }
 
-void IncludeInputRegion(Window window, const Rect<int>& inputRegion)
+void IncludeInputRegion(Window window, const BoundsInteger& inputRegion)
 {
   GetImplementation(window).IncludeInputRegion(inputRegion);
 }
 
-void ExcludeInputRegion(Window window, const Rect<int>& inputRegion)
+void ExcludeInputRegion(Window window, const BoundsInteger& inputRegion)
 {
   GetImplementation(window).ExcludeInputRegion(inputRegion);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,9 @@ Graphics::GraphicsInterface& EglGraphicsFactory::Create()
 
   int multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
 
-  Graphics::GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions, info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel);
+  auto contextPriority = mEnvironmentOptions.GetGraphicsContextPriority();
+
+  Graphics::GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions, info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired, multiSamplingLevel, contextPriority);
   return *eglGraphicsInterface;
 }
 

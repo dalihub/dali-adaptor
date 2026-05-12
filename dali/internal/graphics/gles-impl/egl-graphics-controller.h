@@ -967,8 +967,7 @@ private:
   GLES::Context* GetSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) const;
 
 private:
-  Integration::GlAbstraction*              mGlAbstraction{nullptr};
-  Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
+  Integration::GlAbstraction* mGlAbstraction{nullptr};
 
   Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
   Graphics::GraphicsInterface*              mGraphics{nullptr}; // Pointer to owning structure via interface.

@@ -23,7 +23,7 @@
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) Any CastToNativeGraphicsType(wl_display* display)
+__attribute__((weak)) std::unique_ptr<Any> CastToNativeGraphicsType(wl_display* display)
 {
   return GraphicsLibrary::CastToNativeGraphicsType(display);
 }

@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>
+#include <Eldbus.h> //TODO: Remove this after accessibility refactoring
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -48,10 +49,16 @@ void EventLoopEcore::Initialize(int argc, char** argv)
   ecore_init();
   ecore_app_args_set(argc, (const char**)argv);
 #pragma GCC diagnostic pop
+
+  //TODO: Remove this after accessibility refactoring
+  eldbus_init();
 }
 
 void EventLoopEcore::Shutdown()
 {
+  //TODO: Remove this after accessibility refactoring
+  eldbus_shutdown();
+
   ecore_shutdown();
 
   if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))

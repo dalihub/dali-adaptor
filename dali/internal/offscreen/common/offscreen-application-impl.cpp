@@ -47,7 +47,6 @@ IntrusivePtr<OffscreenApplication> OffscreenApplication::New(Dali::OffscreenAppl
 
 OffscreenApplication::OffscreenApplication(Dali::OffscreenApplication::FrameworkBackend framework, Dali::OffscreenApplication::RenderMode renderMode)
 : mDefaultWindow(),
-  mFrameworkBackend(framework),
   mRenderMode(renderMode)
 {
   // Disable partial update

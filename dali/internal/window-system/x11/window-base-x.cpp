@@ -49,8 +49,6 @@ const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
 const char* DESKTOP_STARTUP_ID_ENV = "DESKTOP_STARTUP_ID";
 
-const unsigned int PRIMARY_TOUCH_BUTTON_ID(1);
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
@@ -262,7 +260,6 @@ WindowBaseX::WindowBaseX(Dali::PositionSize positionSize, Any surface, bool isTr
   mWindow(0),
   mOwnSurface(false),
   mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet(false),
   mWindowRotationAngle(0)
 {
   Initialize(positionSize, surface, isTransparent);
@@ -787,7 +784,7 @@ unsigned int WindowBaseX::GetAuxiliaryHintId(const std::string& hint) const
   return 0;
 }
 
-void WindowBaseX::SetInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -890,7 +887,7 @@ unsigned int WindowBaseX::GetSurfaceId(Any surface) const
   if(surface.Empty() == false)
   {
     // check we have a valid type
-    DALI_ASSERT_ALWAYS(((surface.GetType() == typeid(::Window))) && "Surface type is invalid");
+    DALI_ASSERT_ALWAYS(((surface.IsType<::Window>())) && "Surface type is invalid");
 
     surfaceId = static_cast<unsigned int>(AnyCast<::Window>(surface));
   }
@@ -969,11 +966,11 @@ bool WindowBaseX::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseX::IncludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::IncludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
-void WindowBaseX::ExcludeInputRegion(const Rect<int>& inputRegion)
+void WindowBaseX::ExcludeInputRegion(const BoundsInteger& inputRegion)
 {
 }
 

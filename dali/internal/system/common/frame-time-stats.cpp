@@ -29,7 +29,6 @@ namespace Adaptor
 {
 namespace
 {
-const float EPSILON                          = 0.9f;            // rolling average = (average * epsilon) + (current * epsilon)
 const float ONE_OVER_MICROSECONDS_TO_SECONDS = 1.f / 1000000.f; ///< microseconds per second
 } // namespace
 

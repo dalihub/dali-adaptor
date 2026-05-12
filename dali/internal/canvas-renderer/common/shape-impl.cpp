@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ void Shape::Initialize()
 #endif
 }
 
-bool Shape::AddRect(Rect<float> rect, Vector2 roundedCorner)
+bool Shape::AddRect(Bounds rect, Vector2 roundedCorner)
 {
 #ifdef THORVG_SUPPORT
   if(!Drawable::GetObject() || !mTvgShape)
@@ -214,7 +214,7 @@ bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
 
 #ifdef THORVG_VERSION_1
   tvg::PathCommand tvgPathCommands[pathCommand.mCommandCount];
-  for (uint32_t i = 0; i < pathCommand.mCommandCount; i++)
+  for(uint32_t i = 0; i < pathCommand.mCommandCount; i++)
   {
     tvgPathCommands[i] = static_cast<tvg::PathCommand>(static_cast<uint8_t>(pathCommand.mCommands[i]));
   }

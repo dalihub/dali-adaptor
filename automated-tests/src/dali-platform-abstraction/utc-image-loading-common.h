@@ -68,7 +68,7 @@ const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0])
 extern TizenPlatform::TizenPlatformAbstraction* gAbstraction;
 
 /** A variety of parameters to reach different code paths in the image loading. */
-typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;
+typedef std::pair<ImageDimensions, std::pair<SamplingMode::Type, bool> > ImageParameters;
 extern std::vector<ImageParameters>                                                                     gCancelAttributes;
 
 double GetTimeMilliseconds(Dali::Integration::PlatformAbstraction& abstraction); ///< Returns elapsed milliseconds.

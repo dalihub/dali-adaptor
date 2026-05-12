@@ -111,7 +111,7 @@ struct MyTestApp : public ConnectionTracker
     mApplication.InitSignal().Connect(this, &MyTestApp::OnInit);
   }
 
-  void OnInit(Application& app)
+  void OnInit(Application app)
   {
     mTimer = Timer::New(500);
     mTimer.TickSignal().Connect(this, &MyTestApp::Tick);

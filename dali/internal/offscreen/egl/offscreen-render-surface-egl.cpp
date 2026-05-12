@@ -170,7 +170,7 @@ void OffscreenRenderSurfaceEgl::MoveResize(Dali::PositionSize positionSize)
 {
 }
 
-void OffscreenRenderSurfaceEgl::Resize(Uint16Pair size)
+void OffscreenRenderSurfaceEgl::Resize(SurfaceSize size)
 {
 }
 
@@ -178,7 +178,7 @@ void OffscreenRenderSurfaceEgl::StartRender()
 {
 }
 
-bool OffscreenRenderSurfaceEgl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool OffscreenRenderSurfaceEgl::PreRender(bool resizingSurface, const std::vector<BoundsInteger>& damagedRects, BoundsInteger& clippingRect)
 {
   return true;
 }

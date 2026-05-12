@@ -355,12 +355,11 @@ void TestDownscaledBitmapHasRightDimensionsAndFormat(
   const char* const location)
 {
   ImageDimensions    desired(targetDimension, targetDimension);
-  FittingMode::Type  fittingMode(FittingMode::SHRINK_TO_FIT);
   SamplingMode::Type samplingMode(SamplingMode::BOX);
 
   Dali::Devel::PixelBuffer sourceBitmap = Dali::Devel::PixelBuffer::New(sourceDimension, sourceDimension, format);
 
-  Dali::Devel::PixelBuffer downScaled = DownscaleBitmap(sourceBitmap, desired, fittingMode, samplingMode);
+  Dali::Devel::PixelBuffer downScaled = DownscaleBitmap(sourceBitmap, desired, samplingMode);
 
   DALI_TEST_EQUALS(downScaled.GetWidth(), expectedDimension, location);
   DALI_TEST_EQUALS(downScaled.GetHeight(), expectedDimension, location);

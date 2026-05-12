@@ -47,7 +47,7 @@ struct MyTestApp : public ConnectionTracker
     application.InitSignal().Connect(this, &MyTestApp::Create);
   }
 
-  void Create(Application& app)
+  void Create(Application app)
   {
     initCalled = true;
   }
@@ -62,11 +62,11 @@ struct MyTestApp : public ConnectionTracker
   Application& application;
 };
 
-void ApplicationSignalCallback(Application& app)
+void ApplicationSignalCallback(Application app)
 {
 }
 
-void ApplicationControlSignalCallback(Application&, void*)
+void ApplicationControlSignalCallback(Application, void*)
 {
 }
 

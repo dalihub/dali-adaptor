@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
+#include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
@@ -284,18 +285,22 @@ public:
     return mSuppressedEvents;
   }
 
+  /**
+   * Detail level for DumpTree JSON. Values 0-1 return a minimal uncompressed JSON field set.
+   * Values 2-4 return the full field set as plain JSON. Values 5-7 mirror 2-4 but prefer
+   * LZ4+base64 wire encoding, falling back to plain JSON when compression is unavailable or fails.
+   * Numeric mapping must match AtspiDumpDetailLevelType (at-spi2-core) / aurum.
+   */
   enum class DumpDetailLevel
   {
-    DUMP_SHORT              = 0,
-    DUMP_SHORT_SHOWING_ONLY = 1,
-    DUMP_FULL               = 2,
-    DUMP_FULL_SHOWING_ONLY  = 3,
-    // LZ4-compressed payload (base64-encoded string) for very large DumpTree responses.
-    // Numeric mapping must match aurum/at-spi2-core for client/server agreement.
-    DUMP_FULL_SHOWING_ONLY_LZ4 = 4,
-    // LZ4-compressed payload for very large DumpTree responses with FULL semantics
-    // (i.e., include non-showing nodes).
-    DUMP_FULL_LZ4 = 5,
+    DUMP_SHORT                                    = 0,
+    DUMP_SHORT_SHOWING_ONLY                       = 1,
+    DUMP_FULL                                     = 2,
+    DUMP_FULL_SHOWING_ONLY                        = 3,
+    DUMP_FULL_EFFECTIVE_SHOWING_ONLY              = 4,
+    DUMP_FULL_COMPRESSION                         = 5,
+    DUMP_FULL_COMPRESSION_SHOWING_ONLY            = 6,
+    DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY  = 7,
   };
 
   /**
@@ -364,7 +369,7 @@ public:
    * @brief The method registers functor resposible for converting Actor into Accessible.
    * @param functor The returning Accessible handle from Actor object
    */
-  static void RegisterExternalAccessibleGetter(std::function<std::pair<std::shared_ptr<Accessible>, bool>(Dali::Actor)> functor);
+  static void RegisterExternalAccessibleGetter(std::function<std::pair<SharedPtr<Accessible>, bool>(Dali::Actor)> functor);
 
   /**
    * @brief Acquires Accessible object from Actor object.
@@ -382,7 +387,7 @@ public:
    *
    * @return The owning pointer to Accessible object
    */
-  static std::shared_ptr<Accessible> GetOwningPtr(Dali::Actor actor);
+  static Dali::SharedPtr<Accessible> GetOwningPtr(Dali::Actor actor);
 
   /**
    * @brief Obtains the DBus interface name for the specified AT-SPI interface.
@@ -401,12 +406,12 @@ public:
    * @tparam T The feature type
    * @param[in] accessible Shared pointer to the existing feature instance
    */
-  template <typename T>
-  void AddFeature(std::shared_ptr<Accessible> accessible)
+  template<typename T>
+  void AddFeature(Dali::SharedPtr<Accessible> accessible)
   {
     static_assert(std::is_base_of<IAccessibilityFeature, T>::value, "T must inherit from IAccessibilityFeature");
 
-    if (auto feature = std::dynamic_pointer_cast<T>(accessible))
+    if(auto feature = Dali::DynamicPointerCast<T>(accessible))
     {
       mFeatures[std::type_index(typeid(T))] = feature;
     }
@@ -424,18 +429,18 @@ public:
    * @note Returns nullptr if the feature has not been registered or if the
    * dynamic cast to type T fails.
    */
-  template <typename T>
-  std::shared_ptr<T> GetFeature() const
+  template<typename T>
+  Dali::SharedPtr<T> GetFeature() const
   {
     auto it = mFeatures.find(std::type_index(typeid(T)));
-    if (it != mFeatures.end())
+    if(it != mFeatures.end())
     {
-      if (auto feature = it->second.lock())
+      if(auto feature = it->second.Lock())
       {
-        return std::dynamic_pointer_cast<T>(feature);
+        return Dali::DynamicPointerCast<T>(feature);
       }
     }
-    return nullptr;
+    return Dali::SharedPtr<T>();
   }
 
   /**
@@ -453,10 +458,10 @@ public:
 private:
   friend class Bridge;
 
-  mutable AtspiInterfaces mInterfaces;
-  AtspiEvents             mSuppressedEvents;
-  bool                    mIsOnRootLevel{false};
-  std::unordered_map<std::type_index, std::weak_ptr<IAccessibilityFeature>> mFeatures;
+  mutable AtspiInterfaces                                                   mInterfaces;
+  AtspiEvents                                                               mSuppressedEvents;
+  bool                                                                      mIsOnRootLevel{false};
+  std::unordered_map<std::type_index, Dali::WeakPtr<IAccessibilityFeature>> mFeatures;
 
 }; // Accessible class
 

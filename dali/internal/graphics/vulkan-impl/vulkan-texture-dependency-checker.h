@@ -67,7 +67,6 @@ class TextureDependencyChecker
 {
 public:
   explicit TextureDependencyChecker(VulkanGraphicsController& controller)
-  : mController(controller)
   {
   }
   ~TextureDependencyChecker() = default;
@@ -108,7 +107,6 @@ public:
   void RemoveRenderTarget(Vulkan::RenderTarget* renderTarget);
 
 private:
-  VulkanGraphicsController& mController;
   struct TextureGenerator
   {
     Vulkan::Texture*                   texture{nullptr};

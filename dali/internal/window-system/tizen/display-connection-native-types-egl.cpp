@@ -23,9 +23,9 @@
 
 namespace Dali::Internal::Adaptor
 {
-Any CastToNativeGraphicsType(wl_display* display)
+std::unique_ptr<Any> CastToNativeGraphicsType(wl_display* display)
 {
-  return {static_cast<EGLNativeDisplayType>(display)};
+  return std::unique_ptr<Any>(new Any(static_cast<EGLNativeDisplayType>(display)));
 }
 
 } // namespace Dali::Internal::Adaptor

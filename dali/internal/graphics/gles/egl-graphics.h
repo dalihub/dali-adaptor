@@ -51,7 +51,8 @@ public:
     Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
     Integration::PartialUpdateAvailable partialUpdateRequired,
-    int                                 multiSamplingLevel);
+    int                                 multiSamplingLevel,
+    Dali::Graphics::ContextPriority     contextPriority);
 
   /**
    * Destructor
@@ -66,7 +67,7 @@ public:
   /**
    * @copydoc Dali::Graphics::GraphicsInterface::Initialize(bool,bool,bool,int)
    */
-  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa, Dali::Graphics::ContextPriority contextPriority) override;
 
   /**
    * @copydoc Dali::Graphics::GraphicsInterface::InitializeGraphicsAPI()
@@ -169,7 +170,7 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::Resize()
    */
-  void Resize(Integration::RenderSurfaceInterface* surface, Uint16Pair positionSize) override;
+  void Resize(Integration::RenderSurfaceInterface* surface, SurfaceSize size) override;
 
   /**
    * @copydoc Graphics::GraphicsInterface::GetBufferAge()
@@ -179,13 +180,13 @@ public:
   /**
    * @copydoc Graphics::GraphicsInterface::SetDamageRegion()
    */
-  void SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion) override;
+  void SetDamageRegion(Graphics::SurfaceId, std::vector<BoundsInteger>& damagedRegion) override;
 
   /**
    * @copydoc Graphics::GraphicsInterface::SwapBuffers
    */
   void SwapBuffers(Graphics::SurfaceId surfaceId) override;
-  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion) override;
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<BoundsInteger>& damagedRegion) override;
 
   /**
    * Gets the GL abstraction

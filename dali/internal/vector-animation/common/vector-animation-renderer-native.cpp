@@ -796,11 +796,58 @@ float ExtractJsonNumber(const std::string& json, size_t pos, size_t& endPos)
 }
 
 void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t keyLen,
-                    const char* nameKey, const char* val1Key, const char* val2Key, bool val2IsDuration,
+                    const char* nameKey, const char* val1Key, const char* val2Key,
+                    bool val2IsDuration, bool convertTimeToFrame, float frameRate,
                     Property::Map& outMap)
 {
-  size_t arrPos = jsonContent.find(std::string("\"") + arrayKey + "\"");
-  if(arrPos == std::string::npos) return;
+  // Find the top-level array by looking for the pattern at the root level
+  // We need to skip any nested arrays with the same key (e.g., assets[].layers)
+  std::string searchKey = std::string("\"") + arrayKey + "\"";
+  size_t arrPos = 0;
+  int depth = 0;
+  bool inString = false;
+
+  // Search for the top-level occurrence of the key
+  for(size_t i = 0; i < jsonContent.size(); ++i)
+  {
+    char ch = jsonContent[i];
+
+    if(inString)
+    {
+      if(ch == '\\' && i + 1 < jsonContent.size())
+      {
+        ++i;  // skip escaped character
+        continue;
+      }
+      if(ch == '"')
+      {
+        inString = false;
+      }
+    }
+    else
+    {
+      if(ch == '{' || ch == '[')
+      {
+        ++depth;
+      }
+      else if(ch == '}' || ch == ']')
+      {
+        --depth;
+      }
+      else if(ch == '"')
+      {
+        // Check if this is the key we're looking for at top level (depth == 1)
+        if(depth == 1 && jsonContent.compare(i, searchKey.length(), searchKey) == 0)
+        {
+          arrPos = i;
+          break;
+        }
+        inString = true;
+      }
+    }
+  }
+
+  if(arrPos == 0) return;
 
   size_t arrStart = jsonContent.find('[', arrPos + keyLen + 2);
   if(arrStart == std::string::npos) return;
@@ -866,8 +913,21 @@ void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t
 
       if(hasName && hasV1 && hasV2)
       {
-        int frame1 = static_cast<int>(v1);
-        int frame2 = val2IsDuration ? static_cast<int>(v1 + v2) : static_cast<int>(v2);
+        int frame1, frame2;
+
+        if(convertTimeToFrame && frameRate > 0.0f)
+        {
+          // Convert time in seconds to frame number (for markers: tm and dr are in seconds)
+          frame1 = static_cast<int>(v1 * frameRate);
+          frame2 = val2IsDuration ? static_cast<int>((v1 + v2) * frameRate) : static_cast<int>(v2 * frameRate);
+        }
+        else
+        {
+          // Values are already frame numbers (for layers: ip and op are frame numbers)
+          frame1 = static_cast<int>(v1);
+          frame2 = val2IsDuration ? static_cast<int>(v1 + v2) : static_cast<int>(v2);
+        }
+
         Property::Array frames;
         frames.PushBack(Property::Value(frame1));
         frames.PushBack(Property::Value(frame2));
@@ -912,10 +972,12 @@ void VectorAnimationRendererNative::ParseLottieMetadata() const
   }
 
   // "layers": [{"nm":"name", "ip":0, "op":60, ...}, ...]
-  ParseJsonArray(jsonContent, "layers", 6, "nm", "ip", "op", false, mCachedLayerInfo);
+  // For layers: ip and op are already frame numbers, no conversion needed
+  ParseJsonArray(jsonContent, "layers", 6, "nm", "ip", "op", false, false, mFrameRate, mCachedLayerInfo);
 
   // "markers": [{"cm":"name", "tm":10, "dr":20}, ...]
-  ParseJsonArray(jsonContent, "markers", 7, "cm", "tm", "dr", true, mCachedMarkerInfo);
+  // For markers: tm (time) and dr (duration) are in seconds, need to convert to frame numbers
+  ParseJsonArray(jsonContent, "markers", 7, "cm", "tm", "dr", true, true, mFrameRate, mCachedMarkerInfo);
 }
 
 } // namespace Adaptor

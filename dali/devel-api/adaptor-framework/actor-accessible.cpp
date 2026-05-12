@@ -19,12 +19,12 @@
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 
 // EXTERNAL INCLUDES
-#include <algorithm>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/object/type-info.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/actors/layer.h>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -221,7 +221,7 @@ bool ActorAccessible::IsScrollable() const
   return false;
 }
 
-Dali::Rect<float> ActorAccessible::GetExtents(CoordinateType type) const
+Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
 {
   Dali::Actor actor   = Self();
   auto        extents = DevelActor::CalculateCurrentScreenExtents(actor);
@@ -232,7 +232,7 @@ Dali::Rect<float> ActorAccessible::GetExtents(CoordinateType type) const
     extents.height = 1.f;
   }
 
-  auto rounded = Dali::Rect<float>{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
+  auto rounded = Dali::Bounds{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
 
   if(type == CoordinateType::WINDOW)
   {
@@ -258,8 +258,8 @@ void ActorAccessible::OnChildrenChanged(Dali::Actor)
 
 void ActorAccessible::InitDefaultFeatures()
 {
-  mCollection = std::make_shared<CollectionImpl>(weak_from_this());
-  AddFeature<Collection>(shared_from_this());
+  mCollection = Dali::MakeShared<CollectionImpl>(WeakFromThis());
+  AddFeature<Collection>(SharedFromThis());
 }
 
 void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)
@@ -353,14 +353,7 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
 
     if(shouldEmit)
     {
-      try
-      {
-        bridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
-      }
-      catch(const std::bad_weak_ptr& e)
-      {
-        DALI_LOG_ERROR("bad_weak_ptr exception caught: %s", e.what());
-      }
+      bridge->EmitStateChanged(SharedFromThis(), state, newValue, reserved);
     }
   }
 }
@@ -483,18 +476,11 @@ void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
 
   if(auto bridge = Bridge::GetCurrentBridge())
   {
-    try
-    {
-      bridge->Emit(shared_from_this(), event);
-    }
-    catch(const std::bad_weak_ptr& e)
-    {
-      DALI_LOG_ERROR("bad_weak_ptr exception caught: %s", e.what());
-    }
+    bridge->Emit(SharedFromThis(), event);
   }
 }
 
-void ActorAccessible::EmitBoundsChanged(Rect<int> rect)
+void ActorAccessible::EmitBoundsChanged(BoundsInteger rect)
 {
   if(mIsBeingDestroyed)
   {
@@ -503,14 +489,7 @@ void ActorAccessible::EmitBoundsChanged(Rect<int> rect)
 
   if(auto bridge = Bridge::GetCurrentBridge())
   {
-    try
-    {
-      bridge->EmitBoundsChanged(shared_from_this(), rect);
-    }
-    catch(const std::bad_weak_ptr& e)
-    {
-      DALI_LOG_ERROR("bad_weak_ptr exception caught: %s", e.what());
-    }
+    bridge->EmitBoundsChanged(SharedFromThis(), rect);
   }
 }
 
