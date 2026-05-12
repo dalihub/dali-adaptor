@@ -550,7 +550,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     void OnLoopInit(int argc, char** argv) override
     {
       print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopInit() emitted", __MODULE__, __func__, __LINE__);
-      mEventLoop = Dali::Internal::Adaptor::GetSystemFactory()->CreateEventLoop();
+      mEventLoop = GetSystemFactory()->CreateEventLoop();
       if(mEventLoop)
       {
         mEventLoop->Initialize(argc, argv);

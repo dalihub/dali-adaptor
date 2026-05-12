@@ -22,7 +22,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/timer-impl.h>
-#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -46,7 +45,7 @@ public:
   virtual TimerPtr                               CreateTimer(uint32_t milliSec)                                                            = 0;
 };
 
-extern DALI_ADAPTOR_API std::unique_ptr<SystemFactory> GetSystemFactory();
+extern std::unique_ptr<SystemFactory> GetSystemFactory();
 
 } // namespace Adaptor
 } // namespace Internal
