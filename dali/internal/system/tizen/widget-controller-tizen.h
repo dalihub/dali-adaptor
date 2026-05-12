@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
-#include <widget_base.h>
+#include <widget_base.hh>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/widget-controller.h>
@@ -41,7 +41,7 @@ public:
   /**
    * Constructor
    */
-  WidgetImplTizen(widget_base_instance_h instanceHandle);
+  WidgetImplTizen(tizen_cpp::WidgetContext* instanceHandle);
 
   /**
    * Destructor
@@ -80,7 +80,7 @@ public:
   std::string GetWidgetId() const override;
 
 private:
-  widget_base_instance_h mInstanceHandle;
+  tizen_cpp::WidgetContext* mInstanceHandle;
   Dali::Window           mWindow;
   std::string            mWidgetId;
   bool                   mUsingKeyEvent;

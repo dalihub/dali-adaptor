@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/application-model/widget/widget-base-tizen.h>
+#include <dali/internal/application-model/widget/ecore/widget-base-tizen-ecore.h>
 
 // INTERNAL INCLUDE
 #include <dali/internal/system/tizen/widget-controller-tizen.h>

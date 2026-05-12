@@ -82,8 +82,8 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
 
   if(application)
   {
-    std::string            widgetId       = std::string(id);
-    widget_base_instance_h instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
+    std::string widgetId         = std::string(id);
+    void*       instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
     if(instanceHandle)
     {
       consumed = application->FeedKeyEvent(instanceHandle, event);
@@ -127,7 +127,8 @@ WidgetApplicationTizen::~WidgetApplicationTizen()
 
 void WidgetApplicationTizen::InitializeWidget(void* instanceHandle, Dali::Widget widgetInstance)
 {
-  Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(instanceHandle);
+  auto* context = static_cast<tizen_cpp::WidgetContext*>(instanceHandle);
+  Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(context);
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl(widgetImpl);
 }
 

@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/drag-and-drop/tizen-wayland/drag-and-drop-impl-ecore-wl2.h>
+#include <dali/internal/drag-and-drop/tizen-wayland/ecore/drag-and-drop-impl-ecore-wl2.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DragAndDrop
@@ -147,7 +148,7 @@ Dali::DragAndDrop GetDragAndDrop()
     if(handle)
     {
       // If so, downcast the handle
-      dnd = Dali::DragAndDrop(static_cast<DragAndDrop*>(handle.GetObjectPtr()));
+      dnd = Dali::DragAndDrop(dynamic_cast<DragAndDrop*>(handle.GetObjectPtr()));
     }
     else
     {
@@ -160,6 +161,20 @@ Dali::DragAndDrop GetDragAndDrop()
   }
 
   return dnd;
+}
+
+class DragAndDropFactoryEcoreWl : public DragAndDropFactory
+{
+public:
+  Dali::DragAndDrop CreateDragAndDrop() override
+  {
+    return GetDragAndDrop();
+  }
+};
+
+std::unique_ptr<DragAndDropFactory> GetDragAndDropFactory()
+{
+  return std::unique_ptr<DragAndDropFactory>(new DragAndDropFactoryEcoreWl());
 }
 
 DragAndDropEcoreWl::DragAndDropEcoreWl()

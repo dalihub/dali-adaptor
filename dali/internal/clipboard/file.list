@@ -1,8 +1,14 @@
 
 # module: clipboard, backend: tizen-wayland
-SET( adaptor_clipboard_tizen_wayland_src_files
-    ${adaptor_clipboard_dir}/tizen-wayland/clipboard-impl-ecore-wl.cpp
-)
+IF(USE_TCORE_BACKEND)
+  SET( adaptor_clipboard_tizen_wayland_src_files
+      ${adaptor_clipboard_dir}/tizen-wayland/tcore/clipboard-impl-tcore-wl.cpp
+  )
+ELSE()
+  SET( adaptor_clipboard_tizen_wayland_src_files
+      ${adaptor_clipboard_dir}/tizen-wayland/ecore/clipboard-impl-ecore-wl.cpp
+  )
+ENDIF()
 
 # module: clipboard, backend: ubuntu-x11
 SET( adaptor_clipboard_ubuntu_x11_src_files
