@@ -130,6 +130,16 @@ void PixelBuffer::Resize(uint16_t width, uint16_t height)
   GetImplementation(*this).Resize(ImageDimensions(width, height));
 }
 
+void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
+{
+  GetImplementation(*this).ApplyCenterCrop(width, height);
+}
+
+void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
+{
+  GetImplementation(*this).ApplyLetterbox(width, height);
+}
+
 void PixelBuffer::MultiplyColorByAlpha()
 {
   GetImplementation(*this).MultiplyColorByAlpha();
