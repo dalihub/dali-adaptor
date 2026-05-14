@@ -1096,7 +1096,9 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
 
   // if only one, pick first
   mPhysicalDevice = nullptr;
-  int gpuId       = 0;
+#if defined(DEBUG_ENABLED)
+  int gpuId = 0;
+#endif
   if(devices.size() == 1)
   {
     mPhysicalDevice = devices[0];
@@ -1153,7 +1155,9 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
       {
         break;
       }
+#if defined(DEBUG_ENABLED)
       gpuId++;
+#endif
     }
   }
 

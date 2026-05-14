@@ -690,7 +690,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);
   }
 
-  bool get_from_value_impl(const void * v, void * dst)
+  bool get_from_value_impl(const void* v, void* dst) override
   {
     return eina_value_get(static_cast<Eina_Value*>(const_cast<void*>(v)), dst);
   }
