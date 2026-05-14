@@ -506,6 +506,85 @@ void PixelBuffer::Resize(ImageDimensions outDimensions)
   }
 }
 
+void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
+{
+  if(mWidth == 0u || mHeight == 0u || width == 0u || height == 0u)
+  {
+    return;
+  }
+
+  // Use integer cross-multiplication to avoid floating-point precision errors.
+  // mWidth * height > width * mHeight  ⟺  sourceAspect > targetAspect
+  // uint16_t max is 65535; 65535^2 = 4,294,836,225 < UINT32_MAX, so no overflow.
+  uint16_t cropWidth;
+  uint16_t cropHeight;
+  if(static_cast<uint32_t>(mWidth) * static_cast<uint32_t>(height) >
+     static_cast<uint32_t>(width) * static_cast<uint32_t>(mHeight))
+  {
+    // Source is wider than target: crop the sides
+    cropWidth  = static_cast<uint16_t>(static_cast<float>(mHeight) * static_cast<float>(width) / static_cast<float>(height) + 0.5f);
+    cropHeight = static_cast<uint16_t>(mHeight);
+  }
+  else
+  {
+    // Source is taller than target: crop top and bottom
+    cropWidth  = static_cast<uint16_t>(mWidth);
+    cropHeight = static_cast<uint16_t>(static_cast<float>(mWidth) * static_cast<float>(height) / static_cast<float>(width) + 0.5f);
+  }
+
+  const uint16_t offsetX = static_cast<uint16_t>((mWidth - cropWidth) / 2u);
+  const uint16_t offsetY = static_cast<uint16_t>((mHeight - cropHeight) / 2u);
+
+  Crop(offsetX, offsetY, ImageDimensions(cropWidth, cropHeight));
+  Resize(ImageDimensions(width, height));
+}
+
+void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
+{
+  if(mWidth == 0u || mHeight == 0u || width == 0u || height == 0u)
+  {
+    return;
+  }
+
+  // Downscale to fit within desired box while preserving aspect ratio (no upscaling)
+  const float scaleX = static_cast<float>(width) / static_cast<float>(mWidth);
+  const float scaleY = static_cast<float>(height) / static_cast<float>(mHeight);
+  const float scale  = std::min(scaleX, scaleY);
+
+  if(scale < 1.0f)
+  {
+    const uint16_t scaledWidth  = static_cast<uint16_t>(static_cast<float>(mWidth) * scale + 0.5f);
+    const uint16_t scaledHeight = static_cast<uint16_t>(static_cast<float>(mHeight) * scale + 0.5f);
+    Resize(ImageDimensions(scaledWidth, scaledHeight));
+  }
+
+  if(mWidth == width && mHeight == height)
+  {
+    return;
+  }
+
+  // Create target buffer filled with black (0x00) for padding
+  PixelBufferPtr newBuffer = PixelBuffer::New(width, height, mPixelFormat);
+  memset(newBuffer->mBuffer, 0, newBuffer->mBufferSize);
+
+  // Copy the (scaled or original) image centered into the new buffer
+  const uint32_t offsetX       = (static_cast<uint32_t>(width) - mWidth) / 2u;
+  const uint32_t offsetY       = (static_cast<uint32_t>(height) - mHeight) / 2u;
+  const uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+  const uint32_t srcRowBytes   = mWidth * bytesPerPixel;
+  const uint32_t srcStride     = GetStrideBytes();
+  const uint32_t destStride    = newBuffer->GetStrideBytes();
+
+  for(uint32_t row = 0u; row < mHeight; ++row)
+  {
+    const uint8_t* srcRow  = mBuffer + row * srcStride;
+    uint8_t*       destRow = newBuffer->mBuffer + (offsetY + row) * destStride + offsetX * bytesPerPixel;
+    memcpy(destRow, srcRow, srcRowBytes);
+  }
+
+  TakeOwnershipOfBuffer(*newBuffer);
+}
+
 PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensions outDimensions)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_RESIZE", [&](std::ostringstream& oss)
