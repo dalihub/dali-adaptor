@@ -421,8 +421,12 @@ void PixelBuffer::ScaleAndCrop(float scaleFactor, ImageDimensions cropDimensions
 
 void PixelBuffer::Crop(uint16_t x, uint16_t y, ImageDimensions cropDimensions)
 {
-  PixelBufferPtr outBuffer = NewCrop(*this, x, y, cropDimensions);
-  TakeOwnershipOfBuffer(*outBuffer);
+  // Apply crop only if something changed)
+  if(!(x == 0u && y == 0u && mWidth == cropDimensions.GetWidth() && mHeight == cropDimensions.GetHeight()))
+  {
+    PixelBufferPtr outBuffer = NewCrop(*this, x, y, cropDimensions);
+    TakeOwnershipOfBuffer(*outBuffer);
+  }
 }
 
 PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions)
@@ -438,15 +442,16 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
   int bytesPerPixel = Pixel::GetBytesPerPixel(inBuffer.mPixelFormat);
 
   // This method only really works if bytesPerPixel is exist. (~= not compressed)
-  if(bytesPerPixel != 0)
+  if(DALI_LIKELY(bytesPerPixel != 0u && inBuffer.mBuffer != nullptr && outBuffer->mBuffer != nullptr))
   {
     int srcStrideBytes  = inBuffer.mStrideBytes;
     int destStrideBytes = cropDimensions.GetWidth() * bytesPerPixel; // The destination buffer is tightly packed
+    int copyBytes       = destStrideBytes;
 
     // Clamp crop to right edge
-    if(x + cropDimensions.GetWidth() > inBuffer.mWidth)
+    if(DALI_UNLIKELY(x + cropDimensions.GetWidth() > inBuffer.mWidth))
     {
-      destStrideBytes = (inBuffer.mWidth - x) * bytesPerPixel;
+      copyBytes = (inBuffer.mWidth - x) * bytesPerPixel;
     }
 
     int      srcOffset  = x * bytesPerPixel + y * srcStrideBytes;
@@ -455,20 +460,32 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
 
     // Clamp crop to last row
     uint16_t endRow = y + cropDimensions.GetHeight();
-    if(endRow > inBuffer.mHeight)
+    if(DALI_UNLIKELY(endRow > inBuffer.mHeight))
     {
       endRow = inBuffer.mHeight - 1;
     }
-    for(uint16_t row = y; row < endRow; ++row)
+
+    if(srcStrideBytes == copyBytes && copyBytes == destStrideBytes)
     {
-      memcpy(destBuffer + destOffset, inBuffer.mBuffer + srcOffset, destStrideBytes);
-      srcOffset += srcStrideBytes;
-      destOffset += destStrideBytes;
+      // We can use single memcpy
+      if(DALI_LIKELY(y < endRow))
+      {
+        memcpy(destBuffer, inBuffer.mBuffer + srcOffset, copyBytes * (endRow - y));
+      }
+    }
+    else
+    {
+      for(uint16_t row = y; row < endRow; ++row)
+      {
+        memcpy(destBuffer + destOffset, inBuffer.mBuffer + srcOffset, copyBytes);
+        srcOffset += srcStrideBytes;
+        destOffset += destStrideBytes;
+      }
     }
   }
   else
   {
-    DALI_LOG_ERROR("Trying to crop an image with unsupported pixel format: %s\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat));
+    DALI_LOG_ERROR("Trying to crop an image with unsupported pixel format: %s or null buffer: in %p out %p\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat), inBuffer.mBuffer, outBuffer->mBuffer);
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_CROP", [&](std::ostringstream& oss)
   {
@@ -508,8 +525,15 @@ void PixelBuffer::Resize(ImageDimensions outDimensions)
 
 void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
 {
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_CROP", [&](std::ostringstream& oss)
+  {
+    oss << "[image:" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat;
+    oss << " target:" << width << "x" << height << "]";
+  });
+
   if(mWidth == 0u || mHeight == 0u || width == 0u || height == 0u)
   {
+    DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_CROP");
     return;
   }
 
@@ -532,17 +556,33 @@ void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
     cropHeight = static_cast<uint16_t>(static_cast<float>(mWidth) * static_cast<float>(height) / static_cast<float>(width) + 0.5f);
   }
 
+  if(DALI_UNLIKELY(!(static_cast<uint32_t>(cropWidth) <= mWidth && static_cast<uint32_t>(cropHeight) <= mHeight)))
+  {
+    DALI_LOG_ERROR("Cropped image should be smaller than self! something has problem.");
+    DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_CROP");
+    return;
+  }
+
   const uint16_t offsetX = static_cast<uint16_t>((mWidth - cropWidth) / 2u);
   const uint16_t offsetY = static_cast<uint16_t>((mHeight - cropHeight) / 2u);
 
   Crop(offsetX, offsetY, ImageDimensions(cropWidth, cropHeight));
   Resize(ImageDimensions(width, height));
+
+  DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_CROP");
 }
 
 void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
 {
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX", [&](std::ostringstream& oss)
+  {
+    oss << "[image:" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat;
+    oss << " target:" << width << "x" << height << "]";
+  });
+
   if(mWidth == 0u || mHeight == 0u || width == 0u || height == 0u)
   {
+    DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX");
     return;
   }
 
@@ -560,29 +600,60 @@ void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
 
   if(mWidth == width && mHeight == height)
   {
+    DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX");
     return;
   }
 
-  // Create target buffer filled with black (0x00) for padding
-  PixelBufferPtr newBuffer = PixelBuffer::New(width, height, mPixelFormat);
-  memset(newBuffer->mBuffer, 0, newBuffer->mBufferSize);
-
-  // Copy the (scaled or original) image centered into the new buffer
-  const uint32_t offsetX       = (static_cast<uint32_t>(width) - mWidth) / 2u;
-  const uint32_t offsetY       = (static_cast<uint32_t>(height) - mHeight) / 2u;
-  const uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
-  const uint32_t srcRowBytes   = mWidth * bytesPerPixel;
-  const uint32_t srcStride     = GetStrideBytes();
-  const uint32_t destStride    = newBuffer->GetStrideBytes();
-
-  for(uint32_t row = 0u; row < mHeight; ++row)
+  if(DALI_UNLIKELY(!(static_cast<uint32_t>(width) >= mWidth && static_cast<uint32_t>(height) >= mHeight)))
   {
-    const uint8_t* srcRow  = mBuffer + row * srcStride;
-    uint8_t*       destRow = newBuffer->mBuffer + (offsetY + row) * destStride + offsetX * bytesPerPixel;
-    memcpy(destRow, srcRow, srcRowBytes);
+    DALI_LOG_ERROR("LetterBox should be bigger than self! something has problem.");
+    DALI_TRACE_END(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX");
+    return;
   }
 
-  TakeOwnershipOfBuffer(*newBuffer);
+  const uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+
+  if(DALI_LIKELY(bytesPerPixel != 0u && mBuffer != nullptr))
+  {
+    // Create target buffer filled with black (0x00) for padding
+    PixelBufferPtr newBuffer = PixelBuffer::New(width, height, mPixelFormat);
+    memset(newBuffer->mBuffer, 0, newBuffer->mBufferSize);
+
+    // Copy the (scaled or original) image centered into the new buffer
+    const uint32_t offsetX         = (static_cast<uint32_t>(width) - mWidth) / 2u;
+    const uint32_t offsetY         = (static_cast<uint32_t>(height) - mHeight) / 2u;
+    const uint32_t srcRowBytes     = mWidth * bytesPerPixel;
+    const uint32_t srcStrideBytes  = GetStrideBytes();
+    const uint32_t destStrideBytes = newBuffer->GetStrideBytes();
+
+    if(width == mWidth && destStrideBytes == srcStrideBytes)
+    {
+      // We can use single memcpy
+      const uint8_t* srcBegin  = mBuffer;
+      uint8_t*       destBegin = newBuffer->mBuffer + offsetY * destStrideBytes;
+      memcpy(destBegin, srcBegin, mHeight * srcStrideBytes);
+    }
+    else
+    {
+      for(uint32_t row = 0u; row < mHeight; ++row)
+      {
+        const uint8_t* srcRow  = mBuffer + row * srcStrideBytes;
+        uint8_t*       destRow = newBuffer->mBuffer + (offsetY + row) * destStrideBytes + offsetX * bytesPerPixel;
+        memcpy(destRow, srcRow, srcRowBytes);
+      }
+    }
+
+    TakeOwnershipOfBuffer(*newBuffer);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Trying to apply letter box an image with unsupported pixel format: %s or null buffer: %p\n", Platform::GetPixelFormatName(mPixelFormat), mBuffer);
+  }
+
+  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX", [&](std::ostringstream& oss)
+  {
+    oss << "[valid? " << (bytesPerPixel != 0u) << "]";
+  });
 }
 
 PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensions outDimensions)
@@ -621,7 +692,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
     }
   }
 
-  if(validPixelFormat)
+  if(DALI_LIKELY(validPixelFormat && inBuffer.mBuffer != nullptr && outBuffer->mBuffer != nullptr))
   {
     ImageDimensions inDimensions(inBuffer.mWidth, inBuffer.mHeight);
 
@@ -637,7 +708,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
   }
   else
   {
-    DALI_LOG_ERROR("Trying to resize an image with unsupported pixel format: %s\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat));
+    DALI_LOG_ERROR("Trying to resize an image with unsupported pixel format: %s or null buffer: in %p out %p\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat), inBuffer.mBuffer, outBuffer->mBuffer);
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_RESIZE", [&](std::ostringstream& oss)
   {
