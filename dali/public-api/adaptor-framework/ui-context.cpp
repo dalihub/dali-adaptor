@@ -76,4 +76,19 @@ void UiContext::SetApplicationLocale(const Dali::String& locale)
   Internal::Adaptor::GetImplementation(*this).SetApplicationLocale(ToStdString(locale));
 }
 
+void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Actor rootActor)
+{
+  Internal::Adaptor::GetImplementation(*this).AddFrameCallback(frameCallback, rootActor);
+}
+
+void UiContext::RemoveFrameCallback(FrameCallbackInterface& frameCallback)
+{
+  Internal::Adaptor::GetImplementation(*this).RemoveFrameCallback(frameCallback);
+}
+
+UpdateProxy::NotifySyncPoint UiContext::NotifyFrameCallback(FrameCallbackInterface& frameCallback)
+{
+  return Internal::Adaptor::GetImplementation(*this).NotifyFrameCallback(frameCallback);
+}
+
 } // namespace Dali
