@@ -29,7 +29,7 @@ SET( adaptor_system_common_src_files
 
 # module: system, backend: linux
 IF(USE_TCORE_BACKEND)
-  SET( adaptor_system_linux_ecore_src_files
+  SET( adaptor_system_linux_src_files
       ${adaptor_system_dir}/common/shared-file.cpp
       ${adaptor_system_dir}/common/time-service.cpp
       ${adaptor_system_dir}/common/trigger-event.cpp
@@ -48,7 +48,7 @@ IF(USE_TCORE_BACKEND)
       ${adaptor_system_dir}/linux/tcore/timer-impl-tcore.cpp
   )
 ELSE()
-  SET( adaptor_system_linux_ecore_src_files
+  SET( adaptor_system_linux_src_files
       ${adaptor_system_dir}/common/shared-file.cpp
       ${adaptor_system_dir}/common/time-service.cpp
       ${adaptor_system_dir}/common/trigger-event.cpp

@@ -2813,9 +2813,16 @@ void WindowBaseTcoreWl::SetLayout(unsigned int numCols, unsigned int numRows, un
 
 void WindowBaseTcoreWl::SetClass(const std::string& name, const std::string& className)
 {
+  DALI_LOG_RELEASE_INFO("[SET_CLASS_TRACE] WindowBaseTcoreWl::SetClass() this[%p], tcoreWindow[%p], name[%s], className[%s]\n",
+                        this,
+                        mTcoreWindow,
+                        name.c_str(),
+                        className.c_str());
   if(mTcoreWindow)
   {
+    DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_title, Set Title[%s]\n", name.c_str());
     tizen_core_wl_window_set_title(mTcoreWindow, name.c_str());
+    DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_app_id, Set App ID[%s]\n", className.c_str());
     tizen_core_wl_window_set_app_id(mTcoreWindow, className.c_str());
   }
 }
@@ -3031,12 +3038,25 @@ unsigned int WindowBaseTcoreWl::AddAuxiliaryHint(const std::string& hint, const 
   {
     if(mAuxiliaryHints[i].first == hint)
     {
-      // Just change the value
+      unsigned int id = i + 1;
+      if(mAuxiliaryHints[i].second == value)
+      {
+        DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::AddAuxiliaryHint: skip same hint/value. hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id);
+        return id;
+      }
+
       mAuxiliaryHints[i].second = value;
 
-      DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::AddAuxiliaryHint: Change! hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), i + 1);
+      if(mTcoreWindow)
+      {
+        DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_aux_hint");
+        DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_aux_hint: change hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id);
+        tizen_core_wl_window_set_aux_hint(mTcoreWindow, hint.c_str(), value.c_str());
+      }
 
-      return i + 1; // id is index + 1
+      DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::AddAuxiliaryHint: Change! hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id);
+
+      return id;
     }
   }
 

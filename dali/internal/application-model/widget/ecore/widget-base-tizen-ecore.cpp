@@ -48,6 +48,7 @@ namespace
 {
 int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w, int h, void* classData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, OnInstanceInit is called");
   char* id;
   widget_base_context_get_id(instanceHandle, &id);
 
@@ -115,6 +116,7 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
 
 int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy_type_e reason, bundle* content, void* classData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, OnInstanceDestroy is called");
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(classData);
 
   char* id;
@@ -154,6 +156,7 @@ int OnInstanceDestroy(widget_base_instance_h instanceHandle, widget_base_destroy
 
 int OnInstancePause(widget_base_instance_h instanceHandle, void* classData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, OnInstancePause is called");
   widget_base_class_on_pause(instanceHandle);
 
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(classData);
@@ -168,6 +171,7 @@ int OnInstancePause(widget_base_instance_h instanceHandle, void* classData)
 
 int OnInstanceResume(widget_base_instance_h instanceHandle, void* classData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, OnInstanceResume is called");
   widget_base_class_on_resume(instanceHandle);
 
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(classData);
@@ -236,6 +240,7 @@ extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, 
 
 extern "C" DALI_ADAPTOR_API void SetContentInfo(void* handle, bundle* bundleData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, SetContentInfo is called");
   widget_base_instance_h handle_instance = static_cast<widget_base_instance_h>(handle);
   //bundle* bundle = static_cast<bundle*>(bundleData);
   widget_base_context_set_content_info(handle_instance, bundleData);

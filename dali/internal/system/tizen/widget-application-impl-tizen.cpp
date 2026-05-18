@@ -34,8 +34,13 @@
 #include <bundle.h>
 #include <dlfcn.h>
 #include <dlog.h>
-#include <tizen.h>
 #include <locale>
+#ifdef USE_TCORE_BACKEND
+#include <screen_connector_provider_tcore.h>
+#else
+#include <screen_connector_provider.h>
+#endif
+#include <tizen.h>
 
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
@@ -78,11 +83,15 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
     state = Dali::KeyEvent::UP;
   }
 
-  bool           consumed     = true;
-  Dali::String   keyEventName = Dali::String(keyName);
-  Dali::KeyEvent event        = Dali::DevelKeyEvent::New(keyEventName, "", "", keyCode, 0, timestamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
+  bool               consumed     = true;
+  std::string        keyEventName = keyName ? std::string(keyName) : std::string();
+  const Dali::String emptyString("");
+  Dali::KeyEvent     event = Dali::DevelKeyEvent::New(Dali::String(keyEventName.c_str()), emptyString, emptyString, keyCode, 0,
+                                                       static_cast<unsigned long>(timestamp),
+                                                       state, emptyString, emptyString,
+                                                       Device::Class::NONE, Device::Subclass::NONE);
 
-  if(application)
+  if(application && id)
   {
     std::string widgetId       = std::string(id);
     void*       instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
@@ -101,6 +110,11 @@ unsigned int GetEnvWidgetRenderRefreshRate()
   const char* envVariable = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_WIDGET_REFRESH_RATE);
 
   return envVariable ? std::atoi(envVariable) : 1u; // Default 60 fps
+}
+
+Dali::Internal::Adaptor::WidgetInstanceHandle CastWidgetInstanceHandle(void* instanceHandle)
+{
+  return static_cast<Dali::Internal::Adaptor::WidgetInstanceHandle>(instanceHandle);
 }
 
 } // anonymous namespace
@@ -129,8 +143,7 @@ WidgetApplicationTizen::~WidgetApplicationTizen()
 
 void WidgetApplicationTizen::InitializeWidget(void* instanceHandle, Dali::Widget widgetInstance)
 {
-  auto*                                  context    = static_cast<tizen_cpp::WidgetContext*>(instanceHandle);
-  Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(context);
+  Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(CastWidgetInstanceHandle(instanceHandle));
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl(widgetImpl);
 }
 
@@ -232,7 +245,7 @@ void* WidgetApplicationTizen::GetWidgetInstanceFromWidgetId(std::string& widgetI
 {
   for(auto&& iter : mWidgetInstanceContainer)
   {
-    if(widgetId == ToStdString(Internal::Adaptor::GetImplementation((iter).second).GetWidgetId()))
+    if((iter).second && widgetId == ToStdString(Internal::Adaptor::GetImplementation((iter).second).GetWidgetId()))
     {
       return (iter).first;
     }
@@ -256,7 +269,11 @@ void WidgetApplicationTizen::ConnectKeyEvent(Dali::Window window)
   if(!mConnectedKeyEvent)
   {
 #ifdef OVER_TIZEN_VERSION_7
+#ifdef USE_TCORE_BACKEND
+    screen_connector_provider_tcore_set_key_event_cb(OnKeyEventCallback, this);
+#else
     screen_connector_provider_set_key_event_cb(OnKeyEventCallback, this);
+#endif
 #endif
     mConnectedKeyEvent = true;
   }
