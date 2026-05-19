@@ -1015,7 +1015,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
           mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
 
-          mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
+          mCurrentContext->BindTexture(bindTarget, texture->GetGLTexture());
 
           if(!isSubImage)
           {
@@ -1071,7 +1071,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
             }
           }
           // Reset texture bind after using.
-          mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), 0);
+          mCurrentContext->BindTexture(bindTarget, 0);
         }
 
         if(sourceBufferReleaseRequired && sourceBuffer != nullptr)
@@ -1176,10 +1176,10 @@ void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
 
     if(mDiscardTextureSet.find(texture) == mDiscardTextureSet.end())
     {
-      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
+      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetGLTexture());
       mCurrentContext->GenerateMipmap(texture->GetGlTarget());
       // Reset texture bind after using.
-      mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), 0);
+      mCurrentContext->BindTexture(texture->GetGlTarget(), 0);
 
       mTextureMipmapGenerationRequests.pop();
     }
