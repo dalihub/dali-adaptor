@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_STATE_CACHE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
-#include <cstring> ///< for memset
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include "gles-blend-state-cache.h"
@@ -34,9 +36,9 @@ namespace GLES
 {
 namespace
 {
-static constexpr unsigned int MAX_TEXTURE_UNITS        = 32; // As what is defined in gl-defines.h, which is more than DALi uses anyways
-static constexpr unsigned int MAX_TEXTURE_TARGET       = 4;  // We only support GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP and GL_TEXTURE_EXTERNAL_OES
-static constexpr unsigned int MAX_ATTRIBUTE_CACHE_SIZE = 8;  // Size of the VertexAttributeArray enables
+static constexpr uint32_t MAX_TEXTURE_UNITS        = 32; // As what is defined in gl-defines.h, which is more than DALi uses anyways
+static constexpr uint32_t MAX_TEXTURE_TARGET_ID    = 4;  // We only support to cache GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP and GL_TEXTURE_EXTERNAL_OES
+static constexpr uint32_t MAX_ATTRIBUTE_CACHE_SIZE = 8;  // Size of the VertexAttributeArray enables
 
 static constexpr uint32_t INVALID_GRAPHICS_RESOURCE_ID = -1;
 } // namespace
@@ -46,16 +48,6 @@ static constexpr uint32_t INVALID_GRAPHICS_RESOURCE_ID = -1;
  */
 struct GLStateCache
 {
-  /**
-   * Reset the cached texture ids.
-   */
-  void ResetTextureCache()
-  {
-    // reset the cached texture id as INVALID_GRAPHICS_RESOURCE_ID
-    // in case the driver re-uses them when creating new textures
-    memset(&mBoundTextureId, 0xff, sizeof(mBoundTextureId));
-  }
-
   /**
    * Reset the cached buffer ids.
    */
@@ -98,8 +90,12 @@ struct GLStateCache
   GLuint mBoundElementArrayBufferId{0u}; ///< The ID passed to glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
 
   // glBindTexture() state
-  GLenum mActiveTextureUnit{MAX_TEXTURE_UNITS};
-  GLuint mBoundTextureId[MAX_TEXTURE_UNITS][MAX_TEXTURE_TARGET]; ///< The ID passed to glBindTexture()
+  uint32_t mMaxActivatedTextureUnit{0u};
+  GLenum   mActiveTextureUnit{MAX_TEXTURE_UNITS};
+  GLuint   mBoundTextureId[MAX_TEXTURE_UNITS][MAX_TEXTURE_TARGET_ID]; ///< The ID passed to glBindTexture().  Will be unbind texture at EndRenderPass
+
+  using ExtraBoundTextureTargetContainer = std::unordered_map<uint32_t, std::unordered_map<GLenum, GLuint>>; ///< [unit][target] = textureId
+  std::unique_ptr<ExtraBoundTextureTargetContainer> mExtraBoundTextureTargets{nullptr};                      ///< The targets of bound textures, which was not be in cached. Will be used when unbind texture at EndRenderPass.
 
   // glStencilFunc() and glStencilOp() state.
   CompareOp mStencilFunc{CompareOp::ALWAYS};

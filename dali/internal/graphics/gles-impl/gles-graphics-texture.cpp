@@ -147,7 +147,7 @@ bool Texture::InitializeNativeImage()
   if(created)
   {
     gl->GenTextures(1, &texture);
-    context->BindTexture(mGlTarget, GetTextureTypeId(), texture);
+    context->BindTexture(mGlTarget, texture);
 
     gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
 
@@ -169,7 +169,7 @@ bool Texture::InitializeNativeImage()
     {
       mTextureId = texture;
     }
-    context->BindTexture(mGlTarget, GetTextureTypeId(), 0);
+    context->BindTexture(mGlTarget, 0);
   }
   else
   {
@@ -206,7 +206,7 @@ bool Texture::InitializeTexture()
       {
         // Bind texture
         gl->GenTextures(1, &texture);
-        context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), texture);
+        context->BindTexture(GL_TEXTURE_2D, texture);
 
         if(mCreateInfo.allocationPolicy == Graphics::TextureAllocationPolicy::CREATION || mCreateInfo.data)
         {
@@ -246,7 +246,7 @@ bool Texture::InitializeTexture()
         SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, DALI_WRAP_DEFAULT);
 
         // Reset texture bind after using.
-        context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), 0);
+        context->BindTexture(GL_TEXTURE_2D, 0);
       }
       break;
     }
@@ -259,7 +259,7 @@ bool Texture::InitializeTexture()
       {
         // Bind texture
         gl->GenTextures(1, &texture);
-        context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), texture);
+        context->BindTexture(GL_TEXTURE_CUBE_MAP, texture);
         gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
 
         SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
@@ -306,7 +306,7 @@ bool Texture::InitializeTexture()
         SetSamplerParameter(GL_TEXTURE_WRAP_R, mDefaultSamplerState.wrapR, DALI_WRAP_DEFAULT);
 
         // Reset texture bind after using.
-        context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), 0);
+        context->BindTexture(GL_TEXTURE_CUBE_MAP, 0);
       }
       break;
     }
@@ -359,7 +359,7 @@ void Texture::Bind(const TextureBinding& binding) const
   }
 
   context->ActiveTexture(binding.binding);
-  context->BindTexture(mGlTarget, GetTextureTypeId(), mTextureId);
+  context->BindTexture(mGlTarget, mTextureId);
 
   // For GLES2 if there is a sampler set in the binding
   if(binding.sampler)
