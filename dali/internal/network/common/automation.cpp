@@ -22,6 +22,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/rendering/decorated-visual-renderer.h>
 #include <dali/integration-api/rendering/visual-renderer.h>
@@ -29,7 +30,6 @@
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
-#include <clocale>
 #include <iomanip>
 #include <locale>
 #include <sstream>
@@ -58,48 +58,6 @@ using namespace Dali::DevelFrameBuffer;
 namespace // un-named namespace
 {
 const unsigned int MAX_SET_PROPERTY_STRING_LENGTH = 256; ///< maximum length of a set property command
-
-/**
- * @brief RAII guard that sets LC_NUMERIC to "C" on construction and restores
- *        the previous locale on destruction.
- *
- * This ensures floating-point values are formatted with a dot (e.g. "3.14")
- * rather than a locale-specific decimal separator (e.g. "3,14" in de_DE),
- * which is required for generating valid JSON output.
- */
-class LocaleNumericGuard
-{
-public:
-  LocaleNumericGuard()
-  : mPreviousLocale(nullptr)
-  {
-    // Save the current LC_NUMERIC locale
-    mPreviousLocale = setlocale(LC_NUMERIC, nullptr);
-    if(mPreviousLocale)
-    {
-      mPreviousLocale = strdup(mPreviousLocale);
-    }
-    // Set LC_NUMERIC to "C" for locale-independent numeric formatting
-    setlocale(LC_NUMERIC, "C");
-  }
-
-  ~LocaleNumericGuard()
-  {
-    // Restore the previous LC_NUMERIC locale
-    if(mPreviousLocale)
-    {
-      setlocale(LC_NUMERIC, mPreviousLocale);
-      free(mPreviousLocale);
-    }
-  }
-
-  // Non-copyable
-  LocaleNumericGuard(const LocaleNumericGuard&)            = delete;
-  LocaleNumericGuard& operator=(const LocaleNumericGuard&) = delete;
-
-private:
-  char* mPreviousLocale;
-};
 
 class JsonPropertyValue
 {
