@@ -71,15 +71,6 @@ public:
   }
 
   /**
-   * @brief Returns the type of the bound Gl texture
-   * @return The type of the bound Gl texture
-   */
-  [[nodiscard]] BoundTextureType GetTextureTypeId() const
-  {
-    return mCreateInfo.nativeImagePtr ? BoundTextureType::TEXTURE_EXTERNAL_OES : static_cast<BoundTextureType>(mCreateInfo.textureType);
-  }
-
-  /**
    * @brief Returns wether we are using a native texture or not.
    * @return True if we are using a native texture. False otherwise.
    */

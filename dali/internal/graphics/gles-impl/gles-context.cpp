@@ -33,6 +33,7 @@
 
 #include <dali/internal/graphics/common/egl-include.h>
 
+#include <limits>
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
@@ -45,6 +46,37 @@ constexpr uint32_t CLEAR_CACHED_NATIVE_TEXTURE_THRESHOLD = 100u;
 
 constexpr uint32_t CPU_ALLOCATED_UBO_INDEX       = 0u;
 constexpr uint32_t GPU_ALLOCATED_UBO_INDEX_BEGIN = 1u;
+
+constexpr uint32_t TextureTargetToTargetId(Dali::GLenum target)
+{
+  switch(target)
+  {
+    case GL_TEXTURE_2D:
+    {
+      return 0u;
+    }
+    case GL_TEXTURE_3D:
+    {
+      return 1u;
+    }
+    case GL_TEXTURE_CUBE_MAP:
+    {
+      return 2u;
+    }
+    case GL_TEXTURE_EXTERNAL_OES:
+    {
+      return 3u;
+    }
+  }
+  return std::numeric_limits<uint32_t>::max();
+}
+
+constexpr Dali::GLenum TextureTargetIdToTarget(uint32_t id)
+{
+  constexpr Dali::GLenum sTargetList[] = {GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_EXTERNAL_OES};
+  return sTargetList[id];
+}
+
 } // namespace
 
 namespace Dali::Graphics::GLES
@@ -164,10 +196,10 @@ struct Context::Impl
 
       mGlStateCache.mBoundArrayBufferId        = INVALID_GRAPHICS_RESOURCE_ID;
       mGlStateCache.mBoundElementArrayBufferId = INVALID_GRAPHICS_RESOURCE_ID;
-      mGlStateCache.mActiveTextureUnit         = MAX_TEXTURE_UNITS; // Set MAX_TEXTURE_UNITS for initialize state.
 
-      // Initialize bound 2d texture cache as INVALID_GRAPHICS_RESOURCE_ID.
-      memset(&mGlStateCache.mBoundTextureId, 0xff, sizeof(mGlStateCache.mBoundTextureId));
+      mGlStateCache.mMaxActivatedTextureUnit = 0u;
+      mGlStateCache.mActiveTextureUnit       = MAX_TEXTURE_UNITS; // Set MAX_TEXTURE_UNITS for initialize state.
+      mGlStateCache.mExtraBoundTextureTargets.reset();
 
       mGlStateCache.mBlendStateCache.InvalidateCache();
 
@@ -1071,13 +1103,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, 
 
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
-  if(targetInfo.surface)
-  {
-    // Bind surface FB
-    gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
-    mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(0);
-  }
-  else if(targetInfo.framebuffer)
+  if(targetInfo.framebuffer)
   {
     // bind framebuffer and swap.
     auto framebuffer = renderTarget.GetFramebuffer();
@@ -1164,6 +1190,9 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, 
 
 void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
 {
+  // Unbind all used texture first.
+  UnbindCachedTextures();
+
   if(mImpl->mCurrentRenderTarget)
   {
     GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
@@ -1407,40 +1436,101 @@ void Context::SetDepthWriteEnable(bool depthWriteEnable)
 
 void Context::ActiveTexture(uint32_t textureBindingIndex)
 {
-  auto* gl = mImpl->GetGL();
-  if(DALI_LIKELY(gl) && mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
+  auto* gl      = mImpl->GetGL();
+  auto& glCache = mImpl->mGlStateCache;
+
+  if(DALI_LIKELY(gl) && glCache.mActiveTextureUnit != textureBindingIndex)
   {
-    mImpl->mGlStateCache.mActiveTextureUnit = textureBindingIndex;
+    glCache.mActiveTextureUnit = textureBindingIndex;
+
+    if(glCache.mMaxActivatedTextureUnit <= textureBindingIndex)
+    {
+      glCache.mMaxActivatedTextureUnit = textureBindingIndex + 1;
+    }
 
     gl->ActiveTexture(GL_TEXTURE0 + textureBindingIndex);
   }
 }
 
-void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId)
+void Context::BindTexture(GLenum target, uint32_t textureId)
 {
-  uint32_t typeId = static_cast<uint32_t>(textureTypeId);
-  auto*    gl     = mImpl->GetGL();
+  auto* gl = mImpl->GetGL();
   if(DALI_LIKELY(gl))
   {
-    if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS)
-    {
-      gl->BindTexture(target, textureId);
-    }
-    else
-    {
-      if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] == INVALID_GRAPHICS_RESOURCE_ID)
-      {
-        mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = 0;
-        gl->BindTexture(target, 0);
-      }
+    auto& glCache = mImpl->mGlStateCache;
 
-      if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+    // We can assume that BindTexture() call without ActiveTexture() will unbind soon.
+    if(glCache.mActiveTextureUnit < MAX_TEXTURE_UNITS)
+    {
+      uint32_t textureTargetId = TextureTargetToTargetId(target);
+      if(DALI_LIKELY(textureTargetId < MAX_TEXTURE_TARGET_ID))
       {
-        mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
-
-        gl->BindTexture(target, textureId);
+        if(glCache.mBoundTextureId[glCache.mActiveTextureUnit][textureTargetId] == textureId)
+        {
+          return;
+        }
+        glCache.mBoundTextureId[glCache.mActiveTextureUnit][textureTargetId] = textureId;
+      }
+      else
+      {
+        if(!glCache.mExtraBoundTextureTargets)
+        {
+          glCache.mExtraBoundTextureTargets = std::make_unique<GLStateCache::ExtraBoundTextureTargetContainer>();
+        }
+        auto& extraCache = *(glCache.mExtraBoundTextureTargets);
+        if(extraCache[glCache.mActiveTextureUnit][target] == textureId)
+        {
+          return;
+        }
+        extraCache[glCache.mActiveTextureUnit][target] = textureId;
       }
     }
+    gl->BindTexture(target, textureId);
+  }
+}
+
+void Context::UnbindCachedTextures()
+{
+  auto* gl = mImpl->GetGL();
+  if(DALI_LIKELY(gl))
+  {
+    auto& glCache = mImpl->mGlStateCache;
+
+    for(uint32_t i = 0; i < glCache.mMaxActivatedTextureUnit; ++i)
+    {
+      bool activated = false;
+      for(uint32_t j = 0u; j < MAX_TEXTURE_TARGET_ID; ++j)
+      {
+        if(glCache.mBoundTextureId[i][j] != 0u)
+        {
+          if(!activated)
+          {
+            activated = true;
+            ActiveTexture(i);
+          }
+          gl->BindTexture(TextureTargetIdToTarget(j), 0);
+          glCache.mBoundTextureId[i][j] = 0u;
+        }
+      }
+    }
+
+    if(DALI_UNLIKELY(glCache.mExtraBoundTextureTargets))
+    {
+      for(auto&& item0 : *(glCache.mExtraBoundTextureTargets))
+      {
+        const uint32_t textureBindingIndex = item0.first;
+        ActiveTexture(textureBindingIndex);
+        for(auto&& item1 : item0.second)
+        {
+          const GLenum target = item1.first;
+          gl->BindTexture(target, 0);
+        }
+      }
+      glCache.mExtraBoundTextureTargets.reset();
+    }
+
+    glCache.mMaxActivatedTextureUnit = 0u;
+    glCache.mActiveTextureUnit       = MAX_TEXTURE_UNITS; // Set MAX_TEXTURE_UNITS for initialize state.
   }
 }
 
@@ -1593,11 +1683,6 @@ void Context::PrepareForNativeRendering()
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "PrepareForNativeRendering");
 }
 
-void Context::ResetTextureCache()
-{
-  mImpl->mGlStateCache.ResetTextureCache();
-}
-
 void Context::ResetBufferCache()
 {
   mImpl->mGlStateCache.ResetBufferCache();
@@ -1610,7 +1695,7 @@ void Context::ResetGLESState(bool callGlFunction)
   mImpl->mCurrentIndexBufferBinding = {};
 
   ClearState();
-  ResetTextureCache();
+  UnbindCachedTextures();
   ResetBufferCache();
   ClearVertexBufferCache();
 

@@ -548,12 +548,6 @@ public:
     // Process main command queue
     ProcessCommandQueues();
 
-    if(!mDiscardTextureSet.empty())
-    {
-      // Reset texture cache in the contexts while destroying textures
-      ResetTextureCache();
-    }
-
     if(!mDiscardBufferQueue.empty())
     {
       // Reset buffer cache in the contexts while destroying buffers
@@ -832,25 +826,6 @@ public:
   void SetGLESVersion(GLES::GLESVersion glesVersion)
   {
     mGLESVersion = glesVersion;
-  }
-
-  /**
-   * @brief Reset texture cache in the contexts
-   */
-  void ResetTextureCache()
-  {
-    if(mContext)
-    {
-      mContext->ResetTextureCache();
-    }
-
-    for(auto& context : mSurfaceContexts)
-    {
-      if(context.second)
-      {
-        context.second->ResetTextureCache();
-      }
-    }
   }
 
   /**

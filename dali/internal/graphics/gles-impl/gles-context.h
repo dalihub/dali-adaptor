@@ -198,7 +198,7 @@ public:
   void RestoreFromNativeRendering();
 
   void ActiveTexture(uint32_t textureBindingIndex);
-  void BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId);
+  void BindTexture(GLenum target, uint32_t textureId);
   void GenerateMipmap(GLenum target);
 
   /**
@@ -225,11 +225,6 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable);
 
   /**
-   * @brief Remove cached texture id and mark we should bind 0 at next frame.
-   */
-  void ResetTextureCache();
-
-  /**
    * @brief Remove cached buffer id and mark we should bind buffers as 0 at next frame.
    */
   void ResetBufferCache();
@@ -241,6 +236,12 @@ public:
   void ResetGLESState(bool callGlFunction = false);
 
 private:
+  /**
+   * @brief Unbind cached texture id as 0.
+   * Should be called at the end of drawing.
+   */
+  void UnbindCachedTextures();
+
   /**
    * @brief Clear current state
    */
