@@ -1842,9 +1842,12 @@ std::string Window::GetScreen() const
 
 void Window::InitializeImeInfo()
 {
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), initialize ime window and surface\n", this, mNativeWindowId);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), initialize ime window and surface (mAdaptorStarted:%d)\n", this, mNativeWindowId, mAdaptorStarted);
   mWindowBase->InitializeIme();
-  mWindowSurface->InitializeImeSurface();
+  if(mAdaptorStarted)
+  {
+    mWindowSurface->InitializeImeSurface();
+  }
 }
 
 } // namespace Adaptor
