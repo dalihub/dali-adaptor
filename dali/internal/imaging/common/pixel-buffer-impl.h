@@ -210,6 +210,16 @@ public:
   void Resize(ImageDimensions outDimensions);
 
   /**
+   * @copydoc Devel::PixelBuffer::ApplyCenterCrop()
+   */
+  void ApplyCenterCrop(uint16_t width, uint16_t height);
+
+  /**
+   * @copydoc Devel::PixelBuffer::ApplyLetterbox()
+   */
+  void ApplyLetterbox(uint16_t width, uint16_t height);
+
+  /**
    * @copydoc Devel::PixelBuffer::MultiplyColorByAlpha()
    */
   void MultiplyColorByAlpha();

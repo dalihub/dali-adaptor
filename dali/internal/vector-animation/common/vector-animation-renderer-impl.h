@@ -128,6 +128,16 @@ public:
   void KeepRasterizedBuffer();
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::SetEnableAspectFit()
+   */
+  void SetEnableAspectFit(bool enable);
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::IsEnableAspectFit()
+   */
+  bool IsEnableAspectFit() const;
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::UploadCompletedSignal()
    */
   Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();

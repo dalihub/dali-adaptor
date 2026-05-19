@@ -262,6 +262,32 @@ public:
   void Resize(uint16_t width, uint16_t height);
 
   /**
+   * @brief Crops this buffer centered to match the aspect ratio of (width, height),
+   *        then resizes to (width, height).
+   *
+   * Equivalent to the old SCALE_TO_FILL FittingMode behavior at load time.
+   * If the source has a different aspect ratio than the target, the excess portion
+   * is removed symmetrically from the longer axis before resizing.
+   *
+   * @param[in] width  Target width in pixels
+   * @param[in] height Target height in pixels
+   */
+  void ApplyCenterCrop(uint16_t width, uint16_t height);
+
+  /**
+   * @brief Scales this buffer to fit within (width, height) preserving aspect ratio
+   *        (no upscaling), then pads the remaining area with black (0x00).
+   *
+   * Equivalent to the old SHRINK_TO_FIT FittingMode behavior at load time.
+   * If the source is already smaller than the target, no scaling is performed
+   * and only padding is added.
+   *
+   * @param[in] width  Target width in pixels
+   * @param[in] height Target height in pixels
+   */
+  void ApplyLetterbox(uint16_t width, uint16_t height);
+
+  /**
    * @brief Returns Exif metadata as a property map
    *
    * @param[out] metadata Property map object to write into

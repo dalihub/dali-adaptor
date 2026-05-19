@@ -24,7 +24,6 @@
 #include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/orientation-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/actors/actor.h>
 

@@ -264,6 +264,14 @@ struct EldbusDBusWrapper : public DBusWrapper
     return eldbus_message_signature_get(get(msg));
   }
 
+  void dbus_message_iter_pack_end_impl(const MessageIterPtr& it, const MessagePtr& msg) override
+  {
+  }
+
+  void dbus_message_iter_container_close_impl(const MessageIterPtr& it) override
+  {
+  }
+
   static void callAsyncCb(void* data, const Eldbus_Message* msg, Eldbus_Pending* pending)
   {
     auto d = static_cast<SendCallback*>(data);
@@ -690,7 +698,7 @@ struct EldbusDBusWrapper : public DBusWrapper
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);
   }
 
-  bool get_from_value_impl(const void * v, void * dst)
+  bool get_from_value_impl(const void* v, void* dst) override
   {
     return eina_value_get(static_cast<Eina_Value*>(const_cast<void*>(v)), dst);
   }

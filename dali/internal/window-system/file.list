@@ -4,7 +4,6 @@ SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/display-connection.cpp
     ${adaptor_window_system_dir}/common/event-handler.cpp
     ${adaptor_window_system_dir}/common/native-render-surface-factory.cpp
-    ${adaptor_window_system_dir}/common/orientation-impl.cpp
     ${adaptor_window_system_dir}/common/window-base.cpp
     ${adaptor_window_system_dir}/common/window-impl.cpp
     ${adaptor_window_system_dir}/common/window-render-surface.cpp

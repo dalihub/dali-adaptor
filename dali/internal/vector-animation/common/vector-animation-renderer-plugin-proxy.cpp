@@ -252,6 +252,23 @@ void VectorAnimationRendererPluginProxy::KeepRasterizedBuffer()
   }
 }
 
+void VectorAnimationRendererPluginProxy::SetEnableAspectFit(bool enable)
+{
+  if(mPlugin)
+  {
+    mPlugin->SetEnableAspectFit(enable);
+  }
+}
+
+bool VectorAnimationRendererPluginProxy::IsEnableAspectFit() const
+{
+  if(mPlugin)
+  {
+    return mPlugin->IsEnableAspectFit();
+  }
+  return true;
+}
+
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if(mPlugin)

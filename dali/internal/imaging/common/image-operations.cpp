@@ -278,22 +278,25 @@ ImageDimensions FitToTargetRectangle(ImageDimensions target, ImageDimensions sou
  */
 void CalculateCropBorders(ImageDimensions sourceSize, ImageDimensions& requestedSize, int& scanlinesToCrop, int& columnsToCrop)
 {
-  const int   sourceWidth(static_cast<int>(sourceSize.GetWidth()));
-  const int   sourceHeight(static_cast<int>(sourceSize.GetHeight()));
-  const float targetAspect(static_cast<float>(requestedSize.GetWidth()) / static_cast<float>(requestedSize.GetHeight()));
-  int         finalWidth  = 0;
-  int         finalHeight = 0;
+  const uint32_t sourceWidth(sourceSize.GetWidth());
+  const uint32_t sourceHeight(sourceSize.GetHeight());
+  const uint32_t requestedWidth(requestedSize.GetWidth());
+  const uint32_t requestedHeight(requestedSize.GetHeight());
+  int            finalWidth  = 0;
+  int            finalHeight = 0;
 
-  const float sourceAspect(static_cast<float>(sourceWidth) / static_cast<float>(sourceHeight));
-  if(sourceAspect > targetAspect)
+  // Use integer cross-multiplication to avoid floating-point precision errors.
+  // sourceWidth * requestedHeight > requestedWidth * sourceHeight  ⟺  sourceAspect > targetAspect
+  // uint16_t max is 65535; 65535^2 = 4,294,836,225 < UINT32_MAX, so no overflow.
+  if(sourceWidth * requestedHeight > requestedWidth * sourceHeight)
   {
-    finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * targetAspect);
-    finalHeight = sourceHeight;
+    finalWidth  = static_cast<int>(static_cast<float>(sourceHeight) * static_cast<float>(requestedWidth) / static_cast<float>(requestedHeight));
+    finalHeight = static_cast<int>(sourceHeight);
   }
   else
   {
-    finalWidth  = sourceWidth;
-    finalHeight = static_cast<int>(static_cast<float>(sourceWidth) / targetAspect);
+    finalWidth  = static_cast<int>(sourceWidth);
+    finalHeight = static_cast<int>(static_cast<float>(sourceWidth) * static_cast<float>(requestedHeight) / static_cast<float>(requestedWidth));
   }
 
   // Clamp if overflowed

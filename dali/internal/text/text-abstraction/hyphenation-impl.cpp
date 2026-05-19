@@ -23,6 +23,8 @@
 
 #include <dali/devel-api/common/singleton-service.h>
 
+#include <cstdlib>
+
 // EXTERNAL INCLUDES
 #ifdef HYPHEN_LIBRARY_AVAILABLE
 #include <hyphen.h>
@@ -42,6 +44,24 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 
 #ifdef HYPHEN_LIBRARY_AVAILABLE
 const char* const DEFAULT_LANGUAGE = "en_US";
+
+void FreeHyphenationResult(char** rep, int* pos, int* cut, Dali::TextAbstraction::Length wordLength)
+{
+  if(rep)
+  {
+    for(Dali::TextAbstraction::Length i = 0; i < wordLength; ++i)
+    {
+      if(rep[i])
+      {
+        free(rep[i]);
+      }
+    }
+
+    free(rep);
+    free(pos);
+    free(cut);
+  }
+}
 #endif
 } // namespace
 
@@ -177,6 +197,7 @@ struct Hyphenation::Plugin
         hyphensList.PushBack((bool)(hyphens[i + 1] & 1));
       }
 
+      FreeHyphenationResult(rep, pos, cut, wordLength);
       free(hyphens);
     }
     else

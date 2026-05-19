@@ -1049,3 +1049,288 @@ int UtcDaliPixelBufferMultiplyColorByAlpha04(void)
 
   END_TEST;
 }
+
+int UtcDaliPixelBufferApplyCenterCrop01(void)
+{
+  // SCALE_TO_FILL equivalent: wide source cropped to square
+  TestApplication application;
+
+  // 4:3 source (400x300), target 200x200 (1:1)
+  // Expected: source is wider → crop sides → crop region 300x300 centered → resize 200x200
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 300, Pixel::RGB888);
+
+  imageData.ApplyCenterCrop(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyCenterCrop02(void)
+{
+  // Tall source cropped to square
+  TestApplication application;
+
+  // 3:4 source (300x400), target 200x200 (1:1)
+  // Expected: source is taller → crop top/bottom → crop region 300x300 centered → resize 200x200
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(300, 400, Pixel::RGB888);
+
+  imageData.ApplyCenterCrop(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyCenterCrop03(void)
+{
+  // Source already matches target aspect ratio: crop region equals source, only resize
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 200, Pixel::RGB888);
+
+  imageData.ApplyCenterCrop(200, 100);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyLetterbox01(void)
+{
+  // SHRINK_TO_FIT equivalent: wide source letterboxed into square
+  TestApplication application;
+
+  // 4:3 source (400x300), target 200x200
+  // scale = min(200/400, 200/300) = 0.5 → scaled to 200x150 → pad 25px top and bottom
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 300, Pixel::RGB888);
+
+  imageData.ApplyLetterbox(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  // Top-left pixel (inside top padding) should be black
+  const uint8_t* buffer = imageData.GetBuffer();
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x00u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyLetterbox02(void)
+{
+  // No upscaling: source smaller than target
+  TestApplication application;
+
+  // 100x100 source, target 200x200 → scale=2.0 >= 1.0 so no resize, just pad
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(100, 100, Pixel::RGB888);
+
+  imageData.ApplyLetterbox(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyLetterbox03(void)
+{
+  // Source already matches desired size: no-op
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+
+  imageData.ApplyLetterbox(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyCenterCrop04(void)
+{
+  // Pixel content verification: left-half RED, right-half BLUE source → center crop to square
+  // Source 400x200 (2:1), target 200x200 (1:1) → sourceAspect(2.0) > targetAspect(1.0)
+  // cropWidth = 200*1.0 = 200, cropHeight = 200, offsetX = (400-200)/2 = 100
+  // Result: cols 100-299 of source → left 100 cols of result are RED, right 100 cols are BLUE
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 200, Pixel::RGB888);
+
+  // Fill left half (cols 0-199) RED, right half (cols 200-399) BLUE
+  uint8_t* buffer = imageData.GetBuffer();
+  for(uint32_t row = 0u; row < 200u; ++row)
+  {
+    for(uint32_t col = 0u; col < 400u; ++col)
+    {
+      uint8_t* pixel = buffer + (row * 400u + col) * 3u;
+      if(col < 200u)
+      {
+        pixel[0] = 0xFF; pixel[1] = 0x00; pixel[2] = 0x00; // RED
+      }
+      else
+      {
+        pixel[0] = 0x00; pixel[1] = 0x00; pixel[2] = 0xFF; // BLUE
+      }
+    }
+  }
+
+  imageData.ApplyCenterCrop(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  const uint8_t* result = imageData.GetBuffer();
+  // Left side of result maps to source cols 100-199 → RED
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0]), 0xFFu, TEST_LOCATION); // R
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[1]), 0x00u, TEST_LOCATION); // G
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[2]), 0x00u, TEST_LOCATION); // B
+  // Right side of result maps to source cols 200-299 → BLUE (pixel at col 100 = byte offset 100*3)
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[100 * 3 + 0]), 0x00u, TEST_LOCATION); // R
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[100 * 3 + 1]), 0x00u, TEST_LOCATION); // G
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[100 * 3 + 2]), 0xFFu, TEST_LOCATION); // B
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyCenterCrop05(void)
+{
+  // VISUAL_FITTING integration path: 200x200 source cropped to 200x100
+  // Source 200x200 (1:1), target 200x100 (2:1) → sourceAspect(1.0) <= targetAspect(2.0)
+  // cropWidth = 200, cropHeight = 200/2.0 = 100, offsetY = (200-100)/2 = 50
+  // Result rows come from source rows 50-149: top half = RED (rows 50-99), bottom half = BLUE (rows 100-149)
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+
+  // Fill top half (rows 0-99) RED, bottom half (rows 100-199) BLUE
+  uint8_t* buffer = imageData.GetBuffer();
+  for(uint32_t row = 0u; row < 200u; ++row)
+  {
+    for(uint32_t col = 0u; col < 200u; ++col)
+    {
+      uint8_t* pixel = buffer + (row * 200u + col) * 3u;
+      if(row < 100u)
+      {
+        pixel[0] = 0xFF; pixel[1] = 0x00; pixel[2] = 0x00; // RED
+      }
+      else
+      {
+        pixel[0] = 0x00; pixel[1] = 0x00; pixel[2] = 0xFF; // BLUE
+      }
+    }
+  }
+
+  imageData.ApplyCenterCrop(200, 100);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
+
+  const uint8_t* result = imageData.GetBuffer();
+  // Result row 0 → source row 50 → RED
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0]), 0xFFu, TEST_LOCATION); // R
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[1]), 0x00u, TEST_LOCATION); // G
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[2]), 0x00u, TEST_LOCATION); // B
+  // Result row 50 → source row 100 → BLUE (row 50 byte offset = 50*200*3)
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * 200u * 3u + 0]), 0x00u, TEST_LOCATION); // R
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * 200u * 3u + 1]), 0x00u, TEST_LOCATION); // G
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * 200u * 3u + 2]), 0xFFu, TEST_LOCATION); // B
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyLetterbox04(void)
+{
+  // Full padding verification: wide source → top/bottom black padding
+  // Source 200x100 (2:1) all RED, target 200x200 (1:1)
+  // scale = min(200/200, 200/100) = min(1.0, 2.0) = 1.0 → no resize (no upscaling)
+  // offsetY = (200-100)/2 = 50 → rows 0-49 black, rows 50-149 RED, rows 150-199 black
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 100, Pixel::RGB888);
+
+  // Fill entire source RED
+  uint8_t* buffer = imageData.GetBuffer();
+  for(uint32_t i = 0u; i < 200u * 100u * 3u; i += 3u)
+  {
+    buffer[i + 0] = 0xFF; buffer[i + 1] = 0x00; buffer[i + 2] = 0x00; // RED
+  }
+
+  imageData.ApplyLetterbox(200, 200);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
+
+  const uint8_t* result = imageData.GetBuffer();
+  const uint32_t stride = 200u * 3u;
+
+  // Row 0 (top padding) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 0]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 1]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 2]), 0x00u, TEST_LOCATION);
+  // Row 49 (last top padding row) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[49u * stride + 0]), 0x00u, TEST_LOCATION);
+  // Row 50 (first image row) → RED
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * stride + 0]), 0xFFu, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * stride + 1]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[50u * stride + 2]), 0x00u, TEST_LOCATION);
+  // Row 149 (last image row) → RED
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[149u * stride + 0]), 0xFFu, TEST_LOCATION);
+  // Row 150 (first bottom padding row) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[150u * stride + 0]), 0x00u, TEST_LOCATION);
+  // Row 199 (last row, bottom padding) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[199u * stride + 0]), 0x00u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferApplyLetterbox05(void)
+{
+  // VISUAL_FITTING integration path: 200x200 source letterboxed to 200x100
+  // Source 200x200 (1:1) all GREEN, target 200x100 (2:1)
+  // scale = min(200/200, 100/200) = 0.5 → resize to 100x100
+  // offsetX = (200-100)/2 = 50 → cols 0-49 black, cols 50-149 GREEN, cols 150-199 black
+  TestApplication application;
+
+  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+
+  // Fill entire source GREEN
+  uint8_t* buffer = imageData.GetBuffer();
+  for(uint32_t i = 0u; i < 200u * 200u * 3u; i += 3u)
+  {
+    buffer[i + 0] = 0x00; buffer[i + 1] = 0xFF; buffer[i + 2] = 0x00; // GREEN
+  }
+
+  imageData.ApplyLetterbox(200, 100);
+
+  DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
+  DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
+
+  const uint8_t* result = imageData.GetBuffer();
+  const uint32_t stride = 200u * 3u;
+
+  // Col 0 of row 0 (left padding) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 0 * 3 + 0]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 0 * 3 + 1]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 0 * 3 + 2]), 0x00u, TEST_LOCATION);
+  // Col 49 of row 0 (last left padding col) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 49u * 3u + 0]), 0x00u, TEST_LOCATION);
+  // Col 50 of row 0 (first image col) → GREEN
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 50u * 3u + 0]), 0x00u, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 50u * 3u + 1]), 0xFFu, TEST_LOCATION);
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 50u * 3u + 2]), 0x00u, TEST_LOCATION);
+  // Col 149 of row 0 (last image col) → GREEN
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 149u * 3u + 1]), 0xFFu, TEST_LOCATION);
+  // Col 150 of row 0 (first right padding col) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 150u * 3u + 0]), 0x00u, TEST_LOCATION);
+  // Col 199 of row 0 (last col, right padding) → black
+  DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 199u * 3u + 0]), 0x00u, TEST_LOCATION);
+
+  END_TEST;
+}

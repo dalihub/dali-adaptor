@@ -158,6 +158,16 @@ public:
   void KeepRasterizedBuffer() override;
 
   /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::SetEnableAspectFit(bool)
+   */
+  void SetEnableAspectFit(bool enable) override;
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::IsEnableAspectFit()
+   */
+  bool IsEnableAspectFit() const override;
+
+  /**
    * @brief Returns true if the animation resource is loaded and ready for display.
    */
   bool IsRenderReady() const;
@@ -284,6 +294,7 @@ protected:
   bool mFinalized : 1;                ///< Finalized flag
   bool mLoadFailed : 1;               ///< Load failure flag
   bool mEnableFixedCache : 1;         ///< Fixed cache mode flag
+  bool mEnableAspectFit : 1;          ///< Aspect fit scaling flag (default: true)
   mutable bool mMetadataParsed : 1;   ///< Metadata parsed flag
 };
 
