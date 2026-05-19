@@ -11,3 +11,7 @@ SET( feedback_plugin_dali_sound_files
 SET( file_download_plugin_curl_src_files
   ${plugin_src_dir}/file-download/file-download-curl.cpp
 )
+
+SET( file_download_plugin_download_api_src_files
+  ${plugin_src_dir}/file-download/file-download-download-api.cpp
+)
