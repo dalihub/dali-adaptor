@@ -1,0 +1,461 @@
+#ifndef DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_TCORE_WL_H
+#define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_TCORE_WL_H
+
+/*
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// EXTERNAL INCLUDES
+// Tizen Core IMF C API
+#include <tizen-core-imf/tizen_core_imf.h>
+
+#include <dali/integration-api/events/key-event-integ.h>
+#include <dali/integration-api/string-utils.h>
+#include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/property-array.h>
+#include <queue>
+#include <tizen_core_wl.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/input/common/input-method-context-impl.h>
+
+using Dali::Integration::ToPropertyValue;
+
+namespace Dali
+{
+class RenderSurface;
+
+namespace Internal
+{
+namespace Adaptor
+{
+class InputMethodContextTcoreWl : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
+{
+public:
+  enum class TxEventType : uint8_t
+  {
+    COMMIT,
+    PREEDIT,
+    DELETE_SURROUNDING,
+    PRIVATE_COMMAND,
+    COMMIT_CONTENT,
+    SELECTION_SET
+  };
+
+  struct TxEvent
+  {
+    TxEventType           type;
+    void*                 data;
+    ImfContext*           imfContext;
+    Dali::Property::Array eventValue;
+
+    static TxEvent Commit(void* data, ImfContext* imfContext, std::string commitText)
+    {
+      TxEvent e{TxEventType::COMMIT, data, imfContext};
+      e.eventValue.PushBack(ToPropertyValue(commitText));
+      return e;
+    }
+
+    static TxEvent PreEdit(void* data, ImfContext* imfContext, std::string preEditString, int cursorPosition)
+    {
+      TxEvent e{TxEventType::PREEDIT, data, imfContext};
+      e.eventValue.PushBack(ToPropertyValue(preEditString));
+      e.eventValue.PushBack(cursorPosition);
+      return e;
+    }
+
+    static TxEvent DeleteSurrounding(void* data, ImfContext* imfContext, int offset, int n_chars)
+    {
+      TxEvent e{TxEventType::DELETE_SURROUNDING, data, imfContext};
+      e.eventValue.PushBack(offset);
+      e.eventValue.PushBack(n_chars);
+      return e;
+    }
+
+    static TxEvent PrivateCommand(void* data, ImfContext* imfContext, std::string privateCommandSendEvent)
+    {
+      TxEvent e{TxEventType::PRIVATE_COMMAND, data, imfContext};
+      e.eventValue.PushBack(ToPropertyValue(privateCommandSendEvent));
+      return e;
+    }
+
+    static TxEvent CommitContent(void* data, ImfContext* imfContext, std::string contentUri, std::string description, std::string mimeTypes)
+    {
+      TxEvent e{TxEventType::COMMIT_CONTENT, data, imfContext};
+      e.eventValue.PushBack(ToPropertyValue(contentUri));
+      e.eventValue.PushBack(ToPropertyValue(description));
+      e.eventValue.PushBack(ToPropertyValue(mimeTypes));
+      return e;
+    }
+
+    static TxEvent SelectionSet(void* data, ImfContext* imfContext, int start, int end)
+    {
+      TxEvent e{TxEventType::SELECTION_SET, data, imfContext};
+      e.eventValue.PushBack(start);
+      e.eventValue.PushBack(end);
+      return e;
+    }
+  };
+
+public:
+  /**
+   * @brief Creates a new InputMethodContext handle
+   *
+   * @param[in] actor The actor that uses the new InputMethodContext instance.
+   * @return InputMethodContext pointer
+   */
+  static InputMethodContextPtr New(Dali::Actor actor);
+
+  /**
+   * @brief Initializes member data.
+   */
+  void Initialize() override;
+
+public:
+  /**
+   * @copydoc Dali::InputMethodContext::Finalize()
+   */
+  void Finalize() override;
+
+  /**
+   * Connect Callbacks required for InputMethodContext.
+   * If you don't connect InputMethodContext callbacks, you can't get the key events.
+   * The events are PreeditChanged, Commit, DeleteSurrounding and PrivateCommand.
+   */
+  void ConnectCallbacks() override;
+
+  /**
+   * Disconnect Callbacks attached to input method context.
+   */
+  void DisconnectCallbacks() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::Activate()
+   */
+  void Activate() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::Deactivate()
+   */
+  void Deactivate() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::Reset()
+   */
+  void Reset() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetContext()
+   */
+  ImfContext* GetContext() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::RestoreAfterFocusLost()
+   */
+  bool RestoreAfterFocusLost() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetRestoreAfterFocusLost()
+   */
+  void SetRestoreAfterFocusLost(bool toggle) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::PreEditChanged()
+   */
+  void PreEditChanged(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
+   */
+  void CommitReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
+   */
+  bool RetrieveSurrounding(void* data, ImfContext* imfContext, char** text, int* cursorPosition) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::DeleteSurrounding()
+   */
+  void DeleteSurrounding(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SendPrivateCommand()
+   */
+  void SendPrivateCommand(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SendCommitContent()
+   */
+  void SendCommitContent(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SendSelectionSet()
+   */
+  void SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionStartReceived()
+   */
+  void TransactionStartReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::TransactionEndReceived()
+   */
+  void TransactionEndReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
+
+  // Cursor related
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
+   */
+  void NotifyCursorPosition() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetCursorPosition()
+   */
+  void SetCursorPosition(unsigned int cursorPosition) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetCursorPosition()
+   */
+  unsigned int GetCursorPosition() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetSurroundingText()
+   */
+  void SetSurroundingText(const std::string& text) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetSurroundingText()
+   */
+  const std::string& GetSurroundingText() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
+   */
+  void NotifyTextInputMultiLine(bool multiLine) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetTextDirection()
+   */
+  Dali::InputMethodContext::TextDirection GetTextDirection() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   */
+  Dali::BoundsInteger GetInputMethodArea() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::ApplyOptions()
+   */
+  void ApplyOptions(const InputMethodOptions& options) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelData()
+   */
+  void SetInputPanelData(const std::string& data) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelData()
+   */
+  void GetInputPanelData(std::string& data) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelState()
+   */
+  Dali::InputMethodContext::State GetInputPanelState() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetReturnKeyState()
+   */
+  void SetReturnKeyState(bool visible) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::AutoEnableInputPanel()
+   */
+  void AutoEnableInputPanel(bool enabled) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::ShowInputPanel()
+   */
+  void ShowInputPanel() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::HideInputPanel()
+   */
+  void HideInputPanel() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetKeyboardType()
+   */
+  Dali::InputMethodContext::KeyboardType GetKeyboardType() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLocale()
+   */
+  std::string GetInputPanelLocale() override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetContentMIMETypes()
+   */
+  void SetContentMIMETypes(const std::string& mimeTypes) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::FilterEventKey()
+   */
+  bool FilterEventKey(const Dali::KeyEvent& keyEvent) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::AllowTextPrediction()
+   */
+  void AllowTextPrediction(bool prediction) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
+   */
+  bool IsTextPredictionAllowed() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetFullScreenMode()
+   */
+  void SetFullScreenMode(bool fullScreen) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsFullScreenMode()
+   */
+  bool IsFullScreenMode() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
+   */
+  void SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
+   */
+  Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPosition()
+   */
+  void SetInputPanelPosition(unsigned int x, unsigned int y) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPositionAlign()
+   */
+  bool SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetPreeditStyle()
+   */
+  void GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
+
+private:
+  /**
+   * Context created the first time and kept until deleted.
+   */
+  void CreateContext();
+
+  /**
+   * @copydoc Dali::InputMethodContext::DeleteContext()
+   */
+  void DeleteContext();
+
+private:
+  /**
+   * @brief Process event key down, whether filter a key to isf.
+   *
+   * @param[in] keyEvent The event key to be handled.
+   * @return Whether the event key is handled.
+   */
+  bool ProcessEventKeyDown(const Dali::KeyEvent& keyEvent);
+
+  /**
+   * @brief Process event key up, whether filter a key to isf.
+   *
+   * @param[in] keyEvent The event key to be handled.
+   * @return Whether the event key is handled.
+   */
+  bool ProcessEventKeyUp(const Dali::KeyEvent& keyEvent);
+
+  /**
+   * Key modifier flags used inside Dali do not directly match
+   * tizen_core_imf_keyboard_modifiers_e in tizen_core_imf.h.
+   * This function converts from the key modifier bitmask to tizen_core_imf_keyboard_modifiers_e.
+   * @param[in] modifierMask The key modifier bitmask
+   * @return The corresponding tizen_core_imf_keyboard_modifiers_e value.
+   */
+  tizen_core_imf_keyboard_modifiers_e TcoreInputModifierToImfModifier(unsigned int modifierMask);
+
+  /**
+   * TcoreInputModifierToImfLock converts from key modifier bitmask
+   * to tizen_core_imf_keyboard_locks_e.
+   * @param[in] modifierMask The key lock bitmask.
+   * @return The corresponding tizen_core_imf_keyboard_locks_e value.
+   */
+  tizen_core_imf_keyboard_locks_e TcoreInputModifierToImfLock(unsigned int modifierMask);
+
+  /**
+   * Called when the binded actor is added to a window.
+   */
+  void OnStaged(Dali::Actor actor);
+
+private:
+  /**
+   * @brief Constructor.
+   */
+  explicit InputMethodContextTcoreWl(Dali::Actor actor);
+
+protected:
+  /**
+   * Destructor.
+   */
+  virtual ~InputMethodContextTcoreWl() override;
+
+private:
+  // Undefined copy constructor
+  explicit InputMethodContextTcoreWl(const InputMethodContextTcoreWl& inputMethodContext) = delete;
+
+  // Undefined assignment operator
+  InputMethodContextTcoreWl& operator=(const InputMethodContextTcoreWl& inputMethodContext) = delete;
+
+private:
+  tizen_core_imf_context_h mIMFContext;
+  int                mIMFCursorPosition;
+  std::string        mSurroundingText;
+
+  std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
+  InputMethodOptions                       mOptions;
+
+  Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
+
+  tizen_core_wl_window_h mWindow;
+
+  std::queue<TxEvent> mTxQueue;
+
+  bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated ) after focus regained.
+  bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
+  bool mTxCapturing : 1;
+};
+
+} // namespace Adaptor
+
+} // namespace Internal
+
+} // namespace Dali
+
+#endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_TCORE_WL_H

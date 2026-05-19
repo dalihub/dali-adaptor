@@ -198,7 +198,7 @@ void FeedTouchPoint(Window window, const Dali::TouchPoint& point, int32_t timeSt
   GetImplementation(window).FeedTouchPoint(convertedPoint, timeStamp);
 }
 
-void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent)
+void FeedWheelEvent(Window window, Dali::WheelEvent wheelEvent)
 {
   Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
   GetImplementation(window).FeedWheelEvent(convertedEvent);

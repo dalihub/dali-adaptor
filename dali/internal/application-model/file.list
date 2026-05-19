@@ -4,10 +4,18 @@ SET( app_normal_src_files
       ${appmodel_src_dir}/normal/appmodel-normal-tizen.cpp
 )
 
-SET( app_widget_src_files
-      ${appmodel_src_dir}/widget/appmodel-widget-tizen.cpp
-      ${appmodel_src_dir}/widget/widget-base-tizen.cpp
-)
+IF(USE_TCORE_BACKEND)
+  SET( app_widget_src_files
+        ${appmodel_src_dir}/widget/tcore/appmodel-widget-tizen-tcore.cpp
+        ${appmodel_src_dir}/widget/tcore/widget-base-tizen-tcore.cpp
+        ${appmodel_src_dir}/widget/tcore/widget-binding-bridge-tcore.cpp
+  )
+ELSE()
+  SET( app_widget_src_files
+        ${appmodel_src_dir}/widget/ecore/appmodel-widget-tizen-ecore.cpp
+        ${appmodel_src_dir}/widget/ecore/widget-base-tizen-ecore.cpp
+  )
+ENDIF()
 
 SET( app_component_based_src_files
       ${appmodel_src_dir}/component-based/appmodel-component-based-tizen.cpp

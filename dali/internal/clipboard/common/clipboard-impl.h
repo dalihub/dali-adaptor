@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/internal/clipboard/common/clipboard-factory.h>
 
 namespace Dali
 {
@@ -135,6 +136,12 @@ private:
 
 public:
 }; // class Clipboard
+
+inline Dali::Clipboard Clipboard::Get()
+{
+  // Delegate creation to the platform-specific ClipboardFactory.
+  return GetClipboardFactory()->CreateClipboard();
+}
 
 } // namespace Adaptor
 

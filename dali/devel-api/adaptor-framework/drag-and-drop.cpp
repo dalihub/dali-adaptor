@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
+#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
 namespace Dali
 {
@@ -36,7 +37,8 @@ DragAndDrop::DragAndDrop(Internal::Adaptor::DragAndDrop* impl)
 
 DragAndDrop DragAndDrop::Get()
 {
-  return Internal::Adaptor::GetDragAndDrop();
+  // Delegate creation to the platform-specific DragAndDropFactory.
+  return Internal::Adaptor::GetDragAndDropFactory()->CreateDragAndDrop();
 }
 
 bool DragAndDrop::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const DragData& dragData, Dali::DragAndDrop::SourceFunction callback)

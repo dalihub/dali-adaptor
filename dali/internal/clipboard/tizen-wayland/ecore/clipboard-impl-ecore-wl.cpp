@@ -29,6 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/internal/clipboard/common/clipboard-factory.h>
 
 namespace Dali
 {
@@ -526,29 +527,38 @@ Clipboard::~Clipboard()
   delete mImpl;
 }
 
-Dali::Clipboard Clipboard::Get()
+class ClipboardFactoryEcoreWl : public ClipboardFactory
 {
-  Dali::Clipboard clipboard;
-
-  Dali::SingletonService service(SingletonService::Get());
-  if(service)
+public:
+  Dali::Clipboard CreateClipboard() override
   {
-    // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
-    if(handle)
-    {
-      // If so, downcast the handle
-      clipboard = Dali::Clipboard(static_cast<Clipboard*>(handle.GetObjectPtr()));
-    }
-    else
-    {
-      Clipboard::Impl* impl(new Clipboard::Impl());
-      clipboard = Dali::Clipboard(new Clipboard(impl));
-      service.Register(typeid(Dali::Clipboard), clipboard);
-    }
-  }
+    Dali::Clipboard clipboard;
 
-  return clipboard;
+    Dali::SingletonService service(SingletonService::Get());
+    if(service)
+    {
+      // Check whether the singleton is already created
+      Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+      if(handle)
+      {
+        // If so, downcast the handle
+        clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      }
+      else
+      {
+        Clipboard::Impl* impl(new Clipboard::Impl());
+        clipboard = Dali::Clipboard(new Clipboard(impl));
+        service.Register(typeid(Dali::Clipboard), clipboard);
+      }
+    }
+
+    return clipboard;
+  }
+};
+
+std::unique_ptr<ClipboardFactory> GetClipboardFactory()
+{
+  return std::unique_ptr<ClipboardFactory>(new ClipboardFactoryEcoreWl());
 }
 
 bool Clipboard::IsAvailable()

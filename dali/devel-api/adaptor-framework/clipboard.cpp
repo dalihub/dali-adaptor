@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/clipboard/common/clipboard-factory.h>
 
 namespace Dali
 {
@@ -38,7 +39,9 @@ Clipboard::Clipboard(Internal::Adaptor::Clipboard* impl)
 
 Clipboard Clipboard::Get()
 {
-  return Internal::Adaptor::Clipboard::Get();
+  // Delegate creation to the platform-specific ClipboardFactory,
+  // similar to SystemFactory / WindowFactory patterns.
+  return Internal::Adaptor::GetClipboardFactory()->CreateClipboard();
 }
 
 bool Clipboard::IsAvailable()
