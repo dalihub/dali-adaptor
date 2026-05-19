@@ -19,9 +19,11 @@
 #define DALI_INTEGRATION_FILE_DOWNLOAD_PLUGIN_PROXY_H
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-download-plugin.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <cstdint>
+#include <functional>
 #include <string>
 
 namespace Dali
@@ -41,20 +43,27 @@ namespace Dali
 class DALI_ADAPTOR_API FileDownloadPluginProxy
 {
 public:
+  using AsyncCompletionCallback = std::function<void(bool success, std::string filePath)>;
+  using DownloadId              = int32_t;
+
+  static constexpr DownloadId INVALID_DOWNLOAD_ID = -1; ///< Invalid async download id.
+
   class EventThreadCallbackObserver
   {
   public:
     EventThreadCallbackObserver()          = default;
     virtual ~EventThreadCallbackObserver() = default;
 
+    /**
+     * @brief Invoked on the Event Thread when queued plugin work is ready to process.
+     */
     virtual void OnTriggered() = 0;
   };
 
-public:
-  // Call from EventThread - dali-adaptor side
+public: // Event Thread (dali-adaptor side)
 
   /**
-   * @brief Register EventThreadCallback s.t. download plugin could access.
+   * @brief Register EventThreadCallback so that the download plugin can access it.
    */
   static void RegisterEventThreadCallback();
 
@@ -64,40 +73,66 @@ public:
   static void UnregisterEventThreadCallback();
 
   /**
-   * Explicitly unload the plugin and cleanup resources.
+   * @brief Explicitly unload the plugin and cleanup resources.
    *
    * This is normally not required as cleanup happens on process exit.
    * Provided for testing and explicit resource management.
    */
   static void Destroy();
 
-public:
-  // Call from WorkerThread - dali-adaptor side
+  /**
+   * @brief Returns true if the loaded plugin supports non-blocking async download.
+   *
+   * @return false when no plugin is loaded or plugin does not support async download.
+   */
+  static bool IsAsyncDownloadSupported();
 
   /**
-   * Download a requested file into a memory buffer.
+   * @brief Start a non-blocking async download via the loaded plugin.
+   *
+   * @param[in] url      The URL to download.
+   * @param[in] maxSize  Maximum allowed file size in bytes.
+   * @param[in] callback Lightweight callback invoked on download completion (from daemon thread).
+   * @return A non-negative download id on success, INVALID_DOWNLOAD_ID on failure.
+   * @note The plugin must not invoke the completion callback before this function returns.
+   */
+  static DownloadId StartAsyncDownload(const std::string&      url,
+                                       size_t                  maxSize,
+                                       AsyncCompletionCallback callback);
+
+  /**
+   * @brief Cancel a previously started async download.
+   *
+   * @param[in] downloadId Id returned by StartAsyncDownload().
+   */
+  static void CancelAsyncDownload(DownloadId downloadId);
+
+public: // Worker Thread (dali-adaptor side)
+
+  /**
+   * @brief Download a requested file into a memory buffer.
    *
    * Attempts to load and use the registered file download plugin. If the plugin
    * cannot be loaded, returns false and logs appropriate messages.
    *
    * @param[in] url The requested file URL
    * @param[out] dataBuffer A memory buffer object to be written with downloaded file data.
-   * @param[out] dataSize The size of the memory buffer.
+   * @param[out] dataSize Populated with the number of bytes downloaded.
    * @param[in] maximumAllowedSizeBytes The maximum allowed file size in bytes to download.
    * @return true on success, false on failure (including plugin unavailable)
+   * @note Threading: Can be called from multiple threads after initialization.
    */
   static bool DownloadRemoteFileIntoMemory(const std::string&     url,
                                            Dali::Vector<uint8_t>& dataBuffer,
                                            size_t&                dataSize,
                                            size_t                 maximumAllowedSizeBytes);
 
-public:
-  // Call from WorkerThread - plugin side
+public: // Worker Thread (plugin side)
 
   /**
-   * @brief Register event thread callback that plugin could got callback at event thread.
-   * @return True if register successed, so we can assume OnTrigger() will be invoked.
-   *         False if register failed, so OnTrigger() will not be invoked.
+   * @brief Register event thread callback so that the plugin can run queued work on the Event Thread.
+   * @return True if registration succeeded, so we can assume OnTriggered() will be invoked.
+   *         False if registration failed, so OnTriggered() will not be invoked.
    */
   static bool RegisterEventThreadObserver(EventThreadCallbackObserver& observer);
 

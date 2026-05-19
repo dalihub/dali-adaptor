@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 namespace Dali
@@ -31,38 +31,35 @@ namespace Dali
  * Plugin implementations must provide a factory function pair that follows this interface.
  * The plugin must export:
  *   extern "C" FileDownloadPlugin* CreateFileDownloadPlugin()
- *   extern "C" bool InitializePluginFunction(Dali::FileDownloadPlugin*)
+ *   extern "C" bool InitializeFileDownloadPlugin(Dali::FileDownloadPlugin*)
  *   extern "C" void DestroyFileDownloadPlugin(FileDownloadPlugin* plugin)
  */
 class FileDownloadPlugin
 {
 public:
   /**
-   * Virtual destructor for safe polymorphic deletion
+   * @brief Virtual destructor for safe polymorphic deletion.
    */
   virtual ~FileDownloadPlugin() = default;
 
   /**
    * @brief Second phase initialization for the plugin.
    *
+   * @return True if initialize succeeded, or already initialized. False if initialize failed.
    * @note Threading: Can be called from multiple threads.
-   *
-   * @return True if initialize successed, or already initialized. False if initialize failed.
    */
   virtual bool InitializePlugin() = 0;
 
   /**
-   * Download a requested file into a memory buffer.
-   *
-   * @note Threading: Can be called from multiple threads after initialization.
-   *
-   * @pre Must ensure that InitializePlugin() return true before call this function.
+   * @brief Download a requested file into a memory buffer.
    *
    * @param[in] url The requested file URL
    * @param[out] dataBuffer A memory buffer object to be written with downloaded file data.
-   * @param[out] dataSize The size of the memory buffer.
+   * @param[out] dataSize Populated with the number of bytes downloaded.
    * @param[in] maximumAllowedSizeBytes The maximum allowed file size in bytes to download.
    * @return true on success, false on failure
+   * @pre Must ensure that InitializePlugin() returns true before calling this function.
+   * @note Threading: Can be called from multiple threads after initialization.
    */
   virtual bool DownloadRemoteFileIntoMemory(const std::string&     url,
                                             Dali::Vector<uint8_t>& dataBuffer,

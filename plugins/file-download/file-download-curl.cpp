@@ -78,11 +78,11 @@ const char* HTTP_PROXY_ENV                = "http_proxy";
     {                                                                                                                                      \
       if(errorBuffer != nullptr)                                                                                                           \
       {                                                                                                                                    \
-        DALI_LOG_ERROR("%s \"%s\" with error code %d\n", std::string(prefix).c_str(), std::string(url).c_str(), result);                   \
+        DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d\n", std::string(prefix).c_str(), std::string(url).c_str(), result);                   \
       }                                                                                                                                    \
       else                                                                                                                                 \
       {                                                                                                                                    \
-        DALI_LOG_ERROR("%s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, errorBuffer); \
+        DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, errorBuffer); \
       }                                                                                                                                    \
     }                                                                                                                                      \
   }
@@ -92,7 +92,7 @@ const char* HTTP_PROXY_ENV                = "http_proxy";
     if(DALI_UNLIKELY(curlResult != CURLE_OK))                  \
     {                                                          \
       LOG_CURL_RESULT(curlResult, errorBuffer, url, prefix);   \
-      DALI_LOG_ERROR("CURL error occured!\n");                 \
+      DALI_LOG_ERROR("[FileDownload][Curl] CURL error occured!\n");                 \
       return false;                                            \
     }                                                          \
   }
@@ -380,7 +380,7 @@ bool DownloadFile(CURL*                  curlHandle,
   // setup curl to download just the header so we can extract the content length
   if(DALI_UNLIKELY(!ConfigureCurlOptions(curlHandle, url, userAgent, proxy, errorBuffer)))
   {
-    DALI_LOG_ERROR("Fail to set curlopt!\n");
+    DALI_LOG_ERROR("[FileDownload][Curl] Fail to set curlopt!\n");
     return false;
   }
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, DummyWrite), "CURLOPT_WRITEFUNCTION");
@@ -398,7 +398,7 @@ bool DownloadFile(CURL*                  curlHandle,
   }
   else if(size >= static_cast<curl_off_t>(maximumAllowedSizeBytes))
   {
-    DALI_LOG_ERROR("File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
+    DALI_LOG_ERROR("[FileDownload][Curl] File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
     result = false;
   }
   else
@@ -408,7 +408,7 @@ bool DownloadFile(CURL*                  curlHandle,
     result   = DownloadFileDataWithSize(curlHandle, dataBuffer, dataSize, url, errorBuffer);
     if(!result)
     {
-      DALI_LOG_DEBUG_INFO("Failed to download file, trying to load by chunk. \"%s\"\n", url.c_str());
+      DALI_LOG_DEBUG_INFO("[FileDownload][Curl] Failed to download file, trying to load by chunk. \"%s\"\n", url.c_str());
       // In the case where the size is wrong (e.g. on a proxy server that rewrites data),
       // the data buffer will be corrupt. In this case, try again using the chunk writer.
       result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
@@ -417,7 +417,7 @@ bool DownloadFile(CURL*                  curlHandle,
 
   if(DALI_UNLIKELY(result && dataSize == 0u))
   {
-    DALI_LOG_ERROR("Warning : Download data size is 0! url : %s\n", url.c_str());
+    DALI_LOG_ERROR("[FileDownload][Curl] Warning : Download data size is 0! url : %s\n", url.c_str());
   }
   return result;
 }

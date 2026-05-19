@@ -21,8 +21,17 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dlfcn.h>
+#if defined(DALI_PRIVILEGE_CHECK_AVAILABLE)
+#include <cynara-client.h>
+#include <cynara-creds-self.h>
+#endif
+#include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <mutex>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -31,31 +40,140 @@
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-error-print.h>
 
-using namespace Dali::Integration;
-
 namespace Dali
 {
 namespace // unnamed namespace
 {
-/// Plugin library relative codes.
+#ifdef DEBUG_ENABLED
+Debug::Filter* gFileDownloadProxyLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FILE_DOWNLOAD_PROXY");
+#endif
+
+// Plugin library relative codes.
 
 // Forward declarations
 typedef Dali::FileDownloadPlugin* (*CreatePluginFunction)();
 typedef bool (*InitializePluginFunction)(Dali::FileDownloadPlugin*);
 typedef void (*DestroyPluginFunction)(Dali::FileDownloadPlugin*);
+typedef bool (*IsAsyncDownloadSupportedFunction)();
+typedef void (*AsyncCompletionCallbackFunction)(FileDownloadPluginProxy::DownloadId, bool, const char*, void*);
+typedef FileDownloadPluginProxy::DownloadId (*StartAsyncDownloadFunction)(Dali::FileDownloadPlugin*, const char*, size_t, AsyncCompletionCallbackFunction, void*);
+typedef void (*CancelAsyncDownloadFunction)(Dali::FileDownloadPlugin*, FileDownloadPluginProxy::DownloadId);
+
+struct AsyncDownloadRequest
+{
+  explicit AsyncDownloadRequest(FileDownloadPluginProxy::AsyncCompletionCallback&& callback)
+  : callback(std::move(callback))
+  {
+  }
+
+  FileDownloadPluginProxy::AsyncCompletionCallback callback;
+  std::string                                      filePath;
+  bool                                             completed{false};
+  bool                                             success{false};
+};
+
+struct ActiveAsyncDownload
+{
+  FileDownloadPluginProxy::DownloadId   downloadId;
+  std::unique_ptr<AsyncDownloadRequest> request;
+};
 
 // Plugin state variables
-void*                     gPluginLibraryHandle  = nullptr;
-Dali::FileDownloadPlugin* gFileDownloadPlugin   = nullptr;
-CreatePluginFunction      gCreatePluginFunc     = nullptr;
-InitializePluginFunction  gInitializePluginFunc = nullptr;
-DestroyPluginFunction     gDestroyPluginFunc    = nullptr;
-std::once_flag            gInitializeOnce;
+void*                            gPluginLibraryHandle             = nullptr;
+Dali::FileDownloadPlugin*        gFileDownloadPlugin              = nullptr;
+CreatePluginFunction             gCreatePluginFunc                = nullptr;
+InitializePluginFunction         gInitializePluginFunc            = nullptr;
+DestroyPluginFunction            gDestroyPluginFunc               = nullptr;
+IsAsyncDownloadSupportedFunction gIsAsyncDownloadSupportedFunc    = nullptr;
+StartAsyncDownloadFunction       gStartAsyncDownloadFunc          = nullptr;
+CancelAsyncDownloadFunction      gCancelAsyncDownloadFunc         = nullptr;
+std::once_flag                   gInitializeOnce;
 
-const char* PLUGIN_FACTORY_FUNCTION_NAME    = "CreateFileDownloadPlugin";
-const char* PLUGIN_INITIALIZE_FUNCTION_NAME = "InitializeFileDownloadPlugin";
-const char* PLUGIN_DESTRUCTOR_FUNCTION_NAME = "DestroyFileDownloadPlugin";
-const char* DEFAULT_PLUGIN_PATH             = "libdali2-file-download-plugin-curl.so";
+const char* PLUGIN_FACTORY_FUNCTION_NAME                 = "CreateFileDownloadPlugin";
+const char* PLUGIN_INITIALIZE_FUNCTION_NAME              = "InitializeFileDownloadPlugin";
+const char* PLUGIN_DESTRUCTOR_FUNCTION_NAME              = "DestroyFileDownloadPlugin";
+const char* PLUGIN_IS_ASYNC_DOWNLOAD_SUPPORTED_FUNC_NAME = "FileDownloadPluginIsAsyncDownloadSupported";
+const char* PLUGIN_START_ASYNC_DOWNLOAD_FUNC_NAME        = "FileDownloadPluginStartAsyncDownload";
+const char* PLUGIN_CANCEL_ASYNC_DOWNLOAD_FUNC_NAME       = "FileDownloadPluginCancelAsyncDownload";
+const char* DEFAULT_PLUGIN_PATH                          = "libdali2-file-download-plugin-curl.so";
+const char* DOWNLOAD_API_PLUGIN_PATH                     = "libdali2-file-download-plugin-download-api.so";
+#if defined(DALI_PRIVILEGE_CHECK_AVAILABLE)
+const char* DOWNLOAD_API_PRIVILEGE = "http://tizen.org/privilege/download";
+#endif
+
+std::mutex                                                     gAsyncRequestMutex;
+std::unordered_map<FileDownloadPluginProxy::DownloadId, std::unique_ptr<AsyncDownloadRequest>> gDownloadIdToRequest;
+// Guards immediate callbacks before the plugin returns a download id.
+std::unordered_set<AsyncDownloadRequest*> gStartingRequests;
+
+void OnAsyncDownloadCompleted(FileDownloadPluginProxy::DownloadId downloadId, bool success, const char* filePath, void* userData)
+{
+  FileDownloadPluginProxy::AsyncCompletionCallback completionCallback;
+  std::unique_ptr<AsyncDownloadRequest>            request;
+  auto*                                            requestPtr = static_cast<AsyncDownloadRequest*>(userData);
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    auto             it = gDownloadIdToRequest.find(downloadId);
+    if(it != gDownloadIdToRequest.end() && it->second.get() == requestPtr)
+    {
+      request = std::move(it->second);
+      gDownloadIdToRequest.erase(it);
+    }
+    else if(requestPtr && gStartingRequests.find(requestPtr) != gStartingRequests.end())
+    {
+      // Cache hits can complete during StartAsyncDownload(); deliver after return.
+      requestPtr->completed = true;
+      requestPtr->success   = success;
+      requestPtr->filePath  = filePath ? std::string(filePath) : std::string();
+    }
+  }
+
+  if(DALI_LIKELY(request))
+  {
+    completionCallback = std::move(request->callback);
+    if(DALI_LIKELY(completionCallback))
+    {
+      completionCallback(success, filePath ? std::string(filePath) : std::string());
+    }
+  }
+}
+
+bool IsDownloadApiPrivilegeAllowed()
+{
+#if defined(DALI_PRIVILEGE_CHECK_AVAILABLE)
+  cynara*     cynaraHandle  = nullptr;
+  int         ret           = cynara_initialize(&cynaraHandle, nullptr);
+  char        uid[]         = "";
+  const char* clientSession = "";
+  char*       cynaraClient  = nullptr;
+
+  if(DALI_UNLIKELY(ret != CYNARA_API_SUCCESS))
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] cynara_initialize failed ret[%d], falling back to curl for download-api path\n", ret);
+    return false;
+  }
+
+  ret = cynara_creds_self_get_client(CLIENT_METHOD_DEFAULT, &cynaraClient);
+  if(DALI_UNLIKELY(ret != CYNARA_API_SUCCESS))
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] cynara_creds_self_get_client failed ret[%d], falling back to curl for download-api path\n", ret);
+    cynara_finish(cynaraHandle);
+    return false;
+  }
+
+  ret = cynara_check(cynaraHandle, cynaraClient, clientSession, uid, DOWNLOAD_API_PRIVILEGE);
+  cynara_finish(cynaraHandle);
+  std::free(cynaraClient);
+
+  if(DALI_UNLIKELY(ret != CYNARA_API_ACCESS_ALLOWED))
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] download privilege check denied ret[%d], falling back to curl\n", ret);
+    return false;
+  }
+#endif
+
+  return true;
+}
 
 /**
  * @brief Attempt to load the file download plugin library.
@@ -71,38 +189,37 @@ bool InitializeFileDownloadPluginLibrary(const char* pluginName)
     return false;
   }
 
-  // TODO : Could we use addon-manager here?
-  DALI_LOG_DEBUG_INFO("Try to load dali file-download plugin library: %s\n", pluginName ? pluginName : "(null)");
+  DALI_LOG_INFO(gFileDownloadProxyLogFilter, Debug::General, "[FileDownload][Proxy] Try to load dali file-download plugin library: %s\n", pluginName);
 
   // Attempt to load the plugin library
   gPluginLibraryHandle = dlopen(pluginName, RTLD_LAZY | RTLD_GLOBAL);
   if(DALI_UNLIKELY(!gPluginLibraryHandle))
   {
-    DALI_LOG_ERROR("Cannot load dali file-download plugin library: %s : %s\n", pluginName ? pluginName : "(null)", dlerror());
+    DALI_LOG_ERROR("[FileDownload][Proxy] Cannot load dali file-download plugin library: %s : %s\n", pluginName, dlerror());
     DALI_PRINT_SYSTEM_ERROR_LOG();
     return false;
   }
 
-  DALI_LOG_DEBUG_INFO("Loaded dali file-download plugin library: %s\n", pluginName ? pluginName : "(null)");
+  DALI_LOG_INFO(gFileDownloadProxyLogFilter, Debug::General, "[FileDownload][Proxy] Loaded dali file-download plugin library: %s\n", pluginName);
 
   // Extract the factory function
   gCreatePluginFunc = reinterpret_cast<CreatePluginFunction>(dlsym(gPluginLibraryHandle, PLUGIN_FACTORY_FUNCTION_NAME));
 
   if(DALI_UNLIKELY(!gCreatePluginFunc))
   {
-    DALI_LOG_ERROR("Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_FACTORY_FUNCTION_NAME, dlerror());
+    DALI_LOG_ERROR("[FileDownload][Proxy] Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_FACTORY_FUNCTION_NAME, dlerror());
     DALI_PRINT_SYSTEM_ERROR_LOG();
     dlclose(gPluginLibraryHandle);
     gPluginLibraryHandle = nullptr;
     return false;
   }
 
-  // Extract the factory function
+  // Extract the initialize function
   gInitializePluginFunc = reinterpret_cast<InitializePluginFunction>(dlsym(gPluginLibraryHandle, PLUGIN_INITIALIZE_FUNCTION_NAME));
 
   if(DALI_UNLIKELY(!gInitializePluginFunc))
   {
-    DALI_LOG_ERROR("Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_INITIALIZE_FUNCTION_NAME, dlerror());
+    DALI_LOG_ERROR("[FileDownload][Proxy] Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_INITIALIZE_FUNCTION_NAME, dlerror());
     DALI_PRINT_SYSTEM_ERROR_LOG();
     dlclose(gPluginLibraryHandle);
     gPluginLibraryHandle = nullptr;
@@ -115,7 +232,7 @@ bool InitializeFileDownloadPluginLibrary(const char* pluginName)
 
   if(DALI_UNLIKELY(!gDestroyPluginFunc))
   {
-    DALI_LOG_ERROR("Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_DESTRUCTOR_FUNCTION_NAME, dlerror());
+    DALI_LOG_ERROR("[FileDownload][Proxy] Cannot load symbol %s from dali file-download plugin library (%s)\n", PLUGIN_DESTRUCTOR_FUNCTION_NAME, dlerror());
     DALI_PRINT_SYSTEM_ERROR_LOG();
     dlclose(gPluginLibraryHandle);
     gPluginLibraryHandle  = nullptr;
@@ -128,7 +245,7 @@ bool InitializeFileDownloadPluginLibrary(const char* pluginName)
   gFileDownloadPlugin = gCreatePluginFunc();
   if(DALI_UNLIKELY(!gFileDownloadPlugin))
   {
-    DALI_LOG_ERROR("Call to CreateFileDownloadPlugin() failed\n");
+    DALI_LOG_ERROR("[FileDownload][Proxy] Call to CreateFileDownloadPlugin() failed\n");
     DALI_PRINT_SYSTEM_ERROR_LOG();
     dlclose(gPluginLibraryHandle);
     gPluginLibraryHandle  = nullptr;
@@ -138,17 +255,23 @@ bool InitializeFileDownloadPluginLibrary(const char* pluginName)
     return false;
   }
 
-  DALI_LOG_DEBUG_INFO("Created dali file-download plugin successfully\n");
+  // Optional capability probe. Present only in plugins that support async download.
+  // dlsym-based lookup avoids vtable dispatch crashes with older plugin SOs that lack the slots.
+  gIsAsyncDownloadSupportedFunc = reinterpret_cast<IsAsyncDownloadSupportedFunction>(dlsym(gPluginLibraryHandle, PLUGIN_IS_ASYNC_DOWNLOAD_SUPPORTED_FUNC_NAME));
+  gStartAsyncDownloadFunc       = reinterpret_cast<StartAsyncDownloadFunction>(dlsym(gPluginLibraryHandle, PLUGIN_START_ASYNC_DOWNLOAD_FUNC_NAME));
+  gCancelAsyncDownloadFunc      = reinterpret_cast<CancelAsyncDownloadFunction>(dlsym(gPluginLibraryHandle, PLUGIN_CANCEL_ASYNC_DOWNLOAD_FUNC_NAME));
+  DALI_LOG_INFO(gFileDownloadProxyLogFilter, Debug::General, "[FileDownload][Proxy] Created dali file-download plugin successfully. %s: %s\n", PLUGIN_IS_ASYNC_DOWNLOAD_SUPPORTED_FUNC_NAME, gIsAsyncDownloadSupportedFunc ? "found" : "not found");
 
   return true;
 }
 
 /**
- * @brief Attempt to load the file download plugin library.
+ * @brief Select and initialize the file download plugin library.
  *
  * Searches for the library in this order:
- * 1. DALI_FILE_DOWNLOAD_PLUGIN_NAME environment variable
- * 2. DEFAULT_PLUGIN_PATH constant
+ * 1. DALI_FILE_DOWNLOAD_PLUGIN_NAME environment variable (explicit path)
+ * 2. DALI_USE_CAPI_DOWNLOAD_PROVIDER_API=1: download-api plugin (falls back to curl if unavailable)
+ * 3. DEFAULT_PLUGIN_PATH (curl) as the default
  *
  * @return true if plugin initialized successfully, false otherwise
  */
@@ -158,11 +281,35 @@ bool InitializeFileDownloadPlugin()
 
   if(pluginName && InitializeFileDownloadPluginLibrary(pluginName))
   {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] Using plugin from DALI_FILE_DOWNLOAD_PLUGIN_NAME: %s\n", pluginName);
     return true;
   }
 
+  const char* useDownloadApi = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_USE_CAPI_DOWNLOAD_PROVIDER_API);
+  if(useDownloadApi && std::strcmp(useDownloadApi, "1") == 0)
+  {
+    if(IsDownloadApiPrivilegeAllowed())
+    {
+      if(InitializeFileDownloadPluginLibrary(DOWNLOAD_API_PLUGIN_PATH))
+      {
+        DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] Using download-api plugin\n");
+        return true;
+      }
+      DALI_LOG_ERROR("[FileDownload][Proxy] download-api plugin unavailable, falling back to curl\n");
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] download privilege is not allowed, falling back to curl\n");
+    }
+  }
+
   // Try by default plugin
-  return InitializeFileDownloadPluginLibrary(DEFAULT_PLUGIN_PATH);
+  bool result = InitializeFileDownloadPluginLibrary(DEFAULT_PLUGIN_PATH);
+  if(result)
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] Using default curl plugin\n");
+  }
+  return result;
 }
 
 /**
@@ -170,13 +317,29 @@ bool InitializeFileDownloadPlugin()
  */
 void InternalDestroy()
 {
-  DALI_LOG_DEBUG_INFO("Request to destroy file-download plugin\n");
+  std::vector<ActiveAsyncDownload> activeDownloads;
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    for(auto& entry : gDownloadIdToRequest)
+    {
+      activeDownloads.push_back({entry.first, std::move(entry.second)});
+    }
+    gDownloadIdToRequest.clear();
+  }
+
+  if(gFileDownloadPlugin && gCancelAsyncDownloadFunc)
+  {
+    for(auto& download : activeDownloads)
+    {
+      gCancelAsyncDownloadFunc(gFileDownloadPlugin, download.downloadId);
+    }
+  }
+
   if(gFileDownloadPlugin)
   {
     if(gDestroyPluginFunc)
     {
       gDestroyPluginFunc(gFileDownloadPlugin);
-      DALI_LOG_DEBUG_INFO("Destroyed dali file-download plugin\n");
     }
     gFileDownloadPlugin = nullptr;
   }
@@ -185,15 +348,17 @@ void InternalDestroy()
   {
     dlclose(gPluginLibraryHandle);
     gPluginLibraryHandle = nullptr;
-    DALI_LOG_DEBUG_INFO("Closed dali file-download plugin library\n");
   }
 
-  gCreatePluginFunc     = nullptr;
-  gInitializePluginFunc = nullptr;
-  gDestroyPluginFunc    = nullptr;
+  gCreatePluginFunc             = nullptr;
+  gInitializePluginFunc         = nullptr;
+  gDestroyPluginFunc            = nullptr;
+  gIsAsyncDownloadSupportedFunc = nullptr;
+  gStartAsyncDownloadFunc       = nullptr;
+  gCancelAsyncDownloadFunc      = nullptr;
 }
 
-/// EventThreadCallback relative codes.
+// EventThreadCallback relative codes.
 
 Dali::EventThreadCallback* gEventThreadCallback = nullptr;
 std::mutex                 gEventThreadCallbackMutex;
@@ -203,7 +368,6 @@ std::vector<FileDownloadPluginProxy::EventThreadCallbackObserver*> gEventThreadC
 // Called from event thread.
 void OnEventThreadCallbackTriggered()
 {
-  DALI_LOG_DEBUG_INFO("OnEventThreadCallbackTriggered\n");
   decltype(gEventThreadCallbackObserverList) observerList;
   {
     std::scoped_lock lock(gEventThreadCallbackMutex);
@@ -212,7 +376,6 @@ void OnEventThreadCallbackTriggered()
 
   for(auto& observer : observerList)
   {
-    DALI_LOG_DEBUG_INFO("Trigger FileDownloadPluginProxy::EventThreadCallbackObserver : %p\n", observer);
     observer->OnTriggered();
   }
 }
@@ -222,7 +385,6 @@ void CreateEventThreadCallback()
 {
   std::scoped_lock lock(gEventThreadCallbackMutex);
   gEventThreadCallback = new Dali::EventThreadCallback(MakeCallback(&OnEventThreadCallbackTriggered));
-  DALI_LOG_DEBUG_INFO("FileDownloadPluginProxy::EventThreadCallback [%p] Trigger Id(%u)\n", gEventThreadCallback, gEventThreadCallback->GetId());
 }
 
 // Called from event thread.
@@ -231,7 +393,6 @@ Dali::EventThreadCallback* DestroyEventThreadCallback()
   std::scoped_lock           lock(gEventThreadCallbackMutex);
   Dali::EventThreadCallback* eventThreadCallback = gEventThreadCallback;
   gEventThreadCallback                           = nullptr;
-  DALI_LOG_DEBUG_INFO("FileDownloadPluginProxy::DestroyEventThreadCallback [%p]\n", eventThreadCallback);
   return eventThreadCallback;
 }
 
@@ -240,10 +401,8 @@ bool InternalRegisterEventThreadObserver(FileDownloadPluginProxy::EventThreadCal
 {
   {
     std::scoped_lock lock(gEventThreadCallbackMutex);
-    DALI_LOG_DEBUG_INFO("FileDownloadPluginProxy::InternalRegisterEventThreadObserver [%p]\n", gEventThreadCallback);
     if(DALI_LIKELY(gEventThreadCallback))
     {
-      DALI_LOG_DEBUG_INFO("FileDownloadPluginProxy::InternalRegisterEventThreadObserver : %p\n", &observer);
       gEventThreadCallbackObserverList.emplace_back(&observer);
       if(gEventThreadCallbackObserverList.size() == 1u)
       {
@@ -267,7 +426,6 @@ void FileDownloadPluginProxy::UnregisterEventThreadCallback()
   auto* eventThreadCallback = DestroyEventThreadCallback();
   if(DALI_LIKELY(eventThreadCallback))
   {
-    DALI_LOG_DEBUG_INFO("Try to call Trigger during adaptor terminated.\n");
     // Forcibly run trigger event once, to avoid dead-lock
     OnEventThreadCallbackTriggered();
 
@@ -294,20 +452,117 @@ bool FileDownloadPluginProxy::DownloadRemoteFileIntoMemory(const std::string&   
     // DevNote : Must call InitializePluginFunc out of gInitializeOnce mutex, to avoid dead-lock case.
     if(DALI_UNLIKELY(gInitializePluginFunc == nullptr || !gInitializePluginFunc(gFileDownloadPlugin)))
     {
-      DALI_LOG_ERROR("File download plugin initialize failed!\n");
+      DALI_LOG_ERROR("[FileDownload][Proxy] plugin initialize failed for sync download url[%s]\n", url.c_str());
       return false;
     }
     return gFileDownloadPlugin->DownloadRemoteFileIntoMemory(url, dataBuffer, dataSize, maximumAllowedSizeBytes);
   }
 
-  // Plugin not available, return false
-  DALI_LOG_ERROR("File download plugin not available!\n");
+  DALI_LOG_ERROR("[FileDownload][Proxy] plugin not available for sync download url[%s]\n", url.c_str());
   return false;
 }
 
 bool FileDownloadPluginProxy::RegisterEventThreadObserver(FileDownloadPluginProxy::EventThreadCallbackObserver& observer)
 {
   return InternalRegisterEventThreadObserver(observer);
+}
+
+bool FileDownloadPluginProxy::IsAsyncDownloadSupported()
+{
+  std::call_once(gInitializeOnce, InitializeFileDownloadPlugin);
+
+  // Use a standalone C symbol rather than virtual dispatch so that old plugin SOs
+  // that predate the IsAsyncDownloadSupported vtable slot do not crash.
+  bool result = (gIsAsyncDownloadSupportedFunc != nullptr && gStartAsyncDownloadFunc != nullptr && gCancelAsyncDownloadFunc != nullptr) ? gIsAsyncDownloadSupportedFunc() : false;
+  return result;
+}
+
+FileDownloadPluginProxy::DownloadId FileDownloadPluginProxy::StartAsyncDownload(const std::string&      url,
+                                                                                size_t                  maxSize,
+                                                                                AsyncCompletionCallback callback)
+{
+  std::call_once(gInitializeOnce, InitializeFileDownloadPlugin);
+
+  if(DALI_UNLIKELY(!gFileDownloadPlugin || !gStartAsyncDownloadFunc))
+  {
+    DALI_LOG_ERROR("[FileDownload][Proxy] plugin not available for async download url[%s]\n", url.c_str());
+    return INVALID_DOWNLOAD_ID;
+  }
+
+  if(DALI_UNLIKELY(gInitializePluginFunc == nullptr || !gInitializePluginFunc(gFileDownloadPlugin)))
+  {
+    DALI_LOG_ERROR("[FileDownload][Proxy] plugin initialize failed for async download url[%s]\n", url.c_str());
+    return INVALID_DOWNLOAD_ID;
+  }
+  DALI_LOG_INFO(gFileDownloadProxyLogFilter, Debug::Verbose, "[FileDownload][Proxy] StartAsyncDownload url[%s]\n", url.c_str());
+
+  auto  request    = std::make_unique<AsyncDownloadRequest>(std::move(callback));
+  auto* requestPtr = request.get();
+
+  // The provider may call back before returning downloadId.
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    gStartingRequests.insert(requestPtr);
+  }
+
+  DownloadId downloadId = gStartAsyncDownloadFunc(gFileDownloadPlugin, url.c_str(), maxSize, OnAsyncDownloadCompleted, requestPtr);
+  if(DALI_UNLIKELY(downloadId == INVALID_DOWNLOAD_ID))
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    gStartingRequests.erase(requestPtr);
+    return INVALID_DOWNLOAD_ID;
+  }
+
+  AsyncCompletionCallback completionCallback;
+  bool                    completed = false;
+  bool                    success   = false;
+  std::string             filePath;
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    gStartingRequests.erase(requestPtr);
+    if(request->completed)
+    {
+      completed          = true;
+      success            = request->success;
+      filePath           = std::move(request->filePath);
+      completionCallback = std::move(request->callback);
+    }
+    else
+    {
+      gDownloadIdToRequest[downloadId] = std::move(request);
+    }
+  }
+
+  if(completed && completionCallback)
+  {
+    completionCallback(success, std::move(filePath));
+  }
+  return downloadId;
+}
+
+void FileDownloadPluginProxy::CancelAsyncDownload(DownloadId downloadId)
+{
+  if(DALI_UNLIKELY(downloadId == INVALID_DOWNLOAD_ID))
+  {
+    return;
+  }
+
+  std::unique_ptr<AsyncDownloadRequest> requestToDelete;
+  {
+    std::scoped_lock lock(gAsyncRequestMutex);
+    auto             it = gDownloadIdToRequest.find(downloadId);
+    if(it != gDownloadIdToRequest.end())
+    {
+      it->second->callback = {};
+      requestToDelete      = std::move(it->second);
+      gDownloadIdToRequest.erase(it);
+    }
+  }
+
+  if(DALI_LIKELY(gFileDownloadPlugin && gCancelAsyncDownloadFunc))
+  {
+    gCancelAsyncDownloadFunc(gFileDownloadPlugin, downloadId);
+  }
 }
 
 } // namespace Dali

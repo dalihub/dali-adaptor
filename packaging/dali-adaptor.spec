@@ -67,6 +67,7 @@ BuildRequires:  libdrm-devel
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  libcurl-devel
+BuildRequires:  pkgconfig(capi-web-url-download)
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  hyphen-devel
 BuildRequires:  fribidi-devel
@@ -115,6 +116,8 @@ BuildRequires:  pkgconfig(app-core-ui-cpp)
 %endif
 BuildRequires:  pkgconfig(app-core-cpp)
 BuildRequires:  pkgconfig(appcore-common)
+BuildRequires:  pkgconfig(cynara-client)
+BuildRequires:  pkgconfig(cynara-creds-self)
 
 %if "%{mv_prj}" != "1"
 %if "%{tizen_wayland_backend}" == "TCORE"
@@ -575,6 +578,7 @@ exit 0
 %{_libdir}/libdali2-adaptor-gl-window-addon.so
 %{_libdir}/libdali2-adaptor-application-normal.so*
 %{_libdir}/libdali2-file-download-plugin-curl.so
+%{_libdir}/libdali2-file-download-plugin-download-api.so
 
 %if "%{mv_prj}" != "1"
 %{_libdir}/libdali2-adaptor-application-widget.so*
