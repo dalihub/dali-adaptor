@@ -17,6 +17,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller-debug.h>
 
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-stored-command-buffer.h>
@@ -33,7 +34,6 @@ namespace
 {
 const char* GRAPHICS_CMDBUF_OUTFILE_ENV = "GRAPHICS_CMDBUF_OUTFILE";
 const char* GRAPHICS_DUMP_TRIGGER_FILE  = "/tmp/dump_cmd_buf";
-} // namespace
 
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {
@@ -540,6 +540,8 @@ int CloseJson(FILE* fp)
   return 0;
 }
 
+} // namespace
+
 GraphicsFrameDump::GraphicsFrameDump()
 : outputStream(nullptr, nullptr)
 {
@@ -549,6 +551,9 @@ void GraphicsFrameDump::Start()
 {
   if(IsDumpFrame())
   {
+    // Ensure LC_NUMERIC is "C" so that fprintf %f uses '.' as decimal separator
+    Dali::LocaleNumericGuard localeGuard;
+
     if(!output && !outputStream)
     {
       const char* outfile = Dali::EnvironmentVariable::GetEnvironmentVariable(GRAPHICS_CMDBUF_OUTFILE_ENV);
@@ -588,6 +593,9 @@ void GraphicsFrameDump::DumpCommandBuffer(const Vulkan::StoredCommandBuffer* cmd
 {
   if(dumpingFrame)
   {
+    // Ensure LC_NUMERIC is "C" so that fprintf %f uses '.' as decimal separator
+    Dali::LocaleNumericGuard localeGuard;
+
     if(!firstBuffer)
     {
       fprintf(output, ", \n");
@@ -601,6 +609,9 @@ void GraphicsFrameDump::DumpRenderTargets()
 {
   if(!renderTargets.empty())
   {
+    // Ensure LC_NUMERIC is "C" so that fprintf %f uses '.' as decimal separator
+    Dali::LocaleNumericGuard localeGuard;
+
     fprintf(output, ",\"RenderTargets\":[");
     bool first = true;
     for(auto renderTarget : renderTargets)
