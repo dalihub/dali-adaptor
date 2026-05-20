@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <locale>
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#ifdef GL_KHR_blend_equation_advanced\n"
@@ -744,6 +745,7 @@ bool ProgramImpl::SaveFile(const std::string& filename, const unsigned char* buf
   if(buf.is_open())
   {
     std::ostream stream(&buf);
+    stream.imbue(std::locale::classic());
 
     // determine size of buffer
     int length = static_cast<int>(numBytes);

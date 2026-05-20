@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <condition_variable>
+#include <locale>
 #include <mutex>
 #include <thread>
 #if defined(VCONF_ENABLED)
@@ -411,8 +412,11 @@ void FontClient::SetLocale(const std::string& locale)
 
   // To unify the tizen system locale and format, remove the string after the dot.
   std::istringstream stringStreamFull(locale);
+  stringStreamFull.imbue(std::locale::classic());
   std::getline(stringStreamFull, gLocaleFull, '.');
+
   std::istringstream stringStream(locale);
+  stringStream.imbue(std::locale::classic());
   std::getline(stringStream, gLocale, '_');
 }
 

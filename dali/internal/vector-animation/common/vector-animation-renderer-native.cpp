@@ -1043,6 +1043,7 @@ void VectorAnimationRendererNative::ParseLottieMetadata() const
   if(jsonContent.empty() && !mUrl.empty())
   {
     std::ifstream file(mUrl, std::ios::binary);
+    file.imbue(std::locale::classic());
     if(file.is_open())
     {
       std::ostringstream ss;

@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <locale>
 #include <sstream>
 
 // INTERNAL INCLUDES
@@ -198,6 +199,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     // Query EGL extensions to check whether required extensions are supported
     std::istringstream versionStream(versionStr);
     std::string        majorVersion, minorVersion;
+    versionStream.imbue(std::locale::classic());
     std::getline(versionStream, majorVersion, '.');
     std::getline(versionStream, minorVersion);
     uint32_t extensionCheckCount = 0;
@@ -210,8 +212,9 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
 
     std::istringstream stream(extensionStr);
     std::string        currentExtension;
-    bool               isKhrPartialUpdateSupported         = false;
-    bool               isKhrSwapBuffersWithDamageSupported = false;
+    stream.imbue(std::locale::classic());
+    bool isKhrPartialUpdateSupported         = false;
+    bool isKhrSwapBuffersWithDamageSupported = false;
     while(std::getline(stream, currentExtension, ' ') && extensionCheckCount < CHECK_EXTENSION_NUMBER)
     {
       if(currentExtension == EGL_KHR_SURFACELESS_CONTEXT && !mIsSurfacelessContextSupported)
@@ -257,6 +260,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
                                  clientStr,
                                  extensionStr);
     std::ostringstream backendInformation;
+    backendInformation.imbue(std::locale::classic());
     backendInformation << "EGL Information:" << std::endl
                        << "Vendor: " << vendorStr << std::endl
                        << "Version: " << versionStr << std::endl

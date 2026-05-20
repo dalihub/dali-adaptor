@@ -35,6 +35,7 @@
 #include <dlfcn.h>
 #include <dlog.h>
 #include <tizen.h>
+#include <locale>
 
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
@@ -51,6 +52,7 @@ constexpr char const* const kApplicationNamePostfix = ".so";
 std::string MakePluginName(const char* appModelName)
 {
   std::stringstream fullName;
+  fullName.imbue(std::locale::classic());
   fullName << kApplicationNamePrefix << appModelName << kApplicationNamePostfix;
   return fullName.str();
 }
@@ -82,7 +84,7 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
 
   if(application)
   {
-    std::string widgetId         = std::string(id);
+    std::string widgetId       = std::string(id);
     void*       instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
     if(instanceHandle)
     {
@@ -127,7 +129,7 @@ WidgetApplicationTizen::~WidgetApplicationTizen()
 
 void WidgetApplicationTizen::InitializeWidget(void* instanceHandle, Dali::Widget widgetInstance)
 {
-  auto* context = static_cast<tizen_cpp::WidgetContext*>(instanceHandle);
+  auto*                                  context    = static_cast<tizen_cpp::WidgetContext*>(instanceHandle);
   Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(context);
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl(widgetImpl);
 }

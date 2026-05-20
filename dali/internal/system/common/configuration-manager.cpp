@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <fstream>
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-stream.h>
@@ -93,6 +94,7 @@ void AppendCacheFile(const std::string& filePath, const KeyType& key, const Valu
 {
   Dali::FileStream configFile(filePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
   std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
+  stream.imbue(std::locale::classic());
   if(DALI_LIKELY(stream.is_open()))
   {
     stream << key << " " << value << std::endl;
@@ -154,6 +156,7 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
   {
     Dali::FileStream configFile(configFilePath, Dali::FileStream::READ | Dali::FileStream::TEXT);
     std::iostream&   stream = configFile.GetStream();
+    stream.imbue(std::locale::classic());
     if(DALI_LIKELY(stream.rdbuf()->in_avail()))
     {
       std::string line;
@@ -181,8 +184,9 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
       }
 
       std::istringstream subStream(line);
-      std::string        name;
-      std::string        value;
+      subStream.imbue(std::locale::classic());
+      std::string name;
+      std::string value;
       std::getline(subStream, name, ' ');
       if(!mMaxTextureSizeCached && name == DALI_ENV_MAX_TEXTURE_SIZE)
       {

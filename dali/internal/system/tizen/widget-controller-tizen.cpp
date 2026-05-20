@@ -25,6 +25,7 @@
 #include <dlog.h>
 #include <tizen.h>
 #include <unistd.h>
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
@@ -43,6 +44,7 @@ constexpr char const* const kApplicationNamePostfix = ".so";
 std::string MakePluginName(const char* appModelName)
 {
   std::stringstream fullName;
+  fullName.imbue(std::locale::classic());
   fullName << kApplicationNamePrefix << appModelName << kApplicationNamePostfix;
   return fullName.str();
 }

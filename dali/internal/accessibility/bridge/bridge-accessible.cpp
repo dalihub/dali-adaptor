@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -374,7 +375,8 @@ static std::string GetComponentInfo(Accessible* obj)
   }
 
   std::ostringstream object;
-  auto               extent = obj->GetExtents(CoordinateType::SCREEN);
+  object.imbue(std::locale::classic());
+  auto extent = obj->GetExtents(CoordinateType::SCREEN);
   object << "name: " << obj->GetName() << " extent: (" << extent.x << ", "
          << extent.y << "), [" << extent.width << ", " << extent.height << "]";
   return object.str();

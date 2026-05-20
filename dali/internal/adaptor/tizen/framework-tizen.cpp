@@ -23,6 +23,7 @@
 #include <system_info.h>
 #include <system_settings.h>
 #include <tizen.h>
+#include <locale>
 
 #ifdef UI_THREAD_AVAILABLE
 #include <app_core_ui_thread_base.hh>
@@ -48,6 +49,7 @@ constexpr char const* const kApplicationNamePostfix = ".so";
 std::string MakePluginName(const char* appModelName)
 {
   std::stringstream fullName;
+  fullName.imbue(std::locale::classic());
   fullName << kApplicationNamePrefix << appModelName << kApplicationNamePostfix;
   return fullName.str();
 }
