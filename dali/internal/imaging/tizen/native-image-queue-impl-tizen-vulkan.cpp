@@ -19,7 +19,6 @@
 #include <dali/internal/imaging/tizen/native-image-queue-impl-tizen-vulkan.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <tbm_surface_internal.h>
 #include <algorithm>
@@ -93,7 +92,7 @@ NativeImageQueueTizenVulkan::NativeImageQueueTizenVulkan(uint32_t queueCount, ui
   mSurfaceRefs(),
   mPendingRelease()
 {
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   mTbmQueue = GetSurfaceFromAny(nativeImageQueue);
 

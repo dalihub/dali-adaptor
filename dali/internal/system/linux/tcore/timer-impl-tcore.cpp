@@ -19,7 +19,6 @@
 #include <dali/internal/system/linux/tcore/timer-impl-tcore.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <tizen_core.h>
@@ -85,8 +84,8 @@ struct TimerTcore::Impl
   }
 
   tizen_core_source_h mSource;
-  uint32_t           mInterval;
-  bool               mPaused;  ///< true when paused (source removed, will re-add on resume)
+  uint32_t            mInterval;
+  bool                mPaused; ///< true when paused (source removed, will re-add on resume)
 };
 
 TimerTcorePtr TimerTcore::New(uint32_t milliSec)
@@ -116,7 +115,7 @@ TimerTcore::~TimerTcore()
 void TimerTcore::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mSource != NULL)
   {
@@ -152,7 +151,7 @@ void TimerTcore::Start()
 void TimerTcore::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   ResetTimerData();
 }
@@ -160,7 +159,7 @@ void TimerTcore::Stop()
 void TimerTcore::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mSource != NULL && !mImpl->mPaused)
   {
@@ -186,7 +185,7 @@ void TimerTcore::Pause()
 void TimerTcore::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mPaused)
   {
@@ -206,7 +205,7 @@ void TimerTcore::SetInterval(uint32_t interval, bool restart)
   // stop existing timer
   Stop();
   mImpl->mInterval = interval;
-  mImpl->mPaused  = false;
+  mImpl->mPaused   = false;
 
   if(restart)
   {
@@ -278,7 +277,7 @@ void TimerTcore::ResetTimerData()
 {
   if(mImpl->mSource != NULL)
   {
-    DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+    DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
     if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
     {

@@ -19,7 +19,6 @@
 #include <dali/internal/imaging/windows/native-image-impl-win.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -64,7 +63,7 @@ NativeImageWin::NativeImageWin(uint32_t width, uint32_t height, Dali::NativeImag
   mResourceDestructionCallback(nullptr),
   mOwnResourceDestructionCallback(false)
 {
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics  = static_cast<EglGraphics*>(graphics);

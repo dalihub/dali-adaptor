@@ -28,6 +28,7 @@ class Adaptor
 {
 public:
   static bool IsAvailable();
+  static bool IsEventThread();
   static void SetAvailable();
 
   Adaptor()
