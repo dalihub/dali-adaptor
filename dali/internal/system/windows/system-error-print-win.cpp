@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <dali/internal/system/common/system-error-print.h>
 
 // EXTERNAL INCLUDES
+#include <locale>
 #include <sstream> ///< for std::ostringstream
 #include <string>
 
@@ -39,6 +40,7 @@ namespace TizenPlatform
 void PrintSystemError(const char* fileName, const char* functionName, const int lineNumber)
 {
   std::ostringstream oss;
+  oss.imbue(std::locale::classic());
 
   // Windows error messages are very long! (error code 10401 message length is 2174)
   // Use FormatMessage limitation length here : 65535

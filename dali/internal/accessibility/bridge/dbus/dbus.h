@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <locale>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -193,8 +194,8 @@ struct DBusWrapper
     }
   };
   virtual void        add_interface_impl(bool fallback, const std::string& pathName, const ConnectionPtr& connection, std::vector<std::function<void()>>& destructors, const std::string& interfaceName, std::vector<MethodInfo>& dscrMethods, std::vector<PropertyInfo>& dscrProperties, std::vector<SignalInfo>& dscrSignals) = 0;
-  virtual void        add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const void*)> cb) = 0;
-  virtual bool        get_from_value_impl(const void* v, void* dst) = 0;
+  virtual void        add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const void*)> cb)                                                                                                                                               = 0;
+  virtual bool        get_from_value_impl(const void* v, void* dst)                                                                                                                                                                                                                                                             = 0;
   static DBusWrapper* Installed();
   static void         Install(std::unique_ptr<DBusWrapper>);
 
@@ -2578,6 +2579,7 @@ private:
       else
       {
         std::ostringstream err;
+        err.imbue(std::locale::classic());
         err << "expected signature '" << detail::signature<VEArgs>::sig() << "', got '" << DBUS_W->dbus_message_signature_get_impl(msg) << "'";
         auto str = err.str();
         DBUS_DEBUG("call %d: failed: %s", callId.id, str.c_str());

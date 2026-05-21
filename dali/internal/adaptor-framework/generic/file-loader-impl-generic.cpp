@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   }
 
   std::ifstream file(filename.c_str(), iosFlags);
+  file.imbue(std::locale::classic());
 
   if(file.is_open())
   {
@@ -102,6 +103,7 @@ std::streampos GetFileSize(const std::string& filename)
   std::streampos size = 0;
 
   std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+  file.imbue(std::locale::classic());
   if(file.is_open())
   {
     size = file.tellg();

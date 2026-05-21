@@ -18,8 +18,8 @@
 // CLASS HEADER
 
 //INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/actors/actor-devel.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
@@ -28,9 +28,10 @@
 #include <dlfcn.h>
 #include <atomic>
 #include <cstdint>
-#include <exception>
 #include <cstring>
+#include <exception>
 #include <limits>
+#include <locale>
 #include <mutex>
 #include <vector>
 
@@ -349,6 +350,7 @@ const auto IsFullFieldSet = [](Accessible::DumpDetailLevel detailLevel) -> bool
 const auto GetTypeString = [](const Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
+  msg.imbue(std::locale::classic());
   if(auto iter = attrs.find("class"); iter != attrs.end())
   {
     msg << Quote(KEY_TYPE) << " : " << Quote(iter->second);
@@ -360,6 +362,7 @@ const auto GetTypeString = [](const Attributes& attrs) -> std::string
 const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
+  msg.imbue(std::locale::classic());
   if(auto iter = attrs.find(KEY_AUTOMATION_ID); iter != attrs.end())
   {
     msg << Quote(KEY_AUTOMATION_ID) << " : " << Quote(iter->second, true);
@@ -373,6 +376,7 @@ const auto GetScreenCoordString = [](Accessible* node) -> std::string
   std::ostringstream msg;
   if(node)
   {
+    msg.imbue(std::locale::classic());
     auto rect = node->GetExtents(CoordinateType::SCREEN);
     msg << Quote("x") << ": " << rect.x << ", "
         << Quote("y") << ": " << rect.y << ", "
@@ -386,6 +390,7 @@ const auto GetScreenCoordString = [](Accessible* node) -> std::string
 const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
+  msg.imbue(std::locale::classic());
   for(const auto& iter : attrs)
   {
     if(iter.first != "class" && iter.first != KEY_AUTOMATION_ID)
@@ -404,6 +409,7 @@ const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
 const auto GetValueString = [](Accessible* node) -> std::string
 {
   std::ostringstream msg;
+  msg.imbue(std::locale::classic());
   if(auto valueInterface = node->GetFeature<Value>())
   {
     msg << Quote(KEY_VALUE) << ": { "
@@ -446,6 +452,7 @@ std::string DumpJson(Accessible* node, Accessible::DumpDetailLevel detailLevel, 
   }
 
   std::ostringstream msg;
+  msg.imbue(std::locale::classic());
   msg << "{ " << Quote(KEY_APPNAME) << ": " << Quote(address.GetBus()) << ", "
       << Quote(KEY_PATH) << ": " << Quote(ATSPI_PREFIX_PATH + address.GetPath()) << ", "
       << Quote(KEY_ROLE) << ": " << Quote(node->GetRoleName()) << ", "

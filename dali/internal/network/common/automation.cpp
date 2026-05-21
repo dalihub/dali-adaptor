@@ -262,7 +262,9 @@ template<class T>
 std::string ToString(T i)
 {
   std::stringstream ss;
-  std::string       s;
+  ss.imbue(std::locale::classic());
+
+  std::string s;
   ss << i;
   s = ss.str();
 
@@ -272,6 +274,7 @@ std::string ToString(T i)
 std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
 {
   std::ostringstream valueStream;
+  valueStream.imbue(std::locale::classic());
   if(propertyIndex != Dali::Property::INVALID_INDEX)
   {
     Dali::Property::Value value = handle.GetProperty(propertyIndex);
@@ -285,9 +288,11 @@ std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
         // Escape the string (to ensure valid json)
         // Write out quotes, escapes and control characters using unicode syntax \uXXXX
         std::ostringstream unescapedValue;
+        unescapedValue.imbue(std::locale::classic());
         unescapedValue << value;
         std::string        valueString = unescapedValue.str();
         std::ostringstream escapedValue;
+        escapedValue.imbue(std::locale::classic());
         for(std::string::iterator c = valueString.begin(); c != valueString.end(); ++c)
         {
           if(*c == '"')

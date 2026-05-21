@@ -72,6 +72,7 @@
 #include <signal.h>
 #include <algorithm>
 #include <iostream>
+#include <locale>
 #include <utility>
 
 #if defined(DEBUG_ENABLED)
@@ -1185,6 +1186,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
                                mPhysicalDeviceProperties.driverVersion);
 
   std::ostringstream backendInformation;
+  backendInformation.imbue(std::locale::classic());
   backendInformation << "Vulkan Information:" << std::endl
                      << "Version: " << VK_API_VERSION_MAJOR(mPhysicalDeviceProperties.apiVersion) << "."
                      << VK_API_VERSION_MINOR(mPhysicalDeviceProperties.apiVersion) << "."
@@ -1196,6 +1198,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   DALI_LOG_INFO(gVulkanFilter, Debug::Concise, "GPU ID:%d\n", gpuId);
 
   std::ostringstream imageProps;
+  imageProps.imbue(std::locale::classic());
   imageProps << "Device image properties:\n maxImageArrayLayers:" << mPhysicalDeviceProperties.limits.maxImageArrayLayers << "\n";
 
   DALI_LOG_RELEASE_INFO(imageProps.str().c_str());

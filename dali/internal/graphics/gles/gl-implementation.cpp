@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <limits>
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-variables.h>
@@ -121,6 +122,7 @@ void GlImplementation::ContextCreated()
     std::istringstream shadingLanguageVersionStream(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
     std::string        token;
     uint32_t           tokenCount = 0;
+    shadingLanguageVersionStream.imbue(std::locale::classic());
     while(std::getline(shadingLanguageVersionStream, token, ' '))
     {
       if(tokenCount == 3 && token == "ES")

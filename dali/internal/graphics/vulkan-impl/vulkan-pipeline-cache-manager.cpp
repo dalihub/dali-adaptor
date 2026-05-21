@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <fstream>
 #include <limits>
+#include <locale>
 #if defined(DEBUG_ENABLED)
 #include <chrono>
 #endif
@@ -496,6 +497,7 @@ void PipelineCacheManager::CreateNewVulkanCache()
 bool PipelineCacheManager::LoadAndValidateCache(std::vector<uint8_t>& data)
 {
   std::ifstream file(mCacheFilePath, std::ios::binary | std::ios::ate);
+  file.imbue(std::locale::classic());
   if(!file.is_open())
   {
     DALI_LOG_ERROR("No existing pipeline cache found\n");
@@ -616,6 +618,7 @@ void PipelineCacheManager::SaveCacheData()
     const std::string filePath = mCacheFilePath;
     {
       std::ofstream file(filePath, std::ios::binary | std::ios::trunc);
+      file.imbue(std::locale::classic());
       file.write(reinterpret_cast<const char*>(&header), sizeof(header));
       file.write(reinterpret_cast<const char*>(cacheData.data()), cacheData.size());
       DALI_LOG_INFO(gVulkanPipelineLogFilter, Debug::Verbose, "[Pipeline Cache][File] Save new Pipeline to cache Data size:%d, path:%s \n", cacheData.size(), mCacheFilePath.c_str());

@@ -18,6 +18,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <algorithm>
+#include <locale>
 #include <sstream>
 
 // Happy trick for Tizen platform! since 2025-04-22. eunkiki.hong@samsung.com
@@ -291,6 +292,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
 void TokenizeSource(Program& program, ShaderStage stage, const std::string& sourceCodeString)
 {
   std::stringstream ss(sourceCodeString);
+  ss.imbue(std::locale::classic());
   TokenizeSource(program, stage, ss);
 }
 
@@ -301,6 +303,7 @@ bool ProcessTokenINPUT(IT& it, Program& program, OutputLanguage lang, ShaderStag
   auto&             l                 = *it;
   std::string&      outString         = ((stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output);
   std::stringstream ss;
+  ss.imbue(std::locale::classic());
   if(l.tokens.size())
   {
     auto token = GetToken(l, 0);
@@ -385,6 +388,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
       {
         int               location = -1; // invalid location
         std::stringstream ss;
+        ss.imbue(std::locale::classic());
         if(stage == ShaderStage::VERTEX)
         {
           auto varName = GetToken(l, -1);
@@ -412,6 +416,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
       else if(lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX)
       {
         std::stringstream ss;
+        ss.imbue(std::locale::classic());
         ss << (isFlatKeywordUsed ? "flat " : "") << "out"
            << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
         outString += ss.str();
@@ -420,6 +425,7 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
       else if(lang == OutputLanguage::GLSL_100_ES)
       {
         std::stringstream ss;
+        ss.imbue(std::locale::classic());
         if(stage == ShaderStage::VERTEX)
         {
           ss << "varying" << l.line.substr(l.tokens[isFlatKeywordUsed].first + l.tokens[isFlatKeywordUsed].second).c_str() << "\n";
@@ -452,6 +458,7 @@ bool ProcessTokenUNIFORM(IT& it, Program& program, OutputLanguage lang, ShaderSt
       int&              binding = program.samplerBinding;
       std::string&      outStr  = (stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output;
       std::stringstream ss;
+      ss.imbue(std::locale::classic());
       {
         if(lang == OutputLanguage::GLSL_100_ES ||
            (lang >= OutputLanguage::GLSL_3 && lang <= OutputLanguage::GLSL_3_MAX))
@@ -482,6 +489,7 @@ bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, Sh
   int&              binding = program.uboBinding;
   std::string&      outStr  = (stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output;
   std::stringstream ss;
+  ss.imbue(std::locale::classic());
   if(l.tokens.size())
   {
     auto token            = GetToken(l, 0);
@@ -746,12 +754,14 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
   if(parseInfo.vertexShaderLegacyVersion == 0u)
   {
     auto vs = std::istringstream(output[0]);
+    vs.imbue(std::locale::classic());
     TokenizeSource(program, ShaderStage::VERTEX, vs);
   }
 
   if(parseInfo.fragmentShaderLegacyVersion == 0u)
   {
     auto fs = std::istringstream(output[1]);
+    fs.imbue(std::locale::classic());
     TokenizeSource(program, ShaderStage::FRAGMENT, fs);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <cerrno>  ///< for errno
 #include <cstring> ///< for strerror_r
+#include <locale>
 #include <sstream> ///< for std::ostringstream
 #include <string>
 
@@ -57,6 +58,7 @@ void PrintSystemError(const char* fileName, const char* functionName, const int 
   try
   {
     std::ostringstream oss;
+    oss.imbue(std::locale::classic());
 
     const static int         errorMessageMaxLength               = 128;
     thread_local static char errorMessage[errorMessageMaxLength] = {}; // Initialze as null.

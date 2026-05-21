@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@
 // CLASS HEADER
 #include "gles-graphics-shader.h"
 
-// INTERNAL INCLUDES
+// EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <iomanip>
+#include <locale>
+
+// INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 
 namespace Dali::Graphics::GLES
@@ -29,6 +32,7 @@ static std::string AddLineNumbers(const char* src)
 {
   int                line = 1;
   std::ostringstream oss;
+  oss.imbue(std::locale::classic());
 
   // Let we print 4095 prefix of shader codes.
   char  buffer[4096];

@@ -24,6 +24,7 @@
 #include <GLES3/gl3.h>
 
 #include <algorithm> // for std::find_if
+#include <locale>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -56,6 +57,7 @@ void GlExtensionSupportedCacheList::EnsureGlExtensionSupportedCheck()
   const char* const  extensionStr = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
   std::istringstream stream(extensionStr);
   std::string        currentExtension;
+  stream.imbue(std::locale::classic());
 
   // Create expected string-to-checkertype convertor.
   using StringTypePair = std::pair<std::string_view, GlExtensionCheckerType>;
