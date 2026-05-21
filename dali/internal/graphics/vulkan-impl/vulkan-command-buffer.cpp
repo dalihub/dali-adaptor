@@ -631,9 +631,12 @@ void CommandBuffer::AllocateCommandBuffers(bool doubleBuffered)
 
 void CommandBuffer::Process() const
 {
-  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "Resource:%p\n", this);
-  CommandBufferExecutor commandExecutor(mController);
-  commandExecutor.ProcessCommandBuffer(mStoredCommandBuffer.get(), GetImpl());
+  DALI_LOG_INFO(gLogCmdBufferFilter, Debug::Verbose, "Resource:%p StoredCommandBuffer:%p\n", this, mStoredCommandBuffer.get());
+  if(DALI_LIKELY(mStoredCommandBuffer))
+  {
+    CommandBufferExecutor commandExecutor(mController);
+    commandExecutor.ProcessCommandBuffer(mStoredCommandBuffer.get(), GetImpl());
+  }
 }
 
 } // namespace Dali::Graphics::Vulkan
