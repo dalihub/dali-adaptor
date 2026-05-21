@@ -35,7 +35,6 @@
 #define DRM_FORMAT_MOD_LINEAR 0
 #endif
 
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/pixel-data-integ.h>
 #include <tbm_surface_internal.h>
@@ -101,7 +100,7 @@ NativeImageTizenVulkan::NativeImageTizenVulkan(uint32_t width, uint32_t height, 
   mBackBufferEnabled(false),
   mOwnResourceDestructionCallback(false)
 {
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   mTbmSurface = GetSurfaceFromAny(nativeImage);
 

@@ -20,7 +20,6 @@
 #include <dali/internal/vector-animation/common/vector-animation-renderer-native.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/rendering/texture-set.h>
@@ -29,6 +28,9 @@
 #include <fstream>
 #include <locale>
 #include <sstream>
+
+// INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 namespace
 {
@@ -342,7 +344,7 @@ void VectorAnimationRendererNative::SetRenderer(Dali::Renderer renderer)
 
 void VectorAnimationRendererNative::SetSize(uint32_t width, uint32_t height)
 {
-  if(!Dali::Stage::IsCoreThread())
+  if(!Dali::Adaptor::IsEventThread())
   {
     DALI_LOG_ERROR("SetSize should be called by Core Thread.\n");
     return;

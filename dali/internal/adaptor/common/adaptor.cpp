@@ -216,6 +216,11 @@ bool Adaptor::IsAvailable()
   return Internal::Adaptor::Adaptor::IsAvailable();
 }
 
+bool Adaptor::IsEventThread()
+{
+  return Internal::Adaptor::Adaptor::IsEventThread();
+}
+
 void Adaptor::NotifySceneCreated()
 {
   mImpl->NotifySceneCreated();

@@ -19,7 +19,6 @@
 #include <dali/internal/imaging/macos/native-image-impl-mac.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
 
@@ -48,7 +47,7 @@ NativeImageCocoa::NativeImageCocoa(
   mResourceDestructionCallback(nullptr),
   mOwnResourceDestructionCallback(false)
 {
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
   DALI_ASSERT_ALWAYS(nativeImage.Empty());
 
   CFStringRef      colorSpaceName;

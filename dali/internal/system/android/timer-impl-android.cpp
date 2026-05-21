@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include <dali/internal/system/android/timer-impl-android.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 
 // INTERNAL INCLUDES
@@ -123,7 +122,7 @@ bool TimerCallback(void* data)
 void TimerAndroid::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mRunning)
   {
@@ -138,7 +137,7 @@ void TimerAndroid::Start()
 void TimerAndroid::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mId != 0)
   {
@@ -153,7 +152,7 @@ void TimerAndroid::Stop()
 void TimerAndroid::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mRunning)
   {
@@ -166,7 +165,7 @@ void TimerAndroid::Pause()
 void TimerAndroid::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_DEBUG(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mRunning && mImpl->mId == 0)
   {

@@ -30,6 +30,11 @@ bool Adaptor::IsAvailable()
   return mAvailable;
 }
 
+bool Adaptor::IsEventThread()
+{
+  return mAvailable;
+}
+
 void Adaptor::SetAvailable()
 {
   mAvailable = true;
