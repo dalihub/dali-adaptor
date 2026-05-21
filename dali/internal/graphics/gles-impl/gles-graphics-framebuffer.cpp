@@ -188,6 +188,42 @@ void Framebuffer::DestroyResource()
     auto* gl = mController.GetGL();
     if(DALI_LIKELY(gl) && mInitialized)
     {
+      if(mFramebufferId != 0u)
+      {
+        gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
+      }
+
+      if(mDepthBufferId || mStencilBufferId)
+      {
+        const bool depthWrite   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+        const bool stencilWrite = mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+
+        // Check whether we need to use RenderBuffer
+        if(depthWrite || stencilWrite)
+        {
+          // if stencil is write, use renderbuffer as mStencilBufferId.
+          const auto internalFormat = depthWrite ? (stencilWrite ? GL_DEPTH24_STENCIL8 : GL_DEPTH_COMPONENT16) : GL_STENCIL_INDEX8;
+          const auto attachment     = depthWrite ? (stencilWrite ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT) : GL_STENCIL_ATTACHMENT;
+
+          gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, 0);
+
+          if(mMultisamples <= 1u)
+          {
+            gl->RenderbufferStorage(GL_RENDERBUFFER, internalFormat, 0, 0);
+          }
+          else
+          {
+            gl->RenderbufferStorageMultisample(GL_RENDERBUFFER, mMultisamples, internalFormat, 0, 0);
+          }
+          gl->BindRenderbuffer(GL_RENDERBUFFER, 0);
+        }
+      }
+
+      if(mFramebufferId != 0u)
+      {
+        gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+        gl->DeleteFramebuffers(1, &mFramebufferId);
+      }
       if(mDepthBufferId)
       {
         gl->DeleteRenderbuffers(1, &mDepthBufferId);
@@ -197,11 +233,6 @@ void Framebuffer::DestroyResource()
       {
         gl->DeleteRenderbuffers(1, &mStencilBufferId);
         mStencilBufferId = 0u;
-      }
-
-      if(mFramebufferId != 0u)
-      {
-        gl->DeleteFramebuffers(1, &mFramebufferId);
       }
 
       if(mSharedContext)

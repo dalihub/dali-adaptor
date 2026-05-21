@@ -621,14 +621,14 @@ void EglGraphicsController::ProcessDiscardQueues()
     InvalidateDiscardResourceQueue(mDiscardFramebufferQueue, mCreateFramebufferQueue);
   }
 
-  // Process textures
-  ProcessDiscardSet<GLES::Texture>(mDiscardTextureSet);
-
   // Process buffers
   ProcessDiscardQueue<GLES::Buffer>(mDiscardBufferQueue);
 
   // Process Framebuffers
   ProcessDiscardQueue<GLES::Framebuffer>(mDiscardFramebufferQueue);
+
+  // Process textures
+  ProcessDiscardSet<GLES::Texture>(mDiscardTextureSet);
 
   // Process RenderPass
   ProcessDiscardQueue<GLES::RenderPass>(mDiscardRenderPassQueue);
