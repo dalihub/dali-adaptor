@@ -42,7 +42,7 @@ int UtcDaliNativeImageNewN(void)
   catch(Dali::DaliException& e)
   {
     DALI_TEST_PRINT_ASSERT(e);
-    DALI_TEST_ASSERT(e, "Dali::Stage::IsCoreThread()", TEST_LOCATION);
+    DALI_TEST_ASSERT(e, "Must be called from the event thread!", TEST_LOCATION);
   }
   catch(...)
   {

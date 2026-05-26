@@ -783,29 +783,29 @@ void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
   if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
      (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
   {
+    DALI_LOG_RELEASE_INFO("Update Position by server SurfaceId(%d) (%d,%d %dx%d) -> (%d,%d %dx%d)\n", mSurfaceId, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+
     mPositionSize.x = positionSize.x;
     mPositionSize.y = positionSize.y;
-
-    DALI_LOG_RELEASE_INFO("Update Position by server SurfaceId(%d) (%d, %d)\n", mSurfaceId, mPositionSize.x, mPositionSize.y);
   }
 }
 
 void WindowRenderSurface::Move(Dali::PositionSize positionSize)
 {
+  DALI_LOG_RELEASE_INFO("Update Position by client SurfaceId(%d) (%d,%d %dx%d) -> (%d,%d %dx%d)\n", mSurfaceId, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+
   mPositionSize.x = positionSize.x;
   mPositionSize.y = positionSize.y;
-
-  DALI_LOG_RELEASE_INFO("Update Position by client SurfaceId(%d) (%d, %d)\n", mSurfaceId, positionSize.x, positionSize.y);
 
   mWindowBase->Move(positionSize);
 }
 
 void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
 {
+  DALI_LOG_RELEASE_INFO("Update PositionSize by client SurfaceId(%d) (%d,%d %dx%d) -> (%d,%d %dx%d)\n", mSurfaceId, mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+
   mPositionSize.x = positionSize.x;
   mPositionSize.y = positionSize.y;
-
-  DALI_LOG_RELEASE_INFO("Update Position by client SurfaceId(%d) (%d, %d)\n", mSurfaceId, positionSize.x, positionSize.y);
 
   mWindowBase->MoveResize(positionSize);
 }

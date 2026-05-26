@@ -2569,7 +2569,7 @@ void WindowBaseEcoreWl2::Move(PositionSize positionSize)
   PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
 
   mWindowPositionSize = newPositionSize;
-  DALI_LOG_RELEASE_INFO("ecore_wl2_window_position_set x[%d], y[%d]\n", newPositionSize.x, newPositionSize.y);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_position_set x[%d], y[%d], w[%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_position_set");
   ecore_wl2_window_position_set(mEcoreWindow, newPositionSize.x, newPositionSize.y);
@@ -2580,7 +2580,7 @@ void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
   PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
 
   mWindowPositionSize = newPositionSize;
-  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w[%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
   mMoveResizeSerial = (mMoveResizeSerial + 1);
@@ -2592,7 +2592,7 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
   PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
 
   mWindowPositionSize = newPositionSize;
-  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w[%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_sync_geometry_set");
   mMoveResizeSerial = (mMoveResizeSerial + 1);

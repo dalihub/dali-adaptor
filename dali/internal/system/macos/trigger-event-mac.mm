@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 
 #include <atomic>
+#include <locale>
 #include <string>
 #include <sstream>
 #include <type_traits>
@@ -50,6 +51,7 @@ struct TriggerEvent::Impl final
     const auto myId = mNameId.fetch_add(1, std::memory_order_relaxed);
 
     std::stringstream ss;
+    ss.imbue(std::locale::classic());
     ss << EventName << myId;
     mName = [NSString stringWithUTF8String:ss.str().c_str()];
 

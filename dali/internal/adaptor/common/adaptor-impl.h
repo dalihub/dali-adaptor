@@ -164,6 +164,11 @@ public:
   static bool IsAvailable();
 
   /**
+   * @copydoc Dali::Adaptor::IsEventThread()
+   */
+  static bool IsEventThread();
+
+  /**
    * @copydoc Dali::Core::SceneCreated();
    */
   void SceneCreated();

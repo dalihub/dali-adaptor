@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.22
+Version:    2.5.23
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -29,6 +29,12 @@ Requires(postun): /sbin/ldconfig
 Requires:       giflib
 
 %define tizen_platform_config_supported 1
+# Tizen Wayland backend: ECORE or TCORE. Example: gbs build ... --define "tizen_wayland_backend TCORE"
+# Default ECORE until tcore backend is ready. Tizen < 11: always ECORE (TCORE override ignored).
+%{!?tizen_wayland_backend: %global tizen_wayland_backend ECORE}
+%if 0%{?tizen_version_major} < 11
+%global tizen_wayland_backend ECORE
+%endif
 BuildRequires:  pkgconfig(libtzplatform-config)
 
 # if 'mv_prj' is defined, this build targets the robot profile.
@@ -82,8 +88,13 @@ BuildRequires:  pkgconfig(libwebpdemux)
 BuildRequires:  pkgconfig(libwebpmux)
 %endif
 
-# We use ecore mainloop
+# We use ecore mainloop (ECORE) or tizen-core (TCORE)
+%if "%{?tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(tizen-core)
+BuildRequires:  pkgconfig(tizen-core-wl)
+%else
 BuildRequires:  pkgconfig(ecore-wl2)
+%endif
 BuildRequires:  pkgconfig(wayland-egl-tizen)
 
 # We need tbm_surface in tizen 3.0 wayland
@@ -92,17 +103,29 @@ BuildRequires:  pkgconfig(libtbm)
 # for the adaptor
 BuildRequires:  pkgconfig(capi-appfw-app-control)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
+%if "%{tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(app-core-tcore-cpp)
+%else
 BuildRequires:  pkgconfig(app-core-ui-cpp)
+%endif
 BuildRequires:  pkgconfig(app-core-cpp)
 BuildRequires:  pkgconfig(appcore-common)
 
 %if "%{mv_prj}" != "1"
+%if "%{tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(appcore-widget-base-tcore)
+%else
 BuildRequires:  pkgconfig(appcore-widget-base)
+%endif
 BuildRequires:  pkgconfig(component-based-core-base)
 %endif
 
 BuildRequires:  pkgconfig(bundle)
+%if "%{?tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(tizen-core-imf)
+%else
 BuildRequires:  pkgconfig(ecore-imf)
+%endif
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
@@ -261,6 +284,13 @@ cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
 cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
 %else
 cmake_flags+=" -DENABLE_TRACE=ON"
+%endif
+
+# Tizen Wayland backend (see default at top of spec)
+%if "%{tizen_wayland_backend}" == "TCORE"
+cmake_flags+=" -DTIZEN_WAYLAND_BACKEND=TCORE"
+%else
+cmake_flags+=" -DTIZEN_WAYLAND_BACKEND=ECORE"
 %endif
 
 # Enable preinitialized adaptor as default if not defined

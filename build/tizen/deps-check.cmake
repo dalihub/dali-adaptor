@@ -113,7 +113,15 @@ CHECK_MODULE_AND_SET( EVAS evas [] )
 CHECK_MODULE_AND_SET( TTRACE ttrace ENABLE_TTRACE )
 CHECK_MODULE_AND_SET( ECORE ecore [] )
 CHECK_MODULE_AND_SET( ECORE_IPC ecore-ipc [] )
-CHECK_MODULE_AND_SET( ECORE_IMF ecore-imf [] )
+# IMF: ECORE → ecore-imf, TCORE → tizen-core-imf
+IF( USE_TCORE_BACKEND )
+  CHECK_MODULE_AND_SET( TIZEN_CORE_IMF tizen-core-imf tizen_core_imf_available )
+  IF( NOT tizen_core_imf_available )
+    MESSAGE( FATAL_ERROR "TCORE backend requires tizen-core-imf. Please install tizen-core-imf development package." )
+  ENDIF()
+ELSE()
+  CHECK_MODULE_AND_SET( ECORE_IMF ecore-imf [] )
+ENDIF()
 CHECK_MODULE_AND_SET( ELDBUS eldbus>=${ELDBUS_REQUIRED} eldbus_available )
 CHECK_MODULE_AND_SET( TPKP_CURL tpkp-curl tpkp_curl_available )
 CHECK_MODULE_AND_SET( UTILX utilX utilx_available )
@@ -139,13 +147,39 @@ CHECK_MODULE_AND_SET( SCREENCONNECTORPROVIDER screen_connector_provider [] )
 CHECK_MODULE_AND_SET( APPFW_WATCH capi-appfw-watch-application watch_available )
 CHECK_MODULE_AND_SET( APPCORE_WATCH appcore-watch [] )
 
-CHECK_MODULE_AND_SET( CAPI_APP_CORE_UI_CPP app-core-ui-cpp [] )
+IF(NOT DEFINED APP_CORE_UI_CPP_PKG)
+  # Fallback: keep old behavior if the variable was not set by the caller.
+  IF(USE_TCORE_BACKEND)
+    SET(APP_CORE_UI_CPP_PKG "app-core-tcore-cpp")
+  ELSE()
+    SET(APP_CORE_UI_CPP_PKG "app-core-ui-cpp")
+  ENDIF()
+ENDIF()
+
+CHECK_MODULE_AND_SET( CAPI_APP_CORE_UI_CPP ${APP_CORE_UI_CPP_PKG} [] )
 CHECK_MODULE_AND_SET( CAPI_APP_COMMON appcore-common [] )
-CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE appcore-widget-base [] )
+# Widget base package differs by backend:
+# - TCORE: appcore-widget-base-tcore
+# - ECORE: appcore-widget-base (provides widget_base.h)
+IF( USE_TCORE_BACKEND )
+  SET(APPFW_WIDGET_BASE_PKG "appcore-widget-base-tcore")
+ELSE()
+  SET(APPFW_WIDGET_BASE_PKG "appcore-widget-base")
+ENDIF()
+CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE ${APPFW_WIDGET_BASE_PKG} [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
 CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
+
+# tizen-core, tizen-core-wl: TCORE 백엔드일 때만 의존성 체크
+IF( USE_TCORE_BACKEND )
+  CHECK_MODULE_AND_SET( TIZEN_CORE tizen-core tizen_core_available )
+  CHECK_MODULE_AND_SET( TIZEN_CORE_WL tizen-core-wl tizen_core_wl_available )
+  IF( NOT tizen_core_available OR NOT tizen_core_wl_available )
+    MESSAGE( FATAL_ERROR "TCORE backend requires tizen-core and tizen-core-wl. Please install tizen-core and tizen-core-wl development packages." )
+  ENDIF()
+ENDIF()
 
 CHECK_MODULE_AND_SET( THORVG thorvg thorvg_support )
 
@@ -191,7 +225,11 @@ IF( ANDROID_PROFILE )
 ENDIF()
 
 IF( enable_wayland )
-  PKG_CHECK_MODULES(WAYLAND ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 input-method-client xkbcommon libtbm )
+  IF( USE_TCORE_BACKEND )
+    PKG_CHECK_MODULES(WAYLAND tizen-core-wl tizen-core egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 input-method-client xkbcommon libtbm )
+  ELSE()
+    PKG_CHECK_MODULES(WAYLAND ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 input-method-client xkbcommon libtbm )
+  ENDIF()
   SET(WAYLAND 1)
 ELSE()
   CHECK_MODULE_AND_SET( ECORE_X ecore-x DALI_USE_ECORE_X11 [] )
@@ -456,6 +494,14 @@ ELSE()
 
   # APPFW
   IF( enable_appfw )
+    # IMF: ECORE → ecore-imf, TCORE → tizen-core-imf
+    IF( USE_TCORE_BACKEND )
+      SET( IMF_CFLAGS ${TIZEN_CORE_IMF_CFLAGS} )
+      SET( IMF_LDFLAGS ${TIZEN_CORE_IMF_LDFLAGS} )
+    ELSE()
+      SET( IMF_CFLAGS ${ECORE_IMF_CFLAGS} )
+      SET( IMF_LDFLAGS ${ECORE_IMF_LDFLAGS} )
+    ENDIF()
     SET( DALI_CFLAGS ${DALI_CFLAGS}
       ${CAPI_APPFW_APPLICATION_CFLAGS}
       ${CAPI_APP_CORE_UI_CPP_CFLAGS}
@@ -468,7 +514,7 @@ ELSE()
       ${CAPI_APPFW_COMMON_CFLAGS}
       ${CAPI_APPFW_CONTROL_CFLAGS}
       ${CAPI_APPFW_WIDGET_BASE_CFLAGS}
-      ${ECORE_IMF_CFLAGS}
+      ${IMF_CFLAGS}
       ${FRIBIDI_CFLAGS}
       ${COMPONENT_BASED_CORE_BASE_CFLAGS}
       ${SCREENCONNECTORPROVIDER_CFLAGS}
@@ -486,7 +532,7 @@ ELSE()
       ${CAPI_APPFW_COMMON_LDFLAGS}
       ${CAPI_APPFW_CONTROL_LDFLAGS}
       ${CAPI_APPFW_WIDGET_BASE_LDFLAGS}
-      ${ECORE_IMF_LDFLAGS}
+      ${IMF_LDFLAGS}
       ${FRIBIDI_LDFLAGS}
       ${COMPONENT_BASED_CORE_BASE_LDFLAGS}
       ${SCREENCONNECTORPROVIDER_LDFLAGS}

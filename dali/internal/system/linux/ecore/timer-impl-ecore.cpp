@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
@@ -104,7 +103,7 @@ TimerEcore::~TimerEcore()
 void TimerEcore::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mId != NULL)
   {
@@ -127,7 +126,7 @@ void TimerEcore::Start()
 void TimerEcore::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   ResetTimerData();
 }
@@ -135,7 +134,7 @@ void TimerEcore::Stop()
 void TimerEcore::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mId != NULL)
   {
@@ -155,7 +154,7 @@ void TimerEcore::Pause()
 void TimerEcore::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   if(mImpl->mId != NULL)
   {
@@ -246,7 +245,7 @@ void TimerEcore::ResetTimerData()
 {
   if(mImpl->mId != NULL)
   {
-    DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+    DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
     if(DALI_LIKELY(Dali::Adaptor::IsAvailable()))
     {

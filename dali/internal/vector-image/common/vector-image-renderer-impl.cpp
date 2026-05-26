@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
  */
 
 // CLASS HEADER
-#include <algorithm>
 #include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
+#include <algorithm>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/locale-numeric-guard.h>
 
 #ifndef THORVG_SUPPORT
 // INTERNAL INCLUDES
@@ -151,19 +152,19 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
     return false;
   }
 
+  if(!mPicture)
+  {
+#ifdef THORVG_VERSION_1
+    mPicture = tvg::Picture::gen();
+#else
+    mPicture = tvg::Picture::gen().release();
+#endif
     if(!mPicture)
     {
-#ifdef THORVG_VERSION_1
-      mPicture = tvg::Picture::gen();
-#else
-      mPicture = tvg::Picture::gen().release();
-#endif
-      if(!mPicture)
-      {
-        DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
-        return false;
-      }
+      DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
+      return false;
     }
+  }
   else
   {
     return true;
@@ -225,6 +226,10 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   {
     return true;
   }
+
+  // Ensure LC_NUMERIC is "C" during SVG parsing, as nanosvg uses atof/sscanf
+  // which are locale-sensitive and SVG files always use '.' as decimal separator.
+  Dali::LocaleNumericGuard localeGuard;
 
   mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
   if(!mParsedImage || !mParsedImage->shapes)
@@ -323,7 +328,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 
 #ifdef THORVG_VERSION_1
   const auto& paintList = mSwCanvas->paints();
-  if (std::find(paintList.begin(), paintList.end(), mPicture) == paintList.end())
+  if(std::find(paintList.begin(), paintList.end(), mPicture) == paintList.end())
   {
     if(mSwCanvas->add(mPicture) != tvg::Result::Success)
     {

@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
 namespace Dali
 {
@@ -51,6 +52,20 @@ Dali::DragAndDrop GetDragAndDrop()
   }
 
   return dnd;
+}
+
+class DragAndDropFactoryGeneric : public DragAndDropFactory
+{
+public:
+  Dali::DragAndDrop CreateDragAndDrop() override
+  {
+    return GetDragAndDrop();
+  }
+};
+
+std::unique_ptr<DragAndDropFactory> GetDragAndDropFactory()
+{
+  return std::unique_ptr<DragAndDropFactory>(new DragAndDropFactoryGeneric());
 }
 
 DragAndDropGeneric::DragAndDropGeneric()

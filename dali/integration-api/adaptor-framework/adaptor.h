@@ -118,9 +118,9 @@ class Adaptor;
 class DALI_ADAPTOR_API Adaptor
 {
 public:
-  typedef Signal<void(Adaptor&)>                        AdaptorSignalType;       ///< Generic Type for adaptor signals
+  typedef Signal<void(Adaptor&)>                       AdaptorSignalType;       ///< Generic Type for adaptor signals
   typedef Signal<void(Dali::Integration::SceneHolder)> WindowCreatedSignalType; ///< SceneHolder created signal type
-  typedef Signal<void(std::string)>                     LocaleChangedSignalType; ///< Locale changed signal type
+  typedef Signal<void(std::string)>                    LocaleChangedSignalType; ///< Locale changed signal type
 
   using SurfaceSize = Int32Pair; ///< Surface size type
 
@@ -340,6 +340,17 @@ public:
    * @return true, if it is available, false otherwise.
    */
   static bool IsAvailable();
+
+  /**
+   * @brief Queries whether the current thread is the event thread.
+   *
+   * Unlike IsAvailable(), this returns true even during adaptor shutdown,
+   * making it suitable for asserting that code runs on the event thread
+   * regardless of the adaptor lifecycle state.
+   *
+   * @return True if called from the event thread, false otherwise.
+   */
+  static bool IsEventThread();
 
   /**
    * @brief Call this method to notify Dali when scene is created and initialized.

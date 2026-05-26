@@ -27,6 +27,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/trace/common/trace-factory.h>
 
@@ -75,7 +76,7 @@ bool GetEnvironmentVariable(const char* variable, float& floatValue)
   {
     return false;
   }
-  // if the parameter exists convert it to an integer, else return the default value
+  // if the parameter exists convert it to a float, else return the default value
   floatValue = std::atof(variableParameter);
   return true;
 }
@@ -672,6 +673,9 @@ bool EnvironmentOptions::VsyncRenderRequired() const
 
 void EnvironmentOptions::ParseEnvironmentOptions()
 {
+  // Ensure LC_NUMERIC is "C" so that std::atof uses '.' as decimal separator
+  Dali::LocaleNumericGuard localeGuard;
+
   // get logging options
   mFpsFrequency               = GetEnvironmentVariable(DALI_ENV_FPS_TRACKING, 0);
   mUpdateStatusFrequency      = GetEnvironmentVariable(DALI_ENV_UPDATE_STATUS_INTERVAL, 0);

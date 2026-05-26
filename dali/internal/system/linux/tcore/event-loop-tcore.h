@@ -1,5 +1,8 @@
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_TCORE_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_TCORE_H
+
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +18,8 @@
  *
  */
 
-#include <dali/internal/input/common/input-method-context-factory.h>
-#include <dali/internal/input/tizen-wayland/input-method-context-impl-ecore-wl.h>
-#include <memory>
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/event-loop.h>
 
 namespace Dali
 {
@@ -25,19 +27,20 @@ namespace Internal
 {
 namespace Adaptor
 {
-class InputMethodContext;
-
-namespace InputMethodContextFactory
+class EventLoopTcore : public EventLoop
 {
-// InputMethodContext Factory to be implemented by the platform
-InputMethodContextPtr CreateInputMethodContext(Dali::Actor actor)
-{
-  return Dali::Internal::Adaptor::InputMethodContextEcoreWl::New(actor);
-}
+public:
+  void Initialize(int argc, char** argv) override;
+  void Shutdown() override;
+  void Run() override;
+  void Quit() override;
 
-} // namespace InputMethodContextFactory
+private:
+  void* mTask{nullptr};
+};
 
 } // namespace Adaptor
-
 } // namespace Internal
 } // namespace Dali
+
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_TCORE_H

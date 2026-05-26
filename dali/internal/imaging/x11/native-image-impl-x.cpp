@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -99,7 +98,7 @@ NativeImageX::NativeImageX(uint32_t width, uint32_t height, Dali::NativeImage::C
   mResourceDestructionCallback(nullptr),
   mOwnResourceDestructionCallback(false)
 {
-  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
+  DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
   auto graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   auto eglGraphics = static_cast<EglGraphics*>(graphics);

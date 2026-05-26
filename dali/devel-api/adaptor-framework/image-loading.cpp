@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 // CLASS HEADER
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+
+// EXTERNAL INCLUDES
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
@@ -35,6 +38,7 @@ const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
 std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t width)
 {
   std::ostringstream oss;
+  oss.imbue(std::locale::classic());
 
   for(size_t i = 0u; i < size; ++i)
   {

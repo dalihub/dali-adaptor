@@ -91,8 +91,8 @@ void VectorAnimationRendererEventManager::AddEventHandler(VectorAnimationRendere
 
       if(!mEventTrigger)
       {
-        mEventTrigger = TriggerEventFactory::CreateTriggerEvent(
-          MakeCallback(this, &VectorAnimationRendererEventManager::OnEventTriggered));
+        mEventTrigger = std::unique_ptr<EventThreadCallback>(
+          new EventThreadCallback(MakeCallback(this, &VectorAnimationRendererEventManager::OnEventTriggered)));
       }
     }
   }

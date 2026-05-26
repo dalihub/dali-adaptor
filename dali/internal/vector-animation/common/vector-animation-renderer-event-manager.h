@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 #include <dali/devel-api/threading/mutex.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/integration-api/processor-interface.h>
 #include <set>
 #include <memory>
@@ -102,7 +102,7 @@ private:
   std::unordered_set<VectorAnimationRendererNative*>           mEventHandlers;
   std::unordered_map<VectorAnimationRendererNative*, uint32_t> mTriggeredHandlers; ///< first: trigger handler, second: trigger order. Must be locked under mMutex.
   Dali::Mutex                                                  mMutex;
-  TriggerEventFactory::TriggerEventPtr                         mEventTrigger;
+  std::unique_ptr<EventThreadCallback>                         mEventTrigger;
   uint32_t                                                     mTriggerOrderId;    ///< Used to determine the order of trigger handler.
 
   bool mEventTriggered;                                ///< Accessed from multiple threads. Must not be bit-field.

@@ -25,6 +25,7 @@
 #include <dlog.h>
 #include <tizen.h>
 #include <unistd.h>
+#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
@@ -43,6 +44,7 @@ constexpr char const* const kApplicationNamePostfix = ".so";
 std::string MakePluginName(const char* appModelName)
 {
   std::stringstream fullName;
+  fullName.imbue(std::locale::classic());
   fullName << kApplicationNamePrefix << appModelName << kApplicationNamePostfix;
   return fullName.str();
 }
@@ -50,7 +52,7 @@ std::string MakePluginName(const char* appModelName)
 } // namespace
 namespace Adaptor
 {
-WidgetImplTizen::WidgetImplTizen(void* instanceHandle)
+WidgetImplTizen::WidgetImplTizen(tizen_cpp::WidgetContext* instanceHandle)
 : Widget::Impl(),
   mInstanceHandle(instanceHandle),
   mWindow(),
@@ -81,23 +83,29 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   SetContentInfoFunc setContentInfoFuncPtr;
   std::string        pluginName = MakePluginName("widget");
 
+  print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen plugin (path:%s)", pluginName.c_str());
   void* mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "error : %s\n", dlerror());
+    const char* error = dlerror();
+    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen failed (path:%s, error:%s)", pluginName.c_str(), error ? error : "null");
     bundle_free(contentBundle);
     return;
   }
+  print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen success (handle:%p)", mHandle);
 
+  dlerror(); // clear stale error
   setContentInfoFuncPtr = reinterpret_cast<SetContentInfoFunc>(dlsym(mHandle, "SetContentInfo"));
   if(setContentInfoFuncPtr != nullptr)
   {
+    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlsym(SetContentInfo) success (ptr:%p)", reinterpret_cast<void*>(setContentInfoFuncPtr));
     setContentInfoFuncPtr(mInstanceHandle, contentBundle);
   }
   else
   {
-    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n");
+    const char* error = dlerror();
+    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlsym(SetContentInfo) failed (error:%s)", error ? error : "null");
   }
 
   bundle_free(contentBundle);

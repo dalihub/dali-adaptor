@@ -1740,17 +1740,6 @@ enum class GLESVersion
 };
 
 /**
- * @brief Types of bond texture cached in the context
- */
-enum class BoundTextureType
-{
-  TEXTURE_2D,
-  TEXTURE_3D,
-  TEXTURE_CUBEMAP,
-  TEXTURE_EXTERNAL_OES
-};
-
-/**
  * This class stores indirect pointer, used by the CommandBuffer
  * to store data allocated within resizeable pool
  */

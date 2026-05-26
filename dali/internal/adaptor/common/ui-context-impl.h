@@ -19,7 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/update/frame-callback-interface.h>
+#include <dali/public-api/update/update-proxy.h>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -90,6 +93,21 @@ public:
    * @copydoc Dali::UiContext::SetApplicationLocale()
    */
   void SetApplicationLocale(const std::string& locale);
+
+  /**
+   * @copydoc Dali::UiContext::AddFrameCallback()
+   */
+  void AddFrameCallback(FrameCallbackInterface& frameCallback, Dali::Actor rootActor);
+
+  /**
+   * @copydoc Dali::UiContext::RemoveFrameCallback()
+   */
+  void RemoveFrameCallback(FrameCallbackInterface& frameCallback);
+
+  /**
+   * @copydoc Dali::UiContext::NotifyFrameCallback()
+   */
+  Dali::UpdateProxy::NotifySyncPoint NotifyFrameCallback(FrameCallbackInterface& frameCallback);
 
 private:
   /**

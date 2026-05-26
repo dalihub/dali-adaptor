@@ -17,7 +17,7 @@
 
 // CLASS HEADER
 
-#include <dali/internal/input/tizen-wayland/input-method-context-impl-ecore-wl.h>
+#include <dali/internal/input/tizen-wayland/ecore/input-method-context-impl-ecore-wl.h>
 
 // EXTERNAL INCLUDES
 #include <Ecore_Input.h>

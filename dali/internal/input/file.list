@@ -9,13 +9,23 @@ SET( adaptor_input_common_src_files
 )
 
 # module: input, backend: tizen-wayland
-SET( adaptor_input_tizen_wayland_src_files
-    ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp
-    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp
-    ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore-wl.cpp
-)
+IF(USE_TCORE_BACKEND)
+  SET( adaptor_input_tizen_wayland_src_files
+      ${adaptor_input_dir}/tizen-wayland/tcore/tcore-virtual-keyboard.cpp
+      ${adaptor_input_dir}/tizen-wayland/tcore/input-method-context-factory-tcore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/tcore/input-method-context-impl-tcore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/tcore/key-mapping-tcore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/tcore/virtual-keyboard-impl-tcore-wl.cpp
+  )
+ELSE()
+  SET( adaptor_input_tizen_wayland_src_files
+      ${adaptor_input_dir}/tizen-wayland/ecore/ecore-virtual-keyboard.cpp
+      ${adaptor_input_dir}/tizen-wayland/ecore/input-method-context-factory-ecore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/ecore/input-method-context-impl-ecore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/ecore/key-mapping-ecore-wl.cpp
+      ${adaptor_input_dir}/tizen-wayland/ecore/virtual-keyboard-impl-ecore-wl.cpp
+  )
+ENDIF()
 
 # module: input, backend: ubuntu-x11
 SET( adaptor_input_ubuntu_x11_src_files

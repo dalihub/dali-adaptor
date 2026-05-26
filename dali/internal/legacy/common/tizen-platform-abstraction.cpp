@@ -177,6 +177,7 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
   if(buf.is_open())
   {
     std::ostream stream(&buf);
+    stream.imbue(std::locale::classic());
 
     // determine size of buffer
     int length = static_cast<int>(numBytes);

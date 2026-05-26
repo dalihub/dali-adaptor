@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <iomanip>
+#include <locale>
 #include <sstream>
 #include <string>
 
@@ -252,6 +253,7 @@ struct _Logger
   : mFile(file),
     mLine(line)
   {
+    mTmp.imbue(std::locale::classic());
   }
 
   ~_Logger()

@@ -23,6 +23,7 @@
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/actors/layer.h>
 #include <iostream>
+#include <locale>
 #include <unordered_map>
 
 // INTERNAL INCLUDES
@@ -1164,6 +1165,7 @@ std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId, int 
   static const char underscore = '_';
 
   std::stringstream tmp;
+  tmp.imbue(std::locale::classic());
 
   tmp << prefix;
 

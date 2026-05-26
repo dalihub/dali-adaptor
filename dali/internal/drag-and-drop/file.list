@@ -1,8 +1,14 @@
 
 # module: drag-and-drop, backend: tizen-wayland
-SET( adaptor_drag_and_drop_tizen_wayland_src_files
-    ${adaptor_drag_and_drop_dir}/tizen-wayland/drag-and-drop-impl-ecore-wl2.cpp
-)
+IF(USE_TCORE_BACKEND)
+  SET( adaptor_drag_and_drop_tizen_wayland_src_files
+      ${adaptor_drag_and_drop_dir}/tizen-wayland/tcore/drag-and-drop-impl-tcore-wl.cpp
+  )
+ELSE()
+  SET( adaptor_drag_and_drop_tizen_wayland_src_files
+      ${adaptor_drag_and_drop_dir}/tizen-wayland/ecore/drag-and-drop-impl-ecore-wl2.cpp
+  )
+ENDIF()
 
 # module: drag-and-drop, backend: generic
 SET( adaptor_drag_and_drop_generic_src_files

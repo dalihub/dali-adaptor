@@ -22,6 +22,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/rendering/frame-buffer-devel.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/locale-numeric-guard.h>
 #include <dali/integration-api/profiling.h>
 #include <dali/integration-api/rendering/decorated-visual-renderer.h>
 #include <dali/integration-api/rendering/visual-renderer.h>
@@ -30,6 +31,7 @@
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
 #include <iomanip>
+#include <locale>
 #include <sstream>
 
 // INTERNAL INCLUDES
@@ -190,7 +192,9 @@ int SetProperties(const std::string& setPropertyMessage)
   Dali::Actor root = Dali::Internal::Adaptor::Adaptor::Get().GetWindows()[0].GetRootLayer();
 
   std::istringstream iss(setPropertyMessage);
-  std::string        token;
+  iss.imbue(std::locale::classic());
+
+  std::string token;
   getline(iss, token, '|'); // swallow command name
   while(getline(iss, token, '|'))
   {
@@ -198,6 +202,8 @@ int SetProperties(const std::string& setPropertyMessage)
     if(token.compare("---") != 0)
     {
       std::istringstream propss(token);
+      propss.imbue(std::locale::classic());
+
       getline(propss, actorId, ';');
       getline(propss, propName, ';');
       getline(propss, propValue);
@@ -242,8 +248,6 @@ void MatrixToStream(Property::Value value, std::ostream& o)
   }
 }
 
-}; // namespace
-
 inline std::string Quote(const std::string& in)
 {
   return (std::string("\"") + in + std::string("\""));
@@ -258,7 +262,9 @@ template<class T>
 std::string ToString(T i)
 {
   std::stringstream ss;
-  std::string       s;
+  ss.imbue(std::locale::classic());
+
+  std::string s;
   ss << i;
   s = ss.str();
 
@@ -268,6 +274,7 @@ std::string ToString(T i)
 std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
 {
   std::ostringstream valueStream;
+  valueStream.imbue(std::locale::classic());
   if(propertyIndex != Dali::Property::INVALID_INDEX)
   {
     Dali::Property::Value value = handle.GetProperty(propertyIndex);
@@ -281,9 +288,11 @@ std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
         // Escape the string (to ensure valid json)
         // Write out quotes, escapes and control characters using unicode syntax \uXXXX
         std::ostringstream unescapedValue;
+        unescapedValue.imbue(std::locale::classic());
         unescapedValue << value;
         std::string        valueString = unescapedValue.str();
         std::ostringstream escapedValue;
+        escapedValue.imbue(std::locale::classic());
         for(std::string::iterator c = valueString.begin(); c != valueString.end(); ++c)
         {
           if(*c == '"')
@@ -399,7 +408,9 @@ std::string DumpJson(Dali::Actor actor, int level)
 {
   // All the information about this actor
   std::ostringstream msg;
-  int                id = actor["id"];
+  msg.imbue(std::locale::classic());
+
+  int id = actor["id"];
   msg << "{ " << Quote("Name") << " : " << QuoteS(actor.GetProperty<Dali::String>(Dali::Actor::Property::NAME)) << ", " << Quote("level") << " : " << level << ", " << Quote("id") << " : " << id << ", " << Quote("IsVisible")
       << " : " << actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) << ", " << Quote("IsSensitive") << " : " << actor.GetProperty<bool>(Dali::Actor::Property::SENSITIVE);
 
@@ -580,7 +591,9 @@ void DumpWindow(std::ostringstream& msg, Window window)
 std::string GetRenderTasks()
 {
   std::ostringstream msg;
-  int                windowIndex = 0;
+  msg.imbue(std::locale::classic());
+
+  int windowIndex = 0;
   msg << "{";
   for(auto& window : Dali::Internal::Adaptor::Adaptor::Get().GetWindows())
   {
@@ -596,6 +609,8 @@ std::string GetRenderTasks()
   return msg.str();
 }
 
+}; // namespace
+
 namespace Dali
 {
 namespace Internal
@@ -606,6 +621,10 @@ namespace Automation
 {
 void SetProperty(const std::string& message)
 {
+  // Ensure LC_NUMERIC is "C" during JSON generation so that floating-point
+  // values use '.' as the decimal separator regardless of the current locale.
+  LocaleNumericGuard localeGuard;
+
   // check the set property length is within range
   if(message.length() > MAX_SET_PROPERTY_STRING_LENGTH)
   {
@@ -618,6 +637,10 @@ void SetProperty(const std::string& message)
 
 void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData)
 {
+  // Ensure LC_NUMERIC is "C" during JSON generation so that floating-point
+  // values use '.' as the decimal separator regardless of the current locale.
+  LocaleNumericGuard localeGuard;
+
   char        buf[32];
   std::string json   = GetActorTree();
   int         length = json.length();
@@ -629,6 +652,10 @@ void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData)
 
 void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData)
 {
+  // Ensure LC_NUMERIC is "C" during JSON generation so that floating-point
+  // values use '.' as the decimal separator regardless of the current locale.
+  LocaleNumericGuard localeGuard;
+
   char        buf[32];
   std::string json   = GetRenderTasks();
   int         length = json.length();
@@ -640,6 +667,10 @@ void DumpRenderTasks(unsigned clientId, ClientSendDataInterface* sendData)
 
 void DumpMemoryPools(unsigned clientId, ClientSendDataInterface* sendData)
 {
+  // Ensure LC_NUMERIC is "C" during JSON generation so that floating-point
+  // values use '.' as the decimal separator regardless of the current locale.
+  LocaleNumericGuard localeGuard;
+
   // Need a profiling interface.
   // We have Profiling namespace in integration, it's mostly just compile time sizes
 
@@ -655,6 +686,10 @@ void SetCustomCommand(const std::string& message)
     Internal::Adaptor::NetworkServicePtr networkService = Internal::Adaptor::NetworkService::Get();
     if(networkService)
     {
+      // Ensure LC_NUMERIC is "C" during JSON generation so that floating-point
+      // values use '.' as the decimal separator regardless of the current locale.
+      LocaleNumericGuard localeGuard;
+
       networkService->EmitCustomCommandReceivedSignal(message);
     }
   }

@@ -23,13 +23,23 @@ SET( adaptor_window_system_common_dynamic_src_files
 )
 
 # module: window-system, backend: tizen
-SET( adaptor_window_system_tizen_wayland_src_files
-    ${adaptor_window_system_dir}/tizen/ecore/display-connection-factory-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen/ecore/display-connection-impl-ecore-wl.cpp
-    ${adaptor_window_system_dir}/tizen/ecore/window-base-ecore-wl2.cpp
-    ${adaptor_window_system_dir}/tizen/ecore/window-factory-ecore-wl2.cpp
-    ${adaptor_window_system_dir}/tizen/ecore/window-system-ecore-wl2.cpp
-)
+IF(USE_TCORE_BACKEND)
+  SET( adaptor_window_system_tizen_wayland_src_files
+      ${adaptor_window_system_dir}/tizen/tcore/display-connection-factory-tcore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/tcore/display-connection-impl-tcore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/tcore/window-base-tcore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/tcore/window-factory-tcore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/tcore/window-system-tcore-wl.cpp
+  )
+ELSE()
+  SET( adaptor_window_system_tizen_wayland_src_files
+      ${adaptor_window_system_dir}/tizen/ecore/display-connection-factory-ecore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/ecore/display-connection-impl-ecore-wl.cpp
+      ${adaptor_window_system_dir}/tizen/ecore/window-base-ecore-wl2.cpp
+      ${adaptor_window_system_dir}/tizen/ecore/window-factory-ecore-wl2.cpp
+      ${adaptor_window_system_dir}/tizen/ecore/window-system-ecore-wl2.cpp
+  )
+ENDIF()
 
 # module: window-system, backend: tizen/egl
 SET( adaptor_window_system_tizen_wayland_egl_src_files

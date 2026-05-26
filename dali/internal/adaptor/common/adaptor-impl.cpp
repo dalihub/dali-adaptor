@@ -91,6 +91,7 @@ namespace Dali::Internal::Adaptor
 namespace
 {
 thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific pointer to allow Adaptor::Get
+thread_local bool     gIsEventThread      = false;   // set once on the event thread, never cleared
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } // unnamed namespace
@@ -725,6 +726,11 @@ Dali::Adaptor& Adaptor::Get()
 bool Adaptor::IsAvailable()
 {
   return gThreadLocalAdaptor != NULL && (gThreadLocalAdaptor->mState != Adaptor::State::STOPPED);
+}
+
+bool Adaptor::IsEventThread()
+{
+  return gIsEventThread;
 }
 
 void Adaptor::SceneCreated()
@@ -1508,6 +1514,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mWindows.insert(mWindows.begin(), &Dali::GetImplementation(window));
 
   gThreadLocalAdaptor = this;
+  gIsEventThread      = true;
 }
 
 void Adaptor::SetRootLayoutDirection(std::string locale)

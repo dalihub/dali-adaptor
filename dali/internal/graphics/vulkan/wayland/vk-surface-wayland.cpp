@@ -31,7 +31,12 @@
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
+#ifdef USE_TCORE_BACKEND
+#include <tizen_core_wl.h>
+#include <tizen_core_wl_internal.h>
+#else
 #include <Ecore_Wl2.h>
+#endif
 
 #pragma GCC diagnostic pop
 
@@ -42,13 +47,29 @@ namespace Graphics
 namespace Vulkan
 {
 VkSurfaceWayland::VkSurfaceWayland(NativeWindowInterface& nativeWindow)
-: SurfaceFactory()
+: SurfaceFactory(),
+  w_display(nullptr),
+  w_surface(nullptr)
 {
+#ifdef USE_TCORE_BACKEND
+  Any nativeAny = nativeWindow.GetNativeWindow();
+  if(nativeAny.IsType<tizen_core_wl_window_h>())
+  {
+    tizen_core_wl_window_h win = AnyCast<tizen_core_wl_window_h>(nativeAny);
+    tizen_core_wl_window_private_get_wl_surface(win, &w_surface);
+    tizen_core_wl_display_h disp = nullptr;
+    if(tizen_core_wl_window_get_display(win, &disp) == TIZEN_CORE_WL_ERROR_NONE && disp)
+    {
+      tizen_core_wl_display_private_get_wl_display(disp, &w_display);
+    }
+  }
+#else
   Ecore_Wl2_Window* ecoreWl2Window = AnyCast<Ecore_Wl2_Window*>(nativeWindow.GetNativeWindow());
   w_surface                        = ecore_wl2_window_surface_get(ecoreWl2Window);
 
   Ecore_Wl2_Display* wl2_display = ecore_wl2_window_display_get(ecoreWl2Window);
   w_display                      = ecore_wl2_display_get(wl2_display);
+#endif
 }
 
 VkSurfaceWayland::VkSurfaceWayland(::wl_display* display, ::wl_surface* surface)

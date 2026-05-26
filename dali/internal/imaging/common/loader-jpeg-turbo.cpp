@@ -28,6 +28,7 @@
 #include <array>
 #include <cstring>
 #include <functional>
+#include <locale>
 #include <memory>
 #include <utility>
 
@@ -399,6 +400,7 @@ void AddExifFieldPropertyMap(Dali::Property::Map& out, const ExifEntry& entry, E
     default:
     {
       std::stringstream ss;
+      ss.imbue(std::locale::classic());
       ss << "EXIF_FORMAT_UNDEFINED, size: " << entry.size << ", components: " << entry.components;
       out.Insert(shortName, ToDaliString(ss.str()));
     }

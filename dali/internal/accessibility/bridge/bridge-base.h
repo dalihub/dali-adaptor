@@ -25,6 +25,7 @@
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#include <locale>
 #include <memory>
 #include <tuple>
 
@@ -429,6 +430,7 @@ public:
     if(!(result = currentObject->GetFeature<Type>()))
     {
       std::stringstream s;
+      s.imbue(std::locale::classic());
 
       s << "Object " << currentObject->GetAddress().ToString();
       s << " does not implement ";

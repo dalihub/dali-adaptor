@@ -42,6 +42,9 @@
 #include <dali/internal/system/common/system-factory.h>
 
 using namespace tizen_cpp;
+#ifdef USE_TCORE_BACKEND
+using tizen_cpp::tcore::AppCoreUiBase;
+#endif
 
 namespace Dali
 {
@@ -433,7 +436,11 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     };
 
     explicit UiAppContext(unsigned int hint, FrameworkTizen* framework)
-    : AppCoreUiBase(hint),
+    : AppCoreUiBase(hint
+#ifdef USE_TCORE_BACKEND
+                    , /*tizen_core_enabled=*/true
+#endif
+                    ),
       mFramework(framework),
       mUseUiThread(false)
     {

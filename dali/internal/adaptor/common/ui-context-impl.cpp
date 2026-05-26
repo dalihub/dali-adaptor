@@ -107,6 +107,21 @@ void UiContext::SetApplicationLocale(const std::string& locale)
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).SetApplicationLocale(locale);
 }
 
+void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Dali::Actor rootActor)
+{
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetCore().AddFrameCallback(frameCallback, rootActor);
+}
+
+void UiContext::RemoveFrameCallback(FrameCallbackInterface& frameCallback)
+{
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetCore().RemoveFrameCallback(frameCallback);
+}
+
+Dali::UpdateProxy::NotifySyncPoint UiContext::NotifyFrameCallback(FrameCallbackInterface& frameCallback)
+{
+  return Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetCore().NotifyFrameCallback(frameCallback);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

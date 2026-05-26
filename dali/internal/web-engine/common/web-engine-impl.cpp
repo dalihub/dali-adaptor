@@ -22,6 +22,7 @@
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dlfcn.h>
+#include <locale>
 #include <sstream>
 
 // INTERNAL INCLUDES
@@ -63,6 +64,7 @@ constexpr char const* const kPluginFullNameLwe      = "libdali2-web-engine-lwe-p
 std::string MakePluginName(const char* environmentName)
 {
   std::stringstream fullName;
+  fullName.imbue(std::locale::classic());
   fullName << kPluginFullNamePrefix << environmentName << kPluginFullNamePostfix;
   return fullName.str();
 }
