@@ -82,7 +82,11 @@ bool CanvasRendererGeneric::OnRasterize()
 #ifdef THORVG_SUPPORT
   Mutex::ScopedLock lock(mMutex);
 
+#ifdef THORVG_VERSION_1
+  if(mTvgCanvas->draw(true) != tvg::Result::Success)
+#else
   if(mTvgCanvas->draw() != tvg::Result::Success)
+#endif
   {
     DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
     return false;
@@ -110,7 +114,11 @@ void CanvasRendererGeneric::OnMakeTargetBuffer(const Vector2& size)
     return;
   }
 
+#ifdef THORVG_VERSION_1
+  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::ColorSpace::ARGB8888);
+#else
   mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ARGB8888);
+#endif
 #endif
 }
 

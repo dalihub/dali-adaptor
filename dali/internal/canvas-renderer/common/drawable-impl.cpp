@@ -59,7 +59,11 @@ Drawable::~Drawable()
 #ifdef THORVG_SUPPORT
   if(mTvgPaint)
   {
+#ifdef THORVG_VERSION_1
+    tvg::Paint::rel(mTvgPaint);
+#else
     delete mTvgPaint;
+#endif
   }
 #endif
 }

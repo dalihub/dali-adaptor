@@ -103,11 +103,21 @@ bool CanvasRendererTizen::OnRasterize()
       return false;
     }
 
+
+#ifdef THORVG_VERSION_1
+    mTvgCanvas->sync();
+    mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), stride / 4, width, height, tvg::ColorSpace::ARGB8888);
+    mTvgCanvas->update();
+#else
     mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), stride / 4, width, height, tvg::SwCanvas::ARGB8888);
-
     mTvgCanvas->update(mTvgRoot);
+#endif
 
+#ifdef THORVG_VERSION_1
+    if(mTvgCanvas->draw(true) != tvg::Result::Success)
+#else
     if(mTvgCanvas->draw() != tvg::Result::Success)
+#endif
     {
       DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
       mNativeImageQueue->EnqueueBuffer(buffer);

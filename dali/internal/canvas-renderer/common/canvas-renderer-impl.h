@@ -180,7 +180,11 @@ protected:
 #ifdef THORVG_SUPPORT
   Dali::Texture                  mRasterizedTexture;
   Dali::Mutex                    mMutex;
+#ifdef THORVG_VERSION_1
+  tvg::SwCanvas*                 mTvgCanvas;
+#else
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
+#endif
   tvg::Scene*                    mTvgRoot;
 #endif
   DrawableGroup::DrawableVector mDrawables;
