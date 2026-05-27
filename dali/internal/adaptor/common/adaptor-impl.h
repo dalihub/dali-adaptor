@@ -200,16 +200,6 @@ public: // AdaptorInternalServices implementation
   virtual void Stop();
 
   /**
-   * @copydoc Dali::Adaptor::ContextLost()
-   */
-  virtual void ContextLost();
-
-  /**
-   * @copydoc Dali::Adaptor::ContextRegained()
-   */
-  virtual void ContextRegained();
-
-  /**
    * @copydoc Dali::EventFeeder::FeedTouchPoint()
    */
   virtual void FeedTouchPoint(TouchPoint& point, int timeStamp);
@@ -484,6 +474,16 @@ public:
   void RenderOnce();
 
   /**
+   * @copydoc Dali::Adaptor::SetRenderingBehavior
+   */
+  void SetRenderingBehavior(Integration::RenderingBehavior renderingBehavior);
+
+  /**
+   * @copydoc Dali::Adaptor::GetRenderingBehavior
+   */
+  Integration::RenderingBehavior GetRenderingBehavior() const;
+
+  /**
    * @copydoc Dali::Adaptor::GetLogFactory
    */
   const LogFactoryInterface& GetLogFactory();
@@ -662,6 +662,11 @@ public: // From Dali::Integration::RenderController
    * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
   void RequestProcessEventsOnIdle() override;
+
+  /**
+   * @copydoc Dali::Adaptor::RequestProcessEventsAndUpdate()
+   */
+  void RequestProcessEventsAndUpdate();
 
 public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
   /**

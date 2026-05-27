@@ -23,7 +23,6 @@
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/addon-manager.h>
-#include <dali/integration-api/context-notifier.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/key-event-integ.h>
@@ -290,7 +289,7 @@ Adaptor::~Adaptor()
   // Clear out all the handles to Windows
   mWindows.clear();
 
-  delete mThreadController; // this will shutdown render thread, which will call Core::ContextDestroyed before exit
+  delete mThreadController; // this will shutdown render thread
   delete mObjectProfiler;
 
   delete mCore;
@@ -516,19 +515,6 @@ void Adaptor::Stop()
 
     DALI_LOG_RELEASE_INFO("Adaptor::Stop\n");
   }
-}
-
-void Adaptor::ContextLost()
-{
-  mCore->GetContextNotifier()->NotifyContextLost(); // Inform stage
-}
-
-void Adaptor::ContextRegained()
-{
-  // Inform core, so that texture resources can be reloaded
-  mCore->RecoverFromContextLoss();
-
-  mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
 void Adaptor::FeedTouchPoint(TouchPoint& point, int timeStamp)
@@ -1084,6 +1070,23 @@ void Adaptor::FlushUpdateMessages()
   }
 }
 
+void Adaptor::SetRenderingBehavior(Integration::RenderingBehavior renderingBehavior)
+{
+  if(mCore)
+  {
+    mCore->SetRenderingBehavior(renderingBehavior);
+  }
+}
+
+Integration::RenderingBehavior Adaptor::GetRenderingBehavior() const
+{
+  if(mCore)
+  {
+    return mCore->GetRenderingBehavior();
+  }
+  return Integration::RenderingBehavior::IF_REQUIRED;
+}
+
 void Adaptor::ProcessCoreEvents()
 {
   if(mCore)
@@ -1147,6 +1150,16 @@ void Adaptor::RequestProcessEventsOnIdle()
       mRequiredIdleRepeat = true;
     }
   }
+}
+
+void Adaptor::RequestProcessEventsAndUpdate()
+{
+  if(mCore)
+  {
+    // Send a message to the update thread to ensure an update and render cycle occurs.
+    mCore->KeepRendering(0.0f);
+  }
+  RequestProcessEventsOnIdle();
 }
 
 void Adaptor::OnWindowShown()

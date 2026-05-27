@@ -276,9 +276,24 @@ void Adaptor::FlushUpdateMessages()
   mImpl->FlushUpdateMessages();
 }
 
+void Adaptor::SetRenderingBehavior(Integration::RenderingBehavior renderingBehavior)
+{
+  mImpl->SetRenderingBehavior(renderingBehavior);
+}
+
+Integration::RenderingBehavior Adaptor::GetRenderingBehavior() const
+{
+  return mImpl->GetRenderingBehavior();
+}
+
 void Adaptor::RequestProcessEventsOnIdle()
 {
   mImpl->RequestProcessEventsOnIdle();
+}
+
+void Adaptor::RequestProcessEventsAndUpdate()
+{
+  mImpl->RequestProcessEventsAndUpdate();
 }
 
 const LogFactoryInterface& Adaptor::GetLogFactory()
