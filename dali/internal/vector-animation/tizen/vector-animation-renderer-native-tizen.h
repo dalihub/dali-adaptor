@@ -25,7 +25,7 @@
 #include <vector>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 
 namespace Dali
 {

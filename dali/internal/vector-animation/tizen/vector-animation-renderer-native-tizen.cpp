@@ -19,7 +19,7 @@
 #include <dali/internal/vector-animation/tizen/vector-animation-renderer-native-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/native-image-queue.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 #include <dali/internal/vector-animation/common/vector-animation-renderer-event-manager.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/rendering/texture-set.h>
@@ -39,7 +39,7 @@ Debug::Filter* gVectorAnimationLogFilter = Debug::Filter::New(Debug::NoLogging, 
 class VectorAnimationRendererNativeTizen::RenderingDataImpl : public VectorAnimationRendererNative::RenderingData
 {
 public:
-  Dali::NativeImageQueuePtr mTargetSurface;
+  Dali::NativeImageSourceQueuePtr mTargetSurface;
 };
 
 VectorAnimationRendererNativeTizen::VectorAnimationRendererNativeTizen()
@@ -71,14 +71,14 @@ std::shared_ptr<VectorAnimationRendererNative::RenderingData> VectorAnimationRen
 void VectorAnimationRendererNativeTizen::PrepareTarget(std::shared_ptr<RenderingData> renderingData)
 {
   auto renderingDataImpl = std::static_pointer_cast<RenderingDataImpl>(renderingData);
-  renderingDataImpl->mTargetSurface = Dali::NativeImageQueue::New(
+  renderingDataImpl->mTargetSurface = Dali::NativeImageSourceQueue::New(
     renderingDataImpl->mWidth, renderingDataImpl->mHeight,
-    Dali::NativeImageQueue::ColorFormat::BGRA8888);
+    Dali::NativeImageSourceQueue::ColorFormat::BGRA8888);
 
   if(renderingDataImpl->mTargetSurface)
   {
     renderingDataImpl->mTexture = Dali::Texture::New(*renderingDataImpl->mTargetSurface);
-    renderingDataImpl->mTargetSurface->SetQueueUsageHint(Dali::NativeImageQueue::QueueUsageType::ENQUEUE_DEQUEUE);
+    renderingDataImpl->mTargetSurface->SetQueueUsageHint(Dali::NativeImageSourceQueue::QueueUsageType::ENQUEUE_DEQUEUE);
   }
 }
 
@@ -165,14 +165,14 @@ bool VectorAnimationRendererNativeTizen::Render(uint32_t frameNumber)
         }
       }
 
-    Dali::NativeImageQueue::BufferAccessType type;
+    Dali::NativeImageSourceQueue::BufferAccessType type;
     if(mEnableFixedCache && (frameNumber < mDecodedBuffers.size()) && (!mDecodedBuffers[frameNumber].second))
     {
-      type = Dali::NativeImageQueue::BufferAccessType::READ | Dali::NativeImageQueue::BufferAccessType::WRITE;
+      type = Dali::NativeImageSourceQueue::BufferAccessType::READ | Dali::NativeImageSourceQueue::BufferAccessType::WRITE;
     }
     else
     {
-      type = Dali::NativeImageQueue::BufferAccessType::WRITE;
+      type = Dali::NativeImageSourceQueue::BufferAccessType::WRITE;
     }
 
     uint32_t width, height, stride;

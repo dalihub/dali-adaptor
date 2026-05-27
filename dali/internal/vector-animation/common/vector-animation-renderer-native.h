@@ -23,7 +23,7 @@
 #include <thorvg_lottie.h>
 #include <dali/devel-api/adaptor-framework/vector-animation-renderer-plugin.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
-#include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <atomic>
 #include <memory>
