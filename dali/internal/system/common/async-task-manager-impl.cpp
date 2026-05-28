@@ -24,6 +24,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-utility.h>
 
 #include <algorithm> // for std::find
 #include <mutex>
@@ -62,7 +63,7 @@ size_t GetNumberOfLowPriorityThreads(size_t defaultValue, size_t maxValue)
   auto numberString    = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ASYNC_MANAGER_LOW_PRIORITY_THREAD_POOL_SIZE);
   auto numberOfThreads = numberString ? std::strtoul(numberString, nullptr, 10) : 0;
   DALI_ASSERT_DEBUG(numberOfThreads <= maxValue);
-  return (numberOfThreads > 0 && numberOfThreads <= maxValue) ? numberOfThreads : std::min(defaultValue, maxValue);
+  return (numberOfThreads > 0 && numberOfThreads <= maxValue) ? numberOfThreads : Min(defaultValue, maxValue);
 }
 
 #if defined(DEBUG_ENABLED)
@@ -650,7 +651,7 @@ void AsyncTaskManager::NotifyManagerToTaskReady(AsyncTaskPtr task)
 
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
-{ return TaskHelper(*this); }),
+         { return TaskHelper(*this); }),
   mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),

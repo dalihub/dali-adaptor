@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
@@ -477,7 +480,7 @@ void Device::CreateDevice(SurfaceImpl* surface)
     auto maxQueueCountPerFamily = 0u;
     for(auto&& info : queueInfos)
     {
-      maxQueueCountPerFamily = std::max(info.queueCount, maxQueueCountPerFamily);
+      maxQueueCountPerFamily = Max(info.queueCount, maxQueueCountPerFamily);
     }
 
     auto priorities = std::vector<float>(maxQueueCountPerFamily);
@@ -697,11 +700,11 @@ Graphics::SurfaceId Device::CreateSurface(
   // If width (and height) equals the special value 0xFFFFFFFF, the size of the surface will be set by the swapchain
   if(surface->GetCapabilities().currentExtent.width == std::numeric_limits<uint32_t>::max())
   {
-    surface->GetCapabilities().currentExtent.width = std::max(surface->GetCapabilities().minImageExtent.width,
-                                                              std::min(surface->GetCapabilities().maxImageExtent.width, createInfo.surfaceWidth));
+    surface->GetCapabilities().currentExtent.width = Max(surface->GetCapabilities().minImageExtent.width,
+                                                         Min(surface->GetCapabilities().maxImageExtent.width, createInfo.surfaceWidth));
 
-    surface->GetCapabilities().currentExtent.height = std::max(surface->GetCapabilities().minImageExtent.height,
-                                                               std::min(surface->GetCapabilities().maxImageExtent.height, createInfo.surfaceHeight));
+    surface->GetCapabilities().currentExtent.height = Max(surface->GetCapabilities().minImageExtent.height,
+                                                          Min(surface->GetCapabilities().maxImageExtent.height, createInfo.surfaceHeight));
   }
 
   mSurfaceResized = false;

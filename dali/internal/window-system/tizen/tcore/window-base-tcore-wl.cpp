@@ -27,12 +27,12 @@
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
 
-#include <algorithm>
-#include <vector>
 #include <tizen-core-wl/tizen_core_wl_internal.h>
+#include <vector>
 
 #if defined(VCONF_ENABLED)
 #include <vconf-keys.h>
@@ -105,7 +105,7 @@ struct KeyCodeMap
   bool          isKeyCode;
 };
 
-void GetBaseData(tizen_core_wl_event_input_base_h ev, tizen_core_wl_event_type_e *type, unsigned int *timestamp, char **dev)
+void GetBaseData(tizen_core_wl_event_input_base_h ev, tizen_core_wl_event_type_e* type, unsigned int* timestamp, char** dev)
 {
   if(type)
   {
@@ -124,7 +124,7 @@ void GetBaseData(tizen_core_wl_event_input_base_h ev, tizen_core_wl_event_type_e
   }
 }
 
-void GetMouseData(tizen_core_wl_event_input_base_h ev, int *x, int *y, unsigned int *buttons, unsigned int *touchId, unsigned int *modifiers, bool move)
+void GetMouseData(tizen_core_wl_event_input_base_h ev, int* x, int* y, unsigned int* buttons, unsigned int* touchId, unsigned int* modifiers, bool move)
 {
   int tmpX = 0, tmpY = 0;
   if(move)
@@ -176,7 +176,7 @@ inline void DisconnectAndDestroyDisplay(tizen_core_wl_display_h& display)
   display = nullptr;
 }
 
-void GetKeyData(tizen_core_wl_event_input_base_h ev, char **keyname, char **compose, char**symbol, unsigned int *keycode, unsigned int *modifiers, unsigned int *flags)
+void GetKeyData(tizen_core_wl_event_input_base_h ev, char** keyname, char** compose, char** symbol, unsigned int* keycode, unsigned int* modifiers, unsigned int* flags)
 {
   if(keyname)
   {
@@ -210,7 +210,7 @@ void GetKeyData(tizen_core_wl_event_input_base_h ev, char **keyname, char **comp
   }
 }
 
-void GetDeviceInfo(tizen_core_wl_display_h display, char *identifier, const char **name, tizen_core_wl_device_class_e *tizenClass, tizen_core_wl_device_subclass_e *tizenSubclass)
+void GetDeviceInfo(tizen_core_wl_display_h display, char* identifier, const char** name, tizen_core_wl_device_class_e* tizenClass, tizen_core_wl_device_subclass_e* tizenSubclass)
 {
   tizen_core_wl_seat_h seat = nullptr;
   if(!display)
@@ -220,30 +220,30 @@ void GetDeviceInfo(tizen_core_wl_display_h display, char *identifier, const char
   }
   if(tizen_core_wl_display_get_default_seat(display, &seat) == TIZEN_CORE_WL_ERROR_NONE && seat)
   {
-    GList *list = NULL;
-    if (tizen_core_wl_seat_get_input_device_list(seat, &list) == TIZEN_CORE_WL_ERROR_NONE && list)
+    GList* list = NULL;
+    if(tizen_core_wl_seat_get_input_device_list(seat, &list) == TIZEN_CORE_WL_ERROR_NONE && list)
     {
       int idx = 0;
-      for (GList *l = list; l; l = l->next)
+      for(GList* l = list; l; l = l->next)
       {
         tizen_core_wl_input_device_h dev = static_cast<tizen_core_wl_input_device_h>(l->data);
-        if (dev)
+        if(dev)
         {
-          const char *devIdentifier = nullptr;
-          if (tizen_core_wl_input_device_get_identifier(dev, &devIdentifier) == TIZEN_CORE_WL_ERROR_NONE && devIdentifier)
+          const char* devIdentifier = nullptr;
+          if(tizen_core_wl_input_device_get_identifier(dev, &devIdentifier) == TIZEN_CORE_WL_ERROR_NONE && devIdentifier)
           {
-            if (identifier && strcmp(identifier, devIdentifier) == 0)
+            if(identifier && strcmp(identifier, devIdentifier) == 0)
             {
               // Found matching device, get its information
-              if (name)
+              if(name)
               {
                 tizen_core_wl_input_device_get_name(dev, name);
               }
-              if (tizenClass)
+              if(tizenClass)
               {
                 tizen_core_wl_input_device_get_class(dev, tizenClass);
               }
-              if (tizenSubclass)
+              if(tizenSubclass)
               {
                 tizen_core_wl_input_device_get_subclass(dev, tizenSubclass);
               }
@@ -277,10 +277,10 @@ struct InputRect
   return nullptr;
 }
 
-bool RegisterTizenCoreEventListener(tizen_core_event_h event,
-                                    tizen_core_wl_event_type_e eventType,
-                                    tizen_core_wl_event_cb callback,
-                                    void* userData,
+bool RegisterTizenCoreEventListener(tizen_core_event_h                           event,
+                                    tizen_core_wl_event_type_e                   eventType,
+                                    tizen_core_wl_event_cb                       callback,
+                                    void*                                        userData,
                                     std::vector<tizen_core_wl_event_listener_h>& listeners)
 {
   if(!event || !callback)
@@ -850,7 +850,8 @@ WindowBaseTcoreWl::WindowBaseTcoreWl(Dali::PositionSize positionSize, Any surfac
 WindowBaseTcoreWl::~WindowBaseTcoreWl()
 {
   DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::~WindowBaseTcoreWl: start cleanup this=%p mOwnSurface=%d\n",
-                        static_cast<void*>(this), mOwnSurface ? 1 : 0);
+                        static_cast<void*>(this),
+                        mOwnSurface ? 1 : 0);
 
 #if defined(VCONF_ENABLED)
   vconf_ignore_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged);
@@ -932,8 +933,12 @@ WindowBaseTcoreWl::~WindowBaseTcoreWl()
 void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool isTransparent)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [0] start pos=[%d,%d %dx%d] transparent=%d surface_empty=%d\n",
-                            positionSize.x, positionSize.y, positionSize.width, positionSize.height,
-                            isTransparent ? 1 : 0, surface.Empty() ? 1 : 0);
+                        positionSize.x,
+                        positionSize.y,
+                        positionSize.width,
+                        positionSize.height,
+                        isTransparent ? 1 : 0,
+                        surface.Empty() ? 1 : 0);
 
   if(surface.Empty() == false)
   {
@@ -946,7 +951,8 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
         mTcoreDisplay = nullptr;
       }
       DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [1] external surface path mTcoreWindow=%p mTcoreDisplay=%p\n",
-                                static_cast<void*>(mTcoreWindow), static_cast<void*>(mTcoreDisplay));
+                            static_cast<void*>(mTcoreWindow),
+                            static_cast<void*>(mTcoreDisplay));
     }
     if(!surface.Empty() && !surface.IsType<tizen_core_wl_window_h>())
     {
@@ -993,7 +999,8 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
       {
         mTcoreEvent = event;
         DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [3] mTcoreEvent=%p mDisplay(wl)=%p\n",
-                                  static_cast<void*>(mTcoreEvent), static_cast<void*>(mDisplay));
+                              static_cast<void*>(mTcoreEvent),
+                              static_cast<void*>(mDisplay));
       }
       else
       {
@@ -1021,59 +1028,58 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
           DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [5] seat failed, set cursor theme/name\n");
         }
 
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, TcoreWlEventWindowIconifyStateChanged, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_FOCUS_IN, TcoreWlEventWindowFocusIn, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_FOCUS_OUT, TcoreWlEventWindowFocusOut, this, mTcoreEventListeners);
 
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, TcoreWlEventWindowIconifyStateChanged, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_FOCUS_IN, TcoreWlEventWindowFocusIn, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_FOCUS_OUT, TcoreWlEventWindowFocusOut, this, mTcoreEventListeners);
+        // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for OUTPUT_TRANSFORM
+        // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for IGNORE_OUTPUT_TRANSFORM
 
-  // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for OUTPUT_TRANSFORM
-  // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for IGNORE_OUTPUT_TRANSFORM
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_ROTATION, TcoreWlEventRotate, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_CONFIGURE, TcoreWlEventConfigure, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, TcoreWlEventWindowInteractiveMoveDone, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, TcoreWlEventWindowInteractiveResizeDone, this, mTcoreEventListeners);
 
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_ROTATION, TcoreWlEventRotate, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_CONFIGURE, TcoreWlEventConfigure, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, TcoreWlEventWindowInteractiveMoveDone, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, TcoreWlEventWindowInteractiveResizeDone, this, mTcoreEventListeners);
+        // Touch events
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_DOWN, TcoreWlEventMouseButtonDown, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_UP, TcoreWlEventMouseButtonUp, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_MOVE, TcoreWlEventMouseButtonMove, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_CANCEL, TcoreWlEventMouseButtonCancel, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_RELATIVE_MOVE, TcoreWlEventMouseButtonRelativeMove, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_POINTER_LOCKED, TcoreWlEventPointerConstraints, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_FRAME, TcoreWlEventMouseFrame, this, mTcoreEventListeners);
 
-  // Touch events
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_DOWN, TcoreWlEventMouseButtonDown, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_UP, TcoreWlEventMouseButtonUp, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_MOVE, TcoreWlEventMouseButtonMove, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_BUTTON_CANCEL, TcoreWlEventMouseButtonCancel, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_RELATIVE_MOVE, TcoreWlEventMouseButtonRelativeMove, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_POINTER_LOCKED, TcoreWlEventPointerConstraints, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_FRAME, TcoreWlEventMouseFrame, this, mTcoreEventListeners);
+        // Mouse wheel
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_WHEEL, TcoreWlEventMouseWheel, this, mTcoreEventListeners);
 
-  // Mouse wheel
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_WHEEL, TcoreWlEventMouseWheel, this, mTcoreEventListeners);
+        // Mouse IO
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_IN, TcoreWlEventMouseIn, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_OUT, TcoreWlEventMouseOut, this, mTcoreEventListeners);
 
-  // Mouse IO
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_IN, TcoreWlEventMouseIn, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_MOUSE_OUT, TcoreWlEventMouseOut, this, mTcoreEventListeners);
+        // Detent
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DETENT_ROTATE, TcoreWlEventDetentRotation, this, mTcoreEventListeners);
 
-  // Detent
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DETENT_ROTATE, TcoreWlEventDetentRotation, this, mTcoreEventListeners);
+        // Key events
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_KEY_DOWN, TcoreWlEventKeyDown, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_KEY_UP, TcoreWlEventKeyUp, this, mTcoreEventListeners);
 
-  // Key events
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_KEY_DOWN, TcoreWlEventKeyDown, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_KEY_UP, TcoreWlEventKeyUp, this, mTcoreEventListeners);
+        // Selection/Clipboard
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DATA_SOURCE_SEND, TcoreWlEventDataSend, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DATA_READY, TcoreWlEventDataReceive, this, mTcoreEventListeners);
 
-  // Selection/Clipboard
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DATA_SOURCE_SEND, TcoreWlEventDataSend, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_DATA_READY, TcoreWlEventDataReceive, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_START, TcoreWlEventWindowEffectStart, this, mTcoreEventListeners);
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_END, TcoreWlEventWindowEffectEnd, this, mTcoreEventListeners);
 
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_START, TcoreWlEventWindowEffectStart, this, mTcoreEventListeners);
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_END, TcoreWlEventWindowEffectEnd, this, mTcoreEventListeners);
+        // Keyboard repeat
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_SEAT_KEYREPEAT_CHANGED, TcoreWlEventSeatKeyboardRepeatChanged, this, mTcoreEventListeners);
 
-  // Keyboard repeat
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_SEAT_KEYREPEAT_CHANGED, TcoreWlEventSeatKeyboardRepeatChanged, this, mTcoreEventListeners);
+        // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for WINDOW_REDRAW_REQUEST
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_AUX_MESSAGE, TcoreWlEventWindowAuxiliaryMessage, this, mTcoreEventListeners);
 
-  // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for WINDOW_REDRAW_REQUEST
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_AUX_MESSAGE, TcoreWlEventWindowAuxiliaryMessage, this, mTcoreEventListeners);
+        // Conformant change
+        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_CONFORMANT_CHANGE, TcoreWlEventConformantChange, this, mTcoreEventListeners);
 
-  // Conformant change
-  RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_CONFORMANT_CHANGE, TcoreWlEventConformantChange, this, mTcoreEventListeners);
-
-      DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [5] event listeners registered count=%zu\n", mTcoreEventListeners.size());
+        DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [5] event listeners registered count=%zu\n", mTcoreEventListeners.size());
 
       } // mTcoreEvent
 
@@ -1106,14 +1112,14 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
     DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [2] skipped mTcoreWindow is null\n");
   }
 #if defined(VCONF_ENABLED)
-    // Register Vconf notify - font name and size
-    DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [8] VCONF font name/size notify\n");
-    vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
-    vconf_notify_key_changed_for_ui_thread(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
+  // Register Vconf notify - font name and size
+  DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [8] VCONF font name/size notify\n");
+  vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
+  vconf_notify_key_changed_for_ui_thread(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
 #endif
 
   // get auxiliary hint
-  char **auxHintList = NULL;
+  char**       auxHintList      = NULL;
   unsigned int auxHintListCount = 0;
   if(tizen_core_wl_window_get_supported_aux_hints(mTcoreWindow, &auxHintList, &auxHintListCount) == TIZEN_CORE_WL_ERROR_NONE)
   {
@@ -1121,9 +1127,9 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
     {
       for(unsigned int i = 0; i < auxHintListCount; i++)
       {
-      mSupportedAuxiliaryHints.push_back(auxHintList[i]);
-      DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: supported auxiliary hint: %s\n", auxHintList[i]);
-    }
+        mSupportedAuxiliaryHints.push_back(auxHintList[i]);
+        DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: supported auxiliary hint: %s\n", auxHintList[i]);
+      }
     }
     else
     {
@@ -1152,13 +1158,18 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   }
 
   DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::Initialize: [done] window [%p], id [%d], positionSize [%d, %d, %d, %d]\n",
-                            static_cast<void*>(mTcoreWindow), mWinId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+                        static_cast<void*>(mTcoreWindow),
+                        mWinId,
+                        positionSize.x,
+                        positionSize.y,
+                        positionSize.width,
+                        positionSize.height);
 }
 
 bool WindowBaseTcoreWl::OnIconifyStateChanged(void* data, int type, void* event)
 {
-  tizen_core_wl_event_window_base_h baseEvent = static_cast<tizen_core_wl_event_window_base_h>(event);
-  tizen_core_wl_window_h eventWindow = nullptr;
+  tizen_core_wl_event_window_base_h baseEvent   = static_cast<tizen_core_wl_event_window_base_h>(event);
+  tizen_core_wl_window_h            eventWindow = nullptr;
   if(tizen_core_wl_event_window_base_get_window(baseEvent, &eventWindow) != TIZEN_CORE_WL_ERROR_NONE)
   {
     return true;
@@ -1256,10 +1267,10 @@ void WindowBaseTcoreWl::OnRotation(void* data, int type, void* event)
 
   if(eventWindow == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    tizen_core_wl_window_angle_e wlAngle = TIZEN_CORE_WL_WINDOW_ANGLE_0;
-    int                            w       = 0;
-    int                            h       = 0;
-    bool                           needResize = false;
+    tizen_core_wl_window_angle_e wlAngle    = TIZEN_CORE_WL_WINDOW_ANGLE_0;
+    int                          w          = 0;
+    int                          h          = 0;
+    bool                         needResize = false;
 
     if(tizen_core_wl_event_window_rotation_get_angle(rotationEv, &wlAngle) != TIZEN_CORE_WL_ERROR_NONE)
     {
@@ -1291,7 +1302,7 @@ void WindowBaseTcoreWl::OnRotation(void* data, int type, void* event)
       h = mWindowPositionSize.height;
     }
 
-    mWindowRotationAngle = angle;
+    mWindowRotationAngle       = angle;
     mWindowPositionSize.width  = w;
     mWindowPositionSize.height = h;
 
@@ -1302,10 +1313,10 @@ void WindowBaseTcoreWl::OnRotation(void* data, int type, void* event)
     }
 
     PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
-    rotationEvent.x      = newPositionSize.x;
-    rotationEvent.y      = newPositionSize.y;
-    rotationEvent.width  = newPositionSize.width;
-    rotationEvent.height = newPositionSize.height;
+    rotationEvent.x              = newPositionSize.x;
+    rotationEvent.y              = newPositionSize.y;
+    rotationEvent.width          = newPositionSize.width;
+    rotationEvent.height         = newPositionSize.height;
 
     mRotationSignal.Emit(rotationEvent);
     tizen_core_wl_window_commit(mTcoreWindow);
@@ -1319,8 +1330,8 @@ void WindowBaseTcoreWl::OnWindowRotationChange(void* data, int type, void* event
 
 void WindowBaseTcoreWl::OnConfiguration(void* data, int type, void* event)
 {
-  tizen_core_wl_event_window_base_h baseEvent = static_cast<tizen_core_wl_event_window_base_h>(event);
-  tizen_core_wl_window_h eventWindow = nullptr;
+  tizen_core_wl_event_window_base_h baseEvent   = static_cast<tizen_core_wl_event_window_base_h>(event);
+  tizen_core_wl_window_h            eventWindow = nullptr;
   if(tizen_core_wl_event_window_base_get_window(baseEvent, &eventWindow) != TIZEN_CORE_WL_ERROR_NONE)
   {
     return;
@@ -1408,12 +1419,15 @@ void WindowBaseTcoreWl::OnConfiguration(void* data, int type, void* event)
       {
         mPendingRestoreResizeOnUnmaximize = false;
 
-        mWindowPositionSize.width  = std::max(1, mRestoreWindowWidth);
-        mWindowPositionSize.height = std::max(1, mRestoreWindowHeight);
+        mWindowPositionSize.width  = Max(1, mRestoreWindowWidth);
+        mWindowPositionSize.height = Max(1, mRestoreWindowHeight);
 
         DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnConfiguration, apply restore geometry x[%d] y[%d] w[%d] h[%d]\n",
-                              mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
-     }
+                              mWindowPositionSize.x,
+                              mWindowPositionSize.y,
+                              mWindowPositionSize.width,
+                              mWindowPositionSize.height);
+      }
 
       int tx = 0, ty = 0, tw = 0, th = 0;
       tizen_core_wl_window_get_geometry(mTcoreWindow, &tx, &ty, &tw, &th);
@@ -1436,22 +1450,22 @@ void WindowBaseTcoreWl::OnMouseButtonDown(void* data, int type, void* event)
 {
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
-  tizen_core_wl_window_h window = NULL;
+  tizen_core_wl_window_h window    = NULL;
   tizen_core_wl_error_e  retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonDown::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_DOWN");
 
-    int x = 0, y = 0;
-    unsigned int buttons = 0, touchId = 0, timestamp = 0;
-    char *dev = nullptr;
-    const char *name = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    int                             x = 0, y = 0;
+    unsigned int                    buttons = 0, touchId = 0, timestamp = 0;
+    char*                           dev  = nullptr;
+    const char*                     name = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
@@ -1487,7 +1501,7 @@ void WindowBaseTcoreWl::OnMouseButtonDown(void* data, int type, void* event)
 
     mTouchEventSignal.Emit(point, timestamp);
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1502,22 +1516,22 @@ void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
 {
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
-  tizen_core_wl_window_h window = NULL;
+  tizen_core_wl_window_h window    = NULL;
   tizen_core_wl_error_e  retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonUp::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_UP");
 
-    int x = 0, y = 0;
-    unsigned int buttons = 0, touchId = 0, timestamp = 0;
-    char *dev = nullptr;
-    const char *name = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    int                             x = 0, y = 0;
+    unsigned int                    buttons = 0, touchId = 0, timestamp = 0;
+    char*                           dev  = nullptr;
+    const char*                     name = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
@@ -1540,7 +1554,7 @@ void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
 
     mTouchEventSignal.Emit(point, timestamp);
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1555,22 +1569,22 @@ void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
 {
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
-  tizen_core_wl_window_h window = NULL;
+  tizen_core_wl_window_h window    = NULL;
   tizen_core_wl_error_e  retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonMove::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_MOVE");
 
-    int x = 0, y = 0;
-    unsigned int touchId = 0, timestamp = 0;
-    char *dev = nullptr;
-    const char *name = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    int                             x = 0, y = 0;
+    unsigned int                    touchId = 0, timestamp = 0;
+    char*                           dev  = nullptr;
+    const char*                     name = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
@@ -1592,7 +1606,7 @@ void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
 
     mTouchEventSignal.Emit(point, timestamp);
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1628,17 +1642,17 @@ void WindowBaseTcoreWl::OnMouseButtonRelativeMove(void* data, int type, void* ev
   tizen_core_wl_window_h window = NULL;
   tizen_core_wl_event_input_base_get_window(ev, &window);
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_RELATIVE_MOVE");
 
-    int dx = 0, dy = 0, dx_unaccel = 0, dy_unaccel = 0;
-    unsigned int timestamp = 0,  modifiers = 0;
-    char *dev = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    int                             dx = 0, dy = 0, dx_unaccel = 0, dy_unaccel = 0;
+    unsigned int                    timestamp = 0, modifiers = 0;
+    char*                           dev = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, nullptr, &tizenClass, &tizenSubclass);
@@ -1652,7 +1666,7 @@ void WindowBaseTcoreWl::OnMouseButtonRelativeMove(void* data, int type, void* ev
 
     mMouseRelativeEventSignal.Emit(mouseRelativeEvent);
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1670,18 +1684,18 @@ void WindowBaseTcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
   tizen_core_wl_window_h window = NULL;
   tizen_core_wl_event_input_base_get_window(ev, &window);
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_CANCEL");
 
-    int x = 0, y = 0;
-    unsigned int touchId = 0, timestamp = 0;
-    char *dev = nullptr;
-    const char *name = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    int                             x = 0, y = 0;
+    unsigned int                    touchId = 0, timestamp = 0;
+    char*                           dev  = nullptr;
+    const char*                     name = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
@@ -1701,7 +1715,7 @@ void WindowBaseTcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
     mTouchEventSignal.Emit(point, timestamp);
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnMouseButtonCancel\n");
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1719,11 +1733,11 @@ void WindowBaseTcoreWl::OnPointerConstraints(void* data, int type, void* event)
   tizen_core_wl_window_h window = NULL;
   tizen_core_wl_event_input_base_get_window(ev, &window);
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_POINTER_CONSTRAINTS");
 
-    int x = 0, y = 0;
+    int  x = 0, y = 0;
     bool locked = false, confined = false;
 
     tizen_core_wl_event_pointer_constraints_get_position(ev, &x, &y);
@@ -1735,7 +1749,7 @@ void WindowBaseTcoreWl::OnPointerConstraints(void* data, int type, void* event)
 
     mPointerConstraintsSignal.Emit(position, locked, confined);
   }
-  else if (ev)
+  else if(ev)
   {
     DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnMouseButtonRelativeMove, Window (%p) and input (%p) comes\n", mTcoreWindow, window);
   }
@@ -1748,11 +1762,11 @@ void WindowBaseTcoreWl::OnMouseWheel(void* data, int type, void* event)
   tizen_core_wl_window_h window = NULL;
   tizen_core_wl_event_input_base_get_window(ev, &window);
 
-  if (window == mTcoreWindow && Dali::Adaptor::IsAvailable())
+  if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_WHEEL");
 
-    int direction = 0, x = 0, y = 0, z = 0;
+    int          direction = 0, x = 0, y = 0, z = 0;
     unsigned int timestamp = 0, modifiers = 0;
 
     GetBaseData(ev, nullptr, &timestamp, nullptr);
@@ -1784,15 +1798,15 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_IN_OUT");
 
-    tizen_core_wl_event_type_e type;
-    int x = 0, y = 0;
-    unsigned int timestamp = 0, modifiers = 0;
-    char *dev = nullptr;
-    const char *name = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    tizen_core_wl_event_type_e      type;
+    int                             x = 0, y = 0;
+    unsigned int                    timestamp = 0, modifiers = 0;
+    char*                           dev  = nullptr;
+    const char*                     name = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, &type, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &name, &tizenClass, &tizenSubclass);
@@ -1821,7 +1835,7 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
       mTouchEventSignal.Emit(point, timestamp);
     }
 
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1839,7 +1853,7 @@ void WindowBaseTcoreWl::OnDetentRotation(void* data, int type, void* event)
   DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnDetentRotation, Window (%p)\n", mTcoreWindow);
   if(Dali::Adaptor::IsAvailable())
   {
-    unsigned int timestamp = 0;
+    unsigned int                       timestamp = 0;
     tizen_core_wl_circular_direction_e direction;
 
     GetBaseData(ev, nullptr, &timestamp, nullptr);
@@ -1862,13 +1876,13 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    char *name = nullptr, *compose = nullptr, *symbol = nullptr, *dev = nullptr;
-    const char *devName = nullptr;
-    unsigned int keyCode = 0, modifiers = 0, flags = 0, timestamp = 0;
-    tizen_core_wl_device_class_e tizenClass;
+    char *                          name = nullptr, *compose = nullptr, *symbol = nullptr, *dev = nullptr;
+    const char*                     devName = nullptr;
+    unsigned int                    keyCode = 0, modifiers = 0, flags = 0, timestamp = 0;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &devName, &tizenClass, &tizenSubclass);
@@ -1888,7 +1902,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
     {
       // Get a specific key code from dali key look up table.
       int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
-      keyCode = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
+      keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
 
     if(!strncmp(name, "Keycode-", 8))
@@ -1909,19 +1923,19 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    if (name)
+    if(name)
     {
       free(name);
     }
-    if (compose)
+    if(compose)
     {
       free(compose);
     }
-    if (symbol)
+    if(symbol)
     {
       free(symbol);
     }
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -1941,13 +1955,13 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    char *name = nullptr, *dev = nullptr, *compose = nullptr, *symbol = nullptr;
-    unsigned int keyCode = 0, modifiers = 0, flags = 0, timestamp = 0;
-    const char *devName = nullptr;
-    tizen_core_wl_device_class_e tizenClass;
+    char *                          name = nullptr, *dev = nullptr, *compose = nullptr, *symbol = nullptr;
+    unsigned int                    keyCode = 0, modifiers = 0, flags = 0, timestamp = 0;
+    const char*                     devName = nullptr;
+    tizen_core_wl_device_class_e    tizenClass;
     tizen_core_wl_device_subclass_e tizenSubclass;
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
+    Device::Class::Type             deviceClass;
+    Device::Subclass::Type          deviceSubclass;
 
     GetBaseData(ev, nullptr, &timestamp, &dev);
     GetDeviceInfo(mTcoreDisplay, dev, &devName, &tizenClass, &tizenSubclass);
@@ -1956,7 +1970,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(devName);
 
-    if (flags & TIZEN_CORE_WL_EVENT_FLAG_CANCEL)
+    if(flags & TIZEN_CORE_WL_EVENT_FLAG_CANCEL)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnKeyUp: This event flag indicates the event is canceled. \n");
       return;
@@ -1973,7 +1987,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
     {
       // Get a specific key code from dali key look up table.
       int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
-      keyCode = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
+      keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
     if(!strncmp(name, "Keycode-", 8))
     {
@@ -1986,19 +2000,19 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    if (name)
+    if(name)
     {
       free(name);
     }
-    if (compose)
+    if(compose)
     {
       free(compose);
     }
-    if (symbol)
+    if(symbol)
     {
       free(symbol);
     }
-    if (dev)
+    if(dev)
     {
       free(dev);
     }
@@ -2075,8 +2089,8 @@ void WindowBaseTcoreWl::OnTransitionEffectEvent(void* data, int type, void* even
     return;
   }
 
-  const auto wlEventType = static_cast<tizen_core_wl_event_type_e>(type);
-  WindowEffectState state = WindowEffectState::NONE;
+  const auto        wlEventType = static_cast<tizen_core_wl_event_type_e>(type);
+  WindowEffectState state       = WindowEffectState::NONE;
   if(wlEventType == TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_START)
   {
     state = WindowEffectState::START;
@@ -2177,7 +2191,6 @@ void WindowBaseTcoreWl::OnWindowAuxiliaryMessage(void* data, int type, void* eve
   mAuxiliaryMessageSignal.Emit(key, value, options);
 }
 
-
 void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
 {
   if(Dali::Adaptor::IsAvailable())
@@ -2191,7 +2204,7 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
     if(eventWindow == mTcoreWindow)
     {
       tizen_core_wl_conformant_part_e partType = TIZEN_CORE_WL_CONFORMANT_PART_UNKNOWN;
-      bool visible = false;
+      bool                            visible  = false;
       if(tizen_core_wl_event_window_conformant_change_get_part(confEvent, &partType) != TIZEN_CORE_WL_ERROR_NONE)
       {
         return;
@@ -2205,37 +2218,38 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
       switch(partType)
       {
         case TIZEN_CORE_WL_CONFORMANT_PART_INDICATOR:
-          insetsPartType = WindowInsetsPartType::STATUS_BAR;
-          mLastIndicatorGeometry.x = x;
-          mLastIndicatorGeometry.y = y;
-          mLastIndicatorGeometry.w = w;
-          mLastIndicatorGeometry.h = h;
+          insetsPartType               = WindowInsetsPartType::STATUS_BAR;
+          mLastIndicatorGeometry.x     = x;
+          mLastIndicatorGeometry.y     = y;
+          mLastIndicatorGeometry.w     = w;
+          mLastIndicatorGeometry.h     = h;
           mLastIndicatorGeometry.state = visible ? 1 : 0;
           DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnConformantChange, indicator geometry: x[%d] y[%d] w[%d] h[%d] state[%d]\n", x, y, w, h, mLastIndicatorGeometry.state);
           break;
         case TIZEN_CORE_WL_CONFORMANT_PART_KEYBOARD:
-          insetsPartType = WindowInsetsPartType::KEYBOARD;
-          mLastKeyboardGeometry.x = x;
-          mLastKeyboardGeometry.y = y;
-          mLastKeyboardGeometry.w = w;
-          mLastKeyboardGeometry.h = h;
+          insetsPartType              = WindowInsetsPartType::KEYBOARD;
+          mLastKeyboardGeometry.x     = x;
+          mLastKeyboardGeometry.y     = y;
+          mLastKeyboardGeometry.w     = w;
+          mLastKeyboardGeometry.h     = h;
           mLastKeyboardGeometry.state = visible ? 1 : 0;
           DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnConformantChange, keyboard geometry: x[%d] y[%d] w[%d] h[%d] state[%d]\n", x, y, w, h, mLastKeyboardGeometry.state);
           break;
         case TIZEN_CORE_WL_CONFORMANT_PART_CLIPBOARD:
-          insetsPartType = WindowInsetsPartType::CLIPBOARD;
-          mLastClipboardGeometry.x = x;
-          mLastClipboardGeometry.y = y;
-          mLastClipboardGeometry.w = w;
-          mLastClipboardGeometry.h = h;
+          insetsPartType               = WindowInsetsPartType::CLIPBOARD;
+          mLastClipboardGeometry.x     = x;
+          mLastClipboardGeometry.y     = y;
+          mLastClipboardGeometry.w     = w;
+          mLastClipboardGeometry.h     = h;
           mLastClipboardGeometry.state = visible ? 1 : 0;
           DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnConformantChange, clipboard geometry: x[%d] y[%d] w[%d] h[%d] state[%d]\n", x, y, w, h, mLastClipboardGeometry.state);
           break;
-        default: break;
+        default:
+          break;
       }
 
       WindowInsetsPartState partState = visible ? WindowInsetsPartState::VISIBLE : WindowInsetsPartState::INVISIBLE;
-      int left = 0, right = 0, top = 0, bottom = 0;
+      int                   left = 0, right = 0, top = 0, bottom = 0;
       if(visible)
       {
         int winX = mWindowPositionSize.x;
@@ -2275,8 +2289,8 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
 void WindowBaseTcoreWl::KeymapChanged(void* data, int type, void* event)
 {
   tizen_core_wl_event_seat_changed_h ev = static_cast<tizen_core_wl_event_seat_changed_h>(event);
-  tizen_core_wl_display_h display;
-  unsigned int id;
+  tizen_core_wl_display_h            display;
+  unsigned int                       id;
 
   tizen_core_wl_event_seat_changed_get_display(ev, &display);
   tizen_core_wl_event_seat_changed_get_seat_id(ev, &id);
@@ -2305,8 +2319,8 @@ void WindowBaseTcoreWl::OnMoveCompleted(void* data, int type, void* event)
     return;
   }
 
-  int32_t           x = 0, y = 0;
-  uint32_t          w = 0u, h = 0u;
+  int32_t  x = 0, y = 0;
+  uint32_t w = 0u, h = 0u;
   if(tizen_core_wl_event_window_interactive_move_done_get_geometry(moveDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_ERROR("WindowBaseTcoreWl::OnMoveCompleted: failed to get geometry\n");
@@ -2345,8 +2359,8 @@ void WindowBaseTcoreWl::OnResizeCompleted(void* data, int type, void* event)
     return;
   }
 
-  int32_t           x = 0, y = 0;
-  uint32_t          w = 0u, h = 0u;
+  int32_t  x = 0, y = 0;
+  uint32_t w = 0u, h = 0u;
   if(tizen_core_wl_event_window_interactive_resize_done_get_geometry(resizeDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_ERROR("WindowBaseTcoreWl::OnResizeCompleted: failed to get geometry\n");
@@ -2663,7 +2677,7 @@ PositionSize WindowBaseTcoreWl::RecalculatePositionSizeToCurrentOrientation(Posi
   else if(mWindowRotationAngle == 270)
   {
     newPositionSize.x      = positionSize.y;
-    newPositionSize.y      = screenWidth - (positionSize.x + positionSize.width );
+    newPositionSize.y      = screenWidth - (positionSize.x + positionSize.width);
     newPositionSize.width  = positionSize.height;
     newPositionSize.height = positionSize.width;
   }
@@ -2770,9 +2784,20 @@ void WindowBaseTcoreWl::SetLayout(unsigned int numCols, unsigned int numRows, un
   }
 
   DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_layout, original: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n",
-                        numCols, numRows, column, row, colSpan, rowSpan);
+                        numCols,
+                        numRows,
+                        column,
+                        row,
+                        colSpan,
+                        rowSpan);
   DALI_LOG_RELEASE_INFO("tizen_core_wl_window_set_layout, transformed: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d], rotation[%d]\n",
-                        transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
+                        transformedNumCols,
+                        transformedNumRows,
+                        transformedColumn,
+                        transformedRow,
+                        transformedColSpan,
+                        transformedRowSpan,
+                        totalAngle);
 
   if(mTcoreWindow)
   {
@@ -2821,7 +2846,7 @@ void WindowBaseTcoreWl::Maximize(bool maximize)
 {
   if(mTcoreWindow)
   {
-    mWindowStateStatus = maximize ? WindowStateStatus::MAXIMIZED : WindowStateStatus::NORMAL;
+    mWindowStateStatus                = maximize ? WindowStateStatus::MAXIMIZED : WindowStateStatus::NORMAL;
     mPendingRestoreResizeOnUnmaximize = !maximize;
 
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_state");
@@ -2844,7 +2869,9 @@ void WindowBaseTcoreWl::MaximizeWithRestoreSize(bool maximize, Dali::Window::Win
     mPendingRestoreResizeOnUnmaximize = !maximize;
 
     DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::MaximizeWithRestoreSize, maximize [%d], restore [%d x %d]\n",
-                          maximize ? 1 : 0, mRestoreWindowWidth, mRestoreWindowHeight);
+                          maximize ? 1 : 0,
+                          mRestoreWindowWidth,
+                          mRestoreWindowHeight);
 
     // Tizen Core WL has no maximized_set_with_size equivalent. Request state change first.
     tizen_core_wl_window_set_state(mTcoreWindow, maximize ? TIZEN_CORE_WL_WINDOW_STATE_MAXIMIZED : TIZEN_CORE_WL_WINDOW_STATE_NONE);
@@ -2994,7 +3021,7 @@ std::string WindowBaseTcoreWl::GetSupportedAuxiliaryHint(unsigned int index) con
 
 unsigned int WindowBaseTcoreWl::AddAuxiliaryHint(const std::string& hint, const std::string& value)
 {
-   // Check if the hint is already added
+  // Check if the hint is already added
   for(unsigned int i = 0; i < mAuxiliaryHints.size(); i++)
   {
     if(mAuxiliaryHints[i].first == hint)
@@ -3245,7 +3272,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetNotificationLevel(Dali::Window
     }
   }
 
-  if (mTcoreWindow)
+  if(mTcoreWindow)
   {
     tizen_core_wl_notification_set_level(mTcoreWindow, notificationLevel);
     return Dali::WindowOperationResult::SUCCEED;
@@ -3258,17 +3285,17 @@ Dali::WindowNotificationLevel WindowBaseTcoreWl::GetNotificationLevel() const
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseTcoreWl::GetNotificationLevel");
 
-  if (!mTcoreWindow)
+  if(!mTcoreWindow)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetNotificationLevel: Error! [Invalid Window]\n");
     return Dali::WindowNotificationLevel::NONE;
   }
 
-  Dali::WindowNotificationLevel level;
+  Dali::WindowNotificationLevel      level;
   tizen_core_wl_notification_level_e notificationLevel;
-  tizen_core_wl_error_e ret = tizen_core_wl_notification_get_level(mTcoreWindow, &notificationLevel);
+  tizen_core_wl_error_e              ret = tizen_core_wl_notification_get_level(mTcoreWindow, &notificationLevel);
 
-  if (ret != TIZEN_CORE_WL_ERROR_NONE)
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetNotificationLevel: Error! [%d]\n", ret);
     return Dali::WindowNotificationLevel::NONE;
@@ -3318,7 +3345,7 @@ void WindowBaseTcoreWl::SetOpaqueState(bool opaque)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseTcoreWl::SetOpaqueState");
 
-  if (mTcoreWindow)
+  if(mTcoreWindow)
   {
     tizen_core_wl_window_set_opaque_state(mTcoreWindow, (opaque ? 1 : 0));
   }
@@ -3328,7 +3355,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetScreenOffMode(WindowScreenOffM
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseTcoreWl::SetScreenOffMode");
 
-  if (!mTcoreWindow)
+  if(!mTcoreWindow)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetScreenOffMode: Error! [Invalid Window]\n");
     return Dali::WindowOperationResult::UNKNOWN_ERROR;
@@ -3352,7 +3379,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetScreenOffMode(WindowScreenOffM
 
   tizen_core_wl_error_e ret = tizen_core_wl_window_set_screen_mode(mTcoreWindow, mode);
 
-  if (ret != TIZEN_CORE_WL_ERROR_NONE)
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetScreenOffMode: Error! [%d]\n", ret);
     return Dali::WindowOperationResult::UNKNOWN_ERROR;
@@ -3369,16 +3396,16 @@ WindowScreenOffMode WindowBaseTcoreWl::GetScreenOffMode() const
 
   WindowScreenOffMode screenMode = WindowScreenOffMode::TIMEOUT;
 
-  if (!mTcoreWindow)
+  if(!mTcoreWindow)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetScreenOffMode: Error! [Invalid Window]\n");
     return screenMode;
   }
 
   tizen_core_wl_screen_mode_e mode;
-  tizen_core_wl_error_e ret = tizen_core_wl_window_get_screen_mode(mTcoreWindow, &mode);
+  tizen_core_wl_error_e       ret = tizen_core_wl_window_get_screen_mode(mTcoreWindow, &mode);
 
-  if (ret != TIZEN_CORE_WL_ERROR_NONE)
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetScreenOffMode: Error! [%d]\n", ret);
     return screenMode;
@@ -3407,7 +3434,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetBrightness(int brightness)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseTcoreWl::SetBrightness");
 
-  if (!mTcoreWindow)
+  if(!mTcoreWindow)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetBrightness: Error! [Invalid Window]\n");
     return Dali::WindowOperationResult::UNKNOWN_ERROR;
@@ -3415,7 +3442,7 @@ Dali::WindowOperationResult WindowBaseTcoreWl::SetBrightness(int brightness)
 
   tizen_core_wl_error_e ret = tizen_core_wl_window_set_brightness(mTcoreWindow, brightness);
 
-  if (ret != TIZEN_CORE_WL_ERROR_NONE)
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::SetBrightness: Error! [%d]\n", ret);
     return Dali::WindowOperationResult::UNKNOWN_ERROR;
@@ -3430,16 +3457,16 @@ int WindowBaseTcoreWl::GetBrightness() const
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseTcoreWl::GetBrightness");
 
-  if (!mTcoreWindow)
+  if(!mTcoreWindow)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetBrightness: Error! [Invalid Window]\n");
     return 0;
   }
 
-  int brightness = 0;
-  tizen_core_wl_error_e ret = tizen_core_wl_window_get_brightness(mTcoreWindow, &brightness);
+  int                   brightness = 0;
+  tizen_core_wl_error_e ret        = tizen_core_wl_window_get_brightness(mTcoreWindow, &brightness);
 
-  if (ret != TIZEN_CORE_WL_ERROR_NONE)
+  if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::GetBrightness: Error! [%d]\n", ret);
     return 0;
@@ -3489,8 +3516,8 @@ bool WindowBaseTcoreWl::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
     {
       return false;
     }
-    GList* list = g_list_append(nullptr, info);
-    tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
+    GList*                list = g_list_append(nullptr, info);
+    tizen_core_wl_error_e err  = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
     tizen_core_wl_keygrab_info_destroy(info);
     g_list_free(list);
 
@@ -3555,7 +3582,7 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Da
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-  { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
+                                               { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
 
   for(GList* l = list; l; l = l->next)
   {
@@ -3592,7 +3619,7 @@ bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-  { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
+                                               { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
   return (err == TIZEN_CORE_WL_ERROR_NONE);
@@ -3778,7 +3805,7 @@ void WindowBaseTcoreWl::SetParent(WindowBase* parentWinBase, bool belowParent)
     if(parentWinBase)
     {
       WindowBaseTcoreWl* baseTcoreWl = static_cast<WindowBaseTcoreWl*>(parentWinBase);
-      parentWindow                      = baseTcoreWl->mTcoreWindow;
+      parentWindow                   = baseTcoreWl->mTcoreWindow;
     }
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_transient_for_parent_window");
     tizen_core_wl_window_set_transient_for_parent_window(mTcoreWindow, parentWindow, belowParent);
@@ -3852,9 +3879,8 @@ void WindowBaseTcoreWl::InitializeIme()
     return;
   }
 
-  //Bind zwp_input_panel_v1 intferface using tizen-core-wayland API
-  tizen_core_wl_error_e err = tizen_core_wl_display_private_bind_interface(mTcoreDisplay, "zwp_input_panel_v1", 1,
-                                                                            &zwp_input_panel_v1_interface, (void**)&mWlInputPanel);
+  // Bind zwp_input_panel_v1 intferface using tizen-core-wayland API
+  tizen_core_wl_error_e err = tizen_core_wl_display_private_bind_interface(mTcoreDisplay, "zwp_input_panel_v1", 1, &zwp_input_panel_v1_interface, (void**)&mWlInputPanel);
   if(err != TIZEN_CORE_WL_ERROR_NONE || !mWlInputPanel)
   {
     DALI_LOG_ERROR("WindowBaseTcoreWl::InitializeIme, fail to bind zwp_input_panel_v1 interface\n");
@@ -3865,9 +3891,8 @@ void WindowBaseTcoreWl::InitializeIme()
     return;
   }
 
-  //Bind wl_output intferface using tizen-core-wayland API
-  err = tizen_core_wl_display_private_bind_interface(mTcoreDisplay, "wl_output", 1,
-                                                     &wl_output_interface, (void**)&mWlOutput);
+  // Bind wl_output intferface using tizen-core-wayland API
+  err = tizen_core_wl_display_private_bind_interface(mTcoreDisplay, "wl_output", 1, &wl_output_interface, (void**)&mWlOutput);
   if(err != TIZEN_CORE_WL_ERROR_NONE || !mWlOutput)
   {
     DALI_LOG_ERROR("WindowBaseTcoreWl::InitializeIme, fail to bind wl_output interface\n");
@@ -3958,19 +3983,36 @@ void WindowBaseTcoreWl::RequestResizeToServer(WindowResizeDirection direction)
     return;
   }
 
-  ResizeLocation location = RecalculateLocationToCurrentOrientation(direction, mWindowRotationAngle);
+  ResizeLocation                     location   = RecalculateLocationToCurrentOrientation(direction, mWindowRotationAngle);
   tizen_core_wl_window_resize_mode_e resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP_LEFT;
   switch(location)
   {
-    case ResizeLocation::TOP:         resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP; break;
-    case ResizeLocation::BOTTOM:      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM; break;
-    case ResizeLocation::LEFT:        resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_LEFT; break;
-    case ResizeLocation::TOP_LEFT:    resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP_LEFT; break;
-    case ResizeLocation::BOTTOM_LEFT: resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM_LEFT; break;
-    case ResizeLocation::RIGHT:       resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_RIGHT; break;
-    case ResizeLocation::TOP_RIGHT:   resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP_RIGHT; break;
-    case ResizeLocation::BOTTOM_RIGHT:resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM_RIGHT; break;
-    default: break;
+    case ResizeLocation::TOP:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP;
+      break;
+    case ResizeLocation::BOTTOM:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM;
+      break;
+    case ResizeLocation::LEFT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_LEFT;
+      break;
+    case ResizeLocation::TOP_LEFT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP_LEFT;
+      break;
+    case ResizeLocation::BOTTOM_LEFT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM_LEFT;
+      break;
+    case ResizeLocation::RIGHT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_RIGHT;
+      break;
+    case ResizeLocation::TOP_RIGHT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_TOP_RIGHT;
+      break;
+    case ResizeLocation::BOTTOM_RIGHT:
+      resizeMode = TIZEN_CORE_WL_WINDOW_RESIZE_MODE_BOTTOM_RIGHT;
+      break;
+    default:
+      break;
   }
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
@@ -3989,7 +4031,7 @@ void WindowBaseTcoreWl::EnableFloatingMode(bool enable)
     if(enable)
     {
       mIsFloating = true;
-      windowType = TIZEN_CORE_WL_WINDOW_TYPE_FLOATING;
+      windowType  = TIZEN_CORE_WL_WINDOW_TYPE_FLOATING;
     }
     else
     {
@@ -4122,7 +4164,7 @@ bool WindowBaseTcoreWl::PointerConstraintsLock()
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_lock_pointer");
 
     tizen_core_wl_error_e ret = tizen_core_wl_window_lock_pointer(mTcoreWindow);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::PointerConstraintsLock: Error! [%d]\n", ret);
       return false;
@@ -4139,7 +4181,7 @@ bool WindowBaseTcoreWl::PointerConstraintsUnlock()
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_unlock_pointer");
 
     tizen_core_wl_error_e ret = tizen_core_wl_window_unlock_pointer(mTcoreWindow);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::PointerConstraintsUnlock: Error! [%d]\n", ret);
       return false;
@@ -4154,22 +4196,22 @@ void WindowBaseTcoreWl::LockedPointerRegionSet(int32_t x, int32_t y, int32_t wid
   if(mTcoreWindow && mTcoreDisplay)
   {
     tizen_core_wl_region_h region = NULL;
-    tizen_core_wl_error_e ret = tizen_core_wl_display_create_region(mTcoreDisplay, &region);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    tizen_core_wl_error_e  ret    = tizen_core_wl_display_create_region(mTcoreDisplay, &region);
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       return;
     }
 
     tizen_core_wl_rect_s rect = {x, y, width, height};
-    ret = tizen_core_wl_region_add_rect(region, rect);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    ret                       = tizen_core_wl_region_add_rect(region, rect);
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       return;
     }
 
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_locked_pointer_set_region");
     ret = tizen_core_wl_window_locked_pointer_set_region(mTcoreWindow, region);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::LockedPointerRegionSet: Error! [%d]\n", ret);
     }
@@ -4182,7 +4224,7 @@ void WindowBaseTcoreWl::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
   {
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_locked_pointer_set_cursor_position_hint");
     tizen_core_wl_error_e ret = tizen_core_wl_window_locked_pointer_set_cursor_position_hint(mTcoreWindow, x, y);
-    if (ret != TIZEN_CORE_WL_ERROR_NONE)
+    if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseTcoreWl::LockedPointerCursorPositionHintSet: Error! [%d]\n", ret);
     }
@@ -4314,7 +4356,7 @@ bool WindowBaseTcoreWl::IsModal()
 {
   if(mTcoreWindow)
   {
-    bool                modal = false;
+    bool modal = false;
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_get_modal");
     if(tizen_core_wl_window_get_modal(mTcoreWindow, &modal) == TIZEN_CORE_WL_ERROR_NONE)
     {
@@ -4541,45 +4583,45 @@ Extents WindowBaseTcoreWl::GetInsets(WindowInsetsPartFlags insetsFlags)
 
 void WindowBaseTcoreWl::SetScreen(const std::string& screenName)
 {
-  tizen_core_wl_screen_h* screenList   = nullptr;
-  int                     count = 0;
+  tizen_core_wl_screen_h* screenList = nullptr;
+  int                     count      = 0;
   if(mTcoreDisplay && mTcoreWindow)
   {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_display_get_screen_list");
-  if(tizen_core_wl_display_get_screen_list(mTcoreDisplay, &screenList, &count) == TIZEN_CORE_WL_ERROR_NONE && screenList && count > 0)
-  {
-	  for (int i = 0; i < count; i++)
-	  {
-		  char *tempScreenName = NULL;
-		  if (tizen_core_wl_screen_get_name(screenList[i], &tempScreenName) == TIZEN_CORE_WL_ERROR_NONE)
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_display_get_screen_list");
+    if(tizen_core_wl_display_get_screen_list(mTcoreDisplay, &screenList, &count) == TIZEN_CORE_WL_ERROR_NONE && screenList && count > 0)
+    {
+      for(int i = 0; i < count; i++)
       {
-        if(tempScreenName && screenName.compare(tempScreenName) == 0)
+        char* tempScreenName = NULL;
+        if(tizen_core_wl_screen_get_name(screenList[i], &tempScreenName) == TIZEN_CORE_WL_ERROR_NONE)
         {
-          DALI_LOG_RELEASE_INFO("Get tizen_core_wl_window_set_screen, tcore_window: [%p], screen name [%s]\n", mTcoreWindow, tempScreenName);
-          mScreen = screenList[i];
-          DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_screen");
-          tizen_core_wl_window_set_screen(mTcoreWindow, mScreen);
-          break;
+          if(tempScreenName && screenName.compare(tempScreenName) == 0)
+          {
+            DALI_LOG_RELEASE_INFO("Get tizen_core_wl_window_set_screen, tcore_window: [%p], screen name [%s]\n", mTcoreWindow, tempScreenName);
+            mScreen = screenList[i];
+            DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_screen");
+            tizen_core_wl_window_set_screen(mTcoreWindow, mScreen);
+            break;
+          }
+        }
+        if(tempScreenName)
+        {
+          free(tempScreenName);
         }
       }
-      if(tempScreenName)
+      if(screenList)
       {
-		    free(tempScreenName);
+        free(screenList);
       }
-	  }
-    if(screenList)
-    {
-      free(screenList);
     }
   }
-}
 }
 
 std::string WindowBaseTcoreWl::GetScreen() const
 {
-  char *currentScreenName = NULL;
+  char*       currentScreenName = NULL;
   std::string screenName{};
-  if (tizen_core_wl_screen_get_name(mScreen, &currentScreenName) == TIZEN_CORE_WL_ERROR_NONE)
+  if(tizen_core_wl_screen_get_name(mScreen, &currentScreenName) == TIZEN_CORE_WL_ERROR_NONE)
   {
     if(currentScreenName)
     {

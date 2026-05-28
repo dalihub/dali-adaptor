@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "gles-graphics-command-buffer.h"
 
+// EXTERNAL HEADERS
+#include <dali/public-api/common/dali-utility.h>
+
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
@@ -384,7 +387,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
 
         sTempBindingsUsed[binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN] = true;
 
-        maxBinding = std::max(maxBinding, binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN);
+        maxBinding = Max(maxBinding, binding.binding + GPU_ALLOCATED_UBO_INDEX_BEGIN);
       }
     }
     standaloneUniforms = false;

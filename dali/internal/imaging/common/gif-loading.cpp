@@ -21,6 +21,7 @@
 #include <dali/internal/imaging/common/gif-loading.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 #include <fcntl.h>
 #include <gif_lib.h>
 #include <sys/stat.h>
@@ -1213,7 +1214,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
             animated.animated  = 1;
             animated.loopCount = loopCount;
           }
-          animated.frameCount = std::min(gifAccessor.gif->ImageCount, imageNumber);
+          animated.frameCount = Min(gifAccessor.gif->ImageCount, imageNumber);
 
           if(!full)
           {

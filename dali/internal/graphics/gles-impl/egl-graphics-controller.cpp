@@ -21,6 +21,7 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <algorithm>
 
 // INTERNAL INCLUDES
@@ -1011,7 +1012,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           }
 
           // Calculate the maximum mipmap level for the texture
-          texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
+          texture->SetMaxMipMapLevel(Max(texture->GetMaxMipMapLevel(), info.level));
 
           GLenum bindTarget{GL_TEXTURE_2D};
           GLenum target{GL_TEXTURE_2D};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/imaging/common/loader-wbmp.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -47,7 +48,7 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_LOA
   ((((unsigned long long)w) * ((unsigned long long)h)) >= \
    ((1ULL << (29)) - 2048))
 
-//extract multiple bytes integer , and saved in *data
+// extract multiple bytes integer , and saved in *data
 int extractMultiByteInteger(uint32_t* data, const uint8_t* const& map, size_t length, size_t* position)
 {
   // the header field contains an image type indentifier of multi-byte length(TypeField), an octet of general header info(FixHeaderField)
@@ -175,7 +176,7 @@ bool LoadWbmpHeader(FILE* const fp, unsigned int& width, unsigned int& height, u
     // type(1 byte) + fixedheader(1 byte) + width(uint) + height(uint)
     uint32_t headerSize = 1 + 1 + 4 + 4; // 8 + 8 + 32 + 32;
 
-    readDataSize = std::min(headerSize, fsize);
+    readDataSize = Min(headerSize, fsize);
   }
 
   map.ResizeUninitialized(fsize);

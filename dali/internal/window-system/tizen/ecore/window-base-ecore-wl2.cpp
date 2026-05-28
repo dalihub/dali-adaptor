@@ -36,6 +36,7 @@
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
 
@@ -2089,7 +2090,7 @@ void WindowBaseEcoreWl2::RegistryGlobalCallback(void* data, struct wl_registry* 
 {
   if(strcmp(interface, tizen_policy_interface.name) == 0)
   {
-    uint32_t clientVersion = std::min(version, MAX_TIZEN_CLIENT_VERSION);
+    uint32_t clientVersion = Min(version, MAX_TIZEN_CLIENT_VERSION);
 
     mTizenPolicy = static_cast<tizen_policy*>(wl_registry_bind(registry, name, &tizen_policy_interface, clientVersion));
     if(!mTizenPolicy)
@@ -2648,9 +2649,20 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
   }
 
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, original: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n",
-                        numCols, numRows, column, row, colSpan, rowSpan);
+                        numCols,
+                        numRows,
+                        column,
+                        row,
+                        colSpan,
+                        rowSpan);
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, transformed: numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d], rotation[%d]\n",
-                        transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan, totalAngle);
+                        transformedNumCols,
+                        transformedNumRows,
+                        transformedColumn,
+                        transformedRow,
+                        transformedColSpan,
+                        transformedRowSpan,
+                        totalAngle);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_layout_set");
   ecore_wl2_window_layout_set(mEcoreWindow, transformedNumCols, transformedNumRows, transformedColumn, transformedRow, transformedColSpan, transformedRowSpan);
@@ -3422,7 +3434,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-  { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
+                                               { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3484,7 +3496,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-  { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
+                                               { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
 #include <dali/internal/text/text-abstraction/cairo-renderer.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/constants.h>
+#include <dali/public-api/common/dali-utility.h>
+
 #include <cairo-ft.h>
 #include <cairo.h>
-#include <dali/public-api/common/constants.h>
 #include <cstring>
 #include <memory>
 
@@ -318,12 +320,12 @@ bool ConvertSizeForCairo(
           }
           case FontDescription::BITMAP_FONT:
           {
-            //Nothing to do.
+            // Nothing to do.
             break;
           }
           default:
           {
-            //Nothing to do.
+            // Nothing to do.
             break;
           }
         }
@@ -624,7 +626,7 @@ void RenderGlyphs(
       double maxY = 0.0;
       for(unsigned int index = run.glyphIndex, endIndex = run.glyphIndex + run.numberOfGlyphs; index < endIndex; ++index)
       {
-        maxY = std::max(maxY, (*(cairoGlyphsBuffer + index)).y);
+        maxY = Max(maxY, (*(cairoGlyphsBuffer + index)).y);
       }
 
       cairo_matrix_t matrix;
@@ -686,7 +688,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
   // This function provides a stride value that will respect all alignment requirements of the
   // accelerated image-rendering code within cairo.
   const int          stride      = cairo_format_stride_for_width(cairoFormat,
-                                                                 static_cast<int>(parameters.width));
+                                                   static_cast<int>(parameters.width));
   const unsigned int strideWidth = static_cast<unsigned int>(std::abs(stride)) / bpp;
 
   // Convert from DALi glyphs to Cairo glyphs.

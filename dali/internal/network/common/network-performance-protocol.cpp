@@ -21,6 +21,7 @@
 #include <dali/internal/network/common/network-performance-protocol.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -167,7 +168,7 @@ bool GetCommandString(CommandId commandId, CommandString& commandString)
   {
     if(CommandLookup[i].cmdId == commandId)
     {
-      strncpy(commandString, CommandLookup[i].cmdString, std::min(size_t(MAX_COMMAND_STRING_LENGTH), strlen(CommandLookup[i].cmdString) + 1));
+      strncpy(commandString, CommandLookup[i].cmdString, Min(size_t(MAX_COMMAND_STRING_LENGTH), strlen(CommandLookup[i].cmdString) + 1));
       return true;
     }
   }

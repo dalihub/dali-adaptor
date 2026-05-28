@@ -17,6 +17,14 @@
 // CLASS HEADER
 #include "gles-graphics-program.h"
 
+// EXTERNAL HEADERS
+#include <dali/public-api/common/dali-utility.h>
+#include <unistd.h>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <locale>
+
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/internal/graphics/common/shader-parser.h>
@@ -25,13 +33,6 @@
 #include "egl-graphics-controller.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-shader.h"
-
-// EXTERNAL HEADERS
-#include <unistd.h>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <locale>
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#ifdef GL_KHR_blend_equation_advanced\n"
@@ -239,7 +240,7 @@ void ProgramImpl::Preprocess()
       // set up language dialect for parsed shader
       auto glslVersion        = mImpl->controller.GetGraphicsInterface()->GetShaderLanguageVersion();
       parseInfo.language      = Internal::ShaderParser::OutputLanguage(glslVersion); // We default to GLSL3
-      parseInfo.outputVersion = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
+      parseInfo.outputVersion = Max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
 
       std::vector<std::string> newShaders;
 

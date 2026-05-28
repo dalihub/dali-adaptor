@@ -18,6 +18,7 @@
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 #include <locale>
 
 // INTERNAL INCLUDES
@@ -155,8 +156,8 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
 {
   ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize(filename, size, samplingMode, orientationCorrection);
 
-  dimension.SetWidth(std::min(dimension.GetWidth(), static_cast<uint16_t>(GetMaxTextureSize())));
-  dimension.SetHeight(std::min(dimension.GetHeight(), static_cast<uint16_t>(GetMaxTextureSize())));
+  dimension.SetWidth(Min(dimension.GetWidth(), static_cast<uint16_t>(GetMaxTextureSize())));
+  dimension.SetHeight(Min(dimension.GetHeight(), static_cast<uint16_t>(GetMaxTextureSize())));
 
   return dimension;
 }
@@ -201,7 +202,7 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
         {
           DALI_LOG_ERROR("Unable to decode bitmap supplied as in-memory blob.\n");
 
-          auto prefixSize  = std::min(static_cast<decltype(blobSize)>(0x200), blobSize); // maximum 512 bytes.
+          auto prefixSize  = Min(static_cast<decltype(blobSize)>(0x200), blobSize); // maximum 512 bytes.
           auto errorString = ConvertDataReadable(reinterpret_cast<uint8_t*>(dataBuffer.Begin()), prefixSize, 0x40);
           DALI_LOG_DEBUG_INFO("URL: %s\n", url.c_str());
           DALI_LOG_DEBUG_INFO("Downloaded data (prefix %zu bytes of %zu bytes):\n", prefixSize, blobSize);

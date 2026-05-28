@@ -18,14 +18,14 @@
 // CLASS HEADER
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 
-// INTERNAL INCLUDES
-#include <dali/devel-api/text-abstraction/font-client.h>
-
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/math/math-utils.h>
 
-#include <algorithm>
 #include <cmath>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/font-client.h>
 
 namespace Dali
 {
@@ -101,7 +101,7 @@ void FontMetrics::ApplyDesignLineHeightCompat()
     }
   }
 
-  int shrinkAmount = std::max(0, lineHeight - desiredLineHeight);
+  int shrinkAmount = Max(0, lineHeight - desiredLineHeight);
 
   // Apply shrink without loop/branch:
   // pairs: (ascender - pairCount, descender + pairCount)
