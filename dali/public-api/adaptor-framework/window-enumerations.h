@@ -1,9 +1,6 @@
 #ifndef DALI_WINDOW_ENUMERATIONS_H
 #define DALI_WINDOW_ENUMERATIONS_H
 
-// EXTERNAL INCLUDES
-#include <type_traits>
-
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
@@ -20,6 +17,9 @@
  * limitations under the License.
  *
  */
+
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/type-traits.h>
 
 namespace Dali
 {
@@ -174,17 +174,17 @@ enum class WindowInsetsPartFlags
 
 inline WindowInsetsPartFlags operator|(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
 {
-  return static_cast<WindowInsetsPartFlags>(static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(a) | static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(b));
+  return static_cast<WindowInsetsPartFlags>(static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(a) | static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(b));
 }
 
 inline WindowInsetsPartFlags operator&(WindowInsetsPartFlags a, WindowInsetsPartFlags b)
 {
-  return static_cast<WindowInsetsPartFlags>(static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(a) & static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(b));
+  return static_cast<WindowInsetsPartFlags>(static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(a) & static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(b));
 }
 
 inline bool HasFlag(WindowInsetsPartFlags value, WindowInsetsPartFlags flag)
 {
-  return static_cast<std::underlying_type_t<WindowInsetsPartFlags>>(value & flag) != 0;
+  return static_cast<GetUnderlyingType<WindowInsetsPartFlags>::type>(value & flag) != 0;
 }
 
 } // namespace Dali
