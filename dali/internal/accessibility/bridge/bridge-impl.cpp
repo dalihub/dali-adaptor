@@ -18,7 +18,6 @@
 // CLASS HEADER
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/actors/layer.h>
@@ -1135,8 +1134,15 @@ void Bridge::EnableAutoInit()
     return;
   }
 
-  auto rootLayer       = Dali::Stage::GetCurrent().GetRootLayer(); // A root layer of the default window.
-  auto window          = Dali::DevelWindow::Get(rootLayer);
+  auto windows = Dali::Adaptor::Get().GetWindows();
+  if(windows.empty())
+  {
+    DALI_LOG_ERROR("Accessibility bridge auto-init failed: no default window\n");
+    return;
+  }
+
+  auto window          = windows[0];
+  auto rootLayer       = window.GetRootLayer(); // A root layer of the default window.
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
   auto bridge = Bridge::GetCurrentBridge();
