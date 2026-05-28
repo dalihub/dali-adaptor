@@ -17,5 +17,14 @@ SET( adaptor_text_common_src_files
     ${adaptor_text_dir}/text-abstraction/plugin/font-face-cache-item.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/font-face-manager.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/font-face-glyph-cache-manager.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-common.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-composite.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-outline.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-graph.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/color-glyph/color-glyph-cpal-parser.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/harfbuzz-proxy-font.cpp
 )

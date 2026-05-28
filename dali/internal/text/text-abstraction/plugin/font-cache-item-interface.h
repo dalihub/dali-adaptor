@@ -73,6 +73,26 @@ struct FontCacheItemInterface
   virtual bool IsColorFont() const = 0;
 
   /**
+   * @brief Checks whether this cached font is renderable by the COLRv1 renderer.
+   *
+   * This is a font-level capability query. Legacy bitmap color fonts return
+   * false because they are rendered through FT_LOAD_COLOR, not the COLRv1 renderer.
+   *
+   * @return @e true if this font is renderable by the COLRv1 renderer.
+   */
+  virtual bool IsRenderableColrV1Font() const = 0;
+
+  /**
+   * @brief Checks whether a glyph has a renderable COLRv1 root paint.
+   *
+   * This is a glyph-level capability query and must not rasterize the glyph.
+   *
+   * @param[in] glyphIndex The glyph index.
+   * @return @e true if the glyph has a renderable COLRv1 root paint.
+   */
+  virtual bool IsRenderableColrV1Glyph(GlyphIndex glyphIndex) const = 0;
+
+  /**
    * Check if the character is supported by this font
    * @param[in] fontConfig A handle to a FontConfig library instance.
    * @param[in] character The character to test

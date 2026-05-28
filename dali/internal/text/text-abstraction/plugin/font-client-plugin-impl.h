@@ -271,6 +271,28 @@ public: // Dali::TextAbstraction::FontClient
   bool IsColorFont(FontId fontId) const;
 
   /**
+   * @brief Checks whether a font is renderable by the COLRv1 renderer.
+   *
+   * This is a font-level capability query. Bitmap color fonts such as
+   * CBDT/CBLC are handled by the legacy FT_LOAD_COLOR path and return false.
+   *
+   * @param[in] fontId The font identifier.
+   * @return @e true if the font is renderable by the COLRv1 renderer.
+   */
+  bool IsRenderableColrV1Font(FontId fontId) const;
+
+  /**
+   * @brief Checks whether a glyph has a renderable COLRv1 root paint.
+   *
+   * This is a glyph-level capability query and must not rasterize the glyph.
+   *
+   * @param[in] fontId The font identifier.
+   * @param[in] glyphIndex The glyph index.
+   * @return @e true if the glyph has a renderable COLRv1 root paint.
+   */
+  bool IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex) const;
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateEmbeddedItem()
    */
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat) const;
@@ -392,6 +414,34 @@ private:
                     FaceIndex       faceIndex,
                     bool            cacheDescription,
                     Property::Map*  variationsMapPtr) const;
+
+  /**
+   * @brief Creates a scalable face font cache item.
+   *
+   * Handles variations setup, atlas limitation point size search,
+   * face activation, FontMetrics creation, FontFaceCacheItem construction,
+   * and cache registration. Used by RenderableColrV1, NotRenderableColorFont,
+   * and normal scalable font paths in CreateFont().
+   *
+   * @param[in] ftFace The FreeType face handle.
+   * @param[in] path The path to the font file.
+   * @param[in,out] requestedPointSize The requested point size (may be reduced by atlas limitation).
+   * @param[in] faceIndex A face index.
+   * @param[in] variationsMapPtr The variations used in variable fonts.
+   * @param[in] hasColorTables Whether the font has color tables.
+   * @param[in] colorInfo Pre-computed color font table info.
+   * @param[in] renderability The color font renderability classification.
+   *
+   * @return The font identifier, or 0 on failure.
+   */
+  FontId CreateScalableFaceFont(FT_Face                                    ftFace,
+                                const FontPath&                            path,
+                                PointSize26Dot6&                           requestedPointSize,
+                                FaceIndex                                  faceIndex,
+                                Property::Map*                             variationsMapPtr,
+                                bool                                       hasColorTables,
+                                const FontFaceManager::ColorFontInfo&     colorInfo,
+                                FontFaceManager::ColorFontRenderability    renderability) const;
 
   /**
    * @brief Caches font data for the specified font path if it is not already cached.

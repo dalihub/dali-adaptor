@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 
 namespace Dali::TextAbstraction::Internal
@@ -446,6 +447,11 @@ public: // Other public API
     return mGlyphCacheManager.get();
   }
 
+  ColorGlyphColrRasterizer* GetColorGlyphColrRasterizer() const
+  {
+    return mColorGlyphColrRasterizer.get();
+  }
+
 private:
   CacheHandler(const CacheHandler&)            = delete;
   CacheHandler& operator=(const CacheHandler&) = delete;
@@ -476,9 +482,10 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
-  FontPathList                       mCustomFontDirectories; ///< Cache custom font directories to recovery upon reinitialization.
-  std::unique_ptr<FontFaceManager>   mFontFaceManager;       ///< The freetype font face manager. It will cache font face.
-  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager;     ///< The glyph cache manager. It will cache this face's glyphs.
+  FontPathList                              mCustomFontDirectories; ///< Cache custom font directories to recovery upon reinitialization.
+  std::unique_ptr<FontFaceManager>          mFontFaceManager;       ///< The freetype font face manager. It will cache font face.
+  std::unique_ptr<GlyphCacheManager>        mGlyphCacheManager;     ///< The glyph cache manager. It will cache this face's glyphs.
+  std::unique_ptr<ColorGlyphColrRasterizer> mColorGlyphColrRasterizer; ///< COLRv1 paint bounds/rasterization helper.
 
 private:                                         // Member value
   FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()

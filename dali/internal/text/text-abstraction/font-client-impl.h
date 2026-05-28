@@ -304,6 +304,22 @@ public: // API for Dali::TextAbstraction::FontClient used.
   bool IsColorFont(FontId fontId);
 
   /**
+   * @brief Checks whether a font is renderable by the COLRv1 renderer.
+   *
+   * This is a font-level capability query. Bitmap color fonts such as
+   * CBDT/CBLC are handled by the legacy FT_LOAD_COLOR path and return false.
+   *
+   * @param[in] fontId The font identifier.
+   * @return @e true if the font is renderable by the COLRv1 renderer.
+   */
+  bool IsRenderableColrV1Font(FontId fontId);
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::IsRenderableColrV1Glyph()
+   */
+  bool IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex);
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::CreateEmbeddedItem()
    */
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat);

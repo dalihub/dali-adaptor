@@ -521,6 +521,32 @@ public:
   bool IsColorFont(FontId fontId);
 
   /**
+   * @brief Checks whether the font is renderable by the COLRv1 renderer.
+   *
+   * This is a font-level capability query. It returns true only when the
+   * font is classified as a renderable COLRv1 font in the current DALi build.
+   * Legacy bitmap color fonts such as CBDT/CBLC are rendered through the
+   * FT_LOAD_COLOR path and return false.
+   *
+   * @param[in] fontId The font identifier.
+   * @return @e true if the font is renderable by the COLRv1 renderer.
+   */
+  bool IsRenderableColrV1Font(FontId fontId);
+
+  /**
+   * @brief Checks whether a glyph has a renderable COLRv1 root paint.
+   *
+   * This is a glyph-level capability query. It returns true only when the
+   * font is renderable by the COLRv1 renderer and the glyph has a COLRv1
+   * root paint. The query must not rasterize the glyph.
+   *
+   * @param[in] fontId The font identifier.
+   * @param[in] glyphIndex The glyph index.
+   * @return @e true if the glyph has a renderable COLRv1 root paint.
+   */
+  bool IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex);
+
+  /**
    * @brief  Add custom fonts directory
    *
    * @param[in] path to the fonts directory

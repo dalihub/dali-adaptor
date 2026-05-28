@@ -21,6 +21,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 
 // EXTERNAL INCLUDES
 #include FT_BITMAP_H
@@ -321,6 +322,95 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
   }
 }
 
+bool GlyphCacheManager::CacheExternalGlyphBuffer(
+  const FT_Face         freeTypeFace,
+  const PointSize26Dot6 requestedPointSize,
+  const GlyphIndex      index,
+  const FT_Int32        flag,
+  const bool            isBoldRequired,
+  const std::size_t     variationsHash,
+  uint8_t*              buffer,
+  const uint32_t        width,
+  const uint32_t        height,
+  const uint32_t        stride,
+  const Pixel::Format   format,
+  const bool            overwrite)
+{
+  if(!buffer || width == 0 || height == 0)
+  {
+    DALI_LOG_ERROR("CacheExternalGlyphBuffer invalid params\n");
+    free(buffer); // Take ownership even on failure
+    return false;
+  }
+
+  if(format != Pixel::BGRA8888)
+  {
+    DALI_LOG_ERROR("CacheExternalGlyphBuffer unsupported format (only BGRA8888)\n");
+    free(buffer);
+    return false;
+  }
+
+  if(stride != width * 4u)
+  {
+    DALI_LOG_ERROR("CacheExternalGlyphBuffer unsupported stride (must be width*4)\n");
+    free(buffer);
+    return false;
+  }
+
+  FT_Error          error;
+  GlyphCacheDataPtr glyphDataPtr;
+  if(GetGlyphCacheDataFromIndex(freeTypeFace, requestedPointSize, index, flag, isBoldRequired, variationsHash, glyphDataPtr, error))
+  {
+    GlyphCacheData& glyphData = *glyphDataPtr.get();
+    if(glyphData.mRenderedBuffer != nullptr)
+    {
+      if(!overwrite)
+      {
+        DALI_LOG_ERROR("CacheExternalGlyphBuffer existing buffer skip idx:%u\n", index);
+        free(buffer);
+        return false;
+      }
+      // Overwrite: delete existing rendered buffer
+      delete glyphData.mRenderedBuffer;
+      glyphData.mRenderedBuffer = nullptr;
+    }
+
+    glyphData.mRenderedBuffer = new TextAbstraction::GlyphBufferData();
+    if(DALI_UNLIKELY(!glyphData.mRenderedBuffer))
+    {
+      DALI_LOG_ERROR("CacheExternalGlyphBuffer allocate failed\n");
+      free(buffer);
+      return false;
+    }
+
+    TextAbstraction::GlyphBufferData& renderBuffer = *glyphData.mRenderedBuffer;
+    renderBuffer.width           = width;
+    renderBuffer.height          = height;
+    renderBuffer.format          = format;
+    renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
+
+    // Use Compress() consistent with existing CacheRenderedGlyphBuffer()
+    const auto compressedBufferSize = TextAbstraction::GlyphBufferData::Compress(buffer, renderBuffer);
+    free(buffer); // Free original external buffer after Compress copies it
+
+    if(DALI_UNLIKELY(compressedBufferSize == 0u))
+    {
+      DALI_LOG_ERROR("CacheExternalGlyphBuffer Compress failed idx:%u\n", index);
+      delete glyphData.mRenderedBuffer;
+      glyphData.mRenderedBuffer = nullptr;
+      return false;
+    }
+
+    return true;
+  }
+  else
+  {
+    DALI_LOG_ERROR("CacheExternalGlyphBuffer GetGlyphCacheData failed\n");
+    free(buffer);
+    return false;
+  }
+}
+
 void GlyphCacheManager::RemoveGlyphFromFace(const FT_Face freeTypeFace)
 {
 #if defined(DEBUG_ENABLED)
@@ -378,6 +468,8 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
   error = FT_Load_Glyph(freeTypeFace, index, flag);
   if(FT_Err_Ok == error)
   {
+    // TODO: Add environment-variable based verbose glyph load logging if needed.
+
     glyphData.mStyleFlags = freeTypeFace->style_flags;
 
     const bool isEmboldeningRequired = isBoldRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_BOLD);
