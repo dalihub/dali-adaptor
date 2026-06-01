@@ -29,6 +29,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
+#include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace Dali
 {
@@ -161,7 +162,7 @@ DragAndDropTcoreWl::DragAndDropTcoreWl()
 {
   // Acquire default display and associated event handle for registering listeners.
   tizen_core_wl_display_h display = nullptr;
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
+  if(!TcoreWlAcquireDisplay(&display))
   {
     return;
   }
@@ -169,6 +170,7 @@ DragAndDropTcoreWl::DragAndDropTcoreWl()
   tizen_core_event_h event = nullptr;
   if(tizen_core_wl_display_get_event(display, &event) != TIZEN_CORE_WL_ERROR_NONE || !event)
   {
+    TcoreWlReleaseDisplay(display);
     return;
   }
 
@@ -208,6 +210,7 @@ DragAndDropTcoreWl::DragAndDropTcoreWl()
   }
 
   mEvent = event;
+  TcoreWlReleaseDisplay(display);
 }
 
 DragAndDropTcoreWl::~DragAndDropTcoreWl()
@@ -274,7 +277,7 @@ bool DragAndDropTcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   tizen_core_wl_display_h display   = nullptr;
   tizen_core_wl_seat_h    seat      = nullptr;
   tizen_core_wl_data_h    tcoreData = nullptr;
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
+  if(tizen_core_wl_window_get_display(parentWindow, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
   {
     return false;
   }
@@ -725,7 +728,7 @@ bool DragAndDropTcoreWl::ProcessDropEventsForTargets(void* event, char** mimes, 
   tizen_core_wl_event_data_base_get_offer(static_cast<tizen_core_wl_event_data_base_h>(event), &offer);
 
   tizen_core_wl_display_h display = nullptr;
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE)
+  if(!eventWindow || tizen_core_wl_window_get_display(eventWindow, &display) != TIZEN_CORE_WL_ERROR_NONE)
   {
     return false;
   }
@@ -775,7 +778,7 @@ bool DragAndDropTcoreWl::ProcessDropEventsForWindowTargets(void* event, char** m
   tizen_core_wl_event_data_base_get_offer(static_cast<tizen_core_wl_event_data_base_h>(event), &offer);
 
   tizen_core_wl_display_h display = nullptr;
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE)
+  if(!eventWindow || tizen_core_wl_window_get_display(eventWindow, &display) != TIZEN_CORE_WL_ERROR_NONE)
   {
     return false;
   }

@@ -32,6 +32,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/clipboard/common/clipboard-factory.h>
+#include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace Dali
 {
@@ -109,7 +110,7 @@ struct Clipboard::Impl
     {
       return true;
     }
-    if(tizen_core_wl_get_connected_display(nullptr, &mDisplay) != TIZEN_CORE_WL_ERROR_NONE || !mDisplay)
+    if(!TcoreWlAcquireDisplay(&mDisplay))
     {
       return false;
     }

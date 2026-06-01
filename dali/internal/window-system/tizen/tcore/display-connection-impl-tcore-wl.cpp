@@ -29,6 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/tizen/display-connection-native-types.h>
+#include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace Dali::Internal::Adaptor
 {
@@ -190,7 +191,7 @@ void DisplayConnectionTcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
   else
   {
     tizen_core_wl_display_h display = nullptr;
-    if(tizen_core_wl_get_connected_display(nullptr, &display) == TIZEN_CORE_WL_ERROR_NONE && display)
+    if(TcoreWlAcquireDisplay(&display))
     {
       struct wl_display* wl = nullptr;
       if(tizen_core_wl_display_private_get_wl_display(display, &wl) == TIZEN_CORE_WL_ERROR_NONE)
@@ -201,6 +202,7 @@ void DisplayConnectionTcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
       {
         DALI_LOG_ERROR("tizen_core_wl_display_private_get_wl_display failed\n");
       }
+      TcoreWlReleaseDisplay(display);
     }
   }
 }
