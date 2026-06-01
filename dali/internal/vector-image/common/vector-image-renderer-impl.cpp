@@ -26,6 +26,7 @@
 
 #ifndef THORVG_SUPPORT
 // INTERNAL INCLUDES
+#include <dali/internal/window-system/common/window-system.h>
 #include <third-party/nanosvg/nanosvg.h>
 #include <third-party/nanosvg/nanosvgrast.h>
 #endif
@@ -141,7 +142,7 @@ void VectorImageRenderer::Initialize()
 #endif
 }
 
-bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
+bool VectorImageRenderer::Load(const Vector<uint8_t>& data)
 {
   Mutex::ScopedLock lock(mMutex);
 
@@ -231,7 +232,9 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   // which are locale-sensitive and SVG files always use '.' as decimal separator.
   Dali::LocaleNumericGuard localeGuard;
 
-  mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
+  uint32_t horizontalDpi = 0u, verticalDpi = 0u;
+  WindowSystem::GetDpi(horizontalDpi, verticalDpi);
+  mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, static_cast<float>(horizontalDpi + verticalDpi) * 0.5f);
   if(!mParsedImage || !mParsedImage->shapes)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
