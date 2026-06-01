@@ -32,13 +32,13 @@
 #include <string_view>
 #include <thread>
 #include <tuple>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/type-traits.h>
 
 #define ATSPI_PREFIX_PATH "/org/a11y/atspi/accessible/"
 #define ATSPI_NULL_PATH "/org/a11y/atspi/null"
@@ -1127,14 +1127,14 @@ template<typename T>
 struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signature_helper<signature<T>>
 {
   static constexpr auto name_v = concat("enum");
-  static constexpr auto sig_v  = signature<typename std::underlying_type<T>::type>::sig_v;
+  static constexpr auto sig_v  = signature<typename Dali::GetUnderlyingType<T>::type>::sig_v;
 
   /**
    * @brief Marshals value v as marshalled type into message
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, T v)
   {
-    signature<typename std::underlying_type<T>::type>::set(iter, static_cast<int64_t>(v));
+    signature<typename Dali::GetUnderlyingType<T>::type>::set(iter, static_cast<int64_t>(v));
   }
 
   /**
@@ -1142,8 +1142,8 @@ struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signat
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, T& v)
   {
-    typename std::underlying_type<T>::type q = 0;
-    if(!signature<typename std::underlying_type<T>::type>::get(iter, q))
+    typename Dali::GetUnderlyingType<T>::type q = 0;
+    if(!signature<typename Dali::GetUnderlyingType<T>::type>::get(iter, q))
       return false;
 
     v = static_cast<T>(q);
