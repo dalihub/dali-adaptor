@@ -1350,7 +1350,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
-    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
+    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', std::string{sig_v.data()});
     signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::set(entry, args);
     DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
@@ -1472,14 +1472,14 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
       }
       else
       {
-        auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'e', "");
+        auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'e', std::string{sig_v.data()});
         signature_tuple_helper<0, 2, A, B>::set(entry, ab);
         DBUS_W->dbus_message_iter_container_close_impl(iter);
       }
     }
     else
     {
-      auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
+      auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', std::string{sig_v.data()});
       signature_tuple_helper<0, 2, A, B>::set(entry, ab);
       DBUS_W->dbus_message_iter_container_close_impl(iter);
     }
@@ -2202,6 +2202,7 @@ public:
     template<typename... ARGS>
     void asyncCall(std::function<void(RetType)> callback, const ARGS&... args)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfo(callId, funcName, info, connectionInfo->interfaceName);
       detail::asyncCall<RetType>(callId, connectionState, false, funcName, std::move(callback), args...);
@@ -2250,6 +2251,7 @@ public:
      */
     void asyncGet(std::function<void(RetType)> callback)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Get", info, connectionInfo->interfaceName, propName);
       auto cc = [callback](VariantRetType reply)
@@ -2285,6 +2287,7 @@ public:
      */
     void asyncSet(std::function<void(ValueOrError<void>)> callback, const T& r)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Set", info, connectionInfo->interfaceName, propName);
       DbusVariant<T> variantValue{std::move(r)};

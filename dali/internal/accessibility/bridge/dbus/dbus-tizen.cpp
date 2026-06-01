@@ -25,7 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/accessibility/bridge/dbus/dbus-wrapper-eldbus.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus-wrapper-gdbus.h>
 
 
 #define DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
@@ -177,7 +177,7 @@ DBusWrapper* DBusWrapper::Installed()
 {
   if(!InstalledWrapper)
   {
-    InstalledWrapper.reset(new EldbusDBusWrapper);
+    InstalledWrapper.reset(new GdbusDBusWrapper);
   }
   return InstalledWrapper.get();
 }
