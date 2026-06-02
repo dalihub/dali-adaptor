@@ -217,7 +217,7 @@ struct GdbusDBusWrapper : public DBusWrapper
     auto& proxies = static_cast<ObjectImpl*>(obj.get())->Proxies;
     if (proxy)
     {
-      proxies[interface] = g_object_ref(proxy);
+      proxies[interface] = static_cast<GDBusProxy*>(g_object_ref(proxy));
     }
   }
 
@@ -598,7 +598,7 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   MessagePtr dbus_message_ref_impl(const MessagePtr& msg) override
   {
-    return create(g_object_ref(get(msg)), true);
+    return create(static_cast<GDBusMessage*>(g_object_ref(get(msg))), true);
   }
 
   ConnectionPtr dbus_connection_get_impl(ConnectionType type) override
@@ -633,7 +633,7 @@ struct GdbusDBusWrapper : public DBusWrapper
     auto exist = find_proxy(obj, interface);
 
     if (exist) {
-      return create(g_object_ref(exist), true);
+      return create(static_cast<GDBusProxy*>(g_object_ref(exist)), true);
     }
 
     auto flags = (GDBusProxyFlags)(G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS | G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES);
@@ -658,7 +658,7 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   ProxyPtr dbus_proxy_copy_impl(const ProxyPtr& ptr) override
   {
-    return create(g_object_ref(get(ptr)), true);
+    return create(static_cast<GDBusProxy*>(g_object_ref(get(ptr))), true);
   }
 
   void dbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus) override
@@ -898,7 +898,7 @@ struct GdbusDBusWrapper : public DBusWrapper
     }
 
     DBus::DBusServer::CurrentObjectSetter currentObjectSetter(create(connection, false), object_path);
-    auto reply = it->second.setCallback(nullptr, create(g_object_ref(value), g_variant_iter_new(value), true));
+    auto reply = it->second.setCallback(nullptr, create(static_cast<GVariant*>(g_object_ref(value)), g_variant_iter_new(value), true));
 
     if (!reply.empty()) {
         g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_FAILED, "%s", reply.c_str());
