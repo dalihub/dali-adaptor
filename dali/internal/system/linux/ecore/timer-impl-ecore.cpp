@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <Ecore.h>
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
@@ -36,6 +37,7 @@ namespace Adaptor
 namespace
 {
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TIMER_PERFORMANCE_MARKER, false);
+Dali::TypeRegistration TIMER_ECORE_TYPE(typeid(Dali::Internal::Adaptor::TimerEcore), typeid(Dali::Timer), nullptr);
 
 Eina_Bool TimerSourceFunc(void* data)
 {

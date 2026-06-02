@@ -20,6 +20,7 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/events/key-event-devel.h>
+#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/public-api/actors/actor.h>
@@ -53,6 +54,8 @@ namespace Adaptor
 {
 namespace
 {
+Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), typeid(Dali::BaseHandle), nullptr);
+
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW");
 #endif

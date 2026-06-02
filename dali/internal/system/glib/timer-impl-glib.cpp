@@ -18,13 +18,14 @@
 // CLASS HEADER
 #include <dali/internal/system/glib/timer-impl-glib.h>
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
+#include <glib.h>
+#include <sys/time.h>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/time-service.h>
-
-// EXTERNAL INCLUDES
-#include <glib.h>
-#include <sys/time.h>
 
 namespace Dali::Internal::Adaptor
 {
@@ -32,6 +33,8 @@ extern GMainContext* GetMainLoopContext();
 
 namespace
 {
+Dali::TypeRegistration TIMER_GLIB_TYPE(typeid(Dali::Internal::Adaptor::TimerGlib), typeid(Dali::Timer), nullptr);
+
 gboolean TimerSourceFunc(gpointer userData)
 {
   TimerGlib* timer = static_cast<TimerGlib*>(userData);
