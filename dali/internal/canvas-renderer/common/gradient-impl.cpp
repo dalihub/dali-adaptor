@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -187,7 +189,10 @@ void* Gradient::GetObject() const
 
 void Gradient::SetChanged(bool changed)
 {
-  if(!mChanged && changed) Dali::Stage::GetCurrent().KeepRendering(0.0f);
+  if(!mChanged && changed)
+  {
+    Adaptor::Get().RequestProcessEventsAndUpdate();
+  }
   mChanged = !!changed;
 }
 

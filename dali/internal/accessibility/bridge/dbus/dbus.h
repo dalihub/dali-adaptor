@@ -32,13 +32,13 @@
 #include <string_view>
 #include <thread>
 #include <tuple>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/type-traits.h>
 
 #define ATSPI_PREFIX_PATH "/org/a11y/atspi/accessible/"
 #define ATSPI_NULL_PATH "/org/a11y/atspi/null"
@@ -99,6 +99,7 @@ struct DBusWrapper
 #undef dbus_message_iter_arguments_append_impl_basic
 #undef dbus_message_iter_arguments_append_impl_basic_impl
 
+  virtual void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const std::string& v1, const std::string& v2) = 0;
   virtual MessageIterPtr dbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) = 0;
   virtual MessageIterPtr dbus_message_iter_get_and_next_by_type_impl(const MessageIterPtr& it, int type)                  = 0;
   virtual MessageIterPtr dbus_message_iter_get_impl(const MessagePtr& it, bool write)                                     = 0;
@@ -1126,14 +1127,14 @@ template<typename T>
 struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signature_helper<signature<T>>
 {
   static constexpr auto name_v = concat("enum");
-  static constexpr auto sig_v  = signature<typename std::underlying_type<T>::type>::sig_v;
+  static constexpr auto sig_v  = signature<typename Dali::GetUnderlyingType<T>::type>::sig_v;
 
   /**
    * @brief Marshals value v as marshalled type into message
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, T v)
   {
-    signature<typename std::underlying_type<T>::type>::set(iter, static_cast<int64_t>(v));
+    signature<typename Dali::GetUnderlyingType<T>::type>::set(iter, static_cast<int64_t>(v));
   }
 
   /**
@@ -1141,8 +1142,8 @@ struct signature<T, typename std::enable_if_t<std::is_enum_v<T>, void>> : signat
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, T& v)
   {
-    typename std::underlying_type<T>::type q = 0;
-    if(!signature<typename std::underlying_type<T>::type>::get(iter, q))
+    typename Dali::GetUnderlyingType<T>::type q = 0;
+    if(!signature<typename Dali::GetUnderlyingType<T>::type>::get(iter, q))
       return false;
 
     v = static_cast<T>(q);
@@ -1349,7 +1350,7 @@ struct signature<std::tuple<ARGS...>> : signature_helper<signature<std::tuple<AR
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::tuple<ARGS...>& args)
   {
-    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', "");
+    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', std::string{sig_v.data()});
     signature_tuple_helper<0, sizeof...(ARGS), ARGS...>::set(entry, args);
     DBUS_W->dbus_message_iter_container_close_impl(iter);
   }
@@ -1463,8 +1464,25 @@ struct signature<std::pair<A, B>> : signature_helper<signature<std::pair<A, B>>>
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, const std::pair<A, B>& ab, bool dictionary = false)
   {
-    auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, dictionary ? 'e' : 'r', "");
-    signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+    if (dictionary) {
+      // Case of std::pair<key, value>.
+      if constexpr (std::is_same_v<A, std::string> && std::is_same_v<B, std::string>)
+      {
+        DBUS_W->dbus_message_iter_arguments_append_impl(iter, ab.first, ab.second);
+      }
+      else
+      {
+        auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'e', std::string{sig_v.data()});
+        signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+        DBUS_W->dbus_message_iter_container_close_impl(iter);
+      }
+    }
+    else
+    {
+      auto entry = DBUS_W->dbus_message_iter_container_new_impl(iter, 'r', std::string{sig_v.data()});
+      signature_tuple_helper<0, 2, A, B>::set(entry, ab);
+      DBUS_W->dbus_message_iter_container_close_impl(iter);
+    }
   }
 
   /**
@@ -1982,6 +2000,15 @@ struct DbusArgGenerator_Helper<ValueOrError<>, void>
 };
 
 template<typename... ARGS>
+struct DbusArgGenerator_Helper<ValueOrError<ARGS...>, void>
+{
+  static void add(std::vector<std::pair<std::string, std::string>>& r)
+  {
+    DbusArgGenerator_Helper<ARGS..., void>::add(r);
+  }
+};
+
+template<typename... ARGS>
 struct DbusArgGenerator_Helper<std::tuple<ARGS...>>
 {
   static void add(std::vector<std::pair<std::string, std::string>>& r)
@@ -2175,6 +2202,7 @@ public:
     template<typename... ARGS>
     void asyncCall(std::function<void(RetType)> callback, const ARGS&... args)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfo(callId, funcName, info, connectionInfo->interfaceName);
       detail::asyncCall<RetType>(callId, connectionState, false, funcName, std::move(callback), args...);
@@ -2223,6 +2251,7 @@ public:
      */
     void asyncGet(std::function<void(RetType)> callback)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Get", info, connectionInfo->interfaceName, propName);
       auto cc = [callback](VariantRetType reply)
@@ -2258,6 +2287,7 @@ public:
      */
     void asyncSet(std::function<void(ValueOrError<void>)> callback, const T& r)
     {
+      if (!connectionInfo) return;
       detail::CallId callId;
       detail::displayDebugCallInfoProperty(callId, "Set", info, connectionInfo->interfaceName, propName);
       DbusVariant<T> variantValue{std::move(r)};

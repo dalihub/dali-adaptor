@@ -19,9 +19,11 @@
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -323,7 +325,10 @@ void Drawable::SetObject(const void* object)
 
 void Drawable::SetChanged(bool changed)
 {
-  if(!mChanged && changed) Dali::Stage::GetCurrent().KeepRendering(0.0f);
+  if(!mChanged && changed)
+  {
+    Adaptor::Get().RequestProcessEventsAndUpdate();
+  }
   mChanged = !!changed;
 }
 

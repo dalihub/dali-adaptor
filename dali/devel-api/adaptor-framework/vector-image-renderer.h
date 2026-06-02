@@ -2,7 +2,7 @@
 #define DALI_VECTOR_IMAGE_RENDERER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,10 +80,9 @@ public:
    * @brief Load vector image data directly.
    *
    * @param[in] data SVG image data to load.
-   * @param[in] dpi The DPI of the screen.
    * @return True if the load success, false otherwise.
    */
-  bool Load(const Vector<uint8_t>& data, float dpi);
+  bool Load(const Vector<uint8_t>& data);
 
   /**
    * @brief Query whether the vector image is loaded.

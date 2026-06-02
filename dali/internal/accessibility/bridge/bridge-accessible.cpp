@@ -32,6 +32,7 @@
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 //comment out 2 lines below to get more logs
 #undef LOG
@@ -533,8 +534,14 @@ Accessible* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, C
     Dali::Actor layer = actor.GetLayer();
     if(layer && layer.GetProperty<Dali::Layer::Behavior>(Dali::Layer::Property::BEHAVIOR) == Dali::Layer::Behavior::LAYER_3D)
     {
+      Dali::Window window = BridgeBase::GetWindow(actor).GetHandle();
+      if(!window)
+      {
+        return nullptr;
+      }
+      Dali::Integration::Scene        scene = GetImplementation(window).GetScene();
       Dali::HitTestAlgorithm::Results hitTestResults;
-      Dali::HitTestAlgorithm::HitTest(Dali::Stage::GetCurrent(), Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
+      Dali::HitTestAlgorithm::HitTest(scene, Dali::Vector2(point.x, point.y), hitTestResults, IsActorAccessibleFunction);
       if(hitTestResults.actor)
       {
         return Accessible::Get(hitTestResults.actor);

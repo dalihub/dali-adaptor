@@ -16,6 +16,9 @@
 #ifndef DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_WRAPPER_ELDBUS_H
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_WRAPPER_ELDBUS_H
 
+#include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus.h>
+
 // EXTERNAL INCLUDES
 #include <Ecore_Input.h>
 #include <Eldbus.h>
@@ -214,6 +217,13 @@ struct EldbusDBusWrapper : public DBusWrapper
     }
     dst.value = q;
     return true;
+  }
+
+  void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const std::string& v1, const std::string& v2) override
+  {
+    auto entry = eldbus_message_iter_container_new(get(it), 'e', "");
+    eldbus_message_iter_arguments_append(entry, "s", v1.c_str());
+    eldbus_message_iter_arguments_append(entry, "s", v2.c_str());
   }
 
   MessageIterPtr dbus_message_iter_container_new_impl(const MessageIterPtr& it, int type, const std::string& sig) override

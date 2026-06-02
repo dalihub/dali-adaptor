@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/events/touch-point.h>
+#include <dali/integration-api/core-enumerations.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
@@ -430,9 +431,36 @@ public:
   void FlushUpdateMessages();
 
   /**
+   * @brief Sets the rendering behavior.
+   *
+   * @param[in] renderingBehavior The rendering behavior required
+   * @note By default, DALi uses RenderingBehavior::IF_REQUIRED.
+   */
+  void SetRenderingBehavior(Integration::RenderingBehavior renderingBehavior);
+
+  /**
+   * @brief Retrieves the rendering behavior.
+   *
+   * @return The current rendering behavior
+   */
+  Integration::RenderingBehavior GetRenderingBehavior() const;
+
+  /**
    * @brief Requests a future call to Dali::Integration::Core::ProcessEvents(), when the application is idle.
    */
   void RequestProcessEventsOnIdle();
+
+  /**
+   * @brief Requests an update and render cycle, then schedules core event processing on the next idle.
+   *
+   * This method first sends a message to the update thread to request an update and render cycle.
+   * After that, it schedules Dali::Integration::Core::ProcessEvents() to run when the application
+   * is idle, allowing pending processors and notifications to execute.
+   *
+   * Unlike RequestProcessEventsOnIdle(), this method also ensures that an update and render cycle
+   * occurs, not just event processing.
+   */
+  void RequestProcessEventsAndUpdate();
 
   /**
    * @brief The log factory allows installation of a logger function in worker threads.
