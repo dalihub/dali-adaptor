@@ -21,7 +21,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
-#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/addon-manager.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/debug.h>
