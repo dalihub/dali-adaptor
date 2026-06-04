@@ -222,6 +222,7 @@ inline void DebugAssertScanlineParameters(const uint8_t* const pixels, const uin
 
 /**
  * @brief Assertions on params to functions averaging pairs of scanlines.
+ * Check scanline2 is restrict to scanline1 and outputScanline, and that all pointers are non-null.
  * @note Inline as intended to boil away in release.
  */
 inline void DebugAssertDualScanlineParameters(const uint8_t* const scanline1,
@@ -232,8 +233,8 @@ inline void DebugAssertDualScanlineParameters(const uint8_t* const scanline1,
   DALI_ASSERT_DEBUG(scanline1 && "Null pointer.");
   DALI_ASSERT_DEBUG(scanline2 && "Null pointer.");
   DALI_ASSERT_DEBUG(outputScanline && "Null pointer.");
-  DALI_ASSERT_DEBUG(((scanline1 >= scanline2 + widthInComponents) || (scanline2 >= scanline1 + widthInComponents)) && "Scanlines alias.");
-  DALI_ASSERT_DEBUG(((outputScanline >= (scanline2 + widthInComponents)) || (scanline2 >= (scanline1 + widthInComponents))) && "Scanline 2 aliases output.");
+  DALI_ASSERT_DEBUG(((scanline1 >= (scanline2 + widthInComponents)) || (scanline2 >= (scanline1 + widthInComponents))) && "scanline1 aliases scanline2.");
+  DALI_ASSERT_DEBUG(((outputScanline >= (scanline2 + widthInComponents)) || (scanline2 >= (outputScanline + widthInComponents))) && "scanline2 aliases output.");
 }
 
 /**
@@ -942,7 +943,7 @@ Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, Imag
       }
 
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP", [&](std::ostringstream& oss)
-                                              {
+      {
         oss << "[origin:" << inputWidth << "x" << inputHeight << " ";
         oss << "desired:" << desiredWidth << "x" << desiredHeight << "]"; });
 
@@ -1062,7 +1063,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     ((desiredWidth < bitmapWidth) || (desiredHeight < bitmapHeight)))
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss)
-                                            {
+    {
       oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
       oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
       oss << "samplingMode:" << samplingMode << "]"; });
@@ -1113,7 +1114,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
       outputBitmap = MakePixelBuffer(bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight);
     }
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss)
-                                          {
+    {
       oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
       oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
       oss << "final:" << outputBitmap.GetWidth() << "x" << outputBitmap.GetHeight() << "]"; });
@@ -1721,7 +1722,8 @@ inline void PointSampleAddressablePixels(const uint8_t* inPixels,
                                          uint32_t       desiredHeight)
 {
   DALI_ASSERT_DEBUG(((desiredWidth <= inputWidth && desiredHeight <= inputHeight) ||
-                     outPixels >= inPixels + inputStrideBytes * inputHeight || outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL)) &&
+                     (outPixels >= inPixels + inputStrideBytes * inputHeight) ||
+                     (outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL))) &&
                     "The input and output buffers must not overlap for an upscaling.");
   DALI_ASSERT_DEBUG(reinterpret_cast<uint64_t>(inPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...).");
   DALI_ASSERT_DEBUG(reinterpret_cast<uint64_t>(outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...).");
