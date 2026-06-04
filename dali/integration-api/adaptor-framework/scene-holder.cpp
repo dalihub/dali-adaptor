@@ -92,6 +92,11 @@ Any SceneHolder::GetNativeHandle() const
   return GetImplementation(*this).GetNativeHandle();
 }
 
+Any SceneHolder::GetNativeRawHandle() const
+{
+  return GetImplementation(*this).GetNativeRawHandle();
+}
+
 void SceneHolder::FeedTouchPoint(Dali::TouchPoint& point, int timeStamp)
 {
   Integration::Point convertedPoint(point);

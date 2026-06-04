@@ -114,6 +114,15 @@ public:
   virtual Any GetNativeWindow() = 0;
 
   /**
+   * @brief Get the native raw handle as void pointer
+   * @return The native raw handle as void*, or nullptr if unavailable
+   */
+  virtual void* GetNativeRawHandle()
+  {
+    return nullptr;
+  }
+
+  /**
    * @brief Get the native window id
    * @return The native window id
    */

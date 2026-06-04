@@ -2271,6 +2271,11 @@ Any WindowBaseEcoreWl2::GetNativeWindow()
   return mEcoreWindow;
 }
 
+void* WindowBaseEcoreWl2::GetNativeRawHandle()
+{
+  return static_cast<void*>(mEcoreWindow);
+}
+
 int WindowBaseEcoreWl2::GetNativeWindowId()
 {
   return ecore_wl2_window_id_get(mEcoreWindow);

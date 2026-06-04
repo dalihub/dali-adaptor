@@ -395,6 +395,11 @@ Any WindowBaseCocoa::GetNativeWindow()
   return mImpl->mWindow;
 }
 
+void* WindowBaseCocoa::GetNativeRawHandle()
+{
+  return mImpl ? static_cast<void*>(mImpl->mWindow) : nullptr;
+}
+
 int WindowBaseCocoa::GetNativeWindowId()
 {
   return mImpl->mWindow.windowNumber;

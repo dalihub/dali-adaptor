@@ -304,7 +304,7 @@ void Application::OnSurfaceCreated(Any newSurface)
 {
   DALI_LOG_RELEASE_INFO("Application::OnSurfaceCreated\n");
   void* newWindow = AnyCast<void*>(newSurface);
-  void* oldWindow = AnyCast<void*>(mApplicationController->GetWindow().GetNativeHandle());
+  void* oldWindow = AnyCast<void*>(GetImplementation(mApplicationController->GetWindow()).GetNativeRawHandle());
   if(oldWindow != newWindow)
   {
     auto                                 renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();

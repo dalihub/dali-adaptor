@@ -119,6 +119,11 @@ public:
   Any GetNativeWindow() override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeRawHandle()
+   */
+  void* GetNativeRawHandle() override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
    */
   int GetNativeWindowId() override;

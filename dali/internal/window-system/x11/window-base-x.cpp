@@ -618,6 +618,11 @@ Any WindowBaseX::GetNativeWindow()
   return mWindow;
 }
 
+void* WindowBaseX::GetNativeRawHandle()
+{
+  return reinterpret_cast<void*>(static_cast<uintptr_t>(mWindow));
+}
+
 int WindowBaseX::GetNativeWindowId()
 {
   return mWindow;

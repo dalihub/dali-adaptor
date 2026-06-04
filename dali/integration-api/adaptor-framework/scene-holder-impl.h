@@ -449,6 +449,11 @@ public: // The following methods must be overridden
    */
   virtual Dali::Any GetNativeHandle() const = 0;
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::GetNativeRawHandle
+   */
+  virtual Dali::Any GetNativeRawHandle() const = 0;
+
 protected:
   // Constructor
   SceneHolder();
