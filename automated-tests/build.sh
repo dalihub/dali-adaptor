@@ -44,10 +44,23 @@ function build
         if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
     fi
 
+    echo "Detected C++ compiler: $CXX, C compiler: $CC"
+
     CACHE_CPP='/usr/lib/ccache/g++' CACHE_CC='/usr/lib/ccache/gcc'
+
+    # Detect C/C++ compiler and set appropriate ccache wrapper
+    if [[ "$CXX" == *"clang++"* ]]; then
+        CACHE_CPP='/usr/lib/ccache/clang++'
+    fi
+    if [[ "$CC" == *"clang"* ]]; then
+        CACHE_CC='/usr/lib/ccache/clang'
+    fi
+
     if [ -e $CACHE_CPP ] ; then
+        echo "Using ccache C++ wrapper: $CACHE_CPP , C wrapper: $CACHE_CC "
         (cd build ; CXX=$CACHE_CPP CC=$CACHE_CC cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
     else
+        echo "C++ compiler for $CXX wrapper for ccache not found at $CACHE_CPP . ccache will be disabled."
         (cd build ; cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
     fi
 }
