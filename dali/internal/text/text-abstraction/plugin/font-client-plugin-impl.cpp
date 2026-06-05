@@ -1088,6 +1088,18 @@ bool FontClient::Plugin::IsColorFont(FontId fontId) const
   return fontCacheItem && fontCacheItem->IsColorFont();
 }
 
+bool FontClient::Plugin::IsRenderableColrV1Font(FontId fontId) const
+{
+  const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);
+  return fontCacheItem && fontCacheItem->IsRenderableColrV1Font();
+}
+
+bool FontClient::Plugin::IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex) const
+{
+  const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);
+  return fontCacheItem && fontCacheItem->IsRenderableColrV1Glyph(glyphIndex);
+}
+
 FT_FaceRec_* FontClient::Plugin::GetFreetypeFace(FontId fontId) const
 {
   const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);
@@ -1230,6 +1242,66 @@ uint32_t FontClient::Plugin::GetNumberOfPointsPerOneUnitOfPointSize() const
   return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
 }
 
+FontId FontClient::Plugin::CreateScalableFaceFont(FT_Face                                 ftFace,
+                                                  const FontPath&                         path,
+                                                  PointSize26Dot6&                        requestedPointSize,
+                                                  FaceIndex                               faceIndex,
+                                                  Property::Map*                          variationsMapPtr,
+                                                  bool                                    hasColorTables,
+                                                  const FontFaceManager::ColorFontInfo&   colorInfo,
+                                                  FontFaceManager::ColorFontRenderability renderability) const
+{
+  FontId fontId = 0u;
+
+  std::size_t                 variationsHash = 0u;
+  std::vector<FT_Fixed>       freeTypeCoords;
+  std::vector<hb_variation_t> harfBuzzVariations;
+  if(variationsMapPtr)
+  {
+    variationsHash = variationsMapPtr->GetHash();
+    mCacheHandler->mFontFaceManager->BuildVariations(ftFace, variationsMapPtr, freeTypeCoords, harfBuzzVariations);
+  }
+
+  FT_Error error;
+  if(mIsAtlasLimitationEnabled)
+  {
+    auto        requestedPointSizeBackup = requestedPointSize;
+    const Size& maxSizeFitInAtlas        = GetCurrentMaximumBlockSizeFitInAtlas();
+    error                                = SearchOnProperPointSize(ftFace, mCacheHandler->GetFontFaceManager(), maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
+
+    if(requestedPointSize != requestedPointSizeBackup)
+    {
+      DALI_LOG_DEBUG_INFO(" The requested-point-size : %d, is reduced to point-size : %d\n", requestedPointSizeBackup, requestedPointSize);
+    }
+  }
+  else
+  {
+    error = mCacheHandler->mFontFaceManager->ActivateFace(ftFace, requestedPointSize, variationsHash, freeTypeCoords);
+  }
+
+  if(FT_Err_Ok == error)
+  {
+    FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
+
+    FontMetrics metrics(static_cast<float>(ftMetrics.ascender) * FROM_266,
+                        static_cast<float>(ftMetrics.descender) * FROM_266,
+                        static_cast<float>(ftMetrics.height) * FROM_266,
+                        static_cast<float>(ftFace->underline_position) * FROM_266,
+                        static_cast<float>(ftFace->underline_thickness) * FROM_266);
+
+    FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), mCacheHandler->GetColorGlyphColrRasterizer(), path, requestedPointSize, faceIndex, metrics, variationsHash, std::move(freeTypeCoords), std::move(harfBuzzVariations), hasColorTables, colorInfo, renderability);
+
+    fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
+    mCacheHandler->mFontFaceManager->ReferenceFace(path);
+  }
+  else
+  {
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  FreeType Set_Char_Size error: %d for pointSize %d\n", error, requestedPointSize);
+  }
+
+  return fontId;
+}
+
 FontId FontClient::Plugin::CreateFont(const FontPath& path,
                                       PointSize26Dot6 requestedPointSize,
                                       FaceIndex       faceIndex,
@@ -1255,8 +1327,19 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
   error = mCacheHandler->mFontFaceManager->LoadFace(mFreeTypeLibrary, path, 0, ftFace);
   if(FT_Err_Ok == error)
   {
-    if(mCacheHandler->mFontFaceManager->IsBitmapFont(ftFace))
+    // Use cached color font metadata from FaceCacheData (computed once at LoadFace time).
+    // This avoids repeated FT_Load_Sfnt_Table() calls when the same face
+    // is used with different point sizes.
+    FontFaceManager::ColorFontInfo colorInfo;
+    FontFaceManager::ColorFontRenderability renderability = FontFaceManager::ColorFontRenderability::NotColorFont;
+    mCacheHandler->mFontFaceManager->GetColorFontInfo(path, colorInfo, renderability);
+
+    // hasColorTables: true if any color tables detected (including not-renderable ones)
+    const bool hasColorTables = (renderability != FontFaceManager::ColorFontRenderability::NotColorFont);
+
+    if(renderability == FontFaceManager::ColorFontRenderability::RenderableBitmap)
     {
+      // ---- RenderableBitmap: legacy CBDT/CBLC bitmap color emoji ----
       const int fixedSizeIndex = mCacheHandler->mFontFaceManager->FindFixedSizeIndex(ftFace, requestedPointSize);
       error                    = mCacheHandler->mFontFaceManager->SelectFixedSize(ftFace, requestedPointSize, fixedSizeIndex);
       if(FT_Err_Ok == error)
@@ -1269,12 +1352,56 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
                             static_cast<float>(ftFace->underline_position) * FROM_266,
                             static_cast<float>(ftFace->underline_thickness) * FROM_266);
 
-        const float fixedWidth     = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
-        const float fixedHeight    = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
-        const bool  hasColorTables = (0 != (ftFace->face_flags & FT_FACE_FLAG_COLOR));
+        const float fixedWidth  = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
+        const float fixedHeight = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
 
-        // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), mCacheHandler->GetColorGlyphColrRasterizer(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables, colorInfo, renderability);
+
+        fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
+        mCacheHandler->mFontFaceManager->ReferenceFace(path);
+      }
+      else
+      {
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  FreeType Select_Size error: %d for pointSize %d\n", error, requestedPointSize);
+      }
+    }
+    else if(renderability == FontFaceManager::ColorFontRenderability::RenderableColrV1)
+    {
+      // ---- RenderableColrV1: scalable COLRv1 color font ----
+      fontId = CreateScalableFaceFont(ftFace, path, requestedPointSize, faceIndex, variationsMapPtr, hasColorTables, colorInfo, renderability);
+    }
+    else if(renderability == FontFaceManager::ColorFontRenderability::NotRenderableColorFont)
+    {
+      // ---- NotRenderableColorFont: has color tables but no renderer available ----
+      // Do NOT return fontId 0. CreateFont callers expect a valid FontId.
+      DALI_LOG_RELEASE_INFO("NotRenderableColorFont path:%s renderability:%d COLR:%d CPAL:%d SVG:%d CBDT:%d CBLC:%d sbix:%d action:outline-fallback\n",
+                            path.c_str(), static_cast<int>(renderability),
+                            static_cast<int>(colorInfo.hasCOLR), static_cast<int>(colorInfo.hasCPAL),
+                            static_cast<int>(colorInfo.hasSVG), static_cast<int>(colorInfo.hasCBDT),
+                            static_cast<int>(colorInfo.hasCBLC), static_cast<int>(colorInfo.hasSbix));
+
+      // Use scalable outline fallback. It may produce empty glyphs for color-only fonts.
+      fontId = CreateScalableFaceFont(ftFace, path, requestedPointSize, faceIndex, variationsMapPtr, hasColorTables, colorInfo, renderability);
+    }
+    else if(mCacheHandler->mFontFaceManager->IsBitmapFont(ftFace))
+    {
+      // ---- NotColorFont + IsBitmapFont: non-color bitmap font ----
+      const int fixedSizeIndex = mCacheHandler->mFontFaceManager->FindFixedSizeIndex(ftFace, requestedPointSize);
+      error                    = mCacheHandler->mFontFaceManager->SelectFixedSize(ftFace, requestedPointSize, fixedSizeIndex);
+      if(FT_Err_Ok == error)
+      {
+        FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
+
+        FontMetrics metrics(static_cast<float>(ftMetrics.ascender) * FROM_266,
+                            static_cast<float>(ftMetrics.descender) * FROM_266,
+                            static_cast<float>(ftMetrics.height) * FROM_266,
+                            static_cast<float>(ftFace->underline_position) * FROM_266,
+                            static_cast<float>(ftFace->underline_thickness) * FROM_266);
+
+        const float fixedWidth  = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
+        const float fixedHeight = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
+
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), mCacheHandler->GetColorGlyphColrRasterizer(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables, colorInfo, renderability);
 
         fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
         mCacheHandler->mFontFaceManager->ReferenceFace(path);
@@ -1286,55 +1413,8 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
     }
     else
     {
-      std::size_t                 variationsHash = 0u;
-      std::vector<FT_Fixed>       freeTypeCoords;
-      std::vector<hb_variation_t> harfBuzzVariations;
-      if(variationsMapPtr)
-      {
-        variationsHash = variationsMapPtr->GetHash();
-        mCacheHandler->mFontFaceManager->BuildVariations(ftFace, variationsMapPtr, freeTypeCoords, harfBuzzVariations);
-      }
-
-      if(mIsAtlasLimitationEnabled)
-      {
-        //There is limitation on block size to fit in predefined atlas size.
-        //If the block size cannot fit into atlas size, then the system cannot draw block.
-        //This is workaround to avoid issue in advance
-        //Decrementing point-size until arriving to maximum allowed block size.
-        auto        requestedPointSizeBackup = requestedPointSize;
-        const Size& maxSizeFitInAtlas        = GetCurrentMaximumBlockSizeFitInAtlas();
-        error                                = SearchOnProperPointSize(ftFace, mCacheHandler->GetFontFaceManager(), maxSizeFitInAtlas, requestedPointSize, variationsHash, freeTypeCoords);
-
-        if(requestedPointSize != requestedPointSizeBackup)
-        {
-          DALI_LOG_DEBUG_INFO(" The requested-point-size : %d, is reduced to point-size : %d\n", requestedPointSizeBackup, requestedPointSize);
-        }
-      }
-      else
-      {
-        error = mCacheHandler->mFontFaceManager->ActivateFace(ftFace, requestedPointSize, variationsHash, freeTypeCoords);
-      }
-
-      if(FT_Err_Ok == error)
-      {
-        FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
-
-        FontMetrics metrics(static_cast<float>(ftMetrics.ascender) * FROM_266,
-                            static_cast<float>(ftMetrics.descender) * FROM_266,
-                            static_cast<float>(ftMetrics.height) * FROM_266,
-                            static_cast<float>(ftFace->underline_position) * FROM_266,
-                            static_cast<float>(ftFace->underline_thickness) * FROM_266);
-
-        // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetFontFaceManager(), mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, variationsHash, std::move(freeTypeCoords), std::move(harfBuzzVariations));
-
-        fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
-        mCacheHandler->mFontFaceManager->ReferenceFace(path);
-      }
-      else
-      {
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  FreeType Set_Char_Size error: %d for pointSize %d\n", error, requestedPointSize);
-      }
+      // ---- NotColorFont + scalable: normal scalable outline font ----
+      fontId = CreateScalableFaceFont(ftFace, path, requestedPointSize, faceIndex, variationsMapPtr, hasColorTables, colorInfo, renderability);
     }
 
     if(0u != fontId)

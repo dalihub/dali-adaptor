@@ -1,5 +1,5 @@
-#ifndef DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
-#define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
+#ifndef DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
+#define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -26,6 +26,8 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/property-map.h>
 
+#include <cstdint> // for std::uintptr_t in hash function
+#include <functional> // for std::hash
 #include <memory> // for std::shared_ptr
 #include <unordered_map>
 
@@ -35,6 +37,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_SIZES_H
+#include FT_TRUETYPE_TABLES_H
 #include FT_MULTIPLE_MASTERS_H
 
 namespace Dali::TextAbstraction::Internal
@@ -62,24 +65,69 @@ public:
   FontFaceManager(FontFaceManager&& rhs)      = delete; // Do not use move construct
 
   /**
+   * @brief Stores SFNT color table presence detected from a FreeType face.
+   *
+   * This records table presence only. It does not indicate whether DALi can
+   * render the font as a color glyph font in the current build.
+   */
+  struct ColorFontInfo
+  {
+    bool hasCOLR{false};  ///< Whether the font has a COLR table.
+    bool hasCPAL{false};  ///< Whether the font has a CPAL table.
+    bool hasSVG{false};   ///< Whether the font has an SVG  table.
+    bool hasCBDT{false};  ///< Whether the font has a CBDT table.
+    bool hasCBLC{false};  ///< Whether the font has a CBLC table.
+    bool hasSbix{false};  ///< Whether the font has an sbix table.
+  };
+
+  /**
+   * @brief Color font renderability classification.
+   *
+   * Combines color table presence with renderer availability in the current
+   * DALi build. Bitmap color fonts use the legacy FT_LOAD_COLOR path, while
+   * renderable COLRv1 fonts use the COLRv1 renderer.
+   */
+  enum class ColorFontRenderability
+  {
+    NotColorFont,          ///< No color font tables detected
+    RenderableBitmap,      ///< CBDT+CBLC: legacy bitmap color font (FT_LOAD_COLOR)
+    RenderableColrV1,      ///< COLR+CPAL with DALi COLRv1 renderer available
+    NotRenderableColorFont ///< Has color tables but no renderer available in this build
+  };
+
+  /**
    * @brief Data structure for caching face-related data.
    */
   struct FaceCacheData
   {
     FaceCacheData()
     : mFreeTypeFace(nullptr),
-      mReference(0)
+      mReference(0),
+      mColorFontInfo{},
+      mColorFontRenderability(ColorFontRenderability::NotColorFont)
     {
     }
 
     FaceCacheData(FT_Face freeTypeFace)
     : mFreeTypeFace(freeTypeFace),
-      mReference(0)
+      mReference(0),
+      mColorFontInfo{},
+      mColorFontRenderability(ColorFontRenderability::NotColorFont)
     {
     }
 
-    FT_Face mFreeTypeFace; ///< The FreeType face handle.
-    int     mReference;    ///< The reference count for the face.
+    FaceCacheData(FT_Face freeTypeFace, const ColorFontInfo& colorFontInfo, ColorFontRenderability colorFontRenderability)
+    : mFreeTypeFace(freeTypeFace),
+      mReference(0),
+      mColorFontInfo(colorFontInfo),
+      mColorFontRenderability(colorFontRenderability)
+    {
+    }
+
+    FT_Face                mFreeTypeFace;          ///< The FreeType face handle.
+    int                    mReference;             ///< The reference count for the face.
+    ColorFontInfo          mColorFontInfo;         ///< Cached color table presence (face-level, independent of point size).
+    ColorFontRenderability mColorFontRenderability; ///< Cached color font renderability (face-level, independent of point size).
 
     void ReleaseData();
   };
@@ -173,13 +221,6 @@ public:
     std::size_t     mVariationsHash;
   };
 
-private:
-  std::size_t mMaxNumberOfFaceSizeCache; ///< The maximum capacity of face size cache.
-
-  using CacheContainer = LRUCacheContainer<FaceSizeCacheKey, FaceSizeCacheDataPtr, FaceSizeCacheKeyHash>;
-
-  CacheContainer mLRUFaceSizeCache; ///< LRU Cache container of face size.
-
 public:
   /**
    * @brief Sets the font file manager.
@@ -260,6 +301,50 @@ public:
   bool IsBitmapFont(FT_Face ftFace) const;
 
   /**
+   * @brief Fast check whether a font face is a color font candidate.
+   *
+   * Uses FT_HAS_COLOR, FT_HAS_SVG, FT_HAS_SBIX macros for quick screening.
+   * This is a fast candidate check; final determination requires DetectColorFontTables()
+   * and GetColorFontRenderability().
+   *
+   * @param[in] ftFace The FreeType face handle.
+   * @return true if the font may have color glyph support.
+   */
+  static bool IsColorFontCandidate(FT_Face ftFace);
+
+  /**
+   * @brief Detect color font SFNT tables in the given FreeType face.
+   *
+   * @param[in] ftFace The FreeType face handle.
+   * @return Detected color table flags.
+   */
+  static ColorFontInfo DetectColorFontTables(FT_Face ftFace);
+
+  /**
+   * @brief Determine renderability using pre-computed ColorFontInfo.
+   *
+   * Avoids redundant DetectColorFontTables() calls when info is already available.
+   *
+   * @param[in] ftFace The FreeType face handle.
+   * @param[in] info Pre-computed color font table info.
+   * @return ColorFontRenderability classification.
+   */
+  static ColorFontRenderability GetColorFontRenderability(FT_Face ftFace, const ColorFontInfo& info);
+
+  /**
+   * @brief Check whether a glyph has a renderable COLRv1 root paint, with caching.
+   *
+   * Caches the result (both positive and negative) keyed by FT_Face + GlyphIndex
+   * in a bounded LRU cache so that repeated queries for the same glyph on the
+   * same face do not call FT_Get_Color_Glyph_Paint() again.
+   *
+   * @param[in] ftFace The FreeType face handle.
+   * @param[in] glyphIndex The glyph index to query.
+   * @return true if the glyph has a COLRv1 root paint, false otherwise.
+   */
+  bool HasRenderableColrV1GlyphPaint(FT_Face ftFace, GlyphIndex glyphIndex);
+
+  /**
    * @brief Find the proper fixed size the given freetype face and requested point size.
    * @note Bitmap only.
    *
@@ -282,20 +367,100 @@ public:
   FT_Error SelectFixedSize(FT_Face ftFace, const PointSize26Dot6 requestedPointSize, const int fixedSizeIndex);
 
   /**
+   * @brief Get cached color font metadata for a font path.
+   *
+   * Returns the ColorFontInfo and ColorFontRenderability cached in FaceCacheData
+   * when the face was first loaded. If the path is not found, returns defaults.
+   *
+   * @param[in] fontPath The path to the font file.
+   * @param[out] colorInfo The cached color table presence.
+   * @param[out] renderability The cached color font renderability.
+   */
+  void GetColorFontInfo(const FontPath& fontPath, ColorFontInfo& colorInfo, ColorFontRenderability& renderability) const;
+
+  /**
    * @brief Clear all cached face size informations.
    */
   void ClearCache();
 
 private:
+  // Data members - declaration order must match constructor initializer list order.
+  std::size_t mMaxNumberOfFaceSizeCache; ///< The maximum capacity of face size cache.
+
+  using CacheContainer = LRUCacheContainer<FaceSizeCacheKey, FaceSizeCacheDataPtr, FaceSizeCacheKeyHash>;
+
+  CacheContainer mLRUFaceSizeCache; ///< LRU Cache container of face size.
+
   TextAbstraction::FontFileManager               mFontFileManager; ///< Handle to the font file manager.
-  std::unordered_map<std::string, FaceCacheData> mFreeTypeFaces;   //< Cache of loaded FreeType faces.
-  std::unordered_map<FT_Face, ActivatedSizeData> mActivatedSizes;  ///< Cache of activated face sizes.
-  std::unordered_map<FT_Face, PointSize26Dot6>   mSelectedIndices; ///< Cache of selected fixed size indices.
+  std::unordered_map<std::string, FaceCacheData>  mFreeTypeFaces;   ///< Cache of loaded FreeType faces.
+  std::unordered_map<FT_Face, ActivatedSizeData>  mActivatedSizes;  ///< Cache of activated face sizes.
+  std::unordered_map<FT_Face, PointSize26Dot6>    mSelectedIndices; ///< Cache of selected fixed size indices.
 
   uint32_t mDpiHorizontal; ///< Horizontal dpi.
   uint32_t mDpiVertical;   ///< Vertical dpi.
+
+  /**
+   * @brief Key for COLRv1 glyph root paint cache.
+   *
+   * Keyed by FT_Face + GlyphIndex only. Point size, DPI, and variation hash
+   * are intentionally excluded: the question "does this face's glyph have a
+   * COLRv1 root paint?" is independent of rendering parameters.
+   */
+  struct ColrV1GlyphPaintKey
+  {
+    ColrV1GlyphPaintKey()
+    : mFreeTypeFace(nullptr),
+      mGlyphIndex(0u)
+    {
+    }
+
+    ColrV1GlyphPaintKey(FT_Face face, GlyphIndex glyphIndex)
+    : mFreeTypeFace(face),
+      mGlyphIndex(glyphIndex)
+    {
+    }
+
+    FT_Face    mFreeTypeFace;
+    GlyphIndex mGlyphIndex;
+
+    bool operator==(ColrV1GlyphPaintKey const& rhs) const noexcept
+    {
+      return mFreeTypeFace == rhs.mFreeTypeFace && mGlyphIndex == rhs.mGlyphIndex;
+    }
+  };
+
+  /**
+   * @brief Hash function for ColrV1GlyphPaintKey.
+   *
+   * Uses boost::hash_combine-style mixing for better distribution than simple xor.
+   */
+  struct ColrV1GlyphPaintKeyHash
+  {
+    std::size_t operator()(ColrV1GlyphPaintKey const& key) const noexcept
+    {
+      const auto faceHash  = std::hash<std::uintptr_t>{}(reinterpret_cast<std::uintptr_t>(key.mFreeTypeFace));
+      const auto glyphHash = std::hash<GlyphIndex>{}(key.mGlyphIndex);
+      return faceHash ^ (glyphHash + 0x9e3779b9u + (faceHash << 6u) + (faceHash >> 2u));
+    }
+  };
+
+  using ColrV1GlyphPaintCache = LRUCacheContainer<ColrV1GlyphPaintKey, bool, ColrV1GlyphPaintKeyHash>;
+
+  /**
+   * @brief Remove all cached COLRv1 paint entries for a given FT_Face.
+   *
+   * Should be called before the FT_Face is actually released to prevent
+   * stale keys from remaining in the cache. Currently ReleaseFace() does
+   * not actually release faces (commented out), but this helper is provided
+   * for future-proofing.
+   *
+   * @param[in] ftFace The FT_Face whose entries should be removed.
+   */
+  void EraseColrV1GlyphPaintCacheForFace(FT_Face ftFace);
+
+  ColrV1GlyphPaintCache mColrV1GlyphPaintCache; ///< Bounded LRU cache: (FT_Face, GlyphIndex) → has root paint.
 };
 
 } // namespace Dali::TextAbstraction::Internal
 
-#endif //DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
+#endif //DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H

@@ -37,7 +37,6 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
    * Constructor
    *
    * @param[in] bitmapFont The font to cache
-   * @param[in] fontId The id of the font
    */
   BitmapFontCacheItem(const BitmapFont& bitmapFont);
 
@@ -75,6 +74,22 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   bool IsColorFont() const override
   {
     return true;
+  }
+
+  /**
+   * @copydoc FontCacheItemInterface::IsRenderableColrV1Font()
+   */
+  bool IsRenderableColrV1Font() const override
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc FontCacheItemInterface::IsRenderableColrV1Glyph()
+   */
+  bool IsRenderableColrV1Glyph(GlyphIndex glyphIndex) const override
+  {
+    return false;
   }
 
   /**

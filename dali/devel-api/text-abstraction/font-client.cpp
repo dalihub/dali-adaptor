@@ -300,6 +300,16 @@ bool FontClient::IsColorFont(FontId fontId)
   return GetImplementation(*this).IsColorFont(fontId);
 }
 
+bool FontClient::IsRenderableColrV1Font(FontId fontId)
+{
+  return GetImplementation(*this).IsRenderableColrV1Font(fontId);
+}
+
+bool FontClient::IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex)
+{
+  return GetImplementation(*this).IsRenderableColrV1Glyph(fontId, glyphIndex);
+}
+
 bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
   return GetImplementation(*this).AddCustomFontDirectory(path);

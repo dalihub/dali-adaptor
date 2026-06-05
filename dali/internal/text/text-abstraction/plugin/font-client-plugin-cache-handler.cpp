@@ -326,6 +326,7 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mCustomFontDirectories(),
   mFontFaceManager(new FontFaceManager(GetMaxNumberOfFaceSizeCache())),
   mGlyphCacheManager(new GlyphCacheManager(GetMaxNumberOfGlyphCache())),
+  mColorGlyphColrRasterizer(new ColorGlyphColrRasterizer()),
   mLatestFoundFontDescription(),
   mLatestFoundFontDescriptionId(0u),
   mLatestFoundCacheKey(0, 0, 0u),
@@ -349,6 +350,9 @@ void FontClient::Plugin::CacheHandler::ClearCache()
 {
   // delete cached glyph informations before clear mFontFaceCache.
   mGlyphCacheManager->ClearCache();
+
+  // clear COLRv1 rasterizer caches before FontFaceManager clears FT_Face entries
+  mColorGlyphColrRasterizer->ClearCache();
 
   // delete cached face informations before clear mFontFaceCache.
   mFontFaceManager->ClearCache();
@@ -393,6 +397,9 @@ void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
 {
   // delete cached glyph informations before clear mFontFaceCache.
   mGlyphCacheManager->ClearCache();
+
+  // clear COLRv1 rasterizer caches before FontFaceManager clears FT_Face entries
+  mColorGlyphColrRasterizer->ClearCache();
 
   // delete cached face informations before clear mFontFaceCache.
   mFontFaceManager->ClearCache();

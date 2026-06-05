@@ -23,6 +23,13 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/any.h>
 
+// COLRv1 renderer gating macros - needed for renderability check
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
+
+#if DALI_ENABLE_COLR_V1_RENDERER
+#include FT_COLOR_H
+#endif
+
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
@@ -33,6 +40,8 @@ namespace
 {
 const uint32_t FONT_AXIS_NAME_LEN = 4;
 const uint32_t FROM_16DOT16       = (1 << 16);
+
+constexpr std::size_t MAX_COLR_V1_GLYPH_PAINT_CACHE_SIZE = 512u; ///< Maximum COLRv1 glyph paint cache entries.
 
 /**
  * @brief Convert FreeType-type tag to string.
@@ -49,6 +58,21 @@ void ConvertTagToString(FT_ULong tag, char buffer[5])
   buffer[3] = tag & 0xFF;
   buffer[4] = 0;
 }
+
+FT_Error ApplyVariationCoordinates(FT_Face ftFace, const std::vector<FT_Fixed>& freeTypeCoords)
+{
+  if(!ftFace || !FT_HAS_MULTIPLE_MASTERS(ftFace))
+  {
+    return FT_Err_Ok;
+  }
+
+  if(freeTypeCoords.empty())
+  {
+    return FT_Set_Var_Design_Coordinates(ftFace, 0u, nullptr);
+  }
+
+  return FT_Set_Var_Design_Coordinates(ftFace, freeTypeCoords.size(), const_cast<FT_Fixed*>(freeTypeCoords.data()));
+}
 } // namespace
 
 FontFaceManager::FontFaceManager(std::size_t maxNumberOfFaceSizeCache)
@@ -59,7 +83,8 @@ FontFaceManager::FontFaceManager(std::size_t maxNumberOfFaceSizeCache)
   mActivatedSizes(),
   mSelectedIndices(),
   mDpiHorizontal(0u),
-  mDpiVertical(0u)
+  mDpiVertical(0u),
+  mColrV1GlyphPaintCache(MAX_COLR_V1_GLYPH_PAINT_CACHE_SIZE)
 {
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::FontFaceManager Create with maximum size : %d\n", static_cast<int>(mMaxNumberOfFaceSizeCache));
 }
@@ -113,7 +138,17 @@ FT_Error FontFaceManager::LoadFace(const FT_Library& freeTypeLibrary, const Font
     }
     else
     {
-      mFreeTypeFaces[fontPath] = FaceCacheData(ftFace);
+      // Compute color font metadata once at face creation time.
+      // This avoids repeated FT_Load_Sfnt_Table() calls when the same face
+      // is used with different point sizes.
+      ColorFontInfo          colorInfo;
+      ColorFontRenderability renderability = ColorFontRenderability::NotColorFont;
+      if(IsColorFontCandidate(ftFace))
+      {
+        colorInfo     = DetectColorFontTables(ftFace);
+        renderability = GetColorFontRenderability(ftFace, colorInfo);
+      }
+      mFreeTypeFaces[fontPath] = FaceCacheData(ftFace, colorInfo, renderability);
     }
   }
   return error;
@@ -145,6 +180,7 @@ void FontFaceManager::ReleaseFace(const FontPath& fontPath)
       // Currently FontFaceCacheItem can be removed from LRU Cache regardless of whether the text control is referenced or not.
       // This will cause a crash when the freetype face is destroyed at this time.
       // We should remove this comment after fixing the FontFaceCacheItem issue.
+      // EraseColrV1GlyphPaintCacheForFace(iter->second.mFreeTypeFace);
       // iter->second.ReleaseData();
       // mFreeTypeFaces.erase(iter);
     }
@@ -212,9 +248,11 @@ FT_Error FontFaceManager::ActivateFace(FT_Face ftFace, const PointSize26Dot6 req
 
   if(iter != mLRUFaceSizeCache.End())
   {
-    if(!freeTypeCoords.empty())
+    error = ApplyVariationCoordinates(ftFace, freeTypeCoords);
+    if(DALI_UNLIKELY(error != FT_Err_Ok))
     {
-      FT_Set_Var_Design_Coordinates(ftFace, freeTypeCoords.size(), const_cast<FT_Fixed*>(freeTypeCoords.data()));
+      DALI_LOG_ERROR("FT_Set_Var_Design_Coordinates fail, error code:0x%02X\n", error);
+      return error;
     }
 
     mActivatedSizes[ftFace] = ActivatedSizeData(requestedPointSize, variationsHash);
@@ -238,9 +276,11 @@ FT_Error FontFaceManager::ActivateFace(FT_Face ftFace, const PointSize26Dot6 req
     }
   }
 
-  if(!freeTypeCoords.empty())
+  error = ApplyVariationCoordinates(ftFace, freeTypeCoords);
+  if(DALI_UNLIKELY(error != FT_Err_Ok))
   {
-    FT_Set_Var_Design_Coordinates(ftFace, freeTypeCoords.size(), const_cast<FT_Fixed*>(freeTypeCoords.data()));
+    DALI_LOG_ERROR("FT_Set_Var_Design_Coordinates fail, error code:0x%02X\n", error);
+    return error;
   }
 
   FT_Size ftSize;
@@ -280,6 +320,153 @@ bool FontFaceManager::IsBitmapFont(FT_Face ftFace) const
   const bool isScalable           = (0 != (ftFace->face_flags & FT_FACE_FLAG_SCALABLE));
   const bool hasFixedSizedBitmaps = (0 != (ftFace->face_flags & FT_FACE_FLAG_FIXED_SIZES)) && (0 != ftFace->num_fixed_sizes);
   return !isScalable && hasFixedSizedBitmaps;
+}
+
+bool FontFaceManager::IsColorFontCandidate(FT_Face ftFace)
+{
+  if(!ftFace)
+  {
+    return false;
+  }
+
+  if(FT_HAS_COLOR(ftFace))
+  {
+    return true;
+  }
+
+#ifdef FT_HAS_SVG
+  if(FT_HAS_SVG(ftFace))
+  {
+    return true;
+  }
+#endif
+
+#ifdef FT_HAS_SBIX
+  if(FT_HAS_SBIX(ftFace))
+  {
+    return true;
+  }
+#endif
+
+  return false;
+}
+
+FontFaceManager::ColorFontInfo FontFaceManager::DetectColorFontTables(FT_Face ftFace)
+{
+  ColorFontInfo info;
+
+  if(!ftFace)
+  {
+    return info;
+  }
+
+  auto checkTable = [](FT_Face face, FT_ULong tag) -> bool {
+    FT_ULong length = 0;
+    FT_Error error = FT_Load_Sfnt_Table(face, tag, 0, nullptr, &length);
+    return (FT_Err_Ok == error && length > 0);
+  };
+
+  info.hasCOLR = checkTable(ftFace, FT_MAKE_TAG('C', 'O', 'L', 'R'));
+  info.hasCPAL = checkTable(ftFace, FT_MAKE_TAG('C', 'P', 'A', 'L'));
+  info.hasSVG  = checkTable(ftFace, FT_MAKE_TAG('S', 'V', 'G', ' '));
+  info.hasCBDT = checkTable(ftFace, FT_MAKE_TAG('C', 'B', 'D', 'T'));
+  info.hasCBLC = checkTable(ftFace, FT_MAKE_TAG('C', 'B', 'L', 'C'));
+  info.hasSbix = checkTable(ftFace, FT_MAKE_TAG('s', 'b', 'i', 'x'));
+
+  return info;
+}
+
+FontFaceManager::ColorFontRenderability FontFaceManager::GetColorFontRenderability(FT_Face ftFace, const ColorFontInfo& info)
+{
+  if(!ftFace)
+  {
+    return ColorFontRenderability::NotColorFont;
+  }
+
+  // No color tables at all
+  if(!info.hasCOLR && !info.hasCPAL && !info.hasSVG && !info.hasCBDT && !info.hasCBLC && !info.hasSbix)
+  {
+    return ColorFontRenderability::NotColorFont;
+  }
+
+  // Legacy bitmap color font: CBDT+CBLC → renderable via FT_LOAD_COLOR
+  if(info.hasCBDT && info.hasCBLC)
+  {
+    return ColorFontRenderability::RenderableBitmap;
+  }
+
+  // COLRv1 renderer: requires COLR+CPAL and DALI_ENABLE_COLR_V1_RENDERER
+  if(info.hasCOLR && info.hasCPAL && DALI_ENABLE_COLR_V1_RENDERER)
+  {
+    return ColorFontRenderability::RenderableColrV1;
+  }
+
+  // Has color tables but no renderer available in this build
+  // This includes:
+  // - COLR+CPAL without DALI_ENABLE_COLR_V1_RENDERER (FreeType < 2.13 or no ThorVG 1.0)
+  // - SVG-only fonts (SVG renderer disabled in current work direction)
+  // - sbix-only fonts (not supported)
+  return ColorFontRenderability::NotRenderableColorFont;
+}
+
+bool FontFaceManager::HasRenderableColrV1GlyphPaint(FT_Face ftFace, GlyphIndex glyphIndex)
+{
+#if DALI_ENABLE_COLR_V1_RENDERER
+  if(!ftFace)
+  {
+    return false;
+  }
+
+  const ColrV1GlyphPaintKey key(ftFace, glyphIndex);
+
+  // Check LRU cache. Use Get() on hit to mark as recently used.
+  const auto iter = mColrV1GlyphPaintCache.Find(key);
+  if(iter != mColrV1GlyphPaintCache.End())
+  {
+    return mColrV1GlyphPaintCache.Get(key);
+  }
+
+  // Cache miss: call FT_Get_Color_Glyph_Paint()
+  FT_OpaquePaint rootPaint;
+  rootPaint.p                     = nullptr;
+  rootPaint.insert_root_transform = false;
+
+  const FT_Bool hasPaint = FT_Get_Color_Glyph_Paint(
+    ftFace,
+    glyphIndex,
+    FT_COLOR_NO_ROOT_TRANSFORM,
+    &rootPaint);
+
+  const bool result = (hasPaint && rootPaint.p != nullptr);
+
+  // Store result (both positive and negative) in bounded LRU cache
+  mColrV1GlyphPaintCache.Push(key, result);
+
+  return result;
+#else
+  return false;
+#endif
+}
+
+void FontFaceManager::EraseColrV1GlyphPaintCacheForFace(FT_Face ftFace)
+{
+  if(!ftFace)
+  {
+    return;
+  }
+
+  // Erase() returns the next valid iterator, so we can continue iterating safely.
+  for(auto it = mColrV1GlyphPaintCache.Begin(); it != mColrV1GlyphPaintCache.End(); )
+  {
+    if(mColrV1GlyphPaintCache.GetKey(it).mFreeTypeFace == ftFace)
+    {
+      it = mColrV1GlyphPaintCache.Erase(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
 }
 
 int FontFaceManager::FindFixedSizeIndex(FT_Face ftFace, const PointSize26Dot6 requestedPointSize)
@@ -328,8 +515,23 @@ FT_Error FontFaceManager::SelectFixedSize(FT_Face ftFace, const PointSize26Dot6 
   return error;
 }
 
+void FontFaceManager::GetColorFontInfo(const FontPath& fontPath, ColorFontInfo& colorInfo, ColorFontRenderability& renderability) const
+{
+  colorInfo     = ColorFontInfo{};
+  renderability = ColorFontRenderability::NotColorFont;
+
+  auto iter = mFreeTypeFaces.find(fontPath);
+  if(iter != mFreeTypeFaces.end())
+  {
+    colorInfo     = iter->second.mColorFontInfo;
+    renderability = iter->second.mColorFontRenderability;
+  }
+}
+
 void FontFaceManager::ClearCache()
 {
+  // Clear FT_Face-keyed caches before releasing faces
+  mColrV1GlyphPaintCache.Clear();
   mLRUFaceSizeCache.Clear();
 
   for(auto& item : mFreeTypeFaces)
