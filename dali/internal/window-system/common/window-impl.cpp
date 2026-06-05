@@ -581,6 +581,16 @@ Dali::Any Window::GetNativeHandle() const
   return mWindowSurface->GetNativeWindow();
 }
 
+Dali::Any Window::GetNativeRawHandle() const
+{
+  void* raw = mWindowBase ? mWindowBase->GetNativeRawHandle() : nullptr;
+  if(raw)
+  {
+    return Any(raw);
+  }
+  return Any();
+}
+
 void Window::SetAcceptFocus(bool accept)
 {
   mIsFocusAcceptable = accept;

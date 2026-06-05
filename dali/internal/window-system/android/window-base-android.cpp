@@ -122,6 +122,11 @@ Any WindowBaseAndroid::GetNativeWindow()
   return static_cast<void*>(mWindow);
 }
 
+void* WindowBaseAndroid::GetNativeRawHandle()
+{
+  return static_cast<void*>(mWindow);
+}
+
 int WindowBaseAndroid::GetNativeWindowId()
 {
   return 0;

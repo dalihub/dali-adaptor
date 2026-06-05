@@ -95,6 +95,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
   }
 
   /**
+   * @copydoc Dali::Internal::Adaptor::SceneHolder::GetNativeRawHandle
+   */
+  Any GetNativeRawHandle() const override
+  {
+    return Any();
+  }
+
+  /**
    * @brief Initialize the OffscreenWindow
    */
   void Initialize();

@@ -2382,6 +2382,11 @@ Any WindowBaseTcoreWl::GetNativeWindow()
   return mTcoreWindow;
 }
 
+void* WindowBaseTcoreWl::GetNativeRawHandle()
+{
+  return static_cast<void*>(mTcoreWindow);
+}
+
 int WindowBaseTcoreWl::GetNativeWindowId()
 {
   if(mTcoreWindow)
