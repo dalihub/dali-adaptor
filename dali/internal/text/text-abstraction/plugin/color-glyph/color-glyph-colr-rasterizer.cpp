@@ -919,8 +919,11 @@ namespace Dali::TextAbstraction::Internal
 
 ColorGlyphColrRasterizer::ColorGlyphColrRasterizer(std::size_t maxPaintBoundsCacheSize)
 : mClipBoxCache(maxPaintBoundsCacheSize),
-  mPaintBoundsCache(maxPaintBoundsCacheSize),
+  mPaintBoundsCache(maxPaintBoundsCacheSize)
+#if DALI_ENABLE_COLR_V1_RENDERER
+  ,
   mThorvgInitialized(false)
+#endif
 {
 #if DALI_ENABLE_COLR_V1_RENDERER
   const tvg::Result result = tvg::Initializer::init(0);

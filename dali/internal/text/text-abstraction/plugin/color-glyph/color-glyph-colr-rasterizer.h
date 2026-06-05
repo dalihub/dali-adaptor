@@ -416,7 +416,9 @@ private:
 
   ClipBoxCacheContainer     mClipBoxCache;
   PaintBoundsCacheContainer mPaintBoundsCache;
-  bool                      mThorvgInitialized : 1;
+#if DALI_ENABLE_COLR_V1_RENDERER
+  bool mThorvgInitialized : 1;
+#endif
 };
 
 } // namespace Dali::TextAbstraction::Internal
