@@ -87,6 +87,22 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }
+
+#if DALI_ENABLE_COLR_V1_RENDERER
+void SetGlyphBufferDataFromRenderedCache(const TextAbstraction::GlyphBufferData& cachedBuffer,
+                                         TextAbstraction::GlyphBufferData&       data,
+                                         bool                                    isColorEmoji)
+{
+  data.buffer          = cachedBuffer.buffer;
+  data.width           = cachedBuffer.width;
+  data.height          = cachedBuffer.height;
+  data.format          = cachedBuffer.format;
+  data.compressionType = cachedBuffer.compressionType;
+  data.isBufferOwned   = false;
+  data.isColorEmoji    = isColorEmoji;
+  data.isColorBitmap   = false;
+}
+#endif // DALI_ENABLE_COLR_V1_RENDERER
 } // namespace
 
 FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
@@ -504,11 +520,19 @@ void FontFaceCacheItem::CreateBitmap(
 #if DALI_ENABLE_COLR_V1_RENDERER
       // COLRv1 color glyph path for scalable fonts.
       // Glyphs without COLRv1 root paint fall through to standard outline rendering.
-      if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1 &&
-         IsRenderableColrV1Glyph(glyphIndex))
+      const bool isRenderableColrV1Glyph =
+        mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1 &&
+        IsRenderableColrV1Glyph(glyphIndex);
+      if(isRenderableColrV1Glyph)
       {
         const uint32_t yPpem = mFreeTypeFace->size ? mFreeTypeFace->size->metrics.y_ppem : 64u;
         const uint32_t targetSize = (yPpem < 16u) ? 16u : (yPpem > 128u) ? 128u : yPpem;
+
+        if(glyphData.mRenderedBuffer)
+        {
+          SetGlyphBufferDataFromRenderedCache(*glyphData.mRenderedBuffer, data, true);
+          return; // Skip COLRv1 rasterization and normal outline rendering.
+        }
 
         ColorGlyphColrRasterizer::RenderResult renderResult;
 
@@ -527,31 +551,29 @@ void FontFaceCacheItem::CreateBitmap(
           const bool cached = mGlyphCacheManager->CacheExternalGlyphBuffer(
             mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash,
             renderResult.buffer, renderResult.width, renderResult.height, renderResult.stride, renderResult.format,
-            true); // overwrite
+            false);
 
-          if(cached)
+          mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace,
+                                                         mRequestedPointSize,
+                                                         glyphIndex,
+                                                         loadFlag,
+                                                         isBoldRequired,
+                                                         mVariationsHash,
+                                                         glyphDataPtr,
+                                                         error);
+          if(FT_Err_Ok == error && glyphDataPtr->mRenderedBuffer)
           {
-            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash, glyphDataPtr, error);
-            if(FT_Err_Ok == error && glyphDataPtr->mRenderedBuffer)
-            {
-              data.buffer          = glyphDataPtr->mRenderedBuffer->buffer;
-              data.width           = glyphDataPtr->mRenderedBuffer->width;
-              data.height          = glyphDataPtr->mRenderedBuffer->height;
-              data.format          = glyphDataPtr->mRenderedBuffer->format;
-              data.compressionType = glyphDataPtr->mRenderedBuffer->compressionType;
-              data.isBufferOwned   = false;
-              data.isColorEmoji    = true;
-              data.isColorBitmap   = false;
-              return; // Skip normal outline rendering
-            }
-            else
-            {
-              DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization re-fetch failed idx:%u\n", glyphIndex);
-            }
+            SetGlyphBufferDataFromRenderedCache(*glyphDataPtr->mRenderedBuffer, data, true);
+            return; // Skip normal outline rendering.
+          }
+
+          if(!cached)
+          {
+            DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization cache failed idx:%u\n", glyphIndex);
           }
           else
           {
-            DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization cache failed idx:%u\n", glyphIndex);
+            DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization re-fetch failed idx:%u\n", glyphIndex);
           }
         }
         else

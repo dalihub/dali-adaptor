@@ -233,6 +233,19 @@ static hb_bool_t GlyphVariantIndexConvertFunc(hb_font_t* font, void* font_data, 
  */
 static hb_position_t GlyphHorizontalAdvanceFunc(hb_font_t* font, void* font_data, hb_codepoint_t glyphIndex, void* user_data)
 {
+  HarfBuzzProxyFont::Impl* impl = reinterpret_cast<HarfBuzzProxyFont::Impl*>(font_data);
+
+  if(DALI_LIKELY(impl && impl->mFreeTypeFace && FT_HAS_FIXED_SIZES(impl->mFreeTypeFace)))
+  {
+    // HarfBuzz only needs the advance here. For fixed-size bitmap glyphs, avoid
+    // loading/copying the bitmap into DALi's glyph cache during shaping.
+    const FT_Error error = FT_Load_Glyph(impl->mFreeTypeFace, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING | FT_LOAD_BITMAP_METRICS_ONLY);
+    if(FT_Err_Ok == error)
+    {
+      return static_cast<hb_position_t>(impl->mFreeTypeFace->glyph->metrics.horiAdvance);
+    }
+  }
+
   // Output data stored here.
   GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
   if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
