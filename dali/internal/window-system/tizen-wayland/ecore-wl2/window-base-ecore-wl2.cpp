@@ -1394,7 +1394,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_DOWN");
+    DALI_TRACE_SCOPE_WITH_FORMAT(gTraceFilter, "DALI_ON_MOUSE_DOWN", "time[%u] x[%d] y[%d] buttons[%u] deviceId[%d]", touchEvent->timestamp, touchEvent->x, touchEvent->y, touchEvent->buttons, touchEvent->multi.device);
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
@@ -1447,7 +1447,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_UP");
+    DALI_TRACE_SCOPE_WITH_FORMAT(gTraceFilter, "DALI_ON_MOUSE_UP", "time[%u] x[%d] y[%d] buttons[%u] deviceId[%d]", touchEvent->timestamp, touchEvent->x, touchEvent->y, touchEvent->buttons, touchEvent->multi.device);
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
@@ -1487,7 +1487,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_MOVE");
+    DALI_TRACE_SCOPE_WITH_FORMAT(gTraceFilter, "DALI_ON_MOUSE_MOVE", "time[%u] x[%d] y[%d] deviceId[%d]", touchEvent->timestamp, touchEvent->x, touchEvent->y, touchEvent->multi.device);
 
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
