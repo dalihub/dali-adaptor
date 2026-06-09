@@ -23,8 +23,8 @@
 #include <Ecore_Input.h>
 #include <Ecore_Wl2.h>
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/events/key-event.h>
 
@@ -35,45 +35,6 @@
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
-
-using Dali::Integration::ToStdString;
-
-Ecore_IMF_Input_Panel_Layout panelLayoutMap[] =
-  {
-    ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBER,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_EMAIL,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_URL,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_IP,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_HEX,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_TERMINAL,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON,
-    ECORE_IMF_INPUT_PANEL_LAYOUT_VOICE};
-
-Ecore_IMF_Autocapital_Type autoCapitalMap[] =
-  {
-    ECORE_IMF_AUTOCAPITAL_TYPE_NONE,
-    ECORE_IMF_AUTOCAPITAL_TYPE_WORD,
-    ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE,
-    ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER,
-};
-
-Ecore_IMF_Input_Panel_Return_Key_Type returnKeyTypeMap[] =
-  {
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND,
-    ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN};
 
 namespace Dali
 {
@@ -186,17 +147,19 @@ void InputPanelStateChangeCallback(void* data, Ecore_IMF_Context* context, int v
   {
     case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
     {
-      inputMethodContext->StatusChangedSignal().Emit(true);
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::SHOW);
       break;
     }
-
     case ECORE_IMF_INPUT_PANEL_STATE_HIDE:
     {
-      inputMethodContext->StatusChangedSignal().Emit(false);
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::HIDE);
       break;
     }
-
     case ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
+    {
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::WILL_SHOW);
+      break;
+    }
     default:
     {
       // Do nothing
@@ -213,7 +176,7 @@ void InputPanelLanguageChangeCallback(void* data, Ecore_IMF_Context* context, in
   }
   InputMethodContextEcoreWl* inputMethodContext = static_cast<InputMethodContextEcoreWl*>(data);
   // Emit the signal that the language has changed
-  inputMethodContext->LanguageChangedSignal().Emit(value);
+  inputMethodContext->EmitLanguageChangedSignal(value);
 }
 
 void InputPanelGeometryChangedCallback(void* data, Ecore_IMF_Context* context, int value)
@@ -224,7 +187,7 @@ void InputPanelGeometryChangedCallback(void* data, Ecore_IMF_Context* context, i
   }
   InputMethodContextEcoreWl* inputMethodContext = static_cast<InputMethodContextEcoreWl*>(data);
   // Emit signal that the keyboard is resized
-  inputMethodContext->ResizedSignal().Emit(value);
+  inputMethodContext->EmitKeyboardResizedSignal(value);
 }
 
 void InputPanelKeyboardTypeChangedCallback(void* data, Ecore_IMF_Context* context, int value)
@@ -240,13 +203,13 @@ void InputPanelKeyboardTypeChangedCallback(void* data, Ecore_IMF_Context* contex
     case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
     {
       // Emit Signal that the keyboard type is changed to Software Keyboard
-      inputMethodContext->KeyboardTypeChangedSignal().Emit(Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD);
+      inputMethodContext->EmitKeyboardTypeChangedSignal(Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD);
       break;
     }
     case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
     {
       // Emit Signal that the keyboard type is changed to Hardware Keyboard
-      inputMethodContext->KeyboardTypeChangedSignal().Emit(Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD);
+      inputMethodContext->EmitKeyboardTypeChangedSignal(Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD);
       break;
     }
   }
@@ -342,12 +305,241 @@ int GetWindowIdFromActor(Dali::Actor actor)
   return windowId;
 }
 
-BaseHandle Create()
+Ecore_IMF_Input_Panel_Layout ToEcorePanelLayout(Dali::InputMethod::PanelLayout layout)
 {
-  return Dali::InputMethodContext::New(Dali::Actor());
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NORMAL:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+    case Dali::InputMethod::PanelLayout::NUMBER:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBER;
+    case Dali::InputMethod::PanelLayout::EMAIL:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_EMAIL;
+    case Dali::InputMethod::PanelLayout::URL:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_URL;
+    case Dali::InputMethod::PanelLayout::PHONENUMBER:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER;
+    case Dali::InputMethod::PanelLayout::IP:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_IP;
+    case Dali::InputMethod::PanelLayout::MONTH:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH;
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY;
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD;
+    case Dali::InputMethod::PanelLayout::DATE_TIME:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME;
+    case Dali::InputMethod::PanelLayout::EMOTICON:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON;
+    case Dali::InputMethod::PanelLayout::VOICE:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_VOICE;
+    default:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+  }
 }
 
-Dali::TypeRegistration type(typeid(Dali::InputMethodContext), typeid(Dali::BaseHandle), Create);
+Dali::InputMethod::PanelLayout ToDaliPanelLayout(Ecore_IMF_Input_Panel_Layout ecoreLayout)
+{
+  switch(ecoreLayout)
+  {
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBER:
+      return Dali::InputMethod::PanelLayout::NUMBER;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_EMAIL:
+      return Dali::InputMethod::PanelLayout::EMAIL;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_URL:
+      return Dali::InputMethod::PanelLayout::URL;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER:
+      return Dali::InputMethod::PanelLayout::PHONENUMBER;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_IP:
+      return Dali::InputMethod::PanelLayout::IP;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH:
+      return Dali::InputMethod::PanelLayout::MONTH;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY:
+      return Dali::InputMethod::PanelLayout::NUMBER_ONLY;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_HEX:
+      return Dali::InputMethod::PanelLayout::NUMBER_ONLY;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_TERMINAL:
+      return Dali::InputMethod::PanelLayout::NORMAL;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD:
+      return Dali::InputMethod::PanelLayout::PASSWORD;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME:
+      return Dali::InputMethod::PanelLayout::DATE_TIME;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON:
+      return Dali::InputMethod::PanelLayout::EMOTICON;
+    case ECORE_IMF_INPUT_PANEL_LAYOUT_VOICE:
+      return Dali::InputMethod::PanelLayout::VOICE;
+    default:
+      return Dali::InputMethod::PanelLayout::NORMAL;
+  }
+}
+
+Ecore_IMF_Input_Panel_Return_Key_Type ToEcoreReturnKey(Dali::InputMethod::ReturnKeyType action)
+{
+  switch(action)
+  {
+    case Dali::InputMethod::ReturnKeyType::DONE:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE;
+    case Dali::InputMethod::ReturnKeyType::GO:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO;
+    case Dali::InputMethod::ReturnKeyType::JOIN:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN;
+    case Dali::InputMethod::ReturnKeyType::LOGIN:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN;
+    case Dali::InputMethod::ReturnKeyType::NEXT:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT;
+    case Dali::InputMethod::ReturnKeyType::SEARCH:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH;
+    case Dali::InputMethod::ReturnKeyType::SEND:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND;
+    case Dali::InputMethod::ReturnKeyType::SIGNIN:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN;
+    default:
+      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+  }
+}
+
+Dali::InputMethod::ReturnKeyType ToDaliReturnKey(Ecore_IMF_Input_Panel_Return_Key_Type ecoreKey)
+{
+  switch(ecoreKey)
+  {
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE:
+      return Dali::InputMethod::ReturnKeyType::DONE;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO:
+      return Dali::InputMethod::ReturnKeyType::GO;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN:
+      return Dali::InputMethod::ReturnKeyType::JOIN;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN:
+      return Dali::InputMethod::ReturnKeyType::LOGIN;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT:
+      return Dali::InputMethod::ReturnKeyType::NEXT;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH:
+      return Dali::InputMethod::ReturnKeyType::SEARCH;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND:
+      return Dali::InputMethod::ReturnKeyType::SEND;
+    case ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN:
+      return Dali::InputMethod::ReturnKeyType::SIGNIN;
+    default:
+      return Dali::InputMethod::ReturnKeyType::DEFAULT;
+  }
+}
+
+Ecore_IMF_Autocapital_Type ToEcoreAutoCapital(Dali::InputMethod::AutoCapitalType autoCapital)
+{
+  switch(autoCapital)
+  {
+    case Dali::InputMethod::AutoCapitalType::WORD:
+      return ECORE_IMF_AUTOCAPITAL_TYPE_WORD;
+    case Dali::InputMethod::AutoCapitalType::SENTENCE:
+      return ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE;
+    case Dali::InputMethod::AutoCapitalType::ALL_CHARACTER:
+      return ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER;
+    default:
+      return ECORE_IMF_AUTOCAPITAL_TYPE_NONE;
+  }
+}
+
+Dali::InputMethod::AutoCapitalType ToDaliAutoCapital(Ecore_IMF_Autocapital_Type ecoreAutoCapital)
+{
+  switch(ecoreAutoCapital)
+  {
+    case ECORE_IMF_AUTOCAPITAL_TYPE_WORD:
+      return Dali::InputMethod::AutoCapitalType::WORD;
+    case ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE:
+      return Dali::InputMethod::AutoCapitalType::SENTENCE;
+    case ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER:
+      return Dali::InputMethod::AutoCapitalType::ALL_CHARACTER;
+    default:
+      return Dali::InputMethod::AutoCapitalType::NONE;
+  }
+}
+
+int ToPlatformLayoutVariation(Dali::InputMethod::PanelLayout layout, Dali::InputMethod::PanelLayoutVariation variation)
+{
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED;
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_DECIMAL:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_DECIMAL;
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED_AND_DECIMAL:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED_AND_DECIMAL;
+        default:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::PASSWORD_WITH_NUMBER_ONLY:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD_VARIATION_NUMBERONLY;
+        default:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD_VARIATION_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::NORMAL:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_FILENAME:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_FILENAME;
+        case Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_PERSON_NAME:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_PERSON_NAME;
+        default:
+          return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_NORMAL;
+      }
+    }
+    default:
+      return ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_NORMAL;
+  }
+}
+
+Dali::InputMethod::PanelLayoutVariation ToPanelLayoutVariation(Dali::InputMethod::PanelLayout layout, int rawVariation)
+{
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+    {
+      switch(rawVariation)
+      {
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED;
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_DECIMAL:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_DECIMAL;
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED_AND_DECIMAL:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED_AND_DECIMAL;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+    {
+      switch(rawVariation)
+      {
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD_VARIATION_NUMBERONLY:
+          return Dali::InputMethod::PanelLayoutVariation::PASSWORD_WITH_NUMBER_ONLY;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::PASSWORD_NORMAL;
+      }
+    }
+    default:
+    {
+      switch(rawVariation)
+      {
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_FILENAME:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_FILENAME;
+        case ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_PERSON_NAME:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_PERSON_NAME;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
+      }
+    }
+  }
+}
 
 } // unnamed namespace
 
@@ -372,13 +564,13 @@ void InputMethodContextEcoreWl::Finalize()
 }
 
 InputMethodContextEcoreWl::InputMethodContextEcoreWl(Dali::Actor actor)
-: mIMFContext(),
+: mSurroundingText(),
+  mIMFContext(),
+  mWindowId(GetWindowIdFromActor(actor)),
   mIMFCursorPosition(0),
-  mSurroundingText(),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false),
-  mTxCapturing(false),
-  mWindowId(GetWindowIdFromActor(actor))
+  mTxCapturing(false)
 {
   ecore_imf_init();
 
@@ -547,9 +739,10 @@ bool InputMethodContextEcoreWl::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void InputMethodContextEcoreWl::SetRestoreAfterFocusLost(bool toggle)
+bool InputMethodContextEcoreWl::SetRestoreAfterFocusLost(bool toggle)
 {
   mRestoreAfterFocusLost = toggle;
+  return true;
 }
 
 /**
@@ -580,7 +773,7 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
     // iterate through the list of attributes getting the type, start and end position.
     for(l = attrs, (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))); l; l = eina_list_next(l), (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))))
     {
-      Dali::InputMethodContext::PreeditAttributeData data;
+      Dali::Integration::InputMethodContext::PreeditAttributeData data;
       data.startIndex = 0;
       data.endIndex   = 0;
 
@@ -617,47 +810,47 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
       {
         case ECORE_IMF_PREEDIT_TYPE_NONE:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB1:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB2:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB3:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB4:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_1;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_1;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB5:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_2;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_2;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB6:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_3;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_3;
           break;
         }
         case ECORE_IMF_PREEDIT_TYPE_SUB7:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_4;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::CUSTOM_PLATFORM_STYLE_4;
           break;
         }
         default:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
       }
@@ -674,9 +867,9 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::InputMethodContext            handle(this);
-      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
+      Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, Dali::String(preEditString ? preEditString : ""), cursorPosition, 0);
       mEventSignal.Emit(handle, eventData);
-      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+      Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
       if(callbackData.update)
       {
@@ -710,9 +903,9 @@ void InputMethodContextEcoreWl::CommitReceived(void* data, ImfContext* imfContex
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::InputMethodContext            handle(this);
-      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+      Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
       mEventSignal.Emit(handle, eventData);
-      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+      Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
       if(callbackData.update)
       {
@@ -734,10 +927,10 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext            handle(this);
+  Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::GET_SURROUNDING, Dali::String(), 0, 0);
+  Dali::InputMethodContext                         handle(this);
   mEventSignal.Emit(handle, imfData);
-  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
+  Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {
@@ -749,14 +942,14 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 
     if(text)
     {
-      const char* plainText = callbackData.currentText.c_str();
+      const char* plainText = callbackData.currentText.CStr();
 
       if(plainText)
       {
         // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
         if(ecore_imf_context_input_hint_get(mIMFContext) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA)
         {
-          size_t textLength = callbackData.currentText.length();
+          size_t textLength = callbackData.currentText.Size();
           size_t utf8Length = GetNumberOfUtf8Characters(plainText, textLength);
           if(textLength > 0u && utf8Length == 0u)
           {
@@ -799,8 +992,8 @@ void InputMethodContextEcoreWl::DeleteSurrounding(void* data, ImfContext* imfCon
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
-      Dali::InputMethodContext            handle(this);
+      Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
+      Dali::InputMethodContext                         handle(this);
       mEventSignal.Emit(handle, imfData);
       mKeyboardEventSignal.Emit(handle, imfData);
     }
@@ -824,9 +1017,10 @@ void InputMethodContextEcoreWl::SendPrivateCommand(void* data, ImfContext* imfCo
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
-      Dali::InputMethodContext            handle(this);
+      Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, Dali::String(privateCommandSendEvent), 0, 0);
+      Dali::InputMethodContext                         handle(this);
       mEventSignal.Emit(handle, imfData);
+      mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
       mKeyboardEventSignal.Emit(handle, imfData);
     }
   }
@@ -855,7 +1049,7 @@ void InputMethodContextEcoreWl::SendCommitContent(void* data, ImfContext* imfCon
       if(commitContent)
       {
         DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent commit content : %s, description : %s, mime type : %s\n", commitContent->content_uri, commitContent->description, commitContent->mime_types);
-        mContentReceivedSignal.Emit(commitContent->content_uri, commitContent->description, commitContent->mime_types);
+        EmitContentReceivedSignal(commitContent->content_uri, commitContent->description, commitContent->mime_types);
       }
     }
   }
@@ -884,8 +1078,8 @@ void InputMethodContextEcoreWl::SendSelectionSet(void* data, ImfContext* imfCont
       if(selection)
       {
         DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendSelectionSet selection start index : %d, end index : %d\n", selection->start, selection->end);
-        Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection->start, selection->end);
-        Dali::InputMethodContext            handle(this);
+        Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, selection->start, selection->end);
+        Dali::InputMethodContext                         handle(this);
         mEventSignal.Emit(handle, imfData);
         mKeyboardEventSignal.Emit(handle, imfData);
       }
@@ -925,9 +1119,9 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
           const String keyString = currentEvent.eventValue.GetElementAt(0).Get<String>();
 
           Dali::InputMethodContext            handle(this);
-          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, ToStdString(keyString), 0, 0);
+          Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, keyString, 0, 0);
           mEventSignal.Emit(handle, eventData);
-          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+          Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
           if(callbackData.update)
           {
@@ -946,9 +1140,9 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::InputMethodContext            handle(this);
           Dali::String                        preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
           int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, ToStdString(preEditString), cursorPosition, 0);
+          Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
           mEventSignal.Emit(handle, eventData);
-          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+          Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
           if(callbackData.update)
           {
@@ -971,7 +1165,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           int                                 offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
           int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), offset, n_chars);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), offset, n_chars);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -984,9 +1178,10 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           Dali::String privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
 
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent.CStr(), 0, 0);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
+          mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
           mKeyboardEventSignal.Emit(handle, imfData);
         }
         break;
@@ -998,7 +1193,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::String contentUri  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
           Dali::String description = currentEvent.eventValue.GetElementAt(1).Get<Dali::String>();
           Dali::String mimeTypes   = currentEvent.eventValue.GetElementAt(2).Get<Dali::String>();
-          mContentReceivedSignal.Emit(ToStdString(contentUri), ToStdString(description), ToStdString(mimeTypes));
+          EmitContentReceivedSignal(contentUri, description, mimeTypes);
         }
         break;
       }
@@ -1008,7 +1203,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
           int                                 end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, start, end);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, start, end);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -1050,14 +1245,14 @@ unsigned int InputMethodContextEcoreWl::GetCursorPosition() const
   return static_cast<unsigned int>(mIMFCursorPosition);
 }
 
-void InputMethodContextEcoreWl::SetSurroundingText(const std::string& text)
+void InputMethodContextEcoreWl::SetSurroundingText(const Dali::String& text)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetSurroundingText\n");
 
   mSurroundingText = text;
 }
 
-const std::string& InputMethodContextEcoreWl::GetSurroundingText() const
+Dali::String InputMethodContextEcoreWl::GetSurroundingText() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetSurroundingText\n");
 
@@ -1076,9 +1271,9 @@ void InputMethodContextEcoreWl::NotifyTextInputMultiLine(bool multiLine)
   mBackupOperations[Operation::NOTIFY_TEXT_INPUT_MULTILINE] = std::bind(&InputMethodContextEcoreWl::NotifyTextInputMultiLine, this, multiLine);
 }
 
-Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
+Dali::Integration::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction(Dali::InputMethodContext::LEFT_TO_RIGHT);
+  Dali::Integration::InputMethodContext::TextDirection direction(Dali::Integration::InputMethodContext::LEFT_TO_RIGHT);
 
   if(mIMFContext)
   {
@@ -1087,7 +1282,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirect
 
     if(locale)
     {
-      direction = static_cast<Dali::InputMethodContext::TextDirection>(Locale::GetDirection(std::string(locale)));
+      direction = static_cast<Dali::Integration::InputMethodContext::TextDirection>(Locale::GetDirection(std::string(locale)));
       free(locale);
     }
   }
@@ -1095,7 +1290,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextEcoreWl::GetTextDirect
   return direction;
 }
 
-BoundsInteger InputMethodContextEcoreWl::GetInputMethodArea()
+BoundsInteger InputMethodContextEcoreWl::GetInputPanelArea()
 {
   int xPos, yPos, width, height;
 
@@ -1114,9 +1309,9 @@ BoundsInteger InputMethodContextEcoreWl::GetInputMethodArea()
   return BoundsInteger(xPos, yPos, width, height);
 }
 
-void InputMethodContextEcoreWl::ApplyOptions(const InputMethodOptions& options)
+void InputMethodContextEcoreWl::ApplyOptions(const Dali::Integration::InputMethodOptions& options)
 {
-  using namespace Dali::InputMethod::Category;
+  using namespace Dali::Integration::InputMethod::Category;
 
   int index;
 
@@ -1128,10 +1323,12 @@ void InputMethodContextEcoreWl::ApplyOptions(const InputMethodOptions& options)
 
   if(mOptions.CompareAndSet(PANEL_LAYOUT, options, index))
   {
-    ecore_imf_context_input_panel_layout_set(mIMFContext, panelLayoutMap[index]);
+    const auto layout      = mOptions.GetPanelLayout();
+    const auto ecoreLayout = ToEcorePanelLayout(layout);
+    ecore_imf_context_input_panel_layout_set(mIMFContext, ecoreLayout);
 
     // Sets the input hint which allows input methods to fine-tune their behavior.
-    if(panelLayoutMap[index] == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD)
+    if(ecoreLayout == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD)
     {
       ecore_imf_context_input_hint_set(mIMFContext, static_cast<Ecore_IMF_Input_Hints>(ecore_imf_context_input_hint_get(mIMFContext) | ECORE_IMF_INPUT_HINT_SENSITIVE_DATA));
     }
@@ -1142,34 +1339,35 @@ void InputMethodContextEcoreWl::ApplyOptions(const InputMethodOptions& options)
   }
   if(mOptions.CompareAndSet(BUTTON_ACTION, options, index))
   {
-    ecore_imf_context_input_panel_return_key_type_set(mIMFContext, returnKeyTypeMap[index]);
+    ecore_imf_context_input_panel_return_key_type_set(mIMFContext, ToEcoreReturnKey(static_cast<Dali::InputMethod::ReturnKeyType>(index)));
   }
   if(mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index))
   {
-    ecore_imf_context_autocapital_type_set(mIMFContext, autoCapitalMap[index]);
+    ecore_imf_context_autocapital_type_set(mIMFContext, ToEcoreAutoCapital(static_cast<Dali::InputMethod::AutoCapitalType>(index)));
   }
   if(mOptions.CompareAndSet(VARIATION, options, index))
   {
-    ecore_imf_context_input_panel_layout_variation_set(mIMFContext, index);
+    ecore_imf_context_input_panel_layout_variation_set(mIMFContext, ToPlatformLayoutVariation(mOptions.GetPanelLayout(), mOptions.GetPanelLayoutVariation()));
   }
 }
 
-void InputMethodContextEcoreWl::SetInputPanelData(const std::string& data)
+bool InputMethodContextEcoreWl::SetInputPanelUserData(const Dali::String& data)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelUserData\n");
 
   if(mIMFContext)
   {
-    int length = data.length();
-    ecore_imf_context_input_panel_imdata_set(mIMFContext, data.c_str(), length);
+    int length = static_cast<int>(data.Size());
+    ecore_imf_context_input_panel_imdata_set(mIMFContext, data.CStr(), length);
   }
 
-  mBackupOperations[Operation::SET_INPUT_PANEL_DATA] = std::bind(&InputMethodContextEcoreWl::SetInputPanelData, this, data);
+  mBackupOperations[Operation::SET_INPUT_PANEL_USER_DATA] = std::bind(&InputMethodContextEcoreWl::SetInputPanelUserData, this, data);
+  return true;
 }
 
-void InputMethodContextEcoreWl::GetInputPanelData(std::string& data)
+Dali::String InputMethodContextEcoreWl::GetInputPanelUserData() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelUserData\n");
 
   if(mIMFContext)
   {
@@ -1177,8 +1375,10 @@ void InputMethodContextEcoreWl::GetInputPanelData(std::string& data)
     Dali::Vector<char> buffer;
     buffer.Resize(length);
     ecore_imf_context_input_panel_imdata_get(mIMFContext, &buffer[0], &length);
-    data = std::string(buffer.Begin(), buffer.End());
+    return Dali::Integration::ToDaliString(std::string(&buffer[0], length));
   }
+
+  return Dali::String();
 }
 
 Dali::InputMethodContext::State InputMethodContextEcoreWl::GetInputPanelState()
@@ -1194,32 +1394,29 @@ Dali::InputMethodContext::State InputMethodContextEcoreWl::GetInputPanelState()
     {
       case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
       {
-        return Dali::InputMethodContext::SHOW;
+        return Dali::InputMethodContext::State::SHOW;
         break;
       }
-
       case ECORE_IMF_INPUT_PANEL_STATE_HIDE:
       {
-        return Dali::InputMethodContext::HIDE;
+        return Dali::InputMethodContext::State::HIDE;
         break;
       }
-
       case ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
       {
-        return Dali::InputMethodContext::WILL_SHOW;
+        return Dali::InputMethodContext::State::WILL_SHOW;
         break;
       }
-
       default:
       {
-        return Dali::InputMethodContext::DEFAULT;
+        return Dali::InputMethodContext::State::HIDE;
       }
     }
   }
-  return Dali::InputMethodContext::DEFAULT;
+  return Dali::InputMethodContext::State::HIDE;
 }
 
-void InputMethodContextEcoreWl::SetReturnKeyState(bool visible)
+bool InputMethodContextEcoreWl::SetReturnKeyState(bool visible)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetReturnKeyState\n");
 
@@ -1229,9 +1426,22 @@ void InputMethodContextEcoreWl::SetReturnKeyState(bool visible)
   }
 
   mBackupOperations[Operation::SET_RETURN_KEY_STATE] = std::bind(&InputMethodContextEcoreWl::SetReturnKeyState, this, visible);
+  return true;
 }
 
-void InputMethodContextEcoreWl::AutoEnableInputPanel(bool enabled)
+bool InputMethodContextEcoreWl::IsReturnKeyEnabled() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::IsReturnKeyEnabled\n");
+
+  if(mIMFContext)
+  {
+    return !ecore_imf_context_input_panel_return_key_disabled_get(mIMFContext);
+  }
+
+  return true;
+}
+
+bool InputMethodContextEcoreWl::AutoEnableInputPanel(bool enabled)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::AutoEnableInputPanel\n");
 
@@ -1241,26 +1451,33 @@ void InputMethodContextEcoreWl::AutoEnableInputPanel(bool enabled)
   }
 
   mBackupOperations[Operation::AUTO_ENABLE_INPUT_PANEL] = std::bind(&InputMethodContextEcoreWl::AutoEnableInputPanel, this, enabled);
+  return true;
 }
 
-void InputMethodContextEcoreWl::ShowInputPanel()
+bool InputMethodContextEcoreWl::ShowInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::ShowInputPanel\n");
 
   if(mIMFContext)
   {
     ecore_imf_context_input_panel_show(mIMFContext);
+    return true;
   }
+
+  return false;
 }
 
-void InputMethodContextEcoreWl::HideInputPanel()
+bool InputMethodContextEcoreWl::HideInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::HideInputPanel\n");
 
   if(mIMFContext)
   {
     ecore_imf_context_input_panel_hide(mIMFContext);
+    return true;
   }
+
+  return false;
 }
 
 Dali::InputMethodContext::KeyboardType InputMethodContextEcoreWl::GetKeyboardType()
@@ -1276,12 +1493,12 @@ Dali::InputMethodContext::KeyboardType InputMethodContextEcoreWl::GetKeyboardTyp
     {
       case ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE:
       {
-        return Dali::InputMethodContext::SOFTWARE_KEYBOARD;
+        return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
         break;
       }
       case ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE:
       {
-        return Dali::InputMethodContext::HARDWARE_KEYBOARD;
+        return Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD;
         break;
       }
     }
@@ -1290,11 +1507,17 @@ Dali::InputMethodContext::KeyboardType InputMethodContextEcoreWl::GetKeyboardTyp
   return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
 }
 
-std::string InputMethodContextEcoreWl::GetInputPanelLocale()
+bool InputMethodContextEcoreWl::SetInputPanelLanguageLocale(const Dali::String& locale)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLocale\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLanguageLocale\n");
+  return false;
+}
 
-  std::string locale = "";
+Dali::String InputMethodContextEcoreWl::GetInputPanelLanguageLocale() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLanguageLocale\n");
+
+  Dali::String locale;
 
   if(mIMFContext)
   {
@@ -1303,8 +1526,7 @@ std::string InputMethodContextEcoreWl::GetInputPanelLocale()
 
     if(value)
     {
-      std::string valueCopy(value);
-      locale = valueCopy;
+      locale = Dali::String(value);
 
       // The locale string retrieved must be freed with free().
       free(value);
@@ -1313,16 +1535,16 @@ std::string InputMethodContextEcoreWl::GetInputPanelLocale()
   return locale;
 }
 
-void InputMethodContextEcoreWl::SetContentMIMETypes(const std::string& mimeTypes)
+void InputMethodContextEcoreWl::SetContentMimeTypes(const Dali::String& mimeTypes)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetContentMIMETypes\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetContentMimeTypes\n");
 
   if(mIMFContext)
   {
-    ecore_imf_context_mime_type_accept_set(mIMFContext, mimeTypes.c_str());
+    ecore_imf_context_mime_type_accept_set(mIMFContext, mimeTypes.CStr());
   }
 
-  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind(&InputMethodContextEcoreWl::SetContentMIMETypes, this, mimeTypes);
+  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind(&InputMethodContextEcoreWl::SetContentMimeTypes, this, mimeTypes);
 }
 
 bool InputMethodContextEcoreWl::FilterEventKey(const Dali::KeyEvent& keyEvent)
@@ -1346,7 +1568,7 @@ bool InputMethodContextEcoreWl::FilterEventKey(const Dali::KeyEvent& keyEvent)
   return eventHandled;
 }
 
-void InputMethodContextEcoreWl::AllowTextPrediction(bool prediction)
+bool InputMethodContextEcoreWl::AllowTextPrediction(bool prediction)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::AllowTextPrediction\n");
 
@@ -1356,6 +1578,7 @@ void InputMethodContextEcoreWl::AllowTextPrediction(bool prediction)
   }
 
   mBackupOperations[Operation::ALLOW_TEXT_PREDICTION] = std::bind(&InputMethodContextEcoreWl::AllowTextPrediction, this, prediction);
+  return true;
 }
 
 bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
@@ -1369,7 +1592,7 @@ bool InputMethodContextEcoreWl::IsTextPredictionAllowed() const
   return prediction;
 }
 
-void InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
+bool InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetFullScreenMode\n");
 
@@ -1382,8 +1605,10 @@ void InputMethodContextEcoreWl::SetFullScreenMode(bool fullScreen)
   }
 
   mBackupOperations[Operation::FULLSCREEN_MODE] = std::bind(&InputMethodContextEcoreWl::SetFullScreenMode, this, fullScreen);
+  return true;
 #else
   DALI_LOG_ERROR("SetFullScreenMode NOT SUPPORT THIS TIZEN VERSION!\n");
+  return false;
 #endif
 }
 
@@ -1403,19 +1628,19 @@ bool InputMethodContextEcoreWl::IsFullScreenMode() const
   return fullScreen;
 }
 
-void InputMethodContextEcoreWl::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
+bool InputMethodContextEcoreWl::SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLanguage\n");
   if(mIMFContext)
   {
     switch(language)
     {
-      case Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC:
+      case Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC:
       {
         ecore_imf_context_input_panel_language_set(mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC);
         break;
       }
-      case Dali::InputMethodContext::InputPanelLanguage::ALPHABET:
+      case Dali::Integration::InputMethodContext::InputPanelLanguage::ALPHABET:
       {
         ecore_imf_context_input_panel_language_set(mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET);
         break;
@@ -1424,9 +1649,10 @@ void InputMethodContextEcoreWl::SetInputPanelLanguage(Dali::InputMethodContext::
   }
 
   mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE] = std::bind(&InputMethodContextEcoreWl::SetInputPanelLanguage, this, language);
+  return true;
 }
 
-Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInputPanelLanguage() const
+Dali::Integration::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInputPanelLanguage() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLanguage\n");
   if(mIMFContext)
@@ -1438,20 +1664,20 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextEcoreWl::GetInput
     {
       case ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC:
       {
-        return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+        return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
         break;
       }
       case ECORE_IMF_INPUT_PANEL_LANG_ALPHABET:
       {
-        return Dali::InputMethodContext::InputPanelLanguage::ALPHABET;
+        return Dali::Integration::InputMethodContext::InputPanelLanguage::ALPHABET;
         break;
       }
     }
   }
-  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+  return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
-void InputMethodContextEcoreWl::SetInputPanelPosition(unsigned int x, unsigned int y)
+bool InputMethodContextEcoreWl::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelPosition\n");
 
@@ -1461,6 +1687,7 @@ void InputMethodContextEcoreWl::SetInputPanelPosition(unsigned int x, unsigned i
   }
 
   mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind(&InputMethodContextEcoreWl::SetInputPanelPosition, this, x, y);
+  return true;
 }
 
 bool InputMethodContextEcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
@@ -1528,10 +1755,125 @@ bool InputMethodContextEcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::I
   return result;
 }
 
-void InputMethodContextEcoreWl::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
+void InputMethodContextEcoreWl::GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetPreeditStyle\n");
   attrs = mPreeditAttrs;
+}
+
+bool InputMethodContextEcoreWl::SetInputPanelLayout(Dali::InputMethod::PanelLayout layout)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLayout\n");
+
+  if(mIMFContext)
+  {
+    const auto ecoreLayout = ToEcorePanelLayout(layout);
+    ecore_imf_context_input_panel_layout_set(mIMFContext, ecoreLayout);
+
+    Ecore_IMF_Input_Hints currentHint = ecore_imf_context_input_hint_get(mIMFContext);
+    if(ecoreLayout == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD)
+    {
+      ecore_imf_context_input_hint_set(mIMFContext, static_cast<Ecore_IMF_Input_Hints>(currentHint | ECORE_IMF_INPUT_HINT_SENSITIVE_DATA));
+    }
+    else
+    {
+      ecore_imf_context_input_hint_set(mIMFContext, static_cast<Ecore_IMF_Input_Hints>(currentHint & ~ECORE_IMF_INPUT_HINT_SENSITIVE_DATA));
+    }
+    ecore_imf_context_input_panel_layout_variation_set(mIMFContext, ToPlatformLayoutVariation(layout, ToPanelLayoutVariation(layout, 0)));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LAYOUT] = std::bind(&InputMethodContextEcoreWl::SetInputPanelLayout, this, layout);
+  return true;
+}
+
+Dali::InputMethod::PanelLayout InputMethodContextEcoreWl::GetInputPanelLayout() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLayout\n");
+
+  if(mIMFContext)
+  {
+    return ToDaliPanelLayout(ecore_imf_context_input_panel_layout_get(mIMFContext));
+  }
+
+  return Dali::InputMethod::PanelLayout::NORMAL;
+}
+
+bool InputMethodContextEcoreWl::SetInputPanelReturnKeyType(Dali::InputMethod::ReturnKeyType action)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelReturnKeyType\n");
+
+  if(mIMFContext)
+  {
+    ecore_imf_context_input_panel_return_key_type_set(mIMFContext, ToEcoreReturnKey(action));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_RETURN_KEY] = std::bind(&InputMethodContextEcoreWl::SetInputPanelReturnKeyType, this, action);
+  return true;
+}
+
+Dali::InputMethod::ReturnKeyType InputMethodContextEcoreWl::GetInputPanelReturnKeyType() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelReturnKeyType\n");
+
+  if(mIMFContext)
+  {
+    return ToDaliReturnKey(ecore_imf_context_input_panel_return_key_type_get(mIMFContext));
+  }
+
+  return Dali::InputMethod::ReturnKeyType::DEFAULT;
+}
+
+bool InputMethodContextEcoreWl::SetInputPanelAutoCapitalType(Dali::InputMethod::AutoCapitalType autoCapital)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelAutoCapitalType\n");
+
+  if(mIMFContext)
+  {
+    ecore_imf_context_autocapital_type_set(mIMFContext, ToEcoreAutoCapital(autoCapital));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_AUTO_CAPITAL] = std::bind(&InputMethodContextEcoreWl::SetInputPanelAutoCapitalType, this, autoCapital);
+  return true;
+}
+
+Dali::InputMethod::AutoCapitalType InputMethodContextEcoreWl::GetInputPanelAutoCapitalType() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelAutoCapitalType\n");
+
+  if(mIMFContext)
+  {
+    return ToDaliAutoCapital(ecore_imf_context_autocapital_type_get(mIMFContext));
+  }
+
+  return Dali::InputMethod::AutoCapitalType::SENTENCE;
+}
+
+bool InputMethodContextEcoreWl::SetInputPanelLayoutVariation(Dali::InputMethod::PanelLayoutVariation variation)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelLayoutVariation\n");
+
+  if(mIMFContext)
+  {
+    const auto layout = ToDaliPanelLayout(ecore_imf_context_input_panel_layout_get(mIMFContext));
+    ecore_imf_context_input_panel_layout_variation_set(mIMFContext, ToPlatformLayoutVariation(layout, variation));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LAYOUT_VARIATION] = std::bind(&InputMethodContextEcoreWl::SetInputPanelLayoutVariation, this, variation);
+  return true;
+}
+
+Dali::InputMethod::PanelLayoutVariation InputMethodContextEcoreWl::GetInputPanelLayoutVariation() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetInputPanelLayoutVariation\n");
+
+  if(mIMFContext)
+  {
+    const auto layout       = ToDaliPanelLayout(ecore_imf_context_input_panel_layout_get(mIMFContext));
+    const int  rawVariation = ecore_imf_context_input_panel_layout_variation_get(mIMFContext);
+    return ToPanelLayoutVariation(layout, rawVariation);
+  }
+
+  return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
 }
 
 bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)

@@ -24,7 +24,6 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/input-method-context.h>
 #include <dali/internal/input/common/input-method-context-impl.h>
 
 namespace Dali
@@ -103,7 +102,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetRestoreAfterFocusLost()
    */
-  void SetRestoreAfterFocusLost(bool toggle) override;
+  bool SetRestoreAfterFocusLost(bool toggle) override;
 
   /**
    * @copydoc Dali::InputMethodContext::PreEditChanged()
@@ -165,12 +164,12 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetSurroundingText()
    */
-  void SetSurroundingText(const std::string& text) override;
+  void SetSurroundingText(const Dali::String& text) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetSurroundingText()
    */
-  const std::string& GetSurroundingText() const override;
+  Dali::String GetSurroundingText() const override;
 
   /**
    * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
@@ -180,27 +179,27 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::GetTextDirection()
    */
-  Dali::InputMethodContext::TextDirection GetTextDirection() override;
+  Dali::Integration::InputMethodContext::TextDirection GetTextDirection() override;
 
   /**
-   * @copydoc Dali::InputMethodContext::GetInputMethodArea()
+   * @copydoc Dali::InputMethodContext::GetInputPanelArea()
    */
-  Dali::BoundsInteger GetInputMethodArea() override;
+  Dali::BoundsInteger GetInputPanelArea() override;
 
   /**
    * @copydoc Dali::InputMethodContext::ApplyOptions()
    */
-  void ApplyOptions(const InputMethodOptions& options) override;
+  void ApplyOptions(const Dali::Integration::InputMethodOptions& options) override;
 
   /**
-   * @copydoc Dali::InputMethodContext::SetInputPanelData()
+   * @copydoc Dali::InputMethodContext::SetInputPanelUserData()
    */
-  void SetInputPanelData(const std::string& data) override;
+  bool SetInputPanelUserData(const Dali::String& data) override;
 
   /**
-   * @copydoc Dali::InputMethodContext::GetInputPanelData()
+   * @copydoc Dali::InputMethodContext::GetInputPanelUserData()
    */
-  void GetInputPanelData(std::string& data) override;
+  Dali::String GetInputPanelUserData() const override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetInputPanelState()
@@ -210,22 +209,27 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetReturnKeyState()
    */
-  void SetReturnKeyState(bool visible) override;
+  bool SetReturnKeyState(bool visible) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::IsReturnKeyEnabled()
+   */
+  bool IsReturnKeyEnabled() const override;
 
   /**
    * @copydoc Dali::InputMethodContext::AutoEnableInputPanel()
    */
-  void AutoEnableInputPanel(bool enabled) override;
+  bool AutoEnableInputPanel(bool enabled) override;
 
   /**
    * @copydoc Dali::InputMethodContext::ShowInputPanel()
    */
-  void ShowInputPanel() override;
+  bool ShowInputPanel() override;
 
   /**
    * @copydoc Dali::InputMethodContext::HideInputPanel()
    */
-  void HideInputPanel() override;
+  bool HideInputPanel() override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetKeyboardType()
@@ -233,14 +237,19 @@ public:
   Dali::InputMethodContext::KeyboardType GetKeyboardType() override;
 
   /**
-   * @copydoc Dali::InputMethodContext::GetInputPanelLocale()
+   * @copydoc Dali::InputMethodContext::SetInputPanelLanguageLocale()
    */
-  std::string GetInputPanelLocale() override;
+  bool SetInputPanelLanguageLocale(const Dali::String& locale) override;
 
   /**
-   * @copydoc Dali::InputMethodContext::SetContentMIMETypes()
+   * @copydoc Dali::InputMethodContext::GetInputPanelLanguageLocale()
    */
-  void SetContentMIMETypes(const std::string& mimeTypes) override;
+  Dali::String GetInputPanelLanguageLocale() const override;
+
+  /**
+   * @copydoc Dali::Integration::InputMethodContext::SetContentMimeTypes()
+   */
+  void SetContentMimeTypes(const Dali::String& mimeTypes) override;
 
   /**
    * @copydoc Dali::InputMethodContext::FilterEventKey()
@@ -250,7 +259,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::AllowTextPrediction()
    */
-  void AllowTextPrediction(bool prediction) override;
+  bool AllowTextPrediction(bool prediction) override;
 
   /**
    * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
@@ -260,7 +269,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetFullScreenMode()
    */
-  void SetFullScreenMode(bool fullScreen) override;
+  bool SetFullScreenMode(bool fullScreen) override;
 
   /**
    * @copydoc Dali::InputMethodContext::IsFullScreenMode()
@@ -268,19 +277,19 @@ public:
   bool IsFullScreenMode() const override;
 
   /**
-   * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
+   * @copydoc Dali::Integration::InputMethodContext::SetInputPanelLanguage()
    */
-  void SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language) override;
+  bool SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language) override;
 
   /**
-   * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
+   * @copydoc Dali::Integration::InputMethodContext::GetInputPanelLanguage()
    */
-  Dali::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const override;
+  Dali::Integration::InputMethodContext::InputPanelLanguage GetInputPanelLanguage() const override;
 
   /**
    * @copydoc Dali::InputMethodContext::SetInputPanelPosition()
    */
-  void SetInputPanelPosition(unsigned int x, unsigned int y) override;
+  bool SetInputPanelPosition(unsigned int x, unsigned int y) override;
 
   /**
    * @copydoc Dali::InputMethodContext::SetInputPanelPositionAlign()
@@ -288,9 +297,49 @@ public:
   bool SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align) override;
 
   /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLayout()
+   */
+  bool SetInputPanelLayout(Dali::InputMethod::PanelLayout layout) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLayout()
+   */
+  Dali::InputMethod::PanelLayout GetInputPanelLayout() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelReturnKeyType()
+   */
+  bool SetInputPanelReturnKeyType(Dali::InputMethod::ReturnKeyType action) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelReturnKeyType()
+   */
+  Dali::InputMethod::ReturnKeyType GetInputPanelReturnKeyType() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelAutoCapitalType()
+   */
+  bool SetInputPanelAutoCapitalType(Dali::InputMethod::AutoCapitalType autoCapital) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelAutoCapitalType()
+   */
+  Dali::InputMethod::AutoCapitalType GetInputPanelAutoCapitalType() const override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelLayoutVariation()
+   */
+  bool SetInputPanelLayoutVariation(Dali::InputMethod::PanelLayoutVariation variation) override;
+
+  /**
+   * @copydoc Dali::InputMethodContext::GetInputPanelLayoutVariation()
+   */
+  Dali::InputMethod::PanelLayoutVariation GetInputPanelLayoutVariation() const override;
+
+  /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  void GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
+  void GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
 
 private:
   /**
@@ -354,16 +403,18 @@ private:
   InputMethodContextX& operator=(const InputMethodContextX& inputMethodContext) = delete;
 
 private:
+  Dali::Integration::InputMethodOptions                                mOptions;
+  Dali::Integration::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
+
+  Dali::String mSurroundingText;
+
   Ecore_IMF_Context* mIMFContext;
   Ecore_X_Window     mEcoreXwin;
-  int                mIMFCursorPosition;
-  std::string        mSurroundingText;
 
-  bool               mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated ) after focus regained.
-  bool               mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
-  InputMethodOptions mOptions;
+  int mIMFCursorPosition;
 
-  Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
+  bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated) after focus regained.
+  bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
 };
 
 } // namespace Adaptor

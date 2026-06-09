@@ -55,12 +55,12 @@ void ApplySettings(const Property::Map& settingsMap);
 /**
  * @copydoc Dali::VirtualKeyboard::SetReturnKeyType()
  */
-void SetReturnKeyType(const Dali::InputMethod::ButtonAction::Type type);
+void SetReturnKeyType(const Dali::InputMethod::ReturnKeyType type);
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetReturnKeyType()
  */
-Dali::InputMethod::ButtonAction::Type GetReturnKeyType();
+Dali::InputMethod::ReturnKeyType GetReturnKeyType();
 
 /**
  * @copydoc Dali::VirtualKeyboard::EnablePrediction()

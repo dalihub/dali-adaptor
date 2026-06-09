@@ -62,8 +62,8 @@ void InputMethodContextCocoa::Finalize()
 }
 
 InputMethodContextCocoa::InputMethodContextCocoa(Dali::Actor actor)
-: mIMFCursorPosition(0),
-  mSurroundingText(),
+: mSurroundingText(),
+  mIMFCursorPosition(0),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false)
 {
@@ -117,9 +117,10 @@ bool InputMethodContextCocoa::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void InputMethodContextCocoa::SetRestoreAfterFocusLost(bool toggle)
+bool InputMethodContextCocoa::SetRestoreAfterFocusLost(bool toggle)
 {
   mRestoreAfterFocusLost = toggle;
+  return true;
 }
 
 /**
@@ -140,10 +141,10 @@ void InputMethodContextCocoa::CommitReceived(void*, ImfContext* imfContext, void
   {
     const std::string keyString(static_cast<char*>(eventInfo));
 
-    Dali::InputMethodContext            handle(this);
-    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+    Dali::InputMethodContext                         handle(this);
+    Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
     mEventSignal.Emit(handle, eventData);
-    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+    Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
@@ -163,16 +164,16 @@ bool InputMethodContextCocoa::RetrieveSurrounding(void* data, ImfContext* imfCon
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext            handle(this);
+  Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::GET_SURROUNDING, Dali::String(), 0, 0);
+  Dali::InputMethodContext                         handle(this);
   mEventSignal.Emit(handle, imfData);
-  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
+  Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {
     if(text)
     {
-      *text = strdup(callbackData.currentText.c_str());
+      *text = strdup(callbackData.currentText.CStr());
     }
 
     if(cursorPosition)
@@ -213,14 +214,14 @@ unsigned int InputMethodContextCocoa::GetCursorPosition() const
   return static_cast<unsigned int>(mIMFCursorPosition);
 }
 
-void InputMethodContextCocoa::SetSurroundingText(const std::string& text)
+void InputMethodContextCocoa::SetSurroundingText(const Dali::String& text)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetSurroundingText\n");
 
   mSurroundingText = text;
 }
 
-const std::string& InputMethodContextCocoa::GetSurroundingText() const
+Dali::String InputMethodContextCocoa::GetSurroundingText() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetSurroundingText\n");
 
@@ -231,14 +232,14 @@ void InputMethodContextCocoa::NotifyTextInputMultiLine(bool multiLine)
 {
 }
 
-Dali::InputMethodContext::TextDirection InputMethodContextCocoa::GetTextDirection()
+Dali::Integration::InputMethodContext::TextDirection InputMethodContextCocoa::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction(Dali::InputMethodContext::LEFT_TO_RIGHT);
+  Dali::Integration::InputMethodContext::TextDirection direction(Dali::Integration::InputMethodContext::LEFT_TO_RIGHT);
 
   return direction;
 }
 
-BoundsInteger InputMethodContextCocoa::GetInputMethodArea()
+BoundsInteger InputMethodContextCocoa::GetInputPanelArea()
 {
   int xPos, yPos, width, height;
 
@@ -247,9 +248,9 @@ BoundsInteger InputMethodContextCocoa::GetInputMethodArea()
   return BoundsInteger(xPos, yPos, width, height);
 }
 
-void InputMethodContextCocoa::ApplyOptions(const InputMethodOptions& options)
+void InputMethodContextCocoa::ApplyOptions(const Dali::Integration::InputMethodOptions& options)
 {
-  using namespace Dali::InputMethod::Category;
+  using namespace Dali::Integration::InputMethod::Category;
 
   int index;
 
@@ -267,40 +268,53 @@ void InputMethodContextCocoa::ApplyOptions(const InputMethodOptions& options)
   }
 }
 
-void InputMethodContextCocoa::SetInputPanelData(const std::string& data)
+bool InputMethodContextCocoa::SetInputPanelUserData(const Dali::String& data)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelUserData\n");
+  return true;
 }
 
-void InputMethodContextCocoa::GetInputPanelData(std::string& data)
+Dali::String InputMethodContextCocoa::GetInputPanelUserData() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelUserData\n");
+
+  return Dali::String();
 }
 
 Dali::InputMethodContext::State InputMethodContextCocoa::GetInputPanelState()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelState\n");
-  return Dali::InputMethodContext::DEFAULT;
+  return Dali::InputMethodContext::State::HIDE;
 }
 
-void InputMethodContextCocoa::SetReturnKeyState(bool visible)
+bool InputMethodContextCocoa::SetReturnKeyState(bool visible)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetReturnKeyState\n");
+  return true;
 }
 
-void InputMethodContextCocoa::AutoEnableInputPanel(bool enabled)
+bool InputMethodContextCocoa::IsReturnKeyEnabled() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::IsReturnKeyEnabled\n");
+  return true;
+}
+
+bool InputMethodContextCocoa::AutoEnableInputPanel(bool enabled)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::AutoEnableInputPanel\n");
+  return true;
 }
 
-void InputMethodContextCocoa::ShowInputPanel()
+bool InputMethodContextCocoa::ShowInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::ShowInputPanel\n");
+  return true;
 }
 
-void InputMethodContextCocoa::HideInputPanel()
+bool InputMethodContextCocoa::HideInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::HideInputPanel\n");
+  return true;
 }
 
 Dali::InputMethodContext::KeyboardType InputMethodContextCocoa::GetKeyboardType()
@@ -308,17 +322,22 @@ Dali::InputMethodContext::KeyboardType InputMethodContextCocoa::GetKeyboardType(
   return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
 }
 
-std::string InputMethodContextCocoa::GetInputPanelLocale()
+bool InputMethodContextCocoa::SetInputPanelLanguageLocale(const Dali::String& locale)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelLocale\n");
-
-  std::string locale = "";
-  return locale;
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelLanguageLocale\n");
+  return false;
 }
 
-void InputMethodContextCocoa::SetContentMIMETypes(const std::string& mimeTypes)
+Dali::String InputMethodContextCocoa::GetInputPanelLanguageLocale() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetContentMIMETypes\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelLanguageLocale\n");
+
+  return Dali::String();
+}
+
+void InputMethodContextCocoa::SetContentMimeTypes(const Dali::String& mimeTypes)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetContentMimeTypes\n");
 }
 
 bool InputMethodContextCocoa::FilterEventKey(const Dali::KeyEvent& keyEvent)
@@ -341,20 +360,22 @@ bool InputMethodContextCocoa::FilterEventKey(const Dali::KeyEvent& keyEvent)
   return eventHandled;
 }
 
-void InputMethodContextCocoa::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
+bool InputMethodContextCocoa::SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelLanguage\n");
+  return true;
 }
 
-Dali::InputMethodContext::InputPanelLanguage InputMethodContextCocoa::GetInputPanelLanguage() const
+Dali::Integration::InputMethodContext::InputPanelLanguage InputMethodContextCocoa::GetInputPanelLanguage() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetInputPanelLanguage\n");
-  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+  return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
-void InputMethodContextCocoa::SetInputPanelPosition(unsigned int x, unsigned int y)
+bool InputMethodContextCocoa::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelPosition\n");
+  return true;
 }
 
 bool InputMethodContextCocoa::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
@@ -363,7 +384,7 @@ bool InputMethodContextCocoa::SetInputPanelPositionAlign(int x, int y, Dali::Inp
   return false;
 }
 
-void InputMethodContextCocoa::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
+void InputMethodContextCocoa::GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetPreeditStyle\n");
   attrs = mPreeditAttrs;
