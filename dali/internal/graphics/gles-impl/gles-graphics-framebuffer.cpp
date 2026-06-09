@@ -21,6 +21,7 @@
 // external headers
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/public-api/common/dali-utility.h>
 
 // Internal headers
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
@@ -102,7 +103,7 @@ Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Grap
   // Check whether we need to consider multisampling
   if(createInfo.multiSamplingLevel > 1u && controller.GetGraphicsInterface()->IsMultisampledRenderToTextureSupported())
   {
-    mMultisamples = std::min(createInfo.multiSamplingLevel, controller.GetGraphicsInterface()->GetMaxTextureSamples());
+    mMultisamples = Min(createInfo.multiSamplingLevel, controller.GetGraphicsInterface()->GetMaxTextureSamples());
   }
 
   mDepthBufferUsed   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;

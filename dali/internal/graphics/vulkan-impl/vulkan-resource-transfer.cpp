@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
+
+// INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer.h>
 
 #include <dali/integration-api/pixel-data-integ.h>
@@ -26,8 +30,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
-
-#include <algorithm>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -55,10 +57,10 @@ static bool TestCopyRectIntersection(const ResourceTransferRequest* srcRequest, 
   auto curOffset = currentRequest->bufferToImageInfo.copyInfo.imageOffset;
   auto curExtent = currentRequest->bufferToImageInfo.copyInfo.imageExtent;
 
-  auto offsetX0 = std::min(srcOffset.x, curOffset.x);
-  auto offsetY0 = std::min(srcOffset.y, curOffset.y);
-  auto offsetX1 = std::max(srcOffset.x + int32_t(srcExtent.width), curOffset.x + int32_t(curExtent.width));
-  auto offsetY1 = std::max(srcOffset.y + int32_t(srcExtent.height), curOffset.y + int32_t(curExtent.height));
+  auto offsetX0 = Min(srcOffset.x, curOffset.x);
+  auto offsetY0 = Min(srcOffset.y, curOffset.y);
+  auto offsetX1 = Max(srcOffset.x + int32_t(srcExtent.width), curOffset.x + int32_t(curExtent.width));
+  auto offsetY1 = Max(srcOffset.y + int32_t(srcExtent.height), curOffset.y + int32_t(curExtent.height));
 
   return ((offsetX1 - offsetX0) < (int32_t(srcExtent.width) + int32_t(curExtent.width)) &&
           (offsetY1 - offsetY0) < (int32_t(srcExtent.height) + int32_t(curExtent.height)));

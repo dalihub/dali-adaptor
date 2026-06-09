@@ -17,6 +17,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <cmath>
 #include <new> ///< for std::bad_alloc
 
@@ -193,7 +194,7 @@ bool ConvoluteAndTranspose(uint8_t*       inBuffer,
 
         for(uint32_t i = 0; i < inBytesPerPixel; ++i)
         {
-          outBuffer[targetPixelByte + i] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(std::max(0, static_cast<int32_t>(channelSum[i] + 0.5f))), 255u));
+          outBuffer[targetPixelByte + i] = static_cast<uint8_t>(Min(static_cast<uint32_t>(Max(0, static_cast<int32_t>(channelSum[i] + 0.5f))), 255u));
         }
 
         targetPixelByte += outBufferStrideBytes;
@@ -263,7 +264,7 @@ bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius)
   return true;
 }
 
-} //namespace Adaptor
+} // namespace Adaptor
 
 } // namespace Internal
 

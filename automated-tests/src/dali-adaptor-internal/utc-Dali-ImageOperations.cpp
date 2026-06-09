@@ -1560,7 +1560,7 @@ int UtcDaliImageOperationsPointSampleRGBA888N(void)
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // 0 x 0 input image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, 0 * bytesPerPixel, (unsigned char*)outputImage, 200, 99);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, 0 * bytesPerPixel, (unsigned char*)outputImage, 128, 99);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   END_TEST;

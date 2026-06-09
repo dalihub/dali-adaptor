@@ -120,12 +120,17 @@ struct Shaping::Plugin
   : mIndices(),
     mAdvance(),
     mCharacterMap(),
-    mFontId(0u)
+    mFontId(0u),
+    mHarfBuzzBuffer(nullptr)
   {
   }
 
   ~Plugin()
   {
+    if(mHarfBuzzBuffer)
+    {
+      hb_buffer_destroy(mHarfBuzzBuffer);
+    }
   }
 
   Length Shape(TextAbstraction::FontClient& fontClient,
@@ -164,8 +169,13 @@ struct Shaping::Plugin
         mCharacterMap.Reserve(numberOfGlyphs);
         mOffset.Reserve(2u * numberOfGlyphs);
 
-        /* Create a buffer for harfbuzz to use */
-        hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
+        if(nullptr == mHarfBuzzBuffer)
+        {
+          mHarfBuzzBuffer = hb_buffer_create();
+        }
+
+        hb_buffer_t* harfBuzzBuffer = mHarfBuzzBuffer;
+        hb_buffer_reset(harfBuzzBuffer);
 
         const bool rtlDirection = IsRightToLeftScript(script);
         hb_buffer_set_direction(harfBuzzBuffer,
@@ -245,8 +255,6 @@ struct Shaping::Plugin
           }
         }
 
-        /* Cleanup */
-        hb_buffer_destroy(harfBuzzBuffer);
         break;
       }
       case FontDescription::BITMAP_FONT:
@@ -307,6 +315,7 @@ struct Shaping::Plugin
   Vector<float>          mOffset;
   Vector<CharacterIndex> mCharacterMap;
   FontId                 mFontId;
+  hb_buffer_t*           mHarfBuzzBuffer;
 };
 
 Shaping::Shaping()

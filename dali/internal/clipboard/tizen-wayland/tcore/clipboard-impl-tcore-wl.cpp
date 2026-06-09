@@ -23,15 +23,16 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/common/dali-utility.h>
+#include <tizen_core_wl.h>
 #include <unistd.h>
-#include <algorithm>
 #include <limits>
 #include <map>
-#include <tizen_core_wl.h>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/internal/clipboard/common/clipboard-factory.h>
+#include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace Dali
 {
@@ -109,7 +110,7 @@ struct Clipboard::Impl
     {
       return true;
     }
-    if(tizen_core_wl_get_connected_display(nullptr, &mDisplay) != TIZEN_CORE_WL_ERROR_NONE || !mDisplay)
+    if(!TcoreWlAcquireDisplay(&mDisplay))
     {
       return false;
     }
@@ -138,8 +139,8 @@ struct Clipboard::Impl
       return false;
     }
 
-    char**  mimetypes = nullptr;
-    int     types_num = 0;
+    char** mimetypes = nullptr;
+    int    types_num = 0;
     if(tizen_core_wl_data_get_mimes(offer, &mimetypes, &types_num) != TIZEN_CORE_WL_ERROR_NONE || !mimetypes)
     {
       return false;
@@ -248,8 +249,8 @@ struct Clipboard::Impl
       return 0u;
     }
 
-    char**  mimetypes = nullptr;
-    int     types_num = 0;
+    char** mimetypes = nullptr;
+    int    types_num = 0;
     if(tizen_core_wl_data_get_mimes(offer, &mimetypes, &types_num) != TIZEN_CORE_WL_ERROR_NONE || !mimetypes)
     {
       return 0u;
@@ -302,10 +303,10 @@ struct Clipboard::Impl
 
   void SendData(void* event)
   {
-    tizen_core_wl_event_data_source_send_h ev = static_cast<tizen_core_wl_event_data_source_send_h>(event);
-    char*   typeStr = nullptr;
-    int     fd = -1;
-    uint32_t serial = 0;
+    tizen_core_wl_event_data_source_send_h ev      = static_cast<tizen_core_wl_event_data_source_send_h>(event);
+    char*                                  typeStr = nullptr;
+    int                                    fd      = -1;
+    uint32_t                               serial  = 0;
     if(tizen_core_wl_event_data_source_send_get_type(ev, &typeStr) != TIZEN_CORE_WL_ERROR_NONE || !typeStr)
     {
       return;
@@ -351,8 +352,8 @@ struct Clipboard::Impl
       return;
     }
 
-    void*     dataPtr = nullptr;
-    int       len = 0;
+    void*       dataPtr  = nullptr;
+    int         len      = 0;
     const char* mimetype = nullptr;
     tizen_core_wl_event_data_ready_get_data(ev, &dataPtr);
     tizen_core_wl_event_data_ready_get_len(ev, &len);
@@ -371,10 +372,10 @@ struct Clipboard::Impl
     }
     else if(dataPtr)
     {
-      const char* data = static_cast<const char*>(dataPtr);
-      size_t dataLength = strlen(data);
-      size_t bufferSize = static_cast<size_t>(len);
-      content.append(data, std::min(dataLength, bufferSize));
+      const char* data       = static_cast<const char*>(dataPtr);
+      size_t      dataLength = strlen(data);
+      size_t      bufferSize = static_cast<size_t>(len);
+      content.append(data, Min(dataLength, bufferSize));
     }
 
     DALI_LOG_RELEASE_INFO("receive data, type:%s, data:%s\n", mimetype ? mimetype : "", content.c_str());
@@ -388,9 +389,9 @@ struct Clipboard::Impl
       uint32_t dataRequestId = *it;
       if(mDataRequestItems.count(dataRequestId))
       {
-        const auto& item     = mDataRequestItems[dataRequestId];
-        std::string mimeType = item.first;
-        tizen_core_wl_data_offer_h offer = item.second;
+        const auto&                item     = mDataRequestItems[dataRequestId];
+        std::string                mimeType = item.first;
+        tizen_core_wl_data_offer_h offer    = item.second;
 
         if(!mimeType.compare(evMimetype))
         {
@@ -417,8 +418,8 @@ struct Clipboard::Impl
                 uint32_t reservedId = mReservedOfferReceives[dataRequestId];
                 if(mDataRequestItems.count(reservedId))
                 {
-                  const auto& reservedItem  = mDataRequestItems[reservedId];
-                  std::string reservedType = reservedItem.first;
+                  const auto&                reservedItem  = mDataRequestItems[reservedId];
+                  std::string                reservedType  = reservedItem.first;
                   tizen_core_wl_data_offer_h reservedOffer = reservedItem.second;
 
                   if(reservedOffer && mDisplay)
@@ -464,8 +465,8 @@ struct Clipboard::Impl
       return;
     }
 
-    int num_types = 0;
-    const char** types = nullptr;
+    int          num_types = 0;
+    const char** types     = nullptr;
     if(tizen_core_wl_event_data_seat_selection_get_num_types(ev, &num_types) != TIZEN_CORE_WL_ERROR_NONE || num_types < 1)
     {
       DALI_LOG_ERROR("num type is 0.\n");
@@ -514,31 +515,31 @@ struct Clipboard::Impl
     return false;
   }
 
-  uint32_t         mSerial{std::numeric_limits<uint32_t>::max()};
-  std::string      mLastType{};
+  uint32_t                   mSerial{std::numeric_limits<uint32_t>::max()};
+  std::string                mLastType{};
   tizen_core_wl_data_offer_h mLastOffer{nullptr};
 
-  tizen_core_wl_display_h         mDisplay{nullptr};
-  tizen_core_wl_seat_h            mSeat{nullptr};
-  tizen_core_wl_data_h            mData{nullptr};
-  tizen_core_event_h              mEvent{nullptr};
+  tizen_core_wl_display_h mDisplay{nullptr};
+  tizen_core_wl_seat_h    mSeat{nullptr};
+  tizen_core_wl_data_h    mData{nullptr};
+  tizen_core_event_h      mEvent{nullptr};
 
-  tizen_core_wl_event_listener_h  mSendHandler{nullptr};
-  tizen_core_wl_event_listener_h  mReceiveHandler{nullptr};
-  tizen_core_wl_event_listener_h  mSelectionHanlder{nullptr};
+  tizen_core_wl_event_listener_h mSendHandler{nullptr};
+  tizen_core_wl_event_listener_h mReceiveHandler{nullptr};
+  tizen_core_wl_event_listener_h mSelectionHanlder{nullptr};
 
   Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
   Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
   Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 
-  uint32_t                                                                   mDataId{0};
-  std::vector<uint32_t>                                                      mDataRequestIds{};
-  std::map<uint32_t, std::pair<std::string, tizen_core_wl_data_offer_h>>     mDataRequestItems{};
+  uint32_t                                                               mDataId{0};
+  std::vector<uint32_t>                                                  mDataRequestIds{};
+  std::map<uint32_t, std::pair<std::string, tizen_core_wl_data_offer_h>> mDataRequestItems{};
 
-  std::vector<std::string>     mSetTypes{};
+  std::vector<std::string>           mSetTypes{};
   std::map<std::string, std::string> mSetDatas{};
-  std::vector<std::string>     mGetTypes{};
-  std::map<uint32_t, uint32_t> mReservedOfferReceives{};
+  std::vector<std::string>           mGetTypes{};
+  std::map<uint32_t, uint32_t>       mReservedOfferReceives{};
 
   Dali::Timer mMultiSelectionTimeoutTimer{};
   bool        mMultiSelectionTimeout{false};

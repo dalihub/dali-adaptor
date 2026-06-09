@@ -17,6 +17,9 @@
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 
+// EXTERNAL HEADERS
+#include <dali/public-api/common/dali-utility.h>
+
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/devel-api/scripting/enum-helper.h>
@@ -1552,7 +1555,7 @@ bool Texture::InitializeTextureArray(uint32_t arrayLayers)
   if(mCreateInfo.mipMapFlag == TextureMipMapFlag::ENABLED)
   {
     // Mip levels: bit width of dims-3; so should cap at 4x4.
-    mMaxMipMapLevel = std::min(1.0f, logf(std::max(1u, std::min(mWidth, mHeight))) / logf(2.0f) - 3);
+    mMaxMipMapLevel = Min(1.0f, logf(Max(1u, Min(mWidth, mHeight))) / logf(2.0f) - 3);
   }
   // create image
   auto imageCreateInfo = vk::ImageCreateInfo{}

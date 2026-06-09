@@ -23,6 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/pixel-data-integ.h>
 #include <dali/integration-api/trace.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <string.h>
 #include <fstream>
@@ -505,9 +506,9 @@ void Capture::CaptureFileSaveTask::Process()
               }
               else
               {
-                c0 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c0)) * 255u + alpha / 2) / alpha);
-                c1 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c1)) * 255u + alpha / 2) / alpha);
-                c2 = static_cast<uint8_t>((static_cast<uint16_t>(std::min(alpha, c2)) * 255u + alpha / 2) / alpha);
+                c0 = static_cast<uint8_t>((static_cast<uint16_t>(Min(alpha, c0)) * 255u + alpha / 2) / alpha);
+                c1 = static_cast<uint8_t>((static_cast<uint16_t>(Min(alpha, c1)) * 255u + alpha / 2) / alpha);
+                c2 = static_cast<uint8_t>((static_cast<uint16_t>(Min(alpha, c2)) * 255u + alpha / 2) / alpha);
               }
             }
           }

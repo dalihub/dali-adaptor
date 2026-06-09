@@ -718,6 +718,20 @@ bool FontClient::IsColorFont(FontId fontId)
   return mPlugin->IsColorFont(fontId);
 }
 
+bool FontClient::IsRenderableColrV1Font(FontId fontId)
+{
+  CreatePlugin();
+
+  return mPlugin->IsRenderableColrV1Font(fontId);
+}
+
+bool FontClient::IsRenderableColrV1Glyph(FontId fontId, GlyphIndex glyphIndex)
+{
+  CreatePlugin();
+
+  return mPlugin->IsRenderableColrV1Glyph(fontId, glyphIndex);
+}
+
 GlyphIndex FontClient::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   CreatePlugin();

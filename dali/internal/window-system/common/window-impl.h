@@ -474,6 +474,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
   Dali::Any GetNativeHandle() const override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::SceneHolder::GetNativeRawHandle
+   */
+  Dali::Any GetNativeRawHandle() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::IsVisible
    */
   bool IsVisible() const override;

@@ -19,7 +19,8 @@
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 // EXTERNAL INCLUDES
-#include <algorithm>
+#include <dali/devel-api/common/stage.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <atomic>
 #include <cstdlib>
 #include <limits>
@@ -236,10 +237,10 @@ Dali::Bounds ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateTy
   {
     auto extents = child->GetExtents(type);
 
-    minX = std::min(minX, extents.x);
-    minY = std::min(minY, extents.y);
-    maxX = std::max(maxX, extents.x + extents.width);
-    maxY = std::max(maxY, extents.y + extents.height);
+    minX = Min(minX, extents.x);
+    minY = Min(minY, extents.y);
+    maxX = Max(maxX, extents.x + extents.width);
+    maxY = Max(maxY, extents.y + extents.height);
   }
 
   return {minX, minY, maxX - minX, maxY - minY};

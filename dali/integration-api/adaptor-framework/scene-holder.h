@@ -166,6 +166,16 @@ public:
   Any GetNativeHandle() const;
 
   /**
+   * @brief Gets the native raw handle.
+   *
+   * Returns the native window pointer as void* wrapped in Any.
+   * Unlike GetNativeHandle(), the value is always stored as void*.
+   *
+   * @return The native raw handle or an empty handle
+   */
+  Any GetNativeRawHandle() const;
+
+  /**
    * @brief Feed (Send) touch event to core
    * @param[in] point The touch point
    * @param[in] timeStamp The time stamp

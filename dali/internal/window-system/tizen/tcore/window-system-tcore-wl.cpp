@@ -31,6 +31,7 @@
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 #define START_DURATION_CHECK()                               \
   uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
@@ -78,30 +79,14 @@ static bool FetchPreferredScreenSize(int32_t& width, int32_t& height)
   bool                    ownsDisplay = false;
 
   // tizen-core-wl allows only one connection per process. If AppCoreUiBase
-  // (or any other component) already connected to the compositor, reuse the
-  // existing handle instead of creating a new one (which would fail to
-  // connect and leave the screen size at 0).
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
+  // (or any other component) already connected to the compositor, display_connect()
+  // reuses the cached connection instead of creating a new Wayland connection.
+  if(!TcoreWlAcquireDisplay(&display))
   {
-    display = nullptr;
-    if(tizen_core_wl_display_create(&display) != TIZEN_CORE_WL_ERROR_NONE || !display)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
-      if(display)
-      {
-        tizen_core_wl_display_destroy(display);
-      }
-      return false;
-    }
-
-    if(tizen_core_wl_display_connect(display, nullptr) != TIZEN_CORE_WL_ERROR_NONE)
-    {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() but display connect failed", DALI_LOG_FORMAT_PREFIX_ARGS);
-      tizen_core_wl_display_destroy(display);
-      return false;
-    }
-    ownsDisplay = true;
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() but display connect failed", DALI_LOG_FORMAT_PREFIX_ARGS);
+    return false;
   }
+  ownsDisplay = true;
 
   bool result = false;
   START_DURATION_CHECK();
@@ -182,22 +167,11 @@ static bool GetDefaultSeat(tizen_core_wl_display_h& display, tizen_core_wl_seat_
   seat        = nullptr;
   ownsDisplay = false;
 
-  if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
+  if(!TcoreWlAcquireDisplay(&display))
   {
-    display = nullptr;
-    if(tizen_core_wl_display_create(&display) != TIZEN_CORE_WL_ERROR_NONE || !display)
-    {
-      return false;
-    }
-
-    if(tizen_core_wl_display_connect(display, nullptr) != TIZEN_CORE_WL_ERROR_NONE)
-    {
-      tizen_core_wl_display_destroy(display);
-      display = nullptr;
-      return false;
-    }
-    ownsDisplay = true;
+    return false;
   }
+  ownsDisplay = true;
 
   if(tizen_core_wl_display_get_default_seat(display, &seat) != TIZEN_CORE_WL_ERROR_NONE || !seat)
   {
@@ -295,26 +269,13 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
       tizen_core_wl_display_h display     = nullptr;
       bool                    ownsDisplay = false;
 
-      // Reuse already connected display if available; otherwise create a new one.
-      if(tizen_core_wl_get_connected_display(nullptr, &display) != TIZEN_CORE_WL_ERROR_NONE || !display)
+      if(!TcoreWlAcquireDisplay(&display))
       {
-        display = nullptr;
-        if(tizen_core_wl_display_create(&display) != TIZEN_CORE_WL_ERROR_NONE || !display)
-        {
-          print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_display_create()", DALI_LOG_FORMAT_PREFIX_ARGS);
-          gScreenList.clear();
-          return gScreenList;
-        }
-
-        if(tizen_core_wl_display_connect(display, nullptr) != TIZEN_CORE_WL_ERROR_NONE)
-        {
-          print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_display_connect()", DALI_LOG_FORMAT_PREFIX_ARGS);
-          tizen_core_wl_display_destroy(display);
-          gScreenList.clear();
-          return gScreenList;
-        }
-        ownsDisplay = true;
+        print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to connect tizen-core-wl display", DALI_LOG_FORMAT_PREFIX_ARGS);
+        gScreenList.clear();
+        return gScreenList;
       }
+      ownsDisplay = true;
 
       START_DURATION_CHECK();
       tizen_core_wl_screen_h* screens   = nullptr;

@@ -479,6 +479,38 @@ int UtcDaliTimerDownCastN(void)
   END_TEST;
 }
 
+int UtcDaliTimerInvokeMethod(void)
+{
+  AdaptorTestApplication application;
+
+  Timer      timer = Timer::New(100);
+  BaseHandle handle(timer);
+
+  InvokeArguments setIntervalArguments;
+  setIntervalArguments.PushBack(Any(250u));
+
+  InvokeResult result;
+  DALI_TEST_CHECK(handle.InvokeMethod("SetInterval", setIntervalArguments, result));
+  DALI_TEST_EQUALS(timer.GetInterval(), 250u, TEST_LOCATION);
+
+  InvokeArguments setIntervalWithRestartArguments;
+  setIntervalWithRestartArguments.PushBack(Any(500u));
+  setIntervalWithRestartArguments.PushBack(Any(false));
+  DALI_TEST_CHECK(handle.InvokeMethod("SetInterval", setIntervalWithRestartArguments, result));
+  DALI_TEST_EQUALS(timer.GetInterval(), 500u, TEST_LOCATION);
+
+  DALI_TEST_CHECK(handle.InvokeMethod("GetInterval", InvokeArguments(), result));
+  const unsigned int* interval = AnyCast<unsigned int>(&result);
+  DALI_TEST_CHECK(interval);
+  DALI_TEST_EQUALS(*interval, 500u, TEST_LOCATION);
+
+  InvokeArguments wrongTypeArguments;
+  wrongTypeArguments.PushBack(Any(1));
+  DALI_TEST_CHECK(!handle.InvokeMethod("SetInterval", wrongTypeArguments, result));
+
+  END_TEST;
+}
+
 int UtcDaliTimerPauseN(void)
 {
   Timer timer;

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-utility.h>
 
+// INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 
 #if defined(DEBUG_ENABLED)
@@ -52,8 +55,8 @@ BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont)
       }
     }
 
-    font.ascender  = std::max(glyph.ascender, font.ascender);
-    font.descender = std::min(glyph.descender, font.descender);
+    font.ascender  = Max(glyph.ascender, font.ascender);
+    font.descender = Min(glyph.descender, font.descender);
 
     ++index;
   }

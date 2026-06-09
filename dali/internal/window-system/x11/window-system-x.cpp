@@ -29,6 +29,8 @@
 #include <algorithm>
 
 // EXTERNAL_HEADERS
+#include <dali/public-api/common/dali-utility.h>
+
 #include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -476,7 +478,7 @@ void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent,
   }
   keyEvent.key = key;
 
-  buffer[std::max(0, std::min(BUFFER_LENGTH - 1, stringLength))] = '\0';
+  buffer[Max(0, Min(BUFFER_LENGTH - 1, stringLength))] = '\0';
 
   keyEvent.compose = stringLength ? buffer : "";
 }
@@ -649,7 +651,7 @@ struct WindowSystemX::Impl
   {
     int  id   = eventHandler->handlerId;
     auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemBase::EventHandler& eventHandler)
-    { return eventHandler.handlerId == id; });
+                             { return eventHandler.handlerId == id; });
     if(iter != mHandlers.end())
     {
       mHandlers.erase(iter);
@@ -678,12 +680,12 @@ struct WindowSystemX::Impl
   }
   void Resize(::Window window, int width, int height)
   {
-    XResizeWindow(mDisplay, window, std::max(1, width), std::max(1, height));
+    XResizeWindow(mDisplay, window, Max(1, width), Max(1, height));
   }
 
   void MoveResize(::Window window, int x, int y, int width, int height)
   {
-    XMoveResizeWindow(mDisplay, window, x, y, std::max(1, width), std::max(1, height));
+    XMoveResizeWindow(mDisplay, window, x, y, Max(1, width), Max(1, height));
   }
 
   void SetStringProperty(::Window window, Atom atom, const std::string& string)
@@ -868,8 +870,8 @@ void WindowSystemX::SetWindowDefaults(::Window window)
   Atom atom = ATOM_NET_WM_WINDOW_TYPE_NORMAL;
   XChangeProperty(mImpl->mDisplay, window, ATOM_NET_WM_WINDOW_TYPE, XA_ATOM, 32, PropModeReplace, (uint8_t*)&atom, 1);
 
-  //ecore_app_args_get(&argc, &argv);
-  //ecore_x_icccm_command_set(win, argc, argv);
+  // ecore_app_args_get(&argc, &argv);
+  // ecore_x_icccm_command_set(win, argc, argv);
 }
 
 void WindowSystemX::SetTransientForHint(::Window window, ::Window forWindow)

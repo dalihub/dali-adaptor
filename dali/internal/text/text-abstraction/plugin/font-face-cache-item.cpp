@@ -22,6 +22,7 @@
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
@@ -86,23 +87,44 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }
+
+#if DALI_ENABLE_COLR_V1_RENDERER
+void SetGlyphBufferDataFromRenderedCache(const TextAbstraction::GlyphBufferData& cachedBuffer,
+                                         TextAbstraction::GlyphBufferData&       data,
+                                         bool                                    isColorEmoji)
+{
+  data.buffer          = cachedBuffer.buffer;
+  data.width           = cachedBuffer.width;
+  data.height          = cachedBuffer.height;
+  data.format          = cachedBuffer.format;
+  data.compressionType = cachedBuffer.compressionType;
+  data.isBufferOwned   = false;
+  data.isColorEmoji    = isColorEmoji;
+  data.isColorBitmap   = false;
+}
+#endif // DALI_ENABLE_COLR_V1_RENDERER
 } // namespace
 
 FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
                                      FT_Face                            ftFace,
                                      FontFaceManager*                   fontFaceManager,
                                      GlyphCacheManager*                 glyphCacheManager,
+                                     ColorGlyphColrRasterizer*          colorGlyphColrRasterizer,
                                      const FontPath&                    path,
                                      PointSize26Dot6                    requestedPointSize,
                                      FaceIndex                          face,
                                      const FontMetrics&                 metrics,
                                      const std::size_t                  variationsHash,
                                      const std::vector<FT_Fixed>&       freeTypeCoords,
-                                     const std::vector<hb_variation_t>& harfBuzzVariations)
+                                     const std::vector<hb_variation_t>& harfBuzzVariations,
+                                     bool                               hasColorTables,
+                                     const FontFaceManager::ColorFontInfo& colorFontInfo,
+                                     FontFaceManager::ColorFontRenderability colorFontRenderability)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mFontFaceManager(fontFaceManager),
   mGlyphCacheManager(glyphCacheManager),
+  mColorGlyphColrRasterizer(colorGlyphColrRasterizer),
   mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
@@ -115,7 +137,9 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeType
   mVectorFontId(0u),
   mFontId(0u),
   mIsFixedSizeBitmap(false),
-  mHasColorTables(false),
+  mHasColorTables(hasColorTables),
+  mColorFontInfo(colorFontInfo),
+  mColorFontRenderability(colorFontRenderability),
   mVariationsHash(variationsHash),
   mFreeTypeCoords(freeTypeCoords),
   mHarfBuzzVariations(harfBuzzVariations)
@@ -126,6 +150,7 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
                                      FontFaceManager*   fontFaceManager,
                                      GlyphCacheManager* glyphCacheManager,
+                                     ColorGlyphColrRasterizer* colorGlyphColrRasterizer,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,
                                      FaceIndex          face,
@@ -133,11 +158,14 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      int                fixedSizeIndex,
                                      float              fixedWidth,
                                      float              fixedHeight,
-                                     bool               hasColorTables)
+                                     bool               hasColorTables,
+                                     const FontFaceManager::ColorFontInfo& colorFontInfo,
+                                     FontFaceManager::ColorFontRenderability colorFontRenderability)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mFontFaceManager(fontFaceManager),
   mGlyphCacheManager(glyphCacheManager),
+  mColorGlyphColrRasterizer(colorGlyphColrRasterizer),
   mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
@@ -151,6 +179,8 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
   mFontId(0u),
   mIsFixedSizeBitmap(true),
   mHasColorTables(hasColorTables),
+  mColorFontInfo(colorFontInfo),
+  mColorFontRenderability(colorFontRenderability),
   mVariationsHash(0u),
   mFreeTypeCoords(),
   mHarfBuzzVariations()
@@ -162,10 +192,11 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
 FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
-  mFreeTypeFace       = rhs.mFreeTypeFace;
-  mFontFaceManager    = rhs.mFontFaceManager;
-  mGlyphCacheManager  = rhs.mGlyphCacheManager;
-  mHarfBuzzProxyFont  = std::move(rhs.mHarfBuzzProxyFont);
+  mFreeTypeFace            = rhs.mFreeTypeFace;
+  mFontFaceManager        = rhs.mFontFaceManager;
+  mGlyphCacheManager      = rhs.mGlyphCacheManager;
+  mColorGlyphColrRasterizer = rhs.mColorGlyphColrRasterizer;
+  mHarfBuzzProxyFont      = std::move(rhs.mHarfBuzzProxyFont);
   mPath               = std::move(rhs.mPath);
   mRequestedPointSize = rhs.mRequestedPointSize;
   mFaceIndex          = rhs.mFaceIndex;
@@ -173,14 +204,13 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
   mCharacterSet       = rhs.mCharacterSet;
   mFixedSizeIndex     = rhs.mFixedSizeIndex;
   mFixedWidthPixels   = rhs.mFixedWidthPixels;
-  // Fixed height has been used as fixed width for a long time due to this typo.
-  // This fix may cause compatibility issue.
-  // mFixedHeightPixels  = rhs.mFixedWidthPixels;
   mFixedHeightPixels  = rhs.mFixedHeightPixels;
   mVectorFontId       = rhs.mVectorFontId;
   mFontId             = rhs.mFontId;
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
+  mColorFontInfo      = rhs.mColorFontInfo;
+  mColorFontRenderability = rhs.mColorFontRenderability;
   mVariationsHash     = rhs.mVariationsHash;
   mFreeTypeCoords     = std::move(rhs.mFreeTypeCoords);
   mHarfBuzzVariations = std::move(rhs.mHarfBuzzVariations);
@@ -188,6 +218,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
   rhs.mFreeTypeFace      = nullptr;
   rhs.mFontFaceManager   = nullptr;
   rhs.mGlyphCacheManager = nullptr;
+  rhs.mColorGlyphColrRasterizer = nullptr;
 }
 
 FontFaceCacheItem::~FontFaceCacheItem()
@@ -380,6 +411,46 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
       const float descender = glyphInfo.height - glyphInfo.yBearing;
       glyphInfo.height      = (bbox.yMax - bbox.yMin) * FROM_266;
       glyphInfo.yBearing    = glyphInfo.height - round(descender);
+
+      // COLRv1 metric correction: use paint bounds for COLRv1 glyphs
+      // COLRv1 glyphs may have zero or inaccurate outline metrics because
+      // the actual ink is defined in the paint graph (PaintGlyph nodes),
+      // not in the base glyph outline. Use GetGlyphPaintBounds() to get
+      // the correct ink bounds and override width/height/xBearing/yBearing.
+      // advance is NOT changed - it comes from shaping/FreeType and is correct.
+      if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1 &&
+         IsRenderableColrV1Glyph(glyphInfo.index))
+      {
+        ColorGlyphColrRasterizer::PaintBounds paintBounds;
+        if(mColorGlyphColrRasterizer &&
+           mColorGlyphColrRasterizer->GetPaintBounds(mFreeTypeFace, glyphInfo.index, mVariationsHash, paintBounds) &&
+           paintBounds.valid &&
+           paintBounds.maxX > paintBounds.minX &&
+           paintBounds.maxY > paintBounds.minY)
+        {
+          const float unitsPerEm = static_cast<float>(mFreeTypeFace->units_per_EM);
+          if(unitsPerEm > 0.0f && mFreeTypeFace->size)
+          {
+            // DALi text font size is vertical-size based. Use uniform yScale
+            // derived from y_ppem / units_per_EM, matching RenderGlyph().
+            const float scale = static_cast<float>(mFreeTypeFace->size->metrics.y_ppem) / unitsPerEm;
+
+            const float paintWidth  = paintBounds.maxX - paintBounds.minX;
+            const float paintHeight = paintBounds.maxY - paintBounds.minY;
+
+            // Save advance before overwriting metrics
+            const float savedAdvance = glyphInfo.advance;
+
+            glyphInfo.xBearing = std::round(paintBounds.minX * scale);
+            glyphInfo.yBearing = std::round(paintBounds.maxY * scale);
+            glyphInfo.width    = std::round(paintWidth * scale);
+            glyphInfo.height   = std::round(paintHeight * scale);
+
+            // Restore advance - layout advance from shaping must be preserved
+            glyphInfo.advance = savedAdvance;
+          }
+        }
+      }
     }
     else
     {
@@ -438,7 +509,6 @@ void FontFaceCacheItem::CreateBitmap(
   if(FT_Err_Ok == error)
   {
     GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
-
     if(isItalicRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_ITALIC))
     {
       // Will do the software italic.
@@ -447,6 +517,72 @@ void FontFaceCacheItem::CreateBitmap(
 
     if(!glyphData.mIsBitmap)
     {
+#if DALI_ENABLE_COLR_V1_RENDERER
+      // COLRv1 color glyph path for scalable fonts.
+      // Glyphs without COLRv1 root paint fall through to standard outline rendering.
+      const bool isRenderableColrV1Glyph =
+        mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1 &&
+        IsRenderableColrV1Glyph(glyphIndex);
+      if(isRenderableColrV1Glyph)
+      {
+        const uint32_t yPpem = mFreeTypeFace->size ? mFreeTypeFace->size->metrics.y_ppem : 64u;
+        const uint32_t targetSize = (yPpem < 16u) ? 16u : (yPpem > 128u) ? 128u : yPpem;
+
+        if(glyphData.mRenderedBuffer)
+        {
+          SetGlyphBufferDataFromRenderedCache(*glyphData.mRenderedBuffer, data, true);
+          return; // Skip COLRv1 rasterization and normal outline rendering.
+        }
+
+        ColorGlyphColrRasterizer::RenderResult renderResult;
+
+        if(mColorGlyphColrRasterizer)
+        {
+          renderResult = mColorGlyphColrRasterizer->Rasterize(
+            mFreeTypeFace,
+            glyphIndex,
+            mVariationsHash,
+            targetSize,
+            targetSize,
+            0u);
+        }
+        if(renderResult.success && renderResult.buffer)
+        {
+          const bool cached = mGlyphCacheManager->CacheExternalGlyphBuffer(
+            mFreeTypeFace, mRequestedPointSize, glyphIndex, loadFlag, isBoldRequired, mVariationsHash,
+            renderResult.buffer, renderResult.width, renderResult.height, renderResult.stride, renderResult.format,
+            false);
+
+          mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace,
+                                                         mRequestedPointSize,
+                                                         glyphIndex,
+                                                         loadFlag,
+                                                         isBoldRequired,
+                                                         mVariationsHash,
+                                                         glyphDataPtr,
+                                                         error);
+          if(FT_Err_Ok == error && glyphDataPtr->mRenderedBuffer)
+          {
+            SetGlyphBufferDataFromRenderedCache(*glyphDataPtr->mRenderedBuffer, data, true);
+            return; // Skip normal outline rendering.
+          }
+
+          if(!cached)
+          {
+            DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization cache failed idx:%u\n", glyphIndex);
+          }
+          else
+          {
+            DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization re-fetch failed idx:%u\n", glyphIndex);
+          }
+        }
+        else
+        {
+          DALI_LOG_ERROR("COLOR_GLYPH_COLR COLRv1 rasterization failed idx:%u\n", glyphIndex);
+        }
+      }
+#endif // DALI_ENABLE_COLR_V1_RENDERER
+
       // Convert to bitmap if necessary
       FT_Glyph glyph = glyphData.mGlyph;
 
@@ -591,22 +727,82 @@ void FontFaceCacheItem::CreateBitmap(
 
 bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
 {
-  FT_Error error = -1;
+  // Policy: IsColorGlyph() returns true only when this glyph can actually
+  // produce a color bitmap (BGRA/RGBA) in the current DALi build configuration.
+  // Having color font tables is NOT sufficient - the renderer must be available.
 
-#ifdef FREETYPE_BITMAP_SUPPORT
-  // Check to see if this is fixed size bitmap
-  if(mHasColorTables)
+  // NotRenderableColorFont: has color tables but no renderer → always false
+  if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::NotRenderableColorFont)
   {
+    return false;
+  }
+
+  // NotColorFont: no color tables at all → always false
+  if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::NotColorFont)
+  {
+    return false;
+  }
+
+  // RenderableBitmap (CBDT/CBLC): use existing FT_LOAD_COLOR cache lookup
+  if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableBitmap)
+  {
+    FT_Error error = -1;
+#ifdef FREETYPE_BITMAP_SUPPORT
     GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
     mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, FT_LOAD_COLOR, false, mVariationsHash, dummyDataPtr, error);
-  }
 #endif
-  return FT_Err_Ok == error;
+    return FT_Err_Ok == error;
+  }
+
+  // RenderableColrV1: true only if COLRv1 renderer has already produced a rendered buffer
+  // for this glyph (i.e., CreateBitmap() was called first and succeeded).
+  // We do NOT trigger COLRv1 rasterization here - only check cache state.
+  if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1)
+  {
+    FT_Error error = -1;
+    GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, FT_LOAD_COLOR, false, mVariationsHash, glyphDataPtr, error);
+    const bool hasRenderedBuffer = (FT_Err_Ok == error && glyphDataPtr && glyphDataPtr->mRenderedBuffer != nullptr);
+    return hasRenderedBuffer;
+  }
+
+  // For COLRv1, IsColorGlyph() intentionally reports only an already-rendered
+  // color buffer. Renderable COLRv1 candidate checks must use
+  // IsRenderableColrV1Glyph() instead.
+
+  return false;
 }
 
 bool FontFaceCacheItem::IsColorFont() const
 {
+  // Preserve existing semantics: true means the face has color font tables,
+  // not necessarily that DALi can render them in this build.
   return mHasColorTables;
+}
+
+bool FontFaceCacheItem::IsRenderableColrV1Font() const
+{
+  // RenderableBitmap (CBDT/CBLC) returns false - it uses FT_LOAD_COLOR, not COLRv1.
+  return mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1;
+}
+
+bool FontFaceCacheItem::IsRenderableColrV1Glyph(GlyphIndex glyphIndex) const
+{
+#if DALI_ENABLE_COLR_V1_RENDERER
+  if(mColorFontRenderability != FontFaceManager::ColorFontRenderability::RenderableColrV1)
+  {
+    return false;
+  }
+
+  if(!mFreeTypeFace || !mFontFaceManager)
+  {
+    return false;
+  }
+
+  return mFontFaceManager->HasRenderableColrV1GlyphPaint(mFreeTypeFace, glyphIndex);
+#else
+  return false;
+#endif
 }
 
 /**
@@ -645,7 +841,8 @@ bool FontFaceCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character cha
 
 GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character) const
 {
-  return FT_Get_Char_Index(mFreeTypeFace, character);
+  const GlyphIndex glyphIndex = FT_Get_Char_Index(mFreeTypeFace, character);
+  return glyphIndex;
 }
 
 GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character, Character variantSelector) const

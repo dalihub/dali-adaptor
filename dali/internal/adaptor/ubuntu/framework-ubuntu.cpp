@@ -54,6 +54,8 @@ void FrameworkUbuntu::Run()
 
   elm_run();
 
+  mObserver.OnTerminate();
+
   elm_shutdown();
 
   mRunning = false;
@@ -61,8 +63,6 @@ void FrameworkUbuntu::Run()
 
 void FrameworkUbuntu::Quit()
 {
-  mObserver.OnTerminate();
-
   elm_exit();
 }
 

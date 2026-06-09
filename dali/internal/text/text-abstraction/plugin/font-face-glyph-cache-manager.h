@@ -169,6 +169,40 @@ public:
     const CompressionPolicyType policy);
 
   /**
+   * @brief Cache external BGRA bitmap as rendered glyph buffer.
+   * @note For injecting externally rasterized color glyph bitmaps (e.g., COLRv1).
+   * If mRenderedBuffer already exists, it will not be overwritten.
+   * Only Pixel::BGRA8888 format is supported. Buffer must be packed (stride == width * 4).
+   *
+   * @param[in] freeTypeFace The freetype face handle.
+   * @param[in] requestedPointSize The requested point size.
+   * @param[in] index Index of glyph in this face.
+   * @param[in] flag Flag when we load the glyph.
+   * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] variationsHash The hash of the variations to use key.
+   * @param[in] buffer External BGRA bitmap data (ownership is taken).
+   * @param[in] width Width of the bitmap.
+   * @param[in] height Height of the bitmap.
+   * @param[in] stride Stride in bytes (must be width * 4).
+   * @param[in] format Pixel format (must be Pixel::BGRA8888).
+   * @param[in] overwrite If true, overwrite existing mRenderedBuffer. If false, skip if already exists.
+   * @return true if buffer was successfully cached, false otherwise.
+   */
+  bool CacheExternalGlyphBuffer(
+    const FT_Face         freeTypeFace,
+    const PointSize26Dot6 requestedPointSize,
+    const GlyphIndex      index,
+    const FT_Int32        flag,
+    const bool            isBoldRequired,
+    const std::size_t     variationsHash,
+    uint8_t*              buffer,
+    const uint32_t        width,
+    const uint32_t        height,
+    const uint32_t        stride,
+    const Pixel::Format   format,
+    const bool            overwrite = false);
+
+  /**
    * @brief Clear all cached glyph informations which has inputed FreeTypeFace.
    *
    * @note This API iterate all cached glyph. Should be called rarely.

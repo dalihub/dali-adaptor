@@ -257,6 +257,11 @@ Any WindowBaseWin::GetNativeWindow()
   return mWin32Window;
 }
 
+void* WindowBaseWin::GetNativeRawHandle()
+{
+  return reinterpret_cast<void*>(mWin32Window);
+}
+
 int WindowBaseWin::GetNativeWindowId()
 {
   return mWin32Window;

@@ -667,6 +667,11 @@ Any WindowBaseEcoreX::GetNativeWindow()
   return mEcoreWindow;
 }
 
+void* WindowBaseEcoreX::GetNativeRawHandle()
+{
+  return reinterpret_cast<void*>(static_cast<uintptr_t>(mEcoreWindow));
+}
+
 int WindowBaseEcoreX::GetNativeWindowId()
 {
   return mEcoreWindow;

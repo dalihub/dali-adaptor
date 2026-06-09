@@ -21,6 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/rendering/texture-set.h>
 #include <algorithm>
@@ -64,7 +65,7 @@ void ApplyAspectFitSize(tvg::Picture* picture, uint32_t defaultWidth, uint32_t d
     const float defaultW = static_cast<float>(defaultWidth);
     const float defaultH = static_cast<float>(defaultHeight);
 
-    const float scale = std::min(targetW / defaultW, targetH / defaultH);
+    const float scale = Dali::Min(targetW / defaultW, targetH / defaultH);
 
     const float newW = defaultW * scale;
     const float newH = defaultH * scale;
@@ -207,7 +208,9 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
   if(loadResult != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorAnimationRendererNative::Load: Failed to load %s (result=%d) [%p]\n",
-                   url.c_str(), static_cast<int>(loadResult), this);
+                   url.c_str(),
+                   static_cast<int>(loadResult),
+                   this);
     mLoadFailed = true;
     return false;
   }
@@ -280,7 +283,8 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
   if(loadResult != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorAnimationRendererNative::Load(data): Failed to load (result=%d) [%p]\n",
-                   static_cast<int>(loadResult), this);
+                   static_cast<int>(loadResult),
+                   this);
     mLoadFailed = true;
     return false;
   }
@@ -522,9 +526,9 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
         Vector3 vec(1.0f, 1.0f, 1.0f);
         if(val.Get(vec))
         {
-          color->r = std::min(255, std::max(0, (int)(vec.r * 255.0f)));
-          color->g = std::min(255, std::max(0, (int)(vec.g * 255.0f)));
-          color->b = std::min(255, std::max(0, (int)(vec.b * 255.0f)));
+          color->r = Min(255, Max(0, (int)(vec.r * 255.0f)));
+          color->g = Min(255, Max(0, (int)(vec.g * 255.0f)));
+          color->b = Min(255, Max(0, (int)(vec.b * 255.0f)));
           return true;
         }
         break;
@@ -537,7 +541,7 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
         float o       = 100.0f;
         if(val.Get(o))
         {
-          *opacity = std::min(255, std::max(0, (int)(o / 100.0f * 255.0f)));
+          *opacity = Min(255, Max(0, (int)(o / 100.0f * 255.0f)));
           return true;
         }
         break;
@@ -650,11 +654,8 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
   }
 
   // Remove existing callback for the same keypath and property to prevent bloat/conflict
-  mPropertyCallbacks.erase(std::remove_if(mPropertyCallbacks.begin(), mPropertyCallbacks.end(),
-                                          [&](const std::shared_ptr<PropertyCallback>& p)
-  {
-    return p->keyPath == keyPath && p->property == property;
-  }),
+  mPropertyCallbacks.erase(std::remove_if(mPropertyCallbacks.begin(), mPropertyCallbacks.end(), [&](const std::shared_ptr<PropertyCallback>& p)
+                                          { return p->keyPath == keyPath && p->property == property; }),
                            mPropertyCallbacks.end());
 
   auto cb      = std::make_shared<PropertyCallback>();
@@ -882,10 +883,7 @@ float ExtractJsonNumber(const std::string& json, size_t pos, size_t& endPos)
   }
 }
 
-void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t keyLen,
-                    const char* nameKey, const char* val1Key, const char* val2Key,
-                    bool val2IsDuration, bool convertTimeToFrame, float frameRate,
-                    Property::Map& outMap)
+void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t keyLen, const char* nameKey, const char* val1Key, const char* val2Key, bool val2IsDuration, bool convertTimeToFrame, float frameRate, Property::Map& outMap)
 {
   // Find the top-level array by looking for the pattern at the root level
   // We need to skip any nested arrays with the same key (e.g., assets[].layers)

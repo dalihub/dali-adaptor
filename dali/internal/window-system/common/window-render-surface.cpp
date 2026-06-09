@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
+#include <dali/public-api/common/dali-utility.h>
 
 #include <algorithm>
 #include <unordered_set>
@@ -375,7 +376,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std
 
   // Check if we already have the maximum number of damaged rects.
   // Note that we need to guard integer overflow.
-  const uint32_t maximumDamagedRectsCount = std::min(static_cast<uint32_t>(n), static_cast<uint32_t>(xIntervalCount / 2) * static_cast<uint32_t>(yIntervalCount / 2));
+  const uint32_t maximumDamagedRectsCount = Min(static_cast<uint32_t>(n), static_cast<uint32_t>(xIntervalCount / 2) * static_cast<uint32_t>(yIntervalCount / 2));
 
   uint32_t newDamagedRectsCount = 0;
 
@@ -714,8 +715,7 @@ void WindowRenderSurface::CreateSurface()
 
   std::unique_ptr<Graphics::SurfaceFactory> surfaceFactory = Graphics::SurfaceFactory::New(*this);
 
-  mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height,
-                                        GetDepthBufferRequired(), GetStencilBufferRequired(), GetMSAALevel());
+  mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height, GetDepthBufferRequired(), GetStencilBufferRequired(), GetMSAALevel());
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
@@ -1016,7 +1016,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
         }
 
         // Set damaged rects as single surface rect.
-        mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
+        mDamagedRects.assign(1, RecalculateRect[Min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
       }
     }
   }
@@ -1173,7 +1173,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
     Dali::Mutex::ScopedLock lock(mMutex);
 
     auto frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo)
-    { return callbackInfo->fileDescriptor == fileDescriptor; });
+                                          { return callbackInfo->fileDescriptor == fileDescriptor; });
     if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
       callbackInfo = std::move(*frameCallbackInfo);
@@ -1211,7 +1211,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<BoundsInteger>
     {
       totalAngle -= 360;
     }
-    orientation = std::min(totalAngle / 90, 3);
+    orientation = Min(totalAngle / 90, 3);
   }
 
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
