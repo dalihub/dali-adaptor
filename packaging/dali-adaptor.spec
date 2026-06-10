@@ -20,7 +20,7 @@ Summary:    The DALi Tizen Adaptor
 Version:    2.4.46
 Release:    1
 Group:      System/Libraries
-License:    Apache-2.0 and BSD-3-Clause and MIT
+License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
@@ -660,6 +660,11 @@ exit 0
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
+%license LICENSE.BSD-3-Clause
+%license LICENSE.CC0-1.0
+%license LICENSE.MIT
+%license LICENSE.Unlicense
+%license LICENSE.Zlib
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
