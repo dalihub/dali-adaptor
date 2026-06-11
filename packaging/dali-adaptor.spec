@@ -52,6 +52,7 @@ BuildRequires:  dali2-integration-devel
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  cmake
+BuildRequires:  python3
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
