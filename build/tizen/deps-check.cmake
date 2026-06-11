@@ -144,7 +144,11 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_APPLICATION capi-appfw-application [] )
 CHECK_MODULE_AND_SET( COMPONENT_BASED_CORE_BASE component-based-core-base [] )
 CHECK_MODULE_AND_SET( ELEMENTARY elementary [] )
 CHECK_MODULE_AND_SET( BUNDLE bundle [] )
-CHECK_MODULE_AND_SET( SCREENCONNECTORPROVIDER screen_connector_provider [] )
+IF( USE_TCORE_BACKEND )
+  CHECK_MODULE_AND_SET( SCREEN_CONNECTOR_PROVIDER screen_connector_provider_tcore [] )
+ELSE()
+  CHECK_MODULE_AND_SET( SCREEN_CONNECTOR_PROVIDER screen_connector_provider [] )
+ENDIF()
 CHECK_MODULE_AND_SET( APPFW_WATCH capi-appfw-watch-application watch_available )
 CHECK_MODULE_AND_SET( APPCORE_WATCH appcore-watch [] )
 
@@ -173,7 +177,7 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
 CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
 
-# tizen-core, tizen-core-wl: TCORE 백엔드일 때만 의존성 체크
+# Check tizen-core and tizen-core-wl dependencies only for the TCORE backend.
 IF( USE_TCORE_BACKEND )
   CHECK_MODULE_AND_SET( TIZEN_CORE tizen-core tizen_core_available )
   CHECK_MODULE_AND_SET( TIZEN_CORE_WL tizen-core-wl tizen_core_wl_available )
@@ -520,7 +524,7 @@ ELSE()
       ${IMF_CFLAGS}
       ${FRIBIDI_CFLAGS}
       ${COMPONENT_BASED_CORE_BASE_CFLAGS}
-      ${SCREENCONNECTORPROVIDER_CFLAGS}
+      ${SCREEN_CONNECTOR_PROVIDER_CFLAGS}
       )
 
     SET( DALI_LDFLAGS ${DALI_LDFLAGS}
@@ -538,7 +542,7 @@ ELSE()
       ${IMF_LDFLAGS}
       ${FRIBIDI_LDFLAGS}
       ${COMPONENT_BASED_CORE_BASE_LDFLAGS}
-      ${SCREENCONNECTORPROVIDER_LDFLAGS}
+      ${SCREEN_CONNECTOR_PROVIDER_LDFLAGS}
       )
   ELSE()
     SET( DALI_CFLAGS ${DALI_CFLAGS}

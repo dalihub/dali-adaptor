@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-string-view.h>
 
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/system/common/widget-application-impl.h>
 
@@ -30,6 +31,7 @@ namespace Dali
 {
 WidgetApplication WidgetApplication::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
+  DALI_LOG_RELEASE_INFO("DALIWidgetAPP, New is called\n");
   WindowData                              windowData;
   Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, ToStdString(stylesheet), windowData);
   return WidgetApplication(internal.Get());
@@ -53,6 +55,9 @@ WidgetApplication& WidgetApplication::operator=(WidgetApplication&& rhs) noexcep
 
 void WidgetApplication::RegisterWidgetCreatingFunction(const Dali::String& widgetName, CreateWidgetFunction createFunction)
 {
+  DALI_LOG_RELEASE_INFO("DALIWidgetAPP, RegisterWidgetCreatingFunction is called\n");
+  DALI_LOG_RELEASE_INFO("DALIWidgetAPP, RegisterWidgetCreatingFunction: widgetName: %s\n", ToStdString(widgetName).c_str());
+  DALI_LOG_RELEASE_INFO("DALIWidgetAPP, RegisterWidgetCreatingFunction: createFunction: %s\n", createFunction ? "non-null" : "null");
   Internal::Adaptor::GetImplementation(*this).RegisterWidgetCreatingFunction(ToStdString(widgetName), createFunction);
 }
 

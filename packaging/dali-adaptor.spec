@@ -39,7 +39,11 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 
 # if 'mv_prj' is defined, this build targets the robot profile.
 %if "%{mv_prj}" != "1"
+%if "%{tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(screen_connector_provider_tcore)
+%else
 BuildRequires:  pkgconfig(screen_connector_provider)
+%endif
 %endif
 
 BuildRequires:  pkgconfig(gles20)
