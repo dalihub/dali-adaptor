@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_RENDER_THREAD_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -143,7 +144,7 @@ public:
   /**
    * @copydoc Dali::GlWindow::RegisterGlCallbacks()
    */
-  void RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
+  void RegisterGlCallbacks(std::unique_ptr<CallbackBase> initCallback, std::unique_ptr<CallbackBase> renderFrameCallback, std::unique_ptr<CallbackBase> terminateCallback);
 
   /**
    * Enable OnDemand Rendering Mode

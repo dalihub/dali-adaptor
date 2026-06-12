@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/adaptor-framework/window.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
@@ -67,7 +68,7 @@ struct AdaptorGlWindowAddOn : public Dali::AddOn::AddOnBinder
   ADDON_BIND_FUNCTION(GlWindowGetCurrentOrientation, WindowOrientation(const GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowSetAvailableOrientations, void(GlWindowImpl&, const Dali::Vector<WindowOrientation>&));
   ADDON_BIND_FUNCTION(GlWindowSetPreferredOrientation, void(GlWindowImpl&, WindowOrientation));
-  ADDON_BIND_FUNCTION(GlWindowRegisterGlCallbacks, void(GlWindowImpl&, CallbackBase*, CallbackBase*, CallbackBase*));
+  ADDON_BIND_FUNCTION(GlWindowRegisterGlCallbacks, void(GlWindowImpl&, std::unique_ptr<CallbackBase>, std::unique_ptr<CallbackBase>, std::unique_ptr<CallbackBase>));
   ADDON_BIND_FUNCTION(GlWindowRenderOnce, void(GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowSetRenderingMode, void(GlWindowImpl&, GlWindow::RenderingMode));
   ADDON_BIND_FUNCTION(GlWindowGetRenderingMode, GlWindow::RenderingMode(const GlWindowImpl&));
@@ -274,10 +275,14 @@ void GlWindow::SetPreferredOrientation(WindowOrientation orientation)
 
 void GlWindow::RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
 {
+  std::unique_ptr<CallbackBase> initCallbackPtr(initCallback);
+  std::unique_ptr<CallbackBase> renderFrameCallbackPtr(renderFrameCallback);
+  std::unique_ptr<CallbackBase> terminateCallbackPtr(terminateCallback);
+
   GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
   if(gAdaptorGlWindowAddOn)
   {
-    gAdaptorGlWindowAddOn->GlWindowRegisterGlCallbacks(impl, initCallback, renderFrameCallback, terminateCallback);
+    gAdaptorGlWindowAddOn->GlWindowRegisterGlCallbacks(impl, std::move(initCallbackPtr), std::move(renderFrameCallbackPtr), std::move(terminateCallbackPtr));
   }
 }
 

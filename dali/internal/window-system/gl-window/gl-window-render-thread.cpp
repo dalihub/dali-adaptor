@@ -119,13 +119,13 @@ void GlWindowRenderThread::Stop()
   mRenderThreadWaitCondition.Notify(lock);
 }
 
-void GlWindowRenderThread::RegisterGlCallbacks(CallbackBase* initCallback,
-                                               CallbackBase* renderFrameCallback,
-                                               CallbackBase* terminateCallback)
+void GlWindowRenderThread::RegisterGlCallbacks(std::unique_ptr<CallbackBase> initCallback,
+                                               std::unique_ptr<CallbackBase> renderFrameCallback,
+                                               std::unique_ptr<CallbackBase> terminateCallback)
 {
-  mGLInitCallback        = std::unique_ptr<CallbackBase>(initCallback);
-  mGLRenderFrameCallback = std::unique_ptr<CallbackBase>(renderFrameCallback);
-  mGLTerminateCallback   = std::unique_ptr<CallbackBase>(terminateCallback);
+  mGLInitCallback        = std::move(initCallback);
+  mGLRenderFrameCallback = std::move(renderFrameCallback);
+  mGLTerminateCallback   = std::move(terminateCallback);
 }
 
 void GlWindowRenderThread::SetOnDemandRenderMode(bool onDemand)

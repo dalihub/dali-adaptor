@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <iostream>
+#include <memory>
 
 using namespace Dali;
 
@@ -132,7 +133,7 @@ int UtcDaliTimerUnitializedStart(void)
 
   tet_printf("unintialized timer start \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -152,7 +153,7 @@ int UtcDaliTimerUnitializedStop(void)
 
   tet_printf("unintialized timer stop \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -172,7 +173,7 @@ int UtcDaliTimerUnitializedGetInterval(void)
 
   tet_printf("unintialized get interval \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -192,7 +193,7 @@ int UtcDaliTimerUnitializedSetInterval(void)
 
   tet_printf("unintialized set interval \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -212,7 +213,7 @@ int UtcDaliTimerUnitializedIsRunning(void)
 
   tet_printf("unintialized is running \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -232,7 +233,7 @@ int UtcDaliTimerUnitializedSignalTick(void)
 
   tet_printf("unintialized SignalTick \n");
 
-  Timer* timer = new Timer;
+  std::unique_ptr<Timer> timer = std::unique_ptr<Timer>(new Timer);
   DALI_TEST_CHECK(timer != NULL);
 
   try

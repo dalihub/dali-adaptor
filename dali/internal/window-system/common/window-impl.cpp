@@ -29,6 +29,7 @@
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/rendering/frame-buffer.h>
+#include <memory>
 #include <thread>
 
 // INTERNAL HEADERS
@@ -63,19 +64,19 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
 {
-  Window* window                  = new Window();
+  std::unique_ptr<Window> window  = std::unique_ptr<Window>(new Window());
   window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
-  return window;
+  return window.release();
 }
 
 Window* Window::New(PositionSize positionSize)
 {
-  Any     surface;
-  Window* window = new Window();
+  Any                     surface;
+  std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
   window->Initialize(surface, positionSize);
-  return window;
+  return window.release();
 }
 
 Window::Window()
