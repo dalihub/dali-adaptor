@@ -62,9 +62,9 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
         oss += " because: ";
       }
 
-      if(keepUpdatingStatus & Integration::KeepUpdating::STAGE_KEEP_RENDERING)
+      if(keepUpdatingStatus & Integration::KeepUpdating::KEEP_RENDERING)
       {
-        oss += "<Stage::KeepRendering() used> ";
+        oss += "<Core::KeepRendering() used> ";
       }
 
       if(keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING)

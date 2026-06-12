@@ -110,8 +110,8 @@ class Application;
  * This class accepts command line arguments as well. The following options are supported:
  *
  * @code
- *  -w|--width          Stage Width
- *  -h|--height         Stage Height
+ *  -w|--width          Default Window Width
+ *  -h|--height         Default Window Height
  *  -d|--dpi            Emulated DPI
  *     --help           Help
  * @endcode
@@ -125,8 +125,8 @@ public:
   typedef Signal<void(DeviceStatus::Battery::Status)>     LowBatterySignalType;               ///< Application device signal type @SINCE_1_2.62
   typedef Signal<void(DeviceStatus::Memory::Status)>      LowMemorySignalType;                ///< Application device signal type @SINCE_1_2.62
   typedef Signal<void(DeviceStatus::Orientation::Status)> DeviceOrientationChangedSignalType; ///< Application device orientation changed signal type @SINCE_2_2.1
-  typedef Signal<void(Application)>                      AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
-  typedef Signal<void(Application, void*)>               AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application)>                       AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application, void*)>                AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
 
 public:
   /**
@@ -210,11 +210,6 @@ public:
 public:
   /**
    * @brief This starts the application.
-   *
-   * On platforms where context loss can occur, the application is responsible for tearing down and
-   * re-loading UI.  The application should listen to Stage::ContextLostSignal and
-   * Stage::ContextRegainedSignal.
-   *
    * @SINCE_1_0.0
    */
   void MainLoop();

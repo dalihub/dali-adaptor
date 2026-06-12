@@ -59,7 +59,7 @@ void TestGraphicsApplication::CreateCore()
   Dali::Integration::Trace::InstallLogContextFunction(logContextFunction);
 
   // We always need the first update!
-  mStatus.keepUpdating = Dali::Integration::KeepUpdating::STAGE_KEEP_RENDERING;
+  mStatus.keepUpdating = Dali::Integration::KeepUpdating::KEEP_RENDERING;
   mDisplayConnection   = DisplayConnection::New();
   mGraphics.Initialize(*mDisplayConnection);
   mGraphicsController.InitializeGLES(mGlAbstraction);

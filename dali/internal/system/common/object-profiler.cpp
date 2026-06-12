@@ -28,8 +28,8 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 
-#include <algorithm> // for std::find_if
 #include <stdlib.h>
+#include <algorithm> // for std::find_if
 
 using std::string;
 using namespace Dali::Integration::Profiling;
@@ -44,7 +44,7 @@ namespace Adaptor
 ObjectProfiler::ObjectProfiler(Dali::ObjectRegistry objectRegistry, uint32_t timeInterval)
 : mObjectRegistry(objectRegistry)
 {
-  // This class must be created after the Stage; this means it doesn't count the initial objects
+  // This class must be created after the Core; this means it doesn't count the initial objects
   // that are created by the stage (base layer, default camera actor)
 
   mTimer = Dali::Timer::New(timeInterval * 1000);
