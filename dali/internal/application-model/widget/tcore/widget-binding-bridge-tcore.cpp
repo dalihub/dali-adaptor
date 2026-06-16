@@ -20,7 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dlog.h>
 #include <memory>
+#include <tizen.h>
 #include <tizen_core_wl.h>
 #include <widget_base.hh>
 
@@ -38,6 +40,7 @@ class TcoreWidgetBindingBackend : public IWidgetBindingBackend
 public:
   WidgetBindingResult Bind(void* instance, const char* id, Dali::Window window) override
   {
+    print_log(DLOG_INFO, "DALI", "TcoreWidgetBindingBackend::Bind\n");
     if(!instance || !id || !window)
     {
       return {false, "invalid argument (instance/id/window)"};
@@ -57,6 +60,7 @@ public:
 
     // NOTE: legacy API is intentionally isolated in this bridge.
     auto* inst = static_cast<tizen_cpp::WidgetContext*>(instance);
+    print_log(DLOG_INFO, "DALI", "TcoreWidgetBindingBackend::Bind, WidgetContext->WindowBind id[%s], wlWindow[%p]\n", id, wlWindow);
     int ret = inst->WindowBind(id, wlWindow);
     if(ret != 0)
     {
@@ -74,6 +78,7 @@ class WidgetBindingBridge::Impl
 public:
   void SetBackend(WidgetBackendType backendType)
   {
+    print_log(DLOG_INFO, "DALI", "WidgetBindingBridge::Impl::SetBackend\n");
     mBackendType = backendType;
     switch(mBackendType)
     {
@@ -88,6 +93,7 @@ public:
 
   WidgetBindingResult BindInstanceWindow(tizen_cpp::WidgetContext* instance, const char* id, Dali::Window window)
   {
+    print_log(DLOG_INFO, "DALI", "WidgetBindingBridge::Impl::BindInstanceWindow\n");
     if(!mBackend)
     {
       return {false, "binding backend is not initialized"};
@@ -103,12 +109,14 @@ private:
 WidgetBindingBridge& WidgetBindingBridge::Instance()
 {
   static WidgetBindingBridge bridge;
+  print_log(DLOG_INFO, "DALI", "WidgetBindingBridge Instance\n");
   return bridge;
 }
 
 WidgetBindingBridge::WidgetBindingBridge()
 : mImpl(new Impl())
 {
+  print_log(DLOG_INFO, "DALI", "WidgetBindingBridge Constructor\n");
   mImpl->SetBackend(WidgetBackendType::TCORE);
 }
 
@@ -120,15 +128,17 @@ WidgetBindingBridge::~WidgetBindingBridge()
 
 void WidgetBindingBridge::SetBackend(WidgetBackendType backendType)
 {
+  print_log(DLOG_INFO, "DALI", "WidgetBindingBridge::SetBackend\n");
   mImpl->SetBackend(backendType);
 }
 
 WidgetBindingResult WidgetBindingBridge::BindInstanceWindow(tizen_cpp::WidgetContext* instance, const char* id, Dali::Window window)
 {
+  print_log(DLOG_INFO, "DALI", "WidgetBindingBridge::BindInstanceWindow, id[%s], window[%p]\n", id, &window);
   WidgetBindingResult result = mImpl->BindInstanceWindow(instance, id, window);
   if(!result.ok)
   {
-    DALI_LOG_ERROR("WidgetBindingBridge::BindInstanceWindow failed: %s\n", result.reason.c_str());
+    print_log(DLOG_ERROR, "DALI", "WidgetBindingBridge::BindInstanceWindow failed: %s\n", result.reason.c_str());
   }
   return result;
 }

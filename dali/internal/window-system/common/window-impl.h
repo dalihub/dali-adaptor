@@ -718,6 +718,11 @@ public: // It is only for window-impl. Need not public for the others.
    */
   void InitializeImeInfo();
 
+  /**
+   * Destructor. Need to be public for unique_ptr destructor.
+   */
+  ~Window() override;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -737,11 +742,6 @@ private:
    * @sa Window::New()
    */
   Window();
-
-  /**
-   * Destructor
-   */
-  ~Window() override;
 
   /**
    * @brief Second stage initialization

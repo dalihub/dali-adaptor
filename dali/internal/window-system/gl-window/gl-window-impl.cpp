@@ -25,6 +25,7 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-integ.h>
 #include <dali/integration-api/string-utils.h>
+#include <memory>
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
@@ -58,10 +59,10 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 GlWindow* GlWindow::New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
 {
-  GlWindow* window       = new GlWindow();
-  window->mIsTransparent = isTransparent;
+  std::unique_ptr<GlWindow> window = std::unique_ptr<GlWindow>(new GlWindow());
+  window->mIsTransparent           = isTransparent;
   window->Initialize(positionSize, name, className);
-  return window;
+  return window.release();
 }
 
 GlWindow::GlWindow()
@@ -754,13 +755,13 @@ void GlWindow::SetChild(Dali::Window& child)
   }
 }
 
-void GlWindow::RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
+void GlWindow::RegisterGlCallbacks(std::unique_ptr<CallbackBase> initCallback, std::unique_ptr<CallbackBase> renderFrameCallback, std::unique_ptr<CallbackBase> terminateCallback)
 {
   if(mIsEGLInitialized == false)
   {
     InitializeGraphics();
   }
-  mGlWindowRenderThread->RegisterGlCallbacks(initCallback, renderFrameCallback, terminateCallback);
+  mGlWindowRenderThread->RegisterGlCallbacks(std::move(initCallback), std::move(renderFrameCallback), std::move(terminateCallback));
   mGlWindowRenderThread->Start();
 }
 

@@ -19,7 +19,6 @@
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/stage.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <atomic>
 #include <cstdlib>

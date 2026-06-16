@@ -20,7 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/connection-tracker.h>
+#ifdef USE_TCORE_BACKEND
 #include <widget_base.hh>
+#else
+#include <widget_base.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/widget-controller.h>
@@ -32,6 +36,13 @@ namespace Internal
 {
 namespace Adaptor
 {
+
+#ifdef USE_TCORE_BACKEND
+using WidgetInstanceHandle = tizen_cpp::WidgetContext*;
+#else
+using WidgetInstanceHandle = widget_base_instance_h;
+#endif
+
 /**
  * @brief Holds the Implementation for the internal WidgetImpl class
  */
@@ -41,7 +52,7 @@ public:
   /**
    * Constructor
    */
-  WidgetImplTizen(tizen_cpp::WidgetContext* instanceHandle);
+  WidgetImplTizen(WidgetInstanceHandle instanceHandle);
 
   /**
    * Destructor
@@ -80,10 +91,10 @@ public:
   std::string GetWidgetId() const override;
 
 private:
-  tizen_cpp::WidgetContext* mInstanceHandle;
-  Dali::Window           mWindow;
-  std::string            mWidgetId;
-  bool                   mUsingKeyEvent;
+  WidgetInstanceHandle mInstanceHandle;
+  Dali::Window         mWindow;
+  std::string          mWidgetId;
+  bool                 mUsingKeyEvent;
 };
 
 } // namespace Adaptor

@@ -32,7 +32,7 @@ SET( SOURCES
     ${adaptor_sensor_tizen_src_files}
     ${adaptor_styling_common_src_files}
     ${adaptor_system_common_src_files}
-    ${adaptor_system_linux_ecore_src_files}
+    ${adaptor_system_linux_src_files}
     ${adaptor_system_tizen_src_files}
     ${adaptor_text_common_src_files}
     ${adaptor_resampler_src_files}

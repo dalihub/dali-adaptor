@@ -701,10 +701,13 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     const float paintW = paintBounds.maxX - paintBounds.minX;
     const float paintH = paintBounds.maxY - paintBounds.minY;
 
-    // Bitmap size from paint bounds * uniform scale + padding
-    const float padding = 2.0f;
-    bitmapWidth  = static_cast<uint32_t>(std::ceil(paintW * scale + padding * 2.0f));
-    bitmapHeight = static_cast<uint32_t>(std::ceil(paintH * scale + padding * 2.0f));
+    // Keep the original buffer padding as a safety margin for antialiasing,
+    // gradients, and composite edges. Use a smaller origin padding so that
+    // safety margin does not also shift visible COLR glyphs to the lower-right.
+    const float bufferPadding = 2.0f;
+    const float originPadding = 1.0f;
+    bitmapWidth  = static_cast<uint32_t>(std::ceil(paintW * scale + bufferPadding * 2.0f));
+    bitmapHeight = static_cast<uint32_t>(std::ceil(paintH * scale + bufferPadding * 2.0f));
 
     // Maximum bitmap size limit.
     // TODO: Replace this local limit with FontClient/atlas policy input.
@@ -727,12 +730,13 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     if(bitmapWidth == 0u) bitmapWidth = 1u;
     if(bitmapHeight == 0u) bitmapHeight = 1u;
 
-    // Offset: place paint bounds within the bitmap
+    // Offset: place paint bounds within the bitmap.
     // In font units (y-up), after y-negation in FtOutlineToTvgShape:
-    //   bitmap left edge = padding → pen position maps to x = padding - paintBounds.minX * scale
-    //   bitmap top edge = padding → baseline maps to y = padding + paintBounds.maxY * scale
-    offsetX = padding - paintBounds.minX * scale;
-    offsetY = padding + paintBounds.maxY * scale;
+    //   bufferPadding controls the bitmap size for clipping safety
+    //   originPadding controls paint placement inside that bitmap
+    // Previously a single padding value was used for both roles.
+    offsetX = originPadding - paintBounds.minX * scale;
+    offsetY = originPadding + paintBounds.maxY * scale;
     boundsSource = PaintBoundsSourceToString(paintBounds.source);
 
     if(IsColrDebugTraceEnabled(glyphIndex))

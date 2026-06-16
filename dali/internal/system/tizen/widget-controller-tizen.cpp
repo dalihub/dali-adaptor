@@ -23,9 +23,9 @@
 #include <dali/public-api/actors/layer.h>
 #include <dlfcn.h>
 #include <dlog.h>
+#include <locale>
 #include <tizen.h>
 #include <unistd.h>
-#include <locale>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
@@ -52,7 +52,7 @@ std::string MakePluginName(const char* appModelName)
 } // namespace
 namespace Adaptor
 {
-WidgetImplTizen::WidgetImplTizen(tizen_cpp::WidgetContext* instanceHandle)
+WidgetImplTizen::WidgetImplTizen(WidgetInstanceHandle instanceHandle)
 : Widget::Impl(),
   mInstanceHandle(instanceHandle),
   mWindow(),
@@ -83,29 +83,23 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   SetContentInfoFunc setContentInfoFuncPtr;
   std::string        pluginName = MakePluginName("widget");
 
-  print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen plugin (path:%s)", pluginName.c_str());
   void* mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
 
   if(mHandle == nullptr)
   {
-    const char* error = dlerror();
-    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen failed (path:%s, error:%s)", pluginName.c_str(), error ? error : "null");
+    print_log(DLOG_ERROR, "DALI", "error : %s\n", dlerror());
     bundle_free(contentBundle);
     return;
   }
-  print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlopen success (handle:%p)", mHandle);
 
-  dlerror(); // clear stale error
   setContentInfoFuncPtr = reinterpret_cast<SetContentInfoFunc>(dlsym(mHandle, "SetContentInfo"));
   if(setContentInfoFuncPtr != nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlsym(SetContentInfo) success (ptr:%p)", reinterpret_cast<void*>(setContentInfoFuncPtr));
     setContentInfoFuncPtr(mInstanceHandle, contentBundle);
   }
   else
   {
-    const char* error = dlerror();
-    print_log(DLOG_ERROR, "DALI", "WidgetImplTizen::SetContentInfo: dlsym(SetContentInfo) failed (error:%s)", error ? error : "null");
+    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n");
   }
 
   bundle_free(contentBundle);

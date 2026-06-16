@@ -17,10 +17,10 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.25
+Version:    2.5.26
 Release:    1
 Group:      System/Libraries
-License:    Apache-2.0 and BSD-3-Clause and MIT
+License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
 Source0:    %{name}-%{version}.tar.gz
 
@@ -39,7 +39,11 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 
 # if 'mv_prj' is defined, this build targets the robot profile.
 %if "%{mv_prj}" != "1"
+%if "%{tizen_wayland_backend}" == "TCORE"
+BuildRequires:  pkgconfig(screen_connector_provider_tcore)
+%else
 BuildRequires:  pkgconfig(screen_connector_provider)
+%endif
 %endif
 
 BuildRequires:  pkgconfig(gles20)
@@ -52,6 +56,7 @@ BuildRequires:  dali2-integration-devel
 BuildRequires:  pkgconfig
 BuildRequires:  gawk
 BuildRequires:  cmake
+BuildRequires:  python3
 BuildRequires:  giflib-devel
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  libjpeg-turbo-devel
@@ -555,6 +560,11 @@ exit 0
 %dir %{user_shader_cache_dir}
 %{_bindir}/*
 %license LICENSE
+%license LICENSE.BSD-3-Clause
+%license LICENSE.CC0-1.0
+%license LICENSE.MIT
+%license LICENSE.Unlicense
+%license LICENSE.Zlib
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2

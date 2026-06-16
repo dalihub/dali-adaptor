@@ -31,8 +31,7 @@ namespace Adaptor
 {
 namespace
 {
-const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
-const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
+const char* AUL_LOADER_INIT_ENV = "AUL_LOADER_INIT";
 } // anonymous namespace
 
 void EventLoopTcore::Initialize(int argc, char** argv)
@@ -40,44 +39,84 @@ void EventLoopTcore::Initialize(int argc, char** argv)
   (void)argc;
   (void)argv;
 
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - Entering\n");
+
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - Calling tizen_core_init()\n");
   tizen_core_init();
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - tizen_core_init() completed\n");
 
   auto* task = static_cast<tizen_core_task_h*>(&mTask);
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - Creating tizen_core_task...\n");
   int   ret  = tizen_core_task_create("main", false, task);
   if(ret != TIZEN_CORE_ERROR_NONE)
   {
-    DALI_LOG_ERROR("Failed to create tizen core task: %d\n", ret);
+    DALI_LOG_ERROR("[EVENT_LOOP] Failed to create tizen core task: %d\n", ret);
     tizen_core_shutdown();
     mTask = nullptr;
     return;
   }
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - tizen_core_task created successfully\n");
+
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - Exiting successfully\n");
 }
 
 void EventLoopTcore::Shutdown()
 {
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Entering\n");
+
   auto* task = static_cast<tizen_core_task_h>(mTask);
   if(task)
   {
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Destroying tizen_core_task...\n");
     tizen_core_task_destroy(task);
     mTask = nullptr;
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - tizen_core_task destroyed\n");
   }
-
-  tizen_core_shutdown();
-
-  if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
+  else
   {
-    Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
-    tizen_core_shutdown();
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Task is null, skipping task destroy\n");
   }
+
+  // Check the AUL_LOADER_INIT environment variable.
+  const char* loaderInit = Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV);
+  if(loaderInit)
+  {
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - AUL_LOADER_INIT is set to '%s'\n", loaderInit);
+
+    // Handle the launchpad-loader environment.
+    // WidgetBase::Dispose() may unset AUL_LOADER_INIT, so only log it here.
+    if(strcmp(loaderInit, "1") == 0)
+    {
+      DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Detected launchpad-loader environment, calling tizen_core_shutdown\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - AUL_LOADER_INIT is not set (normal environment)\n");
+  }
+
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Calling tizen_core_shutdown()...\n");
+  tizen_core_shutdown();
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - tizen_core_shutdown() completed\n");
+
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Shutdown() - Exiting\n");
 }
 
 void EventLoopTcore::Run()
 {
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Run() - Entering\n");
   auto* task = static_cast<tizen_core_task_h>(mTask);
   if(task)
   {
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Run() - Starting tizen_core_task_run()\n");
     tizen_core_task_run(task);
+    DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Run() - tizen_core_task_run() returned\n");
   }
+  else
+  {
+    DALI_LOG_ERROR("[EVENT_LOOP] EventLoopTcore::Run() - Task is null, cannot run\n");
+  }
+  DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Run() - Exiting\n");
 }
 
 void EventLoopTcore::Quit()

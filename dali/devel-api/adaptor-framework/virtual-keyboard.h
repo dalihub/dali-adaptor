@@ -96,13 +96,13 @@ DALI_ADAPTOR_API void ApplySettings(const Property::Map& settingsMap);
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_ADAPTOR_API void SetReturnKeyType(const InputMethod::ButtonAction::Type type);
+DALI_ADAPTOR_API void SetReturnKeyType(const InputMethod::ReturnKeyType type);
 
 /**
  * @brief Retrieve the current return key type.
  * @return the type of retun key.
  */
-DALI_ADAPTOR_API InputMethod::ButtonAction::Type GetReturnKeyType();
+DALI_ADAPTOR_API InputMethod::ReturnKeyType GetReturnKeyType();
 
 /**
  * @brief Enable/disable prediction (predictive text).

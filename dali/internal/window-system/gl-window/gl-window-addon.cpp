@@ -18,6 +18,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/addons/addon-base.h>
 #include <dali/integration-api/debug.h>
+#include <memory>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -158,9 +159,9 @@ void GlWindowSetPreferredOrientation(GlWindowImpl& glWindowImpl, WindowOrientati
   glWindowImpl.SetPreferredOrientation(orientation);
 }
 
-void GlWindowRegisterGlCallbacks(GlWindowImpl& glWindowImpl, CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
+void GlWindowRegisterGlCallbacks(GlWindowImpl& glWindowImpl, std::unique_ptr<CallbackBase> initCallback, std::unique_ptr<CallbackBase> renderFrameCallback, std::unique_ptr<CallbackBase> terminateCallback)
 {
-  glWindowImpl.RegisterGlCallbacks(initCallback, renderFrameCallback, terminateCallback);
+  glWindowImpl.RegisterGlCallbacks(std::move(initCallback), std::move(renderFrameCallback), std::move(terminateCallback));
 }
 
 void GlWindowRenderOnce(GlWindowImpl& glWindowImpl)

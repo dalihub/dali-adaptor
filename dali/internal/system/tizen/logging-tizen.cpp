@@ -58,6 +58,7 @@ Dali::Integration::Log::DebugPriority GetAllowedPrintLogLevel()
   return gPrintLogLevel;
 }
 } // namespace
+
 void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
 {
   const char* DALI_TAG = "DALI";

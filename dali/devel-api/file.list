@@ -31,8 +31,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-capabilities.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.cpp
@@ -86,8 +84,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-input.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.h
-  ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.h
-  ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.h
   ${adaptor_devel_api_dir}/adaptor-framework/keyboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.h
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-in-out-event.h
@@ -228,4 +224,3 @@ SET( devel_api_text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/emoji-helper.h
    ${adaptor_devel_api_dir}/text-abstraction/defined-characters.h
 )
-

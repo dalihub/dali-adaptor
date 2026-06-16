@@ -722,6 +722,22 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   {
     listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::POPUP_MENU, Role::MENU_ITEM, false);
   }
+  else if(atspiRole == Role::MENU)
+  {
+    listChildrenCount = GetItemCountOfContainer(self, Role::MENU, Role::MENU_ITEM, false);
+  }
+  else if(atspiRole == Role::MENU_ITEM)
+  {
+    auto parent = self->GetParent();
+    if(parent)
+    {
+      auto parentRole = parent->GetRole();
+      if(parentRole == Role::POPUP_MENU || parentRole == Role::MENU)
+      {
+        listChildrenCount = GetItemCountOfContainer(parent, parentRole, Role::MENU_ITEM, false);
+      }
+    }
+  }
 
   std::string nameFromTextInterface = "";
   if(auto textInterface = self->GetFeature<Text>())

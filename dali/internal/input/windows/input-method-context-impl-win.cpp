@@ -62,9 +62,9 @@ void InputMethodContextWin::Finalize()
 }
 
 InputMethodContextWin::InputMethodContextWin(Dali::Actor actor)
-: mWin32Window(0),
+: mSurroundingText(),
+  mWin32Window(0),
   mIMFCursorPosition(0),
-  mSurroundingText(),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false)
 {
@@ -129,9 +129,10 @@ bool InputMethodContextWin::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void InputMethodContextWin::SetRestoreAfterFocusLost(bool toggle)
+bool InputMethodContextWin::SetRestoreAfterFocusLost(bool toggle)
 {
   mRestoreAfterFocusLost = toggle;
+  return true;
 }
 
 /**
@@ -152,10 +153,10 @@ void InputMethodContextWin::CommitReceived(void*, ImfContext* imfContext, void* 
   {
     const std::string keyString(static_cast<char*>(eventInfo));
 
-    Dali::InputMethodContext            handle(this);
-    Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+    Dali::InputMethodContext                         handle(this);
+    Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
     mEventSignal.Emit(handle, eventData);
-    Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+    Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
@@ -175,16 +176,16 @@ bool InputMethodContextWin::RetrieveSurrounding(void* data, ImfContext* imfConte
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext            handle(this);
+  Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::GET_SURROUNDING, Dali::String(), 0, 0);
+  Dali::InputMethodContext                         handle(this);
   mEventSignal.Emit(handle, imfData);
-  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
+  Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {
     if(text)
     {
-      *text = strdup(callbackData.currentText.c_str());
+      *text = strdup(callbackData.currentText.CStr());
     }
 
     if(cursorPosition)
@@ -225,14 +226,14 @@ unsigned int InputMethodContextWin::GetCursorPosition() const
   return static_cast<unsigned int>(mIMFCursorPosition);
 }
 
-void InputMethodContextWin::SetSurroundingText(const std::string& text)
+void InputMethodContextWin::SetSurroundingText(const Dali::String& text)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetSurroundingText\n");
 
   mSurroundingText = text;
 }
 
-const std::string& InputMethodContextWin::GetSurroundingText() const
+Dali::String InputMethodContextWin::GetSurroundingText() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetSurroundingText\n");
 
@@ -243,14 +244,14 @@ void InputMethodContextWin::NotifyTextInputMultiLine(bool multiLine)
 {
 }
 
-Dali::InputMethodContext::TextDirection InputMethodContextWin::GetTextDirection()
+Dali::Integration::InputMethodContext::TextDirection InputMethodContextWin::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction(Dali::InputMethodContext::LEFT_TO_RIGHT);
+  Dali::Integration::InputMethodContext::TextDirection direction(Dali::Integration::InputMethodContext::LEFT_TO_RIGHT);
 
   return direction;
 }
 
-BoundsInteger InputMethodContextWin::GetInputMethodArea()
+BoundsInteger InputMethodContextWin::GetInputPanelArea()
 {
   int xPos, yPos, width, height;
 
@@ -259,9 +260,9 @@ BoundsInteger InputMethodContextWin::GetInputMethodArea()
   return BoundsInteger(xPos, yPos, width, height);
 }
 
-void InputMethodContextWin::ApplyOptions(const InputMethodOptions& options)
+void InputMethodContextWin::ApplyOptions(const Dali::Integration::InputMethodOptions& options)
 {
-  using namespace Dali::InputMethod::Category;
+  using namespace Dali::Integration::InputMethod::Category;
 
   int index;
 
@@ -279,40 +280,53 @@ void InputMethodContextWin::ApplyOptions(const InputMethodOptions& options)
   }
 }
 
-void InputMethodContextWin::SetInputPanelData(const std::string& data)
+bool InputMethodContextWin::SetInputPanelUserData(const Dali::String& data)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelUserData\n");
+  return true;
 }
 
-void InputMethodContextWin::GetInputPanelData(std::string& data)
+Dali::String InputMethodContextWin::GetInputPanelUserData() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelUserData\n");
+
+  return Dali::String();
 }
 
 Dali::InputMethodContext::State InputMethodContextWin::GetInputPanelState()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelState\n");
-  return Dali::InputMethodContext::DEFAULT;
+  return Dali::InputMethodContext::State::HIDE;
 }
 
-void InputMethodContextWin::SetReturnKeyState(bool visible)
+bool InputMethodContextWin::SetReturnKeyState(bool visible)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetReturnKeyState\n");
+  return true;
 }
 
-void InputMethodContextWin::AutoEnableInputPanel(bool enabled)
+bool InputMethodContextWin::IsReturnKeyEnabled() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::IsReturnKeyEnabled\n");
+  return true;
+}
+
+bool InputMethodContextWin::AutoEnableInputPanel(bool enabled)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::AutoEnableInputPanel\n");
+  return true;
 }
 
-void InputMethodContextWin::ShowInputPanel()
+bool InputMethodContextWin::ShowInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::ShowInputPanel\n");
+  return true;
 }
 
-void InputMethodContextWin::HideInputPanel()
+bool InputMethodContextWin::HideInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::HideInputPanel\n");
+  return true;
 }
 
 Dali::InputMethodContext::KeyboardType InputMethodContextWin::GetKeyboardType()
@@ -320,17 +334,22 @@ Dali::InputMethodContext::KeyboardType InputMethodContextWin::GetKeyboardType()
   return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
 }
 
-std::string InputMethodContextWin::GetInputPanelLocale()
+bool InputMethodContextWin::SetInputPanelLanguageLocale(const Dali::String& locale)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelLocale\n");
-
-  std::string locale = "";
-  return locale;
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelLanguageLocale\n");
+  return false;
 }
 
-void InputMethodContextWin::SetContentMIMETypes(const std::string& mimeTypes)
+Dali::String InputMethodContextWin::GetInputPanelLanguageLocale() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetContentMIMETypes\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelLanguageLocale\n");
+
+  return Dali::String();
+}
+
+void InputMethodContextWin::SetContentMimeTypes(const Dali::String& mimeTypes)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetContentMimeTypes\n");
 }
 
 bool InputMethodContextWin::FilterEventKey(const Dali::KeyEvent& keyEvent)
@@ -353,20 +372,22 @@ bool InputMethodContextWin::FilterEventKey(const Dali::KeyEvent& keyEvent)
   return eventHandled;
 }
 
-void InputMethodContextWin::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
+bool InputMethodContextWin::SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelLanguage\n");
+  return true;
 }
 
-Dali::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPanelLanguage() const
+Dali::Integration::InputMethodContext::InputPanelLanguage InputMethodContextWin::GetInputPanelLanguage() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelLanguage\n");
-  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+  return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
-void InputMethodContextWin::SetInputPanelPosition(unsigned int x, unsigned int y)
+bool InputMethodContextWin::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n");
+  return true;
 }
 
 bool InputMethodContextWin::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
@@ -375,7 +396,7 @@ bool InputMethodContextWin::SetInputPanelPositionAlign(int x, int y, Dali::Input
   return false;
 }
 
-void InputMethodContextWin::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
+void InputMethodContextWin::GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n");
   attrs = mPreeditAttrs;

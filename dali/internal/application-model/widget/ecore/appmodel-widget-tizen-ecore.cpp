@@ -46,6 +46,7 @@ namespace Adaptor
 {
 extern "C" DALI_ADAPTOR_API AppModelWidget* Create()
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, AppModelWidget is created");
   return new AppModelWidget();
 }
 
@@ -57,6 +58,7 @@ extern "C" DALI_ADAPTOR_API void Destroy(void* p)
 
 extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, AppMain is called for appWidget");
   AppModelWidget* appWidget = static_cast<AppModelWidget*>(pData);
   int             ret       = 0;
   if(appWidget != nullptr)
@@ -125,6 +127,7 @@ typedef struct AppEventHandler* AppEventHandlerPtr;
 
 int EventCallback(void* event, void* data)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, EventCallback is called");
   AppEventHandlerPtr handler = static_cast<AppEventHandlerPtr>(data);
 
   struct AppEventInfo appEvent;
@@ -140,6 +143,7 @@ int EventCallback(void* event, void* data)
 
 int AppAddEventHandler(AppEventHandlerPtr* eventHandler, AppEventType eventType, AppEventCallback callback, void* userData)
 {
+  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, AppAddEventHandler is called");
   AppEventHandlerPtr handler;
 
   handler = static_cast<AppEventHandlerPtr>(calloc(1, sizeof(struct AppEventHandler)));

@@ -22,6 +22,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/gl-window.h>
@@ -176,7 +177,7 @@ public:
   /**
    * @copydoc Dali::GlWindow::RegisterGlCallbacks()
    */
-  void RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
+  void RegisterGlCallbacks(std::unique_ptr<CallbackBase> initCallback, std::unique_ptr<CallbackBase> renderFrameCallback, std::unique_ptr<CallbackBase> terminateCallback);
 
   /**
    * @copydoc Dali::GlWindow::RenderOnce()
@@ -205,17 +206,17 @@ public: // For implementation
    */
   void SetChild(Dali::Window& child);
 
+  /**
+   * Destructor. Need to be public for unique_ptr destructor.
+   */
+  virtual ~GlWindow();
+
 private:
   /**
    * Private constructor.
    * @sa Window::New()
    */
   GlWindow();
-
-  /**
-   * Destructor
-   */
-  virtual ~GlWindow();
 
   /**
    * Second stage initialization
