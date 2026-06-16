@@ -57,7 +57,7 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 // Window Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-static bool EventWindowConfigureNotify(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowConfigureNotify(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -68,7 +68,7 @@ static bool EventWindowConfigureNotify(void* data, WindowSystemBase::Event type,
   return false;
 }
 
-static bool EventWindowPropertyChanged(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowPropertyChanged(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -82,7 +82,7 @@ static bool EventWindowPropertyChanged(void* data, WindowSystemBase::Event type,
 /**
  * Called when the window receives a delete request
  */
-static bool EventWindowDeleteRequest(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowDeleteRequest(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -95,7 +95,7 @@ static bool EventWindowDeleteRequest(void* data, WindowSystemBase::Event type, W
 /**
  * Called when the window gains focus.
  */
-static bool EventWindowFocusIn(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowFocusIn(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -108,7 +108,7 @@ static bool EventWindowFocusIn(void* data, WindowSystemBase::Event type, WindowS
 /**
  * Called when the window loses focus.
  */
-static bool EventWindowFocusOut(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowFocusOut(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -121,7 +121,7 @@ static bool EventWindowFocusOut(void* data, WindowSystemBase::Event type, Window
 /**
  * Called when the window is damaged.
  */
-static bool EventWindowDamaged(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventWindowDamaged(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -139,7 +139,7 @@ static bool EventWindowDamaged(void* data, WindowSystemBase::Event type, WindowS
 /**
  * Called when the source window notifies us the content in clipboard is selected.
  */
-static bool EventSelectionClear(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventSelectionClear(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -153,7 +153,7 @@ static bool EventSelectionClear(void* data, WindowSystemBase::Event type, Window
  * Called when the source window sends us about the selected content.
  * For example, when dragged items are dragged INTO our window or when items are selected in the clipboard.
  */
-static bool EventSelectionNotify(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventSelectionNotify(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -170,7 +170,7 @@ static bool EventSelectionNotify(void* data, WindowSystemBase::Event type, Windo
 /**
  * Called when a touch down is received.
  */
-static bool EventMouseButtonDown(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventMouseButtonDown(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -183,7 +183,7 @@ static bool EventMouseButtonDown(void* data, WindowSystemBase::Event type, Windo
 /**
  * Called when a touch up is received.
  */
-static bool EventMouseButtonUp(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventMouseButtonUp(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -196,7 +196,7 @@ static bool EventMouseButtonUp(void* data, WindowSystemBase::Event type, WindowS
 /**
  * Called when a touch motion is received.
  */
-static bool EventMouseButtonMove(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventMouseButtonMove(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -213,7 +213,7 @@ static bool EventMouseButtonMove(void* data, WindowSystemBase::Event type, Windo
 /**
  * Called when a mouse wheel is received.
  */
-static bool EventMouseWheel(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventMouseWheel(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -230,7 +230,7 @@ static bool EventMouseWheel(void* data, WindowSystemBase::Event type, WindowSyst
 /**
  * Called when a key down is received.
  */
-static bool EventKeyDown(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventKeyDown(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -243,7 +243,7 @@ static bool EventKeyDown(void* data, WindowSystemBase::Event type, WindowSystemB
 /**
  * Called when a key up is received.
  */
-static bool EventKeyUp(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+static bool EventKeyUp(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
   if(windowBase)
@@ -336,28 +336,28 @@ void WindowBaseX::EnableDragAndDrop()
 void WindowBaseX::SetupEvents()
 {
   auto& windowSystem = WindowSystem::GetImplementation();
-  windowSystem.AddEventHandler(WindowSystemBase::Event::CONFIGURE_NOTIFY, EventWindowConfigureNotify, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::PROPERTY_NOTIFY, EventWindowPropertyChanged, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::DELETE_REQUEST, EventWindowDeleteRequest, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::FOCUS_IN, EventWindowFocusIn, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::FOCUS_OUT, EventWindowFocusOut, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::DAMAGE, EventWindowDamaged, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::MOUSE_BUTTON_DOWN, EventMouseButtonDown, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::MOUSE_BUTTON_UP, EventMouseButtonUp, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::MOUSE_OUT, EventMouseButtonUp, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::MOUSE_MOVE, EventMouseButtonMove, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::MOUSE_WHEEL, EventMouseWheel, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::KEY_DOWN, EventKeyDown, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::KEY_UP, EventKeyUp, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::SELECTION_CLEAR, EventSelectionClear, this);
-  windowSystem.AddEventHandler(WindowSystemBase::Event::SELECTION_NOTIFY, EventSelectionNotify, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::CONFIGURE_NOTIFY, EventWindowConfigureNotify, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::PROPERTY_NOTIFY, EventWindowPropertyChanged, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::DELETE_REQUEST, EventWindowDeleteRequest, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::FOCUS_IN, EventWindowFocusIn, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::FOCUS_OUT, EventWindowFocusOut, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::DAMAGE, EventWindowDamaged, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::MOUSE_BUTTON_DOWN, EventMouseButtonDown, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::MOUSE_BUTTON_UP, EventMouseButtonUp, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::MOUSE_OUT, EventMouseButtonUp, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::MOUSE_MOVE, EventMouseButtonMove, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::MOUSE_WHEEL, EventMouseWheel, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::KEY_DOWN, EventKeyDown, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::KEY_UP, EventKeyUp, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::SELECTION_CLEAR, EventSelectionClear, this);
+  windowSystem.AddEventHandler(WindowSystemX::Event::SELECTION_NOTIFY, EventSelectionNotify, this);
 }
 
 void WindowBaseX::DeleteEvents()
 {
 }
 
-bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   bool handled(false);
 
@@ -400,7 +400,7 @@ bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemBase::Event ty
   return handled;
 }
 
-void WindowBaseX::OnConfigure(WindowSystemBase::EventBase* event)
+void WindowBaseX::OnConfigure(WindowSystemX::EventBase* event)
 {
   auto configureEvent = static_cast<WindowSystemX::X11ConfigureNotifyEvent*>(event);
   if(configureEvent->window == mWindow && Dali::Adaptor::IsAvailable())
@@ -424,7 +424,7 @@ void WindowBaseX::OnDeleteRequest()
   }
 }
 
-void WindowBaseX::OnFocusIn(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnFocusIn(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event)
 {
   auto x11Event = static_cast<WindowSystemX::X11Event*>(event);
 
@@ -436,7 +436,7 @@ void WindowBaseX::OnFocusIn(void* data, WindowSystemBase::Event, WindowSystemBas
   }
 }
 
-void WindowBaseX::OnFocusOut(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnFocusOut(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event)
 {
   auto x11Event = static_cast<WindowSystemX::X11Event*>(event);
   // If the window loses focus then hide the keyboard.
@@ -448,7 +448,7 @@ void WindowBaseX::OnFocusOut(void* data, WindowSystemBase::Event, WindowSystemBa
   }
 }
 
-void WindowBaseX::OnWindowDamaged(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnWindowDamaged(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event)
 {
   auto windowExposeEvent = static_cast<WindowSystemX::X11ExposeEvent*>(event);
   if(windowExposeEvent->window == mWindow && Dali::Adaptor::IsAvailable())
@@ -463,7 +463,7 @@ void WindowBaseX::OnWindowDamaged(void* data, WindowSystemBase::Event, WindowSys
   }
 }
 
-void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
@@ -490,7 +490,7 @@ void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemBase::Event type, Wi
   }
 }
 
-void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
@@ -515,7 +515,7 @@ void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemBase::Event type, Wind
   }
 }
 
-void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
@@ -535,7 +535,7 @@ void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemBase::Event type, Wi
   }
 }
 
-void WindowBaseX::OnMouseWheel(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnMouseWheel(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto mouseWheelEvent = static_cast<WindowSystemX::X11MouseWheelEvent*>(event);
 
@@ -577,7 +577,7 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
   return daliKeyEvent;
 }
 
-void WindowBaseX::OnKeyDown(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnKeyDown(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto keyEvent = static_cast<WindowSystemX::X11KeyEvent*>(event);
 
@@ -591,7 +591,7 @@ void WindowBaseX::OnKeyDown(void* data, WindowSystemBase::Event type, WindowSyst
   }
 }
 
-void WindowBaseX::OnKeyUp(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnKeyUp(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
   auto keyEvent = static_cast<WindowSystemX::X11KeyEvent*>(event);
 
@@ -605,11 +605,11 @@ void WindowBaseX::OnKeyUp(void* data, WindowSystemBase::Event type, WindowSystem
   }
 }
 
-void WindowBaseX::OnSelectionClear(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnSelectionClear(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
 }
 
-void WindowBaseX::OnSelectionNotify(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+void WindowBaseX::OnSelectionNotify(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event)
 {
 }
 

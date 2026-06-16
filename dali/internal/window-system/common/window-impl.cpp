@@ -94,7 +94,6 @@ Window::Window()
   mResizeSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal(),
   mAuxiliaryMessageSignal(),
   mMovedSignal(),
   mOrientationChangedSignal(),
@@ -151,7 +150,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
   mWindowBase->FocusChangedSignal().Connect(this, &Window::OnFocusChanged);
   mWindowBase->DeleteRequestSignal().Connect(this, &Window::OnDeleteRequest);
   mWindowBase->TransitionEffectEventSignal().Connect(this, &Window::OnTransitionEffectEvent);
-  mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect(this, &Window::OnKeyboardRepeatSettingsChanged);
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
@@ -1113,12 +1111,6 @@ void Window::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType t
 {
   Dali::Window handle(this);
   mTransitionEffectEventSignal.Emit(handle, state, type);
-}
-
-void Window::OnKeyboardRepeatSettingsChanged()
-{
-  Dali::Window handle(this);
-  mKeyboardRepeatSettingsChangedSignal.Emit();
 }
 
 void Window::OnWindowRedrawRequest()

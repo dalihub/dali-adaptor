@@ -42,8 +42,7 @@ struct TouchPoint;
 
 namespace DevelWindow
 {
-typedef Signal<void()> EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
-typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
+typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
 typedef Signal<void(Window, KeyEvent)>                                               KeyEventSignalType;               ///< Key event signal type
 typedef Signal<void(Window, TouchEvent)>                                             TouchEventSignalType;             ///< Touch signal type
@@ -124,14 +123,6 @@ DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal(Window win
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window);
-
-/**
- * @brief This signal is emitted just after the keyboard repeat setting is changed globally.
- *
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window);
 
 /**
  * @brief This signal is emitted when window's auxiliary was changed then display server sent the message.

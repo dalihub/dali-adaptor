@@ -687,19 +687,6 @@ static void TcoreWlEventWindowEffectEnd(void* event, tizen_core_wl_event_type_e 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// Keyboard Repeat Settings Changed Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-static void TcoreWlEventSeatKeyboardRepeatChanged(void* event, tizen_core_wl_event_type_e event_type, void* user_data)
-{
-  WindowBaseTcoreWl* windowBase = static_cast<WindowBaseTcoreWl*>(user_data);
-  if(windowBase)
-  {
-    windowBase->OnKeyboardRepeatSettingsChanged(user_data, event_type, event);
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 // Keymap Changed Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1069,9 +1056,6 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
 
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_START, TcoreWlEventWindowEffectStart, this, mTcoreEventListeners);
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_END, TcoreWlEventWindowEffectEnd, this, mTcoreEventListeners);
-
-        // Keyboard repeat
-        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_SEAT_KEYREPEAT_CHANGED, TcoreWlEventSeatKeyboardRepeatChanged, this, mTcoreEventListeners);
 
         // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for WINDOW_REDRAW_REQUEST
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_AUX_MESSAGE, TcoreWlEventWindowAuxiliaryMessage, this, mTcoreEventListeners);
@@ -2108,14 +2092,6 @@ void WindowBaseTcoreWl::OnTransitionEffectEvent(void* data, int type, void* even
   DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::OnTransitionEffectEvent, Window (%p)\n", mTcoreWindow);
 
   mTransitionEffectEventSignal.Emit(state, static_cast<WindowEffectType>(effectType));
-}
-
-void WindowBaseTcoreWl::OnKeyboardRepeatSettingsChanged(void* data, int type, void* event)
-{
-  if(Dali::Adaptor::IsAvailable())
-  {
-    mKeyboardRepeatSettingsChangedSignal.Emit();
-  }
 }
 
 void WindowBaseTcoreWl::OnWindowRedrawRequest(void* data, int type, void* event)
@@ -3607,7 +3583,7 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Da
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
+  { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
 
   for(GList* l = list; l; l = l->next)
   {
@@ -3644,7 +3620,7 @@ bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
+  { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
   return (err == TIZEN_CORE_WL_ERROR_NONE);

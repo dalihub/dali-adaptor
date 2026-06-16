@@ -51,12 +51,12 @@ public:
   /**
    * @brief Called when the window has been moved/resized
    */
-  void OnConfigure(WindowSystemBase::EventBase* event);
+  void OnConfigure(WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the window property is changed.
    */
-  bool OnWindowPropertyChanged(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event);
+  bool OnWindowPropertyChanged(void* data, WindowSystemX::Event type, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the window receives a delete request
@@ -66,37 +66,37 @@ public:
   /**
    * @brief Called when the window gains focus.
    */
-  void OnFocusIn(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnFocusIn(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the window loses focus.
    */
-  void OnFocusOut(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnFocusOut(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the window is damaged.
    */
-  void OnWindowDamaged(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnWindowDamaged(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when a touch down is received.
    */
-  void OnMouseButtonDown(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnMouseButtonDown(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when a touch up is received.
    */
-  void OnMouseButtonUp(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnMouseButtonUp(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when a touch motion is received.
    */
-  void OnMouseButtonMove(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnMouseButtonMove(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when a mouse wheel is received.
    */
-  void OnMouseWheel(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnMouseWheel(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * Create the dali key event from the X11 event
@@ -106,22 +106,22 @@ public:
   /**
    * @brief Called when a key down is received.
    */
-  void OnKeyDown(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnKeyDown(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when a key up is received.
    */
-  void OnKeyUp(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnKeyUp(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the source window notifies us the content in clipboard is selected.
    */
-  void OnSelectionClear(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnSelectionClear(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
   /**
    * @brief Called when the source window sends us about the selected content.
    */
-  void OnSelectionNotify(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event);
+  void OnSelectionNotify(void* data, WindowSystemX::Event, WindowSystemX::EventBase* event);
 
 public:
   /**
@@ -672,11 +672,11 @@ protected:
   WindowBaseX& operator=(const WindowBaseX& rhs) = delete;
 
 private:
-  Dali::Vector<WindowSystemBase::EventHandler*> mEventHandlers;
-  ::Window                                      mWindow;         ///< Native window handle
-  bool                                          mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
-  bool                                          mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
-  int                                           mWindowRotationAngle;
+  Dali::Vector<WindowSystemX::EventHandler*> mEventHandlers;
+  ::Window                                   mWindow;         ///< Native window handle
+  bool                                       mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
+  bool                                       mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
+  int                                        mWindowRotationAngle;
 };
 
 } // namespace Adaptor

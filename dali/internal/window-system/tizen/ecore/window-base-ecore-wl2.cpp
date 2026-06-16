@@ -693,22 +693,6 @@ static Eina_Bool EcoreEventEffectEnd(void* data, int type, void* event)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// Keyboard Repeat Settings Changed Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-static Eina_Bool EcoreEventSeatKeyboardRepeatChanged(void* data, int type, void* event)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventSeatKeyboardRepeatChanged, id[ %d ]\n", static_cast<Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed*>(event)->id);
-  if(windowBase)
-  {
-    windowBase->OnKeyboardRepeatSettingsChanged();
-  }
-
-  return ECORE_CALLBACK_RENEW;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 // Keymap Changed Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1119,9 +1103,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Effect Start/End event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_EFFECT_START, EcoreEventEffectStart, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_EFFECT_END, EcoreEventEffectEnd, this));
-
-  // Register Keyboard repeat event
-  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, EcoreEventSeatKeyboardRepeatChanged, this));
 
   // Register Window redraw request event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_REDRAW_REQUEST, EcoreEventWindowRedrawRequest, this));
@@ -1892,14 +1873,6 @@ void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, Window
   if(Dali::Adaptor::IsAvailable())
   {
     mTransitionEffectEventSignal.Emit(state, type);
-  }
-}
-
-void WindowBaseEcoreWl2::OnKeyboardRepeatSettingsChanged()
-{
-  if(Dali::Adaptor::IsAvailable())
-  {
-    mKeyboardRepeatSettingsChangedSignal.Emit();
   }
 }
 
@@ -3439,7 +3412,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3501,7 +3474,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 

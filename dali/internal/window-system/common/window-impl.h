@@ -59,27 +59,26 @@ using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
-  typedef Dali::Window::FocusChangeSignalType                        FocusChangeSignalType;
-  typedef Dali::Window::ResizeSignalType                             ResizeSignalType;
-  typedef Dali::Window::KeyEventSignalType                           KeyEventSignalType;
-  typedef Dali::Window::TouchEventSignalType                         TouchEventSignalType;
-  typedef Dali::DevelWindow::KeyEventSignalType                      KeyEventMonitorSignalType;
-  typedef Dali::DevelWindow::WheelEventSignalType                    WheelEventSignalType;
-  typedef Dali::DevelWindow::VisibilityChangedSignalType             VisibilityChangedSignalType;
-  typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
-  typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
-  typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
-  typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
-  typedef Dali::DevelWindow::InterceptKeyEventSignalType             InterceptKeyEventSignalType;
-  typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
-  typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
-  typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
-  typedef Dali::DevelWindow::MouseRelativeEventSignalType            MouseRelativeEventSignalType;
-  typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
-  typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
-  typedef Dali::DevelWindow::InsetsChangedSignalType                 InsetsChangedSignalType;
-  typedef Dali::DevelWindow::PointerConstraintsSignalType            PointerConstraintsSignalType;
-  typedef Signal<void()>                                             SignalType;
+  typedef Dali::Window::FocusChangeSignalType                 FocusChangeSignalType;
+  typedef Dali::Window::ResizeSignalType                      ResizeSignalType;
+  typedef Dali::Window::KeyEventSignalType                    KeyEventSignalType;
+  typedef Dali::Window::TouchEventSignalType                  TouchEventSignalType;
+  typedef Dali::DevelWindow::KeyEventSignalType               KeyEventMonitorSignalType;
+  typedef Dali::DevelWindow::WheelEventSignalType             WheelEventSignalType;
+  typedef Dali::DevelWindow::VisibilityChangedSignalType      VisibilityChangedSignalType;
+  typedef Dali::DevelWindow::TransitionEffectEventSignalType  TransitionEffectEventSignalType;
+  typedef Dali::DevelWindow::AuxiliaryMessageSignalType       AuxiliaryMessageSignalType;
+  typedef Dali::DevelWindow::AccessibilityHighlightSignalType AccessibilityHighlightSignalType;
+  typedef Dali::DevelWindow::InterceptKeyEventSignalType      InterceptKeyEventSignalType;
+  typedef Dali::DevelWindow::MovedSignalType                  MovedSignalType;
+  typedef Dali::DevelWindow::OrientationChangedSignalType     OrientationChangedSignalType;
+  typedef Dali::DevelWindow::MouseInOutEventSignalType        MouseInOutEventSignalType;
+  typedef Dali::DevelWindow::MouseRelativeEventSignalType     MouseRelativeEventSignalType;
+  typedef Dali::DevelWindow::MoveCompletedSignalType          MoveCompletedSignalType;
+  typedef Dali::DevelWindow::ResizeCompletedSignalType        ResizeCompletedSignalType;
+  typedef Dali::DevelWindow::InsetsChangedSignalType          InsetsChangedSignalType;
+  typedef Dali::DevelWindow::PointerConstraintsSignalType     PointerConstraintsSignalType;
+  typedef Signal<void()>                                      SignalType;
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
@@ -808,11 +807,6 @@ private:
   void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
 
   /**
-   * @brief Called when window receives a keyboard repeat event.
-   */
-  void OnKeyboardRepeatSettingsChanged();
-
-  /**
    * @brief Called when the window redraw is requested.
    */
   void OnWindowRedrawRequest();
@@ -1139,14 +1133,6 @@ public: // Signals
   }
 
   /**
-   * @copydoc Dali::DevelWindow::KeyboardRepeatSettingsChangedSignal()
-   */
-  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal()
-  {
-    return mKeyboardRepeatSettingsChangedSignal;
-  }
-
-  /**
    * @copydoc Dali::DevelWindow::AuxiliaryMessageSignal()
    */
   AuxiliaryMessageSignalType& AuxiliaryMessageSignal()
@@ -1245,27 +1231,26 @@ private:
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
 
   // Signals
-  SignalType                              mDeleteRequestSignal;
-  FocusChangeSignalType                   mFocusChangeSignal;
-  ResizeSignalType                        mResizeSignal;
-  KeyEventSignalType                      mKeyEventSignal;
-  TouchEventSignalType                    mTouchEventSignal;
-  WheelEventSignalType                    mWheelEventSignal;
-  InterceptKeyEventSignalType             mInterceptKeyEventSignal;
-  KeyEventMonitorSignalType               mKeyEventMonitorSignal;
-  VisibilityChangedSignalType             mVisibilityChangedSignal;
-  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
-  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
-  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
-  AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
-  MovedSignalType                         mMovedSignal;
-  OrientationChangedSignalType            mOrientationChangedSignal;
-  MouseInOutEventSignalType               mMouseInOutEventSignal;
-  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
-  MoveCompletedSignalType                 mMoveCompletedSignal;
-  ResizeCompletedSignalType               mResizeCompletedSignal;
-  InsetsChangedSignalType                 mInsetsChangedSignal;
-  PointerConstraintsSignalType            mPointerConstraintsSignal;
+  SignalType                       mDeleteRequestSignal;
+  FocusChangeSignalType            mFocusChangeSignal;
+  ResizeSignalType                 mResizeSignal;
+  KeyEventSignalType               mKeyEventSignal;
+  TouchEventSignalType             mTouchEventSignal;
+  WheelEventSignalType             mWheelEventSignal;
+  InterceptKeyEventSignalType      mInterceptKeyEventSignal;
+  KeyEventMonitorSignalType        mKeyEventMonitorSignal;
+  VisibilityChangedSignalType      mVisibilityChangedSignal;
+  TransitionEffectEventSignalType  mTransitionEffectEventSignal;
+  AuxiliaryMessageSignalType       mAuxiliaryMessageSignal;
+  AccessibilityHighlightSignalType mAccessibilityHighlightSignal;
+  MovedSignalType                  mMovedSignal;
+  OrientationChangedSignalType     mOrientationChangedSignal;
+  MouseInOutEventSignalType        mMouseInOutEventSignal;
+  MouseRelativeEventSignalType     mMouseRelativeEventSignal;
+  MoveCompletedSignalType          mMoveCompletedSignal;
+  ResizeCompletedSignalType        mResizeCompletedSignal;
+  InsetsChangedSignalType          mInsetsChangedSignal;
+  PointerConstraintsSignalType     mPointerConstraintsSignal;
 
   Dali::KeyEvent mLastKeyEvent;
 
