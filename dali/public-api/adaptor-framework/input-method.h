@@ -30,184 +30,90 @@ namespace Dali
 
 /**
  * @brief Enumeration for input method.
+ *
  * @SINCE_1_0.0
  */
 namespace InputMethod
 {
 /**
- * @brief Enumeration for settings that can be changed in the system Input Method.
- *
- * Key types of map to change virtual keyboard settings in INPUT_METHOD_SETTINGS property.
- * @SINCE_1_3.20
- */
-namespace Category
-{
-/**
- * @brief Enumeration for Category type.
- *
- * @SINCE_1_3.20
- */
-enum Type
-{
-  PANEL_LAYOUT,    ///< Set Keyboard layout @SINCE_1_3.20
-  BUTTON_ACTION,   ///< Set Button Action @SINCE_1_3.20
-  AUTO_CAPITALIZE, ///< Set Auto capitalize of input @SINCE_1_3.20
-  VARIATION        ///< Set variation @SINCE_1_3.20
-};
-
-} // namespace Category
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////// The enumerations below is to set each type of Category. ///////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
  * @brief Sets Input panel (virtual keyboard) layout types.
  *
- * @SINCE_1_3.20
+ * @SINCE_2_5.27
  */
-namespace PanelLayout
+enum class PanelLayout
 {
-/**
- * @brief Enumeration for PanelLayout type.
- *
- * @SINCE_1_3.20
- */
-enum Type
-{
-  NORMAL,      ///< Default layout @SINCE_1_3.20
-  NUMBER,      ///< Number layout @SINCE_1_3.20
-  EMAIL,       ///< Email layout @SINCE_1_3.20
-  URL,         ///< URL layout @SINCE_1_3.20
-  PHONENUMBER, ///< Phone Number layout @SINCE_1_3.20
-  IP,          ///< IP layout @SINCE_1_3.20
-  MONTH,       ///< Month layout @SINCE_1_3.20
-  NUMBER_ONLY, ///< Number Only layout @SINCE_1_3.20
-  HEX,         ///< Hexadecimal layout @SINCE_1_3.20
-  TERMINAL,    ///< Command-line terminal layout including ESC, Alt, Ctrl key, so on (no auto-correct, no auto-capitalization) @SINCE_1_3.20
-  PASSWORD,    ///< Like normal, but no auto-correct, no auto-capitalization etc @SINCE_1_3.20
-  DATE_TIME,   ///< Date and time layout @SINCE_1_3.20
-  EMOTICON     ///< Emoticon layout @SINCE_1_3.20
+  NORMAL,      ///< Default layout @SINCE_2_5.27
+  NUMBER,      ///< Number layout @SINCE_2_5.27
+  EMAIL,       ///< Email layout @SINCE_2_5.27
+  URL,         ///< URL layout @SINCE_2_5.27
+  PHONENUMBER, ///< Phone Number layout @SINCE_2_5.27
+  IP,          ///< IP layout @SINCE_2_5.27
+  MONTH,       ///< Month layout @SINCE_2_5.27
+  NUMBER_ONLY, ///< Number Only layout @SINCE_2_5.27
+  PASSWORD,    ///< Like normal, but no auto-correct, no auto-capitalization etc @SINCE_2_5.27
+  DATE_TIME,   ///< Date and time layout @SINCE_2_5.27
+  EMOTICON,    ///< Emoticon layout @SINCE_2_5.27
+  VOICE        ///< Voice layout, but if the IME does not support voice layout, then normal layout will be shown. @SINCE_2_5.27
 };
 
-} // namespace PanelLayout
-
 /**
- * @brief Enumeration for specifying what the Input Method "action" button functionality is set to.
+ * @brief Enumeration for specifying the input panel return key type.
  *
- * The 'Action' button is traditionally the [RETURN] or [DONE] button.
- * Not all these actions are supported by all systems.
- * Setting a custom label will still require one of these actions to be set.
- * @SINCE_1_3.20
- */
-namespace ButtonAction
-{
-/**
- * @brief Enumeration for ButtonAction type.
+ * The return key is traditionally the [RETURN] or [DONE] key. Not all these
+ * key types are supported by all systems.
  *
- * @SINCE_1_3.20
+ * @SINCE_2_5.27
  */
-enum Type
+enum class ReturnKeyType
 {
-  DEFAULT, ///< Default action @SINCE_1_3.20
-  DONE,    ///< Done @SINCE_1_3.20
-  GO,      ///< Go action @SINCE_1_3.20
-  JOIN,    ///< Join action @SINCE_1_3.20
-  LOGIN,   ///< Login action @SINCE_1_3.20
-  NEXT,    ///< Next action @SINCE_1_3.20
-  SEARCH,  ///< Search action @SINCE_1_3.20
-  SEND,    ///< Send action @SINCE_1_3.20
-  SIGNIN   ///< Sign in action @SINCE_1_3.20
+  DEFAULT, ///< Default return key type @SINCE_2_5.27
+  DONE,    ///< Done @SINCE_2_5.27
+  GO,      ///< Go @SINCE_2_5.27
+  JOIN,    ///< Join @SINCE_2_5.27
+  LOGIN,   ///< Login @SINCE_2_5.27
+  NEXT,    ///< Next @SINCE_2_5.27
+  SEARCH,  ///< Search or magnifier icon @SINCE_2_5.27
+  SEND,    ///< Send @SINCE_2_5.27
+  SIGNIN   ///< Sign in @SINCE_2_5.27
 };
-
-} // namespace ButtonAction
 
 /**
  * @brief Sets Autocapitalization Types.
  *
- * @SINCE_1_3.20
+ * @SINCE_2_5.27
  */
-namespace AutoCapital
+enum class AutoCapitalType
 {
-/**
- * @brief Enumeration for AutoCapital type.
- *
- * @SINCE_1_3.20
- */
-enum Type
-{
-  NONE,         ///< No auto-capitalization when typing @SINCE_1_3.20
-  WORD,         ///< Autocapitalize each word typed @SINCE_1_3.20
-  SENTENCE,     ///< Autocapitalize the start of each sentence @SINCE_1_3.20
-  ALL_CHARACTER ///< Autocapitalize all letters @SINCE_1_3.20
+  NONE,         ///< No auto-capitalization when typing @SINCE_2_5.27
+  WORD,         ///< Autocapitalize each word typed @SINCE_2_5.27
+  SENTENCE,     ///< Autocapitalize the start of each sentence @SINCE_2_5.27
+  ALL_CHARACTER ///< Autocapitalize all letters @SINCE_2_5.27
 };
 
-} // namespace AutoCapital
-
-/////////////////////////// VARIATION based on PANEL_LAYOUT //////////////////////////////////
-
 /**
- * @brief Available variation for Normal layout.
+ * @brief Sets input panel layout variation types.
  *
- * @SINCE_1_3.20
- */
-namespace NormalLayout
-{
-/**
- * @brief Enumeration for NormalLayout Variation type.
+ * The variation value is grouped by input panel layout.
+ * Each layout defines its own variation range for extensibility.
  *
- * @SINCE_1_3.20
+ * The actual platform input method variation value is layout-specific and may
+ * differ from this enum value. The enum is converted to the platform-specific
+ * variation value when applied to the input method context.
+ *
+ * @SINCE_2_5.27
  */
-enum Type
+enum class PanelLayoutVariation
 {
-  NORMAL,          ///< The plain normal layout @SINCE_1_3.20
-  WITH_FILENAME,   ///< Filename layout. Symbols such as '/' should be disabled @SINCE_1_3.20
-  WITH_PERSON_NAME ///< The name of a person @SINCE_1_3.20
+  NORMAL_NORMAL                       = 0,   ///< The plain normal variation for normal layout. @SINCE_2_5.27
+  NORMAL_WITH_FILENAME                = 1,   ///< Normal layout variation for filename input. Symbols such as '/' should be disabled. @SINCE_2_5.27
+  NORMAL_WITH_PERSON_NAME             = 2,   ///< Normal layout variation for person name input. @SINCE_2_5.27
+  NUMBER_ONLY_NORMAL                  = 100, ///< The plain normal variation for number-only layout. @SINCE_2_5.27
+  NUMBER_ONLY_WITH_SIGNED             = 101, ///< Number-only layout variation to allow a positive or negative sign at the start. @SINCE_2_5.27
+  NUMBER_ONLY_WITH_DECIMAL            = 102, ///< Number-only layout variation to allow a decimal point for fractional values. @SINCE_2_5.27
+  NUMBER_ONLY_WITH_SIGNED_AND_DECIMAL = 103, ///< Number-only layout variation to allow both sign and decimal point. @SINCE_2_5.27
+  PASSWORD_NORMAL                     = 200, ///< The normal variation for password layout. @SINCE_2_5.27
+  PASSWORD_WITH_NUMBER_ONLY           = 201  ///< Password layout variation to allow only numbers. @SINCE_2_5.27
 };
-
-} // namespace NormalLayout
-
-/**
- * @brief Available variation for Number only layout.
- *
- * @SINCE_1_3.20
- */
-namespace NumberOnlyLayout
-{
-/**
- * @brief Enumeration for NumberOnlyLayout Variation type.
- *
- * @SINCE_1_3.20
- */
-enum Type
-{
-  NORMAL,                 ///< The plain normal number layout @SINCE_1_3.20
-  WITH_SIGNED,            ///< The number layout to allow a positive or negative sign at the start @SINCE_1_3.20
-  WITH_DECIMAL,           ///< The number layout to allow decimal point to provide fractional value @SINCE_1_3.20
-  WITH_SIGNED_AND_DECIMAL ///< The number layout to allow decimal point and negative sign @SINCE_1_3.20
-};
-
-} // namespace NumberOnlyLayout
-
-/**
- * @brief Available variation for Password layout.
- *
- * @SINCE_1_3.20
- */
-namespace PasswordLayout
-{
-/**
- * @brief Enumeration for PasswordLayout Variation type.
- *
- * @SINCE_1_3.20
- */
-enum Type
-{
-  NORMAL,          ///< The normal password layout @SINCE_1_3.20
-  WITH_NUMBER_ONLY ///< The password layout to allow only number @SINCE_1_3.20
-};
-
-} // namespace PasswordLayout
 
 } // namespace InputMethod
 

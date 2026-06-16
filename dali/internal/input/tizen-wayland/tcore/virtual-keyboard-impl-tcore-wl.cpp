@@ -36,29 +36,29 @@ namespace Adaptor
 {
 namespace VirtualKeyboard
 {
-Dali::InputMethod::ButtonAction::Type gButtonActionFunction = Dali::InputMethod::ButtonAction::DEFAULT;
+Dali::InputMethod::ReturnKeyType gButtonActionFunction = Dali::InputMethod::ReturnKeyType::DEFAULT;
 
-tizen_core_imf_input_panel_return_key_type_e buttonActionMapping(Dali::InputMethod::ButtonAction::Type buttonAction)
+tizen_core_imf_input_panel_return_key_type_e buttonActionMapping(Dali::InputMethod::ReturnKeyType buttonAction)
 {
   switch(buttonAction)
   {
-    case InputMethod::ButtonAction::DEFAULT:
+    case InputMethod::ReturnKeyType::DEFAULT:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
-    case InputMethod::ButtonAction::DONE:
+    case InputMethod::ReturnKeyType::DONE:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE;
-    case InputMethod::ButtonAction::GO:
+    case InputMethod::ReturnKeyType::GO:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO;
-    case InputMethod::ButtonAction::JOIN:
+    case InputMethod::ReturnKeyType::JOIN:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN;
-    case InputMethod::ButtonAction::LOGIN:
+    case InputMethod::ReturnKeyType::LOGIN:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN;
-    case InputMethod::ButtonAction::NEXT:
+    case InputMethod::ReturnKeyType::NEXT:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT;
-    case InputMethod::ButtonAction::SEARCH:
+    case InputMethod::ReturnKeyType::SEARCH:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH;
-    case InputMethod::ButtonAction::SEND:
+    case InputMethod::ReturnKeyType::SEND:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND;
-    case InputMethod::ButtonAction::SIGNIN:
+    case InputMethod::ReturnKeyType::SIGNIN:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN;
     default:
       return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
@@ -69,11 +69,11 @@ void RotateTo(int angle)
 {
 }
 
-void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
+void SetReturnKeyType(const InputMethod::ReturnKeyType type)
 {
 }
 
-Dali::InputMethod::ButtonAction::Type GetReturnKeyType()
+Dali::InputMethod::ReturnKeyType GetReturnKeyType()
 {
   return gButtonActionFunction;
 }

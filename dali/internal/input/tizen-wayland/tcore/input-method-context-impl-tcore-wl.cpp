@@ -21,7 +21,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
@@ -37,46 +36,6 @@
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-using Dali::Integration::ToStdString;
-
-tizen_core_imf_input_panel_layout_e panelLayoutMap[] =
-  {
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBER,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMAIL,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_URL,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_IP,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_MONTH,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY,
-    // No direct HEX / TERMINAL layouts in Tizen Core IMF. Map to closest layouts.
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY, // HEX -> NUMBERONLY
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL,     // TERMINAL -> NORMAL
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_DATETIME,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON,
-    TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_VOICE};
-
-tizen_core_imf_autocapital_type_e autoCapitalMap[] =
-  {
-    TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_NONE,
-    TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_WORD,
-    TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_SENTENCE,
-    TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER,
-};
-
-tizen_core_imf_input_panel_return_key_type_e returnKeyTypeMap[] =
-  {
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND,
-    TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN};
-
 namespace Dali
 {
 namespace Internal
@@ -88,6 +47,29 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT");
 #endif
+
+bool IsTcoreSuccess(tizen_core_imf_error_e error)
+{
+  return error == TIZEN_CORE_IMF_ERROR_NONE;
+}
+
+struct ScopedTcoreEventKey
+{
+  ScopedTcoreEventKey() = default;
+
+  ~ScopedTcoreEventKey()
+  {
+    if(handle)
+    {
+      tizen_core_imf_event_key_destroy(handle);
+    }
+  }
+
+  ScopedTcoreEventKey(const ScopedTcoreEventKey&)            = delete;
+  ScopedTcoreEventKey& operator=(const ScopedTcoreEventKey&) = delete;
+
+  tizen_core_imf_event_key_h handle{nullptr};
+};
 
 // Currently this code is internal to dali/dali/internal/event/text/utf8.h but should be made Public and used from there instead.
 size_t Utf8SequenceLength(const unsigned char leadByte)
@@ -182,17 +164,19 @@ void InputPanelStateChangeCallback(tizen_core_imf_context_h ctx, int value, void
   {
     case TIZEN_CORE_IMF_INPUT_PANEL_STATE_SHOW:
     {
-      inputMethodContext->StatusChangedSignal().Emit(true);
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::SHOW);
       break;
     }
-
     case TIZEN_CORE_IMF_INPUT_PANEL_STATE_HIDE:
     {
-      inputMethodContext->StatusChangedSignal().Emit(false);
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::HIDE);
       break;
     }
-
     case TIZEN_CORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
+    {
+      inputMethodContext->EmitStatusChangedSignal(Dali::InputMethodContext::State::WILL_SHOW);
+      break;
+    }
     default:
     {
       // Do nothing
@@ -209,7 +193,7 @@ void InputPanelLanguageChangeCallback(tizen_core_imf_context_h ctx, int value, v
   }
   InputMethodContextTcoreWl* inputMethodContext = static_cast<InputMethodContextTcoreWl*>(userData);
   // Emit the signal that the language has changed
-  inputMethodContext->LanguageChangedSignal().Emit(value);
+  inputMethodContext->EmitLanguageChangedSignal(value);
 }
 
 void InputPanelGeometryChangedCallback(tizen_core_imf_context_h ctx, int value, void* userData)
@@ -220,7 +204,7 @@ void InputPanelGeometryChangedCallback(tizen_core_imf_context_h ctx, int value, 
   }
   InputMethodContextTcoreWl* inputMethodContext = static_cast<InputMethodContextTcoreWl*>(userData);
   // Emit signal that the keyboard is resized
-  inputMethodContext->ResizedSignal().Emit(value);
+  inputMethodContext->EmitKeyboardResizedSignal(value);
 }
 
 void InputPanelKeyboardTypeChangedCallback(tizen_core_imf_context_h ctx, int value, void* userData)
@@ -236,13 +220,13 @@ void InputPanelKeyboardTypeChangedCallback(tizen_core_imf_context_h ctx, int val
     case TIZEN_CORE_IMF_INPUT_PANEL_KEYBOARD_MODE_SW:
     {
       // Emit Signal that the keyboard type is changed to Software Keyboard
-      inputMethodContext->KeyboardTypeChangedSignal().Emit(Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD);
+      inputMethodContext->EmitKeyboardTypeChangedSignal(Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD);
       break;
     }
     case TIZEN_CORE_IMF_INPUT_PANEL_KEYBOARD_MODE_HW:
     {
       // Emit Signal that the keyboard type is changed to Hardware Keyboard
-      inputMethodContext->KeyboardTypeChangedSignal().Emit(Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD);
+      inputMethodContext->EmitKeyboardTypeChangedSignal(Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD);
       break;
     }
   }
@@ -339,12 +323,272 @@ tizen_core_wl_window_h GetWindowFromActor(Dali::Actor actor)
   return window;
 }
 
-BaseHandle Create()
+tizen_core_imf_input_panel_layout_e ToTcorePanelLayout(Dali::InputMethod::PanelLayout layout)
 {
-  return Dali::InputMethodContext::New(Dali::Actor());
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NORMAL:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+    case Dali::InputMethod::PanelLayout::NUMBER:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBER;
+    case Dali::InputMethod::PanelLayout::EMAIL:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMAIL;
+    case Dali::InputMethod::PanelLayout::URL:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_URL;
+    case Dali::InputMethod::PanelLayout::PHONENUMBER:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER;
+    case Dali::InputMethod::PanelLayout::IP:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_IP;
+    case Dali::InputMethod::PanelLayout::MONTH:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_MONTH;
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY;
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD;
+    case Dali::InputMethod::PanelLayout::DATE_TIME:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_DATETIME;
+    case Dali::InputMethod::PanelLayout::EMOTICON:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON;
+    case Dali::InputMethod::PanelLayout::VOICE:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_VOICE;
+    default:
+      return TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+  }
 }
 
-Dali::TypeRegistration type(typeid(Dali::InputMethodContext), typeid(Dali::BaseHandle), Create);
+Dali::InputMethod::PanelLayout ToDaliPanelLayout(tizen_core_imf_input_panel_layout_e tcoreLayout)
+{
+  switch(tcoreLayout)
+  {
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBER:
+      return Dali::InputMethod::PanelLayout::NUMBER;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMAIL:
+      return Dali::InputMethod::PanelLayout::EMAIL;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_URL:
+      return Dali::InputMethod::PanelLayout::URL;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PHONENUMBER:
+      return Dali::InputMethod::PanelLayout::PHONENUMBER;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_IP:
+      return Dali::InputMethod::PanelLayout::IP;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_MONTH:
+      return Dali::InputMethod::PanelLayout::MONTH;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY:
+      return Dali::InputMethod::PanelLayout::NUMBER_ONLY;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD:
+      return Dali::InputMethod::PanelLayout::PASSWORD;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_DATETIME:
+      return Dali::InputMethod::PanelLayout::DATE_TIME;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON:
+      return Dali::InputMethod::PanelLayout::EMOTICON;
+    case TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_VOICE:
+      return Dali::InputMethod::PanelLayout::VOICE;
+    default:
+      return Dali::InputMethod::PanelLayout::NORMAL;
+  }
+}
+
+tizen_core_imf_input_panel_return_key_type_e ToTcoreReturnKey(Dali::InputMethod::ReturnKeyType action)
+{
+  switch(action)
+  {
+    case Dali::InputMethod::ReturnKeyType::DONE:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE;
+    case Dali::InputMethod::ReturnKeyType::GO:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO;
+    case Dali::InputMethod::ReturnKeyType::JOIN:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN;
+    case Dali::InputMethod::ReturnKeyType::LOGIN:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN;
+    case Dali::InputMethod::ReturnKeyType::NEXT:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT;
+    case Dali::InputMethod::ReturnKeyType::SEARCH:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH;
+    case Dali::InputMethod::ReturnKeyType::SEND:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND;
+    case Dali::InputMethod::ReturnKeyType::SIGNIN:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN;
+    default:
+      return TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+  }
+}
+
+Dali::InputMethod::ReturnKeyType ToDaliReturnKey(tizen_core_imf_input_panel_return_key_type_e tcoreKey)
+{
+  switch(tcoreKey)
+  {
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DONE:
+      return Dali::InputMethod::ReturnKeyType::DONE;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_GO:
+      return Dali::InputMethod::ReturnKeyType::GO;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN:
+      return Dali::InputMethod::ReturnKeyType::JOIN;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN:
+      return Dali::InputMethod::ReturnKeyType::LOGIN;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT:
+      return Dali::InputMethod::ReturnKeyType::NEXT;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH:
+      return Dali::InputMethod::ReturnKeyType::SEARCH;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND:
+      return Dali::InputMethod::ReturnKeyType::SEND;
+    case TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN:
+      return Dali::InputMethod::ReturnKeyType::SIGNIN;
+    default:
+      return Dali::InputMethod::ReturnKeyType::DEFAULT;
+  }
+}
+
+tizen_core_imf_autocapital_type_e ToTcoreAutoCapital(Dali::InputMethod::AutoCapitalType autoCapital)
+{
+  switch(autoCapital)
+  {
+    case Dali::InputMethod::AutoCapitalType::WORD:
+      return TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_WORD;
+    case Dali::InputMethod::AutoCapitalType::SENTENCE:
+      return TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_SENTENCE;
+    case Dali::InputMethod::AutoCapitalType::ALL_CHARACTER:
+      return TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER;
+    default:
+      return TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_NONE;
+  }
+}
+
+Dali::InputMethod::AutoCapitalType ToDaliAutoCapital(tizen_core_imf_autocapital_type_e tcoreAutoCapital)
+{
+  switch(tcoreAutoCapital)
+  {
+    case TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_WORD:
+      return Dali::InputMethod::AutoCapitalType::WORD;
+    case TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_SENTENCE:
+      return Dali::InputMethod::AutoCapitalType::SENTENCE;
+    case TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER:
+      return Dali::InputMethod::AutoCapitalType::ALL_CHARACTER;
+    default:
+      return Dali::InputMethod::AutoCapitalType::NONE;
+  }
+}
+
+int GetOptionRawVariation(const Dali::Integration::InputMethodOptions& options)
+{
+  Property::Map settings;
+  const_cast<Dali::Integration::InputMethodOptions&>(options).RetrieveProperty(settings);
+
+  if(Property::Value* value = settings.Find("VARIATION", Property::INTEGER))
+  {
+    return value->Get<int>();
+  }
+
+  return 0;
+}
+
+int ToTcoreLayoutVariation(Dali::InputMethod::PanelLayout layout, Dali::InputMethod::PanelLayoutVariation variation)
+{
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED:
+          return TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_SIGNED;
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_DECIMAL:
+          return TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_DECIMAL;
+        case Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED_AND_DECIMAL:
+          return TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_SIGNED_AND_DECIMAL;
+        default:
+          return TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::PASSWORD_WITH_NUMBER_ONLY:
+          return TIZEN_CORE_IMF_LAYOUT_PASSWORD_VARIATION_NUMBERONLY;
+        default:
+          return TIZEN_CORE_IMF_LAYOUT_PASSWORD_VARIATION_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::NORMAL:
+    {
+      switch(variation)
+      {
+        case Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_FILENAME:
+          return TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_FILENAME;
+        case Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_PERSON_NAME:
+          return TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_PERSON_NAME;
+        default:
+          return TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_NORMAL;
+      }
+    }
+    default:
+      return TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_NORMAL;
+  }
+}
+
+bool SetTcoreInputPanelLayoutVariation(tizen_core_imf_context_h context, Dali::InputMethod::PanelLayout layout, Dali::InputMethod::PanelLayoutVariation variation)
+{
+  return IsTcoreSuccess(tizen_core_imf_context_set_input_panel_layout_variation(context, ToTcoreLayoutVariation(layout, variation)));
+}
+
+bool SetTcoreInputHintFlag(tizen_core_imf_context_h context, tizen_core_imf_input_hints_e flag, bool enabled)
+{
+  tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
+  if(!IsTcoreSuccess(tizen_core_imf_context_get_input_hint(context, &hints)))
+  {
+    return false;
+  }
+
+  const auto updatedHints = enabled ? static_cast<tizen_core_imf_input_hints_e>(hints | flag)
+                                    : static_cast<tizen_core_imf_input_hints_e>(hints & ~flag);
+  return IsTcoreSuccess(tizen_core_imf_context_set_input_hint(context, updatedHints));
+}
+
+Dali::InputMethod::PanelLayoutVariation ToPanelLayoutVariation(Dali::InputMethod::PanelLayout layout, int rawVariation)
+{
+  switch(layout)
+  {
+    case Dali::InputMethod::PanelLayout::NUMBER_ONLY:
+    {
+      switch(rawVariation)
+      {
+        case TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_SIGNED:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED;
+        case TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_DECIMAL:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_DECIMAL;
+        case TIZEN_CORE_IMF_LAYOUT_NUMBERONLY_VARIATION_SIGNED_AND_DECIMAL:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_WITH_SIGNED_AND_DECIMAL;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::NUMBER_ONLY_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::PASSWORD:
+    {
+      switch(rawVariation)
+      {
+        case TIZEN_CORE_IMF_LAYOUT_PASSWORD_VARIATION_NUMBERONLY:
+          return Dali::InputMethod::PanelLayoutVariation::PASSWORD_WITH_NUMBER_ONLY;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::PASSWORD_NORMAL;
+      }
+    }
+    case Dali::InputMethod::PanelLayout::NORMAL:
+    {
+      switch(rawVariation)
+      {
+        case TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_FILENAME:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_FILENAME;
+        case TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_PERSON_NAME:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_WITH_PERSON_NAME;
+        default:
+          return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
+      }
+    }
+    default:
+    {
+      return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
+    }
+  }
+}
 
 } // unnamed namespace
 
@@ -369,10 +613,10 @@ void InputMethodContextTcoreWl::Finalize()
 }
 
 InputMethodContextTcoreWl::InputMethodContextTcoreWl(Dali::Actor actor)
-: mIMFContext(),
-  mIMFCursorPosition(0),
-  mSurroundingText(),
+: mSurroundingText(),
+  mIMFContext(),
   mWindow(GetWindowFromActor(actor)),
+  mIMFCursorPosition(0),
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false),
   mTxCapturing(false)
@@ -411,14 +655,17 @@ void InputMethodContextTcoreWl::CreateContext()
     mIMFContext = nullptr;
   }
 
-  if(tizen_core_imf_context_create(&mIMFContext) != TIZEN_CORE_IMF_ERROR_NONE || !mIMFContext)
+  if(!IsTcoreSuccess(tizen_core_imf_context_create(&mIMFContext)) || !mIMFContext)
   {
     DALI_LOG_ERROR("InputMethodContext Unable to create Tizen Core IMF context\n");
     return;
   }
 
   // Associate native window handle with IMF context
-  tizen_core_imf_context_set_client_window(mIMFContext, static_cast<void*>(mWindow));
+  if(!IsTcoreSuccess(tizen_core_imf_context_set_client_window(mIMFContext, static_cast<void*>(mWindow))))
+  {
+    DALI_LOG_ERROR("InputMethodContext Unable to set Tizen Core IMF client window\n");
+  }
 }
 
 void InputMethodContextTcoreWl::DeleteContext()
@@ -488,11 +735,12 @@ void InputMethodContextTcoreWl::Activate()
   {
     DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::Activate\n");
 
-    tizen_core_imf_context_focus_in(mIMFContext);
-
-    // emit keyboard activated signal
-    Dali::InputMethodContext handle(this);
-    mActivatedSignal.Emit(handle);
+    if(IsTcoreSuccess(tizen_core_imf_context_focus_in(mIMFContext)))
+    {
+      // emit keyboard activated signal
+      Dali::InputMethodContext handle(this);
+      mActivatedSignal.Emit(handle);
+    }
   }
 }
 
@@ -532,9 +780,10 @@ bool InputMethodContextTcoreWl::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void InputMethodContextTcoreWl::SetRestoreAfterFocusLost(bool toggle)
+bool InputMethodContextTcoreWl::SetRestoreAfterFocusLost(bool toggle)
 {
   mRestoreAfterFocusLost = toggle;
+  return true;
 }
 
 /**
@@ -555,19 +804,24 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
   mPreeditAttrs.Clear();
 
   // Retrieves attributes as well as the string and cursor position from Tizen Core IMF.
-  tizen_core_imf_context_get_preedit_string(context, &preEditString, &attrs, &attrsCount, &cursorPosition);
+  const bool preeditStringRetrieved = IsTcoreSuccess(tizen_core_imf_context_get_preedit_string(context, &preEditString, &attrs, &attrsCount, &cursorPosition));
 
-  if(attrs && attrsCount > 0)
+  if(preeditStringRetrieved && preEditString && attrs && attrsCount > 0)
   {
     for(int i = 0; i < attrsCount; ++i)
     {
       tizen_core_imf_preedit_attr_h attr = attrs[i];
-      tizen_core_imf_preedit_type_e preedit_type;
-      unsigned int start_index, end_index;
-      tizen_core_imf_preedit_attr_get_preedit_type(attr, &preedit_type);
-      tizen_core_imf_preedit_attr_get_start_index(attr, &start_index);
-      tizen_core_imf_preedit_attr_get_end_index(attr, &end_index);
-      Dali::InputMethodContext::PreeditAttributeData data;
+      tizen_core_imf_preedit_type_e preedit_type = TIZEN_CORE_IMF_PREEDIT_TYPE_NONE;
+      unsigned int start_index = 0u;
+      unsigned int end_index   = 0u;
+      if(!IsTcoreSuccess(tizen_core_imf_preedit_attr_get_preedit_type(attr, &preedit_type)) ||
+         !IsTcoreSuccess(tizen_core_imf_preedit_attr_get_start_index(attr, &start_index)) ||
+         !IsTcoreSuccess(tizen_core_imf_preedit_attr_get_end_index(attr, &end_index)))
+      {
+        continue;
+      }
+
+      Dali::Integration::InputMethodContext::PreeditAttributeData data;
       data.startIndex = 0;
       data.endIndex   = 0;
 
@@ -604,27 +858,27 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
       {
         case TIZEN_CORE_IMF_PREEDIT_TYPE_NONE:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_UNDERLINE:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::UNDERLINE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_REVERSE:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::REVERSE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
           break;
         }
         case TIZEN_CORE_IMF_PREEDIT_TYPE_HIGHLIGHT:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
           break;
         }
         default:
         {
-          data.preeditType = Dali::InputMethodContext::PreeditStyle::NONE;
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::NONE;
           break;
         }
       }
@@ -641,9 +895,9 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::InputMethodContext            handle(this);
-      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, preEditString ? preEditString : "", cursorPosition, 0);
+      Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, Dali::String(preEditString ? preEditString : ""), cursorPosition, 0);
       mEventSignal.Emit(handle, eventData);
-      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+      Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
       if(callbackData.update)
       {
@@ -662,7 +916,7 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
 
   if(attrs)
   {
-    free(attrs);
+    tizen_core_imf_preedit_attrs_destroy(attrs, attrsCount);
   }
   if(preEditString)
   {
@@ -690,9 +944,9 @@ void InputMethodContextTcoreWl::CommitReceived(void* data, ImfContext* imfContex
     if(Dali::Adaptor::IsAvailable())
     {
       Dali::InputMethodContext            handle(this);
-      Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+      Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
       mEventSignal.Emit(handle, eventData);
-      Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+      Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
       if(callbackData.update)
       {
@@ -714,10 +968,20 @@ bool InputMethodContextTcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
-  Dali::InputMethodContext            handle(this);
+  if(text)
+  {
+    *text = nullptr;
+  }
+
+  if(!mIMFContext || (!text && !cursorPosition))
+  {
+    return false;
+  }
+
+  Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::GET_SURROUNDING, Dali::String(), 0, 0);
+  Dali::InputMethodContext                         handle(this);
   mEventSignal.Emit(handle, imfData);
-  Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
+  Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, imfData);
 
   if(callbackData.update)
   {
@@ -729,16 +993,19 @@ bool InputMethodContextTcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 
     if(text)
     {
-      const char* plainText = callbackData.currentText.c_str();
+      const char* plainText = callbackData.currentText.CStr();
 
       if(plainText)
       {
         // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
         tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-        tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
+        if(!IsTcoreSuccess(tizen_core_imf_context_get_input_hint(mIMFContext, &hints)))
+        {
+          return false;
+        }
         if(hints & TIZEN_CORE_IMF_INPUT_HINTS_SENSITIVE_DATA)
         {
-          size_t textLength = callbackData.currentText.length();
+          size_t textLength = callbackData.currentText.Size();
           size_t utf8Length = GetNumberOfUtf8Characters(plainText, textLength);
           if(textLength > 0u && utf8Length == 0u)
           {
@@ -755,7 +1022,7 @@ bool InputMethodContextTcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
           *text = strdup(plainText);
         }
 
-        return true;
+        return *text != nullptr;
       }
     }
   }
@@ -783,8 +1050,8 @@ void InputMethodContextTcoreWl::DeleteSurrounding(void* data, ImfContext* imfCon
     {
       if(Dali::Adaptor::IsAvailable())
       {
-        Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), 0, 0);
-        Dali::InputMethodContext            handle(this);
+        Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), 0, 0);
+        Dali::InputMethodContext                         handle(this);
         mEventSignal.Emit(handle, imfData);
         mKeyboardEventSignal.Emit(handle, imfData);
       }
@@ -811,9 +1078,10 @@ void InputMethodContextTcoreWl::SendPrivateCommand(void* data, ImfContext* imfCo
     {
       if(Dali::Adaptor::IsAvailable())
       {
-        Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
-        Dali::InputMethodContext            handle(this);
+        Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, Dali::String(privateCommandSendEvent), 0, 0);
+        Dali::InputMethodContext                         handle(this);
         mEventSignal.Emit(handle, imfData);
+        mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
         mKeyboardEventSignal.Emit(handle, imfData);
       }
     }
@@ -840,7 +1108,7 @@ void InputMethodContextTcoreWl::SendCommitContent(void* data, ImfContext* imfCon
       if(Dali::Adaptor::IsAvailable())
       {
         DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SendCommitContent commit content : %s\n", commitContent);
-        mContentReceivedSignal.Emit(commitContent, "", "");
+        EmitContentReceivedSignal(commitContent, "", "");
       }
     }
   }
@@ -866,8 +1134,8 @@ void InputMethodContextTcoreWl::SendSelectionSet(void* data, ImfContext* imfCont
       if(Dali::Adaptor::IsAvailable())
       {
         DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SendSelectionSet selection : %s\n", selection);
-        Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection, 0, 0);
-        Dali::InputMethodContext            handle(this);
+        Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, selection, 0, 0);
+        Dali::InputMethodContext                         handle(this);
         mEventSignal.Emit(handle, imfData);
         mKeyboardEventSignal.Emit(handle, imfData);
       }
@@ -907,9 +1175,9 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
           const String keyString = currentEvent.eventValue.GetElementAt(0).Get<String>();
 
           Dali::InputMethodContext            handle(this);
-          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::COMMIT, ToStdString(keyString), 0, 0);
+          Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, keyString, 0, 0);
           mEventSignal.Emit(handle, eventData);
-          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+          Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
           if(callbackData.update)
           {
@@ -928,9 +1196,9 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::InputMethodContext            handle(this);
           Dali::String                        preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
           int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData eventData(Dali::InputMethodContext::PRE_EDIT, ToStdString(preEditString), cursorPosition, 0);
+          Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
           mEventSignal.Emit(handle, eventData);
-          Dali::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+          Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
           if(callbackData.update)
           {
@@ -953,7 +1221,7 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           int                                 offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
           int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), offset, n_chars);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), offset, n_chars);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -966,9 +1234,10 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           Dali::String privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
 
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent.CStr(), 0, 0);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
+          mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
           mKeyboardEventSignal.Emit(handle, imfData);
         }
         break;
@@ -980,7 +1249,7 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::String contentUri  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
           Dali::String description = currentEvent.eventValue.GetElementAt(1).Get<Dali::String>();
           Dali::String mimeTypes   = currentEvent.eventValue.GetElementAt(2).Get<Dali::String>();
-          mContentReceivedSignal.Emit(ToStdString(contentUri), ToStdString(description), ToStdString(mimeTypes));
+          EmitContentReceivedSignal(contentUri, description, mimeTypes);
         }
         break;
       }
@@ -990,7 +1259,7 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
           int                                 end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
-          Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, start, end);
+          Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, start, end);
           Dali::InputMethodContext            handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -1032,14 +1301,14 @@ unsigned int InputMethodContextTcoreWl::GetCursorPosition() const
   return static_cast<unsigned int>(mIMFCursorPosition);
 }
 
-void InputMethodContextTcoreWl::SetSurroundingText(const std::string& text)
+void InputMethodContextTcoreWl::SetSurroundingText(const Dali::String& text)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetSurroundingText\n");
 
   mSurroundingText = text;
 }
 
-const std::string& InputMethodContextTcoreWl::GetSurroundingText() const
+Dali::String InputMethodContextTcoreWl::GetSurroundingText() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetSurroundingText\n");
 
@@ -1050,19 +1319,15 @@ void InputMethodContextTcoreWl::NotifyTextInputMultiLine(bool multiLine)
 {
   if(mIMFContext)
   {
-    tizen_core_imf_input_hints_e currentHint = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-    tizen_core_imf_context_get_input_hint(mIMFContext, &currentHint);
-    tizen_core_imf_input_hints_e newHints = multiLine ? static_cast<tizen_core_imf_input_hints_e>(currentHint | TIZEN_CORE_IMF_INPUT_HINTS_MULTILINE)
-                                                      : static_cast<tizen_core_imf_input_hints_e>(currentHint & ~TIZEN_CORE_IMF_INPUT_HINTS_MULTILINE);
-    tizen_core_imf_context_set_input_hint(mIMFContext, newHints);
+    SetTcoreInputHintFlag(mIMFContext, TIZEN_CORE_IMF_INPUT_HINTS_MULTILINE, multiLine);
   }
 
   mBackupOperations[Operation::NOTIFY_TEXT_INPUT_MULTILINE] = std::bind(&InputMethodContextTcoreWl::NotifyTextInputMultiLine, this, multiLine);
 }
 
-Dali::InputMethodContext::TextDirection InputMethodContextTcoreWl::GetTextDirection()
+Dali::Integration::InputMethodContext::TextDirection InputMethodContextTcoreWl::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction(Dali::InputMethodContext::LEFT_TO_RIGHT);
+  Dali::Integration::InputMethodContext::TextDirection direction(Dali::Integration::InputMethodContext::LEFT_TO_RIGHT);
 
   if(mIMFContext)
   {
@@ -1071,7 +1336,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextTcoreWl::GetTextDirect
 
     if(locale)
     {
-      direction = static_cast<Dali::InputMethodContext::TextDirection>(Locale::GetDirection(std::string(locale)));
+      direction = static_cast<Dali::Integration::InputMethodContext::TextDirection>(Locale::GetDirection(std::string(locale)));
       free(locale);
     }
   }
@@ -1079,7 +1344,7 @@ Dali::InputMethodContext::TextDirection InputMethodContextTcoreWl::GetTextDirect
   return direction;
 }
 
-BoundsInteger InputMethodContextTcoreWl::GetInputMethodArea()
+BoundsInteger InputMethodContextTcoreWl::GetInputPanelArea()
 {
   int xPos, yPos, width, height;
 
@@ -1098,11 +1363,14 @@ BoundsInteger InputMethodContextTcoreWl::GetInputMethodArea()
   return BoundsInteger(xPos, yPos, width, height);
 }
 
-void InputMethodContextTcoreWl::ApplyOptions(const InputMethodOptions& options)
+void InputMethodContextTcoreWl::ApplyOptions(const Dali::Integration::InputMethodOptions& options)
 {
-  using namespace Dali::InputMethod::Category;
+  using namespace Dali::Integration::InputMethod::Category;
 
   int index;
+  const auto requestedLayout       = options.GetPanelLayout();
+  const int  requestedRawVariation = GetOptionRawVariation(options);
+  const auto requestedVariation    = ToPanelLayoutVariation(requestedLayout, requestedRawVariation);
 
   if(mIMFContext == NULL)
   {
@@ -1112,68 +1380,72 @@ void InputMethodContextTcoreWl::ApplyOptions(const InputMethodOptions& options)
 
   if(mOptions.CompareAndSet(PANEL_LAYOUT, options, index))
   {
-    tizen_core_imf_context_set_input_panel_layout(mIMFContext, panelLayoutMap[index]);
-
-    // Sets the input hint which allows input methods to fine-tune their behavior.
-    if(panelLayoutMap[index] == TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD)
+    const auto layout      = mOptions.GetPanelLayout();
+    const auto tcoreLayout = ToTcorePanelLayout(layout);
+    if(IsTcoreSuccess(tizen_core_imf_context_set_input_panel_layout(mIMFContext, tcoreLayout)))
     {
-      tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-      tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
-      tizen_core_imf_context_set_input_hint(mIMFContext, static_cast<tizen_core_imf_input_hints_e>(hints | TIZEN_CORE_IMF_INPUT_HINTS_SENSITIVE_DATA));
-    }
-    else
-    {
-      tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-      tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
-      tizen_core_imf_context_set_input_hint(mIMFContext, static_cast<tizen_core_imf_input_hints_e>(hints & ~TIZEN_CORE_IMF_INPUT_HINTS_SENSITIVE_DATA));
+      // Sets the input hint which allows input methods to fine-tune their behavior.
+      SetTcoreInputHintFlag(mIMFContext, TIZEN_CORE_IMF_INPUT_HINTS_SENSITIVE_DATA, tcoreLayout == TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD);
+      SetTcoreInputPanelLayoutVariation(mIMFContext, layout, ToPanelLayoutVariation(layout, requestedRawVariation));
     }
   }
   if(mOptions.CompareAndSet(BUTTON_ACTION, options, index))
   {
-    tizen_core_imf_context_set_input_panel_return_key_type(mIMFContext, returnKeyTypeMap[index]);
+    tizen_core_imf_context_set_input_panel_return_key_type(mIMFContext, ToTcoreReturnKey(static_cast<Dali::InputMethod::ReturnKeyType>(index)));
   }
   if(mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index))
   {
-    tizen_core_imf_context_set_autocapital_type(mIMFContext, autoCapitalMap[index]);
+    tizen_core_imf_context_set_autocapital_type(mIMFContext, ToTcoreAutoCapital(static_cast<Dali::InputMethod::AutoCapitalType>(index)));
   }
   if(mOptions.CompareAndSet(VARIATION, options, index))
   {
-    tizen_core_imf_context_set_input_panel_layout_variation(mIMFContext, index);
+    SetTcoreInputPanelLayoutVariation(mIMFContext, requestedLayout, requestedVariation);
   }
 }
 
-void InputMethodContextTcoreWl::SetInputPanelData(const std::string& data)
+bool InputMethodContextTcoreWl::SetInputPanelUserData(const Dali::String& data)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelUserData\n");
+
+  bool result = true;
 
   if(mIMFContext)
   {
-    int length = data.length();
-    tizen_core_imf_context_set_input_panel_data(mIMFContext, reinterpret_cast<const unsigned char*>(data.c_str()), length);
+    int length = static_cast<int>(data.Size());
+    result     = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_data(mIMFContext, reinterpret_cast<const unsigned char*>(data.CStr()), length));
   }
 
-  mBackupOperations[Operation::SET_INPUT_PANEL_DATA] = std::bind(&InputMethodContextTcoreWl::SetInputPanelData, this, data);
+  mBackupOperations[Operation::SET_INPUT_PANEL_USER_DATA] = std::bind(&InputMethodContextTcoreWl::SetInputPanelUserData, this, data);
+
+  return result;
 }
 
-void InputMethodContextTcoreWl::GetInputPanelData(std::string& data)
+Dali::String InputMethodContextTcoreWl::GetInputPanelUserData() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelData\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelUserData\n");
 
   if(mIMFContext)
   {
-    int                length = 4096; // The max length is 4096 bytes
-    Dali::Vector<char> buffer;
-    buffer.Resize(length);
+    int            length = 4096; // The max length is 4096 bytes
     unsigned char* raw = nullptr;
-    tizen_core_imf_context_get_input_panel_data(mIMFContext, &raw, &length);
+    const bool     dataRetrieved = IsTcoreSuccess(tizen_core_imf_context_get_input_panel_data(mIMFContext, &raw, &length));
     if(raw && length > 0)
     {
-      buffer.Resize(length);
-      memcpy(&buffer[0], raw, length);
+      Dali::String data = Dali::Integration::ToDaliString(std::string(reinterpret_cast<char*>(raw), length));
+      free(raw);
+      return data;
+    }
+    if(raw)
+    {
       free(raw);
     }
-    data = std::string(buffer.Begin(), buffer.End());
+    if(!dataRetrieved)
+    {
+      DALI_LOG_ERROR("InputMethodContextTcoreWl::GetInputPanelUserData failed\n");
+    }
   }
+
+  return Dali::String();
 }
 
 Dali::InputMethodContext::State InputMethodContextTcoreWl::GetInputPanelState()
@@ -1189,73 +1461,98 @@ Dali::InputMethodContext::State InputMethodContextTcoreWl::GetInputPanelState()
     {
       case TIZEN_CORE_IMF_INPUT_PANEL_STATE_SHOW:
       {
-        return Dali::InputMethodContext::SHOW;
+        return Dali::InputMethodContext::State::SHOW;
         break;
       }
-
       case TIZEN_CORE_IMF_INPUT_PANEL_STATE_HIDE:
       {
-        return Dali::InputMethodContext::HIDE;
+        return Dali::InputMethodContext::State::HIDE;
         break;
       }
-
       case TIZEN_CORE_IMF_INPUT_PANEL_STATE_WILL_SHOW:
       {
-        return Dali::InputMethodContext::WILL_SHOW;
+        return Dali::InputMethodContext::State::WILL_SHOW;
         break;
       }
-
       default:
       {
-        return Dali::InputMethodContext::DEFAULT;
+        return Dali::InputMethodContext::State::HIDE;
       }
     }
   }
-  return Dali::InputMethodContext::DEFAULT;
+  return Dali::InputMethodContext::State::HIDE;
 }
 
-void InputMethodContextTcoreWl::SetReturnKeyState(bool visible)
+bool InputMethodContextTcoreWl::SetReturnKeyState(bool visible)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetReturnKeyState\n");
 
+  bool result = true;
+
   if(mIMFContext)
   {
-    tizen_core_imf_context_set_input_panel_return_key_disabled(mIMFContext, !visible);
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_return_key_disabled(mIMFContext, !visible));
   }
 
   mBackupOperations[Operation::SET_RETURN_KEY_STATE] = std::bind(&InputMethodContextTcoreWl::SetReturnKeyState, this, visible);
+
+  return result;
 }
 
-void InputMethodContextTcoreWl::AutoEnableInputPanel(bool enabled)
+bool InputMethodContextTcoreWl::IsReturnKeyEnabled() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::AutoEnableInputPanel\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::IsReturnKeyEnabled\n");
 
   if(mIMFContext)
   {
-    tizen_core_imf_context_set_input_panel_enabled(mIMFContext, enabled);
+    bool disabled = false;
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_panel_return_key_disabled(mIMFContext, &disabled)))
+    {
+      return !disabled;
+    }
+  }
+
+  return true;
+}
+
+bool InputMethodContextTcoreWl::AutoEnableInputPanel(bool enabled)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::AutoEnableInputPanel\n");
+
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_enabled(mIMFContext, enabled));
   }
 
   mBackupOperations[Operation::AUTO_ENABLE_INPUT_PANEL] = std::bind(&InputMethodContextTcoreWl::AutoEnableInputPanel, this, enabled);
+
+  return result;
 }
 
-void InputMethodContextTcoreWl::ShowInputPanel()
+bool InputMethodContextTcoreWl::ShowInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::ShowInputPanel\n");
 
   if(mIMFContext)
   {
-    tizen_core_imf_context_input_panel_show(mIMFContext);
+    return IsTcoreSuccess(tizen_core_imf_context_input_panel_show(mIMFContext));
   }
+
+  return false;
 }
 
-void InputMethodContextTcoreWl::HideInputPanel()
+bool InputMethodContextTcoreWl::HideInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::HideInputPanel\n");
 
   if(mIMFContext)
   {
-    tizen_core_imf_context_input_panel_hide(mIMFContext);
+    return IsTcoreSuccess(tizen_core_imf_context_input_panel_hide(mIMFContext));
   }
+
+  return false;
 }
 
 Dali::InputMethodContext::KeyboardType InputMethodContextTcoreWl::GetKeyboardType()
@@ -1271,12 +1568,12 @@ Dali::InputMethodContext::KeyboardType InputMethodContextTcoreWl::GetKeyboardTyp
     {
       case TIZEN_CORE_IMF_INPUT_PANEL_KEYBOARD_MODE_SW:
       {
-        return Dali::InputMethodContext::SOFTWARE_KEYBOARD;
+        return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
         break;
       }
       case TIZEN_CORE_IMF_INPUT_PANEL_KEYBOARD_MODE_HW:
       {
-        return Dali::InputMethodContext::HARDWARE_KEYBOARD;
+        return Dali::InputMethodContext::KeyboardType::HARDWARE_KEYBOARD;
         break;
       }
     }
@@ -1285,11 +1582,27 @@ Dali::InputMethodContext::KeyboardType InputMethodContextTcoreWl::GetKeyboardTyp
   return Dali::InputMethodContext::KeyboardType::SOFTWARE_KEYBOARD;
 }
 
-std::string InputMethodContextTcoreWl::GetInputPanelLocale()
+bool InputMethodContextTcoreWl::SetInputPanelLanguageLocale(const Dali::String& locale)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLocale\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelLanguageLocale\n");
 
-  std::string locale = "";
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_language_locale(mIMFContext, locale.CStr()));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE_LOCALE] = std::bind(&InputMethodContextTcoreWl::SetInputPanelLanguageLocale, this, locale);
+
+  return result;
+}
+
+Dali::String InputMethodContextTcoreWl::GetInputPanelLanguageLocale() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLanguageLocale\n");
+
+  Dali::String locale;
 
   if(mIMFContext)
   {
@@ -1298,8 +1611,7 @@ std::string InputMethodContextTcoreWl::GetInputPanelLocale()
 
     if(value)
     {
-      std::string valueCopy(value);
-      locale = valueCopy;
+      locale = Dali::String(value);
 
       // The locale string retrieved must be freed with free().
       free(value);
@@ -1308,16 +1620,16 @@ std::string InputMethodContextTcoreWl::GetInputPanelLocale()
   return locale;
 }
 
-void InputMethodContextTcoreWl::SetContentMIMETypes(const std::string& mimeTypes)
+void InputMethodContextTcoreWl::SetContentMimeTypes(const Dali::String& mimeTypes)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetContentMIMETypes\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetContentMimeTypes\n");
 
   if(mIMFContext)
   {
-    tizen_core_imf_context_set_mime_type_accept(mIMFContext, mimeTypes.c_str());
+    tizen_core_imf_context_set_mime_type_accept(mIMFContext, mimeTypes.CStr());
   }
 
-  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind(&InputMethodContextTcoreWl::SetContentMIMETypes, this, mimeTypes);
+  mBackupOperations[Operation::SET_CONTENT_MIME_TYPES] = std::bind(&InputMethodContextTcoreWl::SetContentMimeTypes, this, mimeTypes);
 }
 
 bool InputMethodContextTcoreWl::FilterEventKey(const Dali::KeyEvent& keyEvent)
@@ -1341,27 +1653,20 @@ bool InputMethodContextTcoreWl::FilterEventKey(const Dali::KeyEvent& keyEvent)
   return eventHandled;
 }
 
-void InputMethodContextTcoreWl::AllowTextPrediction(bool prediction)
+bool InputMethodContextTcoreWl::AllowTextPrediction(bool prediction)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::AllowTextPrediction\n");
 
+  bool result = true;
+
   if(mIMFContext)
   {
-    // No direct prediction allow flag in Tizen Core IMF; emulate via input hints.
-    tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-    tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
-    if(prediction)
-    {
-      hints = static_cast<tizen_core_imf_input_hints_e>(hints | TIZEN_CORE_IMF_INPUT_HINTS_AUTO_COMPLETE);
-    }
-    else
-    {
-      hints = static_cast<tizen_core_imf_input_hints_e>(hints & ~TIZEN_CORE_IMF_INPUT_HINTS_AUTO_COMPLETE);
-    }
-    tizen_core_imf_context_set_input_hint(mIMFContext, hints);
+    result = SetTcoreInputHintFlag(mIMFContext, TIZEN_CORE_IMF_INPUT_HINTS_AUTO_COMPLETE, prediction);
   }
 
   mBackupOperations[Operation::ALLOW_TEXT_PREDICTION] = std::bind(&InputMethodContextTcoreWl::AllowTextPrediction, this, prediction);
+
+  return result;
 }
 
 bool InputMethodContextTcoreWl::IsTextPredictionAllowed() const
@@ -1371,29 +1676,31 @@ bool InputMethodContextTcoreWl::IsTextPredictionAllowed() const
   if(mIMFContext)
   {
     tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-    tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
-    prediction = (hints & TIZEN_CORE_IMF_INPUT_HINTS_AUTO_COMPLETE);
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_hint(mIMFContext, &hints)))
+    {
+      prediction = (hints & TIZEN_CORE_IMF_INPUT_HINTS_AUTO_COMPLETE);
+    }
   }
   return prediction;
 }
 
-void InputMethodContextTcoreWl::SetFullScreenMode(bool fullScreen)
+bool InputMethodContextTcoreWl::SetFullScreenMode(bool fullScreen)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetFullScreenMode\n");
 
 #ifdef OVER_TIZEN_VERSION_10
+  bool result = true;
+
   if(mIMFContext)
   {
-    tizen_core_imf_input_hints_e currentHint = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-    tizen_core_imf_context_get_input_hint(mIMFContext, &currentHint);
-    tizen_core_imf_input_hints_e newHints = fullScreen ? static_cast<tizen_core_imf_input_hints_e>(currentHint | TIZEN_CORE_IMF_INPUT_HINTS_FULLSCREEN_MODE)
-                                                       : static_cast<tizen_core_imf_input_hints_e>(currentHint & ~TIZEN_CORE_IMF_INPUT_HINTS_FULLSCREEN_MODE);
-    tizen_core_imf_context_set_input_hint(mIMFContext, newHints);
+    result = SetTcoreInputHintFlag(mIMFContext, TIZEN_CORE_IMF_INPUT_HINTS_FULLSCREEN_MODE, fullScreen);
   }
 
   mBackupOperations[Operation::FULLSCREEN_MODE] = std::bind(&InputMethodContextTcoreWl::SetFullScreenMode, this, fullScreen);
+  return result;
 #else
   DALI_LOG_ERROR("SetFullScreenMode NOT SUPPORT THIS TIZEN VERSION!\n");
+  return false;
 #endif
 }
 
@@ -1406,8 +1713,10 @@ bool InputMethodContextTcoreWl::IsFullScreenMode() const
   if(mIMFContext)
   {
     tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
-    tizen_core_imf_context_get_input_hint(mIMFContext, &hints);
-    fullScreen = (hints & TIZEN_CORE_IMF_INPUT_HINTS_FULLSCREEN_MODE);
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_hint(mIMFContext, &hints)))
+    {
+      fullScreen = (hints & TIZEN_CORE_IMF_INPUT_HINTS_FULLSCREEN_MODE);
+    }
   }
 #else
   DALI_LOG_ERROR("IsFullScreenMode NOT SUPPORT THIS TIZEN VERSION!\n");
@@ -1415,30 +1724,35 @@ bool InputMethodContextTcoreWl::IsFullScreenMode() const
   return fullScreen;
 }
 
-void InputMethodContextTcoreWl::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
+bool InputMethodContextTcoreWl::SetInputPanelLanguage(Dali::Integration::InputMethodContext::InputPanelLanguage language)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelLanguage\n");
   // Tizen Core IMF does not expose a simple language enum; keep value only at Dali level.
 
   mBackupOperations[Operation::SET_INPUT_PANEL_LANGUAGE] = std::bind(&InputMethodContextTcoreWl::SetInputPanelLanguage, this, language);
+  return true;
 }
 
-Dali::InputMethodContext::InputPanelLanguage InputMethodContextTcoreWl::GetInputPanelLanguage() const
+Dali::Integration::InputMethodContext::InputPanelLanguage InputMethodContextTcoreWl::GetInputPanelLanguage() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLanguage\n");
-  return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
+  return Dali::Integration::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
-void InputMethodContextTcoreWl::SetInputPanelPosition(unsigned int x, unsigned int y)
+bool InputMethodContextTcoreWl::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelPosition\n");
 
+  bool result = true;
+
   if(mIMFContext)
   {
-    tizen_core_imf_context_set_input_panel_position(mIMFContext, static_cast<int>(x), static_cast<int>(y));
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_position(mIMFContext, static_cast<int>(x), static_cast<int>(y)));
   }
 
   mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind(&InputMethodContextTcoreWl::SetInputPanelPosition, this, x, y);
+
+  return result;
 }
 
 bool InputMethodContextTcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
@@ -1498,7 +1812,7 @@ bool InputMethodContextTcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::I
       }
     }
 
-    result = (tizen_core_imf_context_set_input_panel_position_align(mIMFContext, x, y, inputPanelAlign) == TIZEN_CORE_IMF_ERROR_NONE);
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_position_align(mIMFContext, x, y, inputPanelAlign));
   }
 
   mBackupOperations[Operation::SET_INPUT_PANEL_POSITION_ALIGN] = std::bind(&InputMethodContextTcoreWl::SetInputPanelPositionAlign, this, x, y, align);
@@ -1506,10 +1820,158 @@ bool InputMethodContextTcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::I
   return result;
 }
 
-void InputMethodContextTcoreWl::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
+void InputMethodContextTcoreWl::GetPreeditStyle(Dali::Integration::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetPreeditStyle\n");
   attrs = mPreeditAttrs;
+}
+
+bool InputMethodContextTcoreWl::SetInputPanelLayout(Dali::InputMethod::PanelLayout layout)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelLayout\n");
+
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    const auto tcoreLayout = ToTcorePanelLayout(layout);
+    if(IsTcoreSuccess(tizen_core_imf_context_set_input_panel_layout(mIMFContext, tcoreLayout)))
+    {
+      result = SetTcoreInputHintFlag(mIMFContext, TIZEN_CORE_IMF_INPUT_HINTS_SENSITIVE_DATA, tcoreLayout == TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD);
+      result = SetTcoreInputPanelLayoutVariation(mIMFContext, layout, ToPanelLayoutVariation(layout, 0)) && result;
+    }
+    else
+    {
+      result = false;
+    }
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LAYOUT] = std::bind(&InputMethodContextTcoreWl::SetInputPanelLayout, this, layout);
+
+  return result;
+}
+
+Dali::InputMethod::PanelLayout InputMethodContextTcoreWl::GetInputPanelLayout() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLayout\n");
+
+  if(mIMFContext)
+  {
+    tizen_core_imf_input_panel_layout_e layout = TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_panel_layout(mIMFContext, &layout)))
+    {
+      return ToDaliPanelLayout(layout);
+    }
+  }
+
+  return Dali::InputMethod::PanelLayout::NORMAL;
+}
+
+bool InputMethodContextTcoreWl::SetInputPanelReturnKeyType(Dali::InputMethod::ReturnKeyType action)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelReturnKeyType\n");
+
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    result = IsTcoreSuccess(tizen_core_imf_context_set_input_panel_return_key_type(mIMFContext, ToTcoreReturnKey(action)));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_RETURN_KEY] = std::bind(&InputMethodContextTcoreWl::SetInputPanelReturnKeyType, this, action);
+
+  return result;
+}
+
+Dali::InputMethod::ReturnKeyType InputMethodContextTcoreWl::GetInputPanelReturnKeyType() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelReturnKeyType\n");
+
+  if(mIMFContext)
+  {
+    tizen_core_imf_input_panel_return_key_type_e returnKey = TIZEN_CORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_panel_return_key_type(mIMFContext, &returnKey)))
+    {
+      return ToDaliReturnKey(returnKey);
+    }
+  }
+
+  return Dali::InputMethod::ReturnKeyType::DEFAULT;
+}
+
+bool InputMethodContextTcoreWl::SetInputPanelAutoCapitalType(Dali::InputMethod::AutoCapitalType autoCapital)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelAutoCapitalType\n");
+
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    result = IsTcoreSuccess(tizen_core_imf_context_set_autocapital_type(mIMFContext, ToTcoreAutoCapital(autoCapital)));
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_AUTO_CAPITAL] = std::bind(&InputMethodContextTcoreWl::SetInputPanelAutoCapitalType, this, autoCapital);
+
+  return result;
+}
+
+Dali::InputMethod::AutoCapitalType InputMethodContextTcoreWl::GetInputPanelAutoCapitalType() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelAutoCapitalType\n");
+
+  if(mIMFContext)
+  {
+    tizen_core_imf_autocapital_type_e autoCapital = TIZEN_CORE_IMF_AUTOCAPITAL_TYPE_SENTENCE;
+    if(IsTcoreSuccess(tizen_core_imf_context_get_autocapital_type(mIMFContext, &autoCapital)))
+    {
+      return ToDaliAutoCapital(autoCapital);
+    }
+  }
+
+  return Dali::InputMethod::AutoCapitalType::SENTENCE;
+}
+
+bool InputMethodContextTcoreWl::SetInputPanelLayoutVariation(Dali::InputMethod::PanelLayoutVariation variation)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetInputPanelLayoutVariation\n");
+
+  bool result = true;
+
+  if(mIMFContext)
+  {
+    tizen_core_imf_input_panel_layout_e tcoreLayout = TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+    if(IsTcoreSuccess(tizen_core_imf_context_get_input_panel_layout(mIMFContext, &tcoreLayout)))
+    {
+      result = SetTcoreInputPanelLayoutVariation(mIMFContext, ToDaliPanelLayout(tcoreLayout), variation);
+    }
+    else
+    {
+      result = SetTcoreInputPanelLayoutVariation(mIMFContext, Dali::InputMethod::PanelLayout::NORMAL, variation);
+    }
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_LAYOUT_VARIATION] = std::bind(&InputMethodContextTcoreWl::SetInputPanelLayoutVariation, this, variation);
+
+  return result;
+}
+
+Dali::InputMethod::PanelLayoutVariation InputMethodContextTcoreWl::GetInputPanelLayoutVariation() const
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::GetInputPanelLayoutVariation\n");
+
+  if(mIMFContext)
+  {
+    tizen_core_imf_input_panel_layout_e tcoreLayout  = TIZEN_CORE_IMF_INPUT_PANEL_LAYOUT_NORMAL;
+    int                                 rawVariation = TIZEN_CORE_IMF_LAYOUT_NORMAL_VARIATION_NORMAL;
+    if(!IsTcoreSuccess(tizen_core_imf_context_get_input_panel_layout(mIMFContext, &tcoreLayout)) ||
+       !IsTcoreSuccess(tizen_core_imf_context_get_input_panel_layout_variation(mIMFContext, &rawVariation)))
+    {
+      return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
+    }
+    return ToPanelLayoutVariation(ToDaliPanelLayout(tcoreLayout), rawVariation);
+  }
+
+  return Dali::InputMethod::PanelLayoutVariation::NORMAL_NORMAL;
 }
 
 bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)
@@ -1523,19 +1985,25 @@ bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     String                deviceName = integKeyEvent.deviceName;
 
     // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
-    tizen_core_imf_event_key_h keyDownEvent = nullptr;
-    tizen_core_imf_event_key_create(&keyDownEvent);
-    tizen_core_imf_event_key_set_keyname(keyDownEvent, integKeyEvent.keyName.CStr());
-    tizen_core_imf_event_key_set_key(keyDownEvent, key.CStr());
-    tizen_core_imf_event_key_set_string(keyDownEvent, integKeyEvent.keyString.CStr());
-    tizen_core_imf_event_key_set_compose(keyDownEvent, compose.CStr());
-    tizen_core_imf_event_key_set_timestamp(keyDownEvent, static_cast<unsigned int>(integKeyEvent.time));
-    tizen_core_imf_event_key_set_modifiers(keyDownEvent, TcoreInputModifierToImfModifier(integKeyEvent.keyModifier));
-    tizen_core_imf_event_key_set_locks(keyDownEvent, TcoreInputModifierToImfLock(integKeyEvent.keyModifier));
-    tizen_core_imf_event_key_set_device_name(keyDownEvent, deviceName.CStr());
-    tizen_core_imf_event_key_set_device_class(keyDownEvent, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
-    tizen_core_imf_event_key_set_device_subclass(keyDownEvent, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyDownEvent, static_cast<unsigned int>(integKeyEvent.keyCode));
+    ScopedTcoreEventKey keyDownEvent;
+    if(!IsTcoreSuccess(tizen_core_imf_event_key_create(&keyDownEvent.handle)) || !keyDownEvent.handle)
+    {
+      return false;
+    }
+
+    // Build event metadata on a best-effort basis. The filter result below is
+    // the only source of truth for whether the IME consumed this event.
+    tizen_core_imf_event_key_set_keyname(keyDownEvent.handle, integKeyEvent.keyName.CStr());
+    tizen_core_imf_event_key_set_key(keyDownEvent.handle, key.CStr());
+    tizen_core_imf_event_key_set_string(keyDownEvent.handle, integKeyEvent.keyString.CStr());
+    tizen_core_imf_event_key_set_compose(keyDownEvent.handle, compose.CStr());
+    tizen_core_imf_event_key_set_timestamp(keyDownEvent.handle, static_cast<unsigned int>(integKeyEvent.time));
+    tizen_core_imf_event_key_set_modifiers(keyDownEvent.handle, TcoreInputModifierToImfModifier(integKeyEvent.keyModifier));
+    tizen_core_imf_event_key_set_locks(keyDownEvent.handle, TcoreInputModifierToImfLock(integKeyEvent.keyModifier));
+    tizen_core_imf_event_key_set_device_name(keyDownEvent.handle, deviceName.CStr());
+    tizen_core_imf_event_key_set_device_class(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
+    tizen_core_imf_event_key_set_device_subclass(keyDownEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
+    tizen_core_imf_event_key_set_keycode(keyDownEvent.handle, static_cast<unsigned int>(integKeyEvent.keyCode));
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
     if((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.CStr(), "Left", 4)) ||
@@ -1543,16 +2011,15 @@ bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
                                                (!strncmp(integKeyEvent.keyName.CStr(), "Up", 2)) ||
                                                (!strncmp(integKeyEvent.keyName.CStr(), "Down", 4))))
     {
-      eventHandled = 0;
+      eventHandled = false;
     }
     else
     {
       bool filtered = false;
-      tizen_core_imf_context_filter_event(mIMFContext,
-                                          TIZEN_CORE_IMF_EVENT_TYPE_KEY_DOWN,
-                                          keyDownEvent,
-                                          &filtered);
-      eventHandled = filtered;
+      eventHandled = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
+                                                                        TIZEN_CORE_IMF_EVENT_TYPE_KEY_DOWN,
+                                                                        keyDownEvent.handle,
+                                                                        &filtered)) && filtered;
     }
 
     // If the event has not been handled by InputMethodContext then check if we should reset our input method context
@@ -1580,26 +2047,31 @@ bool InputMethodContextTcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     String                deviceName = integKeyEvent.deviceName;
 
     // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
-    tizen_core_imf_event_key_h keyUpEvent = nullptr;
-    tizen_core_imf_event_key_create(&keyUpEvent);
-    tizen_core_imf_event_key_set_keyname(keyUpEvent, integKeyEvent.keyName.CStr());
-    tizen_core_imf_event_key_set_key(keyUpEvent, key.CStr());
-    tizen_core_imf_event_key_set_string(keyUpEvent, integKeyEvent.keyString.CStr());
-    tizen_core_imf_event_key_set_compose(keyUpEvent, compose.CStr());
-    tizen_core_imf_event_key_set_timestamp(keyUpEvent, static_cast<unsigned int>(integKeyEvent.time));
-    tizen_core_imf_event_key_set_modifiers(keyUpEvent, TcoreInputModifierToImfModifier(integKeyEvent.keyModifier));
-    tizen_core_imf_event_key_set_locks(keyUpEvent, TcoreInputModifierToImfLock(integKeyEvent.keyModifier));
-    tizen_core_imf_event_key_set_device_name(keyUpEvent, deviceName.CStr());
-    tizen_core_imf_event_key_set_device_class(keyUpEvent, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
-    tizen_core_imf_event_key_set_device_subclass(keyUpEvent, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
-    tizen_core_imf_event_key_set_keycode(keyUpEvent, static_cast<unsigned int>(integKeyEvent.keyCode));
+    ScopedTcoreEventKey keyUpEvent;
+    if(!IsTcoreSuccess(tizen_core_imf_event_key_create(&keyUpEvent.handle)) || !keyUpEvent.handle)
+    {
+      return false;
+    }
+
+    // Build event metadata on a best-effort basis. The filter result below is
+    // the only source of truth for whether the IME consumed this event.
+    tizen_core_imf_event_key_set_keyname(keyUpEvent.handle, integKeyEvent.keyName.CStr());
+    tizen_core_imf_event_key_set_key(keyUpEvent.handle, key.CStr());
+    tizen_core_imf_event_key_set_string(keyUpEvent.handle, integKeyEvent.keyString.CStr());
+    tizen_core_imf_event_key_set_compose(keyUpEvent.handle, compose.CStr());
+    tizen_core_imf_event_key_set_timestamp(keyUpEvent.handle, static_cast<unsigned int>(integKeyEvent.time));
+    tizen_core_imf_event_key_set_modifiers(keyUpEvent.handle, TcoreInputModifierToImfModifier(integKeyEvent.keyModifier));
+    tizen_core_imf_event_key_set_locks(keyUpEvent.handle, TcoreInputModifierToImfLock(integKeyEvent.keyModifier));
+    tizen_core_imf_event_key_set_device_name(keyUpEvent.handle, deviceName.CStr());
+    tizen_core_imf_event_key_set_device_class(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_CLASS_KEYBOARD);
+    tizen_core_imf_event_key_set_device_subclass(keyUpEvent.handle, TIZEN_CORE_IMF_DEVICE_SUBCLASS_NONE);
+    tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, static_cast<unsigned int>(integKeyEvent.keyCode));
 
     bool filtered = false;
-    tizen_core_imf_context_filter_event(mIMFContext,
-                                        TIZEN_CORE_IMF_EVENT_TYPE_KEY_UP,
-                                        keyUpEvent,
-                                        &filtered);
-    eventHandled = filtered;
+    eventHandled = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
+                                                                      TIZEN_CORE_IMF_EVENT_TYPE_KEY_UP,
+                                                                      keyUpEvent.handle,
+                                                                      &filtered)) && filtered;
   }
   return eventHandled;
 }

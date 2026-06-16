@@ -58,16 +58,16 @@ void ApplySettings(const Property::Map& settingsMap)
   DALI_LOG_INFO(gLogFilter, Debug::General, "VirtualKeyboard::ApplySettings\n");
 }
 
-void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
+void SetReturnKeyType(const InputMethod::ReturnKeyType type)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "VirtualKeyboard::SetReturnKeyType\n");
 }
 
-Dali::InputMethod::ButtonAction::Type GetReturnKeyType()
+Dali::InputMethod::ReturnKeyType GetReturnKeyType()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "VirtualKeyboard::GetReturnKeyType\n");
 
-  return Dali::InputMethod::ButtonAction::DEFAULT;
+  return Dali::InputMethod::ReturnKeyType::DEFAULT;
 }
 
 void EnablePrediction(const bool enable)

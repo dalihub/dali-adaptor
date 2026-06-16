@@ -45,12 +45,12 @@ void ApplySettings(const Property::Map& settingsMap)
   Internal::Adaptor::VirtualKeyboard::ApplySettings(settingsMap);
 }
 
-void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
+void SetReturnKeyType(const InputMethod::ReturnKeyType type)
 {
   Internal::Adaptor::VirtualKeyboard::SetReturnKeyType(type);
 }
 
-InputMethod::ButtonAction::Type GetReturnKeyType()
+InputMethod::ReturnKeyType GetReturnKeyType()
 {
   return Internal::Adaptor::VirtualKeyboard::GetReturnKeyType();
 }

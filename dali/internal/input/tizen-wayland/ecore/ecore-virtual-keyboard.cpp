@@ -161,7 +161,7 @@ void ApplySettings(const Property::Map& settingsMap)
       if(item.GetType() == Property::INTEGER)
       {
         int value = item.Get<int>();
-        VirtualKeyboard::SetReturnKeyType(static_cast<InputMethod::ButtonAction::Type>(value));
+        VirtualKeyboard::SetReturnKeyType(static_cast<InputMethod::ReturnKeyType>(value));
       }
     }
     else
@@ -184,7 +184,7 @@ BoundsInteger GetSizeAndPosition()
 {
   int xPos, yPos, width, height;
 
-  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetSizeAndPosition() is deprecated and will be removed from next release. Use InputMethodContext.GetInputMethodArea() instead.\n");
+  DALI_LOG_WARNING_NOFN("DEPRECATION WARNING: GetSizeAndPosition() is deprecated and will be removed from next release. Use InputMethodContext.GetInputPanelArea() instead.\n");
 
   width = height = xPos = yPos = 0;
   return BoundsInteger(xPos, yPos, width, height);

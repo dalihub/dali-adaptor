@@ -5,6 +5,8 @@ SET( adaptor_integration_api_src_files
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/input-method-context-integ.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/shader-precompiler.cpp
 )
 
@@ -16,6 +18,8 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
   ${adaptor_integration_api_dir}/adaptor-framework/application-controller.h
   ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/input-method-context-integ.h
+  ${adaptor_integration_api_dir}/adaptor-framework/input-method-options.h
   ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface-factory.h

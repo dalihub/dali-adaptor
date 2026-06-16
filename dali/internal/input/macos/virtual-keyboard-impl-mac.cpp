@@ -79,13 +79,13 @@ void RotateTo(int angle)
 {
 }
 
-void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
+void SetReturnKeyType(const InputMethod::ReturnKeyType type)
 {
 }
 
-Dali::InputMethod::ButtonAction::Type GetReturnKeyType()
+Dali::InputMethod::ReturnKeyType GetReturnKeyType()
 {
-  return Dali::InputMethod::ButtonAction::DEFAULT;
+  return Dali::InputMethod::ReturnKeyType::DEFAULT;
 }
 
 } // namespace Dali::Internal::Adaptor::VirtualKeyboard

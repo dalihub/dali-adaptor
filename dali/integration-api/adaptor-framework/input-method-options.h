@@ -1,5 +1,5 @@
-#ifndef DALI_VIRTUAL_KEYBOARD_OPTIONS_H
-#define DALI_VIRTUAL_KEYBOARD_OPTIONS_H
+#ifndef DALI_INTEGRATION_INPUT_METHOD_OPTIONS_H
+#define DALI_INTEGRATION_INPUT_METHOD_OPTIONS_H
 
 /*
  * Copyright (c) 2020 Samsung Electronics Co., Ltd.
@@ -28,24 +28,45 @@
 
 namespace Dali
 {
+namespace Integration
+{
+namespace InputMethod
+{
+namespace Category
+{
 /**
- * Class to handle the Input Method options
+ * @brief Enumeration for input method option category.
+ */
+enum Type
+{
+  PANEL_LAYOUT,    ///< Input panel layout option.
+  BUTTON_ACTION,   ///< Input panel return key action option.
+  AUTO_CAPITALIZE, ///< Input panel auto-capitalization option.
+  VARIATION        ///< Input panel layout variation option.
+};
+
+} // namespace Category
+
+} // namespace InputMethod
+
+/**
+ * @brief Class to handle the Input Method options.
  */
 class DALI_ADAPTOR_API InputMethodOptions
 {
 public:
   /**
-   * Constructor
+   * @brief Constructor.
    */
-  InputMethodOptions(); /// Default InputMethodOptions options
+  InputMethodOptions();
 
   /**
-   * Destructor
+   * @brief Destructor.
    */
   ~InputMethodOptions();
 
   /**
-   * @brief Returns whether panel layout type is password or not
+   * @brief Returns whether panel layout type is password or not.
    * @return true if panel layout type is password, false otherwise.
    */
   bool IsPassword() const;
@@ -57,14 +78,14 @@ public:
   void ApplyProperty(const Property::Map& settings);
 
   /**
-   * @brief Retrieve property map from current option
+   * @brief Retrieve property map from current option.
    * @param[out] settings The converted property map
    */
   void RetrieveProperty(Property::Map& settings);
 
 public: // Intended for internal use
   /**
-   * @brief Set option respectively
+   * @brief Set option respectively.
    * @param[in] type The type of source option will be updated
    * @param[in] options The source option to be applied
    * @param[out] index The updated index after applying source option
@@ -72,11 +93,24 @@ public: // Intended for internal use
    */
   DALI_INTERNAL bool CompareAndSet(InputMethod::Category::Type type, const InputMethodOptions& options, int& index);
 
+  /**
+   * @brief Gets the normalized panel layout.
+   * @return The panel layout stored as a semantic enum value.
+   */
+  DALI_INTERNAL Dali::InputMethod::PanelLayout GetPanelLayout() const;
+
+  /**
+   * @brief Gets the normalized panel layout variation.
+   * @return The panel layout variation stored as a semantic enum value.
+   */
+  DALI_INTERNAL Dali::InputMethod::PanelLayoutVariation GetPanelLayoutVariation() const;
+
 private:
   struct Impl;
   std::unique_ptr<Impl> mImpl;
 };
 
+} // namespace Integration
 } // namespace Dali
 
-#endif // DALI_VIRTUAL_KEYBOARD_OPTIONS_H
+#endif // DALI_INTEGRATION_INPUT_METHOD_OPTIONS_H
