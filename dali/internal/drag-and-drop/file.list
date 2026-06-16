@@ -8,3 +8,8 @@ SET( adaptor_drag_and_drop_tizen_wayland_src_files
 SET( adaptor_drag_and_drop_generic_src_files
     ${adaptor_drag_and_drop_dir}/generic/drag-and-drop-impl-generic.cpp
 )
+
+# module: drag-and-drop, backend: ubuntu-x11 (XDND protocol via Ecore_X)
+SET( adaptor_drag_and_drop_ubuntu_x11_src_files
+    ${adaptor_drag_and_drop_dir}/ubuntu-x11/drag-and-drop-impl-x11.cpp
+)
