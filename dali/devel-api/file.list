@@ -20,7 +20,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/environment-variable.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/event-feeder.cpp
@@ -69,7 +68,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
-  ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.h
   ${adaptor_devel_api_dir}/adaptor-framework/environment-variable.h
   ${adaptor_devel_api_dir}/adaptor-framework/event-feeder.h

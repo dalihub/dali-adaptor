@@ -10,6 +10,7 @@ SET( SOURCES
         ${adaptor_addons_ubuntu_src_files}
         ${adaptor_camera_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
+        ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_libuv_x11_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}

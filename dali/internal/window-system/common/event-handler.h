@@ -22,7 +22,7 @@
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <cstdint> // uint32_t
 
-#include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/public-api/adaptor-framework/clipboard.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 // INTERNAL INCLUDES
