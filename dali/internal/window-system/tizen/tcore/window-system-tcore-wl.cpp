@@ -16,7 +16,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
@@ -28,7 +27,6 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
@@ -57,12 +55,6 @@ namespace WindowSystem
 {
 namespace
 {
-static int32_t                              gScreenWidth     = 0;
-static int32_t                              gScreenHeight    = 0;
-static bool                                 gGeometryHittest = false;
-static bool                                 gIsIntialized    = false;
-static std::vector<Dali::ScreenInformation> gScreenList;
-
 /**
  * @brief Connects to the tizen-core-wl display and retrieves the preferred screen size.
  *
@@ -114,16 +106,16 @@ static bool FetchPreferredScreenSize(int32_t& width, int32_t& height)
   {
     DALI_LOG_RELEASE_INFO("Get Default Screen() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
 
-    GList *list = NULL;
+    GList* list = NULL;
     if(tizen_core_wl_display_get_output_device_list(display, &list) == TIZEN_CORE_WL_ERROR_NONE && list)
     {
-      GList *l;
-      int idx = 0;
-      for (l = list; l != NULL; l = l->next)
+      GList* l;
+      int    idx = 0;
+      for(l = list; l != NULL; l = l->next)
       {
         tizen_core_wl_output_h output = (tizen_core_wl_output_h)l->data;
-        int w = 0, h = 0;
-        if (tizen_core_wl_output_device_get_geometry(output, &w, &h) == TIZEN_CORE_WL_ERROR_NONE)
+        int                    w = 0, h = 0;
+        if(tizen_core_wl_output_device_get_geometry(output, &w, &h) == TIZEN_CORE_WL_ERROR_NONE)
         {
           DALI_LOG_RELEASE_INFO("tizen_core_wl_output_device_get_geometry %d x %d\n", w, h);
           width  = w;
@@ -183,102 +175,84 @@ static bool GetDefaultSeat(tizen_core_wl_display_h& display, tizen_core_wl_seat_
 
   return true;
 }
-} // unnamed namespace
 
-bool TcoreInitialize()
+class WindowSystemTcoreWl : public WindowSystemBase
 {
-  if(gIsIntialized == false)
+public:
+  WindowSystemTcoreWl()
   {
     print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     if(tizen_core_wl_init() != TIZEN_CORE_WL_ERROR_NONE)
     {
       print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-      return false;
+      return;
     }
-    gIsIntialized = true;
-  }
-  return true;
-}
 
-void TcoreShutdown()
-{
-  if(gIsIntialized)
+    if(!TcoreWlAcquireDisplay(&mTcoreDisplay))
+    {
+      return;
+    }
+
+    tizen_core_event_h event = nullptr;
+    if(tizen_core_wl_display_get_event(mTcoreDisplay, &event) == TIZEN_CORE_WL_ERROR_NONE && event)
+    {
+      tizen_core_wl_event_listener_h listener = nullptr;
+      if(tizen_core_wl_event_add_listener(event, TIZEN_CORE_WL_EVENT_SEAT_KEYREPEAT_CHANGED, OnKeyboardRepeatChanged, this, &listener) == TIZEN_CORE_WL_ERROR_NONE && listener)
+      {
+        mKeyboardRepeatListener = listener;
+        mTcoreEvent             = event;
+      }
+    }
+  }
+
+  ~WindowSystemTcoreWl()
   {
+    if(mKeyboardRepeatListener && mTcoreEvent)
+    {
+      tizen_core_wl_event_remove_listener(mTcoreEvent, mKeyboardRepeatListener);
+    }
+    if(mTcoreDisplay)
+    {
+      TcoreWlReleaseDisplay(mTcoreDisplay);
+    }
     print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "tizen_core_wl_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     tizen_core_wl_shutdown();
-    gIsIntialized = false;
   }
-}
 
-void Initialize()
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  void GetScreenSize(int32_t& width, int32_t& height) override
   {
-    TcoreInitialize();
-  }
-}
-
-void Shutdown()
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
-  {
-    TcoreShutdown();
-  }
-}
-
-void GetScreenSize(int32_t& width, int32_t& height)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
-  {
-    if(gScreenWidth == 0 || gScreenHeight == 0)
+    if(mScreenWidth == 0 || mScreenHeight == 0)
     {
-      if(!TcoreInitialize())
-      {
-        width  = 0;
-        height = 0;
-        return;
-      }
-
-      FetchPreferredScreenSize(gScreenWidth, gScreenHeight);
-
-      DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
-      DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
+      FetchPreferredScreenSize(mScreenWidth, mScreenHeight);
+      DALI_ASSERT_ALWAYS((mScreenWidth > 0) && "screen width is 0");
+      DALI_ASSERT_ALWAYS((mScreenHeight > 0) && "screen height is 0");
     }
+    width  = mScreenWidth;
+    height = mScreenHeight;
   }
-  width  = gScreenWidth;
-  height = gScreenHeight;
-}
 
-std::vector<Dali::ScreenInformation> GetAvailableScreens()
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  void UpdateScreenSize() override
   {
-    if(gScreenList.empty())
-    {
-      if(!TcoreInitialize())
-      {
-        print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
-        gScreenList.clear();
-        return gScreenList;
-      }
+    FetchPreferredScreenSize(mScreenWidth, mScreenHeight);
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "UpdateScreenSize() return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenWidth, mScreenHeight);
+  }
 
+  std::vector<Dali::ScreenInformation> GetAvailableScreens() override
+  {
+    if(mScreenList.empty())
+    {
       tizen_core_wl_display_h display     = nullptr;
       bool                    ownsDisplay = false;
 
       if(!TcoreWlAcquireDisplay(&display))
       {
         print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to connect tizen-core-wl display", DALI_LOG_FORMAT_PREFIX_ARGS);
-        gScreenList.clear();
-        return gScreenList;
+        return mScreenList;
       }
       ownsDisplay = true;
 
       START_DURATION_CHECK();
-      tizen_core_wl_screen_h* screens   = nullptr;
+      tizen_core_wl_screen_h* screens  = nullptr;
       int                     num_list = 0;
       tizen_core_wl_error_e   err      = tizen_core_wl_display_get_screen_list(display, &screens, &num_list);
       FINISH_DURATION_CHECK("tizen_core_wl_display_get_screen_list");
@@ -300,40 +274,24 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
           char screenName[32];
           snprintf(screenName, sizeof(screenName), "Screen-%d", i);
           print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen[%d] name: %s size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, screenName, w, h);
-          gScreenList.push_back(Dali::ScreenInformation{std::string(screenName), w, h});
+          mScreenList.push_back(Dali::ScreenInformation{std::string(screenName), w, h});
         }
         free(screens);
       }
       if(ownsDisplay)
       {
-        tizen_core_wl_display_disconnect(display);
-        tizen_core_wl_display_destroy(display);
+        TcoreWlReleaseDisplay(display);
       }
     }
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenList.size());
+    return mScreenList;
   }
-  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenList.size());
 
-  return gScreenList;
-}
-
-void UpdateScreenSize()
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool SetKeyboardRepeatInfo(float rate, float delay) override
   {
-    FetchPreferredScreenSize(gScreenWidth, gScreenHeight);
-  }
-  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "UpdateScreenSize() return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, gScreenWidth, gScreenHeight);
-}
-
-bool SetKeyboardRepeatInfo(float rate, float delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
-  {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
@@ -342,39 +300,29 @@ bool SetKeyboardRepeatInfo(float rate, float delay)
     ReleaseDisplay(display, ownsDisplay);
     return ret;
   }
-  return false;
-}
 
-bool GetKeyboardRepeatInfo(float& rate, float& delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool GetKeyboardRepeatInfo(float& rate, float& delay) override
   {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
     }
     double rateVal = 0.0, delayVal = 0.0;
-    bool ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_DEFAULT, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
+    bool   ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_DEFAULT, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
     ReleaseDisplay(display, ownsDisplay);
     rate  = static_cast<float>(rateVal);
     delay = static_cast<float>(delayVal);
     return ret;
   }
-  return false;
-}
 
-bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool SetKeyboardHorizontalRepeatInfo(float rate, float delay) override
   {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
@@ -383,39 +331,29 @@ bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
     ReleaseDisplay(display, ownsDisplay);
     return ret;
   }
-  return false;
-}
 
-bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay) override
   {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
     }
     double rateVal = 0.0, delayVal = 0.0;
-    bool ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_HORIZONTAL, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
+    bool   ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_HORIZONTAL, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
     ReleaseDisplay(display, ownsDisplay);
     rate  = static_cast<float>(rateVal);
     delay = static_cast<float>(delayVal);
     return ret;
   }
-  return false;
-}
 
-bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool SetKeyboardVerticalRepeatInfo(float rate, float delay) override
   {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
@@ -424,51 +362,67 @@ bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
     ReleaseDisplay(display, ownsDisplay);
     return ret;
   }
-  return false;
-}
 
-bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
-{
-  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
-  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay) override
   {
-    tizen_core_wl_display_h display = nullptr;
-    tizen_core_wl_seat_h seat = nullptr;
-    bool                 ownsDisplay = false;
+    tizen_core_wl_display_h display     = nullptr;
+    tizen_core_wl_seat_h    seat        = nullptr;
+    bool                    ownsDisplay = false;
     if(!GetDefaultSeat(display, seat, ownsDisplay))
     {
       return false;
     }
     double rateVal = 0.0, delayVal = 0.0;
-    bool ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_VERTICAL, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
+    bool   ret = tizen_core_wl_seat_get_keyboard_repeat(seat, TIZEN_CORE_WL_KEYBOARD_REPEAT_VERTICAL, &rateVal, &delayVal) == TIZEN_CORE_WL_ERROR_NONE;
     ReleaseDisplay(display, ownsDisplay);
     rate  = static_cast<float>(rateVal);
     delay = static_cast<float>(delayVal);
     return ret;
   }
-  return false;
-}
 
-void SetGeometryHittestEnabled(bool enable)
-{
-  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  if(gGeometryHittest != enable && Dali::Adaptor::IsAvailable())
+private:
+  static void OnKeyboardRepeatChanged(void* event, tizen_core_wl_event_type_e event_type, void* user_data)
   {
-    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
-    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
+    if(Dali::Adaptor::IsAvailable())
     {
-      if(*iter)
-      {
-        (*iter).SetGeometryHittestEnabled(enable);
-      }
+      static_cast<WindowSystemTcoreWl*>(user_data)->mKeyboardRepeatSettingsChangedSignal.Emit();
     }
   }
-  gGeometryHittest = enable;
+
+  int32_t                              mScreenWidth{0};
+  int32_t                              mScreenHeight{0};
+  std::vector<Dali::ScreenInformation> mScreenList;
+  tizen_core_wl_display_h              mTcoreDisplay{nullptr};
+  tizen_core_event_h                   mTcoreEvent{nullptr};
+  tizen_core_wl_event_listener_h       mKeyboardRepeatListener{nullptr};
+};
+
+std::unique_ptr<WindowSystemTcoreWl> gWindowSystem;
+
+WindowSystemTcoreWl& GetImpl()
+{
+  if(!gWindowSystem)
+  {
+    gWindowSystem = std::make_unique<WindowSystemTcoreWl>();
+  }
+  return *gWindowSystem;
 }
 
-bool IsGeometryHittestEnabled()
+} // unnamed namespace
+
+void Initialize()
 {
-  return gGeometryHittest;
+  GetImpl(); // triggers singleton construction
+}
+
+void Shutdown()
+{
+  gWindowSystem.reset();
+}
+
+WindowSystemBase* GetWindowSystem()
+{
+  return &GetImpl();
 }
 
 } // namespace WindowSystem
@@ -478,5 +432,3 @@ bool IsGeometryHittestEnabled()
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop

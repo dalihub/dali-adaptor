@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
@@ -86,6 +87,22 @@ DALI_ADAPTOR_API bool SetVerticalRepeatInfo(float rate, float delay);
  * @return true if getting the keyboard repeat succeeds, false otherwise
  */
 DALI_ADAPTOR_API bool GetVerticalRepeatInfo(float& rate, float& delay);
+
+/**
+ * @brief Keyboard repeat settings changed signal
+ */
+using RepeatSettingsChangedSignalType = Dali::Signal<void()>;
+
+/**
+ * @brief This signal is emitted just after the keyboard repeat settings are changed globally.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName();
+ * @endcode
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API RepeatSettingsChangedSignalType& RepeatSettingsChangedSignal();
 
 } // namespace Keyboard
 

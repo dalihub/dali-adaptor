@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ WindowBase::WindowBase()
   mSelectionDataReceivedSignal(),
   mStyleChangedSignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal(),
   mUpdatePositionSizeSignal(),
   mAuxiliaryMessageSignal(),
   mMouseInOutEventSignal(),
@@ -129,11 +128,6 @@ WindowBase::StyleSignalType& WindowBase::StyleChangedSignal()
 WindowBase::TransitionEffectEventSignalType& WindowBase::TransitionEffectEventSignal()
 {
   return mTransitionEffectEventSignal;
-}
-
-WindowBase::KeyboardRepeatSettingsChangedSignalType& WindowBase::KeyboardRepeatSettingsChangedSignal()
-{
-  return mKeyboardRepeatSettingsChangedSignal;
 }
 
 WindowBase::WindowRedrawRequestSignalType& WindowBase::WindowRedrawRequestSignal()

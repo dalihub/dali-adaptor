@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
+#include <memory>
 
 namespace Dali
 {
@@ -34,78 +35,53 @@ namespace WindowSystem
 {
 namespace
 {
-static bool gGeometryHittest = false;
+class WindowSystemWin : public WindowSystemBase
+{
+public:
+  void Initialize()
+  {
+  }
+
+  void Shutdown()
+  {
+  }
+
+  void GetScreenSize(int32_t& width, int32_t& height) override
+  {
+    width  = GetSystemMetrics(SM_CXSCREEN);
+    height = GetSystemMetrics(SM_CYSCREEN);
+  }
+};
+
+std::unique_ptr<WindowSystemWin> gWindowSystem;
+
+WindowSystemWin& GetImpl()
+{
+  if(!gWindowSystem)
+  {
+    gWindowSystem = std::make_unique<WindowSystemWin>();
+  }
+  return *gWindowSystem;
+}
 } // unnamed namespace
 
 void Initialize()
 {
+  GetImpl().Initialize();
 }
 
-void GetScreenSize(int32_t& width, int32_t& height)
+void Shutdown()
 {
-  width  = GetSystemMetrics(SM_CXSCREEN);
-  height = GetSystemMetrics(SM_CYSCREEN);
-}
-
-std::vector<Dali::ScreenInformation> GetAvailableScreens()
-{
-  return std::vector<Dali::ScreenInformation>();
-}
-
-void UpdateScreenSize()
-{
-}
-
-bool SetKeyboardRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-void SetGeometryHittestEnabled(bool enable)
-{
-  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  if(gGeometryHittest != enable && Dali::Adaptor::IsAvailable())
+  if(gWindowSystem)
   {
-    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
-    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
-    {
-      if(*iter)
-      {
-        (*iter).SetGeometryHittestEnabled(enable);
-      }
-    }
+    gWindowSystem->Shutdown();
+    gWindowSystem.reset();
   }
-  gGeometryHittest = enable;
 }
 
-bool IsGeometryHittestEnabled()
+WindowSystemBase* GetWindowSystem()
 {
-  return gGeometryHittest;
+  return &GetImpl();
 }
 
 } // namespace WindowSystem

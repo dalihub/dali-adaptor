@@ -144,17 +144,16 @@ bool GetWindowProperty(::Display* display, ::Window window, ::Atom property, ::A
 
 namespace WindowSystem
 {
-static WindowSystemX* gWindowSystem{nullptr};
-static bool           gGeometryHittest = false;
+std::unique_ptr<WindowSystemX> gWindowSystem;
 
 /**
  * Initialize the window system (currently run from the first window that gets created)
  */
 void Initialize()
 {
-  if(nullptr == gWindowSystem)
+  if(!gWindowSystem)
   {
-    gWindowSystem = new WindowSystemX();
+    gWindowSystem = std::make_unique<WindowSystemX>();
   }
 }
 
@@ -163,10 +162,9 @@ void Initialize()
  */
 void Shutdown()
 {
-  if(nullptr != gWindowSystem)
+  if(gWindowSystem)
   {
-    delete gWindowSystem;
-    gWindowSystem = nullptr;
+    gWindowSystem.reset();
   }
 }
 
@@ -221,7 +219,7 @@ void ConfigureNotifyEventHandler(const XEvent* xevent)
   configureNotify.width  = xevent->xconfigure.width;
   configureNotify.height = xevent->xconfigure.height;
 
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::CONFIGURE_NOTIFY, configureNotify);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::CONFIGURE_NOTIFY, configureNotify);
 }
 
 void PropertyNotifyEventHandler(const XEvent* xevent)
@@ -232,7 +230,7 @@ void PropertyNotifyEventHandler(const XEvent* xevent)
   propertyNotifyEvent.timestamp = xevent->xproperty.time;
   propertyNotifyEvent.atom      = xevent->xproperty.atom;
   propertyNotifyEvent.state     = xevent->xproperty.state;
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::PROPERTY_NOTIFY, propertyNotifyEvent);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::PROPERTY_NOTIFY, propertyNotifyEvent);
 }
 
 void ClientMessageEventHandler(const XEvent* xevent)
@@ -245,7 +243,7 @@ void ClientMessageEventHandler(const XEvent* xevent)
     x11Event.window = xevent->xclient.window;
     x11Event.event  = xevent;
 
-    GetImplementation().TriggerEventHandler(WindowSystemBase::Event::DELETE_REQUEST, x11Event);
+    GetImplementation().TriggerEventHandler(WindowSystemX::Event::DELETE_REQUEST, x11Event);
   }
 }
 
@@ -254,7 +252,7 @@ void FocusInEventHandler(const XEvent* xevent)
   WindowSystemX::X11Event x11Event;
   x11Event.window = xevent->xclient.window;
   x11Event.event  = xevent;
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::FOCUS_IN, x11Event);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::FOCUS_IN, x11Event);
 }
 
 void FocusOutEventHandler(const XEvent* xevent)
@@ -262,7 +260,7 @@ void FocusOutEventHandler(const XEvent* xevent)
   WindowSystemX::X11Event x11Event;
   x11Event.window = xevent->xclient.window;
   x11Event.event  = xevent;
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::FOCUS_OUT, x11Event);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::FOCUS_OUT, x11Event);
 }
 
 void ExposeEventHandler(const XEvent* xevent)
@@ -274,7 +272,7 @@ void ExposeEventHandler(const XEvent* xevent)
   x11ExposeEvent.y      = xevent->xexpose.y;
   x11ExposeEvent.width  = xevent->xexpose.width;
   x11ExposeEvent.height = xevent->xexpose.height;
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::DAMAGE, x11ExposeEvent);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::DAMAGE, x11ExposeEvent);
 }
 
 void HandlePointerMove(int x, int y, unsigned long timestamp, ::Window window)
@@ -291,7 +289,7 @@ void HandlePointerMove(int x, int y, unsigned long timestamp, ::Window window)
   mouseEvent.multi.radius   = 1;
   mouseEvent.multi.radiusX  = 1;
   mouseEvent.multi.radiusY  = 1;
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::MOUSE_MOVE, mouseEvent);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::MOUSE_MOVE, mouseEvent);
 }
 
 void ConvertButtonEvent(const XEvent* xevent, WindowSystemX::X11MouseEvent& mouseEvent)
@@ -317,7 +315,7 @@ void ButtonPressEventHandler(const XEvent* xevent)
 
     WindowSystemX::X11MouseEvent mouseEvent;
     ConvertButtonEvent(xevent, mouseEvent);
-    GetImplementation().TriggerEventHandler(WindowSystemBase::Event::MOUSE_BUTTON_DOWN, mouseEvent);
+    GetImplementation().TriggerEventHandler(WindowSystemX::Event::MOUSE_BUTTON_DOWN, mouseEvent);
   }
   else // Otherwise, it's a mouse wheel event
   {
@@ -354,7 +352,7 @@ void ButtonPressEventHandler(const XEvent* xevent)
         break;
       }
     }
-    GetImplementation().TriggerEventHandler(WindowSystemBase::Event::MOUSE_WHEEL, mouseWheelEvent);
+    GetImplementation().TriggerEventHandler(WindowSystemX::Event::MOUSE_WHEEL, mouseWheelEvent);
   }
 }
 
@@ -367,7 +365,7 @@ void ButtonReleaseEventHandler(const XEvent* xevent)
 
     WindowSystemX::X11MouseEvent mouseEvent;
     ConvertButtonEvent(xevent, mouseEvent);
-    GetImplementation().TriggerEventHandler(WindowSystemBase::Event::MOUSE_BUTTON_UP, mouseEvent);
+    GetImplementation().TriggerEventHandler(WindowSystemX::Event::MOUSE_BUTTON_UP, mouseEvent);
   }
   // ignore wheel release events, they are sent immediately prior to another press event
 }
@@ -487,14 +485,14 @@ void KeyPressEventHandler(const XEvent* xevent)
 {
   WindowSystemX::X11KeyEvent x11KeyEvent;
   ConvertKeyEvent(xevent, x11KeyEvent, true);
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::KEY_DOWN, x11KeyEvent);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::KEY_DOWN, x11KeyEvent);
 }
 
 void KeyReleaseEventHandler(const XEvent* xevent)
 {
   WindowSystemX::X11KeyEvent x11KeyEvent;
   ConvertKeyEvent(xevent, x11KeyEvent, false);
-  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::KEY_UP, x11KeyEvent);
+  GetImplementation().TriggerEventHandler(WindowSystemX::Event::KEY_UP, x11KeyEvent);
 }
 
 void SelectionClearEventHandler(const XEvent* xevent)
@@ -639,26 +637,26 @@ struct WindowSystemX::Impl
     }
   }
 
-  WindowSystemBase::EventHandler* AddEventHandler(WindowSystemBase::Event                event,
-                                                  WindowSystemBase::EventHandlerCallback callback,
-                                                  void*                                  data)
+  WindowSystemX::EventHandler* AddEventHandler(WindowSystemX::Event                event,
+                                               WindowSystemX::EventHandlerCallback callback,
+                                               void*                               data)
   {
     mHandlers.emplace_back(EventHandler{callback, data, event, ++mNextHandlerId});
     return &mHandlers.back();
   }
 
-  void DeleteEventHandler(WindowSystemBase::EventHandler* eventHandler)
+  void DeleteEventHandler(WindowSystemX::EventHandler* eventHandler)
   {
     int  id   = eventHandler->handlerId;
-    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemBase::EventHandler& eventHandler)
-                             { return eventHandler.handlerId == id; });
+    auto iter = std::find_if(mHandlers.begin(), mHandlers.end(), [id](const WindowSystemX::EventHandler& eventHandler)
+    { return eventHandler.handlerId == id; });
     if(iter != mHandlers.end())
     {
       mHandlers.erase(iter);
     }
   }
 
-  void TriggerEventHandler(WindowSystemBase::Event eventType, WindowSystemX::X11Event& x11Event)
+  void TriggerEventHandler(WindowSystemX::Event eventType, WindowSystemX::X11Event& x11Event)
   {
     //@todo make this much more efficient!
     for(auto& element : mHandlers)
@@ -721,7 +719,7 @@ struct WindowSystemX::Impl
   int        mNextHandlerId{0};
   using EventHandlerFunctionPointer = void (*)(const XEvent*);
   std::unordered_map<int, EventHandlerFunctionPointer> mXEventHandlers;
-  std::vector<WindowSystemBase::EventHandler>          mHandlers;
+  std::vector<WindowSystemX::EventHandler>             mHandlers;
   std::unique_ptr<FileDescriptorMonitor>               mXEventMonitor;
   XIDeviceInfo*                                        mXi2Devices{nullptr};
   int                                                  mXi2NumberOfDevices{0};
@@ -763,17 +761,12 @@ void WindowSystemX::GetScreenSize(int& width, int& height)
   }
 }
 
-std::vector<Dali::ScreenInformation> WindowSystemX::GetAvailableScreens()
-{
-  return std::vector<Dali::ScreenInformation>();
-}
-
-WindowSystemBase::EventHandler* WindowSystemX::AddEventHandler(Event event, EventHandlerCallback callback, void* data)
+WindowSystemX::EventHandler* WindowSystemX::AddEventHandler(Event event, EventHandlerCallback callback, void* data)
 {
   return mImpl->AddEventHandler(event, callback, data);
 }
 
-void WindowSystemX::DeleteEventHandler(WindowSystemBase::EventHandler* eventHandler)
+void WindowSystemX::DeleteEventHandler(WindowSystemX::EventHandler* eventHandler)
 {
   mImpl->DeleteEventHandler(eventHandler);
 }
@@ -1047,7 +1040,7 @@ void WindowSystemX::Lower(::Window window)
   Sync();
 }
 
-void WindowSystemX::TriggerEventHandler(WindowSystemBase::Event eventType, X11Event& event)
+void WindowSystemX::TriggerEventHandler(WindowSystemX::Event eventType, X11Event& event)
 {
   mImpl->TriggerEventHandler(eventType, event);
 }
@@ -1109,80 +1102,16 @@ void WindowSystemX::EnableDragAndDrop(::Window window, bool enable)
 
 WindowSystemX& GetImplementation()
 {
-  if(nullptr != gWindowSystem)
+  if(nullptr == gWindowSystem)
   {
     Initialize();
   }
   return *gWindowSystem;
 }
 
-void GetScreenSize(int& width, int& height)
+WindowSystemBase* GetWindowSystem()
 {
-  if(gWindowSystem != nullptr)
-  {
-    gWindowSystem->GetScreenSize(width, height);
-  }
-}
-
-std::vector<Dali::ScreenInformation> GetAvailableScreens()
-{
-  return std::vector<Dali::ScreenInformation>();
-}
-
-void UpdateScreenSize()
-{
-}
-
-bool SetKeyboardRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-void SetGeometryHittestEnabled(bool enable)
-{
-  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  if(gGeometryHittest != enable && Dali::Adaptor::IsAvailable())
-  {
-    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
-    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
-    {
-      if(*iter)
-      {
-        (*iter).SetGeometryHittestEnabled(enable);
-      }
-    }
-  }
-  gGeometryHittest = enable;
-}
-
-bool IsGeometryHittestEnabled()
-{
-  return gGeometryHittest;
+  return &GetImplementation();
 }
 
 } // namespace WindowSystem

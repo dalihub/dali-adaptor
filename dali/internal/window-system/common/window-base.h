@@ -73,7 +73,6 @@ public:
   typedef Signal<void(const DamageArea&)>                                              DamageSignalType;
   typedef Signal<void(const RotationEvent&)>                                           RotationSignalType;
   typedef Signal<void(WindowEffectState, WindowEffectType)>                            TransitionEffectEventSignalType;
-  typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType;
   typedef Signal<void()>                                                               WindowRedrawRequestSignalType;
   typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
   typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
@@ -823,11 +822,6 @@ public:
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
 
   /**
-   * @brief This signal is emitted when the keyboard repeat is changed.
-   */
-  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal();
-
-  /**
    * @brief This signal is emitted when the window redraw is requested.
    */
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
@@ -885,31 +879,30 @@ protected:
   WindowBase& operator=(const WindowBase& rhs) = delete;
 
 protected:
-  IconifySignalType                       mIconifyChangedSignal;
-  MaximizeSignalType                      mMaximizeChangedSignal;
-  FocusSignalType                         mFocusChangedSignal;
-  OutputSignalType                        mOutputTransformedSignal;
-  DeleteSignalType                        mDeleteRequestSignal;
-  DamageSignalType                        mWindowDamagedSignal;
-  RotationSignalType                      mRotationSignal;
-  TouchEventSignalType                    mTouchEventSignal;
-  MouseFrameEventSignalType               mMouseFrameEventSignal;
-  WheelEventSignalType                    mWheelEventSignal;
-  KeyEventSignalType                      mKeyEventSignal;
-  SelectionSignalType                     mSelectionDataSendSignal;
-  SelectionSignalType                     mSelectionDataReceivedSignal;
-  StyleSignalType                         mStyleChangedSignal;
-  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
-  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
-  WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
-  UpdatePositionSizeType                  mUpdatePositionSizeSignal;
-  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
-  MouseInOutEventSignalType               mMouseInOutEventSignal;
-  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
-  MoveCompletedSignalType                 mMoveCompletedSignal;
-  ResizeCompletedSignalType               mResizeCompletedSignal;
-  InsetsChangedSignalType                 mInsetsChangedSignal;
-  PointerConstraintsSignalType            mPointerConstraintsSignal;
+  IconifySignalType               mIconifyChangedSignal;
+  MaximizeSignalType              mMaximizeChangedSignal;
+  FocusSignalType                 mFocusChangedSignal;
+  OutputSignalType                mOutputTransformedSignal;
+  DeleteSignalType                mDeleteRequestSignal;
+  DamageSignalType                mWindowDamagedSignal;
+  RotationSignalType              mRotationSignal;
+  TouchEventSignalType            mTouchEventSignal;
+  MouseFrameEventSignalType       mMouseFrameEventSignal;
+  WheelEventSignalType            mWheelEventSignal;
+  KeyEventSignalType              mKeyEventSignal;
+  SelectionSignalType             mSelectionDataSendSignal;
+  SelectionSignalType             mSelectionDataReceivedSignal;
+  StyleSignalType                 mStyleChangedSignal;
+  TransitionEffectEventSignalType mTransitionEffectEventSignal;
+  WindowRedrawRequestSignalType   mWindowRedrawRequestSignal;
+  UpdatePositionSizeType          mUpdatePositionSizeSignal;
+  AuxiliaryMessageSignalType      mAuxiliaryMessageSignal;
+  MouseInOutEventSignalType       mMouseInOutEventSignal;
+  MouseRelativeEventSignalType    mMouseRelativeEventSignal;
+  MoveCompletedSignalType         mMoveCompletedSignal;
+  ResizeCompletedSignalType       mResizeCompletedSignal;
+  InsetsChangedSignalType         mInsetsChangedSignal;
+  PointerConstraintsSignalType    mPointerConstraintsSignal;
 };
 
 } // namespace Adaptor

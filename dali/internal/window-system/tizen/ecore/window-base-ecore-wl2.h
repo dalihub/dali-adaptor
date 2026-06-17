@@ -177,11 +177,6 @@ public:
   void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
 
   /**
-   * @brief Called when a keyboard repeat event is changed.
-   */
-  void OnKeyboardRepeatSettingsChanged();
-
-  /**
    * @brief Called when a window redraw is requested.
    */
   void OnEcoreEventWindowRedrawRequest();

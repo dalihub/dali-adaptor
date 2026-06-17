@@ -1392,21 +1392,6 @@ int UtcDaliWindowEventProcessingFinishedSignalNegative(void)
   END_TEST;
 }
 
-int UtcDaliWindowKeyboardRepeatSettingsChangedSignalNegative(void)
-{
-  try
-  {
-    Dali::Window arg1;
-    DevelWindow::KeyboardRepeatSettingsChangedSignal(arg1);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true); // We expect an assert
-  }
-  END_TEST;
-}
-
 int UtcDaliWindowUnparentNegative(void)
 {
   try

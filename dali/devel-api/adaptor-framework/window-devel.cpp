@@ -62,11 +62,6 @@ TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window)
   return GetImplementation(window).TransitionEffectEventSignal();
 }
 
-KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window)
-{
-  return GetImplementation(window).KeyboardRepeatSettingsChangedSignal();
-}
-
 AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
 {
   return GetImplementation(window).AuxiliaryMessageSignal();

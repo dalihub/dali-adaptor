@@ -24,6 +24,7 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <memory>
 
 namespace Dali
 {
@@ -35,92 +36,65 @@ namespace WindowSystem
 {
 namespace
 {
-static bool gGeometryHittest = false;
-static bool gIsIntialized    = false;
+class WindowSystemEcoreX : public WindowSystemBase
+{
+public:
+  void Initialize()
+  {
+    if(!mIsInitialized)
+    {
+      ecore_x_init(NULL);
+      mIsInitialized = true;
+    }
+  }
+
+  void Shutdown()
+  {
+    if(mIsInitialized)
+    {
+      ecore_x_shutdown();
+      mIsInitialized = false;
+    }
+  }
+
+  void GetScreenSize(int32_t& width, int32_t& height) override
+  {
+    ecore_x_screen_size_get(ecore_x_default_screen_get(), &width, &height);
+  }
+
+private:
+  bool mIsInitialized{false};
+};
+
+std::unique_ptr<WindowSystemEcoreX> gWindowSystem;
+
+WindowSystemEcoreX& GetImpl()
+{
+  if(!gWindowSystem)
+  {
+    gWindowSystem = std::make_unique<WindowSystemEcoreX>();
+  }
+  return *gWindowSystem;
+}
 } // unnamed namespace
 
 void Initialize()
 {
-  if(!gIsIntialized)
-  {
-    ecore_x_init(NULL);
-    gIsIntialized = true;
-  }
+  GetImpl().Initialize();
 }
 
 void Shutdown()
 {
-  if(gIsIntialized)
+  if(gWindowSystem)
   {
-    ecore_x_shutdown();
-    gIsIntialized = false;
+    gWindowSystem->Shutdown();
+    gWindowSystem.reset();
   }
 }
 
-void GetScreenSize(int32_t& width, int32_t& height)
+WindowSystemBase* GetWindowSystem()
 {
-  ecore_x_screen_size_get(ecore_x_default_screen_get(), &width, &height);
-}
-
-std::vector<Dali::ScreenInformation> GetAvailableScreens()
-{
-  return std::vector<Dali::ScreenInformation>();
-}
-
-void UpdateScreenSize()
-{
-}
-
-bool SetKeyboardRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
-{
-  return false;
-}
-
-bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
-{
-  return false;
-}
-
-void SetGeometryHittestEnabled(bool enable)
-{
-  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  if(gGeometryHittest != enable && Dali::Adaptor::IsAvailable())
-  {
-    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
-    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
-    {
-      if(*iter)
-      {
-        (*iter).SetGeometryHittestEnabled(enable);
-      }
-    }
-  }
-  gGeometryHittest = enable;
-}
-
-bool IsGeometryHittestEnabled()
-{
-  return gGeometryHittest;
+  return &GetImpl();
 }
 
 } // namespace WindowSystem
@@ -130,5 +104,3 @@ bool IsGeometryHittestEnabled()
 } // namespace Internal
 
 } // namespace Dali
-
-#pragma GCC diagnostic pop
