@@ -56,6 +56,15 @@ DALI_ADAPTOR_API void SetGeometryHittestEnabled(bool enabled);
 DALI_ADAPTOR_API bool IsGeometryHittestEnabled();
 
 /**
+ * @brief Retrieves the DPI previously set to the target screen.
+ *
+ * @note Multiple screens are not currently supported.
+ * @param[out] horizontalDpi The horizontal resolution in DPI.
+ * @param[out] verticalDpi The vertical resolution in DPI.
+ */
+DALI_ADAPTOR_API void GetDpi(uint32_t& horizontalDpi, uint32_t& verticalDpi);
+
+/**
  * @brief Retrieves a list of all currently available screens.
  *
  * This function queries the window system for all connected and active screens,
