@@ -2720,7 +2720,7 @@ bool WindowBaseEcoreWl2::IsMinimized() const
   return ecore_wl2_window_iconified_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseEcoreWl2::SetMinimumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_minimum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
   {
@@ -4020,12 +4020,12 @@ bool WindowBaseEcoreWl2::GetFullScreen()
   return ecore_wl2_window_fullscreen_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::SetFrontBufferRendering(bool enable)
+void WindowBaseEcoreWl2::SetFrontBufferRenderingEnabled(bool enable)
 {
   mIsFrontBufferRendering = enable;
 }
 
-bool WindowBaseEcoreWl2::GetFrontBufferRendering()
+bool WindowBaseEcoreWl2::IsFrontBufferRenderingEnabled() const
 {
   return mIsFrontBufferRendering;
 }
@@ -4064,7 +4064,7 @@ void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
   }
 }
 
-bool WindowBaseEcoreWl2::IsAlwaysOnTop()
+bool WindowBaseEcoreWl2::IsAlwaysOnTop() const
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pin_mode_get");
   bool ret = ecore_wl2_window_pin_mode_get(mEcoreWindow);

@@ -66,7 +66,7 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
 {
   std::unique_ptr<Window> window  = std::unique_ptr<Window>(new Window());
   window->mIsTransparent          = windowData.GetTransparency();
-  window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
+  window->mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
   return window.release();
 }
@@ -111,7 +111,7 @@ Window::Window()
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
   mFocused(false),
-  mIsWindowRotating(false),
+  mIsOrientationChanging(false),
   mIsEnabledUserGeometry(false),
   mIsEmittedWindowCreatedEvent(false),
   mIsFrontBufferRendering(false),
@@ -218,7 +218,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   if(mIsFrontBufferRendering)
   {
-    SetFrontBufferRendering(mIsFrontBufferRendering);
+    SetFrontBufferRenderingEnabled(mIsFrontBufferRendering);
   }
 
   SetScreen(screenName);
@@ -371,9 +371,9 @@ bool Window::IsMinimized() const
   return mWindowBase->IsMinimized();
 }
 
-void Window::SetMimimumSize(Dali::Window::WindowSize size)
+void Window::SetMinimumSize(Dali::Window::WindowSize size)
 {
-  mWindowBase->SetMimimumSize(size);
+  mWindowBase->SetMinimumSize(size);
 }
 
 void Window::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
@@ -1179,7 +1179,7 @@ void Window::OnRotation(const RotationEvent& rotation)
   mWindowWidth   = rotation.width;
   mWindowHeight  = rotation.height;
 
-  mIsWindowRotating = true;
+  mIsOrientationChanging = true;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), angle(%d), Window Rotation (%d , %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
 
   mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
@@ -1197,7 +1197,7 @@ void Window::OnRotation(const RotationEvent& rotation)
 
 void Window::OnRotationFinished()
 {
-  mIsWindowRotating = false;
+  mIsOrientationChanging = false;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window rotation is finised\n", this, mNativeWindowId);
 }
 
@@ -1292,12 +1292,12 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) mutable
   {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
-      Dali::DevelWindow::FeedKeyEvent(handle, keyEvent);
+      handle.FeedKeyEvent(keyEvent);
     }
   };
 
@@ -1432,21 +1432,6 @@ Dali::Window Window::Get(Dali::Actor actor)
   return Dali::Window();
 }
 
-void Window::SetParent(Dali::Window& parent)
-{
-  if(DALI_UNLIKELY(parent))
-  {
-    mParentWindow     = parent;
-    Dali::Window self = Dali::Window(this);
-    // check circular parent window setting
-    if(Dali::DevelWindow::GetParent(parent) == self)
-    {
-      Dali::DevelWindow::Unparent(parent);
-    }
-    mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, false);
-  }
-}
-
 void Window::SetParent(Dali::Window& parent, bool belowParent)
 {
   if(DALI_UNLIKELY(parent))
@@ -1454,9 +1439,9 @@ void Window::SetParent(Dali::Window& parent, bool belowParent)
     mParentWindow     = parent;
     Dali::Window self = Dali::Window(this);
     // check circular parent window setting
-    if(Dali::DevelWindow::GetParent(parent) == self)
+    if(parent.GetParent() == self)
     {
-      Dali::DevelWindow::Unparent(parent);
+      parent.Unparent();
     }
     mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, belowParent);
   }
@@ -1537,7 +1522,7 @@ void Window::EnableFloatingMode(bool enable)
   mWindowBase->EnableFloatingMode(enable);
 }
 
-bool Window::IsFloatingModeEnabled()
+bool Window::IsFloatingModeEnabled() const
 {
   return mWindowBase->IsFloatingModeEnabled();
 }
@@ -1571,9 +1556,9 @@ void Window::SendRotationCompletedAcknowledgement()
   }
 }
 
-bool Window::IsWindowRotating() const
+bool Window::IsOrientationChanging() const
 {
-  return mIsWindowRotating;
+  return mIsOrientationChanging;
 }
 
 const Dali::KeyEvent& Window::GetLastKeyEvent() const
@@ -1643,15 +1628,15 @@ bool Window::GetFullScreen()
   return mWindowBase->GetFullScreen();
 }
 
-void Window::SetFrontBufferRendering(bool enable)
+void Window::SetFrontBufferRenderingEnabled(bool enable)
 {
-  mWindowBase->SetFrontBufferRendering(enable);
-  mWindowSurface->SetFrontBufferRendering(enable);
+  mWindowBase->SetFrontBufferRenderingEnabled(enable);
+  mWindowSurface->SetFrontBufferRenderingEnabled(enable);
 }
 
-bool Window::GetFrontBufferRendering()
+bool Window::IsFrontBufferRenderingEnabled() const
 {
-  return mWindowBase->GetFrontBufferRendering();
+  return mWindowBase->IsFrontBufferRenderingEnabled();
 }
 
 void Window::SetModal(bool modal)
@@ -1669,7 +1654,7 @@ void Window::SetAlwaysOnTop(bool alwaysOnTop)
   mWindowBase->SetAlwaysOnTop(alwaysOnTop);
 }
 
-bool Window::IsAlwaysOnTop()
+bool Window::IsAlwaysOnTop() const
 {
   return mWindowBase->IsAlwaysOnTop();
 }

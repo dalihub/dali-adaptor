@@ -179,7 +179,7 @@ public: // API
    *
    * @param[in] enable The flag for front buffer rendering
    */
-  void SetFrontBufferRendering(bool enable);
+  void SetFrontBufferRenderingEnabled(bool enable);
 
 public: // from Dali::Integration::RenderSurfaceInterface
   /**
