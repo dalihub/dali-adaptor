@@ -8,7 +8,7 @@ SET( SOURCES
         ${adaptor_adaptor_ubuntu_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
         ${adaptor_clipboard_ubuntu_x11_src_files}
-        ${adaptor_drag_and_drop_generic_src_files}
+        ${adaptor_drag_and_drop_ubuntu_x11_src_files}
         ${adaptor_framework_generic_src_files}
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
