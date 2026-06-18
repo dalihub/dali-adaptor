@@ -245,9 +245,9 @@ public:
   bool IsMinimized() const override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMinimumSize()
    */
-  void SetMimimumSize(Dali::Window::WindowSize size) override;
+  void SetMinimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MaximizeWithRestoreSize()
@@ -525,14 +525,14 @@ public:
   bool GetFullScreen() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRenderingEnabled()
    */
-  void SetFrontBufferRendering(bool enable) override;
+  void SetFrontBufferRenderingEnabled(bool enable) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsFrontBufferRenderingEnabled()
    */
-  bool GetFrontBufferRendering() override;
+  bool IsFrontBufferRenderingEnabled() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowFrontBufferMode()
@@ -557,7 +557,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsAlwaysOnTop()
    */
-  bool IsAlwaysOnTop() override;
+  bool IsAlwaysOnTop() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()

@@ -209,34 +209,34 @@ public:
   virtual void Activate() = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::Maximize()
+   * @copydoc Dali::Window::Maximize()
    */
   virtual void Maximize(bool maximize) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::IsMaximized()
+   * @copydoc Dali::Window::IsMaximized()
    */
   virtual bool IsMaximized() const = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   * @copydoc Dali::Window::SetMaximumSize()
    */
   virtual void SetMaximumSize(Dali::Window::WindowSize size) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::Minimize()
+   * @copydoc Dali::Window::Minimize()
    */
   virtual void Minimize(bool minimize) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::IsMinimized()
+   * @copydoc Dali::Window::IsMinimized()
    */
   virtual bool IsMinimized() const = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   * @copydoc Dali::Window::SetMinimumSize()
    */
-  virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
+  virtual void SetMinimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
    * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
@@ -567,13 +567,13 @@ public:
    * @brief Enables or disables front buffer rendering.
    * @param[in] enable true to enable front buffer rendering, false to disable.
    */
-  virtual void SetFrontBufferRendering(bool enable) = 0;
+  virtual void SetFrontBufferRenderingEnabled(bool enable) = 0;
 
   /**
    * @brief Enables or disables front buffer rendering.
    * @return Returns whether front buffer rendering has been enabled or not.
    */
-  virtual bool GetFrontBufferRendering() = 0;
+  virtual bool IsFrontBufferRenderingEnabled() const = 0;
 
   /**
    * @brief Sets front buffer rendering to the window.
@@ -610,7 +610,7 @@ public:
    *
    * @return True if the window always is on top, false otherwise.
    */
-  virtual bool IsAlwaysOnTop() = 0;
+  virtual bool IsAlwaysOnTop() const = 0;
 
   /**
    * @brief Enables or disables the window's layer is changed to bottom.

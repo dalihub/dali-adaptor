@@ -461,7 +461,7 @@ const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
   return mLastHoverEvent;
 }
 
-Dali::GestureState SceneHolder::GetLastPanGestureState()
+Dali::GestureState SceneHolder::GetLastPanGestureState() const
 {
   if(DALI_UNLIKELY(!mAdaptorStarted))
   {

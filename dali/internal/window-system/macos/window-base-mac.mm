@@ -531,7 +531,7 @@ bool WindowBaseCocoa::IsMinimized() const
   return false;
 }
 
-void WindowBaseCocoa::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseCocoa::SetMinimumSize(Dali::Window::WindowSize size)
 {
 }
 
@@ -596,7 +596,7 @@ unsigned int WindowBaseCocoa::GetAuxiliaryHintId( const std::string& hint ) cons
   return 0;
 }
 
-void WindowBaseCocoa::SetInputRegion( const Rect< int >& inputRegion )
+void WindowBaseCocoa::SetInputRegion(const BoundsInteger& inputRegion)
 {
 }
 
@@ -804,11 +804,11 @@ bool WindowBaseCocoa::GetFullScreen()
   return false;
 }
 
-void WindowBaseCocoa::SetFrontBufferRendering(bool enable)
+void WindowBaseCocoa::SetFrontBufferRenderingEnabled(bool enable)
 {
 }
 
-bool WindowBaseCocoa::GetFrontBufferRendering()
+bool WindowBaseCocoa::IsFrontBufferRenderingEnabled() const
 {
   return false;
 }
@@ -830,7 +830,7 @@ void WindowBaseCocoa::SetAlwaysOnTop(bool alwaysOnTop)
 {
 }
 
-bool WindowBaseCocoa::IsAlwaysOnTop()
+bool WindowBaseCocoa::IsAlwaysOnTop() const
 {
   return false;
 }

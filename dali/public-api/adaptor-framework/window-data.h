@@ -109,7 +109,7 @@ public:
    * @SINCE_2_2.51
    * @param[in] enable whether to use front buffer rendering
    */
-  void SetFrontBufferRendering(bool enable);
+  void SetFrontBufferRenderingEnabled(bool enable);
 
   /**
    * @brief Gets the front buffer rendering
@@ -117,7 +117,7 @@ public:
    * @SINCE_2_2.51
    * @return whether front buffer rendering is enabled
    */
-  bool GetFrontBufferRendering() const;
+  bool IsFrontBufferRenderingEnabled() const;
 
   /**
    * @brief Sets the screen for the window

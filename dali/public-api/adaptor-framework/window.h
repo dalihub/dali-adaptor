@@ -21,11 +21,15 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/events/gesture-enumerations.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
@@ -53,6 +57,7 @@ class Layer;
 class RenderTaskList;
 class TouchEvent;
 class KeyEvent;
+class HoverEvent;
 
 /**
  * @brief The window class is used internally for drawing.
@@ -284,6 +289,16 @@ public:
   void RemoveAvailableOrientation(WindowOrientation orientation);
 
   /**
+   * @brief Sets available orientations of the window.
+   *
+   * This API is for setting several orientations one time.
+   *
+   * @SINCE_2_5.27
+   * @param[in] orientations The available orientation list to add
+   */
+  void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
+
+  /**
    * @brief Sets a preferred orientation.
    * @SINCE_1_0.0
    * @param[in] orientation The preferred orientation
@@ -301,6 +316,22 @@ public:
   WindowOrientation GetPreferredOrientation();
 
   /**
+   * @brief Gets current orientation of the window.
+   *
+   * @SINCE_2_5.27
+   * @return The current window orientation if previously set, or none
+   */
+  WindowOrientation GetCurrentOrientation();
+
+  /**
+   * @brief Queries whether the window's orientation change is in progress.
+   *
+   * @SINCE_2_5.27
+   * @return true if orientation change is in progress, false otherwise
+   */
+  bool IsOrientationChanging() const;
+
+  /**
    * @brief Gets the native handle of the window.
    *
    * When users call this function, it wraps the actual type used by the underlying window system.
@@ -308,6 +339,14 @@ public:
    * @return The native handle of the Window or an empty handle
    */
   Any GetNativeHandle() const;
+
+  /**
+   * @brief Gets the native window id.
+   *
+   * @SINCE_2_5.27
+   * @return The native window id
+   */
+  int32_t GetNativeId() const;
 
   /**
    * @brief Sets whether window accepts focus or not.
@@ -415,6 +454,39 @@ public:
   void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
+   * @brief Includes input region.
+   *
+   * This function includes input regions.
+   * It can be used multiple times and supports multiple regions.
+   * It means input region will be extended.
+   *
+   * This input is related to mouse and touch event.
+   * If device has touch screen, this function is useful.
+   * Otherwise device does not have that, we can use it after connecting mouse to the device.
+   *
+   * @SINCE_2_5.27
+   * @param[in] inputRegion The added region to accept input events.
+   */
+  void IncludeInputRegion(const BoundsInteger& inputRegion);
+
+  /**
+   * @brief Excludes input region.
+   *
+   * This function excludes input regions.
+   * It can be used multiple times and supports multiple regions.
+   * It means input region will be reduced.
+   * Notice, should be set input area by IncludeInputRegion() before this function is used.
+   *
+   * This input is related to mouse and touch event.
+   * If device has touch screen, this function is useful.
+   * Otherwise device does not have that, we can use it after connecting mouse to the device.
+   *
+   * @SINCE_2_5.27
+   * @param[in] inputRegion The region to exclude from accepting input events.
+   */
+  void ExcludeInputRegion(const BoundsInteger& inputRegion);
+
+  /**
    * @brief Sets a window type.
    * @@SINCE_2_0.0
    * @param[in] type The window type.
@@ -428,6 +500,28 @@ public:
    * @return A window type.
    */
   WindowType GetType() const;
+
+  /**
+   * @brief Enables the floating mode of window.
+   *
+   * The floating mode is to support making partial size window easily.
+   * It is useful for creating popup-style windows that are always above other normal windows.
+   * It also allows easy switching between popup style and normal style.
+   *
+   * A special display server (e.g., Tizen display server) supports this mode.
+   *
+   * @SINCE_2_5.27
+   * @param[in] enable Enable floating mode or not.
+   */
+  void EnableFloatingMode(bool enable);
+
+  /**
+   * @brief Returns whether the window is in floating mode or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if floating mode is enabled for the window, false otherwise.
+   */
+  bool IsFloatingModeEnabled() const;
 
   /**
    * @brief Sets a priority level for the specified notification window.
@@ -447,6 +541,25 @@ public:
    * @remarks This can be used for a notification type window only.
    */
   WindowNotificationLevel GetNotificationLevel() const;
+
+  /**
+   * @brief Enables or disables the window always being on top.
+   *
+   * This is valid between windows that have no notification level or a notification level of 'none'.
+   * If it has a notification level, this will not do anything.
+   *
+   * @SINCE_2_5.27
+   * @param[in] alwaysOnTop True to enable the window always on top, false to disable.
+   */
+  void SetAlwaysOnTop(bool alwaysOnTop);
+
+  /**
+   * @brief Returns whether the window is always on top.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is always on top, false otherwise.
+   */
+  bool IsAlwaysOnTop() const;
 
   /**
    * @brief Sets a transparent window's visual state to opaque.
@@ -540,6 +653,17 @@ public:
    * @return The position of the window
    */
   WindowPosition GetPosition() const;
+
+  /**
+   * @brief Requests to display server for the window is moved by display server.
+   *
+   * This function should be called in mouse down event callback function.
+   * After this function is called in mouse down event callback function, the window is moved with mouse move event.
+   * When mouse up event happens, the window moved work is finished.
+   *
+   * @SINCE_2_5.27
+   */
+  void RequestMoveToServer();
 
   /**
    * @brief Sets the layout of the window.
@@ -656,6 +780,242 @@ public:
    * @return True if the window should update partial area
    */
   bool IsPartialUpdateEnabled() const;
+
+  /**
+   * @brief Enables or disables front buffer rendering.
+   *
+   * @SINCE_2_5.27
+   * @param[in] enable True to enable front buffer rendering, false to disable.
+   */
+  void SetFrontBufferRenderingEnabled(bool enable);
+
+  /**
+   * @brief Returns whether front buffer rendering is enabled or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if front buffer rendering is enabled, false otherwise.
+   */
+  bool IsFrontBufferRenderingEnabled() const;
+
+  /**
+   * @brief Maximizes window's size.
+   *
+   * If this function is called with true, window will be resized with screen size.
+   * Otherwise window will be resized with previous size.
+   * It is for the window's MAX button in window's border.
+   *
+   * It is for client application.
+   * If window border is supported by display server, it is not necessary.
+   *
+   * @SINCE_2_5.27
+   * @param[in] maximize True to maximize the window, false to restore to previous size.
+   */
+  void Maximize(bool maximize);
+
+  /**
+   * @brief Returns whether the window is maximized or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is maximized, false otherwise.
+   */
+  bool IsMaximized() const;
+
+  /**
+   * @brief Sets window's maximum size.
+   *
+   * It is to set the maximized size when window is maximized.
+   * Although the size is set by this function, window's size can be increased beyond the limitation by SetSize().
+   *
+   * After setting, if Maximize() is called, window is resized with the setting size and centered.
+   *
+   * @SINCE_2_5.27
+   * @param[in] size The maximum size.
+   */
+  void SetMaximumSize(WindowSize size);
+
+  /**
+   * @brief Minimizes window's size.
+   *
+   * If this function is called with true, window will be iconified.
+   * Otherwise window will be activated.
+   * It is for the window's MIN button in window border.
+   *
+   * It is for client application.
+   * If window border is supported by display server, it is not necessary.
+   *
+   * @SINCE_2_5.27
+   * @param[in] minimize True to minimize the window, false to activate it.
+   */
+  void Minimize(bool minimize);
+
+  /**
+   * @brief Returns whether the window is minimized or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is minimized, false otherwise.
+   */
+  bool IsMinimized() const;
+
+  /**
+   * @brief Sets window's minimum size.
+   *
+   * It is to set the minimum size when window's size is decreased by the display server.
+   * Although the size is set by this function, window's size can be decreased below the limitation by SetSize().
+   *
+   * @SINCE_2_5.27
+   * @param[in] size The minimum size.
+   */
+  void SetMinimumSize(WindowSize size);
+
+  /**
+   * @brief Sets the parent window of this window.
+   *
+   * After setting, these windows move together when raised, lowered, or iconified/deiconified.
+   * Initially, the child window is located on top of the parent.
+   * If @a belowParent is true, the child is placed below the parent instead.
+   *
+   * @SINCE_2_5.27
+   * @param[in] parent The parent window instance.
+   * @param[in] belowParent If true, the child window is placed below the parent; otherwise above. Defaults to false.
+   */
+  void SetParent(Window parent, bool belowParent = false);
+
+  /**
+   * @brief Unsets the parent window of this window.
+   *
+   * After unsetting, the window is disconnected from its parent window.
+   *
+   * @SINCE_2_5.27
+   */
+  void Unparent();
+
+  /**
+   * @brief Gets the parent window of this window.
+   *
+   * @SINCE_2_5.27
+   * @return The parent window, or an empty handle if no parent is set.
+   */
+  Window GetParent();
+
+  /**
+   * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
+   *
+   * @SINCE_2_5.27
+   * @param[in] callback The function to call.
+   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
+   *
+   * @note A callback of the following type may be used:
+   * @code
+   *   void MyFunction( int32_t frameId );
+   * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @note Ownership of the callback is passed onto this class.
+   */
+  void AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId);
+
+  /**
+   * @brief Adds a callback that is called when the frame is displayed on the display.
+   *
+   * @SINCE_2_5.27
+   * @param[in] callback The function to call.
+   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
+   *
+   * @note A callback of the following type may be used:
+   * @code
+   *   void MyFunction( int32_t frameId );
+   * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @note Ownership of the callback is passed onto this class.
+   */
+  void AddFramePresentedCallback(CallbackBase* callback, int32_t frameId);
+
+  /**
+   * @brief Sets the screen for this window.
+   *
+   * The window will be moved to the specified screen.
+   *
+   * @SINCE_2_5.27
+   * @param[in] screenName The name of the screen.
+   */
+  void SetScreen(const Dali::String& screenName);
+
+  /**
+   * @brief Gets the screen of the window.
+   *
+   * This is for multi-screen environments.
+   *
+   * @SINCE_2_5.27
+   * @return The name of the screen.
+   */
+  Dali::String GetScreen() const;
+
+  /**
+   * @brief Feeds a touch event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] touchEvent The touch event
+   */
+  void FeedTouchEvent(const Dali::TouchEvent& touchEvent);
+
+  /**
+   * @brief Feeds a wheel event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] wheelEvent The wheel event
+   */
+  void FeedWheelEvent(Dali::WheelEvent wheelEvent);
+
+  /**
+   * @brief Feeds a key event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] keyEvent The key event.
+   */
+  void FeedKeyEvent(const Dali::KeyEvent& keyEvent);
+
+  /**
+   * @brief Feeds a hover event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] hoverEvent The hover event
+   */
+  void FeedHoverEvent(const Dali::HoverEvent& hoverEvent);
+
+  /**
+   * @brief Returns the last key event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last key event received by the window.
+   */
+  const KeyEvent& GetLastKeyEvent() const;
+
+  /**
+   * @brief Returns the last touch event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last touch event received by the window.
+   * @note Returns the raw event; hit-actor and local position information are not available.
+   */
+  const TouchEvent& GetLastTouchEvent() const;
+
+  /**
+   * @brief Returns the last hover event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last hover event received by the window.
+   * @note Returns the raw event; hit-actor and local position information are not available.
+   */
+  const HoverEvent& GetLastHoverEvent() const;
+
+  /**
+   * @brief Returns the last pan gesture state received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last pan gesture state received by the window.
+   */
+  GestureState GetLastPanGestureState() const;
 
 public: // Signals
   /**

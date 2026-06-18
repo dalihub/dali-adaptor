@@ -305,7 +305,7 @@ void ApplicationController::SetWindowData(const Dali::WindowData& windowData)
   mWindowData->SetPositionSize(size);
   mWindowData->SetTransparency(windowData.GetTransparency());
   mWindowData->SetWindowType(windowData.GetWindowType());
-  mWindowData->SetFrontBufferRendering(windowData.GetFrontBufferRendering());
+  mWindowData->SetFrontBufferRenderingEnabled(windowData.IsFrontBufferRenderingEnabled());
   mWindowData->SetScreen(windowData.GetScreen());
   mWindowPositionSize = mWindowData->GetPositionSize();
 }
@@ -349,7 +349,7 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
   {
     activeWindowData.SetTransparency(mWindowData->GetTransparency());
     activeWindowData.SetWindowType(mWindowData->GetWindowType());
-    activeWindowData.SetFrontBufferRendering(mWindowData->GetFrontBufferRendering());
+    activeWindowData.SetFrontBufferRenderingEnabled(mWindowData->IsFrontBufferRenderingEnabled());
     activeWindowData.SetScreen(mWindowData->GetScreen());
   }
 
@@ -484,13 +484,8 @@ void ApplicationController::UpdatePreInitializedWindowInfo()
     // Apply the real application's window configuration to the pre-initialized window.
     mMainWindow.SetTransparency(mWindowData->GetTransparency());
     mMainWindow.SetType(mWindowData->GetWindowType());
-    Dali::DevelWindow::SetFrontBufferRendering(mMainWindow, mWindowData->GetFrontBufferRendering());
-
-    std::string screen = Dali::Integration::ToStdString(mWindowData->GetScreen());
-    if(!screen.empty())
-    {
-      Dali::DevelWindow::SetScreen(mMainWindow, screen);
-    }
+    mMainWindow.SetFrontBufferRenderingEnabled(mWindowData->IsFrontBufferRenderingEnabled());
+    mMainWindow.SetScreen(mWindowData->GetScreen());
   }
 
   if(mMainWindow.GetType() == Dali::WindowType::IME)

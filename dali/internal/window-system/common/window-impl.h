@@ -142,34 +142,34 @@ public:
   void Activate();
 
   /**
-   * @copydoc Dali::DevelWindow::Maximize()
+   * @copydoc Dali::Window::Maximize()
    */
   void Maximize(bool maximize);
 
   /**
-   * @copydoc Dali::DevelWindow::IsMaximized()
+   * @copydoc Dali::Window::IsMaximized()
    */
   bool IsMaximized() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   * @copydoc Dali::Window::SetMaximumSize()
    */
   void SetMaximumSize(Dali::Window::WindowSize size);
 
   /**
-   * @copydoc Dali::DevelWindow::Minimize()
+   * @copydoc Dali::Window::Minimize()
    */
   void Minimize(bool minimize);
 
   /**
-   * @copydoc Dali::DevelWindow::IsMinimized()
+   * @copydoc Dali::Window::IsMinimized()
    */
   bool IsMinimized() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   * @copydoc Dali::Window::SetMinimumSize()
    */
-  void SetMimimumSize(Dali::Window::WindowSize size);
+  void SetMinimumSize(Dali::Window::WindowSize size);
 
   /**
    * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
@@ -409,27 +409,22 @@ public:
   static Dali::Window Get(Dali::Actor actor);
 
   /**
-   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent)
+   * @copydoc Dali::Window::SetParent()
    */
-  void SetParent(Dali::Window& parent);
+  void SetParent(Dali::Window& parent, bool belowParent = false);
 
   /**
-   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent, bool belowParent)
-   */
-  void SetParent(Dali::Window& parent, bool belowParent);
-
-  /**
-   * @copydoc Dali::DevelWindow::Unparent()
+   * @copydoc Dali::Window::Unparent()
    */
   void Unparent();
 
   /**
-   * @copydoc Dali::DevelWindow::GetParent()
+   * @copydoc Dali::Window::GetParent()
    */
   Dali::Window GetParent();
 
   /**
-   * @copydoc Dali::DevelWindow::GetCurrentOrientation()
+   * @copydoc Dali::Window::GetCurrentOrientation()
    */
   WindowOrientation GetCurrentOrientation() const;
 
@@ -439,7 +434,7 @@ public:
   int GetPhysicalOrientation() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetAvailableOrientations()
+   * @copydoc Dali::Window::SetAvailableOrientations()
    */
   void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
@@ -483,12 +478,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsVisible() const override;
 
   /**
-   * @copydoc Dali::DevelWindow::GetNativeId()
+   * @copydoc Dali::Window::GetNativeId()
    */
   int32_t GetNativeId() const;
 
   /**
-   * @copydoc Dali::DevelWindow::RequestMoveToServer()
+   * @copydoc Dali::Window::RequestMoveToServer()
    */
   void RequestMoveToServer();
 
@@ -498,22 +493,22 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void RequestResizeToServer(WindowResizeDirection direction);
 
   /**
-   * @copydoc Dali::DevelWindow::EnableFloatingMode()
+   * @copydoc Dali::Window::EnableFloatingMode()
    */
   void EnableFloatingMode(bool enable);
 
   /**
-   * @copydoc Dali::DevelWindow::IsFloatingModeEnabled()
+   * @copydoc Dali::Window::IsFloatingModeEnabled()
    */
-  bool IsFloatingModeEnabled();
+  bool IsFloatingModeEnabled() const;
 
   /**
-   * @copydoc Dali::DevelWindow::IncludeInputRegion()
+   * @copydoc Dali::Window::IncludeInputRegion()
    */
   void IncludeInputRegion(const BoundsInteger& inputRegion);
 
   /**
-   * @copydoc Dali::DevelWindow::ExcludeInputRegion()
+   * @copydoc Dali::Window::ExcludeInputRegion()
    */
   void ExcludeInputRegion(const BoundsInteger& inputRegion);
 
@@ -528,12 +523,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void SendRotationCompletedAcknowledgement();
 
   /**
-   * @copydoc Dali::DevelWindow::IsWindowRotating()
+   * @copydoc Dali::Window::IsOrientationChanging()
    */
-  bool IsWindowRotating() const;
+  bool IsOrientationChanging() const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetLastKeyEvent()
+   * @copydoc Dali::Window::GetLastKeyEvent()
    */
   const Dali::KeyEvent& GetLastKeyEvent() const;
 
@@ -588,14 +583,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool GetFullScreen();
 
   /**
-   * @copydoc Dali::DevelWindow::SetFrontBufferRendering()
+   * @copydoc Dali::Window::SetFrontBufferRenderingEnabled()
    */
-  void SetFrontBufferRendering(bool enable);
+  void SetFrontBufferRenderingEnabled(bool enable);
 
   /**
-   * @copydoc Dali::DevelWindow::GetFrontBufferRendering()
+   * @copydoc Dali::Window::IsFrontBufferRenderingEnabled()
    */
-  bool GetFrontBufferRendering();
+  bool IsFrontBufferRenderingEnabled() const;
 
   /**
    * @copydoc Dali::DevelWindow::SetModal()
@@ -608,14 +603,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsModal();
 
   /**
-   * @copydoc Dali::DevelWindow::SetAlwaysOnTop()
+   * @copydoc Dali::Window::SetAlwaysOnTop()
    */
   void SetAlwaysOnTop(bool alwaysOnTop);
 
   /**
-   * @copydoc Dali::DevelWindow::IsAlwaysOnTop()
+   * @copydoc Dali::Window::IsAlwaysOnTop()
    */
-  bool IsAlwaysOnTop();
+  bool IsAlwaysOnTop() const;
 
   /**
    * @copydoc Dali::DevelWindow::SetBottom()
@@ -1264,7 +1259,7 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1;            ///< The window rotating flag.
+  bool mIsOrientationChanging : 1;       ///< The orientation changing flag.
   bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.

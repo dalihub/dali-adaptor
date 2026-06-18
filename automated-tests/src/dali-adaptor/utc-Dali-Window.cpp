@@ -191,7 +191,7 @@ int UtcDaliWindowMaximizeN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::Maximize(instance, true);
+    instance.Maximize(true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -207,7 +207,7 @@ int UtcDaliWindowIsMaximizedN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::IsMaximized(instance);
+    instance.IsMaximized();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -224,7 +224,7 @@ int UtcDaliWindowSetMaximumSizeN(void)
   {
     Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
-    DevelWindow::SetMaximumSize(instance, size);
+    instance.SetMaximumSize(size);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -240,7 +240,7 @@ int UtcDaliWindowMinimizeN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::Minimize(instance, true);
+    instance.Minimize(true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -256,7 +256,7 @@ int UtcDaliWindowIsMinimizedN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::IsMinimized(instance);
+    instance.IsMinimized();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -267,13 +267,13 @@ int UtcDaliWindowIsMinimizedN(void)
   END_TEST;
 }
 
-int UtcDaliWindowSetMimimumSizeN(void)
+int UtcDaliWindowSetMinimumSizeN(void)
 {
   try
   {
     Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
-    DevelWindow::SetMimimumSize(instance, size);
+    instance.SetMinimumSize(size);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -1226,7 +1226,7 @@ int UtcDaliWindowGetNativeIdNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetNativeId(arg1);
+    arg1.GetNativeId();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1272,7 +1272,7 @@ int UtcDaliWindowGetCurrentOrientationNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetCurrentOrientation(arg1);
+    arg1.GetCurrentOrientation();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1319,7 +1319,7 @@ int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
     Dali::Window        arg1;
     Dali::CallbackBase* arg2 = nullptr;
     int                 arg3(0);
-    DevelWindow::AddFrameRenderedCallback(arg1, arg2, arg3);
+    arg1.AddFrameRenderedCallback(arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1335,7 +1335,7 @@ int UtcDaliWindowSetAvailableOrientationsNegative(void)
   {
     Dali::Window                          arg1;
     Dali::Vector<Dali::WindowOrientation> arg2;
-    DevelWindow::SetAvailableOrientations(arg1, arg2);
+    arg1.SetAvailableOrientations(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1352,7 +1352,7 @@ int UtcDaliWindowAddFramePresentedCallbackNegative(void)
     Dali::Window        arg1;
     Dali::CallbackBase* arg2 = nullptr;
     int                 arg3(0);
-    DevelWindow::AddFramePresentedCallback(arg1, arg2, arg3);
+    arg1.AddFramePresentedCallback(arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1397,7 +1397,7 @@ int UtcDaliWindowUnparentNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::Unparent(arg1);
+    arg1.Unparent();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1412,7 +1412,7 @@ int UtcDaliWindowGetParentNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetParent(arg1);
+    arg1.GetParent();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1428,7 +1428,7 @@ int UtcDaliWindowSetParentNegative(void)
   {
     Dali::Window arg1;
     Dali::Window arg2;
-    DevelWindow::SetParent(arg1, arg2);
+    arg1.SetParent(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1444,7 +1444,7 @@ int UtcDaliWindowSetParentWithBelowParentNegative(void)
   {
     Dali::Window arg1;
     Dali::Window arg2;
-    DevelWindow::SetParent(arg1, arg2, true);
+    arg1.SetParent(arg2, true);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1460,7 +1460,7 @@ int UtcDaliWindowAddInputRegion(void)
   try
   {
     BoundsInteger includedInputRegion(0, 0, 720, 640);
-    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+    instance.IncludeInputRegion(includedInputRegion);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1476,10 +1476,10 @@ int UtcDaliWindowSubtractInputRegion(void)
   try
   {
     BoundsInteger includedInputRegion(0, 0, 720, 1280);
-    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+    instance.IncludeInputRegion(includedInputRegion);
 
     BoundsInteger excludedInputRegion(0, 641, 720, 640);
-    DevelWindow::ExcludeInputRegion(instance, excludedInputRegion);
+    instance.ExcludeInputRegion(excludedInputRegion);
 
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1646,7 +1646,7 @@ int UtcDaliWindowGetLastPanGestureState(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetLastPanGestureState(arg1);
+    arg1.GetLastPanGestureState();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

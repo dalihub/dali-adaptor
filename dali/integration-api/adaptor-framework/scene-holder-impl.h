@@ -220,7 +220,7 @@ public:
    *
    * @return Dali::GestureState
    */
-  Dali::GestureState GetLastPanGestureState();
+  Dali::GestureState GetLastPanGestureState() const;
 
   /**
    * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent

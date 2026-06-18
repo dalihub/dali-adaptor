@@ -96,7 +96,7 @@ bool IsSubWindow(Accessible* accessible)
   if(baseHandle)
   {
     auto window = Dali::Window::DownCast(baseHandle);
-    return DALI_LIKELY(Dali::DevelWindow::GetParent(window));
+    return DALI_LIKELY(window.GetParent());
   }
   return false;
 }

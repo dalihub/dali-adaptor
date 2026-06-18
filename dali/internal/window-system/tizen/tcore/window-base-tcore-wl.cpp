@@ -2905,7 +2905,7 @@ bool WindowBaseTcoreWl::IsMinimized() const
   return false;
 }
 
-void WindowBaseTcoreWl::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseTcoreWl::SetMinimumSize(Dali::Window::WindowSize size)
 {
   if(mTcoreWindow)
   {
@@ -4322,12 +4322,12 @@ bool WindowBaseTcoreWl::GetFullScreen()
   return false;
 }
 
-void WindowBaseTcoreWl::SetFrontBufferRendering(bool enable)
+void WindowBaseTcoreWl::SetFrontBufferRenderingEnabled(bool enable)
 {
   mIsFrontBufferRendering = enable;
 }
 
-bool WindowBaseTcoreWl::GetFrontBufferRendering()
+bool WindowBaseTcoreWl::IsFrontBufferRenderingEnabled() const
 {
   return mIsFrontBufferRendering;
 }
@@ -4381,7 +4381,7 @@ void WindowBaseTcoreWl::SetAlwaysOnTop(bool alwaysOnTop)
   }
 }
 
-bool WindowBaseTcoreWl::IsAlwaysOnTop()
+bool WindowBaseTcoreWl::IsAlwaysOnTop() const
 {
   if(mTcoreWindow)
   {
