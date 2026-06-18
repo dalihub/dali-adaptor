@@ -526,9 +526,9 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
         Vector3 vec(1.0f, 1.0f, 1.0f);
         if(val.Get(vec))
         {
-          color->r = Min(255, Max(0, (int)(vec.r * 255.0f)));
-          color->g = Min(255, Max(0, (int)(vec.g * 255.0f)));
-          color->b = Min(255, Max(0, (int)(vec.b * 255.0f)));
+          color->r = Min(255, Max(0, static_cast<int>(vec.r * 255.0f)));
+          color->g = Min(255, Max(0, static_cast<int>(vec.g * 255.0f)));
+          color->b = Min(255, Max(0, static_cast<int>(vec.b * 255.0f)));
           return true;
         }
         break;
@@ -538,10 +538,10 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
       case VectorProperty::STROKE_OPACITY:
       {
         auto  opacity = static_cast<uint8_t*>(value);
-        float o       = 100.0f;
+        float o       = 1.0f;
         if(val.Get(o))
         {
-          *opacity = Min(255, Max(0, (int)(o / 100.0f * 255.0f)));
+          *opacity = Min(255, Max(0, static_cast<int>(o * 255.0f)));
           return true;
         }
         break;
@@ -655,7 +655,7 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
 
   // Remove existing callback for the same keypath and property to prevent bloat/conflict
   mPropertyCallbacks.erase(std::remove_if(mPropertyCallbacks.begin(), mPropertyCallbacks.end(), [&](const std::shared_ptr<PropertyCallback>& p)
-                                          { return p->keyPath == keyPath && p->property == property; }),
+  { return p->keyPath == keyPath && p->property == property; }),
                            mPropertyCallbacks.end());
 
   auto cb      = std::make_shared<PropertyCallback>();

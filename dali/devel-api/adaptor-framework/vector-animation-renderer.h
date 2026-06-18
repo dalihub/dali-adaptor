@@ -50,16 +50,16 @@ class DALI_ADAPTOR_API VectorAnimationRenderer : public BaseHandle
 public:
   enum class VectorProperty
   {
-    FILL_COLOR,         ///< Fill color of the object, Type Property::VECTOR3
-    FILL_OPACITY,       ///< Fill opacity of the object, Type Property::FLOAT
-    STROKE_COLOR,       ///< Stroke color of the object, Type Property::VECTOR3
-    STROKE_OPACITY,     ///< Stroke opacity of the object, Type Property::FLOAT
+    FILL_COLOR,         ///< Fill color of the object, Type Property::VECTOR3 [0..1] per channel
+    FILL_OPACITY,       ///< Fill opacity of the object, Type Property::FLOAT [0..1]
+    STROKE_COLOR,       ///< Stroke color of the object, Type Property::VECTOR3 [0..1] per channel
+    STROKE_OPACITY,     ///< Stroke opacity of the object, Type Property::FLOAT [0..1]
     STROKE_WIDTH,       ///< Stroke width of the object, Type Property::FLOAT
     TRANSFORM_ANCHOR,   ///< Transform anchor of the Layer and Group object, Type Property::VECTOR2
     TRANSFORM_POSITION, ///< Transform position of the Layer and Group object, Type Property::VECTOR2
-    TRANSFORM_SCALE,    ///< Transform scale of the Layer and Group object, Type Property::VECTOR2 [0..100]
+    TRANSFORM_SCALE,    ///< Transform scale of the Layer and Group object, Type Property::VECTOR2 in percent (100 = original size)
     TRANSFORM_ROTATION, ///< Transform rotation of the Layer and Group object, Type Property::FLOAT [0..360] in degrees
-    TRANSFORM_OPACITY,  ///< Transform opacity of the Layer and Group object, Type Property::FLOAT
+    TRANSFORM_OPACITY,  ///< Transform opacity of the Layer and Group object, Type Property::FLOAT [0..1]
     TRIM_START,         ///< Trim Start property of Shape object , value type is float [ 0 .. 100] */
     TRIM_END            ///< Trim End property of Shape object , value type Property::VECTOR2 [0..100] */
   };
