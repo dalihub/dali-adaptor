@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
+#include <locale>
 #include <sstream>
 
 namespace
@@ -56,10 +57,10 @@ void ApplyAspectFitSize(tvg::Picture* picture, uint32_t defaultWidth, uint32_t d
 
   if(targetWidth > 0 && targetHeight > 0)
   {
-    const float targetW   = static_cast<float>(targetWidth);
-    const float targetH   = static_cast<float>(targetHeight);
-    const float defaultW  = static_cast<float>(defaultWidth);
-    const float defaultH  = static_cast<float>(defaultHeight);
+    const float targetW  = static_cast<float>(targetWidth);
+    const float targetH  = static_cast<float>(targetHeight);
+    const float defaultW = static_cast<float>(defaultWidth);
+    const float defaultH = static_cast<float>(defaultHeight);
 
     const float scale = std::min(targetW / defaultW, targetH / defaultH);
 
@@ -499,114 +500,162 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
     return;
   }
 
-  static auto wrapper = [](float frameNo, void* value, void* data) -> bool {
-      auto cbObj = static_cast<PropertyCallback*>(data);
-      if (!cbObj || !cbObj->callback) return false;
+  static auto wrapper = [](float frameNo, void* value, void* data) -> bool
+  {
+    auto cbObj = static_cast<PropertyCallback*>(data);
+    if(!cbObj || !cbObj->callback) return false;
 
-      Property::Value val = CallbackBase::ExecuteReturn<Property::Value>(*(cbObj->callback), cbObj->id, cbObj->property, static_cast<uint32_t>(frameNo));
+    Property::Value val = CallbackBase::ExecuteReturn<Property::Value>(*(cbObj->callback), cbObj->id, cbObj->property, static_cast<uint32_t>(frameNo));
 
-      switch (cbObj->property) {
-          case VectorProperty::FILL_COLOR:
-          case VectorProperty::STROKE_COLOR: {
-              struct TVGRGB32 { int32_t r, g, b; };
-              auto color = static_cast<TVGRGB32*>(value);
-              Vector3 vec(1.0f, 1.0f, 1.0f);
-              if (val.Get(vec)) {
-                  color->r = std::min(255, std::max(0, (int)(vec.r * 255.0f)));
-                  color->g = std::min(255, std::max(0, (int)(vec.g * 255.0f)));
-                  color->b = std::min(255, std::max(0, (int)(vec.b * 255.0f)));
-                  return true;
-              }
-              break;
-          }
-          case VectorProperty::TRANSFORM_OPACITY:
-          case VectorProperty::FILL_OPACITY:
-          case VectorProperty::STROKE_OPACITY: {
-              auto opacity = static_cast<uint8_t*>(value);
-              float o = 100.0f;
-              if (val.Get(o)) {
-                  *opacity = std::min(255, std::max(0, (int)(o / 100.0f * 255.0f)));
-                  return true;
-              }
-              break;
-          }
-          case VectorProperty::STROKE_WIDTH:
-          case VectorProperty::TRANSFORM_ROTATION: {
-              auto scalar = static_cast<float*>(value);
-              float s = 0.0f;
-              if (val.Get(s)) {
-                  *scalar = s;
-                  return true;
-              }
-              break;
-          }
-          case VectorProperty::TRIM_START: {
-              auto scalar = static_cast<float*>(value);
-              float s = 0.0f;
-              if (val.Get(s)) {
-                  *scalar = s;
-                  return true;
-              }
-              break;
-          }
-          case VectorProperty::TRIM_END: {
-              auto range = static_cast<float*>(value);
-              Vector2 vec2;
-              if (val.Get(vec2)) {
-                  range[0] = vec2.x;
-                  range[1] = vec2.y;
-                  return true;
-              }
-              float s = 0.0f;
-              if (val.Get(s)) {
-                  range[0] = 0.0f;
-                  range[1] = s;
-                  return true;
-              }
-              break;
-          }
-          case VectorProperty::TRANSFORM_POSITION:
-          case VectorProperty::TRANSFORM_SCALE: {
-              struct TVGPoint { float x, y; };
-              auto pt = static_cast<TVGPoint*>(value);
-              Vector2 vec2(0.0f, 0.0f);
-              if (val.Get(vec2)) {
-                  pt->x = vec2.x;
-                  pt->y = vec2.y;
-                  return true;
-              }
-              break;
-          }
-          default: break;
+    switch(cbObj->property)
+    {
+      case VectorProperty::FILL_COLOR:
+      case VectorProperty::STROKE_COLOR:
+      {
+        struct TVGRGB32
+        {
+          int32_t r, g, b;
+        };
+        auto    color = static_cast<TVGRGB32*>(value);
+        Vector3 vec(1.0f, 1.0f, 1.0f);
+        if(val.Get(vec))
+        {
+          color->r = std::min(255, std::max(0, static_cast<int>(vec.r * 255.0f)));
+          color->g = std::min(255, std::max(0, static_cast<int>(vec.g * 255.0f)));
+          color->b = std::min(255, std::max(0, static_cast<int>(vec.b * 255.0f)));
+          return true;
+        }
+        break;
       }
-      return false;
+      case VectorProperty::TRANSFORM_OPACITY:
+      case VectorProperty::FILL_OPACITY:
+      case VectorProperty::STROKE_OPACITY:
+      {
+        auto  opacity = static_cast<uint8_t*>(value);
+        float o       = 1.0f;
+        if(val.Get(o))
+        {
+          *opacity = std::min(255, std::max(0, static_cast<int>(o * 255.0f)));
+          return true;
+        }
+        break;
+      }
+      case VectorProperty::STROKE_WIDTH:
+      case VectorProperty::TRANSFORM_ROTATION:
+      {
+        auto  scalar = static_cast<float*>(value);
+        float s      = 0.0f;
+        if(val.Get(s))
+        {
+          *scalar = s;
+          return true;
+        }
+        break;
+      }
+      case VectorProperty::TRIM_START:
+      {
+        auto  scalar = static_cast<float*>(value);
+        float s      = 0.0f;
+        if(val.Get(s))
+        {
+          *scalar = s;
+          return true;
+        }
+        break;
+      }
+      case VectorProperty::TRIM_END:
+      {
+        auto    range = static_cast<float*>(value);
+        Vector2 vec2;
+        if(val.Get(vec2))
+        {
+          range[0] = vec2.x;
+          range[1] = vec2.y;
+          return true;
+        }
+        float s = 0.0f;
+        if(val.Get(s))
+        {
+          range[0] = 0.0f;
+          range[1] = s;
+          return true;
+        }
+        break;
+      }
+      case VectorProperty::TRANSFORM_POSITION:
+      case VectorProperty::TRANSFORM_SCALE:
+      {
+        struct TVGPoint
+        {
+          float x, y;
+        };
+        auto    pt = static_cast<TVGPoint*>(value);
+        Vector2 vec2(0.0f, 0.0f);
+        if(val.Get(vec2))
+        {
+          pt->x = vec2.x;
+          pt->y = vec2.y;
+          return true;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return false;
   };
 
   // Common path for all properties
   tvg::LottiePropertyId lottieProp = tvg::LottiePropertyId::Unknown;
-  switch (property) {
-    case VectorProperty::FILL_COLOR:       lottieProp = tvg::LottiePropertyId::FillColor;          break;
-    case VectorProperty::FILL_OPACITY:     lottieProp = tvg::LottiePropertyId::FillOpacity;        break;
-    case VectorProperty::STROKE_COLOR:     lottieProp = tvg::LottiePropertyId::StrokeColor;        break;
-    case VectorProperty::STROKE_OPACITY:   lottieProp = tvg::LottiePropertyId::StrokeOpacity;      break;
-    case VectorProperty::STROKE_WIDTH:     lottieProp = tvg::LottiePropertyId::StrokeWidth;        break;
-    case VectorProperty::TRIM_START:       lottieProp = tvg::LottiePropertyId::TrimStart;          break;
-    case VectorProperty::TRIM_END:         lottieProp = tvg::LottiePropertyId::TrimEnd;            break;
-    case VectorProperty::TRANSFORM_POSITION: lottieProp = tvg::LottiePropertyId::TransformPosition; break;
-    case VectorProperty::TRANSFORM_SCALE:  lottieProp = tvg::LottiePropertyId::TransformScale;     break;
-    case VectorProperty::TRANSFORM_ROTATION: lottieProp = tvg::LottiePropertyId::TransformRotation; break;
-    case VectorProperty::TRANSFORM_OPACITY: lottieProp = tvg::LottiePropertyId::TransformOpacity;  break;
-    default: delete callback; return; // unsupported – must free since callback ownership not yet transferred
+  switch(property)
+  {
+    case VectorProperty::FILL_COLOR:
+      lottieProp = tvg::LottiePropertyId::FillColor;
+      break;
+    case VectorProperty::FILL_OPACITY:
+      lottieProp = tvg::LottiePropertyId::FillOpacity;
+      break;
+    case VectorProperty::STROKE_COLOR:
+      lottieProp = tvg::LottiePropertyId::StrokeColor;
+      break;
+    case VectorProperty::STROKE_OPACITY:
+      lottieProp = tvg::LottiePropertyId::StrokeOpacity;
+      break;
+    case VectorProperty::STROKE_WIDTH:
+      lottieProp = tvg::LottiePropertyId::StrokeWidth;
+      break;
+    case VectorProperty::TRIM_START:
+      lottieProp = tvg::LottiePropertyId::TrimStart;
+      break;
+    case VectorProperty::TRIM_END:
+      lottieProp = tvg::LottiePropertyId::TrimEnd;
+      break;
+    case VectorProperty::TRANSFORM_POSITION:
+      lottieProp = tvg::LottiePropertyId::TransformPosition;
+      break;
+    case VectorProperty::TRANSFORM_SCALE:
+      lottieProp = tvg::LottiePropertyId::TransformScale;
+      break;
+    case VectorProperty::TRANSFORM_ROTATION:
+      lottieProp = tvg::LottiePropertyId::TransformRotation;
+      break;
+    case VectorProperty::TRANSFORM_OPACITY:
+      lottieProp = tvg::LottiePropertyId::TransformOpacity;
+      break;
+    default:
+      delete callback;
+      return; // unsupported – must free since callback ownership not yet transferred
   }
 
   // Remove existing callback for the same keypath and property to prevent bloat/conflict
   mPropertyCallbacks.erase(std::remove_if(mPropertyCallbacks.begin(), mPropertyCallbacks.end(),
-                                         [&](const std::shared_ptr<PropertyCallback>& p) {
-                                           return p->keyPath == keyPath && p->property == property;
-                                         }),
-                          mPropertyCallbacks.end());
+                                          [&](const std::shared_ptr<PropertyCallback>& p)
+  {
+    return p->keyPath == keyPath && p->property == property;
+  }),
+                           mPropertyCallbacks.end());
 
-  auto cb = std::make_shared<PropertyCallback>();
+  auto cb      = std::make_shared<PropertyCallback>();
   cb->keyPath  = keyPath;
   cb->property = property;
   cb->callback = std::unique_ptr<CallbackBase>(callback);
@@ -640,8 +689,8 @@ void VectorAnimationRendererNative::SetEnableAspectFit(bool enable)
 
   if(mEnableAspectFit != enable)
   {
-    mEnableAspectFit = enable;
-    mPendingSizeUpdate = true;  // Trigger size update to apply new setting
+    mEnableAspectFit   = enable;
+    mPendingSizeUpdate = true; // Trigger size update to apply new setting
   }
 }
 
@@ -819,7 +868,11 @@ float ExtractJsonNumber(const std::string& json, size_t pos, size_t& endPos)
   endPos = pos;
   try
   {
-    return std::stof(json.substr(start, pos - start));
+    std::istringstream iss(json.substr(start, pos - start));
+    iss.imbue(std::locale::classic());
+    float value;
+    iss >> value;
+    return value;
   }
   catch(...)
   {
@@ -835,9 +888,9 @@ void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t
   // Find the top-level array by looking for the pattern at the root level
   // We need to skip any nested arrays with the same key (e.g., assets[].layers)
   std::string searchKey = std::string("\"") + arrayKey + "\"";
-  size_t arrPos = 0;
-  int depth = 0;
-  bool inString = false;
+  size_t      arrPos    = 0;
+  int         depth     = 0;
+  bool        inString  = false;
 
   // Search for the top-level occurrence of the key
   for(size_t i = 0; i < jsonContent.size(); ++i)
@@ -848,7 +901,7 @@ void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t
     {
       if(ch == '\\' && i + 1 < jsonContent.size())
       {
-        ++i;  // skip escaped character
+        ++i; // skip escaped character
         continue;
       }
       if(ch == '"')
@@ -990,9 +1043,12 @@ void VectorAnimationRendererNative::ParseLottieMetadata() const
   if(jsonContent.empty() && !mUrl.empty())
   {
     std::ifstream file(mUrl, std::ios::binary);
+    file.imbue(std::locale::classic());
     if(file.is_open())
     {
       std::ostringstream ss;
+      ss.imbue(std::locale::classic());
+
       ss << file.rdbuf();
       jsonContent = ss.str();
     }
