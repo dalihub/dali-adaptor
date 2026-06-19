@@ -19,13 +19,13 @@
 #include <dali/internal/window-system/x11/window-system-x.h>
 
 // INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/public-api/adaptor-framework/keyboard.h>
 #include <algorithm>
 
 // EXTERNAL_HEADERS

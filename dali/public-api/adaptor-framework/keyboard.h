@@ -40,6 +40,7 @@ namespace Keyboard
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if setting the keyboard repeat succeeds
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool SetRepeatInfo(float rate, float delay);
 
@@ -49,6 +50,7 @@ DALI_ADAPTOR_API bool SetRepeatInfo(float rate, float delay);
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if getting the keyboard repeat succeeds, false otherwise
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool GetRepeatInfo(float& rate, float& delay);
 
@@ -58,6 +60,7 @@ DALI_ADAPTOR_API bool GetRepeatInfo(float& rate, float& delay);
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if setting the keyboard repeat succeeds
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool SetHorizontalRepeatInfo(float rate, float delay);
 
@@ -67,6 +70,7 @@ DALI_ADAPTOR_API bool SetHorizontalRepeatInfo(float rate, float delay);
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if getting the keyboard repeat succeeds, false otherwise
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool GetHorizontalRepeatInfo(float& rate, float& delay);
 
@@ -76,6 +80,7 @@ DALI_ADAPTOR_API bool GetHorizontalRepeatInfo(float& rate, float& delay);
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if setting the keyboard repeat succeeds
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool SetVerticalRepeatInfo(float rate, float delay);
 
@@ -85,6 +90,7 @@ DALI_ADAPTOR_API bool SetVerticalRepeatInfo(float rate, float delay);
  * @param[in] rate The key repeat rate value in seconds
  * @param[in] delay The key repeat delay value in seconds
  * @return true if getting the keyboard repeat succeeds, false otherwise
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API bool GetVerticalRepeatInfo(float& rate, float& delay);
 
@@ -101,6 +107,7 @@ using RepeatSettingsChangedSignalType = Dali::Signal<void()>;
  *   void YourCallbackName();
  * @endcode
  * @return The signal to connect to
+ * @SINCE_2_5.28
  */
 DALI_ADAPTOR_API RepeatSettingsChangedSignalType& RepeatSettingsChangedSignal();
 

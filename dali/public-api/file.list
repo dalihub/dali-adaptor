@@ -35,6 +35,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/input-method.h
   ${adaptor_public_api_dir}/adaptor-framework/key.h
   ${adaptor_public_api_dir}/adaptor-framework/key-grab.h
+  ${adaptor_public_api_dir}/adaptor-framework/keyboard.h
   ${adaptor_public_api_dir}/adaptor-framework/style-change.h
   ${adaptor_public_api_dir}/adaptor-framework/timer.h
   ${adaptor_public_api_dir}/adaptor-framework/native-image.h

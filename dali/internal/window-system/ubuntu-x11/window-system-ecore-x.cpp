@@ -22,8 +22,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/internal/window-system/common/window-system.h>
+#include <dali/public-api/adaptor-framework/keyboard.h>
 #include <memory>
 
 namespace Dali

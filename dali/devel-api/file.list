@@ -84,7 +84,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-input.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loading.h
-  ${adaptor_devel_api_dir}/adaptor-framework/keyboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.h
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-in-out-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-relative-event.h
