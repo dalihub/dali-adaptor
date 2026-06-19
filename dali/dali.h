@@ -27,6 +27,7 @@
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
+#include <dali/public-api/adaptor-framework/input-method-context.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
