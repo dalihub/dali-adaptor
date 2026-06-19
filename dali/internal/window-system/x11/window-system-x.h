@@ -108,7 +108,7 @@ public:
   /**
    * destructor
    */
-  virtual ~WindowSystemX();
+  ~WindowSystemX();
 
   /**
    * Get the screen size
