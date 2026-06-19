@@ -236,6 +236,7 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
   {
     // Get cache count before we load the library to ensure the library does indeed load an addon
     const auto cacheCountBeforeLibraryLoad = mAddOnCache.size();
+    const auto nameCountBeforeLibraryLoad  = mAddOnNames.size();
 
     // Attempt to load the library if not found in the cache
     auto* handle = dlopen(libraryName.c_str(), mDlopenFlags);
@@ -262,6 +263,11 @@ AddOnLibrary AddOnManagerLinux::LoadAddOn(const std::string& addonName, const st
       if(!addOnLibrary)
       {
         DALI_LOG_ERROR("Can't find %s addon in %s library\n", addonName.c_str(), libraryName.c_str());
+        if(cacheCountAfterLibraryLoad > cacheCountBeforeLibraryLoad)
+        {
+          mAddOnCache.resize(cacheCountBeforeLibraryLoad);
+          mAddOnNames.resize(nameCountBeforeLibraryLoad);
+        }
         dlclose(handle);
       }
     }

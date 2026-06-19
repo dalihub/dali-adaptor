@@ -867,10 +867,12 @@ bool DecodeRLE4(FILE*          fp,
             DALI_PRINT_SYSTEM_ERROR_LOG();
             return false;
           }
+          if(x >= (width << 1) || y >= height) break;
           if((x & 1) == 0)
           {
             length += (length & 1);
             length >>= 1;
+            length = std::min(length, (std::uint32_t)(width - (x >> 1)));
             for(std::uint32_t i = 0; i < length; ++i)
             {
               colorIndex[(x >> 1) + width * (height - y - 1) + i] = run[i];
@@ -897,6 +899,8 @@ bool DecodeRLE4(FILE*          fp,
     else
     {
       std::uint32_t length = cmd[0] & (0xFF);
+      if(x >= (width << 1) || y >= height) break;
+      length = std::min(length, (std::uint32_t)((width << 1) - x));
       if((x & 1) == 0)
       {
         length += (length & 1);
@@ -1040,6 +1044,8 @@ bool DecodeRLE8(FILE*          fp,
             return false;
           }
 
+          if(x >= width || y >= height) break;
+          length = std::min(length, (std::uint32_t)(width - x));
           for(std::uint32_t i = 0; i < length; ++i)
           {
             colorIndex[x + width * (height - y - 1) + i] = run[i];
@@ -1051,6 +1057,8 @@ bool DecodeRLE8(FILE*          fp,
     else
     {
       length = cmd[0] & (0xFF);
+      if(x >= width || y >= height) break;
+      length = std::min(length, (std::uint32_t)(width - x));
       for(std::uint32_t i = 0; i < length; ++i)
       {
         colorIndex[(height - y - 1) * width + x] = cmd[1];
