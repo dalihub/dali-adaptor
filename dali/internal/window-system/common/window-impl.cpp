@@ -26,7 +26,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <memory>
@@ -1157,7 +1157,7 @@ void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
   FeedKeyEvent(keyEvent);
 }
 
-void Window::OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent)
+void Window::OnMouseInOutEvent(const Dali::MouseInOutEvent& mouseInOutEvent)
 {
   Dali::Window handle(this);
 
@@ -1234,9 +1234,9 @@ void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value
   mAuxiliaryMessageSignal.Emit(key, value, options);
 }
 
-void Window::OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets)
+void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 {
-  mInsetsChangedSignal.Emit(partType, partState, insets);
+  mInsetsChangedSignal.Emit(Dali::Window(this), insetsInfo);
 }
 
 void Window::OnAccessibilityEnabled()

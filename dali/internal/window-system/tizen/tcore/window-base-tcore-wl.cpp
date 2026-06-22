@@ -26,7 +26,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -1799,15 +1799,15 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(name);
 
-    Dali::DevelWindow::MouseInOutEvent::Type action = (type == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::DevelWindow::MouseInOutEvent::Type::IN : Dali::DevelWindow::MouseInOutEvent::Type::OUT);
+    Dali::MouseInOutEvent::Type action = (type == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::MouseInOutEvent::Type::IN : Dali::MouseInOutEvent::Type::OUT);
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnMouseInOut: timestamp: %d, modifiers: %d, x: %d, y: %d\n", timestamp, modifiers, x, y);
 
-    Dali::DevelWindow::MouseInOutEvent inOutEvent(action, modifiers, Vector2(x, y), timestamp, deviceClass, deviceSubclass);
+    Dali::MouseInOutEvent inOutEvent(action, modifiers, Vector2(x, y), timestamp, deviceClass, deviceSubclass);
 
     mMouseInOutEventSignal.Emit(inOutEvent);
 
-    if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
+    if(action == Dali::MouseInOutEvent::Type::IN)
     {
       Integration::Point point;
       point.SetState(PointState::MOTION);
@@ -2257,7 +2257,7 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
         }
       }
 
-      mInsetsChangedSignal.Emit(insetsPartType, partState, Extents(left, right, top, bottom));
+      mInsetsChangedSignal.Emit(WindowInsetsInfo(insetsPartType, partState, Extents(left, right, top, bottom)));
     }
   }
 }

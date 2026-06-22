@@ -16,7 +16,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
 
@@ -47,16 +47,6 @@ EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window)
   return GetImplementation(window).EventProcessingFinishedSignal();
 }
 
-WheelEventSignalType& WheelEventSignal(Window window)
-{
-  return GetImplementation(window).WheelEventSignal();
-}
-
-VisibilityChangedSignalType& VisibilityChangedSignal(Window window)
-{
-  return GetImplementation(window).VisibilityChangedSignal();
-}
-
 TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window)
 {
   return GetImplementation(window).TransitionEffectEventSignal();
@@ -70,26 +60,6 @@ AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
 AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window)
 {
   return GetImplementation(window).AccessibilityHighlightSignal();
-}
-
-MovedSignalType& MovedSignal(Window window)
-{
-  return GetImplementation(window).MovedSignal();
-}
-
-OrientationChangedSignalType& OrientationChangedSignal(Window window)
-{
-  return GetImplementation(window).OrientationChangedSignal();
-}
-
-MoveCompletedSignalType& MoveCompletedSignal(Window window)
-{
-  return GetImplementation(window).MoveCompletedSignal();
-}
-
-ResizeCompletedSignalType& ResizeCompletedSignal(Window window)
-{
-  return GetImplementation(window).ResizeCompletedSignal();
 }
 
 int GetPhysicalOrientation(Window window)
@@ -235,16 +205,6 @@ void SetForceRendering(Window window, uint32_t frameCount)
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();
-}
-
-MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
-{
-  return GetImplementation(window).MouseInOutEventSignal();
-}
-
-InsetsChangedSignalType& InsetsChangedSignal(Window window)
-{
-  return GetImplementation(window).InsetsChangedSignal();
 }
 
 MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)

@@ -27,13 +27,13 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -76,11 +76,11 @@ public:
   typedef Signal<void()>                                                               WindowRedrawRequestSignalType;
   typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
   typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
-  typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
+  typedef Signal<void(const Dali::MouseInOutEvent&)>                                   MouseInOutEventSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseRelativeEvent&)>                   MouseRelativeEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               ResizeCompletedSignalType;
-  typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
+  typedef Signal<void(const Dali::WindowInsetsInfo&)>                                  InsetsChangedSignalType; // WindowBase는 Window를 모르므로 insets info만 전달
   typedef Signal<void(const Dali::Int32Pair&, bool, bool)>                             PointerConstraintsSignalType;
 
   // Input events
@@ -838,7 +838,7 @@ public:
   AuxiliaryMessageSignalType& AuxiliaryMessageSignal();
 
   /**
-   * @brief This signal is emitted when a mouse in or out event is recevied.
+   * @brief This signal is emitted when a mouse in or out event is received.
    */
   MouseInOutEventSignalType& MouseInOutEventSignal();
 

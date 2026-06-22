@@ -1264,7 +1264,7 @@ int UtcDaliWindowWheelEventSignalNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::WheelEventSignal(arg1);
+    arg1.WheelEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1309,7 +1309,7 @@ int UtcDaliWindowVisibilityChangedSignalNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::VisibilityChangedSignal(arg1);
+    arg1.VisibilityChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1548,7 +1548,7 @@ int UtcDaliWindowMovedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MovedSignal(instance);
+    instance.MovedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1563,7 +1563,7 @@ int UtcDaliWindowOrientationChangedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::OrientationChangedSignal(instance);
+    instance.OrientationChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1578,7 +1578,7 @@ int UtcDaliWindowMouseInOutSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MouseInOutEventSignal(instance);
+    instance.MouseInOutEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1608,7 +1608,7 @@ int UtcDaliWindowMoveCompletedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MoveCompletedSignal(instance);
+    instance.MoveCompletedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1623,7 +1623,22 @@ int UtcDaliWindowResizeCompletedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::ResizeCompletedSignal(instance);
+    instance.ResizeCompletedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowInsetsChangedSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.InsetsChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

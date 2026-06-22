@@ -28,8 +28,8 @@
 #include <dali/public-api/adaptor-framework/device-status.h>
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
-#include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/input-method-context.h>
+#include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/keyboard.h>
@@ -41,7 +41,7 @@
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/adaptor-framework/window-data.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-version.h>
 

@@ -23,7 +23,7 @@
 #include <dali/public-api/math/rect.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
