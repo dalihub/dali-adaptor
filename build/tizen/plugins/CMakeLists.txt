@@ -110,3 +110,51 @@ IF( CURL_FOUND)
 ELSE()
   MESSAGE( STATUS "CURL not found, dali2-file-download-plugin-curl will not be built" )
 ENDIF()
+
+# File Download download-provider plugin (Tizen only)
+IF( NOT APPLE )
+  PKG_CHECK_MODULES(DOWNLOAD_PROVIDER capi-web-url-download)
+
+  IF( DOWNLOAD_PROVIDER_FOUND )
+    MESSAGE( STATUS "capi-web-url-download found : ${DOWNLOAD_PROVIDER_VERSION} dali2-file-download-plugin-download-api will be built" )
+    SET( FILE_DOWNLOAD_API_PLUGIN_TARGET dali2-file-download-plugin-download-api )
+
+    SET( FILE_DOWNLOAD_API_PLUGIN_SOURCES ${file_download_plugin_download_api_src_files} )
+
+    ADD_LIBRARY( ${FILE_DOWNLOAD_API_PLUGIN_TARGET} ${LIBTYPE} ${FILE_DOWNLOAD_API_PLUGIN_SOURCES} )
+
+    SET( DALI_FILE_DOWNLOAD_API_PLUGIN_CFLAGS
+      ${DALICORE_CFLAGS}
+      ${DOWNLOAD_PROVIDER_CFLAGS}
+      ${DALI_ADAPTOR_CFLAGS}
+      ${COVERAGE}
+      -Wall
+    )
+
+    SET( DALI_FILE_DOWNLOAD_API_PLUGIN_LDFLAGS
+      ${DALICORE_LDFLAGS}
+      ${COVERAGE}
+      dali2-adaptor
+      ${DOWNLOAD_PROVIDER_LDFLAGS}
+      -ldl
+      -rdynamic
+    )
+
+    TARGET_LINK_LIBRARIES( ${FILE_DOWNLOAD_API_PLUGIN_TARGET} PRIVATE
+      ${DALI_FILE_DOWNLOAD_API_PLUGIN_LDFLAGS}
+    )
+
+    TARGET_COMPILE_OPTIONS( ${FILE_DOWNLOAD_API_PLUGIN_TARGET} PRIVATE
+      ${DALI_FILE_DOWNLOAD_API_PLUGIN_CFLAGS}
+    )
+
+    INCLUDE_DIRECTORIES(
+      ${DOWNLOAD_PROVIDER_INCLUDE_DIRS}
+      ${ROOT_SRC_DIR}
+    )
+
+    INSTALL( TARGETS ${FILE_DOWNLOAD_API_PLUGIN_TARGET} DESTINATION ${LIB_DIR} )
+  ELSE()
+    MESSAGE( STATUS "capi-web-url-download not found, dali2-file-download-plugin-download-api will not be built" )
+  ENDIF()
+ENDIF()

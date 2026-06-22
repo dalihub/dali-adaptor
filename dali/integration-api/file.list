@@ -12,6 +12,7 @@ SET( adaptor_integration_api_src_files
 
 SET( adaptor_integration_api_file_download_plugin_src_files
     ${adaptor_integration_api_dir}/adaptor-framework/file-download/file-download-plugin-proxy.cpp
+    ${adaptor_integration_api_dir}/adaptor-framework/file-download/remote-file-download-manager.cpp
 )
 
 SET( adaptor_integration_api_header_files
@@ -37,4 +38,5 @@ SET( adaptor_integration_api_header_files
 
 SET( adaptor_integration_api_file_download_plugin_header_files
     ${adaptor_integration_api_dir}/adaptor-framework/file-download/file-download-plugin-proxy.h
+    ${adaptor_integration_api_dir}/adaptor-framework/file-download/remote-file-download-manager.h
 )
