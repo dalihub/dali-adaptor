@@ -71,6 +71,16 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
 {
   Window* window                  = new Window();
   window->mIsTransparent          = windowData.GetTransparency();
+
+#ifdef DALI_PROFILE_UBUNTU
+  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
+  if(window->mIsTransparent)
+  {
+    DALI_LOG_RELEASE_INFO("Window::New: Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    window->mIsTransparent = false;
+  }
+#endif
+
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), windowData.GetScreen(), isUsePreLoader);
   return window;
