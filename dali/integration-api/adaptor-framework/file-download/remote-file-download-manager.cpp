@@ -42,9 +42,9 @@ RemoteFileDownloadManager RemoteFileDownloadManager::Get()
   return Internal::Adaptor::RemoteFileDownloadManager::Get();
 }
 
-bool RemoteFileDownloadManager::IsAvailable()
+bool RemoteFileDownloadManager::IsAsyncDownloadSupported()
 {
-  return Internal::Adaptor::RemoteFileDownloadManager::IsAvailable();
+  return Internal::Adaptor::RemoteFileDownloadManager::IsAsyncDownloadSupported();
 }
 
 RemoteFileDownloadManager::RequestId RemoteFileDownloadManager::StartDownload(const std::string& url,

@@ -70,7 +70,7 @@ public:
   /**
    * @brief Returns true if the loaded file-download plugin supports async download.
    */
-  static bool IsAvailable();
+  static bool IsAsyncDownloadSupported();
 
   /**
    * @brief Start an async download.

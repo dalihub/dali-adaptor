@@ -61,9 +61,9 @@ public:
   static Dali::RemoteFileDownloadManager Get();
 
   /**
-   * @copydoc Dali::RemoteFileDownloadManager::IsAvailable()
+   * @copydoc Dali::RemoteFileDownloadManager::IsAsyncDownloadSupported()
    */
-  static bool IsAvailable();
+  static bool IsAsyncDownloadSupported();
 
   /**
    * @copydoc Dali::RemoteFileDownloadManager::StartDownload()
