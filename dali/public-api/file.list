@@ -9,6 +9,7 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/window.cpp
   ${adaptor_public_api_dir}/adaptor-framework/timer.cpp
   ${adaptor_public_api_dir}/adaptor-framework/native-image.cpp
+  ${adaptor_public_api_dir}/text-abstraction/text-abstraction.cpp
   ${adaptor_public_api_dir}/adaptor-framework/ui-context.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
@@ -23,6 +24,10 @@ SET( adaptor_widget_public_api_src_files
 SET( public_api_header_files
   ${adaptor_public_api_dir}/dali-adaptor-version.h
   ${adaptor_public_api_dir}/dali-adaptor-common.h
+)
+
+SET( public_api_text_abstraction_header_files
+  ${adaptor_public_api_dir}/text-abstraction/text-abstraction.h
 )
 
 SET( public_api_adaptor_framework_header_files

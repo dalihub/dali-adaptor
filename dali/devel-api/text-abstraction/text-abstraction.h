@@ -1,5 +1,5 @@
-#ifndef DALI_TEXT_ABSTRACTION_H
-#define DALI_TEXT_ABSTRACTION_H
+#ifndef DALI_DEVEL_TEXT_ABSTRACTION_H
+#define DALI_DEVEL_TEXT_ABSTRACTION_H
 
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
@@ -29,4 +29,4 @@
 #include <dali/devel-api/text-abstraction/segmentation.h>
 #include <dali/devel-api/text-abstraction/shaping.h>
 
-#endif // DALI_TEXT_ABSTRACTION_H
+#endif // DALI_DEVEL_TEXT_ABSTRACTION_H
