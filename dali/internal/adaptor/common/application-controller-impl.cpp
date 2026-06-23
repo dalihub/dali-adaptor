@@ -353,11 +353,6 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
     activeWindowData.SetScreen(mWindowData->GetScreen());
   }
 
-#ifdef DALI_PROFILE_UBUNTU
-  // Transparent window is not supported on Ubuntu platform.
-  activeWindowData.SetTransparency(false);
-#endif
-
   WindowSystem::Initialize();
 
   Dali::Any                        surface;

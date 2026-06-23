@@ -57,6 +57,11 @@ Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int 
 {
   return 0;
 }
+
+Ecore_X_Window ecore_x_window_new(Ecore_X_Window parent, int x, int y, int w, int h)
+{
+  return 0;
+}
 }
 
 int UtcDaliWindowConstructorP(void)
@@ -104,9 +109,11 @@ int UtcDaliWindowDestructorP(void)
   END_TEST;
 }
 
-int UtcDaliWindowNewN(void)
+int UtcDaliWindowNewP(void)
 {
-  // Attempt to create a new window
+  // On Ubuntu, transparency is forced to false (24-bit ColorDepth, RGB888).
+  // The test environment has no real display, so window creation fails with
+  // "Failed to create X window" (not EGL_BAD_MATCH from ColorDepth mismatch).
   try
   {
     PositionSize windowPosition(0, 0, 0, 0);
