@@ -21,6 +21,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <limits>
 
 namespace Dali
 {
@@ -1307,6 +1308,20 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       }
       break;
     }
+  }
+
+  if(DALI_UNLIKELY(pixelBufferW <= 0 || pixelBufferH <= 0))
+  {
+    DALI_LOG_ERROR("Invalid BMP image size\n");
+    return false;
+  }
+
+  const uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(newPixelFormat);
+  const uint64_t bufferSize    = static_cast<uint64_t>(pixelBufferW) * static_cast<uint64_t>(pixelBufferH) * bytesPerPixel;
+  if(DALI_UNLIKELY(bytesPerPixel == 0u || bufferSize > std::numeric_limits<uint32_t>::max()))
+  {
+    DALI_LOG_ERROR("Invalid BMP image buffer size\n");
+    return false;
   }
 
   bitmap      = Dali::Devel::PixelBuffer::New(pixelBufferW, pixelBufferH, newPixelFormat);

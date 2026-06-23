@@ -71,7 +71,7 @@ int extractMultiByteInteger(uint32_t* data, const uint8_t* const& map, size_t le
     {
       return -1;
     }
-    if(DALI_UNLIKELY(*position > length))
+    if(DALI_UNLIKELY(*position >= length))
     {
       return -1;
     }
