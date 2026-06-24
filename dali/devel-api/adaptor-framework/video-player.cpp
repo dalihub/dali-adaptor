@@ -64,13 +64,13 @@ VideoPlayer VideoPlayer::New(Dali::Actor actor, VideoSyncMode syncMode)
   return VideoPlayer(player.Get());
 }
 
-VideoPlayer VideoPlayer::New(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode)
+VideoPlayer VideoPlayer::New(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, VideoSyncMode syncMode)
 {
   Internal::Adaptor::VideoPlayerPtr player = Internal::Adaptor::VideoPlayer::New();
 
   if(player)
   {
-    player->Initialize(actor, playerHandle, syncMode);
+    player->Initialize(actor, source, syncMode);
   }
 
   return VideoPlayer(player.Get());

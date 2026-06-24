@@ -56,7 +56,7 @@ VideoPlayer::VideoPlayer()
 : mPlugin(NULL),
   mHandle(NULL),
   mCreateVideoPlayerPtr(NULL),
-  mCreateVideoPlayerByHandlePtr(NULL),
+  mCreateVideoPlayerBySourcePtr(NULL),
   mDestroyVideoPlayerPtr(NULL)
 {
 }
@@ -114,7 +114,7 @@ void VideoPlayer::Initialize(Dali::Actor actor, VideoSyncMode syncMode)
   }
 }
 
-void VideoPlayer::Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode)
+void VideoPlayer::Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, VideoSyncMode syncMode)
 {
   char* error = NULL;
 
@@ -123,24 +123,24 @@ void VideoPlayer::Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerH
   error = dlerror();
   if(mHandle == NULL || error != NULL)
   {
-    DALI_LOG_ERROR("VideoPlayer::Initialize(Actor, PlayerHandle), dlopen error: %s\n", error);
+    DALI_LOG_ERROR("VideoPlayer::Initialize(Actor, VideoSourceDescriptor), dlopen error: %s\n", error);
     return;
   }
 
-  mCreateVideoPlayerByHandlePtr = reinterpret_cast<CreateVideoPlayerByHandleFunction>(dlsym(mHandle, "CreateVideoPlayerPluginByHandle"));
+  mCreateVideoPlayerBySourcePtr = reinterpret_cast<CreateVideoPlayerBySourceFunction>(dlsym(mHandle, "CreateVideoPlayerPluginBySource"));
 
   error = dlerror();
-  if(mCreateVideoPlayerByHandlePtr == NULL || error != NULL)
+  if(mCreateVideoPlayerBySourcePtr == NULL || error != NULL)
   {
-    DALI_LOG_ERROR("Can't load symbol CreateVideoPlayerPluginByHandle(), error: %s\n", error);
+    DALI_LOG_ERROR("Can't load symbol CreateVideoPlayerPluginBySource(), error: %s\n", error);
     return;
   }
 
-  mPlugin = mCreateVideoPlayerByHandlePtr(actor, playerHandle, syncMode);
+  mPlugin = mCreateVideoPlayerBySourcePtr(actor, source, syncMode);
 
   if(mPlugin == NULL)
   {
-    DALI_LOG_ERROR("Can't create the VideoPlayerPlugin object from Handle with Actor\n");
+    DALI_LOG_ERROR("Can't create the VideoPlayerPlugin object from VideoSourceDescriptor with Actor\n");
     return;
   }
 
