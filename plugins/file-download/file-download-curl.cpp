@@ -236,7 +236,7 @@ size_t FUNCTION_CALL_FROM_CURL_PREFIX ChunkLoader(char* ptr, size_t size, size_t
   int                     numBytes = size * nmemb;
   chunks->push_back(ChunkData());
   ChunkData& chunkData = (*chunks)[chunks->size() - 1];
-  chunkData.data.reserve(numBytes);
+  chunkData.data.resize(numBytes);
   memcpy(&chunkData.data[0], ptr, numBytes);
   return numBytes;
 }
