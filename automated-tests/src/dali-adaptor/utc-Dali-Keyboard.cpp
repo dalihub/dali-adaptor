@@ -1,0 +1,147 @@
+/*
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+#include <dali-test-suite-utils.h>
+#include <dali/dali.h>
+
+using namespace Dali;
+
+void utc_dali_keyboard_startup(void)
+{
+  test_return_value = TET_UNDEF;
+}
+
+void utc_dali_keyboard_cleanup(void)
+{
+  test_return_value = TET_PASS;
+}
+
+int UtcDaliKeyboardSetRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.5f;
+    float delay = 0.2f;
+    Dali::Keyboard::SetRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardGetRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.0f;
+    float delay = 0.0f;
+    Dali::Keyboard::GetRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardSetHorizontalRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.5f;
+    float delay = 0.2f;
+    Dali::Keyboard::SetHorizontalRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardGetHorizontalRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.0f;
+    float delay = 0.0f;
+    Dali::Keyboard::GetHorizontalRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardSetVerticalRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.5f;
+    float delay = 0.2f;
+    Dali::Keyboard::SetVerticalRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardGetVerticalRepeatInfoP(void)
+{
+  try
+  {
+    float rate  = 0.0f;
+    float delay = 0.0f;
+    Dali::Keyboard::GetVerticalRepeatInfo(rate, delay);
+    DALI_TEST_CHECK(true); // Just check no exception is thrown
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliKeyboardRepeatSettingsChangedSignalP(void)
+{
+  try
+  {
+    DALI_TEST_CHECK(Dali::Keyboard::RepeatSettingsChangedSignal().GetConnectionCount() == 0);
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(false);
+  }
+
+  END_TEST;
+}

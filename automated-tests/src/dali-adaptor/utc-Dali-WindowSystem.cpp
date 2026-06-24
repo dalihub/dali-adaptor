@@ -17,7 +17,6 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
-#include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/devel-api/adaptor-framework/window-system-devel.h>
 
 using namespace Dali;
@@ -82,18 +81,5 @@ int UtcDaliWindowSystemGetAvailableScreensP(void)
     DALI_TEST_CHECK(false);
   }
 
-  END_TEST;
-}
-
-int UtcDaliKeyboardRepeatSettingsChangedSignalP(void)
-{
-  try
-  {
-    DALI_TEST_CHECK(Dali::Keyboard::RepeatSettingsChangedSignal().GetConnectionCount() == 0);
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(false);
-  }
   END_TEST;
 }

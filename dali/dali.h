@@ -32,6 +32,7 @@
 #include <dali/public-api/adaptor-framework/input-method-context.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
+#include <dali/public-api/adaptor-framework/keyboard.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/public-api/adaptor-framework/timer.h>

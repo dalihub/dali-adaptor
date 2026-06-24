@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/public-api/adaptor-framework/keyboard.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-system.h>
