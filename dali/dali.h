@@ -23,6 +23,8 @@
 // Application / UI Framework adaption
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/capture.h>
+#include <dali/public-api/adaptor-framework/clipboard-data.h>
+#include <dali/public-api/adaptor-framework/clipboard.h>
 #include <dali/public-api/adaptor-framework/device-status.h>
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>

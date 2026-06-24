@@ -63,6 +63,17 @@ const char* ToX11Target(const std::string& mimeType)
   return mimeType.c_str();
 }
 
+bool IsPlainTextMimeType(const std::string& mimeType)
+{
+  return mimeType == MIME_TYPE_TEXT_PLAIN_X11;
+}
+
+bool HasClipboardOwner()
+{
+  Ecore_X_Atom clipboardAtom = ecore_x_atom_get("CLIPBOARD");
+  return ecore_x_selection_owner_get(clipboardAtom) != 0u;
+}
+
 std::string FromX11Target(const char* target)
 {
   if(target == nullptr)
@@ -156,10 +167,9 @@ struct Clipboard::Impl
 
     // This is an availability check only. It does not query TARGETS.
     // The actual text request result is validated in ReceiveSelectionData().
-    if(mimeType == MIME_TYPE_TEXT_PLAIN_X11)
+    if(IsPlainTextMimeType(mimeType))
     {
-      Ecore_X_Atom clipboardAtom = ecore_x_atom_get("CLIPBOARD");
-      return ecore_x_selection_owner_get(clipboardAtom) != 0u;
+      return HasClipboardOwner();
     }
 
     return false;
@@ -181,10 +191,21 @@ struct Clipboard::Impl
     mDatas[mimeType] = data;
   }
 
-  bool SetData(const Dali::Clipboard::ClipData& clipData)
+  void EmitDataSelectionSignals(const char* mimeType)
   {
-    std::string mimeType = clipData.GetMimeType();
-    std::string data     = clipData.GetData();
+    const char*  safeMimeType = mimeType ? mimeType : "";
+    Dali::String offeredMimeType(safeMimeType);
+    mDataOfferedSignal.Emit(offeredMimeType);
+    mDataSelectedSignal.Emit(safeMimeType);
+  }
+
+  bool SetData(const Dali::ClipboardData& clipboardData)
+  {
+    Dali::String mimeTypeString = clipboardData.GetMimeType();
+    Dali::String contentString  = clipboardData.GetContent();
+
+    std::string mimeType = mimeTypeString.CStr();
+    std::string data     = contentString.CStr();
 
     if(mimeType.empty() || data.empty())
     {
@@ -201,7 +222,7 @@ struct Clipboard::Impl
       UpdateData(mimeType, data, true);
     }
 
-    if(mimeType == MIME_TYPE_TEXT_PLAIN_X11)
+    if(IsPlainTextMimeType(mimeType))
     {
       const int dataSize = static_cast<int>(data.size() + 1u);
       if(!ecore_x_selection_clipboard_set(mApplicationWindow, data.c_str(), dataSize))
@@ -217,11 +238,28 @@ struct Clipboard::Impl
     mLastType = mimeType;
 
     mDataSentSignal.Emit(mimeType.c_str(), data.c_str());
-    mDataSelectedSignal.Emit(mimeType.c_str());
+    EmitDataSelectionSignals(mimeType.c_str());
 
     SetMultiSelectionTimeout();
 
     return true;
+  }
+
+  uint32_t RequestLocalData(const std::string& mimeType)
+  {
+    const uint32_t requestId = GenerateDataId();
+
+    mDataReceiveQueue.push(std::make_pair(requestId, mimeType));
+
+    // For consistency of operation with tizen Wl2, a fake callback occurs using a timer.
+    if(mDataReceiveTimer.IsRunning())
+    {
+      mDataReceiveTimer.Stop();
+    }
+    mDataReceiveTimer.Start();
+
+    DALI_LOG_RELEASE_INFO("request local data, id:%u, request type:%s\n", requestId, mimeType.c_str());
+    return requestId;
   }
 
   uint32_t GetData(const std::string& mimeType)
@@ -231,21 +269,32 @@ struct Clipboard::Impl
       return INVALID_DATA_ID;
     }
 
-    if(mOwnClipboard && mDatas.count(mimeType))
+    // Serve data set by this process before issuing a remote X11 request.
+    // X11 remote interop is plain-text only here, but local multi-MIME cache
+    // remains available for SetData/GetData consistency.
+    if(mDatas.count(mimeType))
     {
-      const uint32_t requestId = GenerateDataId();
+      return RequestLocalData(mimeType);
+    }
 
-      mDataReceiveQueue.push(std::make_pair(requestId, mimeType));
+    if(mOwnClipboard)
+    {
+      DALI_LOG_RELEASE_INFO("clipboard local data is not available, request type:%s\n", mimeType.c_str());
+      return INVALID_DATA_ID;
+    }
 
-      // For consistency of operation with tizen Wl2, a fake callback occurs using a timer.
-      if(mDataReceiveTimer.IsRunning())
-      {
-        mDataReceiveTimer.Stop();
-      }
-      mDataReceiveTimer.Start();
+    // Remote non-plain MIME needs TARGETS/custom target handling on X11.
+    // Until that exists, fail fast instead of waiting for the common timeout.
+    if(!IsPlainTextMimeType(mimeType))
+    {
+      DALI_LOG_RELEASE_INFO("unsupported remote clipboard request type on X11, type:%s\n", mimeType.c_str());
+      return INVALID_DATA_ID;
+    }
 
-      DALI_LOG_RELEASE_INFO("request local data, id:%u, request type:%s\n", requestId, mimeType.c_str());
-      return requestId;
+    if(!HasClipboardOwner())
+    {
+      DALI_LOG_RELEASE_INFO("clipboard owner is not available, request type:%s\n", mimeType.c_str());
+      return INVALID_DATA_ID;
     }
 
     const char* target = ToX11Target(mimeType);
@@ -405,9 +454,10 @@ struct Clipboard::Impl
   Ecore_Event_Handler* mSelectionClearHandler{nullptr};
   Ecore_Event_Handler* mSelectionNotifyHandler{nullptr};
 
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
+  Clipboard::DataSentSignalType     mDataSentSignal{};
+  Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Clipboard::DataOfferedSignalType  mDataOfferedSignal{};
+  Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 
   Dali::Timer mDataReceiveTimer{};
   Dali::Timer mMultiSelectionTimeoutTimer{};
@@ -451,6 +501,7 @@ Clipboard::Clipboard(Impl* impl)
 
 Clipboard::~Clipboard()
 {
+  FinalizeGetDataCallbacks();
   delete mImpl;
 }
 
@@ -514,17 +565,22 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
+Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 {
   return mImpl->mDataSentSignal;
 }
 
-Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
+Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
 }
 
-Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+Clipboard::DataOfferedSignalType& Clipboard::DataOfferedSignal()
+{
+  return mImpl->mDataOfferedSignal;
+}
+
+Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
 {
   return mImpl->mDataSelectedSignal;
 }
@@ -534,9 +590,9 @@ bool Clipboard::HasType(const std::string& mimeType)
   return mImpl->HasType(mimeType);
 }
 
-bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
+bool Clipboard::SetData(const Dali::ClipboardData& clipboardData)
 {
-  return mImpl->SetData(clipData);
+  return mImpl->SetData(clipboardData);
 }
 
 uint32_t Clipboard::GetData(const std::string& mimeType)
@@ -544,7 +600,7 @@ uint32_t Clipboard::GetData(const std::string& mimeType)
   return mImpl->GetData(mimeType);
 }
 
-size_t Clipboard::NumberOfItems()
+uint32_t Clipboard::GetItemCount()
 {
   bool isItem = HasType(MIME_TYPE_TEXT_PLAIN) || HasType(MIME_TYPE_HTML) || HasType(MIME_TYPE_TEXT_URI);
   return isItem ? 1u : 0u;

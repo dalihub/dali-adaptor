@@ -30,9 +30,10 @@ namespace Adaptor
 {
 struct Clipboard::Impl
 {
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
+  Clipboard::DataSentSignalType     mDataSentSignal{};
+  Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Clipboard::DataOfferedSignalType  mDataOfferedSignal{};
+  Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -42,6 +43,7 @@ Clipboard::Clipboard(Impl* impl)
 
 Clipboard::~Clipboard()
 {
+  FinalizeGetDataCallbacks();
   delete mImpl;
 }
 
@@ -93,17 +95,22 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
+Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 {
   return mImpl->mDataSentSignal;
 }
 
-Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
+Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
 }
 
-Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+Clipboard::DataOfferedSignalType& Clipboard::DataOfferedSignal()
+{
+  return mImpl->mDataOfferedSignal;
+}
+
+Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
 {
   return mImpl->mDataSelectedSignal;
 }
@@ -113,7 +120,7 @@ bool Clipboard::HasType(const std::string& mimeType)
   return true;
 }
 
-bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
+bool Clipboard::SetData(const Dali::ClipboardData& clipboardData)
 {
   return true;
 }
@@ -123,7 +130,7 @@ uint32_t Clipboard::GetData(const std::string& mimeType)
   return 0u;
 }
 
-size_t Clipboard::NumberOfItems()
+uint32_t Clipboard::GetItemCount()
 {
   return 0u;
 }

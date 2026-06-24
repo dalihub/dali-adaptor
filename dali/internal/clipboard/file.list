@@ -1,4 +1,9 @@
 
+# common clipboard source (built on all platforms)
+SET( adaptor_clipboard_common_src_files
+    ${adaptor_clipboard_dir}/common/clipboard-impl.cpp
+)
+
 # module: clipboard, backend: tizen-wayland
 IF(USE_TCORE_BACKEND)
   SET( adaptor_clipboard_tizen_wayland_src_files
