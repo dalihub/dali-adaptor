@@ -101,7 +101,7 @@ Dali::RemoteFileDownloadManager RemoteFileDownloadManager::Get()
   return manager;
 }
 
-bool RemoteFileDownloadManager::IsAvailable()
+bool RemoteFileDownloadManager::IsAsyncDownloadSupported()
 {
   static bool           sAvailable = false;
   static std::once_flag sOnce;
@@ -114,6 +114,11 @@ bool RemoteFileDownloadManager::IsAvailable()
 
 RemoteFileDownloadManager::~RemoteFileDownloadManager()
 {
+  {
+    std::scoped_lock lock(mRequestInfosMutex);
+    mShuttingDown = true;
+  }
+
   CancelAllDownloadsInternal();
 }
 
@@ -249,7 +254,6 @@ void RemoteFileDownloadManager::CancelAllDownloadsInternal()
   RequestInfoContainer requestInfos;
   {
     std::scoped_lock lock(mRequestInfosMutex);
-    mShuttingDown = true;
     requestInfos = std::move(mRequestInfos);
     mRequestInfos.clear();
   }
