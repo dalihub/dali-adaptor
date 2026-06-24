@@ -67,6 +67,7 @@
 #include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/system/common/system-settings-impl.h>
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/display-connection.h>
@@ -277,6 +278,9 @@ Adaptor::~Adaptor()
   // Ensure stop status
   Stop();
 
+  // Handles READY / PAUSED_WHILE_INITIALIZING / partial-start paths.
+  RemoveSystemInformation();
+
   // set to NULL first as we do not want any access to Adaptor as it is being destroyed.
   gThreadLocalAdaptor = NULL;
 
@@ -385,6 +389,40 @@ void Adaptor::Start()
   DALI_LOG_RELEASE_INFO("Adaptor::Start: Started\n");
 }
 
+void Adaptor::SetupSystemInformation()
+{
+  auto systemSettings = Dali::Internal::Adaptor::SystemSettings::Get();
+  if(!systemSettings)
+  {
+    DALI_LOG_ERROR("SystemSettings is not available.\n");
+    return;
+  }
+
+  auto& systemSettingsImpl = Dali::Internal::Adaptor::GetImplementation(systemSettings);
+
+  systemSettingsImpl.Initialize();
+
+  const std::string locale = systemSettingsImpl.GetLocaleLanguage();
+  if(!locale.empty())
+  {
+    SetRootLayoutDirection(locale);
+  }
+}
+
+void Adaptor::RemoveSystemInformation()
+{
+  if(!Dali::Internal::Adaptor::SystemSettings::IsAvailable())
+  {
+    return;
+  }
+
+  auto systemSettings = Dali::Internal::Adaptor::SystemSettings::Get();
+  if(systemSettings)
+  {
+    Dali::Internal::Adaptor::GetImplementation(systemSettings).Shutdown();
+  }
+}
+
 // Dali::Internal::Adaptor::Adaptor::Pause
 void Adaptor::Pause()
 {
@@ -479,6 +517,8 @@ void Adaptor::Stop()
       mAddOnManager->Stop();
     }
 
+    RemoveSystemInformation();
+
     mThreadController->Stop();
 
     // Delete the TTS player
@@ -503,8 +543,6 @@ void Adaptor::Stop()
     mCallbackManager->Stop();
 
     GetCore().SceneDestroyed();
-
-    RemoveSystemInformation();
 
     // Unregister file download plugin proxy before state become STOPPED.
     Dali::FileDownloadPluginProxy::UnregisterEventThreadCallback();

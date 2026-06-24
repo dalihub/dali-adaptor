@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/system-settings.h>
+#include <dali/internal/system/common/system-settings-impl.h>
 
 // EXTERNAL INCLUDES
 #include <stdlib.h>
@@ -30,9 +30,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace SystemSettings
-{
-std::string GetResourcePath()
+std::string SystemSettings::GetResourcePath()
 {
   // "DALI_APPLICATION_PACKAGE" is used by macOS specifically to get the already configured Application package path.
   const char* macEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
@@ -51,7 +49,7 @@ std::string GetResourcePath()
   return resourcePath;
 }
 
-std::string GetDataPath()
+std::string SystemSettings::GetDataPath()
 {
   const char* macEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
   const char* value                  = Dali::EnvironmentVariable::GetEnvironmentVariable(macEnvironmentVariable);
@@ -64,7 +62,48 @@ std::string GetDataPath()
   return dataPath;
 }
 
-} // namespace SystemSettings
+void SystemSettings::Initialize()
+{
+  if(mInitialized)
+  {
+    return;
+  }
+
+  mInitialized = true;
+}
+
+void SystemSettings::Shutdown()
+{
+  mInitialized = false;
+}
+
+std::string SystemSettings::QueryLocaleLanguage()
+{
+  return "";
+}
+
+std::string SystemSettings::QueryLocaleCountry()
+{
+  return "";
+}
+
+std::string SystemSettings::GetLocaleLanguage()
+{
+  return mLocaleLanguage;
+}
+
+std::string SystemSettings::GetLocaleCountry() const
+{
+  return "";
+}
+
+void SystemSettings::NotifyLocaleLanguageChanged()
+{
+}
+
+void SystemSettings::NotifyFontSizeChanged()
+{
+}
 
 } // namespace Adaptor
 

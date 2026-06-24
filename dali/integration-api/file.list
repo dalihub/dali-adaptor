@@ -9,6 +9,7 @@ SET( adaptor_integration_api_src_files
   ${adaptor_integration_api_dir}/adaptor-framework/input-method-context-integ.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/input-method-options.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/shader-precompiler.cpp
+  ${adaptor_integration_api_dir}/system/system-settings.cpp
 )
 
 SET( adaptor_integration_api_file_download_plugin_src_files
@@ -36,6 +37,10 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.h
   ${adaptor_integration_api_dir}/adaptor-framework/shader-precompiler.h
+)
+
+SET( adaptor_integration_api_system_header_files
+  ${adaptor_integration_api_dir}/system/system-settings.h
 )
 
 SET( adaptor_integration_api_file_download_plugin_header_files

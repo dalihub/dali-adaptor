@@ -32,7 +32,7 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/internal/system/common/system-settings.h>
+#include <dali/internal/system/common/system-settings-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>

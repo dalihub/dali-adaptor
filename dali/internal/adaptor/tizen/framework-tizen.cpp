@@ -21,7 +21,6 @@
 #include <dlfcn.h>
 #include <dlog.h>
 #include <system_info.h>
-#include <system_settings.h>
 #include <tizen.h>
 #include <locale>
 
@@ -32,6 +31,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
+#include <dali/internal/system/common/system-settings-impl.h>
 
 using namespace tizen_cpp;
 
@@ -217,14 +217,7 @@ struct FrameworkTizen::Impl
   {
     if(mLanguage.empty())
     {
-      char* language = nullptr;
-      system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language);
-
-      if(language != nullptr)
-      {
-        mLanguage = std::string(language);
-        free(language);
-      }
+      mLanguage = Dali::Internal::Adaptor::SystemSettings::QueryLocaleLanguage();
     }
     return mLanguage;
   }
@@ -233,14 +226,7 @@ struct FrameworkTizen::Impl
   {
     if(mRegion.empty())
     {
-      char* region = nullptr;
-      system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region);
-
-      if(region != nullptr)
-      {
-        mRegion = std::string(region);
-        free(region);
-      }
+      mRegion = Dali::Internal::Adaptor::SystemSettings::QueryLocaleCountry();
     }
     return mRegion;
   }

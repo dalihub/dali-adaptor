@@ -640,5 +640,6 @@ exit 0
 %defattr(-,root,root,-)
 %{_includedir}/dali/devel-api/*
 %{_includedir}/dali/integration-api/adaptor-framework/*
+%{_includedir}/dali/integration-api/system/*
 %{_includedir}/dali/integration-api/adaptors
 %{_libdir}/pkgconfig/dali2-adaptor-integration.pc
