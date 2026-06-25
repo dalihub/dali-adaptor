@@ -43,6 +43,45 @@ namespace // unnamed namespace
 const char* const UNITS("px");
 #endif
 
+#ifdef THORVG_VERSION_1
+/**
+ * @brief Applies aspect-fit scaling and centering to the given ThorVG picture.
+ *
+ * Calculates the scale that fits the SVG within the target area while
+ * preserving aspect ratio, then sets the picture size and translates it
+ * to center within the target canvas.
+ *
+ * @param[in] picture       The ThorVG picture to scale and position
+ * @param[in] defaultWidth  Default width from the SVG source
+ * @param[in] defaultHeight Default height from the SVG source
+ * @param[in] targetWidth   Target rendering width
+ * @param[in] targetHeight  Target rendering height
+ */
+void ApplyAspectFitSize(tvg::Picture* picture, uint32_t defaultWidth, uint32_t defaultHeight, uint32_t targetWidth, uint32_t targetHeight)
+{
+  if(!picture || defaultWidth == 0 || defaultHeight == 0 || targetWidth == 0 || targetHeight == 0)
+  {
+    return;
+  }
+
+  const float targetW  = static_cast<float>(targetWidth);
+  const float targetH  = static_cast<float>(targetHeight);
+  const float defaultW = static_cast<float>(defaultWidth);
+  const float defaultH = static_cast<float>(defaultHeight);
+
+  const float scale = Dali::Min(targetW / defaultW, targetH / defaultH);
+
+  const float newW = defaultW * scale;
+  const float newH = defaultH * scale;
+
+  const float tx = (targetW - newW) * 0.5f;
+  const float ty = (targetH - newH) * 0.5f;
+
+  picture->size(newW, newH);
+  picture->translate(tx, ty);
+}
+#endif // THORVG_VERSION_1
+
 // Type Registration
 Dali::BaseHandle Create()
 {
@@ -322,12 +361,13 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 
 #ifdef THORVG_VERSION_1
   mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::ColorSpace::ABGR8888);
+  DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
+  ApplyAspectFitSize(mPicture, mDefaultWidth, mDefaultHeight, width, height);
 #else
   mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::SwCanvas::ABGR8888);
-#endif
   DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
-
   mPicture->size(width, height);
+#endif
 
 #ifdef THORVG_VERSION_1
   const auto& paintList = mSwCanvas->paints();
