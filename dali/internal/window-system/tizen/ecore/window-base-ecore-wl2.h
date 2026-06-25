@@ -132,9 +132,14 @@ public:
   void OnMouseWheel(void* data, int type, void* event);
 
   /**
-   * @brief Called when a mouse in or out is received.
+   * @brief Called when a mouse in or out event is received.
+   *
+   * @param[in] data The data passed from the callback registration
+   * @param[in] type The event type
+   * @param[in] event The raw event data
+   * @param[in] action Whether the mouse entered (IN) or left (OUT) the window
    */
-  void OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action);
+  void OnMouseInOut(void* data, int type, void* event, Dali::MouseInOutEvent::Type action);
 
   /**
    * @brief Called when a detent rotation event is recevied.

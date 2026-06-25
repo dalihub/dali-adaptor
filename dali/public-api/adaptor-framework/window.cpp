@@ -208,11 +208,6 @@ int32_t Window::GetNativeId() const
   return GetImplementation(*this).GetNativeId();
 }
 
-Window::FocusChangeSignalType& Window::FocusChangeSignal()
-{
-  return GetImplementation(*this).FocusChangeSignal();
-}
-
 void Window::SetAcceptFocus(bool accept)
 {
   GetImplementation(*this).SetAcceptFocus(accept);
@@ -419,11 +414,6 @@ int Window::GetBrightness() const
   return GetImplementation(*this).GetBrightness();
 }
 
-Window::ResizeSignalType& Window::ResizeSignal()
-{
-  return GetImplementation(*this).ResizeSignal();
-}
-
 void Window::SetSize(Window::WindowSize size)
 {
   GetImplementation(*this).SetSize(size);
@@ -564,6 +554,41 @@ void Window::AddFramePresentedCallback(CallbackBase* callback, int32_t frameId)
   GetImplementation(*this).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
+Window::FocusChangeSignalType& Window::FocusChangeSignal()
+{
+  return GetImplementation(*this).FocusChangeSignal();
+}
+
+Window::VisibilityChangedSignalType& Window::VisibilityChangedSignal()
+{
+  return GetImplementation(*this).VisibilityChangedSignal();
+}
+
+Window::ResizeSignalType& Window::ResizeSignal()
+{
+  return GetImplementation(*this).ResizeSignal();
+}
+
+Window::MovedSignalType& Window::MovedSignal()
+{
+  return GetImplementation(*this).MovedSignal();
+}
+
+Window::OrientationChangedSignalType& Window::OrientationChangedSignal()
+{
+  return GetImplementation(*this).OrientationChangedSignal();
+}
+
+Window::MoveCompletedSignalType& Window::MoveCompletedSignal()
+{
+  return GetImplementation(*this).MoveCompletedSignal();
+}
+
+Window::ResizeCompletedSignalType& Window::ResizeCompletedSignal()
+{
+  return GetImplementation(*this).ResizeCompletedSignal();
+}
+
 Window::KeyEventSignalType& Window::KeyEventSignal()
 {
   return GetImplementation(*this).KeyEventSignal();
@@ -572,6 +597,21 @@ Window::KeyEventSignalType& Window::KeyEventSignal()
 Window::TouchEventSignalType& Window::TouchedSignal()
 {
   return GetImplementation(*this).TouchedSignal();
+}
+
+Window::WheelEventSignalType& Window::WheelEventSignal()
+{
+  return GetImplementation(*this).WheelEventSignal();
+}
+
+Window::MouseInOutEventSignalType& Window::MouseInOutEventSignal()
+{
+  return GetImplementation(*this).MouseInOutEventSignal();
+}
+
+Window::InsetsChangedSignalType& Window::InsetsChangedSignal()
+{
+  return GetImplementation(*this).InsetsChangedSignal();
 }
 
 const KeyEvent& Window::GetLastKeyEvent() const

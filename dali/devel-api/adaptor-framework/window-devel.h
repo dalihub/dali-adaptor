@@ -23,12 +23,11 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
 #include <dali/devel-api/adaptor-framework/pointer-constraints-event.h>
 #include <dali/devel-api/adaptor-framework/window-blur-info.h>
 #include <dali/devel-api/common/vector-wrapper.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -45,20 +44,11 @@ namespace DevelWindow
 typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
 typedef Signal<void(Window, KeyEvent)>                                               KeyEventSignalType;               ///< Key event signal type
-typedef Signal<void(Window, TouchEvent)>                                             TouchEventSignalType;             ///< Touch signal type
-typedef Signal<void(Window, WheelEvent)>                                             WheelEventSignalType;             ///< Wheel signal type
-typedef Signal<void(Window, bool)>                                                   VisibilityChangedSignalType;      ///< Visibility changed signal type
 typedef Signal<void(Window, WindowEffectState, WindowEffectType)>                    TransitionEffectEventSignalType;  ///< Effect signal type and state
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;       ///< Auxiliary message signal type
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType; ///< Accessibility Highlight signal type
 typedef Signal<bool(Window, KeyEvent)>                                               InterceptKeyEventSignalType;      ///< Intercept Key event signal type
-typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                  ///< Window Moved signal type
-typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;     ///< Window orientation changed signal type
-typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;        ///< MouseInOutEvent signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>           MouseRelativeEventSignalType;     ///< MouseRelativeEvent signal type
-typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;          ///< Window Moved by Server signal type
-typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;        ///< Window Resized by Server signal type
-typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;          ///< InsetsChanged signal type
 typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;     ///< PointerConstraintsEvent signal type
 
 /**
@@ -84,30 +74,6 @@ DALI_ADAPTOR_API Window Get(Actor actor);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window);
-
-/**
- * @brief This signal is emitted when wheel event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName(Window window, WheelEvent event);
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal(Window window);
-
-/**
- * @brief This signal is emitted when the window is shown or hidden.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, bool visible );
- * @endcode
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal(Window window);
 
 /**
  * @brief This signal is emitted for transition effect.
@@ -440,52 +406,6 @@ DALI_ADAPTOR_API void SetForceRendering(Window window, uint32_t frameCount);
 DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window);
 
 /**
- * @brief This signal is emitted when the window is moved.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
- * @endcode
- * The parameters are the moved x and y coordinates.
- * and window means this signal was called from what window
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
-
-/**
- * @brief This signal is emitted when the window orientation is changed.
- *
- * To emit Window Orientation signal, AddAvailableOrientation() or SetPreferredOrientation() should be called before device is rotated.
- * Most of cases, AddAvailableOrientation() or SetPreferredOrientation() is callled in onCreate().
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::WindowOrientation orientation );
- * @endcode
- * The parameter is the changed window orientation.
- * and window means this signal was called from what window
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window window);
-
-/**
- * @brief This signal is emitted when the mouse in or out event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::MouseInOutEvent event );
- * @endcode
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window);
-
-/**
  * @brief This signal is emitted when the mouse relative event is received.
  *
  * A callback of the following type may be connected:
@@ -497,48 +417,6 @@ DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window);
-
-/**
- * @brief This signal is emitted when window has been moved by the display server.
- * To make the window move by display server, RequestMoveToServer() should be called.
- * After the moving job is completed, this function will be called.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
- * @endcode
- * The parameters are the moved x and y coordinates.
- * and window means this signal was called from what window
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API MoveCompletedSignalType& MoveCompletedSignal(Window window);
-
-/**
- * @brief This signal is emitted when window has been resized by the display server.
- * To make the window move by display server, RequestResizeToServer() should be called.
- * After the resizing job is completed, this function will be called.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
- * @endcode
- * The parameters are the resized width and height coordinates.
- * and window means this signal was called from what window
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window);
-
-/**
- * @brief This signal is emitted when window insets are changed by appearing or disappearing indicator, virtual keyboard, or clipboard.
- *
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API InsetsChangedSignalType& InsetsChangedSignal(Window window);
 
 /**
  * @brief This signal is emitted when pointer is locked/unlocked

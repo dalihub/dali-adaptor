@@ -2,7 +2,7 @@
 #define DALI_WINDOW_BLUR_INFO_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/vector4.h>
 
@@ -51,10 +51,10 @@ public:
    * @param[in] dim The dimming color (RGBA) to apply. The alpha component controls the dimming intensity.
    */
   explicit constexpr WindowDimInfo(bool enable, Vector4 dim)
-: isEnabled(enable),
-  dimColor(dim)
-{
-}
+  : isEnabled(enable),
+    dimColor(dim)
+  {
+  }
   /**
    * @brief Equality comparison operator.
    *
@@ -300,10 +300,10 @@ public:
   WindowBlurInfo& operator=(WindowBlurInfo&&) noexcept = default; ///< Default move assignment operator
 
 public:
-  WindowBlurType          windowBlurType;
-  int                     windowBlurRadius;
-  int                     backgroundCornerRadius;
-  WindowDimInfo           behindDimInfo;
+  WindowBlurType windowBlurType;
+  int            windowBlurRadius;
+  int            backgroundCornerRadius;
+  WindowDimInfo  behindDimInfo;
 };
 
 } // namespace Dali

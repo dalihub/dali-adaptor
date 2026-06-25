@@ -35,7 +35,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -540,7 +540,7 @@ static Eina_Bool EcoreEventMouseIn(void* data, int type, void* event)
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
-    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::IN);
+    windowBase->OnMouseInOut(data, type, event, Dali::MouseInOutEvent::Type::IN);
   }
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -573,7 +573,7 @@ static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
 
       windowBase->OnMouseButtonCancel(data, type, &buttonEvent);
     }
-    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
+    windowBase->OnMouseInOut(data, type, event, Dali::MouseInOutEvent::Type::OUT);
   }
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -1624,7 +1624,7 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
   }
 }
 
-void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action)
+void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::MouseInOutEvent::Type action)
 {
   Ecore_Event_Mouse_IO* mouseInOutEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
 
@@ -1640,11 +1640,11 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::D
     GetDeviceClass(ecore_device_class_get(mouseInOutEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(mouseInOutEvent->dev), deviceSubclass);
 
-    Dali::DevelWindow::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
+    Dali::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
 
     mMouseInOutEventSignal.Emit(inOutEvent);
 
-    if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
+    if(action == Dali::MouseInOutEvent::Type::IN)
     {
       Dali::String deviceName;
       GetDeviceName(ecore_device_name_get(mouseInOutEvent->dev), deviceName);
@@ -2010,7 +2010,7 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 
       if(applyInsets)
       {
-        mInsetsChangedSignal.Emit(partType, partState, Extents(left, right, top, bottom));
+        mInsetsChangedSignal.Emit(WindowInsetsInfo(partType, partState, Extents(left, right, top, bottom)));
       }
     }
   }

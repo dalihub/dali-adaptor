@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector2.h>

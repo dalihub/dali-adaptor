@@ -19,9 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-data.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/extents.h>
 #include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/math/int-pair.h>
@@ -33,6 +32,9 @@
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
+#include <dali/public-api/adaptor-framework/window-data.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -72,10 +74,21 @@ public:
   using WindowSize     = Int32Pair; ///< Window size type @SINCE_1_2.60
   using WindowPosition = Int32Pair; ///< Window position type @SINCE_2_1.45
 
-  using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
-  using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType    = Signal<void(Window, KeyEvent)>;   ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType  = Signal<void(Window, TouchEvent)>; ///< Touch signal type @SINCE_1_9.28
+  using FocusChangeSignalType       = Signal<void(Window, bool)>; ///< Window focus signal type @SINCE_1_4.35
+  using VisibilityChangedSignalType = Signal<void(Window, bool)>; ///< Visibility changed signal type @SINCE_2_5.28
+
+  using ResizeSignalType             = Signal<void(Window, WindowSize)>;        ///< Window resized signal type @SINCE_1_4.35
+  using MovedSignalType              = Signal<void(Window, WindowPosition)>;    ///< Window moved signal type @SINCE_2_5.28
+  using OrientationChangedSignalType = Signal<void(Window, WindowOrientation)>; ///< Window orientation changed signal type @SINCE_2_5.28
+  using MoveCompletedSignalType      = Signal<void(Window, WindowPosition)>;    ///< Window moved by server signal type @SINCE_2_5.28
+  using ResizeCompletedSignalType    = Signal<void(Window, WindowSize)>;        ///< Window resized by server signal type @SINCE_2_5.28
+
+  using KeyEventSignalType        = Signal<void(Window, KeyEvent)>;               ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType      = Signal<void(Window, TouchEvent)>;             ///< Touch signal type @SINCE_1_9.28
+  using WheelEventSignalType      = Signal<void(Window, WheelEvent)>;             ///< Wheel signal type @SINCE_2_5.28
+  using MouseInOutEventSignalType = Signal<void(Window, const MouseInOutEvent&)>; ///< Mouse in/out event signal type @SINCE_2_5.28
+
+  using InsetsChangedSignalType = Signal<void(Window, const WindowInsetsInfo&)>; ///< Insets changed signal type @SINCE_2_5.28
 
 public:
   // Methods
@@ -1034,6 +1047,19 @@ public: // Signals
   FocusChangeSignalType& FocusChangeSignal();
 
   /**
+   * @brief This signal is emitted when the window is shown or hidden.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, bool visible);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  VisibilityChangedSignalType& VisibilityChangedSignal();
+
+  /**
    * @brief This signal is emitted when the window is resized.
    *
    * A callback of the following type may be connected:
@@ -1047,6 +1073,70 @@ public: // Signals
    * @return The signal to connect to
    */
   ResizeSignalType& ResizeSignal();
+
+  /**
+   * @brief This signal is emitted when the window is moved.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
+   * @endcode
+   * The parameters are the moved x and y coordinates.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MovedSignalType& MovedSignal();
+
+  /**
+   * @brief This signal is emitted when the window orientation is changed.
+   *
+   * To emit this signal, AddAvailableOrientation() or SetPreferredOrientation() should be called before the device is rotated.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::WindowOrientation orientation);
+   * @endcode
+   * The parameter is the changed window orientation.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  OrientationChangedSignalType& OrientationChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the window has been moved by the display server.
+   *
+   * To trigger a server-side move, call RequestMoveToServer().
+   * After the move is completed, this signal will be emitted.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
+   * @endcode
+   * The parameters are the final x and y coordinates after moving.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MoveCompletedSignalType& MoveCompletedSignal();
+
+  /**
+   * @brief This signal is emitted when the window has been resized by the display server.
+   *
+   * To trigger a server-side resize, call RequestResizeToServer().
+   * After the resize is completed, this signal will be emitted.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowSize size);
+   * @endcode
+   * The parameters are the final width and height after resizing.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  ResizeCompletedSignalType& ResizeCompletedSignal();
 
   /**
    * @brief This signal is emitted when key event is received.
@@ -1079,6 +1169,46 @@ public: // Signals
    * @note Motion events are not emitted.
    */
   TouchEventSignalType& TouchedSignal();
+
+  /**
+   * @brief This signal is emitted when a wheel event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, WheelEvent event);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  WheelEventSignalType& WheelEventSignal();
+
+  /**
+   * @brief This signal is emitted when a mouse in or out event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::MouseInOutEvent event);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MouseInOutEventSignalType& MouseInOutEventSignal();
+
+  /**
+   * @brief This signal is emitted when window insets change due to the indicator, virtual keyboard, or clipboard appearing or disappearing.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, const WindowInsetsInfo& insetsInfo);
+   * @endcode
+   * The parameter contains the insets information including the part type, part state, and the extents (left, right, top, bottom).
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  InsetsChangedSignalType& InsetsChangedSignal();
 
 public: // Not intended for application developers
   /// @cond internal
