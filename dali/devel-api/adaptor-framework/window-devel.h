@@ -33,11 +33,6 @@
 namespace Dali
 {
 class KeyEvent;
-class TouchEvent;
-class HoverEvent;
-class WheelEvent;
-class RenderTaskList;
-struct TouchPoint;
 
 namespace DevelWindow
 {
@@ -50,14 +45,6 @@ typedef Signal<void(Window, bool)>                                              
 typedef Signal<bool(Window, KeyEvent)>                                               InterceptKeyEventSignalType;      ///< Intercept Key event signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>           MouseRelativeEventSignalType;     ///< MouseRelativeEvent signal type
 typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;     ///< PointerConstraintsEvent signal type
-
-/**
- * @brief Sets position and size of the window. This API guarantees that both moving and resizing of window will appear on the screen at once.
- *
- * @param[in] window The window instance
- * @param[in] positionSize The new window position and size
- */
-DALI_ADAPTOR_API void SetPositionSize(Window window, PositionSize positionSize);
 
 /**
  * @brief Retrieve the window that the given actor is added to.

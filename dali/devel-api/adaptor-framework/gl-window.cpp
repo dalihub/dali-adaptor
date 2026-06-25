@@ -72,8 +72,8 @@ struct AdaptorGlWindowAddOn : public Dali::AddOn::AddOnBinder
   ADDON_BIND_FUNCTION(GlWindowRenderOnce, void(GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowSetRenderingMode, void(GlWindowImpl&, GlWindow::RenderingMode));
   ADDON_BIND_FUNCTION(GlWindowGetRenderingMode, GlWindow::RenderingMode(const GlWindowImpl&));
-  ADDON_BIND_FUNCTION(GlWindowFocusChangeSignal, GlWindow::FocusChangeSignalType&(GlWindowImpl&));
-  ADDON_BIND_FUNCTION(GlWindowResizeSignal, GlWindow::ResizeSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowFocusChangedSignal, GlWindow::FocusChangedSignalType&(GlWindowImpl&));
+  ADDON_BIND_FUNCTION(GlWindowResizeSignal, GlWindow::ResizedSignalType&(GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowKeyEventSignal, GlWindow::KeyEventSignalType&(GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowTouchedSignal, GlWindow::TouchEventSignalType&(GlWindowImpl&));
   ADDON_BIND_FUNCTION(GlWindowVisibilityChangedSignal, GlWindow::VisibilityChangedSignalType&(GlWindowImpl&));
@@ -310,17 +310,17 @@ GlWindow::RenderingMode GlWindow::GetRenderingMode() const
   return gAdaptorGlWindowAddOn ? gAdaptorGlWindowAddOn->GlWindowGetRenderingMode(impl) : RenderingMode::CONTINUOUS;
 }
 
-GlWindow::FocusChangeSignalType& GlWindow::FocusChangeSignal()
+GlWindow::FocusChangedSignalType& GlWindow::FocusChangedSignal()
 {
   GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
   if(gAdaptorGlWindowAddOn)
   {
-    return gAdaptorGlWindowAddOn->GlWindowFocusChangeSignal(impl);
+    return gAdaptorGlWindowAddOn->GlWindowFocusChangedSignal(impl);
   }
   DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
-GlWindow::ResizeSignalType& GlWindow::ResizeSignal()
+GlWindow::ResizedSignalType& GlWindow::ResizedSignal()
 {
   GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
   if(gAdaptorGlWindowAddOn)
@@ -340,7 +340,7 @@ GlWindow::KeyEventSignalType& GlWindow::KeyEventSignal()
   DALI_ABORT("Current Graphics Backend does not support GlWindow\n");
 }
 
-GlWindow::TouchEventSignalType& GlWindow::TouchedSignal()
+GlWindow::TouchEventSignalType& GlWindow::TouchEventSignal()
 {
   GlWindowImpl& impl = GetImplementation(*this); // Get Implementation here to catch uninitialized usage
   if(gAdaptorGlWindowAddOn)

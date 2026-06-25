@@ -81,7 +81,8 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   Ecore_Wl2_Window* wlWindow = AnyCast<Ecore_Wl2_Window*>(nativeHandle);
 
   widget_base_context_window_bind(instanceHandle, id, wlWindow);
-  window.SetSize(Dali::Window::WindowSize(w, h));
+  auto positionSize = window.GetPositionSize();
+  window.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, w, h));
 
   Dali::Internal::Adaptor::WidgetApplication::CreateWidgetFunctionPair pair           = application->GetWidgetCreatingFunctionPair(std::string(id));
   Dali::WidgetApplication::CreateWidgetFunction                        createFunction = pair.second;
@@ -192,7 +193,8 @@ int OnInstanceResize(widget_base_instance_h instanceHandle, int w, int h, void* 
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget(instanceHandle);
   Dali::Window window         = application->GetWindowFromWidget(widgetInstance);
-  window.SetSize(Dali::Window::WindowSize(w, h));
+  auto         positionSize   = window.GetPositionSize();
+  window.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, w, h));
   Internal::Adaptor::GetImplementation(widgetInstance).OnResize(window);
 
   return 0;

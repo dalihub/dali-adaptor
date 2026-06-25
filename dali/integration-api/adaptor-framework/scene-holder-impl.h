@@ -400,9 +400,9 @@ public:
   }
 
   /**
-   * @copydoc Dali::Integration::SceneHolder::TouchedSignal()
+   * @copydoc Dali::Integration::SceneHolder::TouchEventSignal()
    */
-  Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal()
+  Dali::Integration::SceneHolder::TouchEventSignalType& TouchEventSignal()
   {
     return mSceneHolderTouchEventSignal;
   }

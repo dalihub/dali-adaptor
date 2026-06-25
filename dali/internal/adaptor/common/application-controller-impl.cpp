@@ -472,7 +472,7 @@ void ApplicationController::UpdatePreInitializedWindowInfo()
   std::string finalWindowName = envWindowName.empty() ? mWindowName : envWindowName;
   mMainWindow.SetClass(Dali::Integration::ToDaliString(finalWindowName), Dali::Integration::ToDaliString(windowClassName));
 
-  Dali::DevelWindow::SetPositionSize(mMainWindow, mWindowPositionSize);
+  mMainWindow.SetPositionSize(mWindowPositionSize);
 
   if(mWindowData)
   {

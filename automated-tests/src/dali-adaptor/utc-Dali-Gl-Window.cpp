@@ -555,13 +555,13 @@ int UtcDaliGlWindowGetAuxiliaryHintId(void)
   END_TEST;
 }
 
-int UtcDaliGlWindowFocusChangeSignal(void)
+int UtcDaliGlWindowFocusChangedSignal(void)
 {
   Dali::GlWindow window;
 
   try
   {
-    window.FocusChangeSignal();
+    window.FocusChangedSignal();
 
     DALI_TEST_CHECK(false);
   }
@@ -578,7 +578,7 @@ int UtcDaliGlWindowResizeSignal(void)
 
   try
   {
-    window.ResizeSignal();
+    window.ResizedSignal();
 
     DALI_TEST_CHECK(false);
   }
@@ -612,7 +612,7 @@ int UtcDaliGlWindowTouchedSignal(void)
 
   try
   {
-    window.TouchedSignal();
+    window.TouchEventSignal();
 
     DALI_TEST_CHECK(false);
   }

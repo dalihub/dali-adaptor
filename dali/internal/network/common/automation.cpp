@@ -573,12 +573,11 @@ void DumpWindow(std::ostringstream& msg, Window window)
 {
   msg << "{";
   window.GetRootLayer();
-  auto size = window.GetSize();
-  auto pos  = window.GetPosition();
+  auto positionSize = window.GetPositionSize();
   msg << "\"LayerCount\":" << window.GetLayerCount() << ",\n";
   msg << "\"IsVisible\":" << (window.IsVisible() ? "true" : "false") << ",\n";
-  msg << "\"Size\":[" << size.GetWidth() << "," << size.GetHeight() << "],\n";
-  msg << "\"Position\":[" << pos.GetX() << "," << pos.GetY() << "],\n";
+  msg << "\"Size\":[" << positionSize.width << "," << positionSize.height << "],\n";
+  msg << "\"Position\":[" << positionSize.x << "," << positionSize.y << "],\n";
   msg << "\"DepthBuffer\":" << (window.IsDepthBufferEnabled() ? "true" : "false") << ",\n";
   msg << "\"StencilBuffer\":" << (window.IsStencilBufferEnabled() ? "true" : "false") << ",\n";
   msg << "\"PartialUpdate\":" << (window.IsPartialUpdateEnabled() ? "true" : "false") << ",\n";

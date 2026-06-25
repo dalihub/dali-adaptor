@@ -240,9 +240,9 @@ Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
   }
   else // CoordinateType::SCREEN
   {
-    auto window         = Dali::DevelWindow::Get(actor);
-    auto windowPosition = window.GetPosition();
-    return {rounded.x + windowPosition.GetX(), rounded.y + windowPosition.GetY(), rounded.width, rounded.height};
+    auto window       = Dali::DevelWindow::Get(actor);
+    auto positionSize = window.GetPositionSize();
+    return {rounded.x + positionSize.x, rounded.y + positionSize.y, rounded.width, rounded.height};
   }
 }
 

@@ -44,7 +44,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::BoundsInteger PositionSize;
+using PositionSize = Dali::BoundsInteger;
 
 namespace Internal DALI_INTERNAL
 {
@@ -74,14 +74,12 @@ public:
   using WindowSize     = Int32Pair; ///< Window size type @SINCE_1_2.60
   using WindowPosition = Int32Pair; ///< Window position type @SINCE_2_1.45
 
-  using FocusChangeSignalType       = Signal<void(Window, bool)>; ///< Window focus signal type @SINCE_1_4.35
-  using VisibilityChangedSignalType = Signal<void(Window, bool)>; ///< Visibility changed signal type @SINCE_2_5.28
+  using FocusChangedSignalType      = Signal<void(Window, bool)>; ///< Window focus changed signal type @SINCE_1_4.35
+  using VisibilityChangedSignalType = Signal<void(Window, bool)>; ///< Window visibility changed signal type @SINCE_2_5.28
 
-  using ResizeSignalType             = Signal<void(Window, WindowSize)>;        ///< Window resized signal type @SINCE_1_4.35
+  using ResizedSignalType            = Signal<void(Window, WindowSize)>;        ///< Window resized signal type @SINCE_1_4.35
   using MovedSignalType              = Signal<void(Window, WindowPosition)>;    ///< Window moved signal type @SINCE_2_5.28
   using OrientationChangedSignalType = Signal<void(Window, WindowOrientation)>; ///< Window orientation changed signal type @SINCE_2_5.28
-  using MoveCompletedSignalType      = Signal<void(Window, WindowPosition)>;    ///< Window moved by server signal type @SINCE_2_5.28
-  using ResizeCompletedSignalType    = Signal<void(Window, WindowSize)>;        ///< Window resized by server signal type @SINCE_2_5.28
 
   using KeyEventSignalType        = Signal<void(Window, KeyEvent)>;               ///< Key event signal type @SINCE_1_9.21
   using TouchEventSignalType      = Signal<void(Window, TouchEvent)>;             ///< Touch signal type @SINCE_1_9.28
@@ -636,36 +634,21 @@ public:
   int GetBrightness() const;
 
   /**
-   * @brief Sets a size of the window.
+   * @brief Sets the position and size of the window.
+   * This API guarantees that both moving and resizing of window will appear on the screen at once.
    *
-   * @SINCE_1_2.60
-   * @param[in] size The new window size
+   * @SINCE_2_5.29
+   * @param[in] positionSize The new window position and size
    */
-  void SetSize(WindowSize size);
+  void SetPositionSize(PositionSize positionSize);
 
   /**
-   * @brief Gets a size of the window.
+   * @brief Gets the position and size of the window.
    *
-   * @SINCE_1_2.60
-   * @return The size of the window
+   * @SINCE_2_5.29
+   * @return The position and size of the window
    */
-  WindowSize GetSize() const;
-
-  /**
-   * @brief Sets a position of the window.
-   *
-   * @SINCE_1_2.60
-   * @param[in] position The new window position
-   */
-  void SetPosition(WindowPosition position);
-
-  /**
-   * @brief Gets a position of the window.
-   *
-   * @SINCE_1_2.60
-   * @return The position of the window
-   */
-  WindowPosition GetPosition() const;
+  PositionSize GetPositionSize() const;
 
   /**
    * @brief Requests to display server for the window is moved by display server.
@@ -1032,19 +1015,18 @@ public:
 
 public: // Signals
   /**
-   * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
+   * @brief This signal is emitted when the window gains or loses focus.
    *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallbackName( Window window, bool focusIn );
    * @endcode
    * The parameter is true if window gains focus, otherwise false.
-   * and window means this signal was called from what window
    *
    * @SINCE_1_4.35
    * @return The signal to connect to
    */
-  FocusChangeSignalType& FocusChangeSignal();
+  FocusChangedSignalType& FocusChangedSignal();
 
   /**
    * @brief This signal is emitted when the window is shown or hidden.
@@ -1064,15 +1046,14 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName( Window window, int width, int height );
+   *   void YourCallbackName( Window window, Dali::Window::WindowSize size );
    * @endcode
-   * The parameters are the resized width and height.
-   * and window means this signal was called from what window
+   * The parameter is the resized window size.
    *
    * @SINCE_1_4.35
    * @return The signal to connect to
    */
-  ResizeSignalType& ResizeSignal();
+  ResizedSignalType& ResizedSignal();
 
   /**
    * @brief This signal is emitted when the window is moved.
@@ -1081,7 +1062,7 @@ public: // Signals
    * @code
    *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
    * @endcode
-   * The parameters are the moved x and y coordinates.
+   * The parameter is the moved window position.
    *
    * @SINCE_2_5.28
    * @return The signal to connect to
@@ -1114,12 +1095,12 @@ public: // Signals
    * @code
    *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
    * @endcode
-   * The parameters are the final x and y coordinates after moving.
+   * The parameter is the final window position after moving.
    *
    * @SINCE_2_5.28
    * @return The signal to connect to
    */
-  MoveCompletedSignalType& MoveCompletedSignal();
+  MovedSignalType& MoveCompletedSignal();
 
   /**
    * @brief This signal is emitted when the window has been resized by the display server.
@@ -1131,12 +1112,12 @@ public: // Signals
    * @code
    *   void YourCallbackName(Window window, Dali::Window::WindowSize size);
    * @endcode
-   * The parameters are the final width and height after resizing.
+   * The parameter is the final window size after resizing.
    *
    * @SINCE_2_5.28
    * @return The signal to connect to
    */
-  ResizeCompletedSignalType& ResizeCompletedSignal();
+  ResizedSignalType& ResizeCompletedSignal();
 
   /**
    * @brief This signal is emitted when key event is received.
@@ -1164,11 +1145,11 @@ public: // Signals
    * @endcode
    *
    * @SINCE_1_9.28
-   * @return The touch signal to connect to
+   * @return The signal to connect to
    *
    * @note Motion events are not emitted.
    */
-  TouchEventSignalType& TouchedSignal();
+  TouchEventSignalType& TouchEventSignal();
 
   /**
    * @brief This signal is emitted when a wheel event is received.

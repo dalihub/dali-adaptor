@@ -65,9 +65,9 @@ static void GetWindowRootOffset(Ecore_X_Window win, int& outX, int& outY)
   {
     return;
   }
-  Display*  dpy   = static_cast<Display*>(ecore_x_display_get());
-  ::Window  root  = static_cast<::Window>(ecore_x_window_root_get(win));
-  ::Window  child = 0;
+  Display* dpy   = static_cast<Display*>(ecore_x_display_get());
+  ::Window root  = static_cast<::Window>(ecore_x_window_root_get(win));
+  ::Window child = 0;
   XTranslateCoordinates(dpy, static_cast<::Window>(win), root, 0, 0, &outX, &outY, &child);
 }
 } // namespace
@@ -178,21 +178,21 @@ std::unique_ptr<DragAndDropFactory> GetDragAndDropFactory()
 DragAndDropX11::DragAndDropX11()
 {
   // Target-side events
-  mEnterHandler  = ecore_event_handler_add(ECORE_X_EVENT_XDND_ENTER,         EcoreXEventXdndEnter,        this);
-  mMotionHandler = ecore_event_handler_add(ECORE_X_EVENT_XDND_POSITION,      EcoreXEventXdndPosition,     this);
-  mDropHandler   = ecore_event_handler_add(ECORE_X_EVENT_XDND_DROP,          EcoreXEventXdndDrop,         this);
-  mLeaveHandler  = ecore_event_handler_add(ECORE_X_EVENT_XDND_LEAVE,         EcoreXEventXdndLeave,        this);
+  mEnterHandler  = ecore_event_handler_add(ECORE_X_EVENT_XDND_ENTER, EcoreXEventXdndEnter, this);
+  mMotionHandler = ecore_event_handler_add(ECORE_X_EVENT_XDND_POSITION, EcoreXEventXdndPosition, this);
+  mDropHandler   = ecore_event_handler_add(ECORE_X_EVENT_XDND_DROP, EcoreXEventXdndDrop, this);
+  mLeaveHandler  = ecore_event_handler_add(ECORE_X_EVENT_XDND_LEAVE, EcoreXEventXdndLeave, this);
 
   // Source-side events
-  mFinishedHandler = ecore_event_handler_add(ECORE_X_EVENT_XDND_FINISHED,    EcoreXEventXdndFinished,     this);
+  mFinishedHandler = ecore_event_handler_add(ECORE_X_EVENT_XDND_FINISHED, EcoreXEventXdndFinished, this);
   mSendHandler     = ecore_event_handler_add(ECORE_X_EVENT_SELECTION_REQUEST, EcoreXEventSelectionRequest, this);
 
   // Data delivery to target
-  mReceiveHandler = ecore_event_handler_add(ECORE_X_EVENT_SELECTION_NOTIFY,  EcoreXEventSelectionNotify,  this);
+  mReceiveHandler = ecore_event_handler_add(ECORE_X_EVENT_SELECTION_NOTIFY, EcoreXEventSelectionNotify, this);
 
   // Mouse button release: used for same-process drop (ecore_x doesn't deliver XDND
   // target events when source and target are in the same process, pos->win stays 0)
-  mMouseUpHandler = ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP,     EcoreEventMouseButtonUp,     this);
+  mMouseUpHandler = ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP, EcoreEventMouseButtonUp, this);
 }
 
 DragAndDropX11::~DragAndDropX11()
@@ -211,10 +211,10 @@ DragAndDropX11::~DragAndDropX11()
 // StartDragAndDrop
 // ---------------------------------------------------------------------------
 
-bool DragAndDropX11::StartDragAndDrop(Dali::Actor                           source,
-                                       Dali::Window                          shadowWindow,
-                                       const Dali::DragAndDrop::DragData&    data,
-                                       Dali::DragAndDrop::SourceFunction     callback)
+bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
+                                      Dali::Window                       shadowWindow,
+                                      const Dali::DragAndDrop::DragData& data,
+                                      Dali::DragAndDrop::SourceFunction  callback)
 {
   auto parent = Dali::DevelWindow::Get(source);
   if(!parent)
@@ -286,8 +286,8 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                           sour
 // ---------------------------------------------------------------------------
 
 bool DragAndDropX11::AddListener(Dali::Actor                            target,
-                                  char*                                   mimeType,
-                                  Dali::DragAndDrop::DragAndDropFunction callback)
+                                 char*                                  mimeType,
+                                 Dali::DragAndDrop::DragAndDropFunction callback)
 {
   for(const auto& dt : mDropTargets)
   {
@@ -324,8 +324,8 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
 }
 
 bool DragAndDropX11::AddListener(Dali::Window                           target,
-                                  char*                                   mimeType,
-                                  Dali::DragAndDrop::DragAndDropFunction callback)
+                                 char*                                  mimeType,
+                                 Dali::DragAndDrop::DragAndDropFunction callback)
 {
   for(const auto& wt : mDropWindowTargets)
   {
@@ -494,7 +494,7 @@ bool DragAndDropX11::CalculateDragEvent(void* event)
   {
     // SCREEN_POSITION is window-client-area relative; cx/cy are screen-absolute.
     // Use GetWindowRootOffset to convert SCREEN_POSITION to screen-absolute.
-    int     winX, winY;
+    int winX, winY;
     GetWindowRootOffset(mDropTargets[i].parentWindowId, winX, winY);
     Vector2 pos  = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
@@ -531,13 +531,12 @@ bool DragAndDropX11::CalculateDragEvent(void* event)
   for(std::size_t i = 0; i < mDropWindowTargets.size(); ++i)
   {
     // No window ID filter: same reason as actor targets above.
-    Dali::Window::WindowPosition winPos  = mDropWindowTargets[i].target.GetPosition();
-    Dali::Window::WindowSize     winSize = mDropWindowTargets[i].target.GetSize();
+    auto winPositionSize = mDropWindowTargets[i].target.GetPositionSize();
 
-    bool currentInside = IsIntersection(cx, cy, winPos.GetX(), winPos.GetY(), winSize.GetWidth(), winSize.GetHeight());
+    bool currentInside = IsIntersection(cx, cy, winPositionSize.x, winPositionSize.y, winPositionSize.width, winPositionSize.height);
 
     // Position delivered to callback is window-relative
-    Dali::Vector2 relPos(cx - winPos.GetX(), cy - winPos.GetY());
+    Dali::Vector2 relPos(cx - winPositionSize.x, cy - winPositionSize.y);
 
     if(currentInside && !mDropWindowTargets[i].inside)
     {
@@ -640,10 +639,9 @@ bool DragAndDropX11::CalculateViewRegion(void* event)
   // --- Window targets ---
   for(std::size_t i = 0; i < mDropWindowTargets.size(); ++i)
   {
-    Dali::Window::WindowPosition winPos  = mDropWindowTargets[i].target.GetPosition();
-    Dali::Window::WindowSize     winSize = mDropWindowTargets[i].target.GetSize();
+    auto winPositionSize = mDropWindowTargets[i].target.GetPositionSize();
 
-    if(!IsIntersection(cx, cy, winPos.GetX(), winPos.GetY(), winSize.GetWidth(), winSize.GetHeight()))
+    if(!IsIntersection(cx, cy, winPositionSize.x, winPositionSize.y, winPositionSize.width, winPositionSize.height))
     {
       continue;
     }
@@ -660,7 +658,7 @@ bool DragAndDropX11::CalculateViewRegion(void* event)
          !strcmp(availMime, mDropWindowTargets[i].mimeType.c_str()))
       {
         mWindowTargetIndex = static_cast<int>(i);
-        mWindowPosition    = Dali::Vector2(winPos.GetX(), winPos.GetY());
+        mWindowPosition    = Dali::Vector2(winPositionSize.x, winPositionSize.y);
         ecore_x_selection_xdnd_request(ev->win, availMime);
         ecore_x_flush();
         return true;
@@ -760,7 +758,7 @@ void DragAndDropX11::ReceiveData(void* event)
       Dali::DragAndDrop::DragType::DROP, mPosition, mimesPool, 1, receivedData);
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
-    auto win = Dali::DevelWindow::Get(mDropTargets[mTargetIndex].target);
+    auto win                          = Dali::DevelWindow::Get(mDropTargets[mTargetIndex].target);
     if(win) win.Activate();
     mTargetIndex = -1;
   }
@@ -880,7 +878,8 @@ void DragAndDropX11::UpdateDragWindowPosition(int x, int y)
 {
   if(mDragWindow)
   {
-    mDragWindow.SetPosition(Dali::Window::WindowPosition(x, y));
+    auto positionSize = mDragWindow.GetPositionSize();
+    mDragWindow.SetPositionSize(Dali::PositionSize(x, y, positionSize.width, positionSize.height));
   }
   mLastDragX = x;
   mLastDragY = y;
@@ -911,7 +910,7 @@ void DragAndDropX11::DoPositionUpdate(int cx, int cy)
   {
     // SCREEN_POSITION is window-client-area relative; cx/cy are screen-absolute.
     // Add the window's root offset to convert SCREEN_POSITION to screen-absolute.
-    int     winX, winY;
+    int winX, winY;
     GetWindowRootOffset(mDropTargets[i].parentWindowId, winX, winY);
     Vector2 pos  = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
@@ -944,10 +943,9 @@ void DragAndDropX11::DoPositionUpdate(int cx, int cy)
   // --- Window targets ---
   for(std::size_t i = 0; i < mDropWindowTargets.size(); ++i)
   {
-    Dali::Window::WindowPosition winPos  = mDropWindowTargets[i].target.GetPosition();
-    Dali::Window::WindowSize     winSize = mDropWindowTargets[i].target.GetSize();
-    bool                         cur     = IsIntersection(cx, cy, winPos.GetX(), winPos.GetY(), winSize.GetWidth(), winSize.GetHeight());
-    Dali::Vector2                relPos(cx - winPos.GetX(), cy - winPos.GetY());
+    auto          winPositionSize = mDropWindowTargets[i].target.GetPositionSize();
+    bool          cur             = IsIntersection(cx, cy, winPositionSize.x, winPositionSize.y, winPositionSize.width, winPositionSize.height);
+    Dali::Vector2 relPos(cx - winPositionSize.x, cy - winPositionSize.y);
 
     if(cur && !mDropWindowTargets[i].inside)
     {
@@ -987,8 +985,8 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
 
   // Use exact root coordinates from the button-up event (more accurate than mLastDragX/Y).
   auto* ev = static_cast<Ecore_Event_Mouse_Button*>(event);
-  int cx = ev ? ev->root.x : mLastDragX;
-  int cy = ev ? ev->root.y : mLastDragY;
+  int   cx = ev ? ev->root.x : mLastDragX;
+  int   cy = ev ? ev->root.y : mLastDragY;
 
   bool dropped = false;
 
@@ -997,7 +995,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
   {
     // Do not rely on `inside` flag — it may have been corrupted by XDND events.
     // Use the accurate intersection check directly.
-    int     winX, winY;
+    int winX, winY;
     GetWindowRootOffset(mDropTargets[i].parentWindowId, winX, winY);
     Vector2 pos  = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
@@ -1029,7 +1027,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
         Dali::DragAndDrop::DragEvent dropEvent(Dali::DragAndDrop::DragType::DROP, Dali::Vector2(cx, cy), mimesPool, 1, const_cast<char*>(dropData));
         mDropTargets[i].callback(dropEvent);
         mDropTargets[i].inside = false;
-        auto win = Dali::DevelWindow::Get(mDropTargets[i].target);
+        auto win               = Dali::DevelWindow::Get(mDropTargets[i].target);
         if(win) win.Activate();
         dropped = true;
         break;
@@ -1040,9 +1038,8 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
   // --- Window targets ---
   for(std::size_t i = 0; i < mDropWindowTargets.size(); ++i)
   {
-    Dali::Window::WindowPosition winPos  = mDropWindowTargets[i].target.GetPosition();
-    Dali::Window::WindowSize     winSize = mDropWindowTargets[i].target.GetSize();
-    if(!IsIntersection(cx, cy, winPos.GetX(), winPos.GetY(), winSize.GetWidth(), winSize.GetHeight()))
+    auto winPositionSize = mDropWindowTargets[i].target.GetPositionSize();
+    if(!IsIntersection(cx, cy, winPositionSize.x, winPositionSize.y, winPositionSize.width, winPositionSize.height))
     {
       continue;
     }
@@ -1063,7 +1060,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
 
         mimesPool[0] = mime;
         mimesPool[1] = nullptr;
-        Dali::Vector2 relPos(cx - winPos.GetX(), cy - winPos.GetY());
+        Dali::Vector2 relPos(cx - winPositionSize.x, cy - winPositionSize.y);
         // DragEvent API takes char*; dropData is read-only (from std::string::c_str())
         Dali::DragAndDrop::DragEvent dropEvent(Dali::DragAndDrop::DragType::DROP, relPos, mimesPool, 1, const_cast<char*>(dropData));
         mDropWindowTargets[i].callback(dropEvent);

@@ -96,9 +96,9 @@ GlWindow::GlWindow()
   mNativeWindowId(-1),
   mMSAA(0),
   mKeyEventSignal(),
-  mTouchedSignal(),
-  mFocusChangeSignal(),
-  mResizeSignal(),
+  mTouchEventSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
   mVisibilityChangedSignal()
 {
 }
@@ -393,7 +393,7 @@ void GlWindow::SetPositionSize(PositionSize positionSize)
   {
     Dali::GlWindow::WindowSize newSize(mPositionSize.width, mPositionSize.height);
     Dali::GlWindow             handle(this);
-    mResizeSignal.Emit(newSize);
+    mResizedSignal.Emit(newSize);
 
     if(mGlWindowRenderThread)
     {
@@ -465,7 +465,7 @@ void GlWindow::OnIconifyChanged(bool iconified)
 void GlWindow::OnFocusChanged(bool focusIn)
 {
   Dali::GlWindow handle(this);
-  mFocusChangeSignal.Emit(handle, focusIn);
+  mFocusChangedSignal.Emit(handle, focusIn);
 }
 
 void GlWindow::OnOutputTransformed(int screenRotationAngle)
@@ -503,7 +503,7 @@ void GlWindow::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 
   Dali::TouchEvent touchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
   Dali::GlWindow   handle(this);
-  mTouchedSignal.Emit(touchEvent);
+  mTouchEventSignal.Emit(touchEvent);
 }
 
 void GlWindow::OnMouseFrameEvent()
@@ -543,7 +543,7 @@ void GlWindow::OnRotation(const RotationEvent& rotation)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
+  mResizedSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {
@@ -860,7 +860,7 @@ void GlWindow::UpdateScreenRotation(int newAngle)
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
-  mResizeSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
+  mResizedSignal.Emit(Dali::GlWindow::WindowSize(mWindowWidth, mWindowHeight));
 
   if(mGlWindowRenderThread)
   {

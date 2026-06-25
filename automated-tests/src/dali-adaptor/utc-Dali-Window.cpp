@@ -419,12 +419,12 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   END_TEST;
 }
 
-int UtcDaliWindowFocusChangeSignalN(void)
+int UtcDaliWindowFocusChangedSignalN(void)
 {
   Dali::Window window;
   try
   {
-    window.FocusChangeSignal();
+    window.FocusChangedSignal();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -440,8 +440,8 @@ int UtcDaliWindowSetPositionNegative(void)
   Dali::Window instance;
   try
   {
-    Dali::Window::WindowPosition arg1;
-    instance.SetPosition(arg1);
+    Dali::PositionSize arg1;
+    instance.SetPositionSize(arg1);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -456,7 +456,7 @@ int UtcDaliWindowResizeSignalNegative(void)
   Dali::Window instance;
   try
   {
-    instance.ResizeSignal();
+    instance.ResizedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -487,7 +487,7 @@ int UtcDaliWindowTouchedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    instance.TouchedSignal();
+    instance.TouchEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -609,12 +609,12 @@ int UtcDaliWindowSetScreenOffModeNegative(void)
   END_TEST;
 }
 
-int UtcDaliWindowFocusChangeSignalNegative(void)
+int UtcDaliWindowFocusChangedSignalNegative(void)
 {
   Dali::Window instance;
   try
   {
-    instance.FocusChangeSignal();
+    instance.FocusChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -864,8 +864,9 @@ int UtcDaliWindowSetSizeNegative(void)
   Dali::Window instance;
   try
   {
+    auto            positionSize = instance.GetPositionSize();
     Dali::Int32Pair arg1;
-    instance.SetSize(arg1);
+    instance.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, arg1.GetX(), arg1.GetY()));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -928,7 +929,7 @@ int UtcDaliWindowGetPositionNegative(void)
   Dali::Window instance;
   try
   {
-    instance.GetPosition();
+    instance.GetPositionSize();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1172,7 +1173,7 @@ int UtcDaliWindowGetSizeNegative(void)
   Dali::Window instance;
   try
   {
-    instance.GetSize();
+    instance.GetPositionSize();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1249,7 +1250,7 @@ int UtcDaliWindowSetPositionSizeNegative(void)
   {
     Dali::Window        arg1;
     Dali::BoundsInteger arg2;
-    DevelWindow::SetPositionSize(arg1, arg2);
+    arg1.SetPositionSize(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

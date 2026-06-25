@@ -64,8 +64,8 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
 {
-  std::unique_ptr<Window> window  = std::unique_ptr<Window>(new Window());
-  window->mIsTransparent          = windowData.GetTransparency();
+  std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
+  window->mIsTransparent         = windowData.GetTransparency();
 
 #ifdef DALI_PROFILE_UBUNTU
   // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
@@ -100,8 +100,8 @@ Window::Window()
   mNativeWindowId(-1),
   mOrientationMode(Internal::Adaptor::Window::OrientationMode::PORTRAIT),
   mDeleteRequestSignal(),
-  mFocusChangeSignal(),
-  mResizeSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
   mAuxiliaryMessageSignal(),
@@ -286,7 +286,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     // Connect SceneHolder's wrapped signals (with SceneHolder prepended) to Window's re-emit methods
     // so that Window handle can be passed as the first argument to the public Window signals.
     SceneHolder::KeyEventSignal().Connect(this, &Window::OnSceneKeyEvent);
-    SceneHolder::TouchedSignal().Connect(this, &Window::OnSceneTouchEvent);
+    SceneHolder::TouchEventSignal().Connect(this, &Window::OnSceneTouchEvent);
     SceneHolder::WheelEventSignal().Connect(this, &Window::OnSceneWheelEvent);
     SceneHolder::InterceptKeyEventSignal().Connect(this, &Window::OnSceneInterceptKeyEvent);
     SceneHolder::KeyEventMonitorSignal().Connect(this, &Window::OnSceneKeyEventMonitor);
@@ -798,90 +798,6 @@ int Window::GetBrightness() const
   return mWindowBase->GetBrightness();
 }
 
-void Window::SetSize(Dali::Window::WindowSize size)
-{
-  PositionSize oldRect = GetPositionSize();
-
-  PositionSize newRect;
-  newRect.width  = size.GetWidth();
-  newRect.height = size.GetHeight();
-
-  SetUserGeometryPolicy();
-
-  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
-  {
-    mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, newRect.width, newRect.height));
-
-    Dali::Window::WindowSize newSize(newRect.width, newRect.height);
-
-    mWindowWidth  = newRect.width;
-    mWindowHeight = newRect.height;
-
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): (%d, %d), [%d x %d]\n", this, mNativeWindowId, mRotationAngle, oldRect.x, oldRect.y, newRect.width, newRect.height);
-
-    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
-
-    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
-
-    Dali::Window handle(this);
-    mResizeSignal.Emit(handle, newSize);
-
-    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
-
-    if(Dali::Accessibility::IsUp())
-    {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-      {
-        accessible->EmitBoundsChanged(Dali::BoundsInteger(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
-      }
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
-}
-
-Dali::Window::WindowSize Window::GetSize() const
-{
-  return Dali::Window::WindowSize(mWindowWidth, mWindowHeight);
-}
-
-void Window::SetPosition(Dali::Window::WindowPosition position)
-{
-  PositionSize oldRect = GetPositionSize();
-  int32_t      newX    = position.GetX();
-  int32_t      newY    = position.GetY();
-
-  SetUserGeometryPolicy();
-
-  mWindowSurface->Move(PositionSize(newX, newY, oldRect.width, oldRect.height));
-
-  if((oldRect.x != newX) || (oldRect.y != newY))
-  {
-    Dali::Window                 handle(this);
-    Dali::Window::WindowPosition newPosition(newX, newY);
-
-    DALI_LOG_RELEASE_INFO("send moved signal with new position: %d, %d\n", newPosition.GetX(), newPosition.GetY());
-    mMovedSignal.Emit(handle, newPosition);
-
-    if(Dali::Accessibility::IsUp())
-    {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-      {
-        accessible->EmitBoundsChanged(Dali::BoundsInteger(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
-      }
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
-}
-
-Dali::Window::WindowPosition Window::GetPosition() const
-{
-  PositionSize positionSize = GetPositionSize();
-  return Dali::Window::WindowPosition(positionSize.x, positionSize.y);
-}
-
 PositionSize Window::GetPositionSize() const
 {
   PositionSize positionSize = mSurface->GetPositionSize();
@@ -1081,7 +997,7 @@ void Window::OnMaximizeChanged(bool maximized)
 void Window::OnFocusChanged(bool focusIn)
 {
   Dali::Window handle(this);
-  mFocusChangeSignal.Emit(handle, focusIn);
+  mFocusChangedSignal.Emit(handle, focusIn);
   FocusChanged(focusIn);
 
   mSurface->SetFullSwapNextFrame();
@@ -1199,7 +1115,7 @@ void Window::OnRotation(const RotationEvent& rotation)
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
   Dali::Window handle(this);
-  mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
+  mResizedSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
   mOrientationChangedSignal.Emit(handle, GetCurrentOrientation());
 
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
@@ -1810,7 +1726,7 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
-    mResizeSignal.Emit(handle, newSize);
+    mResizedSignal.Emit(handle, newSize);
 
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }

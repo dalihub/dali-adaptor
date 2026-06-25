@@ -177,9 +177,9 @@ SceneHolder::KeyEventSignalType& SceneHolder::KeyEventMonitorSignal()
   return GetImplementation(*this).KeyEventMonitorSignal();
 }
 
-SceneHolder::TouchEventSignalType& SceneHolder::TouchedSignal()
+SceneHolder::TouchEventSignalType& SceneHolder::TouchEventSignal()
 {
-  return GetImplementation(*this).TouchedSignal();
+  return GetImplementation(*this).TouchEventSignal();
 }
 
 SceneHolder::WheelEventSignalType& SceneHolder::WheelEventSignal()

@@ -848,16 +848,16 @@ public:
   MouseRelativeEventSignalType& MouseRelativeEventSignal();
 
   /**
-   * @brief This signal is emitted when window has been moved by then display server.
-   * To be moved the window by display server, RequestMoveToServer() should be called.
-   * After the moving job is finished, this function will be called.
+   * @brief This signal is emitted when the window has been moved by the display server.
+   * To move the window by the display server, RequestMoveToServer() should be called.
+   * After the move is completed, this signal will be emitted.
    */
   MoveCompletedSignalType& MoveCompletedSignal();
 
   /**
-   * @brief This signal is emitted when window has been resized by then display server.
-   * To be resized the window by display server, RequestResizeToServer() should be called.
-   * After the resizing job is finished, this function will be called.
+   * @brief This signal is emitted when the window has been resized by the display server.
+   * To resize the window by the display server, RequestResizeToServer() should be called.
+   * After the resize is completed, this signal will be emitted.
    */
   ResizeCompletedSignalType& ResizeCompletedSignal();
 

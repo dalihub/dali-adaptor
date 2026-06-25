@@ -58,8 +58,8 @@ using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
-  typedef Dali::Window::FocusChangeSignalType                 FocusChangeSignalType;
-  typedef Dali::Window::ResizeSignalType                      ResizeSignalType;
+  typedef Dali::Window::FocusChangedSignalType                FocusChangedSignalType;
+  typedef Dali::Window::ResizedSignalType                     ResizedSignalType;
   typedef Dali::Window::KeyEventSignalType                    KeyEventSignalType;
   typedef Dali::Window::TouchEventSignalType                  TouchEventSignalType;
   typedef Dali::DevelWindow::KeyEventSignalType               KeyEventMonitorSignalType;
@@ -73,8 +73,6 @@ public:
   typedef Dali::Window::OrientationChangedSignalType          OrientationChangedSignalType;
   typedef Dali::Window::MouseInOutEventSignalType             MouseInOutEventSignalType;
   typedef Dali::DevelWindow::MouseRelativeEventSignalType     MouseRelativeEventSignalType;
-  typedef Dali::Window::MoveCompletedSignalType               MoveCompletedSignalType;
-  typedef Dali::Window::ResizeCompletedSignalType             ResizeCompletedSignalType;
   typedef Dali::Window::InsetsChangedSignalType               InsetsChangedSignalType;
   typedef Dali::DevelWindow::PointerConstraintsSignalType     PointerConstraintsSignalType;
   typedef Signal<void()>                                      SignalType;
@@ -328,32 +326,12 @@ public:
   int GetBrightness() const;
 
   /**
-   * @copydoc Dali::Window::SetSize()
-   */
-  void SetSize(Dali::Window::WindowSize size);
-
-  /**
-   * @copydoc Dali::Window::GetSize()
-   */
-  Dali::Window::WindowSize GetSize() const;
-
-  /**
-   * @copydoc Dali::Window::SetPosition()
-   */
-  void SetPosition(Dali::Window::WindowPosition position);
-
-  /**
-   * @copydoc Dali::Window::GetPosition()
-   */
-  Dali::Window::WindowPosition GetPosition() const;
-
-  /**
-   * @copydoc Dali::DevelWindow::SetPositionSize()
+   * @copydoc Dali::Window::SetPositionSize()
    */
   void SetPositionSize(PositionSize positionSize);
 
   /**
-   * @copydoc Dali::DevelWindow::GetPositionSize()
+   * @copydoc Dali::Window::GetPositionSize()
    */
   PositionSize GetPositionSize() const;
 
@@ -1041,11 +1019,11 @@ private: // Dali::Internal::Adaptor::EventHandler::Observer
 
 public: // Signals
   /**
-   * @copydoc Dali::Window::FocusChangeSignal()
+   * @copydoc Dali::Window::FocusChangedSignal()
    */
-  FocusChangeSignalType& FocusChangeSignal()
+  FocusChangedSignalType& FocusChangedSignal()
   {
-    return mFocusChangeSignal;
+    return mFocusChangedSignal;
   }
 
   /**
@@ -1059,9 +1037,9 @@ public: // Signals
   /**
    * @copydoc Dali::Window::ResizedSignal()
    */
-  ResizeSignalType& ResizeSignal()
+  ResizedSignalType& ResizedSignal()
   {
-    return mResizeSignal;
+    return mResizedSignal;
   }
 
   /**
@@ -1083,7 +1061,7 @@ public: // Signals
   /**
    * @copydoc Dali::Window::MoveCompletedSignal()
    */
-  MoveCompletedSignalType& MoveCompletedSignal()
+  MovedSignalType& MoveCompletedSignal()
   {
     return mMoveCompletedSignal;
   }
@@ -1091,7 +1069,7 @@ public: // Signals
   /**
    * @copydoc Dali::Window::ResizeCompletedSignal()
    */
-  ResizeCompletedSignalType& ResizeCompletedSignal()
+  ResizedSignalType& ResizeCompletedSignal()
   {
     return mResizeCompletedSignal;
   }
@@ -1106,18 +1084,6 @@ public: // Signals
   KeyEventSignalType& KeyEventSignal()
   {
     return mKeyEventSignal;
-  }
-
-  /**
-   * @copydoc Dali::Window::TouchedSignal()
-   *
-   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::TouchedSignal()
-   * which returns Signal<void(const TouchEvent&)>.
-   * Window provides its own signal that includes a Window parameter.
-   */
-  TouchEventSignalType& TouchedSignal()
-  {
-    return mTouchEventSignal;
   }
 
   /**
@@ -1226,8 +1192,8 @@ private:
 
   // Signals
   SignalType                       mDeleteRequestSignal;
-  FocusChangeSignalType            mFocusChangeSignal;
-  ResizeSignalType                 mResizeSignal;
+  FocusChangedSignalType           mFocusChangedSignal;
+  ResizedSignalType                mResizedSignal;
   KeyEventSignalType               mKeyEventSignal;
   TouchEventSignalType             mTouchEventSignal;
   WheelEventSignalType             mWheelEventSignal;
@@ -1241,8 +1207,8 @@ private:
   OrientationChangedSignalType     mOrientationChangedSignal;
   MouseInOutEventSignalType        mMouseInOutEventSignal;
   MouseRelativeEventSignalType     mMouseRelativeEventSignal;
-  MoveCompletedSignalType          mMoveCompletedSignal;
-  ResizeCompletedSignalType        mResizeCompletedSignal;
+  MovedSignalType                  mMoveCompletedSignal;
+  ResizedSignalType                mResizeCompletedSignal;
   InsetsChangedSignalType          mInsetsChangedSignal;
   PointerConstraintsSignalType     mPointerConstraintsSignal;
 

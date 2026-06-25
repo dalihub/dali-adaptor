@@ -67,8 +67,8 @@ public:
 
   typedef Signal<void(KeyEvent)>       KeyEventSignalType;          ///< GlWindow Key Event signal type
   typedef Signal<void(TouchEvent)>     TouchEventSignalType;        ///< GlWindow Touch Event signal type
-  typedef Signal<void(GlWindow, bool)> FocusChangeSignalType;       ///< GlWindow Focus signal type
-  typedef Signal<void(WindowSize)>     ResizeSignalType;            ///< GlWindow resize signal type
+  typedef Signal<void(GlWindow, bool)> FocusChangedSignalType;      ///< GlWindow Focus signal type
+  typedef Signal<void(WindowSize)>     ResizedSignalType;           ///< GlWindow resize signal type
   typedef Signal<void(GlWindow, bool)> VisibilityChangedSignalType; ///< GlWindow visibility change signal type
 
 public:
@@ -407,7 +407,7 @@ public: // Signals
    *
    * @return The signal to connect to
    */
-  FocusChangeSignalType& FocusChangeSignal();
+  FocusChangedSignalType& FocusChangedSignal();
 
   /**
    * @brief This signal is emitted when the GlWindow is resized.
@@ -421,7 +421,7 @@ public: // Signals
    *
    * @return The signal to connect to
    */
-  ResizeSignalType& ResizeSignal();
+  ResizedSignalType& ResizedSignal();
 
   /**
    * @brief This signal is emitted when key event is received.
@@ -451,7 +451,7 @@ public: // Signals
    *
    * @note Motion events are not emitted.
    */
-  TouchEventSignalType& TouchedSignal();
+  TouchEventSignalType& TouchEventSignal();
 
   /**
    * @brief This signal is emitted when the window is shown or hidden.

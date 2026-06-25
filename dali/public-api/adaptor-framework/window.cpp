@@ -414,24 +414,14 @@ int Window::GetBrightness() const
   return GetImplementation(*this).GetBrightness();
 }
 
-void Window::SetSize(Window::WindowSize size)
+void Window::SetPositionSize(PositionSize positionSize)
 {
-  GetImplementation(*this).SetSize(size);
+  GetImplementation(*this).SetPositionSize(positionSize);
 }
 
-Window::WindowSize Window::GetSize() const
+PositionSize Window::GetPositionSize() const
 {
-  return GetImplementation(*this).GetSize();
-}
-
-void Window::SetPosition(Dali::Window::WindowPosition position)
-{
-  GetImplementation(*this).SetPosition(position);
-}
-
-Dali::Window::WindowPosition Window::GetPosition() const
-{
-  return GetImplementation(*this).GetPosition();
+  return GetImplementation(*this).GetPositionSize();
 }
 
 void Window::RequestMoveToServer()
@@ -554,9 +544,9 @@ void Window::AddFramePresentedCallback(CallbackBase* callback, int32_t frameId)
   GetImplementation(*this).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
-Window::FocusChangeSignalType& Window::FocusChangeSignal()
+Window::FocusChangedSignalType& Window::FocusChangedSignal()
 {
-  return GetImplementation(*this).FocusChangeSignal();
+  return GetImplementation(*this).FocusChangedSignal();
 }
 
 Window::VisibilityChangedSignalType& Window::VisibilityChangedSignal()
@@ -564,9 +554,9 @@ Window::VisibilityChangedSignalType& Window::VisibilityChangedSignal()
   return GetImplementation(*this).VisibilityChangedSignal();
 }
 
-Window::ResizeSignalType& Window::ResizeSignal()
+Window::ResizedSignalType& Window::ResizedSignal()
 {
-  return GetImplementation(*this).ResizeSignal();
+  return GetImplementation(*this).ResizedSignal();
 }
 
 Window::MovedSignalType& Window::MovedSignal()
@@ -579,12 +569,12 @@ Window::OrientationChangedSignalType& Window::OrientationChangedSignal()
   return GetImplementation(*this).OrientationChangedSignal();
 }
 
-Window::MoveCompletedSignalType& Window::MoveCompletedSignal()
+Window::MovedSignalType& Window::MoveCompletedSignal()
 {
   return GetImplementation(*this).MoveCompletedSignal();
 }
 
-Window::ResizeCompletedSignalType& Window::ResizeCompletedSignal()
+Window::ResizedSignalType& Window::ResizeCompletedSignal()
 {
   return GetImplementation(*this).ResizeCompletedSignal();
 }
@@ -594,9 +584,9 @@ Window::KeyEventSignalType& Window::KeyEventSignal()
   return GetImplementation(*this).KeyEventSignal();
 }
 
-Window::TouchEventSignalType& Window::TouchedSignal()
+Window::TouchEventSignalType& Window::TouchEventSignal()
 {
-  return GetImplementation(*this).TouchedSignal();
+  return GetImplementation(*this).TouchEventSignal();
 }
 
 Window::WheelEventSignalType& Window::WheelEventSignal()

@@ -19,6 +19,7 @@
 #include <dali/internal/application-model/widget/tcore/widget-base-tizen-tcore.h>
 
 // EXTERNAL INCLUDES
+#include <bundle_cpp.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
@@ -26,11 +27,10 @@
 #include <dlog.h>
 #include <tizen.h>
 #include <widget_base.hh>
-#include <bundle_cpp.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/application-model/widget/tcore/widget-binding-bridge-tcore.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/application-model/widget/tcore/widget-binding-bridge-tcore.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/tizen/widget-application-impl-tizen.h>
 #include <dali/internal/system/tizen/widget-controller-tizen.h>
@@ -48,31 +48,31 @@ namespace
 
 class WidgetContext : public tizen_cpp::WidgetContext
 {
- public:
+public:
   class Factory : public tizen_cpp::AppCoreMultiWindowBase::Context::IFactory
   {
-   public:
+  public:
     Factory(std::string widgetId, Dali::Internal::Adaptor::WidgetApplicationTizen* application)
     : mWidgetId(std::move(widgetId)),
       mApplication(application)
     {
     }
 
-    std::unique_ptr<Context> Create(std::string instanceId,
+    std::unique_ptr<Context> Create(std::string                        instanceId,
                                     tizen_cpp::AppCoreMultiWindowBase* app) override
     {
       print_log(DLOG_INFO, "DALI", "WidgetContext::Factory::Create called (instanceId:%s, app:%p)\n", instanceId.c_str(), app);
       return std::unique_ptr<Context>(new WidgetContext(mWidgetId, instanceId, app, mApplication));
     }
 
-   private:
+  private:
     std::string                                      mWidgetId;
     Dali::Internal::Adaptor::WidgetApplicationTizen* mApplication;
   };
 
   WidgetContext(std::string contextId, std::string instanceId, tizen_cpp::AppCoreMultiWindowBase* app, Dali::Internal::Adaptor::WidgetApplicationTizen* application)
-     : tizen_cpp::WidgetContext(contextId, instanceId, app),
-       mApplication(application)
+  : tizen_cpp::WidgetContext(contextId, instanceId, app),
+    mApplication(application)
   {
     print_log(DLOG_INFO, "DALI", "WidgetContext::WidgetContext called (contextId:%s, instanceId:%s, app:%p, application:%p)\n", contextId.c_str(), instanceId.c_str(), app, application);
   }
@@ -133,7 +133,8 @@ class WidgetContext : public tizen_cpp::WidgetContext
     {
       print_log(DLOG_INFO, "DALI", "Widget Instance bind success(id:%s)\n", std::string(id).c_str());
     }
-    window.SetSize(Dali::Window::WindowSize(w, h));
+    auto positionSize = window.GetPositionSize();
+    window.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, w, h));
 
     Dali::Internal::Adaptor::WidgetApplication::CreateWidgetFunctionPair pair           = mApplication->GetWidgetCreatingFunctionPair(std::string(id));
     Dali::WidgetApplication::CreateWidgetFunction                        createFunction = pair.second;
@@ -154,15 +155,15 @@ class WidgetContext : public tizen_cpp::WidgetContext
     Internal::Adaptor::GetImplementation(widgetInstance).OnCreate(encodedContentString, window);
 
     // connect keyEvent for widget
-  #ifdef OVER_TIZEN_VERSION_7
+#ifdef OVER_TIZEN_VERSION_7
     mApplication->ConnectKeyEvent(window);
-  #endif
+#endif
 
     return true;
   }
 
-  void OnDestroy(DestroyType reason,
-      const tizen_base::Bundle& contents) override
+  void OnDestroy(DestroyType               reason,
+                 const tizen_base::Bundle& contents) override
   {
     print_log(DLOG_INFO, "DALI", "WidgetContext::OnDestroy called (reason:%d)\n", static_cast<int>(reason));
     if(!EnsureApplication(__FUNCTION__))
@@ -238,7 +239,8 @@ class WidgetContext : public tizen_cpp::WidgetContext
     // Get Dali::Widget instance.
     Dali::Widget widgetInstance = mApplication->GetWidget(this);
     Dali::Window window         = mApplication->GetWindowFromWidget(widgetInstance);
-    window.SetSize(Dali::Window::WindowSize(w, h));
+    auto         positionSize   = window.GetPositionSize();
+    window.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, w, h));
     Internal::Adaptor::GetImplementation(widgetInstance).OnResize(window);
   }
 
@@ -265,7 +267,7 @@ class WidgetContext : public tizen_cpp::WidgetContext
     Internal::Adaptor::GetImplementation(widgetInstance).OnUpdate(encodedContentString, force);
   }
 
- private:
+private:
   Dali::Internal::Adaptor::WidgetApplicationTizen* mApplication = nullptr;
 };
 
@@ -284,16 +286,16 @@ extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, 
   }
 
   auto* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(data);
-  auto factory = std::shared_ptr<tizen_cpp::AppCoreMultiWindowBase::Context::IFactory>(
-      new (std::nothrow) WidgetContext::Factory(widgetName, application));
+  auto  factory     = std::shared_ptr<tizen_cpp::AppCoreMultiWindowBase::Context::IFactory>(
+    new(std::nothrow) WidgetContext::Factory(widgetName, application));
   gWidgetBase->AddContextFactory(std::move(factory), widgetName);
 }
 
 extern "C" DALI_ADAPTOR_API void SetContentInfo(void* handle, bundle* bundleData)
 {
   print_log(DLOG_INFO, "DALI", "SetContentInfo called (handle:%p, bundleData:%p)\n", handle, bundleData);
-  auto* handleInstance = static_cast<WidgetContext*>(handle);
-  tizen_base::Bundle b {bundleData, true, true};
+  auto*              handleInstance = static_cast<WidgetContext*>(handle);
+  tizen_base::Bundle b{bundleData, true, true};
   handleInstance->SetContents(b);
 }
 } // namespace Adaptor

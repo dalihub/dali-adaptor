@@ -179,14 +179,14 @@ GlWindow::RenderingMode GlWindowGetRenderingMode(const GlWindowImpl& glWindowImp
   return glWindowImpl.GetRenderingMode();
 }
 
-GlWindow::FocusChangeSignalType& GlWindowFocusChangeSignal(GlWindowImpl& glWindowImpl)
+GlWindow::FocusChangedSignalType& GlWindowFocusChangedSignal(GlWindowImpl& glWindowImpl)
 {
-  return glWindowImpl.FocusChangeSignal();
+  return glWindowImpl.FocusChangedSignal();
 }
 
-GlWindow::ResizeSignalType& GlWindowResizeSignal(GlWindowImpl& glWindowImpl)
+GlWindow::ResizedSignalType& GlWindowResizeSignal(GlWindowImpl& glWindowImpl)
 {
-  return glWindowImpl.ResizeSignal();
+  return glWindowImpl.ResizedSignal();
 }
 
 GlWindow::KeyEventSignalType& GlWindowKeyEventSignal(GlWindowImpl& glWindowImpl)
@@ -196,7 +196,7 @@ GlWindow::KeyEventSignalType& GlWindowKeyEventSignal(GlWindowImpl& glWindowImpl)
 
 GlWindow::TouchEventSignalType& GlWindowTouchedSignal(GlWindowImpl& glWindowImpl)
 {
-  return glWindowImpl.TouchedSignal();
+  return glWindowImpl.TouchEventSignal();
 }
 
 GlWindow::VisibilityChangedSignalType& GlWindowVisibilityChangedSignal(GlWindowImpl& glWindowImpl)
@@ -252,7 +252,7 @@ public:
       dispatchTable["GlWindowRenderOnce"]                     = GlWindowRenderOnce;
       dispatchTable["GlWindowSetRenderingMode"]               = GlWindowSetRenderingMode;
       dispatchTable["GlWindowGetRenderingMode"]               = GlWindowGetRenderingMode;
-      dispatchTable["GlWindowFocusChangeSignal"]              = GlWindowFocusChangeSignal;
+      dispatchTable["GlWindowFocusChangedSignal"]             = GlWindowFocusChangedSignal;
       dispatchTable["GlWindowResizeSignal"]                   = GlWindowResizeSignal;
       dispatchTable["GlWindowKeyEventSignal"]                 = GlWindowKeyEventSignal;
       dispatchTable["GlWindowTouchedSignal"]                  = GlWindowTouchedSignal;

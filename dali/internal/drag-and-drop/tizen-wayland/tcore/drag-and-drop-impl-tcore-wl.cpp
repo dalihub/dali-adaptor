@@ -26,9 +26,9 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
-#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace Dali
@@ -68,7 +68,7 @@ static void TcoreEventDataSend(void* event_data, tizen_core_wl_event_type_e even
 
 static void TcoreEventDataSourceEnd(void* event_data, tizen_core_wl_event_type_e event_type, void* user_data)
 {
-  auto* dndImpl = reinterpret_cast<DragAndDropTcoreWl*>(user_data);
+  auto* dndImpl   = reinterpret_cast<DragAndDropTcoreWl*>(user_data);
   bool  cancelled = false;
   if(tizen_core_wl_event_data_source_end_get_cancelled(
        static_cast<tizen_core_wl_event_data_source_end_h>(event_data), &cancelled) == TIZEN_CORE_WL_ERROR_NONE)
@@ -125,7 +125,7 @@ static void TcoreEventDataLeave(void* event_data, tizen_core_wl_event_type_e eve
 
 Dali::DragAndDrop GetDragAndDrop()
 {
-  Dali::DragAndDrop dnd;
+  Dali::DragAndDrop      dnd;
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
@@ -137,7 +137,7 @@ Dali::DragAndDrop GetDragAndDrop()
     else
     {
       auto* dndImpl = new DragAndDropTcoreWl();
-      dnd = Dali::DragAndDrop(dndImpl);
+      dnd           = Dali::DragAndDrop(dndImpl);
       service.Register(typeid(Dali::DragAndDrop), dnd);
     }
   }
@@ -254,7 +254,7 @@ DragAndDropTcoreWl::~DragAndDropTcoreWl()
 
 bool DragAndDropTcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback)
 {
-  auto parent = Dali::DevelWindow::Get(source);
+  auto         parent    = Dali::DevelWindow::Get(source);
   const char** dataSet   = data.GetDataSet();
   const char** mimeTypes = data.GetMimeTypes();
 
@@ -290,7 +290,7 @@ bool DragAndDropTcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
     return false;
   }
 
-  int         mimeTypesCount = data.GetMimeTypesSize();
+  int                      mimeTypesCount = data.GetMimeTypesSize();
   std::vector<const char*> waylandMimeTypes(static_cast<size_t>(mimeTypesCount) + 1u);
   for(int i = 0; i < mimeTypesCount; ++i)
   {
@@ -321,7 +321,7 @@ bool DragAndDropTcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
     }
   }
 
-  auto   window = Dali::DevelWindow::Get(target);
+  auto                   window       = Dali::DevelWindow::Get(target);
   tizen_core_wl_window_h parentWindow = nullptr;
 
   if(!window)
@@ -338,11 +338,11 @@ bool DragAndDropTcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
   }
 
   DropTarget targetData;
-  targetData.target         = target;
-  targetData.mimeType       = mimeType;
-  targetData.callback       = callback;
-  targetData.inside         = false;
-  targetData.parentWindow   = parentWindow;
+  targetData.target       = target;
+  targetData.mimeType     = mimeType;
+  targetData.callback     = callback;
+  targetData.inside       = false;
+  targetData.parentWindow = parentWindow;
   mDropTargets.push_back(targetData);
   return true;
 }
@@ -439,10 +439,10 @@ void DragAndDropTcoreWl::ResetDropTargets()
 
 void DragAndDropTcoreWl::SendData(void* event)
 {
-  auto* ev = static_cast<tizen_core_wl_event_data_source_send_h>(event);
-  char*   typeStr = nullptr;
-  int     fd      = -1;
-  uint32_t serial = 0;
+  auto*    ev      = static_cast<tizen_core_wl_event_data_source_send_h>(event);
+  char*    typeStr = nullptr;
+  int      fd      = -1;
+  uint32_t serial  = 0;
   if(tizen_core_wl_event_data_source_send_get_type(ev, &typeStr) != TIZEN_CORE_WL_ERROR_NONE || !typeStr)
   {
     return;
@@ -475,7 +475,7 @@ void DragAndDropTcoreWl::SendData(void* event)
 
 void DragAndDropTcoreWl::ReceiveData(void* event)
 {
-  auto* ev = static_cast<tizen_core_wl_event_data_ready_h>(event);
+  auto*       ev       = static_cast<tizen_core_wl_event_data_ready_h>(event);
   void*       dataPtr  = nullptr;
   int         len      = 0;
   const char* mimetype = nullptr;
@@ -485,7 +485,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
 
   if(mTargetIndex != -1)
   {
-    const char* mimes[] = {mimetype ? mimetype : "", nullptr};
+    const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
     Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, mimes, 1, static_cast<char*>(dataPtr));
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
@@ -497,7 +497,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
 
   if(mWindowTargetIndex != -1)
   {
-    const char* mimes[] = {mimetype ? mimetype : "", nullptr};
+    const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
     Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, mimes, 1, static_cast<char*>(dataPtr));
     mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
     mDropWindowTargets[mWindowTargetIndex].inside = false;
@@ -508,7 +508,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
     {
       if(mDropWindowTargets[i].window == eventWindow)
       {
-        const char* mimes[] = {mimetype ? mimetype : "", nullptr};
+        const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
         Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, mimes, 1, static_cast<char*>(dataPtr));
         mDropWindowTargets[i].callback(dragEvent);
         break;
@@ -522,25 +522,25 @@ Vector2 DragAndDropTcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
 {
   int screenWidth, screenHeight;
   Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
-  Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
-  int                        angle      = windowImpl.GetCurrentWindowRotationAngle();
-  Dali::Window::WindowSize   size       = window.GetSize();
+  Internal::Adaptor::Window& windowImpl   = Dali::GetImplementation(window);
+  int                        angle        = windowImpl.GetCurrentWindowRotationAngle();
+  auto                       positionSize = window.GetPositionSize();
 
   int newX, newY;
   if(angle == 90)
   {
-    newX = (size.GetWidth() - 1) - y;
+    newX = (positionSize.width - 1) - y;
     newY = x;
   }
   else if(angle == 180)
   {
-    newX = (size.GetHeight() - 1) - x;
-    newY = (size.GetWidth() - 1) - y;
+    newX = (positionSize.height - 1) - x;
+    newY = (positionSize.width - 1) - y;
   }
   else if(angle == 270)
   {
     newX = y;
-    newY = (size.GetHeight() - 1) - x;
+    newY = (positionSize.height - 1) - x;
   }
   else
   {
@@ -553,14 +553,14 @@ Vector2 DragAndDropTcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
 void DragAndDropTcoreWl::TriggerDragEventForTarget(int targetIndex, void* event, char** mimes, int mimesCount, Dali::DragAndDrop::DragEvent& dragEvent)
 {
   tizen_core_wl_event_data_motion_h ev = static_cast<tizen_core_wl_event_data_motion_h>(event);
-  int x = 0, y = 0;
+  int                               x = 0, y = 0;
   tizen_core_wl_event_data_motion_get_position(ev, &x, &y);
 
-  Vector2 position = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
-  Vector2 size     = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-  Dali::Window window = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
-  Dali::Vector2 cursor = RecalculatePositionByOrientation(x, y, window);
-  bool currentInside = IsIntersection(static_cast<int>(cursor.x), static_cast<int>(cursor.y), static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.width), static_cast<int>(size.height));
+  Vector2       position      = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
+  Vector2       size          = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+  Dali::Window  window        = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
+  Dali::Vector2 cursor        = RecalculatePositionByOrientation(x, y, window);
+  bool          currentInside = IsIntersection(static_cast<int>(cursor.x), static_cast<int>(cursor.y), static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.width), static_cast<int>(size.height));
 
   tizen_core_wl_data_offer_h offer = nullptr;
   tizen_core_wl_event_data_base_get_offer(static_cast<tizen_core_wl_event_data_base_h>(event), &offer);
@@ -613,16 +613,15 @@ void DragAndDropTcoreWl::ProcessDragEventsForTargets(void* event, Dali::DragAndD
 void DragAndDropTcoreWl::TriggerDragEventForWindowTarget(int targetIndex, void* event, char** mimes, int mimesCount, Dali::DragAndDrop::DragEvent& dragEvent)
 {
   tizen_core_wl_event_data_motion_h ev = static_cast<tizen_core_wl_event_data_motion_h>(event);
-  int x = 0, y = 0;
+  int                               x = 0, y = 0;
   tizen_core_wl_event_data_motion_get_position(ev, &x, &y);
 
-  Dali::Window                 window   = mDropWindowTargets[targetIndex].target;
-  Dali::Window::WindowPosition position = window.GetPosition();
-  Dali::Window::WindowSize     size     = window.GetSize();
-  Dali::Vector2 cursor = RecalculatePositionByOrientation(x, y, window);
-  bool currentInside = IsIntersection(
-    static_cast<int>(cursor.x) + position.GetX(), static_cast<int>(cursor.y) + position.GetY(),
-    position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
+  Dali::Window  window        = mDropWindowTargets[targetIndex].target;
+  auto          positionSize  = window.GetPositionSize();
+  Dali::Vector2 cursor        = RecalculatePositionByOrientation(x, y, window);
+  bool          currentInside = IsIntersection(
+    static_cast<int>(cursor.x) + positionSize.x, static_cast<int>(cursor.y) + positionSize.y,
+    positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 
   tizen_core_wl_data_offer_h offer = nullptr;
   tizen_core_wl_event_data_base_get_offer(static_cast<tizen_core_wl_event_data_base_h>(event), &offer);
@@ -684,7 +683,7 @@ bool DragAndDropTcoreWl::CalculateDragEvent(void* event)
   int    types_num = 0;
   if(tizen_core_wl_data_get_mimes(offer, &mimetypes, &types_num) != TIZEN_CORE_WL_ERROR_NONE || !mimetypes)
   {
-    const char* mimes[] = {""};
+    const char*                  mimes[] = {""};
     Dali::DragAndDrop::DragEvent dragEvent;
     dragEvent.SetMimeTypes(mimes, 0);
     ProcessDragEventsForTargets(event, dragEvent, nullptr, 0);
@@ -719,9 +718,9 @@ bool DragAndDropTcoreWl::CalculateDragEvent(void* event)
 
 bool DragAndDropTcoreWl::ProcessDropEventsForTargets(void* event, char** mimes, int mimesCount)
 {
-  auto* ev = static_cast<tizen_core_wl_event_data_drop_h>(event);
-  tizen_core_wl_window_h eventWindow = nullptr;
-  int x = 0, y = 0;
+  auto*                      ev          = static_cast<tizen_core_wl_event_data_drop_h>(event);
+  tizen_core_wl_window_h     eventWindow = nullptr;
+  int                        x = 0, y = 0;
   tizen_core_wl_data_offer_h offer = nullptr;
   tizen_core_wl_event_data_base_get_window(static_cast<tizen_core_wl_event_data_base_h>(event), &eventWindow);
   tizen_core_wl_event_data_drop_get_position(ev, &x, &y);
@@ -740,10 +739,10 @@ bool DragAndDropTcoreWl::ProcessDropEventsForTargets(void* event, char** mimes, 
       continue;
     }
 
-    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
-    Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-    Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(x, y, window);
+    Vector2       position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
+    Vector2       size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+    Dali::Window  window   = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Vector2 cursor   = RecalculatePositionByOrientation(x, y, window);
 
     if(!IsIntersection(static_cast<int>(cursor.x), static_cast<int>(cursor.y), static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.width), static_cast<int>(size.height)))
     {
@@ -769,9 +768,9 @@ bool DragAndDropTcoreWl::ProcessDropEventsForTargets(void* event, char** mimes, 
 
 bool DragAndDropTcoreWl::ProcessDropEventsForWindowTargets(void* event, char** mimes, int mimesCount)
 {
-  auto* ev = static_cast<tizen_core_wl_event_data_drop_h>(event);
-  tizen_core_wl_window_h eventWindow = nullptr;
-  int x = 0, y = 0;
+  auto*                      ev          = static_cast<tizen_core_wl_event_data_drop_h>(event);
+  tizen_core_wl_window_h     eventWindow = nullptr;
+  int                        x = 0, y = 0;
   tizen_core_wl_data_offer_h offer = nullptr;
   tizen_core_wl_event_data_base_get_window(static_cast<tizen_core_wl_event_data_base_h>(event), &eventWindow);
   tizen_core_wl_event_data_drop_get_position(ev, &x, &y);
@@ -790,13 +789,12 @@ bool DragAndDropTcoreWl::ProcessDropEventsForWindowTargets(void* event, char** m
       continue;
     }
 
-    Dali::Window                 window   = mDropWindowTargets[i].target;
-    Dali::Window::WindowPosition position = window.GetPosition();
-    Dali::Window::WindowSize     size     = window.GetSize();
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(x, y, window);
+    Dali::Window  window       = mDropWindowTargets[i].target;
+    auto          positionSize = window.GetPositionSize();
+    Dali::Vector2 cursor       = RecalculatePositionByOrientation(x, y, window);
     if(!IsIntersection(
-         static_cast<int>(cursor.x) + position.GetX(), static_cast<int>(cursor.y) + position.GetY(),
-         position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
+         static_cast<int>(cursor.x) + positionSize.x, static_cast<int>(cursor.y) + positionSize.y,
+         positionSize.x, positionSize.y, positionSize.width, positionSize.height))
     {
       continue;
     }
@@ -848,7 +846,7 @@ void DragAndDropTcoreWl::DropTargetSceneOn(Dali::Actor target)
   {
     if((*iter).target == target)
     {
-      auto window = Dali::DevelWindow::Get(target);
+      auto                   window       = Dali::DevelWindow::Get(target);
       tizen_core_wl_window_h parentWindow = GetWindowFromNativeHandle(window.GetNativeHandle());
       if(parentWindow)
       {

@@ -54,8 +54,8 @@ class GlWindow : public BaseObject, public EventHandler::Observer, public Damage
 public:
   using KeyEventSignalType          = Dali::GlWindow::KeyEventSignalType;
   using TouchEventSignalType        = Dali::GlWindow::TouchEventSignalType;
-  using FocusChangeSignalType       = Dali::GlWindow::FocusChangeSignalType;
-  using ResizeSignalType            = Dali::GlWindow::ResizeSignalType;
+  using FocusChangedSignalType      = Dali::GlWindow::FocusChangedSignalType;
+  using ResizedSignalType           = Dali::GlWindow::ResizedSignalType;
   using VisibilityChangedSignalType = Dali::GlWindow::VisibilityChangedSignalType;
   using SignalType                  = Signal<void()>;
 
@@ -350,19 +350,19 @@ private: // From Dali::Internal::Adaptor::DamageObserver
 
 public: // Signals
   /**
-   * @copydoc Dali::GlWindow::FocusChangeSignal()
+   * @copydoc Dali::GlWindow::FocusChangedSignal()
    */
-  FocusChangeSignalType& FocusChangeSignal()
+  FocusChangedSignalType& FocusChangedSignal()
   {
-    return mFocusChangeSignal;
+    return mFocusChangedSignal;
   }
 
   /**
-   * @copydoc Dali::GlWindow::ResizeSignal()
+   * @copydoc Dali::GlWindow::ResizedSignal()
    */
-  ResizeSignalType& ResizeSignal()
+  ResizedSignalType& ResizedSignal()
   {
-    return mResizeSignal;
+    return mResizedSignal;
   }
 
   /**
@@ -376,9 +376,9 @@ public: // Signals
   /**
    * @copydoc Dali::GlWindow::TouchSignal()
    */
-  TouchEventSignalType& TouchedSignal()
+  TouchEventSignalType& TouchEventSignal()
   {
-    return mTouchedSignal;
+    return mTouchEventSignal;
   }
 
   /**
@@ -428,9 +428,9 @@ private:
 
   // Signals
   KeyEventSignalType          mKeyEventSignal;
-  TouchEventSignalType        mTouchedSignal;
-  FocusChangeSignalType       mFocusChangeSignal;
-  ResizeSignalType            mResizeSignal;
+  TouchEventSignalType        mTouchEventSignal;
+  FocusChangedSignalType      mFocusChangedSignal;
+  ResizedSignalType           mResizedSignal;
   VisibilityChangedSignalType mVisibilityChangedSignal;
 };
 

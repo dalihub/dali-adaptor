@@ -32,11 +32,6 @@ namespace Dali
 {
 namespace DevelWindow
 {
-void SetPositionSize(Window window, PositionSize positionSize)
-{
-  GetImplementation(window).SetPositionSize(positionSize);
-}
-
 Window Get(Actor actor)
 {
   return Internal::Adaptor::Window::Get(actor);
