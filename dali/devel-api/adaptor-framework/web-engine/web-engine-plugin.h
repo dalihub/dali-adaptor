@@ -250,6 +250,31 @@ public:
   using WebEngineDeviceListGetCallback = std::function<void(Dali::WebEngineDeviceListGet*, int32_t)>;
 
   /**
+   * @brief The callback to be called when playback video is ready.
+   */
+  using WebEnginePlaybackVideoReadyCallback = std::function<void(void)>;
+
+  /**
+   * @brief The callback to be called when playback video started.
+   */
+  using WebEnginePlaybackVideoStartedCallback = std::function<void(void)>;
+
+  /**
+   * @brief The callback to be called when playback video finished.
+   */
+  using WebEnginePlaybackVideoFinishedCallback = std::function<void(void)>;
+
+  /**
+   * @brief The callback to be called when playback video stopped.
+   */
+  using WebEnginePlaybackVideoStoppedCallback = std::function<void(void)>;
+
+  /**
+   * @brief The callback to be called when playback video paused.
+   */
+  using WebEnginePlaybackVideoPausedCallback = std::function<void(void)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -1107,6 +1132,41 @@ public:
    * @param[in] isWaylandWindow True if wayland window, false if EFL window.
    */
   virtual void SetVideoHole(bool enabled, bool isWaylandWindow) = 0;
+
+  /**
+   * @brief Register a callback for monitoring playback video ready events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video is ready.
+   */
+  virtual void RegisterPlaybackVideoReadyCallback(WebEnginePlaybackVideoReadyCallback callback) = 0;
+
+  /**
+   * @brief Register a callback for monitoring playback video started events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video started.
+   */
+  virtual void RegisterPlaybackVideoStartedCallback(WebEnginePlaybackVideoStartedCallback callback) = 0;
+
+  /**
+   * @brief Register a callback for monitoring playback video finished events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video finished.
+   */
+  virtual void RegisterPlaybackVideoFinishedCallback(WebEnginePlaybackVideoFinishedCallback callback) = 0;
+
+  /**
+   * @brief Register a callback for monitoring playback video stopped events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video stopped.
+   */
+  virtual void RegisterPlaybackVideoStoppedCallback(WebEnginePlaybackVideoStoppedCallback callback) = 0;
+
+  /**
+   * @brief Register a callback for monitoring playback video paused events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video paused.
+   */
+  virtual void RegisterPlaybackVideoPausedCallback(WebEnginePlaybackVideoPausedCallback callback) = 0;
 };
 
 // specialization has to be done in the same namespace

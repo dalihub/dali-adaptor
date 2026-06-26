@@ -896,6 +896,31 @@ void WebEngine::RegisterDeviceListGetCallback(Dali::WebEnginePlugin::WebEngineDe
   mPlugin->RegisterDeviceListGetCallback(callback);
 }
 
+void WebEngine::RegisterPlaybackVideoReadyCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoReadyCallback callback)
+{
+  mPlugin->RegisterPlaybackVideoReadyCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoStartedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStartedCallback callback)
+{
+  mPlugin->RegisterPlaybackVideoStartedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoFinishedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoFinishedCallback callback)
+{
+  mPlugin->RegisterPlaybackVideoFinishedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoStoppedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStoppedCallback callback)
+{
+  mPlugin->RegisterPlaybackVideoStoppedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback)
+{
+  mPlugin->RegisterPlaybackVideoPausedCallback(callback);
+}
+
 void WebEngine::FeedMouseWheel(bool yDirection, int step, int x, int y)
 {
   mPlugin->FeedMouseWheel(yDirection, step, x, y);

@@ -662,6 +662,31 @@ public:
    */
   void SetVideoHole(bool enabled, bool isWaylandWindow);
 
+  /**
+   * @copydoc Dali::WebEngine::RegisterPlaybackVideoReadyCallback()
+   */
+  void RegisterPlaybackVideoReadyCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoReadyCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterPlaybackVideoStartedCallback()
+   */
+  void RegisterPlaybackVideoStartedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStartedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterPlaybackVideoFinishedCallback()
+   */
+  void RegisterPlaybackVideoFinishedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoFinishedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterPlaybackVideoStoppedCallback()
+   */
+  void RegisterPlaybackVideoStoppedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStoppedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterPlaybackVideoPausedCallback()
+   */
+  void RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback);
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).

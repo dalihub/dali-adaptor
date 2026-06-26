@@ -941,6 +941,41 @@ public:
    */
   void SetVideoHole(bool enabled, bool isWaylandWindow);
 
+  /**
+   * @brief Register a callback for monitoring playback video ready events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video is ready.
+   */
+  void RegisterPlaybackVideoReadyCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoReadyCallback callback);
+
+  /**
+   * @brief Register a callback for monitoring playback video started events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video started.
+   */
+  void RegisterPlaybackVideoStartedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStartedCallback callback);
+
+  /**
+   * @brief Register a callback for monitoring playback video finished events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video finished.
+   */
+  void RegisterPlaybackVideoFinishedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoFinishedCallback callback);
+
+  /**
+   * @brief Register a callback for monitoring playback video stopped events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video stopped.
+   */
+  void RegisterPlaybackVideoStoppedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStoppedCallback callback);
+
+  /**
+   * @brief Register a callback for monitoring playback video paused events in Web Engine.
+   *
+   * @param[in] callback The callback function called when playback video paused.
+   */
+  void RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback);
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor
