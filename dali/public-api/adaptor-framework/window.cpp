@@ -98,6 +98,11 @@ Window Window::DownCast(BaseHandle handle)
   return Window(dynamic_cast<Dali::Internal::Adaptor::Window*>(handle.GetObjectPtr()));
 }
 
+Window Window::Get(Actor actor)
+{
+  return Internal::Adaptor::Window::Get(actor);
+}
+
 void Window::Add(Dali::Actor actor)
 {
   GetImplementation(*this).Add(actor);

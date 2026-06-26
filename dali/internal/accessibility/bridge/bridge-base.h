@@ -32,7 +32,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/application.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>

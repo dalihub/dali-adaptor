@@ -216,7 +216,7 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
                                       const Dali::DragAndDrop::DragData& data,
                                       Dali::DragAndDrop::SourceFunction  callback)
 {
-  auto parent = Dali::DevelWindow::Get(source);
+  auto parent = Dali::Window::Get(source);
   if(!parent)
   {
     return false;
@@ -298,7 +298,7 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
   }
 
   Ecore_X_Window parentWindowId = INVALID_X_WINDOW_ID;
-  auto           window         = Dali::DevelWindow::Get(target);
+  auto           window         = Dali::Window::Get(target);
 
   if(!window)
   {
@@ -758,7 +758,7 @@ void DragAndDropX11::ReceiveData(void* event)
       Dali::DragAndDrop::DragType::DROP, mPosition, mimesPool, 1, receivedData);
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
-    auto win                          = Dali::DevelWindow::Get(mDropTargets[mTargetIndex].target);
+    auto win                          = Dali::Window::Get(mDropTargets[mTargetIndex].target);
     if(win) win.Activate();
     mTargetIndex = -1;
   }
@@ -1027,7 +1027,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
         Dali::DragAndDrop::DragEvent dropEvent(Dali::DragAndDrop::DragType::DROP, Dali::Vector2(cx, cy), mimesPool, 1, const_cast<char*>(dropData));
         mDropTargets[i].callback(dropEvent);
         mDropTargets[i].inside = false;
-        auto win               = Dali::DevelWindow::Get(mDropTargets[i].target);
+        auto win               = Dali::Window::Get(mDropTargets[i].target);
         if(win) win.Activate();
         dropped = true;
         break;
@@ -1120,7 +1120,7 @@ void DragAndDropX11::DropTargetSceneOn(Dali::Actor target)
 {
   target.OnSceneSignal().Disconnect(this, &DragAndDropX11::DropTargetSceneOn);
 
-  auto window = Dali::DevelWindow::Get(target);
+  auto window = Dali::Window::Get(target);
   if(!window)
   {
     return;

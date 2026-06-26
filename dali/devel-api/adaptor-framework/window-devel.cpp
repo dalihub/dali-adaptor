@@ -32,11 +32,6 @@ namespace Dali
 {
 namespace DevelWindow
 {
-Window Get(Actor actor)
-{
-  return Internal::Adaptor::Window::Get(actor);
-}
-
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window)
 {
   return GetImplementation(window).EventProcessingFinishedSignal();

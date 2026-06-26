@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/widget-application-impl.h>
 

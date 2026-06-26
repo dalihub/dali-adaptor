@@ -254,7 +254,7 @@ DragAndDropTcoreWl::~DragAndDropTcoreWl()
 
 bool DragAndDropTcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback)
 {
-  auto         parent    = Dali::DevelWindow::Get(source);
+  auto         parent    = Dali::Window::Get(source);
   const char** dataSet   = data.GetDataSet();
   const char** mimeTypes = data.GetMimeTypes();
 
@@ -321,7 +321,7 @@ bool DragAndDropTcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
     }
   }
 
-  auto                   window       = Dali::DevelWindow::Get(target);
+  auto                   window       = Dali::Window::Get(target);
   tizen_core_wl_window_h parentWindow = nullptr;
 
   if(!window)
@@ -558,7 +558,7 @@ void DragAndDropTcoreWl::TriggerDragEventForTarget(int targetIndex, void* event,
 
   Vector2       position      = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
   Vector2       size          = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-  Dali::Window  window        = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
+  Dali::Window  window        = Dali::Window::Get(mDropTargets[targetIndex].target);
   Dali::Vector2 cursor        = RecalculatePositionByOrientation(x, y, window);
   bool          currentInside = IsIntersection(static_cast<int>(cursor.x), static_cast<int>(cursor.y), static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.width), static_cast<int>(size.height));
 
@@ -741,7 +741,7 @@ bool DragAndDropTcoreWl::ProcessDropEventsForTargets(void* event, char** mimes, 
 
     Vector2       position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2       size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-    Dali::Window  window   = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Window  window   = Dali::Window::Get(mDropTargets[i].target);
     Dali::Vector2 cursor   = RecalculatePositionByOrientation(x, y, window);
 
     if(!IsIntersection(static_cast<int>(cursor.x), static_cast<int>(cursor.y), static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(size.width), static_cast<int>(size.height)))
@@ -846,7 +846,7 @@ void DragAndDropTcoreWl::DropTargetSceneOn(Dali::Actor target)
   {
     if((*iter).target == target)
     {
-      auto                   window       = Dali::DevelWindow::Get(target);
+      auto                   window       = Dali::Window::Get(target);
       tizen_core_wl_window_h parentWindow = GetWindowFromNativeHandle(window.GetNativeHandle());
       if(parentWindow)
       {
