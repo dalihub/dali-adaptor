@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/rendering/texture.h>
 
@@ -164,6 +165,78 @@ public:
    * @return Returns The size of viewbox.
    */
   const Vector2& GetViewBox();
+
+  /**
+   * @brief Applies a drop shadow effect to the whole canvas content.
+   *
+   * Backed by the ThorVG scene effect (tvg::SceneEffect::DropShadow). The effect takes effect
+   * from the next Commit()/Rasterize().
+   *
+   * @param[in] color      Shadow color (RGBA, each channel 0.0 ~ 1.0).
+   * @param[in] offsetX    Shadow X offset in pixels (positive X is right).
+   * @param[in] offsetY    Shadow Y offset in pixels (positive Y is down).
+   * @param[in] blurRadius Blur radius in pixels. Internally converted to a Gaussian
+   *                       sigma = blurRadius * 0.5.
+   * @return Returns True when it's successful. False otherwise.
+   *
+   * @note ThorVG supports isotropic blur only, so separate X/Y blur radii are not supported.
+   *       The shadow is clipped to the canvas buffer (the layout size) unless effect auto-padding
+   *       is enabled (see SetEffectAutoPaddingEnable()).
+   */
+  bool SetDropShadow(const Vector4& color, float offsetX, float offsetY, float blurRadius);
+
+  /**
+   * @brief Removes the drop shadow effect set by SetDropShadow().
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool ClearDropShadow();
+
+  /**
+   * @brief Returns whether a drop shadow effect is currently set.
+   * @return Returns True when a drop shadow is set, False otherwise.
+   */
+  bool HasDropShadow() const;
+
+  /**
+   * @brief Applies a Gaussian blur effect to the whole canvas content.
+   *
+   * Scene effects are mutually exclusive: setting a Gaussian blur replaces a drop shadow and
+   * vice versa.
+   *
+   * @param[in] blurRadius Blur radius in pixels (internally converted to sigma = blurRadius * 0.5).
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetGaussianBlur(float blurRadius);
+
+  /**
+   * @brief Removes the Gaussian blur effect set by SetGaussianBlur().
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool ClearGaussianBlur();
+
+  /**
+   * @brief Returns whether a Gaussian blur effect is currently set.
+   * @return Returns True when a Gaussian blur is set, False otherwise.
+   */
+  bool HasGaussianBlur() const;
+
+  /**
+   * @brief Enables or disables automatic padding for scene effects (enabled by default).
+   *
+   * When enabled, the canvas is rendered into a buffer enlarged by the effect's extent so the
+   * blurred/offset result is not clipped at the canvas edges; the result is scaled back into the
+   * view, so the content appears slightly smaller. When disabled, the caller must size the
+   * CanvasView large enough (and inset the content) to leave room for the effect.
+   *
+   * @param[in] enable True to auto-pad, false to render into the exact layout-sized buffer.
+   */
+  void SetEffectAutoPaddingEnable(bool enable);
+
+  /**
+   * @brief Returns whether automatic effect padding is enabled.
+   * @return Returns True when auto-padding is enabled, False otherwise.
+   */
+  bool IsEffectAutoPaddingEnabled() const;
 
 public: // Not intended for application developers
   /// @cond internal

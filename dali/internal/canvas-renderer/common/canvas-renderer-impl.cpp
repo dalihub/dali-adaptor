@@ -19,9 +19,10 @@
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 
 // EXTERNAL INCLUDES
-#include <algorithm>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <algorithm>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
@@ -135,11 +136,20 @@ bool CanvasRenderer::Commit()
   {
     return false;
   }
-  else
+
+  // When auto-padding is enabled and an effect is active, render into a buffer enlarged by the
+  // effect margin so the offset/blurred result is not clipped. The content visual scales the
+  // larger texture back into the view, so the content appears slightly smaller but is never clipped.
+  double effectMargin = 0.0;
+#ifdef THORVG_VERSION_1
+  if(mEffectAutoPadding)
   {
-    MakeTargetBuffer(mSize);
-    mChanged = false;
+    effectMargin = GetEffectMargin();
   }
+#endif
+  MakeTargetBuffer(Vector2(mSize.width + static_cast<float>(effectMargin) * 2.0f,
+                           mSize.height + static_cast<float>(effectMargin) * 2.0f));
+  mChanged = false;
 
 #ifdef THORVG_VERSION_1
   if(mTvgCanvas->remove() != tvg::Result::Success)
@@ -168,6 +178,45 @@ bool CanvasRenderer::Commit()
     auto scaleY = mSize.height / mViewBox.height;
     mTvgRoot->scale(scaleX < scaleY ? scaleX : scaleY);
   }
+
+#ifdef THORVG_VERSION_1
+  // Shift the content inward by the auto-padding margin so the effect overflow lands inside the
+  // enlarged buffer. translate() composes after scale(), so the margin is in final pixel space.
+  if(effectMargin > 0.0)
+  {
+    mTvgRoot->translate(static_cast<float>(effectMargin), static_cast<float>(effectMargin));
+  }
+
+  // Apply the scene effect to the freshly generated root scene.
+  // mTvgRoot is regenerated on every Commit(), so the effect is re-added each time and is
+  // not affected by the duplicate() calls inside PushDrawableToGroup().
+  if(mEffect.type == EffectType::DropShadow && mEffect.sigma > 0.0)
+  {
+    if(mTvgRoot->add(tvg::SceneEffect::DropShadow,
+                     mEffect.colorR,
+                     mEffect.colorG,
+                     mEffect.colorB,
+                     mEffect.opacity,
+                     mEffect.angle,
+                     mEffect.distance,
+                     mEffect.sigma,
+                     100) != tvg::Result::Success)
+    {
+      DALI_LOG_ERROR("ThorVG DropShadow add failed [%p]\n", this);
+    }
+  }
+  else if(mEffect.type == EffectType::GaussianBlur && mEffect.sigma > 0.0)
+  {
+    if(mTvgRoot->add(tvg::SceneEffect::GaussianBlur,
+                     mEffect.sigma,
+                     0 /*direction: both*/,
+                     0 /*border: duplicate*/,
+                     100) != tvg::Result::Success)
+    {
+      DALI_LOG_ERROR("ThorVG GaussianBlur add failed [%p]\n", this);
+    }
+  }
+#endif
 
 #ifdef THORVG_VERSION_1
   if(mTvgCanvas->add(mTvgRoot) != tvg::Result::Success)
@@ -315,6 +364,145 @@ bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
 const Vector2& CanvasRenderer::GetViewBox()
 {
   return mViewBox;
+}
+
+bool CanvasRenderer::SetDropShadow(const Dali::Vector4& color, float offsetX, float offsetY, float blurRadius)
+{
+#ifdef THORVG_SUPPORT
+  // Convert the blur radius to the Gaussian sigma used by ThorVG (sigma = blurRadius * 0.5).
+  const double sigma = static_cast<double>(blurRadius) * 0.5;
+
+  // Convert the cartesian (offsetX, offsetY) offset to the polar (angle, distance) form ThorVG
+  // expects. ThorVG's DropShadow derives its pixel offset as (see tvgSwPostEffect.cpp):
+  //   offset.x =  distance * sin(angle)
+  //   offset.y = -distance * cos(angle)   (screen +y points down)
+  // i.e. the angle is measured from the vertical axis (0 = up, 90 = right, 180 = down), so the
+  // inverse of a cartesian offset (offsetX right+, offsetY down+) is angle = atan2(offsetX, -offsetY).
+  const double distance = std::hypot(static_cast<double>(offsetX), static_cast<double>(offsetY));
+  double       angle    = (distance > 0.0)
+                            ? std::atan2(static_cast<double>(offsetX), static_cast<double>(-offsetY)) * (180.0 / M_PI)
+                            : 0.0;
+  if(angle < 0.0)
+  {
+    angle += 360.0;
+  }
+
+  mEffect          = {};
+  mEffect.type     = EffectType::DropShadow;
+  mEffect.colorR   = std::clamp(static_cast<int>(color.r * 255.0f + 0.5f), 0, 255);
+  mEffect.colorG   = std::clamp(static_cast<int>(color.g * 255.0f + 0.5f), 0, 255);
+  mEffect.colorB   = std::clamp(static_cast<int>(color.b * 255.0f + 0.5f), 0, 255);
+  mEffect.opacity  = std::clamp(static_cast<int>(color.a * 255.0f + 0.5f), 0, 255);
+  mEffect.angle    = angle;
+  mEffect.distance = distance;
+  mEffect.sigma    = sigma;
+
+  mChanged = true;
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool CanvasRenderer::ClearDropShadow()
+{
+#ifdef THORVG_SUPPORT
+  if(mEffect.type != EffectType::DropShadow)
+  {
+    return true;
+  }
+  mEffect  = {};
+  mChanged = true;
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool CanvasRenderer::HasDropShadow() const
+{
+#ifdef THORVG_SUPPORT
+  return mEffect.type == EffectType::DropShadow;
+#else
+  return false;
+#endif
+}
+
+bool CanvasRenderer::SetGaussianBlur(float blurRadius)
+{
+#ifdef THORVG_SUPPORT
+  mEffect       = {};
+  mEffect.type  = EffectType::GaussianBlur;
+  mEffect.sigma = static_cast<double>(blurRadius) * 0.5; // ThorVG Gaussian sigma = blurRadius * 0.5
+
+  mChanged = true;
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool CanvasRenderer::ClearGaussianBlur()
+{
+#ifdef THORVG_SUPPORT
+  if(mEffect.type != EffectType::GaussianBlur)
+  {
+    return true;
+  }
+  mEffect  = {};
+  mChanged = true;
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool CanvasRenderer::HasGaussianBlur() const
+{
+#ifdef THORVG_SUPPORT
+  return mEffect.type == EffectType::GaussianBlur;
+#else
+  return false;
+#endif
+}
+
+void CanvasRenderer::SetEffectAutoPaddingEnable(bool enable)
+{
+#ifdef THORVG_SUPPORT
+  if(mEffectAutoPadding != enable)
+  {
+    mEffectAutoPadding = enable;
+    mChanged           = true;
+  }
+#endif
+}
+
+bool CanvasRenderer::IsEffectAutoPaddingEnabled() const
+{
+#ifdef THORVG_SUPPORT
+  return mEffectAutoPadding;
+#else
+  return false;
+#endif
+}
+
+double CanvasRenderer::GetEffectMargin() const
+{
+#ifdef THORVG_SUPPORT
+  if(mEffect.type == EffectType::None || mEffect.sigma <= 0.0)
+  {
+    return 0.0;
+  }
+  // ~3 sigma covers the visible Gaussian tail; a drop shadow additionally extends by its offset.
+  double margin = mEffect.sigma * 3.0;
+  if(mEffect.type == EffectType::DropShadow)
+  {
+    margin += mEffect.distance;
+  }
+  return std::ceil(margin);
+#else
+  return 0.0;
+#endif
 }
 
 void CanvasRenderer::MakeTargetBuffer(const Vector2& size)
