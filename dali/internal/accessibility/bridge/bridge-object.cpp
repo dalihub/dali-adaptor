@@ -27,6 +27,7 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 
 using namespace Dali::Accessibility;
+using State = Dali::Integration::Accessibility::State;
 
 namespace
 {
@@ -43,23 +44,23 @@ BridgeObject::BridgeObject()
 
 void BridgeObject::RegisterInterfaces()
 {
-  // DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT)};
+  // DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT)};
   // mStateChanged = addSignal<std::string, int, int, DBus::DbusVariant<int>, Accessible*>(desc, "StateChanged");
   // mDbusServer.addInterface("/", desc, true);
 }
 
 void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
 {
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::ACTIVE_DESCENDANT_CHANGED] || child->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::ACTIVE_DESCENDANT_CHANGED] || child->IsHidden())
   {
     return;
   }
 
   auto index = child->GetIndexInParent();
 
-  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<Address>, Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<Dali::Devel::Accessibility::Address>, Dali::Devel::Accessibility::Address>(
     GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
     "ActiveDescendantChanged",
     "",
     index,
@@ -68,17 +69,17 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
     {"", "root"});
 }
 
-void BridgeObject::Emit(Dali::SharedPtr<Accessible> obj, ObjectPropertyChangeEvent event)
+void BridgeObject::Emit(Dali::SharedPtr<Accessible> obj, Dali::Devel::Accessibility::ObjectPropertyChangeEvent event)
 {
-  static const std::unordered_map<ObjectPropertyChangeEvent, std::string_view> eventMap{
-    {ObjectPropertyChangeEvent::NAME, "accessible-name"},
-    {ObjectPropertyChangeEvent::DESCRIPTION, "accessible-description"},
-    {ObjectPropertyChangeEvent::VALUE, "accessible-value"},
-    {ObjectPropertyChangeEvent::PARENT, "accessible-parent"},
-    {ObjectPropertyChangeEvent::ROLE, "accessible-role"},
+  static const std::unordered_map<Dali::Devel::Accessibility::ObjectPropertyChangeEvent, std::string_view> eventMap{
+    {Dali::Devel::Accessibility::ObjectPropertyChangeEvent::NAME, "accessible-name"},
+    {Dali::Devel::Accessibility::ObjectPropertyChangeEvent::DESCRIPTION, "accessible-description"},
+    {Dali::Devel::Accessibility::ObjectPropertyChangeEvent::VALUE, "accessible-value"},
+    {Dali::Devel::Accessibility::ObjectPropertyChangeEvent::PARENT, "accessible-parent"},
+    {Dali::Devel::Accessibility::ObjectPropertyChangeEvent::ROLE, "accessible-role"},
   };
 
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::PROPERTY_CHANGED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::PROPERTY_CHANGED])
   {
     return;
   }
@@ -91,9 +92,9 @@ void BridgeObject::Emit(Dali::SharedPtr<Accessible> obj, ObjectPropertyChangeEve
     {
       if(auto accessible = weakObj.Lock())
       {
-        mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+        mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
           GetAccessiblePath(accessible.Get()),
-          Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+          Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
           "PropertyChange",
           eventNameString,
           0,
@@ -105,32 +106,32 @@ void BridgeObject::Emit(Dali::SharedPtr<Accessible> obj, ObjectPropertyChangeEve
   }
 }
 
-void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
+void BridgeObject::Emit(Accessible* obj, Dali::Devel::Accessibility::WindowEvent event, unsigned int detail)
 {
-  static const std::unordered_map<WindowEvent, std::string_view> eventMap{
-    {WindowEvent::PROPERTY_CHANGE, "PropertyChange"},
-    {WindowEvent::MINIMIZE, "Minimize"},
-    {WindowEvent::MAXIMIZE, "Maximize"},
-    {WindowEvent::RESTORE, "Restore"},
-    {WindowEvent::CLOSE, "Close"},
-    {WindowEvent::CREATE, "Create"},
-    {WindowEvent::REPARENT, "Reparent"},
-    {WindowEvent::DESKTOP_CREATE, "DesktopCreate"},
-    {WindowEvent::DESKTOP_DESTROY, "DesktopDestroy"},
-    {WindowEvent::DESTROY, "Destroy"},
-    {WindowEvent::ACTIVATE, "Activate"},
-    {WindowEvent::DEACTIVATE, "Deactivate"},
-    {WindowEvent::RAISE, "Raise"},
-    {WindowEvent::LOWER, "Lower"},
-    {WindowEvent::MOVE, "Move"},
-    {WindowEvent::RESIZE, "Resize"},
-    {WindowEvent::SHADE, "Shade"},
-    {WindowEvent::UU_SHADE, "uUshade"},
-    {WindowEvent::RESTYLE, "Restyle"},
-    {WindowEvent::POST_RENDER, "PostRender"},
+  static const std::unordered_map<Dali::Devel::Accessibility::WindowEvent, std::string_view> eventMap{
+    {Dali::Devel::Accessibility::WindowEvent::PROPERTY_CHANGE, "PropertyChange"},
+    {Dali::Devel::Accessibility::WindowEvent::MINIMIZE, "Minimize"},
+    {Dali::Devel::Accessibility::WindowEvent::MAXIMIZE, "Maximize"},
+    {Dali::Devel::Accessibility::WindowEvent::RESTORE, "Restore"},
+    {Dali::Devel::Accessibility::WindowEvent::CLOSE, "Close"},
+    {Dali::Devel::Accessibility::WindowEvent::CREATE, "Create"},
+    {Dali::Devel::Accessibility::WindowEvent::REPARENT, "Reparent"},
+    {Dali::Devel::Accessibility::WindowEvent::DESKTOP_CREATE, "DesktopCreate"},
+    {Dali::Devel::Accessibility::WindowEvent::DESKTOP_DESTROY, "DesktopDestroy"},
+    {Dali::Devel::Accessibility::WindowEvent::DESTROY, "Destroy"},
+    {Dali::Devel::Accessibility::WindowEvent::ACTIVATE, "Activate"},
+    {Dali::Devel::Accessibility::WindowEvent::DEACTIVATE, "Deactivate"},
+    {Dali::Devel::Accessibility::WindowEvent::RAISE, "Raise"},
+    {Dali::Devel::Accessibility::WindowEvent::LOWER, "Lower"},
+    {Dali::Devel::Accessibility::WindowEvent::MOVE, "Move"},
+    {Dali::Devel::Accessibility::WindowEvent::RESIZE, "Resize"},
+    {Dali::Devel::Accessibility::WindowEvent::SHADE, "Shade"},
+    {Dali::Devel::Accessibility::WindowEvent::UU_SHADE, "uUshade"},
+    {Dali::Devel::Accessibility::WindowEvent::RESTYLE, "Restyle"},
+    {Dali::Devel::Accessibility::WindowEvent::POST_RENDER, "PostRender"},
   };
 
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::WINDOW_CHANGED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::WINDOW_CHANGED])
   {
     return;
   }
@@ -139,9 +140,9 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 
   if(eventName != eventMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+    mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
       GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_WINDOW),
+      Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_WINDOW),
       std::string{eventName->second},
       "",
       detail,
@@ -202,7 +203,7 @@ void BridgeObject::EmitStateChanged(Dali::SharedPtr<Accessible> obj, State state
     {State::HIGHLIGHTABLE, "highlightable"},
   };
 
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::STATE_CHANGED]) // separate ?
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::STATE_CHANGED]) // separate ?
   {
     return;
   }
@@ -215,9 +216,9 @@ void BridgeObject::EmitStateChanged(Dali::SharedPtr<Accessible> obj, State state
     {
       if(auto accessible = weakObj.Lock())
       {
-        mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+        mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
           GetAccessiblePath(accessible.Get()),
-          Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+          Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
           "StateChanged",
           stateNameString,
           newValue,
@@ -231,7 +232,7 @@ void BridgeObject::EmitStateChanged(Dali::SharedPtr<Accessible> obj, State state
 
 void BridgeObject::EmitBoundsChanged(Dali::SharedPtr<Accessible> obj, Dali::BoundsInteger rect)
 {
-  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
+  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::BOUNDS_CHANGED])
   {
     return;
   }
@@ -243,9 +244,9 @@ void BridgeObject::EmitBoundsChanged(Dali::SharedPtr<Accessible> obj, Dali::Boun
       DBus::DbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
         std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
 
-      mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
+      mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Dali::Devel::Accessibility::Address>(
         GetAccessiblePath(accessible.Get()),
-        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
         "BoundsChanged",
         "",
         0,
@@ -267,21 +268,21 @@ void BridgeObject::EmitPostRender(Dali::SharedPtr<Accessible> obj)
   {
     if(auto accessible = weakObj.Lock())
     {
-      Emit(accessible.Get(), WindowEvent::POST_RENDER);
+      Emit(accessible.Get(), Dali::Devel::Accessibility::WindowEvent::POST_RENDER);
     }
   });
 }
 
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CARET_MOVED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::TEXT_CARET_MOVED])
   {
     return;
   }
 
-  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
     GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
     "TextCaretMoved",
     "",
     cursorPosition,
@@ -290,14 +291,14 @@ void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
     {"", "root"});
 }
 
-void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content)
+void BridgeObject::EmitTextChanged(Accessible* obj, Dali::Devel::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content)
 {
-  static const std::unordered_map<TextChangedState, std::string_view> stateMap{
-    {TextChangedState::INSERTED, "insert"},
-    {TextChangedState::DELETED, "delete"},
+  static const std::unordered_map<Dali::Devel::Accessibility::TextChangedState, std::string_view> stateMap{
+    {Dali::Devel::Accessibility::TextChangedState::INSERTED, "insert"},
+    {Dali::Devel::Accessibility::TextChangedState::DELETED, "delete"},
   };
 
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CHANGED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::TEXT_CHANGED])
   {
     return;
   }
@@ -306,9 +307,9 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
 
   if(stateName != stateMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<std::string>, Address>(
+    mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<std::string>, Dali::Devel::Accessibility::Address>(
       GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+      Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
       "TextChanged",
       std::string{stateName->second},
       position,
@@ -318,16 +319,16 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
   }
 }
 
-void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
+void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, Dali::Devel::Accessibility::ScreenRelativeMoveType type)
 {
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::MOVED_OUT])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::MOVED_OUT])
   {
     return;
   }
 
-  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
     GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
     "MoveOuted",
     "",
     static_cast<int>(type),
@@ -338,14 +339,14 @@ void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType 
 
 void BridgeObject::EmitScrollStarted(Accessible* obj)
 {
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::SCROLL_STARTED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::SCROLL_STARTED])
   {
     return;
   }
 
-  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
     GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
     "ScrollStarted",
     "",
     0,
@@ -356,14 +357,14 @@ void BridgeObject::EmitScrollStarted(Accessible* obj)
 
 void BridgeObject::EmitScrollFinished(Accessible* obj)
 {
-  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::SCROLL_FINISHED])
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[Dali::Integration::Accessibility::AccessibilityEvent::SCROLL_FINISHED])
   {
     return;
   }
 
-  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
     GetAccessiblePath(obj),
-    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
     "ScrollFinished",
     "",
     0,

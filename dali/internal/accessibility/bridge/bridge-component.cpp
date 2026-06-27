@@ -34,7 +34,7 @@ void BridgeComponent::RegisterInterfaces()
   // Screen Reader will call the methods with the exact names as specified in the AT-SPI Component interface:
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Component.xml
 
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::COMPONENT)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::COMPONENT)};
   AddFunctionToInterface(desc, "Contains", &BridgeComponent::IsAccessibleContainingPoint);
   AddFunctionToInterface(desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint);
   AddFunctionToInterface(desc, "GetExtents", &BridgeComponent::GetExtents);
@@ -56,17 +56,17 @@ Accessible* BridgeComponent::FindSelf() const
 
 DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->IsAccessibleContainingPoint({x, y}, static_cast<CoordinateType>(coordType));
+  return FindSelf()->IsAccessibleContainingPoint({x, y}, static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
 }
 
 DBus::ValueOrError<Accessible*> BridgeComponent::GetAccessibleAtPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<CoordinateType>(coordType));
+  return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
 }
 
 DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeComponent::GetExtents(uint32_t coordType)
 {
-  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  auto rect = FindSelf()->GetExtents(static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
 
   rect.x += mData->mExtentsOffset.first;
   rect.y += mData->mExtentsOffset.second;
@@ -76,7 +76,7 @@ DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeCompon
 
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coordType)
 {
-  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  auto rect = FindSelf()->GetExtents(static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
 
   rect.x += mData->mExtentsOffset.first;
   rect.y += mData->mExtentsOffset.second;
@@ -86,11 +86,11 @@ DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coord
 
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetSize(uint32_t coordType)
 {
-  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  auto rect = FindSelf()->GetExtents(static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
   return {static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)};
 }
 
-DBus::ValueOrError<ComponentLayer> BridgeComponent::GetLayer()
+DBus::ValueOrError<Dali::Devel::Accessibility::ComponentLayer> BridgeComponent::GetLayer()
 {
   return FindSelf()->GetLayer();
 }

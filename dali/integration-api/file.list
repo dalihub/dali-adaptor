@@ -19,7 +19,11 @@ SET( adaptor_integration_api_file_download_plugin_src_files
 
 SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
+  ${adaptor_integration_api_dir}/adaptor-framework/accessibility/accessibility-integ.h
+  ${adaptor_integration_api_dir}/adaptor-framework/accessibility/accessibility-bitset.h
+  ${adaptor_integration_api_dir}/adaptor-framework/accessibility/accessibility-bridge.h
   ${adaptor_integration_api_dir}/adaptor-framework/application-controller.h
+  ${adaptor_integration_api_dir}/adaptor-framework/accessibility/accessibility-service.h
   ${adaptor_integration_api_dir}/adaptor-framework/clipboard-integ.h
   ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/input-method-context-integ.h

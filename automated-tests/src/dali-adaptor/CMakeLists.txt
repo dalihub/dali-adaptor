@@ -9,6 +9,7 @@ SET(CAPI_LIB "dali-adaptor")
 
 SET(TC_SOURCES
     utc-Dali-Application.cpp
+    utc-Dali-Accessibility.cpp
     utc-Dali-ClipboardData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp

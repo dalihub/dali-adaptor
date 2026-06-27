@@ -24,7 +24,7 @@ using namespace Dali::Accessibility;
 
 void BridgeSocket::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::SOCKET)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::SOCKET)};
 
   AddFunctionToInterface(desc, "Embed", &BridgeSocket::Embed);
   AddFunctionToInterface(desc, "Unembed", &BridgeSocket::Unembed);
@@ -35,15 +35,15 @@ void BridgeSocket::RegisterInterfaces()
 
 Dali::SharedPtr<Socket> BridgeSocket::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::SOCKET>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::SOCKET>();
 }
 
-DBus::ValueOrError<Address> BridgeSocket::Embed(Address plug)
+DBus::ValueOrError<Dali::Devel::Accessibility::Address> BridgeSocket::Embed(Dali::Devel::Accessibility::Address plug)
 {
   return FindSelf()->Embed(plug);
 }
 
-DBus::ValueOrError<void> BridgeSocket::Unembed(Address plug)
+DBus::ValueOrError<void> BridgeSocket::Unembed(Dali::Devel::Accessibility::Address plug)
 {
   FindSelf()->Unembed(plug);
   return {};

@@ -25,7 +25,7 @@
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -197,7 +197,7 @@ void ApplicationController::PrePause()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PrePause\n");
 
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->ApplicationPaused();
   }
@@ -215,7 +215,7 @@ void ApplicationController::PreResume()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PreResume\n");
 
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->ApplicationResumed();
   }
@@ -248,7 +248,7 @@ void ApplicationController::PostTerminate()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PostTerminate\n");
 
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Terminate();
   }

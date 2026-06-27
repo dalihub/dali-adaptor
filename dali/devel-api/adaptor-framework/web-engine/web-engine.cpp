@@ -458,7 +458,7 @@ void WebEngine::ActivateAccessibility(bool activated)
   GetImplementation(*this).ActivateAccessibility(activated);
 }
 
-Accessibility::Address WebEngine::GetAccessibilityAddress()
+Dali::Devel::Accessibility::Address WebEngine::GetAccessibilityAddress()
 {
   return GetImplementation(*this).GetAccessibilityAddress();
 }

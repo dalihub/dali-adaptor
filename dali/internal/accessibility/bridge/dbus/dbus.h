@@ -36,7 +36,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/type-traits.h>
 

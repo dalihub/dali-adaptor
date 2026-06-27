@@ -678,7 +678,7 @@ void WebEngine::ActivateAccessibility(bool activated)
   mPlugin->ActivateAccessibility(activated);
 }
 
-Accessibility::Address WebEngine::GetAccessibilityAddress()
+Dali::Devel::Accessibility::Address WebEngine::GetAccessibilityAddress()
 {
   return mPlugin->GetAccessibilityAddress();
 }

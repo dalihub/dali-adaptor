@@ -43,7 +43,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
@@ -335,7 +335,7 @@ void Adaptor::Start()
 
   // Initialize accessibility bridge after callback manager is started to use Idler callback
   auto appName = GetApplicationPackageName();
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->SetApplicationName(appName);
     bridge->Initialize();

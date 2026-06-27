@@ -49,6 +49,7 @@
 #include <dali/public-api/common/shared-ptr.h>
 
 using namespace Dali::Accessibility;
+using Dali::Integration::Accessibility::Bridge;
 
 namespace // unnamed namespace
 {
@@ -104,7 +105,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::AddAccessible()
+   * @copydoc Dali::Integration::Accessibility::Bridge::AddAccessible()
    */
   bool AddAccessible(uint32_t actorId, Dali::SharedPtr<Accessible> accessible) override
   {
@@ -113,7 +114,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::RemoveAccessible()
+   * @copydoc Dali::Integration::Accessibility::Bridge::RemoveAccessible()
    */
   void RemoveAccessible(uint32_t actorId) override
   {
@@ -121,7 +122,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetAccessible()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetAccessible()
    */
   Dali::SharedPtr<Accessible> GetAccessible(Dali::Actor actor) const override
   {
@@ -131,7 +132,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetAccessible()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetAccessible()
    */
   Dali::SharedPtr<Accessible> GetAccessible(const std::string& path) const override
   {
@@ -148,13 +149,13 @@ public:
     }
     catch(const std::out_of_range& oor)
     {
-      // Handle out of range (e.g., the number is too large for uint32_t)
-      throw std::runtime_error("Out of range: number is too large for uint32_t");
+      // Handle out of Dali::Devel::Accessibility::Range (e.g., the number is too large for uint32_t)
+      throw std::runtime_error("Out of Dali::Devel::Accessibility::Range: number is too large for uint32_t");
     }
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ShouldIncludeHidden()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ShouldIncludeHidden()
    */
   bool ShouldIncludeHidden() const override
   {
@@ -182,7 +183,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitKeyEvent()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitKeyEvent()
    */
   bool EmitKeyEvent(Dali::KeyEvent keyEvent, std::function<void(Dali::KeyEvent, bool)> callback) override
   {
@@ -223,7 +224,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Pause()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Pause()
    */
   void Pause() override
   {
@@ -242,7 +243,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Resume()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Resume()
    */
   void Resume() override
   {
@@ -261,7 +262,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::StopReading()
+   * @copydoc Dali::Integration::Accessibility::Bridge::StopReading()
    */
   void StopReading(bool alsoNonDiscardable) override
   {
@@ -280,7 +281,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Say()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Say()
    */
   void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
   {
@@ -303,7 +304,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ForceDown()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ForceDown()
    */
   void ForceDown() override
   {
@@ -364,7 +365,7 @@ public:
     }
   }
   /**
-   * @copydoc Dali::Accessibility::Bridge::Terminate()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Terminate()
    */
   void Terminate() override
   {
@@ -383,10 +384,10 @@ public:
 
     if(mData)
     {
-      // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
+      // The ~Window() after this Dali::Devel::Accessibility::Point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
       for(auto windowAccessible : mApplication->mChildren)
       {
-        BridgeObject::Emit(windowAccessible, WindowEvent::DESTROY);
+        BridgeObject::Emit(windowAccessible, Dali::Devel::Accessibility::WindowEvent::DESTROY);
       }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
@@ -413,7 +414,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ForceUp()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ForceUp()
    */
   ForceUpResult ForceUp() override
   {
@@ -447,7 +448,7 @@ public:
     BridgeHyperlink::RegisterInterfaces();
     BridgeSocket::RegisterInterfaces();
 
-    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
+    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
     mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [this](int32_t id, std::string readingState)
@@ -486,7 +487,7 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::CREATE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::CREATE, 0);
     }
   }
 
@@ -531,7 +532,7 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::ACTIVATE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::ACTIVATE, 0);
     }
   }
 
@@ -546,7 +547,7 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::DEACTIVATE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::DEACTIVATE, 0);
     }
   }
 
@@ -561,7 +562,7 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::MINIMIZE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::MINIMIZE, 0);
     }
   }
 
@@ -572,12 +573,12 @@ public:
    * @param[in] detail Restored window state
    * @see BridgeObject::Emit()
    */
-  void EmitRestore(Dali::Window window, Dali::Accessibility::WindowRestoreType detail)
+  void EmitRestore(Dali::Window window, Dali::Devel::Accessibility::WindowRestoreType detail)
   {
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::RESTORE, static_cast<unsigned int>(detail));
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::RESTORE, static_cast<unsigned int>(detail));
     }
   }
 
@@ -592,12 +593,12 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(WindowEvent::MAXIMIZE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::MAXIMIZE, 0);
     }
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowCreated()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowCreated()
    */
   void WindowCreated(Dali::Window window) override
   {
@@ -608,7 +609,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowShown()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowShown()
    */
   void WindowShown(Dali::Window window) override
   {
@@ -619,7 +620,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowHidden()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowHidden()
    */
   void WindowHidden(Dali::Window window) override
   {
@@ -630,7 +631,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowFocused()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowFocused()
    */
   void WindowFocused(Dali::Window window) override
   {
@@ -641,7 +642,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowUnfocused()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowUnfocused()
    */
   void WindowUnfocused(Dali::Window window) override
   {
@@ -652,7 +653,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowMinimized()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowMinimized()
    */
   void WindowMinimized(Dali::Window window) override
   {
@@ -663,9 +664,9 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowRestored()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowRestored()
    */
-  void WindowRestored(Dali::Window window, WindowRestoreType detail) override
+  void WindowRestored(Dali::Window window, Dali::Devel::Accessibility::WindowRestoreType detail) override
   {
     if(IsUp())
     {
@@ -674,7 +675,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowMaximized()
+   * @copydoc Dali::Integration::Accessibility::Bridge::WindowMaximized()
    */
   void WindowMaximized(Dali::Window window) override
   {
@@ -685,7 +686,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ApplicationPaused()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ApplicationPaused()
    */
   void ApplicationPaused() override
   {
@@ -694,7 +695,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ApplicationResumed()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ApplicationResumed()
    */
   void ApplicationResumed() override
   {
@@ -703,7 +704,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::SuppressScreenReader()
+   * @copydoc Dali::Integration::Accessibility::Bridge::SuppressScreenReader()
    */
   void SuppressScreenReader(bool suppress) override
   {
@@ -915,7 +916,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Initialize()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Initialize()
    */
   void Initialize() override
   {
@@ -942,7 +943,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetScreenReaderEnabled()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetScreenReaderEnabled()
    */
   bool GetScreenReaderEnabled() override
   {
@@ -950,17 +951,17 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::IsEnabled()
+   * @copydoc Dali::Integration::Accessibility::Bridge::IsEnabled()
    */
   bool IsEnabled() override
   {
     return mIsEnabled;
   }
 
-  Address EmbedSocket(const Address& plug, const Address& socket) override
+  Dali::Devel::Accessibility::Address EmbedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) override
   {
     auto client = CreateSocketClient(socket);
-    auto reply  = client.method<Address(Address)>("Embed").call(plug);
+    auto reply  = client.method<Dali::Devel::Accessibility::Address(Dali::Devel::Accessibility::Address)>("Embed").call(plug);
 
     if(!reply)
     {
@@ -971,11 +972,11 @@ public:
     return std::get<0>(reply.getValues());
   }
 
-  void UnembedSocket(const Address& plug, const Address& socket) override
+  void UnembedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) override
   {
     auto client = CreateSocketClient(socket);
 
-    client.method<void(Address)>("Unembed").asyncCall([](DBus::ValueOrError<void>) {}, plug);
+    client.method<void(Dali::Devel::Accessibility::Address)>("Unembed").asyncCall([](DBus::ValueOrError<void>) {}, plug);
   }
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
@@ -1015,9 +1016,9 @@ public:
   }
 
 private:
-  DBus::DBusClient CreateSocketClient(const Address& socket)
+  DBus::DBusClient CreateSocketClient(const Dali::Devel::Accessibility::Address& socket)
   {
-    return {socket.GetBus(), ATSPI_PREFIX_PATH + socket.GetPath(), Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
+    return {socket.GetBus(), ATSPI_PREFIX_PATH + socket.GetPath(), Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::SOCKET), mConnectionPtr};
   }
 
   void RequestBusName(const std::string& busName)
@@ -1078,7 +1079,7 @@ Dali::SharedPtr<Bridge> CreateBridge()
 
 } // unnamed namespace
 
-// Dali::Accessibility::Bridge class implementation
+// Dali::Integration::Accessibility::Bridge class implementation
 
 Dali::SharedPtr<Bridge> Bridge::GetCurrentBridge()
 {
@@ -1086,7 +1087,7 @@ Dali::SharedPtr<Bridge> Bridge::GetCurrentBridge()
 
   // Guard rare case that call this API after Bridge destructor.
   // (Since static bridge didn't be nullptr at static variables destroy case.)
-  if(DALI_UNLIKELY(Dali::Accessibility::Bridge::IsTerminated()))
+  if(DALI_UNLIKELY(Dali::Integration::Accessibility::Bridge::IsTerminated()))
   {
     DALI_LOG_ERROR("Bridge destroyed! It is static destructor case. So their is no valid bridge anymore. Return nullptr instead\n");
     return Dali::SharedPtr<Bridge>();

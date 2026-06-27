@@ -15,9 +15,9 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 
@@ -62,42 +62,42 @@ void Accessibility::Accessible::SetListenPostRender(bool enabled)
 {
 }
 
-bool Accessibility::Accessible::IsAccessibleContainingPoint(Point point, CoordinateType type) const
+bool Accessibility::Accessible::IsAccessibleContainingPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) const
 {
   return false;
 }
 
-Accessibility::Accessible* Accessibility::Accessible::GetAccessibleAtPoint(Accessibility::Point p, Accessibility::CoordinateType ctype)
+Accessibility::Accessible* Accessibility::Accessible::GetAccessibleAtPoint(Dali::Devel::Accessibility::Point p, Dali::Devel::Accessibility::CoordinateType ctype)
 {
   return nullptr;
 }
 
-bool Accessibility::Component::IsAccessibleContainingPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type) const
+bool Accessibility::Component::IsAccessibleContainingPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) const
 {
   return false;
 }
 
-Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point point, Dali::Accessibility::CoordinateType type)
+Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type)
 {
   return nullptr;
-}
-
-Dali::SharedPtr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()
-{
-  return Accessibility::DummyBridge::GetInstance();
-}
-
-void Accessibility::Bridge::DisableAutoInit()
-{
-}
-
-void Accessibility::Bridge::EnableAutoInit()
-{
-}
-
-std::string Accessibility::Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId)
-{
-  return std::string{widgetInstanceId};
 }
 
 } //namespace Dali::Accessibility
+
+Dali::SharedPtr<Dali::Integration::Accessibility::Bridge> Dali::Integration::Accessibility::Bridge::GetCurrentBridge()
+{
+  return Dali::Accessibility::DummyBridge::GetInstance();
+}
+
+void Dali::Integration::Accessibility::Bridge::DisableAutoInit()
+{
+}
+
+void Dali::Integration::Accessibility::Bridge::EnableAutoInit()
+{
+}
+
+std::string Dali::Integration::Accessibility::Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId)
+{
+  return std::string{widgetInstanceId};
+}

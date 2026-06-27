@@ -66,9 +66,9 @@ public:
   std::vector<Dali::Accessibility::Accessible*> GetChildren() override;
   Dali::Accessibility::Accessible*              GetChildAtIndex(size_t index) override;
   size_t                                        GetIndexInParent() override;
-  Dali::Accessibility::Role                     GetRole() const override;
-  Dali::Accessibility::States                   GetStates() override;
-  Dali::Accessibility::Attributes               GetAttributes() const override;
+  Dali::Integration::Accessibility::Role        GetRole() const override;
+  Dali::Integration::Accessibility::States                   GetStates() override;
+  Dali::Devel::Accessibility::Attributes               GetAttributes() const override;
   void                                          InitDefaultFeatures() override;
 
   /**
@@ -80,10 +80,10 @@ public:
    */
   Dali::Accessibility::ActorAccessible* GetWindowAccessible(Dali::Window window);
 
-  bool                                       DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override;
-  std::vector<Dali::Accessibility::Relation> GetRelationSet() override;
+  bool                                       DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override;
+  std::vector<Dali::Devel::Accessibility::Relation> GetRelationSet() override;
   Dali::Actor                                GetInternalActor() const override;
-  Dali::Accessibility::Address               GetAddress() const override;
+  Dali::Devel::Accessibility::Address               GetAddress() const override;
   std::string                                GetStringProperty(std::string propertyName) const override;
 
   // Application
@@ -93,13 +93,13 @@ public:
   bool        SetIncludeHidden(bool includeHidden) override;
 
   // Socket
-  Dali::Accessibility::Address Embed(Dali::Accessibility::Address plug) override;
-  void                         Unembed(Dali::Accessibility::Address plug) override;
+  Dali::Devel::Accessibility::Address Embed(Dali::Devel::Accessibility::Address plug) override;
+  void                         Unembed(Dali::Devel::Accessibility::Address plug) override;
   void                         SetOffset(std::int32_t x, std::int32_t y) override;
 
   // Component
-  Dali::Bounds                        GetExtents(Dali::Accessibility::CoordinateType type) const override;
-  Dali::Accessibility::ComponentLayer GetLayer() const override;
+  Dali::Bounds                        GetExtents(Dali::Devel::Accessibility::CoordinateType type) const override;
+  Dali::Devel::Accessibility::ComponentLayer GetLayer() const override;
   std::int16_t                        GetMdiZOrder() const override;
   bool                                GrabFocus() override;
   double                              GetAlpha() const override;
@@ -124,10 +124,10 @@ enum class CoalescableMessages
   BOUNDS_CHANGED,                                     ///< Bounds changed
   SET_OFFSET,                                         ///< Set offset
   POST_RENDER,                                        ///< Post render
-  STATE_CHANGED_BEGIN = 500,                          ///< State changed (begin of reserved range)
-  STATE_CHANGED_END   = STATE_CHANGED_BEGIN + 99,     ///< State changed (end of reserved range)
-  PROPERTY_CHANGED_BEGIN,                             ///< Property changed (begin of reserved range)
-  PROPERTY_CHANGED_END = PROPERTY_CHANGED_BEGIN + 99, ///< Property changed (end of reserved range)
+  STATE_CHANGED_BEGIN = 500,                          ///< State changed (begin of reserved Dali::Devel::Accessibility::Range)
+  STATE_CHANGED_END   = STATE_CHANGED_BEGIN + 99,     ///< State changed (end of reserved Dali::Devel::Accessibility::Range)
+  PROPERTY_CHANGED_BEGIN,                             ///< Property changed (begin of reserved Dali::Devel::Accessibility::Range)
+  PROPERTY_CHANGED_END = PROPERTY_CHANGED_BEGIN + 99, ///< Property changed (end of reserved Dali::Devel::Accessibility::Range)
 };
 
 // Custom specialization of std::hash
@@ -146,7 +146,7 @@ struct hash<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>>
 /**
  * @brief The BridgeBase class is basic class for Bridge functions.
  */
-class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
+class BridgeBase : public Dali::Integration::Accessibility::Bridge, public Dali::ConnectionTracker
 {
   std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::tuple<unsigned int, unsigned int, std::function<void()>>> mCoalescableMessages;
 
@@ -185,37 +185,37 @@ public:
   void OnWindowFocusChanged(Dali::Window window, bool focusIn);
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetBusName()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetBusName()
    */
   const std::string& GetBusName() const override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::AddTopLevelWindow()
+   * @copydoc Dali::Integration::Accessibility::Bridge::AddTopLevelWindow()
    */
   void AddTopLevelWindow(Dali::Accessibility::Accessible* windowAccessible) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::RemoveTopLevelWindow()
+   * @copydoc Dali::Integration::Accessibility::Bridge::RemoveTopLevelWindow()
    */
   void RemoveTopLevelWindow(Dali::Accessibility::Accessible* windowAccessible) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::RegisterDefaultLabel()
+   * @copydoc Dali::Integration::Accessibility::Bridge::RegisterDefaultLabel()
    */
   void RegisterDefaultLabel(Dali::Actor actor) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::UnregisterDefaultLabel()
+   * @copydoc Dali::Integration::Accessibility::Bridge::UnregisterDefaultLabel()
    */
   void UnregisterDefaultLabel(Dali::Actor actor) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetDefaultLabel()
    */
   Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::GetApplication()
+   * @copydoc Dali::Integration::Accessibility::Bridge::GetApplication()
    */
   Dali::Accessibility::Accessible* GetApplication() const override
   {
@@ -383,12 +383,12 @@ public:
   Dali::Accessibility::Accessible* Find(const std::string& path) const;
 
   /**
-   * @brief Finds the Accessible object with the given address.
+   * @brief Finds the Accessible object with the given Dali::Devel::Accessibility::Address.
    *
-   * @param[in] ptr The unique Address of the object
+   * @param[in] ptr The unique Dali::Devel::Accessibility::Address of the object
    * @return The Accessible object corresponding to the path
    */
-  Dali::Accessibility::Accessible* Find(const Dali::Accessibility::Address& ptr) const;
+  Dali::Accessibility::Accessible* Find(const Dali::Devel::Accessibility::Address& ptr) const;
 
   /**
    * @brief Returns the target object of the currently executed DBus method call.
@@ -413,14 +413,14 @@ public:
    * @return The Accessible object (cast to a more derived type)
    *
    * @see FindCurrentObject()
-   * @see Dali::Accessibility::AtspiInterface
-   * @see Dali::Accessibility::AtspiInterfaceType
+   * @see Dali::Integration::Accessibility::AccessibilityInterface
+   * @see Dali::Integration::Accessibility::AccessibilityInterfaceType
    * @see Dali::Accessibility::Accessible::GetInterfaces()
    */
-  template<Dali::Accessibility::AtspiInterface I>
+  template<Dali::Integration::Accessibility::AccessibilityInterface I>
   auto FindCurrentObjectWithInterface() const
   {
-    using Type = Dali::Accessibility::AtspiInterfaceType<I>;
+    using Type = Dali::Integration::Accessibility::AccessibilityInterfaceType<I>;
 
     Dali::SharedPtr<Type> result;
     auto*                 currentObject = FindCurrentObject();
@@ -442,12 +442,12 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::FindByPath()
+   * @copydoc Dali::Integration::Accessibility::Bridge::FindByPath()
    */
   Dali::Accessibility::Accessible* FindByPath(const std::string& name) const override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::SetApplicationName()
+   * @copydoc Dali::Integration::Accessibility::Bridge::SetApplicationName()
    */
   void SetApplicationName(std::string name) override
   {
@@ -455,7 +455,7 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::SetToolkitName()
+   * @copydoc Dali::Integration::Accessibility::Bridge::SetToolkitName()
    */
   void SetToolkitName(std::string_view toolkitName) override
   {
@@ -499,13 +499,13 @@ private:
   void UpdateRegisteredEvents();
 
   using CacheElementType = std::tuple<
-    Dali::Accessibility::Address,
-    Dali::Accessibility::Address,
-    Dali::Accessibility::Address,
-    std::vector<Dali::Accessibility::Address>,
+    Dali::Devel::Accessibility::Address,
+    Dali::Devel::Accessibility::Address,
+    Dali::Devel::Accessibility::Address,
+    std::vector<Dali::Devel::Accessibility::Address>,
     std::vector<std::string>,
     std::string,
-    Dali::Accessibility::Role,
+    Dali::Integration::Accessibility::Role,
     std::string,
     std::array<uint32_t, 2>>;
 
@@ -526,12 +526,12 @@ protected:
   virtual ~BridgeBase();
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ForceUp()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ForceUp()
    */
   ForceUpResult ForceUp() override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::ForceDown()
+   * @copydoc Dali::Integration::Accessibility::Bridge::ForceDown()
    */
   void ForceDown() override;
 

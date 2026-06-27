@@ -64,12 +64,12 @@ public:
   };
 
   using ReadingMaterialType = DBus::ValueOrError<
-    std::unordered_map<std::string, std::string>, // attributes
+    std::unordered_map<std::string, std::string>, // Dali::Devel::Accessibility::Attributes
     std::string,                                  // name
     std::string,                                  // labeledByName
     std::string,                                  // textIfceName
     uint32_t,
-    Dali::Accessibility::States,
+    Dali::Integration::Accessibility::States,
     std::string,                      // localized name
     int32_t,                          // child count
     double,                           // current value
@@ -84,7 +84,7 @@ public:
     int32_t,                          // listChildrenCount
     int32_t,                          // firstSelectedChildIndex
     Dali::Accessibility::Accessible*, // parent
-    Dali::Accessibility::States,      // parentStateSet
+    Dali::Integration::Accessibility::States,      // parentStateSet
     int32_t,                          // parentChildCount
     uint32_t,                         // parentRole
     int32_t,                          // selectedChildCount,
@@ -95,8 +95,8 @@ public:
     std::string,                                    // role name
     std::string,                                    // name
     std::string,                                    // toolkit name
-    std::unordered_map<std::string, std::string>,   // attributes
-    Dali::Accessibility::States,                    // states
+    std::unordered_map<std::string, std::string>,   // Dali::Devel::Accessibility::Attributes
+    Dali::Integration::Accessibility::States,                    // Dali::Integration::Accessibility::States
     std::tuple<int32_t, int32_t, int32_t, int32_t>, // screen extents
     std::tuple<int32_t, int32_t, int32_t, int32_t>, // window extents
     double,                                         // current value
@@ -106,7 +106,7 @@ public:
     std::string                                     // formatted current value
     >;
 
-  using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
+  using RelationTuple = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildCount()
@@ -179,11 +179,11 @@ public:
   DBus::ValueOrError<std::vector<std::string>> GetInterfacesAsStrings();
 
   /**
-   * @brief Gets Accessible object on which surface lies the point with given coordinates.
+   * @brief Gets Accessible object on which surface lies the Dali::Devel::Accessibility::Point with given coordinates.
    *
-   * @param[in] x X coordinate of a point
-   * @param[in] y Y coordinate of a point
-   * @param[in] coordinateType The coordinate type
+   * @param[in] x X coordinate of a Dali::Devel::Accessibility::Point
+   * @param[in] y Y coordinate of a Dali::Devel::Accessibility::Point
+   * @param[in] Dali::Devel::Accessibility::CoordinateType The coordinate type
    * @return The array containing the Accessible object, recursive status, and deputy Accessible
    */
   DBus::ValueOrError<Dali::Accessibility::Accessible*, uint8_t, Dali::Accessibility::Accessible*> GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordinateType);
@@ -205,7 +205,7 @@ public:
    *
    * The "Default label" is a text that could be read by screen-reader immediately
    * after the navigation context has changed (window activates, popup shows up, tab changes) and before first UI element is highlighted.
-   * @return The array containing the Accessible object being a source of default label text, its role, and its attributes
+   * @return The array containing the Accessible object being a source of default label text, its role, and its Dali::Devel::Accessibility::Attributes
    * @note This is a Tizen only feature not present in upstream ATSPI.
    * Feature can be enabled/disabled for particular context root object by setting value of its accessibility attribute "default_label".
    */
@@ -220,12 +220,12 @@ public:
   /**
    * @copydoc Dali::Accessibility::Accessible::DoGesture()
    */
-  DBus::ValueOrError<bool> DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime);
+  DBus::ValueOrError<bool> DoGesture(Dali::Devel::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Devel::Accessibility::GestureState state, uint32_t eventTime);
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetRelationSet()
    */
-  DBus::ValueOrError<std::vector<Relation>> GetRelationSet();
+  DBus::ValueOrError<std::vector<RelationTuple>> GetRelationSet();
 
   /**
    * @copydoc Dali::Accessibility::Accessible::SetListenPostRender()

@@ -32,10 +32,18 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-actions.h>
+#include <dali/devel-api/adaptor-framework/accessibility-geometry.h>
+#include <dali/devel-api/adaptor-framework/accessibility-text.h>
+#include <dali/devel-api/adaptor-framework/accessibility-types.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
+
+namespace Dali::Integration::Accessibility
+{
+class Bridge;
+}
 
 namespace Dali::Accessibility
 {
@@ -108,16 +116,16 @@ public:
    *
    * @return Role enumeration
    *
-   * @see Dali::Accessibility::Role
+   * @see Dali::Integration::Accessibility::Role
    */
-  virtual Role GetRole() const = 0;
+  virtual Dali::Integration::Accessibility::Role GetRole() const = 0;
 
   /**
    * @brief Gets name of accessibility role.
    *
    * @return The string with human readable role converted from enumeration
    *
-   * @see Dali::Accessibility::Role
+   * @see Dali::Integration::Accessibility::Role
    * @see Accessibility::Accessible::GetRole
    */
   virtual std::string GetRoleName() const;
@@ -128,7 +136,7 @@ public:
    * @return The string with human readable role translated according to current
    * translation domain
    *
-   * @see Dali::Accessibility::Role
+   * @see Dali::Integration::Accessibility::Role
    * @see Accessibility::Accessible::GetRole
    * @see Accessibility::Accessible::GetRoleName
    *
@@ -137,23 +145,21 @@ public:
   virtual std::string GetLocalizedRoleName() const;
 
   /**
-   * @brief Gets accessibility states.
+   * @brief Gets the AT-SPI state set exported for this accessibility object.
    *
-   * @return The collection of states
+   * @return The integration accessibility state set
    *
-   * @note States class is instatation of ArrayBitset template class
-   *
-   * @see Dali::Accessibility::State
-   * @see Dali::Accessibility::ArrayBitset
+   * @see Dali::Integration::Accessibility::State
+   * @see Dali::Integration::Accessibility::States
    */
-  virtual States GetStates() = 0;
+  virtual Dali::Integration::Accessibility::States GetStates() = 0;
 
   /**
-   * @brief Gets accessibility attributes.
+   * @brief Gets accessibility Dali::Devel::Accessibility::Attributes.
    *
-   * @return The map of attributes and their values
+   * @return The map of Dali::Devel::Accessibility::Attributes and their values
    */
-  virtual Attributes GetAttributes() const = 0;
+  virtual Dali::Devel::Accessibility::Attributes GetAttributes() const = 0;
 
   /**
    * @brief Checks if this is hidden.
@@ -179,34 +185,34 @@ public:
   bool IsHighlighted() const;
 
   /**
-   * @brief Gets unique address on accessibility bus.
+   * @brief Gets unique Dali::Devel::Accessibility::Address on accessibility bus.
    *
-   * @return The Address class containing address
+   * @return The Dali::Devel::Accessibility::Address class containing Dali::Devel::Accessibility::Address
    *
-   * @see Dali::Accessibility::Address
+   * @see Dali::Devel::Accessibility::Address
    */
-  virtual Address GetAddress() const = 0;
+  virtual Dali::Devel::Accessibility::Address GetAddress() const = 0;
 
   /**
-   * @brief Deputes an object to perform provided gesture.
+   * @brief Deputes an object to perform provided Dali::Devel::Accessibility::Gesture.
    *
-   * @param[in] gestureInfo The structure describing the gesture
+   * @param[in] gestureInfo The structure describing the Dali::Devel::Accessibility::Gesture
    *
    * @return true on success, false otherwise
    *
-   * @see Dali::Accessibility::GestureInfo
+   * @see Dali::Devel::Accessibility::GestureInfo
    */
-  virtual bool DoGesture(const GestureInfo& gestureInfo) = 0;
+  virtual bool DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) = 0;
 
   /**
    * @brief Gets information about current object and all relations that connects
    * it with other accessibility objects.
    *
-   * @return The iterable collection of Relation objects
+   * @return The iterable collection of Dali::Devel::Accessibility::Relation objects
    *
-   * @see Dali::Accessibility::Relation
+   * @see Dali::Devel::Accessibility::Relation
    */
-  virtual std::vector<Relation> GetRelationSet() = 0;
+  virtual std::vector<Dali::Devel::Accessibility::Relation> GetRelationSet() = 0;
 
   /**
    * @brief Gets the Actor associated with this Accessible (if there is one).
@@ -240,7 +246,7 @@ public:
    *
    * @see DoGetInterfaces()
    */
-  AtspiInterfaces GetInterfaces() const;
+  Dali::Integration::Accessibility::AccessibilityInterfaces GetInterfaces() const;
 
   /**
    * @brief Gets all implemented interfaces.
@@ -270,7 +276,7 @@ public:
    *
    * @return All suppressed events
    */
-  AtspiEvents GetSuppressedEvents() const
+  Dali::Integration::Accessibility::AccessibilityEvents GetSuppressedEvents() const
   {
     return mSuppressedEvents;
   }
@@ -280,7 +286,7 @@ public:
    *
    * @return All suppressed events
    */
-  AtspiEvents& GetSuppressedEvents()
+  Dali::Integration::Accessibility::AccessibilityEvents& GetSuppressedEvents()
   {
     return mSuppressedEvents;
   }
@@ -310,9 +316,9 @@ public:
   std::string DumpTree(DumpDetailLevel detailLevel);
 
   // Component interface
-  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type) override;
+  virtual Accessible* GetAccessibleAtPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) override;
 
-  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const override;
+  virtual bool IsAccessibleContainingPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) const override;
 
 protected:
   Accessible()                             = default;
@@ -332,7 +338,7 @@ protected:
    * @see GetInterfaces()
    * @see GetInterfaceName()
    */
-  virtual AtspiInterfaces DoGetInterfaces() const;
+  virtual Dali::Integration::Accessibility::AccessibilityInterfaces DoGetInterfaces() const;
 
 public:
   /**
@@ -392,10 +398,10 @@ public:
   /**
    * @brief Obtains the DBus interface name for the specified AT-SPI interface.
    *
-   * @param interface AT-SPI interface identifier (e.g. AtspiInterface::ACCESSIBLE)
+   * @param interface AT-SPI interface identifier (e.g. Dali::Integration::Accessibility::AccessibilityInterface::ACCESSIBLE)
    * @return AT-SPI interface name (e.g. "org.a11y.atspi.Accessible")
    */
-  static std::string GetInterfaceName(AtspiInterface interface);
+  static std::string GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface interface);
 
   /**
    * @brief Adds an existing feature instance.
@@ -456,24 +462,24 @@ public:
   virtual void InitDefaultFeatures() = 0;
 
 private:
-  friend class Bridge;
+  friend class Dali::Integration::Accessibility::Bridge;
 
-  mutable AtspiInterfaces                                                   mInterfaces;
-  AtspiEvents                                                               mSuppressedEvents;
+  mutable Dali::Integration::Accessibility::AccessibilityInterfaces                                                   mInterfaces;
+  Dali::Integration::Accessibility::AccessibilityEvents                                                               mSuppressedEvents;
   bool                                                                      mIsOnRootLevel{false};
   std::unordered_map<std::type_index, Dali::WeakPtr<IAccessibilityFeature>> mFeatures;
 
 }; // Accessible class
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::ACCESSIBLE>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::ACCESSIBLE>
 {
-  using Type = Accessible;
+  using Type = Dali::Accessibility::Accessible;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_ACCESSIBLE_H

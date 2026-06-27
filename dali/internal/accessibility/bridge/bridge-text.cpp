@@ -30,7 +30,7 @@ void BridgeText::RegisterInterfaces()
   // Screen Reader will call the methods with the exact names as specified in the AT-SPI Text interface:
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Text.xml
 
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::TEXT)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::TEXT)};
   AddFunctionToInterface(desc, "GetText", &BridgeText::GetText);
   AddGetPropertyToInterface(desc, "CharacterCount", &BridgeText::GetCharacterCount);
   AddGetPropertyToInterface(desc, "CaretOffset", &BridgeText::GetCursorOffset);
@@ -45,7 +45,7 @@ void BridgeText::RegisterInterfaces()
 
 Dali::SharedPtr<Text> BridgeText::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::TEXT>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::TEXT>();
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)
@@ -70,7 +70,7 @@ DBus::ValueOrError<bool> BridgeText::SetCursorOffset(int32_t offset)
 
 DBus::ValueOrError<std::string, int, int> BridgeText::GetTextAtOffset(int32_t offset, uint32_t boundary)
 {
-  auto range = FindSelf()->GetTextAtOffset(offset, static_cast<TextBoundary>(boundary));
+  auto range = FindSelf()->GetTextAtOffset(offset, static_cast<Dali::Devel::Accessibility::TextBoundary>(boundary));
   return {range.content, static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
@@ -92,6 +92,6 @@ DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionIndex,
 
 DBus::ValueOrError<int32_t, int32_t, int32_t, int32_t> BridgeText::GetRangeExtents(int32_t startOffset, int32_t endOffset, uint32_t coordType)
 {
-  auto rect = FindSelf()->GetRangeExtents(startOffset, endOffset, static_cast<CoordinateType>(coordType));
+  auto rect = FindSelf()->GetRangeExtents(startOffset, endOffset, static_cast<Dali::Devel::Accessibility::CoordinateType>(coordType));
   return {static_cast<int32_t>(rect.x), static_cast<int32_t>(rect.y), static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)};
 }

@@ -1,5 +1,5 @@
-#ifndef DALI_ADAPTOR_ACCESSIBILITY_BRIDGE_H
-#define DALI_ADAPTOR_ACCESSIBILITY_BRIDGE_H
+#ifndef DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BRIDGE_H
+#define DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BRIDGE_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -30,7 +30,9 @@
 #include <unordered_set>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-events.h>
+#include <dali/devel-api/adaptor-framework/accessibility-types.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -39,6 +41,15 @@ namespace Accessibility
 {
 class Accessible;
 class ProxyAccessible;
+} // namespace Accessibility
+
+namespace Integration
+{
+namespace Accessibility
+{
+
+using Dali::Accessibility::Accessible;
+using Dali::Accessibility::ProxyAccessible;
 
 /**
  * @brief Base class for different accessibility bridges.
@@ -251,7 +262,7 @@ public:
    * @param[in] window The window to be restored
    * @param[in] detail Restored window state
    */
-  virtual void WindowRestored(Window window, WindowRestoreType detail) = 0;
+  virtual void WindowRestored(Window window, Dali::Devel::Accessibility::WindowRestoreType detail) = 0;
 
   /**
    * @brief Notifies accessibility dbus that window has just been maximized.
@@ -332,7 +343,7 @@ public:
    * @param[in] length The text length
    * @param[in] content The changed text
    **/
-  virtual void EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content) = 0;
+  virtual void EmitTextChanged(Accessible* obj, Dali::Devel::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) = 0;
 
   /**
    * @brief Emits MoveOuted event on at-spi bus.
@@ -340,7 +351,7 @@ public:
    * @param[in] obj Accessible object
    * @param[in] type Direction type when an Accessible object moves out of screen
    **/
-  virtual void EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type) = 0;
+  virtual void EmitMovedOutOfScreen(Accessible* obj, Dali::Devel::Accessibility::ScreenRelativeMoveType type) = 0;
 
   /**
    * @brief Emits ScrollStarted event on at-spi bus.
@@ -364,7 +375,7 @@ public:
    * @param[in] newValue Whether the state value is changed to new value or not.
    * @param[in] reserved Reserved. (Currently, this argument is not implemented in dali)
    **/
-  virtual void EmitStateChanged(SharedPtr<Accessible> obj, State state, int newValue, int reserved = 0) = 0;
+  virtual void EmitStateChanged(SharedPtr<Accessible> obj, Dali::Integration::Accessibility::State state, int newValue, int reserved = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
@@ -373,7 +384,7 @@ public:
    * @param[in] event The enumerated window event
    * @param[in] detail The additional parameter which interpretation depends on chosen event
    **/
-  virtual void Emit(Accessible* obj, WindowEvent event, unsigned int detail = 0) = 0;
+  virtual void Emit(Accessible* obj, Dali::Devel::Accessibility::WindowEvent event, unsigned int detail = 0) = 0;
 
   /**
    * @brief Emits property-changed event on at-spi bus.
@@ -381,7 +392,7 @@ public:
    * @param[in] obj The accessible object
    * @param[in] event Property changed event
    **/
-  virtual void Emit(SharedPtr<Accessible> obj, ObjectPropertyChangeEvent event) = 0;
+  virtual void Emit(SharedPtr<Accessible> obj, Dali::Devel::Accessibility::ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
@@ -473,12 +484,12 @@ public:
    * @param[in] plug The plug
    * @param[in] socket The socket
    *
-   * @return Address returned by the D-Bus call.
+   * @return Dali::Devel::Accessibility::Address returned by the D-Bus call.
    *
    * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
    * @see UnembedSocket()
    */
-  virtual Address EmbedSocket(const Address& plug, const Address& socket) = 0;
+  virtual Dali::Devel::Accessibility::Address EmbedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) = 0;
 
   /**
    * @brief Calls socket.Unmbed(plug) via D-Bus.
@@ -489,7 +500,7 @@ public:
    * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
    * @see EmbedSocket()
    */
-  virtual void UnembedSocket(const Address& plug, const Address& socket) = 0;
+  virtual void UnembedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) = 0;
 
   /**
    * @brief Calls socket.SetOffset(x, y) via D-Bus.
@@ -552,7 +563,7 @@ public:
    * environment variable, or if creating the real bridge failed.
    *
    * @see Dali::Accessibility::DummyBridge
-   * @see Dali::Accessibility::Bridge::EnableAutoInit
+   * @see Dali::Integration::Accessibility::Bridge::EnableAutoInit
    */
   static void DisableAutoInit();
 
@@ -562,9 +573,9 @@ public:
    * Normal applications do not have to call this function. GetCurrentBridge() tries to
    * initialize the AT-SPI bridge when it is called for the first time.
    *
-   * @see Dali::Accessibility::Bridge::DisableAutoInit
-   * @see Dali::Accessibility::Bridge::AddTopLevelWindow
-   * @see Dali::Accessibility::Bridge::SetApplicationName
+   * @see Dali::Integration::Accessibility::Bridge::DisableAutoInit
+   * @see Dali::Integration::Accessibility::Bridge::AddTopLevelWindow
+   * @see Dali::Integration::Accessibility::Bridge::SetApplicationName
    */
   static void EnableAutoInit();
 
@@ -613,7 +624,7 @@ protected:
     std::pair<std::int32_t, std::int32_t> mExtentsOffset{0, 0};
   };
   Dali::SharedPtr<Data> mData;
-  friend class Accessible;
+  friend class Dali::Accessibility::Accessible;
 
   enum class AutoInitState
   {
@@ -666,6 +677,7 @@ inline bool IsUp()
 }
 
 } // namespace Accessibility
+} // namespace Integration
 } // namespace Dali
 
-#endif // DALI_ADAPTOR_ACCESSIBILITY_BRIDGE_H
+#endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BRIDGE_H
