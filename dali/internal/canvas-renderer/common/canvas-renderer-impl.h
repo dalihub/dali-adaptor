@@ -135,9 +135,9 @@ public:
   bool HasGaussianBlur() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::SetEffectAutoPaddingEnable()
+   * @copydoc Dali::CanvasRenderer::SetEffectAutoPaddingEnabled()
    */
-  void SetEffectAutoPaddingEnable(bool enable);
+  void SetEffectAutoPaddingEnabled(bool enable);
 
   /**
    * @copydoc Dali::CanvasRenderer::IsEffectAutoPaddingEnabled()

@@ -129,9 +129,9 @@ bool CanvasRenderer::HasGaussianBlur() const
   return GetImplementation(*this).HasGaussianBlur();
 }
 
-void CanvasRenderer::SetEffectAutoPaddingEnable(bool enable)
+void CanvasRenderer::SetEffectAutoPaddingEnabled(bool enable)
 {
-  GetImplementation(*this).SetEffectAutoPaddingEnable(enable);
+  GetImplementation(*this).SetEffectAutoPaddingEnabled(enable);
 }
 
 bool CanvasRenderer::IsEffectAutoPaddingEnabled() const

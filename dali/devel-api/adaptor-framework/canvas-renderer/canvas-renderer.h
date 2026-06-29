@@ -181,7 +181,7 @@ public:
    *
    * @note ThorVG supports isotropic blur only, so separate X/Y blur radii are not supported.
    *       The shadow is clipped to the canvas buffer (the layout size) unless effect auto-padding
-   *       is enabled (see SetEffectAutoPaddingEnable()).
+   *       is enabled (see SetEffectAutoPaddingEnabled()).
    */
   bool SetDropShadow(const Vector4& color, float offsetX, float offsetY, float blurRadius);
 
@@ -230,7 +230,7 @@ public:
    *
    * @param[in] enable True to auto-pad, false to render into the exact layout-sized buffer.
    */
-  void SetEffectAutoPaddingEnable(bool enable);
+  void SetEffectAutoPaddingEnabled(bool enable);
 
   /**
    * @brief Returns whether automatic effect padding is enabled.

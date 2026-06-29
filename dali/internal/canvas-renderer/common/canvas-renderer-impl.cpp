@@ -466,7 +466,7 @@ bool CanvasRenderer::HasGaussianBlur() const
 #endif
 }
 
-void CanvasRenderer::SetEffectAutoPaddingEnable(bool enable)
+void CanvasRenderer::SetEffectAutoPaddingEnabled(bool enable)
 {
 #ifdef THORVG_SUPPORT
   if(mEffectAutoPadding != enable)
