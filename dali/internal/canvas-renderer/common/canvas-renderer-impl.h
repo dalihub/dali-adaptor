@@ -24,6 +24,7 @@
 #endif
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/rendering/texture.h>
@@ -103,6 +104,46 @@ public:
    */
   const Vector2& GetViewBox();
 
+  /**
+   * @copydoc Dali::CanvasRenderer::SetDropShadow()
+   */
+  bool SetDropShadow(const Dali::Vector4& color, float offsetX, float offsetY, float blurRadius);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::ClearDropShadow()
+   */
+  bool ClearDropShadow();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::HasDropShadow()
+   */
+  bool HasDropShadow() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::SetGaussianBlur()
+   */
+  bool SetGaussianBlur(float blurRadius);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::ClearGaussianBlur()
+   */
+  bool ClearGaussianBlur();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::HasGaussianBlur()
+   */
+  bool HasGaussianBlur() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::SetEffectAutoPaddingEnable()
+   */
+  void SetEffectAutoPaddingEnable(bool enable);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::IsEffectAutoPaddingEnabled()
+   */
+  bool IsEffectAutoPaddingEnabled() const;
+
 private:
   CanvasRenderer()                            = delete;
   CanvasRenderer(const CanvasRenderer&)       = delete;
@@ -115,6 +156,12 @@ private:
    * @param[in] viewBox The size of buffer.
    */
   void MakeTargetBuffer(const Vector2& size);
+
+  /**
+   * @brief Returns the buffer margin (pixels per side) required so the active effect is not
+   * clipped by the canvas buffer. Returns 0 when there is no effect or auto-padding is off.
+   */
+  double GetEffectMargin() const;
 
 #ifdef THORVG_SUPPORT
   /**
@@ -178,20 +225,51 @@ protected: // Seperated by platforms
 
 protected:
 #ifdef THORVG_SUPPORT
-  Dali::Texture                  mRasterizedTexture;
-  Dali::Mutex                    mMutex;
+  Dali::Texture mRasterizedTexture;
+  Dali::Mutex   mMutex;
 #ifdef THORVG_VERSION_1
-  tvg::SwCanvas*                 mTvgCanvas;
+  tvg::SwCanvas* mTvgCanvas;
 #else
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
 #endif
-  tvg::Scene*                    mTvgRoot;
+  tvg::Scene* mTvgRoot;
 #endif
   DrawableGroup::DrawableVector mDrawables;
 
   Vector2 mSize;
   Vector2 mViewBox;
   bool    mChanged;
+
+#ifdef THORVG_SUPPORT
+  /**
+   * @brief The kind of scene effect currently applied to the canvas.
+   * @note Effects are mutually exclusive in this implementation; setting one replaces the other.
+   */
+  enum class EffectType
+  {
+    None,
+    DropShadow,
+    GaussianBlur
+  };
+
+  /**
+   * @brief Scene effect parameters pre-converted to the ThorVG SceneEffect format.
+   */
+  struct EffectParams
+  {
+    EffectType type{EffectType::None};
+    int        colorR{0};
+    int        colorG{0};
+    int        colorB{0};
+    int        opacity{255};
+    double     angle{0.0};    ///< DropShadow direction in degrees, derived from offsetX/offsetY.
+    double     distance{0.0}; ///< DropShadow distance in pixels, derived from offsetX/offsetY.
+    double     sigma{0.0};    ///< Gaussian sigma, derived from blurRadius (sigma = blurRadius * 0.5).
+  };
+
+  EffectParams mEffect{};
+  bool         mEffectAutoPadding{true};
+#endif
 };
 
 } // namespace Adaptor

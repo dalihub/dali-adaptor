@@ -99,4 +99,44 @@ const Vector2& CanvasRenderer::GetViewBox()
   return GetImplementation(*this).GetViewBox();
 }
 
+bool CanvasRenderer::SetDropShadow(const Vector4& color, float offsetX, float offsetY, float blurRadius)
+{
+  return GetImplementation(*this).SetDropShadow(color, offsetX, offsetY, blurRadius);
+}
+
+bool CanvasRenderer::ClearDropShadow()
+{
+  return GetImplementation(*this).ClearDropShadow();
+}
+
+bool CanvasRenderer::HasDropShadow() const
+{
+  return GetImplementation(*this).HasDropShadow();
+}
+
+bool CanvasRenderer::SetGaussianBlur(float blurRadius)
+{
+  return GetImplementation(*this).SetGaussianBlur(blurRadius);
+}
+
+bool CanvasRenderer::ClearGaussianBlur()
+{
+  return GetImplementation(*this).ClearGaussianBlur();
+}
+
+bool CanvasRenderer::HasGaussianBlur() const
+{
+  return GetImplementation(*this).HasGaussianBlur();
+}
+
+void CanvasRenderer::SetEffectAutoPaddingEnable(bool enable)
+{
+  GetImplementation(*this).SetEffectAutoPaddingEnable(enable);
+}
+
+bool CanvasRenderer::IsEffectAutoPaddingEnabled() const
+{
+  return GetImplementation(*this).IsEffectAutoPaddingEnabled();
+}
+
 } // namespace Dali
