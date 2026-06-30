@@ -26,7 +26,6 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 #include <dali/public-api/adaptor-framework/timer.h>
@@ -687,7 +686,7 @@ Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Actor actor)
 
   if(actor)
   {
-    Dali::Window window = Dali::DevelWindow::Get(actor);
+    Dali::Window window = Dali::Window::Get(actor);
     windowHandle        = {window};
   }
 

@@ -174,6 +174,15 @@ public:
   static Window DownCast(BaseHandle handle);
 
   /**
+   * @brief Retrieves the window that the given actor is added to.
+   *
+   * @SINCE_2_5.29
+   * @param[in] actor The actor
+   * @return The window the actor is added to, or an empty handle if the actor is not added to any window
+   */
+  static Window Get(Actor actor);
+
+  /**
    * @brief Adds a child Actor to the Window.
    *
    * The child will be referenced.

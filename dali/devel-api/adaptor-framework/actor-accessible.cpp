@@ -27,7 +27,6 @@
 #include <algorithm>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 
 using Dali::Integration::ToStdString;
@@ -240,7 +239,7 @@ Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
   }
   else // CoordinateType::SCREEN
   {
-    auto window       = Dali::DevelWindow::Get(actor);
+    auto window       = Dali::Window::Get(actor);
     auto positionSize = window.GetPositionSize();
     return {rounded.x + positionSize.x, rounded.y + positionSize.y, rounded.width, rounded.height};
   }

@@ -381,7 +381,7 @@ public:
   bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result);
 
   /**
-   * @copydoc Dali::DevelWindow::Get()
+   * @copydoc Dali::Window::Get()
    */
   static Dali::Window Get(Dali::Actor actor);
 

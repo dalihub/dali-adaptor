@@ -28,7 +28,6 @@
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/action.h>
 #include <dali/devel-api/atspi-interfaces/application.h>
@@ -408,7 +407,7 @@ public:
 
     SetCurrentlyHighlightedActor(self);
 
-    auto                             window     = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::Window::Get(self);
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(true);
 
@@ -435,7 +434,7 @@ public:
 
     SetCurrentlyHighlightedActor({});
 
-    auto                             window     = Dali::DevelWindow::Get(Self());
+    auto                             window     = Dali::Window::Get(Self());
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(false);
 
@@ -452,7 +451,7 @@ public:
     States state;
     if(mRoot)
     {
-      auto window             = Dali::DevelWindow::Get(Self());
+      auto window             = Dali::Window::Get(Self());
       auto visible            = window.IsVisible();
       state[State::ENABLED]   = true;
       state[State::SENSITIVE] = true;
@@ -480,7 +479,7 @@ public:
 
     if(mRoot)
     {
-      Dali::Window                     window     = Dali::DevelWindow::Get(Self());
+      Dali::Window                     window     = Dali::Window::Get(Self());
       Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
       attributes["resID"]                         = windowImpl.GetNativeResourceId();
     }
@@ -514,7 +513,7 @@ public:
       return;
     }
 
-    auto                             window     = Dali::DevelWindow::Get(Self());
+    auto                             window     = Dali::Window::Get(Self());
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
 
     if(!mRenderNotification)

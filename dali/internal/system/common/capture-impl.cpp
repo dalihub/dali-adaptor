@@ -32,7 +32,6 @@
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/devel-api/adaptor-framework/native-image-devel.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 

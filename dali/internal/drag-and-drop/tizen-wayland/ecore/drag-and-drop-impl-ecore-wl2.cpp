@@ -209,7 +209,7 @@ DragAndDropEcoreWl::~DragAndDropEcoreWl()
 bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback)
 {
   // Get Parent Window
-  auto parent = Dali::DevelWindow::Get(source);
+  auto parent = Dali::Window::Get(source);
 
   const char** dataSet   = data.GetDataSet();
   const char** mimeTypes = data.GetMimeTypes();
@@ -263,7 +263,7 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
     }
   }
 
-  auto window = Dali::DevelWindow::Get(target);
+  auto window = Dali::Window::Get(target);
 
   int parentWindowId = INVALID_ECORE_WL2_WINDOW_ID;
 
@@ -547,7 +547,7 @@ void DragAndDropEcoreWl::TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Ev
   Vector2 size     = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
   // Recalculate Cursor by Orientation
-  Dali::Window  window        = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
+  Dali::Window  window        = Dali::Window::Get(mDropTargets[targetIndex].target);
   Dali::Vector2 cursor        = RecalculatePositionByOrientation(event->x, event->y, window);
   bool          currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
 
@@ -691,7 +691,7 @@ bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* e
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
     // Recalculate Cursor by Orientation
-    Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Window  window = Dali::Window::Get(mDropTargets[i].target);
     Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
 
     // If the drop position is in the target object region, request drop data to the source object
@@ -699,7 +699,7 @@ bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* e
     {
       mTargetIndex        = i;
       mPosition           = position;
-      Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+      Dali::Window window = Dali::Window::Get(mDropTargets[i].target);
 
       unsigned int mimeCount = (unsigned int)eina_array_count((Eina_Array*)mimes);
       for(unsigned int j = 0; j < mimeCount; ++j)
@@ -798,7 +798,7 @@ void DragAndDropEcoreWl::DropTargetSceneOn(Dali::Actor target)
   {
     if((*iter).target == target)
     {
-      auto window = Dali::DevelWindow::Get(target);
+      auto window = Dali::Window::Get(target);
 
       Ecore_Wl2_Window* parentWindow = AnyCast<Ecore_Wl2_Window*>(window.GetNativeHandle());
       if(parentWindow == nullptr)

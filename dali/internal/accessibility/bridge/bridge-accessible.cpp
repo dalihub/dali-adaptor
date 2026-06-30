@@ -27,7 +27,6 @@
 #include <locale>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
