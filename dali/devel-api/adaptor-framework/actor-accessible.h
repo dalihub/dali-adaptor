@@ -318,7 +318,7 @@ protected:
 
 private:
   // Extra overload for OnChildrenChanged() to connect to signals directly
-  void OnChildrenChanged(Dali::Actor);
+  void OnChildrenChanged(Dali::Actor parent, Dali::Actor child);
 
   // Ensures children are up to date (calls DoGetChildren() if necessary)
   void UpdateChildren();

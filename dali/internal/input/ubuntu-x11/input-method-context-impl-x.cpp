@@ -391,7 +391,7 @@ InputMethodContextX::InputMethodContextX(Dali::Actor actor)
 {
   ecore_imf_init();
 
-  actor.OnSceneSignal().Connect(this, &InputMethodContextX::OnStaged);
+  actor.SceneConnectedSignal().Connect(this, &InputMethodContextX::OnStaged);
 }
 
 InputMethodContextX::~InputMethodContextX()

@@ -92,10 +92,10 @@ ActorAccessible::ActorAccessible(Actor actor)
   mCollection{nullptr}
 {
   // Select the right overload manually because Connect(this, &OnChildrenChanged) is ambiguous.
-  void (ActorAccessible::*handler)(Dali::Actor) = &ActorAccessible::OnChildrenChanged;
+  void (ActorAccessible::*handler)(Dali::Actor, Dali::Actor) = &ActorAccessible::OnChildrenChanged;
 
-  Dali::DevelActor::ChildAddedSignal(actor).Connect(this, handler);
-  Dali::DevelActor::ChildRemovedSignal(actor).Connect(this, handler);
+  actor.ChildAddedSignal().Connect(this, handler);
+  actor.ChildRemovedSignal().Connect(this, handler);
   Dali::DevelActor::ChildOrderChangedSignal(actor).Connect(this, handler);
 }
 
@@ -250,7 +250,7 @@ void ActorAccessible::OnChildrenChanged()
   mChildrenDirty = true;
 }
 
-void ActorAccessible::OnChildrenChanged(Dali::Actor)
+void ActorAccessible::OnChildrenChanged(Dali::Actor parent, Dali::Actor child)
 {
   OnChildrenChanged();
 }

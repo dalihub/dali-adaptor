@@ -25,8 +25,8 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
+#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/events/key-event.h>
 #include <tizen_core_imf.h>
 #include <tizen_core_wl.h>
@@ -624,7 +624,7 @@ InputMethodContextTcoreWl::InputMethodContextTcoreWl(Dali::Actor actor)
   // Initialize Tizen Core IMF (plugin loader etc.)
   tizen_core_imf_init();
 
-  actor.OnSceneSignal().Connect(this, &InputMethodContextTcoreWl::OnStaged);
+  actor.SceneConnectedSignal().Connect(this, &InputMethodContextTcoreWl::OnStaged);
 }
 
 InputMethodContextTcoreWl::~InputMethodContextTcoreWl()
@@ -796,10 +796,10 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::PreEditChanged\n");
   auto context = reinterpret_cast<tizen_core_imf_context_h>(imfContext);
 
-  char*                             preEditString = nullptr;
-  int                               cursorPosition(0);
-  tizen_core_imf_preedit_attr_h*    attrs       = nullptr;
-  int                               attrsCount  = 0;
+  char*                          preEditString = nullptr;
+  int                            cursorPosition(0);
+  tizen_core_imf_preedit_attr_h* attrs      = nullptr;
+  int                            attrsCount = 0;
 
   mPreeditAttrs.Clear();
 
@@ -810,10 +810,10 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
   {
     for(int i = 0; i < attrsCount; ++i)
     {
-      tizen_core_imf_preedit_attr_h attr = attrs[i];
+      tizen_core_imf_preedit_attr_h attr         = attrs[i];
       tizen_core_imf_preedit_type_e preedit_type = TIZEN_CORE_IMF_PREEDIT_TYPE_NONE;
-      unsigned int start_index = 0u;
-      unsigned int end_index   = 0u;
+      unsigned int                  start_index  = 0u;
+      unsigned int                  end_index    = 0u;
       if(!IsTcoreSuccess(tizen_core_imf_preedit_attr_get_preedit_type(attr, &preedit_type)) ||
          !IsTcoreSuccess(tizen_core_imf_preedit_attr_get_start_index(attr, &start_index)) ||
          !IsTcoreSuccess(tizen_core_imf_preedit_attr_get_end_index(attr, &end_index)))
@@ -894,7 +894,7 @@ void InputMethodContextTcoreWl::PreEditChanged(void* data, ImfContext* imfContex
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext                         handle(this);
       Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, Dali::String(preEditString ? preEditString : ""), cursorPosition, 0);
       mEventSignal.Emit(handle, eventData);
       Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -943,7 +943,7 @@ void InputMethodContextTcoreWl::CommitReceived(void* data, ImfContext* imfContex
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext                         handle(this);
       Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
       mEventSignal.Emit(handle, eventData);
       Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1174,7 +1174,7 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           const String keyString = currentEvent.eventValue.GetElementAt(0).Get<String>();
 
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, keyString, 0, 0);
           mEventSignal.Emit(handle, eventData);
           Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1193,9 +1193,9 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          Dali::InputMethodContext            handle(this);
-          Dali::String                        preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
-          int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          Dali::InputMethodContext                         handle(this);
+          Dali::String                                     preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
+          int                                              cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
           mEventSignal.Emit(handle, eventData);
           Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1219,10 +1219,10 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          int                                 offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
-          int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          int                                              offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                              n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), offset, n_chars);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
         }
@@ -1235,7 +1235,7 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::String privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
 
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -1257,10 +1257,10 @@ void InputMethodContextTcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
-          int                                 end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          int                                              start = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                              end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, start, end);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
         }
@@ -1367,7 +1367,7 @@ void InputMethodContextTcoreWl::ApplyOptions(const Dali::Integration::InputMetho
 {
   using namespace Dali::Integration::InputMethod::Category;
 
-  int index;
+  int        index;
   const auto requestedLayout       = options.GetPanelLayout();
   const int  requestedRawVariation = GetOptionRawVariation(options);
   const auto requestedVariation    = ToPanelLayoutVariation(requestedLayout, requestedRawVariation);
@@ -1426,8 +1426,8 @@ Dali::String InputMethodContextTcoreWl::GetInputPanelUserData() const
 
   if(mIMFContext)
   {
-    int            length = 4096; // The max length is 4096 bytes
-    unsigned char* raw = nullptr;
+    int            length        = 4096; // The max length is 4096 bytes
+    unsigned char* raw           = nullptr;
     const bool     dataRetrieved = IsTcoreSuccess(tizen_core_imf_context_get_input_panel_data(mIMFContext, &raw, &length));
     if(raw && length > 0)
     {
@@ -2016,10 +2016,11 @@ bool InputMethodContextTcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     else
     {
       bool filtered = false;
-      eventHandled = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
-                                                                        TIZEN_CORE_IMF_EVENT_TYPE_KEY_DOWN,
-                                                                        keyDownEvent.handle,
-                                                                        &filtered)) && filtered;
+      eventHandled  = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
+                                                                         TIZEN_CORE_IMF_EVENT_TYPE_KEY_DOWN,
+                                                                         keyDownEvent.handle,
+                                                                         &filtered)) &&
+                     filtered;
     }
 
     // If the event has not been handled by InputMethodContext then check if we should reset our input method context
@@ -2068,10 +2069,11 @@ bool InputMethodContextTcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     tizen_core_imf_event_key_set_keycode(keyUpEvent.handle, static_cast<unsigned int>(integKeyEvent.keyCode));
 
     bool filtered = false;
-    eventHandled = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
-                                                                      TIZEN_CORE_IMF_EVENT_TYPE_KEY_UP,
-                                                                      keyUpEvent.handle,
-                                                                      &filtered)) && filtered;
+    eventHandled  = IsTcoreSuccess(tizen_core_imf_context_filter_event(mIMFContext,
+                                                                       TIZEN_CORE_IMF_EVENT_TYPE_KEY_UP,
+                                                                       keyUpEvent.handle,
+                                                                       &filtered)) &&
+                   filtered;
   }
   return eventHandled;
 }

@@ -574,7 +574,7 @@ InputMethodContextEcoreWl::InputMethodContextEcoreWl(Dali::Actor actor)
 {
   ecore_imf_init();
 
-  actor.OnSceneSignal().Connect(this, &InputMethodContextEcoreWl::OnStaged);
+  actor.SceneConnectedSignal().Connect(this, &InputMethodContextEcoreWl::OnStaged);
 }
 
 InputMethodContextEcoreWl::~InputMethodContextEcoreWl()
@@ -866,7 +866,7 @@ void InputMethodContextEcoreWl::PreEditChanged(void* data, ImfContext* imfContex
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext                         handle(this);
       Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, Dali::String(preEditString ? preEditString : ""), cursorPosition, 0);
       mEventSignal.Emit(handle, eventData);
       Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -902,7 +902,7 @@ void InputMethodContextEcoreWl::CommitReceived(void* data, ImfContext* imfContex
   {
     if(Dali::Adaptor::IsAvailable())
     {
-      Dali::InputMethodContext            handle(this);
+      Dali::InputMethodContext                         handle(this);
       Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
       mEventSignal.Emit(handle, eventData);
       Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1118,7 +1118,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
         {
           const String keyString = currentEvent.eventValue.GetElementAt(0).Get<String>();
 
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, keyString, 0, 0);
           mEventSignal.Emit(handle, eventData);
           Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1137,9 +1137,9 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          Dali::InputMethodContext            handle(this);
-          Dali::String                        preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
-          int                                 cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          Dali::InputMethodContext                         handle(this);
+          Dali::String                                     preEditString  = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
+          int                                              cursorPosition = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
           mEventSignal.Emit(handle, eventData);
           Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
@@ -1163,10 +1163,10 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          int                                 offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
-          int                                 n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          int                                              offset  = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                              n_chars = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::DELETE_SURROUNDING, Dali::String(), offset, n_chars);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
         }
@@ -1179,7 +1179,7 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
           Dali::String privateCommandSendEvent = currentEvent.eventValue.GetElementAt(0).Get<Dali::String>();
 
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::PRIVATE_COMMAND, privateCommandSendEvent, 0, 0);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mPrivateCommandReceivedSignal.Emit(handle, imfData.predictiveString);
           mKeyboardEventSignal.Emit(handle, imfData);
@@ -1201,10 +1201,10 @@ void InputMethodContextEcoreWl::TransactionEndReceived(void* data, ImfContext* i
       {
         if(Dali::Adaptor::IsAvailable())
         {
-          int                                 start = currentEvent.eventValue.GetElementAt(0).Get<int>();
-          int                                 end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
+          int                                              start = currentEvent.eventValue.GetElementAt(0).Get<int>();
+          int                                              end   = currentEvent.eventValue.GetElementAt(1).Get<int>();
           Dali::Integration::InputMethodContext::EventData imfData(Dali::Integration::InputMethodContext::SELECTION_SET, start, end);
-          Dali::InputMethodContext            handle(this);
+          Dali::InputMethodContext                         handle(this);
           mEventSignal.Emit(handle, imfData);
           mKeyboardEventSignal.Emit(handle, imfData);
         }

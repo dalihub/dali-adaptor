@@ -271,7 +271,7 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
   {
     // Target is stil not scene-on
     // Add dummy target data, and wait until target is on scene.
-    target.OnSceneSignal().Connect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
+    target.SceneConnectedSignal().Connect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
   }
   else
   {
@@ -792,7 +792,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 void DragAndDropEcoreWl::DropTargetSceneOn(Dali::Actor target)
 {
   // Disconnect scene on signal
-  target.OnSceneSignal().Disconnect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
+  target.SceneConnectedSignal().Disconnect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
 
   for(auto iter = mDropTargets.begin(), iterEnd = mDropTargets.end(); iter != iterEnd; iter++)
   {

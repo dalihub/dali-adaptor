@@ -68,7 +68,7 @@ InputMethodContextWin::InputMethodContextWin(Dali::Actor actor)
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false)
 {
-  actor.OnSceneSignal().Connect(this, &InputMethodContextWin::OnStaged);
+  actor.SceneConnectedSignal().Connect(this, &InputMethodContextWin::OnStaged);
 }
 
 InputMethodContextWin::~InputMethodContextWin()

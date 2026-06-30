@@ -67,7 +67,7 @@ InputMethodContextCocoa::InputMethodContextCocoa(Dali::Actor actor)
   mRestoreAfterFocusLost(false),
   mIdleCallbackConnected(false)
 {
-  actor.OnSceneSignal().Connect(this, &InputMethodContextCocoa::OnStaged);
+  actor.SceneConnectedSignal().Connect(this, &InputMethodContextCocoa::OnStaged);
 }
 
 InputMethodContextCocoa::~InputMethodContextCocoa()

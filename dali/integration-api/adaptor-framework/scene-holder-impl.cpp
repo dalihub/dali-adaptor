@@ -280,7 +280,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   // Connect Core Scene signals to SceneHolder bridge callbacks
   mScene.KeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEvent);
   mScene.KeyEventMonitorSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventMonitor);
-  mScene.TouchedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneTouchEvent);
+  mScene.TouchEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneTouchEvent);
   mScene.WheelEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneWheelEvent);
   mScene.KeyEventGeneratedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventGenerated);
   mScene.InterceptKeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneInterceptKeyEvent);
