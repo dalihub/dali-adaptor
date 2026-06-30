@@ -57,6 +57,11 @@ Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int 
 {
   return 0;
 }
+
+Ecore_X_Window ecore_x_window_new(Ecore_X_Window parent, int x, int y, int w, int h)
+{
+  return 0;
+}
 }
 
 int UtcDaliWindowConstructorP(void)
@@ -104,9 +109,11 @@ int UtcDaliWindowDestructorP(void)
   END_TEST;
 }
 
-int UtcDaliWindowNewN(void)
+int UtcDaliWindowNewP(void)
 {
-  // Attempt to create a new window
+  // On Ubuntu, transparency is forced to false (24-bit ColorDepth, RGB888).
+  // The test environment has no real display, so window creation fails with
+  // "Failed to create X window" (not EGL_BAD_MATCH from ColorDepth mismatch).
   try
   {
     PositionSize windowPosition(0, 0, 0, 0);
@@ -191,7 +198,7 @@ int UtcDaliWindowMaximizeN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::Maximize(instance, true);
+    instance.Maximize(true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -207,7 +214,7 @@ int UtcDaliWindowIsMaximizedN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::IsMaximized(instance);
+    instance.IsMaximized();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -224,7 +231,7 @@ int UtcDaliWindowSetMaximumSizeN(void)
   {
     Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
-    DevelWindow::SetMaximumSize(instance, size);
+    instance.SetMaximumSize(size);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -240,7 +247,7 @@ int UtcDaliWindowMinimizeN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::Minimize(instance, true);
+    instance.Minimize(true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -256,7 +263,7 @@ int UtcDaliWindowIsMinimizedN(void)
   try
   {
     Dali::Window instance;
-    DevelWindow::IsMinimized(instance);
+    instance.IsMinimized();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -267,13 +274,13 @@ int UtcDaliWindowIsMinimizedN(void)
   END_TEST;
 }
 
-int UtcDaliWindowSetMimimumSizeN(void)
+int UtcDaliWindowSetMinimumSizeN(void)
 {
   try
   {
     Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
-    DevelWindow::SetMimimumSize(instance, size);
+    instance.SetMinimumSize(size);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -412,12 +419,12 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   END_TEST;
 }
 
-int UtcDaliWindowFocusChangeSignalN(void)
+int UtcDaliWindowFocusChangedSignalN(void)
 {
   Dali::Window window;
   try
   {
-    window.FocusChangeSignal();
+    window.FocusChangedSignal();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -433,8 +440,8 @@ int UtcDaliWindowSetPositionNegative(void)
   Dali::Window instance;
   try
   {
-    Dali::Window::WindowPosition arg1;
-    instance.SetPosition(arg1);
+    Dali::PositionSize arg1;
+    instance.SetPositionSize(arg1);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -449,7 +456,7 @@ int UtcDaliWindowResizeSignalNegative(void)
   Dali::Window instance;
   try
   {
-    instance.ResizeSignal();
+    instance.ResizedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -480,7 +487,7 @@ int UtcDaliWindowTouchedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    instance.TouchedSignal();
+    instance.TouchEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -602,12 +609,12 @@ int UtcDaliWindowSetScreenOffModeNegative(void)
   END_TEST;
 }
 
-int UtcDaliWindowFocusChangeSignalNegative(void)
+int UtcDaliWindowFocusChangedSignalNegative(void)
 {
   Dali::Window instance;
   try
   {
-    instance.FocusChangeSignal();
+    instance.FocusChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -857,8 +864,9 @@ int UtcDaliWindowSetSizeNegative(void)
   Dali::Window instance;
   try
   {
+    auto            positionSize = instance.GetPositionSize();
     Dali::Int32Pair arg1;
-    instance.SetSize(arg1);
+    instance.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, arg1.GetX(), arg1.GetY()));
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -921,7 +929,7 @@ int UtcDaliWindowGetPositionNegative(void)
   Dali::Window instance;
   try
   {
-    instance.GetPosition();
+    instance.GetPositionSize();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1165,7 +1173,7 @@ int UtcDaliWindowGetSizeNegative(void)
   Dali::Window instance;
   try
   {
-    instance.GetSize();
+    instance.GetPositionSize();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1226,7 +1234,7 @@ int UtcDaliWindowGetNativeIdNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetNativeId(arg1);
+    arg1.GetNativeId();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1242,7 +1250,7 @@ int UtcDaliWindowSetPositionSizeNegative(void)
   {
     Dali::Window        arg1;
     Dali::BoundsInteger arg2;
-    DevelWindow::SetPositionSize(arg1, arg2);
+    arg1.SetPositionSize(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1257,7 +1265,7 @@ int UtcDaliWindowWheelEventSignalNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::WheelEventSignal(arg1);
+    arg1.WheelEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1272,7 +1280,7 @@ int UtcDaliWindowGetCurrentOrientationNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetCurrentOrientation(arg1);
+    arg1.GetCurrentOrientation();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1302,7 +1310,7 @@ int UtcDaliWindowVisibilityChangedSignalNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::VisibilityChangedSignal(arg1);
+    arg1.VisibilityChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1319,7 +1327,7 @@ int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
     Dali::Window        arg1;
     Dali::CallbackBase* arg2 = nullptr;
     int                 arg3(0);
-    DevelWindow::AddFrameRenderedCallback(arg1, arg2, arg3);
+    arg1.AddFrameRenderedCallback(arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1335,7 +1343,7 @@ int UtcDaliWindowSetAvailableOrientationsNegative(void)
   {
     Dali::Window                          arg1;
     Dali::Vector<Dali::WindowOrientation> arg2;
-    DevelWindow::SetAvailableOrientations(arg1, arg2);
+    arg1.SetAvailableOrientations(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1352,7 +1360,7 @@ int UtcDaliWindowAddFramePresentedCallbackNegative(void)
     Dali::Window        arg1;
     Dali::CallbackBase* arg2 = nullptr;
     int                 arg3(0);
-    DevelWindow::AddFramePresentedCallback(arg1, arg2, arg3);
+    arg1.AddFramePresentedCallback(arg2, arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1392,27 +1400,12 @@ int UtcDaliWindowEventProcessingFinishedSignalNegative(void)
   END_TEST;
 }
 
-int UtcDaliWindowKeyboardRepeatSettingsChangedSignalNegative(void)
-{
-  try
-  {
-    Dali::Window arg1;
-    DevelWindow::KeyboardRepeatSettingsChangedSignal(arg1);
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true); // We expect an assert
-  }
-  END_TEST;
-}
-
 int UtcDaliWindowUnparentNegative(void)
 {
   try
   {
     Dali::Window arg1;
-    DevelWindow::Unparent(arg1);
+    arg1.Unparent();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1427,7 +1420,7 @@ int UtcDaliWindowGetParentNegative(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetParent(arg1);
+    arg1.GetParent();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1443,7 +1436,7 @@ int UtcDaliWindowSetParentNegative(void)
   {
     Dali::Window arg1;
     Dali::Window arg2;
-    DevelWindow::SetParent(arg1, arg2);
+    arg1.SetParent(arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1459,7 +1452,7 @@ int UtcDaliWindowSetParentWithBelowParentNegative(void)
   {
     Dali::Window arg1;
     Dali::Window arg2;
-    DevelWindow::SetParent(arg1, arg2, true);
+    arg1.SetParent(arg2, true);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1475,7 +1468,7 @@ int UtcDaliWindowAddInputRegion(void)
   try
   {
     BoundsInteger includedInputRegion(0, 0, 720, 640);
-    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+    instance.IncludeInputRegion(includedInputRegion);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1491,10 +1484,10 @@ int UtcDaliWindowSubtractInputRegion(void)
   try
   {
     BoundsInteger includedInputRegion(0, 0, 720, 1280);
-    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+    instance.IncludeInputRegion(includedInputRegion);
 
     BoundsInteger excludedInputRegion(0, 641, 720, 640);
-    DevelWindow::ExcludeInputRegion(instance, excludedInputRegion);
+    instance.ExcludeInputRegion(excludedInputRegion);
 
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1556,7 +1549,7 @@ int UtcDaliWindowMovedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MovedSignal(instance);
+    instance.MovedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1571,7 +1564,7 @@ int UtcDaliWindowOrientationChangedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::OrientationChangedSignal(instance);
+    instance.OrientationChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1586,7 +1579,7 @@ int UtcDaliWindowMouseInOutSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MouseInOutEventSignal(instance);
+    instance.MouseInOutEventSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1616,7 +1609,7 @@ int UtcDaliWindowMoveCompletedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::MoveCompletedSignal(instance);
+    instance.MoveCompletedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1631,7 +1624,22 @@ int UtcDaliWindowResizeCompletedSignalNegative(void)
   Dali::Window instance;
   try
   {
-    DevelWindow::ResizeCompletedSignal(instance);
+    instance.ResizeCompletedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowInsetsChangedSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.InsetsChangedSignal();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1661,7 +1669,7 @@ int UtcDaliWindowGetLastPanGestureState(void)
   try
   {
     Dali::Window arg1;
-    DevelWindow::GetLastPanGestureState(arg1);
+    arg1.GetLastPanGestureState();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

@@ -33,6 +33,7 @@
 #include <dali/public-api/events/wheel-event.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/clipboard-integ.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/styling/common/style-monitor-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -142,7 +143,7 @@ void EventHandler::OnFocusChanged(bool focusIn)
       Dali::Clipboard clipboard = Clipboard::Get();
       if(clipboard)
       {
-        clipboard.HideClipboard();
+        Integration::Clipboard::HideClipboard(clipboard);
       }
     }
     else
@@ -151,8 +152,7 @@ void EventHandler::OnFocusChanged(bool focusIn)
       Dali::Clipboard clipboard = Clipboard::Get();
       if(clipboard)
       {
-        Clipboard& clipBoardImpl(GetImplementation(clipboard));
-        clipBoardImpl.HideClipboard(true);
+        Integration::Clipboard::HideClipboard(clipboard, true);
       }
     }
   }

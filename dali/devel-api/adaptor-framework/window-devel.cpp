@@ -16,7 +16,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
 
@@ -32,39 +32,14 @@ namespace Dali
 {
 namespace DevelWindow
 {
-void SetPositionSize(Window window, PositionSize positionSize)
-{
-  GetImplementation(window).SetPositionSize(positionSize);
-}
-
-Window Get(Actor actor)
-{
-  return Internal::Adaptor::Window::Get(actor);
-}
-
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window)
 {
   return GetImplementation(window).EventProcessingFinishedSignal();
 }
 
-WheelEventSignalType& WheelEventSignal(Window window)
-{
-  return GetImplementation(window).WheelEventSignal();
-}
-
-VisibilityChangedSignalType& VisibilityChangedSignal(Window window)
-{
-  return GetImplementation(window).VisibilityChangedSignal();
-}
-
 TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window)
 {
   return GetImplementation(window).TransitionEffectEventSignal();
-}
-
-KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window)
-{
-  return GetImplementation(window).KeyboardRepeatSettingsChangedSignal();
 }
 
 AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
@@ -77,74 +52,9 @@ AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window)
   return GetImplementation(window).AccessibilityHighlightSignal();
 }
 
-MovedSignalType& MovedSignal(Window window)
-{
-  return GetImplementation(window).MovedSignal();
-}
-
-OrientationChangedSignalType& OrientationChangedSignal(Window window)
-{
-  return GetImplementation(window).OrientationChangedSignal();
-}
-
-MoveCompletedSignalType& MoveCompletedSignal(Window window)
-{
-  return GetImplementation(window).MoveCompletedSignal();
-}
-
-ResizeCompletedSignalType& ResizeCompletedSignal(Window window)
-{
-  return GetImplementation(window).ResizeCompletedSignal();
-}
-
-void SetParent(Window window, Window parent)
-{
-  GetImplementation(window).SetParent(parent);
-}
-
-void SetParent(Window window, Window parent, bool belowParent)
-{
-  GetImplementation(window).SetParent(parent, belowParent);
-}
-
-void Unparent(Window window)
-{
-  GetImplementation(window).Unparent();
-}
-
-Window GetParent(Window window)
-{
-  return GetImplementation(window).GetParent();
-}
-
-WindowOrientation GetCurrentOrientation(Window window)
-{
-  return GetImplementation(window).GetCurrentOrientation();
-}
-
 int GetPhysicalOrientation(Window window)
 {
   return GetImplementation(window).GetPhysicalOrientation();
-}
-
-void SetAvailableOrientations(Window window, const Dali::Vector<WindowOrientation>& orientations)
-{
-  GetImplementation(window).SetAvailableOrientations(orientations);
-}
-
-int32_t GetNativeId(Window window)
-{
-  return GetImplementation(window).GetNativeId();
-}
-
-void AddFrameRenderedCallback(Window window, CallbackBase* callback, int32_t frameId)
-{
-  GetImplementation(window).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
-}
-
-void AddFramePresentedCallback(Window window, CallbackBase* callback, int32_t frameId)
-{
-  GetImplementation(window).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
 }
 
 void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation)
@@ -152,34 +62,9 @@ void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, Wi
   GetImplementation(window).SetPositionSizeWithOrientation(positionSize, orientation);
 }
 
-void RequestMoveToServer(Window window)
-{
-  GetImplementation(window).RequestMoveToServer();
-}
-
 void RequestResizeToServer(Window window, WindowResizeDirection direction)
 {
   GetImplementation(window).RequestResizeToServer(direction);
-}
-
-void EnableFloatingMode(Window window, bool enable)
-{
-  GetImplementation(window).EnableFloatingMode(enable);
-}
-
-bool IsFloatingModeEnabled(Window window)
-{
-  return GetImplementation(window).IsFloatingModeEnabled();
-}
-
-void IncludeInputRegion(Window window, const BoundsInteger& inputRegion)
-{
-  GetImplementation(window).IncludeInputRegion(inputRegion);
-}
-
-void ExcludeInputRegion(Window window, const BoundsInteger& inputRegion)
-{
-  GetImplementation(window).ExcludeInputRegion(inputRegion);
 }
 
 void SetNeedsRotationCompletedAcknowledgement(Window window, bool needAcknowledgement)
@@ -192,99 +77,9 @@ void SendRotationCompletedAcknowledgement(Window window)
   GetImplementation(window).SendRotationCompletedAcknowledgement();
 }
 
-void FeedTouchPoint(Window window, const Dali::TouchPoint& point, int32_t timeStamp)
-{
-  Integration::Point convertedPoint(point);
-  GetImplementation(window).FeedTouchPoint(convertedPoint, timeStamp);
-}
-
-void FeedWheelEvent(Window window, Dali::WheelEvent wheelEvent)
-{
-  Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
-  GetImplementation(window).FeedWheelEvent(convertedEvent);
-}
-
-void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
-{
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
-                                       keyEvent.GetLogicalKey(),
-                                       keyEvent.GetKeyString(),
-                                       keyEvent.GetKeyCode(),
-                                       keyEvent.GetKeyModifier(),
-                                       keyEvent.GetTime(),
-                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                                       keyEvent.GetCompose(),
-                                       keyEvent.GetDeviceName(),
-                                       keyEvent.GetDeviceClass(),
-                                       keyEvent.GetDeviceSubclass());
-  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
-  GetImplementation(window).FeedKeyEvent(convertedEvent);
-}
-
-void FeedHoverEvent(Window window, const Dali::TouchPoint& point)
-{
-  Integration::Point convertedPoint(point);
-  GetImplementation(window).FeedHoverEvent(convertedPoint);
-}
-
-void Maximize(Window window, bool maximize)
-{
-  GetImplementation(window).Maximize(maximize);
-}
-
-bool IsMaximized(Window window)
-{
-  return GetImplementation(window).IsMaximized();
-}
-
-void SetMaximumSize(Window window, Dali::Window::WindowSize size)
-{
-  GetImplementation(window).SetMaximumSize(size);
-}
-
-void Minimize(Window window, bool miniimize)
-{
-  GetImplementation(window).Minimize(miniimize);
-}
-
-bool IsMinimized(Window window)
-{
-  return GetImplementation(window).IsMinimized();
-}
-
-void SetMimimumSize(Window window, Dali::Window::WindowSize size)
-{
-  GetImplementation(window).SetMimimumSize(size);
-}
-
 void MaximizeWithRestoreSize(Window window, bool maximize, Dali::Window::WindowSize size)
 {
   GetImplementation(window).MaximizeWithRestoreSize(maximize, size);
-}
-
-bool IsWindowRotating(Window window)
-{
-  return GetImplementation(window).IsWindowRotating();
-}
-
-const KeyEvent& GetLastKeyEvent(Window window)
-{
-  return GetImplementation(window).GetLastKeyEvent();
-}
-
-const TouchEvent& GetLastTouchEvent(Window window)
-{
-  return GetImplementation(window).GetLastTouchEvent();
-}
-
-const HoverEvent& GetLastHoverEvent(Window window)
-{
-  return GetImplementation(window).GetLastHoverEvent();
-}
-
-GestureState GetLastPanGestureState(Window window)
-{
-  return GetImplementation(window).GetLastPanGestureState();
 }
 
 bool PointerConstraintsLock(Window window)
@@ -337,16 +132,6 @@ bool GetFullScreen(Window window)
   return GetImplementation(window).GetFullScreen();
 }
 
-void SetFrontBufferRendering(Window window, bool enable)
-{
-  GetImplementation(window).SetFrontBufferRendering(enable);
-}
-
-bool GetFrontBufferRendering(Window window)
-{
-  return GetImplementation(window).GetFrontBufferRendering();
-}
-
 void SetModal(Window window, bool modal)
 {
   GetImplementation(window).SetModal(modal);
@@ -355,16 +140,6 @@ void SetModal(Window window, bool modal)
 bool IsModal(Window window)
 {
   return GetImplementation(window).IsModal();
-}
-
-void SetAlwaysOnTop(Window window, bool alwaysOnTop)
-{
-  GetImplementation(window).SetAlwaysOnTop(alwaysOnTop);
-}
-
-bool IsAlwaysOnTop(Window window)
-{
-  return GetImplementation(window).IsAlwaysOnTop();
 }
 
 void SetBottom(Window window, bool enable)
@@ -412,16 +187,6 @@ Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags)
   return GetImplementation(window).GetInsets(insetsFlags);
 }
 
-void SetScreen(Window window, const std::string& screenName)
-{
-  GetImplementation(window).SetScreen(screenName);
-}
-
-std::string GetScreen(Window window)
-{
-  return GetImplementation(window).GetScreen();
-}
-
 void SetForceRendering(Window window, uint32_t frameCount)
 {
   return GetImplementation(window).SetForceRendering(frameCount);
@@ -430,16 +195,6 @@ void SetForceRendering(Window window, uint32_t frameCount)
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();
-}
-
-MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
-{
-  return GetImplementation(window).MouseInOutEventSignal();
-}
-
-InsetsChangedSignalType& InsetsChangedSignal(Window window)
-{
-  return GetImplementation(window).InsetsChangedSignal();
 }
 
 MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)

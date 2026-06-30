@@ -24,9 +24,9 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
-#include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DragAndDrop
@@ -209,7 +209,7 @@ DragAndDropEcoreWl::~DragAndDropEcoreWl()
 bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback)
 {
   // Get Parent Window
-  auto parent = Dali::DevelWindow::Get(source);
+  auto parent = Dali::Window::Get(source);
 
   const char** dataSet   = data.GetDataSet();
   const char** mimeTypes = data.GetMimeTypes();
@@ -263,7 +263,7 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
     }
   }
 
-  auto window = Dali::DevelWindow::Get(target);
+  auto window = Dali::Window::Get(target);
 
   int parentWindowId = INVALID_ECORE_WL2_WINDOW_ID;
 
@@ -507,27 +507,27 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
 {
   int screenWidth, screenHeight;
   Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
-  Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
-  int                        angle      = windowImpl.GetCurrentWindowRotationAngle();
-  Dali::Window::WindowSize   size       = window.GetSize();
+  Internal::Adaptor::Window& windowImpl   = Dali::GetImplementation(window);
+  int                        angle        = windowImpl.GetCurrentWindowRotationAngle();
+  auto                       positionSize = window.GetPositionSize();
 
   int           newX, newY;
   Dali::Vector2 newPosition;
 
   if(angle == 90)
   {
-    newX = (size.GetWidth() - 1) - y;
+    newX = (positionSize.width - 1) - y;
     newY = x;
   }
   else if(angle == 180)
   {
-    newX = (size.GetHeight() - 1) - x;
-    newY = (size.GetWidth() - 1) - y;
+    newX = (positionSize.height - 1) - x;
+    newY = (positionSize.width - 1) - y;
   }
   else if(angle == 270)
   {
     newX = y;
-    newY = (size.GetHeight() - 1) - x;
+    newY = (positionSize.height - 1) - x;
   }
   else
   {
@@ -547,7 +547,7 @@ void DragAndDropEcoreWl::TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Ev
   Vector2 size     = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
   // Recalculate Cursor by Orientation
-  Dali::Window  window        = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
+  Dali::Window  window        = Dali::Window::Get(mDropTargets[targetIndex].target);
   Dali::Vector2 cursor        = RecalculatePositionByOrientation(event->x, event->y, window);
   bool          currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
 
@@ -597,12 +597,11 @@ void DragAndDropEcoreWl::ProcessDragEventsForTargets(Ecore_Wl2_Event_Dnd_Motion*
 void DragAndDropEcoreWl::TriggerDragEventForWindowTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent)
 {
   // Recalculate Cursor by Orientation
-  Dali::Window                 window   = mDropWindowTargets[targetIndex].target;
-  Dali::Window::WindowPosition position = window.GetPosition();
-  Dali::Window::WindowSize     size     = window.GetSize();
+  Dali::Window window       = mDropWindowTargets[targetIndex].target;
+  auto         positionSize = window.GetPositionSize();
 
   Dali::Vector2 cursor        = RecalculatePositionByOrientation(event->x, event->y, window);
-  bool          currentInside = IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
+  bool          currentInside = IsIntersection(cursor.x + positionSize.x, cursor.y + positionSize.y, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 
   // Calculate Drag Enter, Leave, Move Event
   if(currentInside && !mDropWindowTargets[targetIndex].inside)
@@ -692,7 +691,7 @@ bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* e
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
     // Recalculate Cursor by Orientation
-    Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Window  window = Dali::Window::Get(mDropTargets[i].target);
     Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
 
     // If the drop position is in the target object region, request drop data to the source object
@@ -700,7 +699,7 @@ bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* e
     {
       mTargetIndex        = i;
       mPosition           = position;
-      Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+      Dali::Window window = Dali::Window::Get(mDropTargets[i].target);
 
       unsigned int mimeCount = (unsigned int)eina_array_count((Eina_Array*)mimes);
       for(unsigned int j = 0; j < mimeCount; ++j)
@@ -735,16 +734,15 @@ bool DragAndDropEcoreWl::ProcessDropEventsForWindowTargets(Ecore_Wl2_Event_Dnd_D
     }
 
     // Recalculate Cursor by Orientation
-    Dali::Window                 window   = mDropWindowTargets[i].target;
-    Dali::Window::WindowPosition position = window.GetPosition();
-    Dali::Window::WindowSize     size     = window.GetSize();
+    Dali::Window window       = mDropWindowTargets[i].target;
+    auto         positionSize = window.GetPositionSize();
 
     Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
     // If the drop position is in the target object region, request drop data to the source object
-    if(IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
+    if(IsIntersection(cursor.x + positionSize.x, cursor.y + positionSize.y, positionSize.x, positionSize.y, positionSize.width, positionSize.height))
     {
       mWindowTargetIndex = i;
-      mWindowPosition    = Dali::Vector2(position.GetX(), position.GetY());
+      mWindowPosition    = Dali::Vector2(positionSize.x, positionSize.y);
 
       unsigned int mimeCount = (unsigned int)eina_array_count((Eina_Array*)mimes);
       for(unsigned int j = 0; j < mimeCount; ++j)
@@ -800,7 +798,7 @@ void DragAndDropEcoreWl::DropTargetSceneOn(Dali::Actor target)
   {
     if((*iter).target == target)
     {
-      auto window = Dali::DevelWindow::Get(target);
+      auto window = Dali::Window::Get(target);
 
       Ecore_Wl2_Window* parentWindow = AnyCast<Ecore_Wl2_Window*>(window.GetNativeHandle());
       if(parentWindow == nullptr)

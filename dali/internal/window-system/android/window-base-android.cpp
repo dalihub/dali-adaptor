@@ -225,7 +225,7 @@ bool WindowBaseAndroid::IsMinimized() const
   return false;
 }
 
-void WindowBaseAndroid::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseAndroid::SetMinimumSize(Dali::Window::WindowSize size)
 {
 }
 
@@ -490,11 +490,11 @@ bool WindowBaseAndroid::GetFullScreen()
   return false;
 }
 
-void WindowBaseAndroid::SetFrontBufferRendering(bool enable)
+void WindowBaseAndroid::SetFrontBufferRenderingEnabled(bool enable)
 {
 }
 
-bool WindowBaseAndroid::GetFrontBufferRendering()
+bool WindowBaseAndroid::IsFrontBufferRenderingEnabled() const
 {
   return false;
 }
@@ -516,7 +516,7 @@ void WindowBaseAndroid::SetAlwaysOnTop(bool alwaysOnTop)
 {
 }
 
-bool WindowBaseAndroid::IsAlwaysOnTop()
+bool WindowBaseAndroid::IsAlwaysOnTop() const
 {
   return false;
 }

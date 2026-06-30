@@ -74,12 +74,12 @@ WindowType WindowData::GetWindowType() const
   return mImpl->mWindowType;
 }
 
-void WindowData::SetFrontBufferRendering(bool enable)
+void WindowData::SetFrontBufferRenderingEnabled(bool enable)
 {
   mImpl->mIsFrontBufferRendering = enable;
 }
 
-bool WindowData::GetFrontBufferRendering() const
+bool WindowData::IsFrontBufferRenderingEnabled() const
 {
   return mImpl->mIsFrontBufferRendering;
 }

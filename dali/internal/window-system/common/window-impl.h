@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
@@ -49,7 +49,6 @@ class WindowBase;
 
 class Window;
 using WindowPtr             = IntrusivePtr<Window>;
-using MouseInOutEventPtr    = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
 using MouseRelativeEventPtr = IntrusivePtr<Dali::DevelWindow::MouseRelativeEvent>;
 using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 
@@ -59,27 +58,24 @@ using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
-  typedef Dali::Window::FocusChangeSignalType                        FocusChangeSignalType;
-  typedef Dali::Window::ResizeSignalType                             ResizeSignalType;
-  typedef Dali::Window::KeyEventSignalType                           KeyEventSignalType;
-  typedef Dali::Window::TouchEventSignalType                         TouchEventSignalType;
-  typedef Dali::DevelWindow::KeyEventSignalType                      KeyEventMonitorSignalType;
-  typedef Dali::DevelWindow::WheelEventSignalType                    WheelEventSignalType;
-  typedef Dali::DevelWindow::VisibilityChangedSignalType             VisibilityChangedSignalType;
-  typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
-  typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
-  typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
-  typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
-  typedef Dali::DevelWindow::InterceptKeyEventSignalType             InterceptKeyEventSignalType;
-  typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
-  typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
-  typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
-  typedef Dali::DevelWindow::MouseRelativeEventSignalType            MouseRelativeEventSignalType;
-  typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
-  typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
-  typedef Dali::DevelWindow::InsetsChangedSignalType                 InsetsChangedSignalType;
-  typedef Dali::DevelWindow::PointerConstraintsSignalType            PointerConstraintsSignalType;
-  typedef Signal<void()>                                             SignalType;
+  typedef Dali::Window::FocusChangedSignalType                FocusChangedSignalType;
+  typedef Dali::Window::ResizedSignalType                     ResizedSignalType;
+  typedef Dali::Window::KeyEventSignalType                    KeyEventSignalType;
+  typedef Dali::Window::TouchEventSignalType                  TouchEventSignalType;
+  typedef Dali::DevelWindow::KeyEventSignalType               KeyEventMonitorSignalType;
+  typedef Dali::Window::WheelEventSignalType                  WheelEventSignalType;
+  typedef Dali::Window::VisibilityChangedSignalType           VisibilityChangedSignalType;
+  typedef Dali::DevelWindow::TransitionEffectEventSignalType  TransitionEffectEventSignalType;
+  typedef Dali::DevelWindow::AuxiliaryMessageSignalType       AuxiliaryMessageSignalType;
+  typedef Dali::DevelWindow::AccessibilityHighlightSignalType AccessibilityHighlightSignalType;
+  typedef Dali::DevelWindow::InterceptKeyEventSignalType      InterceptKeyEventSignalType;
+  typedef Dali::Window::MovedSignalType                       MovedSignalType;
+  typedef Dali::Window::OrientationChangedSignalType          OrientationChangedSignalType;
+  typedef Dali::Window::MouseInOutEventSignalType             MouseInOutEventSignalType;
+  typedef Dali::DevelWindow::MouseRelativeEventSignalType     MouseRelativeEventSignalType;
+  typedef Dali::Window::InsetsChangedSignalType               InsetsChangedSignalType;
+  typedef Dali::DevelWindow::PointerConstraintsSignalType     PointerConstraintsSignalType;
+  typedef Signal<void()>                                      SignalType;
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
@@ -128,7 +124,7 @@ public:
   TouchEventSignalType& TouchEventSignal();
 
   /**
-   * @copydoc Dali::DevelWindow::WheelEventSignal()
+   * @copydoc Dali::Window::WheelEventSignal()
    */
   WheelEventSignalType& WheelEventSignal();
 
@@ -143,34 +139,34 @@ public:
   void Activate();
 
   /**
-   * @copydoc Dali::DevelWindow::Maximize()
+   * @copydoc Dali::Window::Maximize()
    */
   void Maximize(bool maximize);
 
   /**
-   * @copydoc Dali::DevelWindow::IsMaximized()
+   * @copydoc Dali::Window::IsMaximized()
    */
   bool IsMaximized() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   * @copydoc Dali::Window::SetMaximumSize()
    */
   void SetMaximumSize(Dali::Window::WindowSize size);
 
   /**
-   * @copydoc Dali::DevelWindow::Minimize()
+   * @copydoc Dali::Window::Minimize()
    */
   void Minimize(bool minimize);
 
   /**
-   * @copydoc Dali::DevelWindow::IsMinimized()
+   * @copydoc Dali::Window::IsMinimized()
    */
   bool IsMinimized() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   * @copydoc Dali::Window::SetMinimumSize()
    */
-  void SetMimimumSize(Dali::Window::WindowSize size);
+  void SetMinimumSize(Dali::Window::WindowSize size);
 
   /**
    * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
@@ -330,32 +326,12 @@ public:
   int GetBrightness() const;
 
   /**
-   * @copydoc Dali::Window::SetSize()
-   */
-  void SetSize(Dali::Window::WindowSize size);
-
-  /**
-   * @copydoc Dali::Window::GetSize()
-   */
-  Dali::Window::WindowSize GetSize() const;
-
-  /**
-   * @copydoc Dali::Window::SetPosition()
-   */
-  void SetPosition(Dali::Window::WindowPosition position);
-
-  /**
-   * @copydoc Dali::Window::GetPosition()
-   */
-  Dali::Window::WindowPosition GetPosition() const;
-
-  /**
-   * @copydoc Dali::DevelWindow::SetPositionSize()
+   * @copydoc Dali::Window::SetPositionSize()
    */
   void SetPositionSize(PositionSize positionSize);
 
   /**
-   * @copydoc Dali::DevelWindow::GetPositionSize()
+   * @copydoc Dali::Window::GetPositionSize()
    */
   PositionSize GetPositionSize() const;
 
@@ -405,32 +381,27 @@ public:
   bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result);
 
   /**
-   * @copydoc Dali::DevelWindow::Get()
+   * @copydoc Dali::Window::Get()
    */
   static Dali::Window Get(Dali::Actor actor);
 
   /**
-   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent)
+   * @copydoc Dali::Window::SetParent()
    */
-  void SetParent(Dali::Window& parent);
+  void SetParent(Dali::Window& parent, bool belowParent = false);
 
   /**
-   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent, bool belowParent)
-   */
-  void SetParent(Dali::Window& parent, bool belowParent);
-
-  /**
-   * @copydoc Dali::DevelWindow::Unparent()
+   * @copydoc Dali::Window::Unparent()
    */
   void Unparent();
 
   /**
-   * @copydoc Dali::DevelWindow::GetParent()
+   * @copydoc Dali::Window::GetParent()
    */
   Dali::Window GetParent();
 
   /**
-   * @copydoc Dali::DevelWindow::GetCurrentOrientation()
+   * @copydoc Dali::Window::GetCurrentOrientation()
    */
   WindowOrientation GetCurrentOrientation() const;
 
@@ -440,7 +411,7 @@ public:
   int GetPhysicalOrientation() const;
 
   /**
-   * @copydoc Dali::DevelWindow::SetAvailableOrientations()
+   * @copydoc Dali::Window::SetAvailableOrientations()
    */
   void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
@@ -484,12 +455,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsVisible() const override;
 
   /**
-   * @copydoc Dali::DevelWindow::GetNativeId()
+   * @copydoc Dali::Window::GetNativeId()
    */
   int32_t GetNativeId() const;
 
   /**
-   * @copydoc Dali::DevelWindow::RequestMoveToServer()
+   * @copydoc Dali::Window::RequestMoveToServer()
    */
   void RequestMoveToServer();
 
@@ -499,22 +470,22 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void RequestResizeToServer(WindowResizeDirection direction);
 
   /**
-   * @copydoc Dali::DevelWindow::EnableFloatingMode()
+   * @copydoc Dali::Window::EnableFloatingMode()
    */
   void EnableFloatingMode(bool enable);
 
   /**
-   * @copydoc Dali::DevelWindow::IsFloatingModeEnabled()
+   * @copydoc Dali::Window::IsFloatingModeEnabled()
    */
-  bool IsFloatingModeEnabled();
+  bool IsFloatingModeEnabled() const;
 
   /**
-   * @copydoc Dali::DevelWindow::IncludeInputRegion()
+   * @copydoc Dali::Window::IncludeInputRegion()
    */
   void IncludeInputRegion(const BoundsInteger& inputRegion);
 
   /**
-   * @copydoc Dali::DevelWindow::ExcludeInputRegion()
+   * @copydoc Dali::Window::ExcludeInputRegion()
    */
   void ExcludeInputRegion(const BoundsInteger& inputRegion);
 
@@ -529,12 +500,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void SendRotationCompletedAcknowledgement();
 
   /**
-   * @copydoc Dali::DevelWindow::IsWindowRotating()
+   * @copydoc Dali::Window::IsOrientationChanging()
    */
-  bool IsWindowRotating() const;
+  bool IsOrientationChanging() const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetLastKeyEvent()
+   * @copydoc Dali::Window::GetLastKeyEvent()
    */
   const Dali::KeyEvent& GetLastKeyEvent() const;
 
@@ -589,14 +560,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool GetFullScreen();
 
   /**
-   * @copydoc Dali::DevelWindow::SetFrontBufferRendering()
+   * @copydoc Dali::Window::SetFrontBufferRenderingEnabled()
    */
-  void SetFrontBufferRendering(bool enable);
+  void SetFrontBufferRenderingEnabled(bool enable);
 
   /**
-   * @copydoc Dali::DevelWindow::GetFrontBufferRendering()
+   * @copydoc Dali::Window::IsFrontBufferRenderingEnabled()
    */
-  bool GetFrontBufferRendering();
+  bool IsFrontBufferRenderingEnabled() const;
 
   /**
    * @copydoc Dali::DevelWindow::SetModal()
@@ -609,14 +580,14 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool IsModal();
 
   /**
-   * @copydoc Dali::DevelWindow::SetAlwaysOnTop()
+   * @copydoc Dali::Window::SetAlwaysOnTop()
    */
   void SetAlwaysOnTop(bool alwaysOnTop);
 
   /**
-   * @copydoc Dali::DevelWindow::IsAlwaysOnTop()
+   * @copydoc Dali::Window::IsAlwaysOnTop()
    */
-  bool IsAlwaysOnTop();
+  bool IsAlwaysOnTop() const;
 
   /**
    * @copydoc Dali::DevelWindow::SetBottom()
@@ -758,7 +729,7 @@ private:
    * @param[in] positionSize The window's position and size in initailized time.
    * @param[in] name The window title
    * @param[in] className The window class name
-   * @param[in] type window's type. Refer the WindowType in window-enumerations.h.
+   * @param[in] type window's type. Refer the WindowType in window-definitions.h.
    * @param[in] screenName screen name to set current screen name if this string is not empty.
    * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
    */
@@ -802,15 +773,10 @@ private:
    *
    * This event is emitted by display server.
    *
-   * @param[in] state current window transition effect state, refer the WindowEffectState in window-enumerations.h.
-   * @param[in] type current window transition effect type, refer the WindowEffectType in window-enumerations.h.
+   * @param[in] state current window transition effect state, refer the WindowEffectState in window-definitions.h.
+   * @param[in] type current window transition effect type, refer the WindowEffectType in window-definitions.h.
    */
   void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
-
-  /**
-   * @brief Called when window receives a keyboard repeat event.
-   */
-  void OnKeyboardRepeatSettingsChanged();
 
   /**
    * @brief Called when the window redraw is requested.
@@ -911,9 +877,9 @@ private:
   /**
    * @brief Called when the mouse in or out event is received.
    *
-   * @param[in] mouseInOutEvent the mouse event
+   * @param[in] mouseInOutEvent The mouse in/out event
    */
-  void OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent);
+  void OnMouseInOutEvent(const Dali::MouseInOutEvent& mouseInOutEvent);
 
   /**
    * @brief Called when the mouse relative event is received.
@@ -972,7 +938,7 @@ private:
    * @param[in] partState the state of the part that occurs the window insets change.
    * @param[in] insets the extents value of window insets.
    */
-  void OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets);
+  void OnInsetsChanged(const WindowInsetsInfo& insetsInfo);
 
   /**
    * @brief Window's position and size are updated.
@@ -1053,19 +1019,59 @@ private: // Dali::Internal::Adaptor::EventHandler::Observer
 
 public: // Signals
   /**
-   * @copydoc Dali::Window::FocusChangeSignal()
+   * @copydoc Dali::Window::FocusChangedSignal()
    */
-  FocusChangeSignalType& FocusChangeSignal()
+  FocusChangedSignalType& FocusChangedSignal()
   {
-    return mFocusChangeSignal;
+    return mFocusChangedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::VisibilityChangedSignal()
+   */
+  VisibilityChangedSignalType& VisibilityChangedSignal()
+  {
+    return mVisibilityChangedSignal;
   }
 
   /**
    * @copydoc Dali::Window::ResizedSignal()
    */
-  ResizeSignalType& ResizeSignal()
+  ResizedSignalType& ResizedSignal()
   {
-    return mResizeSignal;
+    return mResizedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::MovedSignal()
+   */
+  MovedSignalType& MovedSignal()
+  {
+    return mMovedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::OrientationChangedSignal()
+   */
+  OrientationChangedSignalType& OrientationChangedSignal()
+  {
+    return mOrientationChangedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::MoveCompletedSignal()
+   */
+  MovedSignalType& MoveCompletedSignal()
+  {
+    return mMoveCompletedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::ResizeCompletedSignal()
+   */
+  ResizedSignalType& ResizeCompletedSignal()
+  {
+    return mResizeCompletedSignal;
   }
 
   /**
@@ -1081,15 +1087,19 @@ public: // Signals
   }
 
   /**
-   * @copydoc Dali::Window::TouchedSignal()
-   *
-   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::TouchedSignal()
-   * which returns Signal<void(const TouchEvent&)>.
-   * Window provides its own signal that includes a Window parameter.
+   * @copydoc Dali::Window::MouseInOutEventSignal()
    */
-  TouchEventSignalType& TouchedSignal()
+  MouseInOutEventSignalType& MouseInOutEventSignal()
   {
-    return mTouchEventSignal;
+    return mMouseInOutEventSignal;
+  }
+
+  /**
+   * @copydoc Dali::Window::InsetsChangedSignal()
+   */
+  InsetsChangedSignalType& InsetsChangedSignal()
+  {
+    return mInsetsChangedSignal;
   }
 
   /**
@@ -1115,14 +1125,6 @@ public: // Signals
   }
 
   /**
-   * @copydoc Dali::DevelWindow::VisibilityChangedSignal()
-   */
-  VisibilityChangedSignalType& VisibilityChangedSignal()
-  {
-    return mVisibilityChangedSignal;
-  }
-
-  /**
    * @copydoc Dali::Window::SignalEventProcessingFinished()
    */
   Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal()
@@ -1136,14 +1138,6 @@ public: // Signals
   TransitionEffectEventSignalType& TransitionEffectEventSignal()
   {
     return mTransitionEffectEventSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::KeyboardRepeatSettingsChangedSignal()
-   */
-  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal()
-  {
-    return mKeyboardRepeatSettingsChangedSignal;
   }
 
   /**
@@ -1163,30 +1157,6 @@ public: // Signals
   }
 
   /**
-   * @copydoc Dali::DevelWindow::MovedSignal()
-   */
-  MovedSignalType& MovedSignal()
-  {
-    return mMovedSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::OrientationChangedSignal()
-   */
-  OrientationChangedSignalType& OrientationChangedSignal()
-  {
-    return mOrientationChangedSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::MouseInOutEventSignal()
-   */
-  MouseInOutEventSignalType& MouseInOutEventSignal()
-  {
-    return mMouseInOutEventSignal;
-  }
-
-  /**
    * @copydoc Dali::DevelWindow::MouseRelativeEventSignal()
    */
   MouseRelativeEventSignalType& MouseRelativeEventSignal()
@@ -1200,30 +1170,6 @@ public: // Signals
   PointerConstraintsSignalType& PointerConstraintsSignal()
   {
     return mPointerConstraintsSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::MoveCompletedSignal()
-   */
-  MoveCompletedSignalType& MoveCompletedSignal()
-  {
-    return mMoveCompletedSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::ResizeCompletedSignal()
-   */
-  ResizeCompletedSignalType& ResizeCompletedSignal()
-  {
-    return mResizeCompletedSignal;
-  }
-
-  /**
-   * @copydoc Dali::DevelWindow::InsetsChangedSignal()
-   */
-  InsetsChangedSignalType& InsetsChangedSignal()
-  {
-    return mInsetsChangedSignal;
   }
 
 private:
@@ -1245,27 +1191,26 @@ private:
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
 
   // Signals
-  SignalType                              mDeleteRequestSignal;
-  FocusChangeSignalType                   mFocusChangeSignal;
-  ResizeSignalType                        mResizeSignal;
-  KeyEventSignalType                      mKeyEventSignal;
-  TouchEventSignalType                    mTouchEventSignal;
-  WheelEventSignalType                    mWheelEventSignal;
-  InterceptKeyEventSignalType             mInterceptKeyEventSignal;
-  KeyEventMonitorSignalType               mKeyEventMonitorSignal;
-  VisibilityChangedSignalType             mVisibilityChangedSignal;
-  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
-  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
-  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
-  AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
-  MovedSignalType                         mMovedSignal;
-  OrientationChangedSignalType            mOrientationChangedSignal;
-  MouseInOutEventSignalType               mMouseInOutEventSignal;
-  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
-  MoveCompletedSignalType                 mMoveCompletedSignal;
-  ResizeCompletedSignalType               mResizeCompletedSignal;
-  InsetsChangedSignalType                 mInsetsChangedSignal;
-  PointerConstraintsSignalType            mPointerConstraintsSignal;
+  SignalType                       mDeleteRequestSignal;
+  FocusChangedSignalType           mFocusChangedSignal;
+  ResizedSignalType                mResizedSignal;
+  KeyEventSignalType               mKeyEventSignal;
+  TouchEventSignalType             mTouchEventSignal;
+  WheelEventSignalType             mWheelEventSignal;
+  InterceptKeyEventSignalType      mInterceptKeyEventSignal;
+  KeyEventMonitorSignalType        mKeyEventMonitorSignal;
+  VisibilityChangedSignalType      mVisibilityChangedSignal;
+  TransitionEffectEventSignalType  mTransitionEffectEventSignal;
+  AuxiliaryMessageSignalType       mAuxiliaryMessageSignal;
+  AccessibilityHighlightSignalType mAccessibilityHighlightSignal;
+  MovedSignalType                  mMovedSignal;
+  OrientationChangedSignalType     mOrientationChangedSignal;
+  MouseInOutEventSignalType        mMouseInOutEventSignal;
+  MouseRelativeEventSignalType     mMouseRelativeEventSignal;
+  MovedSignalType                  mMoveCompletedSignal;
+  ResizedSignalType                mResizeCompletedSignal;
+  InsetsChangedSignalType          mInsetsChangedSignal;
+  PointerConstraintsSignalType     mPointerConstraintsSignal;
 
   Dali::KeyEvent mLastKeyEvent;
 
@@ -1279,7 +1224,7 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1;            ///< The window rotating flag.
+  bool mIsOrientationChanging : 1;       ///< The orientation changing flag.
   bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.

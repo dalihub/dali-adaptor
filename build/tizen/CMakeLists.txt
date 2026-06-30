@@ -477,9 +477,11 @@ ENDIF()
 SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
 SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
 SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
+SET( tizenadaptorintegrationsystemapidir ${INCLUDE_DIR}/dali/integration-api/system )
 SET( tizenadaptorfiledownloadapidir ${tizenadaptorintegrationapidir}/file-download )
 SET( tizenadaptorapplicationapidir ${INCLUDE_DIR}/dali/internal/application-model )
 SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
+SET( tizenadaptortextabstractionpublicapidir ${tizenadaptorpublicapidir}/text-abstraction )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
 SET( tizencanvasrendererdevelapidir ${tizenadaptorframeworkdevelapidir}/canvas-renderer )
 SET( tizenwebenginedevelapidir ${tizenadaptorframeworkdevelapidir}/web-engine )
@@ -493,11 +495,13 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 # Install headers
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
 INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
+INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
 INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptordevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_widget_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
+INSTALL( FILES ${public_api_text_abstraction_header_files} DESTINATION ${tizenadaptortextabstractionpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_egl_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_canvas_renderer_header_files} DESTINATION ${tizencanvasrendererdevelapidir} )
@@ -576,7 +580,7 @@ IF( ENABLE_COVERAGE )
     ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}cov_data
       COMMAND ${FASTCOV_BIN} ${FASTCOV_OPTS}
         -d .
-        --exclude /usr/include /usr/local/include automated-tests dali-env third-party
+        --exclude /usr/include /usr/local/include automated-tests dali-env third-party generated
         -o dali.info )
 
     # genhtml works with fastcov.py output (lcov-compatible format)

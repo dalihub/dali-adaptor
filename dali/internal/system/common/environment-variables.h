@@ -187,6 +187,7 @@ namespace Adaptor
 
 // File download plugin configuration
 #define DALI_ENV_FILE_DOWNLOAD_PLUGIN_NAME "DALI_FILE_DOWNLOAD_PLUGIN_NAME"
+#define DALI_ENV_USE_CAPI_DOWNLOAD_PROVIDER_API "DALI_USE_CAPI_DOWNLOAD_PROVIDER_API"
 
 // Debug relative environments
 #define DALI_ENV_PRINT_LOG_LEVEL "DALI_PRINT_LOG_LEVEL"

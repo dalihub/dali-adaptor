@@ -35,7 +35,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -540,7 +540,7 @@ static Eina_Bool EcoreEventMouseIn(void* data, int type, void* event)
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
-    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::IN);
+    windowBase->OnMouseInOut(data, type, event, Dali::MouseInOutEvent::Type::IN);
   }
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -573,7 +573,7 @@ static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
 
       windowBase->OnMouseButtonCancel(data, type, &buttonEvent);
     }
-    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
+    windowBase->OnMouseInOut(data, type, event, Dali::MouseInOutEvent::Type::OUT);
   }
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -690,22 +690,6 @@ static Eina_Bool EcoreEventEffectEnd(void* data, int type, void* event)
     }
   }
   return ECORE_CALLBACK_PASS_ON;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// Keyboard Repeat Settings Changed Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-static Eina_Bool EcoreEventSeatKeyboardRepeatChanged(void* data, int type, void* event)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventSeatKeyboardRepeatChanged, id[ %d ]\n", static_cast<Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed*>(event)->id);
-  if(windowBase)
-  {
-    windowBase->OnKeyboardRepeatSettingsChanged();
-  }
-
-  return ECORE_CALLBACK_RENEW;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1119,9 +1103,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Effect Start/End event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_EFFECT_START, EcoreEventEffectStart, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_EFFECT_END, EcoreEventEffectEnd, this));
-
-  // Register Keyboard repeat event
-  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, EcoreEventSeatKeyboardRepeatChanged, this));
 
   // Register Window redraw request event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_REDRAW_REQUEST, EcoreEventWindowRedrawRequest, this));
@@ -1643,7 +1624,7 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
   }
 }
 
-void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action)
+void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::MouseInOutEvent::Type action)
 {
   Ecore_Event_Mouse_IO* mouseInOutEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
 
@@ -1659,11 +1640,11 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::D
     GetDeviceClass(ecore_device_class_get(mouseInOutEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(mouseInOutEvent->dev), deviceSubclass);
 
-    Dali::DevelWindow::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
+    Dali::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
 
     mMouseInOutEventSignal.Emit(inOutEvent);
 
-    if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
+    if(action == Dali::MouseInOutEvent::Type::IN)
     {
       Dali::String deviceName;
       GetDeviceName(ecore_device_name_get(mouseInOutEvent->dev), deviceName);
@@ -1895,14 +1876,6 @@ void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, Window
   }
 }
 
-void WindowBaseEcoreWl2::OnKeyboardRepeatSettingsChanged()
-{
-  if(Dali::Adaptor::IsAvailable())
-  {
-    mKeyboardRepeatSettingsChangedSignal.Emit();
-  }
-}
-
 void WindowBaseEcoreWl2::OnEcoreEventWindowRedrawRequest()
 {
   if(Dali::Adaptor::IsAvailable())
@@ -2037,7 +2010,7 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 
       if(applyInsets)
       {
-        mInsetsChangedSignal.Emit(partType, partState, Extents(left, right, top, bottom));
+        mInsetsChangedSignal.Emit(WindowInsetsInfo(partType, partState, Extents(left, right, top, bottom)));
       }
     }
   }
@@ -2747,7 +2720,7 @@ bool WindowBaseEcoreWl2::IsMinimized() const
   return ecore_wl2_window_iconified_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseEcoreWl2::SetMinimumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_minimum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
   {
@@ -3439,7 +3412,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_set [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -3501,7 +3474,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
+  { oss << "ecore_wl2_window_keygrab_list_unset [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
 
@@ -4047,12 +4020,12 @@ bool WindowBaseEcoreWl2::GetFullScreen()
   return ecore_wl2_window_fullscreen_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::SetFrontBufferRendering(bool enable)
+void WindowBaseEcoreWl2::SetFrontBufferRenderingEnabled(bool enable)
 {
   mIsFrontBufferRendering = enable;
 }
 
-bool WindowBaseEcoreWl2::GetFrontBufferRendering()
+bool WindowBaseEcoreWl2::IsFrontBufferRenderingEnabled() const
 {
   return mIsFrontBufferRendering;
 }
@@ -4091,7 +4064,7 @@ void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
   }
 }
 
-bool WindowBaseEcoreWl2::IsAlwaysOnTop()
+bool WindowBaseEcoreWl2::IsAlwaysOnTop() const
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_pin_mode_get");
   bool ret = ecore_wl2_window_pin_mode_get(mEcoreWindow);

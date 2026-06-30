@@ -156,10 +156,21 @@ struct Clipboard::Impl
     return false;
   }
 
-  bool SetData(const Dali::Clipboard::ClipData& clipData)
+  void EmitDataSelectionSignals(const char* mimeType)
   {
-    std::string mimeType = clipData.GetMimeType();
-    std::string data     = clipData.GetData();
+    const char*  safeMimeType = mimeType ? mimeType : "";
+    Dali::String offeredMimeType(safeMimeType);
+    mDataOfferedSignal.Emit(offeredMimeType);
+    mDataSelectedSignal.Emit(safeMimeType);
+  }
+
+  bool SetData(const Dali::ClipboardData& clipboardData)
+  {
+    Dali::String mimeTypeString = clipboardData.GetMimeType();
+    Dali::String contentString  = clipboardData.GetContent();
+
+    std::string mimeType = mimeTypeString.CStr();
+    std::string data     = contentString.CStr();
 
     if(data.empty())
     {
@@ -489,7 +500,7 @@ struct Clipboard::Impl
       }
       selectedType = types[i];
       DALI_LOG_RELEASE_INFO("data selected signal emit, type:%s\n", selectedType ? selectedType : "");
-      mDataSelectedSignal.Emit(selectedType ? selectedType : "");
+      EmitDataSelectionSignals(selectedType);
     }
 
     if(!selectedType)
@@ -528,9 +539,10 @@ struct Clipboard::Impl
   tizen_core_wl_event_listener_h mReceiveHandler{nullptr};
   tizen_core_wl_event_listener_h mSelectionHanlder{nullptr};
 
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
+  Clipboard::DataSentSignalType     mDataSentSignal{};
+  Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Clipboard::DataOfferedSignalType  mDataOfferedSignal{};
+  Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 
   uint32_t                                                               mDataId{0};
   std::vector<uint32_t>                                                  mDataRequestIds{};
@@ -576,6 +588,7 @@ Clipboard::Clipboard(Impl* impl)
 
 Clipboard::~Clipboard()
 {
+  FinalizeGetDataCallbacks();
   delete mImpl;
 }
 
@@ -625,17 +638,22 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
+Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 {
   return mImpl->mDataSentSignal;
 }
 
-Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
+Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
 }
 
-Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+Clipboard::DataOfferedSignalType& Clipboard::DataOfferedSignal()
+{
+  return mImpl->mDataOfferedSignal;
+}
+
+Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
 {
   return mImpl->mDataSelectedSignal;
 }
@@ -645,9 +663,9 @@ bool Clipboard::HasType(const std::string& mimeType)
   return mImpl->HasType(mimeType);
 }
 
-bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
+bool Clipboard::SetData(const Dali::ClipboardData& clipboardData)
 {
-  return mImpl->SetData(clipData);
+  return mImpl->SetData(clipboardData);
 }
 
 uint32_t Clipboard::GetData(const std::string& mimeType)
@@ -655,7 +673,7 @@ uint32_t Clipboard::GetData(const std::string& mimeType)
   return mImpl->GetData(mimeType);
 }
 
-size_t Clipboard::NumberOfItems()
+uint32_t Clipboard::GetItemCount()
 {
   bool isItem = HasType(MIME_TYPE_TEXT_PLAIN) || HasType(MIME_TYPE_HTML) || HasType(MIME_TYPE_TEXT_URI);
   return isItem ? 1u : 0u;

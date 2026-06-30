@@ -24,7 +24,6 @@
 #include <dlog.h>
 #include <glib.h>
 #include <system_info.h>
-#include <system_settings.h>
 #include <tizen.h>
 #include <widget_base.h>
 

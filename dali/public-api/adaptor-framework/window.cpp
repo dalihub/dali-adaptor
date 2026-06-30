@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-impl.h>
@@ -95,6 +96,11 @@ Window& Window::operator=(Window&& rhs) noexcept = default;
 Window Window::DownCast(BaseHandle handle)
 {
   return Window(dynamic_cast<Dali::Internal::Adaptor::Window*>(handle.GetObjectPtr()));
+}
+
+Window Window::Get(Actor actor)
+{
+  return Internal::Adaptor::Window::Get(actor);
 }
 
 void Window::Add(Dali::Actor actor)
@@ -182,14 +188,29 @@ WindowOrientation Window::GetPreferredOrientation()
   return GetImplementation(*this).GetPreferredOrientation();
 }
 
+void Window::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations)
+{
+  GetImplementation(*this).SetAvailableOrientations(orientations);
+}
+
+WindowOrientation Window::GetCurrentOrientation()
+{
+  return GetImplementation(*this).GetCurrentOrientation();
+}
+
+bool Window::IsOrientationChanging() const
+{
+  return GetImplementation(*this).IsOrientationChanging();
+}
+
 Any Window::GetNativeHandle() const
 {
   return GetImplementation(*this).GetNativeHandle();
 }
 
-Window::FocusChangeSignalType& Window::FocusChangeSignal()
+int32_t Window::GetNativeId() const
 {
-  return GetImplementation(*this).FocusChangeSignal();
+  return GetImplementation(*this).GetNativeId();
 }
 
 void Window::SetAcceptFocus(bool accept)
@@ -257,6 +278,16 @@ void Window::SetInputRegion(const BoundsInteger& inputRegion)
   return GetImplementation(*this).SetInputRegion(inputRegion);
 }
 
+void Window::IncludeInputRegion(const BoundsInteger& inputRegion)
+{
+  GetImplementation(*this).IncludeInputRegion(inputRegion);
+}
+
+void Window::ExcludeInputRegion(const BoundsInteger& inputRegion)
+{
+  GetImplementation(*this).ExcludeInputRegion(inputRegion);
+}
+
 void Window::SetType(WindowType type)
 {
   GetImplementation(*this).SetType(type);
@@ -267,6 +298,16 @@ WindowType Window::GetType() const
   return GetImplementation(*this).GetType();
 }
 
+void Window::EnableFloatingMode(bool enable)
+{
+  GetImplementation(*this).EnableFloatingMode(enable);
+}
+
+bool Window::IsFloatingModeEnabled() const
+{
+  return GetImplementation(*this).IsFloatingModeEnabled();
+}
+
 WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level)
 {
   return GetImplementation(*this).SetNotificationLevel(level);
@@ -275,6 +316,16 @@ WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level
 WindowNotificationLevel Window::GetNotificationLevel() const
 {
   return GetImplementation(*this).GetNotificationLevel();
+}
+
+void Window::SetAlwaysOnTop(bool alwaysOnTop)
+{
+  GetImplementation(*this).SetAlwaysOnTop(alwaysOnTop);
+}
+
+bool Window::IsAlwaysOnTop() const
+{
+  return GetImplementation(*this).IsAlwaysOnTop();
 }
 
 void Window::SetOpaqueState(bool opaque)
@@ -297,6 +348,67 @@ WindowScreenOffMode Window::GetScreenOffMode() const
   return GetImplementation(*this).GetScreenOffMode();
 }
 
+void Window::SetScreen(const Dali::String& screenName)
+{
+  GetImplementation(*this).SetScreen(ToStdString(screenName));
+}
+
+Dali::String Window::GetScreen() const
+{
+  return ToDaliString(GetImplementation(*this).GetScreen());
+}
+
+void Window::FeedTouchEvent(const Dali::TouchEvent& touchEvent)
+{
+  Integration::Point convertedPoint;
+  convertedPoint.SetDeviceId(touchEvent.GetDeviceId(0));
+  convertedPoint.SetState(touchEvent.GetState(0));
+  convertedPoint.SetScreenPosition(touchEvent.GetScreenPosition(0));
+  convertedPoint.SetRadius(touchEvent.GetRadius(0), touchEvent.GetEllipseRadius(0));
+  convertedPoint.SetPressure(touchEvent.GetPressure(0));
+  convertedPoint.SetAngle(touchEvent.GetAngle(0));
+  convertedPoint.SetDeviceClass(touchEvent.GetDeviceClass(0));
+  convertedPoint.SetDeviceSubclass(touchEvent.GetDeviceSubclass(0));
+  convertedPoint.SetMouseButton(touchEvent.GetMouseButton(0));
+  Dali::String deviceName = touchEvent.GetDeviceName(0);
+  convertedPoint.SetDeviceName(deviceName);
+  GetImplementation(*this).FeedTouchPoint(convertedPoint, touchEvent.GetTime());
+}
+
+void Window::FeedWheelEvent(Dali::WheelEvent wheelEvent)
+{
+  Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  GetImplementation(*this).FeedWheelEvent(convertedEvent);
+}
+
+void Window::FeedKeyEvent(const Dali::KeyEvent& keyEvent)
+{
+  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
+                                       keyEvent.GetLogicalKey(),
+                                       keyEvent.GetKeyString(),
+                                       keyEvent.GetKeyCode(),
+                                       keyEvent.GetKeyModifier(),
+                                       keyEvent.GetTime(),
+                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
+                                       keyEvent.GetCompose(),
+                                       keyEvent.GetDeviceName(),
+                                       keyEvent.GetDeviceClass(),
+                                       keyEvent.GetDeviceSubclass());
+  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
+  GetImplementation(*this).FeedKeyEvent(convertedEvent);
+}
+
+void Window::FeedHoverEvent(const Dali::HoverEvent& hoverEvent)
+{
+  Integration::Point convertedPoint;
+  convertedPoint.SetDeviceId(hoverEvent.GetDeviceId(0));
+  convertedPoint.SetState(hoverEvent.GetState(0));
+  convertedPoint.SetScreenPosition(hoverEvent.GetScreenPosition(0));
+  convertedPoint.SetDeviceClass(hoverEvent.GetDeviceClass(0));
+  convertedPoint.SetDeviceSubclass(hoverEvent.GetDeviceSubclass(0));
+  GetImplementation(*this).FeedHoverEvent(convertedPoint);
+}
+
 WindowOperationResult Window::SetBrightness(int brightness)
 {
   return GetImplementation(*this).SetBrightness(brightness);
@@ -307,29 +419,19 @@ int Window::GetBrightness() const
   return GetImplementation(*this).GetBrightness();
 }
 
-Window::ResizeSignalType& Window::ResizeSignal()
+void Window::SetPositionSize(PositionSize positionSize)
 {
-  return GetImplementation(*this).ResizeSignal();
+  GetImplementation(*this).SetPositionSize(positionSize);
 }
 
-void Window::SetSize(Window::WindowSize size)
+PositionSize Window::GetPositionSize() const
 {
-  GetImplementation(*this).SetSize(size);
+  return GetImplementation(*this).GetPositionSize();
 }
 
-Window::WindowSize Window::GetSize() const
+void Window::RequestMoveToServer()
 {
-  return GetImplementation(*this).GetSize();
-}
-
-void Window::SetPosition(Dali::Window::WindowPosition position)
-{
-  GetImplementation(*this).SetPosition(position);
-}
-
-Dali::Window::WindowPosition Window::GetPosition() const
-{
-  return GetImplementation(*this).GetPosition();
+  GetImplementation(*this).RequestMoveToServer();
 }
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
@@ -392,14 +494,149 @@ bool Window::IsPartialUpdateEnabled() const
   return GetImplementation(*this).IsPartialUpdateEnabled();
 }
 
+void Window::Maximize(bool maximize)
+{
+  GetImplementation(*this).Maximize(maximize);
+}
+
+bool Window::IsMaximized() const
+{
+  return GetImplementation(*this).IsMaximized();
+}
+
+void Window::SetMaximumSize(WindowSize size)
+{
+  GetImplementation(*this).SetMaximumSize(size);
+}
+
+void Window::Minimize(bool minimize)
+{
+  GetImplementation(*this).Minimize(minimize);
+}
+
+bool Window::IsMinimized() const
+{
+  return GetImplementation(*this).IsMinimized();
+}
+
+void Window::SetMinimumSize(WindowSize size)
+{
+  GetImplementation(*this).SetMinimumSize(size);
+}
+
+void Window::SetParent(Window parent, bool belowParent)
+{
+  GetImplementation(*this).SetParent(parent, belowParent);
+}
+
+void Window::Unparent()
+{
+  GetImplementation(*this).Unparent();
+}
+
+Window Window::GetParent()
+{
+  return GetImplementation(*this).GetParent();
+}
+
+void Window::AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId)
+{
+  GetImplementation(*this).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
+}
+
+void Window::AddFramePresentedCallback(CallbackBase* callback, int32_t frameId)
+{
+  GetImplementation(*this).AddFramePresentedCallback(std::unique_ptr<CallbackBase>(callback), frameId);
+}
+
+Window::FocusChangedSignalType& Window::FocusChangedSignal()
+{
+  return GetImplementation(*this).FocusChangedSignal();
+}
+
+Window::VisibilityChangedSignalType& Window::VisibilityChangedSignal()
+{
+  return GetImplementation(*this).VisibilityChangedSignal();
+}
+
+Window::ResizedSignalType& Window::ResizedSignal()
+{
+  return GetImplementation(*this).ResizedSignal();
+}
+
+Window::MovedSignalType& Window::MovedSignal()
+{
+  return GetImplementation(*this).MovedSignal();
+}
+
+Window::OrientationChangedSignalType& Window::OrientationChangedSignal()
+{
+  return GetImplementation(*this).OrientationChangedSignal();
+}
+
+Window::MovedSignalType& Window::MoveCompletedSignal()
+{
+  return GetImplementation(*this).MoveCompletedSignal();
+}
+
+Window::ResizedSignalType& Window::ResizeCompletedSignal()
+{
+  return GetImplementation(*this).ResizeCompletedSignal();
+}
+
 Window::KeyEventSignalType& Window::KeyEventSignal()
 {
   return GetImplementation(*this).KeyEventSignal();
 }
 
-Window::TouchEventSignalType& Window::TouchedSignal()
+Window::TouchEventSignalType& Window::TouchEventSignal()
 {
-  return GetImplementation(*this).TouchedSignal();
+  return GetImplementation(*this).TouchEventSignal();
+}
+
+Window::WheelEventSignalType& Window::WheelEventSignal()
+{
+  return GetImplementation(*this).WheelEventSignal();
+}
+
+Window::MouseInOutEventSignalType& Window::MouseInOutEventSignal()
+{
+  return GetImplementation(*this).MouseInOutEventSignal();
+}
+
+Window::InsetsChangedSignalType& Window::InsetsChangedSignal()
+{
+  return GetImplementation(*this).InsetsChangedSignal();
+}
+
+const KeyEvent& Window::GetLastKeyEvent() const
+{
+  return GetImplementation(*this).GetLastKeyEvent();
+}
+
+const TouchEvent& Window::GetLastTouchEvent() const
+{
+  return GetImplementation(*this).GetLastTouchEvent();
+}
+
+const HoverEvent& Window::GetLastHoverEvent() const
+{
+  return GetImplementation(*this).GetLastHoverEvent();
+}
+
+GestureState Window::GetLastPanGestureState() const
+{
+  return GetImplementation(*this).GetLastPanGestureState();
+}
+
+void Window::SetFrontBufferRenderingEnabled(bool enable)
+{
+  GetImplementation(*this).SetFrontBufferRenderingEnabled(enable);
+}
+
+bool Window::IsFrontBufferRenderingEnabled() const
+{
+  return GetImplementation(*this).IsFrontBufferRenderingEnabled();
 }
 
 Window::Window(Internal::Adaptor::Window* window)

@@ -175,6 +175,7 @@ struct Comparer
     std::unordered_map<std::string, std::string> mRequested;
     std::unordered_map<std::string, std::string> mObject;
     Mode                                         mMode = Mode::INVALID;
+    Accessible*                                  mObjPtr = nullptr;
 
     ComparerAttributes(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::ATTRIBUTES_MATCH_TYPE)>(*rule)))
@@ -185,6 +186,7 @@ struct Comparer
     void Update(Accessible* obj)
     {
       mObject = obj->GetAttributes();
+      mObjPtr = obj;
     }
 
     bool IsRequestEmpty() const
@@ -202,8 +204,24 @@ struct Comparer
       bool foundAny = false;
       for(auto& iname : mRequested)
       {
-        auto it    = mObject.find(iname.first);
-        bool found = it != mObject.end() && iname.second == it->second;
+        bool found = false;
+
+        // Special handling for 'name' attribute: compare with GetName()
+        if(iname.first == "name")
+        {
+          found = (mObjPtr && mObjPtr->GetName() == iname.second);
+        }
+        // Special handling for 'description' attribute: compare with GetDescription()
+        else if(iname.first == "description")
+        {
+          found = (mObjPtr && mObjPtr->GetDescription() == iname.second);
+        }
+        else
+        {
+          auto it = mObject.find(iname.first);
+          found = it != mObject.end() && iname.second == it->second;
+        }
+
         if(found)
         {
           foundAny = true;

@@ -305,7 +305,7 @@ void ApplicationController::SetWindowData(const Dali::WindowData& windowData)
   mWindowData->SetPositionSize(size);
   mWindowData->SetTransparency(windowData.GetTransparency());
   mWindowData->SetWindowType(windowData.GetWindowType());
-  mWindowData->SetFrontBufferRendering(windowData.GetFrontBufferRendering());
+  mWindowData->SetFrontBufferRenderingEnabled(windowData.IsFrontBufferRenderingEnabled());
   mWindowData->SetScreen(windowData.GetScreen());
   mWindowPositionSize = mWindowData->GetPositionSize();
 }
@@ -349,14 +349,9 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
   {
     activeWindowData.SetTransparency(mWindowData->GetTransparency());
     activeWindowData.SetWindowType(mWindowData->GetWindowType());
-    activeWindowData.SetFrontBufferRendering(mWindowData->GetFrontBufferRendering());
+    activeWindowData.SetFrontBufferRenderingEnabled(mWindowData->IsFrontBufferRenderingEnabled());
     activeWindowData.SetScreen(mWindowData->GetScreen());
   }
-
-#ifdef DALI_PROFILE_UBUNTU
-  // Transparent window is not supported on Ubuntu platform.
-  activeWindowData.SetTransparency(false);
-#endif
 
   WindowSystem::Initialize();
 
@@ -477,20 +472,15 @@ void ApplicationController::UpdatePreInitializedWindowInfo()
   std::string finalWindowName = envWindowName.empty() ? mWindowName : envWindowName;
   mMainWindow.SetClass(Dali::Integration::ToDaliString(finalWindowName), Dali::Integration::ToDaliString(windowClassName));
 
-  Dali::DevelWindow::SetPositionSize(mMainWindow, mWindowPositionSize);
+  mMainWindow.SetPositionSize(mWindowPositionSize);
 
   if(mWindowData)
   {
     // Apply the real application's window configuration to the pre-initialized window.
     mMainWindow.SetTransparency(mWindowData->GetTransparency());
     mMainWindow.SetType(mWindowData->GetWindowType());
-    Dali::DevelWindow::SetFrontBufferRendering(mMainWindow, mWindowData->GetFrontBufferRendering());
-
-    std::string screen = Dali::Integration::ToStdString(mWindowData->GetScreen());
-    if(!screen.empty())
-    {
-      Dali::DevelWindow::SetScreen(mMainWindow, screen);
-    }
+    mMainWindow.SetFrontBufferRenderingEnabled(mWindowData->IsFrontBufferRenderingEnabled());
+    mMainWindow.SetScreen(mWindowData->GetScreen());
   }
 
   if(mMainWindow.GetType() == Dali::WindowType::IME)

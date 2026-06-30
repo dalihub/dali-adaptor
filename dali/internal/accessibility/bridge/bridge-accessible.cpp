@@ -27,7 +27,6 @@
 #include <locale>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
@@ -96,7 +95,7 @@ bool IsSubWindow(Accessible* accessible)
   if(baseHandle)
   {
     auto window = Dali::Window::DownCast(baseHandle);
-    return DALI_LIKELY(Dali::DevelWindow::GetParent(window));
+    return DALI_LIKELY(window.GetParent());
   }
   return false;
 }

@@ -22,7 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/public-api/adaptor-framework/clipboard.h>
 
 namespace Dali
 {

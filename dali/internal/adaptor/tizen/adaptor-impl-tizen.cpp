@@ -20,13 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <app_common.h>
-#include <system_settings.h>
 
 #include <aul.h>
 #include <unistd.h>
-
-// INTERNAL INCLUDES
-#include <dali/devel-api/text-abstraction/font-client.h>
 
 namespace Dali
 {
@@ -34,30 +30,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace
-{
-static void OnSystemLanguageChanged(system_settings_key_e key, void* data)
-{
-  // TODO: Once Dali fully transitions to appfw's locale changed event,
-  // the system settings implementation is no longer necessary.
-  // Since this is still in the transition and testing phase, I'd like to keep the comments.
-  // All related code should be removed later.
-  // Adaptor* adaptor = static_cast<Adaptor*>(data);
-  // if(adaptor != NULL)
-  // {
-  //   char* locale = NULL;
-  //   if(system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale) != SYSTEM_SETTINGS_ERROR_NONE ||
-  //      locale == NULL)
-  //   {
-  //     DALI_LOG_ERROR("DALI OnSystemLanguageChanged failed ");
-  //     return;
-  //   }
-  //   free(locale);
-  // }
-}
-
-} // namespace
-
 std::string Adaptor::GetApplicationPackageName()
 {
   char appname[4096] = {0};
@@ -117,36 +89,6 @@ void Adaptor::GetAppId(std::string& appId)
 
 void Adaptor::SurfaceInitialized()
 {
-}
-
-void Adaptor::SetupSystemInformation()
-{
-  if(system_settings_add_changed_cb(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged, this) != SYSTEM_SETTINGS_ERROR_NONE)
-  {
-    DALI_LOG_ERROR("DALI system_settings_add_changed_cb failed.\n");
-    return;
-  }
-
-  char* locale = NULL;
-  if(system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &locale) != SYSTEM_SETTINGS_ERROR_NONE ||
-     locale == NULL)
-  {
-    DALI_LOG_ERROR("DALI OnSystemLanguageChanged failed ");
-    return;
-  }
-
-  SetRootLayoutDirection(locale);
-
-  free(locale);
-}
-
-void Adaptor::RemoveSystemInformation()
-{
-  if(system_settings_remove_changed_cb(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged) != SYSTEM_SETTINGS_ERROR_NONE)
-  {
-    DALI_LOG_ERROR("DALI system_settings_remove_changed_cb failed.\n");
-    return;
-  }
 }
 
 } // namespace Adaptor

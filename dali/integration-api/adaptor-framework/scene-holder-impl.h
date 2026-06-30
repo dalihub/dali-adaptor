@@ -220,7 +220,7 @@ public:
    *
    * @return Dali::GestureState
    */
-  Dali::GestureState GetLastPanGestureState();
+  Dali::GestureState GetLastPanGestureState() const;
 
   /**
    * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
@@ -400,9 +400,9 @@ public:
   }
 
   /**
-   * @copydoc Dali::Integration::SceneHolder::TouchedSignal()
+   * @copydoc Dali::Integration::SceneHolder::TouchEventSignal()
    */
-  Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal()
+  Dali::Integration::SceneHolder::TouchEventSignalType& TouchEventSignal()
   {
     return mSceneHolderTouchEventSignal;
   }

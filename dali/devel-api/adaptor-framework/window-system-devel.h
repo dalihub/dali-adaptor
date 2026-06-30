@@ -32,6 +32,15 @@ namespace Dali
 namespace DevelWindowSystem
 {
 /**
+ * @brief Retrieves the DPI previously set to the target screen.
+ *
+ * @note Multiple screens are not currently supported.
+ * @param[out] horizontalDpi The horizontal resolution in DPI.
+ * @param[out] verticalDpi The vertical resolution in DPI.
+ */
+DALI_ADAPTOR_API void GetDpi(uint32_t& horizontalDpi, uint32_t& verticalDpi);
+
+/**
  * @brief Get the screen size.
  *
  * This function gets the screen size.

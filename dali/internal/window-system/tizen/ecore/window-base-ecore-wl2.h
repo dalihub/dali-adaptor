@@ -132,9 +132,14 @@ public:
   void OnMouseWheel(void* data, int type, void* event);
 
   /**
-   * @brief Called when a mouse in or out is received.
+   * @brief Called when a mouse in or out event is received.
+   *
+   * @param[in] data The data passed from the callback registration
+   * @param[in] type The event type
+   * @param[in] event The raw event data
+   * @param[in] action Whether the mouse entered (IN) or left (OUT) the window
    */
-  void OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action);
+  void OnMouseInOut(void* data, int type, void* event, Dali::MouseInOutEvent::Type action);
 
   /**
    * @brief Called when a detent rotation event is recevied.
@@ -175,11 +180,6 @@ public:
    * @brief Called when a transition effect-start/end event is received.
    */
   void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
-
-  /**
-   * @brief Called when a keyboard repeat event is changed.
-   */
-  void OnKeyboardRepeatSettingsChanged();
 
   /**
    * @brief Called when a window redraw is requested.
@@ -378,9 +378,9 @@ public:
   bool IsMinimized() const override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMinimumSize()
    */
-  void SetMimimumSize(Dali::Window::WindowSize size) override;
+  void SetMinimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MaximizeWithRestoreSize()
@@ -658,14 +658,14 @@ public:
   bool GetFullScreen() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRenderingEnabled()
    */
-  void SetFrontBufferRendering(bool enable) override;
+  void SetFrontBufferRenderingEnabled(bool enable) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsFrontBufferRenderingEnabled()
    */
-  bool GetFrontBufferRendering() override;
+  bool IsFrontBufferRenderingEnabled() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowFrontBufferMode()
@@ -690,7 +690,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsAlwaysOnTop()
    */
-  bool IsAlwaysOnTop() override;
+  bool IsAlwaysOnTop() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()

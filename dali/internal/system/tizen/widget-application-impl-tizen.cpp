@@ -87,9 +87,9 @@ bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType,
   std::string        keyEventName = keyName ? std::string(keyName) : std::string();
   const Dali::String emptyString("");
   Dali::KeyEvent     event = Dali::DevelKeyEvent::New(Dali::String(keyEventName.c_str()), emptyString, emptyString, keyCode, 0,
-                                                       static_cast<unsigned long>(timestamp),
-                                                       state, emptyString, emptyString,
-                                                       Device::Class::NONE, Device::Subclass::NONE);
+                                                      static_cast<unsigned long>(timestamp),
+                                                      state, emptyString, emptyString,
+                                                      Device::Class::NONE, Device::Subclass::NONE);
 
   if(application && id)
   {
@@ -300,7 +300,7 @@ bool WidgetApplicationTizen::FeedKeyEvent(void* instanceHandle, const Dali::KeyE
     mReceivedKeyEvent = false;
 
     // Feed the keyEvent to widget window
-    DevelWindow::FeedKeyEvent(window, keyEvent);
+    window.FeedKeyEvent(keyEvent);
 
     // if the application is not using a key event, verify that the window in the widget has received a key event.
     if(Internal::Adaptor::GetImplementation(widgetInstance).IsKeyEventUsing() == false)

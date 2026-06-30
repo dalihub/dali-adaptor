@@ -778,7 +778,7 @@ bool WindowBaseEcoreX::IsMinimized() const
   return false;
 }
 
-void WindowBaseEcoreX::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseEcoreX::SetMinimumSize(Dali::Window::WindowSize size)
 {
 }
 
@@ -1093,11 +1093,11 @@ bool WindowBaseEcoreX::GetFullScreen()
   return false;
 }
 
-void WindowBaseEcoreX::SetFrontBufferRendering(bool enable)
+void WindowBaseEcoreX::SetFrontBufferRenderingEnabled(bool enable)
 {
 }
 
-bool WindowBaseEcoreX::GetFrontBufferRendering()
+bool WindowBaseEcoreX::IsFrontBufferRenderingEnabled() const
 {
   return false;
 }
@@ -1119,7 +1119,7 @@ void WindowBaseEcoreX::SetAlwaysOnTop(bool alwaysOnTop)
 {
 }
 
-bool WindowBaseEcoreX::IsAlwaysOnTop()
+bool WindowBaseEcoreX::IsAlwaysOnTop() const
 {
   return false;
 }

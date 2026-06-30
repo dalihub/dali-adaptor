@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/system-settings.h>
+#include <dali/internal/system/common/system-settings-impl.h>
 
 namespace Dali
 {
@@ -24,19 +24,58 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace SystemSettings
-{
-std::string GetResourcePath()
+std::string SystemSettings::GetResourcePath()
 {
   return DALI_DATA_RO_DIR;
 }
 
-std::string GetDataPath()
+std::string SystemSettings::GetDataPath()
 {
   return "";
 }
 
-} // namespace SystemSettings
+void SystemSettings::Initialize()
+{
+  if(mInitialized)
+  {
+    return;
+  }
+
+  mInitialized = true;
+}
+
+void SystemSettings::Shutdown()
+{
+  mInitialized = false;
+}
+
+std::string SystemSettings::QueryLocaleLanguage()
+{
+  return "";
+}
+
+std::string SystemSettings::QueryLocaleCountry()
+{
+  return "";
+}
+
+std::string SystemSettings::GetLocaleLanguage()
+{
+  return mLocaleLanguage;
+}
+
+std::string SystemSettings::GetLocaleCountry() const
+{
+  return "";
+}
+
+void SystemSettings::NotifyLocaleLanguageChanged()
+{
+}
+
+void SystemSettings::NotifyFontSizeChanged()
+{
+}
 
 } // namespace Adaptor
 

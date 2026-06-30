@@ -180,11 +180,6 @@ public:
   void OnTransitionEffectEvent(void* data, int type, void* event);
 
   /**
-   * @brief Called when a keyboard repeat event is changed.
-   */
-  void OnKeyboardRepeatSettingsChanged(void* data, int type, void* event);
-
-  /**
    * @brief Called when a window redraw is requested.
    */
   void OnWindowRedrawRequest(void* data, int type, void* event);
@@ -248,7 +243,6 @@ public:
    * @brief DisplayPolicyBrightnessChangeDone
    */
   void DisplayPolicyBrightnessChangeDone(void* data, struct tizen_display_policy* displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state);
-
 
 public:
   /**
@@ -372,9 +366,9 @@ public:
   bool IsMinimized() const override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMinimumSize()
    */
-  void SetMimimumSize(Dali::Window::WindowSize size) override;
+  void SetMinimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MaximizeWithRestoreSize()
@@ -652,14 +646,14 @@ public:
   bool GetFullScreen() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRenderingEnabled()
    */
-  void SetFrontBufferRendering(bool enable) override;
+  void SetFrontBufferRenderingEnabled(bool enable) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsFrontBufferRenderingEnabled()
    */
-  bool GetFrontBufferRendering() override;
+  bool IsFrontBufferRenderingEnabled() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowFrontBufferMode()
@@ -684,7 +678,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsAlwaysOnTop()
    */
-  bool IsAlwaysOnTop() override;
+  bool IsAlwaysOnTop() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBottom()
@@ -825,7 +819,7 @@ private:
   Rect<int> RecalculateInputRect(const Rect<int>& rect, const Rect<int>& surfaceSize);
 
 protected:
-  WindowBaseTcoreWl(const WindowBaseTcoreWl&) = delete;
+  WindowBaseTcoreWl(const WindowBaseTcoreWl&)                = delete;
   WindowBaseTcoreWl& operator=(const WindowBaseTcoreWl& rhs) = delete;
 
 private:
@@ -845,13 +839,13 @@ private:
   tizen_core_event_h                          mTcoreEvent;
   tizen_core_wl_screen_h                      mScreen;
 
-  wl_surface* mWlSurface;
-  zwp_input_panel_v1* mWlInputPanel;
-  wl_output* mWlOutput;
+  wl_surface*                 mWlSurface;
+  zwp_input_panel_v1*         mWlInputPanel;
+  wl_output*                  mWlOutput;
   zwp_input_panel_surface_v1* mWlInputPanelSurface;
 
-  wl_egl_window*        mEglWindow;
-  wl_display*           mDisplay;
+  wl_egl_window* mEglWindow;
+  wl_display*    mDisplay;
 
   std::vector<std::string> mSupportedAuxiliaryHints;
 
@@ -874,10 +868,10 @@ private:
   AuxiliaryHints mAuxiliaryHints;
 
   WindowType mType;
-  int32_t        mWindowRotationAngle;
-  int32_t        mScreenRotationAngle;
-  int32_t        mSupportedPreProtation;
-  int32_t        mWinId;
+  int32_t    mWindowRotationAngle;
+  int32_t    mScreenRotationAngle;
+  int32_t    mSupportedPreProtation;
+  int32_t    mWinId;
 
   uint32_t          mLastSubmittedMoveResizeSerial;
   volatile uint32_t mMoveResizeSerial;

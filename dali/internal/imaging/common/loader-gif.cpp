@@ -202,13 +202,26 @@ bool HandleImageDescriptionRecordType(Dali::Devel::PixelBuffer& bitmap, GifFileT
   SavedImage*         image(&gifInfo->SavedImages[gifInfo->ImageCount - 1]);
   const GifImageDesc& desc(image->ImageDesc);
 
+  if(desc.Left < 0 || desc.Top < 0 || desc.Width <= 0 || desc.Height <= 0)
+  {
+    return false;
+  }
+
+  const unsigned int left         = static_cast<unsigned int>(desc.Left);
+  const unsigned int top          = static_cast<unsigned int>(desc.Top);
+  const unsigned int actualWidth  = static_cast<unsigned int>(desc.Width);
+  const unsigned int actualHeight = static_cast<unsigned int>(desc.Height);
+
+  if(left > width || actualWidth > width - left || top > height || actualHeight > height - top)
+  {
+    return false;
+  }
+
   auto decodedData = new unsigned char[width * height * sizeof(GifPixelType)];
 
   std::unique_ptr<unsigned char[]> ptr{decodedData};
 
   const unsigned int bytesPerRow(width * sizeof(GifPixelType));
-  const unsigned int actualWidth(desc.Width);
-  const unsigned int actualHeight(desc.Height);
 
   // Create a buffer to store the decoded data.
   bitmap = Dali::Devel::PixelBuffer::New(actualWidth, actualHeight, pixelFormat);

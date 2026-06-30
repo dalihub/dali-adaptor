@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_COMMON_WINDOW_SYSTEM_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -129,6 +130,18 @@ void SetGeometryHittestEnabled(bool enabled);
  */
 bool IsGeometryHittestEnabled();
 
+/**
+ * @brief Global keyboard repeat settings changed signal
+ */
+using KeyboardRepeatSettingsChangedSignalType = Dali::Signal<void()>;
+
+/**
+ * @brief Returns a signal that is emitted when the keyboard repeat settings are changed globally.
+ *
+ * @return The signal to connect to
+ */
+KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal();
+
 } // namespace WindowSystem
 
 /**
@@ -137,76 +150,6 @@ bool IsGeometryHittestEnabled();
 class WindowSystemBase
 {
 public:
-  /**
-   * Event types that can be received from the window manager for a given window
-   */
-  enum class Event
-  {
-    PROPERTY_NOTIFY,
-    DELETE_REQUEST,
-    MOVE_RESIZE_REQUEST,
-    FOCUS_IN,
-    FOCUS_OUT,
-    DAMAGE,
-    MOUSE_WHEEL,
-    MOUSE_MOVE,
-    MOUSE_BUTTON_DOWN,
-    MOUSE_BUTTON_UP,
-    MOUSE_OUT,
-    KEY_DOWN,
-    KEY_UP,
-    SELECTION_CLEAR,
-    SELECTION_NOTIFY,
-    CONFIGURE_NOTIFY,
-  };
-
-  /**
-   * Base ptr for events - implementation can downcast to platform specific event structure
-   */
-  struct EventBase
-  {
-  };
-
-  /**
-   * Callback function signature. Platform implementation can call generic handler on a given window
-   */
-  using EventHandlerCallback = bool (*)(void* data, Event eventType, EventBase* event);
-
-  /**
-   * Struct to define an event handler in a window implementation
-   */
-  struct EventHandler
-  {
-    EventHandlerCallback callback;  ///< User callback.
-    void*                data;      ///< user data
-    Event                event;     ///< Event the handler is listening to
-    int                  handlerId; ///< Id of the handler
-  };
-
-  /**
-   * @return Get the current display of this application
-   */
-  virtual Dali::Any GetDisplay() = 0;
-
-  /**
-   * Add an event handler to the window system
-   * @param event The window system event to listen for
-   * @param callback A callback to handle the event
-   * @param data User data to pass to the callback
-   * @return A handler object that may be passed to DeleteEventHandler.
-   *
-   * When the callback is executed, if it returns true, then the invoker will stop calling
-   * other event handlers that have registered with that event type. If it returns false,
-   * then it will continue with other registered handlers.
-   */
-  virtual EventHandler* AddEventHandler(Event event, EventHandlerCallback callback, void* data) = 0;
-
-  /**
-   * Delete an event handler from the window system.
-   * @param eventHandler The event handler to delete.
-   */
-  virtual void DeleteEventHandler(EventHandler* eventHandler) = 0;
-
   /**
    * Get the screen size for this window system.
    *
@@ -220,8 +163,103 @@ public:
    * It is for multiple screen environment.
    *
    * @return The list of the screen information
+   * @note The default implementation returns an empty list (single-screen environments).
+   *       Backends that support multiple screens (e.g. Tizen) override this.
    */
-  virtual std::vector<Dali::ScreenInformation> GetAvailableScreens() = 0;
+  virtual std::vector<Dali::ScreenInformation> GetAvailableScreens()
+  {
+    return {};
+  }
+
+  /**
+   * @brief Update the stored screen size.
+   * @note The screen size may change while the application is running.
+   *       The default implementation does nothing.
+   */
+  virtual void UpdateScreenSize()
+  {
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::SetRepeatInfo()
+   * @note The default implementation does nothing and returns false. Backends that support
+   *       keyboard repeat (e.g. Tizen) override this.
+   */
+  virtual bool SetKeyboardRepeatInfo(float rate, float delay)
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::GetRepeatInfo()
+   */
+  virtual bool GetKeyboardRepeatInfo(float& rate, float& delay)
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::SetHorizontalRepeatInfo()
+   */
+  virtual bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::GetHorizontalRepeatInfo()
+   */
+  virtual bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::SetVerticalRepeatInfo()
+   */
+  virtual bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
+  {
+    return false;
+  }
+
+  /**
+   * @copydoc Dali::Keyboard::GetVerticalRepeatInfo()
+   */
+  virtual bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
+  {
+    return false;
+  }
+
+  /**
+   * @brief Sets whether geometry event propagation is used for touch and hover events.
+   *
+   * @param[in] enabled True if geometry event propagation should be used.
+   * @note The default implementation propagates the setting to every scene holder.
+   *       The behaviour is identical across all backends, so backends should not need to override this.
+   */
+  virtual void SetGeometryHittestEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether geometry event propagation is enabled.
+   *
+   * @return True if geometry event propagation is enabled.
+   */
+  bool IsGeometryHittestEnabled() const
+  {
+    return mGeometryHittest;
+  }
+
+  /**
+   * @brief Returns a signal emitted when keyboard repeat settings are changed globally.
+   */
+  WindowSystem::KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal()
+  {
+    return mKeyboardRepeatSettingsChangedSignal;
+  }
+
+protected:
+  WindowSystem::KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
+  bool                                                  mGeometryHittest{false}; ///< Whether geometry event propagation is enabled. Shared by all backends.
 };
 
 } // namespace Adaptor

@@ -26,7 +26,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -687,19 +687,6 @@ static void TcoreWlEventWindowEffectEnd(void* event, tizen_core_wl_event_type_e 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// Keyboard Repeat Settings Changed Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-static void TcoreWlEventSeatKeyboardRepeatChanged(void* event, tizen_core_wl_event_type_e event_type, void* user_data)
-{
-  WindowBaseTcoreWl* windowBase = static_cast<WindowBaseTcoreWl*>(user_data);
-  if(windowBase)
-  {
-    windowBase->OnKeyboardRepeatSettingsChanged(user_data, event_type, event);
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 // Keymap Changed Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1069,9 +1056,6 @@ void WindowBaseTcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
 
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_START, TcoreWlEventWindowEffectStart, this, mTcoreEventListeners);
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_EFFECT_END, TcoreWlEventWindowEffectEnd, this, mTcoreEventListeners);
-
-        // Keyboard repeat
-        RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_SEAT_KEYREPEAT_CHANGED, TcoreWlEventSeatKeyboardRepeatChanged, this, mTcoreEventListeners);
 
         // [TCORE_WL_MIGRATION] No direct Tizen Core WL equivalent for WINDOW_REDRAW_REQUEST
         RegisterTizenCoreEventListener(mTcoreEvent, TIZEN_CORE_WL_EVENT_WINDOW_AUX_MESSAGE, TcoreWlEventWindowAuxiliaryMessage, this, mTcoreEventListeners);
@@ -1815,15 +1799,15 @@ void WindowBaseTcoreWl::OnMouseInOut(void* data, int type, void* event)
     GetDeviceSubclass(tizenSubclass, deviceSubclass);
     Dali::String deviceName(name);
 
-    Dali::DevelWindow::MouseInOutEvent::Type action = (type == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::DevelWindow::MouseInOutEvent::Type::IN : Dali::DevelWindow::MouseInOutEvent::Type::OUT);
+    Dali::MouseInOutEvent::Type action = (type == TIZEN_CORE_WL_EVENT_MOUSE_IN ? Dali::MouseInOutEvent::Type::IN : Dali::MouseInOutEvent::Type::OUT);
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseTcoreWl::OnMouseInOut: timestamp: %d, modifiers: %d, x: %d, y: %d\n", timestamp, modifiers, x, y);
 
-    Dali::DevelWindow::MouseInOutEvent inOutEvent(action, modifiers, Vector2(x, y), timestamp, deviceClass, deviceSubclass);
+    Dali::MouseInOutEvent inOutEvent(action, modifiers, Vector2(x, y), timestamp, deviceClass, deviceSubclass);
 
     mMouseInOutEventSignal.Emit(inOutEvent);
 
-    if(action == Dali::DevelWindow::MouseInOutEvent::Type::IN)
+    if(action == Dali::MouseInOutEvent::Type::IN)
     {
       Integration::Point point;
       point.SetState(PointState::MOTION);
@@ -2110,14 +2094,6 @@ void WindowBaseTcoreWl::OnTransitionEffectEvent(void* data, int type, void* even
   mTransitionEffectEventSignal.Emit(state, static_cast<WindowEffectType>(effectType));
 }
 
-void WindowBaseTcoreWl::OnKeyboardRepeatSettingsChanged(void* data, int type, void* event)
-{
-  if(Dali::Adaptor::IsAvailable())
-  {
-    mKeyboardRepeatSettingsChangedSignal.Emit();
-  }
-}
-
 void WindowBaseTcoreWl::OnWindowRedrawRequest(void* data, int type, void* event)
 {
 }
@@ -2281,7 +2257,7 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
         }
       }
 
-      mInsetsChangedSignal.Emit(insetsPartType, partState, Extents(left, right, top, bottom));
+      mInsetsChangedSignal.Emit(WindowInsetsInfo(insetsPartType, partState, Extents(left, right, top, bottom)));
     }
   }
 }
@@ -2929,7 +2905,7 @@ bool WindowBaseTcoreWl::IsMinimized() const
   return false;
 }
 
-void WindowBaseTcoreWl::SetMimimumSize(Dali::Window::WindowSize size)
+void WindowBaseTcoreWl::SetMinimumSize(Dali::Window::WindowSize size)
 {
   if(mTcoreWindow)
   {
@@ -3607,7 +3583,7 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Da
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
+  { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
 
   for(GList* l = list; l; l = l->next)
   {
@@ -3644,7 +3620,7 @@ bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   tizen_core_wl_error_e err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-                                               { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
+  { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
 
   result.Resize(keyCount, true);
   return (err == TIZEN_CORE_WL_ERROR_NONE);
@@ -4346,12 +4322,12 @@ bool WindowBaseTcoreWl::GetFullScreen()
   return false;
 }
 
-void WindowBaseTcoreWl::SetFrontBufferRendering(bool enable)
+void WindowBaseTcoreWl::SetFrontBufferRenderingEnabled(bool enable)
 {
   mIsFrontBufferRendering = enable;
 }
 
-bool WindowBaseTcoreWl::GetFrontBufferRendering()
+bool WindowBaseTcoreWl::IsFrontBufferRenderingEnabled() const
 {
   return mIsFrontBufferRendering;
 }
@@ -4405,7 +4381,7 @@ void WindowBaseTcoreWl::SetAlwaysOnTop(bool alwaysOnTop)
   }
 }
 
-bool WindowBaseTcoreWl::IsAlwaysOnTop()
+bool WindowBaseTcoreWl::IsAlwaysOnTop() const
 {
   if(mTcoreWindow)
   {

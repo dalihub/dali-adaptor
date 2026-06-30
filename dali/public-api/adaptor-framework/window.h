@@ -19,16 +19,22 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window-data.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/extents.h>
+#include <dali/public-api/events/gesture-enumerations.h>
+#include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
+#include <dali/public-api/adaptor-framework/window-data.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -38,7 +44,7 @@ namespace Dali
  * @{
  */
 
-typedef Dali::BoundsInteger PositionSize;
+using PositionSize = Dali::BoundsInteger;
 
 namespace Internal DALI_INTERNAL
 {
@@ -53,6 +59,7 @@ class Layer;
 class RenderTaskList;
 class TouchEvent;
 class KeyEvent;
+class HoverEvent;
 
 /**
  * @brief The window class is used internally for drawing.
@@ -67,10 +74,19 @@ public:
   using WindowSize     = Int32Pair; ///< Window size type @SINCE_1_2.60
   using WindowPosition = Int32Pair; ///< Window position type @SINCE_2_1.45
 
-  using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
-  using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType    = Signal<void(Window, KeyEvent)>;   ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType  = Signal<void(Window, TouchEvent)>; ///< Touch signal type @SINCE_1_9.28
+  using FocusChangedSignalType      = Signal<void(Window, bool)>; ///< Window focus changed signal type @SINCE_1_4.35
+  using VisibilityChangedSignalType = Signal<void(Window, bool)>; ///< Window visibility changed signal type @SINCE_2_5.28
+
+  using ResizedSignalType            = Signal<void(Window, WindowSize)>;        ///< Window resized signal type @SINCE_1_4.35
+  using MovedSignalType              = Signal<void(Window, WindowPosition)>;    ///< Window moved signal type @SINCE_2_5.28
+  using OrientationChangedSignalType = Signal<void(Window, WindowOrientation)>; ///< Window orientation changed signal type @SINCE_2_5.28
+
+  using KeyEventSignalType        = Signal<void(Window, KeyEvent)>;               ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType      = Signal<void(Window, TouchEvent)>;             ///< Touch signal type @SINCE_1_9.28
+  using WheelEventSignalType      = Signal<void(Window, WheelEvent)>;             ///< Wheel signal type @SINCE_2_5.28
+  using MouseInOutEventSignalType = Signal<void(Window, const MouseInOutEvent&)>; ///< Mouse in/out event signal type @SINCE_2_5.28
+
+  using InsetsChangedSignalType = Signal<void(Window, const WindowInsetsInfo&)>; ///< Insets changed signal type @SINCE_2_5.28
 
 public:
   // Methods
@@ -156,6 +172,15 @@ public:
    * @return Whether it's a valid window or not
    */
   static Window DownCast(BaseHandle handle);
+
+  /**
+   * @brief Retrieves the window that the given actor is added to.
+   *
+   * @SINCE_2_5.29
+   * @param[in] actor The actor
+   * @return The window the actor is added to, or an empty handle if the actor is not added to any window
+   */
+  static Window Get(Actor actor);
 
   /**
    * @brief Adds a child Actor to the Window.
@@ -284,6 +309,16 @@ public:
   void RemoveAvailableOrientation(WindowOrientation orientation);
 
   /**
+   * @brief Sets available orientations of the window.
+   *
+   * This API is for setting several orientations one time.
+   *
+   * @SINCE_2_5.27
+   * @param[in] orientations The available orientation list to add
+   */
+  void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
+
+  /**
    * @brief Sets a preferred orientation.
    * @SINCE_1_0.0
    * @param[in] orientation The preferred orientation
@@ -301,6 +336,22 @@ public:
   WindowOrientation GetPreferredOrientation();
 
   /**
+   * @brief Gets current orientation of the window.
+   *
+   * @SINCE_2_5.27
+   * @return The current window orientation if previously set, or none
+   */
+  WindowOrientation GetCurrentOrientation();
+
+  /**
+   * @brief Queries whether the window's orientation change is in progress.
+   *
+   * @SINCE_2_5.27
+   * @return true if orientation change is in progress, false otherwise
+   */
+  bool IsOrientationChanging() const;
+
+  /**
    * @brief Gets the native handle of the window.
    *
    * When users call this function, it wraps the actual type used by the underlying window system.
@@ -308,6 +359,14 @@ public:
    * @return The native handle of the Window or an empty handle
    */
   Any GetNativeHandle() const;
+
+  /**
+   * @brief Gets the native window id.
+   *
+   * @SINCE_2_5.27
+   * @return The native window id
+   */
+  int32_t GetNativeId() const;
 
   /**
    * @brief Sets whether window accepts focus or not.
@@ -415,6 +474,39 @@ public:
   void SetInputRegion(const BoundsInteger& inputRegion);
 
   /**
+   * @brief Includes input region.
+   *
+   * This function includes input regions.
+   * It can be used multiple times and supports multiple regions.
+   * It means input region will be extended.
+   *
+   * This input is related to mouse and touch event.
+   * If device has touch screen, this function is useful.
+   * Otherwise device does not have that, we can use it after connecting mouse to the device.
+   *
+   * @SINCE_2_5.27
+   * @param[in] inputRegion The added region to accept input events.
+   */
+  void IncludeInputRegion(const BoundsInteger& inputRegion);
+
+  /**
+   * @brief Excludes input region.
+   *
+   * This function excludes input regions.
+   * It can be used multiple times and supports multiple regions.
+   * It means input region will be reduced.
+   * Notice, should be set input area by IncludeInputRegion() before this function is used.
+   *
+   * This input is related to mouse and touch event.
+   * If device has touch screen, this function is useful.
+   * Otherwise device does not have that, we can use it after connecting mouse to the device.
+   *
+   * @SINCE_2_5.27
+   * @param[in] inputRegion The region to exclude from accepting input events.
+   */
+  void ExcludeInputRegion(const BoundsInteger& inputRegion);
+
+  /**
    * @brief Sets a window type.
    * @@SINCE_2_0.0
    * @param[in] type The window type.
@@ -428,6 +520,28 @@ public:
    * @return A window type.
    */
   WindowType GetType() const;
+
+  /**
+   * @brief Enables the floating mode of window.
+   *
+   * The floating mode is to support making partial size window easily.
+   * It is useful for creating popup-style windows that are always above other normal windows.
+   * It also allows easy switching between popup style and normal style.
+   *
+   * A special display server (e.g., Tizen display server) supports this mode.
+   *
+   * @SINCE_2_5.27
+   * @param[in] enable Enable floating mode or not.
+   */
+  void EnableFloatingMode(bool enable);
+
+  /**
+   * @brief Returns whether the window is in floating mode or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if floating mode is enabled for the window, false otherwise.
+   */
+  bool IsFloatingModeEnabled() const;
 
   /**
    * @brief Sets a priority level for the specified notification window.
@@ -447,6 +561,25 @@ public:
    * @remarks This can be used for a notification type window only.
    */
   WindowNotificationLevel GetNotificationLevel() const;
+
+  /**
+   * @brief Enables or disables the window always being on top.
+   *
+   * This is valid between windows that have no notification level or a notification level of 'none'.
+   * If it has a notification level, this will not do anything.
+   *
+   * @SINCE_2_5.27
+   * @param[in] alwaysOnTop True to enable the window always on top, false to disable.
+   */
+  void SetAlwaysOnTop(bool alwaysOnTop);
+
+  /**
+   * @brief Returns whether the window is always on top.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is always on top, false otherwise.
+   */
+  bool IsAlwaysOnTop() const;
 
   /**
    * @brief Sets a transparent window's visual state to opaque.
@@ -510,36 +643,32 @@ public:
   int GetBrightness() const;
 
   /**
-   * @brief Sets a size of the window.
+   * @brief Sets the position and size of the window.
+   * This API guarantees that both moving and resizing of window will appear on the screen at once.
    *
-   * @SINCE_1_2.60
-   * @param[in] size The new window size
+   * @SINCE_2_5.29
+   * @param[in] positionSize The new window position and size
    */
-  void SetSize(WindowSize size);
+  void SetPositionSize(PositionSize positionSize);
 
   /**
-   * @brief Gets a size of the window.
+   * @brief Gets the position and size of the window.
    *
-   * @SINCE_1_2.60
-   * @return The size of the window
+   * @SINCE_2_5.29
+   * @return The position and size of the window
    */
-  WindowSize GetSize() const;
+  PositionSize GetPositionSize() const;
 
   /**
-   * @brief Sets a position of the window.
+   * @brief Requests to display server for the window is moved by display server.
    *
-   * @SINCE_1_2.60
-   * @param[in] position The new window position
-   */
-  void SetPosition(WindowPosition position);
-
-  /**
-   * @brief Gets a position of the window.
+   * This function should be called in mouse down event callback function.
+   * After this function is called in mouse down event callback function, the window is moved with mouse move event.
+   * When mouse up event happens, the window moved work is finished.
    *
-   * @SINCE_1_2.60
-   * @return The position of the window
+   * @SINCE_2_5.27
    */
-  WindowPosition GetPosition() const;
+  void RequestMoveToServer();
 
   /**
    * @brief Sets the layout of the window.
@@ -657,36 +786,347 @@ public:
    */
   bool IsPartialUpdateEnabled() const;
 
+  /**
+   * @brief Enables or disables front buffer rendering.
+   *
+   * @SINCE_2_5.27
+   * @param[in] enable True to enable front buffer rendering, false to disable.
+   */
+  void SetFrontBufferRenderingEnabled(bool enable);
+
+  /**
+   * @brief Returns whether front buffer rendering is enabled or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if front buffer rendering is enabled, false otherwise.
+   */
+  bool IsFrontBufferRenderingEnabled() const;
+
+  /**
+   * @brief Maximizes window's size.
+   *
+   * If this function is called with true, window will be resized with screen size.
+   * Otherwise window will be resized with previous size.
+   * It is for the window's MAX button in window's border.
+   *
+   * It is for client application.
+   * If window border is supported by display server, it is not necessary.
+   *
+   * @SINCE_2_5.27
+   * @param[in] maximize True to maximize the window, false to restore to previous size.
+   */
+  void Maximize(bool maximize);
+
+  /**
+   * @brief Returns whether the window is maximized or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is maximized, false otherwise.
+   */
+  bool IsMaximized() const;
+
+  /**
+   * @brief Sets window's maximum size.
+   *
+   * It is to set the maximized size when window is maximized.
+   * Although the size is set by this function, window's size can be increased beyond the limitation by SetSize().
+   *
+   * After setting, if Maximize() is called, window is resized with the setting size and centered.
+   *
+   * @SINCE_2_5.27
+   * @param[in] size The maximum size.
+   */
+  void SetMaximumSize(WindowSize size);
+
+  /**
+   * @brief Minimizes window's size.
+   *
+   * If this function is called with true, window will be iconified.
+   * Otherwise window will be activated.
+   * It is for the window's MIN button in window border.
+   *
+   * It is for client application.
+   * If window border is supported by display server, it is not necessary.
+   *
+   * @SINCE_2_5.27
+   * @param[in] minimize True to minimize the window, false to activate it.
+   */
+  void Minimize(bool minimize);
+
+  /**
+   * @brief Returns whether the window is minimized or not.
+   *
+   * @SINCE_2_5.27
+   * @return True if the window is minimized, false otherwise.
+   */
+  bool IsMinimized() const;
+
+  /**
+   * @brief Sets window's minimum size.
+   *
+   * It is to set the minimum size when window's size is decreased by the display server.
+   * Although the size is set by this function, window's size can be decreased below the limitation by SetSize().
+   *
+   * @SINCE_2_5.27
+   * @param[in] size The minimum size.
+   */
+  void SetMinimumSize(WindowSize size);
+
+  /**
+   * @brief Sets the parent window of this window.
+   *
+   * After setting, these windows move together when raised, lowered, or iconified/deiconified.
+   * Initially, the child window is located on top of the parent.
+   * If @a belowParent is true, the child is placed below the parent instead.
+   *
+   * @SINCE_2_5.27
+   * @param[in] parent The parent window instance.
+   * @param[in] belowParent If true, the child window is placed below the parent; otherwise above. Defaults to false.
+   */
+  void SetParent(Window parent, bool belowParent = false);
+
+  /**
+   * @brief Unsets the parent window of this window.
+   *
+   * After unsetting, the window is disconnected from its parent window.
+   *
+   * @SINCE_2_5.27
+   */
+  void Unparent();
+
+  /**
+   * @brief Gets the parent window of this window.
+   *
+   * @SINCE_2_5.27
+   * @return The parent window, or an empty handle if no parent is set.
+   */
+  Window GetParent();
+
+  /**
+   * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
+   *
+   * @SINCE_2_5.27
+   * @param[in] callback The function to call.
+   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
+   *
+   * @note A callback of the following type may be used:
+   * @code
+   *   void MyFunction( int32_t frameId );
+   * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @note Ownership of the callback is passed onto this class.
+   */
+  void AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId);
+
+  /**
+   * @brief Adds a callback that is called when the frame is displayed on the display.
+   *
+   * @SINCE_2_5.27
+   * @param[in] callback The function to call.
+   * @param[in] frameId The ID to specify the frame. It will be passed when the callback is called.
+   *
+   * @note A callback of the following type may be used:
+   * @code
+   *   void MyFunction( int32_t frameId );
+   * @endcode
+   * This callback will be deleted once it is called.
+   *
+   * @note Ownership of the callback is passed onto this class.
+   */
+  void AddFramePresentedCallback(CallbackBase* callback, int32_t frameId);
+
+  /**
+   * @brief Sets the screen for this window.
+   *
+   * The window will be moved to the specified screen.
+   *
+   * @SINCE_2_5.27
+   * @param[in] screenName The name of the screen.
+   */
+  void SetScreen(const Dali::String& screenName);
+
+  /**
+   * @brief Gets the screen of the window.
+   *
+   * This is for multi-screen environments.
+   *
+   * @SINCE_2_5.27
+   * @return The name of the screen.
+   */
+  Dali::String GetScreen() const;
+
+  /**
+   * @brief Feeds a touch event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] touchEvent The touch event
+   */
+  void FeedTouchEvent(const Dali::TouchEvent& touchEvent);
+
+  /**
+   * @brief Feeds a wheel event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] wheelEvent The wheel event
+   */
+  void FeedWheelEvent(Dali::WheelEvent wheelEvent);
+
+  /**
+   * @brief Feeds a key event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] keyEvent The key event.
+   */
+  void FeedKeyEvent(const Dali::KeyEvent& keyEvent);
+
+  /**
+   * @brief Feeds a hover event to the window.
+   *
+   * @SINCE_2_5.27
+   * @param[in] hoverEvent The hover event
+   */
+  void FeedHoverEvent(const Dali::HoverEvent& hoverEvent);
+
+  /**
+   * @brief Returns the last key event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last key event received by the window.
+   */
+  const KeyEvent& GetLastKeyEvent() const;
+
+  /**
+   * @brief Returns the last touch event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last touch event received by the window.
+   * @note Returns the raw event; hit-actor and local position information are not available.
+   */
+  const TouchEvent& GetLastTouchEvent() const;
+
+  /**
+   * @brief Returns the last hover event received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last hover event received by the window.
+   * @note Returns the raw event; hit-actor and local position information are not available.
+   */
+  const HoverEvent& GetLastHoverEvent() const;
+
+  /**
+   * @brief Returns the last pan gesture state received by the window.
+   *
+   * @SINCE_2_5.27
+   * @return The last pan gesture state received by the window.
+   */
+  GestureState GetLastPanGestureState() const;
+
 public: // Signals
   /**
-   * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
+   * @brief This signal is emitted when the window gains or loses focus.
    *
    * A callback of the following type may be connected:
    * @code
    *   void YourCallbackName( Window window, bool focusIn );
    * @endcode
    * The parameter is true if window gains focus, otherwise false.
-   * and window means this signal was called from what window
    *
    * @SINCE_1_4.35
    * @return The signal to connect to
    */
-  FocusChangeSignalType& FocusChangeSignal();
+  FocusChangedSignalType& FocusChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the window is shown or hidden.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, bool visible);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  VisibilityChangedSignalType& VisibilityChangedSignal();
 
   /**
    * @brief This signal is emitted when the window is resized.
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallbackName( Window window, int width, int height );
+   *   void YourCallbackName( Window window, Dali::Window::WindowSize size );
    * @endcode
-   * The parameters are the resized width and height.
-   * and window means this signal was called from what window
+   * The parameter is the resized window size.
    *
    * @SINCE_1_4.35
    * @return The signal to connect to
    */
-  ResizeSignalType& ResizeSignal();
+  ResizedSignalType& ResizedSignal();
+
+  /**
+   * @brief This signal is emitted when the window is moved.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
+   * @endcode
+   * The parameter is the moved window position.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MovedSignalType& MovedSignal();
+
+  /**
+   * @brief This signal is emitted when the window orientation is changed.
+   *
+   * To emit this signal, AddAvailableOrientation() or SetPreferredOrientation() should be called before the device is rotated.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::WindowOrientation orientation);
+   * @endcode
+   * The parameter is the changed window orientation.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  OrientationChangedSignalType& OrientationChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the window has been moved by the display server.
+   *
+   * To trigger a server-side move, call RequestMoveToServer().
+   * After the move is completed, this signal will be emitted.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowPosition position);
+   * @endcode
+   * The parameter is the final window position after moving.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MovedSignalType& MoveCompletedSignal();
+
+  /**
+   * @brief This signal is emitted when the window has been resized by the display server.
+   *
+   * To trigger a server-side resize, call RequestResizeToServer().
+   * After the resize is completed, this signal will be emitted.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::Window::WindowSize size);
+   * @endcode
+   * The parameter is the final window size after resizing.
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  ResizedSignalType& ResizeCompletedSignal();
 
   /**
    * @brief This signal is emitted when key event is received.
@@ -714,11 +1154,51 @@ public: // Signals
    * @endcode
    *
    * @SINCE_1_9.28
-   * @return The touch signal to connect to
+   * @return The signal to connect to
    *
    * @note Motion events are not emitted.
    */
-  TouchEventSignalType& TouchedSignal();
+  TouchEventSignalType& TouchEventSignal();
+
+  /**
+   * @brief This signal is emitted when a wheel event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, WheelEvent event);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  WheelEventSignalType& WheelEventSignal();
+
+  /**
+   * @brief This signal is emitted when a mouse in or out event is received.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, Dali::MouseInOutEvent event);
+   * @endcode
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  MouseInOutEventSignalType& MouseInOutEventSignal();
+
+  /**
+   * @brief This signal is emitted when window insets change due to the indicator, virtual keyboard, or clipboard appearing or disappearing.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, const WindowInsetsInfo& insetsInfo);
+   * @endcode
+   * The parameter contains the insets information including the part type, part state, and the extents (left, right, top, bottom).
+   *
+   * @SINCE_2_5.28
+   * @return The signal to connect to
+   */
+  InsetsChangedSignalType& InsetsChangedSignal();
 
 public: // Not intended for application developers
   /// @cond internal

@@ -9,13 +9,16 @@ SET(CAPI_LIB "dali-adaptor")
 
 SET(TC_SOURCES
     utc-Dali-Application.cpp
+    utc-Dali-ClipboardData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
+    utc-Dali-MouseInOutEvent.cpp
     utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
+    utc-Dali-Keyboard.cpp
     utc-Dali-NativeImage.cpp
     utc-Dali-PixelBuffer.cpp
     utc-Dali-TextScript.cpp

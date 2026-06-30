@@ -27,13 +27,13 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -73,15 +73,14 @@ public:
   typedef Signal<void(const DamageArea&)>                                              DamageSignalType;
   typedef Signal<void(const RotationEvent&)>                                           RotationSignalType;
   typedef Signal<void(WindowEffectState, WindowEffectType)>                            TransitionEffectEventSignalType;
-  typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType;
   typedef Signal<void()>                                                               WindowRedrawRequestSignalType;
   typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
   typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
-  typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
+  typedef Signal<void(const Dali::MouseInOutEvent&)>                                   MouseInOutEventSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseRelativeEvent&)>                   MouseRelativeEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               ResizeCompletedSignalType;
-  typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
+  typedef Signal<void(const Dali::WindowInsetsInfo&)>                                  InsetsChangedSignalType; // WindowBase는 Window를 모르므로 insets info만 전달
   typedef Signal<void(const Dali::Int32Pair&, bool, bool)>                             PointerConstraintsSignalType;
 
   // Input events
@@ -210,34 +209,34 @@ public:
   virtual void Activate() = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::Maximize()
+   * @copydoc Dali::Window::Maximize()
    */
   virtual void Maximize(bool maximize) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::IsMaximized()
+   * @copydoc Dali::Window::IsMaximized()
    */
   virtual bool IsMaximized() const = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   * @copydoc Dali::Window::SetMaximumSize()
    */
   virtual void SetMaximumSize(Dali::Window::WindowSize size) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::Minimize()
+   * @copydoc Dali::Window::Minimize()
    */
   virtual void Minimize(bool minimize) = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::IsMinimized()
+   * @copydoc Dali::Window::IsMinimized()
    */
   virtual bool IsMinimized() const = 0;
 
   /**
-   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   * @copydoc Dali::Window::SetMinimumSize()
    */
-  virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
+  virtual void SetMinimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
    * @copydoc Dali::DevelWindow::MaximizeWithRestoreSize()
@@ -568,13 +567,13 @@ public:
    * @brief Enables or disables front buffer rendering.
    * @param[in] enable true to enable front buffer rendering, false to disable.
    */
-  virtual void SetFrontBufferRendering(bool enable) = 0;
+  virtual void SetFrontBufferRenderingEnabled(bool enable) = 0;
 
   /**
    * @brief Enables or disables front buffer rendering.
    * @return Returns whether front buffer rendering has been enabled or not.
    */
-  virtual bool GetFrontBufferRendering() = 0;
+  virtual bool IsFrontBufferRenderingEnabled() const = 0;
 
   /**
    * @brief Sets front buffer rendering to the window.
@@ -611,7 +610,7 @@ public:
    *
    * @return True if the window always is on top, false otherwise.
    */
-  virtual bool IsAlwaysOnTop() = 0;
+  virtual bool IsAlwaysOnTop() const = 0;
 
   /**
    * @brief Enables or disables the window's layer is changed to bottom.
@@ -823,11 +822,6 @@ public:
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
 
   /**
-   * @brief This signal is emitted when the keyboard repeat is changed.
-   */
-  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal();
-
-  /**
    * @brief This signal is emitted when the window redraw is requested.
    */
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
@@ -844,7 +838,7 @@ public:
   AuxiliaryMessageSignalType& AuxiliaryMessageSignal();
 
   /**
-   * @brief This signal is emitted when a mouse in or out event is recevied.
+   * @brief This signal is emitted when a mouse in or out event is received.
    */
   MouseInOutEventSignalType& MouseInOutEventSignal();
 
@@ -854,16 +848,16 @@ public:
   MouseRelativeEventSignalType& MouseRelativeEventSignal();
 
   /**
-   * @brief This signal is emitted when window has been moved by then display server.
-   * To be moved the window by display server, RequestMoveToServer() should be called.
-   * After the moving job is finished, this function will be called.
+   * @brief This signal is emitted when the window has been moved by the display server.
+   * To move the window by the display server, RequestMoveToServer() should be called.
+   * After the move is completed, this signal will be emitted.
    */
   MoveCompletedSignalType& MoveCompletedSignal();
 
   /**
-   * @brief This signal is emitted when window has been resized by then display server.
-   * To be resized the window by display server, RequestResizeToServer() should be called.
-   * After the resizing job is finished, this function will be called.
+   * @brief This signal is emitted when the window has been resized by the display server.
+   * To resize the window by the display server, RequestResizeToServer() should be called.
+   * After the resize is completed, this signal will be emitted.
    */
   ResizeCompletedSignalType& ResizeCompletedSignal();
 
@@ -885,31 +879,30 @@ protected:
   WindowBase& operator=(const WindowBase& rhs) = delete;
 
 protected:
-  IconifySignalType                       mIconifyChangedSignal;
-  MaximizeSignalType                      mMaximizeChangedSignal;
-  FocusSignalType                         mFocusChangedSignal;
-  OutputSignalType                        mOutputTransformedSignal;
-  DeleteSignalType                        mDeleteRequestSignal;
-  DamageSignalType                        mWindowDamagedSignal;
-  RotationSignalType                      mRotationSignal;
-  TouchEventSignalType                    mTouchEventSignal;
-  MouseFrameEventSignalType               mMouseFrameEventSignal;
-  WheelEventSignalType                    mWheelEventSignal;
-  KeyEventSignalType                      mKeyEventSignal;
-  SelectionSignalType                     mSelectionDataSendSignal;
-  SelectionSignalType                     mSelectionDataReceivedSignal;
-  StyleSignalType                         mStyleChangedSignal;
-  TransitionEffectEventSignalType         mTransitionEffectEventSignal;
-  KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
-  WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
-  UpdatePositionSizeType                  mUpdatePositionSizeSignal;
-  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
-  MouseInOutEventSignalType               mMouseInOutEventSignal;
-  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
-  MoveCompletedSignalType                 mMoveCompletedSignal;
-  ResizeCompletedSignalType               mResizeCompletedSignal;
-  InsetsChangedSignalType                 mInsetsChangedSignal;
-  PointerConstraintsSignalType            mPointerConstraintsSignal;
+  IconifySignalType               mIconifyChangedSignal;
+  MaximizeSignalType              mMaximizeChangedSignal;
+  FocusSignalType                 mFocusChangedSignal;
+  OutputSignalType                mOutputTransformedSignal;
+  DeleteSignalType                mDeleteRequestSignal;
+  DamageSignalType                mWindowDamagedSignal;
+  RotationSignalType              mRotationSignal;
+  TouchEventSignalType            mTouchEventSignal;
+  MouseFrameEventSignalType       mMouseFrameEventSignal;
+  WheelEventSignalType            mWheelEventSignal;
+  KeyEventSignalType              mKeyEventSignal;
+  SelectionSignalType             mSelectionDataSendSignal;
+  SelectionSignalType             mSelectionDataReceivedSignal;
+  StyleSignalType                 mStyleChangedSignal;
+  TransitionEffectEventSignalType mTransitionEffectEventSignal;
+  WindowRedrawRequestSignalType   mWindowRedrawRequestSignal;
+  UpdatePositionSizeType          mUpdatePositionSizeSignal;
+  AuxiliaryMessageSignalType      mAuxiliaryMessageSignal;
+  MouseInOutEventSignalType       mMouseInOutEventSignal;
+  MouseRelativeEventSignalType    mMouseRelativeEventSignal;
+  MoveCompletedSignalType         mMoveCompletedSignal;
+  ResizeCompletedSignalType       mResizeCompletedSignal;
+  InsetsChangedSignalType         mInsetsChangedSignal;
+  PointerConstraintsSignalType    mPointerConstraintsSignal;
 };
 
 } // namespace Adaptor

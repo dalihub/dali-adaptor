@@ -26,7 +26,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <memory>
@@ -64,9 +64,19 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
 {
-  std::unique_ptr<Window> window  = std::unique_ptr<Window>(new Window());
-  window->mIsTransparent          = windowData.GetTransparency();
-  window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
+  std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
+  window->mIsTransparent         = windowData.GetTransparency();
+
+#ifdef DALI_PROFILE_UBUNTU
+  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
+  if(window->mIsTransparent)
+  {
+    DALI_LOG_RELEASE_INFO("Window::New: Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    window->mIsTransparent = false;
+  }
+#endif
+
+  window->mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
   return window.release();
 }
@@ -90,11 +100,10 @@ Window::Window()
   mNativeWindowId(-1),
   mOrientationMode(Internal::Adaptor::Window::OrientationMode::PORTRAIT),
   mDeleteRequestSignal(),
-  mFocusChangeSignal(),
-  mResizeSignal(),
+  mFocusChangedSignal(),
+  mResizedSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal(),
   mAuxiliaryMessageSignal(),
   mMovedSignal(),
   mOrientationChangedSignal(),
@@ -112,7 +121,7 @@ Window::Window()
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
   mFocused(false),
-  mIsWindowRotating(false),
+  mIsOrientationChanging(false),
   mIsEnabledUserGeometry(false),
   mIsEmittedWindowCreatedEvent(false),
   mIsFrontBufferRendering(false),
@@ -151,7 +160,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
   mWindowBase->FocusChangedSignal().Connect(this, &Window::OnFocusChanged);
   mWindowBase->DeleteRequestSignal().Connect(this, &Window::OnDeleteRequest);
   mWindowBase->TransitionEffectEventSignal().Connect(this, &Window::OnTransitionEffectEvent);
-  mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect(this, &Window::OnKeyboardRepeatSettingsChanged);
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
@@ -220,7 +228,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   if(mIsFrontBufferRendering)
   {
-    SetFrontBufferRendering(mIsFrontBufferRendering);
+    SetFrontBufferRenderingEnabled(mIsFrontBufferRendering);
   }
 
   SetScreen(screenName);
@@ -278,7 +286,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     // Connect SceneHolder's wrapped signals (with SceneHolder prepended) to Window's re-emit methods
     // so that Window handle can be passed as the first argument to the public Window signals.
     SceneHolder::KeyEventSignal().Connect(this, &Window::OnSceneKeyEvent);
-    SceneHolder::TouchedSignal().Connect(this, &Window::OnSceneTouchEvent);
+    SceneHolder::TouchEventSignal().Connect(this, &Window::OnSceneTouchEvent);
     SceneHolder::WheelEventSignal().Connect(this, &Window::OnSceneWheelEvent);
     SceneHolder::InterceptKeyEventSignal().Connect(this, &Window::OnSceneInterceptKeyEvent);
     SceneHolder::KeyEventMonitorSignal().Connect(this, &Window::OnSceneKeyEventMonitor);
@@ -373,9 +381,9 @@ bool Window::IsMinimized() const
   return mWindowBase->IsMinimized();
 }
 
-void Window::SetMimimumSize(Dali::Window::WindowSize size)
+void Window::SetMinimumSize(Dali::Window::WindowSize size)
 {
-  mWindowBase->SetMimimumSize(size);
+  mWindowBase->SetMinimumSize(size);
 }
 
 void Window::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
@@ -790,90 +798,6 @@ int Window::GetBrightness() const
   return mWindowBase->GetBrightness();
 }
 
-void Window::SetSize(Dali::Window::WindowSize size)
-{
-  PositionSize oldRect = GetPositionSize();
-
-  PositionSize newRect;
-  newRect.width  = size.GetWidth();
-  newRect.height = size.GetHeight();
-
-  SetUserGeometryPolicy();
-
-  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
-  {
-    mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, newRect.width, newRect.height));
-
-    Dali::Window::WindowSize newSize(newRect.width, newRect.height);
-
-    mWindowWidth  = newRect.width;
-    mWindowHeight = newRect.height;
-
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): (%d, %d), [%d x %d]\n", this, mNativeWindowId, mRotationAngle, oldRect.x, oldRect.y, newRect.width, newRect.height);
-
-    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
-
-    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
-
-    Dali::Window handle(this);
-    mResizeSignal.Emit(handle, newSize);
-
-    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
-
-    if(Dali::Accessibility::IsUp())
-    {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-      {
-        accessible->EmitBoundsChanged(Dali::BoundsInteger(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
-      }
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
-}
-
-Dali::Window::WindowSize Window::GetSize() const
-{
-  return Dali::Window::WindowSize(mWindowWidth, mWindowHeight);
-}
-
-void Window::SetPosition(Dali::Window::WindowPosition position)
-{
-  PositionSize oldRect = GetPositionSize();
-  int32_t      newX    = position.GetX();
-  int32_t      newY    = position.GetY();
-
-  SetUserGeometryPolicy();
-
-  mWindowSurface->Move(PositionSize(newX, newY, oldRect.width, oldRect.height));
-
-  if((oldRect.x != newX) || (oldRect.y != newY))
-  {
-    Dali::Window                 handle(this);
-    Dali::Window::WindowPosition newPosition(newX, newY);
-
-    DALI_LOG_RELEASE_INFO("send moved signal with new position: %d, %d\n", newPosition.GetX(), newPosition.GetY());
-    mMovedSignal.Emit(handle, newPosition);
-
-    if(Dali::Accessibility::IsUp())
-    {
-      if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
-      {
-        accessible->EmitBoundsChanged(Dali::BoundsInteger(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
-      }
-    }
-  }
-
-  mSurface->SetFullSwapNextFrame();
-}
-
-Dali::Window::WindowPosition Window::GetPosition() const
-{
-  PositionSize positionSize = GetPositionSize();
-  return Dali::Window::WindowPosition(positionSize.x, positionSize.y);
-}
-
 PositionSize Window::GetPositionSize() const
 {
   PositionSize positionSize = mSurface->GetPositionSize();
@@ -1073,7 +997,7 @@ void Window::OnMaximizeChanged(bool maximized)
 void Window::OnFocusChanged(bool focusIn)
 {
   Dali::Window handle(this);
-  mFocusChangeSignal.Emit(handle, focusIn);
+  mFocusChangedSignal.Emit(handle, focusIn);
   FocusChanged(focusIn);
 
   mSurface->SetFullSwapNextFrame();
@@ -1115,12 +1039,6 @@ void Window::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType t
   mTransitionEffectEventSignal.Emit(handle, state, type);
 }
 
-void Window::OnKeyboardRepeatSettingsChanged()
-{
-  Dali::Window handle(this);
-  mKeyboardRepeatSettingsChangedSignal.Emit();
-}
-
 void Window::OnWindowRedrawRequest()
 {
   SetForceRendering(1u);
@@ -1155,7 +1073,7 @@ void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
   FeedKeyEvent(keyEvent);
 }
 
-void Window::OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent)
+void Window::OnMouseInOutEvent(const Dali::MouseInOutEvent& mouseInOutEvent)
 {
   Dali::Window handle(this);
 
@@ -1187,7 +1105,7 @@ void Window::OnRotation(const RotationEvent& rotation)
   mWindowWidth   = rotation.width;
   mWindowHeight  = rotation.height;
 
-  mIsWindowRotating = true;
+  mIsOrientationChanging = true;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), angle(%d), Window Rotation (%d , %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
 
   mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
@@ -1197,7 +1115,7 @@ void Window::OnRotation(const RotationEvent& rotation)
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
   Dali::Window handle(this);
-  mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
+  mResizedSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
   mOrientationChangedSignal.Emit(handle, GetCurrentOrientation());
 
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
@@ -1205,7 +1123,7 @@ void Window::OnRotation(const RotationEvent& rotation)
 
 void Window::OnRotationFinished()
 {
-  mIsWindowRotating = false;
+  mIsOrientationChanging = false;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window rotation is finised\n", this, mNativeWindowId);
 }
 
@@ -1232,9 +1150,9 @@ void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value
   mAuxiliaryMessageSignal.Emit(key, value, options);
 }
 
-void Window::OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets)
+void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 {
-  mInsetsChangedSignal.Emit(partType, partState, insets);
+  mInsetsChangedSignal.Emit(Dali::Window(this), insetsInfo);
 }
 
 void Window::OnAccessibilityEnabled()
@@ -1300,12 +1218,12 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed)
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) mutable
   {
     if(!consumed)
     {
       Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
-      Dali::DevelWindow::FeedKeyEvent(handle, keyEvent);
+      handle.FeedKeyEvent(keyEvent);
     }
   };
 
@@ -1440,21 +1358,6 @@ Dali::Window Window::Get(Dali::Actor actor)
   return Dali::Window();
 }
 
-void Window::SetParent(Dali::Window& parent)
-{
-  if(DALI_UNLIKELY(parent))
-  {
-    mParentWindow     = parent;
-    Dali::Window self = Dali::Window(this);
-    // check circular parent window setting
-    if(Dali::DevelWindow::GetParent(parent) == self)
-    {
-      Dali::DevelWindow::Unparent(parent);
-    }
-    mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, false);
-  }
-}
-
 void Window::SetParent(Dali::Window& parent, bool belowParent)
 {
   if(DALI_UNLIKELY(parent))
@@ -1462,9 +1365,9 @@ void Window::SetParent(Dali::Window& parent, bool belowParent)
     mParentWindow     = parent;
     Dali::Window self = Dali::Window(this);
     // check circular parent window setting
-    if(Dali::DevelWindow::GetParent(parent) == self)
+    if(parent.GetParent() == self)
     {
-      Dali::DevelWindow::Unparent(parent);
+      parent.Unparent();
     }
     mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, belowParent);
   }
@@ -1545,7 +1448,7 @@ void Window::EnableFloatingMode(bool enable)
   mWindowBase->EnableFloatingMode(enable);
 }
 
-bool Window::IsFloatingModeEnabled()
+bool Window::IsFloatingModeEnabled() const
 {
   return mWindowBase->IsFloatingModeEnabled();
 }
@@ -1579,9 +1482,9 @@ void Window::SendRotationCompletedAcknowledgement()
   }
 }
 
-bool Window::IsWindowRotating() const
+bool Window::IsOrientationChanging() const
 {
-  return mIsWindowRotating;
+  return mIsOrientationChanging;
 }
 
 const Dali::KeyEvent& Window::GetLastKeyEvent() const
@@ -1651,15 +1554,15 @@ bool Window::GetFullScreen()
   return mWindowBase->GetFullScreen();
 }
 
-void Window::SetFrontBufferRendering(bool enable)
+void Window::SetFrontBufferRenderingEnabled(bool enable)
 {
-  mWindowBase->SetFrontBufferRendering(enable);
-  mWindowSurface->SetFrontBufferRendering(enable);
+  mWindowBase->SetFrontBufferRenderingEnabled(enable);
+  mWindowSurface->SetFrontBufferRenderingEnabled(enable);
 }
 
-bool Window::GetFrontBufferRendering()
+bool Window::IsFrontBufferRenderingEnabled() const
 {
-  return mWindowBase->GetFrontBufferRendering();
+  return mWindowBase->IsFrontBufferRenderingEnabled();
 }
 
 void Window::SetModal(bool modal)
@@ -1677,7 +1580,7 @@ void Window::SetAlwaysOnTop(bool alwaysOnTop)
   mWindowBase->SetAlwaysOnTop(alwaysOnTop);
 }
 
-bool Window::IsAlwaysOnTop()
+bool Window::IsAlwaysOnTop() const
 {
   return mWindowBase->IsAlwaysOnTop();
 }
@@ -1823,7 +1726,7 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
-    mResizeSignal.Emit(handle, newSize);
+    mResizedSignal.Emit(handle, newSize);
 
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }

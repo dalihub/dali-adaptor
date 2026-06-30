@@ -28,7 +28,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>

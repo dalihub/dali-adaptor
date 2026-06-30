@@ -1,8 +1,5 @@
-#ifndef DALI_INTERNAL_SYSTEM_SETTINGS_H
-#define DALI_INTERNAL_SYSTEM_SETTINGS_H
-
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,33 +15,29 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
+// CLASS HEADER
+#include <dali/public-api/text-abstraction/text-abstraction.h>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/integration-api/string-utils.h>
 
 namespace Dali
 {
-namespace Internal
+namespace TextAbstraction
 {
-namespace Adaptor
+
+bool AddCustomFontDirectory(const Dali::String& path)
 {
-namespace SystemSettings
-{
-/**
- *  Gets the path at which application resources are stored.
- */
-std::string GetResourcePath();
+  FontClient fontClient = FontClient::Get();
+  if(!fontClient)
+  {
+    return false;
+  }
 
-/**
- *  Gets the path at which application data are stored.
- */
-std::string GetDataPath();
+  return fontClient.AddCustomFontDirectory(Dali::Integration::ToStdString(path));
+}
 
-} // namespace SystemSettings
-
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace TextAbstraction
 
 } // namespace Dali
-
-#endif // DALI_INTERNAL_SYSTEM_SETTINGS_H
