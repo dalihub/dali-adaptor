@@ -396,6 +396,11 @@ bool DownloadFile(CURL*                  curlHandle,
   {
     result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
   }
+  else if(size == 0)
+  {
+    DALI_LOG_ERROR("[FileDownload][Curl] File content length is 0 \"%s\"\n", url.c_str());
+    result = false;
+  }
   else if(size >= static_cast<curl_off_t>(maximumAllowedSizeBytes))
   {
     DALI_LOG_ERROR("[FileDownload][Curl] File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
@@ -417,7 +422,8 @@ bool DownloadFile(CURL*                  curlHandle,
 
   if(DALI_UNLIKELY(result && dataSize == 0u))
   {
-    DALI_LOG_ERROR("[FileDownload][Curl] Warning : Download data size is 0! url : %s\n", url.c_str());
+    DALI_LOG_ERROR("[FileDownload][Curl] Download data size is 0! url : %s\n", url.c_str());
+    result = false;
   }
   return result;
 }
