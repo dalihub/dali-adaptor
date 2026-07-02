@@ -595,14 +595,21 @@ bool CurlFileDownloader::DownloadRemoteFileIntoMemory(const std::string&     url
   // start a libcurl easy session, this internally calls curl_global_init, if we ever have more than one download
   // thread we need to explicity call curl_global_init() on startup from a single thread.
 
+  DALI_LOG_RELEASE_INFO("[FileDownload][Curl][sync] start url[%s]\n", url.c_str());
+
   CURL* curlHandle = curl_easy_init();
   if(curlHandle)
   {
     std::vector<char> errorBuffer(CURL_ERROR_SIZE);
     result = DownloadFile(curlHandle, url, dataBuffer, dataSize, maximumAllowedSizeBytes, mImpl->GetUserAgent(), mImpl->GetProxy(), &errorBuffer[0]);
+    DALI_LOG_RELEASE_INFO("[FileDownload][Curl][sync] finish result[%s] url[%s] size[%zu]\n", result ? "true" : "false", url.c_str(), dataSize);
 
     // clean up session
     curl_easy_cleanup(curlHandle);
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Curl][sync] finish result[false] url[%s] size[%zu]\n", url.c_str(), dataSize);
   }
   return result;
 }
