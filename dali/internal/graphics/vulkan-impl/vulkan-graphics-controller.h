@@ -406,7 +406,7 @@ public:
   void UpdateRenderTarget(Graphics::RenderTarget& renderTarget, const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo) override;
 
 public: // Integration::GraphicsConfig
-  bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
+  bool        IsBlendEquationSupported(BlendEquation::Type blendEquation) override;
   uint32_t    GetShaderLanguageVersion() override;
   std::string GetShaderVersionPrefix() override;
 
