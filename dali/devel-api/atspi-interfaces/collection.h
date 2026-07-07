@@ -17,12 +17,23 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
+
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
 {
+class Accessible;
+
 /**
  * @brief Interface enabling advanced quering of accessibility objects.
  *
@@ -69,15 +80,15 @@ public:
   virtual std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::COLLECTION>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::COLLECTION>
 {
-  using Type = Collection;
+  using Type = Dali::Accessibility::Collection;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_COLLECTION_H

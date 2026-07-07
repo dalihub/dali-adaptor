@@ -17,8 +17,11 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
@@ -42,7 +45,7 @@ public:
    * The application may set the "value_format" attribute to one of the
    * following values in order to customize what is read by the Screen Reader:
    * 1. "percent" (the default) - GetCurrent() normalized as a percentage
-   *    of the range [GetMinimum(), GetMaximum()],
+   *    of the Dali::Devel::Accessibility::Range [GetMinimum(), GetMaximum()],
    * 2. "number" - GetCurrent() verbatim
    * 3. "text" - GetValueText() is used instead of GetCurrent()
    *
@@ -59,7 +62,7 @@ public:
    * @brief Gets the formatted current value.
    *
    * This does not have to be GetCurrent() formatted in any particular way,
-   * i.e. it may be an arbitrary string, e.g. "small font size" for the
+   * i.e. it may be an arbitrary string, e.g. "small font Dali::Devel::Accessibility::Size" for the
    * numeric value 10.0.
    *
    * @return The current value as text
@@ -93,15 +96,15 @@ public:
   virtual double GetMinimumIncrement() const = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::VALUE>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::VALUE>
 {
-  using Type = Value;
+  using Type = Dali::Accessibility::Value;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_VALUE_H

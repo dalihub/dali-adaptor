@@ -21,12 +21,14 @@
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
 
 namespace Dali::Accessibility
 {
+class Accessible;
+
 /**
  * @brief Interface representing hypertext that can store a collection of hyperlinks.
  */
@@ -59,15 +61,15 @@ public:
   virtual std::int32_t GetLinkCount() const = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::HYPERTEXT>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::HYPERTEXT>
 {
-  using Type = Hypertext;
+  using Type = Dali::Accessibility::Hypertext;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_HYPERTEXT_H

@@ -18,13 +18,13 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/public-api/common/shared-ptr.h>
 
 namespace Dali::Accessibility
 {
-struct DummyBridge : Dali::Accessibility::Bridge
+struct DummyBridge : Dali::Integration::Accessibility::Bridge
 {
   static Dali::SharedPtr<DummyBridge> GetInstance()
   {
@@ -105,7 +105,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void WindowRestored(Window window, WindowRestoreType detail) override
+  void WindowRestored(Window window, Dali::Devel::Accessibility::WindowRestoreType detail) override
   {
   }
 
@@ -146,11 +146,11 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitTextChanged(Accessibility::Accessible* obj, Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override
+  void EmitTextChanged(Accessibility::Accessible* obj, Dali::Devel::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override
   {
   }
 
-  void EmitMovedOutOfScreen(Accessibility::Accessible* obj, ScreenRelativeMoveType type) override
+  void EmitMovedOutOfScreen(Accessibility::Accessible* obj, Dali::Devel::Accessibility::ScreenRelativeMoveType type) override
   {
   }
 
@@ -162,15 +162,15 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitStateChanged(SharedPtr<Accessibility::Accessible> obj, Accessibility::State state, int newValue, int reserved) override
+  void EmitStateChanged(SharedPtr<Accessibility::Accessible> obj, Dali::Integration::Accessibility::State state, int newValue, int reserved) override
   {
   }
 
-  void Emit(Accessibility::Accessible* obj, Accessibility::WindowEvent event, unsigned int detail) override
+  void Emit(Accessibility::Accessible* obj, Dali::Devel::Accessibility::WindowEvent event, unsigned int detail) override
   {
   }
 
-  void Emit(SharedPtr<Accessibility::Accessible> obj, Accessibility::ObjectPropertyChangeEvent event) override
+  void Emit(SharedPtr<Accessibility::Accessible> obj, Dali::Devel::Accessibility::ObjectPropertyChangeEvent event) override
   {
   }
 
@@ -217,12 +217,12 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return false;
   }
 
-  Address EmbedSocket(const Address& plug, const Address& socket) override
+  Dali::Devel::Accessibility::Address EmbedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) override
   {
     return {};
   }
 
-  void UnembedSocket(const Address& plug, const Address& socket) override
+  void UnembedSocket(const Dali::Devel::Accessibility::Address& plug, const Dali::Devel::Accessibility::Address& socket) override
   {
   }
 

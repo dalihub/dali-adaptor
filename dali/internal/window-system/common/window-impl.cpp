@@ -33,7 +33,7 @@
 #include <thread>
 
 // INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/string-utils.h>
@@ -261,7 +261,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   }
 
   // Add Window to bridge for ATSPI
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
     bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
@@ -626,7 +626,7 @@ void Window::Show()
     mScene.Show();
 
     mVisibilityChangedSignal.Emit(handle, true);
-    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
     {
       bridge->WindowShown(handle);
     }
@@ -654,7 +654,7 @@ void Window::Hide()
     mScene.Hide();
 
     mVisibilityChangedSignal.Emit(handle, false);
-    if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+    if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
     {
       bridge->WindowHidden(handle);
     }
@@ -897,7 +897,7 @@ Window::InterceptKeyEventSignalType& Window::InterceptKeyEventSignal()
 void Window::OnIconifyChanged(bool iconified)
 {
   const bool   isActuallyChanged = (iconified != mIconified);
-  auto         bridge            = Dali::Accessibility::Bridge::GetCurrentBridge();
+  auto         bridge            = Dali::Integration::Accessibility::Bridge::GetCurrentBridge();
   Dali::Window handle(this);
 
   if(iconified)
@@ -950,7 +950,7 @@ void Window::OnIconifyChanged(bool iconified)
     {
       if(DALI_LIKELY(bridge))
       {
-        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
+        bridge->WindowRestored(handle, Dali::Devel::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
       }
     }
 
@@ -972,7 +972,7 @@ void Window::OnMaximizeChanged(bool maximized)
 
   if(isActuallyChanged)
   {
-    auto         bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
+    auto         bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge();
     Dali::Window handle(this);
 
     if(maximized)
@@ -988,7 +988,7 @@ void Window::OnMaximizeChanged(bool maximized)
       mMaximized = false;
       if(DALI_LIKELY(bridge))
       {
-        bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+        bridge->WindowRestored(handle, Dali::Devel::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
       }
     }
   }
@@ -1001,7 +1001,7 @@ void Window::OnFocusChanged(bool focusIn)
   FocusChanged(focusIn);
 
   mSurface->SetFullSwapNextFrame();
-  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     if(focusIn)
     {
@@ -1157,7 +1157,7 @@ void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 
 void Window::OnAccessibilityEnabled()
 {
-  auto bridge    = Accessibility::Bridge::GetCurrentBridge();
+  auto bridge    = Integration::Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer = mScene.GetRootLayer();
   if(auto accessible = Accessibility::Accessible::Get(rootLayer))
   {
@@ -1209,7 +1209,7 @@ void Window::OnAccessibilityDisabled()
 
 bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::KeyEvent keyEvent)
 {
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge();
 
   if(!bridge || !bridge->IsUp() || keyEvent.IsNoInterceptModifier())
   {
@@ -1731,7 +1731,7 @@ void Window::UpdatePositionSize(Dali::PositionSize& positionSize, bool requestCh
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
 
-  if((moved || resize) && Dali::Accessibility::IsUp())
+  if((moved || resize) && Dali::Integration::Accessibility::IsUp())
   {
     if(auto accessible = dynamic_cast<Accessibility::ActorAccessible*>(Accessibility::Accessible::Get(mScene.GetRootLayer())))
     {

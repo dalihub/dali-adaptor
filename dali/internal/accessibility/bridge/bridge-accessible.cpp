@@ -38,6 +38,9 @@
 #define LOG() _LoggerEmpty()
 
 using namespace Dali::Accessibility;
+using State        = Dali::Integration::Accessibility::State;
+using Role         = Dali::Integration::Accessibility::Role;
+using RelationType = Dali::Integration::Accessibility::RelationType;
 
 #define GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH 10000
 
@@ -102,16 +105,16 @@ bool IsSubWindow(Accessible* accessible)
 
 bool SortVertically(Accessible* lhs, Accessible* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
+  auto leftRect  = lhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
 
   return leftRect.y < rightRect.y;
 }
 
 bool SortHorizontally(Accessible* lhs, Accessible* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
+  auto leftRect  = lhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
 
   return leftRect.x < rightRect.x;
 }
@@ -121,7 +124,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   // Find first with non-zero area
   auto first = std::find_if(children.begin(), children.end(), [](Accessible* child) -> bool
   {
-    auto extents = child->GetExtents(CoordinateType::WINDOW);
+    auto extents = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
 
@@ -131,7 +134,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   }
 
   std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Bounds                          lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds                          lineRect = (*first)->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
   Dali::Bounds                          rect;
 
   // Split into lines
@@ -139,7 +142,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   {
     auto child = *it;
 
-    rect = child->GetExtents(CoordinateType::WINDOW);
+    rect = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
     if(Dali::EqualsZero(rect.height) || Dali::EqualsZero(rect.width))
     {
       // Zero area, ignore
@@ -258,7 +261,7 @@ static bool IsObjectZeroSize(Accessible* obj)
   {
     return false;
   }
-  auto extents = obj->GetExtents(CoordinateType::WINDOW);
+  auto extents = obj->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
   return Dali::EqualsZero(extents.height) || Dali::EqualsZero(extents.width);
 }
 
@@ -270,9 +273,9 @@ static bool IsVisibleInScrollableParent(Accessible* accessible)
     return true;
   }
 
-  auto scrollableParentExtents = scrollableParent->GetExtents(CoordinateType::WINDOW);
+  auto scrollableParentExtents = scrollableParent->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
 
-  if(!scrollableParentExtents.Intersects(accessible->GetExtents(CoordinateType::WINDOW)))
+  if(!scrollableParentExtents.Intersects(accessible->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW)))
   {
     return false;
   }
@@ -329,7 +332,7 @@ static bool IsObjectAcceptable(Accessible* obj)
   return true;
 }
 
-static int32_t GetItemCountOfContainer(Accessible* obj, Dali::Accessibility::Role containerRole, Dali::Accessibility::Role itemRole, bool isDirectChild)
+static int32_t GetItemCountOfContainer(Accessible* obj, Role containerRole, Role itemRole, bool isDirectChild)
 {
   int32_t itemCount = 0;
   if(obj && (!isDirectChild || obj->GetRole() == containerRole))
@@ -346,7 +349,7 @@ static int32_t GetItemCountOfContainer(Accessible* obj, Dali::Accessibility::Rol
   return itemCount;
 }
 
-static int32_t GetItemCountOfFirstDescendantContainer(Accessible* obj, Dali::Accessibility::Role containerRole, Dali::Accessibility::Role itemRole, bool isDirectChild)
+static int32_t GetItemCountOfFirstDescendantContainer(Accessible* obj, Role containerRole, Role itemRole, bool isDirectChild)
 {
   int32_t itemCount = 0;
   itemCount         = GetItemCountOfContainer(obj, containerRole, itemRole, isDirectChild);
@@ -376,7 +379,7 @@ static std::string GetComponentInfo(Accessible* obj)
 
   std::ostringstream object;
   object.imbue(std::locale::classic());
-  auto extent = obj->GetExtents(CoordinateType::SCREEN);
+  auto extent = obj->GetExtents(Dali::Devel::Accessibility::CoordinateType::SCREEN);
   object << "name: " << obj->GetName() << " extent: (" << extent.x << ", "
          << extent.y << "), [" << extent.width << ", " << extent.height << "]";
   return object.str();
@@ -519,7 +522,7 @@ Accessible* GetObjectInRelation(Accessible* obj, RelationType relationType)
   return nullptr;
 }
 
-Accessible* CalculateNavigableAccessibleAtPoint(Accessible* root, Point point, CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
+Accessible* CalculateNavigableAccessibleAtPoint(Accessible* root, Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type, unsigned int maxRecursionDepth, bool isForceSearchPropagated)
 {
   if(!root || maxRecursionDepth == 0)
   {
@@ -605,7 +608,7 @@ BridgeAccessible::BridgeAccessible()
 
 void BridgeAccessible::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACCESSIBLE)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::ACCESSIBLE)};
   AddGetPropertyToInterface(desc, "ChildCount", &BridgeAccessible::GetChildCount);
   AddGetPropertyToInterface(desc, "Name", &BridgeAccessible::GetName);
   AddGetPropertyToInterface(desc, "Description", &BridgeAccessible::GetDescription);
@@ -645,7 +648,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     auto relations = self->GetRelationSet();
     auto relation  = std::find_if(relations.begin(),
                                   relations.end(),
-                                  [relationType](const Dali::Accessibility::Relation& relation) -> bool
+                                  [relationType](const Dali::Devel::Accessibility::Relation& relation) -> bool
      {
       return relation.mRelationType == relationType;
     });
@@ -754,7 +757,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto parent             = self->GetParent();
   auto parentRole         = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
   auto parentChildCount   = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
-  auto parentStateSet     = parent ? parent->GetStates() : States{};
+  auto parentStateSet     = parent ? parent->GetStates() : Dali::Integration::Accessibility::States{};
   bool isSelectedInParent = false;
   if(auto parentSelectionInterface = parent->GetFeature<Selection>())
   {
@@ -798,8 +801,8 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
   auto attributes  = self->GetAttributes();
   auto states      = self->GetStates();
 
-  Dali::Bounds screenExtents = self->GetExtents(CoordinateType::SCREEN);
-  Dali::Bounds windowExtents = self->GetExtents(CoordinateType::WINDOW);
+  Dali::Bounds screenExtents = self->GetExtents(Dali::Devel::Accessibility::CoordinateType::SCREEN);
+  Dali::Bounds windowExtents = self->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
 
   screenExtents.x += mData->mExtentsOffset.first;
   screenExtents.y += mData->mExtentsOffset.second;
@@ -844,17 +847,17 @@ BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
     currentValueText};
 }
 
-DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime)
+DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Devel::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Devel::Accessibility::GestureState state, uint32_t eventTime)
 {
-  // Please be aware of sending GestureInfo point in the different order with parameters
-  return FindSelf()->DoGesture(Dali::Accessibility::GestureInfo{type, startPositionX, endPositionX, startPositionY, endPositionY, state, eventTime});
+  // Please be aware of sending Dali::Devel::Accessibility::GestureInfo Dali::Devel::Accessibility::Point in the different order with parameters
+  return FindSelf()->DoGesture(Dali::Devel::Accessibility::GestureInfo{type, startPositionX, endPositionX, startPositionY, endPositionY, state, eventTime});
 }
 
 DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordinateType)
 {
   Accessible* deputy     = nullptr;
   auto        accessible = FindSelf();
-  auto        cType      = static_cast<CoordinateType>(coordinateType);
+  auto        cType      = static_cast<Dali::Devel::Accessibility::CoordinateType>(coordinateType);
 
   const bool hasExtentsOffset = mData->mExtentsOffset.first != 0 || mData->mExtentsOffset.second != 0;
   if(hasExtentsOffset && !IsSubWindow(accessible))
@@ -905,12 +908,12 @@ std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Ac
   auto         nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
   if(!nonDuplicatedScrollableParents.empty())
   {
-    scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);
+    scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
   }
 
   for(auto child : children)
   {
-    if(child && (nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(child->GetExtents(CoordinateType::WINDOW))))
+    if(child && (nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW))))
     {
       vec.push_back(child);
     }
@@ -1248,14 +1251,14 @@ DBus::ValueOrError<Accessible*, uint32_t, std::unordered_map<std::string, std::s
   return {defaultLabel, static_cast<uint32_t>(defaultLabel->GetRole()), defaultLabel->GetAttributes()};
 }
 
-DBus::ValueOrError<std::vector<BridgeAccessible::Relation>> BridgeAccessible::GetRelationSet()
+DBus::ValueOrError<std::vector<BridgeAccessible::RelationTuple>> BridgeAccessible::GetRelationSet()
 {
-  auto                                    relations = FindSelf()->GetRelationSet();
-  std::vector<BridgeAccessible::Relation> ret;
+  auto                                         relations = FindSelf()->GetRelationSet();
+  std::vector<BridgeAccessible::RelationTuple> ret;
 
   for(auto& it : relations)
   {
-    ret.emplace_back(Relation{static_cast<uint32_t>(it.mRelationType), it.mTargets});
+    ret.emplace_back(BridgeAccessible::RelationTuple{static_cast<uint32_t>(it.mRelationType), it.mTargets});
   }
 
   return ret;

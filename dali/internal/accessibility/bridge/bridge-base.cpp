@@ -31,6 +31,8 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 
 using namespace Dali::Accessibility;
+using Dali::Integration::Accessibility::Bridge;
+using Role = Dali::Integration::Accessibility::Role;
 
 namespace
 {
@@ -90,14 +92,14 @@ size_t ApplicationAccessible::GetIndexInParent()
   throw std::domain_error{"can't call GetIndexInParent on application object"};
 }
 
-Dali::Accessibility::Role ApplicationAccessible::GetRole() const
+Dali::Integration::Accessibility::Role ApplicationAccessible::GetRole() const
 {
-  return Dali::Accessibility::Role::APPLICATION;
+  return Role::APPLICATION;
 }
 
-Dali::Accessibility::States ApplicationAccessible::GetStates()
+Dali::Integration::Accessibility::States ApplicationAccessible::GetStates()
 {
-  Dali::Accessibility::States result;
+  Dali::Integration::Accessibility::States result;
 
   for(auto* child : mChildren)
   {
@@ -105,12 +107,12 @@ Dali::Accessibility::States ApplicationAccessible::GetStates()
   }
 
   // The Application object should never have the SENSITIVE state
-  result[Dali::Accessibility::State::SENSITIVE] = false;
+  result[Dali::Integration::Accessibility::State::SENSITIVE] = false;
 
   return result;
 }
 
-Dali::Accessibility::Attributes ApplicationAccessible::GetAttributes() const
+Dali::Devel::Accessibility::Attributes ApplicationAccessible::GetAttributes() const
 {
   return {};
 }
@@ -137,12 +139,12 @@ Dali::Accessibility::ActorAccessible* ApplicationAccessible::GetWindowAccessible
   return dynamic_cast<Dali::Accessibility::ActorAccessible*>(mChildren[0]);
 }
 
-bool ApplicationAccessible::DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo)
+bool ApplicationAccessible::DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo)
 {
   return false;
 }
 
-std::vector<Dali::Accessibility::Relation> ApplicationAccessible::GetRelationSet()
+std::vector<Dali::Devel::Accessibility::Relation> ApplicationAccessible::GetRelationSet()
 {
   return {};
 }
@@ -152,7 +154,7 @@ Dali::Actor ApplicationAccessible::GetInternalActor() const
   return Dali::Actor{};
 }
 
-Dali::Accessibility::Address ApplicationAccessible::GetAddress() const
+Dali::Devel::Accessibility::Address ApplicationAccessible::GetAddress() const
 {
   return {"", "root"};
 }
@@ -189,20 +191,20 @@ bool ApplicationAccessible::SetIncludeHidden(bool includeHidden)
 }
 
 // Socket interface implementation
-Dali::Accessibility::Address ApplicationAccessible::Embed(Dali::Accessibility::Address plug)
+Dali::Devel::Accessibility::Address ApplicationAccessible::Embed(Dali::Devel::Accessibility::Address plug)
 {
   mIsEmbedded = true;
   mParent.SetAddress(plug);
   return GetAddress();
 }
 
-void ApplicationAccessible::Unembed(Dali::Accessibility::Address plug)
+void ApplicationAccessible::Unembed(Dali::Devel::Accessibility::Address plug)
 {
   if(mParent.GetAddress() == plug)
   {
     mIsEmbedded = false;
     mParent.SetAddress({});
-    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+    if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
     {
       bridge->SetExtentsOffset(0, 0);
     }
@@ -215,14 +217,14 @@ void ApplicationAccessible::SetOffset(std::int32_t x, std::int32_t y)
   {
     return;
   }
-  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->SetExtentsOffset(x, y);
   }
 }
 
 // Component interface implementation
-Dali::Bounds ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateType type) const
+Dali::Bounds ApplicationAccessible::GetExtents(Dali::Devel::Accessibility::CoordinateType type) const
 {
   using limits = std::numeric_limits<float>;
 
@@ -244,9 +246,9 @@ Dali::Bounds ApplicationAccessible::GetExtents(Dali::Accessibility::CoordinateTy
   return {minX, minY, maxX - minX, maxY - minY};
 }
 
-Dali::Accessibility::ComponentLayer ApplicationAccessible::GetLayer() const
+Dali::Devel::Accessibility::ComponentLayer ApplicationAccessible::GetLayer() const
 {
-  return Dali::Accessibility::ComponentLayer::WINDOW;
+  return Dali::Devel::Accessibility::ComponentLayer::WINDOW;
 }
 
 std::int16_t ApplicationAccessible::GetMdiZOrder() const
@@ -432,18 +434,18 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   mDbusServer     = {mConnectionPtr};
 
   {
-    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::CACHE)};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::CACHE)};
     AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
     mDbusServer.addInterface(AtspiDbusPathCache, desc);
   }
 
   {
-    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::APPLICATION)};
     AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::GetId, &BridgeBase::SetId);
     mDbusServer.addInterface(AtspiPath, desc);
   }
 
-  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, Accessible::GetInterfaceName(AtspiInterface::REGISTRY), mConnectionPtr};
+  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::REGISTRY), mConnectionPtr};
   UpdateRegisteredEvents();
 
   mRegistry.addSignal<void(void)>("EventListenerRegistered", [this](void)
@@ -514,7 +516,7 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
     if(mApplication->mChildren[i] == windowAccessible)
     {
       mApplication->mChildren.erase(mApplication->mChildren.begin() + i);
-      Emit(windowAccessible, WindowEvent::DESTROY);
+      Emit(windowAccessible, Dali::Devel::Accessibility::WindowEvent::DESTROY);
       break;
     }
   }
@@ -635,7 +637,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
   return accessible.Get();
 }
 
-Accessible* BridgeBase::Find(const Address& ptr) const
+Accessible* BridgeBase::Find(const Dali::Devel::Accessibility::Address& ptr) const
 {
   assert(ptr.GetBus() == mData->mBusName);
   return Find(ptr.GetPath());

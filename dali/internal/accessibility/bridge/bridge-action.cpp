@@ -23,7 +23,7 @@ using namespace Dali::Accessibility;
 
 void BridgeAction::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACTION)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::ACTION)};
 
   AddGetPropertyToInterface(desc, "NActions", &BridgeAction::GetActionCount);
 
@@ -38,7 +38,7 @@ void BridgeAction::RegisterInterfaces()
 
 Dali::SharedPtr<Action> BridgeAction::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::ACTION>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::ACTION>();
 }
 
 DBus::ValueOrError<std::string> BridgeAction::GetActionName(int32_t index)

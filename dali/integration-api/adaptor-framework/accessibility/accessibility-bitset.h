@@ -1,5 +1,5 @@
-#ifndef DALI_ADAPTOR_ACCESSIBILITY_BITSET_H
-#define DALI_ADAPTOR_ACCESSIBILITY_BITSET_H
+#ifndef DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BITSET_H
+#define DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BITSET_H
 
 /*
  * Copyright (c) 2025 Samsung Electronics Co., Ltd.
@@ -21,13 +21,15 @@
 // EXTERNAL INCLUDES
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <type_traits>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali::Accessibility
+namespace Dali::Integration::Accessibility
 {
 template<std::size_t>
 class BitSet;
@@ -45,12 +47,12 @@ constexpr std::size_t BitSetSize = (static_cast<std::size_t>(EnumMax) + 31u) / 3
  * @code std::uint32_t x = 0; x[5] = true; @endcode is not possible. The BitSet type uses this proxy
  * class to make such operations possible.
  *
- * @see Dali::Accessibility::BitSet
+ * @see Dali::Integration::Accessibility::BitSet
  */
 class BitReference
 {
   template<std::size_t>
-  friend class Dali::Accessibility::BitSet;
+  friend class Dali::Integration::Accessibility::BitSet;
 
 public:
   using ElementType = std::uint32_t; ///< Integral type used for storing bits.
@@ -126,9 +128,9 @@ class BitSet
 public:
   // Types
 
-  using ReferenceType = Internal::BitReference;     ///< Dali::Accessibility::Internal::BitReference
-  using ElementType   = ReferenceType::ElementType; ///< Dali::Accessibility::Internal::BitReference::ElementType
-  using IndexType     = ReferenceType::IndexType;   ///< Dali::Accessibility::Internal::BitReference::IndexType
+  using ReferenceType = Internal::BitReference;     ///< Dali::Integration::Accessibility::Internal::BitReference
+  using ElementType   = ReferenceType::ElementType; ///< Dali::Integration::Accessibility::Internal::BitReference::ElementType
+  using IndexType     = ReferenceType::IndexType;   ///< Dali::Integration::Accessibility::Internal::BitReference::IndexType
   using ArrayType     = std::array<ElementType, N>; ///< An array of N integers that can store 32*N bits.
 
   // Constructors
@@ -445,8 +447,8 @@ class EnumBitSet : public BitSet<N>
 public:
   // Types
 
-  using IndexType     = typename BitSet<N>::IndexType;     ///< Dali::Accessibility::BitSet<N>::IndexType
-  using ReferenceType = typename BitSet<N>::ReferenceType; ///< Dali::Accessibility::BitSet<N>::ReferenceType
+  using IndexType     = typename BitSet<N>::IndexType;     ///< Dali::Integration::Accessibility::BitSet<N>::IndexType
+  using ReferenceType = typename BitSet<N>::ReferenceType; ///< Dali::Integration::Accessibility::BitSet<N>::ReferenceType
 
   // Constructors
 
@@ -519,6 +521,6 @@ private:
   // No data members (non-virtual destructor)
 };
 
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
-#endif // DALI_ADAPTOR_ACCESSIBILITY_BITSET_H
+#endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BITSET_H

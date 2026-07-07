@@ -25,6 +25,7 @@
 #include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-events.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
 namespace Dali::Accessibility
@@ -46,7 +47,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Accessible::GetAddress()
    */
-  Address GetAddress() const override;
+  Dali::Devel::Accessibility::Address GetAddress() const override;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetName()
@@ -101,7 +102,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Component::GetLayer()
    */
-  ComponentLayer GetLayer() const override;
+  Dali::Devel::Accessibility::ComponentLayer GetLayer() const override;
 
   /**
    * @copydoc Dali::Accessibility::Component::GetMdiZOrder()
@@ -121,7 +122,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Component::GetExtents()
    */
-  Dali::Bounds GetExtents(CoordinateType type) const override;
+  Dali::Bounds GetExtents(Dali::Devel::Accessibility::CoordinateType type) const override;
 
   /**
    * @copydoc Dali::Accessibility::Collection::GetMatches()
@@ -161,7 +162,7 @@ public:
    * For instance, if the state is PRESSED, newValue means isPressed or isSelected.
    * If the state is SHOWING, newValue means isShowing.
    */
-  void EmitStateChanged(State state, int newValue, int reserved = 0);
+  void EmitStateChanged(Dali::Integration::Accessibility::State state, int newValue, int reserved = 0);
 
   /**
    * @brief Helper function for emiting bounds-changed event.
@@ -232,7 +233,7 @@ public:
    *
    * @param[in] type moved out of screen type
    */
-  void EmitMovedOutOfScreen(ScreenRelativeMoveType type);
+  void EmitMovedOutOfScreen(Dali::Devel::Accessibility::ScreenRelativeMoveType type);
 
   /**
    * @brief Emits "ScrollStarted" event.
@@ -252,22 +253,22 @@ public:
    * @param[in] event The enumerated window event
    * @param[in] detail The additional parameter which interpretation depends on chosen event
    */
-  void Emit(WindowEvent event, unsigned int detail = 0);
+  void Emit(Dali::Devel::Accessibility::WindowEvent event, unsigned int detail = 0);
 
   /**
    * @brief Emits property-changed event.
    *
    * @param[in] event Property changed event
    **/
-  void Emit(ObjectPropertyChangeEvent event);
+  void Emit(Dali::Devel::Accessibility::ObjectPropertyChangeEvent event);
 
   /**
-   * @brief Re-emits selected states of an Accessibility Object.
+   * @brief Re-emits selected Dali::Integration::Accessibility::States of an Accessibility Object.
    *
-   * @param[in] states The chosen states to re-emit
-   * @param[in] isRecursive If true, all children of the Accessibility object will also re-emit the states
+   * @param[in] states The chosen Dali::Integration::Accessibility::States to re-emit
+   * @param[in] isRecursive If true, all children of the Accessibility object will also re-emit the Dali::Integration::Accessibility::States
    */
-  void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive);
+  void NotifyAccessibilityStateChange(Dali::Integration::Accessibility::States states, bool isRecursive);
 
   /**
    * @brief Clears internal cache data on bridge down
@@ -275,7 +276,7 @@ public:
   void ClearCache();
 
   /**
-   * @brief Checks if the accessible object can be accepted even with zero size.
+   * @brief Checks if the accessible object can be accepted even with zero Dali::Devel::Accessibility::Size.
    */
   bool CanAcceptZeroSize() const;
 
@@ -328,7 +329,7 @@ private:
   bool                          mChildrenDirty;
   bool                          mIsBeingDestroyed;
   const uint32_t                mActorId;
-  std::map<State, int>          mLastEmittedState;
+  std::map<Dali::Integration::Accessibility::State, int> mLastEmittedState;
   Dali::SharedPtr<Collection>   mCollection;
 };
 

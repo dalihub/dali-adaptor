@@ -22,7 +22,9 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-geometry.h>
+#include <dali/devel-api/adaptor-framework/accessibility-text.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
@@ -36,7 +38,7 @@ class DALI_ADAPTOR_API Text : public IAccessibilityFeature
 {
 public:
   /**
-   * @brief Gets stored text in given range.
+   * @brief Gets stored text in given Dali::Devel::Accessibility::Range.
    *
    * @param[in] startOffset The index of first character
    * @param[in] endOffset The index of first character after the last one expected
@@ -77,11 +79,11 @@ public:
    * @param[in] offset The position in stored text
    * @param[in] boundary The enumeration describing text gradation
    *
-   * @return Range structure containing acquired text and offsets in original string
+   * @return Dali::Devel::Accessibility::Range structure containing acquired text and offsets in original string
    *
-   * @see Dali::Accessibility::Range
+   * @see Dali::Devel::Accessibility::Range
    */
-  virtual Range GetTextAtOffset(std::size_t offset, TextBoundary boundary) const = 0;
+  virtual Dali::Devel::Accessibility::Range GetTextAtOffset(std::size_t offset, Dali::Devel::Accessibility::TextBoundary boundary) const = 0;
 
   /**
    * @brief Gets selected text.
@@ -89,12 +91,12 @@ public:
    * @param[in] selectionIndex The selection index
    * @note Currently only one selection (i.e. with index = 0) is supported
    *
-   * @return Range structure containing acquired text and offsets in original string
+   * @return Dali::Devel::Accessibility::Range structure containing acquired text and offsets in original string
    *
    * @remarks This method is `GetSelection` in DBus method.
-   * @see Dali::Accessibility::Range
+   * @see Dali::Devel::Accessibility::Range
    */
-  virtual Range GetRangeOfSelection(std::size_t selectionIndex) const = 0;
+  virtual Dali::Devel::Accessibility::Range GetRangeOfSelection(std::size_t selectionIndex) const = 0;
 
   /**
    * @brief Removes the whole selection.
@@ -121,27 +123,27 @@ public:
   virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset) = 0;
 
   /**
-   * @brief Gets the bounding box for text within a range in text.
+   * @brief Gets the bounding box for text within a Dali::Devel::Accessibility::Range in text.
    *
    * @param[in] startOffset The index of first character
    * @param[in] endOffset The index of first character after the last one expected
    * @param[in] type The enumeration with type of coordinate system
    *
-   * @return Bounds giving the position and size of the specified range of text
+   * @return Bounds giving the position and size of the specified Dali::Devel::Accessibility::Range of text
    * @remarks This method is `GetRangeExtents` in DBus method.
    */
-  virtual Bounds GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
+  virtual Bounds GetRangeExtents(std::size_t startOffset, std::size_t endOffset, Dali::Devel::Accessibility::CoordinateType type) = 0;
 };
-
-namespace Internal
-{
-template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::TEXT>
-{
-  using Type = Text;
-};
-} // namespace Internal
 
 } // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
+{
+template<>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::TEXT>
+{
+  using Type = Dali::Accessibility::Text;
+};
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_TEXT_H

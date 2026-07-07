@@ -26,7 +26,7 @@ using namespace Dali::Accessibility;
 
 void BridgeEditableText::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::EDITABLE_TEXT)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EDITABLE_TEXT)};
   AddFunctionToInterface(desc, "CopyText", &BridgeEditableText::CopyText);
   AddFunctionToInterface(desc, "CutText", &BridgeEditableText::CutText);
   AddFunctionToInterface(desc, "DeleteText", &BridgeEditableText::DeleteText);
@@ -38,7 +38,7 @@ void BridgeEditableText::RegisterInterfaces()
 
 Dali::SharedPtr<EditableText> BridgeEditableText::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::EDITABLE_TEXT>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::EDITABLE_TEXT>();
 }
 
 DBus::ValueOrError<bool> BridgeEditableText::CopyText(int32_t startPosition, int32_t endPosition)

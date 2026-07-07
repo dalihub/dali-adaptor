@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine.h>
 
@@ -435,7 +435,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetAccessibilityAddress()
    */
-  Accessibility::Address GetAccessibilityAddress();
+  Dali::Devel::Accessibility::Address GetAccessibilityAddress();
 
   /**
    * @copydoc Dali::WebEngine::SetVisibility()

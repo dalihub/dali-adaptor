@@ -19,7 +19,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
@@ -37,6 +37,8 @@
 
 namespace Dali::Accessibility
 {
+
+using State = Dali::Integration::Accessibility::State;
 
 namespace
 {
@@ -250,7 +252,7 @@ std::string Lz4CompressToBase64Payload(const std::string& input)
     return {};
   }
 
-  // Payload format: [u32 little-endian original size] + compressed bytes
+  // Payload format: [u32 little-endian original Dali::Devel::Accessibility::Size] + compressed bytes
   std::vector<uint8_t> payload;
   payload.resize(4 + static_cast<size_t>(compressedSize));
   payload[0] = static_cast<uint8_t>(srcSize & 0xFF);
@@ -275,7 +277,7 @@ std::string DumpJsonWithLz4Compression(Accessible* root, Accessible::DumpDetailL
   try
   {
     // Generate JSON with requested semantics, then compress final string
-    // to reduce DBus payload size. On any failure, return plain JSON.
+    // to reduce DBus payload Dali::Devel::Accessibility::Size. On any failure, return plain JSON.
     const auto json = DumpJson(root, jsonDetailLevel, true);
     DALI_LOG_RELEASE_INFO("DumpTree(root,%s) json_chars=%zu\n", logTag, json.size());
     auto lz4Payload = Lz4CompressToBase64Payload(json);
@@ -346,8 +348,8 @@ const auto IsFullFieldSet = [](Accessible::DumpDetailLevel detailLevel) -> bool
   }
 };
 
-// Helper function to get type name from attributes map.
-const auto GetTypeString = [](const Attributes& attrs) -> std::string
+// Helper function to get type name from Dali::Devel::Accessibility::Attributes map.
+const auto GetTypeString = [](const Dali::Devel::Accessibility::Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
   msg.imbue(std::locale::classic());
@@ -358,8 +360,8 @@ const auto GetTypeString = [](const Attributes& attrs) -> std::string
   return msg.str();
 };
 
-// Helper function to get type name from attributes map.
-const auto GetAutomationIdString = [](const Attributes& attrs) -> std::string
+// Helper function to get type name from Dali::Devel::Accessibility::Attributes map.
+const auto GetAutomationIdString = [](const Dali::Devel::Accessibility::Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
   msg.imbue(std::locale::classic());
@@ -377,7 +379,7 @@ const auto GetScreenCoordString = [](Accessible* node) -> std::string
   if(node)
   {
     msg.imbue(std::locale::classic());
-    auto rect = node->GetExtents(CoordinateType::SCREEN);
+    auto rect = node->GetExtents(Dali::Devel::Accessibility::CoordinateType::SCREEN);
     msg << Quote("x") << ": " << rect.x << ", "
         << Quote("y") << ": " << rect.y << ", "
         << Quote("w") << ": " << rect.width << ", "
@@ -386,8 +388,8 @@ const auto GetScreenCoordString = [](Accessible* node) -> std::string
   return msg.str();
 };
 
-// Helper function to get attributes map as a string.
-const auto GetOtherAttributesString = [](const Attributes& attrs) -> std::string
+// Helper function to get Dali::Devel::Accessibility::Attributes map as a string.
+const auto GetOtherAttributesString = [](const Dali::Devel::Accessibility::Attributes& attrs) -> std::string
 {
   std::ostringstream msg;
   msg.imbue(std::locale::classic());
@@ -586,13 +588,13 @@ std::string Accessible::DumpTree(DumpDetailLevel detailLevel)
   }
 }
 
-bool Accessible::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type) const
+bool Accessible::IsAccessibleContainingPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) const
 {
   auto extents = GetExtents(type);
   return point.x >= extents.x && point.y >= extents.y && point.x <= extents.x + extents.width && point.y <= extents.y + extents.height;
 }
 
-Accessible* Accessible::GetAccessibleAtPoint(Point point, Dali::Accessibility::CoordinateType type)
+Accessible* Accessible::GetAccessibleAtPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type)
 {
   auto children = GetChildren();
   for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)

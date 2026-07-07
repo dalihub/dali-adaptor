@@ -1,5 +1,5 @@
-#ifndef DALI_DEVEL_ATSPI_ACCESSIBILITY_H
-#define DALI_DEVEL_ATSPI_ACCESSIBILITY_H
+#ifndef DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_SERVICE_H
+#define DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_SERVICE_H
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
@@ -25,7 +25,9 @@
 
 namespace Dali
 {
-namespace AtspiAccessibility
+namespace Integration
+{
+namespace Accessibility
 {
 /**
  * @brief Reads given text by screen reader
@@ -78,7 +80,8 @@ DALI_ADAPTOR_API bool IsEnabled();
  */
 DALI_ADAPTOR_API bool IsScreenReaderEnabled();
 
-} //namespace AtspiAccessibility
+} //namespace Accessibility
+} //namespace Integration
 } //namespace Dali
 
-#endif // DALI_DEVEL_ATSPI_ACCESSIBILITY_H
+#endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_SERVICE_H

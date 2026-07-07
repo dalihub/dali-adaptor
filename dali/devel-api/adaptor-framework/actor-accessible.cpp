@@ -23,20 +23,23 @@
 #include <dali/devel-api/object/type-info.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/actors/layer.h>
 #include <algorithm>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 
 using Dali::Integration::ToStdString;
 
 namespace Dali::Accessibility
 {
+using Role = Dali::Integration::Accessibility::Role;
 
 namespace
 {
-bool UpdateLastEmitted(std::map<State, int>& lastEmitted, State state, int newValue)
+bool UpdateLastEmitted(std::map<Dali::Integration::Accessibility::State, int>& lastEmitted, Dali::Integration::Accessibility::State state, int newValue)
 {
   bool updated                = false;
   const auto [iter, inserted] = lastEmitted.emplace(state, newValue);
@@ -69,12 +72,12 @@ bool ShouldEmitShowing(Accessible* accessible, bool showing)
 {
   Role role = accessible->GetRole();
   return IsWindowRole(role) || IsModalRole(role) || (showing && role == Role::NOTIFICATION) ||
-         (!showing && accessible->IsHighlighted()) || accessible->GetStates()[State::MODAL];
+         (!showing && accessible->IsHighlighted()) || accessible->GetStates()[Dali::Integration::Accessibility::State::MODAL];
 }
 
-Address GetAddressByActorId(uint32_t actorId)
+Dali::Devel::Accessibility::Address GetAddressByActorId(uint32_t actorId)
 {
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     return {bridge->GetBusName(), std::to_string(actorId)};
   }
@@ -102,13 +105,13 @@ ActorAccessible::ActorAccessible(Actor actor)
 void ActorAccessible::ObjectDestroyed()
 {
   mIsBeingDestroyed = true;
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->RemoveAccessible(mActorId);
   }
 }
 
-Address ActorAccessible::GetAddress() const
+Dali::Devel::Accessibility::Address ActorAccessible::GetAddress() const
 {
   return GetAddressByActorId(mActorId);
 }
@@ -132,7 +135,7 @@ Accessible* ActorAccessible::GetParent()
 {
   if(IsOnRootLevel())
   {
-    if(auto bridge = Bridge::GetCurrentBridge())
+    if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
     {
       return bridge->GetApplication();
     }
@@ -200,9 +203,9 @@ std::string ActorAccessible::GetStringProperty(std::string propertyName) const
   return {};
 }
 
-ComponentLayer ActorAccessible::GetLayer() const
+Dali::Devel::Accessibility::ComponentLayer ActorAccessible::GetLayer() const
 {
-  return ComponentLayer::WINDOW;
+  return Dali::Devel::Accessibility::ComponentLayer::WINDOW;
 }
 
 std::int16_t ActorAccessible::GetMdiZOrder() const
@@ -220,7 +223,7 @@ bool ActorAccessible::IsScrollable() const
   return false;
 }
 
-Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
+Dali::Bounds ActorAccessible::GetExtents(Dali::Devel::Accessibility::CoordinateType type) const
 {
   Dali::Actor actor   = Self();
   auto        extents = DevelActor::CalculateCurrentScreenExtents(actor);
@@ -233,11 +236,11 @@ Dali::Bounds ActorAccessible::GetExtents(CoordinateType type) const
 
   auto rounded = Dali::Bounds{std::round(extents.x), std::round(extents.y), std::round(extents.width), std::round(extents.height)};
 
-  if(type == CoordinateType::WINDOW)
+  if(type == Dali::Devel::Accessibility::CoordinateType::WINDOW)
   {
     return rounded;
   }
-  else // CoordinateType::SCREEN
+  else // Dali::Devel::Accessibility::CoordinateType::SCREEN
   {
     auto window       = Dali::Window::Get(actor);
     auto positionSize = window.GetPositionSize();
@@ -288,7 +291,7 @@ void ActorAccessible::UpdateChildren()
   mChildren.clear();
   DoGetChildren(mChildren);
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     const bool shouldIncludeHidden = bridge->ShouldIncludeHidden();
 
@@ -308,37 +311,37 @@ void ActorAccessible::EmitActiveDescendantChanged(Accessible* child)
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitActiveDescendantChanged(this, child);
   }
 }
 
-void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
+void ActorAccessible::EmitStateChanged(Dali::Integration::Accessibility::State state, int newValue, int reserved)
 {
   if(mIsBeingDestroyed)
   {
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bool shouldEmit{false};
 
     switch(state)
     {
-      case State::CHECKED:
-      case State::SELECTED:
+      case Dali::Integration::Accessibility::State::CHECKED:
+      case Dali::Integration::Accessibility::State::SELECTED:
       {
         shouldEmit = true;
         break;
       }
-      case State::SHOWING:
+      case Dali::Integration::Accessibility::State::SHOWING:
       {
         shouldEmit = ShouldEmitShowing(this, static_cast<bool>(newValue));
         break;
       }
-      case State::VISIBLE:
+      case Dali::Integration::Accessibility::State::VISIBLE:
       {
         shouldEmit = ShouldEmitVisible(this);
         break;
@@ -359,22 +362,22 @@ void ActorAccessible::EmitStateChanged(State state, int newValue, int reserved)
 
 void ActorAccessible::EmitShowing(bool isShowing)
 {
-  EmitStateChanged(State::SHOWING, isShowing ? 1 : 0);
+  EmitStateChanged(Dali::Integration::Accessibility::State::SHOWING, isShowing ? 1 : 0);
 }
 
 void ActorAccessible::EmitVisible(bool isVisible)
 {
-  EmitStateChanged(State::VISIBLE, isVisible ? 1 : 0);
+  EmitStateChanged(Dali::Integration::Accessibility::State::VISIBLE, isVisible ? 1 : 0);
 }
 
 void ActorAccessible::EmitHighlighted(bool isHighlighted)
 {
-  EmitStateChanged(State::HIGHLIGHTED, isHighlighted ? 1 : 0);
+  EmitStateChanged(Dali::Integration::Accessibility::State::HIGHLIGHTED, isHighlighted ? 1 : 0);
 }
 
 void ActorAccessible::EmitFocused(bool isFocused)
 {
-  EmitStateChanged(State::FOCUSED, isFocused ? 1 : 0);
+  EmitStateChanged(Dali::Integration::Accessibility::State::FOCUSED, isFocused ? 1 : 0);
 }
 
 void ActorAccessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
@@ -384,9 +387,9 @@ void ActorAccessible::EmitTextInserted(unsigned int position, unsigned int lengt
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
-    bridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
+    bridge->EmitTextChanged(this, Dali::Devel::Accessibility::TextChangedState::INSERTED, position, length, content);
   }
 }
 void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
@@ -396,9 +399,9 @@ void ActorAccessible::EmitTextDeleted(unsigned int position, unsigned int length
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
-    bridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
+    bridge->EmitTextChanged(this, Dali::Devel::Accessibility::TextChangedState::DELETED, position, length, content);
   }
 }
 void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
@@ -408,20 +411,20 @@ void ActorAccessible::EmitTextCursorMoved(unsigned int cursorPosition)
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitCursorMoved(this, cursorPosition);
   }
 }
 
-void ActorAccessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
+void ActorAccessible::EmitMovedOutOfScreen(Dali::Devel::Accessibility::ScreenRelativeMoveType type)
 {
   if(mIsBeingDestroyed)
   {
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitMovedOutOfScreen(this, type);
   }
@@ -434,7 +437,7 @@ void ActorAccessible::EmitScrollStarted()
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitScrollStarted(this);
   }
@@ -447,33 +450,33 @@ void ActorAccessible::EmitScrollFinished()
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitScrollFinished(this);
   }
 }
 
-void ActorAccessible::Emit(WindowEvent event, unsigned int detail)
+void ActorAccessible::Emit(Dali::Devel::Accessibility::WindowEvent event, unsigned int detail)
 {
   if(mIsBeingDestroyed)
   {
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Emit(this, event, detail);
   }
 }
 
-void ActorAccessible::Emit(ObjectPropertyChangeEvent event)
+void ActorAccessible::Emit(Dali::Devel::Accessibility::ObjectPropertyChangeEvent event)
 {
   if(mIsBeingDestroyed)
   {
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Emit(SharedFromThis(), event);
   }
@@ -486,20 +489,20 @@ void ActorAccessible::EmitBoundsChanged(BoundsInteger rect)
     return;
   }
 
-  if(auto bridge = Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->EmitBoundsChanged(SharedFromThis(), rect);
   }
 }
 
-void ActorAccessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)
+void ActorAccessible::NotifyAccessibilityStateChange(Dali::Integration::Accessibility::States states, bool isRecursive)
 {
-  if(Accessibility::IsUp())
+  if(Dali::Integration::Accessibility::IsUp())
   {
     const auto newStates = GetStates();
-    for(auto i = 0u; i < static_cast<unsigned int>(Dali::Accessibility::State::MAX_COUNT); i++)
+    for(auto i = 0u; i < static_cast<unsigned int>(Dali::Integration::Accessibility::State::MAX_COUNT); i++)
     {
-      const auto index = static_cast<Dali::Accessibility::State>(i);
+      const auto index = static_cast<Dali::Integration::Accessibility::State>(i);
       if(states[index])
       {
         EmitStateChanged(index, newStates[index]);

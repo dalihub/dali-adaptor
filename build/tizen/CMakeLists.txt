@@ -494,7 +494,7 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 
 # Install headers
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
-INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
+INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_header_files ${adaptor_integration_api_dir} dali/integration-api )
 INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
