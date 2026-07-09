@@ -18,7 +18,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-types.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
@@ -36,17 +37,17 @@ public:
   /**
    * @brief Establishes the Plug-Socket connection.
    *
-   * @param plug Address of the Plug (remote parent)
-   * @return Address of the Socket
+   * @param plug Dali::Devel::Accessibility::Address of the Plug (remote parent)
+   * @return Dali::Devel::Accessibility::Address of the Socket
    */
-  virtual Address Embed(Address plug) = 0;
+  virtual Dali::Devel::Accessibility::Address Embed(Dali::Devel::Accessibility::Address plug) = 0;
 
   /**
    * @brief Terminates the Plug-Socket connection.
    *
-   * @param plug Address of the Plug (remote parent)
+   * @param plug Dali::Devel::Accessibility::Address of the Plug (remote parent)
    */
-  virtual void Unembed(Address plug) = 0;
+  virtual void Unembed(Dali::Devel::Accessibility::Address plug) = 0;
 
   /**
    * @brief Set the offset (position information).
@@ -57,15 +58,15 @@ public:
   virtual void SetOffset(std::int32_t x, std::int32_t y) = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::SOCKET>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::SOCKET>
 {
-  using Type = Socket;
+  using Type = Dali::Accessibility::Socket;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_SOCKET_H

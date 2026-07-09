@@ -326,7 +326,7 @@ bool DragAndDropTcoreWl::AddListener(Dali::Actor target, char* mimeType, Dali::D
 
   if(!window)
   {
-    target.OnSceneSignal().Connect(this, &DragAndDropTcoreWl::DropTargetSceneOn);
+    target.SceneConnectedSignal().Connect(this, &DragAndDropTcoreWl::DropTargetSceneOn);
   }
   else
   {
@@ -800,7 +800,7 @@ bool DragAndDropTcoreWl::ProcessDropEventsForWindowTargets(void* event, char** m
     }
 
     mWindowTargetIndex = static_cast<int>(i);
-    mWindowPosition    = Dali::Vector2(static_cast<float>(position.GetX()), static_cast<float>(position.GetY()));
+    mWindowPosition    = Dali::Vector2(static_cast<float>(positionSize.x), static_cast<float>(positionSize.y));
 
     for(int j = 0; j < mimesCount && mimes && mimes[j]; j++)
     {
@@ -841,7 +841,7 @@ bool DragAndDropTcoreWl::CalculateViewRegion(void* event)
 
 void DragAndDropTcoreWl::DropTargetSceneOn(Dali::Actor target)
 {
-  target.OnSceneSignal().Disconnect(this, &DragAndDropTcoreWl::DropTargetSceneOn);
+  target.SceneConnectedSignal().Disconnect(this, &DragAndDropTcoreWl::DropTargetSceneOn);
   for(auto iter = mDropTargets.begin(), iterEnd = mDropTargets.end(); iter != iterEnd; iter++)
   {
     if((*iter).target == target)

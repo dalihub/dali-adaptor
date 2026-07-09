@@ -26,6 +26,7 @@
 #include <dali/public-api/common/dali-utility.h>
 #include <tizen_core_wl.h>
 #include <unistd.h>
+#include <algorithm>
 #include <limits>
 #include <map>
 #include <vector>

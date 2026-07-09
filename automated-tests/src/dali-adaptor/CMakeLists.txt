@@ -9,6 +9,7 @@ SET(CAPI_LIB "dali-adaptor")
 
 SET(TC_SOURCES
     utc-Dali-Application.cpp
+    utc-Dali-Accessibility.cpp
     utc-Dali-ClipboardData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
@@ -79,6 +80,15 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
 
 ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
 ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
+
+# Ignore some warning options
+# TODO : Why it is not be ignored at root CMakeLists.txt?
+INCLUDE(CheckCXXCompilerFlag)
+
+CHECK_CXX_COMPILER_FLAG(-Wno-self-assign-overloaded HAVE_NO_SELF_ASSIGN_OVERLOADED)
+IF (HAVE_NO_SELF_ASSIGN_OVERLOADED)
+  ADD_COMPILE_OPTIONS( -Wno-self-assign-overloaded )
+ENDIF()
 
 ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )
 

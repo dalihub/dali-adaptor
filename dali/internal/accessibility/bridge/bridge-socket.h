@@ -46,12 +46,12 @@ public:
   /**
    * @copydoc Dali::Accessibility::Socket::Embed()
    */
-  DBus::ValueOrError<Dali::Accessibility::Address> Embed(Dali::Accessibility::Address plug);
+  DBus::ValueOrError<Dali::Devel::Accessibility::Address> Embed(Dali::Devel::Accessibility::Address plug);
 
   /**
    * @copydoc Dali::Accessibility::Socket::Unembed()
    */
-  DBus::ValueOrError<void> Unembed(Dali::Accessibility::Address plug);
+  DBus::ValueOrError<void> Unembed(Dali::Devel::Accessibility::Address plug);
 
   /**
    * @copydoc Dali::Accessibility::Socket::SetOffset()

@@ -26,7 +26,7 @@ using namespace Dali::Accessibility;
 
 void BridgeApplication::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::APPLICATION)};
   AddGetPropertyToInterface(desc, "ToolkitName", &BridgeApplication::GetToolkitName);
   AddGetPropertyToInterface(desc, "Version", &BridgeApplication::GetVersion);
   AddFunctionToInterface(desc, "GetIncludeHidden", &BridgeApplication::GetIncludeHidden);
@@ -36,7 +36,7 @@ void BridgeApplication::RegisterInterfaces()
 
 Dali::SharedPtr<Application> BridgeApplication::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::APPLICATION>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::APPLICATION>();
 }
 
 std::string BridgeApplication::GetToolkitName()

@@ -25,7 +25,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-devel.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
@@ -737,13 +737,13 @@ public:
   virtual void SetPageZoomFactor(float zoomFactor) = 0;
 
   /**
-   * @brief Query the current zoom factor of the page。
+   * @brief Query the current zoom factor of the page.
    * @return The current page zoom factor.
    */
   virtual float GetPageZoomFactor() const = 0;
 
   /**
-   * @brief Set the current text zoom level。.
+   * @brief Set the current text zoom level.
    * @param[in] zoomFactor a new factor to be set.
    */
   virtual void SetTextZoomFactor(float zoomFactor) = 0;
@@ -783,7 +783,7 @@ public:
    * @brief Get the accessibility address (bus and path) for embedding.
    * @return Accessibility address of the root web content element.
    */
-  virtual Accessibility::Address GetAccessibilityAddress() = 0;
+  virtual Dali::Devel::Accessibility::Address GetAccessibilityAddress() = 0;
 
   /**
    * @brief Request to set the current page's visibility.

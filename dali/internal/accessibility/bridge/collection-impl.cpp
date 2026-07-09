@@ -32,6 +32,9 @@
 namespace Dali::Accessibility
 {
 
+using State = Dali::Integration::Accessibility::State;
+using Role  = Dali::Integration::Accessibility::Role;
+
 namespace
 {
 using MatchRule = Collection::MatchRule;
@@ -237,20 +240,20 @@ struct Comparer
   }; // ComparerAttributes struct
 
   /**
-   * @brief The ComparerRoles structure
+   * @brief The ComparerRoleSet structure
    */
-  struct ComparerRoles
+  struct ComparerRoleSet
   {
-    using Roles = EnumBitSet<Role, Role::MAX_COUNT>;
+    using RoleSet = Dali::Integration::Accessibility::RoleSet;
 
-    Roles mRequested;
-    Roles mObject;
-    Mode  mMode = Mode::INVALID;
+    RoleSet mRequested;
+    RoleSet mObject;
+    Mode    mMode = Mode::INVALID;
 
-    ComparerRoles(MatchRule* rule)
+    ComparerRoleSet(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::ROLES_MATCH_TYPE)>(*rule)))
     {
-      mRequested = Roles{std::get<static_cast<std::size_t>(Index::ROLES)>(*rule)};
+      mRequested = RoleSet{std::get<static_cast<std::size_t>(Index::ROLES)>(*rule)};
     }
 
     void Update(Accessible* obj)
@@ -294,21 +297,21 @@ struct Comparer
       }
       return false;
     }
-  }; // ComparerRoles struct
+  }; // ComparerRoleSet struct
 
   /**
    * @brief The ComparerStates structure
    */
   struct ComparerStates
   {
-    States     mRequested;
-    States     mObject;
+    Dali::Integration::Accessibility::States     mRequested;
+    Dali::Integration::Accessibility::States     mObject;
     const Mode mMode = Mode::INVALID;
 
     ComparerStates(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::STATES_MATCH_TYPE)>(*rule)))
     {
-      mRequested = States{std::get<static_cast<std::size_t>(Index::STATES)>(*rule)};
+      mRequested = Dali::Integration::Accessibility::States{std::get<static_cast<std::size_t>(Index::STATES)>(*rule)};
     }
 
     void Update(Accessible* obj)
@@ -491,7 +494,7 @@ struct Comparer
 
   ComparerInterfaces mInterface;
   ComparerAttributes mAttribute;
-  ComparerRoles      mRole;
+  ComparerRoleSet    mRole;
   ComparerStates     mState;
 }; // BridgeCollection::Comparer struct
 

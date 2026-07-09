@@ -21,7 +21,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
@@ -65,15 +65,15 @@ public:
   virtual bool SetIncludeHidden(bool includeHidden) = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::APPLICATION>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::APPLICATION>
 {
-  using Type = Application;
+  using Type = Dali::Accessibility::Application;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_APPLICATION_H

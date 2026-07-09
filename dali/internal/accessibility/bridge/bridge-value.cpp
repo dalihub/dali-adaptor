@@ -28,7 +28,7 @@ BridgeValue::BridgeValue()
 
 void BridgeValue::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::VALUE)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::VALUE)};
   AddGetSetPropertyToInterface(desc, "CurrentValue", &BridgeValue::GetCurrentValue, &BridgeValue::SetCurrentValue);
   AddGetPropertyToInterface(desc, "Text", &BridgeValue::GetCurrentValueText);
   AddGetPropertyToInterface(desc, "MaximumValue", &BridgeValue::GetMaximumValue);
@@ -39,7 +39,7 @@ void BridgeValue::RegisterInterfaces()
 
 Dali::SharedPtr<Value> BridgeValue::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::VALUE>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::VALUE>();
 }
 
 double BridgeValue::GetCurrentValue()

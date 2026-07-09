@@ -22,15 +22,15 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 
 namespace Dali::Accessibility
 {
 /**
- * @brief The minimalistic, always empty Accessible object with settable address.
+ * @brief The minimalistic, always empty Accessible object with settable Dali::Devel::Accessibility::Address.
  *
- * To be used as a proxy object, in those situations where you want to return an address in
+ * To be used as a proxy object, in those situations where you want to return an Dali::Devel::Accessibility::Address in
  * a different bridge (embedding for example), but the object itself isn't planned to be used
  * otherwise. This object has a settable parent, no children, an empty name and so on.
  */
@@ -43,7 +43,7 @@ public:
   {
   }
 
-  void SetAddress(Address address)
+  void SetAddress(Dali::Devel::Accessibility::Address address)
   {
     mAddress = std::move(address);
   }
@@ -98,7 +98,7 @@ public:
     return {};
   }
 
-  Role GetRole() const override
+  Dali::Integration::Accessibility::Role GetRole() const override
   {
     return {};
   }
@@ -108,12 +108,12 @@ public:
     return {};
   }
 
-  States GetStates() override
+  Dali::Integration::Accessibility::States GetStates() override
   {
     return {};
   }
 
-  Attributes GetAttributes() const override
+  Dali::Devel::Accessibility::Attributes GetAttributes() const override
   {
     return {};
   }
@@ -123,17 +123,17 @@ public:
     return true;
   }
 
-  Address GetAddress() const override
+  Dali::Devel::Accessibility::Address GetAddress() const override
   {
     return mAddress;
   }
 
-  bool DoGesture(const GestureInfo& gestureInfo) override
+  bool DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override
   {
     return false;
   }
 
-  std::vector<Relation> GetRelationSet() override
+  std::vector<Dali::Devel::Accessibility::Relation> GetRelationSet() override
   {
     return {};
   }
@@ -143,14 +143,14 @@ public:
     return Dali::Actor{};
   }
 
-  Bounds GetExtents(CoordinateType type) const override
+  Bounds GetExtents(Dali::Devel::Accessibility::CoordinateType type) const override
   {
     return mParent ? mParent->GetExtents(type) : Bounds{};
   }
 
-  ComponentLayer GetLayer() const override
+  Dali::Devel::Accessibility::ComponentLayer GetLayer() const override
   {
-    return ComponentLayer::WINDOW;
+    return Dali::Devel::Accessibility::ComponentLayer::WINDOW;
   }
 
   int16_t GetMdiZOrder() const override
@@ -188,7 +188,7 @@ public:
   }
 
 private:
-  Address     mAddress;
+  Dali::Devel::Accessibility::Address     mAddress;
   Accessible* mParent;
 };
 

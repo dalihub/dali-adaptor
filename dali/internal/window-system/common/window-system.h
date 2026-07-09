@@ -257,6 +257,10 @@ public:
     return mKeyboardRepeatSettingsChangedSignal;
   }
 
+public:
+  WindowSystemBase()          = default;
+  virtual ~WindowSystemBase() = default;
+
 protected:
   WindowSystem::KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   bool                                                  mGeometryHittest{false}; ///< Whether geometry event propagation is enabled. Shared by all backends.

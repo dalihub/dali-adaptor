@@ -22,7 +22,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
@@ -53,7 +53,7 @@ OffscreenApplication::OffscreenApplication(Dali::OffscreenApplication::Framework
   EnvironmentVariable::SetEnvironmentVariable(DALI_ENV_DISABLE_PARTIAL_UPDATE, "1");
 
   // Disable ATSPI
-  Dali::Accessibility::Bridge::DisableAutoInit();
+  Dali::Integration::Accessibility::Bridge::DisableAutoInit();
 
   mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
 

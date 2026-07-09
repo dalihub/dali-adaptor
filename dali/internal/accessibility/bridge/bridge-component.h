@@ -85,7 +85,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Component::GetLayer()
    */
-  DBus::ValueOrError<Dali::Accessibility::ComponentLayer> GetLayer();
+  DBus::ValueOrError<Dali::Devel::Accessibility::ComponentLayer> GetLayer();
 
   /**
    * @copydoc Dali::Accessibility::Component::GetAlpha()

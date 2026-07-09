@@ -303,7 +303,7 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
   if(!window)
   {
     // Actor not yet on scene: defer window ID resolution
-    target.OnSceneSignal().Connect(this, &DragAndDropX11::DropTargetSceneOn);
+    target.SceneConnectedSignal().Connect(this, &DragAndDropX11::DropTargetSceneOn);
   }
   else
   {
@@ -1118,7 +1118,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
 
 void DragAndDropX11::DropTargetSceneOn(Dali::Actor target)
 {
-  target.OnSceneSignal().Disconnect(this, &DragAndDropX11::DropTargetSceneOn);
+  target.SceneConnectedSignal().Disconnect(this, &DragAndDropX11::DropTargetSceneOn);
 
   auto window = Dali::Window::Get(target);
   if(!window)

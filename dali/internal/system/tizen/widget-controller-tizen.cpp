@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/integration-api/debug.h>
 
@@ -125,9 +125,9 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   mWindow   = window;
   mWidgetId = widgetId;
 
-  if(auto bridge = Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
-    auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
+    auto preferredBusName = Integration::Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
 
     // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
     // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.
@@ -139,8 +139,8 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   if(auto accessible = Accessibility::Accessible::Get(window.GetRootLayer()))
   {
     auto& suppressedEvents                                      = accessible->GetSuppressedEvents();
-    suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED]  = true;
-    suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
+    suppressedEvents[Dali::Integration::Accessibility::AccessibilityEvent::STATE_CHANGED]  = true;
+    suppressedEvents[Dali::Integration::Accessibility::AccessibilityEvent::WINDOW_CHANGED] = true;
   }
 }
 

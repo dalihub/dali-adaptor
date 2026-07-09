@@ -22,10 +22,13 @@
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-geometry.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
 namespace Dali::Accessibility
 {
+class Accessible;
+
 /**
  * @brief Interface representing objects having screen coordinates.
  */
@@ -33,7 +36,7 @@ class DALI_ADAPTOR_API Component
 {
 public:
   /**
-   * @brief Gets rectangle describing size.
+   * @brief Gets rectangle describing Dali::Devel::Accessibility::Size.
    *
    * @param[in] type The enumeration with type of coordinate systems
    *
@@ -41,16 +44,16 @@ public:
    *
    * @see Dali::Bounds
    */
-  virtual Bounds GetExtents(CoordinateType type) const = 0;
+  virtual Bounds GetExtents(Dali::Devel::Accessibility::CoordinateType type) const = 0;
 
   /**
    * @brief Gets layer current object is localized on.
    *
    * @return The enumeration pointing layer
    *
-   * @see Dali::Accessibility::ComponentLayer
+   * @see Dali::Devel::Accessibility::ComponentLayer
    */
-  virtual ComponentLayer GetLayer() const = 0;
+  virtual Dali::Devel::Accessibility::ComponentLayer GetLayer() const = 0;
 
   /**
    * @brief Gets value of z-order.
@@ -72,7 +75,7 @@ public:
   /**
    * @brief Gets value of alpha channel.
    *
-   * @return The alpha channel value in range [0.0, 1.0]
+   * @return The alpha channel value in Dali::Devel::Accessibility::Range [0.0, 1.0]
    */
   virtual double GetAlpha() const = 0;
 
@@ -93,7 +96,7 @@ public:
    *
    * @return true on success, false otherwise
    *
-   * @see Dali:Accessibility::State
+   * @see Dali::Integration::Accessibility::State
    */
   virtual bool ClearHighlight() = 0;
 
@@ -102,45 +105,45 @@ public:
    *
    * @return true if object is scrollable, false otherwise
    *
-   * @see Dali:Accessibility::State
+   * @see Dali::Integration::Accessibility::State
    */
   virtual bool IsScrollable() const = 0;
 
   /**
-   * @brief Gets Accessible object containing given point.
+   * @brief Gets Accessible object containing given Dali::Devel::Accessibility::Point.
    *
-   * @param[in] point The two-dimensional point
+   * @param[in] point The two-dimensional Dali::Devel::Accessibility::Point
    * @param[in] type The enumeration with type of coordinate system
    *
-   * @return The handle to last child of current object which contains given point
+   * @return The handle to last child of current object which contains given Dali::Devel::Accessibility::Point
    *
-   * @see Dali::Accessibility::Point
+   * @see Dali::Devel::Accessibility::Point
    */
-  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type) = 0;
+  virtual Accessible* GetAccessibleAtPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) = 0;
 
   /**
-   * @brief Checks if the current object contains the given point inside.
+   * @brief Checks if the current object contains the given Dali::Devel::Accessibility::Point inside.
    *
-   * @param[in] point The two-dimensional point
+   * @param[in] point The two-dimensional Dali::Devel::Accessibility::Point
    * @param[in] type The enumeration with type of coordinate system
    *
    * @return True if accessible contains in point, otherwise false.
    *
    * @remarks This method is `Contains` in DBus method.
-   * @see Dali::Accessibility::Point
+   * @see Dali::Devel::Accessibility::Point
    */
-  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const = 0;
+  virtual bool IsAccessibleContainingPoint(Dali::Devel::Accessibility::Point point, Dali::Devel::Accessibility::CoordinateType type) const = 0;
 };
-
-namespace Internal
-{
-template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::COMPONENT>
-{
-  using Type = Component;
-};
-} // namespace Internal
 
 } // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
+{
+template<>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::COMPONENT>
+{
+  using Type = Dali::Accessibility::Component;
+};
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_COMPONENT_H

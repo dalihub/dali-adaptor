@@ -130,36 +130,36 @@ public:
     return mGlExtensionSupportedCacheList.IsSupported(type);
   }
 
-  bool IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override
+  bool IsBlendEquationSupported(BlendEquation::Type blendEquation) override
   {
     switch(blendEquation)
     {
-      case DevelBlendEquation::ADD:
-      case DevelBlendEquation::SUBTRACT:
-      case DevelBlendEquation::REVERSE_SUBTRACT:
+      case BlendEquation::ADD:
+      case BlendEquation::SUBTRACT:
+      case BlendEquation::REVERSE_SUBTRACT:
       {
         return true;
       }
-      case DevelBlendEquation::MIN:
-      case DevelBlendEquation::MAX:
+      case BlendEquation::MIN:
+      case BlendEquation::MAX:
       {
         return (GetGlesVersion() >= 30);
       }
-      case DevelBlendEquation::MULTIPLY:
-      case DevelBlendEquation::SCREEN:
-      case DevelBlendEquation::OVERLAY:
-      case DevelBlendEquation::DARKEN:
-      case DevelBlendEquation::LIGHTEN:
-      case DevelBlendEquation::COLOR_DODGE:
-      case DevelBlendEquation::COLOR_BURN:
-      case DevelBlendEquation::HARD_LIGHT:
-      case DevelBlendEquation::SOFT_LIGHT:
-      case DevelBlendEquation::DIFFERENCE:
-      case DevelBlendEquation::EXCLUSION:
-      case DevelBlendEquation::HUE:
-      case DevelBlendEquation::SATURATION:
-      case DevelBlendEquation::COLOR:
-      case DevelBlendEquation::LUMINOSITY:
+      case BlendEquation::MULTIPLY:
+      case BlendEquation::SCREEN:
+      case BlendEquation::OVERLAY:
+      case BlendEquation::DARKEN:
+      case BlendEquation::LIGHTEN:
+      case BlendEquation::COLOR_DODGE:
+      case BlendEquation::COLOR_BURN:
+      case BlendEquation::HARD_LIGHT:
+      case BlendEquation::SOFT_LIGHT:
+      case BlendEquation::DIFFERENCE:
+      case BlendEquation::EXCLUSION:
+      case BlendEquation::HUE:
+      case BlendEquation::SATURATION:
+      case BlendEquation::COLOR:
+      case BlendEquation::LUMINOSITY:
       {
         return IsAdvancedBlendEquationSupported();
       }

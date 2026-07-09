@@ -29,7 +29,7 @@ using namespace Dali::Accessibility;
 
 void BridgeCollection::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::COLLECTION)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::COLLECTION)};
   AddFunctionToInterface(desc, "GetMatches", &BridgeCollection::GetMatches);
   AddFunctionToInterface(desc, "GetMatchesInMatches", &BridgeCollection::GetMatchesInMatches);
 
@@ -38,7 +38,7 @@ void BridgeCollection::RegisterInterfaces()
 
 Dali::SharedPtr<Collection> BridgeCollection::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::COLLECTION>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::COLLECTION>();
 }
 
 DBus::ValueOrError<std::vector<Accessible*> > BridgeCollection::GetMatches(Collection::MatchRule rule, uint32_t sortBy, int32_t count, bool traverse)

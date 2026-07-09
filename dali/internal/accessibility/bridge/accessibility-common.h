@@ -26,7 +26,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/internal/accessibility/bridge/dbus/dbus-locators.h>
 #include <dali/internal/accessibility/bridge/dbus/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>
@@ -88,19 +88,19 @@ namespace DBus
  */
 class CurrentBridgePtr
 {
-  static Dali::Accessibility::Bridge*& Get()
+  static Dali::Integration::Accessibility::Bridge*& Get()
   {
-    static thread_local Dali::Accessibility::Bridge* bridge = nullptr;
+    static thread_local Dali::Integration::Accessibility::Bridge* bridge = nullptr;
     return bridge;
   }
-  Dali::Accessibility::Bridge* mPrev;
+  Dali::Integration::Accessibility::Bridge* mPrev;
   CurrentBridgePtr(const CurrentBridgePtr&)            = delete;
   CurrentBridgePtr(CurrentBridgePtr&&)                 = delete;
   CurrentBridgePtr& operator=(const CurrentBridgePtr&) = delete;
   CurrentBridgePtr& operator=(CurrentBridgePtr&&)      = delete;
 
 public:
-  CurrentBridgePtr(Dali::Accessibility::Bridge* bridge)
+  CurrentBridgePtr(Dali::Integration::Accessibility::Bridge* bridge)
   : mPrev(Get())
   {
     Get() = bridge;
@@ -111,7 +111,7 @@ public:
     Get() = mPrev;
   }
 
-  static Dali::Accessibility::Bridge* GetCurrentBridge()
+  static Dali::Integration::Accessibility::Bridge* GetCurrentBridge()
   {
     return Get();
   }
@@ -121,7 +121,7 @@ public:
 namespace detail
 {
 template<>
-struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali::Accessibility::Address>>
+struct signature<Dali::Devel::Accessibility::Address> : signature_helper<signature<Dali::Devel::Accessibility::Address>>
 {
   using subtype = std::pair<std::string, ObjectPath>;
 
@@ -129,9 +129,9 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
   static constexpr auto sig_v  = signature<subtype>::sig_v; // "(so)"
 
   /**
-   * @brief Marshals value address as marshalled type into message
+   * @brief Marshals value Dali::Devel::Accessibility::Address as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::Address& address)
+  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Devel::Accessibility::Address& address)
   {
     if(address)
     {
@@ -144,9 +144,9 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
   }
 
   /**
-   * @brief Marshals value from marshalled type into variable address
+   * @brief Marshals value from marshalled type into variable Dali::Devel::Accessibility::Address
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::Address& address)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Devel::Accessibility::Address& address)
   {
     subtype tmp;
     if(!signature<subtype>::get(iter, tmp))
@@ -172,13 +172,13 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
 template<typename T>
 struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
 {
-  using subtype = Dali::Accessibility::Address;
+  using subtype = Dali::Devel::Accessibility::Address;
 
   static constexpr auto name_v = signature<subtype>::name_v;
   static constexpr auto sig_v  = signature<subtype>::sig_v;
 
   /**
-   * @brief Marshals value address as marshalled type into message
+   * @brief Marshals value Dali::Devel::Accessibility::Address as marshalled type into message
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, T* accessible)
   {
@@ -211,7 +211,7 @@ struct signature<Dali::Accessibility::Accessible*> : public SignatureAccessibleI
 };
 
 template<>
-struct signature<Dali::Accessibility::States> : signature_helper<signature<Dali::Accessibility::States>>
+struct signature<Dali::Integration::Accessibility::States> : signature_helper<signature<Dali::Integration::Accessibility::States>>
 {
   using subtype = std::array<uint32_t, 2>;
 
@@ -221,7 +221,7 @@ struct signature<Dali::Accessibility::States> : signature_helper<signature<Dali:
   /**
    * @brief Marshals value state as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::States& states)
+  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Integration::Accessibility::States& states)
   {
     signature<subtype>::set(iter, states.GetRawData());
   }
@@ -229,14 +229,14 @@ struct signature<Dali::Accessibility::States> : signature_helper<signature<Dali:
   /**
    * @brief Marshals value from marshalled type into variable state
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::States& state)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Integration::Accessibility::States& state)
   {
     subtype tmp;
     if(!signature<subtype>::get(iter, tmp))
     {
       return false;
     }
-    state = Dali::Accessibility::States{tmp};
+    state = Dali::Integration::Accessibility::States{tmp};
     return true;
   }
 };

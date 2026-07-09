@@ -31,7 +31,7 @@
 #include <dali/public-api/math/rect.h>
 
 /**
- * @brief The BridgeObject class is to correspond with Dali::Accessibility::Bridge.
+ * @brief The BridgeObject class is to correspond with Dali::Integration::Accessibility::Bridge.
  */
 class BridgeObject : public virtual BridgeBase
 {
@@ -47,57 +47,57 @@ protected:
   void RegisterInterfaces();
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitActiveDescendantChanged()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitActiveDescendantChanged()
    */
   void EmitActiveDescendantChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* child) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitCursorMoved()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitCursorMoved()
    */
   void EmitCursorMoved(Dali::Accessibility::Accessible* obj, unsigned int cursorPosition) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitTextChanged()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitTextChanged()
    */
-  void EmitTextChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override;
+  void EmitTextChanged(Dali::Accessibility::Accessible* obj, Dali::Devel::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitStateChanged()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitStateChanged()
    */
-  void EmitStateChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::State state, int newValue, int reserved) override;
+  void EmitStateChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Integration::Accessibility::State state, int newValue, int reserved) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Emit()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Emit()
    */
-  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail = 0) override;
+  void Emit(Dali::Accessibility::Accessible* obj, Dali::Devel::Accessibility::WindowEvent event, unsigned int detail = 0) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Emit()
+   * @copydoc Dali::Integration::Accessibility::Bridge::Emit()
    */
-  void Emit(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
+  void Emit(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::Devel::Accessibility::ObjectPropertyChangeEvent event) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitBoundsChanged()
    */
   void EmitBoundsChanged(Dali::SharedPtr<Dali::Accessibility::Accessible> obj, Dali::BoundsInteger rect) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitPostRender()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitPostRender()
    */
   void EmitPostRender(Dali::SharedPtr<Dali::Accessibility::Accessible> obj) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitMovedOutOfScreen()
    */
-  void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
+  void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Devel::Accessibility::ScreenRelativeMoveType type) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitScrollStarted()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitScrollStarted()
    */
   void EmitScrollStarted(Dali::Accessibility::Accessible* obj) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitScrollFinished()
+   * @copydoc Dali::Integration::Accessibility::Bridge::EmitScrollFinished()
    */
   void EmitScrollFinished(Dali::Accessibility::Accessible* obj) override;
 

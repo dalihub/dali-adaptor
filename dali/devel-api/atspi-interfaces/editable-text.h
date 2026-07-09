@@ -21,7 +21,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 
 namespace Dali::Accessibility
@@ -37,7 +37,7 @@ class DALI_ADAPTOR_API EditableText : public IAccessibilityFeature
 {
 public:
   /**
-   * @brief Copies text in range to system clipboard.
+   * @brief Copies text in Dali::Devel::Accessibility::Range to system clipboard.
    *
    * @param[in] startPosition The index of first character
    * @param[in] endPosition The index of first character after the last one expected
@@ -47,7 +47,7 @@ public:
   virtual bool CopyText(std::size_t startPosition, std::size_t endPosition) = 0;
 
   /**
-   * @brief Cuts text in range to system clipboard.
+   * @brief Cuts text in Dali::Devel::Accessibility::Range to system clipboard.
    *
    * @param[in] startPosition The index of first character
    * @param[in] endPosition The index of first character after the last one expected
@@ -57,7 +57,7 @@ public:
   virtual bool CutText(std::size_t startPosition, std::size_t endPosition) = 0;
 
   /**
-   * @brief Deletes text in range.
+   * @brief Deletes text in Dali::Devel::Accessibility::Range.
    *
    * @param[in] startPosition The index of first character
    * @param[in] endPosition The index of first character after the last one expected
@@ -86,15 +86,15 @@ public:
   virtual bool SetTextContents(std::string newContents) = 0;
 };
 
-namespace Internal
+} // namespace Dali::Accessibility
+
+namespace Dali::Integration::Accessibility
 {
 template<>
-struct AtspiInterfaceTypeHelper<AtspiInterface::EDITABLE_TEXT>
+struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::EDITABLE_TEXT>
 {
-  using Type = EditableText;
+  using Type = Dali::Accessibility::EditableText;
 };
-} // namespace Internal
-
-} // namespace Dali::Accessibility
+} // namespace Dali::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_EDITABLE_TEXT_H

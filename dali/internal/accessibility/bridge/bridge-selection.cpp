@@ -24,7 +24,7 @@ using namespace Dali::Accessibility;
 
 void BridgeSelection::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::SELECTION)};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::SELECTION)};
   AddGetPropertyToInterface(desc, "NSelectedChildren", &BridgeSelection::GetSelectedChildrenCount);
   AddFunctionToInterface(desc, "GetSelectedChild", &BridgeSelection::GetSelectedChild);
   AddFunctionToInterface(desc, "SelectChild", &BridgeSelection::SelectChild);
@@ -38,7 +38,7 @@ void BridgeSelection::RegisterInterfaces()
 
 Dali::SharedPtr<Selection> BridgeSelection::FindSelf() const
 {
-  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::SELECTION>();
+  return FindCurrentObjectWithInterface<Dali::Integration::Accessibility::AccessibilityInterface::SELECTION>();
 }
 
 DBus::ValueOrError<int32_t> BridgeSelection::GetSelectedChildrenCount()

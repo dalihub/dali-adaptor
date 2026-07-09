@@ -45,7 +45,7 @@ void CallAllMethods(Dali::Integration::GlAbstraction& implementation)
     // Cannot call the following functions as they have a Wait
     //    implementation.IsAdvancedBlendEquationSupported();
     //    implementation.IsMultisampledRenderToTextureSupported();
-    //    implementation.IsBlendEquationSupported(Dali::DevelBlendEquation::ADD);
+    //    implementation.IsBlendEquationSupported(Dali::BlendEquation::ADD);
     //    implementation.GetShaderVersionPrefix();
     //    implementation.GetVertexShaderPrefix();
     //    implementation.GetFragmentShaderPrefix();
