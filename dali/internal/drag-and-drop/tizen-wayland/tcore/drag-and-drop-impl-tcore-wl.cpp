@@ -800,7 +800,7 @@ bool DragAndDropTcoreWl::ProcessDropEventsForWindowTargets(void* event, char** m
     }
 
     mWindowTargetIndex = static_cast<int>(i);
-    mWindowPosition    = Dali::Vector2(static_cast<float>(position.GetX()), static_cast<float>(position.GetY()));
+    mWindowPosition    = Dali::Vector2(static_cast<float>(positionSize.x), static_cast<float>(positionSize.y));
 
     for(int j = 0; j < mimesCount && mimes && mimes[j]; j++)
     {
