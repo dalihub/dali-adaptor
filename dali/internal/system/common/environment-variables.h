@@ -196,6 +196,9 @@ namespace Adaptor
 
 #define DALI_ENV_SHADER_USE_PROGRAM_BINARY "DALI_SHADER_USE_PROGRAM_BINARY"
 
+// Queue benchmark instrumentation
+#define DALI_ENV_QUEUE_BENCHMARK "DALI_QUEUE_BENCHMARK"
+
 } // namespace Adaptor
 
 } // namespace Internal

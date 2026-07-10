@@ -30,6 +30,7 @@
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/queue/queue-benchmark-instrumentation.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
@@ -91,6 +92,12 @@ namespace
 {
 thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific pointer to allow Adaptor::Get
 thread_local bool     gIsEventThread      = false;   // set once on the event thread, never cleared
+
+const std::string& GetQueueBenchmarkDumpFile()
+{
+  static const std::string path = GetSystemCachePath() + "/dali_queue_benchmark.csv";
+  return path;
+}
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } // unnamed namespace
@@ -274,6 +281,12 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 Adaptor::~Adaptor()
 {
   DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
+
+  // Only dump benchmark results if DALI_QUEUE_BENCHMARK environment variable is set
+  if(Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_QUEUE_BENCHMARK))
+  {
+    DALI_QB_DUMP(GetQueueBenchmarkDumpFile());
+  }
 
   // Ensure stop status
   Stop();
