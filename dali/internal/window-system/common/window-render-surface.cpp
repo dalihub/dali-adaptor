@@ -1214,7 +1214,8 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<BoundsInteger>
     orientation = Min(totalAngle / 90, 3);
   }
 
-  if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
+  if(!GetPartialUpdateRequired() ||
+     Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
      IsFullSwapRequired())
   {
     InsertRects(mBufferDamagedRects, surfaceRect);
