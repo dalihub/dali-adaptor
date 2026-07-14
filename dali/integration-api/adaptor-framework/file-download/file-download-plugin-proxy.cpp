@@ -149,14 +149,14 @@ bool IsDownloadApiPrivilegeAllowed()
 
   if(DALI_UNLIKELY(ret != CYNARA_API_SUCCESS))
   {
-    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] cynara_initialize failed ret[%d], falling back to curl for download-api path\n", ret);
+    DALI_LOG_ERROR("[FileDownload][Proxy] cynara_initialize failed ret[%d], falling back to curl for download-api path\n", ret);
     return false;
   }
 
   ret = cynara_creds_self_get_client(CLIENT_METHOD_DEFAULT, &cynaraClient);
   if(DALI_UNLIKELY(ret != CYNARA_API_SUCCESS))
   {
-    DALI_LOG_RELEASE_INFO("[FileDownload][Proxy] cynara_creds_self_get_client failed ret[%d], falling back to curl for download-api path\n", ret);
+    DALI_LOG_ERROR("[FileDownload][Proxy] cynara_creds_self_get_client failed ret[%d], falling back to curl for download-api path\n", ret);
     cynara_finish(cynaraHandle);
     return false;
   }
