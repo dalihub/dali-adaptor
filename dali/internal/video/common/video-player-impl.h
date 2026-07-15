@@ -153,9 +153,9 @@ public:
   void Initialize(Dali::Actor actor, VideoSyncMode syncMode);
 
   /**
-   * @brief Initializes member data with an existing player handle and actor for synchronization.
+   * @brief Initializes member data with a video source descriptor and actor for synchronization.
    */
-  void Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode);
+  void Initialize(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, VideoSyncMode syncMode);
 
   /**
    * @brief Dali::VideoPlayer::Forward()
@@ -320,11 +320,11 @@ private:
   void*                    mHandle; ///< Handle for the loaded library
 
   typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)(Dali::Actor actor, Dali::VideoSyncMode syncMode);
-  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerByHandleFunction)(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, Dali::VideoSyncMode syncMode);
+  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerBySourceFunction)(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, Dali::VideoSyncMode syncMode);
   typedef void (*DestroyVideoPlayerFunction)(Dali::VideoPlayerPlugin* plugin);
 
   CreateVideoPlayerFunction                           mCreateVideoPlayerPtr;
-  CreateVideoPlayerByHandleFunction                   mCreateVideoPlayerByHandlePtr;
+  CreateVideoPlayerBySourceFunction                   mCreateVideoPlayerBySourcePtr;
   DestroyVideoPlayerFunction                          mDestroyVideoPlayerPtr;
 
   Dali::VideoPlayerPlugin::VideoPlayerSignalType      mFinishedSignal;
