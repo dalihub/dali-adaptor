@@ -244,6 +244,14 @@ void VectorAnimationRendererPluginProxy::AddPropertyValueCallback(const std::str
   }
 }
 
+void VectorAnimationRendererPluginProxy::RefreshDynamicProperty()
+{
+  if(mPlugin)
+  {
+    mPlugin->RefreshDynamicProperty();
+  }
+}
+
 void VectorAnimationRendererPluginProxy::KeepRasterizedBuffer()
 {
   if(mPlugin)
