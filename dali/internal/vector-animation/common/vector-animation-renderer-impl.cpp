@@ -131,6 +131,11 @@ void VectorAnimationRenderer::AddPropertyValueCallback(const std::string& keyPat
   mPlugin.AddPropertyValueCallback(keyPath, property, callback, id);
 }
 
+void VectorAnimationRenderer::RefreshDynamicProperty()
+{
+  mPlugin.RefreshDynamicProperty();
+}
+
 void VectorAnimationRenderer::KeepRasterizedBuffer()
 {
   mPlugin.KeepRasterizedBuffer();

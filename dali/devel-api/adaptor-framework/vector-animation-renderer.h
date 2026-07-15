@@ -231,6 +231,17 @@ public:
   void AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id);
 
   /**
+   * @brief Forces previously registered dynamic properties (see AddPropertyValueCallback())
+   * to be re-evaluated at the current frame on the next Render() call, without changing
+   * which frame is rendered.
+   *
+   * This is needed while the animation is paused or stopped: a plain Render() call for a
+   * frame number that hasn't changed can be treated as a no-op by the underlying engine, so
+   * a dynamic property callback's updated return value would otherwise never be picked up.
+   */
+  void RefreshDynamicProperty();
+
+  /**
    * @brief Keep the rasterized buffer to use the frame cache.
    *
    * By default, only as much as needed is kept in the rasterized buffer and not kept after use.
