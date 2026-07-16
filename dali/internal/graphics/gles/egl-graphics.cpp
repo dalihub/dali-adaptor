@@ -241,6 +241,8 @@ Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surface
   auto surfaceId         = ++mBaseSurfaceId;
   mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context};
 
+  DALI_LOG_RELEASE_INFO("EglGraphics::CreateSurface: SurfaceId(%u), active surface count(%zu)\n", surfaceId, mSurfaceMap.size());
+
   return surfaceId;
 }
 
@@ -258,6 +260,8 @@ void EglGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
   mEglImplementation->DestroyContext(search->second.context);
   search->second.windowBase->DestroyWindow();
   mSurfaceMap.erase(search);
+
+  DALI_LOG_RELEASE_INFO("EglGraphics::DestroySurface: SurfaceId(%u), active surface count(%zu)\n", surfaceId, mSurfaceMap.size());
 }
 
 bool EglGraphics::ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int height)
