@@ -78,13 +78,16 @@ public:
   static VideoPlayer New(Dali::Actor actor, VideoSyncMode syncMode);
 
   /**
-   * @brief Creates a new instance of a VideoPlayer wrapper using an existing player handle with actor for synchronization.
+   * @brief Creates a new instance of a VideoPlayer wrapper using a video source descriptor.
+   *
+   * The adaptor forwards the descriptor to the platform video plugin without
+   * interpreting provider-specific values such as providerId or nativeSession.
    *
    * @param[in] actor video view's actor instance for synchronization
-   * @param[in] playerHandle The externally created native player handle with type information
+   * @param[in] source The video source descriptor.
    * @param[in] syncMode The synchronization mode between the UI and VideoPlayer.
    */
-  static VideoPlayer New(Dali::Actor actor, Dali::VideoPlayerPlugin::PlayerHandle playerHandle, VideoSyncMode syncMode);
+  static VideoPlayer New(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, VideoSyncMode syncMode);
 
   /**
    * @brief Copy constructor.

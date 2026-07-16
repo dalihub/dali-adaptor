@@ -24,6 +24,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <cstdint>
 #include <string>
 
 namespace Dali
@@ -39,28 +40,58 @@ class VideoPlayerPlugin
 {
 public:
   /**
-   * @brief Enum for external player handle type
+   * @brief Ownership policy for a video source native session.
    *
-   * This enum identifies the type of player handle passed to VideoView.
-   * It is used when creating a VideoView with an externally managed player.
+   * This is used by source-based video creation. The adaptor transports the
+   * value to the platform video plugin and does not interpret it.
    */
-  enum class PlayerHandleType : int
+  enum class VideoSourceOwnership : uint32_t
   {
-    NONE     = 0, ///< No type specified
-    DEFAULT  = 1, ///< Default player
-    EXTERNAL = 2, ///< External player
+    EXTERNAL = 0, ///< The caller owns the native session.
+    SHARED   = 1, ///< The native session is shared or ref-counted.
+    TRANSFER = 2, ///< Ownership is transferred, if the provider supports it.
   };
 
   /**
-   * @brief Structure to pass player handle with type information
-   *
-   * This structure wraps a player handle together with its type information.
-   * It is used internally when creating a VideoView with an externally managed player.
+   * @brief Playback command policy for a video source.
    */
-  struct PlayerHandle
+  enum class VideoControlPolicy : uint32_t
   {
-    PlayerHandleType playerType; ///< Type of the player handle
-    Any              handle;     ///< Player handle
+    VIEW_CONTROLS_PLAYBACK = 0, ///< VideoView forwards playback commands.
+    DISPLAY_ONLY           = 1, ///< VideoView only attaches display/geometry.
+  };
+
+  /**
+   * @brief Capability flags for a video source.
+   */
+  struct VideoSourceCapabilities
+  {
+    enum Flag : uint32_t
+    {
+      SUPPORTS_UNDERLAY     = 1u << 0,
+      SUPPORTS_NATIVE_IMAGE = 1u << 1,
+      SUPPORTS_SEEK         = 1u << 2,
+      SUPPORTS_VOLUME       = 1u << 3,
+    };
+
+    uint32_t flags{0u}; ///< Bitwise OR of Flag values.
+  };
+
+  /**
+   * @brief Descriptor for source-based video player creation.
+   *
+   * The adaptor treats this as an opaque source description and forwards it to
+   * the video plugin. The concrete plugin decides how to interpret providerId
+   * and nativeSession.
+   */
+  struct VideoSourceDescriptor
+  {
+    uint32_t                version{1u};                                      ///< Descriptor version.
+    const char*             providerId{nullptr};                              ///< Provider id with static lifetime. Interpreted only by the video plugin.
+    Any                     nativeSession;                                    ///< Native player/session handle.
+    VideoSourceOwnership    ownership{VideoSourceOwnership::EXTERNAL};        ///< Native session ownership policy.
+    VideoControlPolicy      controlPolicy{VideoControlPolicy::VIEW_CONTROLS_PLAYBACK}; ///< Command forwarding policy.
+    VideoSourceCapabilities capabilities{};                                   ///< Source capabilities.
   };
 
   typedef Signal<void()> VideoPlayerSignalType;

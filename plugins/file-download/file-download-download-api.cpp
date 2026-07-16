@@ -221,16 +221,21 @@ bool DownloadApiFileDownloader::DownloadRemoteFileIntoMemory(
   // before destroying the provider handle and returning.
   SyncDownloadContext context;
 
+  DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] start url[%s]\n", url.c_str());
+
   int downloadId = INVALID_DOWNLOAD_ID;
   int ret        = download_create(&downloadId);
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][sync] download_create() failed[0x%x] url[%s]\n", static_cast<unsigned int>(ret), url.c_str());
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] url[%s] error[%d]\n", url.c_str(), ret);
     return false;
   }
 
-  if(DALI_UNLIKELY(download_set_url(downloadId, url.c_str()) != DOWNLOAD_ERROR_NONE))
+  ret = download_set_url(downloadId, url.c_str());
+  if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url.c_str(), ret);
     download_destroy(downloadId);
     return false;
   }
@@ -241,8 +246,10 @@ bool DownloadApiFileDownloader::DownloadRemoteFileIntoMemory(
     DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] download_set_cache(true) failed[0x%x] id[%d] url[%s], continue\n", static_cast<unsigned int>(ret), downloadId, url.c_str());
   }
 
-  if(DALI_UNLIKELY(download_set_state_changed_cb(downloadId, OnSyncStateChanged, &context) != DOWNLOAD_ERROR_NONE))
+  ret = download_set_state_changed_cb(downloadId, OnSyncStateChanged, &context);
+  if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url.c_str(), ret);
     download_destroy(downloadId);
     return false;
   }
@@ -251,6 +258,7 @@ bool DownloadApiFileDownloader::DownloadRemoteFileIntoMemory(
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][sync] download_start() failed[0x%x] url[%s]\n", static_cast<unsigned int>(ret), url.c_str());
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url.c_str(), ret);
     DestroyDownloadWithStateCallback(downloadId);
     return false;
   }
@@ -263,6 +271,7 @@ bool DownloadApiFileDownloader::DownloadRemoteFileIntoMemory(
     download_error_e error = DOWNLOAD_ERROR_NONE;
     download_get_error(downloadId, &error);
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][sync] FAILED url[%s] state[%d] error[%d]\n", url.c_str(), static_cast<int>(context.state), static_cast<int>(error));
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] id[%d] url[%s] state[%d] error[%d]\n", downloadId, url.c_str(), static_cast<int>(context.state), static_cast<int>(error));
     download_destroy(downloadId);
     return false;
   }
@@ -272,14 +281,16 @@ bool DownloadApiFileDownloader::DownloadRemoteFileIntoMemory(
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE || !downloadedFilePath))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][sync] download_get_downloaded_file_path() failed: %d\n", ret);
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url.c_str(), ret);
     download_destroy(downloadId);
     return false;
   }
 
   const bool result = ReadFileIntoBuffer(downloadedFilePath, dataBuffer, dataSize, maximumAllowedSizeBytes);
   free(downloadedFilePath);
-  download_destroy(downloadId);
 
+  DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][sync] finish result[%s] id[%d] url[%s] size[%zu]\n", result ? "true" : "false", downloadId, url.c_str(), dataSize);
+  download_destroy(downloadId);
   DALI_LOG_INFO(gDownloadApiLogFilter, Debug::Verbose, "[FileDownload][DownloadAPI][sync] %s url[%s] size[%zu]\n", result ? "done" : "FAILED", url.c_str(), dataSize);
   return result;
 }
@@ -297,12 +308,14 @@ DownloadApiFileDownloader::DownloadId DownloadApiFileDownloader::StartAsyncDownl
   }
 
   DALI_LOG_INFO(gDownloadApiLogFilter, Debug::Verbose, "[FileDownload][DownloadAPI][async] start url[%s]\n", url);
+  DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] start url[%s]\n", url);
 
   int rawDownloadId = INVALID_DOWNLOAD_ID;
   int ret           = download_create(&rawDownloadId);
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][async] download_create() FAILED ret[0x%x] url[%s]\n", static_cast<unsigned int>(ret), url);
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] finish result[false] url[%s] error[%d]\n", url, ret);
     return INVALID_DOWNLOAD_ID;
   }
   const DownloadId downloadId = static_cast<DownloadId>(rawDownloadId);
@@ -311,6 +324,7 @@ DownloadApiFileDownloader::DownloadId DownloadApiFileDownloader::StartAsyncDownl
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][async] download_set_url() FAILED ret[0x%x] id[%d]\n", static_cast<unsigned int>(ret), downloadId);
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url, ret);
     download_destroy(downloadId);
     return INVALID_DOWNLOAD_ID;
   }
@@ -332,6 +346,7 @@ DownloadApiFileDownloader::DownloadId DownloadApiFileDownloader::StartAsyncDownl
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][async] download_set_state_changed_cb() FAILED ret[0x%x] id[%d]\n", static_cast<unsigned int>(ret), downloadId);
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url, ret);
     {
       std::scoped_lock lock(mMutex);
       mActiveDownloads.erase(downloadId);
@@ -344,6 +359,7 @@ DownloadApiFileDownloader::DownloadId DownloadApiFileDownloader::StartAsyncDownl
   if(DALI_UNLIKELY(ret != DOWNLOAD_ERROR_NONE))
   {
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][async] download_start() FAILED ret[0x%x] id[%d] url[%s]\n", static_cast<unsigned int>(ret), downloadId, url);
+    DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] finish result[false] id[%d] url[%s] error[%d]\n", downloadId, url, ret);
     {
       std::scoped_lock lock(mMutex);
       mActiveDownloads.erase(downloadId);
@@ -438,6 +454,8 @@ void DownloadApiFileDownloader::OnStateChanged(int id, download_state_e state, v
     download_get_error(id, &error);
     DALI_LOG_ERROR("[FileDownload][DownloadAPI][async] FAILED state[%d] error[%d] id[%d]\n", static_cast<int>(state), static_cast<int>(error), id);
   }
+
+  DALI_LOG_RELEASE_INFO("[FileDownload][DownloadAPI][async] finish result[%s] state[%d] id[%d] filePath[%s]\n", success ? "true" : "false", static_cast<int>(state), id, filePath.c_str());
 
   DestroyDownloadWithStateCallback(id);
 
