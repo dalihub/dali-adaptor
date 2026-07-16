@@ -3773,6 +3773,12 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     return;
   }
 
+  if(!mVisible)
+  {
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::ImeWindowReadyToRender, window is hidden, skip input panel ready\n");
+    return;
+  }
+
 #ifdef OVER_TIZEN_VERSION_7
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "zwp_input_panel_surface_v1_set_ready");
   zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
