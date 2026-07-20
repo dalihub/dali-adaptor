@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -381,18 +381,22 @@ bool HandleBitsPerPixel(
   {
     case 32:
     {
-      const std::uint8_t* p = inputBufferPtr + position;
-      pix                   = outputBufferPtr + ((height - 1) * width);
-
+      // Read one bounds-checked scanline at a time (stride == width * 4 for 32bpp), matching the
+      // other bit-depth paths. Reading directly from inputBufferPtr without read_mem() would allow
+      // an out-of-bounds read when the file is smaller than the attacker-controlled width * height.
       for(unsigned int i = 0; i < height; i++)
       {
+        pix = outputBufferPtr + ((height - 1 - i) * width);
+        if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, stride)))
+        {
+          return false;
+        }
+        const std::uint8_t* p = lineBufferPtr;
         for(unsigned int j = 0; j < width; j++)
         {
           *pix++ = ARGB_JOIN(p[3], p[0], p[1], p[2]);
           p += 4;
         }
-        // Move the output up 1 line (we subtract 2 lines because we moved forward one line while copying).
-        pix -= (width * 2);
       }
       break;
     }
@@ -696,6 +700,22 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // colors important
+  }
+
+  // The directory entry limits w/h to a single byte each, but the embedded BMP header above can
+  // override them with attacker-controlled 32-bit values (lines reading width/height dwords).
+  // Reject dimensions that would overflow the 32-bit stride or surface-size arithmetic below,
+  // before allocating the surface or deriving row pointers from them.
+  {
+    const std::uint64_t rowStride64   = ((static_cast<std::uint64_t>(bitcount) * w) + 31u) / 32u * 4u;
+    const std::uint64_t surfacePixels = static_cast<std::uint64_t>(w) * h;
+    if(DALI_UNLIKELY(w == 0u || h == 0u ||
+                     rowStride64 > 0xFFFFFFFFu ||         // stride is stored in an unsigned int
+                     surfacePixels > (0xFFFFFFFFu / 4u))) // surface holds w*h uint32_t, so w*h*4 must fit
+    {
+      DALI_LOG_ERROR("Invalid ICO dimensions (%u x %u, bitcount %u)\n", w, h, bitcount);
+      return false;
+    }
   }
 
   Dali::Vector<unsigned int> pal;
