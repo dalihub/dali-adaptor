@@ -16,6 +16,7 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/mouse-in-out-event.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-definitions.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/video-source-descriptor.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
 )
 
@@ -52,6 +53,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/native-image.h
   ${adaptor_public_api_dir}/adaptor-framework/ui-context.h
   ${adaptor_public_api_dir}/adaptor-framework/mouse-in-out-event.h
+  ${adaptor_public_api_dir}/adaptor-framework/video-source-descriptor.h
   ${adaptor_public_api_dir}/adaptor-framework/window.h
   ${adaptor_public_api_dir}/adaptor-framework/window-data.h
   ${adaptor_public_api_dir}/adaptor-framework/window-definitions.h
