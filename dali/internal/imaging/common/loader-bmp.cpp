@@ -1174,6 +1174,11 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       {
         customizedFormat = BMP_RLE8;
       }
+      else
+      {
+        DALI_LOG_ERROR("RLE8 compression requires 8 bits per pixel, but %d given\n", infoHeader.bitsPerPixel);
+        return false;
+      }
       break;
     }
     case 2: // RLE4
@@ -1181,6 +1186,11 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       if(infoHeader.bitsPerPixel == 4)
       {
         customizedFormat = BMP_RLE4;
+      }
+      else
+      {
+        DALI_LOG_ERROR("RLE4 compression requires 4 bits per pixel, but %d given\n", infoHeader.bitsPerPixel);
+        return false;
       }
       break;
     }
@@ -1224,6 +1234,11 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
         {
           customizedFormat = BMP_BITFIELDS32;
         }
+      }
+      else
+      {
+        DALI_LOG_ERROR("BITFIELDS compression requires 16 or 32 bits per pixel, but %d given\n", infoHeader.bitsPerPixel);
+        return false;
       }
       break;
     }
@@ -1309,8 +1324,34 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     }
   }
 
+  // Validate the resolved dimensions before allocation. PixelBuffer::New computes its
+  // buffer size as a 32bit (width * height * bytesPerPixel); crafted headers can overflow
+  // that product and wrap it to a smaller value (or zero), yielding a too-small or NULL
+  // buffer that the decoders would then write past. Reject such headers up front.
+  if(DALI_UNLIKELY(pixelBufferW <= 0 || pixelBufferH <= 0))
+  {
+    DALI_LOG_ERROR("Invalid BMP dimensions (%d x %d)\n", pixelBufferW, pixelBufferH);
+    return false;
+  }
+  const uint64_t requiredBufferSize = static_cast<uint64_t>(pixelBufferW) *
+                                      static_cast<uint64_t>(pixelBufferH) *
+                                      static_cast<uint64_t>(Dali::Pixel::GetBytesPerPixel(newPixelFormat));
+  if(DALI_UNLIKELY(requiredBufferSize > 0xFFFFFFFFu))
+  {
+    DALI_LOG_ERROR("BMP dimensions too large (%d x %d)\n", pixelBufferW, pixelBufferH);
+    return false;
+  }
+
   bitmap      = Dali::Devel::PixelBuffer::New(pixelBufferW, pixelBufferH, newPixelFormat);
   auto pixels = bitmap.GetBuffer();
+
+  // Guard against a failed allocation (e.g. malloc returning NULL for a huge-but-valid size).
+  // The specialized Decode* helpers already null-check, but the inline default path below does not.
+  if(DALI_UNLIKELY(pixels == nullptr))
+  {
+    DALI_LOG_ERROR("Failed to allocate PixelBuffer for BMP (%d x %d)\n", pixelBufferW, pixelBufferH);
+    return false;
+  }
 
   // Read the raw bitmap data
   decltype(pixels) pixelsIterator = nullptr;
@@ -1376,6 +1417,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       }
       else
       {
+        decodeResult = true;
         for(unsigned int yPos = 0; yPos < height; yPos++)
         {
           if(topDown)
@@ -1393,6 +1435,9 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
             DALI_PRINT_SYSTEM_ERROR_LOG();
+            // A short/partial read leaves the remaining scanlines uninitialised; treat it as a
+            // decode failure instead of handing a bogus bitmap to the downstream image operations.
+            decodeResult = false;
             break;
           }
 
@@ -1432,7 +1477,6 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
             }
           }
         }
-        decodeResult = true;
       }
       break;
     }
