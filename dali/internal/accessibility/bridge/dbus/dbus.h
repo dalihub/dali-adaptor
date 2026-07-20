@@ -1541,9 +1541,13 @@ struct signature<std::vector<A>> : signature_helper<signature<std::vector<A>>>
     auto s = DBUS_W->dbus_message_iter_get_and_next_by_type_impl(iter, 'a');
     if(!s) return false;
     v.clear();
-    A a;
-    while(signature<A>::get(s, a))
+    while(true)
+    {
+      A a;
+      if(!signature<A>::get(s, a))
+        break;
       v.push_back(std::move(a));
+    }
 
     return true;
   }
