@@ -23,10 +23,14 @@
 // CLASS HEADER
 #include <dali-test-suite-utils.h>
 #include <dali.h>
+#include <dali/devel-api/adaptor-framework/key-devel.h>
+#include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
 #include <stdlib.h>
 #include <iostream>
+#include <string>
+#include <vector>
 
 using namespace Dali;
 
@@ -127,5 +131,58 @@ int UtcDaliKeyIsKeyNegative(void)
     tet_printf("Checking %s", KeyLookupTable[i].keyName);
     DALI_TEST_CHECK(IsKey(GenerateKeyPress(KeyLookupTable[i].keyName), KeyLookupTable[(i + 1) % KEY_LOOKUP_COUNT].daliKeyCode) == false);
   }
+  END_TEST;
+}
+
+int UtcDaliKeySetKeyExtensionLookupTable(void)
+{
+  TestApplication application;
+
+  const char* keyNameA = "XF86ExtensionTestKeyA";
+  const char* keyNameB = "XF86ExtensionTestKeyB";
+  const int   codeA    = 2001;
+  const int   codeB    = 2002;
+
+  // Before registration, the extension keys are unknown.
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameA), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameB), -1, TEST_LOCATION);
+
+  // Register an extension table. The source strings and array are deliberately
+  // scoped so they are destroyed before we query, proving the data is deep-copied.
+  {
+    std::vector<std::string> names = {keyNameA, keyNameB};
+
+    Dali::KeyLookupEntry table[] =
+      {
+        {names[0].c_str(), codeA, false},
+        {names[1].c_str(), codeB, true},
+      };
+
+    DevelKey::SetKeyExtensionLookupTable(table, 2u);
+  }
+
+  // After registration, the extension keys resolve to the custom codes (name -> code).
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameA), codeA, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameB), codeB, TEST_LOCATION);
+
+  // IsKey() goes through the same extension lookup.
+  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameA), static_cast<Dali::KEY>(codeA)));
+  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameB), static_cast<Dali::KEY>(codeB)));
+
+  // A key not present in either the base or extension table is still unknown.
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionTestKeyMissing"), -1, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliKeySetKeyExtensionLookupTableNull(void)
+{
+  TestApplication application;
+
+  // Passing a null table with a non-zero count must not crash; nothing is registered.
+  DevelKey::SetKeyExtensionLookupTable(NULL, 5u);
+
+  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionTestKeyA"), -1, TEST_LOCATION);
+
   END_TEST;
 }

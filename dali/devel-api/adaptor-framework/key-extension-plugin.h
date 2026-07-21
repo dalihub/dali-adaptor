@@ -21,6 +21,9 @@
 // EXTERNAL INCLUDES
 #include <cstdlib>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
+
 namespace Dali
 {
 /**
@@ -31,12 +34,12 @@ namespace Dali
 class KeyExtensionPlugin
 {
 public:
-  struct KeyLookup
-  {
-    const char* keyName;      ///< XF86 key name
-    const int   daliKeyCode;  ///< Dali key code
-    const bool  deviceButton; ///< Whether the key is from a button on the device
-  };
+  /**
+   * @brief The key lookup entry type.
+   *
+   * Kept as a member alias for source compatibility; the canonical definition is Dali::KeyLookupEntry.
+   */
+  using KeyLookup = Dali::KeyLookupEntry;
 
   /**
    * @brief Constructor.
