@@ -90,11 +90,6 @@ public:
   void FlushUpdateMessages();
 
   /**
-   * @copydoc Dali::UiContext::SetApplicationLocale()
-   */
-  void SetApplicationLocale(const std::string& locale);
-
-  /**
    * @copydoc Dali::UiContext::AddFrameCallback()
    */
   void AddFrameCallback(FrameCallbackInterface& frameCallback, Dali::Actor rootActor);

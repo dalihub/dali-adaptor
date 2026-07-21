@@ -102,11 +102,6 @@ void UiContext::FlushUpdateMessages()
   mAdaptor->FlushUpdateMessages();
 }
 
-void UiContext::SetApplicationLocale(const std::string& locale)
-{
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).SetApplicationLocale(locale);
-}
-
 void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Dali::Actor rootActor)
 {
   Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetCore().AddFrameCallback(frameCallback, rootActor);

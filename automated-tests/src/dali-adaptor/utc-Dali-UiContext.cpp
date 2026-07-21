@@ -170,19 +170,3 @@ int UtcDaliUiContextFlushUpdateMessagesN(void)
   END_TEST;
 }
 
-int UtcDaliUiContextSetApplicationLocaleN(void)
-{
-  UiContext uiContext;
-
-  try
-  {
-    uiContext.SetApplicationLocale("en_US");
-    DALI_TEST_CHECK(false); // Should not get here
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(true);
-  }
-
-  END_TEST;
-}

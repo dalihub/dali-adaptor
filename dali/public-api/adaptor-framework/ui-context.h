@@ -126,14 +126,6 @@ public:
   void FlushUpdateMessages();
 
   /**
-   * @brief Set the application's language independently of the system language.
-   *
-   * @param[in] locale Specifies the application's language and region in BCP 47 format (e.g., "en_US", "ko_KR")
-   * @SINCE_2_5.10
-   */
-  void SetApplicationLocale(const Dali::String& locale);
-
-  /**
    * @brief The FrameCallbackInterface implementation added gets called on every frame from the update-thread.
    *
    * @param[in] frameCallback An implementation of the FrameCallbackInterface
