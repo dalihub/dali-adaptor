@@ -9,7 +9,7 @@ SET( SOURCES
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_windows_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
-        ${adaptor_framework_generic_src_files}
+        ${adaptor_framework_windows_src_files}
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
