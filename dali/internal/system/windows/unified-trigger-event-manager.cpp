@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,38 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/unified-trigger-event-manager.h>
 
-// EXTERNAL INCLUDE
-#include <cstdlib>
-
-#if defined(_WIN32)
-#ifdef GetEnvironmentVariable
-#undef GetEnvironmentVariable
-#endif
-#endif
+// INTERNAL INCLUDES
+#include <dali/internal/system/windows/unified-trigger-event-manager-impl-win.h>
 
 namespace Dali
 {
-namespace EnvironmentVariable
+UnifiedTriggerEventManager::UnifiedTriggerEventManager(Internal::Adaptor::UnifiedTriggerEventManager* internal)
+: BaseHandle(internal)
 {
-const char* GetEnvironmentVariable(const char* variable)
-{
-  return std::getenv(variable);
 }
-
-bool SetEnvironmentVariable(const char* variable, const char* value)
-{
-#if defined(_WIN32)
-  return _putenv_s(variable, value) == 0;
-#else
-  return setenv(variable, value, 1) == 0;
-#endif
-}
-
-} // namespace EnvironmentVariable
-
 } // namespace Dali

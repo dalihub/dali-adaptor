@@ -16,6 +16,7 @@
  */
 
 #include <dali/internal/trace/common/trace-factory.h>
+#include <dali/internal/adaptor/common/weak-symbol.h>
 
 namespace Dali
 {
@@ -28,7 +29,7 @@ namespace TraceManagerFactory
 // Factory function creating new TraceFactory
 // Symbol exists but may be overriden during linking
 
-__attribute__((weak))
+DALI_ADAPTOR_WEAK_SYMBOL
 TraceManagerUPtr
 CreateTraceFactory(PerformanceInterface* performanceInterface)
 {

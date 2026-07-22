@@ -18,25 +18,61 @@
 // CLASS HEADER
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
+// EXTERNAL INCLUDES
+#include <windows.h>
+#include <processthreadsapi.h>
+
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+const int32_t gMainThreadId = static_cast<int32_t>(::GetCurrentThreadId());
+} // unnamed namespace
+
 namespace ThreadSettings
 {
+void SetThreadName(const std::string& threadName)
+{
+  if(threadName.empty())
+  {
+    return;
+  }
+
+  int characterCount = MultiByteToWideChar(CP_UTF8, 0, threadName.c_str(), -1, nullptr, 0);
+  if(characterCount <= 0)
+  {
+    return;
+  }
+
+  std::wstring wideThreadName(static_cast<size_t>(characterCount), L'\0');
+  if(MultiByteToWideChar(CP_UTF8, 0, threadName.c_str(), -1, wideThreadName.data(), characterCount) <= 0)
+  {
+    return;
+  }
+
+  using SetThreadDescriptionFunction = HRESULT(WINAPI*)(HANDLE, PCWSTR);
+  HMODULE kernel32                    = GetModuleHandleW(L"Kernel32.dll");
+  auto    setThreadDescription        = kernel32 ? reinterpret_cast<SetThreadDescriptionFunction>(GetProcAddress(kernel32, "SetThreadDescription")) : nullptr;
+  if(setThreadDescription)
+  {
+    setThreadDescription(GetCurrentThread(), wideThreadName.c_str());
+  }
+}
+
 int32_t GetThreadId()
 {
-  // TODO: Need to implement
-  return 0;
+  return static_cast<int32_t>(GetCurrentThreadId());
 }
 
 int32_t GetMainThreadId()
 {
-  // TODO: Need to implement
-  return 0;
+  return gMainThreadId;
 }
+
 } // namespace ThreadSettings
 } // namespace Adaptor
 } // namespace Internal

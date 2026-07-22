@@ -16,12 +16,13 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/imaging/common/native-image-factory.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
 {
   return GraphicsLibrary::GetNativeImageFactory();
 }

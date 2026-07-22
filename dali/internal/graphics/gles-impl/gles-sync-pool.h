@@ -58,7 +58,7 @@ public:
   enum class SyncContext
   {
     EGL, ///< Use EGL sync when syncing between multiple contexts
-    GL   ///< Use GL sync when syncing in the same context
+    GL   ///< Use GL sync between contexts that share GL objects
   };
 
   /**

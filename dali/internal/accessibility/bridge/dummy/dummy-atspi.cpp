@@ -16,6 +16,14 @@
  */
 
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/action.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/devel-api/atspi-interfaces/hyperlink.h>
+#include <dali/devel-api/atspi-interfaces/editable-text.h>
+#include <dali/devel-api/atspi-interfaces/hypertext.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
@@ -23,6 +31,21 @@
 
 namespace Dali::Accessibility
 {
+
+// ============================================================================
+// ATSPI interface class destructors (DALI_ADAPTOR_API forces non-inline)
+// ============================================================================
+Action::~Action() {}
+Value::~Value() {}
+Hyperlink::~Hyperlink() {}
+EditableText::~EditableText() {}
+Hypertext::~Hypertext() {}
+Text::~Text() {}
+Selection::~Selection() {}
+
+// ============================================================================
+// CollectionImpl
+// ============================================================================
 
 CollectionImpl::CollectionImpl(Dali::WeakPtr<Accessible> accessible)
 {
@@ -37,6 +60,10 @@ std::vector<Accessible*> CollectionImpl::GetMatchesInMatches(MatchRule firstRule
 {
   return {};
 }
+
+// ============================================================================
+// Accessible class - static and instance methods
+// ============================================================================
 
 std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
 {
@@ -82,7 +109,31 @@ Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Dali::
   return nullptr;
 }
 
-} //namespace Dali::Accessibility
+// ============================================================================
+// ProxyAccessible class - constructor and setters (moved out-of-line for DLL export)
+// ============================================================================
+
+ProxyAccessible::ProxyAccessible()
+: mAddress{},
+  mParent{nullptr}
+{
+}
+
+void ProxyAccessible::SetAddress(Dali::Devel::Accessibility::Address address)
+{
+  mAddress = std::move(address);
+}
+
+void ProxyAccessible::SetParent(Accessible* parent)
+{
+  mParent = parent;
+}
+
+} // namespace Dali::Accessibility
+
+// ============================================================================
+// Bridge stubs
+// ============================================================================
 
 Dali::SharedPtr<Dali::Integration::Accessibility::Bridge> Dali::Integration::Accessibility::Bridge::GetCurrentBridge()
 {

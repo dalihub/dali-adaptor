@@ -127,6 +127,15 @@ public:
   void Initialize(EglImplementation* impl);
 
   /**
+   * Return whether texture dependencies should use shared GLES sync objects
+   * instead of EGL fence sync objects for this backend.
+   */
+  bool UseGlSyncForTextureDependencies() const
+  {
+    return mUseGlSyncForTextureDependencies;
+  }
+
+  /**
    * Create a sync object with the specified type that can be polled.
    *
    * @param[in] type The type of sync object to create (FENCE_SYNC or NATIVE_FENCE_SYNC)
@@ -158,6 +167,8 @@ private:
 
   struct Impl;
   std::unique_ptr<Impl> mImpl;
+
+  bool mUseGlSyncForTextureDependencies{false};
 };
 
 /**

@@ -177,6 +177,8 @@ SET( adaptor_system_windows_src_files
     ${adaptor_system_dir}/windows/timer-impl-win.cpp
     ${adaptor_system_dir}/windows/trigger-event-win.cpp
     ${adaptor_system_dir}/windows/trigger-event-factory-win.cpp
+    ${adaptor_system_dir}/windows/unified-trigger-event-manager.cpp
+    ${adaptor_system_dir}/windows/unified-trigger-event-manager-impl-win.cpp
     ${adaptor_system_dir}/windows/logging-win.cpp
     ${adaptor_system_dir}/windows/widget-application-impl-win.cpp
     ${adaptor_system_dir}/windows/widget-controller-win.cpp

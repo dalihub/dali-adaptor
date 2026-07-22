@@ -33,6 +33,11 @@ class DALI_ADAPTOR_API Action : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~Action();
+
+  /**
    * @brief Gets name of action with given index.
    *
    * @param[in] index The index of action

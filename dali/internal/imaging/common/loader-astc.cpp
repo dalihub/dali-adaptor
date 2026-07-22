@@ -53,6 +53,7 @@ const Byte FileIdentifier[] = {
  * so we can be sure of reading the whole header from file in one call to fread().
  * Note: members to not conform to coding standards in order to be consistent with ASTC spec.
  */
+#pragma pack(push, 1)
 struct AstcFileHeader
 {
   unsigned char magic[4];
@@ -62,7 +63,8 @@ struct AstcFileHeader
   unsigned char xsize[3];
   unsigned char ysize[3];
   unsigned char zsize[3];
-} __attribute__((__packed__));
+};
+#pragma pack(pop)
 
 using namespace Pixel;
 

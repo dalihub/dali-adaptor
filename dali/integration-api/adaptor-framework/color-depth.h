@@ -1,3 +1,6 @@
+#ifndef DALI_INTEGRATION_COLOR_DEPTH_H
+#define DALI_INTEGRATION_COLOR_DEPTH_H
+
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
@@ -12,21 +15,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/weak-symbol.h>
-#include <dali/internal/graphics/common/graphics-library.h>
-
-namespace Dali::Internal::Adaptor
+namespace Dali
 {
-DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
+/** Bit depth used when choosing a native graphics surface. */
+enum ColorDepth
 {
-  return GraphicsLibrary::CastToNativeGraphicsType(display);
-}
+  COLOR_DEPTH_24 = 24,
+  COLOR_DEPTH_32 = 32
+};
+} // namespace Dali
 
-} // namespace Dali::Internal::Adaptor
+#endif // DALI_INTEGRATION_COLOR_DEPTH_H

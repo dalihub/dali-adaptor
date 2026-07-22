@@ -47,6 +47,7 @@ enum BmpFormat
   BMP_NOTEXIST
 };
 
+#pragma pack(push, 1)
 struct BmpFileHeader
 {
   unsigned short signature;    // Bitmap file signature
@@ -54,8 +55,10 @@ struct BmpFileHeader
   unsigned short reserved1;    // Reserved bits
   unsigned short reserved2;    // Reserved bits
   unsigned int   offset;       // Offset from BMP file header to BMP bits
-} __attribute__((__packed__)); // Stops the structure from being aligned to every 4 bytes
+};
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct BmpInfoHeader
 {
   unsigned int   infoHeaderSize;  // Specifies the number of bytes required by the info header
@@ -69,7 +72,8 @@ struct BmpInfoHeader
   unsigned int   yPixelsPerMeter; // The number of pixels per meter in y axis
   unsigned int   numberOfColors;  // The number of colors in the color table
   unsigned int   importantColors; // The important color count
-} __attribute__((__packed__));    // Stops the structure from being aligned to every 4 bytes
+};
+#pragma pack(pop)
 
 /**
  * Template function to read from the file directly into our structure.

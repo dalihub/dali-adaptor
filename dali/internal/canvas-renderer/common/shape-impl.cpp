@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <vector>
 
 namespace Dali
 {
@@ -213,13 +214,13 @@ bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
   }
 
 #ifdef THORVG_VERSION_1
-  tvg::PathCommand tvgPathCommands[pathCommand.mCommandCount];
+  std::vector<tvg::PathCommand> tvgPathCommands(pathCommand.mCommandCount);
   for(uint32_t i = 0; i < pathCommand.mCommandCount; i++)
   {
     tvgPathCommands[i] = static_cast<tvg::PathCommand>(static_cast<uint8_t>(pathCommand.mCommands[i]));
   }
 
-  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands, pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands.data(), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
 #else
   if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
 #endif

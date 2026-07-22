@@ -600,6 +600,11 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 
 int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
+  if(!mPartialUpdateRequired)
+  {
+    return 0;
+  }
+
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglQuerySurface");
 
   int age = 0;

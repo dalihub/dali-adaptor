@@ -31,6 +31,15 @@
  * @{
  */
 
+#if defined(_WIN32)
+#ifdef IN
+#undef IN
+#endif
+#ifdef OUT
+#undef OUT
+#endif
+#endif
+
 namespace Dali
 {
 /**

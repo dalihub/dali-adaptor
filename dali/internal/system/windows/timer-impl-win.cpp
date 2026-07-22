@@ -44,13 +44,23 @@ struct TimerWin::Impl
 {
   Impl(uint32_t milliSec)
   : mId(-1),
-    mInterval(milliSec)
+    mInterval(milliSec),
+    mStartTimestamp(0u),
+    mPauseTimestamp(0u),
+    mRunning(false),
+    mPaused(false),
+    mRestartAfterExpiry(false)
   {
   }
 
   intptr_t mId;
 
   uint32_t mInterval;
+  uint32_t mStartTimestamp;
+  uint32_t mPauseTimestamp;
+  bool     mRunning;
+  bool     mPaused;
+  bool     mRestartAfterExpiry;
 };
 
 TimerWinPtr TimerWin::New(uint32_t milliSec)
@@ -75,9 +85,17 @@ TimerWin::~TimerWin()
 
 void TimerWin::Start()
 {
-  if(0 > mImpl->mId)
+  if(mImpl->mRunning)
   {
-    mImpl->mId = WindowsPlatform::SetTimer(mImpl->mInterval, TimerSourceFunc, this);
+    Stop();
+  }
+
+  mImpl->mId = WindowsPlatform::SetTimer(mImpl->mInterval, TimerSourceFunc, this);
+  if(mImpl->mId >= 0)
+  {
+    mImpl->mRunning        = true;
+    mImpl->mPaused         = false;
+    mImpl->mStartTimestamp = WindowsPlatform::GetCurrentMilliSeconds();
   }
 }
 
@@ -86,31 +104,53 @@ void TimerWin::Stop()
   if(0 <= mImpl->mId)
   {
     WindowsPlatform::KillTimer(mImpl->mId);
-    mImpl->mId = -1;
   }
+  ResetTimerData();
 }
 
 void TimerWin::Pause()
 {
+  if(mImpl->mRunning && !mImpl->mPaused)
+  {
+    mImpl->mPauseTimestamp = WindowsPlatform::GetCurrentMilliSeconds();
+    if(mImpl->mId >= 0)
+    {
+      WindowsPlatform::KillTimer(mImpl->mId);
+      mImpl->mId = -1;
+    }
+    mImpl->mPaused = true;
+  }
 }
 
 void TimerWin::Resume()
 {
+  if(mImpl->mRunning && mImpl->mPaused)
+  {
+    const uint32_t elapsed   = mImpl->mPauseTimestamp - mImpl->mStartTimestamp;
+    const uint32_t remaining = elapsed < mImpl->mInterval ? mImpl->mInterval - elapsed : 1u;
+
+    mImpl->mId = WindowsPlatform::SetTimer(remaining, TimerSourceFunc, this);
+    if(mImpl->mId >= 0)
+    {
+      mImpl->mStartTimestamp     = WindowsPlatform::GetCurrentMilliSeconds() - elapsed;
+      mImpl->mPauseTimestamp     = 0u;
+      mImpl->mPaused             = false;
+      mImpl->mRestartAfterExpiry = remaining < mImpl->mInterval;
+    }
+    else
+    {
+      ResetTimerData();
+    }
+  }
 }
 
 void TimerWin::SetInterval(uint32_t interval, bool restart)
 {
-  if(true == restart)
+  Stop();
+  mImpl->mInterval = interval;
+  if(restart)
   {
-    // stop existing timer
-    Stop();
-    mImpl->mInterval = interval;
-    // start new tick
     Start();
-  }
-  else
-  {
-    mImpl->mInterval = interval;
   }
 }
 
@@ -147,12 +187,58 @@ bool TimerWin::Tick()
     retVal = true;
   }
 
+  if(mImpl->mRestartAfterExpiry && mImpl->mRunning)
+  {
+    if(mImpl->mPaused)
+    {
+      // The resumed remainder has expired and the callback paused this timer.
+      // The next Resume() starts a fresh full interval instead of scheduling
+      // another near-immediate remainder.
+      mImpl->mRestartAfterExpiry = false;
+      mImpl->mStartTimestamp     = mImpl->mPauseTimestamp;
+      return retVal;
+    }
+
+    // Resume first waits only for the remainder of the interrupted period.
+    // Subsequent ticks must use the full configured interval again.
+    mImpl->mRestartAfterExpiry = false;
+    if(mImpl->mId >= 0)
+    {
+      WindowsPlatform::KillTimer(mImpl->mId);
+      mImpl->mId = -1;
+    }
+
+    if(retVal)
+    {
+      mImpl->mId = WindowsPlatform::SetTimer(mImpl->mInterval, TimerSourceFunc, this);
+      if(mImpl->mId < 0)
+      {
+        ResetTimerData();
+        retVal = false;
+      }
+    }
+  }
+
+  if(retVal && mImpl->mRunning && !mImpl->mPaused)
+  {
+    mImpl->mStartTimestamp = WindowsPlatform::GetCurrentMilliSeconds();
+  }
   return retVal;
 }
 
 bool TimerWin::IsRunning() const
 {
-  return 0 <= mImpl->mId;
+  return mImpl->mRunning;
+}
+
+void TimerWin::ResetTimerData()
+{
+  mImpl->mId                 = -1;
+  mImpl->mStartTimestamp     = 0u;
+  mImpl->mPauseTimestamp     = 0u;
+  mImpl->mRunning            = false;
+  mImpl->mPaused             = false;
+  mImpl->mRestartAfterExpiry = false;
 }
 
 } // namespace Adaptor

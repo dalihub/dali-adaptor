@@ -32,6 +32,11 @@ class DALI_ADAPTOR_API Selection : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor.
+   */
+  virtual ~Selection();
+
+  /**
    * @brief Gets the number of selected children.
    *
    * @return The number of selected children (zero if none)

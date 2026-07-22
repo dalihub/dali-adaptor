@@ -38,7 +38,7 @@
 #define DALI_ADAPTOR_API __attribute__((visibility("default")))
 #endif
 #else
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef BUILDING_DALI_ADAPTOR
 /** Visibility attribute to hide declarations */
 #define DALI_ADAPTOR_API __declspec(dllexport)

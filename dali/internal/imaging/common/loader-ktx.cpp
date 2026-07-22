@@ -160,6 +160,7 @@ const unsigned KtxInternalFormats[] =
 
     KTX_SENTINEL};
 
+#pragma pack(push, 1)
 struct KtxFileHeader
 {
   Byte     identifier[12];
@@ -176,7 +177,8 @@ struct KtxFileHeader
   uint32_t numberOfFaces;
   uint32_t numberOfMipmapLevels;
   uint32_t bytesOfKeyValueData;
-} __attribute__((__packed__));
+};
+#pragma pack(pop)
 // Packed attribute stops the structure from being aligned to compiler defaults
 // so we can be sure of reading the whole thing from file in one call to fread.
 

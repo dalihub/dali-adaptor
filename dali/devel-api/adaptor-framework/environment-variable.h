@@ -20,6 +20,12 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
+#if defined(_WIN32)
+#ifdef GetEnvironmentVariable
+#undef GetEnvironmentVariable
+#endif
+#endif
+
 namespace Dali
 {
 namespace EnvironmentVariable
