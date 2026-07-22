@@ -1,5 +1,8 @@
+#ifndef DALI_KEY_LOOKUP_ENTRY_H
+#define DALI_KEY_LOOKUP_ENTRY_H
+
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +18,18 @@
  *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/input/common/key-impl.h>
-
 namespace Dali
 {
-namespace DevelKey
+/**
+ * @brief A single entry describing how a platform key name maps to a Dali key code.
+ */
+struct KeyLookupEntry
 {
-int GetDaliKeyCode(const char* keyName)
-{
-  return Internal::Adaptor::KeyLookup::GetDaliKeyCode(keyName);
-}
-
-void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count)
-{
-  Internal::Adaptor::KeyLookup::SetKeyExtensionLookupTable(table, count);
-}
-
-} // namespace DevelKey
+  const char* keyName;      ///< XF86 key name
+  int         daliKeyCode;  ///< Dali key code
+  bool        deviceButton; ///< Whether the key is from a button on the device
+};
 
 } // namespace Dali
+
+#endif // DALI_KEY_LOOKUP_ENTRY_H

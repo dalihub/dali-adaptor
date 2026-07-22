@@ -668,6 +668,21 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
   static_cast<tvg::LottieAnimation*>(mAnimation.get())->overrideProperty(keyPath.c_str(), lottieProp, wrapper, cb.get());
 }
 
+void VectorAnimationRendererNative::RefreshDynamicProperty()
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  if(!mAnimation)
+  {
+    return;
+  }
+
+  // Force re-evaluation of registered dynamic property callbacks at the current frame,
+  // without changing which frame is displayed. Needed because a plain Render() call for
+  // an unchanged frame number is a no-op for the underlying engine (see tvg::Animation::frame()),
+  // so it would never re-invoke callbacks whose return value changed while paused/stopped.
+  mAnimation->refresh();
+}
+
 void VectorAnimationRendererNative::KeepRasterizedBuffer()
 {
   Dali::Mutex::ScopedLock lock(mMutex);

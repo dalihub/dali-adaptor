@@ -153,6 +153,11 @@ public:
   void AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id) override;
 
   /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::RefreshDynamicProperty()
+   */
+  void RefreshDynamicProperty() override;
+
+  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::KeepRasterizedBuffer()
    */
   void KeepRasterizedBuffer() override;

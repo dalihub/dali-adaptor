@@ -3942,6 +3942,12 @@ void WindowBaseTcoreWl::ImeWindowReadyToRender()
     return;
   }
 
+  if(!mVisible)
+  {
+    DALI_LOG_RELEASE_INFO("WindowBaseTcoreWl::ImeWindowReadyToRender, window is hidden, skip input panel ready\n");
+    return;
+  }
+
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "zwp_input_panel_surface_v1_set_ready");
   zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
 }
