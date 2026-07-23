@@ -40,7 +40,7 @@ struct DropTarget
 {
   Dali::Actor                            target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   tizen_core_wl_window_h                parentWindow{nullptr};
   bool                                   inside;
 };
@@ -49,7 +49,7 @@ struct DropWindowTarget
 {
   Dali::Window                           target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   tizen_core_wl_window_h                window{nullptr};
   bool                                   inside;
 };
@@ -64,9 +64,9 @@ public:
   DragAndDropTcoreWl();
   ~DragAndDropTcoreWl() override;
 
-  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) override;
-  bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
-  bool AddListener(Dali::Window target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
+  bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
+  bool AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback) override;
   bool RemoveListener(Dali::Actor target) override;
   bool RemoveListener(Dali::Window target) override;
 
@@ -75,10 +75,10 @@ public:
   bool CalculateDragEvent(void* event) override;
   bool CalculateViewRegion(void* event) override;
 
-  void TriggerDragEventForTarget(int targetIndex, void* event, char** mimes, int mimesCount, Dali::DragAndDrop::DragEvent& dragEvent);
-  void TriggerDragEventForWindowTarget(int targetIndex, void* event, char** mimes, int mimesCount, Dali::DragAndDrop::DragEvent& dragEvent);
-  void ProcessDragEventsForTargets(void* event, Dali::DragAndDrop::DragEvent& dragEvent, char** mimes, int mimesCount);
-  void ProcessDragEventsForWindowTargets(void* event, Dali::DragAndDrop::DragEvent& dragEvent, char** mimes, int mimesCount);
+  void TriggerDragEventForTarget(int targetIndex, void* event, char** mimes, int mimesCount, DragEventBuilder& dragEvent);
+  void TriggerDragEventForWindowTarget(int targetIndex, void* event, char** mimes, int mimesCount, DragEventBuilder& dragEvent);
+  void ProcessDragEventsForTargets(void* event, DragEventBuilder& dragEvent, char** mimes, int mimesCount);
+  void ProcessDragEventsForWindowTargets(void* event, DragEventBuilder& dragEvent, char** mimes, int mimesCount);
   bool ProcessDropEventsForTargets(void* event, char** mimes, int mimesCount);
   bool ProcessDropEventsForWindowTargets(void* event, char** mimes, int mimesCount);
 
@@ -110,7 +110,7 @@ private:
   int                                mWindowTargetIndex{-1};
   Dali::Vector2                      mPosition;
   Dali::Vector2                      mWindowPosition;
-  Dali::DragAndDrop::SourceFunction  mSourceCallback{nullptr};
+  SourceCallback                      mSourceCallback{};
   std::vector<DropTarget>            mDropTargets;
   std::vector<DropWindowTarget>      mDropWindowTargets;
   std::map<std::string, std::string> mDataMap;

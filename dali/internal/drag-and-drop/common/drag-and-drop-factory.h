@@ -22,7 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/drag-and-drop.h>
+#include <dali/public-api/adaptor-framework/drag-and-drop.h>
 
 namespace Dali
 {
@@ -58,4 +58,3 @@ extern std::unique_ptr<DragAndDropFactory> GetDragAndDropFactory();
 } // namespace Dali
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_FACTORY_H
-

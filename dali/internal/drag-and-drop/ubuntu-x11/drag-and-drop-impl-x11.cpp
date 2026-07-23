@@ -214,7 +214,7 @@ DragAndDropX11::~DragAndDropX11()
 bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
                                       Dali::Window                       shadowWindow,
                                       const Dali::DragAndDrop::DragData& data,
-                                      Dali::DragAndDrop::SourceFunction  callback)
+                                      SourceCallback                     callback)
 {
   auto parent = Dali::Window::Get(source);
   if(!parent)
@@ -230,23 +230,22 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
   }
 
   // Store mime→data mapping for SELECTION_REQUEST responses
-  const char** mimeTypes = data.GetMimeTypes();
-  const char** dataSet   = data.GetDataSet();
   mDataMap.clear();
-  for(int i = 0; i < data.GetDataSetSize(); ++i)
+  for(uint32_t i = 0u; i < data.GetDataCount(); ++i)
   {
-    mDataMap[std::string(mimeTypes[i])] = std::string(dataSet[i]);
+    const Dali::String mimeType = data.GetMimeType(i);
+    mDataMap[std::string(mimeType.CStr())] = std::string(data.GetData(i).CStr());
   }
 
   mSourceCallback = callback;
   mDragWindow     = shadowWindow;
 
   // Register MIME types with ecore_x DnD (sets XdndTypeList property on source window)
-  int                      mimeCount = data.GetMimeTypesSize();
+  int                      mimeCount = static_cast<int>(data.GetDataCount());
   std::vector<const char*> typesArray(static_cast<std::size_t>(mimeCount) + 1);
   for(int i = 0; i < mimeCount; ++i)
   {
-    typesArray[i] = mimeTypes[i];
+    typesArray[i] = data.GetMimeType(i).CStr();
   }
   typesArray[mimeCount] = nullptr;
   ecore_x_dnd_types_set(mSourceWindowId, typesArray.data(), static_cast<unsigned int>(mimeCount));
@@ -257,15 +256,8 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
   mCurrentMimeCount = mimeCount < MAX_MIME_SIZE ? mimeCount : MAX_MIME_SIZE;
   for(int i = 0; i < mCurrentMimeCount; ++i)
   {
-    if(mimeTypes[i])
-    {
-      strncpy(mCurrentMimeTypesBuf[i], mimeTypes[i], MAX_MIME_LEN - 1);
-      mCurrentMimeTypesBuf[i][MAX_MIME_LEN - 1] = '\0';
-    }
-    else
-    {
-      mCurrentMimeTypesBuf[i][0] = '\0';
-    }
+    strncpy(mCurrentMimeTypesBuf[i], data.GetMimeType(i).CStr(), MAX_MIME_LEN - 1);
+    mCurrentMimeTypesBuf[i][MAX_MIME_LEN - 1] = '\0';
     mCurrentMimeTypes[i] = mCurrentMimeTypesBuf[i];
   }
   mCurrentMimeTypes[mCurrentMimeCount] = nullptr;
@@ -286,8 +278,8 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
 // ---------------------------------------------------------------------------
 
 bool DragAndDropX11::AddListener(Dali::Actor                            target,
-                                 char*                                  mimeType,
-                                 Dali::DragAndDrop::DragAndDropFunction callback)
+                                 const Dali::String&                    mimeType,
+                                 DragCallback                            callback)
 {
   for(const auto& dt : mDropTargets)
   {
@@ -314,7 +306,7 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
 
   DropTarget td;
   td.target         = target;
-  td.mimeType       = mimeType;
+  td.mimeType       = mimeType.CStr();
   td.callback       = callback;
   td.inside         = false;
   td.parentWindowId = parentWindowId;
@@ -324,8 +316,8 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
 }
 
 bool DragAndDropX11::AddListener(Dali::Window                           target,
-                                 char*                                  mimeType,
-                                 Dali::DragAndDrop::DragAndDropFunction callback)
+                                 const Dali::String&                    mimeType,
+                                 DragCallback                            callback)
 {
   for(const auto& wt : mDropWindowTargets)
   {
@@ -343,7 +335,7 @@ bool DragAndDropX11::AddListener(Dali::Window                           target,
 
   DropWindowTarget wt;
   wt.target   = target;
-  wt.mimeType = mimeType;
+  wt.mimeType = mimeType.CStr();
   wt.callback = callback;
   wt.inside   = false;
   wt.windowId = windowId;
@@ -432,7 +424,7 @@ void DragAndDropX11::HandleXdndLeave(void* /*event*/)
 
 void DragAndDropX11::ResetDropTargets()
 {
-  Dali::DragAndDrop::DragEvent leaveEvent;
+  DragEventBuilder leaveEvent;
   leaveEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
   leaveEvent.SetPosition(Dali::Vector2(DEFAULT_POSITION, DEFAULT_POSITION));
 
@@ -482,8 +474,11 @@ bool DragAndDropX11::CalculateDragEvent(void* event)
 
   auto* ev = static_cast<Ecore_X_Event_Xdnd_Position*>(event);
 
-  Dali::DragAndDrop::DragEvent dragEvent;
-  dragEvent.SetMimeTypes(mCurrentMimeTypes, mCurrentMimeCount);
+  DragEventBuilder dragEvent;
+  for(int index = 0; index < mCurrentMimeCount; ++index)
+  {
+    dragEvent.AddMimeType(mCurrentMimeTypes[index]);
+  }
 
   bool anyAccepted = false;
   int  cx          = ev->position.x; // screen-absolute cursor X
@@ -747,15 +742,14 @@ void DragAndDropX11::ReceiveData(void* event)
     return;
   }
 
-  char* receivedData = const_cast<char*>(extracted.c_str());
-
   mimesPool[0] = ev->target; // resolved MIME type string
   mimesPool[1] = nullptr;
 
   if(mTargetIndex != -1)
   {
-    Dali::DragAndDrop::DragEvent dragEvent(
-      Dali::DragAndDrop::DragType::DROP, mPosition, mimesPool, 1, receivedData);
+    DragEventBuilder dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition);
+    dragEvent.AddMimeType(mimesPool[0]);
+    dragEvent.SetData(extracted.c_str());
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
     auto win                          = Dali::Window::Get(mDropTargets[mTargetIndex].target);
@@ -765,8 +759,9 @@ void DragAndDropX11::ReceiveData(void* event)
 
   if(mWindowTargetIndex != -1)
   {
-    Dali::DragAndDrop::DragEvent dragEvent(
-      Dali::DragAndDrop::DragType::DROP, mWindowPosition, mimesPool, 1, receivedData);
+    DragEventBuilder dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition);
+    dragEvent.AddMimeType(mimesPool[0]);
+    dragEvent.SetData(extracted.c_str());
     mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
     mDropWindowTargets[mWindowTargetIndex].inside = false;
     mDropWindowTargets[mWindowTargetIndex].target.Activate();
@@ -902,8 +897,11 @@ void DragAndDropX11::DoPositionUpdate(int cx, int cy)
     return;
   }
 
-  Dali::DragAndDrop::DragEvent dragEvent;
-  dragEvent.SetMimeTypes(mCurrentMimeTypes, mCurrentMimeCount);
+  DragEventBuilder dragEvent;
+  for(int index = 0; index < mCurrentMimeCount; ++index)
+  {
+    dragEvent.AddMimeType(mCurrentMimeTypes[index]);
+  }
 
   // --- Actor targets ---
   for(std::size_t i = 0; i < mDropTargets.size(); ++i)
@@ -1023,8 +1021,9 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
 
         mimesPool[0] = mime;
         mimesPool[1] = nullptr;
-        // DragEvent API takes char*; dropData is read-only (from std::string::c_str())
-        Dali::DragAndDrop::DragEvent dropEvent(Dali::DragAndDrop::DragType::DROP, Dali::Vector2(cx, cy), mimesPool, 1, const_cast<char*>(dropData));
+        DragEventBuilder dropEvent(Dali::DragAndDrop::DragType::DROP, Dali::Vector2(cx, cy));
+        dropEvent.AddMimeType(mimesPool[0]);
+        dropEvent.SetData(dropData);
         mDropTargets[i].callback(dropEvent);
         mDropTargets[i].inside = false;
         auto win               = Dali::Window::Get(mDropTargets[i].target);
@@ -1061,8 +1060,9 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
         mimesPool[0] = mime;
         mimesPool[1] = nullptr;
         Dali::Vector2 relPos(cx - winPositionSize.x, cy - winPositionSize.y);
-        // DragEvent API takes char*; dropData is read-only (from std::string::c_str())
-        Dali::DragAndDrop::DragEvent dropEvent(Dali::DragAndDrop::DragType::DROP, relPos, mimesPool, 1, const_cast<char*>(dropData));
+        DragEventBuilder dropEvent(Dali::DragAndDrop::DragType::DROP, relPos);
+        dropEvent.AddMimeType(mimesPool[0]);
+        dropEvent.SetData(dropData);
         mDropWindowTargets[i].callback(dropEvent);
         mDropWindowTargets[i].inside = false;
         mDropWindowTargets[i].target.Activate();

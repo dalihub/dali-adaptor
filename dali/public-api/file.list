@@ -5,6 +5,9 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/capture.cpp
   ${adaptor_public_api_dir}/adaptor-framework/clipboard-data.cpp
   ${adaptor_public_api_dir}/adaptor-framework/clipboard.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/drag-data.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/drag-and-drop.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/drag-event.cpp
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.cpp
   ${adaptor_public_api_dir}/adaptor-framework/input-method-context.cpp
   ${adaptor_public_api_dir}/adaptor-framework/key.cpp
@@ -39,6 +42,9 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/capture.h
   ${adaptor_public_api_dir}/adaptor-framework/clipboard-data.h
   ${adaptor_public_api_dir}/adaptor-framework/clipboard.h
+  ${adaptor_public_api_dir}/adaptor-framework/drag-data.h
+  ${adaptor_public_api_dir}/adaptor-framework/drag-and-drop.h
+  ${adaptor_public_api_dir}/adaptor-framework/drag-event.h
   ${adaptor_public_api_dir}/adaptor-framework/device-status.h
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.h
   ${adaptor_public_api_dir}/adaptor-framework/image-options.h
