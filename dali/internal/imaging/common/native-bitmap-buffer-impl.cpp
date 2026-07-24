@@ -25,6 +25,10 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
 
+#if defined(_WIN32)
+#undef NO_ERROR
+#endif
+
 namespace Dali
 {
 namespace Internal
@@ -122,7 +126,7 @@ int NativeBitmapBuffer::GetTextureTarget() const
   return 0;
 }
 
-bool NativeBitmapBuffer::ApplyNativeFragmentShader(std::string& shader, int mask)
+bool NativeBitmapBuffer::ApplyNativeFragmentShader(Dali::String& shader, int mask)
 {
   return false;
 }

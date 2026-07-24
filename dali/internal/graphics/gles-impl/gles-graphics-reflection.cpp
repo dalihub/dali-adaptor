@@ -127,7 +127,17 @@ void ParseShaderSamplers(const std::string_view& shaderSource, std::vector<Dali:
 {
   if(!shaderSource.empty())
   {
+#if defined(_WIN32)
+    size_t len = shaderSource.size();
+    char* shaderStr = static_cast<char*>(malloc(len + 1));
+    if(shaderStr != nullptr)
+    {
+      memcpy(shaderStr, shaderSource.data(), len);
+      shaderStr[len] = '\0';
+    }
+#else
     char* shaderStr = strndup(shaderSource.data(), shaderSource.size());
+#endif
     if(shaderStr == nullptr)
     {
       DALI_LOG_ERROR("Failed to allocate memory for shader string duplicate\n");

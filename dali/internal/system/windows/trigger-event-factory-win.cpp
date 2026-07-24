@@ -18,20 +18,41 @@
 // CLASS HEADER
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
-// EXTERNAL INCLUDES
+// INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/internal/system/windows/trigger-event-win.h>
+#include <dali/internal/system/windows/unified-trigger-event-manager-impl-win.h>
 
 namespace Dali
 {
 TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback)
 {
-  return TriggerEventFactory::TriggerEventPtr(new Internal::Adaptor::TriggerEvent(callback));
+  auto unifiedTriggerEventManager = Internal::Adaptor::UnifiedTriggerEventManager::Get();
+  if(DALI_LIKELY(unifiedTriggerEventManager))
+  {
+    return TriggerEventFactory::TriggerEventPtr(GetImplementation(unifiedTriggerEventManager).GenerateTriggerEvent(callback));
+  }
+
+  auto* triggerEvent = new Internal::Adaptor::TriggerEvent(nullptr, callback);
+  DALI_LOG_DEBUG_INFO("Generated Trigger[%p] Id(%u) without unified trigger event manager!\n", triggerEvent, triggerEvent->GetId());
+  return TriggerEventFactory::TriggerEventPtr(triggerEvent);
 }
 
 void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface)
 {
   Internal::Adaptor::TriggerEvent* triggerEvent(static_cast<Internal::Adaptor::TriggerEvent*>(triggerEventInterface));
-  delete triggerEvent;
+  if(DALI_LIKELY(triggerEvent))
+  {
+    auto unifiedTriggerEventManager = triggerEvent->GetUnifiedTriggerEventManager();
+    if(DALI_LIKELY(unifiedTriggerEventManager))
+    {
+      GetImplementation(unifiedTriggerEventManager).DiscardTriggerEvent(triggerEvent);
+    }
+    else
+    {
+      delete triggerEvent;
+    }
+  }
 }
 
 } // namespace Dali

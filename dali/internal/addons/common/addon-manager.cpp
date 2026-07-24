@@ -17,20 +17,18 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/common/addon-manager.h>
+#include <dali/internal/adaptor/common/weak-symbol.h>
 
 namespace Dali
 {
 namespace Internal
 {
-namespace AddOnManagerFactory
-{
-__attribute__((weak)) Dali::Integration::AddOnManager* CreateAddOnManager()
+DALI_ADAPTOR_WEAK_SYMBOL Dali::Integration::AddOnManager* AddOnManagerFactory::CreateAddOnManager()
 {
   return nullptr;
 }
-
-} // namespace AddOnManagerFactory
 } // namespace Internal
 
 namespace Adaptor

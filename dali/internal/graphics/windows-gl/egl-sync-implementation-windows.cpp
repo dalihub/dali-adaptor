@@ -19,11 +19,9 @@
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
 // EXTERNAL INCLUDES
-
-#include <dali/integration-api/debug.h>
+#include <GLES2/gl2.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
 namespace Dali
@@ -32,17 +30,19 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace
-{
-#if defined(DEBUG_ENABLED)
-Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
-#endif
-} // namespace
-
-EglSyncObject::EglSyncObject(EglImplementation& eglImpl, SyncObject::SyncType type)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl, EglSyncObject::SyncType type)
 : mEglSync(nullptr),
   mEglImplementation(eglImpl)
 {
+  static_cast<void>(type);
+
+  // Windows backend last-resort fallback for callers that cannot use the GLES
+  // fence path. The pinned ANGLE D3D backend reports EGL 1.4 without EGL fence
+  // extensions. Rendering may still appear correct due to ANGLE or driver
+  // scheduling, but cross-context ordering is not guaranteed without an
+  // explicit barrier. glFinish() guarantees producer completion, at the cost
+  // of a CPU/GPU stall that can reduce multi-pass rendering performance.
+  glFinish();
 }
 
 EglSyncObject::~EglSyncObject()
@@ -72,6 +72,10 @@ bool EglSyncObject::Poll()
   return false;
 }
 
+void EglSyncObject::DestroySyncObject()
+{
+}
+
 struct EglSyncImplementation::Impl
 {
 };
@@ -79,7 +83,8 @@ struct EglSyncImplementation::Impl
 EglSyncImplementation::EglSyncImplementation()
 : mEglImplementation(nullptr),
   mSyncObjects(),
-  mImpl(nullptr)
+  mImpl(nullptr),
+  mUseGlSyncForTextureDependencies(true)
 {
 }
 
@@ -97,19 +102,19 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(SyncObject::SyncType type)
-{
-  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
-  mSyncObjects.PushBack(syncObject);
-  return syncObject;
-}
-
 void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
   mSyncObjects.EraseObject(static_cast<EglSyncObject*>(syncObject));
   delete static_cast<EglSyncObject*>(syncObject);
+}
+
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject(EglSyncObject::SyncType type)
+{
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  auto* syncObject = new EglSyncObject(*mEglImplementation, type);
+  mSyncObjects.PushBack(syncObject);
+  return syncObject;
 }
 
 void EglSyncImplementation::InitializeEglSync()
@@ -118,11 +123,13 @@ void EglSyncImplementation::InitializeEglSync()
 
 bool NativeFence::PollFD(int32_t fenceFd)
 {
+  static_cast<void>(fenceFd);
   return false;
 }
 
 void NativeFence::CloseFD(int32_t fenceFd)
 {
+  static_cast<void>(fenceFd);
 }
 
 } // namespace Adaptor

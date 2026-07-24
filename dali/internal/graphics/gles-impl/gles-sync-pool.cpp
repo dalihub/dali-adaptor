@@ -234,6 +234,16 @@ SyncPool::AgingSyncObject::AgingSyncObject(Graphics::EglGraphicsController& cont
     if(DALI_LIKELY(gl))
     {
       glSyncObject = gl->FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+      if(DALI_UNLIKELY(glSyncObject == nullptr))
+      {
+        // Windows backend last-resort fallback if ANGLE cannot create a GLES
+        // fence. Rendering without an explicit barrier may appear correct due
+        // to ANGLE or driver scheduling, but cross-context ordering is not
+        // guaranteed. Finish() guarantees producer completion, at the cost of
+        // a CPU/GPU stall that can reduce multi-pass rendering performance.
+        gl->Finish();
+        synced = true;
+      }
     }
   }
 }
@@ -315,7 +325,7 @@ void SyncPool::AgingSyncObject::Wait()
     if(DALI_LIKELY(gl) && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::Wait(); glWaitSync\n");
-      gl->WaitSync(glSyncObject, 0, 0ull);
+      gl->WaitSync(glSyncObject, 0, GL_TIMEOUT_IGNORED);
     }
   }
   synced = true;

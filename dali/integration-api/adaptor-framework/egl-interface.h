@@ -18,10 +18,38 @@
  *
  */
 
+// Preserve the consumer's Win32 macro state before EGL potentially includes
+// windows.h. push_macro also records an undefined macro, which lets the pops
+// below distinguish pre-existing application state from EGL-introduced state.
+#if defined(_WIN32)
+#pragma push_macro("ERROR")
+#pragma push_macro("TRUE")
+#pragma push_macro("FALSE")
+#pragma push_macro("CopyMemory")
+#pragma push_macro("CreateWindow")
+#pragma push_macro("min")
+#pragma push_macro("max")
+#pragma push_macro("DIFFERENCE")
+#endif
+
+// EXTERNAL INCLUDES
+#include <EGL/egl.h>
+
+// Windows headers pulled in by EGL define names also used by DALi APIs.
+#if defined(_WIN32)
+#undef ERROR
+#undef TRUE
+#undef FALSE
+#undef CopyMemory
+#undef CreateWindow
+#undef min
+#undef max
+#undef DIFFERENCE
+#endif
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
-#include <dali/internal/graphics/common/egl-include.h>
-#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/integration-api/adaptor-framework/color-depth.h>
 #include <dali/public-api/math/rect.h>
 
 namespace Dali
@@ -134,5 +162,17 @@ protected:
 };
 
 } // namespace Dali
+
+// Restore exactly the Win32 macro state present at header entry.
+#if defined(_WIN32)
+#pragma pop_macro("DIFFERENCE")
+#pragma pop_macro("max")
+#pragma pop_macro("min")
+#pragma pop_macro("CreateWindow")
+#pragma pop_macro("CopyMemory")
+#pragma pop_macro("FALSE")
+#pragma pop_macro("TRUE")
+#pragma pop_macro("ERROR")
+#endif
 
 #endif // DALI_INTEGRATION_EGL_INTERFACE_H

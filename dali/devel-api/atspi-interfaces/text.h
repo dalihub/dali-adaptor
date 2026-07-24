@@ -38,6 +38,11 @@ class DALI_ADAPTOR_API Text : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~Text();
+
+  /**
    * @brief Gets stored text in given Dali::Devel::Accessibility::Range.
    *
    * @param[in] startOffset The index of first character

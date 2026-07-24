@@ -23,10 +23,10 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 #include <sstream>
 
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/file-stream.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h> ///< To check whether we call InitializePlugin() at main thread or not.
 #include <dali/devel-api/threading/semaphore.h>
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h>
@@ -35,13 +35,19 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/dali-adaptor-version.h>
 
+#if defined(_WIN32)
+#define DALI_FILE_DOWNLOAD_PLUGIN_EXPORT __declspec(dllexport)
+#else
+#define DALI_FILE_DOWNLOAD_PLUGIN_EXPORT DALI_ADAPTOR_API
+#endif
+
 // Export factory functions for dynamic loading
-extern "C" DALI_ADAPTOR_API Dali::FileDownloadPlugin* CreateFileDownloadPlugin()
+extern "C" DALI_FILE_DOWNLOAD_PLUGIN_EXPORT Dali::FileDownloadPlugin* CreateFileDownloadPlugin()
 {
   return new Dali::Plugin::CurlFileDownloader();
 }
 
-extern "C" DALI_ADAPTOR_API bool InitializeFileDownloadPlugin(Dali::FileDownloadPlugin* plugin)
+extern "C" DALI_FILE_DOWNLOAD_PLUGIN_EXPORT bool InitializeFileDownloadPlugin(Dali::FileDownloadPlugin* plugin)
 {
   if(DALI_LIKELY(plugin))
   {
@@ -50,10 +56,12 @@ extern "C" DALI_ADAPTOR_API bool InitializeFileDownloadPlugin(Dali::FileDownload
   return false;
 }
 
-extern "C" DALI_ADAPTOR_API void DestroyFileDownloadPlugin(Dali::FileDownloadPlugin* plugin)
+extern "C" DALI_FILE_DOWNLOAD_PLUGIN_EXPORT void DestroyFileDownloadPlugin(Dali::FileDownloadPlugin* plugin)
 {
   delete plugin;
 }
+
+#undef DALI_FILE_DOWNLOAD_PLUGIN_EXPORT
 
 namespace Dali::Plugin
 {
@@ -76,14 +84,8 @@ const char* HTTP_PROXY_ENV                = "http_proxy";
   {                                                                                                                                        \
     if(DALI_UNLIKELY(result != CURLE_OK))                                                                                                  \
     {                                                                                                                                      \
-      if(errorBuffer != nullptr)                                                                                                           \
-      {                                                                                                                                    \
-        DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d\n", std::string(prefix).c_str(), std::string(url).c_str(), result);                   \
-      }                                                                                                                                    \
-      else                                                                                                                                 \
-      {                                                                                                                                    \
-        DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, errorBuffer); \
-      }                                                                                                                                    \
+      const char* curlErrorMessage = ((errorBuffer) != nullptr && (errorBuffer)[0] != '\0') ? (errorBuffer) : curl_easy_strerror(result); \
+      DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, curlErrorMessage); \
     }                                                                                                                                      \
   }
 
@@ -221,6 +223,14 @@ long GetCurloptMaximumRedirectionCount()
 struct ChunkData
 {
   std::vector<uint8_t> data;
+  size_t               maximumSize{0u};
+};
+
+struct FixedBufferData
+{
+  uint8_t* data{nullptr};
+  size_t   capacity{0u};
+  size_t   written{0u};
 };
 
 // Without a write function or a buffer (file descriptor) to write to, curl will pump out
@@ -232,22 +242,58 @@ size_t FUNCTION_CALL_FROM_CURL_PREFIX DummyWrite(char* ptr, size_t size, size_t 
 
 size_t FUNCTION_CALL_FROM_CURL_PREFIX ChunkLoader(char* ptr, size_t size, size_t nmemb, void* userdata)
 {
-  std::vector<ChunkData>* chunks   = static_cast<std::vector<ChunkData>*>(userdata);
-  int                     numBytes = size * nmemb;
-  chunks->push_back(ChunkData());
-  ChunkData& chunkData = (*chunks)[chunks->size() - 1];
-  chunkData.data.resize(numBytes);
-  memcpy(&chunkData.data[0], ptr, numBytes);
+  auto* chunk = static_cast<ChunkData*>(userdata);
+  if(!chunk || (size != 0u && nmemb > std::numeric_limits<size_t>::max() / size))
+  {
+    return 0u;
+  }
+
+  const size_t numBytes = size * nmemb;
+  if(chunk->data.size() > chunk->maximumSize || numBytes > chunk->maximumSize - chunk->data.size())
+  {
+    return 0u;
+  }
+
+  try
+  {
+    const size_t offset = chunk->data.size();
+    chunk->data.resize(offset + numBytes);
+    if(numBytes != 0u)
+    {
+      memcpy(chunk->data.data() + offset, ptr, numBytes);
+    }
+  }
+  catch(...)
+  {
+    return 0u;
+  }
   return numBytes;
 }
 
-#ifdef DALI_PROFILE_WINDOWS
-size_t FUNCTION_CALL_FROM_CURL_PREFIX WriteFunction(void* input, size_t uSize, size_t uCount, void* avg)
+size_t FUNCTION_CALL_FROM_CURL_PREFIX FixedBufferLoader(char* ptr, size_t size, size_t nmemb, void* userdata)
 {
-  fwrite((const char*)input, uSize, uCount, (FILE*)avg);
-  return uSize * uCount;
+  auto* buffer = static_cast<FixedBufferData*>(userdata);
+  if(!buffer || (size != 0u && nmemb > std::numeric_limits<size_t>::max() / size))
+  {
+    return 0u;
+  }
+
+  const size_t numBytes = size * nmemb;
+  if(buffer->written > buffer->capacity || numBytes > buffer->capacity - buffer->written)
+  {
+    // Returning a short count makes curl report CURLE_WRITE_ERROR.  The
+    // caller then retries through the bounded chunk path instead of silently
+    // truncating a response whose Content-Length was inaccurate.
+    return 0u;
+  }
+
+  if(numBytes != 0u)
+  {
+    memcpy(buffer->data + buffer->written, ptr, numBytes);
+    buffer->written += numBytes;
+  }
+  return numBytes;
 }
-#endif
 
 bool ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::string& userAgent, const std::string& proxy, char* errorBuffer)
 {
@@ -289,45 +335,30 @@ bool ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::s
   return true;
 }
 
-bool DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t dataSize, const std::string& url, char* errorBuffer)
+bool DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize, const std::string& url, char* errorBuffer)
 {
-  // create
-  Dali::FileStream fileWriter(dataBuffer, dataSize, FileStream::WRITE | FileStream::BINARY);
-  FILE*            dataBufferFilePointer = fileWriter.GetFile();
+  dataBuffer.ResizeUninitialized(dataSize);
+  FixedBufferData buffer{dataBuffer.Begin(), dataSize, 0u};
 
-  if(NULL != dataBufferFilePointer)
+  // We only want the body which contains the file data.
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER), "CURLOPT_HEADER");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY), "CURLOPT_NOBODY");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, FixedBufferLoader), "CURLOPT_WRITEFUNCTION");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &buffer), "CURLOPT_WRITEDATA");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download image file with fixed size");
+
+  if(buffer.written != dataSize)
   {
-    setbuf(dataBufferFilePointer, NULL); // Turn buffering off
-
-    // we only want the body which contains the file data
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER), "CURLOPT_HEADER");
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY), "CURLOPT_NOBODY");
-
-    // disable the write callback, and get curl to write directly into our data buffer
-#ifdef DALI_PROFILE_WINDOWS
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, WriteFunction), "CURLOPT_WRITEFUNCTION");
-#else
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, nullptr), "CURLOPT_WRITEFUNCTION");
-#endif
-
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, dataBufferFilePointer), "CURLOPT_WRITEDATA");
-
-    // synchronous request of the body data
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download image file with fixed size");
-  }
-  else
-  {
-    DALI_LOG_ERROR("Fail to open buffer writter with size : %zu!\n", dataSize);
-    // @todo : Need to check that is it correct error code?
-    CHECK_CURL_RESULT_AND_RETURN_FALSE(CURLE_READ_ERROR, "Dali::FileStream fileWriter create failed!");
+    dataSize = buffer.written;
+    dataBuffer.ResizeUninitialized(buffer.written);
   }
   return true;
 }
 
-bool DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize, const std::string& url, char* errorBuffer)
+bool DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer, size_t& dataSize, size_t maximumAllowedSizeBytes, const std::string& url, char* errorBuffer)
 {
-  // create
-  std::vector<ChunkData> chunks;
+  ChunkData chunk;
+  chunk.maximumSize = maximumAllowedSizeBytes;
 
   // we only want the body which contains the file data
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER), "CURLOPT_HEADER");
@@ -335,27 +366,17 @@ bool DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBuffer
 
   // Enable the write callback.
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, ChunkLoader), "CURLOPT_WRITEFUNCTION");
-  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &chunks), "CURLOPT_WRITEDATA");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &chunk), "CURLOPT_WRITEDATA");
 
   // synchronous request of the body data
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_perform(curlHandle), "Failed to download image file by chunk");
 
-  // chunks should now contain all of the chunked data. Reassemble into a single vector
-  dataSize = 0;
-  for(size_t i = 0; i < chunks.size(); ++i)
-  {
-    dataSize += chunks[i].data.capacity();
-  }
+  dataSize = chunk.data.size();
   dataBuffer.ResizeUninitialized(dataSize);
 
   if(DALI_LIKELY(dataSize > 0))
   {
-    std::uint8_t* dataBufferPtr = dataBuffer.Begin();
-    for(size_t i = 0; i < chunks.size(); ++i)
-    {
-      memcpy(dataBufferPtr, &chunks[i].data[0], chunks[i].data.capacity());
-      dataBufferPtr += chunks[i].data.capacity();
-    }
+    memcpy(dataBuffer.Begin(), chunk.data.data(), dataSize);
   }
 
   return true;
@@ -394,14 +415,14 @@ bool DownloadFile(CURL*                  curlHandle,
 
   if(size == -1)
   {
-    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
+    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, maximumAllowedSizeBytes, url, errorBuffer);
   }
   else if(size == 0)
   {
     DALI_LOG_ERROR("[FileDownload][Curl] File content length is 0 \"%s\"\n", url.c_str());
     result = false;
   }
-  else if(size >= static_cast<curl_off_t>(maximumAllowedSizeBytes))
+  else if(size > static_cast<curl_off_t>(maximumAllowedSizeBytes))
   {
     DALI_LOG_ERROR("[FileDownload][Curl] File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
     result = false;
@@ -416,7 +437,7 @@ bool DownloadFile(CURL*                  curlHandle,
       DALI_LOG_DEBUG_INFO("[FileDownload][Curl] Failed to download file, trying to load by chunk. \"%s\"\n", url.c_str());
       // In the case where the size is wrong (e.g. on a proxy server that rewrites data),
       // the data buffer will be corrupt. In this case, try again using the chunk writer.
-      result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, url, errorBuffer);
+      result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize, maximumAllowedSizeBytes, url, errorBuffer);
     }
   }
 
@@ -486,7 +507,7 @@ public:
 
     if(Dali::GetThreadId() == Dali::GetMainThreadId())
     {
-      curl_global_init(CURL_GLOBAL_ALL);
+      mInitializationResult = curl_global_init(CURL_GLOBAL_ALL);
     }
     else
     {
@@ -499,6 +520,14 @@ public:
       DALI_LOG_DEBUG_INFO("Wait OnTriggered()\n");
       // Now we can assume that OnTriggered() callback will be comes. Acquire the semaphore.
       mInitializationSemaphore.Acquire();
+    }
+
+    if(DALI_UNLIKELY(mInitializationResult != CURLE_OK))
+    {
+      DALI_LOG_ERROR("curl_global_init failed with error %d (%s)\n",
+                     static_cast<int>(mInitializationResult),
+                     curl_easy_strerror(mInitializationResult));
+      return false;
     }
 
     DALI_LOG_DEBUG_INFO("Initializing curl library environment done\n");
@@ -536,7 +565,7 @@ public:
     {
       // Call curl_global_init and release initialization semaphore, to complete initialization.
       DALI_LOG_DEBUG_INFO("curl_global_init(CURL_GLOBAL_ALL)\n");
-      curl_global_init(CURL_GLOBAL_ALL);
+      mInitializationResult = curl_global_init(CURL_GLOBAL_ALL);
       DALI_LOG_DEBUG_INFO("curl_global_init(CURL_GLOBAL_ALL) done\n");
       mInitializationSemaphore.Release();
     }
@@ -564,6 +593,7 @@ private:
   Dali::Semaphore<1> mTerminateSemaphore;      // Used for testing to wait until curl_global_cleanup is complete at event thread.
 
   bool mInitialized;
+  CURLcode mInitializationResult{CURLE_FAILED_INIT};
 
   static std::mutex sImplMutex;
 };

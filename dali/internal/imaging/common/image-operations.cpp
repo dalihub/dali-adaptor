@@ -132,13 +132,13 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false)
 /**
  * @brief 4 byte pixel structure.
  */
-struct Pixel4Bytes
+struct alignas(4) Pixel4Bytes
 {
   uint8_t r;
   uint8_t g;
   uint8_t b;
   uint8_t a;
-} __attribute__((packed, aligned(4))); //< Tell the compiler it is okay to use a single 32 bit load.
+}; //< Tell the compiler it is okay to use a single 32 bit load.
 
 /**
  * @brief RGB888 pixel structure.
@@ -148,7 +148,7 @@ struct Pixel3Bytes
   uint8_t r;
   uint8_t g;
   uint8_t b;
-} __attribute__((packed, aligned(1)));
+};
 
 /**
  * @brief RGB565 pixel typedefed from a short.
@@ -160,11 +160,15 @@ typedef uint16_t PixelRGB565;
 /**
  * @brief a Pixel composed of two independent byte components.
  */
-struct Pixel2Bytes
+struct alignas(2) Pixel2Bytes
 {
   uint8_t l;
   uint8_t a;
-} __attribute__((packed, aligned(2))); //< Tell the compiler it is okay to use a single 16 bit load.
+}; //< Tell the compiler it is okay to use a single 16 bit load.
+
+static_assert(sizeof(Pixel4Bytes) == 4u && alignof(Pixel4Bytes) == 4u);
+static_assert(sizeof(Pixel3Bytes) == 3u && alignof(Pixel3Bytes) == 1u);
+static_assert(sizeof(Pixel2Bytes) == 2u && alignof(Pixel2Bytes) == 2u);
 
 #if defined(DEBUG_ENABLED)
 /**
@@ -2474,8 +2478,8 @@ void RotateByShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  const uint8_t* const                      firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
-  std::unique_ptr<uint8_t, void (*)(void*)> tmpPixelsInPtr((fastRotationPerformed ? pixelsOut : nullptr), free);
+  const uint8_t* const                       firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
+  std::unique_ptr<uint8_t, decltype(&free)> tmpPixelsInPtr((fastRotationPerformed ? pixelsOut : nullptr), &free);
 
   uint32_t strideBytes = fastRotationPerformed ? widthOut * pixelSize : strideBytesIn;
 

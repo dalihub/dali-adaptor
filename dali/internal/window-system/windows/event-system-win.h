@@ -81,18 +81,20 @@ typedef struct _Event_Mouse_Wheel  Event_Mouse_Wheel;
 
 struct TWinEventInfo
 {
-  TWinEventInfo(uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam)
+  TWinEventInfo(WinWindowHandle hWnd, uint32_t uMsg, uintptr_t wParam, intptr_t lParam, uint32_t timestamp)
   {
-    this->mWindow = (WinWindowHandle)hWnd;
-    this->uMsg    = uMsg;
-    this->wParam  = wParam;
-    this->lParam  = lParam;
+    this->mWindow   = hWnd;
+    this->uMsg      = uMsg;
+    this->wParam    = wParam;
+    this->lParam    = lParam;
+    this->timestamp = timestamp;
   }
 
   WinWindowHandle mWindow;
   uint32_t        uMsg;
-  uint64_t        wParam;
-  uint64_t        lParam;
+  uintptr_t       wParam;
+  intptr_t        lParam;
+  uint32_t        timestamp;
 };
 
 } // namespace Adaptor

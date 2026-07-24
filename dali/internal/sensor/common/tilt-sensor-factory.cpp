@@ -16,6 +16,7 @@
  */
 
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 
@@ -27,7 +28,7 @@ namespace Adaptor
 {
 namespace TiltSensorFactory
 {
-__attribute__((weak)) Dali::Internal::Adaptor::TiltSensor* Create()
+DALI_ADAPTOR_WEAK_SYMBOL Dali::Internal::Adaptor::TiltSensor* Create()
 {
   // default implementation returns 'dummy' sensor
   return new Internal::Adaptor::TiltSensor();

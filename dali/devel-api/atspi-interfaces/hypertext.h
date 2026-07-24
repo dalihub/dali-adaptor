@@ -36,6 +36,11 @@ class DALI_ADAPTOR_API Hypertext : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~Hypertext();
+
+  /**
    * @brief Gets the handle to hyperlink object from a specified index in hyperlink collection of this hypertext.
    *
    * @param[in] linkIndex The 0-based index in hyperlink collection.

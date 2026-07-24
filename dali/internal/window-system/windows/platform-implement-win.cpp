@@ -20,15 +20,16 @@
 
 // EXTERNAL INCLUDES
 #include <windows.h>
+#include <algorithm>
 #include <map>
+#include <memory>
+#include <mutex>
+#include <unordered_map>
+#include <unordered_set>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/internal/window-system/windows/event-system-win.h>
-
-namespace
-{
-constexpr float INCH = 25.4;
-}
 
 namespace Dali
 {
@@ -40,50 +41,135 @@ namespace WindowsPlatform
 {
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  WindowImpl::ProcWinMessage(reinterpret_cast<uint64_t>(hWnd), uMsg, wParam, lParam);
+  const auto windowHandle       = reinterpret_cast<WinWindowHandle>(hWnd);
+  const auto previousWindowProc = WindowImpl::GetPreviousWindowProc(windowHandle);
+  const bool handled            = WindowImpl::ProcWinMessage(windowHandle, uMsg, static_cast<uintptr_t>(wParam), static_cast<intptr_t>(lParam));
 
-  LRESULT ret = DefWindowProc(hWnd, uMsg, wParam, lParam);
-  return ret;
+  LRESULT result = 0;
+  if(!handled)
+  {
+    if(previousWindowProc != 0)
+    {
+      result = CallWindowProc(reinterpret_cast<WNDPROC>(previousWindowProc), hWnd, uMsg, wParam, lParam);
+    }
+    else
+    {
+      result = DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+  }
+
+  if(uMsg == WM_NCDESTROY)
+  {
+    WindowImpl::RemoveWindow(windowHandle);
+  }
+  return result;
 }
 
 namespace
 {
 const char* DALI_WINDOW_CLASS_NAME = "DaliWindow";
 
-uint32_t sNumWindows = 0;
+bool                                sWindowClassRegistered = false;
+bool                                sWindowClassOwned      = false;
+std::unordered_set<WinWindowHandle> sOwnedWindows;
 
-void EnsureWindowClassRegistered()
+bool EnsureWindowClassRegistered()
 {
-  if(sNumWindows == 0)
+  if(!sWindowClassRegistered)
   {
-    WNDCLASS cs      = {0};
+    WNDCLASSA cs{};
     cs.cbClsExtra    = 0;
     cs.cbWndExtra    = 0;
-    cs.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
-    cs.hCursor       = NULL;
+    cs.hbrBackground = nullptr;
+    cs.hCursor       = LoadCursor(nullptr, IDC_ARROW);
     cs.hIcon         = NULL;
-    cs.hInstance     = GetModuleHandle(NULL);
-    cs.lpfnWndProc   = (WNDPROC)WinProc;
-    cs.lpszClassName = DALI_WINDOW_CLASS_NAME.c_str();
+    cs.hInstance     = GetModuleHandleA(nullptr);
+    cs.lpfnWndProc   = WinProc;
+    cs.lpszClassName = DALI_WINDOW_CLASS_NAME;
     cs.lpszMenuName  = NULL;
-    cs.style         = CS_VREDRAW | CS_HREDRAW;
-    RegisterClass(&cs);
+    cs.style         = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
+
+    if(RegisterClassA(&cs) == 0)
+    {
+      const DWORD error = GetLastError();
+      if(error != ERROR_CLASS_ALREADY_EXISTS)
+      {
+        DALI_LOG_ERROR("Failed to register DALi window class, error %lu\n", static_cast<unsigned long>(error));
+        return false;
+      }
+
+      WNDCLASSA existingClass{};
+      if(!GetClassInfoA(cs.hInstance, DALI_WINDOW_CLASS_NAME, &existingClass) || existingClass.lpfnWndProc != WinProc)
+      {
+        DALI_LOG_ERROR("A different Win32 class is already registered as %s\n", DALI_WINDOW_CLASS_NAME);
+        return false;
+      }
+      sWindowClassOwned = false;
+    }
+    else
+    {
+      sWindowClassOwned = true;
+    }
+    sWindowClassRegistered = true;
   }
+  return true;
 }
 
 void EnsureWindowClassUnregistered()
 {
-  if(sNumWindows == 0)
+  if(sWindowClassRegistered && sWindowClassOwned && sOwnedWindows.empty())
   {
-    UnregisterClass(DALI_WINDOW_CLASS_NAME.c_str(), GetModuleHandle(NULL));
+    if(UnregisterClassA(DALI_WINDOW_CLASS_NAME, GetModuleHandleA(nullptr)) == 0)
+    {
+      const DWORD error = GetLastError();
+      if(error != ERROR_CLASS_HAS_WINDOWS)
+      {
+        DALI_LOG_ERROR("Failed to unregister DALi window class, error %lu\n", static_cast<unsigned long>(error));
+      }
+      return;
+    }
+    sWindowClassRegistered = false;
+    sWindowClassOwned      = false;
   }
 }
 
-std::map<uint64_t, WindowImpl*> sHWndToListener;
+std::map<WinWindowHandle, WindowImpl*> sHWndToListener;
+std::map<WinWindowHandle, intptr_t>    sDetachedWindowProcedures;
 
-void RemoveListener(uint64_t hWnd)
+struct RegisteredCallback
 {
-  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(hWnd);
+  explicit RegisteredCallback(CallbackBase* callback)
+  : mCallback(callback),
+    mCancelled(false)
+  {
+  }
+
+  // Kept locked while the callback executes. A recursive mutex permits a
+  // callback to unregister itself while making destruction from another
+  // thread wait until execution has returned.
+  std::recursive_mutex          mExecutionMutex;
+  std::unique_ptr<CallbackBase> mCallback;
+  bool                          mCancelled;
+};
+
+struct CallbackRegistry
+{
+  std::mutex                                                                mMutex;
+  std::unordered_map<WinCallbackToken, std::shared_ptr<RegisteredCallback>> mCallbacks;
+  WinCallbackToken                                                          mNextToken{1u};
+};
+
+CallbackRegistry& GetCallbackRegistry()
+{
+  // Constructed on first registration, so owners created during static
+  // initialization are destroyed before the registry at process shutdown.
+  static CallbackRegistry registry;
+  return registry;
+}
+
+void RemoveListener(WinWindowHandle hWnd)
+{
+  auto x = sHWndToListener.find(hWnd);
   if(sHWndToListener.end() != x)
   {
     sHWndToListener.erase(x);
@@ -92,50 +178,108 @@ void RemoveListener(uint64_t hWnd)
 
 } // namespace
 
-const uint32_t WindowImpl::STYLE       = WS_OVERLAPPED;
-const int32_t  WindowImpl::EDGE_WIDTH  = 8;
-const int32_t  WindowImpl::EDGE_HEIGHT = 18;
+const uint32_t WindowImpl::STYLE       = WS_OVERLAPPEDWINDOW;
+const int32_t  WindowImpl::EDGE_WIDTH  = 0;
+const int32_t  WindowImpl::EDGE_HEIGHT = 0;
 
 WindowImpl::WindowImpl()
+: colorDepth(-1),
+  mHWnd(0),
+  mPreviousWindowProc(0),
+  mIsExternalWindow(false),
+  mListener()
 {
-  colorDepth = -1;
-  mHWnd      = 0;
-  mHdc       = 0;
-  listener   = NULL;
 }
 
 WindowImpl::~WindowImpl()
 {
-  RemoveListener(mHWnd);
+  DetachWindow();
 }
 
-void WindowImpl::ProcWinMessage(uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam)
+bool WindowImpl::ProcWinMessage(WinWindowHandle hWnd, uint32_t uMsg, uintptr_t wParam, intptr_t lParam)
 {
-  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(hWnd);
+  auto x = sHWndToListener.find(hWnd);
 
   if(sHWndToListener.end() != x)
   {
-    CallbackBase* listener = x->second->listener;
+    WindowImpl* implementation = x->second;
+    auto        listener       = implementation->mListener;
+    const bool  handleClose    = (uMsg == WM_CLOSE && !implementation->mIsExternalWindow && listener != nullptr);
 
-    if(NULL != listener)
+    if(listener)
     {
-      TWinEventInfo eventInfo(hWnd, uMsg, wParam, lParam);
+      TWinEventInfo eventInfo(hWnd, uMsg, wParam, lParam, static_cast<uint32_t>(GetMessageTime()));
       CallbackBase::Execute(*listener, &eventInfo);
     }
+    return handleClose;
   }
+  return false;
+}
+
+intptr_t WindowImpl::GetPreviousWindowProc(WinWindowHandle hWnd)
+{
+  auto iter = sHWndToListener.find(hWnd);
+  if(iter != sHWndToListener.end())
+  {
+    return iter->second->mPreviousWindowProc;
+  }
+
+  auto detached = sDetachedWindowProcedures.find(hWnd);
+  return detached == sDetachedWindowProcedures.end() ? 0 : detached->second;
+}
+
+void WindowImpl::RemoveWindow(WinWindowHandle hWnd)
+{
+  auto iter = sHWndToListener.find(hWnd);
+  if(iter != sHWndToListener.end())
+  {
+    iter->second->mHWnd               = 0;
+    iter->second->mPreviousWindowProc = 0;
+    iter->second->mIsExternalWindow   = false;
+    iter->second->colorDepth          = -1;
+    sHWndToListener.erase(iter);
+  }
+
+  if(sOwnedWindows.erase(hWnd) != 0u)
+  {
+    EnsureWindowClassUnregistered();
+  }
+  sDetachedWindowProcedures.erase(hWnd);
 }
 
 void WindowImpl::GetDPI(float& xDpi, float& yDpi)
 {
-  HDC hdcScreen = GetDC(reinterpret_cast<HWND>(mHWnd));
+  using GetDpiForWindowFunction     = UINT(WINAPI*)(HWND);
+  static const auto getDpiForWindow = []()
+  {
+    const HMODULE user32 = GetModuleHandleA("user32.dll");
+    return user32 ? reinterpret_cast<GetDpiForWindowFunction>(GetProcAddress(user32, "GetDpiForWindow")) : nullptr;
+  }();
 
-  int32_t iX    = GetDeviceCaps(hdcScreen, HORZRES);  // pixel
-  int32_t iY    = GetDeviceCaps(hdcScreen, VERTRES);  // pixel
-  int32_t iPhsX = GetDeviceCaps(hdcScreen, HORZSIZE); // mm
-  int32_t iPhsY = GetDeviceCaps(hdcScreen, VERTSIZE); // mm
+  if(getDpiForWindow && mHWnd != 0)
+  {
+    const UINT dpi = getDpiForWindow(reinterpret_cast<HWND>(mHWnd));
+    if(dpi != 0u)
+    {
+      xDpi = static_cast<float>(dpi);
+      yDpi = static_cast<float>(dpi);
+      return;
+    }
+  }
 
-  xDpi = static_cast<float>(iX) / static_cast<float>(iPhsX) * INCH;
-  yDpi = static_cast<float>(iY) / static_cast<float>(iPhsY) * INCH;
+  HWND window = reinterpret_cast<HWND>(mHWnd);
+  HDC  dc     = GetDC(window);
+  if(dc)
+  {
+    xDpi = static_cast<float>(GetDeviceCaps(dc, LOGPIXELSX));
+    yDpi = static_cast<float>(GetDeviceCaps(dc, LOGPIXELSY));
+    ReleaseDC(window, dc);
+  }
+  else
+  {
+    xDpi = 96.0f;
+    yDpi = 96.0f;
+  }
 }
 
 int WindowImpl::GetColorDepth()
@@ -144,58 +288,125 @@ int WindowImpl::GetColorDepth()
   return colorDepth;
 }
 
-uint64_t WindowImpl::CreateHwnd(
-  _In_opt_ const char* lpWindowName,
-  _In_ int             X,
-  _In_ int             Y,
-  _In_ int             nWidth,
-  _In_ int             nHeight,
-  _In_opt_ uint64_t    parent)
+WinWindowHandle WindowImpl::CreateHwnd(
+  const char*     lpWindowName,
+  int             X,
+  int             Y,
+  int             nWidth,
+  int             nHeight,
+  WinWindowHandle parent)
 {
-  EnsureWindowClassRegistered();
-  ++sNumWindows;
+  if(!EnsureWindowClassRegistered())
+  {
+    return 0;
+  }
 
-  HWND hWnd = CreateWindow(DALI_WINDOW_CLASS_NAME.c_str(), lpWindowName, STYLE, X, Y, nWidth + 2 * EDGE_WIDTH, nHeight + 2 * EDGE_HEIGHT, NULL, NULL, GetModuleHandle(NULL), NULL);
-  ::ShowWindow(hWnd, SW_SHOW);
+  const HWND  parentWindow = reinterpret_cast<HWND>(parent);
+  const DWORD style        = parentWindow ? (WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN) : STYLE;
+  RECT        windowRect   = {0, 0, (std::max)(nWidth, 1), (std::max)(nHeight, 1)};
+  if(!AdjustWindowRectEx(&windowRect, style, FALSE, 0))
+  {
+    DALI_LOG_ERROR("Failed to calculate DALi window frame, error %lu\n", static_cast<unsigned long>(GetLastError()));
+  }
 
-  return reinterpret_cast<uint64_t>(hWnd);
+  HWND hWnd = CreateWindowExA(0,
+                              DALI_WINDOW_CLASS_NAME,
+                              lpWindowName ? lpWindowName : "DALi",
+                              style,
+                              X,
+                              Y,
+                              windowRect.right - windowRect.left,
+                              windowRect.bottom - windowRect.top,
+                              parentWindow,
+                              nullptr,
+                              GetModuleHandleA(nullptr),
+                              nullptr);
+
+  if(!hWnd)
+  {
+    DALI_LOG_ERROR("Failed to create DALi window, error %lu\n", static_cast<unsigned long>(GetLastError()));
+    EnsureWindowClassUnregistered();
+    return 0;
+  }
+
+  const auto handle = reinterpret_cast<WinWindowHandle>(hWnd);
+  sOwnedWindows.insert(handle);
+  return handle;
 }
 
-void WindowImpl::DestroyHWnd(uint64_t hWnd)
+void WindowImpl::DestroyHWnd(WinWindowHandle hWnd)
 {
-  if(hWnd != 0)
+  if(sOwnedWindows.find(hWnd) != sOwnedWindows.end())
   {
-    ::DestroyWindow(reinterpret_cast<HWND>(hWnd));
+    auto listener = sHWndToListener.find(hWnd);
+    if(listener != sHWndToListener.end())
+    {
+      listener->second->DetachWindow();
+    }
 
-    --sNumWindows;
+    HWND       window    = reinterpret_cast<HWND>(hWnd);
+    const bool destroyed = !IsWindow(window) || ::DestroyWindow(window) != FALSE;
+    if(!destroyed)
+    {
+      DALI_LOG_ERROR("Failed to destroy DALi window, error %lu\n", static_cast<unsigned long>(GetLastError()));
+      return;
+    }
+    // WM_NCDESTROY may already have erased the handle while DestroyWindow()
+    // was on the stack, so erase by key rather than retaining an iterator.
+    sOwnedWindows.erase(hWnd);
+    EnsureWindowClassUnregistered();
+  }
+  else
+  {
+    // Also retries a class-unregister attempt deferred by WM_NCDESTROY.
     EnsureWindowClassUnregistered();
   }
 }
 
 void WindowImpl::SetListener(CallbackBase* callback)
 {
-  listener = callback;
+  mListener.reset(callback);
 }
 
 bool WindowImpl::PostWinMessage(
-  _In_ uint32_t Msg,
-  _In_ uint64_t wParam,
-  _In_ uint64_t lParam)
+  uint32_t  Msg,
+  uintptr_t wParam,
+  intptr_t  lParam)
 {
-  return (bool)PostMessage(reinterpret_cast<HWND>(mHWnd), Msg, wParam, lParam);
+  return PostMessage(reinterpret_cast<HWND>(mHWnd), Msg, static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam)) != FALSE;
 }
 
-void WindowImpl::SetHWND(uint64_t inHWnd)
+void WindowImpl::SetHWND(WinWindowHandle inHWnd)
 {
   if(mHWnd != inHWnd)
   {
-    RemoveListener(mHWnd);
+    // SetHWND can be used to switch between host-provided HWNDs. Restore an
+    // existing subclass before replacing the handle while retaining DALi's
+    // listener for the new one.
+    auto listener = std::move(mListener);
+    DetachWindow();
+    mListener = std::move(listener);
 
-    mHWnd      = inHWnd;
-    mHdc       = reinterpret_cast<uint64_t>(GetDC(reinterpret_cast<HWND>(mHWnd)));
-    colorDepth = GetDeviceCaps(reinterpret_cast<HDC>(mHdc), BITSPIXEL) * GetDeviceCaps(reinterpret_cast<HDC>(mHdc), PLANES);
+    mHWnd = inHWnd;
+    if(mHWnd == 0)
+    {
+      return;
+    }
 
-    std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(mHWnd);
+    HWND window = reinterpret_cast<HWND>(mHWnd);
+    HDC  dc     = GetDC(window);
+    if(dc)
+    {
+      colorDepth = GetDeviceCaps(dc, BITSPIXEL) * GetDeviceCaps(dc, PLANES);
+      ReleaseDC(window, dc);
+    }
+    else
+    {
+      colorDepth = -1;
+      DALI_LOG_ERROR("Failed to acquire DALi window DC, error %lu\n", static_cast<unsigned long>(GetLastError()));
+    }
+
+    auto x = sHWndToListener.find(mHWnd);
     if(sHWndToListener.end() == x)
     {
       sHWndToListener.insert(std::make_pair(mHWnd, this));
@@ -207,81 +418,247 @@ void WindowImpl::SetHWND(uint64_t inHWnd)
   }
 }
 
-void WindowImpl::SetWinProc()
+bool WindowImpl::SetWinProc()
 {
-  // Sets the WinProc function.
-  LONG_PTR ret = SetWindowLongPtr((HWND)mHWnd,
-                                  GWLP_WNDPROC,
-                                  reinterpret_cast<LONG_PTR>(&WinProc));
-
-  if(0 == ret)
+  if(mHWnd == 0 || mIsExternalWindow)
   {
-    DWORD error = GetLastError();
+    return mHWnd != 0;
+  }
+
+  auto detached = sDetachedWindowProcedures.find(mHWnd);
+  if(detached != sDetachedWindowProcedures.end())
+  {
+    // DALi's WinProc is already present deeper in another subclass chain.
+    // Reattach the listener without inserting the same procedure twice.
+    mPreviousWindowProc = detached->second;
+    mIsExternalWindow   = true;
+    sDetachedWindowProcedures.erase(detached);
+    return true;
+  }
+
+  // Sets the WinProc function.
+  SetLastError(ERROR_SUCCESS);
+  LONG_PTR previousWindowProc = SetWindowLongPtr(reinterpret_cast<HWND>(mHWnd),
+                                                 GWLP_WNDPROC,
+                                                 reinterpret_cast<LONG_PTR>(&WinProc));
+
+  if(previousWindowProc == 0 && GetLastError() != ERROR_SUCCESS)
+  {
+    DALI_LOG_ERROR("Failed to subclass external window, error %lu\n", static_cast<unsigned long>(GetLastError()));
+    return false;
+  }
+
+  mPreviousWindowProc = static_cast<intptr_t>(previousWindowProc);
+  mIsExternalWindow   = true;
+  return true;
+}
+
+void WindowImpl::DetachWindow()
+{
+  if(mHWnd == 0)
+  {
+    mListener.reset();
     return;
   }
 
-  HMODULE module = GetModuleHandle(nullptr);
-  ret            = SetWindowLongPtr((HWND)mHWnd,
-                                    GWLP_HINSTANCE,
-                                    reinterpret_cast<LONG_PTR>(&module));
+  HWND window                     = reinterpret_cast<HWND>(mHWnd);
+  bool restoredPreviousWindowProc = false;
+  if(mPreviousWindowProc != 0 && IsWindow(window))
+  {
+    const LONG_PTR currentWindowProc = GetWindowLongPtr(window, GWLP_WNDPROC);
+    if(currentWindowProc == reinterpret_cast<LONG_PTR>(&WinProc))
+    {
+      SetLastError(ERROR_SUCCESS);
+      const LONG_PTR result = SetWindowLongPtr(window, GWLP_WNDPROC, static_cast<LONG_PTR>(mPreviousWindowProc));
+      if(result == 0 && GetLastError() != ERROR_SUCCESS)
+      {
+        DALI_LOG_ERROR("Failed to restore external window procedure, error %lu\n", static_cast<unsigned long>(GetLastError()));
+      }
+      else
+      {
+        restoredPreviousWindowProc = true;
+      }
+    }
+
+    // If another component subclassed the HWND after DALi, our WinProc can
+    // remain deeper in its call chain. Keep just the previous-proc forwarding
+    // record (never the WindowBase pointer) until WM_NCDESTROY.
+    if(!restoredPreviousWindowProc)
+    {
+      sDetachedWindowProcedures[mHWnd] = mPreviousWindowProc;
+    }
+  }
+
+  RemoveListener(mHWnd);
+  mListener.reset();
+  mHWnd               = 0;
+  mPreviousWindowProc = 0;
+  mIsExternalWindow   = false;
+  colorDepth          = -1;
 }
 
 bool PostWinThreadMessage(
-  _In_ uint32_t Msg,
-  _In_ uint64_t wParam,
-  _In_ uint64_t lParam,
-  _In_ uint64_t threadID /* = -1*/)
+  uint32_t  Msg,
+  uintptr_t wParam,
+  intptr_t  lParam,
+  uint32_t  threadID /* = 0u */)
 {
-  if(-1 == threadID)
+  if(threadID == 0u)
   {
     threadID = GetCurrentThreadId();
   }
 
-  return (bool)PostThreadMessage(threadID, Msg, wParam, lParam);
+  return PostThreadMessage(threadID, Msg, static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam)) != FALSE;
+}
+
+WinCallbackToken RegisterWinCallback(CallbackBase* callback)
+{
+  if(!callback)
+  {
+    return 0u;
+  }
+
+  auto&                       registry           = GetCallbackRegistry();
+  auto                        registeredCallback = std::make_shared<RegisteredCallback>(callback);
+  std::lock_guard<std::mutex> lock(registry.mMutex);
+
+  WinCallbackToken token{0u};
+  do
+  {
+    token = registry.mNextToken++;
+    if(registry.mNextToken == 0u)
+    {
+      registry.mNextToken = 1u;
+    }
+  } while(token == 0u || registry.mCallbacks.find(token) != registry.mCallbacks.end());
+
+  registry.mCallbacks.emplace(token, std::move(registeredCallback));
+  return token;
+}
+
+void UnregisterWinCallback(WinCallbackToken token)
+{
+  if(token == 0u)
+  {
+    return;
+  }
+
+  auto&                               registry = GetCallbackRegistry();
+  std::shared_ptr<RegisteredCallback> registeredCallback;
+  {
+    std::lock_guard<std::mutex> lock(registry.mMutex);
+    auto                        iter = registry.mCallbacks.find(token);
+    if(iter == registry.mCallbacks.end())
+    {
+      return;
+    }
+    registeredCallback = std::move(iter->second);
+    registry.mCallbacks.erase(iter);
+  }
+
+  // If another thread is executing the callback this waits for it. If the
+  // callback unregisters itself, recursive locking lets cancellation finish
+  // and the shared entry keeps the callback wrapper alive until Execute exits.
+  std::lock_guard<std::recursive_mutex> executionLock(registeredCallback->mExecutionMutex);
+  registeredCallback->mCancelled = true;
+}
+
+bool PostWinCallback(WinCallbackToken token, uint32_t threadID)
+{
+  return token != 0u && PostWinThreadMessage(WIN_CALLBACK_EVENT, token, 0, threadID);
+}
+
+void ExecuteWinCallback(WinCallbackToken token)
+{
+  if(token == 0u)
+  {
+    return;
+  }
+
+  auto&                               registry = GetCallbackRegistry();
+  std::shared_ptr<RegisteredCallback> registeredCallback;
+  {
+    std::lock_guard<std::mutex> lock(registry.mMutex);
+    auto                        iter = registry.mCallbacks.find(token);
+    if(iter == registry.mCallbacks.end())
+    {
+      return; // Expected for a callback cancelled after its message was queued.
+    }
+    registeredCallback = iter->second;
+  }
+
+  std::lock_guard<std::recursive_mutex> executionLock(registeredCallback->mExecutionMutex);
+  if(!registeredCallback->mCancelled && registeredCallback->mCallback)
+  {
+    CallbackBase::Execute(*registeredCallback->mCallback);
+  }
 }
 
 struct TTimerCallbackInfo
 {
   void*         data;
   timerCallback callback;
-  HWND          hWnd;
 };
 
-void CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT_PTR nTimerid, DWORD dwTime)
-{
-  TTimerCallbackInfo* info = (TTimerCallbackInfo*)nTimerid;
-  info->callback(info->data);
-}
+thread_local std::unordered_map<UINT_PTR, std::shared_ptr<TTimerCallbackInfo>> gTimerCallbacks;
 
-intptr_t SetTimer(int interval, timerCallback callback, void* data)
+void CALLBACK TimerProc(HWND, UINT, UINT_PTR nTimerid, DWORD)
 {
-  HWND hwnd = GetActiveWindow();
-  if(!hwnd)
+  auto timer = gTimerCallbacks.find(nTimerid);
+  if(timer == gTimerCallbacks.end())
   {
-    hwnd = FindWindow(DALI_WINDOW_CLASS_NAME.c_str(), nullptr);
+    // KillTimer does not remove an already queued WM_TIMER message.  Looking
+    // up the id instead of treating it as a pointer makes such stale messages
+    // harmless.
+    return;
   }
 
-  if(!hwnd)
+  // The callback is allowed to stop (and erase) its own timer.
+  auto info = timer->second;
+  if(info && info->callback)
+  {
+    info->callback(info->data);
+  }
+}
+
+intptr_t SetTimer(uint32_t interval, timerCallback callback, void* data)
+{
+  if(!callback)
   {
     return -1;
   }
 
-  TTimerCallbackInfo* callbackInfo = new TTimerCallbackInfo;
-  callbackInfo->data               = data;
-  callbackInfo->callback           = callback;
-  callbackInfo->hWnd               = hwnd;
+  auto callbackInfo      = std::make_shared<TTimerCallbackInfo>();
+  callbackInfo->data     = data;
+  callbackInfo->callback = callback;
 
-  INT_PTR timerID = (INT_PTR)callbackInfo;
-  ::SetTimer(hwnd, timerID, interval, TimerProc);
+  const UINT_PTR timerId = ::SetTimer(nullptr,
+                                      0,
+                                      static_cast<UINT>((std::max)(interval, 1u)),
+                                      TimerProc);
+  if(timerId == 0)
+  {
+    DALI_LOG_ERROR("Failed to create Windows timer, error %lu\n", static_cast<unsigned long>(GetLastError()));
+    return -1;
+  }
 
-  return timerID;
+  gTimerCallbacks.emplace(timerId, std::move(callbackInfo));
+  return static_cast<intptr_t>(timerId);
 }
 
 void KillTimer(intptr_t id)
 {
-  TTimerCallbackInfo* info = (TTimerCallbackInfo*)id;
-  ::KillTimer(info->hWnd, id);
-  delete info;
+  if(id < 0)
+  {
+    return;
+  }
+
+  const auto timerId = static_cast<UINT_PTR>(id);
+  if(::KillTimer(nullptr, timerId) == 0)
+  {
+    DALI_LOG_ERROR("Failed to stop Windows timer %llu\n", static_cast<unsigned long long>(timerId));
+  }
+  gTimerCallbacks.erase(timerId);
 }
 
 std::string GetKeyName(int keyCode)
@@ -377,40 +754,44 @@ std::string GetKeyName(int keyCode)
   return "";
 }
 
-static LARGE_INTEGER  cpuFrequency;
-static LARGE_INTEGER* pCpuFrequency = NULL;
+namespace
+{
+const LARGE_INTEGER& GetPerformanceCounterFrequency()
+{
+  static const LARGE_INTEGER frequency = []()
+  {
+    LARGE_INTEGER value{};
+    if(!QueryPerformanceFrequency(&value) || value.QuadPart <= 0)
+    {
+      value.QuadPart = 1;
+    }
+    return value;
+  }();
+  return frequency;
+}
+} // unnamed namespace
 
-uint64_t GetCurrentThreadId()
+uint32_t GetCurrentThreadId()
 {
   return ::GetCurrentThreadId();
 }
 
 void GetNanoseconds(uint64_t& timeInNanoseconds)
 {
-  if(NULL == pCpuFrequency)
-  {
-    pCpuFrequency = &cpuFrequency;
-    QueryPerformanceFrequency(pCpuFrequency);
-  }
-
-  LARGE_INTEGER curTime;
+  LARGE_INTEGER curTime{};
   QueryPerformanceCounter(&curTime);
 
-  timeInNanoseconds = static_cast<double>(curTime.QuadPart) / static_cast<double>(pCpuFrequency->QuadPart) * 1000000000;
+  const auto& frequency = GetPerformanceCounterFrequency();
+  timeInNanoseconds     = static_cast<uint64_t>(static_cast<double>(curTime.QuadPart) / static_cast<double>(frequency.QuadPart) * 1000000000.0);
 }
 
 unsigned int GetCurrentMilliSeconds(void)
 {
-  if(NULL == pCpuFrequency)
-  {
-    pCpuFrequency = &cpuFrequency;
-    QueryPerformanceFrequency(pCpuFrequency);
-  }
-
-  LARGE_INTEGER curTime;
+  LARGE_INTEGER curTime{};
   QueryPerformanceCounter(&curTime);
 
-  return curTime.QuadPart * 1000 / pCpuFrequency->QuadPart;
+  const auto& frequency = GetPerformanceCounterFrequency();
+  return static_cast<unsigned int>(curTime.QuadPart * 1000 / frequency.QuadPart);
 }
 
 } // namespace WindowsPlatform

@@ -33,6 +33,11 @@ class DALI_ADAPTOR_API Value : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~Value();
+
+  /**
    * @brief Gets the lowest possible value.
    *
    * @return The minimum value

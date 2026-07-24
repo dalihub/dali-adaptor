@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,38 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-// CLASS HEADER
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
-
-// EXTERNAL INCLUDE
-#include <cstdlib>
-
-#if defined(_WIN32)
-#ifdef GetEnvironmentVariable
-#undef GetEnvironmentVariable
-#endif
-#endif
+#include <dali/internal/network/common/socket-factory.h>
+#include <dali/internal/network/windows/socket-impl-win.h>
 
 namespace Dali
 {
-namespace EnvironmentVariable
+namespace Internal
 {
-const char* GetEnvironmentVariable(const char* variable)
+namespace Adaptor
 {
-  return std::getenv(variable);
+SocketInterface* SocketFactory::NewSocket(SocketInterface::Protocol protocol)
+{
+  return new SocketWin(protocol);
 }
 
-bool SetEnvironmentVariable(const char* variable, const char* value)
+void SocketFactory::DestroySocket(SocketInterface* socketInterface)
 {
-#if defined(_WIN32)
-  return _putenv_s(variable, value) == 0;
-#else
-  return setenv(variable, value, 1) == 0;
-#endif
+  delete static_cast<SocketWin*>(socketInterface);
 }
 
-} // namespace EnvironmentVariable
-
+} // namespace Adaptor
+} // namespace Internal
 } // namespace Dali

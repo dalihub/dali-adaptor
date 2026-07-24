@@ -26,6 +26,10 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-error-print.h>
 
+#if defined(_WIN32)
+#include <third-party/windows-platform/Win32File/CustomFile.h>
+#endif
+
 namespace Dali
 {
 FileStream::Impl::Impl(const std::string& filename, uint8_t mode)
@@ -75,7 +79,11 @@ FileStream::Impl::~Impl()
 {
   if(mFile)
   {
+#if defined(_WIN32)
+    const int closeFailed = CustomFile::FClose(mFile);
+#else
     const int closeFailed = fclose(mFile);
+#endif
     if(closeFailed)
     {
       DALI_LOG_ERROR("File close failed.\n");

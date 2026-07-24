@@ -1,3 +1,6 @@
+#ifndef DALI_INTERNAL_ADAPTOR_WEAK_SYMBOL_H
+#define DALI_INTERNAL_ADAPTOR_WEAK_SYMBOL_H
+
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
@@ -12,21 +15,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-// EXTERNAL INCLUDES
-#include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
+// MSVC/COFF has no direct equivalent of an ELF weak function definition.
+// Profiles using MSVC must therefore select exactly one factory implementation.
+#if defined(_WIN32)
+#define DALI_ADAPTOR_WEAK_SYMBOL
+#elif defined(__GNUC__) || defined(__clang__)
+#define DALI_ADAPTOR_WEAK_SYMBOL __attribute__((weak))
+#else
+#define DALI_ADAPTOR_WEAK_SYMBOL
+#endif
 
-// INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/weak-symbol.h>
-#include <dali/internal/graphics/common/graphics-library.h>
-
-namespace Dali::Internal::Adaptor
-{
-DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
-{
-  return GraphicsLibrary::CastToNativeGraphicsType(display);
-}
-
-} // namespace Dali::Internal::Adaptor
+#endif // DALI_INTERNAL_ADAPTOR_WEAK_SYMBOL_H

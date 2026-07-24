@@ -28,6 +28,10 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
+#if defined(_WIN32)
+#undef NO_ERROR
+#endif
+
 namespace Dali
 {
 namespace Internal

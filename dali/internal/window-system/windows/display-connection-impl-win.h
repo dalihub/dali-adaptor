@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/public-api/object/base-object.h>
@@ -84,8 +85,7 @@ public:
   DisplayConnectionWin& operator=(const DisplayConnectionWin& rhs) = delete;
 
 private:
-  GraphicsInterface* mGraphics; ///< The graphics interface
-  HDC                mDisplay{};
+  EGLNativeDisplayType mDisplay{};
 };
 
 } // namespace Adaptor

@@ -37,21 +37,10 @@ namespace Dali::Accessibility
 class DALI_ADAPTOR_API ProxyAccessible : public Accessible
 {
 public:
-  ProxyAccessible()
-  : mAddress{},
-    mParent{nullptr}
-  {
-  }
+  ProxyAccessible();
 
-  void SetAddress(Dali::Devel::Accessibility::Address address)
-  {
-    mAddress = std::move(address);
-  }
-
-  void SetParent(Accessible* parent)
-  {
-    mParent = parent;
-  }
+  void SetAddress(Dali::Devel::Accessibility::Address address);
+  void SetParent(Accessible* parent);
 
   std::string GetName() const override
   {

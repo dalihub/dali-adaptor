@@ -65,7 +65,7 @@ inline bool EnableCacheRenderedGlyph()
  * It will be used only if CacheRenderedGlyph is enabled
  */
 constexpr auto DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY =
-#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(_WIN32) || defined(__APPLE__))
   GlyphCacheManager::CompressionPolicyType::MEMORY; // If tizen target
 #else
   GlyphCacheManager::CompressionPolicyType::SPEED; // If not tizen target

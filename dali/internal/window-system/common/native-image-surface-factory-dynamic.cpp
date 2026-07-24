@@ -19,12 +19,13 @@
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
 {
   return GraphicsLibrary::CreateNativeImageSurface(queue);
 }

@@ -28,7 +28,8 @@ namespace Internal
 namespace Adaptor
 {
 FileDescriptorMonitorWin::FileDescriptorMonitorWin(int fileDescriptor, CallbackBase* callback, int eventBitmask)
-: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask),
+  mImpl(nullptr)
 {
   DALI_LOG_WARNING_NOFN("Implementation missing for MS Windows");
 }

@@ -19,13 +19,14 @@
 #include <dali/internal/system/windows/callback-manager-win.h>
 
 // EXTERNAL INCLUDES
-#include <Windows.h>
+#include <windows.h>
 
 // Need to undef the following constants as they are defined in one of the headers in Windows.h but used in DALi (via debug.h)
 #undef TRANSPARENT // Used in constants.h
 #undef CopyMemory  // Used in dali-vector.h
 
 #include <dali/integration-api/debug.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/platform-implement-win.h>
@@ -49,27 +50,22 @@ struct WindowsCallbackData
     mHasReturnValue(hasReturnValue)
   {
   }
-  /**
-   * Destructor
-   */
-  ~WindowsCallbackData()
-  {
-    delete mCallback;
-  }
-
-  CallbackBase* mCallback;       ///< call back
-  bool          mHasReturnValue; ///< true if the callback function has a return value.
+  // Data
+  std::shared_ptr<CallbackBase> mCallback;       ///< callback with execution-safe ownership
+  bool                          mHasReturnValue; ///< true if the callback function has a return value.
 };
 
 WinCallbackManager::WinCallbackManager()
-: mRunning(false)
+: mSelfCallbackToken(WindowsPlatform::RegisterWinCallback(MakeCallback(this, &WinCallbackManager::ProcessIdleFromFramework))),
+  mRunning(false)
 {
-  mSelfCallback = MakeCallback(this, &WinCallbackManager::ProcessIdleFromFramework);
 }
 
 WinCallbackManager::~WinCallbackManager()
 {
-  delete mSelfCallback;
+  WindowsPlatform::UnregisterWinCallback(mSelfCallbackToken);
+  mSelfCallbackToken = 0u;
+  ClearIdleCallbacks();
 }
 
 void WinCallbackManager::Start()
@@ -90,32 +86,38 @@ void WinCallbackManager::Stop()
 
 bool WinCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasReturnValue)
 {
-  if(!mRunning)
+  if(!mRunning || !callback)
   {
     return false;
   }
 
-  WindowsCallbackData* callbackData = new WindowsCallbackData(callback, hasReturnValue);
-
-  mCallbackContainer.push_back(callbackData);
-
   if(!mSelfCallbackRegistered)
   {
-    // Post only one times.
+    if(!WindowsPlatform::PostWinCallback(mSelfCallbackToken))
+    {
+      DALI_LOG_ERROR("Failed to queue the Windows idle callback\n");
+      return false; // Ownership of callback remains with the caller.
+    }
     mSelfCallbackRegistered = true;
-    WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0);
   }
 
+  mCallbackContainer.push_back(new WindowsCallbackData(callback, hasReturnValue));
   return true;
 }
 
 void WinCallbackManager::RemoveIdleCallback(CallbackBase* callback)
 {
+  if(mExecutingCallback && mExecutingCallback->mCallback.get() == callback)
+  {
+    mExecutingCallbackRemoved = true;
+    return;
+  }
+
   for(auto iter = mCallbackContainer.begin(), endIter = mCallbackContainer.end(); iter != endIter; ++iter)
   {
     auto* callbackData = *iter;
 
-    if(callbackData->mCallback == callback)
+    if(callbackData->mCallback.get() == callback)
     {
       // delete our data
       delete callbackData;
@@ -130,48 +132,71 @@ void WinCallbackManager::RemoveIdleCallback(CallbackBase* callback)
 
 bool WinCallbackManager::ProcessIdle()
 {
+  if(mExecutingCallback)
+  {
+    return false; // Do not permit recursive processing to replace execution state.
+  }
+
   mSelfCallbackRegistered = false;
 
   const bool idleProcessed = !mCallbackContainer.empty();
+  size_t     callbacksLeft = mCallbackContainer.size();
 
-  for(auto iter = mCallbackContainer.begin(); iter != mCallbackContainer.end();)
+  // Pop each entry before invoking user code. Stop(), ClearIdleCallbacks(), or
+  // RemoveIdleCallback() may then mutate the list without invalidating an
+  // iterator held across callback execution.
+  while(callbacksLeft-- > 0u && !mCallbackContainer.empty())
   {
-    auto* callbackData = *iter;
-    bool  removed      = true;
+    auto* callbackData = mCallbackContainer.front();
+    mCallbackContainer.pop_front();
+    bool removed = true;
     if(callbackData)
     {
+      mExecutingCallback        = callbackData;
+      mExecutingCallbackRemoved = false;
+      auto callback             = callbackData->mCallback;
       if(callbackData->mHasReturnValue)
       {
-        const bool retValue = Dali::CallbackBase::ExecuteReturn<bool>(*(callbackData->mCallback));
+        const bool retValue = Dali::CallbackBase::ExecuteReturn<bool>(*callback);
 
         // Do not remove callback if return value is true.
         removed = !retValue;
       }
       else
       {
-        Dali::CallbackBase::Execute(*(callbackData->mCallback));
+        Dali::CallbackBase::Execute(*callback);
       }
+
+      removed = removed || mExecutingCallbackRemoved || !mRunning;
+      mExecutingCallback        = nullptr;
+      mExecutingCallbackRemoved = false;
     }
 
     if(removed)
     {
-      delete(*iter);
-      iter = mCallbackContainer.erase(iter);
+      delete callbackData;
     }
     else
     {
-      ++iter;
+      mCallbackContainer.push_back(callbackData);
     }
   }
 
   // Re-register WIN_CALLBACK_EVENT when some idle callback remained.
-  if(!mCallbackContainer.empty())
+  if(mRunning && !mCallbackContainer.empty())
   {
     if(!mSelfCallbackRegistered)
     {
       // Post only one times.
       mSelfCallbackRegistered = true;
-      WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0);
+      if(!WindowsPlatform::PostWinCallback(mSelfCallbackToken))
+      {
+        mSelfCallbackRegistered = false;
+        DALI_LOG_ERROR("Failed to requeue the Windows idle callback\n");
+        // Repeating callbacks cannot make progress without a queue message;
+        // release them instead of leaving them permanently registered.
+        ClearIdleCallbacks();
+      }
     }
   }
 
@@ -180,6 +205,11 @@ bool WinCallbackManager::ProcessIdle()
 
 void WinCallbackManager::ClearIdleCallbacks()
 {
+  if(mExecutingCallback)
+  {
+    mExecutingCallbackRemoved = true;
+  }
+
   for(auto iter = mCallbackContainer.begin(), endIter = mCallbackContainer.end(); iter != endIter; ++iter)
   {
     auto* callbackData = *iter;

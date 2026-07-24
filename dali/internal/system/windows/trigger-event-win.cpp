@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2025 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@
 #include <dali/internal/system/windows/trigger-event-win.h>
 
 // EXTERNAL INCLUDES
-#include <unistd.h>
-
 #include <dali/integration-api/debug.h>
+#include <atomic>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/windows/unified-trigger-event-manager-impl-win.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
 namespace Dali
@@ -33,40 +32,61 @@ namespace Internal
 {
 namespace Adaptor
 {
-TriggerEvent::TriggerEvent(CallbackBase* callback)
-: mCallback(callback),
-  mThreadID(-1)
+namespace
 {
-  // Create accompanying file descriptor.
-  mThreadID = WindowsPlatform::GetCurrentThreadId();
+std::atomic<uint32_t> gUniqueEventId{0u};
 
-  if(mThreadID < 0)
+uint32_t GetNextEventId()
+{
+  uint32_t id = gUniqueEventId.fetch_add(1u, std::memory_order_relaxed) + 1u;
+  if(DALI_UNLIKELY(id == 0u))
   {
-    DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
+    id = gUniqueEventId.fetch_add(1u, std::memory_order_relaxed) + 1u;
   }
+  return id;
+}
+} // unnamed namespace
 
-  mSelfCallback = MakeCallback(this, &TriggerEvent::Triggered);
+TriggerEvent::TriggerEvent(UnifiedTriggerEventManager* manager, CallbackBase* callback)
+: mTriggerManager(manager),
+  mCallback(callback),
+  mSelfCallbackToken(0u),
+  mId(GetNextEventId()),
+  mThreadId(0u)
+{
+  if(manager == nullptr)
+  {
+    mThreadId = static_cast<uint32_t>(WindowsPlatform::GetCurrentThreadId());
+
+    if(mThreadId == 0u)
+    {
+      DALI_LOG_ERROR("Unable to acquire the TriggerEvent thread id\n");
+    }
+
+    mSelfCallbackToken = WindowsPlatform::RegisterWinCallback(MakeCallback(this, &TriggerEvent::Triggered));
+  }
 }
 
 TriggerEvent::~TriggerEvent()
 {
-  delete mCallback;
-  delete mSelfCallback;
-
-  if(mThreadID >= 0)
-  {
-    mThreadID = 0;
-  }
+  WindowsPlatform::UnregisterWinCallback(mSelfCallbackToken);
+  mSelfCallbackToken = 0u;
+  mCallback.reset();
+  mThreadId = 0u;
 }
 
 void TriggerEvent::Trigger()
 {
-  if(mThreadID >= 0)
+  if(mThreadId != 0u && mSelfCallbackToken != 0u)
   {
-    // Increment event counter by 1.
-    // Writing to the file descriptor triggers the Dispatch() method in the other thread
-    // (if in multi-threaded environment).
-    WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0, mThreadID);
+    if(!WindowsPlatform::PostWinCallback(mSelfCallbackToken, mThreadId))
+    {
+      DALI_LOG_ERROR("Unable to post TriggerEvent[%p] Id(%u)\n", this, mId);
+    }
+  }
+  else if(mTriggerManager)
+  {
+    GetImplementation(mTriggerManager).Trigger(this);
   }
   else
   {
@@ -74,10 +94,27 @@ void TriggerEvent::Trigger()
   }
 }
 
+Dali::UnifiedTriggerEventManager TriggerEvent::GetUnifiedTriggerEventManager() const
+{
+  return mTriggerManager;
+}
+
+void TriggerEvent::Discard()
+{
+  mTriggerManager.Reset();
+
+  WindowsPlatform::UnregisterWinCallback(mSelfCallbackToken);
+  mSelfCallbackToken = 0u;
+  mCallback.reset();
+}
+
 void TriggerEvent::Triggered()
 {
-  // Call the connected callback
-  CallbackBase::Execute(*mCallback);
+  auto callback = mCallback;
+  if(DALI_LIKELY(callback))
+  {
+    CallbackBase::Execute(*callback);
+  }
 }
 
 } // namespace Adaptor

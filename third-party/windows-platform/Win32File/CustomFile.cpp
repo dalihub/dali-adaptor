@@ -1,178 +1,208 @@
+/*
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <cstdlib>
+#include <cstdint>
+#include <cstring>
+#include <string>
+
 #include "CustomFile.h"
 
-extern void* MemFOpen( uint8_t* buffer, size_t dataSize, const char * const mode );
-extern void MemFClose( const void *fp );
-extern int MemFRead( void* buf, int eleSize, int count, const void *fp );
-extern void MemFWrite( void *buf, int size, const void *fp );
-extern int MemFSeek( const void *fp, int offset, int origin );
-extern int MemFTell( const void *fp );
-extern bool MemFEof( const void *fp );
+extern void*  MemFOpen(uint8_t* buffer, size_t dataSize, const char* mode);
+extern int    MemFClose(const void* fp);
+extern bool   MemFIsMemoryFile(const void* fp);
+extern size_t MemFRead(void* buffer, size_t elementSize, size_t elementCount, const void* fp);
+extern size_t MemFWrite(const void* buffer, size_t elementSize, size_t elementCount, const void* fp);
+extern int    MemFSeek(const void* fp, long offset, int origin);
+extern long   MemFTell(const void* fp);
+extern int    MemFEof(const void* fp);
 
-extern void* OriginalFOpen( const char *name, const char *mode );
-extern int OriginalFClose( const void *fp );
-extern int OriginalFRead( void* buf, int eleSize, int count, const void *fp );
-extern void OriginalFWrite( void *buf, int size, const void *fp );
-extern void OriginalFWrite( void *buf, int eleSize, int count, const void *fp );
-extern int OriginalFSeek( const void *fp, int offset, int origin );
-extern int OriginalFTell( const void *fp );
-extern bool OriginalFEof( const void *fp );
+extern void*  OriginalFOpen(const char* name, const char* mode);
+extern int    OriginalFClose(const void* fp);
+extern size_t OriginalFRead(void* buffer, size_t elementSize, size_t elementCount, const void* fp);
+extern size_t OriginalFWrite(const void* buffer, size_t elementSize, size_t elementCount, const void* fp);
+extern int    OriginalFSeek(const void* fp, long offset, int origin);
+extern long   OriginalFTell(const void* fp);
+extern int    OriginalFEof(const void* fp);
 
 namespace
 {
-std::string GetRealName(const char* name)
+bool GetEnvironmentValue(const std::string& variableName, std::string& value)
 {
-  if (nullptr != name && '*' == name[0])
+#if defined(_MSC_VER)
+  size_t requiredSize = 0u;
+  if(::getenv_s(&requiredSize, nullptr, 0u, variableName.c_str()) != 0 || requiredSize == 0u)
   {
-    std::string envName;
-
-    const char *p = name + 1;
-
-    while (0 != *p && '*' != *p)
-    {
-      envName.push_back(*p);
-      p++;
-    }
-
-    p++;
-
-    char *envValue = std::getenv(envName.c_str());
-
-    std::string realName;
-    realName = "";
-    realName += envValue;
-    realName += p;
-
-    return realName;
+    return false;
   }
-  else
+
+  value.resize(requiredSize);
+  if(::getenv_s(&requiredSize, value.data(), value.size(), variableName.c_str()) != 0)
   {
-    return std::string(name);
+    value.clear();
+    return false;
   }
+  value.resize(requiredSize > 0u ? requiredSize - 1u : 0u);
+  return true;
+#else
+  const char* const variableValue = std::getenv(variableName.c_str());
+  if(variableValue == nullptr)
+  {
+    return false;
+  }
+
+  value.assign(variableValue);
+  return true;
+#endif
 }
-} // namespace
+
+bool ExpandEnvironmentPath(const char* name, std::string& realName)
+{
+  if(name == nullptr || name[0] != '*')
+  {
+    return false;
+  }
+
+  const char* const variableBegin = name + 1;
+  const char* const variableEnd   = std::strchr(variableBegin, '*');
+  if(variableEnd == nullptr || variableEnd == variableBegin)
+  {
+    return false;
+  }
+
+  const std::string variableName(variableBegin, variableEnd);
+  std::string       variableValue;
+  if(!GetEnvironmentValue(variableName, variableValue))
+  {
+    return false;
+  }
+
+  realName.assign(variableValue);
+  realName.append(variableEnd + 1);
+  return true;
+}
+} // unnamed namespace
 
 namespace CustomFile
 {
-FILE* FOpen( const char *name, const char *mode )
+FILE* FOpen(const char* name, const char* mode)
 {
-  if( NULL != name && '*' == name[0] )
+  if(name == nullptr || mode == nullptr)
   {
-    std::string realName = GetRealName( name );
-    FILE* ret = (FILE*)OriginalFOpen( realName.c_str(), mode );
-    if (NULL == ret)
+    return nullptr;
+  }
+
+  if(name[0] == '*')
+  {
+    std::string realName;
+    if(!ExpandEnvironmentPath(name, realName))
     {
-      int temp = 0;
+      return nullptr;
     }
-    return ret;
+    return static_cast<FILE*>(OriginalFOpen(realName.c_str(), mode));
   }
-  else
-  {
-    return (FILE*)OriginalFOpen( name, mode );
-  }
+
+  return static_cast<FILE*>(OriginalFOpen(name, mode));
 }
 
-int FClose( const void* fp )
+int FClose(const void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr)
   {
-    MemFClose( fp );
-    return 0;
+    return EOF;
   }
-  else
-  {
-    return OriginalFClose( fp );
-  }
+
+  return MemFIsMemoryFile(fp) ? MemFClose(fp) : OriginalFClose(fp);
 }
 
-FILE* FMemopen( void* buffer, size_t dataSize, const char * mode )
+FILE* FMemopen(void* buffer, size_t dataSize, const char* mode)
 {
-  return (FILE*)MemFOpen( ( uint8_t*)buffer, dataSize, mode );
+  return static_cast<FILE*>(MemFOpen(static_cast<uint8_t*>(buffer), dataSize, mode));
 }
 
-int FRead( void* buf, int eleSize, int count, const void *fp )
+size_t FRead(void* buffer, size_t elementSize, size_t elementCount, const void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr || (buffer == nullptr && elementSize != 0u && elementCount != 0u))
   {
-    return MemFRead( buf, eleSize, count, fp );
+    return 0u;
   }
-  else
-  {
-    return OriginalFRead( buf, eleSize, count, fp );
-  }
+
+  return MemFIsMemoryFile(fp) ? MemFRead(buffer, elementSize, elementCount, fp)
+                              : OriginalFRead(buffer, elementSize, elementCount, fp);
 }
 
-void FWrite( void *buf, int size, const void *fp )
+void FWrite(void* buffer, size_t size, const void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
-  {
-    MemFWrite( buf, size, fp );
-  }
-  else
-  {
-    OriginalFWrite( buf, size, fp );
-  }
+  static_cast<void>(FWrite(buffer, 1u, size, const_cast<void*>(fp)));
 }
 
-unsigned int FWrite( const char  *buf, unsigned int eleSize, unsigned int count, void *fp )
+size_t FWrite(const void* buffer, size_t elementSize, size_t elementCount, void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr || (buffer == nullptr && elementSize != 0u && elementCount != 0u))
   {
-    MemFWrite( (void*)buf, eleSize * count, fp );
-  }
-  else
-  {
-    OriginalFWrite((void*)buf, eleSize, count, fp );
+    return 0u;
   }
 
-  return eleSize * count;
+  return MemFIsMemoryFile(fp) ? MemFWrite(buffer, elementSize, elementCount, fp)
+                              : OriginalFWrite(buffer, elementSize, elementCount, fp);
 }
 
-int FSeek( const void *fp, int offset, int origin )
+int FSeek(const void* fp, long offset, int origin)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr)
   {
-    return MemFSeek( fp, offset, origin );
+    return -1;
   }
-  else
-  {
-    return OriginalFSeek( fp, offset, origin );
-  }
+
+  return MemFIsMemoryFile(fp) ? MemFSeek(fp, offset, origin) : OriginalFSeek(fp, offset, origin);
 }
 
-int FTell( const void *fp )
+long FTell(const void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr)
   {
-    return MemFTell( fp );
+    return -1L;
   }
-  else
-  {
-    return OriginalFTell( fp );
-  }
+
+  return MemFIsMemoryFile(fp) ? MemFTell(fp) : OriginalFTell(fp);
 }
 
-bool FEof( const void *fp )
+int FEof(const void* fp)
 {
-  if( -1 == *( (char*)fp + 4 ) )
+  if(fp == nullptr)
   {
-    return MemFEof( fp );
+    return 1;
   }
-  else
-  {
-    return OriginalFEof( fp );
-  }
+
+  return MemFIsMemoryFile(fp) ? MemFEof(fp) : OriginalFEof(fp);
 }
-}
+} // namespace CustomFile
 
 extern "C"
 {
-size_t __cdecl fread_for_c( void*  _Buffer, size_t _ElementSize, size_t _ElementCount, void*  _Stream )
+size_t __cdecl fread_for_c(void* buffer, size_t elementSize, size_t elementCount, void* stream)
 {
-  return CustomFile::FRead( _Buffer, _ElementSize, _ElementCount, _Stream );
+  return CustomFile::FRead(buffer, elementSize, elementCount, stream);
 }
 
-void __cdecl fwrite_for_c( void *buf, int size, const void *fp )
+void __cdecl fwrite_for_c(void* buffer, int size, const void* stream)
 {
-  CustomFile::FWrite( buf, size, fp );
+  if(size > 0)
+  {
+    CustomFile::FWrite(buffer, static_cast<size_t>(size), stream);
+  }
 }
 }
