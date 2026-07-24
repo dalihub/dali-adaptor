@@ -76,12 +76,12 @@ DragAndDropGeneric::~DragAndDropGeneric()
 {
 }
 
-bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& dragData, Dali::DragAndDrop::SourceFunction callback)
+bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& dragData, SourceCallback callback)
 {
   return true;
 }
 
-bool DragAndDropGeneric::AddListener(Dali::Actor target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback)
+bool DragAndDropGeneric::AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback)
 {
   return true;
 }
@@ -91,7 +91,7 @@ bool DragAndDropGeneric::RemoveListener(Dali::Actor target)
   return true;
 }
 
-bool DragAndDropGeneric::AddListener(Dali::Window target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback)
+bool DragAndDropGeneric::AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback)
 {
   return true;
 }

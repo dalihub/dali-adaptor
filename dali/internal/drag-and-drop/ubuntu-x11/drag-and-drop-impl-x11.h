@@ -42,7 +42,7 @@ struct DropTarget
 {
   Dali::Actor                            target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   bool                                   inside;
   Ecore_X_Window                         parentWindowId;
 };
@@ -51,7 +51,7 @@ struct DropWindowTarget
 {
   Dali::Window                           target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   bool                                   inside;
   Ecore_X_Window                         windowId;
 };
@@ -66,9 +66,9 @@ public:
   DragAndDropX11();
   ~DragAndDropX11() override;
 
-  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) override;
-  bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
-  bool AddListener(Dali::Window target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
+  bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
+  bool AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback) override;
   bool RemoveListener(Dali::Actor target) override;
   bool RemoveListener(Dali::Window target) override;
   void SendData(void* event) override;
@@ -108,7 +108,7 @@ private:
 
   // Source drag state
   std::map<std::string, std::string> mDataMap;                       //   48 bytes
-  Dali::DragAndDrop::SourceFunction  mSourceCallback{nullptr};       //   32 bytes
+  SourceCallback                      mSourceCallback{};              //   32 bytes
 
   // Drop target lists
   std::vector<DropTarget>       mDropTargets;                        //   24 bytes

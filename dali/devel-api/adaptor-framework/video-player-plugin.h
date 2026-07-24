@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
+#include <dali/public-api/adaptor-framework/video-source-descriptor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
@@ -39,60 +40,24 @@ typedef Dali::BoundsInteger DisplayArea;
 class VideoPlayerPlugin
 {
 public:
-  /**
-   * @brief Ownership policy for a video source native session.
-   *
-   * This is used by source-based video creation. The adaptor transports the
-   * value to the platform video plugin and does not interpret it.
-   */
-  enum class VideoSourceOwnership : uint32_t
-  {
-    EXTERNAL = 0, ///< The caller owns the native session.
-    SHARED   = 1, ///< The native session is shared or ref-counted.
-    TRANSFER = 2, ///< Ownership is transferred, if the provider supports it.
-  };
+  // The video source types live in dali/public-api/adaptor-framework/video-source-descriptor.h.
+  // They are kept as nested aliases so existing code referring to e.g.
+  // Dali::VideoPlayerPlugin::VideoSourceDescriptor keeps compiling.
 
   /**
-   * @brief Playback command policy for a video source.
+   * @brief Alias of Dali::VideoSourceOwnership.
    */
-  enum class VideoControlPolicy : uint32_t
-  {
-    VIEW_CONTROLS_PLAYBACK = 0, ///< VideoView forwards playback commands.
-    DISPLAY_ONLY           = 1, ///< VideoView only attaches display/geometry.
-  };
+  using VideoSourceOwnership = Dali::VideoSourceOwnership;
 
   /**
-   * @brief Capability flags for a video source.
+   * @brief Alias of Dali::VideoRenderingMode.
    */
-  struct VideoSourceCapabilities
-  {
-    enum Flag : uint32_t
-    {
-      SUPPORTS_UNDERLAY     = 1u << 0,
-      SUPPORTS_NATIVE_IMAGE = 1u << 1,
-      SUPPORTS_SEEK         = 1u << 2,
-      SUPPORTS_VOLUME       = 1u << 3,
-    };
-
-    uint32_t flags{0u}; ///< Bitwise OR of Flag values.
-  };
+  using VideoRenderingMode = Dali::VideoRenderingMode;
 
   /**
-   * @brief Descriptor for source-based video player creation.
-   *
-   * The adaptor treats this as an opaque source description and forwards it to
-   * the video plugin. The concrete plugin decides how to interpret providerId
-   * and nativeSession.
+   * @brief Alias of Dali::VideoSourceDescriptor.
    */
-  struct VideoSourceDescriptor
-  {
-    uint32_t                version{1u};                                      ///< Descriptor version.
-    const char*             providerId{nullptr};                              ///< Provider id with static lifetime. Interpreted only by the video plugin.
-    Any                     nativeSession;                                    ///< Native player/session handle.
-    VideoSourceOwnership    ownership{VideoSourceOwnership::EXTERNAL};        ///< Native session ownership policy.
-    VideoControlPolicy      controlPolicy{VideoControlPolicy::VIEW_CONTROLS_PLAYBACK}; ///< Command forwarding policy.
-    VideoSourceCapabilities capabilities{};                                   ///< Source capabilities.
-  };
+  using VideoSourceDescriptor = Dali::VideoSourceDescriptor;
 
   typedef Signal<void()> VideoPlayerSignalType;
 

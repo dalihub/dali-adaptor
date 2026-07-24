@@ -20,9 +20,13 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <functional>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/drag-and-drop.h>
+#include <dali/public-api/adaptor-framework/drag-and-drop.h>
+#include <dali/public-api/adaptor-framework/drag-data.h>
+#include <dali/public-api/adaptor-framework/drag-event.h>
+#include <dali/internal/drag-and-drop/common/drag-event-builder.h>
 
 namespace Dali
 {
@@ -36,6 +40,8 @@ namespace Adaptor
 class DragAndDrop : public Dali::BaseObject
 {
 public:
+  using SourceCallback = std::function<void(Dali::DragAndDrop::SourceEventType)>;
+  using DragCallback   = std::function<void(const Dali::DragAndDrop::DragEvent&)>;
   /**
    * Constructor
    */
@@ -49,12 +55,12 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  virtual bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) = 0;
+  virtual bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  virtual bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+  virtual bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -64,7 +70,22 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  virtual bool AddListener(Dali::Window window, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+  virtual bool AddListener(Dali::Window window, const Dali::String& mimeType, DragCallback callback) = 0;
+
+  Dali::DragAndDrop::SourceEventSignalType& SourceEventSignal()
+  {
+    return mSourceEventSignal;
+  }
+
+  Dali::DragAndDrop::ActorDragEventSignalType& ActorDragEventSignal()
+  {
+    return mActorDragEventSignal;
+  }
+
+  Dali::DragAndDrop::WindowDragEventSignalType& WindowDragEventSignal()
+  {
+    return mWindowDragEventSignal;
+  }
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -92,6 +113,9 @@ public:
   virtual bool CalculateViewRegion(void* event) = 0;
 
 private:
+  Dali::DragAndDrop::SourceEventSignalType     mSourceEventSignal;
+  Dali::DragAndDrop::ActorDragEventSignalType  mActorDragEventSignal;
+  Dali::DragAndDrop::WindowDragEventSignalType mWindowDragEventSignal;
   DragAndDrop(const DragAndDrop&)      = delete;
   DragAndDrop& operator=(DragAndDrop&) = delete;
 

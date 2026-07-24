@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <Ecore.h>
 #include <Ecore_Wl2.h>
+#include <string>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
@@ -45,7 +47,7 @@ struct DropTarget
 {
   Dali::Actor                            target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   bool                                   inside;
   int                                    parentWindowId;
 };
@@ -54,7 +56,7 @@ struct DropWindowTarget
 {
   Dali::Window                           target;
   std::string                            mimeType;
-  Dali::DragAndDrop::DragAndDropFunction callback;
+  DragAndDrop::DragCallback               callback;
   bool                                   inside;
   int                                    windowId;
 };
@@ -79,17 +81,17 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Actor target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Window target, char* mimeType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -124,22 +126,22 @@ public:
   /**
    * @brief Trigger drag event for target.
    */
-  void TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent);
+  void TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, DragEventBuilder& dragEvent);
 
   /**
    * @brief Trigger drag event for window target.
    */
-  void TriggerDragEventForWindowTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent);
+  void TriggerDragEventForWindowTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, DragEventBuilder& dragEvent);
 
   /**
    * @brief Process drag events for targets.
    */
-  void ProcessDragEventsForTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes);
+  void ProcessDragEventsForTargets(Ecore_Wl2_Event_Dnd_Motion* event, DragEventBuilder& dragEvent, Eina_Array* mimes);
 
   /**
    * @brief Process drag events for window targets.
    */
-  void ProcessDragEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes);
+  void ProcessDragEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Motion* event, DragEventBuilder& dragEvent, Eina_Array* mimes);
 
   /**
    * @brief Process drop events for targets.
@@ -199,7 +201,7 @@ private:
   int                                mWindowTargetIndex{-1};
   Dali::Vector2                      mPosition;
   Dali::Vector2                      mWindowPosition;
-  Dali::DragAndDrop::SourceFunction  mSourceCallback{nullptr};
+  SourceCallback                      mSourceCallback{};
   std::vector<DropTarget>            mDropTargets;
   std::vector<DropWindowTarget>      mDropWindowTargets;
   std::map<std::string, std::string> mDataMap;

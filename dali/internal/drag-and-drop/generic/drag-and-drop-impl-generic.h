@@ -49,12 +49,12 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, SourceCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Actor target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
@@ -64,7 +64,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
-  bool AddListener(Dali::Window target, char* miemType, Dali::DragAndDrop::DragAndDropFunction callback) override;
+  bool AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
