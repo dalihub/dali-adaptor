@@ -403,14 +403,18 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
       // For some fonts i.e the SNum-3R the metrics need to be corrected,
       // otherwise the glyphs 'dance' up and down depending on the
       // font's point size.
-      FT_Glyph glyph = glyphData.mGlyph;
+      // Bitmap glyphs own a copied FT_Bitmap, and their FT_Glyph handle has
+      // already been released by GlyphCacheManager. CBox correction applies
+      // only to live outline glyphs.
+      if(!glyphData.mIsBitmap && glyphData.mGlyph)
+      {
+        FT_BBox bbox;
+        FT_Glyph_Get_CBox(glyphData.mGlyph, FT_GLYPH_BBOX_GRIDFIT, &bbox);
 
-      FT_BBox bbox;
-      FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_GRIDFIT, &bbox);
-
-      const float descender = glyphInfo.height - glyphInfo.yBearing;
-      glyphInfo.height      = (bbox.yMax - bbox.yMin) * FROM_266;
-      glyphInfo.yBearing    = glyphInfo.height - round(descender);
+        const float descender = glyphInfo.height - glyphInfo.yBearing;
+        glyphInfo.height      = (bbox.yMax - bbox.yMin) * FROM_266;
+        glyphInfo.yBearing    = glyphInfo.height - round(descender);
+      }
 
       // COLRv1 metric correction: use paint bounds for COLRv1 glyphs
       // COLRv1 glyphs may have zero or inaccurate outline metrics because
