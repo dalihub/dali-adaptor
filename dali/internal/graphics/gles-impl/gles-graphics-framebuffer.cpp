@@ -201,11 +201,12 @@ void Framebuffer::DestroyResource()
         // Check whether we need to use RenderBuffer
         if(depthWrite || stencilWrite)
         {
-          // if stencil is write, use renderbuffer as mStencilBufferId.
+          const auto renderbufferId = stencilWrite ? mStencilBufferId : mDepthBufferId;
           const auto internalFormat = depthWrite ? (stencilWrite ? GL_DEPTH24_STENCIL8 : GL_DEPTH_COMPONENT16) : GL_STENCIL_INDEX8;
           const auto attachment     = depthWrite ? (stencilWrite ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT) : GL_STENCIL_ATTACHMENT;
 
           gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, 0);
+          gl->BindRenderbuffer(GL_RENDERBUFFER, renderbufferId);
 
           if(mMultisamples <= 1u)
           {
