@@ -18,6 +18,8 @@
 #ifndef DALI_ADAPTOR_PREPROCESSOR_DEFINITIONS_H
 #define DALI_ADAPTOR_PREPROCESSOR_DEFINITIONS_H
 
+#include <dali-windows-dependencies.h>
+
 #define WIN_CALLBACK_EVENT 9999
 #define LC_MESSAGES 0
 

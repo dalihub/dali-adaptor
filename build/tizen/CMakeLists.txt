@@ -171,6 +171,10 @@ SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 IF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   FIND_PACKAGE( dali-windows-dependencies CONFIG REQUIRED)
   FIND_PACKAGE( dali2-core REQUIRED)
+  GET_TARGET_PROPERTY(DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIRS
+    dali-windows-dependencies::dali-windows-dependencies
+    INTERFACE_INCLUDE_DIRECTORIES)
+  LIST(GET DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIRS 0 DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIR)
 ENDIF()
 
 SET( VCPKG_INCLUDE_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
@@ -259,9 +263,7 @@ IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
   ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-  ADD_COMPILE_OPTIONS( /FIdali-windows-dependencies.h ) #
-  ADD_COMPILE_OPTIONS( /FIextern-definitions.h )        # Adds missing definitions.
-  ADD_COMPILE_OPTIONS( /FIpreprocessor-definitions.h )  #
+  ADD_COMPILE_OPTIONS( /FI "${ROOT_SRC_DIR}/third-party/windows-platform/preprocessor-definitions.h" ) #
   ADD_COMPILE_OPTIONS( /vmg )                           # Avoids a 'reinterpret_cast' compile error while compiling signals and callbacks.
   ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
 ENDIF()
