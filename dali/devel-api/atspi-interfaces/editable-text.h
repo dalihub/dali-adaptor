@@ -37,6 +37,11 @@ class DALI_ADAPTOR_API EditableText : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~EditableText();
+
+  /**
    * @brief Copies text in Dali::Devel::Accessibility::Range to system clipboard.
    *
    * @param[in] startPosition The index of first character

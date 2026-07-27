@@ -27,11 +27,6 @@ static int strncasecmp(const char *s1, const char *s2, register int n)
   return(n < 0 ? 0 : toupper((unsigned char)*s1) - toupper((unsigned char)*--s2));
 }
 
-int __cdecl setsockopt( int s, int level, int optname, unsigned int * optval, unsigned int optlen );
-
-int __cdecl setsockopt( int s, int level, int optname, int * optval, unsigned int optlen );
-
-
 #define fmemopen CustomFile::FMemopen
 
 namespace CustomFile

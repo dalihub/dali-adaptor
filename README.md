@@ -76,40 +76,18 @@ vcpkg-script folder in the windows-dependencies repository.
 
 - Read the windows-dependencies/vcpkg-script/Readme.md file for more instructions on how to build and install the third-party dependencies.
 
-### Build with the Visual Studio project
-  Read the windows-dependencies/README.md file for more instructions on how to build and run DALi for MS Windows.
+### Build with PowerShell
 
-### Build with CMake
+For Windows development, use the repository-local PowerShell script which handles
+configuration, building, and installation automatically:
 
-  * Requirements
-    It's required the version 3.12.2 of CMake and a Git Bash Shell.
+```powershell
+cd <workspace>\dali-adaptor
+.\build\windows\build.ps1
+```
 
-  * Notes and troubleshoting:
-    It should be possible to use the MS Visual studio Developer Command Prompt (https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs) to build DALi from the command line.
-    However, the CMake version installed with MS Visual Studio 2017 is a bit out of date and some VCPKG modules require a higher version.
-    This instructions have been tested with CMake 3.12.2 on a Git Bash shell.
-
-  * Define an environment variable to set the path to the VCPKG folder
-
-    $ export VCPKG_FOLDER=C:/Users/username/Workspace/VCPKG_TOOL
-
-  * Define an environment variable to set the path where DALi is going to be installed.
-
-    $ export DALI_ENV_FOLDER=C:/Users/username/Workspace/dali-env
-
-  * Execute the following commands to create the makefiles, build and install DALi.
-
-    $ cmake -g Ninja . -DCMAKE_TOOLCHAIN_FILE=$VCPKG_FOLDER/vcpkg/scripts/buildsystems/vcpkg.cmake -DENABLE_PKG_CONFIGURE=OFF -DENABLE_LINK_TEST=OFF -DCMAKE_INSTALL_PREFIX=$DALI_ENV_FOLDER -DINSTALL_CMAKE_MODULES=ON -DPROFILE_LCASE=windows
-    $ cmake --build . --target install
-
-  * Options:
-    - CMAKE_TOOLCHAIN_FILE  ---> Needed to find packages installed by VCPKG.
-    - ENABLE_PKG_CONFIGURE  ---> Whether to install pkg configure files (not currently working on MS Windows. CMake modules used instead).
-    - ENABLE_LINK_TEST      ---> Whether to enable the link test (not currently working on MS Windows).
-    - CMAKE_INSTALL_PREFIX  ---> Were DALi is installed.
-    - INSTALL_CMAKE_MODULES ---> Whether to install the CMake modules (Used by the CMake command find_package() to find previously installed libraries).
-    - PROFILE_LCASE         ---> The platform (must be windows).
-    - ENABLE_DEBUG          ---> Whether to build with debug enabled.
+See the [windows-dependencies README](https://github.com/dalihub/windows-dependencies/blob/master/README.md)
+for complete Windows build and runtime instructions.
 
 ## 4. Building for MacOS
 
@@ -130,11 +108,11 @@ To build, run:
 % make install -j8
 ```
 
-## Apendix : How to build thorvg for Ubuntu
+## Apendix : How to build TizenVG for Ubuntu
 
 ### Environment setup
 - Need environment created using dali_env script in dali-core repository
-- Also need to prepare meson & ninja for build thorvg
+- Also need to prepare meson & ninja for build TizenVG
 
 ```sh
 sudo apt-get install meson ninja-build
@@ -144,15 +122,16 @@ sudo apt-get install meson ninja-build
 - Install Dali libraries with reference to dali-core/README.md
     - https://review.tizen.org/gerrit/#/admin/projects/platform/core/uifw/dali-core
 
-### thorvg
-- Checkout thorvg codes.
-- For now, we only support 0.8.0 version
+### TizenVG
+- TizenVG is DALi's ThorVG-compatible vector graphics backend.
+- The `tizen` branch is based on ThorVG 1.0.7 and carries the Tizen extensions
+  used by DALi. Pin the verified revision for a reproducible environment.
 ```sh
-git clone https://github.com/thorvg/thorvg.git
-cd thorvg
-git checkout v0.8.0
+git clone --branch tizen git://git.tizen.org/platform/core/graphics/tizenvg.git
+cd tizenvg
+git checkout ae039a6154a258a8fa19f23b25285acd73d2f6c1
 ```
-#### thorvg Build & Install for dali
+#### TizenVG Build & Install for DALi
 - Build as debug with optimized level 2 (default)
 ```sh
 meson setup builddir --prefix $DESKTOP_PREFIX --libdir $DESKTOP_PREFIX/lib
@@ -166,11 +145,12 @@ meson setup builddir --buildtype custom --optimization s --prefix $DESKTOP_PREFI
 ninja -C builddir install
 ```
 
-#### thorvg Install check
-- See `$DESKTOP_PREFIX/lib` has `libthorvg.so` file
+#### TizenVG Install check
+- See `$DESKTOP_PREFIX/lib` has a `libthorvg.so` file.
+- Check the installed package version with
+  `PKG_CONFIG_PATH=$DESKTOP_PREFIX/lib/pkgconfig pkg-config --modversion thorvg`.
 - Check `-- ThorVG version` result at build summary.
-  - `0.8.x` shown if you build thorvg well.
-  - `1.x.x` shown if you build thorvg at main branch.
+  - `1.0.7` is shown when the verified TizenVG revision is installed.
   - `OFF` shown if you don't support thorvg.
 
 
@@ -204,4 +184,3 @@ INFO: DALI: Vulkan information:
   Device name:    NVIDIA GeForce GT 1030
   Driver Version: 85edc040
 ```
-

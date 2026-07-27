@@ -19,11 +19,12 @@
 #include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
 {
   return GraphicsLibrary::CastToNativeGraphicsType(display);
 }

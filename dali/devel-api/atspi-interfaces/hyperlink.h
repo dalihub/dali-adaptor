@@ -36,6 +36,11 @@ class DALI_ADAPTOR_API Hyperlink : public IAccessibilityFeature
 {
 public:
   /**
+   * @brief Destructor
+   */
+  virtual ~Hyperlink();
+
+  /**
    * @brief Gets the index of character in originating hypertext at which this hyperlink ends.
    *
    * @return The 0-based index of hyperlink's last character + 1, in its originating hypertext.

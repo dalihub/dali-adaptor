@@ -132,7 +132,7 @@ SET( adaptor_graphics_vulkan_android_src_files
 # module: graphics, backend: windows
 SET( adaptor_graphics_windows_src_files
     ${adaptor_graphics_dir}/windows-gl/egl-image-extensions.cpp
-    ${adaptor_graphics_dir}/windows/egl-sync-implementation-windows.cpp
+    ${adaptor_graphics_dir}/windows-gl/egl-sync-implementation-windows.cpp
 )
 
 # module: graphics, backend: macos

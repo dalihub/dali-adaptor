@@ -21,6 +21,7 @@
 // EXTERNAL_HEADERS
 #include <dali/public-api/signals/callback.h>
 #include <stdint.h>
+#include <memory>
 #include <string>
 
 typedef uintptr_t WinWindowHandle;
@@ -34,21 +35,35 @@ namespace Adaptor
 {
 namespace WindowsPlatform
 {
+using WinCallbackToken = uintptr_t;
+
 bool PostWinThreadMessage(
-  _In_ uint32_t Msg,
-  _In_ uint64_t wParam,
-  _In_ uint64_t lParam,
-  _In_ uint64_t threadID = -1);
+  uint32_t  Msg,
+  uintptr_t wParam,
+  intptr_t  lParam,
+  uint32_t  threadID = 0u);
+
+/** Register a callback and transfer its ownership to the Win32 dispatcher. */
+WinCallbackToken RegisterWinCallback(CallbackBase* callback);
+
+/** Cancel a callback token. Already queued messages for it become harmless. */
+void UnregisterWinCallback(WinCallbackToken token);
+
+/** Post a registered callback token to a Win32 message queue. */
+bool PostWinCallback(WinCallbackToken token, uint32_t threadID = 0u);
+
+/** Execute a token if it is still registered. Called by FrameworkWin. */
+void ExecuteWinCallback(WinCallbackToken token);
 
 using timerCallback = bool (*)(void* data);
 
-intptr_t SetTimer(int interval, timerCallback callback, void* data);
+intptr_t SetTimer(uint32_t interval, timerCallback callback, void* data);
 
 void KillTimer(intptr_t id);
 
 std::string GetKeyName(int keyCode);
 
-uint64_t GetCurrentThreadId();
+uint32_t GetCurrentThreadId();
 
 void GetNanoseconds(uint64_t& timeInNanoseconds);
 
@@ -65,17 +80,21 @@ public:
 
   virtual ~WindowImpl();
 
-  static void ProcWinMessage(uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam);
+  static bool ProcWinMessage(WinWindowHandle hWnd, uint32_t uMsg, uintptr_t wParam, intptr_t lParam);
 
-  static uint64_t CreateHwnd(
-    _In_opt_ const char* lpWindowName,
-    _In_ int             X,
-    _In_ int             Y,
-    _In_ int             nWidth,
-    _In_ int             nHeight,
-    _In_opt_ uint64_t    parent);
+  static intptr_t GetPreviousWindowProc(WinWindowHandle hWnd);
 
-  static void DestroyHWnd(uint64_t hWnd);
+  static void RemoveWindow(WinWindowHandle hWnd);
+
+  static WinWindowHandle CreateHwnd(
+    const char*     lpWindowName,
+    int             X,
+    int             Y,
+    int             nWidth,
+    int             nHeight,
+    WinWindowHandle parent);
+
+  static void DestroyHWnd(WinWindowHandle hWnd);
 
   void GetDPI(float& xDpi, float& yDpi);
 
@@ -84,19 +103,21 @@ public:
   void SetListener(CallbackBase* callback);
 
   bool PostWinMessage(
-    _In_ uint32_t Msg,
-    _In_ uint64_t wParam,
-    _In_ uint64_t lParam);
+    uint32_t  Msg,
+    uintptr_t wParam,
+    intptr_t  lParam);
 
-  void SetHWND(uint64_t inHWnd);
-  void SetWinProc();
+  void SetHWND(WinWindowHandle inHWnd);
+  bool SetWinProc();
+  void DetachWindow();
 
 private:
-  int      colorDepth;
-  uint64_t mHWnd; // no ownership, managed outside
-  uint64_t mHdc;
+  int             colorDepth;
+  WinWindowHandle mHWnd; // no ownership, managed outside
+  intptr_t        mPreviousWindowProc;
+  bool            mIsExternalWindow;
 
-  CallbackBase* listener;
+  std::shared_ptr<CallbackBase> mListener;
 };
 
 } // namespace WindowsPlatform
@@ -107,4 +128,4 @@ private:
 
 } // namespace Dali
 
-#endif // WIN32_WINDOWS_SYSTEM_INCLUDE
+#endif // PLATFORM_IMPLEMENT_WIN_INCLUDE

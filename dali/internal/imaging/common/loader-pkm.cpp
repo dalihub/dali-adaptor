@@ -77,6 +77,7 @@ const Pixel::Format PKM_FORMAT_TABLE[] =
  * so we can be sure of reading the whole header from file in one call to fread().
  * Note: members to not conform to coding standards in order to be consistent with PKM spec.
  */
+#pragma pack(push, 1)
 struct PkmFileHeader
 {
   uint8_t magic[4];
@@ -87,7 +88,8 @@ struct PkmFileHeader
   uint8_t extendedHeight[2]; // Big Endian
   uint8_t originalWidth[2];  // Big Endian
   uint8_t originalHeight[2]; // Big Endian
-} __attribute__((__packed__));
+};
+#pragma pack(pop)
 
 /**
  * @brief Helper function to get the integer value from Big Endian data array.

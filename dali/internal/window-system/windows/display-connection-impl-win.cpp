@@ -38,8 +38,7 @@ DisplayConnection* DisplayConnectionWin::New()
 }
 
 DisplayConnectionWin::DisplayConnectionWin()
-: mDisplay(nullptr),
-  mGraphics(nullptr)
+: mDisplay(EGL_DEFAULT_DISPLAY)
 {
 }
 
@@ -47,12 +46,12 @@ DisplayConnectionWin::~DisplayConnectionWin() = default;
 
 Any DisplayConnectionWin::GetDisplay()
 {
-  return Any(mDisplay);
+  return {mDisplay};
 }
 
 Any DisplayConnectionWin::GetNativeGraphicsDisplay()
 {
-  return {eglGetDisplay(mDisplay)};
+  return {mDisplay};
 }
 
 void DisplayConnectionWin::ConsumeEvents()
@@ -61,10 +60,12 @@ void DisplayConnectionWin::ConsumeEvents()
 
 void DisplayConnectionWin::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
-  if(type == Dali::Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
-  {
-    mDisplay = GetDC(GetForegroundWindow());
-  }
+  static_cast<void>(type);
+  // ANGLE owns the native display connection on Windows.  A DC obtained from
+  // the foreground window is neither guaranteed to belong to DALi nor can it
+  // be released safely here, so use EGL's platform default just like the
+  // Android and macOS display-connection backends.
+  mDisplay = EGL_DEFAULT_DISPLAY;
 }
 
 } // namespace Adaptor

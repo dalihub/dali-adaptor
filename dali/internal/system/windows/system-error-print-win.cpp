@@ -50,7 +50,7 @@ void PrintSystemError(const char* fileName, const char* functionName, const int 
   DWORD copiedErrorNumber = GetLastError();
 
   // FORMAT_MESSAGE_IGNORE_INSERTS Should be used when we try to get FORMAT_MESSAGE_FROM_SYSTEM
-  DWORD errorMessageLength = FormatMessage(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM, NULL, copiedErrorNumber, 0, (LPTSTR) & (&errorMessage[0]), errorMessageMaxLength - 1, NULL);
+  DWORD errorMessageLength = FormatMessage(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM, NULL, copiedErrorNumber, 0, (LPTSTR)errorMessage, errorMessageMaxLength - 1, NULL);
 
   if(DALI_LIKELY(fileName))
   {

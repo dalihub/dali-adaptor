@@ -20,6 +20,12 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <windows.h>
+#include <atomic>
+
+// WinDef.h defines ERROR as a macro after debug.h has already sanitized it.
+#ifdef ERROR
+#undef ERROR
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
@@ -38,6 +44,8 @@ struct FrameworkWin::Impl
 {
   // Constructor
   Impl(void* data)
+  : mThreadId(0u),
+    mQuitRequested(false)
   {
   }
 
@@ -45,29 +53,71 @@ struct FrameworkWin::Impl
   {
   }
 
+  void PrepareMessageQueue()
+  {
+    // PostThreadMessage() fails until the target thread owns a message queue.
+    MSG message{};
+    PeekMessage(&message, nullptr, WM_USER, WM_USER, PM_NOREMOVE);
+
+    // Publish the id only after the queue exists, so a concurrent Quit()
+    // cannot race between these two operations and lose its WM_QUIT.
+    const DWORD threadId = GetCurrentThreadId();
+    mThreadId.store(threadId, std::memory_order_release);
+    if(mQuitRequested.exchange(false, std::memory_order_acq_rel))
+    {
+      // This is the target thread and its queue has already been created.
+      PostQuitMessage(0);
+    }
+  }
+
   void Run()
   {
-    MSG nMsg = {0};
+    MSG nMsg{};
 
-    while(GetMessage(&nMsg, 0, NULL, NULL))
+    while(true)
     {
+      const BOOL result = GetMessage(&nMsg, nullptr, 0, 0);
+      if(result == 0)
+      {
+        break; // WM_QUIT
+      }
+      if(result == -1)
+      {
+        DALI_LOG_ERROR("Windows message loop failed, error %lu\n", static_cast<unsigned long>(GetLastError()));
+        break;
+      }
+
       if(WIN_CALLBACK_EVENT == nMsg.message)
       {
-        Dali::CallbackBase* callback = (Dali::CallbackBase*)nMsg.wParam;
-        Dali::CallbackBase::Execute(*callback);
+        WindowsPlatform::ExecuteWinCallback(static_cast<WindowsPlatform::WinCallbackToken>(nMsg.wParam));
+        continue;
       }
 
       TranslateMessage(&nMsg);
       DispatchMessage(&nMsg);
+    }
 
-      if(WM_CLOSE == nMsg.message)
-      {
-        break;
-      }
+    mThreadId.store(0u, std::memory_order_release);
+  }
+
+  void Quit()
+  {
+    mQuitRequested.store(true, std::memory_order_release);
+    const DWORD threadId = mThreadId.load(std::memory_order_acquire);
+    if(threadId != 0u && PostThreadMessage(threadId, WM_QUIT, 0, 0))
+    {
+      mQuitRequested.store(false, std::memory_order_release);
+    }
+    else if(threadId != 0u)
+    {
+      DALI_LOG_ERROR("Failed to quit Windows message loop, error %lu\n", static_cast<unsigned long>(GetLastError()));
     }
   }
 
 private:
+  std::atomic<DWORD> mThreadId;
+  std::atomic_bool   mQuitRequested;
+
   // Undefined
   Impl(const Impl& impl) = delete;
 
@@ -94,8 +144,8 @@ FrameworkWin::~FrameworkWin()
 
 void FrameworkWin::Run()
 {
+  mImpl->PrepareMessageQueue();
   mRunning = true;
-
   mObserver.OnInit();
   mImpl->Run();
 
@@ -106,7 +156,7 @@ void FrameworkWin::Run()
 
 void FrameworkWin::Quit()
 {
-  PostQuitMessage(0);
+  mImpl->Quit();
 }
 
 /**

@@ -22,14 +22,11 @@
 #include <cstdint>
 #include <limits>
 
+// INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/color-depth.h>
+
 namespace Dali
 {
-enum ColorDepth
-{
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
-
 namespace Graphics
 {
 /**

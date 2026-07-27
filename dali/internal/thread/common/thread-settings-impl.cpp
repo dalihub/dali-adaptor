@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
-// EXTERNAL INCLUDES
-#include <sys/prctl.h>
-
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
@@ -35,15 +32,6 @@ namespace ThreadSettings
 namespace
 {
 int32_t gUiThreadId = 0;
-}
-
-void SetThreadName(const std::string& threadName)
-{
-  int err = prctl(PR_SET_NAME, threadName.c_str());
-  if(err)
-  {
-    DALI_LOG_ERROR("prctl(PR_SET_NAME, %s) failed\n", threadName.c_str());
-  }
 }
 
 void SetCurrentThreadAsUiThread()

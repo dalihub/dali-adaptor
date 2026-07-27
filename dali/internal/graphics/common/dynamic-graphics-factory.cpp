@@ -16,27 +16,28 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
+DALI_ADAPTOR_WEAK_SYMBOL Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
 {
   return GraphicsLibrary::GetCurrentGraphicsLibraryBackend();
 }
 
-__attribute__((weak)) void ResetGraphicsLibrary(bool reload)
+DALI_ADAPTOR_WEAK_SYMBOL void ResetGraphicsLibrary(bool reload)
 {
   GraphicsLibrary::ResetGraphicsLibrary(reload);
 }
 
-__attribute__((weak)) GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
+DALI_ADAPTOR_WEAK_SYMBOL GraphicsLibraryHandlePtr GetGraphicsLibraryHandle()
 {
   return GraphicsLibrary::GetGraphicsLibraryHandle();
 }
 
-__attribute__((weak)) std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions)
 {
   return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);
 }

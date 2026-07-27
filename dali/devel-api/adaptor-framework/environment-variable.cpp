@@ -20,6 +20,12 @@
 // EXTERNAL INCLUDE
 #include <cstdlib>
 
+#if defined(_WIN32)
+#ifdef GetEnvironmentVariable
+#undef GetEnvironmentVariable
+#endif
+#endif
+
 namespace Dali
 {
 namespace EnvironmentVariable
@@ -31,7 +37,11 @@ const char* GetEnvironmentVariable(const char* variable)
 
 bool SetEnvironmentVariable(const char* variable, const char* value)
 {
+#if defined(_WIN32)
+  return _putenv_s(variable, value) == 0;
+#else
   return setenv(variable, value, 1) == 0;
+#endif
 }
 
 } // namespace EnvironmentVariable

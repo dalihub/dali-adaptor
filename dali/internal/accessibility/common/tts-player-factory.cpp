@@ -16,6 +16,7 @@
  */
 
 #include <dali/internal/accessibility/common/tts-player-factory.h>
+#include <dali/internal/adaptor/common/weak-symbol.h>
 
 namespace Dali
 {
@@ -30,7 +31,7 @@ namespace TtsPlayerFactory
  * Factory function that ought to be overriden by platform implementation.
  * @return dummy implementation of Tts Player
  */
-__attribute__((weak))
+DALI_ADAPTOR_WEAK_SYMBOL
 std::unique_ptr<TtsPlayer>
 New(Dali::TtsPlayer::Mode mode)
 {

@@ -7,7 +7,7 @@
 #define RTLD_GLOBAL   1
 #define RTLD_LAZY     2
 
-bool dlclose( void* handle );
+int dlclose( void* handle );
 
 char* dlerror();
 

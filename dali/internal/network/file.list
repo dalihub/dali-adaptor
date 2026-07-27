@@ -6,6 +6,17 @@ SET( adaptor_network_common_src_files
     ${adaptor_network_dir}/common/socket-impl.cpp
 )
 
+# module: network, backend: Windows
+#
+# Keep the public/factory interfaces shared, but select a native Winsock
+# implementation.  The POSIX implementation uses file descriptors and a pipe
+# to interrupt select(), neither of which is valid for Win64 SOCKET handles.
+SET( adaptor_network_windows_src_files
+    ${adaptor_network_dir}/common/network-service-impl.cpp
+    ${adaptor_network_dir}/windows/socket-factory-win.cpp
+    ${adaptor_network_dir}/windows/socket-impl-win.cpp
+)
+
 # module: network, backend: common
 SET( adaptor_performance_logging_src_files
     ${adaptor_network_dir}/common/network-performance-protocol.cpp

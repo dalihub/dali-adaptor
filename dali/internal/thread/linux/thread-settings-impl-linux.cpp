@@ -19,9 +19,13 @@
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
 // EXTERNAL INCLUDES
+#include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+// INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -31,6 +35,15 @@ namespace Adaptor
 {
 namespace ThreadSettings
 {
+void SetThreadName(const std::string& threadName)
+{
+  int err = prctl(PR_SET_NAME, threadName.c_str());
+  if(err)
+  {
+    DALI_LOG_ERROR("prctl(PR_SET_NAME, %s) failed\n", threadName.c_str());
+  }
+}
+
 int32_t GetThreadId()
 {
   return static_cast<int32_t>(syscall(SYS_gettid));

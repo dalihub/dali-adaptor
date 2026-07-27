@@ -63,7 +63,7 @@ protected:
    * @param[in]  stylesheet   The path to user defined theme file
    * @param[in]  windowData   The window data
    */
-  WidgetApplicationWin(int* argc, char** argv[], const std::string& stylesheet const WindowData& windowData);
+  WidgetApplicationWin(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData);
 
   /**
    * Destructor

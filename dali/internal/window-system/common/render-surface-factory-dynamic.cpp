@@ -16,12 +16,13 @@
  */
 
 // INTERNAL HEADERS
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 
 namespace Dali::Internal::Adaptor
 {
-__attribute__((weak)) std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
 {
   return GraphicsLibrary::GetRenderSurfaceFactory();
 }

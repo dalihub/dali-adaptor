@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/list-wrapper.h>
+#include <cstdint>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
@@ -117,13 +118,15 @@ private:
   void ProcessIdleFromFramework();
 
 private:
-  CallbackBase* mSelfCallback{nullptr};
-  bool          mSelfCallbackRegistered{false}; ///< flag is set to true if we send processIdle callback register.
+  uintptr_t mSelfCallbackToken{0u};
+  bool      mSelfCallbackRegistered{false}; ///< flag is set to true if we send processIdle callback register.
 
   typedef std::list<WindowsCallbackData*> CallbackList;
 
   CallbackList mCallbackContainer;
-  bool         mRunning; ///< flag is set to true if when running
+  WindowsCallbackData* mExecutingCallback{nullptr};
+  bool                 mExecutingCallbackRemoved{false};
+  bool                 mRunning; ///< flag is set to true if when running
 };
 
 } // namespace Adaptor

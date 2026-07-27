@@ -19,16 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/signals/callback.h>
-#include <memory>
-#include <unordered_set>
-
-// INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
-#include <dali/internal/system/common/file-descriptor-monitor.h>
 
 namespace Dali
 {

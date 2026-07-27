@@ -21,6 +21,10 @@
 // EXTERNAL INCLUDES
 #include <cstring>
 
+#if defined(_WIN32)
+#define strncasecmp _strnicmp
+#endif
+
 namespace Dali
 {
 namespace TizenPlatform

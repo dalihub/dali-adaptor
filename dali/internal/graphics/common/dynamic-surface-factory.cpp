@@ -16,12 +16,13 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/graphics/common/surface-factory.h>
 
 namespace Dali::Graphics
 {
-__attribute__((weak)) std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
+DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
 {
   return Internal::Adaptor::GraphicsLibrary::CreateSurfaceFactory(nativeWindow);
 }

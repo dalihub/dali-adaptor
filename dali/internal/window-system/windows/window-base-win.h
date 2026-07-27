@@ -100,6 +100,9 @@ public:
    */
   void OnKeyUp(int type, TWinEventInfo* event);
 
+  /** Called after Win32 applies a native position/size change. */
+  void OnWindowPositionSizeChanged(TWinEventInfo* event);
+
 public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
@@ -549,7 +552,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeBuffer()
    */
-  Any GetNativeBuffer() override;
+  Any GetNativeBuffer() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::RelativeMotionGrab()
@@ -646,8 +649,13 @@ private:
 
 private:
   WinWindowHandle mWin32Window;       ///< Native window handle
+  int             mNativeWindowId;    ///< Stable DALi id; HWND is exposed separately as a raw handle
+  int32_t         mVerticalWheelRemainder;
+  int32_t         mHorizontalWheelRemainder;
   bool            mOwnSurface : 1;    ///< Whether we own the surface (responsible for deleting it)
   bool            mIsTransparent : 1; ///< Whether the window is transparent (32 bit or 24 bit)
+  bool            mIsIconifiedState : 1;
+  bool            mIsMaximizedState : 1;
 
   WindowsPlatform::WindowImpl mWindowImpl;
 };

@@ -28,6 +28,103 @@ OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
 OPTION(ENABLE_WARNING_TO_ERROR  "Enable -Werror option" ON)
 OPTION(ENABLE_PREINITIALIZE_ADAPTOR "Enable PreInitialized Adaptor" ON)
 
+# deps-check.cmake is intentionally not loaded on Windows because it relies on
+# pkg-config and Tizen/Unix packages.  Keep the profile variables that it would
+# normally derive in sync with the documented Windows invocation.
+IF(WIN32)
+  IF(STATIC)
+    MESSAGE(FATAL_ERROR "Static Windows builds are not supported: the public ABI currently uses dllimport/dllexport")
+  ENDIF()
+
+  IF(DEFINED PROFILE_LCASE AND NOT PROFILE_LCASE STREQUAL "windows")
+    MESSAGE(FATAL_ERROR "Windows builds require PROFILE_LCASE=windows")
+  ENDIF()
+
+  IF(DEFINED ENABLE_PROFILE AND NOT ENABLE_PROFILE STREQUAL "WINDOWS")
+    MESSAGE(FATAL_ERROR "Windows builds require ENABLE_PROFILE=WINDOWS")
+  ENDIF()
+
+  SET(PROFILE_LCASE windows CACHE STRING "DALi platform profile" FORCE)
+  SET(ENABLE_PROFILE WINDOWS CACHE STRING "DALi platform profile" FORCE)
+  SET(enable_profile WINDOWS)
+  SET(WINDOWS_PROFILE ON)
+
+  IF(DEFINED ENABLE_GRAPHICS_BACKEND AND ENABLE_GRAPHICS_BACKEND)
+    STRING(TOUPPER "${ENABLE_GRAPHICS_BACKEND}" enable_graphics_backend)
+  ELSE()
+    SET(enable_graphics_backend GLES)
+  ENDIF()
+
+  # windows-profile.cmake currently supplies only the GLES/ANGLE source graph.
+  # Do not silently turn an explicitly requested backend into GLES.
+  IF(NOT enable_graphics_backend STREQUAL "GLES")
+    MESSAGE(FATAL_ERROR "The Windows profile currently supports only ENABLE_GRAPHICS_BACKEND=GLES")
+  ENDIF()
+
+  SET(DALI_PROFILE_CFLAGS -DDALI_PROFILE_WINDOWS)
+  ADD_DEFINITIONS(-DDALI_PROFILE_WINDOWS)
+
+  # deps-check.cmake normally initializes these deployment paths.  Windows
+  # does not load that Unix-only file, so provide equivalent values here and
+  # never allow an empty cachePath to turn into an absolute /.cache path.
+  IF(DEFINED ENV{DALI_DATA_RW_DIR})
+    FILE(TO_CMAKE_PATH "$ENV{DALI_DATA_RW_DIR}" dataReadWriteDir)
+  ELSE()
+    SET(dataReadWriteDir "${CMAKE_INSTALL_PREFIX}/share/dali")
+  ENDIF()
+
+  IF(DEFINED ENV{DALI_DATA_RO_DIR})
+    FILE(TO_CMAKE_PATH "$ENV{DALI_DATA_RO_DIR}" dataReadOnlyDir)
+  ELSE()
+    SET(dataReadOnlyDir "${CMAKE_INSTALL_PREFIX}/share/dali")
+  ENDIF()
+
+  IF(DEFINED ENV{LOCALAPPDATA})
+    FILE(TO_CMAKE_PATH "$ENV{LOCALAPPDATA}" cachePath)
+  ELSEIF(DEFINED ENV{USERPROFILE})
+    FILE(TO_CMAKE_PATH "$ENV{USERPROFILE}" cachePath)
+  ELSE()
+    SET(cachePath "${CMAKE_INSTALL_PREFIX}")
+  ENDIF()
+
+  # The Glyphy path is not portable to MSVC yet.  Fail explicitly instead of
+  # selecting an incomplete implementation that builds but cannot render.
+  IF(DEFINED ENABLE_VECTOR_BASED_TEXT_RENDERING AND ENABLE_VECTOR_BASED_TEXT_RENDERING)
+    MESSAGE(FATAL_ERROR "ENABLE_VECTOR_BASED_TEXT_RENDERING is not supported by the Windows backend")
+  ENDIF()
+  SET(ENABLE_VECTOR_BASED_TEXT_RENDERING OFF)
+
+  IF(NOT DEFINED thorvg_support)
+    SET(thorvg_support OFF)
+  ENDIF()
+
+  IF(thorvg_support)
+    FIND_PATH( THORVG_INCLUDE_DIR NAMES thorvg.h PATH_SUFFIXES thorvg-1 REQUIRED )
+
+    FILE(STRINGS "${THORVG_INCLUDE_DIR}/thorvg.h" _THORVG_VERSION_DEFINES
+         REGEX "^#define[ \t]+TVG_VERSION_(MAJOR|MINOR|MICRO)[ \t]+[0-9]+")
+    FOREACH(_THORVG_COMPONENT MAJOR MINOR MICRO)
+      FOREACH(_THORVG_DEFINE ${_THORVG_VERSION_DEFINES})
+        IF(_THORVG_DEFINE MATCHES "TVG_VERSION_${_THORVG_COMPONENT}[ \t]+([0-9]+)")
+          SET(THORVG_VERSION_${_THORVG_COMPONENT} "${CMAKE_MATCH_1}")
+        ENDIF()
+      ENDFOREACH()
+    ENDFOREACH()
+
+    IF(DEFINED THORVG_VERSION_MAJOR AND
+       DEFINED THORVG_VERSION_MINOR AND
+       DEFINED THORVG_VERSION_MICRO)
+      SET(THORVG_VERSION
+          "${THORVG_VERSION_MAJOR}.${THORVG_VERSION_MINOR}.${THORVG_VERSION_MICRO}")
+    ELSE()
+      SET(THORVG_VERSION "pre-1.0")
+      SET(THORVG_VERSION_MAJOR 0)
+    ENDIF()
+  ELSE()
+    SET(THORVG_VERSION OFF)
+  ENDIF()
+ENDIF()
+
 # Backend selection: ECORE (default) or TCORE
 SET(TIZEN_WAYLAND_BACKEND "ECORE" CACHE STRING "Tizen Wayland backend: ECORE or TCORE")
 SET_PROPERTY(CACHE TIZEN_WAYLAND_BACKEND PROPERTY STRINGS ECORE TCORE)
@@ -72,8 +169,12 @@ SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_
 SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 
 IF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-  FIND_PACKAGE( dali-windows-dependencies REQUIRED)
+  FIND_PACKAGE( dali-windows-dependencies CONFIG REQUIRED)
   FIND_PACKAGE( dali2-core REQUIRED)
+  GET_TARGET_PROPERTY(DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIRS
+    dali-windows-dependencies::dali-windows-dependencies
+    INTERFACE_INCLUDE_DIRECTORIES)
+  LIST(GET DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIRS 0 DALI_WINDOWS_DEPENDENCIES_INCLUDE_DIR)
 ENDIF()
 
 SET( VCPKG_INCLUDE_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
@@ -86,10 +187,6 @@ IF( UNIX )
     ADD_DEFINITIONS("-DTARGET")
   ENDIF("${ARCH}" STREQUAL "arm")
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-  IF(NOT DEFINED STATIC)
-    ADD_DEFINITIONS( "-DBUILDING_DALI_ADAPTOR" )
-  ENDIF()
-
   ADD_DEFINITIONS( "-D_NSIG=65" )
 ENDIF()
 
@@ -166,9 +263,7 @@ IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
   ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-  ADD_COMPILE_OPTIONS( /FIdali-windows-dependencies.h ) #
-  ADD_COMPILE_OPTIONS( /FIextern-definitions.h )        # Adds missing definitions.
-  ADD_COMPILE_OPTIONS( /FIpreprocessor-definitions.h )  #
+  ADD_COMPILE_OPTIONS( /FI "${ROOT_SRC_DIR}/third-party/windows-platform/preprocessor-definitions.h" ) #
   ADD_COMPILE_OPTIONS( /vmg )                           # Avoids a 'reinterpret_cast' compile error while compiling signals and callbacks.
   ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
 ENDIF()
@@ -233,13 +328,14 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(LIBTYPE SHARED)
-IF(DEFINED STATIC)
+IF(STATIC)
   SET(LIBTYPE STATIC)
 ENDIF()
 
 OPTION(ENABLE_INVOKE_METHOD_WRAPPERS "Generate InvokeMethod wrappers for exported public API handle methods" ON)
 
 IF(ENABLE_INVOKE_METHOD_WRAPPERS)
+  FIND_PACKAGE(Python3 COMPONENTS Interpreter REQUIRED)
   FIND_PROGRAM(INVOKE_METHOD_GENERATOR
                NAMES dali-invoke-method-generator dali-invoke-method-generator.py
                PATHS ${BIN_DIR} $ENV{DESKTOP_PREFIX}/bin ${ROOT_SRC_DIR}/../dali-core/scripts)
@@ -268,7 +364,7 @@ IF(ENABLE_INVOKE_METHOD_WRAPPERS)
 
   ADD_CUSTOM_COMMAND(
     OUTPUT ${INVOKE_METHOD_PUBLIC_API_CPP}
-    COMMAND ${INVOKE_METHOD_GENERATOR}
+    COMMAND ${Python3_EXECUTABLE} ${INVOKE_METHOD_GENERATOR}
             --scan-root ${ROOT_SRC_DIR}/dali/public-api
             --include-prefix dali/public-api
             --dependency-scan-root ${INVOKE_METHOD_CORE_PUBLIC_API_DIR}
@@ -375,6 +471,18 @@ ELSE()
 ENDIF()
 
 ADD_LIBRARY( ${name} ${LIBTYPE} ${SOURCES} )
+TARGET_INCLUDE_DIRECTORIES(${name}
+  PUBLIC
+    $<BUILD_INTERFACE:${ROOT_SRC_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
+IF(WIN32 AND NOT STATIC)
+  # Keep dllexport local to the adaptor DLL.  Directory-wide definitions leak
+  # into plugin subdirectories and incorrectly mark imported adaptor APIs as
+  # exports while those DLLs are being compiled.
+  TARGET_COMPILE_DEFINITIONS(${name} PRIVATE BUILDING_DALI_ADAPTOR)
+ENDIF()
 
 IF( UNIX )
   # pthread required due to gcc issue
@@ -384,12 +492,26 @@ IF( UNIX )
   ENDIF()
 ENDIF()
 
-TARGET_LINK_LIBRARIES( ${name}
-                       ${DALI_LDFLAGS}
-                       ${REQUIRED_LIBS}
-                       ${OPTIONAL_LIBS}
-                       ${COVERAGE}
-)
+IF(WIN32)
+  SET(WINDOWS_PRIVATE_LIBS ${REQUIRED_LIBS})
+  LIST(REMOVE_ITEM WINDOWS_PRIVATE_LIBS
+    dali2-core::dali2-core
+    unofficial::angle::libEGL
+  )
+  TARGET_LINK_LIBRARIES(${name}
+    PUBLIC
+      dali2-core::dali2-core
+      unofficial::angle::libEGL
+    PRIVATE ${DALI_LDFLAGS} ${WINDOWS_PRIVATE_LIBS} ${OPTIONAL_LIBS} ${COVERAGE}
+  )
+ELSE()
+  TARGET_LINK_LIBRARIES(${name}
+                        ${DALI_LDFLAGS}
+                        ${REQUIRED_LIBS}
+                        ${OPTIONAL_LIBS}
+                        ${COVERAGE}
+  )
+ENDIF()
 
 SET_TARGET_PROPERTIES( ${name}
   PROPERTIES
@@ -420,8 +542,15 @@ IF( INSTALL_CMAKE_MODULES )
     DESTINATION share/${name}
   )
 
+  IF(WIN32)
+    SET(PACKAGE_DEPENDENCIES "    find_dependency(dali2-core CONFIG REQUIRED)\n    find_dependency(unofficial-angle CONFIG REQUIRED)\n")
+  ELSE()
+    SET(PACKAGE_DEPENDENCIES "")
+  ENDIF()
+
   FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${name}-config.cmake "
     include(CMakeFindDependencyMacro)
+${PACKAGE_DEPENDENCIES}
     include(\${CMAKE_CURRENT_LIST_DIR}/${name}-targets.cmake)
   ")
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}-config.cmake DESTINATION share/${name})
@@ -431,8 +560,11 @@ IF( INSTALL_CMAKE_MODULES )
     install( FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/${name}.pdb DESTINATION ${BIN_DIR} )
   ENDIF()
 ELSE()
-  # Install the library so file and symlinks
-  INSTALL( TARGETS ${name} DESTINATION ${LIB_DIR} )
+  INSTALL(TARGETS ${name}
+    LIBRARY DESTINATION ${LIB_DIR}
+    ARCHIVE DESTINATION ${LIB_DIR}
+    RUNTIME DESTINATION ${BIN_DIR}
+  )
 ENDIF()
 
 IF( ENABLE_PKG_CONFIGURE )
@@ -535,25 +667,21 @@ ELSEIF( UNIX )
   INSTALL( DIRECTORY DESTINATION ${dataReadOnlyDir}/core/shaderbin )
 ENDIF()
 
-# Reset folder for system cache
-SET( daliSystemCachedDir ${cachePath}/.cache/dali_common_caches/ )
-file(REMOVE_RECURSE ${daliSystemCachedDir})
-INSTALL( DIRECTORY DESTINATION ${daliSystemCachedDir} )
+IF(NOT WINDOWS_PROFILE)
+  # Existing Unix profiles create these deployment directories at install
+  # time.  Windows creates its per-user cache lazily at runtime instead.
+  SET( daliSystemCachedDir ${cachePath}/.cache/dali_common_caches/ )
+  INSTALL( DIRECTORY DESTINATION ${daliSystemCachedDir} )
 
-# Reset folder for shader
-SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
-file(REMOVE_RECURSE ${daliShaderCachedDir})
-INSTALL( DIRECTORY DESTINATION ${daliShaderCachedDir} )
+  SET( daliShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/ )
+  INSTALL( DIRECTORY DESTINATION ${daliShaderCachedDir} )
 
-# Reset folder for internal shader
-SET( daliInternalShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/internal/ )
-file(REMOVE_RECURSE ${daliInternalShaderCachedDir})
-INSTALL( DIRECTORY DESTINATION ${daliInternalShaderCachedDir} )
+  SET( daliInternalShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/internal/ )
+  INSTALL( DIRECTORY DESTINATION ${daliInternalShaderCachedDir} )
 
-# Reset folder for custom shader
-SET( daliCustomShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/custom/ )
-file(REMOVE_RECURSE ${daliCustomShaderCachedDir})
-INSTALL( DIRECTORY DESTINATION ${daliCustomShaderCachedDir} )
+  SET( daliCustomShaderCachedDir ${cachePath}/.cache/dali_common_caches/shader/custom/ )
+  INSTALL( DIRECTORY DESTINATION ${daliCustomShaderCachedDir} )
+ENDIF()
 
 INSTALL( FILES ${ADAPTOR_ROOT}/adaptors/scripts/dalireslog.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
 

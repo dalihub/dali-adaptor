@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/graphics/common/graphics-interface-enum.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES

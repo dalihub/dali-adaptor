@@ -126,9 +126,10 @@ static void set_brks_to(
     while (posNext < posEnd)
     {
         // Modified by Samsung to compile with -Werror flag. 2025-02-12. eunkiki.hong@samsung.com
-        __attribute__((unused)) utf32_t ch;
+        utf32_t ch;
         ch = get_next_char(s, len, &posNext);
         assert(ch != EOS);
+        (void)ch;
         for (; posStart < posNext - 1; ++posStart)
             brks[posStart] = WORDBREAK_INSIDEACHAR;
         assert(posStart == posNext - 1);

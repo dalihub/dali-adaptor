@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <algorithm>
 
 namespace Dali::Graphics::GLES
@@ -29,6 +30,13 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
 #endif
+
+SyncPool::SyncContext GetTextureDependencySyncContext(EglGraphicsController& controller)
+{
+  return controller.GetEglSyncImplementation().UseGlSyncForTextureDependencies()
+           ? SyncPool::SyncContext::GL
+           : SyncPool::SyncContext::EGL;
+}
 
 void FreeAllBackwardSyncObjectSyncs(EglGraphicsController& controller, TextureDependencyChecker::BackwardDependenciesMap& dependencies)
 {
@@ -200,7 +208,9 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
   // Allocate sync object for cross-context synchronization
   // The shared resource context writes to FBOs, but they are drawn on separate scene contexts
   DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
-  textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
+  textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
+    writeContext,
+    GetTextureDependencySyncContext(mController));
 
   // For native image texture
   CreateNativeTextureSync(writeContext, framebuffer);
@@ -256,7 +266,9 @@ bool TextureDependencyChecker::MarkFramebufferTextureRead(const Context* readCon
   backwardDependency.readContext = readContext;
 
   DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::MarkTextureReaded() Allocating sync object\n");
-  backwardDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(readContext, SyncPool::SyncContext::EGL);
+  backwardDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
+    readContext,
+    GetTextureDependencySyncContext(mController));
 
   // Record all textures that were read in this frame
   // Note that all textures share the single sync object id.

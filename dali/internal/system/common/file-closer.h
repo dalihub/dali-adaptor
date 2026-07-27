@@ -23,6 +23,10 @@
 // EXTERNAL INCLUDES
 #include <cstdio>
 
+#if defined(_WIN32)
+#include <third-party/windows-platform/Win32File/CustomFile.h>
+#endif
+
 namespace Dali
 {
 namespace Internal
@@ -118,7 +122,11 @@ protected: // prevent this class being directly instantiated
   {
     if(mFile != 0)
     {
+#if defined(_WIN32)
+      const int closeFailed = CustomFile::FClose(mFile);
+#else
       const int closeFailed = fclose(mFile);
+#endif
 
       if(closeFailed)
       {

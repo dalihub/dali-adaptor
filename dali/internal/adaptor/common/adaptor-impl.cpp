@@ -37,7 +37,11 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/object-registry.h>
 
+#if defined(_WIN32)
+#include <filesystem>
+#else
 #include <sys/stat.h>
+#endif
 #include <cerrno>
 
 // INTERNAL INCLUDES
@@ -93,6 +97,29 @@ thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific poin
 thread_local bool     gIsEventThread      = false;   // set once on the event thread, never cleared
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+
+bool EnsureDirectoryExists(const std::string& path)
+{
+#if defined(_WIN32)
+  std::error_code error;
+  std::filesystem::create_directories(std::filesystem::u8path(path), error);
+  if(error)
+  {
+    DALI_LOG_ERROR("Error creating directory %s: %s\n", path.c_str(), error.message().c_str());
+    return false;
+  }
+  return true;
+#else
+  const int result = mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+  if(result != 0 && errno != EEXIST)
+  {
+    DALI_LOG_ERROR("Error creating directory: %s!\n", path.c_str());
+    DALI_PRINT_SYSTEM_ERROR_LOG();
+    return false;
+  }
+  return true;
+#endif
+}
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
@@ -225,40 +252,20 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
   if(!systemCachePath.empty())
   {
     DALI_LOG_RELEASE_INFO("Check and create dali system cache directory: %s\n", systemCachePath.c_str());
-    int dir_err = mkdir(systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    if(0 != dir_err && errno != EEXIST)
-    {
-      DALI_LOG_ERROR("Error creating system cache directory: %s!\n", systemCachePath.c_str());
-      DALI_PRINT_SYSTEM_ERROR_LOG();
-    }
+    EnsureDirectoryExists(systemCachePath);
 
     std::string shaderCachePath = GetProgramBinaryPath();
-    dir_err                     = mkdir(shaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    if(0 != dir_err && errno != EEXIST)
-    {
-      DALI_LOG_ERROR("Error creating shader cache directory: %s!\n", shaderCachePath.c_str());
-      DALI_PRINT_SYSTEM_ERROR_LOG();
-    }
+    EnsureDirectoryExists(shaderCachePath);
 
     if(!shaderCachePath.empty())
     {
       std::string internalShaderCachePath = GetInternalProgramBinaryCachePath();
       DALI_LOG_RELEASE_INFO("Check and create dali internal shader cache directory: %s\n", internalShaderCachePath.c_str());
-      dir_err = mkdir(internalShaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      if(0 != dir_err && errno != EEXIST)
-      {
-        DALI_LOG_ERROR("Error creating dali internal shader directory: %s!\n", internalShaderCachePath.c_str());
-        DALI_PRINT_SYSTEM_ERROR_LOG();
-      }
+      EnsureDirectoryExists(internalShaderCachePath);
 
       std::string customShaderCachePath = GetCustomProgramBinaryCachePath();
       DALI_LOG_RELEASE_INFO("Check and create dali custom shader cache directory: %s\n", customShaderCachePath.c_str());
-      dir_err = mkdir(customShaderCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-      if(0 != dir_err && errno != EEXIST)
-      {
-        DALI_LOG_ERROR("Error creating dali custom shader directory: %s!\n", customShaderCachePath.c_str());
-        DALI_PRINT_SYSTEM_ERROR_LOG();
-      }
+      EnsureDirectoryExists(customShaderCachePath);
     }
   }
 
