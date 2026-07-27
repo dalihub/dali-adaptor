@@ -62,6 +62,7 @@ namespace Internal
 {
 namespace Adaptor
 {
+class EntityDataHost;
 class DisplayConnection;
 class ThreadController;
 class TriggerEvent;
@@ -821,6 +822,8 @@ private:                                          // Data
   Dali::LayoutDirection::Type          mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
+
+  std::unique_ptr<EntityDataHost> mEntityDataHost; ///< Platform entity-data backend
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor)

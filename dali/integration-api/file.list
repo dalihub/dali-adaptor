@@ -27,6 +27,7 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/clipboard-integ.h
   ${adaptor_integration_api_dir}/adaptor-framework/color-depth.h
   ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/focused-actor-provider.h
   ${adaptor_integration_api_dir}/adaptor-framework/input-method-context-integ.h
   ${adaptor_integration_api_dir}/adaptor-framework/input-method-options.h
   ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
