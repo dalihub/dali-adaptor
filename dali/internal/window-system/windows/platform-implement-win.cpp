@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <windows.h>
 #include <algorithm>
+#include <atomic>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -41,6 +42,15 @@ namespace WindowsPlatform
 {
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+  // Idle and trigger callbacks are posted as WIN_CALLBACK_EVENT window messages
+  // (see PostWinCallback) so that a nested modal message loop (window move/resize)
+  // still delivers them here instead of draining them without execution.
+  if(uMsg == WIN_CALLBACK_EVENT)
+  {
+    ExecuteWinCallback(static_cast<WinCallbackToken>(wParam));
+    return 0;
+  }
+
   const auto windowHandle       = reinterpret_cast<WinWindowHandle>(hWnd);
   const auto previousWindowProc = WindowImpl::GetPreviousWindowProc(windowHandle);
   const bool handled            = WindowImpl::ProcWinMessage(windowHandle, uMsg, static_cast<uintptr_t>(wParam), static_cast<intptr_t>(lParam));
@@ -134,6 +144,18 @@ void EnsureWindowClassUnregistered()
 }
 
 std::map<WinWindowHandle, WindowImpl*> sHWndToListener;
+
+// Cached DALi window used to deliver WIN_CALLBACK_EVENT (idle/trigger callbacks).
+// Posting them as window messages - rather than thread messages - lets nested
+// modal message loops (window move/resize) dispatch them through WinProc instead
+// of dropping them. Updated on the event thread whenever sHWndToListener changes;
+// read from any thread that posts a callback, hence atomic.
+std::atomic<WinWindowHandle> gDaliMessageWindow{0u};
+
+void RefreshDaliMessageWindow()
+{
+  gDaliMessageWindow.store(sHWndToListener.empty() ? WinWindowHandle{0u} : sHWndToListener.begin()->first, std::memory_order_relaxed);
+}
 std::map<WinWindowHandle, intptr_t>    sDetachedWindowProcedures;
 
 struct RegisteredCallback
@@ -173,6 +195,7 @@ void RemoveListener(WinWindowHandle hWnd)
   if(sHWndToListener.end() != x)
   {
     sHWndToListener.erase(x);
+    RefreshDaliMessageWindow();
   }
 }
 
@@ -238,6 +261,7 @@ void WindowImpl::RemoveWindow(WinWindowHandle hWnd)
     iter->second->mIsExternalWindow   = false;
     iter->second->colorDepth          = -1;
     sHWndToListener.erase(iter);
+    RefreshDaliMessageWindow();
   }
 
   if(sOwnedWindows.erase(hWnd) != 0u)
@@ -415,6 +439,7 @@ void WindowImpl::SetHWND(WinWindowHandle inHWnd)
     {
       x->second = this;
     }
+    RefreshDaliMessageWindow();
   }
 }
 
@@ -565,7 +590,23 @@ void UnregisterWinCallback(WinCallbackToken token)
 
 bool PostWinCallback(WinCallbackToken token, uint32_t threadID)
 {
-  return token != 0u && PostWinThreadMessage(WIN_CALLBACK_EVENT, token, 0, threadID);
+  if(token == 0u)
+  {
+    return false;
+  }
+
+  // Prefer posting to a DALi window: a WIN_CALLBACK_EVENT window message is still
+  // dispatched to WinProc by a nested modal message loop (window move/resize),
+  // whereas a thread message is drained by that loop without ever reaching
+  // FrameworkWin::Run. Fall back to a thread message before any window exists.
+  const WinWindowHandle messageWindow = gDaliMessageWindow.load(std::memory_order_relaxed);
+  if(messageWindow != 0u &&
+     PostMessage(reinterpret_cast<HWND>(messageWindow), WIN_CALLBACK_EVENT, static_cast<WPARAM>(token), 0) != FALSE)
+  {
+    return true;
+  }
+
+  return PostWinThreadMessage(WIN_CALLBACK_EVENT, token, 0, threadID);
 }
 
 void ExecuteWinCallback(WinCallbackToken token)
