@@ -456,6 +456,7 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::DOWN);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
     point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
     point.SetPressure(touchEvent.multi.pressure);
@@ -488,6 +489,7 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::UP);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
     point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
     point.SetPressure(touchEvent.multi.pressure);
@@ -515,6 +517,7 @@ void WindowBaseWin::OnMouseButtonMove(int, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::MOTION);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
     point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
     point.SetPressure(touchEvent.multi.pressure);
@@ -1180,7 +1183,19 @@ void WindowBaseWin::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
 
 bool WindowBaseWin::PointerWarp(int32_t x, int32_t y)
 {
-  return false;
+  if(!mWin32Window)
+  {
+    return false;
+  }
+
+  // DALi coordinates are client-relative; SetCursorPos expects screen coordinates.
+  POINT screenPoint{static_cast<LONG>(x), static_cast<LONG>(y)};
+  HWND  window = reinterpret_cast<HWND>(mWin32Window);
+  if(!::ClientToScreen(window, &screenPoint))
+  {
+    return false;
+  }
+  return ::SetCursorPos(screenPoint.x, screenPoint.y) != 0;
 }
 
 void WindowBaseWin::CursorVisibleSet(bool visible)
