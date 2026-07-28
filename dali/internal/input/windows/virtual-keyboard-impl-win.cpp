@@ -60,20 +60,20 @@ BoundsInteger GetSizeAndPosition()
 
 Dali::VirtualKeyboard::StatusSignalType& StatusChangedSignal()
 {
-  Dali::VirtualKeyboard::StatusSignalType ret;
-  return ret;
+  static Dali::VirtualKeyboard::StatusSignalType signal;
+  return signal;
 }
 
 Dali::VirtualKeyboard::KeyboardResizedSignalType& ResizedSignal()
 {
-  Dali::VirtualKeyboard::KeyboardResizedSignalType ret;
-  return ret;
+  static Dali::VirtualKeyboard::KeyboardResizedSignalType signal;
+  return signal;
 }
 
 Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal()
 {
-  Dali::VirtualKeyboard::LanguageChangedSignalType ret;
-  return ret;
+  static Dali::VirtualKeyboard::LanguageChangedSignalType signal;
+  return signal;
 }
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()

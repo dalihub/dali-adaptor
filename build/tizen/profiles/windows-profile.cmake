@@ -160,6 +160,7 @@ SET( REQUIRED_LIBS
         WebP::webp
         WebP::webpdemux
         dali2-core::dali2-core
+        imm32
         ws2_32
 )
 

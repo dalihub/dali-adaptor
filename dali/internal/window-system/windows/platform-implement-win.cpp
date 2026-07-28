@@ -661,13 +661,41 @@ void KillTimer(intptr_t id)
   gTimerCallbacks.erase(timerId);
 }
 
-std::string GetKeyName(int keyCode)
+std::string GetKeyName(int keyCode, intptr_t lParam)
 {
+  const auto nativeData = static_cast<uintptr_t>(lParam);
+  const bool extended   = (nativeData & (1u << 24u)) != 0u;
+  const UINT scanCode   = static_cast<UINT>((nativeData >> 16u) & 0xffu);
+
+  // VK_HANGUL and VK_KANA share a value. DALi's public key table exposes the
+  // language key as Hangul, which also matches the existing Linux backends.
+  if(keyCode == VK_HANGUL)
+  {
+    return "Hangul";
+  }
+
+  if(keyCode >= '0' && keyCode <= '9')
+  {
+    return std::string(1u, static_cast<char>(keyCode));
+  }
+  if(keyCode >= 'A' && keyCode <= 'Z')
+  {
+    return std::string(1u, static_cast<char>('a' + keyCode - 'A'));
+  }
+  if(keyCode >= VK_NUMPAD0 && keyCode <= VK_NUMPAD9)
+  {
+    return "KP_" + std::to_string(keyCode - VK_NUMPAD0);
+  }
+  if(keyCode >= VK_F1 && keyCode <= VK_F24)
+  {
+    return "F" + std::to_string(keyCode - VK_F1 + 1);
+  }
+
   switch(keyCode)
   {
     case VK_BACK:
     {
-      return "Backspace";
+      return "BackSpace";
     }
     case VK_TAB:
     {
@@ -675,7 +703,52 @@ std::string GetKeyName(int keyCode)
     }
     case VK_RETURN:
     {
-      return "Return";
+      return extended ? "KP_Enter" : "Return";
+    }
+    case VK_SHIFT:
+    {
+      const UINT mappedKey = MapVirtualKey(scanCode, MAPVK_VSC_TO_VK_EX);
+      return mappedKey == VK_RSHIFT ? "Shift_R" : "Shift_L";
+    }
+    case VK_LSHIFT:
+    {
+      return "Shift_L";
+    }
+    case VK_RSHIFT:
+    {
+      return "Shift_R";
+    }
+    case VK_CONTROL:
+    {
+      return extended ? "Control_R" : "Control_L";
+    }
+    case VK_LCONTROL:
+    {
+      return "Control_L";
+    }
+    case VK_RCONTROL:
+    {
+      return "Control_R";
+    }
+    case VK_MENU:
+    {
+      return extended ? "Alt_R" : "Alt_L";
+    }
+    case VK_LMENU:
+    {
+      return "Alt_L";
+    }
+    case VK_RMENU:
+    {
+      return "Alt_R";
+    }
+    case VK_PAUSE:
+    {
+      return "Pause";
+    }
+    case VK_CAPITAL:
+    {
+      return "Caps_Lock";
     }
     case VK_ESCAPE:
     {
@@ -685,73 +758,253 @@ std::string GetKeyName(int keyCode)
     {
       return "Space";
     }
+    case VK_PRIOR:
+    {
+      return extended ? "Prior" : "KP_Prior";
+    }
+    case VK_NEXT:
+    {
+      return extended ? "Next" : "KP_Next";
+    }
+    case VK_END:
+    {
+      return extended ? "End" : "KP_End";
+    }
+    case VK_HOME:
+    {
+      return extended ? "Home" : "KP_Home";
+    }
     case VK_LEFT:
     {
-      return "Left";
+      return extended ? "Left" : "KP_Left";
     }
     case VK_UP:
     {
-      return "Up";
+      return extended ? "Up" : "KP_Up";
     }
     case VK_RIGHT:
     {
-      return "Right";
+      return extended ? "Right" : "KP_Right";
     }
     case VK_DOWN:
     {
-      return "Down";
+      return extended ? "Down" : "KP_Down";
     }
-    case 48:
+    case VK_CLEAR:
     {
-      return "0";
+      return "KP_Begin";
     }
-    case 49:
+    case VK_SELECT:
     {
-      return "1";
+      return "Select";
     }
-    case 50:
+    case VK_PRINT:
     {
-      return "2";
+      return "Print";
     }
-    case 51:
+    case VK_EXECUTE:
     {
-      return "3";
+      return "Execute";
     }
-    case 52:
+    case VK_SNAPSHOT:
     {
-      return "4";
+      return "Print";
     }
-    case 53:
+    case VK_INSERT:
     {
-      return "5";
+      return extended ? "Insert" : "KP_Insert";
     }
-    case 54:
+    case VK_DELETE:
     {
-      return "6";
+      return extended ? "Delete" : "KP_Delete";
     }
-    case 55:
+    case VK_HELP:
     {
-      return "7";
+      return "Help";
     }
-    case 56:
+    case VK_LWIN:
     {
-      return "8";
+      return "Super_L";
     }
-    case 57:
+    case VK_RWIN:
     {
-      return "9";
+      return "Super_R";
+    }
+    case VK_APPS:
+    {
+      return "Menu";
+    }
+    case VK_SLEEP:
+    {
+      return "XF86Standby";
+    }
+    case VK_MULTIPLY:
+    {
+      return "KP_Multiply";
+    }
+    case VK_ADD:
+    {
+      return "KP_Add";
+    }
+    case VK_SEPARATOR:
+    {
+      return "KP_Separator";
+    }
+    case VK_SUBTRACT:
+    {
+      return "KP_Subtract";
+    }
+    case VK_DECIMAL:
+    {
+      return "KP_Decimal";
+    }
+    case VK_DIVIDE:
+    {
+      return "KP_Divide";
+    }
+    case VK_NUMLOCK:
+    {
+      return "Num_Lock";
+    }
+    case VK_SCROLL:
+    {
+      return "Scroll_Lock";
+    }
+    case VK_BROWSER_BACK:
+    {
+      return "XF86Back";
+    }
+    case VK_BROWSER_FORWARD:
+    {
+      return "XF86Forward";
+    }
+    case VK_BROWSER_REFRESH:
+    {
+      return "XF86Refresh";
+    }
+    case VK_BROWSER_STOP:
+    {
+      return "XF86Stop";
+    }
+    case VK_BROWSER_SEARCH:
+    {
+      return "XF86Search";
+    }
+    case VK_BROWSER_FAVORITES:
+    {
+      return "XF86Favorites";
+    }
+    case VK_BROWSER_HOME:
+    {
+      return "XF86HomePage";
+    }
+    case VK_VOLUME_MUTE:
+    {
+      return "XF86AudioMute";
+    }
+    case VK_VOLUME_DOWN:
+    {
+      return "XF86AudioLowerVolume";
+    }
+    case VK_VOLUME_UP:
+    {
+      return "XF86AudioRaiseVolume";
+    }
+    case VK_MEDIA_NEXT_TRACK:
+    {
+      return "XF86AudioNext";
+    }
+    case VK_MEDIA_PREV_TRACK:
+    {
+      return "XF86AudioPrev";
+    }
+    case VK_MEDIA_STOP:
+    {
+      return "XF86AudioStop";
+    }
+    case VK_MEDIA_PLAY_PAUSE:
+    {
+      return "XF86AudioPlayPause";
+    }
+    case VK_LAUNCH_MAIL:
+    {
+      return "XF86Mail";
+    }
+    case VK_LAUNCH_MEDIA_SELECT:
+    {
+      return "XF86AudioMedia";
+    }
+    case VK_LAUNCH_APP1:
+    {
+      return "XF86Launch1";
+    }
+    case VK_LAUNCH_APP2:
+    {
+      return "XF86Launch2";
+    }
+    case VK_OEM_1:
+    {
+      return "semicolon";
+    }
+    case VK_OEM_PLUS:
+    {
+      return "equal";
+    }
+    case VK_OEM_COMMA:
+    {
+      return "comma";
+    }
+    case VK_OEM_MINUS:
+    {
+      return "minus";
+    }
+    case VK_OEM_PERIOD:
+    {
+      return "period";
+    }
+    case VK_OEM_2:
+    {
+      return "slash";
+    }
+    case VK_OEM_3:
+    {
+      return "grave";
+    }
+    case VK_OEM_4:
+    {
+      return "bracketleft";
+    }
+    case VK_OEM_5:
+    {
+      return "backslash";
+    }
+    case VK_OEM_6:
+    {
+      return "bracketright";
+    }
+    case VK_OEM_7:
+    {
+      return "apostrophe";
+    }
+    case VK_OEM_102:
+    {
+      return "less";
+    }
+    case VK_PROCESSKEY:
+    {
+      return "Process";
+    }
+    case VK_PACKET:
+    {
+      return "Packet";
     }
     default:
     {
-      if(keyCode > 0 && keyCode < 128)
-      {
-        return std::string(1u, static_cast<char>(keyCode));
-      }
       break;
     }
   }
 
-  return "";
+  return "Keycode-" + std::to_string(keyCode);
 }
 
 namespace

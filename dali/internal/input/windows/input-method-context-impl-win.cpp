@@ -23,6 +23,22 @@
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/events/key-event.h>
+#include <windows.h>
+#include <imm.h>
+
+// WinUser.h defines CreateWindow as a macro (CreateWindowA/W). It collides with the
+// WindowBase::CreateWindow() virtual method that is pulled in transitively by the DALi
+// headers included below. Undef it here, mirroring window-base-win.cpp.
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
+
+#include <algorithm>
+#include <cstring>
+#include <iterator>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
@@ -43,6 +59,136 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT");
 #endif
+
+std::unordered_map<WinWindowHandle, InputMethodContextWin*> gActiveInputContexts;
+
+class ScopedInputContext
+{
+public:
+  explicit ScopedInputContext(WinWindowHandle window)
+  : mWindow(reinterpret_cast<HWND>(window)),
+    mContext(mWindow ? ImmGetContext(mWindow) : nullptr)
+  {
+  }
+
+  ~ScopedInputContext()
+  {
+    if(mContext)
+    {
+      ImmReleaseContext(mWindow, mContext);
+    }
+  }
+
+  HIMC Get() const
+  {
+    return mContext;
+  }
+
+  ScopedInputContext(const ScopedInputContext&)            = delete;
+  ScopedInputContext& operator=(const ScopedInputContext&) = delete;
+
+private:
+  HWND mWindow;
+  HIMC mContext;
+};
+
+std::string WideStringToUtf8(const std::wstring& text)
+{
+  if(text.empty())
+  {
+    return {};
+  }
+
+  const int required = WideCharToMultiByte(CP_UTF8, 0, text.data(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr);
+  if(required <= 0)
+  {
+    return {};
+  }
+
+  std::string utf8(static_cast<size_t>(required), '\0');
+  WideCharToMultiByte(CP_UTF8, 0, text.data(), static_cast<int>(text.size()), utf8.data(), required, nullptr, nullptr);
+  return utf8;
+}
+
+std::wstring Utf8StringToWide(const char* text)
+{
+  if(!text || !*text)
+  {
+    return {};
+  }
+
+  const int length   = static_cast<int>(strlen(text));
+  const int required = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, length, nullptr, 0);
+  if(required <= 0)
+  {
+    return {};
+  }
+
+  std::wstring wide(static_cast<size_t>(required), L'\0');
+  MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, length, wide.data(), required);
+  return wide;
+}
+
+std::wstring ReadCompositionString(HIMC context, DWORD index)
+{
+  const LONG byteLength = ImmGetCompositionStringW(context, index, nullptr, 0u);
+  if(byteLength <= 0)
+  {
+    return {};
+  }
+
+  std::wstring value(static_cast<size_t>(byteLength) / sizeof(wchar_t), L'\0');
+  const LONG   copied = ImmGetCompositionStringW(context, index, value.data(), static_cast<DWORD>(byteLength));
+  if(copied <= 0)
+  {
+    return {};
+  }
+  value.resize(static_cast<size_t>(copied) / sizeof(wchar_t));
+  return value;
+}
+
+std::vector<uint8_t> ReadCompositionAttributes(HIMC context)
+{
+  const LONG byteLength = ImmGetCompositionStringW(context, GCS_COMPATTR, nullptr, 0u);
+  if(byteLength <= 0)
+  {
+    return {};
+  }
+
+  std::vector<uint8_t> attributes(static_cast<size_t>(byteLength));
+  const LONG           copied = ImmGetCompositionStringW(context, GCS_COMPATTR, attributes.data(), static_cast<DWORD>(attributes.size()));
+  if(copied <= 0)
+  {
+    return {};
+  }
+  attributes.resize(static_cast<size_t>(copied));
+  return attributes;
+}
+
+uint32_t Utf16OffsetToCharacterIndex(const std::wstring& text, size_t offset)
+{
+  const size_t limit = (std::min)(offset, text.size());
+  uint32_t     index = 0u;
+  for(size_t position = 0u; position < limit; ++position, ++index)
+  {
+    const wchar_t value = text[position];
+    if(value >= 0xd800 && value <= 0xdbff && position + 1u < limit)
+    {
+      const wchar_t next = text[position + 1u];
+      if(next >= 0xdc00 && next <= 0xdfff)
+      {
+        ++position;
+      }
+    }
+  }
+  return index;
+}
+
+LCID GetKeyboardLocale()
+{
+  const auto layout = reinterpret_cast<ULONG_PTR>(GetKeyboardLayout(0));
+  return MAKELCID(LOWORD(layout), SORT_DEFAULT);
+}
 } // namespace
 
 InputMethodContextPtr InputMethodContextWin::New(Dali::Actor actor)
@@ -57,16 +203,104 @@ InputMethodContextPtr InputMethodContextWin::New(Dali::Actor actor)
   return manager;
 }
 
+void InputMethodContextWin::ProcessWindowMessage(WinWindowHandle window, uint32_t message, uintptr_t wParam, intptr_t lParam)
+{
+  const auto active = gActiveInputContexts.find(window);
+  if(active == gActiveInputContexts.end() || !active->second)
+  {
+    return;
+  }
+
+  InputMethodContextWin& inputContext = *active->second;
+  switch(message)
+  {
+    case WM_IME_STARTCOMPOSITION:
+    {
+      inputContext.mIsComposing = true;
+      break;
+    }
+    case WM_IME_COMPOSITION:
+    {
+      const HWND nativeWindow = reinterpret_cast<HWND>(window);
+      const HIMC context      = ImmGetContext(nativeWindow);
+      if(!context)
+      {
+        break;
+      }
+
+      const auto compositionFlags = static_cast<LPARAM>(lParam);
+      if((compositionFlags & GCS_RESULTSTR) != 0)
+      {
+        inputContext.mIsComposing = false;
+        inputContext.HandleCommit(WideStringToUtf8(ReadCompositionString(context, GCS_RESULTSTR)));
+        inputContext.HandlePreEdit({}, {}, 0u);
+      }
+      if((compositionFlags & GCS_COMPSTR) != 0)
+      {
+        const std::wstring composition = ReadCompositionString(context, GCS_COMPSTR);
+        const LONG         cursor      = ImmGetCompositionStringW(context, GCS_CURSORPOS, nullptr, 0u);
+        inputContext.mIsComposing      = true;
+        inputContext.HandlePreEdit(composition,
+                                   ReadCompositionAttributes(context),
+                                   Utf16OffsetToCharacterIndex(composition, cursor < 0 ? 0u : static_cast<size_t>(cursor)));
+      }
+
+      ImmReleaseContext(nativeWindow, context);
+      break;
+    }
+    case WM_IME_ENDCOMPOSITION:
+    {
+      if(inputContext.mIsComposing)
+      {
+        inputContext.mIsComposing = false;
+        inputContext.HandlePreEdit({}, {}, 0u);
+      }
+      break;
+    }
+    case WM_IME_NOTIFY:
+    {
+      if(wParam == IMN_SETOPENSTATUS)
+      {
+        const HWND nativeWindow = reinterpret_cast<HWND>(window);
+        const HIMC context      = ImmGetContext(nativeWindow);
+        if(context)
+        {
+          // TRUE/FALSE are #undef'd by the DALi EGL headers, so compare against the literal Win32 BOOL value.
+          inputContext.HandleInputPanelState(ImmGetOpenStatus(context) != 0);
+          ImmReleaseContext(nativeWindow, context);
+        }
+      }
+      break;
+    }
+    case WM_INPUTLANGCHANGE:
+    {
+      if(Dali::Adaptor::IsAvailable())
+      {
+        inputContext.EmitLanguageChangedSignal(static_cast<int>(LOWORD(static_cast<ULONG_PTR>(lParam))));
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
 void InputMethodContextWin::Finalize()
 {
+  Deactivate();
+  DisconnectCallbacks();
+  DeleteContext();
 }
 
 InputMethodContextWin::InputMethodContextWin(Dali::Actor actor)
-: mSurroundingText(),
+: mOptions(),
+  mPreeditAttrs(),
+  mSurroundingText(),
   mWin32Window(0),
   mIMFCursorPosition(0),
   mRestoreAfterFocusLost(false),
-  mIdleCallbackConnected(false)
+  mIdleCallbackConnected(false),
+  mIsComposing(false)
 {
   actor.SceneConnectedSignal().Connect(this, &InputMethodContextWin::OnStaged);
 }
@@ -105,23 +339,58 @@ void InputMethodContextWin::Activate()
 {
   // Reset mIdleCallbackConnected
   mIdleCallbackConnected = false;
+  if(mWin32Window == 0u)
+  {
+    return;
+  }
+
+  auto existing = gActiveInputContexts.find(mWin32Window);
+  if(existing != gActiveInputContexts.end() && existing->second && existing->second != this)
+  {
+    existing->second->Reset();
+  }
+  gActiveInputContexts[mWin32Window] = this;
+
+  if(Dali::Adaptor::IsAvailable())
+  {
+    Dali::InputMethodContext handle(this);
+    mActivatedSignal.Emit(handle);
+  }
 }
 
 void InputMethodContextWin::Deactivate()
 {
   mIdleCallbackConnected = false;
+  const auto active      = gActiveInputContexts.find(mWin32Window);
+  if(active != gActiveInputContexts.end() && active->second == this)
+  {
+    Reset();
+    gActiveInputContexts.erase(active);
+  }
 }
 
 void InputMethodContextWin::Reset()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::Reset\n");
+  const bool clearPreEdit = mIsComposing;
+  mIsComposing            = false;
+
+  ScopedInputContext context(mWin32Window);
+  if(context.Get())
+  {
+    ImmNotifyIME(context.Get(), NI_COMPOSITIONSTR, CPS_CANCEL, 0u);
+  }
+  if(clearPreEdit)
+  {
+    HandlePreEdit({}, {}, 0u);
+  }
 }
 
 ImfContext* InputMethodContextWin::GetContext()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetContext\n");
 
-  return NULL;
+  return nullptr;
 }
 
 bool InputMethodContextWin::RestoreAfterFocusLost() const
@@ -143,27 +412,106 @@ bool InputMethodContextWin::SetRestoreAfterFocusLost(bool toggle)
 void InputMethodContextWin::PreEditChanged(void*, ImfContext* imfContext, void* eventInfo)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::PreEditChanged\n");
+  HandlePreEdit(Utf8StringToWide(static_cast<const char*>(eventInfo)), {}, 0u);
 }
 
 void InputMethodContextWin::CommitReceived(void*, ImfContext* imfContext, void* eventInfo)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::CommitReceived\n");
+  HandleCommit(eventInfo ? static_cast<const char*>(eventInfo) : "");
+}
+
+void InputMethodContextWin::HandlePreEdit(const std::wstring& text, const std::vector<uint8_t>& attributes, uint32_t cursorPosition)
+{
+  mPreeditAttrs.Clear();
+
+  const size_t attributeCount = (std::min)(attributes.size(), text.size());
+  if(attributeCount == 0u && !text.empty())
+  {
+    Dali::Integration::InputMethodContext::PreeditAttributeData data;
+    data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
+    data.startIndex  = 0u;
+    data.endIndex    = Utf16OffsetToCharacterIndex(text, text.size());
+    mPreeditAttrs.PushBack(data);
+  }
+  else
+  {
+    size_t runStart = 0u;
+    while(runStart < attributeCount)
+    {
+      size_t runEnd = runStart + 1u;
+      while(runEnd < attributeCount && attributes[runEnd] == attributes[runStart])
+      {
+        ++runEnd;
+      }
+
+      Dali::Integration::InputMethodContext::PreeditAttributeData data;
+      switch(attributes[runStart])
+      {
+        case ATTR_TARGET_CONVERTED:
+        case ATTR_TARGET_NOTCONVERTED:
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::HIGHLIGHT;
+          break;
+        case ATTR_INPUT_ERROR:
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::REVERSE;
+          break;
+        default:
+          data.preeditType = Dali::Integration::InputMethodContext::PreeditStyle::UNDERLINE;
+          break;
+      }
+      data.startIndex = Utf16OffsetToCharacterIndex(text, runStart);
+      data.endIndex   = Utf16OffsetToCharacterIndex(text, runEnd);
+      mPreeditAttrs.PushBack(data);
+      runStart = runEnd;
+    }
+  }
 
   if(Dali::Adaptor::IsAvailable())
   {
-    const std::string keyString(static_cast<char*>(eventInfo));
-
     Dali::InputMethodContext                         handle(this);
-    Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(keyString.c_str()), 0, 0);
+    Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::PRE_EDIT, Dali::String(WideStringToUtf8(text).c_str()), static_cast<int32_t>(cursorPosition), 0);
     mEventSignal.Emit(handle, eventData);
     Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
 
     if(callbackData.update)
     {
       mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
-
+      mSurroundingText   = callbackData.currentText;
       NotifyCursorPosition();
     }
+
+    if(callbackData.preeditResetRequired)
+    {
+      Reset();
+    }
+  }
+}
+
+void InputMethodContextWin::HandleCommit(const std::string& text)
+{
+  if(text.empty() || !Dali::Adaptor::IsAvailable())
+  {
+    return;
+  }
+
+  Dali::InputMethodContext                         handle(this);
+  Dali::Integration::InputMethodContext::EventData eventData(Dali::Integration::InputMethodContext::COMMIT, Dali::String(text.c_str()), 0, 0);
+  mEventSignal.Emit(handle, eventData);
+  Dali::Integration::InputMethodContext::CallbackData callbackData = mKeyboardEventSignal.Emit(handle, eventData);
+
+  if(callbackData.update)
+  {
+    mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
+    mSurroundingText   = callbackData.currentText;
+    NotifyCursorPosition();
+  }
+}
+
+void InputMethodContextWin::HandleInputPanelState(bool shown)
+{
+  if(Dali::Adaptor::IsAvailable())
+  {
+    EmitStatusChangedSignal(shown ? Dali::InputMethodContext::State::SHOW : Dali::InputMethodContext::State::HIDE);
   }
 }
 
@@ -183,6 +531,7 @@ bool InputMethodContextWin::RetrieveSurrounding(void* data, ImfContext* imfConte
 
   if(callbackData.update)
   {
+    mSurroundingText = callbackData.currentText;
     if(text)
     {
       *text = strdup(callbackData.currentText.CStr());
@@ -246,9 +595,13 @@ void InputMethodContextWin::NotifyTextInputMultiLine(bool multiLine)
 
 Dali::Integration::InputMethodContext::TextDirection InputMethodContextWin::GetTextDirection()
 {
-  Dali::Integration::InputMethodContext::TextDirection direction(Dali::Integration::InputMethodContext::LEFT_TO_RIGHT);
-
-  return direction;
+  wchar_t readingLayout[4]{};
+  if(GetLocaleInfoW(GetKeyboardLocale(), LOCALE_IREADINGLAYOUT, readingLayout, static_cast<int>(std::size(readingLayout))) > 0 &&
+     readingLayout[0] == L'1')
+  {
+    return Dali::Integration::InputMethodContext::RIGHT_TO_LEFT;
+  }
+  return Dali::Integration::InputMethodContext::LEFT_TO_RIGHT;
 }
 
 BoundsInteger InputMethodContextWin::GetInputPanelArea()
@@ -296,6 +649,11 @@ Dali::String InputMethodContextWin::GetInputPanelUserData() const
 Dali::InputMethodContext::State InputMethodContextWin::GetInputPanelState()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelState\n");
+  ScopedInputContext context(mWin32Window);
+  if(context.Get() && ImmGetOpenStatus(context.Get()))
+  {
+    return Dali::InputMethodContext::State::SHOW;
+  }
   return Dali::InputMethodContext::State::HIDE;
 }
 
@@ -320,13 +678,17 @@ bool InputMethodContextWin::AutoEnableInputPanel(bool enabled)
 bool InputMethodContextWin::ShowInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::ShowInputPanel\n");
-  return true;
+  ScopedInputContext context(mWin32Window);
+  // TRUE (1) is used as the literal Win32 BOOL value; the TRUE macro is #undef'd by the DALi EGL headers.
+  return context.Get() && ImmSetOpenStatus(context.Get(), 1);
 }
 
 bool InputMethodContextWin::HideInputPanel()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::HideInputPanel\n");
-  return true;
+  ScopedInputContext context(mWin32Window);
+  // FALSE (0) is used as the literal Win32 BOOL value; the FALSE macro is #undef'd by the DALi EGL headers.
+  return context.Get() && ImmSetOpenStatus(context.Get(), 0);
 }
 
 Dali::InputMethodContext::KeyboardType InputMethodContextWin::GetKeyboardType()
@@ -344,7 +706,12 @@ Dali::String InputMethodContextWin::GetInputPanelLanguageLocale() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetInputPanelLanguageLocale\n");
 
-  return Dali::String();
+  wchar_t localeName[LOCALE_NAME_MAX_LENGTH]{};
+  if(LCIDToLocaleName(GetKeyboardLocale(), localeName, static_cast<int>(std::size(localeName)), 0u) == 0)
+  {
+    return Dali::String();
+  }
+  return Dali::String(WideStringToUtf8(localeName).c_str());
 }
 
 void InputMethodContextWin::SetContentMimeTypes(const Dali::String& mimeTypes)
@@ -420,10 +787,8 @@ void InputMethodContextWin::OnStaged(Dali::Actor actor)
 
   if(mWin32Window != winWindow)
   {
-    mWin32Window = winWindow;
-
-    // Reset
     Finalize();
+    mWin32Window = winWindow;
     Initialize();
   }
 }

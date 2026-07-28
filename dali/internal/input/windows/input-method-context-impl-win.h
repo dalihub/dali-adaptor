@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
@@ -43,6 +46,14 @@ public:
    * @return InputMethodContext pointer
    */
   static InputMethodContextPtr New(Dali::Actor actor);
+
+  /**
+   * @brief Dispatches a native Win32 IME message to the active input context.
+   *
+   * The native window procedure still processes the message after this
+   * notification; this method only bridges IMM composition state to DALi.
+   */
+  static void ProcessWindowMessage(WinWindowHandle window, uint32_t message, uintptr_t wParam, intptr_t lParam);
 
   /**
    * Constructor
@@ -292,6 +303,12 @@ private:
    */
   void DeleteContext();
 
+  void HandlePreEdit(const std::wstring& text, const std::vector<uint8_t>& attributes, uint32_t cursorPosition);
+
+  void HandleCommit(const std::string& text);
+
+  void HandleInputPanelState(bool shown);
+
 private:
   /**
    * @brief Process event key down, whether filter a key to isf.
@@ -339,6 +356,7 @@ private:
 
   bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated) after focus regained.
   bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
+  bool mIsComposing : 1;           ///< Whether a native composition is in progress.
 };
 
 } // namespace Adaptor

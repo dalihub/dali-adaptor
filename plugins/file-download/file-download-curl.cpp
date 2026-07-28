@@ -314,6 +314,20 @@ bool ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::s
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L), "CURLOPT_FOLLOWLOCATION");
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, maximumRedirectionCounts), "CURLOPT_MAXREDIRS");
 
+#if defined(_WIN32)
+  // On Windows, curl uses the schannel (native Windows) TLS backend by default.
+  // schannel tries to verify the server certificate's revocation status via CRL/OCSP,
+  // which fails with CRYPT_E_NO_REVOCATION_CHECK (0x80092012) when those endpoints are
+  // unreachable (e.g. behind a corporate proxy / firewall). Soften the revocation check
+  // so a valid certificate whose revocation status simply couldn't be fetched is accepted,
+  // while still rejecting certificates that are actually reported as revoked.
+#if defined(CURLSSLOPT_REVOKE_BEST_EFFORT)
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_SSL_OPTIONS, (long)CURLSSLOPT_REVOKE_BEST_EFFORT), "CURLOPT_SSL_OPTIONS");
+#else
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_SSL_OPTIONS, (long)CURLSSLOPT_NO_REVOKE), "CURLOPT_SSL_OPTIONS");
+#endif
+#endif
+
   if(DALI_LIKELY(!userAgent.empty()))
   {
     CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_USERAGENT, userAgent.c_str()), "CURLOPT_USERAGENT");
