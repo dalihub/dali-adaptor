@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <cstring>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
@@ -65,7 +66,8 @@ NativeImageWin::NativeImageWin(uint32_t width, uint32_t height, Dali::NativeImag
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mResourceDestructionCallback(nullptr),
-  mOwnResourceDestructionCallback(false)
+  mOwnResourceDestructionCallback(false),
+  mUseCpuBuffer(false)
 {
   DALI_ASSERT_ALWAYS(Dali::Adaptor::IsEventThread() && "Must be called from the event thread!");
 
@@ -115,17 +117,78 @@ Any NativeImageWin::GetNativeImage() const
 
 bool NativeImageWin::GetPixels(Dali::Vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
-  DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
-  bool success = false;
-  width        = mWidth;
-  height       = mHeight;
+  width  = mWidth;
+  height = mHeight;
 
-  return success;
+  // The Windows backend has no pixmap read-back (the EGLImage path is not wired up under
+  // ANGLE), so pixels can only be returned from the CPU buffer populated by SetPixels().
+  std::lock_guard<std::mutex> lock(mCpuBufferMutex);
+  if(mCpuBuffer.empty())
+  {
+    return false;
+  }
+
+  pixelFormat = Pixel::RGBA8888;
+  pixbuf.Resize(mCpuBuffer.size());
+  memcpy(pixbuf.Begin(), mCpuBuffer.data(), mCpuBuffer.size());
+  return true;
 }
 
 bool NativeImageWin::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat)
 {
-  return false;
+  if(!pixbuf)
+  {
+    return false;
+  }
+
+  // TargetTexture() uploads the native-image pixels as GL_RGBA, so keep a normalised
+  // RGBA8888 copy here, converting from the supported input formats.
+  const size_t pixelCount = static_cast<size_t>(mWidth) * static_cast<size_t>(mHeight);
+
+  std::lock_guard<std::mutex> lock(mCpuBufferMutex);
+  mCpuBuffer.resize(pixelCount * 4u);
+
+  switch(pixelFormat)
+  {
+    case Pixel::RGBA8888:
+    {
+      memcpy(mCpuBuffer.data(), pixbuf, pixelCount * 4u);
+      break;
+    }
+    case Pixel::BGRA8888:
+    {
+      for(size_t i = 0u; i < pixelCount; ++i)
+      {
+        const size_t offset      = i * 4u;
+        mCpuBuffer[offset + 0u] = pixbuf[offset + 2u]; // R <- B
+        mCpuBuffer[offset + 1u] = pixbuf[offset + 1u]; // G
+        mCpuBuffer[offset + 2u] = pixbuf[offset + 0u]; // B <- R
+        mCpuBuffer[offset + 3u] = pixbuf[offset + 3u]; // A
+      }
+      break;
+    }
+    case Pixel::RGB888:
+    {
+      for(size_t i = 0u; i < pixelCount; ++i)
+      {
+        mCpuBuffer[i * 4u + 0u] = pixbuf[i * 3u + 0u];
+        mCpuBuffer[i * 4u + 1u] = pixbuf[i * 3u + 1u];
+        mCpuBuffer[i * 4u + 2u] = pixbuf[i * 3u + 2u];
+        mCpuBuffer[i * 4u + 3u] = 0xFFu;
+      }
+      break;
+    }
+    default:
+    {
+      DALI_LOG_ERROR("NativeImageWin::SetPixels: unsupported pixel format %d\n", static_cast<int>(pixelFormat));
+      mCpuBuffer.clear();
+      return false;
+    }
+  }
+
+  mUseCpuBuffer    = true;
+  mEglImageChanged = true; // PrepareTexture() reports IMAGE_CHANGED so the backend re-uploads.
+  return true;
 }
 
 void NativeImageWin::SetSource(Any source)
@@ -149,6 +212,13 @@ bool NativeImageWin::IsColorDepthSupported(Dali::NativeImage::ColorDepth colorDe
 
 bool NativeImageWin::CreateResource()
 {
+  // CPU-buffer path: no EGLImage. The pixels are uploaded to a plain GL_TEXTURE_2D in
+  // TargetTexture(); the backend still creates and binds the GL texture for us.
+  if(mUseCpuBuffer || mPixmap == 0)
+  {
+    return true;
+  }
+
   mEglImageExtensions = mEglGraphics->GetImageExtensions();
   DALI_ASSERT_DEBUG(mEglImageExtensions);
 
@@ -170,7 +240,11 @@ bool NativeImageWin::CreateResource()
 
 void NativeImageWin::DestroyResource()
 {
-  mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
+  // In the CPU-buffer path mEglImageExtensions is never assigned, so guard the destroy.
+  if(mEglImageExtensions && mEglImageKHR)
+  {
+    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
+  }
 
   mEglImageKHR     = NULL;
   mEglImageChanged = true;
@@ -183,6 +257,17 @@ void NativeImageWin::DestroyResource()
 
 uint32_t NativeImageWin::TargetTexture()
 {
+  // CPU-buffer path: upload the pixels into the currently bound GL_TEXTURE_2D.
+  if(mUseCpuBuffer || mPixmap == 0)
+  {
+    std::lock_guard<std::mutex> lock(mCpuBufferMutex);
+    if(!mCpuBuffer.empty())
+    {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(mWidth), static_cast<GLsizei>(mHeight), 0, GL_RGBA, GL_UNSIGNED_BYTE, mCpuBuffer.data());
+    }
+    return 0;
+  }
+
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
@@ -190,6 +275,17 @@ uint32_t NativeImageWin::TargetTexture()
 
 Dali::NativeImageInterface::PrepareTextureResult NativeImageWin::PrepareTexture()
 {
+  // CPU-buffer path: always ready. Report IMAGE_CHANGED after a SetPixels() so the backend
+  // re-binds and calls TargetTexture() to re-upload.
+  if(mUseCpuBuffer || mPixmap == 0)
+  {
+    Dali::NativeImageInterface::PrepareTextureResult cpuResult =
+      mEglImageChanged ? Dali::NativeImageInterface::PrepareTextureResult::IMAGE_CHANGED
+                       : Dali::NativeImageInterface::PrepareTextureResult::NO_ERROR;
+    mEglImageChanged = false;
+    return cpuResult;
+  }
+
   Dali::NativeImageInterface::PrepareTextureResult result = Dali::NativeImageInterface::PrepareTextureResult::UNKNOWN_ERROR;
   if(DALI_LIKELY(mEglImageKHR))
   {

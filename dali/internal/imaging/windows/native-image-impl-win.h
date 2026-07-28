@@ -23,6 +23,8 @@
 
 #include <dali/internal/imaging/common/native-image-impl.h>
 #include <cstdint>
+#include <mutex>
+#include <vector>
 
 namespace Dali
 {
@@ -245,6 +247,13 @@ private:
   EglImageExtensions*           mEglImageExtensions;          ///< The EGL Image Extensions
   EventThreadCallback*          mResourceDestructionCallback; ///< The Resource Destruction Callback
   bool                          mOwnResourceDestructionCallback;
+
+  // CPU-buffer backed path. The Windows EGLImage path only works for a real Win32 pixmap;
+  // when there is none (e.g. Capture::GetNativeImage(), or software-rendered frames provided
+  // via SetPixels()) the pixels are uploaded to a plain GL_TEXTURE_2D in TargetTexture().
+  std::vector<uint8_t> mCpuBuffer;      ///< Normalised RGBA8888 pixels.
+  mutable std::mutex   mCpuBufferMutex; ///< Guards mCpuBuffer (SetPixels: event thread, TargetTexture: render thread).
+  bool                 mUseCpuBuffer;   ///< True once SetPixels() has provided a CPU buffer.
 };
 
 } // namespace Adaptor
