@@ -832,10 +832,14 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
   }
 
 // jpeg_create_decompress internally uses C casts
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
   jpeg_create_decompress(&cinfo);
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 
   jpeg_stdio_src(&cinfo, fp);
 

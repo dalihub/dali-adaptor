@@ -266,6 +266,8 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   ADD_COMPILE_OPTIONS( /FI "${ROOT_SRC_DIR}/third-party/windows-platform/preprocessor-definitions.h" ) #
   ADD_COMPILE_OPTIONS( /vmg )                           # Avoids a 'reinterpret_cast' compile error while compiling signals and callbacks.
   ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
+  ADD_COMPILE_OPTIONS( /wd4275 )                        # Ignores warning C4275: non-dll-interface class used as base for dll-interface class
+  ADD_COMPILE_OPTIONS( /utf-8 )                         # Source files are UTF-8; avoids warning C4819 under non-UTF8 system code pages.
 ENDIF()
 
 ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES ${DEFINITIONS} )

@@ -38,8 +38,10 @@
 #include <dali/public-api/dali-adaptor-common.h>
 
 // EGL constants use C style casts
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
 
 namespace
 {
@@ -1081,4 +1083,6 @@ bool EglImplementation::CreateOffscreenContext(EGLContext& eglContext)
 
 } // namespace Dali
 
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
