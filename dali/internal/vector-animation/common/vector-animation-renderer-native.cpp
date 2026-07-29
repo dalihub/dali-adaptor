@@ -232,7 +232,6 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
     mCanvas->remove();
 
     auto pic = mAnimation->picture();
-    pic->ref();
     mCanvas->add(pic);
   }
 
@@ -304,7 +303,6 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
     mCanvas->remove();
 
     auto pic = mAnimation->picture();
-    pic->ref();
     mCanvas->add(pic);
   }
 
