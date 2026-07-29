@@ -21,6 +21,7 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
@@ -569,7 +570,9 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int           keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int     rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int           modifier(keyEvent->modifiers);
     unsigned long time = keyEvent->timestamp;
 
@@ -610,7 +613,9 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    int           keyCode = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int     rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int           modifier(keyEvent->modifiers);
     unsigned long time(keyEvent->timestamp);
 
