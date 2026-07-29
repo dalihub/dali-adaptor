@@ -267,7 +267,7 @@ ImageDimensions FitToTargetRectangle(ImageDimensions target, ImageDimensions sou
     return source;
   }
 
-  return ImageDimensions(source.GetX() * scale + 0.5f, source.GetY() * scale + 0.5f);
+  return ImageDimensions(static_cast<uint32_t>(source.GetX() * scale + 0.5f), static_cast<uint32_t>(source.GetY() * scale + 0.5f));
 }
 
 /**
@@ -362,11 +362,11 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
       // Calculate the size from the max texture size and the source image aspect ratio
       if(bitmapWidth > bitmapHeight)
       {
-        return ImageDimensions(maxSize, bitmapHeight * maxSize / static_cast<float>(bitmapWidth) + 0.5f);
+        return ImageDimensions(maxSize, static_cast<uint32_t>(bitmapHeight * maxSize / static_cast<float>(bitmapWidth) + 0.5f));
       }
       else
       {
-        return ImageDimensions(bitmapWidth * maxSize / static_cast<float>(bitmapHeight) + 0.5f, maxSize);
+        return ImageDimensions(static_cast<uint32_t>(bitmapWidth * maxSize / static_cast<float>(bitmapHeight) + 0.5f), maxSize);
       }
     }
   }
@@ -404,11 +404,11 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
       // Calculate the size from the max texture size and the source image aspect ratio
       if(requestedWidth > requestedHeight)
       {
-        return ImageDimensions(maxSize, requestedHeight * maxSize / static_cast<float>(requestedWidth) + 0.5f);
+        return ImageDimensions(maxSize, static_cast<uint32_t>(requestedHeight * maxSize / static_cast<float>(requestedWidth) + 0.5f));
       }
       else
       {
-        return ImageDimensions(requestedWidth * maxSize / static_cast<float>(requestedHeight) + 0.5f, maxSize);
+        return ImageDimensions(static_cast<uint32_t>(requestedWidth * maxSize / static_cast<float>(requestedHeight) + 0.5f), maxSize);
       }
     }
   }
@@ -418,11 +418,11 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
   if(requestedWidth != 0)
   {
     requestedWidth = Min(requestedWidth, maxSize);
-    return ImageDimensions(requestedWidth, bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f);
+    return ImageDimensions(requestedWidth, static_cast<uint32_t>(bitmapHeight / float(bitmapWidth) * requestedWidth + 0.5f));
   }
 
   requestedHeight = Min(requestedHeight, maxSize);
-  return ImageDimensions(bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f, requestedHeight);
+  return ImageDimensions(static_cast<uint32_t>(bitmapWidth / float(bitmapHeight) * requestedHeight + 0.5f), requestedHeight);
 }
 
 /**

@@ -78,7 +78,7 @@ bool GetEnvironmentVariable(const char* variable, float& floatValue)
     return false;
   }
   // if the parameter exists convert it to a float, else return the default value
-  floatValue = std::atof(variableParameter);
+  floatValue = static_cast<float>(std::atof(variableParameter));
   return true;
 }
 

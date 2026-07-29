@@ -54,10 +54,10 @@ const int ONCE       = 1;
 const unsigned int TRUE  = 1u;
 const unsigned int FALSE = 0u;
 
-const unsigned int MILLISECONDS_PER_SECOND(1e+3);
+const unsigned int MILLISECONDS_PER_SECOND(static_cast<unsigned int>(1e+3));
 const float        NANOSECONDS_TO_SECOND(1e-9f);
-const unsigned int NANOSECONDS_PER_SECOND(1e+9);
-const unsigned int NANOSECONDS_PER_MILLISECOND(1e+6);
+const unsigned int NANOSECONDS_PER_SECOND(static_cast<unsigned int>(1e+9));
+const unsigned int NANOSECONDS_PER_MILLISECOND(static_cast<unsigned int>(1e+6));
 
 static constexpr float DEFAULT_MAXIMUM_RENDER_FRAME_RATE     = 60.0f;
 static constexpr float LOWER_BOUND_MAXIMUM_RENDER_FRAME_RATE = Dali::Math::MACHINE_EPSILON_10000;
@@ -613,8 +613,8 @@ void CombinedUpdateRenderController::UpdateDefaultFrameDurations()
   const float defaultFrameDurationInNanoseconds  = defaultFrameDurationInSeconds * NANOSECONDS_PER_SECOND;
 
   mDefaultFrameDelta                = mNumberOfFramesPerRender * defaultFrameDurationInSeconds;
-  mDefaultFrameDurationMilliseconds = uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInMilliseconds;
-  mDefaultFrameDurationNanoseconds  = uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInNanoseconds;
+  mDefaultFrameDurationMilliseconds = static_cast<uint64_t>(uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInMilliseconds);
+  mDefaultFrameDurationNanoseconds  = static_cast<uint64_t>(uint64_t(mNumberOfFramesPerRender) * defaultFrameDurationInNanoseconds);
 
   DALI_LOG_RELEASE_INFO("Frame duration changed : %f fps, %u frame per render\n", mMaximumFramesPerSecond, mNumberOfFramesPerRender);
 
@@ -685,7 +685,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   uint64_t timeToSleepUntil   = 0;
   int      extraFramesDropped = 0;
 
-  const uint64_t memPoolInterval = 1e9 * float(mEnvironmentOptions.GetMemoryPoolInterval());
+  const uint64_t memPoolInterval = static_cast<uint64_t>(1e9 * float(mEnvironmentOptions.GetMemoryPoolInterval()));
 
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;

@@ -77,10 +77,10 @@ bool Gradient::SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorSt
   for(unsigned int i = 0u; i < colorStops.Count(); ++i)
   {
     tvgColorStops[i].offset = colorStops[i].offset;
-    tvgColorStops[i].r      = colorStops[i].color.r * 255.0f;
-    tvgColorStops[i].g      = colorStops[i].color.g * 255.0f;
-    tvgColorStops[i].b      = colorStops[i].color.b * 255.0f;
-    tvgColorStops[i].a      = colorStops[i].color.a * 255.0f;
+    tvgColorStops[i].r      = static_cast<uint8_t>(colorStops[i].color.r * 255.0f);
+    tvgColorStops[i].g      = static_cast<uint8_t>(colorStops[i].color.g * 255.0f);
+    tvgColorStops[i].b      = static_cast<uint8_t>(colorStops[i].color.b * 255.0f);
+    tvgColorStops[i].a      = static_cast<uint8_t>(colorStops[i].color.a * 255.0f);
   }
 
   if(mTvgFill->colorStops(tvgColorStops, colorStops.Count()) != tvg::Result::Success)

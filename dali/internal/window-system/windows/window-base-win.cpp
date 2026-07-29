@@ -459,9 +459,9 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
     point.SetState(PointState::DOWN);
     point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
@@ -492,9 +492,9 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
     point.SetState(PointState::UP);
     point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
@@ -520,9 +520,9 @@ void WindowBaseWin::OnMouseButtonMove(int, TWinEventInfo* event)
     point.SetState(PointState::MOTION);
     point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     const MouseButton::Type mouseButton = GetMouseButton(WM_MOUSEMOVE, event->wParam);
     if(mouseButton != MouseButton::INVALID)
     {

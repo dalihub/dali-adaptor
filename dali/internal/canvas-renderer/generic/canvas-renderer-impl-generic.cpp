@@ -103,7 +103,7 @@ bool CanvasRendererGeneric::OnRasterize()
 void CanvasRendererGeneric::OnMakeTargetBuffer(const Vector2& size)
 {
 #ifdef THORVG_SUPPORT
-  mPixelBuffer = Devel::PixelBuffer::New(size.width, size.height, Dali::Pixel::BGRA8888);
+  mPixelBuffer = Devel::PixelBuffer::New(static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height), Dali::Pixel::BGRA8888);
 
   unsigned char* pBuffer;
   pBuffer = mPixelBuffer.GetBuffer();
@@ -115,7 +115,7 @@ void CanvasRendererGeneric::OnMakeTargetBuffer(const Vector2& size)
   }
 
 #ifdef THORVG_VERSION_1
-  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::ColorSpace::ARGB8888);
+  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height), tvg::ColorSpace::ARGB8888);
 #else
   mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ARGB8888);
 #endif

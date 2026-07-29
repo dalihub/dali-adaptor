@@ -749,7 +749,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
       case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
       {
-        mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
+        mGlAbstraction->Viewport(static_cast<Dali::GLint>(cmd.viewport.region.x), static_cast<Dali::GLint>(cmd.viewport.region.y), static_cast<Dali::GLsizei>(cmd.viewport.region.width), static_cast<Dali::GLsizei>(cmd.viewport.region.height));
         break;
       }
 

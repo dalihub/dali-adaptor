@@ -98,7 +98,7 @@ float Sampler::GetMeanValue() const
   float meanValue = 0;
   if(mNumSamples > 0)
   {
-    meanValue = static_cast<double>(mAccumulated) / static_cast<double>(mNumSamples);
+    meanValue = static_cast<float>(static_cast<double>(mAccumulated) / static_cast<double>(mNumSamples));
   }
   return meanValue;
 }

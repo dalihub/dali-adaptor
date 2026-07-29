@@ -33,7 +33,7 @@ const float ONE_OVER_MICROSECONDS_TO_SECONDS = 1.f / 1000000.f; ///< microsecond
 } // namespace
 
 FrameTimeStats::FrameTimeStats()
-: mTotal(0.f)
+: mTotal(static_cast<unsigned int>(0.f))
 {
   mSamples.Reserve(16); // Fill out a little to avoid early reallocations
 
@@ -98,8 +98,8 @@ void FrameTimeStats::Reset()
 {
   mTimeState     = WAITING_FOR_START_TIME;
   mMinMaxTimeSet = false;
-  mMin           = 0.f;
-  mMax           = 0.f;
+  mMin           = static_cast<unsigned int>(0.f);
+  mMax           = static_cast<unsigned int>(0.f);
   mRunCount      = 0;
   mStart         = FrameTimeStamp();
   mSamples.Clear();
