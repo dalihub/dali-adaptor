@@ -19,7 +19,6 @@
 #include <dali/dali.h>
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 using namespace Dali;
 

@@ -22,7 +22,7 @@
 
 // CLASS HEADER
 #include <dali-test-suite-utils.h>
-#include <dali.h>
+#include <dali/dali.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <stdlib.h>
 #include <iostream>
