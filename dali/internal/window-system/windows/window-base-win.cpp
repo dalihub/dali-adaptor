@@ -37,6 +37,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -571,8 +572,8 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 
-    const int         keyCode       = static_cast<int>(event->wParam);
-    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(keyCode, event->lParam);
+    const int         rawKeyCode    = static_cast<int>(event->wParam);
+    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
     const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
     const String      keyName(ToDaliString(utf8KeyName));
     const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
@@ -581,6 +582,12 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
     const auto        time     = static_cast<unsigned long>(event->timestamp);
+
+    // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
+    // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
+    // code for ordinary keys that have no such entry.
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.isRepeat    = (static_cast<uintptr_t>(event->lParam) & (1u << 30u)) != 0u;
@@ -597,8 +604,8 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyUp\n");
 
-    const int         keyCode       = static_cast<int>(event->wParam);
-    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(keyCode, event->lParam);
+    const int         rawKeyCode    = static_cast<int>(event->wParam);
+    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
     const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
     const String      keyName(ToDaliString(utf8KeyName));
     const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
@@ -607,6 +614,10 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
     const auto        time     = static_cast<unsigned long>(event->timestamp);
+
+    // Normalize named/special keys the same way OnKeyDown does; see the comment there.
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
     // Match the Linux backends: the released key still carries its translated string
     // (keyEvent->string), so populate keyString on UP just like DOWN.
