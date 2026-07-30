@@ -87,6 +87,9 @@ FIND_LIBRARY( TURBO_JPEG_LIBRARY NAMES turbojpeg )
 
 FIND_PACKAGE( unofficial-fontconfig REQUIRED )
 FIND_PACKAGE( freetype REQUIRED )
+# Windows uses the same CBDT/CBLC color-bitmap emoji path as the target builds.
+# Enable BGRA bitmap glyph handling when FreeType is found.
+ADD_DEFINITIONS( -DFREETYPE_BITMAP_SUPPORT )
 FIND_PACKAGE( harfbuzz REQUIRED )
 FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi )
 
@@ -157,6 +160,7 @@ SET( REQUIRED_LIBS
         WebP::webp
         WebP::webpdemux
         dali2-core::dali2-core
+        imm32
         ws2_32
 )
 

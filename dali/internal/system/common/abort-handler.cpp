@@ -67,8 +67,10 @@ bool AbortHandler::AbortOnSignal(int signum)
     SignalHandlerFuncPtr signalHandlerPrevious = signal(signum, &AbortHandler::SignalHandler);
 
 // SIG_ERR is a macro with C cast
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
     if(SIG_ERR != signalHandlerPrevious)
     {
       mSignalOldHandlers[signum - 1] = signalHandlerPrevious;
@@ -76,7 +78,9 @@ bool AbortHandler::AbortOnSignal(int signum)
       status = true;
     }
   }
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
   DALI_LOG_ERROR("status : %d, signal mask %x\n", status, mSignalMask);
   return status;
 }

@@ -37,6 +37,8 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/input/windows/input-method-context-impl-win.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -51,8 +53,17 @@ namespace Adaptor
 {
 namespace
 {
-const Device::Class::Type    DEFAULT_DEVICE_CLASS    = Device::Class::NONE;
+const Device::Class::Type    KEYBOARD_DEVICE_CLASS   = Device::Class::KEYBOARD;
 const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
+
+constexpr uint32_t SHIFT_MODIFIER  = 0x001u;
+constexpr uint32_t CTRL_MODIFIER   = 0x002u;
+constexpr uint32_t ALT_MODIFIER    = 0x004u;
+constexpr uint32_t WIN_MODIFIER    = 0x008u;
+constexpr uint32_t SCROLL_MODIFIER = 0x010u;
+constexpr uint32_t NUM_MODIFIER    = 0x020u;
+constexpr uint32_t CAPS_MODIFIER   = 0x040u;
+constexpr uint32_t ALTGR_MODIFIER  = 0x400u;
 
 std::atomic<int> gNextNativeWindowId{1};
 
@@ -73,15 +84,35 @@ uint32_t GetKeyModifiers(uintptr_t wParam = 0u)
   uint32_t   modifiers{0u};
   if((keyState & MK_SHIFT) != 0 || (GetKeyState(VK_SHIFT) & 0x8000) != 0)
   {
-    modifiers |= 1u;
+    modifiers |= SHIFT_MODIFIER;
   }
   if((keyState & MK_CONTROL) != 0 || (GetKeyState(VK_CONTROL) & 0x8000) != 0)
   {
-    modifiers |= 2u;
+    modifiers |= CTRL_MODIFIER;
   }
   if((GetKeyState(VK_MENU) & 0x8000) != 0)
   {
-    modifiers |= 4u;
+    modifiers |= ALT_MODIFIER;
+  }
+  if((GetKeyState(VK_LWIN) & 0x8000) != 0 || (GetKeyState(VK_RWIN) & 0x8000) != 0)
+  {
+    modifiers |= WIN_MODIFIER;
+  }
+  if((GetKeyState(VK_SCROLL) & 0x0001) != 0)
+  {
+    modifiers |= SCROLL_MODIFIER;
+  }
+  if((GetKeyState(VK_NUMLOCK) & 0x0001) != 0)
+  {
+    modifiers |= NUM_MODIFIER;
+  }
+  if((GetKeyState(VK_CAPITAL) & 0x0001) != 0)
+  {
+    modifiers |= CAPS_MODIFIER;
+  }
+  if((GetKeyState(VK_RMENU) & 0x8000) != 0 && (GetKeyState(VK_CONTROL) & 0x8000) != 0)
+  {
+    modifiers |= ALTGR_MODIFIER;
   }
   return modifiers;
 }
@@ -131,8 +162,96 @@ std::string GetKeyString(uintptr_t virtualKey, intptr_t lParam)
 
   wchar_t    text[8]{};
   const UINT scanCode = static_cast<UINT>((static_cast<uintptr_t>(lParam) >> 16u) & 0xffu);
-  const int  length   = ToUnicode(static_cast<UINT>(virtualKey), scanCode, keyboardState, text, static_cast<int>(sizeof(text) / sizeof(text[0])), 0u);
+  // Bit 2 keeps ToUnicodeEx from changing the keyboard buffer, which avoids
+  // consuming dead-key state while DALi inspects the translated text.
+  const int length = ToUnicodeEx(static_cast<UINT>(virtualKey), scanCode, keyboardState, text, static_cast<int>(sizeof(text) / sizeof(text[0])), 0x04u, GetKeyboardLayout(0));
   return length > 0 ? WideStringToUtf8(text, length) : std::string{};
+}
+
+std::string GetLogicalKey(const std::string& keyName, const std::string& keyString)
+{
+  if(keyString.size() != 1u)
+  {
+    return keyString.empty() ? keyName : keyString;
+  }
+
+  const auto character = static_cast<unsigned char>(keyString[0]);
+  if(character < 0x20u || character == 0x7fu)
+  {
+    return keyName;
+  }
+
+  switch(keyString[0])
+  {
+    case ' ':
+      return "space";
+    case '!':
+      return "exclam";
+    case '"':
+      return "quotedbl";
+    case '#':
+      return "numbersign";
+    case '$':
+      return "dollar";
+    case '%':
+      return "percent";
+    case '&':
+      return "ampersand";
+    case '\'':
+      return "apostrophe";
+    case '(':
+      return "parenleft";
+    case ')':
+      return "parenright";
+    case '*':
+      return "asterisk";
+    case '+':
+      return "plus";
+    case ',':
+      return "comma";
+    case '-':
+      return "minus";
+    case '.':
+      return "period";
+    case '/':
+      return "slash";
+    case ':':
+      return "colon";
+    case ';':
+      return "semicolon";
+    case '<':
+      return "less";
+    case '=':
+      return "equal";
+    case '>':
+      return "greater";
+    case '?':
+      return "question";
+    case '@':
+      return "at";
+    case '[':
+      return "bracketleft";
+    case '\\':
+      return "backslash";
+    case ']':
+      return "bracketright";
+    case '^':
+      return "asciicircum";
+    case '_':
+      return "underscore";
+    case '`':
+      return "grave";
+    case '{':
+      return "braceleft";
+    case '|':
+      return "bar";
+    case '}':
+      return "braceright";
+    case '~':
+      return "asciitilde";
+    default:
+      return keyString;
+  }
 }
 
 std::wstring Utf8ToWideString(const std::string& text)
@@ -338,10 +457,11 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::DOWN);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
@@ -370,10 +490,11 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::UP);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     point.SetMouseButton(GetMouseButton(static_cast<uint32_t>(type), event->wParam));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
@@ -397,10 +518,11 @@ void WindowBaseWin::OnMouseButtonMove(int, TWinEventInfo* event)
     Integration::Point point;
     point.SetDeviceId(touchEvent.multi.device);
     point.SetState(PointState::MOTION);
+    point.SetDeviceClass(Device::Class::MOUSE);
     point.SetScreenPosition(Vector2(static_cast<float>(touchEvent.x), static_cast<float>(touchEvent.y)));
-    point.SetRadius(touchEvent.multi.radius, Vector2(touchEvent.multi.radius_x, touchEvent.multi.radius_y));
-    point.SetPressure(touchEvent.multi.pressure);
-    point.SetAngle(Degree(touchEvent.multi.angle));
+    point.SetRadius(static_cast<float>(touchEvent.multi.radius), Vector2(static_cast<float>(touchEvent.multi.radius_x), static_cast<float>(touchEvent.multi.radius_y)));
+    point.SetPressure(static_cast<float>(touchEvent.multi.pressure));
+    point.SetAngle(Degree(static_cast<float>(touchEvent.multi.angle)));
     const MouseButton::Type mouseButton = GetMouseButton(WM_MOUSEMOVE, event->wParam);
     if(mouseButton != MouseButton::INVALID)
     {
@@ -450,17 +572,27 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 
-    const int           keyCode = static_cast<int>(event->wParam);
-    const String        keyName(ToDaliString(WindowsPlatform::GetKeyName(keyCode)));
-    const String        logicalKey(keyName);
-    const std::string   utf8KeyString = GetKeyString(event->wParam, event->lParam);
-    const String        keyString(ToDaliString(utf8KeyString));
-    const String        emptyString;
-    const int           modifier = static_cast<int>(GetKeyModifiers());
-    const unsigned long time     = event->timestamp;
+    const int         rawKeyCode    = static_cast<int>(event->wParam);
+    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
+    const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
+    const String      keyName(ToDaliString(utf8KeyName));
+    const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
+    const String      keyString(ToDaliString(utf8KeyString));
+    const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
+    const String      deviceName(ToDaliString(std::string("keyboard")));
+    const int         modifier = static_cast<int>(GetKeyModifiers());
+    const auto        time     = static_cast<unsigned long>(event->timestamp);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, keyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.windowId = GetNativeWindowId();
+    // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
+    // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
+    // code for ordinary keys that have no such entry.
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    keyEvent.isRepeat    = (static_cast<uintptr_t>(event->lParam) & (1u << 30u)) != 0u;
+    keyEvent.windowId    = GetNativeWindowId();
+    keyEvent.receiveTime = GetTickCount();
 
     mKeyEventSignal.Emit(keyEvent);
   }
@@ -472,15 +604,26 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyUp\n");
 
-    const int           keyCode = static_cast<int>(event->wParam);
-    const String        keyName(ToDaliString(WindowsPlatform::GetKeyName(keyCode)));
-    const String        logicalKey(keyName);
-    const String        emptyString;
-    const int           modifier = static_cast<int>(GetKeyModifiers());
-    const unsigned long time     = event->timestamp;
+    const int         rawKeyCode    = static_cast<int>(event->wParam);
+    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
+    const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
+    const String      keyName(ToDaliString(utf8KeyName));
+    const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
+    const String      keyString(ToDaliString(utf8KeyString));
+    const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
+    const String      deviceName(ToDaliString(std::string("keyboard")));
+    const int         modifier = static_cast<int>(GetKeyModifiers());
+    const auto        time     = static_cast<unsigned long>(event->timestamp);
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, emptyString, keyCode, modifier, time, Integration::KeyEvent::UP, emptyString, emptyString, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.windowId = GetNativeWindowId();
+    // Normalize named/special keys the same way OnKeyDown does; see the comment there.
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+
+    // Match the Linux backends: the released key still carries its translated string
+    // (keyEvent->string), so populate keyString on UP just like DOWN.
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+    keyEvent.windowId    = GetNativeWindowId();
+    keyEvent.receiveTime = GetTickCount();
 
     mKeyEventSignal.Emit(keyEvent);
   }
@@ -853,6 +996,8 @@ void WindowBaseWin::EventEntry(TWinEventInfo* event)
 {
   unsigned int uMsg = event->uMsg;
 
+  InputMethodContextWin::ProcessWindowMessage(event->mWindow, uMsg, event->wParam, event->lParam);
+
   switch(uMsg)
   {
     case WM_CLOSE:
@@ -1049,7 +1194,19 @@ void WindowBaseWin::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
 
 bool WindowBaseWin::PointerWarp(int32_t x, int32_t y)
 {
-  return false;
+  if(!mWin32Window)
+  {
+    return false;
+  }
+
+  // DALi coordinates are client-relative; SetCursorPos expects screen coordinates.
+  POINT screenPoint{static_cast<LONG>(x), static_cast<LONG>(y)};
+  HWND  window = reinterpret_cast<HWND>(mWin32Window);
+  if(!::ClientToScreen(window, &screenPoint))
+  {
+    return false;
+  }
+  return ::SetCursorPos(screenPoint.x, screenPoint.y) != 0;
 }
 
 void WindowBaseWin::CursorVisibleSet(bool visible)

@@ -78,7 +78,7 @@ bool Drawable::SetOpacity(float opacity)
     DALI_LOG_ERROR("Drawable is null [%p]\n", this);
     return false;
   }
-  if(mTvgPaint->opacity(round(opacity * 255.f)) != tvg::Result::Success)
+  if(mTvgPaint->opacity(static_cast<uint8_t>(round(opacity * 255.f))) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("Set opacity fail [%p]\n", this);
     return false;

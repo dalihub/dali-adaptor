@@ -16,8 +16,10 @@
 #include <string.h>
 
 // resampler is written using C style casts
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
 
 #include "resampler.h"
 
@@ -1204,4 +1206,6 @@ void Resampler::get_clists(Contrib_List** ptr_clist_x, Contrib_List** ptr_clist_
       *ptr_clist_y = m_Pclist_y;
 }
 
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
+#endif

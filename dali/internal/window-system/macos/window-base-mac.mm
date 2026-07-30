@@ -30,6 +30,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -285,12 +286,18 @@ void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State k
   if(Dali::Adaptor::IsAvailable())
   {
     const Dali::String empty;
+    const Dali::String keyName = GetKeyName(event);
+
+    // Normalize named/special keys to the portable DALI_KEY_* codes shared with
+    // every other backend; keep the raw native keyCode for keys with no entry.
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : static_cast<int>(event.keyCode);
 
     Integration::KeyEvent keyEvent(
-      GetKeyName(event),
+      keyName,
       empty,
       [event.characters UTF8String],
-      event.keyCode,
+      keyCode,
       GetKeyModifiers(event),
       event.timestamp * 1000,
       keyState,

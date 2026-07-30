@@ -433,7 +433,7 @@ bool Shape::SetStrokeColor(Vector4 color)
   }
 
 #ifdef THORVG_VERSION_1
-  if(static_cast<tvg::Shape*>(mTvgShape)->strokeFill(color.r * 255.f, color.g * 255.f, color.b * 255.f, color.a * 255.f) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeFill(static_cast<uint8_t>(color.r * 255.f), static_cast<uint8_t>(color.g * 255.f), static_cast<uint8_t>(color.b * 255.f), static_cast<uint8_t>(color.a * 255.f)) != tvg::Result::Success)
 #else
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(color.r * 255.f, color.g * 255.f, color.b * 255.f, color.a * 255.f) != tvg::Result::Success)
 #endif

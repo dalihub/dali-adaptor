@@ -21,6 +21,7 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -568,7 +569,9 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
     logicalKey = ToDaliString(keyEvent->key);
   }
 
-  int           keyCode = keyEvent->keyCode;
+  const int     rawKeyCode    = keyEvent->keyCode;
+  const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname.c_str());
+  int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
   int           modifier(keyEvent->modifiers);
   unsigned long time(keyEvent->timestamp);
 

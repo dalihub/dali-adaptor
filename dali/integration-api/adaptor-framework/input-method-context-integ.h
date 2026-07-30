@@ -27,6 +27,14 @@
 #include <dali/public-api/signals/dali-signal.h>
 #include <cstdint>
 
+// Win32's <windef.h> defines VOID as a macro (`#define VOID void`). It collides with the
+// EventType::VOID enumerator declared below: the preprocessor rewrites it to `void`, which
+// breaks the enum. Undef it here (Windows only) so this header compiles in translation units
+// that included <windows.h> first.
+#if defined(_WIN32) && defined(VOID)
+#undef VOID
+#endif
+
 namespace Dali
 {
 namespace Integration

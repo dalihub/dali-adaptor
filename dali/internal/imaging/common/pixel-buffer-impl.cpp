@@ -396,8 +396,8 @@ bool PixelBuffer::Rotate(Degree angle)
 
 void PixelBuffer::ScaleAndCrop(float scaleFactor, ImageDimensions cropDimensions)
 {
-  ImageDimensions outDimensions(float(mWidth) * scaleFactor,
-                                float(mHeight) * scaleFactor);
+  ImageDimensions outDimensions(static_cast<uint32_t>(float(mWidth) * scaleFactor),
+                                static_cast<uint32_t>(float(mHeight) * scaleFactor));
 
   if(outDimensions.GetWidth() != mWidth || outDimensions.GetHeight() != mHeight)
   {

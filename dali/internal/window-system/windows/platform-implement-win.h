@@ -61,7 +61,11 @@ intptr_t SetTimer(uint32_t interval, timerCallback callback, void* data);
 
 void KillTimer(intptr_t id);
 
-std::string GetKeyName(int keyCode);
+/**
+ * Return an XKB-compatible physical key name for a Win32 virtual key.
+ * lParam is used to distinguish extended and left/right keys.
+ */
+std::string GetKeyName(int keyCode, intptr_t lParam = 0);
 
 uint32_t GetCurrentThreadId();
 
