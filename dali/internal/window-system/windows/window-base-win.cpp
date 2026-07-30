@@ -36,6 +36,7 @@
 #endif
 
 // INTERNAL HEADERS
+#include <dali/internal/drag-and-drop/windows/drag-and-drop-impl-win.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
@@ -353,6 +354,7 @@ WindowBaseWin::~WindowBaseWin()
   // Stop callbacks before the C++ object starts disappearing.  External
   // windows are only detached; DALi-owned windows are destroyed synchronously.
   mWindowImpl.SetListener(nullptr);
+  NotifyDragAndDropWindowDestroyed(reinterpret_cast<HWND>(nativeWindow));
   mWindowImpl.DetachWindow();
   if(mOwnSurface && nativeWindow != 0)
   {

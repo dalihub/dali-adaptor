@@ -42,6 +42,11 @@ namespace WindowsPlatform
 {
 LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+  if(uMsg == WM_NCHITTEST && GetPropW(hWnd, L"DALI_DRAG_AND_DROP_SHADOW") != nullptr)
+  {
+    return HTTRANSPARENT;
+  }
+
   // Idle and trigger callbacks are posted as WIN_CALLBACK_EVENT window messages
   // (see PostWinCallback) so that a nested modal message loop (window move/resize)
   // still delivers them here instead of draining them without execution.
@@ -196,6 +201,20 @@ void RemoveListener(WinWindowHandle hWnd)
   {
     sHWndToListener.erase(x);
     RefreshDaliMessageWindow();
+
+    // WIN_CALLBACK_EVENT messages can be queued to a short-lived DALi window
+    // such as a drag shadow. Move them before the HWND is destroyed; otherwise
+    // the callback manager still considers its wake-up registered although
+    // Windows has discarded the only message that could execute it.
+    MSG  message{};
+    HWND window = reinterpret_cast<HWND>(hWnd);
+    while(PeekMessageW(&message, window, WIN_CALLBACK_EVENT, WIN_CALLBACK_EVENT, PM_REMOVE) != FALSE)
+    {
+      if(!PostWinCallback(static_cast<WinCallbackToken>(message.wParam)))
+      {
+        DALI_LOG_ERROR("Failed to requeue a Windows callback while detaching HWND %p\n", window);
+      }
+    }
   }
 }
 
