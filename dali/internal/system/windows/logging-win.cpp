@@ -69,19 +69,19 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   switch(level)
   {
     case Dali::Integration::Log::DEBUG: ///< Gray color
-      format = "\e[1;38;5;243mDEBUG:\e[21m %s: %s\e[0m";
+      format = "\x1b[1;38;5;243mDEBUG:\x1b[21m %s: %s\x1b[0m";
       break;
     case Dali::Integration::Log::INFO: ///< Blue color
-      format = "\e[1;34mINFO:\e[21m %s: %s\e[0m";
+      format = "\x1b[1;34mINFO:\x1b[21m %s: %s\x1b[0m";
       break;
     case Dali::Integration::Log::WARNING: ///< Yellow color
-      format = "\e[1;33mWARN:\e[21m %s: %s\e[0m";
+      format = "\x1b[1;33mWARN:\x1b[21m %s: %s\x1b[0m";
       break;
     case Dali::Integration::Log::ERROR: ///< Bright Red color
-      format = "\e[1;91mERROR:\e[21m %s: %s\e[0m";
+      format = "\x1b[1;91mERROR:\x1b[21m %s: %s\x1b[0m";
       break;
     default:
-      format = ":\e[21m %s: %s\e[0m";
+      format = ":\x1b[21m %s: %s\x1b[0m";
       break;
   }
 

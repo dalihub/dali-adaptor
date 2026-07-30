@@ -51,7 +51,7 @@ const Byte FileIdentifier[] = {
  *  Currently only compressed formats are allowed as we'd rather
  *  use a PNG or JPEG with their own compression for the general
  *  cases. */
-enum KtxInternalFormat
+enum KtxInternalFormat : uint32_t
 {
   KTX_NOTEXIST = 0,
 
