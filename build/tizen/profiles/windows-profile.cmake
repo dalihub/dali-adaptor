@@ -8,7 +8,7 @@ SET( SOURCES
         ${adaptor_canvas_renderer_generic_src_files}
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_windows_src_files}
-        ${adaptor_drag_and_drop_generic_src_files}
+        ${adaptor_drag_and_drop_windows_src_files}
         ${adaptor_framework_windows_src_files}
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
@@ -161,6 +161,8 @@ SET( REQUIRED_LIBS
         WebP::webpdemux
         dali2-core::dali2-core
         imm32
+        ole32
+        uuid
         ws2_32
 )
 
