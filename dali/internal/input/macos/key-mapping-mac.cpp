@@ -33,8 +33,8 @@ KeyLookup KeyLookupTable[]=
   { "Right",                 DALI_KEY_CURSOR_RIGHT,                                      false },
   { "Down",                  DALI_KEY_CURSOR_DOWN,                                       false },
   { "Shift",                 DALI_KEY_SHIFT_LEFT,                                        false },
-  { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },
-  { "Control",               static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_LEFT ),  false },
+  { "Delete",                DALI_KEY_DELETE,                                            false },
+  { "Control",               DALI_KEY_CONTROL_LEFT,                                      false },
 };
 // clang-format on
 

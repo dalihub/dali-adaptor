@@ -79,7 +79,12 @@ enum KEY
   DALI_KEY_VOICE           = 198, ///< Voice key @SINCE_1_0.0
   DALI_KEY_LANGUAGE        = 199, ///< Language key @SINCE_1_0.0
   DALI_KEY_VOLUME_UP       = 200, ///< Volume up key @SINCE_1_0.0
-  DALI_KEY_VOLUME_DOWN     = 201  ///< Volume down key @SINCE_1_0.0
+  DALI_KEY_VOLUME_DOWN     = 201, ///< Volume down key @SINCE_1_0.0
+  DALI_KEY_RETURN          = 36,  ///< Return key @SINCE_2_5.34
+  DALI_KEY_KP_ENTER        = 104, ///< Keypad Enter key @SINCE_2_5.34
+  DALI_KEY_CONTROL_LEFT    = 37,  ///< Control Left key @SINCE_2_5.34
+  DALI_KEY_CONTROL_RIGHT   = 105, ///< Control Right key @SINCE_2_5.34
+  DALI_KEY_DELETE          = 119, ///< Delete key @SINCE_2_5.34
 };
 
 /**
