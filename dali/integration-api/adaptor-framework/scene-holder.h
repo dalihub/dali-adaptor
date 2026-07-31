@@ -271,7 +271,10 @@ public:
   KeyEventGeneratedSignalType& InterceptKeyEventSignal();
 
   /**
-   * @brief This signal is emitted when key event is received.
+   * @brief This signal is emitted when a key event was delayed on its way to DALi.
+   *
+   * It is emitted only when the delay exceeds a predefined threshold, before the key event
+   * is dispatched, and regardless of whether the key event is subsequently consumed.
    *
    * A callback of the following type may be connected:
    * @code
@@ -279,7 +282,7 @@ public:
    * @endcode
    * @return The signal to connect to
    */
-  KeyEventSignalType& KeyEventMonitorSignal();
+  KeyEventSignalType& KeyEventDelayedSignal();
 
   /**
    * @brief This signal is emitted when the screen is touched and when the touch ends

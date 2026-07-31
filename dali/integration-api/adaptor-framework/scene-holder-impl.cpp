@@ -96,7 +96,7 @@ SceneHolder::SceneHolder()
   mLastHoverEvent(),
   mFocusChangedGeneratedSignal(),
   mSceneHolderKeyEventSignal(),
-  mSceneHolderKeyEventMonitorSignal(),
+  mSceneHolderKeyEventDelayedSignal(),
   mSceneHolderTouchEventSignal(),
   mSceneHolderWheelEventSignal(),
   mSceneHolderKeyEventGeneratedSignal(),
@@ -279,7 +279,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Connect Core Scene signals to SceneHolder bridge callbacks
   mScene.KeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEvent);
-  mScene.KeyEventMonitorSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventMonitor);
+  mScene.KeyEventDelayedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventDelayed);
   mScene.TouchEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneTouchEvent);
   mScene.WheelEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneWheelEvent);
   mScene.KeyEventGeneratedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventGenerated);
@@ -704,10 +704,10 @@ void SceneHolder::OnSceneKeyEvent(Dali::KeyEvent event)
   mSceneHolderKeyEventSignal.Emit(handle, event);
 }
 
-void SceneHolder::OnSceneKeyEventMonitor(Dali::KeyEvent event)
+void SceneHolder::OnSceneKeyEventDelayed(Dali::KeyEvent event)
 {
   Dali::Integration::SceneHolder handle(this);
-  mSceneHolderKeyEventMonitorSignal.Emit(handle, event);
+  mSceneHolderKeyEventDelayedSignal.Emit(handle, event);
 }
 
 void SceneHolder::OnSceneTouchEvent(Dali::TouchEvent event)
