@@ -70,8 +70,15 @@ inline bool memcmp4(A* a, B* b, uint32_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++);
-  return (static_cast<uint32_t>(-1lu) == size);
+  while(size > 0u)
+  {
+    if(*pa++ != *pb++)
+    {
+      return false;
+    }
+    --size;
+  }
+  return true;
 };
 
 /**

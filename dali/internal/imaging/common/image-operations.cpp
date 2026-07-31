@@ -315,8 +315,8 @@ void CalculateCropBorders(ImageDimensions sourceSize, ImageDimensions& requested
     finalHeight = std::numeric_limits<uint16_t>::max();
   }
 
-  columnsToCrop   = -(finalWidth - sourceWidth);
-  scanlinesToCrop = -(finalHeight - sourceHeight);
+  columnsToCrop   = static_cast<int32_t>(sourceWidth) - finalWidth;
+  scanlinesToCrop = static_cast<int32_t>(sourceHeight) - finalHeight;
 
   requestedSize.SetWidth(static_cast<uint16_t>(finalWidth));
   requestedSize.SetHeight(static_cast<uint16_t>(finalHeight));
