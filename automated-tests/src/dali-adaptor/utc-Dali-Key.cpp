@@ -27,6 +27,7 @@
 #include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
+#include <dali/public-api/adaptor-framework/key.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string>

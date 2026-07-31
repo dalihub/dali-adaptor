@@ -80,10 +80,10 @@ KeyLookup KeyLookupTable[]=
   { "Right",                 DALI_KEY_CURSOR_RIGHT,                                      false },
   { "Shift_L",               DALI_KEY_SHIFT_LEFT,                                        false },
   { "Shift_R",               DALI_KEY_SHIFT_RIGHT,                                       false },
-  { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },
-  { "Control_L",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_LEFT ),  false },
-  { "Control_R",             static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_RIGHT ), false },
-  { "Return",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_RETURN ),        false }
+  { "Delete",                DALI_KEY_DELETE,                                            false },
+  { "Control_L",             DALI_KEY_CONTROL_LEFT,                                      false },
+  { "Control_R",             DALI_KEY_CONTROL_RIGHT,                                     false },
+  { "Return",                DALI_KEY_RETURN,                                            false }
 };
 // clang-format on
 
