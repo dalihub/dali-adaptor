@@ -248,14 +248,15 @@ public:
   int GetMinimumRotationTouchEventsAfterStart() const;
 
   /**
-   * @return The minimum holding time required to be recognized as a long press gesture (milliseconds)
+   * @return The minimum holding time required to be recognized as a long press gesture (milliseconds) (-1 means it's not set)
    */
-  int GetLongPressMinimumHoldingTime() const;
+  int GetLongPressGestureMinimumHoldingTime() const;
 
   /**
-   * @return The maximum allowed time required to be recognized as a multi tap gesture (millisecond)
+   * @return The maximum interval allowed between the taps of a multi tap gesture (millisecond) (-1 means it's not set)
+   * @note The environment variable is still named DALI_TAP_MAXIMUM_ALLOWED_TIME for backward compatibility.
    */
-  int GetTapMaximumAllowedTime() const;
+  int GetTapGestureMaximumMultiTapInterval() const;
 
   /**
    * @return The width of the window
@@ -419,8 +420,8 @@ private: // Data
   int   mPinchMinimumTouchEventsAfterStart;     ///< minimum events required after a pinch started
   int   mRotationMinimumTouchEvents;            ///< minimum events required before a rotation starts
   int   mRotationMinimumTouchEventsAfterStart;  ///< minimum events required after a rotation started
-  int   mLongPressMinimumHoldingTime;           ///< minimum holding time required to be recognized as a long press gesture (millisecond)
-  int   mTapMaximumAllowedTime;                 ///< maximum allowed time required to be recognized as a multi tap gesture (millisecond)
+  int   mLongPressGestureMinimumHoldingTime;    ///< minimum holding time required to be recognized as a long press gesture (millisecond)
+  int   mTapGestureMaximumMultiTapInterval;     ///< maximum interval allowed between the taps of a multi tap gesture (millisecond)
   int   mGlesCallTime;                          ///< time in seconds between status updates
   int   mMultiSamplingLevel;                    ///< The number of samples required in multisample buffers
 
