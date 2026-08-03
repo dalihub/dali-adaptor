@@ -33,6 +33,7 @@
 
 #include <dali/internal/graphics/common/egl-include.h>
 
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <unordered_map>
@@ -646,7 +647,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
                                 GLVertexFormat(attr.format).format,
                                 GL_FALSE,
                                 bufferBinding.stride,
-                                reinterpret_cast<void*>(attr.offset));
+                                reinterpret_cast<const void*>(static_cast<std::uintptr_t>(attr.offset)));
       }
       else
       {
@@ -654,7 +655,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
                                  GLVertexFormat(attr.format).size,
                                  GLVertexFormat(attr.format).format,
                                  bufferBinding.stride,
-                                 reinterpret_cast<void*>(attr.offset));
+                                 reinterpret_cast<const void*>(static_cast<std::uintptr_t>(attr.offset)));
       }
 
       if(hasGLES3)
@@ -738,7 +739,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
             gl->DrawElements(GLESTopology(ia->topology),
                              drawCall.drawIndexed.indexCount,
                              indexBufferFormat,
-                             reinterpret_cast<void*>(offset));
+                             reinterpret_cast<const void*>(static_cast<std::uintptr_t>(offset)));
           }
           else
           {
@@ -757,7 +758,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
             gl->DrawElementsInstanced(GLESTopology(ia->topology),
                                       drawCall.drawIndexed.indexCount,
                                       indexBufferFormat,
-                                      reinterpret_cast<void*>(offset),
+                                      reinterpret_cast<const void*>(static_cast<std::uintptr_t>(offset)),
                                       drawCall.drawIndexed.instanceCount);
           }
           else

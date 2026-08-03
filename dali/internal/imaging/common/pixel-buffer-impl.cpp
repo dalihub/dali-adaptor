@@ -446,7 +446,7 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
     int copyBytes       = destStrideBytes;
 
     // Clamp crop to right edge
-    if(DALI_UNLIKELY(x + cropDimensions.GetWidth() > inBuffer.mWidth))
+    if(DALI_UNLIKELY(static_cast<uint32_t>(x) + cropDimensions.GetWidth() > inBuffer.mWidth))
     {
       copyBytes = (inBuffer.mWidth - x) * bytesPerPixel;
     }
