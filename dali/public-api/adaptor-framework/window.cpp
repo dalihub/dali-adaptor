@@ -360,24 +360,13 @@ Dali::String Window::GetScreen() const
 
 void Window::FeedTouchEvent(const Dali::TouchEvent& touchEvent)
 {
-  Integration::Point convertedPoint;
-  convertedPoint.SetDeviceId(touchEvent.GetDeviceId(0));
-  convertedPoint.SetState(touchEvent.GetState(0));
-  convertedPoint.SetScreenPosition(touchEvent.GetScreenPosition(0));
-  convertedPoint.SetRadius(touchEvent.GetRadius(0), touchEvent.GetEllipseRadius(0));
-  convertedPoint.SetPressure(touchEvent.GetPressure(0));
-  convertedPoint.SetAngle(touchEvent.GetAngle(0));
-  convertedPoint.SetDeviceClass(touchEvent.GetDeviceClass(0));
-  convertedPoint.SetDeviceSubclass(touchEvent.GetDeviceSubclass(0));
-  convertedPoint.SetMouseButton(touchEvent.GetMouseButton(0));
-  Dali::String deviceName = touchEvent.GetDeviceName(0);
-  convertedPoint.SetDeviceName(deviceName);
-  GetImplementation(*this).FeedTouchPoint(convertedPoint, touchEvent.GetTime());
+  Integration::TouchEvent convertedEvent(touchEvent);
+  GetImplementation(*this).FeedTouchEvent(convertedEvent);
 }
 
 void Window::FeedWheelEvent(Dali::WheelEvent wheelEvent)
 {
-  Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  Integration::WheelEvent convertedEvent(wheelEvent);
   GetImplementation(*this).FeedWheelEvent(convertedEvent);
 }
 
@@ -389,13 +378,8 @@ void Window::FeedKeyEvent(const Dali::KeyEvent& keyEvent)
 
 void Window::FeedHoverEvent(const Dali::HoverEvent& hoverEvent)
 {
-  Integration::Point convertedPoint;
-  convertedPoint.SetDeviceId(hoverEvent.GetDeviceId(0));
-  convertedPoint.SetState(hoverEvent.GetState(0));
-  convertedPoint.SetScreenPosition(hoverEvent.GetScreenPosition(0));
-  convertedPoint.SetDeviceClass(hoverEvent.GetDeviceClass(0));
-  convertedPoint.SetDeviceSubclass(hoverEvent.GetDeviceSubclass(0));
-  GetImplementation(*this).FeedHoverEvent(convertedPoint);
+  Integration::HoverEvent convertedEvent(hoverEvent);
+  GetImplementation(*this).FeedHoverEvent(convertedEvent);
 }
 
 WindowOperationResult Window::SetBrightness(int brightness)
