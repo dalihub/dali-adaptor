@@ -79,6 +79,19 @@ static unsigned int GetCurrentMilliSeconds(void)
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
+constexpr int64_t NANOSECONDS_PER_MILLISECOND = 1000000;
+
+/**
+ * @brief Converts an Android input event time to the millisecond tick DALi event times use.
+ *
+ * AMotionEvent_getEventTime() and AKeyEvent_getEventTime() report uptime in nanoseconds,
+ * whereas every other backend feeds DALi a 32-bit millisecond tick.
+ */
+uint32_t ConvertEventTimeToMilliseconds(int64_t eventTimeNanoseconds)
+{
+  return static_cast<uint32_t>(eventTimeNanoseconds / NANOSECONDS_PER_MILLISECOND);
+}
+
 /// Recursively removes constraints from an actor and all it's children.
 void RemoveAllConstraints(Dali::Actor actor)
 {
@@ -303,9 +316,9 @@ struct FrameworkAndroid::Impl
   /**
    * Called by the native activity loop when the application input touch event is processed.
    */
-  static void NativeAppTouchEvent(FrameworkAndroid* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp)
+  static void NativeAppTouchEvent(FrameworkAndroid* framework, Dali::TouchPoint& touchPoint, uint32_t timeStamp)
   {
-    Dali::Adaptor::Get().FeedTouchPoint(touchPoint, timeStamp);
+    Dali::Adaptor::Get().FeedTouchPoint(touchPoint, static_cast<int>(timeStamp));
   }
 
   /**
@@ -391,7 +404,7 @@ struct FrameworkAndroid::Impl
       float                  y         = AMotionEvent_getY(event, 0);
       Dali::PointState::Type state     = Dali::PointState::DOWN;
       int32_t                action    = AMotionEvent_getAction(event);
-      int64_t                timeStamp = AMotionEvent_getEventTime(event);
+      uint32_t               timeStamp = ConvertEventTimeToMilliseconds(AMotionEvent_getEventTime(event));
 
       switch(action & AMOTION_EVENT_ACTION_MASK)
       {
@@ -417,10 +430,10 @@ struct FrameworkAndroid::Impl
     }
     else if(AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
     {
-      int32_t deviceId  = AInputEvent_getDeviceId(event);
-      int32_t keyCode   = AKeyEvent_getKeyCode(event);
-      int32_t action    = AKeyEvent_getAction(event);
-      int64_t timeStamp = AKeyEvent_getEventTime(event);
+      int32_t  deviceId  = AInputEvent_getDeviceId(event);
+      int32_t  keyCode   = AKeyEvent_getKeyCode(event);
+      int32_t  action    = AKeyEvent_getAction(event);
+      uint32_t timeStamp = ConvertEventTimeToMilliseconds(AKeyEvent_getEventTime(event));
 
       Dali::KeyEvent::State state = Dali::KeyEvent::DOWN;
       switch(action)

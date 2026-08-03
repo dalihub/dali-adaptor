@@ -1069,7 +1069,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
-  DevelKeyEvent::SetWindowId(mLastKeyEvent, keyEvent.windowId);
+  mLastKeyEvent.SetWindowId(keyEvent.windowId);
   FeedKeyEvent(keyEvent);
 }
 
@@ -1211,7 +1211,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
 {
   auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge();
 
-  if(!bridge || !bridge->IsUp() || keyEvent.IsNoInterceptModifier())
+  if(!bridge || !bridge->IsUp() || Dali::DevelKeyEvent::IsInterceptProcessed(keyEvent))
   {
     DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
 
@@ -1222,7 +1222,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
   {
     if(!consumed)
     {
-      Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
+      Dali::DevelKeyEvent::SetInterceptProcessed(keyEvent, true);
       handle.FeedKeyEvent(keyEvent);
     }
   };

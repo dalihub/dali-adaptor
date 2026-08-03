@@ -383,18 +383,7 @@ void Window::FeedWheelEvent(Dali::WheelEvent wheelEvent)
 
 void Window::FeedKeyEvent(const Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
-                                       keyEvent.GetLogicalKey(),
-                                       keyEvent.GetKeyString(),
-                                       keyEvent.GetKeyCode(),
-                                       keyEvent.GetKeyModifier(),
-                                       keyEvent.GetTime(),
-                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                                       keyEvent.GetCompose(),
-                                       keyEvent.GetDeviceName(),
-                                       keyEvent.GetDeviceClass(),
-                                       keyEvent.GetDeviceSubclass());
-  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
+  Integration::KeyEvent convertedEvent(keyEvent);
   GetImplementation(*this).FeedKeyEvent(convertedEvent);
 }
 

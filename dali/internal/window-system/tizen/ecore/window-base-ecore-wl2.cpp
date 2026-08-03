@@ -1715,8 +1715,8 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     }
 
     keyCode = (keyCode == -1) ? 0 : keyCode;
-    int           modifier(keyEvent->modifiers);
-    unsigned long time = keyEvent->timestamp;
+    int      modifier(keyEvent->modifiers);
+    uint32_t time = keyEvent->timestamp;
     if(!strncmp(keyEvent->keyname, "Keycode-", 8))
     {
       keyCode = atoi(keyEvent->keyname + 8);
@@ -1801,8 +1801,8 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     }
 
     keyCode = (keyCode == -1) ? 0 : keyCode;
-    int           modifier(keyEvent->modifiers);
-    unsigned long time = keyEvent->timestamp;
+    int      modifier(keyEvent->modifiers);
+    uint32_t time = keyEvent->timestamp;
     if(!strncmp(keyEvent->keyname, "Keycode-", 8))
     {
       keyCode = atoi(keyEvent->keyname + 8);

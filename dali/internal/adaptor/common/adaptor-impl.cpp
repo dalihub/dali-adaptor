@@ -48,9 +48,9 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
 
@@ -588,18 +588,7 @@ void Adaptor::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 
 void Adaptor::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
-                                       keyEvent.GetLogicalKey(),
-                                       keyEvent.GetKeyString(),
-                                       keyEvent.GetKeyCode(),
-                                       keyEvent.GetKeyModifier(),
-                                       keyEvent.GetTime(),
-                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                                       keyEvent.GetCompose(),
-                                       keyEvent.GetDeviceName(),
-                                       keyEvent.GetDeviceClass(),
-                                       keyEvent.GetDeviceSubclass());
-  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
+  Integration::KeyEvent convertedEvent(keyEvent);
   mWindows.front()->FeedKeyEvent(convertedEvent);
 }
 

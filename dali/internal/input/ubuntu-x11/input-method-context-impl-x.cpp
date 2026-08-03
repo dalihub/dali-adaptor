@@ -1258,7 +1258,7 @@ bool InputMethodContextX::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)
   bool eventHandled(false);
   if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+    Integration::KeyEvent integKeyEvent(keyEvent);
 
     std::string key     = ToStdString(integKeyEvent.logicalKey);
     std::string compose = ToStdString(integKeyEvent.compose);
@@ -1318,7 +1318,7 @@ bool InputMethodContextX::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent)
   bool eventHandled(false);
   if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+    Integration::KeyEvent integKeyEvent(keyEvent);
 
     String key     = integKeyEvent.logicalKey;
     String compose = integKeyEvent.compose;

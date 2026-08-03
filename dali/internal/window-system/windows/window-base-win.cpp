@@ -583,7 +583,7 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
     const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
-    const auto        time     = static_cast<unsigned long>(event->timestamp);
+    const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
     // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
@@ -615,7 +615,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
-    const auto        time     = static_cast<unsigned long>(event->timestamp);
+    const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys the same way OnKeyDown does; see the comment there.
     const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());

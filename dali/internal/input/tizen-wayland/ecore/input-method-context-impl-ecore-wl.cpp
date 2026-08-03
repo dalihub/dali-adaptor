@@ -1881,7 +1881,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
   bool eventHandled(false);
   if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+    Integration::KeyEvent integKeyEvent(keyEvent);
     String                key        = integKeyEvent.logicalKey;
     String                compose    = integKeyEvent.compose;
     String                deviceName = integKeyEvent.deviceName;
@@ -1936,7 +1936,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
   bool eventHandled(false);
   if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+    Integration::KeyEvent integKeyEvent(keyEvent);
 
     String key        = integKeyEvent.logicalKey;
     String compose    = integKeyEvent.compose;

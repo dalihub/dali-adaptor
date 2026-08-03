@@ -111,18 +111,7 @@ void SceneHolder::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 
 void SceneHolder::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent event(keyEvent.GetKeyName(),
-                              keyEvent.GetLogicalKey(),
-                              keyEvent.GetKeyString(),
-                              keyEvent.GetKeyCode(),
-                              keyEvent.GetKeyModifier(),
-                              keyEvent.GetTime(),
-                              static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                              keyEvent.GetCompose(),
-                              keyEvent.GetDeviceName(),
-                              keyEvent.GetDeviceClass(),
-                              keyEvent.GetDeviceSubclass());
-  event.receiveTime = keyEvent.GetReceiveTime();
+  Integration::KeyEvent event(keyEvent);
   GetImplementation(*this).FeedKeyEvent(event);
 }
 

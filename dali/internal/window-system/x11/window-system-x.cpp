@@ -454,7 +454,7 @@ void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent,
   int shiftModifier   = (modifiers & 0x03) != 0;
   int controlModifier = (modifiers & 0x0C) != 0;
   int altModifier     = (modifiers & 0x30) != 0;
-  keyEvent.timestamp  = xKeyEvent->time;
+  keyEvent.timestamp  = static_cast<uint32_t>(xKeyEvent->time);
   keyEvent.modifiers  = shiftModifier | controlModifier << 1 | altModifier << 2;
   keyEvent.window     = xKeyEvent->window;
   keyEvent.event      = xEvent;

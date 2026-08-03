@@ -1157,8 +1157,6 @@ public: // Signals
    * So the actor will not be able to receive the key event, and KeyEventSignal() is not emitted either.
    * If the callback returns false, the key event is delivered as usual.
    *
-   * @note This signal is not emitted for a key event whose KeyEvent::IsNoInterceptModifier() is true.
-   *
    * @SINCE_2_5.34
    * @return The signal to connect to
    */
