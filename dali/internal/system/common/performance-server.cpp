@@ -34,7 +34,7 @@ namespace Adaptor
 namespace
 {
 const unsigned int NANOSECONDS_PER_MICROSECOND = 1000u;
-const float        MICROSECONDS_TO_SECOND      = 1e-6;
+const float        MICROSECONDS_TO_SECOND      = 1e-6f;
 } // unnamed namespace
 
 PerformanceServer::PerformanceServer(AdaptorInternalServices&  adaptorServices,
