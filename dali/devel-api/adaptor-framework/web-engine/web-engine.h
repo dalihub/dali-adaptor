@@ -941,6 +941,13 @@ public:
    */
   void SetVideoHole(bool enabled, bool isWaylandWindow);
 
+  /**
+   * @brief Removes a previously added JavaScript message handler.
+   *
+   * @param[in] exposedObjectName The name of the exposed object
+   */
+  void RemoveJavaScriptMessageHandler(const std::string& exposedObjectName);
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

@@ -1107,6 +1107,13 @@ public:
    * @param[in] isWaylandWindow True if wayland window, false if EFL window.
    */
   virtual void SetVideoHole(bool enabled, bool isWaylandWindow) = 0;
+
+  /**
+   * @brief Removes a previously added JavaScript message handler.
+   *
+   * @param[in] exposedObjectName The name of the exposed object
+   */
+  virtual void RemoveJavaScriptMessageHandler(const std::string& exposedObjectName) = 0;
 };
 
 // specialization has to be done in the same namespace
