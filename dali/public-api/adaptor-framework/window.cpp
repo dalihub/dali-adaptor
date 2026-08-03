@@ -589,6 +589,16 @@ Window::KeyEventSignalType& Window::KeyEventSignal()
   return GetImplementation(*this).KeyEventSignal();
 }
 
+Window::InterceptKeyEventSignalType& Window::InterceptKeyEventSignal()
+{
+  return GetImplementation(*this).InterceptKeyEventSignal();
+}
+
+Window::KeyEventSignalType& Window::KeyEventDelayedSignal()
+{
+  return GetImplementation(*this).KeyEventDelayedSignal();
+}
+
 Window::TouchEventSignalType& Window::TouchEventSignal()
 {
   return GetImplementation(*this).TouchEventSignal();

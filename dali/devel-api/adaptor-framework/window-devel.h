@@ -32,17 +32,13 @@
 
 namespace Dali
 {
-class KeyEvent;
-
 namespace DevelWindow
 {
 typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
-typedef Signal<void(Window, KeyEvent)>                                               KeyEventSignalType;               ///< Key event signal type
 typedef Signal<void(Window, WindowEffectState, WindowEffectType)>                    TransitionEffectEventSignalType;  ///< Effect signal type and state
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;       ///< Auxiliary message signal type
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType; ///< Accessibility Highlight signal type
-typedef Signal<bool(Window, KeyEvent)>                                               InterceptKeyEventSignalType;      ///< Intercept Key event signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>           MouseRelativeEventSignalType;     ///< MouseRelativeEvent signal type
 typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;     ///< PointerConstraintsEvent signal type
 
@@ -374,17 +370,6 @@ DALI_ADAPTOR_API Extents GetInsets(Window window, WindowInsetsPartFlags insetsFl
 DALI_ADAPTOR_API void SetForceRendering(Window window, uint32_t frameCount);
 
 /**
- * @brief The user would connect to this signal to intercept a KeyEvent at window.
- *
- * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.
- * If a KeyEvent is consumed, no KeyEvent is delivered to the control.
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window);
-
-/**
  * @brief This signal is emitted when the mouse relative event is received.
  *
  * A callback of the following type may be connected:
@@ -404,13 +389,6 @@ DALI_ADAPTOR_API MouseRelativeEventSignalType& MouseRelativeEventSignal(Window w
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API PointerConstraintsSignalType& PointerConstraintsSignal(Window window);
-
-/**
- * @brief This signal is emitted when the key event monitor is received.
- * @param[in] window The window instance
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API KeyEventSignalType& KeyEventMonitorSignal(Window window);
 
 } // namespace DevelWindow
 

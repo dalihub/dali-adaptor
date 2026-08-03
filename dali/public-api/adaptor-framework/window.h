@@ -81,10 +81,11 @@ public:
   using MovedSignalType              = Signal<void(Window, WindowPosition)>;    ///< Window moved signal type @SINCE_2_5.28
   using OrientationChangedSignalType = Signal<void(Window, WindowOrientation)>; ///< Window orientation changed signal type @SINCE_2_5.28
 
-  using KeyEventSignalType        = Signal<void(Window, KeyEvent)>;               ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType      = Signal<void(Window, TouchEvent)>;             ///< Touch signal type @SINCE_1_9.28
-  using WheelEventSignalType      = Signal<void(Window, WheelEvent)>;             ///< Wheel signal type @SINCE_2_5.28
-  using MouseInOutEventSignalType = Signal<void(Window, const MouseInOutEvent&)>; ///< Mouse in/out event signal type @SINCE_2_5.28
+  using KeyEventSignalType          = Signal<void(Window, KeyEvent)>;               ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType        = Signal<void(Window, TouchEvent)>;             ///< Touch signal type @SINCE_1_9.28
+  using WheelEventSignalType        = Signal<void(Window, WheelEvent)>;             ///< Wheel signal type @SINCE_2_5.28
+  using MouseInOutEventSignalType   = Signal<void(Window, const MouseInOutEvent&)>; ///< Mouse in/out event signal type @SINCE_2_5.28
+  using InterceptKeyEventSignalType = Signal<bool(Window, KeyEvent)>;               ///< Intercept key event signal type @SINCE_2_5.34
 
   using InsetsChangedSignalType = Signal<void(Window, const WindowInsetsInfo&)>; ///< Insets changed signal type @SINCE_2_5.28
 
@@ -1140,6 +1141,47 @@ public: // Signals
    * @return The signal to connect to
    */
   KeyEventSignalType& KeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when intercepting the window's key event.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallbackName(Window window, KeyEvent event);
+   * @endcode
+   * window: The window instance.
+   * event: The key event.
+   *
+   * @note The key event is intercepted in the window before being dispatched to the actor.
+   * If the callback returns true, it means that the KeyEvent was intercepted.
+   * So the actor will not be able to receive the key event, and KeyEventSignal() is not emitted either.
+   * If the callback returns false, the key event is delivered as usual.
+   *
+   * @note This signal is not emitted for a key event whose KeyEvent::IsNoInterceptModifier() is true.
+   *
+   * @SINCE_2_5.34
+   * @return The signal to connect to
+   */
+  InterceptKeyEventSignalType& InterceptKeyEventSignal();
+
+  /**
+   * @brief This signal is emitted when a key event was delayed on its way to the window.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   void YourCallbackName(Window window, KeyEvent event);
+   * @endcode
+   *
+   * @note This signal is emitted only when the elapsed time between the timestamp the key event
+   * was given by the input system and the time it reached DALi exceeds a predefined threshold,
+   * so most key events do not emit it. Use KeyEventSignal() to receive every key event.
+   * @note It is emitted before the key event is dispatched, and regardless of whether the key
+   * event is subsequently intercepted or consumed.
+   *
+   * @SINCE_2_5.34
+   * @return The signal to connect to
+   */
+  KeyEventSignalType& KeyEventDelayedSignal();
 
   /**
    * @brief This signal is emitted when the screen is touched and when the touch ends

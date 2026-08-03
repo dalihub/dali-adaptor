@@ -33,8 +33,8 @@
 #include <thread>
 
 // INTERNAL HEADERS
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/event-handler.h>
@@ -289,7 +289,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     SceneHolder::TouchEventSignal().Connect(this, &Window::OnSceneTouchEvent);
     SceneHolder::WheelEventSignal().Connect(this, &Window::OnSceneWheelEvent);
     SceneHolder::InterceptKeyEventSignal().Connect(this, &Window::OnSceneInterceptKeyEvent);
-    SceneHolder::KeyEventMonitorSignal().Connect(this, &Window::OnSceneKeyEventMonitor);
+    SceneHolder::KeyEventDelayedSignal().Connect(this, &Window::OnSceneKeyEventDelayed);
   }
 
   // If this window is created by pre loader process, window show()'s calling should be delayed.
@@ -1262,12 +1262,12 @@ bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHold
   return mInterceptKeyEventSignal.Emit(handle, keyEvent);
 }
 
-void Window::OnSceneKeyEventMonitor(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
+void Window::OnSceneKeyEventDelayed(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
-  if(!mKeyEventMonitorSignal.Empty())
+  if(!mKeyEventDelayedSignal.Empty())
   {
     Dali::Window handle(this);
-    mKeyEventMonitorSignal.Emit(handle, keyEvent);
+    mKeyEventDelayedSignal.Emit(handle, keyEvent);
   }
 }
 
