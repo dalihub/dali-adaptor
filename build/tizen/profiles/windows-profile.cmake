@@ -160,6 +160,7 @@ SET( REQUIRED_LIBS
         WebP::webp
         WebP::webpdemux
         dali2-core::dali2-core
+        user32
         imm32
         ole32
         uuid
