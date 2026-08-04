@@ -226,7 +226,7 @@ void GetDamagedRangesInterval(const std::vector<BoundsInteger>& damagedRects, co
   static std::vector<int> rectXPositionInfos;
   static std::vector<int> rectYPositionInfos;
 
-  const uint32_t n = damagedRects.size();
+  const uint32_t n = static_cast<uint32_t>(damagedRects.size());
 
   rectXPositionInfos.clear();
   rectYPositionInfos.clear();
@@ -330,7 +330,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std
   static std::vector<int> xIntervals;
   static std::vector<int> yIntervals;
 
-  const uint32_t n = damagedRects.size();
+  const uint32_t n = static_cast<uint32_t>(damagedRects.size());
   xIntervals.clear();
   yIntervals.clear();
   xIntervals.reserve(2 * n);
@@ -398,8 +398,8 @@ void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std
                      xIntervalIt == xIntervals.cend() ||
                      yIntervalIt == yIntervals.cbegin() ||
                      yIntervalIt == yIntervals.cend() ||
-                     GetIntervalMarker(xIntervalIt - xIntervals.cbegin()) != IntervalMarker::INTERVAL_END ||
-                     GetIntervalMarker(yIntervalIt - yIntervals.cbegin()) != IntervalMarker::INTERVAL_END))
+                     GetIntervalMarker(static_cast<int32_t>(xIntervalIt - xIntervals.cbegin())) != IntervalMarker::INTERVAL_END ||
+                     GetIntervalMarker(static_cast<int32_t>(yIntervalIt - yIntervals.cbegin())) != IntervalMarker::INTERVAL_END))
     {
       // Should never happen
       DALI_LOG_ERROR("No intervals found, something is wrong!!\n");
@@ -408,7 +408,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std
 
     // Packing x and y intervals indices into a single 32-bit integer to use as a key for uniqueness check.
     // Note that the number of xIntervals and yIntervals is limited to 0xFFFF, so we can safely use 32-bit integer.
-    uint32_t indexPair = (static_cast<uint32_t>(xIntervalIt - xIntervals.cbegin()) << 16) | (yIntervalIt - yIntervals.cbegin());
+    uint32_t indexPair = (static_cast<uint32_t>(xIntervalIt - xIntervals.cbegin()) << 16) | static_cast<uint32_t>(yIntervalIt - yIntervals.cbegin());
 
     if(uniqueRectsIndexPairs.find(indexPair) == uniqueRectsIndexPairs.cend())
     {
@@ -441,7 +441,7 @@ void MergeIntersectingRectsAndRotateForLargeCase(BoundsInteger& mergingRect, std
  */
 void MergeIntersectingRectsAndRotateForSmallCase(BoundsInteger& mergingRect, std::vector<BoundsInteger>& damagedRects, int orientation, const BoundsInteger& surfaceRect)
 {
-  uint32_t n = damagedRects.size();
+  uint32_t n = static_cast<uint32_t>(damagedRects.size());
   for(uint32_t i = 0; i < n - 1; i++)
   {
     if(damagedRects[i].IsEmpty())

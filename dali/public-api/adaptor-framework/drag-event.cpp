@@ -103,7 +103,7 @@ void DragAndDrop::DragEvent::AddMimeType(const Dali::String& mimeType)
 uint32_t DragAndDrop::DragEvent::GetMimeTypeCount() const
 {
   DALI_ASSERT_VALID_DRAG_EVENT(mImpl);
-  return mImpl->mimeTypes.Count();
+  return static_cast<uint32_t>(mImpl->mimeTypes.Count());
 }
 
 Dali::String DragAndDrop::DragEvent::GetMimeType(uint32_t index) const

@@ -1049,7 +1049,7 @@ void Context::ResolveUniformBuffers()
     }
     if(mImpl->mCurrentUBOBindings.Count() >= GPU_ALLOCATED_UBO_INDEX_BEGIN)
     {
-      ResolveGpuUniformBuffers(mImpl->mCurrentUBOBindings.Begin() + GPU_ALLOCATED_UBO_INDEX_BEGIN, mImpl->mCurrentUBOBindings.Count() - GPU_ALLOCATED_UBO_INDEX_BEGIN);
+  ResolveGpuUniformBuffers(mImpl->mCurrentUBOBindings.Begin() + GPU_ALLOCATED_UBO_INDEX_BEGIN, static_cast<uint32_t>(mImpl->mCurrentUBOBindings.Count() - GPU_ALLOCATED_UBO_INDEX_BEGIN));
     }
   }
 }

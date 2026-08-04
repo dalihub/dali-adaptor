@@ -78,7 +78,7 @@ struct ShaderImpl::Impl
 
     // Substitute pointer
     createInfo.sourceData = source.data();
-    createInfo.sourceSize = dataSize;
+  createInfo.sourceSize = static_cast<uint32_t>(dataSize);
   }
 
   ~Impl() {};

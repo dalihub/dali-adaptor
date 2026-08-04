@@ -260,11 +260,11 @@ void ProgramImpl::Preprocess()
       // substitute shader code
       if(!vsh->GetImplementation()->HasPreprocessedCode())
       {
-        vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
+  vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), static_cast<uint32_t>(newShaders[0].size()));
       }
       if(!fsh->GetImplementation()->HasPreprocessedCode())
       {
-        fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+  fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), static_cast<uint32_t>(newShaders[1].size()));
       }
     }
   }
@@ -666,7 +666,7 @@ bool ProgramImpl::LoadProgramBinary()
 
     DALI_LOG_DEBUG_INFO("Program binary format : %d", formats[0]);
 
-    gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), buffer.Size());
+  gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), static_cast<GLsizei>(buffer.Size()));
 
     GLint status{0};
     gl->GetProgramiv(mImpl->glProgram, GL_LINK_STATUS, &status);

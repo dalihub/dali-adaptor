@@ -388,7 +388,7 @@ ProgramImpl* PipelineCache::FindProgramImpl(const ProgramCreateInfo& info)
       continue;
     }
 
-    int k = shaderImplsSize;
+  int32_t k = static_cast<int32_t>(shaderImplsSize);
 
     while(--k >= 0 && item.shaderWrappers[k]->GetImplementation() == shaderImpls[k]);
 

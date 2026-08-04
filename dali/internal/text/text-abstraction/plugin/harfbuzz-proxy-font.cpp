@@ -418,7 +418,7 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
 
     if(!mHarfBuzzVariations.empty())
     {
-      hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), mHarfBuzzVariations.size());
+  hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), static_cast<uint32_t>(mHarfBuzzVariations.size()));
     }
 
     SetHarfBuzzFunctions();

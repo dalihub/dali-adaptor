@@ -171,7 +171,7 @@ void TextureDependencyChecker::DiscardTexture(const GLES::Texture* texture)
 
 void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, const GLES::Framebuffer* framebuffer)
 {
-  uint32_t index = mForwardDependencies.size();
+  uint32_t index = static_cast<uint32_t>(mForwardDependencies.size());
   mForwardDependencies.emplace_back();
   auto& textureDependency = mForwardDependencies.back();
 

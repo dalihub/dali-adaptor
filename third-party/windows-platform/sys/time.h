@@ -27,7 +27,7 @@ static int gettimeofday( struct timeval *tp, void *tzp )
   tm.tm_sec = wtm.wSecond;
   tm.tm_isdst = -1;
   clock = mktime( &tm );
-  tp->tv_sec = clock;
+  tp->tv_sec = static_cast<long>(clock);
   tp->tv_usec = wtm.wMilliseconds * 1000;
   return ( 0 );
 }

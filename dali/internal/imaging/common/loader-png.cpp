@@ -278,7 +278,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     return false;
   }
 
-  unsigned int rowBytes = png_get_rowbytes(png, info);
+  uint32_t rowBytes = static_cast<uint32_t>(png_get_rowbytes(png, info));
 
   unsigned int bufferWidth  = GetTextureDimension(width);
   unsigned int bufferHeight = GetTextureDimension(height);
@@ -520,13 +520,13 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
   }
 
   // Set the image information:
-  png_set_IHDR(png_ptr, info_ptr, width, height, 8, pngPixelFormat, interlace, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  png_set_IHDR(png_ptr, info_ptr, static_cast<png_uint_32>(width), static_cast<png_uint_32>(height), 8, pngPixelFormat, interlace, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
   // Start to output the PNG data to our buffer:
   png_write_info(png_ptr, info_ptr);
 
   // Walk the rows:
-  const unsigned  row_step = width * pixelBytes;
+  const uint32_t row_step = static_cast<uint32_t>(width * pixelBytes);
   png_bytep       row_ptr  = const_cast<png_bytep>(pixelBuffer);
   const png_bytep row_end  = row_ptr + height * row_step;
   for(; row_ptr < row_end; row_ptr += row_step)

@@ -1411,7 +1411,7 @@ inline void AverageScanlinesWithMultipleComponents(
       std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline + padding);
 
       const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
-      component                          = (totalStepCount << 3) + padding;
+      component                          = static_cast<uint32_t>((totalStepCount << 3) + padding);
 
       // and for each step, calculate average of 8 bytes.
       for(std::uint32_t i = 0; i < totalStepCount; ++i)
@@ -1440,7 +1440,7 @@ inline void AverageScanlinesWithMultipleComponents(
       std::uint32_t* const       output4step    = reinterpret_cast<std::uint32_t* const>(outputScanline + padding);
 
       const std::uint32_t totalStepCount = (totalComponentCount) >> 2;
-      component                          = (totalStepCount << 2) + padding;
+      component                          = static_cast<uint32_t>((totalStepCount << 2) + padding);
 
       // and for each step, calculate average of 4 bytes.
       for(std::uint32_t i = 0; i < totalStepCount; ++i)

@@ -87,7 +87,7 @@ const unsigned int INTERLACE_PAIR_TABLE_SIZE(sizeof(INTERLACE_PAIR_TABLE) / size
 int ReadDataFromGif(GifFileType* gifInfo, GifByteType* data, int length)
 {
   FILE*     fp           = reinterpret_cast<FILE*>(gifInfo->UserData);
-  const int actualLength = fread(data, sizeof(GifByteType), length, fp);
+  const int32_t actualLength = static_cast<int32_t>(fread(data, sizeof(GifByteType), length, fp));
   if(DALI_UNLIKELY(actualLength != length))
   {
     DALI_LOG_ERROR("Error read bytes (required : %d, actual read : %d)\n", length, actualLength);

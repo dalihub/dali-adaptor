@@ -137,7 +137,7 @@ FileFormats GetFormatHint(const std::string& filename)
 
   for(unsigned int i = 0; i < FORMAT_EXTENSIONS_COUNT; ++i)
   {
-    unsigned int length = FORMAT_EXTENSIONS[i].extension.size();
+    uint32_t length = static_cast<uint32_t>(FORMAT_EXTENSIONS[i].extension.size());
     if((filename.size() > length) &&
        (0 == filename.compare(filename.size() - length, length, FORMAT_EXTENSIONS[i].extension)))
     {

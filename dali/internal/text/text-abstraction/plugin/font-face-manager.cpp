@@ -71,7 +71,7 @@ FT_Error ApplyVariationCoordinates(FT_Face ftFace, const std::vector<FT_Fixed>& 
     return FT_Set_Var_Design_Coordinates(ftFace, 0u, nullptr);
   }
 
-  return FT_Set_Var_Design_Coordinates(ftFace, freeTypeCoords.size(), const_cast<FT_Fixed*>(freeTypeCoords.data()));
+  return FT_Set_Var_Design_Coordinates(ftFace, static_cast<FT_UInt>(freeTypeCoords.size()), const_cast<FT_Fixed*>(freeTypeCoords.data()));
 }
 } // namespace
 

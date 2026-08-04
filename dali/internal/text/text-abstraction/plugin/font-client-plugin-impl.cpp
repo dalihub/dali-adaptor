@@ -594,7 +594,7 @@ FontId FontClient::Plugin::FindFontForCharacter(const FontList&         fontList
 
   // Traverse the list of fonts.
   // Check for each font if supports the character.
-  for(unsigned int index = 0u, numberOfFonts = fontList.size(); index < numberOfFonts; ++index)
+  for(uint32_t index = 0u, numberOfFonts = static_cast<uint32_t>(fontList.size()); index < numberOfFonts; ++index)
   {
     const FontDescription& description  = fontList[index];
     const FcCharSet* const characterSet = characterSetList[index];

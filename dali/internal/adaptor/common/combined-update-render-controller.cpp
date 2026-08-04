@@ -1291,7 +1291,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   vertexShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::VERTEX_SHADER);
   vertexShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
   const std::vector<char>& vertexShaderSrc = StringToVector(std::move(vertexShader));
-  vertexShaderCreateInfo.SetSourceSize(vertexShaderSrc.size());
+    vertexShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(vertexShaderSrc.size()));
   vertexShaderCreateInfo.SetSourceData(static_cast<const void*>(vertexShaderSrc.data()));
 
   uint32_t vertexShaderVersion = 0;
@@ -1304,7 +1304,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   fragmentShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::FRAGMENT_SHADER);
   fragmentShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
   const std::vector<char>& fragmentShaderSrc = StringToVector(std::move(fragmentShader));
-  fragmentShaderCreateInfo.SetSourceSize(fragmentShaderSrc.size());
+    fragmentShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(fragmentShaderSrc.size()));
   fragmentShaderCreateInfo.SetSourceData(static_cast<const void*>(fragmentShaderSrc.data()));
 
   uint32_t fragmentShaderVersion = 0;
