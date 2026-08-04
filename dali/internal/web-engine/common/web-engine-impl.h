@@ -662,6 +662,11 @@ public:
    */
   void SetVideoHole(bool enabled, bool isWaylandWindow);
 
+  /**
+   * @copydoc Dali::WebEngine::RemoveJavaScriptMessageHandler()
+   */
+  void RemoveJavaScriptMessageHandler(const std::string& exposedObjectName);
+
 private:
   /**
    * @brief Constructor with WebEngine type (0: Chromium, 1: LWE, otherwise: depend on system environment).

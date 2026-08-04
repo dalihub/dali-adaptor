@@ -437,6 +437,23 @@ public:
    *       otherwise to disable
    */
   virtual void EnableDragAndDrop(bool enable) = 0;
+
+  /**
+   * @brief Sets a string value for an extra feature.
+   *
+   * @param[in] feature The feature name
+   * @param[in] value The feature value
+   * @return @c true on success or @c false if unsupported
+   */
+  virtual bool SetExtraFeatureValue(const std::string& feature, const std::string& value) = 0;
+
+  /**
+   * @brief Gets the string value of an extra feature.
+   *
+   * @param[in] feature The feature name
+   * @return The feature value, or an empty string if unavailable
+   */
+  virtual std::string GetExtraFeatureValue(const std::string& feature) const = 0;
 };
 
 } // namespace Dali
