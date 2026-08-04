@@ -1091,7 +1091,7 @@ void Window::OnPointerConstraints(const Dali::Int32Pair& position, bool locked, 
 {
   Dali::Window handle(this);
 
-  Vector2                                    newPosition = RecalculatePosition(Vector2(position.GetX(), position.GetY()));
+  Vector2                                    newPosition = RecalculatePosition(Vector2(static_cast<float>(position.GetX()), static_cast<float>(position.GetY())));
   Dali::DevelWindow::PointerConstraintsEvent pointerConstraintsEvent(static_cast<int32_t>(newPosition.x), static_cast<int32_t>(newPosition.y), locked, confined);
 
   mPointerConstraintsSignal.Emit(handle, pointerConstraintsEvent);

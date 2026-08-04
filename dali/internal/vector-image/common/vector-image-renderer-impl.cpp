@@ -288,8 +288,8 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data)
     return false;
   }
 
-  mDefaultWidth  = mParsedImage->width;
-  mDefaultHeight = mParsedImage->height;
+  mDefaultWidth  = static_cast<uint32_t>(mParsedImage->width);
+  mDefaultHeight = static_cast<uint32_t>(mParsedImage->height);
 #endif
 
   DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Load success! DefaultSize [%u x %u] [%p]\n", mDefaultWidth, mDefaultHeight, this);

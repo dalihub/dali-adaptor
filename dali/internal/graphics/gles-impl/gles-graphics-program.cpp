@@ -19,7 +19,11 @@
 
 // EXTERNAL HEADERS
 #include <dali/public-api/common/dali-utility.h>
+#if defined(DALI_PROFILE_WINDOWS)
+#include <process.h>
+#else
 #include <unistd.h>
+#endif
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -722,9 +726,14 @@ void ProgramImpl::SaveProgramBinary()
     programBinaryName = GetCustomProgramBinaryPath() + GetProgramBinaryName();
   }
 
-  auto programBinaryNameTemp = programBinaryName + std::to_string(getpid()) + ".tmp";
-  bool loaded                = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
-  if(!loaded)
+#if defined(DALI_PROFILE_WINDOWS)
+  const auto processId = _getpid();
+#else
+  const auto processId = getpid();
+#endif
+  auto temporaryProgramBinaryName = programBinaryName + std::to_string(processId) + ".tmp";
+  bool programBinarySaved         = SaveFile(temporaryProgramBinaryName, (unsigned char*)programBinary.data(), binaryLength);
+  if(!programBinarySaved)
   {
     DALI_LOG_ERROR("Program binary save failed!! file = %s \n", programBinaryName.c_str());
     return;
@@ -732,14 +741,14 @@ void ProgramImpl::SaveProgramBinary()
 
   if(std::filesystem::exists(programBinaryName))
   {
-    std::filesystem::remove(programBinaryNameTemp);
+    std::filesystem::remove(temporaryProgramBinaryName);
   }
   else
   {
-    std::filesystem::rename(programBinaryNameTemp, programBinaryName);
+    std::filesystem::rename(temporaryProgramBinaryName, programBinaryName);
   }
 
-  DALI_LOG_DEBUG_INFO("ProgramBinary is saved [success:%d] file = %s buffer size = %d \n", loaded, programBinaryName.c_str(), binaryLength);
+  DALI_LOG_DEBUG_INFO("ProgramBinary is saved [success:%d] file = %s buffer size = %d \n", programBinarySaved, programBinaryName.c_str(), binaryLength);
 }
 
 bool ProgramImpl::SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes)

@@ -119,11 +119,11 @@ void SocketWin::Initialize(Protocol protocol, bool createSocket)
 
 bool SocketWin::CreateWakeSockets(Protocol protocol)
 {
-  WSAPROTOCOL_INFO protocolInfo{};
-  int              protocolInfoSize = static_cast<int>(sizeof(protocolInfo));
+  WSAPROTOCOL_INFOW protocolInfo{};
+  int               protocolInfoSize = static_cast<int>(sizeof(protocolInfo));
   if(getsockopt(ToNativeSocket(mSocket),
                 SOL_SOCKET,
-                SO_PROTOCOL_INFO,
+                 SO_PROTOCOL_INFOW,
                 reinterpret_cast<char*>(&protocolInfo),
                 &protocolInfoSize) == SOCKET_ERROR)
   {
@@ -135,13 +135,13 @@ bool SocketWin::CreateWakeSockets(Protocol protocol)
   // Create every wake socket from the target socket's exact provider rather
   // than relying on the system's current default provider ordering.
   const auto createProviderSocket = [&protocolInfo]() {
-    WSAPROTOCOL_INFO socketProtocolInfo = protocolInfo;
-    return WSASocket(FROM_PROTOCOL_INFO,
-                     FROM_PROTOCOL_INFO,
-                     FROM_PROTOCOL_INFO,
-                     &socketProtocolInfo,
-                     0,
-                     WSA_FLAG_OVERLAPPED);
+    WSAPROTOCOL_INFOW socketProtocolInfo = protocolInfo;
+    return WSASocketW(FROM_PROTOCOL_INFO,
+                      FROM_PROTOCOL_INFO,
+                      FROM_PROTOCOL_INFO,
+                      &socketProtocolInfo,
+                      0,
+                      WSA_FLAG_OVERLAPPED);
   };
 
   SOCKET wakeListener = INVALID_SOCKET;

@@ -21,7 +21,12 @@
 // EXTERNAL HEADERS
 #include <fcntl.h>
 #include <stdio.h>
+#if defined(DALI_PROFILE_WINDOWS)
+#include <io.h>
+#include <share.h>
+#else
 #include <unistd.h>
+#endif
 
 // INTERNAL HEADERS
 #include <dali/integration-api/debug.h>
@@ -36,6 +41,34 @@ namespace
 {
 const char* TRACE_MARKER_FILE = "/sys/kernel/debug/tracing/trace_marker";
 const char* SPI_PREFIX        = "SPI_EV_DALI_"; ///< prefix to let the SPI tool know it should read the trace
+
+int CloseFileDescriptor(int fileDescriptor)
+{
+#if defined(DALI_PROFILE_WINDOWS)
+  return _close(fileDescriptor);
+#else
+  return close(fileDescriptor);
+#endif
+}
+
+int OpenFileDescriptor(const char* path, int flags)
+{
+#if defined(DALI_PROFILE_WINDOWS)
+  int fileDescriptor = -1;
+  return _sopen_s(&fileDescriptor, path, flags, _SH_DENYNO, 0) == 0 ? fileDescriptor : -1;
+#else
+  return open(path, flags);
+#endif
+}
+
+int WriteFileDescriptor(int fileDescriptor, const char* data, std::size_t length)
+{
+#if defined(DALI_PROFILE_WINDOWS)
+  return _write(fileDescriptor, data, static_cast<unsigned int>(length));
+#else
+  return static_cast<int>(write(fileDescriptor, data, length));
+#endif
+}
 } // namespace
 
 KernelTrace::KernelTrace()
@@ -48,7 +81,7 @@ KernelTrace::~KernelTrace()
 {
   if(mFileDescriptor)
   {
-    close(mFileDescriptor);
+    CloseFileDescriptor(mFileDescriptor);
   }
 }
 
@@ -70,7 +103,7 @@ void KernelTrace::Trace(const PerformanceMarker& marker, const std::string& trac
   // Open the trace_marker file
   if(mFileDescriptor == 0)
   {
-    mFileDescriptor = open(TRACE_MARKER_FILE, O_WRONLY);
+    mFileDescriptor = OpenFileDescriptor(TRACE_MARKER_FILE, O_WRONLY);
     if(mFileDescriptor == -1)
     {
       // we want to keep trying to open it, so it will start working if someone fixes
@@ -88,14 +121,14 @@ void KernelTrace::Trace(const PerformanceMarker& marker, const std::string& trac
 
   if(mFileDescriptor > 0)
   {
-    std::string msg(SPI_PREFIX);
-    msg += traceMessage;
+    std::string message(SPI_PREFIX);
+    message += traceMessage;
 
-    int ret = write(mFileDescriptor, msg.c_str(), msg.length());
+    int writeResult = WriteFileDescriptor(mFileDescriptor, message.c_str(), message.length());
     // if it failed then close the file description and try again next time we trace
-    if(ret < 0)
+    if(writeResult < 0)
     {
-      close(mFileDescriptor);
+      CloseFileDescriptor(mFileDescriptor);
       mFileDescriptor = 0;
     }
   }
