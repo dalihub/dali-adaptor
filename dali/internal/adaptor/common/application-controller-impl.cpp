@@ -25,10 +25,10 @@
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/framework-factory.h>
@@ -108,6 +108,12 @@ ApplicationController::~ApplicationController()
   {
     mMainWindow.Reset();
   }
+
+  // The Adaptor still owns the windows and their window base objects, which use the window system.
+  // Destroy it here so that the teardown order is the reverse of the creation order; otherwise it
+  // would be destroyed after this function returns, i.e. after the window system has shut down.
+  mAdaptor.reset();
+  mWindowData.reset();
 
   WindowSystem::Shutdown();
 }

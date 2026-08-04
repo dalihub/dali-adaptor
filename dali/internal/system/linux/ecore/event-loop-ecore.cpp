@@ -63,6 +63,8 @@ void EventLoopEcore::Shutdown()
 
   if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
   {
+    // This releases the reference taken by the launchpad loader, not one of ours, so the Ecore
+    // reference count can reach zero here.
     Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
     ecore_shutdown();
   }

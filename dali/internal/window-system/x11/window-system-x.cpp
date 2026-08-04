@@ -144,16 +144,19 @@ bool GetWindowProperty(::Display* display, ::Window window, ::Atom property, ::A
 
 namespace WindowSystem
 {
-std::unique_ptr<WindowSystemX> gWindowSystem;
+// The lifetime is managed explicitly by Initialize() / Shutdown().
+static WindowSystemX* gWindowSystem{nullptr};
+static bool           gShutdown{false}; ///< Set by Shutdown(), cleared by Initialize().
 
 /**
  * Initialize the window system (currently run from the first window that gets created)
  */
 void Initialize()
 {
+  gShutdown = false;
   if(!gWindowSystem)
   {
-    gWindowSystem = std::make_unique<WindowSystemX>();
+    gWindowSystem = new WindowSystemX();
   }
 }
 
@@ -162,10 +165,9 @@ void Initialize()
  */
 void Shutdown()
 {
-  if(gWindowSystem)
-  {
-    gWindowSystem.reset();
-  }
+  delete gWindowSystem;
+  gWindowSystem = nullptr;
+  gShutdown     = true;
 }
 
 Atom WindowSystemX::ATOM_WM_PROTOCOLS{0};
@@ -1102,15 +1104,23 @@ void WindowSystemX::EnableDragAndDrop(::Window window, bool enable)
 
 WindowSystemX& GetImplementation()
 {
-  if(nullptr == gWindowSystem)
+  // Not created again once Shutdown() has been called; that would re-open the X display during
+  // teardown. Using the window system at that point is a lifecycle error and crashes here.
+  if(nullptr == gWindowSystem && !gShutdown)
   {
-    Initialize();
+    gWindowSystem = new WindowSystemX();
   }
   return *gWindowSystem;
 }
 
 WindowSystemBase* GetWindowSystem()
 {
+  if(gShutdown)
+  {
+    // Do not create the window system again; that would re-open the X display during teardown.
+    DALI_LOG_ERROR("WindowSystem is used after Shutdown()\n");
+    return nullptr;
+  }
   return &GetImplementation();
 }
 

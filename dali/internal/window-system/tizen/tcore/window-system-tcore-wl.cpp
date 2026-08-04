@@ -397,13 +397,15 @@ private:
   tizen_core_wl_event_listener_h       mKeyboardRepeatListener{nullptr};
 };
 
-std::unique_ptr<WindowSystemTcoreWl> gWindowSystem;
+// The lifetime is managed explicitly by Initialize() / Shutdown().
+WindowSystemTcoreWl* gWindowSystem{nullptr};
+bool                 gShutdown{false}; ///< Set by Shutdown(), cleared by Initialize().
 
 WindowSystemTcoreWl& GetImpl()
 {
   if(!gWindowSystem)
   {
-    gWindowSystem = std::make_unique<WindowSystemTcoreWl>();
+    gWindowSystem = new WindowSystemTcoreWl();
   }
   return *gWindowSystem;
 }
@@ -412,16 +414,25 @@ WindowSystemTcoreWl& GetImpl()
 
 void Initialize()
 {
+  gShutdown = false;
   GetImpl(); // triggers singleton construction
 }
 
 void Shutdown()
 {
-  gWindowSystem.reset();
+  delete gWindowSystem;
+  gWindowSystem = nullptr;
+  gShutdown     = true;
 }
 
 WindowSystemBase* GetWindowSystem()
 {
+  if(gShutdown)
+  {
+    // Do not create the window system again; that would re-initialize tizen core during teardown.
+    DALI_LOG_ERROR("WindowSystem is used after Shutdown()\n");
+    return nullptr;
+  }
   return &GetImpl();
 }
 
