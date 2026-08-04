@@ -83,6 +83,9 @@ IF( CURL_FOUND)
   )
 
   IF(WINDOWS_PROFILE)
+    LIST(APPEND DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS
+      dali-windows-dependencies::dali-windows-dependencies
+    )
     IF(TARGET CURL::libcurl)
       LIST(APPEND DALI_FILE_DOWNLOAD_PLUGIN_LDFLAGS CURL::libcurl)
     ELSE()
