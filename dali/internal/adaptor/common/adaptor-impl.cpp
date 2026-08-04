@@ -1710,13 +1710,13 @@ void Adaptor::ApplyEventEnvironmentVariables()
   {
     Integration::SetRotationGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart());
   }
-  if(mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0)
+  if(mEnvironmentOptions->GetLongPressGestureMinimumHoldingTime() >= 0)
   {
-    Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
+    Integration::SetLongPressGestureMinimumHoldingTime(mEnvironmentOptions->GetLongPressGestureMinimumHoldingTime());
   }
-  if(mEnvironmentOptions->GetTapMaximumAllowedTime() > 0)
+  if(mEnvironmentOptions->GetTapGestureMaximumMultiTapInterval() > 0)
   {
-    Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
+    Integration::SetTapGestureMaximumMultiTapInterval(mEnvironmentOptions->GetTapGestureMaximumMultiTapInterval());
   }
 }
 
