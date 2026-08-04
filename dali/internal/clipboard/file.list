@@ -27,7 +27,7 @@ SET( adaptor_clipboard_android_src_files
 
 # module: clipboard, backend: windows
 SET( adaptor_clipboard_windows_src_files
-    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+    ${adaptor_clipboard_dir}/windows/clipboard-impl-win.cpp
 )
 
 # module: clipboard, backend: macos
