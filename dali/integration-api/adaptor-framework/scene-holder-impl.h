@@ -197,9 +197,41 @@ public:
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);
 
   /**
+   * @brief Feeds a touch event to the scene.
+   *
+   * Every point of the event is fed to the touch event combiner in turn, just as
+   * the points of a real touch event are.
+   *
+   * @param[in] touchEvent The touch event, the current time is used if its time is not set
+   */
+  void FeedTouchEvent(Dali::Integration::TouchEvent& touchEvent);
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::FeedMouseFrameEvent
    */
   void FeedMouseFrameEvent();
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedHoverEvent
+   */
+  void FeedHoverEvent(Dali::Integration::Point& point);
+
+  /**
+   * @brief Feeds a hover event to the scene.
+   *
+   * @param[in] hoverEvent The hover event, the current time is used if its time is not set
+   */
+  void FeedHoverEvent(Dali::Integration::HoverEvent& hoverEvent);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
+   */
+  void FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
+   */
+  void FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent);
 
   /**
    * @brief Get the Last Touch Event
@@ -221,21 +253,6 @@ public:
    * @return Dali::GestureState
    */
   Dali::GestureState GetLastPanGestureState() const;
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
-   */
-  void FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent);
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
-   */
-  void FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent);
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedHoverEvent
-   */
-  void FeedHoverEvent(Dali::Integration::Point& point);
 
   /**
    * @copydoc Dali::Integration::SceneHolder::SetGeometryHittestEnabled

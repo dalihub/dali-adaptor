@@ -105,7 +105,7 @@ void SceneHolder::FeedTouchPoint(Dali::TouchPoint& point, int timeStamp)
 
 void SceneHolder::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 {
-  Integration::WheelEvent event(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  Integration::WheelEvent event(wheelEvent);
   GetImplementation(*this).FeedWheelEvent(event);
 }
 
