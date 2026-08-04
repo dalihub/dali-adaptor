@@ -39,6 +39,59 @@ Dali::BaseHandle Create()
 
 Dali::TypeRegistration type(typeid(Dali::CanvasRenderer::Shape), typeid(Dali::CanvasRenderer::Drawable), Create);
 
+#ifdef THORVG_SUPPORT
+/**
+ * @brief Returns how many points the given command consumes.
+ */
+uint32_t GetRequiredPointCount(Dali::CanvasRenderer::Shape::PathCommandType command)
+{
+  switch(command)
+  {
+    case Dali::CanvasRenderer::Shape::PathCommandType::CLOSE:
+    {
+      return 0u;
+    }
+    case Dali::CanvasRenderer::Shape::PathCommandType::MOVE_TO:
+    case Dali::CanvasRenderer::Shape::PathCommandType::LINE_TO:
+    {
+      return 1u;
+    }
+    case Dali::CanvasRenderer::Shape::PathCommandType::CUBIC_TO:
+    {
+      return 3u;
+    }
+  }
+  return 0u;
+}
+
+/**
+ * @brief Converts a path command to its ThorVG counterpart.
+ */
+tvg::PathCommand ToTvgPathCommand(Dali::CanvasRenderer::Shape::PathCommandType command)
+{
+  switch(command)
+  {
+    case Dali::CanvasRenderer::Shape::PathCommandType::CLOSE:
+    {
+      return tvg::PathCommand::Close;
+    }
+    case Dali::CanvasRenderer::Shape::PathCommandType::MOVE_TO:
+    {
+      return tvg::PathCommand::MoveTo;
+    }
+    case Dali::CanvasRenderer::Shape::PathCommandType::LINE_TO:
+    {
+      return tvg::PathCommand::LineTo;
+    }
+    case Dali::CanvasRenderer::Shape::PathCommandType::CUBIC_TO:
+    {
+      return tvg::PathCommand::CubicTo;
+    }
+  }
+  return tvg::PathCommand::Close;
+}
+#endif
+
 } // unnamed namespace
 
 ShapePtr Shape::New()
@@ -204,7 +257,7 @@ bool Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 end
 #endif
 }
 
-bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+bool Shape::AddPath(const Dali::Vector<Dali::CanvasRenderer::Shape::PathCommandType>& commands, const Dali::Vector<Vector2>& points)
 {
 #ifdef THORVG_SUPPORT
   if(!Drawable::GetObject() || !mTvgShape)
@@ -213,17 +266,33 @@ bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
     return false;
   }
 
-#ifdef THORVG_VERSION_1
-  std::vector<tvg::PathCommand> tvgPathCommands(pathCommand.mCommandCount);
-  for(uint32_t i = 0; i < pathCommand.mCommandCount; i++)
+  if(commands.Count() == 0u || points.Count() == 0u)
   {
-    tvgPathCommands[i] = static_cast<tvg::PathCommand>(static_cast<uint8_t>(pathCommand.mCommands[i]));
+    DALI_LOG_ERROR("AddPath() empty path.\n");
+    return false;
   }
 
-  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands.data(), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
-#else
-  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
-#endif
+  uint32_t requiredPointCount = 0u;
+  for(auto&& command : commands)
+  {
+    requiredPointCount += GetRequiredPointCount(command);
+  }
+  if(requiredPointCount != points.Count())
+  {
+    DALI_LOG_ERROR("AddPath() the commands and points do not agree.\n");
+    return false;
+  }
+
+  // Converting each command keeps this independent of the underlying type ThorVG picks
+  // for PathCommand, which is uint8_t in 1.x and int in 0.x.
+  std::vector<tvg::PathCommand> tvgPathCommands(commands.Count());
+  for(uint32_t i = 0u; i < commands.Count(); ++i)
+  {
+    tvgPathCommands[i] = ToTvgPathCommand(commands[i]);
+  }
+
+  // Vector2 and tvg::Point are both a pair of floats, so the point array is passed as it is.
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands.data(), commands.Count(), reinterpret_cast<const tvg::Point*>(&points[0]), points.Count()) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("AddPath() fail.\n");
     return false;

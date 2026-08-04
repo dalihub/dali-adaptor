@@ -22,8 +22,8 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -44,12 +44,16 @@ class RadialGradient;
 
 /**
  * @brief A class representing the radial gradient fill of the Shape object.
+ *
+ * @SINCE_2_5.35
  */
 class DALI_ADAPTOR_API CanvasRenderer::RadialGradient : public CanvasRenderer::Gradient
 {
 public:
   /**
    * @brief Creates an initialized handle to a new CanvasRenderer::RadialGradient.
+   *
+   * @SINCE_2_5.35
    * @return A handle to a newly allocated RadialGradient
    */
   static RadialGradient New();
@@ -57,17 +61,22 @@ public:
 public:
   /**
    * @brief Creates an empty handle. Use CanvasRenderer::RadialGradient::New() to create an initialized object.
+   *
+   * @SINCE_2_5.35
    */
   RadialGradient();
 
   /**
    * @brief Destructor.
+   *
+   * @SINCE_2_5.35
    */
   ~RadialGradient();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_5.35
    * @param[in] handle A reference to the copied handle
    */
   RadialGradient(const RadialGradient& handle) = default;
@@ -76,14 +85,18 @@ public:
   /**
    * @brief Sets the radial gradient bounds.
    * The radial gradient bounds are defined as a circle centered in a given point of a given radius.
+   *
+   * @SINCE_2_5.35
    * @param[in] centerPoint The point of the center of the bounding circle.
    * @param[in] radius The radius of the bounding circle.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetBounds(Vector2 centerPoint, float radius);
+  bool SetBounds(const Vector2& centerPoint, float radius);
 
   /**
    * @brief Gets the radial gradient bounds.
+   *
+   * @SINCE_2_5.35
    * @param[out] centerPoint The point used to determine the gradient bounds.
    * @param[out] radius The radius of the bounding circle.
    * @return Returns True when it's successful. False otherwise.
@@ -94,6 +107,8 @@ public: // Not intended for application developers
   /// @cond internal
   /**
    * @brief The constructor.
+   *
+   * @SINCE_2_5.35
    * @note  Not intended for application developers.
    *
    * @param[in] pointer A pointer to a newly allocated CanvasRenderer::RadialGradient

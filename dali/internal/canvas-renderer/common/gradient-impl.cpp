@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -62,7 +63,7 @@ Gradient::~Gradient()
 #endif
 }
 
-bool Gradient::SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops)
+bool Gradient::AddColorStop(float offset, const Vector4& color)
 {
 #ifdef THORVG_SUPPORT
   if(!mTvgFill)
@@ -70,63 +71,120 @@ bool Gradient::SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorSt
     DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
     return false;
   }
-  SetChanged(true);
 
-  tvg::Fill::ColorStop* tvgColorStops = (tvg::Fill::ColorStop*)alloca(sizeof(tvg::Fill::ColorStop) * colorStops.Count());
+  // ThorVG replaces the whole stop list on each call, so the existing stops are
+  // read back and re-applied together with the appended one.
+  const tvg::Fill::ColorStop* existingStops = nullptr;
+  const uint32_t              existingCount = mTvgFill->colorStops(&existingStops);
 
-  for(unsigned int i = 0u; i < colorStops.Count(); ++i)
+  std::vector<tvg::Fill::ColorStop> stops;
+  stops.reserve(existingCount + 1u);
+  for(uint32_t i = 0u; i < existingCount; ++i)
   {
-    tvgColorStops[i].offset = colorStops[i].offset;
-    tvgColorStops[i].r      = static_cast<uint8_t>(colorStops[i].color.r * 255.0f);
-    tvgColorStops[i].g      = static_cast<uint8_t>(colorStops[i].color.g * 255.0f);
-    tvgColorStops[i].b      = static_cast<uint8_t>(colorStops[i].color.b * 255.0f);
-    tvgColorStops[i].a      = static_cast<uint8_t>(colorStops[i].color.a * 255.0f);
+    stops.push_back(existingStops[i]);
   }
 
-  if(mTvgFill->colorStops(tvgColorStops, colorStops.Count()) != tvg::Result::Success)
+  tvg::Fill::ColorStop stop;
+  stop.offset = offset;
+  stop.r      = static_cast<uint8_t>(color.r * 255.0f);
+  stop.g      = static_cast<uint8_t>(color.g * 255.0f);
+  stop.b      = static_cast<uint8_t>(color.b * 255.0f);
+  stop.a      = static_cast<uint8_t>(color.a * 255.0f);
+  stops.push_back(stop);
+
+  if(mTvgFill->colorStops(stops.data(), static_cast<uint32_t>(stops.size())) != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("SetColorStops() fail.\n");
+    DALI_LOG_ERROR("AddColorStop() fail.\n");
     return false;
   }
 
+  SetChanged(true);
   return true;
 #else
   return false;
 #endif
 }
 
-Dali::CanvasRenderer::Gradient::ColorStops Gradient::GetColorStops() const
+bool Gradient::ClearColorStops()
 {
 #ifdef THORVG_SUPPORT
   if(!mTvgFill)
   {
     DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
-    return Dali::CanvasRenderer::Gradient::ColorStops();
+    return false;
   }
 
-  const tvg::Fill::ColorStop* tvgColorStops = nullptr;
-  uint32_t                    count         = 0;
-
-  count = mTvgFill->colorStops(&tvgColorStops);
-  if(!tvgColorStops || count <= 0)
+  if(mTvgFill->colorStops(nullptr, 0u) != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("GetColorStops() fail.\n");
-    return Dali::CanvasRenderer::Gradient::ColorStops();
+    DALI_LOG_ERROR("ClearColorStops() fail.\n");
+    return false;
   }
 
-  Dali::CanvasRenderer::Gradient::ColorStops colorStops;
-
-  colorStops.Reserve(count);
-
-  for(unsigned int i = 0u; i < count; ++i)
-  {
-    Dali::CanvasRenderer::Gradient::ColorStop stop = {tvgColorStops[i].offset, Vector4(tvgColorStops[i].r / 255.0f, tvgColorStops[i].g / 255.0f, tvgColorStops[i].b / 255.0f, tvgColorStops[i].a / 255.0f)};
-
-    colorStops.PushBack(stop);
-  }
-  return colorStops;
+  SetChanged(true);
+  return true;
 #else
-  return Dali::CanvasRenderer::Gradient::ColorStops();
+  return false;
+#endif
+}
+
+uint32_t Gradient::GetColorStopCount() const
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
+  {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
+    return 0u;
+  }
+
+  return mTvgFill->colorStops(nullptr);
+#else
+  return 0u;
+#endif
+}
+
+float Gradient::GetColorStopOffset(uint32_t index) const
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
+  {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
+    return 0.0f;
+  }
+
+  const tvg::Fill::ColorStop* stops = nullptr;
+  const uint32_t              count = mTvgFill->colorStops(&stops);
+  if(!stops || index >= count)
+  {
+    DALI_LOG_ERROR("GetColorStopOffset() index %u out of range [0, %u)\n", index, count);
+    return 0.0f;
+  }
+
+  return stops[index].offset;
+#else
+  return 0.0f;
+#endif
+}
+
+Vector4 Gradient::GetColorStopColor(uint32_t index) const
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgFill)
+  {
+    DALI_LOG_ERROR("Fill(Gradient) is null [%p]\n", this);
+    return Vector4::ZERO;
+  }
+
+  const tvg::Fill::ColorStop* stops = nullptr;
+  const uint32_t              count = mTvgFill->colorStops(&stops);
+  if(!stops || index >= count)
+  {
+    DALI_LOG_ERROR("GetColorStopColor() index %u out of range [0, %u)\n", index, count);
+    return Vector4::ZERO;
+  }
+
+  return Vector4(stops[index].r / 255.0f, stops[index].g / 255.0f, stops[index].b / 255.0f, stops[index].a / 255.0f);
+#else
+  return Vector4::ZERO;
 #endif
 }
 

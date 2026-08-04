@@ -25,8 +25,8 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 
 namespace Dali
 {
@@ -41,14 +41,29 @@ class Gradient : public Dali::BaseObject
 {
 public:
   /**
-   * @copydoc Dali::CanvasRenderer::Gradient::SetColorStops()
+   * @copydoc Dali::CanvasRenderer::Gradient::AddColorStop()
    */
-  bool SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops);
+  bool AddColorStop(float offset, const Vector4& color);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStops()
+   * @copydoc Dali::CanvasRenderer::Gradient::ClearColorStops()
    */
-  Dali::CanvasRenderer::Gradient::ColorStops GetColorStops() const;
+  bool ClearColorStops();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStopCount()
+   */
+  uint32_t GetColorStopCount() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStopOffset()
+   */
+  float GetColorStopOffset(uint32_t index) const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Gradient::GetColorStopColor()
+   */
+  Vector4 GetColorStopColor(uint32_t index) const;
 
   /**
    * @copydoc Dali::CanvasRenderer::Gradient::SetSpread()

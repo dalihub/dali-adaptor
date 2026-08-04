@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -44,23 +44,30 @@ class Shape;
 
 /**
  * @brief Drawable is a object class for drawing a vector primitive.
+ *
+ * @SINCE_2_5.35
  */
 class DALI_ADAPTOR_API CanvasRenderer::Drawable : public BaseHandle
 {
 public:
   /**
    * @brief Constructor
+   *
+   * @SINCE_2_5.35
    */
   Drawable();
 
   /**
    * @brief Destructor.
+   *
+   * @SINCE_2_5.35
    */
   ~Drawable();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_5.35
    * @param[in] handle A reference to the copied handle
    */
   Drawable(const Drawable& handle) = default;
@@ -68,16 +75,20 @@ public:
 public:
   /**
    * @brief Enumeration indicating the type used in the masking of two objects - the mask drawable and the own drawable.
+   *
+   * @SINCE_2_5.35
    */
   enum class MaskType
   {
-    ALPHA = 0,    ///< The pixels of the own drawable and the mask drawable are alpha blended. As a result, only the part of the own drawable, which intersects with the mask drawable is visible.
-    ALPHA_INVERSE ///< The pixels of the own drawable and the complement to the mask drawable's pixels are alpha blended. As a result, only the part of the own which is not covered by the mask is visible.
+    ALPHA = 0,    ///< The pixels of the own drawable and the mask drawable are alpha blended. As a result, only the part of the own drawable, which intersects with the mask drawable is visible. @SINCE_2_5.35
+    ALPHA_INVERSE ///< The pixels of the own drawable and the complement to the mask drawable's pixels are alpha blended. As a result, only the part of the own which is not covered by the mask is visible. @SINCE_2_5.35
   };
 
 public:
   /**
    * @brief Set the transparency value
+   *
+   * @SINCE_2_5.35
    * @param[in] opacity The transparency level [0 ~ 1.0], 0 means totally transparent, while 1 means opaque.
    * @return Returns True when it's successful. False otherwise.
    */
@@ -85,12 +96,16 @@ public:
 
   /**
    * @brief Get the transparency value
+   *
+   * @SINCE_2_5.35
    * @return Returns the transparency level
    */
   float GetOpacity() const;
 
   /**
    * @brief Set the angle of rotation transformation.
+   *
+   * @SINCE_2_5.35
    * @param[in] degree The degree value of angle.
    * @return Returns True when it's successful. False otherwise.
    */
@@ -98,6 +113,8 @@ public:
 
   /**
    * @brief Set the scale value of scale transformation.
+   *
+   * @SINCE_2_5.35
    * @param[in] factor The scale factor value.
    * @return Returns True when it's successful. False otherwise.
    */
@@ -105,13 +122,17 @@ public:
 
   /**
    * @brief Set the x, y movement value of translate transformation.
+   *
+   * @SINCE_2_5.35
    * @param[in] translate The x and y-axis movement value.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool Translate(Vector2 translate);
+  bool Translate(const Vector2& translate);
 
   /**
    * @brief Set the matrix value for affine transform.
+   *
+   * @SINCE_2_5.35
    * @param[in] matrix The 3x3 matrix value.
    * @return Returns True when it's successful. False otherwise.
    */
@@ -119,6 +140,8 @@ public:
 
   /**
    * @brief Gets the bounding box of the drawable object before any transformation.
+   *
+   * @SINCE_2_5.35
    * @note The bounding box doesn't indicate the rendering region in the result but primitive region of the object.
    * @return Returns the bounding box information.
    */
@@ -126,18 +149,22 @@ public:
 
   /**
    * @brief The intersection with clip drawable is determined and only the resulting pixels from own drawable are rendered.
+   *
+   * @SINCE_2_5.35
    * @param[in] clip The clip drawable object.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetClipPath(Drawable& clip);
+  bool SetClipPath(Drawable clip);
 
   /**
    * @brief The pixels of mask drawable and own drawable are blended according to MaskType.
+   *
+   * @SINCE_2_5.35
    * @param[in] mask The mask drawable object.
    * @param[in] type The masking type.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetMask(Drawable& mask, MaskType type);
+  bool SetMask(Drawable mask, MaskType type);
 
   /**
    * @brief Downcast a handle to Drawable handle.
@@ -145,6 +172,7 @@ public:
    * If handle points to an InputMethodContext the downcast produces valid
    * handle. If not the returned handle is left uninitialized.
    *
+   * @SINCE_2_5.35
    * @param[in] handle Handle to an object.
    * @return Handle to an Drawable or an uninitialized handle.
    */
@@ -154,6 +182,8 @@ public: // Not intended for application developers
   /// @cond internal
   /**
    * @brief The constructor.
+   *
+   * @SINCE_2_5.35
    * @note  Not intended for application developers.
    *
    * @param[in] pointer A pointer to a newly allocated CanvasRenderer::Drawable

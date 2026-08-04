@@ -27,7 +27,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
 namespace Dali

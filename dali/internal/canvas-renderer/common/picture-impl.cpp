@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <string>
 
 namespace Dali
 {
@@ -76,7 +77,7 @@ void Picture::Initialize()
 #endif
 }
 
-bool Picture::Load(const std::string& url)
+bool Picture::Load(const Dali::StringView& url)
 {
 #ifdef THORVG_SUPPORT
   if(!Drawable::GetObject() || !mTvgPicture)
@@ -84,15 +85,19 @@ bool Picture::Load(const std::string& url)
     DALI_LOG_ERROR("Picture is null [%p]\n", this);
     return false;
   }
-  if(url.empty())
+  if(url.Empty())
   {
     DALI_LOG_ERROR("Url is empty [%p]\n", this);
     return false;
   }
 
-  if(mTvgPicture->load(url.c_str()) != tvg::Result::Success)
+  // ThorVG's load() requires a null-terminated string, which a StringView does not
+  // guarantee, so this copies into one right before the call.
+  const std::string nullTerminatedUrl(url.Data(), url.Size());
+
+  if(mTvgPicture->load(nullTerminatedUrl.c_str()) != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("Load() fail. (%s)\n", url.c_str());
+    DALI_LOG_ERROR("Load() fail. (%s)\n", nullTerminatedUrl.c_str());
     return false;
   }
 

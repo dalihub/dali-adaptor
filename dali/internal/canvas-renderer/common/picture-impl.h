@@ -22,11 +22,12 @@
 #ifdef THORVG_SUPPORT
 #include <thorvg.h>
 #endif
+#include <dali/public-api/common/dali-string-view.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
 namespace Dali
@@ -53,7 +54,7 @@ public:
   /**
    * @copydoc Dali::CanvasRenderer::Picture::Load()
    */
-  bool Load(const std::string& url);
+  bool Load(const Dali::StringView& url);
 
   /**
    * @copydoc Dali::CanvasRenderer::Picture::SetSize()

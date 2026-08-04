@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -59,7 +59,7 @@ bool CanvasRenderer::Drawable::Scale(float factor)
   return GetImplementation(*this).Scale(factor);
 }
 
-bool CanvasRenderer::Drawable::Translate(Vector2 translate)
+bool CanvasRenderer::Drawable::Translate(const Vector2& translate)
 {
   return GetImplementation(*this).Translate(translate);
 }
@@ -74,12 +74,12 @@ Bounds CanvasRenderer::Drawable::GetBoundingBox() const
   return GetImplementation(*this).GetBoundingBox();
 }
 
-bool CanvasRenderer::Drawable::SetClipPath(Drawable& clip)
+bool CanvasRenderer::Drawable::SetClipPath(Drawable clip)
 {
   return GetImplementation(*this).SetClipPath(clip);
 }
 
-bool CanvasRenderer::Drawable::SetMask(Drawable& mask, MaskType type)
+bool CanvasRenderer::Drawable::SetMask(Drawable mask, MaskType type)
 {
   return GetImplementation(*this).SetMask(mask, type);
 }

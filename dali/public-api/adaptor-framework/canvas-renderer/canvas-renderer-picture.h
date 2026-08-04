@@ -19,12 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-string-view.h>
 #include <dali/public-api/object/base-handle.h>
-#include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -46,6 +46,8 @@ class Picture;
 /**
  * @brief A class representing an image read in one of the supported formats: raw, svg, png and etc.
  * Besides the methods inherited from the Drawable, it provides methods to load & draw images on the canvas.
+ *
+ * @SINCE_2_5.35
  */
 class DALI_ADAPTOR_API CanvasRenderer::Picture : public CanvasRenderer::Drawable
 {
@@ -53,6 +55,7 @@ public:
   /**
    * @brief Creates an initialized handle to a new CanvasRenderer::Picture.
    *
+   * @SINCE_2_5.35
    * @return A handle to a newly allocated Picture
    */
   static Picture New();
@@ -61,17 +64,22 @@ public:
   /**
    * @brief Creates an empty handle.
    * Use CanvasRenderer::Picture::New() to create an initialized object.
+   *
+   * @SINCE_2_5.35
    */
   Picture();
 
   /**
    * @brief Destructor.
+   *
+   * @SINCE_2_5.35
    */
   ~Picture();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_5.35
    * @param[in] handle A reference to the copied handle
    */
   Picture(const Picture& handle) = default;
@@ -79,23 +87,29 @@ public:
 public:
   /**
    * @brief Loads a picture data directly from a file.
-   * @param[in] url A path to the picture file.
+   *
+   * @SINCE_2_5.35
+   * @param[in] url A path to the picture file. (This information is copied internally.)
    * @return Returns True when it's successful. False otherwise.
    */
-  bool Load(const std::string& url);
+  bool Load(const Dali::StringView& url);
 
   /**
    * @brief Resize the picture content with the given size.
    *
    * Resize the picture content while keeping the default size aspect ratio.
    * The scaling factor is established for each of dimensions and the smaller value is applied to both of them.
+   *
+   * @SINCE_2_5.35
    * @param[in] size A new size of the image in pixels.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetSize(Vector2 size);
+  bool SetSize(const Vector2& size);
 
   /**
    * @brief Gets the size of the image.
+   *
+   * @SINCE_2_5.35
    * @return Returns The size of the image in pixels.
    */
   Vector2 GetSize() const;
@@ -104,6 +118,8 @@ public: // Not intended for application developers
   /// @cond internal
   /**
    * @brief The constructor.
+   *
+   * @SINCE_2_5.35
    * @note  Not intended for application developers.
    *
    * @param[in] pointer A pointer to a newly allocated CanvasRenderer::Picture
