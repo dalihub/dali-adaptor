@@ -8,6 +8,7 @@ MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
 SET(CAPI_LIB "dali-adaptor")
 
 SET(TC_SOURCES
+    utc-Dali-AdaptorExtension.cpp
     utc-Dali-Application.cpp
     utc-Dali-Accessibility.cpp
     utc-Dali-ClipboardData.cpp
@@ -19,6 +20,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
+    utc-Dali-KeyExtension.cpp
     utc-Dali-Keyboard.cpp
     utc-Dali-NativeImage.cpp
     utc-Dali-PixelBuffer.cpp
@@ -28,6 +30,7 @@ SET(TC_SOURCES
     utc-Dali-WidgetApplication.cpp
     utc-Dali-Widget.cpp
     utc-Dali-Window.cpp
+    utc-Dali-WindowExtension.cpp
     utc-Dali-WindowSystem.cpp
 )
 

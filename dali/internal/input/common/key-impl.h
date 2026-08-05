@@ -69,7 +69,7 @@ const char* GetKeyName(Dali::KEY daliKey);
 int GetDaliKeyCode(const char* keyName);
 
 /**
- * @copydoc Dali::DevelKey::SetKeyExtensionLookupTable()
+ * @copydoc Dali::Extension::SetKeyExtensionLookupTable()
  */
 void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count);
 

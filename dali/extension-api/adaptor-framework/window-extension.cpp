@@ -1,6 +1,3 @@
-#ifndef DALI_KEY_DEVEL_H
-#define DALI_KEY_DEVEL_H
-
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
@@ -18,29 +15,19 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <cstdint>
-
 // INTERNAL INCLUDES
-#include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
-#include <dali/public-api/dali-adaptor-common.h>
+#include <dali/extension-api/adaptor-framework/window-extension.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
-// Expose KeyLookupEntry as a convenience (defined in extension-api)
-using KeyLookupEntry = Dali::Extension::KeyLookupEntry;
-
-namespace DevelKey
+namespace Extension
 {
-/**
- * @brief Get the key code from a key name.
- * @param[in] keyName The key name
- * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
- */
-DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
 
-} // namespace DevelKey
+Any GetWindowNativeHandle(Window window)
+{
+  return GetImplementation(window).GetNativeRawHandle();
+}
 
+} // namespace Extension
 } // namespace Dali
-
-#endif // DALI_KEY_DEVEL_H

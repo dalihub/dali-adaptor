@@ -608,6 +608,7 @@ ENDIF()
 # the automake counterpart.
 SET( tizenadaptorpublicapidir ${INCLUDE_DIR}/dali/public-api )
 SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
+SET( tizenadaptorextensionapidir ${INCLUDE_DIR}/dali/extension-api )
 SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
 SET( tizenadaptorintegrationsystemapidir ${INCLUDE_DIR}/dali/integration-api/system )
 SET( tizenadaptorfiledownloadapidir ${tizenadaptorintegrationapidir}/file-download )
@@ -626,6 +627,7 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 
 # Install headers
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
+INSTALL_HEADERS_WITH_DIRECTORY( adaptor_extension_api_header_files ${adaptor_extension_api_dir} dali/extension-api )
 INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_header_files ${adaptor_integration_api_dir} dali/integration-api )
 INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )

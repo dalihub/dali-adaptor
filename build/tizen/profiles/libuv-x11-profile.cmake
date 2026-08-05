@@ -27,6 +27,7 @@ SET( SOURCES
         ${adaptor_input_generic_src_files}
         ${adaptor_integration_api_src_files}
         ${adaptor_integration_api_file_download_plugin_src_files}
+        ${adaptor_extension_api_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
         ${adaptor_offscreen_common_src_files}

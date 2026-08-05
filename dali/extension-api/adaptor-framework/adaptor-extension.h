@@ -1,5 +1,5 @@
-#ifndef DALI_KEY_DEVEL_H
-#define DALI_KEY_DEVEL_H
+#ifndef DALI_ADAPTOR_EXTENSION_H
+#define DALI_ADAPTOR_EXTENSION_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -19,28 +19,33 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-// Expose KeyLookupEntry as a convenience (defined in extension-api)
-using KeyLookupEntry = Dali::Extension::KeyLookupEntry;
-
-namespace DevelKey
+namespace Extension
 {
 /**
- * @brief Get the key code from a key name.
- * @param[in] keyName The key name
- * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
+ * @brief Get the render thread ID of the adaptor.
+ *
+ * @return The render thread ID. Returns a valid thread ID only if the render thread has started
+ *         and the system supports thread ID retrieval. Otherwise, returns 0.
  */
-DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
+DALI_ADAPTOR_API int32_t GetRenderThreadId();
 
-} // namespace DevelKey
+/**
+ * @brief Get the list of windows created by the adaptor.
+ *
+ * @return The list of windows. Returns an empty list if no window has been created yet.
+ */
+DALI_ADAPTOR_API Dali::Vector<Window> GetWindows();
 
+} // namespace Extension
 } // namespace Dali
 
-#endif // DALI_KEY_DEVEL_H
+#endif // DALI_ADAPTOR_EXTENSION_H

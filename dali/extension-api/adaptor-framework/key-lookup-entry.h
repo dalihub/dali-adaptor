@@ -1,5 +1,5 @@
-#ifndef DALI_KEY_DEVEL_H
-#define DALI_KEY_DEVEL_H
+#ifndef DALI_KEY_LOOKUP_ENTRY_H
+#define DALI_KEY_LOOKUP_ENTRY_H
 
 /*
  * Copyright (c) 2026 Samsung Electronics Co., Ltd.
@@ -18,29 +18,21 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <cstdint>
-
-// INTERNAL INCLUDES
-#include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
-#include <dali/public-api/dali-adaptor-common.h>
-
 namespace Dali
 {
-// Expose KeyLookupEntry as a convenience (defined in extension-api)
-using KeyLookupEntry = Dali::Extension::KeyLookupEntry;
-
-namespace DevelKey
+namespace Extension
 {
 /**
- * @brief Get the key code from a key name.
- * @param[in] keyName The key name
- * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
+ * @brief A single entry describing how a platform key name maps to a Dali key code.
  */
-DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
+struct KeyLookupEntry
+{
+  const char* keyName;      ///< XF86 key name
+  int         daliKeyCode;  ///< Dali key code
+  bool        deviceButton; ///< Whether the key is from a button on the device
+};
 
-} // namespace DevelKey
-
+} // namespace Extension
 } // namespace Dali
 
-#endif // DALI_KEY_DEVEL_H
+#endif // DALI_KEY_LOOKUP_ENTRY_H
