@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -32,6 +33,13 @@ namespace Internal
 
 namespace Adaptor
 {
+
+namespace
+{
+// The public enumeration mirrors the integration one, so a simple cast is enough.
+static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::IF_REQUIRED) == static_cast<int>(Dali::Integration::RenderingBehavior::IF_REQUIRED));
+static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::CONTINUOUSLY) == static_cast<int>(Dali::Integration::RenderingBehavior::CONTINUOUSLY));
+} // unnamed namespace
 
 Dali::UiContext UiContext::Get()
 {
@@ -115,6 +123,16 @@ void UiContext::RemoveFrameCallback(FrameCallbackInterface& frameCallback)
 Dali::UpdateProxy::NotifySyncPoint UiContext::NotifyFrameCallback(FrameCallbackInterface& frameCallback)
 {
   return Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetCore().NotifyFrameCallback(frameCallback);
+}
+
+void UiContext::SetRenderingBehavior(Dali::UiContext::RenderingBehavior renderingBehavior)
+{
+  mAdaptor->SetRenderingBehavior(static_cast<Dali::Integration::RenderingBehavior>(renderingBehavior));
+}
+
+Dali::UiContext::RenderingBehavior UiContext::GetRenderingBehavior() const
+{
+  return static_cast<Dali::UiContext::RenderingBehavior>(mAdaptor->GetRenderingBehavior());
 }
 
 } // namespace Adaptor

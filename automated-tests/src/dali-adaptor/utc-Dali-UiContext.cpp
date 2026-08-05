@@ -170,3 +170,36 @@ int UtcDaliUiContextFlushUpdateMessagesN(void)
   END_TEST;
 }
 
+int UtcDaliUiContextSetRenderingBehaviorN(void)
+{
+  UiContext uiContext;
+
+  try
+  {
+    uiContext.SetRenderingBehavior(UiContext::RenderingBehavior::CONTINUOUSLY);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliUiContextGetRenderingBehaviorN(void)
+{
+  UiContext uiContext;
+
+  try
+  {
+    uiContext.GetRenderingBehavior();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
