@@ -66,9 +66,14 @@ void UiContext::RemoveIdle(CallbackBase* callback)
   Internal::Adaptor::GetImplementation(*this).RemoveIdle(callback);
 }
 
-void UiContext::FlushUpdateMessages()
+void UiContext::FlushPendingChanges()
 {
-  Internal::Adaptor::GetImplementation(*this).FlushUpdateMessages();
+  Internal::Adaptor::GetImplementation(*this).FlushPendingChanges();
+}
+
+void UiContext::RenderOnce()
+{
+  Internal::Adaptor::GetImplementation(*this).RenderOnce();
 }
 
 void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Actor rootActor)

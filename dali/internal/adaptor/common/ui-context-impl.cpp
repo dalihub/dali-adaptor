@@ -105,9 +105,14 @@ void UiContext::RemoveIdle(CallbackBase* callback)
   mAdaptor->RemoveIdle(callback);
 }
 
-void UiContext::FlushUpdateMessages()
+void UiContext::FlushPendingChanges()
 {
   mAdaptor->FlushUpdateMessages();
+}
+
+void UiContext::RenderOnce()
+{
+  mAdaptor->RenderOnce();
 }
 
 void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Dali::Actor rootActor)

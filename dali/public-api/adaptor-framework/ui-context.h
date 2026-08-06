@@ -130,13 +130,34 @@ public:
   void RemoveIdle(CallbackBase* callback);
 
   /**
-   * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
+   * @brief Ensures all pending operations are flushed to the render thread.
+   *
+   * Changes made from the event thread are normally flushed to the render thread
+   * when the event processing of the current frame finishes. This forces them to
+   * be flushed immediately.
+   *
+   * @note Function must be called from main event thread only
    * @SINCE_2_5.10
    */
-  void FlushUpdateMessages();
+  void FlushPendingChanges();
 
   /**
-   * @brief The FrameCallbackInterface implementation added gets called on every frame from the update-thread.
+   * @brief Requests that the current scene be rendered again.
+   *
+   * The next frame is rendered as a full redraw with a full surface swap for
+   * every window, bypassing the partial update optimization.
+   *
+   * @note This applies to the whole application, not to an individual window.
+   * @note This does not process pending events, so scene changes that have not
+   * been flushed to the render thread yet are not included in the rendered frame.
+   * FlushPendingChanges() flushes them, and requests rendering by itself if there
+   * is anything to flush.
+   * @SINCE_2_5.35
+   */
+  void RenderOnce();
+
+  /**
+   * @brief The FrameCallbackInterface implementation added gets called on every frame from the render thread.
    *
    * @param[in] frameCallback An implementation of the FrameCallbackInterface
    * @param[in] rootActor The root-actor in the scene that the callback applies to. Or empty handle if we don't care whether the node is scene on or not.
@@ -155,7 +176,7 @@ public:
    *
    * @param[in] frameCallback The FrameCallbackInterface implementation to remove
    *
-   * @note This function will block if the FrameCallbackInterface::Update method is being processed in the update-thread.
+   * @note This function will block if the FrameCallbackInterface::Update method is being processed in the render thread.
    * @note If the callback implementation has already been removed, then this is a no-op.
    * @SINCE_2_5.23
    */
@@ -169,7 +190,7 @@ public:
    * @param[in] frameCallback The FrameCallbackInterface implementation to notify
    *
    * @return NotifySyncPoint - a unique sync value that will also be sent to the
-   * UpdateProxy prior to FrameCallback::Update() being called from the update thread.
+   * UpdateProxy prior to FrameCallback::Update() being called from the render thread.
    * @SINCE_2_5.23
    */
   UpdateProxy::NotifySyncPoint NotifyFrameCallback(FrameCallbackInterface& frameCallback);

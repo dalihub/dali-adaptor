@@ -153,13 +153,13 @@ int UtcDaliUiContextRemoveIdleN(void)
   END_TEST;
 }
 
-int UtcDaliUiContextFlushUpdateMessagesN(void)
+int UtcDaliUiContextFlushPendingChangesN(void)
 {
   UiContext uiContext;
 
   try
   {
-    uiContext.FlushUpdateMessages();
+    uiContext.FlushPendingChanges();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -194,6 +194,23 @@ int UtcDaliUiContextGetRenderingBehaviorN(void)
   try
   {
     uiContext.GetRenderingBehavior();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliUiContextRenderOnceN(void)
+{
+  UiContext uiContext;
+
+  try
+  {
+    uiContext.RenderOnce();
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
