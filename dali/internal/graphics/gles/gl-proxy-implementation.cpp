@@ -67,18 +67,18 @@ void Sampler::Accumulate()
 {
   if(mNumSamples == 0)
   {
-    mMin = mCurrentFrameCount;
-    mMax = mCurrentFrameCount;
+    mMin = static_cast<float>(mCurrentFrameCount);
+    mMax = static_cast<float>(mCurrentFrameCount);
   }
   else
   {
     if(mCurrentFrameCount < mMin)
     {
-      mMin = mCurrentFrameCount;
+      mMin = static_cast<float>(mCurrentFrameCount);
     }
     if(mCurrentFrameCount > mMax)
     {
-      mMax = mCurrentFrameCount;
+      mMax = static_cast<float>(mCurrentFrameCount);
     }
   }
 
@@ -108,7 +108,7 @@ float Sampler::GetStandardDeviation() const
   float standardDeviation = 0.0f;
   if(mNumSamples > 0)
   {
-    standardDeviation = sqrtf(mNumSamples * mAccumulatedSquare - (mAccumulated * mAccumulated)) / mNumSamples;
+    standardDeviation = sqrtf(static_cast<float>(mNumSamples * mAccumulatedSquare - (mAccumulated * mAccumulated))) / static_cast<float>(mNumSamples);
   }
   return standardDeviation;
 }

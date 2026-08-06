@@ -562,7 +562,7 @@ void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent.direction, mouseWheelEvent.modifiers, mouseWheelEvent.x, mouseWheelEvent.y, mouseWheelEvent.z);
 
-    Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2(mouseWheelEvent.x, mouseWheelEvent.y), mouseWheelEvent.z, mouseWheelEvent.timestamp);
+    Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2(static_cast<float>(mouseWheelEvent.x), static_cast<float>(mouseWheelEvent.y)), mouseWheelEvent.z, mouseWheelEvent.timestamp);
 
     mWheelEventSignal.Emit(wheelEvent);
   }
