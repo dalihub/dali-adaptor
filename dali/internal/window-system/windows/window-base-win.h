@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/windows/event-system-win.h>
+#include <dali/internal/window-system/windows/keyboard-repeat.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
 namespace Dali
@@ -645,6 +646,12 @@ private:
   WindowBaseWin& operator=(const WindowBaseWin& rhs) = delete;
 
 private:
+  void        EmitKeyDown(TWinEventInfo* event, bool isRepeat);
+  bool        StartKeyboardRepeatTimer(float interval);
+  void        StopKeyboardRepeat();
+  bool        OnKeyboardRepeatTimer();
+  static bool KeyboardRepeatTimerCallback(void* data);
+
   void EventEntry(TWinEventInfo* event);
 
 private:
@@ -656,6 +663,9 @@ private:
   bool            mIsTransparent : 1; ///< Whether the window is transparent (32 bit or 24 bit)
   bool            mIsIconifiedState : 1;
   bool            mIsMaximizedState : 1;
+
+  WindowsPlatform::KeyboardRepeatState mKeyboardRepeatState;
+  intptr_t                             mKeyboardRepeatTimer{-1};
 
   WindowsPlatform::WindowImpl mWindowImpl;
 };

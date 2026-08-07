@@ -23,6 +23,12 @@ SET(TC_SOURCES
     utc-Dali-WbmpLoader.cpp
 )
 
+IF(WIN32)
+  LIST(APPEND TC_SOURCES
+    windows/utc-Dali-WindowsKeyboardRepeat.cpp
+  )
+ENDIF()
+
 IF(ENABLE_VULKAN)
 ELSE()
   LIST(APPEND TC_SOURCES
