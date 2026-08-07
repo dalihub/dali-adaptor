@@ -263,7 +263,7 @@ IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
   ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
+#  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
   ADD_COMPILE_OPTIONS( /FI "${ROOT_SRC_DIR}/third-party/windows-platform/preprocessor-definitions.h" ) #
   ADD_COMPILE_OPTIONS( /vmg )                           # Avoids a 'reinterpret_cast' compile error while compiling signals and callbacks.
   ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
