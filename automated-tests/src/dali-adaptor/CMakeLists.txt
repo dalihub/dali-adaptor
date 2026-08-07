@@ -39,7 +39,7 @@ ELSE()
 )
 ENDIF()
 
-SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
+SET(TC_SOURCE_LIST ${TC_SOURCES})
 
 LIST(APPEND TC_SOURCES
     dali-test-suite-utils/mesh-builder.cpp
@@ -70,6 +70,10 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     dali-test-suite-utils/adaptor-environment-variable.cpp
 )
+
+IF(DALI_TEST_SOURCE_LIST_ONLY)
+  RETURN()
+ENDIF()
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core

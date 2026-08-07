@@ -5,6 +5,13 @@ The current test environment from Tizen is the Web-TCT test suite. This was writ
 
 Each of the DALi repositories, **dali-core**, **dali-adaptor** and **dali-toolkit**, have their own test suites under the `automated-tests` folder. Within the src folder are a number of secondary folders - these correspond to 'API' tests  and internal (for desktop testing only)
 
+Windows native tests
+====================
+
+The Win32 backend tests use PowerShell entry points and a real DALi application
+instead of the Linux/TET mock environment. See [WINDOWS.md](WINDOWS.md) for build,
+execution, filtering, and result instructions.
+
 Installation
 ------------
 
