@@ -238,6 +238,20 @@ public:
   bool SetInputPanelAutoShowEnabled(bool enabled);
 
   /**
+   * @brief Activates the input method context.
+   *
+   * @SINCE_2_5.34
+   */
+  void Activate();
+
+  /**
+   * @brief Deactivates the input method context.
+   *
+   * @SINCE_2_5.34
+   */
+  void Deactivate();
+
+  /**
    * @brief Requests to show the input panel.
    *
    * The input panel state may change asynchronously. Use StatusChangedSignal()
