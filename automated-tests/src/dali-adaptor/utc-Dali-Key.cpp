@@ -22,7 +22,7 @@
 
 // CLASS HEADER
 #include <dali-test-suite-utils.h>
-#include <dali/dali.h>
+#include <dali.h>
 #include <dali/devel-api/adaptor-framework/key-devel.h>
 #include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
 #include <dali/devel-api/events/key-event-devel.h>

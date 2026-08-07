@@ -296,18 +296,10 @@ int UtcDaliAccessibilityAccessibleDefaultsP(void)
   DALI_TEST_CHECK(ContainsString(interfaceNames, "org.a11y.atspi.Accessible"));
   DALI_TEST_CHECK(ContainsString(interfaceNames, "org.a11y.atspi.Component"));
 
-#if defined(_WIN32)
-  // Windows currently uses the dummy accessibility bridge. It intentionally
-  // provides no coordinate hit testing, while the common Accessible defaults
-  // above remain supported and should still be covered.
-  DALI_TEST_CHECK(!root.IsAccessibleContainingPoint(Point{5, 5}, CoordinateType::WINDOW));
-  DALI_TEST_CHECK(root.GetAccessibleAtPoint(Point{15, 15}, CoordinateType::WINDOW) == nullptr);
-#else
   DALI_TEST_CHECK(root.IsAccessibleContainingPoint(Point{5, 5}, CoordinateType::WINDOW));
   DALI_TEST_CHECK(!root.IsAccessibleContainingPoint(Point{150, 5}, CoordinateType::WINDOW));
   DALI_TEST_CHECK(root.GetAccessibleAtPoint(Point{15, 15}, CoordinateType::WINDOW) == &child);
   DALI_TEST_CHECK(root.GetAccessibleAtPoint(Point{90, 90}, CoordinateType::WINDOW) == nullptr);
-#endif
 
   END_TEST;
 }

@@ -111,11 +111,6 @@ int UtcDaliWindowDestructorP(void)
 
 int UtcDaliWindowNewP(void)
 {
-#if defined(_WIN32)
-  PositionSize windowPosition(0, 0, 100, 100);
-  Dali::Window window = Dali::Window::New(windowPosition, "test-window", true);
-  DALI_TEST_CHECK(window);
-#else
   // On Ubuntu, transparency is forced to false (24-bit ColorDepth, RGB888).
   // The test environment has no real display, so window creation fails with
   // "Failed to create X window" (not EGL_BAD_MATCH from ColorDepth mismatch).
@@ -130,7 +125,6 @@ int UtcDaliWindowNewP(void)
   {
     DALI_TEST_ASSERT(e, "Failed to create X window", TEST_LOCATION);
   }
-#endif
 
   END_TEST;
 }

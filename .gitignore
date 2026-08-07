@@ -18,12 +18,6 @@ install_manifest.txt
 *.loT
 *.la
 *.so
-# Windows/MSVC build artifacts
-*.exe
-*.pdb
-*.ilk
-*.obj
-*.exp
 *.orig
 *.odt
 *.fodt
@@ -70,4 +64,4 @@ dali-adaptor.includes
 tags
 /dali/internal/adaptor/common/system-cache-path.cpp
 /dali/internal/graphics/common/shader-cache-path.cpp
-_build/
+/_build/

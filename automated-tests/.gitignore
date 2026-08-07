@@ -1,7 +1,5 @@
 *.xml
 build
-_build/
 build.log
-results/
 tct*core.h
 results_xml.*

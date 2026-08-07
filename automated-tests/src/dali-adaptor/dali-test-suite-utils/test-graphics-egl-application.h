@@ -351,7 +351,7 @@ public:
   TraceCallStack mCallstack{true, "GraphicsImpl"};
 };
 
-class TestGraphicsApplication : public ConnectionTracker
+class DALI_CORE_API TestGraphicsApplication : public ConnectionTracker
 {
 public:
   // Default values derived from H2 device.

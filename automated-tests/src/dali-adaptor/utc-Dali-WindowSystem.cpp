@@ -38,13 +38,8 @@ int UtcDaliWindowSystemGetScreenSizeP(void)
     int width, height;
     DevelWindowSystem::GetScreenSize(width, height);
 
-#if defined(_WIN32)
-    // The Windows backend reports the dimensions of the real primary display.
-    DALI_TEST_CHECK((width > 0) && (height > 0));
-#else
     // The width and height refer ecore_x_screen_size_get defined in utc-Dali-Window.cpp.
     DALI_TEST_CHECK((width == 100) && (height == 100));
-#endif
   }
   catch(...)
   {

@@ -77,8 +77,6 @@ int UtcDaliReadFileNew2(void)
 
   DALI_TEST_CHECK(static_cast<std::streamoff>(fileSize) != 0);
 
-  DALI_TEST_EQUALS(buffer.Size(), static_cast<Dali::VectorBase::SizeType>(fileSize), TEST_LOCATION);
-
   END_TEST;
 }
 

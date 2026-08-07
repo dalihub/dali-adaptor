@@ -33,7 +33,7 @@
 
 namespace Dali
 {
-class TestApplication : public ConnectionTracker
+class DALI_CORE_API TestApplication : public ConnectionTracker
 {
 public:
   // Default values derived from H2 device.

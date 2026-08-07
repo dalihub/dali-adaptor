@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
-#include <fstream>
 
 #ifndef ADDON_LIBS_PATH
 #define ADDON_LIBS_PATH ""
@@ -51,17 +50,28 @@ std::vector<std::string> AddOnManager::EnumerateAddOns()
   // Read list of available test addons
   tet_printf("Enumerating addons, file: %s\n", listFileName.c_str());
   std::vector<std::string> addons{};
-  std::ifstream            fin(listFileName);
-  std::string              line;
-  while(std::getline(fin, line))
+  auto*                    fin     = fopen(listFileName.c_str(), "r");
+  char*                    lineBuf = new char[256];
+  memset(lineBuf, 0, 256);
+  size_t n = 256;
+  while(getline(&lineBuf, &n, fin) > 0)
   {
-    if(!line.empty() && line.back() == '\r')
+    char* c = lineBuf;
+    while(*c)
     {
-      line.pop_back();
+      if(*c == '\n' || *c == '\r')
+      {
+        *c = 0;
+        break;
+      }
+      ++c;
     }
-    tet_printf("Adding %s\n", line.c_str());
-    addons.emplace_back(line);
+    tet_printf("Adding %s\n", lineBuf);
+    addons.emplace_back(lineBuf);
+    memset(lineBuf, 0, 256);
   }
+  fclose(fin);
+  delete[] lineBuf;
   std::vector<std::string> retval{};
   // Open addons
   for(auto& name : addons)

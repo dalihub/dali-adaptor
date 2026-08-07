@@ -37,7 +37,7 @@ namespace Internal::Adaptor
 class ConfigurationManager;
 }
 
-class TestGraphicsApplication : public ConnectionTracker
+class DALI_CORE_API TestGraphicsApplication : public ConnectionTracker
 {
 public:
   // Default values derived from H2 device.
