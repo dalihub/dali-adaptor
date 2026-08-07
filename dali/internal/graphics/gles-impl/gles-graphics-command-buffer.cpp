@@ -196,7 +196,7 @@ public:
   {
     const auto typeSize       = sizeof(T);
     const auto memoryRequired = typeSize * count;
-    auto       ptr            = memoryPool.Allocate(memoryRequired);
+  auto       ptr            = memoryPool.Allocate(static_cast<uint32_t>(memoryRequired));
 
     // Convert generic pointer and return
     return IndirectPtr<T>{ptr.ptr, ptr.base};
@@ -329,7 +329,7 @@ void CommandBuffer::BindVertexBuffers(uint32_t                                  
 {
   auto command                                         = mCommandPool->AllocateCommand(CommandType::BIND_VERTEX_BUFFERS);
   command->bindVertexBuffers.vertexBufferBindingsCount = firstBinding + static_cast<uint32_t>(buffers.size());
-  auto pBindings                                       = mCommandPool->Allocate<GLES::VertexBufferBindingDescriptor>(firstBinding + buffers.size());
+  auto pBindings                                       = mCommandPool->Allocate<GLES::VertexBufferBindingDescriptor>(static_cast<uint32_t>(firstBinding + buffers.size()));
 
   command->bindVertexBuffers.vertexBufferBindings = pBindings;
   auto index                                      = firstBinding;
@@ -501,10 +501,10 @@ void CommandBuffer::BeginRenderPass(
   descriptor.renderTarget = static_cast<GLES::RenderTarget*>(renderTarget);
 
   descriptor.renderArea  = renderArea;
-  descriptor.clearValues = mCommandPool->Allocate<Graphics::ClearValue>(clearValues.size());
+  descriptor.clearValues = mCommandPool->Allocate<Graphics::ClearValue>(static_cast<uint32_t>(clearValues.size()));
   memcpy(descriptor.clearValues.Ptr(), clearValues.data(), sizeof(ClearValue) * clearValues.size());
 
-  descriptor.clearValuesCount = clearValues.size();
+  descriptor.clearValuesCount = static_cast<uint32_t>(clearValues.size());
 
   mGlStateCommandCache->ResetCache(); // Reset GL state cache after begin render pass
 }
@@ -527,8 +527,8 @@ void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuf
 {
   auto  command    = mCommandPool->AllocateCommand(CommandType::EXECUTE_COMMAND_BUFFERS);
   auto& cmd        = command->executeCommandBuffers;
-  cmd.buffers      = mCommandPool->Allocate<const GLES::CommandBuffer*>(commandBuffers.size());
-  cmd.buffersCount = commandBuffers.size();
+  cmd.buffers      = mCommandPool->Allocate<const GLES::CommandBuffer*>(static_cast<uint32_t>(commandBuffers.size()));
+  cmd.buffersCount = static_cast<uint32_t>(commandBuffers.size());
   for(auto i = 0u; i < cmd.buffersCount; ++i)
   {
     cmd.buffers[i] = static_cast<const GLES::CommandBuffer*>(commandBuffers[i]);

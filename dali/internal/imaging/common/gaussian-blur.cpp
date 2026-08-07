@@ -121,7 +121,7 @@ bool ConvoluteAndTranspose(uint8_t*       inBuffer,
     else
     {
       weightMatrix        = new float[rows];
-      const float radius2 = radius * radius;
+      const float radius2 = static_cast<float>(radius * radius);
 
       int32_t index = 0;
       for(int32_t row = -radius; row <= radius; row++)

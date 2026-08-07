@@ -49,13 +49,15 @@ public:
   }
 };
 
-std::unique_ptr<WindowSystemMac> gWindowSystem;
+// The lifetime is managed explicitly by Initialize() / Shutdown().
+WindowSystemMac* gWindowSystem{nullptr};
+bool             gShutdown{false}; ///< Set by Shutdown(), cleared by Initialize().
 
 WindowSystemMac& GetImpl()
 {
   if(!gWindowSystem)
   {
-    gWindowSystem = std::make_unique<WindowSystemMac>();
+    gWindowSystem = new WindowSystemMac();
   }
   return *gWindowSystem;
 }
@@ -63,6 +65,7 @@ WindowSystemMac& GetImpl()
 
 void Initialize()
 {
+  gShutdown = false;
   GetImpl().Initialize();
 }
 
@@ -71,12 +74,20 @@ void Shutdown()
   if(gWindowSystem)
   {
     gWindowSystem->Shutdown();
-    gWindowSystem.reset();
+    delete gWindowSystem;
+    gWindowSystem = nullptr;
   }
+  gShutdown = true;
 }
 
 WindowSystemBase* GetWindowSystem()
 {
+  if(gShutdown)
+  {
+    // Do not create the window system again; that would re-initialize the platform during teardown.
+    DALI_LOG_ERROR("WindowSystem is used after Shutdown()\n");
+    return nullptr;
+  }
   return &GetImpl();
 }
 

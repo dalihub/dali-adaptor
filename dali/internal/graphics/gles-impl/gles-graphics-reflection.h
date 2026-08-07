@@ -18,6 +18,8 @@
  *
  */
 
+#include <limits>
+
 #include <dali/graphics-api/graphics-reflection.h>
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
@@ -29,7 +31,7 @@ class EglGraphicsController;
 namespace GLES
 {
 class ProgramImpl;
-constexpr uint32_t ERROR_ATTRIBUTE_NOT_FOUND(-1u);
+constexpr uint32_t ERROR_ATTRIBUTE_NOT_FOUND = std::numeric_limits<uint32_t>::max();
 
 /**
  * Reflection object represents a single full graphics reflection state.

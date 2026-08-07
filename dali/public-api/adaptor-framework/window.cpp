@@ -360,53 +360,26 @@ Dali::String Window::GetScreen() const
 
 void Window::FeedTouchEvent(const Dali::TouchEvent& touchEvent)
 {
-  Integration::Point convertedPoint;
-  convertedPoint.SetDeviceId(touchEvent.GetDeviceId(0));
-  convertedPoint.SetState(touchEvent.GetState(0));
-  convertedPoint.SetScreenPosition(touchEvent.GetScreenPosition(0));
-  convertedPoint.SetRadius(touchEvent.GetRadius(0), touchEvent.GetEllipseRadius(0));
-  convertedPoint.SetPressure(touchEvent.GetPressure(0));
-  convertedPoint.SetAngle(touchEvent.GetAngle(0));
-  convertedPoint.SetDeviceClass(touchEvent.GetDeviceClass(0));
-  convertedPoint.SetDeviceSubclass(touchEvent.GetDeviceSubclass(0));
-  convertedPoint.SetMouseButton(touchEvent.GetMouseButton(0));
-  Dali::String deviceName = touchEvent.GetDeviceName(0);
-  convertedPoint.SetDeviceName(deviceName);
-  GetImplementation(*this).FeedTouchPoint(convertedPoint, touchEvent.GetTime());
+  Integration::TouchEvent convertedEvent(touchEvent);
+  GetImplementation(*this).FeedTouchEvent(convertedEvent);
 }
 
 void Window::FeedWheelEvent(Dali::WheelEvent wheelEvent)
 {
-  Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  Integration::WheelEvent convertedEvent(wheelEvent);
   GetImplementation(*this).FeedWheelEvent(convertedEvent);
 }
 
 void Window::FeedKeyEvent(const Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
-                                       keyEvent.GetLogicalKey(),
-                                       keyEvent.GetKeyString(),
-                                       keyEvent.GetKeyCode(),
-                                       keyEvent.GetKeyModifier(),
-                                       keyEvent.GetTime(),
-                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                                       keyEvent.GetCompose(),
-                                       keyEvent.GetDeviceName(),
-                                       keyEvent.GetDeviceClass(),
-                                       keyEvent.GetDeviceSubclass());
-  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
+  Integration::KeyEvent convertedEvent(keyEvent);
   GetImplementation(*this).FeedKeyEvent(convertedEvent);
 }
 
 void Window::FeedHoverEvent(const Dali::HoverEvent& hoverEvent)
 {
-  Integration::Point convertedPoint;
-  convertedPoint.SetDeviceId(hoverEvent.GetDeviceId(0));
-  convertedPoint.SetState(hoverEvent.GetState(0));
-  convertedPoint.SetScreenPosition(hoverEvent.GetScreenPosition(0));
-  convertedPoint.SetDeviceClass(hoverEvent.GetDeviceClass(0));
-  convertedPoint.SetDeviceSubclass(hoverEvent.GetDeviceSubclass(0));
-  GetImplementation(*this).FeedHoverEvent(convertedPoint);
+  Integration::HoverEvent convertedEvent(hoverEvent);
+  GetImplementation(*this).FeedHoverEvent(convertedEvent);
 }
 
 WindowOperationResult Window::SetBrightness(int brightness)
@@ -587,6 +560,16 @@ Window::ResizedSignalType& Window::ResizeCompletedSignal()
 Window::KeyEventSignalType& Window::KeyEventSignal()
 {
   return GetImplementation(*this).KeyEventSignal();
+}
+
+Window::InterceptKeyEventSignalType& Window::InterceptKeyEventSignal()
+{
+  return GetImplementation(*this).InterceptKeyEventSignal();
+}
+
+Window::KeyEventSignalType& Window::KeyEventDelayedSignal()
+{
+  return GetImplementation(*this).KeyEventDelayedSignal();
 }
 
 Window::TouchEventSignalType& Window::TouchEventSignal()

@@ -96,7 +96,7 @@ SceneHolder::SceneHolder()
   mLastHoverEvent(),
   mFocusChangedGeneratedSignal(),
   mSceneHolderKeyEventSignal(),
-  mSceneHolderKeyEventMonitorSignal(),
+  mSceneHolderKeyEventDelayedSignal(),
   mSceneHolderTouchEventSignal(),
   mSceneHolderWheelEventSignal(),
   mSceneHolderKeyEventGeneratedSignal(),
@@ -279,7 +279,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Connect Core Scene signals to SceneHolder bridge callbacks
   mScene.KeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEvent);
-  mScene.KeyEventMonitorSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventMonitor);
+  mScene.KeyEventDelayedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventDelayed);
   mScene.TouchEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneTouchEvent);
   mScene.WheelEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneWheelEvent);
   mScene.KeyEventGeneratedSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEventGenerated);
@@ -400,7 +400,8 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
 
     if(type == Integration::TouchEventCombiner::DISPATCH_HOVER || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
     {
-      mLastHoverEvent = Dali::Integration::NewHoverEvent(timeStamp, point);
+      mLastHoverEvent = Dali::HoverEvent::New(static_cast<uint32_t>(timeStamp));
+      mLastHoverEvent.AddPoint(point.GetDeviceId(), point.GetState(), point.GetScreenPosition(), point.GetDeviceClass(), point.GetDeviceSubclass(), point.GetDeviceName());
     }
 
     // Next the events are processed with a single call into Core
@@ -421,6 +422,16 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
       }
       mAdaptor->ProcessCoreEvents();
     }
+  }
+}
+
+void SceneHolder::FeedTouchEvent(Dali::Integration::TouchEvent& touchEvent)
+{
+  // Feed each point separately, the same way the points of a real touch event arrive,
+  // so that the touch event combiner sees them as it normally would.
+  for(auto&& point : touchEvent.points)
+  {
+    FeedTouchPoint(point, static_cast<int>(touchEvent.time));
   }
 }
 
@@ -451,25 +462,34 @@ void SceneHolder::FeedMouseFrameEvent()
   mPreviousType      = Integration::TouchEventCombiner::DISPATCH_NONE;
 }
 
-const Dali::TouchEvent& SceneHolder::GetLastTouchEvent() const
+void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
 {
-  return mLastTouchEvent;
+  Integration::HoverEvent hoverEvent;
+  hoverEvent.AddPoint(point);
+
+  FeedHoverEvent(hoverEvent);
 }
 
-const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
-{
-  return mLastHoverEvent;
-}
-
-Dali::GestureState SceneHolder::GetLastPanGestureState() const
+void SceneHolder::FeedHoverEvent(Dali::Integration::HoverEvent& hoverEvent)
 {
   if(DALI_UNLIKELY(!mAdaptorStarted))
   {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this GetLastPanGestureState.\n");
-    return Dali::GestureState::CLEAR;
+    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
+    return;
   }
 
-  return mScene.GetLastPanGestureState();
+  if(hoverEvent.time < 1)
+  {
+    hoverEvent.time = TimeService::GetMilliSeconds();
+  }
+
+  // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
+  // Keep the handle alive until the core events are processed.
+  Dali::BaseHandle sceneHolder(this);
+
+  // Send HoverEvent to Core.
+  mScene.QueueEvent(hoverEvent);
+  mAdaptor->ProcessCoreEvents();
 }
 
 void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
@@ -517,26 +537,25 @@ void SceneHolder::FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent)
   mAdaptor->ProcessCoreEvents();
 }
 
-void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
+const Dali::TouchEvent& SceneHolder::GetLastTouchEvent() const
+{
+  return mLastTouchEvent;
+}
+
+const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
+{
+  return mLastHoverEvent;
+}
+
+Dali::GestureState SceneHolder::GetLastPanGestureState() const
 {
   if(DALI_UNLIKELY(!mAdaptorStarted))
   {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
-    return;
+    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this GetLastPanGestureState.\n");
+    return Dali::GestureState::CLEAR;
   }
 
-  Integration::HoverEvent hoverEvent;
-
-  // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
-  // Keep the handle alive until the core events are processed.
-  Dali::BaseHandle sceneHolder(this);
-
-  // Create send HoverEvent to Core.
-  hoverEvent.time = TimeService::GetMilliSeconds();
-  hoverEvent.AddPoint(point);
-
-  mScene.QueueEvent(hoverEvent);
-  mAdaptor->ProcessCoreEvents();
+  return mScene.GetLastPanGestureState();
 }
 
 void SceneHolder::SetGeometryHittestEnabled(bool enabled)
@@ -704,10 +723,10 @@ void SceneHolder::OnSceneKeyEvent(Dali::KeyEvent event)
   mSceneHolderKeyEventSignal.Emit(handle, event);
 }
 
-void SceneHolder::OnSceneKeyEventMonitor(Dali::KeyEvent event)
+void SceneHolder::OnSceneKeyEventDelayed(Dali::KeyEvent event)
 {
   Dali::Integration::SceneHolder handle(this);
-  mSceneHolderKeyEventMonitorSignal.Emit(handle, event);
+  mSceneHolderKeyEventDelayedSignal.Emit(handle, event);
 }
 
 void SceneHolder::OnSceneTouchEvent(Dali::TouchEvent event)

@@ -28,26 +28,31 @@
 
 namespace Dali::Graphics::GLES
 {
-static std::string AddLineNumbers(const char* src)
+static std::string AddLineNumbers(const char* source)
 {
   int                line = 1;
-  std::ostringstream oss;
-  oss.imbue(std::locale::classic());
+  std::ostringstream outputStream;
+  outputStream.imbue(std::locale::classic());
 
   // Let we print 4095 prefix of shader codes.
   char  buffer[4096];
-  char* copy    = strncpy(buffer, src, 4095);
-  char* nextPtr = nullptr;
-  buffer[4095]  = '\0';
+#if defined(DALI_PROFILE_WINDOWS)
+  strncpy_s(buffer, sizeof(buffer), source, 4095u);
+  char* bufferCursor = buffer;
+#else
+  char* bufferCursor = strncpy(buffer, source, 4095);
+#endif
+  char* nextLine = nullptr;
+  buffer[4095]   = '\0';
 
-  char* delim = strtok_r(copy, "\n", &nextPtr);
-  while(delim)
+  char* lineText = strtok_r(bufferCursor, "\n", &nextLine);
+  while(lineText)
   {
-    oss << std::setw(4) << line << "  " << delim << "\n";
-    delim = strtok_r(nullptr, "\n", &nextPtr);
+    outputStream << std::setw(4) << line << "  " << lineText << "\n";
+    lineText = strtok_r(nullptr, "\n", &nextLine);
     ++line;
   }
-  return oss.str();
+  return outputStream.str();
 }
 
 struct ShaderImpl::Impl
@@ -73,7 +78,7 @@ struct ShaderImpl::Impl
 
     // Substitute pointer
     createInfo.sourceData = source.data();
-    createInfo.sourceSize = dataSize;
+  createInfo.sourceSize = static_cast<uint32_t>(dataSize);
   }
 
   ~Impl() {};

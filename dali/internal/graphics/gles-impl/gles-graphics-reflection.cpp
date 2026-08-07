@@ -318,7 +318,7 @@ void Reflection::BuildUniformBlockReflection()
   {
     std::vector<GLint> params;
     params.resize(uniformIndices.size());
-    gl->GetActiveUniformsiv(glProgram, uniformIndices.size(), uniformIndices.data(), param, params.data());
+  gl->GetActiveUniformsiv(glProgram, static_cast<GLsizei>(uniformIndices.size()), uniformIndices.data(), param, params.data());
     return params;
   };
 
@@ -492,7 +492,7 @@ std::vector<uint32_t> Reflection::GetVertexAttributeLocations() const
 
 uint32_t Reflection::GetUniformBlockCount() const
 {
-  return mUniformBlocks.size();
+  return static_cast<uint32_t>(mUniformBlocks.size());
 }
 
 uint32_t Reflection::GetUniformBlockBinding(uint32_t index) const

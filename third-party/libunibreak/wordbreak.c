@@ -50,6 +50,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include "unibreakdef.h"
 #include "wordbreak.h"
@@ -79,7 +80,7 @@ static enum WordBreakClass get_char_wb_class(
         size_t len)
 {
     int min = 0;
-    int max = len - 1;
+    int32_t max = (int32_t)(len - 1);
     int mid;
 
     do

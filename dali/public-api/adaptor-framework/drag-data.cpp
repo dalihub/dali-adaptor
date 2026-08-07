@@ -75,7 +75,7 @@ void DragAndDrop::DragData::AddData(const Dali::String& mimeType, const Dali::St
 uint32_t DragAndDrop::DragData::GetDataCount() const
 {
   DALI_ASSERT_VALID_DRAG_DATA(mImpl);
-  return mImpl->entries.Count();
+  return static_cast<uint32_t>(mImpl->entries.Count());
 }
 
 Dali::String DragAndDrop::DragData::GetMimeType(uint32_t index) const

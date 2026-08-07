@@ -562,7 +562,7 @@ void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent.direction, mouseWheelEvent.modifiers, mouseWheelEvent.x, mouseWheelEvent.y, mouseWheelEvent.z);
 
-    Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2(mouseWheelEvent.x, mouseWheelEvent.y), mouseWheelEvent.z, mouseWheelEvent.timestamp);
+    Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent.direction, mouseWheelEvent.modifiers, Vector2(static_cast<float>(mouseWheelEvent.x), static_cast<float>(mouseWheelEvent.y)), mouseWheelEvent.z, mouseWheelEvent.timestamp);
 
     mWheelEventSignal.Emit(wheelEvent);
   }
@@ -583,7 +583,7 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
     const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
-    const auto        time     = static_cast<unsigned long>(event->timestamp);
+    const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
     // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
@@ -615,7 +615,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
     const String      deviceName(ToDaliString(std::string("keyboard")));
     const int         modifier = static_cast<int>(GetKeyModifiers());
-    const auto        time     = static_cast<unsigned long>(event->timestamp);
+    const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys the same way OnKeyDown does; see the comment there.
     const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());

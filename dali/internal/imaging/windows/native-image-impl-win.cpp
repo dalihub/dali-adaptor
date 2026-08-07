@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <cstdint>
 #include <cstring>
 
 // INTERNAL INCLUDES
@@ -230,7 +231,7 @@ bool NativeImageWin::CreateResource()
 
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mPixmap);
+  EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(static_cast<std::uintptr_t>(mPixmap));
 
   mEglImageKHR     = mEglImageExtensions->CreateImageKHR(eglBuffer);
   mEglImageChanged = true;

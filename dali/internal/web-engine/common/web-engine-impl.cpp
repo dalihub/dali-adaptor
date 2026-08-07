@@ -908,6 +908,11 @@ void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
   mPlugin->SetVideoHole(enabled, isWaylandWindow);
 }
 
+void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectName)
+{
+  mPlugin->RemoveJavaScriptMessageHandler(exposedObjectName);
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali

@@ -134,7 +134,7 @@ bool Framebuffer::InitializeResource()
     }
 
     // @todo is this per framebuffer, or more immediate state that needs setting when framebuffer changed?
-    gl->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
+  gl->DrawBuffers(static_cast<GLsizei>(mCreateInfo.colorAttachments.size()), COLOR_ATTACHMENTS);
 
     // @todo Currently, we don't assume that GL_EXT_PACKED_DEPTH_STENCIL valid.
     // We will assume that stencilTexture / stencilBufferId always mean depth-stencil.

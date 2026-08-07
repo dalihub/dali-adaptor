@@ -50,6 +50,7 @@ void WindowSystemBase::SetGeometryHittestEnabled(bool enabled)
 namespace WindowSystem
 {
 // Implemented per platform (e.g. window-system-ecore-wl2.cpp, window-system-x.cpp, etc.)
+// Returns nullptr once Shutdown() has been called; the window system is not re-created.
 WindowSystemBase* GetWindowSystem();
 
 namespace
@@ -72,62 +73,89 @@ void GetDpi(uint32_t& dpiHorizontal, uint32_t& dpiVertical)
 
 void GetScreenSize(int32_t& width, int32_t& height)
 {
-  GetWindowSystem()->GetScreenSize(width, height);
+  width  = 0;
+  height = 0;
+  if(auto* windowSystem = GetWindowSystem())
+  {
+    windowSystem->GetScreenSize(width, height);
+  }
 }
 
 std::vector<Dali::ScreenInformation> GetAvailableScreens()
 {
-  return GetWindowSystem()->GetAvailableScreens();
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->GetAvailableScreens() : std::vector<Dali::ScreenInformation>{};
 }
 
 void UpdateScreenSize()
 {
-  GetWindowSystem()->UpdateScreenSize();
+  if(auto* windowSystem = GetWindowSystem())
+  {
+    windowSystem->UpdateScreenSize();
+  }
 }
 
 void SetGeometryHittestEnabled(bool enabled)
 {
-  GetWindowSystem()->SetGeometryHittestEnabled(enabled);
+  if(auto* windowSystem = GetWindowSystem())
+  {
+    windowSystem->SetGeometryHittestEnabled(enabled);
+  }
 }
 
 bool IsGeometryHittestEnabled()
 {
-  return GetWindowSystem()->IsGeometryHittestEnabled();
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->IsGeometryHittestEnabled() : false;
 }
 
 KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal()
 {
-  return GetWindowSystem()->KeyboardRepeatSettingsChangedSignal();
+  auto* windowSystem = GetWindowSystem();
+  if(!windowSystem)
+  {
+    // The window system is gone, but a valid reference has to be returned. Hand out a signal that
+    // is never emitted. It is deliberately leaked so that it has no destructor running at exit.
+    static auto* orphanSignal = new KeyboardRepeatSettingsChangedSignalType();
+    return *orphanSignal;
+  }
+  return windowSystem->KeyboardRepeatSettingsChangedSignal();
 }
 
 bool SetKeyboardRepeatInfo(float rate, float delay)
 {
-  return GetWindowSystem()->SetKeyboardRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->SetKeyboardRepeatInfo(rate, delay) : false;
 }
 
 bool GetKeyboardRepeatInfo(float& rate, float& delay)
 {
-  return GetWindowSystem()->GetKeyboardRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->GetKeyboardRepeatInfo(rate, delay) : false;
 }
 
 bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
 {
-  return GetWindowSystem()->SetKeyboardHorizontalRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->SetKeyboardHorizontalRepeatInfo(rate, delay) : false;
 }
 
 bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
 {
-  return GetWindowSystem()->GetKeyboardHorizontalRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->GetKeyboardHorizontalRepeatInfo(rate, delay) : false;
 }
 
 bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
 {
-  return GetWindowSystem()->SetKeyboardVerticalRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->SetKeyboardVerticalRepeatInfo(rate, delay) : false;
 }
 
 bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 {
-  return GetWindowSystem()->GetKeyboardVerticalRepeatInfo(rate, delay);
+  auto* windowSystem = GetWindowSystem();
+  return windowSystem ? windowSystem->GetKeyboardVerticalRepeatInfo(rate, delay) : false;
 }
 
 } // namespace WindowSystem

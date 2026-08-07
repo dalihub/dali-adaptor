@@ -191,7 +191,7 @@ CommandLineOptions::CommandLineOptions(int32_t* argc, char** argv[])
         {
           (*argv)[index++] = (*argv)[*iter];
         }
-        *argc = unhandledOptions.Count() + 1; // +1 for the program name
+  *argc = static_cast<int32_t>(unhandledOptions.Count() + 1u); // +1 for the program name
       }
       else
       {

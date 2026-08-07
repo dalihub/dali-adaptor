@@ -62,13 +62,12 @@ public:
   typedef Dali::Window::ResizedSignalType                     ResizedSignalType;
   typedef Dali::Window::KeyEventSignalType                    KeyEventSignalType;
   typedef Dali::Window::TouchEventSignalType                  TouchEventSignalType;
-  typedef Dali::DevelWindow::KeyEventSignalType               KeyEventMonitorSignalType;
   typedef Dali::Window::WheelEventSignalType                  WheelEventSignalType;
   typedef Dali::Window::VisibilityChangedSignalType           VisibilityChangedSignalType;
   typedef Dali::DevelWindow::TransitionEffectEventSignalType  TransitionEffectEventSignalType;
   typedef Dali::DevelWindow::AuxiliaryMessageSignalType       AuxiliaryMessageSignalType;
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType AccessibilityHighlightSignalType;
-  typedef Dali::DevelWindow::InterceptKeyEventSignalType      InterceptKeyEventSignalType;
+  typedef Dali::Window::InterceptKeyEventSignalType           InterceptKeyEventSignalType;
   typedef Dali::Window::MovedSignalType                       MovedSignalType;
   typedef Dali::Window::OrientationChangedSignalType          OrientationChangedSignalType;
   typedef Dali::Window::MouseInOutEventSignalType             MouseInOutEventSignalType;
@@ -129,7 +128,7 @@ public:
   WheelEventSignalType& WheelEventSignal();
 
   /**
-   * @copydoc Dali::DevelWindow::InterceptKeyEventSignal()
+   * @copydoc Dali::Window::InterceptKeyEventSignal()
    */
   InterceptKeyEventSignalType& InterceptKeyEventSignal();
 
@@ -859,13 +858,13 @@ private:
   bool OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
 
   /**
-   * @brief Called when key event monitor is received from SceneHolder.
-   * Re-emits the event via mKeyEventMonitorSignal with Window as the first parameter.
+   * @brief Called when a delayed key event is received from SceneHolder.
+   * Re-emits the event via mKeyEventDelayedSignal with Window as the first parameter.
    *
    * @param[in] sceneHolder The SceneHolder that emitted the signal
    * @param[in] keyEvent The key event
    */
-  void OnSceneKeyEventMonitor(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
+  void OnSceneKeyEventDelayed(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
 
   /**
    * @brief Called when the window rotation is finished.
@@ -1103,15 +1102,15 @@ public: // Signals
   }
 
   /**
-   * @copydoc Dali::DevelWindow::KeyEventMonitorSignal()
+   * @copydoc Dali::Window::KeyEventDelayedSignal()
    *
-   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::KeyEventMonitorSignal()
+   * @note This method intentionally hides Dali::Internal::Adaptor::SceneHolder::KeyEventDelayedSignal()
    * which returns Signal<void(const KeyEvent&)>.
    * Window provides its own signal that includes a Window parameter.
    */
-  KeyEventMonitorSignalType& KeyEventMonitorSignal()
+  KeyEventSignalType& KeyEventDelayedSignal()
   {
-    return mKeyEventMonitorSignal;
+    return mKeyEventDelayedSignal;
   }
 
   /**
@@ -1198,7 +1197,7 @@ private:
   TouchEventSignalType             mTouchEventSignal;
   WheelEventSignalType             mWheelEventSignal;
   InterceptKeyEventSignalType      mInterceptKeyEventSignal;
-  KeyEventMonitorSignalType        mKeyEventMonitorSignal;
+  KeyEventSignalType               mKeyEventDelayedSignal;
   VisibilityChangedSignalType      mVisibilityChangedSignal;
   TransitionEffectEventSignalType  mTransitionEffectEventSignal;
   AuxiliaryMessageSignalType       mAuxiliaryMessageSignal;

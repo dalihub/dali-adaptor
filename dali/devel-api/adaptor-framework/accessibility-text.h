@@ -18,8 +18,8 @@
  */
 
 #include <dali/public-api/dali-adaptor-common.h>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <utility>
 
@@ -54,15 +54,15 @@ struct DALI_ADAPTOR_API Range
 
   Range() = default;
 
-  Range(size_t start, size_t end)
-  : startOffset(start),
-    endOffset(end)
+  Range(std::size_t start, std::size_t end)
+  : startOffset(static_cast<int32_t>(start)),
+    endOffset(static_cast<int32_t>(end))
   {
   }
 
-  Range(size_t start, size_t end, std::string content)
-  : startOffset(start),
-    endOffset(end),
+  Range(std::size_t start, std::size_t end, std::string content)
+  : startOffset(static_cast<int32_t>(start)),
+    endOffset(static_cast<int32_t>(end)),
     content(std::move(content))
   {
   }

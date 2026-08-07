@@ -196,7 +196,10 @@ FILE* FileStream::Impl::GetFile()
 
   if(!mFileName.empty())
   {
-    mFile = fopen(mFileName.c_str(), openMode);
+    if(fopen_s(&mFile, mFileName.c_str(), openMode) != 0)
+    {
+      mFile = nullptr;
+    }
     if(!mFile)
     {
       DALI_LOG_ERROR("file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode);

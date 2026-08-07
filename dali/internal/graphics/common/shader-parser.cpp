@@ -220,7 +220,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     // turn ignoring on
     if(line.substr(0, 12) == "//@ignore:on")
     {
-      legacyPrefixCount -= line.size() + 1;
+      legacyPrefixCount = static_cast<int32_t>(legacyPrefixCount - line.size() - 1u);
       ignoreLines = true;
       continue;
     }
@@ -228,7 +228,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     // turn ignoring off
     if(ignoreLines)
     {
-      legacyPrefixCount -= line.size() + 1;
+      legacyPrefixCount = static_cast<int32_t>(legacyPrefixCount - line.size() - 1u);
       if(line.substr(0, 13) == "//@ignore:off")
       {
         ignoreLines = false;
@@ -244,7 +244,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     }
     if(legacyPrefixCount > 0)
     {
-      legacyPrefixCount -= line.size() + 1;
+      legacyPrefixCount = static_cast<int32_t>(legacyPrefixCount - line.size() - 1u);
 
       CodeLine lineOfCode;
       lineOfCode.line = std::move(line);
@@ -265,7 +265,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       {
         if(GetToken(lineOfCode, 0) == "OUTPUT")
         {
-          output->customOutputLineIndex = output->codeLines.size();
+      output->customOutputLineIndex = static_cast<int32_t>(output->codeLines.size());
         }
       }
       // find main function

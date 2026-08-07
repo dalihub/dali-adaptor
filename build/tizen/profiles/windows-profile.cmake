@@ -80,13 +80,13 @@ FIND_PACKAGE( pthreads REQUIRED )
 FIND_LIBRARY( GETOPT_LIBRARY NAMES getopt )
 FIND_LIBRARY( EXIF_LIBRARY NAMES libexif )
 
-FIND_PACKAGE( png REQUIRED )
-FIND_PACKAGE( gif REQUIRED )
-FIND_PACKAGE( jpeg REQUIRED )
+FIND_PACKAGE( PNG REQUIRED )
+FIND_PACKAGE( GIF REQUIRED )
+FIND_PACKAGE( JPEG REQUIRED )
 FIND_LIBRARY( TURBO_JPEG_LIBRARY NAMES turbojpeg )
 
 FIND_PACKAGE( unofficial-fontconfig REQUIRED )
-FIND_PACKAGE( freetype REQUIRED )
+FIND_PACKAGE( Freetype REQUIRED )
 # Windows uses the same CBDT/CBLC color-bitmap emoji path as the target builds.
 # Enable BGRA bitmap glyph handling when FreeType is found.
 ADD_DEFINITIONS( -DFREETYPE_BITMAP_SUPPORT )
@@ -160,6 +160,7 @@ SET( REQUIRED_LIBS
         WebP::webp
         WebP::webpdemux
         dali2-core::dali2-core
+        user32
         imm32
         ole32
         uuid

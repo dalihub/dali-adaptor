@@ -1170,9 +1170,9 @@ bool EncodeToJpeg(const uint8_t* const pixelBuffer, Vector<uint8_t>& encodedPixe
 
     if(DALI_UNLIKELY(tjCompress2(jpeg.get(),
                                  const_cast<uint8_t*>(pixelBuffer),
-                                 width,
+                                 static_cast<int32_t>(width),
                                  0,
-                                 height,
+                                 static_cast<int32_t>(height),
                                  jpegPixelFormat,
                                  SetPointer(dstBuffer),
                                  &dstBufferSize,
@@ -1380,7 +1380,7 @@ ExifHandle LoadExifData(FILE* fp)
 
     while(!feof(fp))
     {
-      int size = fread(dataBuffer, 1, sizeof(dataBuffer), fp);
+    int32_t size = static_cast<int32_t>(fread(dataBuffer, 1, sizeof(dataBuffer), fp));
       if(size <= 0)
       {
         DALI_PRINT_SYSTEM_ERROR_LOG();

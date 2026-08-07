@@ -569,11 +569,11 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
     logicalKey = ToDaliString(keyEvent->key);
   }
 
-  const int     rawKeyCode    = keyEvent->keyCode;
-  const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname.c_str());
-  int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
-  int           modifier(keyEvent->modifiers);
-  unsigned long time(keyEvent->timestamp);
+  const int rawKeyCode    = keyEvent->keyCode;
+  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname.c_str());
+  int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+  int       modifier(keyEvent->modifiers);
+  uint32_t  time(keyEvent->timestamp);
 
   Integration::KeyEvent daliKeyEvent{keyName, logicalKey, keyString, keyCode, modifier, time, state, compose, DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS};
   daliKeyEvent.windowId = GetNativeWindowId();

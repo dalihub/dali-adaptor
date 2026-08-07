@@ -534,7 +534,7 @@ bool InputMethodContextWin::RetrieveSurrounding(void* data, ImfContext* imfConte
     mSurroundingText = callbackData.currentText;
     if(text)
     {
-      *text = strdup(callbackData.currentText.CStr());
+      *text = _strdup(callbackData.currentText.CStr());
     }
 
     if(cursorPosition)

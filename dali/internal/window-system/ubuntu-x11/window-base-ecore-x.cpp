@@ -570,11 +570,11 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    const int     rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
-    int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
-    int           modifier(keyEvent->modifiers);
-    unsigned long time = keyEvent->timestamp;
+    const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+    int       modifier(keyEvent->modifiers);
+    uint32_t  time = keyEvent->timestamp;
 
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     if(keyEvent->string)
@@ -613,11 +613,11 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
       logicalKey = keyEvent->key;
     }
 
-    const int     rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int     mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
-    int           keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
-    int           modifier(keyEvent->modifiers);
-    unsigned long time(keyEvent->timestamp);
+    const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+    int       modifier(keyEvent->modifiers);
+    uint32_t  time(keyEvent->timestamp);
 
     // Ensure key event string is not NULL as keys like SHIFT have a null string.
     if(keyEvent->string)

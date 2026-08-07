@@ -660,7 +660,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Bo
 #endif
 #endif //DALI_PROFILE_UBUNTU
 
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<BoundsInteger>&>(damagedRects).data()), damagedRects.size());
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<BoundsInteger>&>(damagedRects).data()), static_cast<EGLint>(damagedRects.size()));
     if(result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());

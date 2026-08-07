@@ -683,4 +683,9 @@ void WebEngine::SetVideoHole(bool enabled, bool isWaylandWindow)
   GetImplementation(*this).SetVideoHole(enabled, isWaylandWindow);
 }
 
+void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectName)
+{
+  GetImplementation(*this).RemoveJavaScriptMessageHandler(exposedObjectName);
+}
+
 } // namespace Dali

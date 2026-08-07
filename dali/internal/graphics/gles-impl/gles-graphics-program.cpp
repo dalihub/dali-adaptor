@@ -19,7 +19,11 @@
 
 // EXTERNAL HEADERS
 #include <dali/public-api/common/dali-utility.h>
+#if defined(DALI_PROFILE_WINDOWS)
+#include <process.h>
+#else
 #include <unistd.h>
+#endif
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -70,8 +74,15 @@ inline bool memcmp4(A* a, B* b, uint32_t size)
   auto* pa = reinterpret_cast<const uint32_t*>(a);
   auto* pb = reinterpret_cast<const uint32_t*>(b);
   size >>= 2;
-  while(size-- && *pa++ == *pb++);
-  return (static_cast<uint32_t>(-1lu) == size);
+  while(size > 0u)
+  {
+    if(*pa++ != *pb++)
+    {
+      return false;
+    }
+    --size;
+  }
+  return true;
 };
 
 /**
@@ -249,11 +260,11 @@ void ProgramImpl::Preprocess()
       // substitute shader code
       if(!vsh->GetImplementation()->HasPreprocessedCode())
       {
-        vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
+  vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), static_cast<uint32_t>(newShaders[0].size()));
       }
       if(!fsh->GetImplementation()->HasPreprocessedCode())
       {
-        fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+  fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), static_cast<uint32_t>(newShaders[1].size()));
       }
     }
   }
@@ -655,7 +666,7 @@ bool ProgramImpl::LoadProgramBinary()
 
     DALI_LOG_DEBUG_INFO("Program binary format : %d", formats[0]);
 
-    gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), buffer.Size());
+  gl->ProgramBinary(mImpl->glProgram, formats[0], buffer.Begin(), static_cast<GLsizei>(buffer.Size()));
 
     GLint status{0};
     gl->GetProgramiv(mImpl->glProgram, GL_LINK_STATUS, &status);
@@ -715,9 +726,14 @@ void ProgramImpl::SaveProgramBinary()
     programBinaryName = GetCustomProgramBinaryPath() + GetProgramBinaryName();
   }
 
-  auto programBinaryNameTemp = programBinaryName + std::to_string(getpid()) + ".tmp";
-  bool loaded                = SaveFile(programBinaryNameTemp, (unsigned char*)programBinary.data(), binaryLength);
-  if(!loaded)
+#if defined(DALI_PROFILE_WINDOWS)
+  const auto processId = _getpid();
+#else
+  const auto processId = getpid();
+#endif
+  auto temporaryProgramBinaryName = programBinaryName + std::to_string(processId) + ".tmp";
+  bool programBinarySaved         = SaveFile(temporaryProgramBinaryName, (unsigned char*)programBinary.data(), binaryLength);
+  if(!programBinarySaved)
   {
     DALI_LOG_ERROR("Program binary save failed!! file = %s \n", programBinaryName.c_str());
     return;
@@ -725,14 +741,14 @@ void ProgramImpl::SaveProgramBinary()
 
   if(std::filesystem::exists(programBinaryName))
   {
-    std::filesystem::remove(programBinaryNameTemp);
+    std::filesystem::remove(temporaryProgramBinaryName);
   }
   else
   {
-    std::filesystem::rename(programBinaryNameTemp, programBinaryName);
+    std::filesystem::rename(temporaryProgramBinaryName, programBinaryName);
   }
 
-  DALI_LOG_DEBUG_INFO("ProgramBinary is saved [success:%d] file = %s buffer size = %d \n", loaded, programBinaryName.c_str(), binaryLength);
+  DALI_LOG_DEBUG_INFO("ProgramBinary is saved [success:%d] file = %s buffer size = %d \n", programBinarySaved, programBinaryName.c_str(), binaryLength);
 }
 
 bool ProgramImpl::SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes)

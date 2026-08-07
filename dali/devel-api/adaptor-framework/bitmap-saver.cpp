@@ -134,7 +134,7 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
     DALI_LOG_ERROR("Encoding pixels failed\n");
     return false;
   }
-  return TizenPlatform::SaveFile(filename, pixbufEncoded.Begin(), pixbufEncoded.Count());
+  return TizenPlatform::SaveFile(filename, pixbufEncoded.Begin(), static_cast<uint32_t>(pixbufEncoded.Count()));
 }
 
 } // namespace Dali

@@ -21,6 +21,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 
+#include <Ecore.h>
 #include <Ecore_Wl2.h>
 #include <dlog.h>
 
@@ -59,11 +60,23 @@ class WindowSystemEcoreWl2 : public WindowSystemBase
 public:
   WindowSystemEcoreWl2()
   {
+    // Ecore is reference counted and every module that needs the main loop takes its own reference;
+    // ecore_wl2_init() and friends do the same internally. Take one here so that the event handlers
+    // registered below live as long as this object does. Ecore frees every registered handler once
+    // the count reaches zero, and the references held by the application framework and by
+    // EventLoopEcore are released while this object is still alive.
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    if(!ecore_init())
+    {
+      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    }
+
     print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     if(!ecore_wl2_init())
     {
       print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     }
+
     mKeyboardRepeatEventHandler = ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, OnKeyboardRepeatChanged, this);
   }
 
@@ -75,6 +88,9 @@ public:
     }
     print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_wl2_shutdown();
+
+    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    ecore_shutdown();
   }
 
   void GetScreenSize(int32_t& width, int32_t& height) override
@@ -252,13 +268,15 @@ private:
   Ecore_Event_Handler*                 mKeyboardRepeatEventHandler{nullptr};
 };
 
-std::unique_ptr<WindowSystemEcoreWl2> gWindowSystem;
+// The lifetime is managed explicitly by Initialize() / Shutdown().
+WindowSystemEcoreWl2* gWindowSystem{nullptr};
+bool                  gShutdown{false}; ///< Set by Shutdown(), cleared by Initialize().
 
 WindowSystemEcoreWl2& GetImpl()
 {
   if(!gWindowSystem)
   {
-    gWindowSystem = std::make_unique<WindowSystemEcoreWl2>();
+    gWindowSystem = new WindowSystemEcoreWl2();
   }
   return *gWindowSystem;
 }
@@ -267,16 +285,25 @@ WindowSystemEcoreWl2& GetImpl()
 
 void Initialize()
 {
+  gShutdown = false;
   GetImpl(); // triggers singleton construction
 }
 
 void Shutdown()
 {
-  gWindowSystem.reset();
+  delete gWindowSystem;
+  gWindowSystem = nullptr;
+  gShutdown     = true;
 }
 
 WindowSystemBase* GetWindowSystem()
 {
+  if(gShutdown)
+  {
+    // Do not create the window system again; that would call ecore_wl2_init() during teardown.
+    DALI_LOG_ERROR("WindowSystem is used after Shutdown()\n");
+    return nullptr;
+  }
   return &GetImpl();
 }
 

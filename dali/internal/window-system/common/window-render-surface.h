@@ -23,7 +23,11 @@
 #include <dali/integration-api/scene.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
+#if defined(DALI_PROFILE_WINDOWS)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
@@ -345,7 +349,11 @@ private:
     {
       // Delete FileDescriptorMonitor before close fd.
       fileDescriptorMonitor.reset();
+#if defined(DALI_PROFILE_WINDOWS)
+      _close(fileDescriptor);
+#else
       close(fileDescriptor);
+#endif
     }
 
     Dali::Integration::Scene::FrameCallbackContainer callbacks;

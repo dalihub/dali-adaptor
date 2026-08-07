@@ -1900,7 +1900,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       isRepeat = true;
     }
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<unsigned long>(timestamp), Integration::KeyEvent::DOWN, keyCompose, deviceName, deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<uint32_t>(timestamp), Integration::KeyEvent::DOWN, keyCompose, deviceName, deviceClass, deviceSubclass);
     keyEvent.isRepeat    = isRepeat;
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
@@ -1978,7 +1978,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       keyCode = atoi(name + 8);
     }
 
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<unsigned long>(timestamp), Integration::KeyEvent::UP, keyCompose, deviceName, deviceClass, deviceSubclass);
+    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, static_cast<int>(keyCode), static_cast<int>(modifiers), static_cast<uint32_t>(timestamp), Integration::KeyEvent::UP, keyCompose, deviceName, deviceClass, deviceSubclass);
     keyEvent.windowId    = GetNativeWindowId();
     keyEvent.receiveTime = TimeService::GetMilliSeconds();
 

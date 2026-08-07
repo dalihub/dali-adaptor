@@ -446,7 +446,7 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
     int copyBytes       = destStrideBytes;
 
     // Clamp crop to right edge
-    if(DALI_UNLIKELY(x + cropDimensions.GetWidth() > inBuffer.mWidth))
+    if(DALI_UNLIKELY(static_cast<uint32_t>(x) + cropDimensions.GetWidth() > inBuffer.mWidth))
     {
       copyBytes = (inBuffer.mWidth - x) * bytesPerPixel;
     }
@@ -863,7 +863,7 @@ uint32_t PixelBuffer::GetBrightness() const
     }
 
     // http://www.w3.org/TR/AERT#color-contrast
-    brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
+        brightness = static_cast<uint32_t>((red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize));
 
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_GET_BRIGHTNESS", [&](std::ostringstream& oss)
                                           { oss << "[r:" << static_cast<uint32_t>(red / bufferSize) << " g:" << static_cast<uint32_t>(green / bufferSize) << " b:" << static_cast<uint32_t>(blue / bufferSize) << " brightness " << brightness << "]"; });

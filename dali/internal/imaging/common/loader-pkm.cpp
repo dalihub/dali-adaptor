@@ -247,7 +247,7 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
 
   // Create bitmap who will use allocated buffer.
-  const auto& bitmapInternal = Internal::Adaptor::PixelBuffer::New(pixels, imageByteCount, width, height, 0, pixelFormat);
+  const auto& bitmapInternal = Internal::Adaptor::PixelBuffer::New(pixels, static_cast<uint32_t>(imageByteCount), width, height, 0, pixelFormat);
   bitmap                     = Dali::Devel::PixelBuffer(bitmapInternal.Get());
 
   // Load the image data.

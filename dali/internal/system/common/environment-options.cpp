@@ -372,8 +372,8 @@ EnvironmentOptions::EnvironmentOptions()
   mPinchMinimumTouchEventsAfterStart(-1),
   mRotationMinimumTouchEvents(-1),
   mRotationMinimumTouchEventsAfterStart(-1),
-  mLongPressMinimumHoldingTime(-1),
-  mTapMaximumAllowedTime(-1),
+  mLongPressGestureMinimumHoldingTime(-1),
+  mTapGestureMaximumMultiTapInterval(-1),
   mGlesCallTime(0),
   mMultiSamplingLevel(DEFAULT_MULTI_SAMPLING_LEVEL),
   mThreadingMode(ThreadingMode::COMBINED_UPDATE_RENDER),
@@ -570,14 +570,14 @@ int EnvironmentOptions::GetMinimumRotationTouchEventsAfterStart() const
   return mRotationMinimumTouchEventsAfterStart;
 }
 
-int EnvironmentOptions::GetLongPressMinimumHoldingTime() const
+int EnvironmentOptions::GetLongPressGestureMinimumHoldingTime() const
 {
-  return mLongPressMinimumHoldingTime;
+  return mLongPressGestureMinimumHoldingTime;
 }
 
-int EnvironmentOptions::GetTapMaximumAllowedTime() const
+int EnvironmentOptions::GetTapGestureMaximumMultiTapInterval() const
 {
-  return mTapMaximumAllowedTime;
+  return mTapGestureMaximumMultiTapInterval;
 }
 
 unsigned int EnvironmentOptions::GetWindowWidth() const
@@ -722,8 +722,8 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable(DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS, mRotationMinimumTouchEvents);
   SetFromEnvironmentVariable(DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS_AFTER_START, mRotationMinimumTouchEventsAfterStart);
 
-  SetFromEnvironmentVariable(DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, mLongPressMinimumHoldingTime);
-  SetFromEnvironmentVariable(DALI_ENV_TAP_MAXIMUM_ALLOWED_TIME, mTapMaximumAllowedTime);
+  SetFromEnvironmentVariable(DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, mLongPressGestureMinimumHoldingTime);
+  SetFromEnvironmentVariable(DALI_ENV_TAP_MAXIMUM_ALLOWED_TIME, mTapGestureMaximumMultiTapInterval);
 
   SetFromEnvironmentVariable(DALI_GLES_CALL_TIME, mGlesCallTime);
   SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate)
@@ -821,8 +821,8 @@ void EnvironmentOptions::CopyEnvironmentOptions(const EnvironmentOptions& rhs)
   mPinchMinimumTouchEventsAfterStart     = rhs.mPinchMinimumTouchEventsAfterStart;
   mRotationMinimumTouchEvents            = rhs.mRotationMinimumTouchEvents;
   mRotationMinimumTouchEventsAfterStart  = rhs.mRotationMinimumTouchEventsAfterStart;
-  mLongPressMinimumHoldingTime           = rhs.mLongPressMinimumHoldingTime;
-  mTapMaximumAllowedTime                 = rhs.mTapMaximumAllowedTime;
+  mLongPressGestureMinimumHoldingTime    = rhs.mLongPressGestureMinimumHoldingTime;
+  mTapGestureMaximumMultiTapInterval     = rhs.mTapGestureMaximumMultiTapInterval;
 
   mGlesCallTime       = rhs.mGlesCallTime;
   mMultiSamplingLevel = rhs.mMultiSamplingLevel;

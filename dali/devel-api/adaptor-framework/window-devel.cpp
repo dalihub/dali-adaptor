@@ -192,11 +192,6 @@ void SetForceRendering(Window window, uint32_t frameCount)
   return GetImplementation(window).SetForceRendering(frameCount);
 }
 
-InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
-{
-  return GetImplementation(window).InterceptKeyEventSignal();
-}
-
 MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)
 {
   return GetImplementation(window).MouseRelativeEventSignal();
@@ -205,11 +200,6 @@ MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)
 PointerConstraintsSignalType& PointerConstraintsSignal(Window window)
 {
   return GetImplementation(window).PointerConstraintsSignal();
-}
-
-KeyEventSignalType& KeyEventMonitorSignal(Window window)
-{
-  return GetImplementation(window).KeyEventMonitorSignal();
 }
 
 } // namespace DevelWindow

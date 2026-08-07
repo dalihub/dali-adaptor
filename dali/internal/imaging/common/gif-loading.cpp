@@ -1176,7 +1176,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
   else
   {
     fileInfo.map      = fileData.globalMap;
-    fileInfo.length   = fileData.length;
+  fileInfo.length   = static_cast<int32_t>(fileData.length);
     fileInfo.position = 0;
     GifAccessor gifAccessor(fileInfo);
 
@@ -1528,7 +1528,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
     if(!loaderInfo.gifAccessor)
     {
       loaderInfo.fileInfo.map      = fileData.globalMap;
-      loaderInfo.fileInfo.length   = fileData.length;
+  loaderInfo.fileInfo.length   = static_cast<int32_t>(fileData.length);
       loaderInfo.fileInfo.position = 0;
       if(DALI_UNLIKELY(!loaderInfo.fileInfo.map))
       {

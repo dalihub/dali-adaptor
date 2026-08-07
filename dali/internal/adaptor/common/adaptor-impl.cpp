@@ -30,6 +30,7 @@
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/queue/queue-benchmark-instrumentation.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
@@ -47,9 +48,9 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
 
@@ -95,6 +96,12 @@ namespace
 {
 thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific pointer to allow Adaptor::Get
 thread_local bool     gIsEventThread      = false;   // set once on the event thread, never cleared
+
+const std::string& GetQueueBenchmarkDumpFile()
+{
+  static const std::string path = GetSystemCachePath() + "/dali_queue_benchmark.csv";
+  return path;
+}
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
@@ -281,6 +288,12 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 Adaptor::~Adaptor()
 {
   DALI_LOG_RELEASE_INFO("Adaptor::~Adaptor()\n");
+
+  // Only dump benchmark results if DALI_QUEUE_BENCHMARK environment variable is set
+  if(Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_QUEUE_BENCHMARK))
+  {
+    DALI_QB_DUMP(GetQueueBenchmarkDumpFile());
+  }
 
   // Ensure stop status
   Stop();
@@ -569,24 +582,13 @@ void Adaptor::FeedTouchPoint(TouchPoint& point, int timeStamp)
 
 void Adaptor::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 {
-  Integration::WheelEvent event(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  Integration::WheelEvent event(wheelEvent);
   mWindows.front()->FeedWheelEvent(event);
 }
 
 void Adaptor::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(),
-                                       keyEvent.GetLogicalKey(),
-                                       keyEvent.GetKeyString(),
-                                       keyEvent.GetKeyCode(),
-                                       keyEvent.GetKeyModifier(),
-                                       keyEvent.GetTime(),
-                                       static_cast<Integration::KeyEvent::State>(keyEvent.GetState()),
-                                       keyEvent.GetCompose(),
-                                       keyEvent.GetDeviceName(),
-                                       keyEvent.GetDeviceClass(),
-                                       keyEvent.GetDeviceSubclass());
-  convertedEvent.receiveTime = keyEvent.GetReceiveTime();
+  Integration::KeyEvent convertedEvent(keyEvent);
   mWindows.front()->FeedKeyEvent(convertedEvent);
 }
 
@@ -1708,13 +1710,13 @@ void Adaptor::ApplyEventEnvironmentVariables()
   {
     Integration::SetRotationGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart());
   }
-  if(mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0)
+  if(mEnvironmentOptions->GetLongPressGestureMinimumHoldingTime() >= 0)
   {
-    Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
+    Integration::SetLongPressGestureMinimumHoldingTime(mEnvironmentOptions->GetLongPressGestureMinimumHoldingTime());
   }
-  if(mEnvironmentOptions->GetTapMaximumAllowedTime() > 0)
+  if(mEnvironmentOptions->GetTapGestureMaximumMultiTapInterval() > 0)
   {
-    Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
+    Integration::SetTapGestureMaximumMultiTapInterval(mEnvironmentOptions->GetTapGestureMaximumMultiTapInterval());
   }
 }
 

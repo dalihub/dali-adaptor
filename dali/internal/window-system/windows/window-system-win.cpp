@@ -124,13 +124,15 @@ public:
   }
 };
 
-std::unique_ptr<WindowSystemWin> gWindowSystem;
+// The lifetime is managed explicitly by Initialize() / Shutdown().
+WindowSystemWin* gWindowSystem{nullptr};
+bool             gShutdown{false}; ///< Set by Shutdown(), cleared by Initialize().
 
 WindowSystemWin& GetImpl()
 {
   if(!gWindowSystem)
   {
-    gWindowSystem = std::make_unique<WindowSystemWin>();
+    gWindowSystem = new WindowSystemWin();
   }
   return *gWindowSystem;
 }
@@ -138,6 +140,7 @@ WindowSystemWin& GetImpl()
 
 void Initialize()
 {
+  gShutdown = false;
   GetImpl().Initialize();
 }
 
@@ -146,12 +149,20 @@ void Shutdown()
   if(gWindowSystem)
   {
     gWindowSystem->Shutdown();
-    gWindowSystem.reset();
+    delete gWindowSystem;
+    gWindowSystem = nullptr;
   }
+  gShutdown = true;
 }
 
 WindowSystemBase* GetWindowSystem()
 {
+  if(gShutdown)
+  {
+    // Do not create the window system again; that would re-initialize the platform during teardown.
+    DALI_LOG_ERROR("WindowSystem is used after Shutdown()\n");
+    return nullptr;
+  }
   return &GetImpl();
 }
 

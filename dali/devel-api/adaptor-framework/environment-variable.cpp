@@ -19,8 +19,10 @@
 
 // EXTERNAL INCLUDE
 #include <cstdlib>
+#include <string>
+#include <unordered_map>
 
-#if defined(_WIN32)
+#if defined(DALI_PROFILE_WINDOWS)
 #ifdef GetEnvironmentVariable
 #undef GetEnvironmentVariable
 #endif
@@ -32,12 +34,27 @@ namespace EnvironmentVariable
 {
 const char* GetEnvironmentVariable(const char* variable)
 {
+#if defined(DALI_PROFILE_WINDOWS)
+  char*       buffer = nullptr;
+  std::size_t length = 0u;
+  if(_dupenv_s(&buffer, &length, variable) != 0 || buffer == nullptr)
+  {
+    return nullptr;
+  }
+
+  thread_local std::unordered_map<std::string, std::string> values;
+  std::string&                                               value = values[variable];
+  value.assign(buffer);
+  std::free(buffer);
+  return value.c_str();
+#else
   return std::getenv(variable);
+#endif
 }
 
 bool SetEnvironmentVariable(const char* variable, const char* value)
 {
-#if defined(_WIN32)
+#if defined(DALI_PROFILE_WINDOWS)
   return _putenv_s(variable, value) == 0;
 #else
   return setenv(variable, value, 1) == 0;

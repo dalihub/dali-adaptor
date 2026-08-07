@@ -91,6 +91,16 @@ bool InputMethodContext::SetInputPanelAutoShowEnabled(bool enabled)
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).AutoEnableInputPanel(enabled);
 }
 
+void InputMethodContext::Activate()
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).Activate();
+}
+
+void InputMethodContext::Deactivate()
+{
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).Deactivate();
+}
+
 bool InputMethodContext::ShowInputPanel()
 {
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).ShowInputPanel();

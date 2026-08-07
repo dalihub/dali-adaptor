@@ -33,8 +33,8 @@
 #include <thread>
 
 // INTERNAL HEADERS
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/event-handler.h>
@@ -289,7 +289,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     SceneHolder::TouchEventSignal().Connect(this, &Window::OnSceneTouchEvent);
     SceneHolder::WheelEventSignal().Connect(this, &Window::OnSceneWheelEvent);
     SceneHolder::InterceptKeyEventSignal().Connect(this, &Window::OnSceneInterceptKeyEvent);
-    SceneHolder::KeyEventMonitorSignal().Connect(this, &Window::OnSceneKeyEventMonitor);
+    SceneHolder::KeyEventDelayedSignal().Connect(this, &Window::OnSceneKeyEventDelayed);
   }
 
   // If this window is created by pre loader process, window show()'s calling should be delayed.
@@ -1069,7 +1069,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
-  DevelKeyEvent::SetWindowId(mLastKeyEvent, keyEvent.windowId);
+  mLastKeyEvent.SetWindowId(keyEvent.windowId);
   FeedKeyEvent(keyEvent);
 }
 
@@ -1091,7 +1091,7 @@ void Window::OnPointerConstraints(const Dali::Int32Pair& position, bool locked, 
 {
   Dali::Window handle(this);
 
-  Vector2                                    newPosition = RecalculatePosition(Vector2(position.GetX(), position.GetY()));
+  Vector2                                    newPosition = RecalculatePosition(Vector2(static_cast<float>(position.GetX()), static_cast<float>(position.GetY())));
   Dali::DevelWindow::PointerConstraintsEvent pointerConstraintsEvent(static_cast<int32_t>(newPosition.x), static_cast<int32_t>(newPosition.y), locked, confined);
 
   mPointerConstraintsSignal.Emit(handle, pointerConstraintsEvent);
@@ -1211,7 +1211,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
 {
   auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge();
 
-  if(!bridge || !bridge->IsUp() || keyEvent.IsNoInterceptModifier())
+  if(!bridge || !bridge->IsUp() || Dali::DevelKeyEvent::IsInterceptProcessed(keyEvent))
   {
     DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
 
@@ -1222,7 +1222,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
   {
     if(!consumed)
     {
-      Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
+      Dali::DevelKeyEvent::SetInterceptProcessed(keyEvent, true);
       handle.FeedKeyEvent(keyEvent);
     }
   };
@@ -1262,12 +1262,12 @@ bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHold
   return mInterceptKeyEventSignal.Emit(handle, keyEvent);
 }
 
-void Window::OnSceneKeyEventMonitor(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
+void Window::OnSceneKeyEventDelayed(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
-  if(!mKeyEventMonitorSignal.Empty())
+  if(!mKeyEventDelayedSignal.Empty())
   {
     Dali::Window handle(this);
-    mKeyEventMonitorSignal.Emit(handle, keyEvent);
+    mKeyEventDelayedSignal.Emit(handle, keyEvent);
   }
 }
 

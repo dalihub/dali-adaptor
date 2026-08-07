@@ -27,13 +27,15 @@ Assert-DaliPaths -Paths @(
   (Join-Path $CorePackage "dali2-core-config.cmake")
 ) -Description "prerequisite package; install dependencies and build dali-core first"
 
+$ConfigurationName = $Configuration.ToLowerInvariant()
+$InternalSdkRoot = Join-Path $Context.SdkRoot $ConfigurationName
 $TizenHeaders = @(
-  (Join-Path $Context.SdkRoot "include\thorvg.h"),
-  (Join-Path $Context.SdkRoot "include\thorvg_lottie.h")
+  (Join-Path $InternalSdkRoot "include\thorvg.h"),
+  (Join-Path $InternalSdkRoot "include\thorvg_lottie.h")
 )
 $TizenDlls = @(
-  (Join-Path $Context.SdkRoot "bin\thorvg.dll"),
-  (Join-Path $Context.SdkRoot "lib\thorvg.dll")
+  (Join-Path $InternalSdkRoot "bin\thorvg.dll"),
+  (Join-Path $InternalSdkRoot "lib\thorvg.dll")
 )
 $TizenHeaderCount = @($TizenHeaders | Where-Object { Test-Path -LiteralPath $_ }).Count
 $TizenDllCount = @($TizenDlls | Where-Object { Test-Path -LiteralPath $_ }).Count

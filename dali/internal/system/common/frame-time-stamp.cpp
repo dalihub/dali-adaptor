@@ -49,7 +49,7 @@ FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex)
 
 unsigned int FrameTimeStamp::MicrosecondDiff(const FrameTimeStamp& start, const FrameTimeStamp& end)
 {
-  return end.microseconds - start.microseconds;
+  return static_cast<uint32_t>(end.microseconds - start.microseconds);
 }
 
 } // namespace Adaptor

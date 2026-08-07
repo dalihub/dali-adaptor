@@ -730,7 +730,7 @@ public:
       createQueue.pop();
       // Queue don't have iterator. Just full search here.
       bool found = false;
-      int  n     = discardQueue.size();
+    int32_t n     = static_cast<int32_t>(discardQueue.size());
       while(n-- != 0)
       {
         auto* discardedValue = discardQueue.front();

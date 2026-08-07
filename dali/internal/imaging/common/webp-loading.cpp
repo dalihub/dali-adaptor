@@ -182,7 +182,7 @@ public:
         size_t dataSize;
         if(DALI_LIKELY(TizenPlatform::Network::DownloadRemoteFileIntoMemory(mUrl, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE)))
         {
-          mBufferSize = dataBuffer.Size();
+  mBufferSize = static_cast<uint32_t>(dataBuffer.Size());
           if(DALI_LIKELY(mBufferSize > 0U))
           {
             // Open a file handle on the memory buffer:

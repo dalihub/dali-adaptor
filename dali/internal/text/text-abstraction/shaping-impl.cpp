@@ -185,7 +185,7 @@ struct Shaping::Plugin
                              SCRIPT_TO_HARFBUZZ[script]); /* see hb-unicode.h */
 
         const std::string& localeString = TextAbstraction::GetLocale();
-        hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), localeString.size()));
+  hb_buffer_set_language(harfBuzzBuffer, hb_language_from_string(localeString.c_str(), static_cast<int32_t>(localeString.size())));
 
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
@@ -282,7 +282,7 @@ struct Shaping::Plugin
       }
     }
 
-    return mIndices.Count();
+  return static_cast<Length>(mIndices.Count());
   }
 
   void GetGlyphs(GlyphInfo*      glyphInfo,
@@ -293,7 +293,7 @@ struct Shaping::Plugin
     Vector<float>::ConstIterator          offsetIt       = mOffset.Begin();
     Vector<CharacterIndex>::ConstIterator characterMapIt = mCharacterMap.Begin();
 
-    for(GlyphIndex index = 0u, size = mIndices.Count(); index < size; ++index)
+  for(GlyphIndex index = 0u, size = static_cast<GlyphIndex>(mIndices.Count()); index < size; ++index)
     {
       GlyphInfo&      glyph            = *(glyphInfo + index);
       CharacterIndex& glyphToCharacter = *(glyphToCharacterMap + index);

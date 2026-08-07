@@ -211,12 +211,12 @@ public:
    */
   struct X11KeyEvent : public X11Event
   {
-    unsigned long timestamp; ///< time in milliseconds
-    std::string   compose;
-    std::string   keyname;
-    std::string   key;
-    int           keyCode;
-    unsigned int  modifiers;
+    uint32_t     timestamp; ///< time in milliseconds. X protocol TIMESTAMPs are CARD32, even though Xlib widens Time to unsigned long.
+    std::string  compose;
+    std::string  keyname;
+    std::string  key;
+    int          keyCode;
+    unsigned int modifiers;
   };
 
   /**

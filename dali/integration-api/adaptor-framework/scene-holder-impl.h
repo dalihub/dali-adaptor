@@ -197,9 +197,41 @@ public:
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);
 
   /**
+   * @brief Feeds a touch event to the scene.
+   *
+   * Every point of the event is fed to the touch event combiner in turn, just as
+   * the points of a real touch event are.
+   *
+   * @param[in] touchEvent The touch event, the current time is used if its time is not set
+   */
+  void FeedTouchEvent(Dali::Integration::TouchEvent& touchEvent);
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::FeedMouseFrameEvent
    */
   void FeedMouseFrameEvent();
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedHoverEvent
+   */
+  void FeedHoverEvent(Dali::Integration::Point& point);
+
+  /**
+   * @brief Feeds a hover event to the scene.
+   *
+   * @param[in] hoverEvent The hover event, the current time is used if its time is not set
+   */
+  void FeedHoverEvent(Dali::Integration::HoverEvent& hoverEvent);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
+   */
+  void FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
+   */
+  void FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent);
 
   /**
    * @brief Get the Last Touch Event
@@ -221,21 +253,6 @@ public:
    * @return Dali::GestureState
    */
   Dali::GestureState GetLastPanGestureState() const;
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
-   */
-  void FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent);
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedKeyEvent
-   */
-  void FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent);
-
-  /**
-   * @copydoc Dali::Integration::SceneHolder::FeedHoverEvent
-   */
-  void FeedHoverEvent(Dali::Integration::Point& point);
 
   /**
    * @copydoc Dali::Integration::SceneHolder::SetGeometryHittestEnabled
@@ -392,11 +409,11 @@ public:
   }
 
   /**
-   * @copydoc Dali::Integration::SceneHolder::KeyEventMonitorSignal()
+   * @copydoc Dali::Integration::SceneHolder::KeyEventDelayedSignal()
    */
-  Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventMonitorSignal()
+  Dali::Integration::SceneHolder::KeyEventSignalType& KeyEventDelayedSignal()
   {
-    return mSceneHolderKeyEventMonitorSignal;
+    return mSceneHolderKeyEventDelayedSignal;
   }
 
   /**
@@ -542,9 +559,9 @@ private:
   void OnSceneWheelEvent(Dali::WheelEvent event);
 
   /**
-   * @brief Bridge callback: receives KeyEvent from Core Scene monitor and re-emits via mSceneHolderKeyEventMonitorSignal with SceneHolder prepended.
+   * @brief Bridge callback: receives a delayed KeyEvent from Core Scene and re-emits via mSceneHolderKeyEventDelayedSignal with SceneHolder prepended.
    */
-  void OnSceneKeyEventMonitor(Dali::KeyEvent event);
+  void OnSceneKeyEventDelayed(Dali::KeyEvent event);
 
   /**
    * @brief Bridge callback: receives generated KeyEvent from Core Scene and re-emits via mSceneHolderKeyEventGeneratedSignal with SceneHolder prepended.
@@ -572,7 +589,7 @@ private:
 
   // Owned signals that wrap Core Scene signals with SceneHolder as first argument
   Dali::Integration::SceneHolder::KeyEventSignalType            mSceneHolderKeyEventSignal;
-  Dali::Integration::SceneHolder::KeyEventSignalType            mSceneHolderKeyEventMonitorSignal;
+  Dali::Integration::SceneHolder::KeyEventSignalType            mSceneHolderKeyEventDelayedSignal;
   Dali::Integration::SceneHolder::TouchEventSignalType          mSceneHolderTouchEventSignal;
   Dali::Integration::SceneHolder::WheelEventSignalType          mSceneHolderWheelEventSignal;
   Dali::Integration::SceneHolder::KeyEventGeneratedSignalType   mSceneHolderKeyEventGeneratedSignal;

@@ -105,13 +105,21 @@ void FpsTracker::OutputFPSRecord()
   }
 
   // Dumps out the frame rate.
-  FILE* outfile = fopen(DALI_TEMP_UPDATE_FPS_FILE, "w");
-  if(outfile)
+#if defined(DALI_PROFILE_WINDOWS)
+  FILE* outputFile = nullptr;
+  if(fopen_s(&outputFile, DALI_TEMP_UPDATE_FPS_FILE, "w") != 0)
+  {
+    outputFile = nullptr;
+  }
+#else
+  FILE* outputFile = fopen(DALI_TEMP_UPDATE_FPS_FILE, "w");
+#endif
+  if(outputFile)
   {
     char fpsString[10];
     snprintf(fpsString, sizeof(fpsString), "%.2f \n", fps);
-    fputs(fpsString, outfile); // ignore the error on purpose
-    fclose(outfile);
+    fputs(fpsString, outputFile); // ignore the error on purpose
+    fclose(outputFile);
   }
 }
 
