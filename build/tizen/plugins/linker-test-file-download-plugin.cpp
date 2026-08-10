@@ -20,7 +20,7 @@
 
 int main(int argc, char** argv)
 {
-  // Super special method to call curl_global_init() at main thread.
+  // Pull in the download path so that the plugin symbols are linked.
   Dali::Vector<uint8_t> vector;
   Dali::FileLoader::DownloadFileSynchronously("", vector);
 

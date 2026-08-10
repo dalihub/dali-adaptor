@@ -53,6 +53,17 @@ public:
   bool InitializePlugin() override;
 
   /**
+   * @brief Block new downloads, cancel in-flight ones, and wait for them to leave libcurl.
+   *
+   * Releases the curl global state only if that wait succeeded, since curl_global_cleanup() is
+   * unsafe while another thread is still inside libcurl.
+   *
+   * @return True if no thread is inside libcurl any more. False if the wait timed out, in which
+   * case the curl global state has deliberately been left alone.
+   */
+  bool Shutdown();
+
+  /**
    * @brief Download a requested file into a memory buffer using curl.
    *
    * @param[in] url The requested file URL

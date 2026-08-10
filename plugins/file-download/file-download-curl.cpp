@@ -21,8 +21,12 @@
 // EXTERNAL INCLUDES
 #include <curl/curl.h>
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <sstream>
 
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -55,6 +59,17 @@ extern "C" DALI_ADAPTOR_API void DestroyFileDownloadPlugin(Dali::FileDownloadPlu
   delete plugin;
 }
 
+// Shutdown entry point looked up via dlsym by FileDownloadPluginProxy::Shutdown().
+// Optional, so that older plugin SOs without it still load.
+extern "C" DALI_ADAPTOR_API bool FileDownloadPluginShutdown(Dali::FileDownloadPlugin* plugin)
+{
+  if(DALI_LIKELY(plugin))
+  {
+    return static_cast<Dali::Plugin::CurlFileDownloader*>(plugin)->Shutdown();
+  }
+  return true;
+}
+
 namespace Dali::Plugin
 {
 namespace // unnamed namespace
@@ -72,29 +87,29 @@ const char* HTTP_PROXY_ENV                = "http_proxy";
 
 // Helper to print the curl error codes.
 // Use macro, ensure to print the line number.
-#define LOG_CURL_RESULT(result, errorBuffer, url, prefix)                                                                                  \
-  {                                                                                                                                        \
-    if(DALI_UNLIKELY(result != CURLE_OK))                                                                                                  \
-    {                                                                                                                                      \
-      if(errorBuffer != nullptr)                                                                                                           \
-      {                                                                                                                                    \
+#define LOG_CURL_RESULT(result, errorBuffer, url, prefix)                                                                                                       \
+  {                                                                                                                                                             \
+    if(DALI_UNLIKELY(result != CURLE_OK))                                                                                                                       \
+    {                                                                                                                                                           \
+      if(errorBuffer != nullptr)                                                                                                                                \
+      {                                                                                                                                                         \
         DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d\n", std::string(prefix).c_str(), std::string(url).c_str(), result);                   \
-      }                                                                                                                                    \
-      else                                                                                                                                 \
-      {                                                                                                                                    \
+      }                                                                                                                                                         \
+      else                                                                                                                                                      \
+      {                                                                                                                                                         \
         DALI_LOG_ERROR("[FileDownload][Curl] %s \"%s\" with error code %d (%s)\n", std::string(prefix).c_str(), std::string(url).c_str(), result, errorBuffer); \
-      }                                                                                                                                    \
-    }                                                                                                                                      \
+      }                                                                                                                                                         \
+    }                                                                                                                                                           \
   }
 
-#define CHECK_CURL_RESULT_AND_RETURN_FALSE(curlResult, prefix) \
-  {                                                            \
-    if(DALI_UNLIKELY(curlResult != CURLE_OK))                  \
-    {                                                          \
-      LOG_CURL_RESULT(curlResult, errorBuffer, url, prefix);   \
-      DALI_LOG_ERROR("[FileDownload][Curl] CURL error occured!\n");                 \
-      return false;                                            \
-    }                                                          \
+#define CHECK_CURL_RESULT_AND_RETURN_FALSE(curlResult, prefix)      \
+  {                                                                 \
+    if(DALI_UNLIKELY(curlResult != CURLE_OK))                       \
+    {                                                               \
+      LOG_CURL_RESULT(curlResult, errorBuffer, url, prefix);        \
+      DALI_LOG_ERROR("[FileDownload][Curl] CURL error occured!\n"); \
+      return false;                                                 \
+    }                                                               \
   }
 
 std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t width)
@@ -181,6 +196,106 @@ const long INCLUDE_HEADER            = 1L;
 const long INCLUDE_BODY              = 0L;
 const long EXCLUDE_BODY              = 1L;
 
+// Abort a transfer that makes no meaningful progress rather than holding a worker thread until
+// TIMEOUT_SECONDS expires. Deliberately conservative : only a genuinely stalled connection is
+// slower than this, so a legitimately slow network is not killed.
+const long LOW_SPEED_LIMIT_BYTES_PER_SECOND(1L);
+const long LOW_SPEED_TIME_SECONDS(20L);
+
+// How long Shutdown() waits for in-flight downloads to leave libcurl. Cancellation is not
+// instantaneous (see ShutdownProgressCallback), so this must be bounded : blocking forever here
+// would turn a shutdown crash into a shutdown ANR.
+constexpr auto DRAIN_TIMEOUT = std::chrono::seconds(3);
+
+// Shutdown state.
+//
+// curl global state is process-wide, so the state guarding it is process-wide too rather than
+// per CurlFileDownloader instance.
+//
+// gShuttingDown is atomic so that the curl callbacks can poll it without taking a lock, but it is
+// only ever written while holding gActiveDownloadMutex. That makes "raise the flag, then observe
+// the count" and "test the flag, then increment the count" mutually atomic, so a download can
+// never slip into libcurl after Shutdown() has decided the process is quiescent.
+std::atomic<bool>       gShuttingDown{false};
+std::mutex              gActiveDownloadMutex;
+std::condition_variable gActiveDownloadCondition;
+uint32_t                gActiveDownloadCount{0u};
+
+bool IsShuttingDown()
+{
+  return gShuttingDown.load(std::memory_order_relaxed);
+}
+
+/**
+ * @brief RAII guard tracking one synchronous download that is inside libcurl.
+ *
+ * Construction fails (IsAcquired() returns false) if shutdown has already begun, in which case the
+ * caller must not enter libcurl at all.
+ */
+class ActiveDownloadGuard
+{
+public:
+  ActiveDownloadGuard()
+  {
+    std::scoped_lock lock(gActiveDownloadMutex);
+    if(DALI_LIKELY(!gShuttingDown.load(std::memory_order_relaxed)))
+    {
+      ++gActiveDownloadCount;
+      mAcquired = true;
+    }
+  }
+
+  ~ActiveDownloadGuard()
+  {
+    if(mAcquired)
+    {
+      bool drained = false;
+      {
+        std::scoped_lock lock(gActiveDownloadMutex);
+        drained = (--gActiveDownloadCount == 0u);
+      }
+      if(drained)
+      {
+        gActiveDownloadCondition.notify_all();
+      }
+    }
+  }
+
+  bool IsAcquired() const
+  {
+    return mAcquired;
+  }
+
+  ActiveDownloadGuard(const ActiveDownloadGuard&)            = delete;
+  ActiveDownloadGuard& operator=(const ActiveDownloadGuard&) = delete;
+  ActiveDownloadGuard(ActiveDownloadGuard&&)                 = delete;
+  ActiveDownloadGuard& operator=(ActiveDownloadGuard&&)      = delete;
+
+private:
+  bool mAcquired{false};
+};
+
+/**
+ * @brief Block new downloads and wait for in-flight ones to leave libcurl.
+ *
+ * @return The number of downloads still inside libcurl, so zero if the drain succeeded. A non-zero
+ * count tells how badly it failed, which is worth knowing from a field log : one transfer stuck in
+ * name resolution is a different problem from every worker being stuck.
+ */
+uint32_t DrainActiveDownloads()
+{
+  {
+    std::scoped_lock lock(gActiveDownloadMutex);
+    gShuttingDown.store(true, std::memory_order_relaxed);
+  }
+
+  // In-flight transfers observe the flag from the progress and write callbacks and abort.
+  std::unique_lock lock(gActiveDownloadMutex);
+  gActiveDownloadCondition.wait_for(lock, DRAIN_TIMEOUT, []()
+  { return gActiveDownloadCount == 0u; });
+  return gActiveDownloadCount;
+}
+
 /**
  * @brief Get the Curlopt Verbose Mode value from environment.
  *
@@ -226,13 +341,42 @@ struct ChunkData
 
 // Without a write function or a buffer (file descriptor) to write to, curl will pump out
 // header/body contents to stdout
+/**
+ * @brief Progress callback registered only so that a transfer can be aborted.
+ *
+ * The progress values are ignored. Returning non-zero makes curl_easy_perform() return
+ * CURLE_ABORTED_BY_CALLBACK, which is how an in-flight transfer is pulled out of libcurl at
+ * shutdown. curl invokes this at least once per second even while no data is arriving, and
+ * between the non-blocking steps of a TLS handshake, so a hung connection is still reachable.
+ *
+ * Reaction is not immediate : the polling interval bounds it, and with a synchronous resolver the
+ * name resolution phase is not reachable at all. Hence the bounded wait in DrainActiveDownloads().
+ *
+ * Must stay cheap - it runs on the transfer thread.
+ */
+int FUNCTION_CALL_FROM_CURL_PREFIX ShutdownProgressCallback(void* userdata, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+  return IsShuttingDown() ? 1 : 0;
+}
+
 size_t FUNCTION_CALL_FROM_CURL_PREFIX DummyWrite(char* ptr, size_t size, size_t nmemb, void* userdata)
 {
+  // Returning a short count aborts the transfer. While data is flowing this reacts faster than
+  // ShutdownProgressCallback, which curl only polls periodically.
+  if(DALI_UNLIKELY(IsShuttingDown()))
+  {
+    return 0u;
+  }
   return size * nmemb;
 }
 
 size_t FUNCTION_CALL_FROM_CURL_PREFIX ChunkLoader(char* ptr, size_t size, size_t nmemb, void* userdata)
 {
+  if(DALI_UNLIKELY(IsShuttingDown()))
+  {
+    return 0u;
+  }
+
   std::vector<ChunkData>* chunks   = static_cast<std::vector<ChunkData>*>(userdata);
   int                     numBytes = size * nmemb;
   chunks->push_back(ChunkData());
@@ -266,6 +410,17 @@ bool ConfigureCurlOptions(CURL* curlHandle, const std::string& url, const std::s
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_HEADER, INCLUDE_HEADER), "CURLOPT_HEADER");
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY), "CURLOPT_NOBODY");
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L), "CURLOPT_NOSIGNAL");
+
+  // Make the transfer abortable at shutdown. CURLOPT_NOPROGRESS defaults to 1, in which case the
+  // callback is registered but never invoked, so it must be cleared here.
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_XFERINFOFUNCTION, ShutdownProgressCallback), "CURLOPT_XFERINFOFUNCTION");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_NOPROGRESS, 0L), "CURLOPT_NOPROGRESS");
+
+  // Give up on a stalled connection well before CURLOPT_TIMEOUT would, shortening the window in
+  // which a worker thread sits inside libcurl.
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_LOW_SPEED_LIMIT, LOW_SPEED_LIMIT_BYTES_PER_SECOND), "CURLOPT_LOW_SPEED_LIMIT");
+  CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_LOW_SPEED_TIME, LOW_SPEED_TIME_SECONDS), "CURLOPT_LOW_SPEED_TIME");
+
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L), "CURLOPT_FOLLOWLOCATION");
   CHECK_CURL_RESULT_AND_RETURN_FALSE(curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, maximumRedirectionCounts), "CURLOPT_MAXREDIRS");
 
@@ -407,7 +562,10 @@ bool DownloadFile(CURL*                  curlHandle,
     // If we know the size up front, allocate once and avoid chunk copies.
     dataSize = static_cast<size_t>(size);
     result   = DownloadFileDataWithSize(curlHandle, dataBuffer, dataSize, url, errorBuffer);
-    if(!result)
+    // DevNote : A cancelled transfer also reports failure, and FixedBufferLoader returns a short
+    // count in both cases, so the curl error code cannot tell the two apart. Test the shutdown
+    // flag directly - retrying here would start another transfer just after we asked to stop.
+    if(!result && !IsShuttingDown())
     {
       DALI_LOG_DEBUG_INFO("[FileDownload][Curl] Failed to download file, trying to load by chunk. \"%s\"\n", url.c_str());
       // In the case where the size is wrong (e.g. on a proxy server that rewrites data),
@@ -429,71 +587,55 @@ bool DownloadFile(CURL*                  curlHandle,
  * Curl library environment. Direct initialize ensures it's constructed before this plugin
  * uses any curl functionality.
  */
-class CurlFileDownloader::Impl : public Dali::FileDownloadPluginProxy::EventThreadCallbackObserver
+class CurlFileDownloader::Impl
 {
 public:
   Impl()
   : mUserAgent("DALi/" + std::to_string(ADAPTOR_MAJOR_VERSION) + "." + std::to_string(ADAPTOR_MINOR_VERSION) + "." + std::to_string(ADAPTOR_MICRO_VERSION)),
     mProxy(),
-    mInitializationSemaphore(0),
-    mTerminateSemaphore(0),
     mInitialized(false)
   {
   }
 
   ~Impl()
   {
-    if(DALI_UNLIKELY(mInitialized))
-    {
-      DALI_LOG_DEBUG_INFO("Cleaning up curl library environment\n");
-
-      if(Dali::GetThreadId() == Dali::GetMainThreadId())
-      {
-        curl_global_cleanup();
-      }
-      else
-      {
-        if(DALI_UNLIKELY(!Dali::FileDownloadPluginProxy::RegisterEventThreadObserver(*this)))
-        {
-          DALI_LOG_ERROR("Fail to register EventThreadCallback observer. Looks Adaptor is not available.\n");
-        }
-        else
-        {
-          DALI_LOG_DEBUG_INFO("Wait OnTriggered()\n");
-          // Now we can assume that OnTriggered() callback will be comes. Acquire the semaphore.
-          mTerminateSemaphore.Acquire();
-          DALI_LOG_DEBUG_INFO("Cleaning up curl library environment done\n");
-        }
-      }
-    }
+    // Reached only through DestroyFileDownloadPlugin(), which by contract runs after the worker
+    // threads have been joined, so the process is quiescent with respect to libcurl here.
+    Cleanup();
   }
 
   bool Initialize()
   {
-    // Lock and wait until curl_global_init completed.
+    // Serialize initialization so that curl_global_init() is never entered concurrently,
+    // and so that every caller observes a completed initialization.
     std::scoped_lock lock(sImplMutex);
     if(DALI_UNLIKELY(mInitialized))
     {
       return true;
     }
 
+    // curl does not support re-initialization after curl_global_cleanup(). Fail cleanly instead,
+    // which is what a download requested after shutdown should do anyway.
+    if(DALI_UNLIKELY(mCleanedUp))
+    {
+      DALI_LOG_ERROR("curl library environment is already cleaned up. Cannot initialize again.\n");
+      return false;
+    }
+
     DALI_LOG_DEBUG_INFO("Initializing curl library environment\n");
 
-    if(Dali::GetThreadId() == Dali::GetMainThreadId())
-    {
-      curl_global_init(CURL_GLOBAL_ALL);
-    }
-    else
-    {
-      if(DALI_UNLIKELY(!Dali::FileDownloadPluginProxy::RegisterEventThreadObserver(*this)))
-      {
-        DALI_LOG_ERROR("Fail to register EventThreadCallback observer. Looks Adaptor is not available.\n");
-        return false;
-      }
+    // DevNote : curl_global_init() has no thread affinity requirement. What it does require is that
+    // it completes before any other libcurl call, and that it is not entered concurrently.
+    // sImplMutex serializes it, and callers always run it before curl_easy_init(), so it is safe
+    // to run here regardless of which thread we are on.
+    const CURLcode initializationResult = curl_global_init(CURL_GLOBAL_ALL);
 
-      DALI_LOG_DEBUG_INFO("Wait OnTriggered()\n");
-      // Now we can assume that OnTriggered() callback will be comes. Acquire the semaphore.
-      mInitializationSemaphore.Acquire();
+    if(DALI_UNLIKELY(initializationResult != CURLE_OK))
+    {
+      DALI_LOG_ERROR("curl_global_init failed with error %d (%s)\n",
+                     static_cast<int>(initializationResult),
+                     curl_easy_strerror(initializationResult));
+      return false;
     }
 
     DALI_LOG_DEBUG_INFO("Initializing curl library environment done\n");
@@ -514,6 +656,26 @@ public:
     return true;
   }
 
+  /**
+   * @brief Release the curl library environment.
+   *
+   * @note The caller must guarantee that no thread is inside libcurl. curl_global_cleanup() is not
+   * thread-safe, and tearing down the SSL back-end underneath a transfer is exactly the crash this
+   * shutdown path exists to prevent.
+   */
+  void Cleanup()
+  {
+    std::scoped_lock lock(sImplMutex);
+    if(DALI_UNLIKELY(mInitialized))
+    {
+      DALI_LOG_DEBUG_INFO("Cleaning up curl library environment\n");
+      curl_global_cleanup();
+      DALI_LOG_DEBUG_INFO("Cleaning up curl library environment done\n");
+      mInitialized = false;
+    }
+    mCleanedUp = true;
+  }
+
   const std::string& GetUserAgent() const
   {
     return mUserAgent;
@@ -522,27 +684,6 @@ public:
   const std::string& GetProxy() const
   {
     return mProxy;
-  }
-
-  void OnTriggered() override
-  {
-    DALI_LOG_DEBUG_INFO("OnTriggered\n");
-    if(!mInitialized)
-    {
-      // Call curl_global_init and release initialization semaphore, to complete initialization.
-      DALI_LOG_DEBUG_INFO("curl_global_init(CURL_GLOBAL_ALL)\n");
-      curl_global_init(CURL_GLOBAL_ALL);
-      DALI_LOG_DEBUG_INFO("curl_global_init(CURL_GLOBAL_ALL) done\n");
-      mInitializationSemaphore.Release();
-    }
-    else
-    {
-      DALI_LOG_DEBUG_INFO("curl_global_cleanup()\n");
-      curl_global_cleanup();
-      DALI_LOG_DEBUG_INFO("curl_global_cleanup() done\n");
-      mTerminateSemaphore.Release();
-    }
-    DALI_LOG_DEBUG_INFO("OnTriggered done\n");
   }
 
 private:
@@ -555,10 +696,8 @@ private:
   const std::string mUserAgent;
   std::string       mProxy;
 
-  Dali::Semaphore<1> mInitializationSemaphore; // Used for testing to wait until curl_global_init is complete at event thread.
-  Dali::Semaphore<1> mTerminateSemaphore;      // Used for testing to wait until curl_global_cleanup is complete at event thread.
-
   bool mInitialized;
+  bool mCleanedUp{false}; ///< True once curl_global_cleanup() ran, after which we must not initialize again.
 
   static std::mutex sImplMutex;
 };
@@ -580,6 +719,26 @@ bool CurlFileDownloader::InitializePlugin()
   return mImpl->Initialize();
 }
 
+bool CurlFileDownloader::Shutdown()
+{
+  const uint32_t remainingDownloads = DrainActiveDownloads();
+
+  if(DALI_LIKELY(remainingDownloads == 0u))
+  {
+    // The invariant holds : nothing is inside libcurl, so releasing its global state is safe.
+    mImpl->Cleanup();
+  }
+  else
+  {
+    // A worker is stuck somewhere cancellation cannot reach it, most likely name resolution.
+    // Skip the cleanup rather than pull the SSL back-end out from under it. The process is about
+    // to exit anyway, so leaking curl's global state costs nothing; crashing here would not.
+    DALI_LOG_ERROR("[FileDownload][Curl] Timed out waiting for %u download(s) to finish. Skipping curl_global_cleanup().\n", remainingDownloads);
+  }
+
+  return remainingDownloads == 0u;
+}
+
 bool CurlFileDownloader::DownloadRemoteFileIntoMemory(const std::string&     url,
                                                       Dali::Vector<uint8_t>& dataBuffer,
                                                       size_t&                dataSize,
@@ -593,8 +752,15 @@ bool CurlFileDownloader::DownloadRemoteFileIntoMemory(const std::string&     url
     return false;
   }
 
-  // start a libcurl easy session, this internally calls curl_global_init, if we ever have more than one download
-  // thread we need to explicity call curl_global_init() on startup from a single thread.
+  // Refuse new work once shutdown has begun, and register this download so that Shutdown() waits
+  // for it. Note this must happen before curl_easy_init() : that implicitly calls
+  // curl_global_init(), which must never run after curl_global_cleanup().
+  ActiveDownloadGuard activeDownloadGuard;
+  if(DALI_UNLIKELY(!activeDownloadGuard.IsAcquired()))
+  {
+    DALI_LOG_RELEASE_INFO("[FileDownload][Curl][sync] rejected during shutdown url[%s]\n", url.c_str());
+    return false;
+  }
 
   CURL* curlHandle = curl_easy_init();
   if(curlHandle)

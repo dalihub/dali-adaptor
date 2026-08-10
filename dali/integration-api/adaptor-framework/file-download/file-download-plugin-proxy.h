@@ -48,29 +48,21 @@ public:
 
   static constexpr DownloadId INVALID_DOWNLOAD_ID = -1; ///< Invalid async download id.
 
-  class EventThreadCallbackObserver
-  {
-  public:
-    EventThreadCallbackObserver()          = default;
-    virtual ~EventThreadCallbackObserver() = default;
-
-    /**
-     * @brief Invoked on the Event Thread when queued plugin work is ready to process.
-     */
-    virtual void OnTriggered() = 0;
-  };
-
 public: // Event Thread (dali-adaptor side)
-
   /**
-   * @brief Register EventThreadCallback so that the download plugin can access it.
+   * @brief Block new downloads, cancel in-flight ones, and wait for them to leave the plugin.
+   *
+   * Call this while the worker threads that may be downloading are still alive, and before
+   * joining them : the point is to shorten that join, not to replace it.
+   *
+   * A no-op if no plugin was ever loaded. Never unloads the library - see Destroy() for that,
+   * which must not run until the worker threads have been joined.
+   *
+   * @return True if no thread is inside the plugin any more. False if the wait timed out, or if
+   * the loaded plugin does not support draining, which is normal for plugins that delegate
+   * transfers to an out-of-process downloader.
    */
-  static void RegisterEventThreadCallback();
-
-  /**
-   * @brief Unregister EventThreadCallback.
-   */
-  static void UnregisterEventThreadCallback();
+  static bool Shutdown();
 
   /**
    * @brief Explicitly unload the plugin and cleanup resources.
@@ -108,7 +100,6 @@ public: // Event Thread (dali-adaptor side)
   static void CancelAsyncDownload(DownloadId downloadId);
 
 public: // Worker Thread (dali-adaptor side)
-
   /**
    * @brief Download a requested file into a memory buffer.
    *
@@ -126,15 +117,6 @@ public: // Worker Thread (dali-adaptor side)
                                            Dali::Vector<uint8_t>& dataBuffer,
                                            size_t&                dataSize,
                                            size_t                 maximumAllowedSizeBytes);
-
-public: // Worker Thread (plugin side)
-
-  /**
-   * @brief Register event thread callback so that the plugin can run queued work on the Event Thread.
-   * @return True if registration succeeded, so we can assume OnTriggered() will be invoked.
-   *         False if registration failed, so OnTriggered() will not be invoked.
-   */
-  static bool RegisterEventThreadObserver(EventThreadCallbackObserver& observer);
 
 private:
   FileDownloadPluginProxy() = delete;

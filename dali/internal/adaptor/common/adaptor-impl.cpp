@@ -48,7 +48,7 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-#include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::RegisterEventThreadCallback
+#include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::Shutdown
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
@@ -222,9 +222,6 @@ void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 
   mNotificationTrigger = std::move(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   DALI_LOG_DEBUG_INFO("mNotificationTrigger Trigger Id(%u)\n", mNotificationTrigger->GetId());
-
-  // Register file download plugin proxy to use TriggerEvent.
-  Dali::FileDownloadPluginProxy::RegisterEventThreadCallback();
 
   GenerateDisplayConnector(defaultWindow->GetSurface()->GetSurfaceType());
 
@@ -503,6 +500,14 @@ void Adaptor::Stop()
       }
     }
 
+    // Cancel in-flight remote downloads and wait for the worker threads to leave the download
+    // plugin, so that nothing is inside it once process teardown starts releasing the libraries it
+    // depends on. Done before the worker threads are joined.
+    if(!Dali::FileDownloadPluginProxy::Shutdown())
+    {
+      DALI_LOG_RELEASE_INFO("File download plugin was not drained. Downloads may still be in flight.\n");
+    }
+
     // Destroy the image loader plugin
     auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ENABLE_IMAGE_LOADER_PLUGIN);
     bool enablePlugin       = enablePluginString ? std::atoi(enablePluginString) : false;
@@ -518,9 +523,6 @@ void Adaptor::Stop()
     GetCore().SceneDestroyed();
 
     RemoveSystemInformation();
-
-    // Unregister file download plugin proxy before state become STOPPED.
-    Dali::FileDownloadPluginProxy::UnregisterEventThreadCallback();
 
     // Note: Must change the state at end of function.
     mState = STOPPED;
