@@ -353,6 +353,7 @@ WindowBaseWin::~WindowBaseWin()
 
   // Stop callbacks before the C++ object starts disappearing.  External
   // windows are only detached; DALi-owned windows are destroyed synchronously.
+  StopKeyboardRepeat();
   mWindowImpl.SetListener(nullptr);
   NotifyDragAndDropWindowDestroyed(reinterpret_cast<HWND>(nativeWindow));
   mWindowImpl.DetachWindow();
@@ -403,9 +404,13 @@ void WindowBaseWin::OnFocusIn(int, TWinEventInfo* event)
 
 void WindowBaseWin::OnFocusOut(int, TWinEventInfo* event)
 {
-  if(event->mWindow == mWin32Window && Dali::Adaptor::IsAvailable())
+  if(event->mWindow == mWin32Window)
   {
-    mFocusChangedSignal.Emit(false);
+    StopKeyboardRepeat();
+    if(Dali::Adaptor::IsAvailable())
+    {
+      mFocusChangedSignal.Emit(false);
+    }
   }
 }
 
@@ -572,38 +577,127 @@ void WindowBaseWin::OnKeyDown(int, TWinEventInfo* event)
 {
   if(event->mWindow == mWin32Window && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
+    const bool isNativeRepeat = WindowsPlatform::IsNativeKeyRepeat(event->lParam);
+    if(isNativeRepeat)
+    {
+      if(!mKeyboardRepeatState.ShouldForwardNativeRepeat(event->wParam))
+      {
+        return;
+      }
+    }
+    else
+    {
+      StopKeyboardRepeat();
+      mKeyboardRepeatState.Start({event->uMsg, event->wParam, event->lParam});
 
-    const int         rawKeyCode    = static_cast<int>(event->wParam);
-    const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
-    const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
-    const String      keyName(ToDaliString(utf8KeyName));
-    const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
-    const String      keyString(ToDaliString(utf8KeyString));
-    const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
-    const String      deviceName(ToDaliString(std::string("keyboard")));
-    const int         modifier = static_cast<int>(GetKeyModifiers());
-    const auto        time     = static_cast<uint32_t>(event->timestamp);
+      float rate  = 0.0f;
+      float delay = 0.0f;
+      if(!WindowSystem::GetKeyboardRepeatInfo(rate, delay) || !StartKeyboardRepeatTimer(delay))
+      {
+        mKeyboardRepeatState.EnableNativeFallback();
+      }
+    }
 
-    // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
-    // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
-    // code for ordinary keys that have no such entry.
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
-    const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
-
-    Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
-    keyEvent.isRepeat    = (static_cast<uintptr_t>(event->lParam) & (1u << 30u)) != 0u;
-    keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = GetTickCount();
-
-    mKeyEventSignal.Emit(keyEvent);
+    EmitKeyDown(event, isNativeRepeat);
   }
+}
+
+void WindowBaseWin::EmitKeyDown(TWinEventInfo* event, bool isRepeat)
+{
+  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::EmitKeyDown\n");
+
+  const int         rawKeyCode    = static_cast<int>(event->wParam);
+  const std::string utf8KeyName   = WindowsPlatform::GetKeyName(rawKeyCode, event->lParam);
+  const std::string utf8KeyString = GetKeyString(event->wParam, event->lParam);
+  const String      keyName(ToDaliString(utf8KeyName));
+  const String      logicalKey(ToDaliString(GetLogicalKey(utf8KeyName, utf8KeyString)));
+  const String      keyString(ToDaliString(utf8KeyString));
+  const String      compose; ///< Raw key events carry no compose string; IME composition arrives via the WM_IME_* path.
+  const String      deviceName(ToDaliString(std::string("keyboard")));
+  const int         modifier = static_cast<int>(GetKeyModifiers());
+  const auto        time     = static_cast<uint32_t>(event->timestamp);
+
+  // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
+  // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
+  // code for ordinary keys that have no such entry.
+  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+  const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
+
+  Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
+  keyEvent.isRepeat    = isRepeat;
+  keyEvent.windowId    = GetNativeWindowId();
+  keyEvent.receiveTime = GetTickCount();
+
+  mKeyEventSignal.Emit(keyEvent);
+}
+
+bool WindowBaseWin::StartKeyboardRepeatTimer(float interval)
+{
+  if(mKeyboardRepeatTimer >= 0)
+  {
+    WindowsPlatform::KillTimer(mKeyboardRepeatTimer);
+  }
+
+  mKeyboardRepeatTimer = WindowsPlatform::SetTimer(WindowsPlatform::KeyboardRepeatMilliseconds(interval), KeyboardRepeatTimerCallback, this);
+  return mKeyboardRepeatTimer >= 0;
+}
+
+void WindowBaseWin::StopKeyboardRepeat()
+{
+  if(mKeyboardRepeatTimer >= 0)
+  {
+    WindowsPlatform::KillTimer(mKeyboardRepeatTimer);
+    mKeyboardRepeatTimer = -1;
+  }
+  mKeyboardRepeatState.Stop();
+}
+
+bool WindowBaseWin::KeyboardRepeatTimerCallback(void* data)
+{
+  return static_cast<WindowBaseWin*>(data)->OnKeyboardRepeatTimer();
+}
+
+bool WindowBaseWin::OnKeyboardRepeatTimer()
+{
+  const intptr_t expiredTimer = mKeyboardRepeatTimer;
+  mKeyboardRepeatTimer        = -1;
+  WindowsPlatform::KillTimer(expiredTimer);
+
+  if(!mKeyboardRepeatState.IsActive() || mWin32Window == 0 || !Dali::Adaptor::IsAvailable())
+  {
+    mKeyboardRepeatState.Stop();
+    return false;
+  }
+
+  const WindowsPlatform::KeyboardRepeatKey repeatKey = mKeyboardRepeatState.GetKey();
+
+  float rate  = 0.0f;
+  float delay = 0.0f;
+  if(!WindowSystem::GetKeyboardRepeatInfo(rate, delay) || !StartKeyboardRepeatTimer(rate))
+  {
+    mKeyboardRepeatState.EnableNativeFallback();
+  }
+
+  TWinEventInfo repeatEvent(mWin32Window, repeatKey.message, repeatKey.key, repeatKey.nativeData, WindowsPlatform::GetCurrentMilliSeconds());
+  EmitKeyDown(&repeatEvent, true);
+  return false;
 }
 
 void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
 {
-  if(event->mWindow == mWin32Window && Dali::Adaptor::IsAvailable())
+  if(event->mWindow == mWin32Window)
   {
+    if(mKeyboardRepeatState.Stop(event->wParam) && mKeyboardRepeatTimer >= 0)
+    {
+      WindowsPlatform::KillTimer(mKeyboardRepeatTimer);
+      mKeyboardRepeatTimer = -1;
+    }
+
+    if(!Dali::Adaptor::IsAvailable())
+    {
+      return;
+    }
+
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyUp\n");
 
     const int         rawKeyCode    = static_cast<int>(event->wParam);
@@ -1005,6 +1099,12 @@ void WindowBaseWin::EventEntry(TWinEventInfo* event)
     case WM_CLOSE:
     {
       OnDeleteRequest();
+      break;
+    }
+
+    case WM_NCDESTROY:
+    {
+      StopKeyboardRepeat();
       break;
     }
 
