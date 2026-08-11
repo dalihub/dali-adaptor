@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -43,7 +43,7 @@ CanvasRenderer::DrawableGroup::DrawableGroup(Internal::Adaptor::DrawableGroup* i
 {
 }
 
-bool CanvasRenderer::DrawableGroup::AddDrawable(Drawable& drawable)
+bool CanvasRenderer::DrawableGroup::AddDrawable(Drawable drawable)
 {
   return GetImplementation(*this).AddDrawable(drawable);
 }

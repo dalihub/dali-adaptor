@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/system/windows/timer-impl-win.h>
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/object/type-registry.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
@@ -30,6 +33,8 @@ namespace Adaptor
 // LOCAL STUFF
 namespace
 {
+Dali::TypeRegistration TIMER_WIN_TYPE(typeid(Dali::Internal::Adaptor::TimerWin), typeid(Dali::Timer), nullptr);
+
 bool TimerSourceFunc(void* data)
 {
   TimerWin* timer = static_cast<TimerWin*>(data);

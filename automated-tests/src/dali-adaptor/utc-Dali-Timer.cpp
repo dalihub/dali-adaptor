@@ -24,6 +24,10 @@
 #include <iostream>
 #include <memory>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 using namespace Dali;
 
 void utc_dali_timer_startup(void)
@@ -69,6 +73,25 @@ namespace
 {
 void test_ecore_main_loop_begin()
 {
+#if defined(_WIN32)
+  main_loop_can_run = true;
+  const ULONGLONG timeout = GetTickCount64() + 2000u;
+
+  while(main_loop_can_run && GetTickCount64() < timeout)
+  {
+    if(MsgWaitForMultipleObjectsEx(0, nullptr, 200u, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_FAILED)
+    {
+      break;
+    }
+
+    MSG message;
+    while(PeekMessage(&message, nullptr, 0u, 0u, PM_REMOVE))
+    {
+      TranslateMessage(&message);
+      DispatchMessage(&message);
+    }
+  }
+#else
   if(timer_callback_func != NULL)
   {
     main_loop_can_run = true;
@@ -78,6 +101,7 @@ void test_ecore_main_loop_begin()
         break;
     }
   }
+#endif
 }
 
 void test_ecore_main_loop_quit()

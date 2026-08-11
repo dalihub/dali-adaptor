@@ -633,6 +633,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_includedir}/dali/dali.h
 %{_includedir}/dali/public-api/*
+%{_includedir}/dali/extension-api/*
 %{_includedir}/dali/doc/*
 %{_libdir}/pkgconfig/dali2-adaptor.pc
 

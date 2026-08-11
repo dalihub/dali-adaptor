@@ -85,9 +85,14 @@ public:
   void RemoveIdle(CallbackBase* callback);
 
   /**
-   * @copydoc Dali::UiContext::FlushUpdateMessages()
+   * @copydoc Dali::UiContext::FlushPendingChanges()
    */
-  void FlushUpdateMessages();
+  void FlushPendingChanges();
+
+  /**
+   * @copydoc Dali::UiContext::RenderOnce()
+   */
+  void RenderOnce();
 
   /**
    * @copydoc Dali::UiContext::AddFrameCallback()
@@ -103,6 +108,16 @@ public:
    * @copydoc Dali::UiContext::NotifyFrameCallback()
    */
   Dali::UpdateProxy::NotifySyncPoint NotifyFrameCallback(FrameCallbackInterface& frameCallback);
+
+  /**
+   * @copydoc Dali::UiContext::SetRenderingBehavior()
+   */
+  void SetRenderingBehavior(Dali::UiContext::RenderingBehavior renderingBehavior);
+
+  /**
+   * @copydoc Dali::UiContext::GetRenderingBehavior()
+   */
+  Dali::UiContext::RenderingBehavior GetRenderingBehavior() const;
 
 private:
   /**

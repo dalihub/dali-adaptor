@@ -2,7 +2,7 @@
 #define DALI_KEY_EXTENSION_PLUGIN_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <cstdlib>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
+#include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
 
 namespace Dali
 {
@@ -37,9 +37,9 @@ public:
   /**
    * @brief The key lookup entry type.
    *
-   * Kept as a member alias for source compatibility; the canonical definition is Dali::KeyLookupEntry.
+   * Kept as a member alias for source compatibility; the canonical definition is Dali::Extension::KeyLookupEntry.
    */
-  using KeyLookup = Dali::KeyLookupEntry;
+  using KeyLookup = Extension::KeyLookupEntry;
 
   /**
    * @brief Constructor.

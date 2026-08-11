@@ -1,0 +1,16 @@
+
+
+# extension-api headers are an intermediate API level between public-api and devel-api.
+
+SET( adaptor_extension_api_src_files
+  ${adaptor_extension_api_dir}/adaptor-framework/adaptor-extension.cpp
+  ${adaptor_extension_api_dir}/adaptor-framework/key-extension.cpp
+  ${adaptor_extension_api_dir}/adaptor-framework/window-extension.cpp
+)
+
+SET( adaptor_extension_api_header_files
+  ${adaptor_extension_api_dir}/adaptor-framework/adaptor-extension.h
+  ${adaptor_extension_api_dir}/adaptor-framework/key-extension.h
+  ${adaptor_extension_api_dir}/adaptor-framework/key-lookup-entry.h
+  ${adaptor_extension_api_dir}/adaptor-framework/window-extension.h
+)

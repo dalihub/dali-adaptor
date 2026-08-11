@@ -66,9 +66,14 @@ void UiContext::RemoveIdle(CallbackBase* callback)
   Internal::Adaptor::GetImplementation(*this).RemoveIdle(callback);
 }
 
-void UiContext::FlushUpdateMessages()
+void UiContext::FlushPendingChanges()
 {
-  Internal::Adaptor::GetImplementation(*this).FlushUpdateMessages();
+  Internal::Adaptor::GetImplementation(*this).FlushPendingChanges();
+}
+
+void UiContext::RenderOnce()
+{
+  Internal::Adaptor::GetImplementation(*this).RenderOnce();
 }
 
 void UiContext::AddFrameCallback(FrameCallbackInterface& frameCallback, Actor rootActor)
@@ -84,6 +89,16 @@ void UiContext::RemoveFrameCallback(FrameCallbackInterface& frameCallback)
 UpdateProxy::NotifySyncPoint UiContext::NotifyFrameCallback(FrameCallbackInterface& frameCallback)
 {
   return Internal::Adaptor::GetImplementation(*this).NotifyFrameCallback(frameCallback);
+}
+
+void UiContext::SetRenderingBehavior(UiContext::RenderingBehavior renderingBehavior)
+{
+  Internal::Adaptor::GetImplementation(*this).SetRenderingBehavior(renderingBehavior);
+}
+
+UiContext::RenderingBehavior UiContext::GetRenderingBehavior() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetRenderingBehavior();
 }
 
 } // namespace Dali

@@ -87,5 +87,8 @@ include( ${ADAPTOR_ROOT}/dali/devel-api/file.list )
 SET( adaptor_integration_api_dir ${ADAPTOR_ROOT}/dali/integration-api )
 include( ${ADAPTOR_ROOT}/dali/integration-api/file.list )
 
+SET( adaptor_extension_api_dir ${ADAPTOR_ROOT}/dali/extension-api )
+include( ${ADAPTOR_ROOT}/dali/extension-api/file.list )
+
 SET( adaptor_thirdparty_dir ${ADAPTOR_ROOT}/third-party )
 include( ${ADAPTOR_ROOT}/third-party/file.list )

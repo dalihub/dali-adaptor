@@ -8,6 +8,7 @@ MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
 SET(CAPI_LIB "dali-adaptor")
 
 SET(TC_SOURCES
+    utc-Dali-AdaptorExtension.cpp
     utc-Dali-Application.cpp
     utc-Dali-Accessibility.cpp
     utc-Dali-ClipboardData.cpp
@@ -19,6 +20,7 @@ SET(TC_SOURCES
     utc-Dali-GifLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
+    utc-Dali-KeyExtension.cpp
     utc-Dali-Keyboard.cpp
     utc-Dali-NativeImage.cpp
     utc-Dali-PixelBuffer.cpp
@@ -28,6 +30,7 @@ SET(TC_SOURCES
     utc-Dali-WidgetApplication.cpp
     utc-Dali-Widget.cpp
     utc-Dali-Window.cpp
+    utc-Dali-WindowExtension.cpp
     utc-Dali-WindowSystem.cpp
 )
 
@@ -39,7 +42,7 @@ ELSE()
 )
 ENDIF()
 
-SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
+SET(TC_SOURCE_LIST ${TC_SOURCES})
 
 LIST(APPEND TC_SOURCES
     dali-test-suite-utils/mesh-builder.cpp
@@ -70,6 +73,10 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     dali-test-suite-utils/adaptor-environment-variable.cpp
 )
+
+IF(DALI_TEST_SOURCE_LIST_ONLY)
+  RETURN()
+ENDIF()
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core

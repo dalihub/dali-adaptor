@@ -2,7 +2,7 @@
 #define DALI_KEY_DEVEL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,14 @@
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/key-lookup-entry.h>
-#include <dali/public-api/adaptor-framework/key.h>
+#include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
+// Expose KeyLookupEntry as a convenience (defined in extension-api)
+using KeyLookupEntry = Dali::Extension::KeyLookupEntry;
+
 namespace DevelKey
 {
 /**
@@ -35,18 +38,6 @@ namespace DevelKey
  * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
  */
 DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
-
-/**
- * @brief Registers an extension key lookup table directly, without loading a key extension plugin (.so).
- *
- * This is an alternative to the plugin; only one source is used at a time.
- * The given table is deep-copied and owned internally, so the caller does not need to keep it alive.
- * If the key extension plugin has already been loaded, this call is ignored.
- *
- * @param[in] table The extension key lookup table
- * @param[in] count The number of entries in the table
- */
-DALI_ADAPTOR_API void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count);
 
 } // namespace DevelKey
 

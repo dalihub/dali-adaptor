@@ -1,6 +1,14 @@
 
 
 SET( adaptor_public_api_src_files
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.cpp
   ${adaptor_public_api_dir}/adaptor-framework/application.cpp
   ${adaptor_public_api_dir}/adaptor-framework/capture.cpp
   ${adaptor_public_api_dir}/adaptor-framework/clipboard-data.cpp
@@ -63,6 +71,17 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/window.h
   ${adaptor_public_api_dir}/adaptor-framework/window-data.h
   ${adaptor_public_api_dir}/adaptor-framework/window-definitions.h
+)
+
+SET( public_api_adaptor_framework_canvas_renderer_header_files
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h
+  ${adaptor_public_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.h
 )
 
 SET( public_api_adaptor_framework_widget_header_files

@@ -22,8 +22,8 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -47,12 +47,16 @@ class LinearGradient;
  *
  * Besides the class inherited from the Gradient class, it enables setting and getting the linear gradient bounds.
  * The behavior outside the gradient bounds depends on the value specified in the spread API.
+ *
+ * @SINCE_2_5.35
  */
 class DALI_ADAPTOR_API CanvasRenderer::LinearGradient : public CanvasRenderer::Gradient
 {
 public:
   /**
    * @brief Creates an initialized handle to a new CanvasRenderer::LinearGradient.
+   *
+   * @SINCE_2_5.35
    * @return A handle to a newly allocated LinearGradient
    */
   static LinearGradient New();
@@ -60,17 +64,22 @@ public:
 public:
   /**
    * @brief Creates an empty handle. Use CanvasRenderer::LinearGradient::New() to create an initialized object.
+   *
+   * @SINCE_2_5.35
    */
   LinearGradient();
 
   /**
    * @brief Destructor.
+   *
+   * @SINCE_2_5.35
    */
   ~LinearGradient();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_5.35
    * @param[in] handle A reference to the copied handle
    */
   LinearGradient(const LinearGradient& handle) = default;
@@ -81,14 +90,18 @@ public:
    * The bounds of the linear gradient are defined as a surface constrained by two parallel lines crossing
    * the given points (@p x1, @p y1) and (@p x2, @p y2), respectively. Both lines are perpendicular to the line linking
    * (@p x1, @p y1) and (@p x2, @p y2).
+   *
+   * @SINCE_2_5.35
    * @param[in] firstPoint The first point used to determine the gradient bounds.
    * @param[in] secondPoint The second point used to determine the gradient bounds.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetBounds(Vector2 firstPoint, Vector2 secondPoint);
+  bool SetBounds(const Vector2& firstPoint, const Vector2& secondPoint);
 
   /**
    * @brief Gets the linear gradient bounds.
+   *
+   * @SINCE_2_5.35
    * @param[out] firstPoint The first point used to determine the gradient bounds.
    * @param[out] secondPoint The second point used to determine the gradient bounds.
    * @return Returns True when it's successful. False otherwise.
@@ -99,6 +112,8 @@ public: // Not intended for application developers
   /// @cond internal
   /**
    * @brief The constructor.
+   *
+   * @SINCE_2_5.35
    * @note  Not intended for application developers.
    *
    * @param[in] pointer A pointer to a newly allocated CanvasRenderer::LinearGradient

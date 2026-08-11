@@ -22,8 +22,8 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -44,12 +44,16 @@ class DrawableGroup;
 
 /**
  * @brief A class that holds many Drawable object. As a whole they can be transformed, their transparency can be changed.
+ *
+ * @SINCE_2_5.35
  */
 class DALI_ADAPTOR_API CanvasRenderer::DrawableGroup : public CanvasRenderer::Drawable
 {
 public:
   /**
    * @brief Creates an initialized handle to a new CanvasRenderer::DrawableGroup.
+   *
+   * @SINCE_2_5.35
    * @return A handle to a newly allocated DrawableGroup
    */
   static DrawableGroup New();
@@ -57,17 +61,22 @@ public:
 public:
   /**
    * @brief Creates an empty handle. Use CanvasRenderer::DrawableGroup::New() to create an initialized object.
+   *
+   * @SINCE_2_5.35
    */
   DrawableGroup();
 
   /**
    * @brief Destructor.
+   *
+   * @SINCE_2_5.35
    */
   ~DrawableGroup();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_5.35
    * @param[in] handle A reference to the copied handle
    */
   DrawableGroup(const DrawableGroup& handle) = default;
@@ -75,14 +84,18 @@ public:
 public:
   /**
    * @brief Add drawable object to the DrawableGroup. This method is similar to registration.
+   *
+   * @SINCE_2_5.35
    * @param[in] drawable The drawable object.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool AddDrawable(Drawable& drawable);
+  bool AddDrawable(Drawable drawable);
 
   /**
    * @brief Remove drawable object to the DrawableGroup.
    * This method is similar to deregistration. Freeing memory is not concerned for drawables being removed.
+   *
+   * @SINCE_2_5.35
    * @param[in] drawable the drawable object.
    * @return Returns True when it's successful. False otherwise.
    */
@@ -90,6 +103,8 @@ public:
 
   /**
    * @brief Remove all drawable objects added to the DrawableGroup.
+   *
+   * @SINCE_2_5.35
    * @return Returns True when it's successful. False otherwise.
    */
   bool RemoveAllDrawables();
@@ -100,6 +115,7 @@ public: // Not intended for application developers
    * @brief The constructor.
    * @note  Not intended for application developers.
    *
+   * @SINCE_2_5.35
    * @param[in] pointer A pointer to a newly allocated CanvasRenderer::DrawableGroup
    */
   explicit DALI_INTERNAL DrawableGroup(Internal::Adaptor::DrawableGroup* impl);

@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -43,12 +43,12 @@ CanvasRenderer::Picture::Picture(Internal::Adaptor::Picture* impl)
 {
 }
 
-bool CanvasRenderer::Picture::Load(const std::string& url)
+bool CanvasRenderer::Picture::Load(const Dali::StringView& url)
 {
   return GetImplementation(*this).Load(url);
 }
 
-bool CanvasRenderer::Picture::SetSize(Vector2 size)
+bool CanvasRenderer::Picture::SetSize(const Vector2& size)
 {
   return GetImplementation(*this).SetSize(size);
 }
