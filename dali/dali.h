@@ -20,6 +20,16 @@
 
 #include <dali/public-api/dali-core.h>
 
+// Canvas Renderer
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+
 // Application / UI Framework adaption
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/capture.h>
