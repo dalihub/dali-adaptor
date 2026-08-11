@@ -60,6 +60,16 @@ class DALI_ADAPTOR_API UiContext : public BaseHandle
 {
 public:
   /**
+   * @brief Enumeration for the rendering behavior of DALi.
+   * @SINCE_2_5.35
+   */
+  enum class RenderingBehavior
+  {
+    IF_REQUIRED,  ///< Default. Will only render if required to do so. @SINCE_2_5.34
+    CONTINUOUSLY, ///< Will render on every frame, even if nothing in the scene has changed. @SINCE_2_5.34
+  };
+
+  /**
    * @brief Retrieves the singleton UiContext instance.
    *
    * @return A handle to the UiContext instance
@@ -163,6 +173,30 @@ public:
    * @SINCE_2_5.23
    */
   UpdateProxy::NotifySyncPoint NotifyFrameCallback(FrameCallbackInterface& frameCallback);
+
+  /**
+   * @brief Sets the rendering behavior.
+   *
+   * By default DALi only renders when something in the scene has changed.
+   * RenderingBehavior::CONTINUOUSLY makes DALi render on every frame regardless
+   * of whether the scene has changed, which increases power consumption.
+   * It should be reset to RenderingBehavior::IF_REQUIRED as soon as
+   * it is no longer required.
+   *
+   * @param[in] renderingBehavior The rendering behavior required
+   * @note By default, DALi uses RenderingBehavior::IF_REQUIRED.
+   * @note This applies to the whole application, not to an individual window.
+   * @SINCE_2_5.35
+   */
+  void SetRenderingBehavior(RenderingBehavior renderingBehavior);
+
+  /**
+   * @brief Retrieves the rendering behavior.
+   *
+   * @return The current rendering behavior
+   * @SINCE_2_5.35
+   */
+  RenderingBehavior GetRenderingBehavior() const;
 
   /**
    * @brief Copy Constructor.

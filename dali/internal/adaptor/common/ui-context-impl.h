@@ -104,6 +104,16 @@ public:
    */
   Dali::UpdateProxy::NotifySyncPoint NotifyFrameCallback(FrameCallbackInterface& frameCallback);
 
+  /**
+   * @copydoc Dali::UiContext::SetRenderingBehavior()
+   */
+  void SetRenderingBehavior(Dali::UiContext::RenderingBehavior renderingBehavior);
+
+  /**
+   * @copydoc Dali::UiContext::GetRenderingBehavior()
+   */
+  Dali::UiContext::RenderingBehavior GetRenderingBehavior() const;
+
 private:
   /**
    * @brief Private constructor with adaptor.

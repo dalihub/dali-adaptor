@@ -86,4 +86,14 @@ UpdateProxy::NotifySyncPoint UiContext::NotifyFrameCallback(FrameCallbackInterfa
   return Internal::Adaptor::GetImplementation(*this).NotifyFrameCallback(frameCallback);
 }
 
+void UiContext::SetRenderingBehavior(UiContext::RenderingBehavior renderingBehavior)
+{
+  Internal::Adaptor::GetImplementation(*this).SetRenderingBehavior(renderingBehavior);
+}
+
+UiContext::RenderingBehavior UiContext::GetRenderingBehavior() const
+{
+  return Internal::Adaptor::GetImplementation(*this).GetRenderingBehavior();
+}
+
 } // namespace Dali
