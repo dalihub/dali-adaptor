@@ -18,6 +18,7 @@
 #include "adaptor-environment-variable.h"
 
 // EXTERNAL INCLUDE
+#include <cstdlib>
 #include <map>
 #include <string>
 
@@ -43,6 +44,13 @@ const char* GetEnvironmentVariable(const char* variable)
 void SetTestEnvironmentVariable(const char* variable, const char* value)
 {
   gEnvironmentVariables[variable] = value;
+
+#if defined(_WIN32)
+  // Unlike ELF test executables, a Windows DLL does not resolve its internal
+  // GetEnvironmentVariable call to the mock above. Keep the process
+  // environment in sync so the adaptor DLL observes the same test value.
+  _putenv_s(variable, value);
+#endif
 }
 
 } // namespace EnvironmentVariable

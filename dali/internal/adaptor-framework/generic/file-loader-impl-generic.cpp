@@ -77,14 +77,28 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
       return errorCode;
     }
 
-    memblock.ResizeUninitialized(fileSize);
+    const std::streamsize requestedSize = static_cast<std::streamsize>(fileSize);
+    memblock.ResizeUninitialized(requestedSize);
 
-    if(file.read(reinterpret_cast<char*>(memblock.Begin()), fileSize).good() == false)
+    file.read(reinterpret_cast<char*>(memblock.Begin()), requestedSize);
+    const std::streamsize readSize = file.gcount();
+    const bool readFailed =
+      file.bad() ||
+      (file.fail() && !file.eof()) ||
+      (fileType == Dali::FileLoader::BINARY && readSize != requestedSize);
+    if(readFailed)
     {
       DALI_LOG_ERROR("Failed to read the file: \"%s\"\n", filename.c_str());
       DALI_PRINT_SYSTEM_ERROR_LOG();
+      memblock.Clear();
+      fileSize = 0;
       return errorCode;
     }
+    // In text mode, the number of characters extracted may be smaller than
+    // tellg()'s physical file size (for example, CRLF is translated to LF on
+    // Windows). Reconcile both outputs with the data that was actually read.
+    fileSize = readSize;
+    memblock.ResizeUninitialized(readSize);
     file.close();
 
     errorCode = 1;
