@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -39,14 +39,29 @@ CanvasRenderer::Gradient::Gradient(Internal::Adaptor::Gradient* pImpl)
 {
 }
 
-bool CanvasRenderer::Gradient::SetColorStops(Dali::CanvasRenderer::Gradient::ColorStops& colorStops)
+bool CanvasRenderer::Gradient::AddColorStop(float offset, const Vector4& color)
 {
-  return GetImplementation(*this).SetColorStops(colorStops);
+  return GetImplementation(*this).AddColorStop(offset, color);
 }
 
-Dali::CanvasRenderer::Gradient::ColorStops CanvasRenderer::Gradient::GetColorStops() const
+bool CanvasRenderer::Gradient::ClearColorStops()
 {
-  return GetImplementation(*this).GetColorStops();
+  return GetImplementation(*this).ClearColorStops();
+}
+
+uint32_t CanvasRenderer::Gradient::GetColorStopCount() const
+{
+  return GetImplementation(*this).GetColorStopCount();
+}
+
+float CanvasRenderer::Gradient::GetColorStopOffset(uint32_t index) const
+{
+  return GetImplementation(*this).GetColorStopOffset(index);
+}
+
+Vector4 CanvasRenderer::Gradient::GetColorStopColor(uint32_t index) const
+{
+  return GetImplementation(*this).GetColorStopColor(index);
 }
 
 bool CanvasRenderer::Gradient::SetSpread(Dali::CanvasRenderer::Gradient::Spread spread)

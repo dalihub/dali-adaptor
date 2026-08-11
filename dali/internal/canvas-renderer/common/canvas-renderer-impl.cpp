@@ -361,7 +361,7 @@ bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
   return true;
 }
 
-const Vector2& CanvasRenderer::GetViewBox()
+const Vector2& CanvasRenderer::GetViewBox() const
 {
   return mViewBox;
 }

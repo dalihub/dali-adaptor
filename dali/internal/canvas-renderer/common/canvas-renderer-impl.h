@@ -30,8 +30,8 @@
 #include <dali/public-api/rendering/texture.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 namespace Dali
@@ -102,7 +102,7 @@ public:
   /**
    * @copydoc Dali::CanvasRenderer::GetViewBox()
    */
-  const Vector2& GetViewBox();
+  const Vector2& GetViewBox() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::SetDropShadow()

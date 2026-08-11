@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/radial-gradient-impl.h>
@@ -42,7 +42,7 @@ CanvasRenderer::RadialGradient::RadialGradient(Internal::Adaptor::RadialGradient
 {
 }
 
-bool CanvasRenderer::RadialGradient::SetBounds(Vector2 centerPoint, float radius)
+bool CanvasRenderer::RadialGradient::SetBounds(const Vector2& centerPoint, float radius)
 {
   return GetImplementation(*this).SetBounds(centerPoint, radius);
 }

@@ -1,14 +1,6 @@
 
 
 SET( devel_api_src_files
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/async-task-manager.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-backend.cpp
@@ -120,18 +112,6 @@ SET( devel_api_adaptor_framework_header_files
 SET( devel_api_adaptor_framework_egl_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
 )
-
-SET( devel_api_adaptor_framework_canvas_renderer_header_files
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.h
-)
-
 
 SET( devel_api_adaptor_framework_web_engine_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.h

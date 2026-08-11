@@ -26,8 +26,8 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
 namespace Dali
@@ -84,7 +84,7 @@ public:
   /**
    * @copydoc Dali::CanvasRenderer::Shape::AddPath()
    */
-  bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand);
+  bool AddPath(const Dali::Vector<Dali::CanvasRenderer::Shape::PathCommandType>& commands, const Dali::Vector<Vector2>& points);
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()

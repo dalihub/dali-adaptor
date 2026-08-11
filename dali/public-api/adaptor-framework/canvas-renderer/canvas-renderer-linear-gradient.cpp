@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/linear-gradient-impl.h>
@@ -42,7 +42,7 @@ CanvasRenderer::LinearGradient::LinearGradient(Internal::Adaptor::LinearGradient
 {
 }
 
-bool CanvasRenderer::LinearGradient::SetBounds(Vector2 firstPoint, Vector2 secondPoint)
+bool CanvasRenderer::LinearGradient::SetBounds(const Vector2& firstPoint, const Vector2& secondPoint)
 {
   return GetImplementation(*this).SetBounds(firstPoint, secondPoint);
 }

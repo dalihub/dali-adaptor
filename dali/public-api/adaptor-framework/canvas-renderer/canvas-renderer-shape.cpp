@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
@@ -43,39 +43,39 @@ CanvasRenderer::Shape::Shape(Internal::Adaptor::Shape* impl)
 {
 }
 
-bool CanvasRenderer::Shape::AddRect(Bounds rect, Vector2 roundedCorner)
+bool CanvasRenderer::Shape::AddRect(const Bounds& rect, const Vector2& roundedCorner)
 {
   return GetImplementation(*this).AddRect(rect, roundedCorner);
 }
 
-bool CanvasRenderer::Shape::AddCircle(Vector2 center, Vector2 radius)
+bool CanvasRenderer::Shape::AddCircle(const Vector2& center, const Vector2& radius)
 {
   return GetImplementation(*this).AddCircle(center, radius);
 }
 
-bool CanvasRenderer::Shape::AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie)
+bool CanvasRenderer::Shape::AddArc(const Vector2& center, float radius, float startAngle, float sweep, bool pie)
 {
   return GetImplementation(*this).AddArc(center, radius, startAngle, sweep, pie);
 }
 
-bool CanvasRenderer::Shape::AddMoveTo(Vector2 point)
+bool CanvasRenderer::Shape::AddMoveTo(const Vector2& point)
 {
   return GetImplementation(*this).AddMoveTo(point);
 }
 
-bool CanvasRenderer::Shape::AddLineTo(Vector2 line)
+bool CanvasRenderer::Shape::AddLineTo(const Vector2& line)
 {
   return GetImplementation(*this).AddLineTo(line);
 }
 
-bool CanvasRenderer::Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint)
+bool CanvasRenderer::Shape::AddCubicTo(const Vector2& controlPoint1, const Vector2& controlPoint2, const Vector2& endPoint)
 {
   return GetImplementation(*this).AddCubicTo(controlPoint1, controlPoint2, endPoint);
 }
 
-bool CanvasRenderer::Shape::AddPath(PathCommands& pathCommand)
+bool CanvasRenderer::Shape::AddPath(const Dali::Vector<PathCommandType>& commands, const Dali::Vector<Vector2>& points)
 {
-  return GetImplementation(*this).AddPath(pathCommand);
+  return GetImplementation(*this).AddPath(commands, points);
 }
 
 bool CanvasRenderer::Shape::Close()
@@ -88,7 +88,7 @@ bool CanvasRenderer::Shape::ResetPath()
   return GetImplementation(*this).ResetPath();
 }
 
-bool CanvasRenderer::Shape::SetFillColor(Vector4 color)
+bool CanvasRenderer::Shape::SetFillColor(const Vector4& color)
 {
   return GetImplementation(*this).SetFillColor(color);
 }
@@ -98,7 +98,7 @@ Vector4 CanvasRenderer::Shape::GetFillColor() const
   return GetImplementation(*this).GetFillColor();
 }
 
-bool CanvasRenderer::Shape::SetFillGradient(CanvasRenderer::Gradient& gradient)
+bool CanvasRenderer::Shape::SetFillGradient(CanvasRenderer::Gradient gradient)
 {
   return GetImplementation(*this).SetFillGradient(gradient);
 }
@@ -128,7 +128,7 @@ float CanvasRenderer::Shape::GetStrokeWidth() const
   return GetImplementation(*this).GetStrokeWidth();
 }
 
-bool CanvasRenderer::Shape::SetStrokeColor(Vector4 color)
+bool CanvasRenderer::Shape::SetStrokeColor(const Vector4& color)
 {
   return GetImplementation(*this).SetStrokeColor(color);
 }
@@ -138,7 +138,7 @@ Vector4 CanvasRenderer::Shape::GetStrokeColor() const
   return GetImplementation(*this).GetStrokeColor();
 }
 
-bool CanvasRenderer::Shape::SetStrokeGradient(CanvasRenderer::Gradient& gradient)
+bool CanvasRenderer::Shape::SetStrokeGradient(CanvasRenderer::Gradient gradient)
 {
   return GetImplementation(*this).SetStrokeGradient(gradient);
 }

@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-factory.h>
@@ -54,7 +54,7 @@ Dali::Texture CanvasRenderer::GetRasterizedTexture()
   return GetImplementation(*this).GetRasterizedTexture();
 }
 
-bool CanvasRenderer::AddDrawable(Drawable& drawable)
+bool CanvasRenderer::AddDrawable(Drawable drawable)
 {
   return GetImplementation(*this).AddDrawable(drawable);
 }
@@ -69,7 +69,7 @@ bool CanvasRenderer::Rasterize()
   return GetImplementation(*this).Rasterize();
 }
 
-bool CanvasRenderer::RemoveDrawable(Drawable& drawable)
+bool CanvasRenderer::RemoveDrawable(Drawable drawable)
 {
   return GetImplementation(*this).RemoveDrawable(drawable);
 }
@@ -79,7 +79,7 @@ bool CanvasRenderer::RemoveAllDrawables()
   return GetImplementation(*this).RemoveAllDrawables();
 }
 
-bool CanvasRenderer::SetSize(Vector2 size)
+bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return GetImplementation(*this).SetSize(size);
 }
@@ -94,7 +94,7 @@ bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
   return GetImplementation(*this).SetViewBox(viewBox);
 }
 
-const Vector2& CanvasRenderer::GetViewBox()
+Vector2 CanvasRenderer::GetViewBox() const
 {
   return GetImplementation(*this).GetViewBox();
 }

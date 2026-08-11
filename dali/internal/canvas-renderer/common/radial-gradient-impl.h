@@ -26,7 +26,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
 
 namespace Dali
