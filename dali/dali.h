@@ -46,10 +46,12 @@
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/keyboard.h>
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>
+#include <dali/public-api/adaptor-framework/video-source-descriptor.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
