@@ -163,6 +163,19 @@ public:
     return mLoadSucceeded;
   }
 
+  ImageDimensions CalculateDecodeSize(ImageDimensions requestedSize) const
+  {
+    if(requestedSize.GetWidth() > 0u && requestedSize.GetHeight() > 0u &&
+       mImageSize.GetWidth() > 0u && mImageSize.GetHeight() > 0u)
+    {
+      // Keep the source aspect ratio during WebP decoder-side scaling. The visual
+      // applies the requested fitting mode after the texture has been loaded.
+      return Internal::Platform::CalculateDesiredDimensions(mImageSize, requestedSize, FittingMode::VISUAL_FITTING);
+    }
+
+    return requestedSize;
+  }
+
   /// Worker thread and Event thread called. Mutex mMutex is locked
   bool ReadWebPInformation()
   {
@@ -378,6 +391,8 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
 #ifdef DALI_WEBP_AVAILABLE
   if(!mImpl->mIsAnimatedImage)
   {
+    desiredSize = mImpl->CalculateDecodeSize(desiredSize);
+
     int32_t width, height;
     if(DALI_LIKELY(WebPGetInfo(mImpl->mBuffer, mImpl->mBufferSize, &width, &height)))
     {
@@ -514,6 +529,8 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
 #ifdef DALI_WEBP_AVAILABLE
   if(!mImpl->mIsAnimatedImage)
   {
+    size = mImpl->CalculateDecodeSize(size);
+
     WebPDecoderConfig config;
     if(DALI_UNLIKELY(!WebPInitDecoderConfig(&config)))
     {
