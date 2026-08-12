@@ -20,7 +20,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/file-stream.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-capabilities.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/image-loading.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loading-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-queue.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.cpp
@@ -73,7 +73,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-capabilities.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-input.h
   ${adaptor_devel_api_dir}/adaptor-framework/image-loader-plugin.h
-  ${adaptor_devel_api_dir}/adaptor-framework/image-loading.h
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loading-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.h
   ${adaptor_devel_api_dir}/adaptor-framework/mouse-relative-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-devel.h

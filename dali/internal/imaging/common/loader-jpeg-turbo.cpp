@@ -38,7 +38,7 @@
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/devel-api/adaptor-framework/image-loading-devel.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>

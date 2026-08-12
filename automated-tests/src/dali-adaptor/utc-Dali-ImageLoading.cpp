@@ -20,7 +20,7 @@
 #include <dali-test-suite-utils.h>
 
 #include <dali/dali.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/devel-api/adaptor-framework/image-loading-devel.h>
 #include <stdlib.h>
 
 using namespace Dali;

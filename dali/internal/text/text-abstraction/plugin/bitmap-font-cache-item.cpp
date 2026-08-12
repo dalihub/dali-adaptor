@@ -19,10 +19,11 @@
 #include <dali/public-api/common/dali-utility.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
@@ -47,7 +48,7 @@ BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont)
     if(EqualsZero(glyph.ascender) && EqualsZero(glyph.descender))
     {
       // Load the glyph.
-      pixelBuffer = LoadImageFromFile(glyph.url);
+      pixelBuffer = LoadImageFromFile(Dali::Integration::ToDaliStringView(glyph.url));
 
       if(pixelBuffer)
       {
@@ -83,7 +84,7 @@ bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpi
       Dali::PixelBuffer& pixelBuffer = const_cast<Dali::PixelBuffer&>(pixelBuffers[index]);
       if(!pixelBuffer)
       {
-        pixelBuffer = LoadImageFromFile(item.url);
+        pixelBuffer = LoadImageFromFile(Dali::Integration::ToDaliStringView(item.url));
       }
 
       glyphInfo.width       = static_cast<float>(pixelBuffer.GetWidth());
@@ -111,7 +112,7 @@ void BitmapFontCacheItem::CreateBitmap(
       Dali::PixelBuffer& pixelBuffer = const_cast<Dali::PixelBuffer&>(pixelBuffers[index]);
       if(!pixelBuffer)
       {
-        pixelBuffer = LoadImageFromFile(item.url);
+        pixelBuffer = LoadImageFromFile(Dali::Integration::ToDaliStringView(item.url));
       }
 
       data.width  = pixelBuffer.GetWidth();

@@ -24,8 +24,8 @@
 
 // Internal headers are allowed here
 
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 
 using namespace Dali;
 using namespace Dali::Internal::Adaptor;

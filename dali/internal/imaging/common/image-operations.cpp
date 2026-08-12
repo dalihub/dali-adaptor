@@ -18,7 +18,7 @@
 #include <dali/internal/imaging/common/image-operations.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/devel-api/adaptor-framework/image-loading-devel.h>
 #include <dali/devel-api/scripting/enum-helper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>

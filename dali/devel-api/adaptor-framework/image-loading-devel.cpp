@@ -15,7 +15,7 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/devel-api/adaptor-framework/image-loading-devel.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-utility.h>
@@ -54,28 +54,6 @@ std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t w
 }
 
 } // namespace
-
-Dali::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
-{
-  Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
-
-  Internal::Platform::FileReader fileReader(url);
-  FILE* const                    fp = fileReader.GetFile();
-  if(DALI_LIKELY(fp != NULL))
-  {
-    Dali::PixelBuffer bitmap;
-    bool              success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, url, fp, bitmap);
-    if(success && bitmap)
-    {
-      return bitmap;
-    }
-  }
-  else
-  {
-    DALI_LOG_ERROR("Error reading file\n");
-  }
-  return Dali::PixelBuffer();
-}
 
 void LoadImagePlanesFromFile(const std::string& url, std::vector<Dali::PixelBuffer>& buffers, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
@@ -160,11 +138,6 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
   dimension.SetHeight(Min(dimension.GetHeight(), static_cast<uint16_t>(GetMaxTextureSize())));
 
   return dimension;
-}
-
-ImageDimensions GetOriginalImageSize(const std::string& filename, bool orientationCorrection)
-{
-  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
 }
 
 Dali::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)

@@ -17,6 +17,7 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/drag-and-drop.cpp
   ${adaptor_public_api_dir}/adaptor-framework/drag-event.cpp
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/image-loading.cpp
   ${adaptor_public_api_dir}/adaptor-framework/input-method-context.cpp
   ${adaptor_public_api_dir}/adaptor-framework/key.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window.cpp
@@ -57,6 +58,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/drag-event.h
   ${adaptor_public_api_dir}/adaptor-framework/device-status.h
   ${adaptor_public_api_dir}/adaptor-framework/encoded-image-buffer.h
+  ${adaptor_public_api_dir}/adaptor-framework/image-loading.h
   ${adaptor_public_api_dir}/adaptor-framework/image-options.h
   ${adaptor_public_api_dir}/adaptor-framework/input-method-context.h
   ${adaptor_public_api_dir}/adaptor-framework/input-method.h

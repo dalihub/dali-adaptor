@@ -40,6 +40,7 @@
 #include <dali/public-api/adaptor-framework/drag-data.h>
 #include <dali/public-api/adaptor-framework/drag-event.h>
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/input-method-context.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
