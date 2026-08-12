@@ -17,10 +17,10 @@
 
 #include <dali/internal/imaging/common/loader-bmp.h>
 
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -50,11 +50,11 @@ enum BmpFormat
 #pragma pack(push, 1)
 struct BmpFileHeader
 {
-  unsigned short signature;    // Bitmap file signature
-  unsigned int   fileSize;     // Bitmap file size in bytes
-  unsigned short reserved1;    // Reserved bits
-  unsigned short reserved2;    // Reserved bits
-  unsigned int   offset;       // Offset from BMP file header to BMP bits
+  unsigned short signature; // Bitmap file signature
+  unsigned int   fileSize;  // Bitmap file size in bytes
+  unsigned short reserved1; // Reserved bits
+  unsigned short reserved2; // Reserved bits
+  unsigned int   offset;    // Offset from BMP file header to BMP bits
 };
 #pragma pack(pop)
 
@@ -1093,7 +1093,7 @@ bool LoadBmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
   return ret;
 }
 
-bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   //DALI_ASSERT_DEBUG( bitmap.GetPackedPixelsProfile() != 0 && "Need a packed pixel bitmap to load into." );
   FILE* const fp = input.file;
@@ -1346,7 +1346,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     return false;
   }
 
-  bitmap      = Dali::Devel::PixelBuffer::New(pixelBufferW, pixelBufferH, newPixelFormat);
+  bitmap      = Dali::PixelBuffer::New(pixelBufferW, pixelBufferH, newPixelFormat);
   auto pixels = bitmap.GetBuffer();
 
   // Guard against a failed allocation (e.g. malloc returning NULL for a huge-but-valid size).

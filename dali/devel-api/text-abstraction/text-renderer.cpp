@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ TextRenderer TextRenderer::Get()
   return Internal::TextRenderer::Get();
 }
 
-Devel::PixelBuffer TextRenderer::Render(const Parameters& parameters)
+Dali::PixelBuffer TextRenderer::Render(const Parameters& parameters)
 {
   return GetImplementation(*this).Render(parameters);
 }

@@ -1127,7 +1127,7 @@ PixelBufferId FontClient::Plugin::CacheHandler::CacheEmbeddedPixelBuffer(const s
   PixelBufferId pixelBufferId = 0u;
 
   // Load the image from the url.
-  Devel::PixelBuffer pixelBuffer = LoadImageFromFile(url);
+  Dali::PixelBuffer pixelBuffer = LoadImageFromFile(url);
   if(pixelBuffer)
   {
     // Create the cache item.

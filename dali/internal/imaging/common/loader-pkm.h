@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_PKM_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ const unsigned char MAGIC_BYTE_2 = 0x4B;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return True if file loaded successfully, false otherwise
  */
-bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
+bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
 
 /**
  * Loads the header of a PKM file and fills in the width and height appropriately.

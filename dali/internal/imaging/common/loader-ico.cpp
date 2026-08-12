@@ -55,9 +55,9 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -604,7 +604,7 @@ bool LoadIcoHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
   return true;
 }
 
-bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   IcoData                     chosen;
   Dali::Vector<unsigned char> map;
@@ -769,7 +769,7 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     }
   }
 
-  bitmap      = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
+  bitmap      = Dali::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
   auto pixels = bitmap.GetBuffer();
   memcpy(pixels, outputBufferPtr, w * h * 4);
 

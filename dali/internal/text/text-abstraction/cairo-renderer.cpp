@@ -127,12 +127,12 @@ struct GlyphBuffer
  *
  * @return The pixel buffer.
  */
-Dali::Devel::PixelBuffer CreateVoidPixelBuffer(const Dali::TextAbstraction::TextRenderer::Parameters& parameters)
+Dali::PixelBuffer CreateVoidPixelBuffer(const Dali::TextAbstraction::TextRenderer::Parameters& parameters)
 {
-  Dali::Pixel::Format      pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
-  Dali::Devel::PixelBuffer pixelBuffer = Dali::Devel::PixelBuffer::New(parameters.width,
-                                                                       parameters.height,
-                                                                       pixelFormat);
+  Dali::Pixel::Format pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
+  Dali::PixelBuffer   pixelBuffer = Dali::PixelBuffer::New(parameters.width,
+                                                           parameters.height,
+                                                           pixelFormat);
 
   const unsigned int bufferSize = parameters.width * parameters.height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
   unsigned char*     buffer     = pixelBuffer.GetBuffer();
@@ -657,7 +657,7 @@ void RenderGlyphs(
 
 } // unnamed namespace
 
-Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Parameters& parameters)
+Dali::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Parameters& parameters)
 {
   const unsigned int numberOfGlyphs = parameters.glyphs.Count();
 
@@ -688,7 +688,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
   // This function provides a stride value that will respect all alignment requirements of the
   // accelerated image-rendering code within cairo.
   const int          stride      = cairo_format_stride_for_width(cairoFormat,
-                                                   static_cast<int>(parameters.width));
+                                                                 static_cast<int>(parameters.width));
   const unsigned int strideWidth = static_cast<unsigned int>(std::abs(stride)) / bpp;
 
   // Convert from DALi glyphs to Cairo glyphs.
@@ -735,7 +735,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
   }
 
   // Creates the pixel buffer and retrieves the buffer pointer used to create the Cairo's surface.
-  Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(strideWidth, parameters.height, pixelFormat);
+  Dali::PixelBuffer pixelBuffer = Dali::PixelBuffer::New(strideWidth, parameters.height, pixelFormat);
 
   unsigned char*     buffer     = pixelBuffer.GetBuffer();
   const unsigned int bufferSize = static_cast<unsigned int>(std::abs(stride)) * parameters.height;

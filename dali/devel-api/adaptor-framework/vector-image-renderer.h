@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -98,7 +98,7 @@ public:
    * @param[in] height The pixel buffer height
    * @return The handle to the rasterized PixelBuffer object or an empty handle in case failed.
    */
-  Dali::Devel::PixelBuffer Rasterize(uint32_t width, uint32_t height);
+  Dali::PixelBuffer Rasterize(uint32_t width, uint32_t height);
 
   /**
    * @brief Gets the default size of the file.

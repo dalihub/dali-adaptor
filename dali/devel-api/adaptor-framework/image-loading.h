@@ -18,8 +18,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -39,7 +39,7 @@ namespace Dali
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
  */
-DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
+DALI_ADAPTOR_API Dali::PixelBuffer LoadImageFromFile(
   const std::string& url,
   ImageDimensions    size                  = ImageDimensions(0, 0),
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
@@ -58,11 +58,11 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  */
 DALI_ADAPTOR_API void LoadImagePlanesFromFile(
-  const std::string&               url,
-  std::vector<Devel::PixelBuffer>& buffers,
-  ImageDimensions                  size                  = ImageDimensions(0, 0),
-  SamplingMode::Type               samplingMode          = SamplingMode::BOX_THEN_LINEAR,
-  bool                             orientationCorrection = true);
+  const std::string&              url,
+  std::vector<Dali::PixelBuffer>& buffers,
+  ImageDimensions                 size                  = ImageDimensions(0, 0),
+  SamplingMode::Type              samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool                            orientationCorrection = true);
 
 /**
  * @brief Load an image synchronously from encoded buffer.
@@ -76,7 +76,7 @@ DALI_ADAPTOR_API void LoadImagePlanesFromFile(
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
  */
-DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
+DALI_ADAPTOR_API Dali::PixelBuffer LoadImageFromBuffer(
   const Dali::Vector<uint8_t>& buffer,
   ImageDimensions              size                  = ImageDimensions(0, 0),
   SamplingMode::Type           samplingMode          = SamplingMode::BOX_THEN_LINEAR,
@@ -95,7 +95,7 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
  * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
  */
-DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
+DALI_ADAPTOR_API Dali::PixelBuffer LoadImageFromBuffer(
   uint8_t*           buffer,
   size_t             bufferSize,
   ImageDimensions    size                  = ImageDimensions(0, 0),
@@ -142,7 +142,7 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
  *
  * @return handle to the loaded PixelBuffer object or an empty handle in case downloading or decoding failed.
  */
-DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
+DALI_ADAPTOR_API Dali::PixelBuffer DownloadImageSynchronously(
   const std::string& url,
   ImageDimensions    size                  = ImageDimensions(0, 0),
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,

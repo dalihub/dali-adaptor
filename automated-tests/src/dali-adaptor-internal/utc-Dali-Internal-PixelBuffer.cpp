@@ -180,7 +180,7 @@ int UtcDaliPixelManipulationLA88(void)
 {
   tet_infoline("Testing Dali::Internal::AdaptorManipulation Read/WriteChannel - LA88 format");
 
-  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(TEST_IMAGE_LA88);
+  Dali::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(TEST_IMAGE_LA88);
   DALI_TEST_CHECK(pixelBuffer);
 
   unsigned int width  = pixelBuffer.GetWidth();

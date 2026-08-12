@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,14 @@ AnimatedImageLoading::~AnimatedImageLoading()
 {
 }
 
-Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t                 frameIndex,
-                                                         ImageDimensions          size,
-                                                         Dali::SamplingMode::Type samplingMode)
+Dali::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t                 frameIndex,
+                                                  ImageDimensions          size,
+                                                  Dali::SamplingMode::Type samplingMode)
 {
   return GetImplementation(*this).LoadFrame(frameIndex, size, samplingMode);
 }
 
-bool AnimatedImageLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
+bool AnimatedImageLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size)
 {
   return GetImplementation(*this).LoadFramePlanes(frameIndex, pixelBuffers, size);
 }

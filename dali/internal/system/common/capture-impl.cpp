@@ -189,16 +189,16 @@ Dali::Texture Capture::GetTexture() const
   return mTexture;
 }
 
-Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
+Dali::PixelBuffer Capture::GetCapturedBuffer()
 {
-  Devel::PixelBuffer pixelBuffer;
+  Dali::PixelBuffer pixelBuffer;
   if(mRenderTask)
   {
     Dali::PixelData pixelData = mRenderTask.GetRenderResult();
     if(pixelData)
     {
       auto pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(pixelData);
-      pixelBuffer          = Dali::Devel::PixelBuffer::New(pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetPixelFormat());
+      pixelBuffer          = Dali::PixelBuffer::New(pixelData.GetWidth(), pixelData.GetHeight(), pixelData.GetPixelFormat());
       memcpy(pixelBuffer.GetBuffer(), pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);
     }
   }
@@ -463,8 +463,8 @@ void Capture::CaptureFileSaveTask::Process()
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_CAPTURE_FILE_SAVE");
 
-    auto               pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
-    Devel::PixelBuffer pixelBuffer;
+    auto              pixelDataBuffer = Dali::Integration::GetPixelDataBuffer(mPixelData);
+    Dali::PixelBuffer pixelBuffer;
 
     uint8_t* buffer = nullptr;
 
@@ -477,7 +477,7 @@ void Capture::CaptureFileSaveTask::Process()
         case Pixel::RGBA8888:
         case Pixel::BGRA8888:
         {
-          pixelBuffer = Dali::Devel::PixelBuffer::New(pixelDataBuffer.width, pixelDataBuffer.height, pixelFormat);
+          pixelBuffer = Dali::PixelBuffer::New(pixelDataBuffer.width, pixelDataBuffer.height, pixelFormat);
 
           buffer = pixelBuffer.GetBuffer();
           memcpy(buffer, pixelDataBuffer.buffer, pixelDataBuffer.bufferSize);

@@ -118,7 +118,7 @@ inline void DALI_TEST_EQUALS(const unsigned char* buffer1, const unsigned char* 
  * @param[in] location The TEST_LOCATION macro should be used here
  */
 
-inline void DALI_IMAGE_TEST_EQUALS(Dali::Devel::PixelBuffer pixelBuffer1, Dali::Devel::PixelBuffer pixelBuffer2, unsigned int tolerance, const char* location)
+inline void DALI_IMAGE_TEST_EQUALS(Dali::PixelBuffer pixelBuffer1, Dali::PixelBuffer pixelBuffer2, unsigned int tolerance, const char* location)
 {
   if((pixelBuffer1.GetPixelFormat() != Pixel::RGB888) || (pixelBuffer2.GetPixelFormat() != Pixel::RGB888))
   {

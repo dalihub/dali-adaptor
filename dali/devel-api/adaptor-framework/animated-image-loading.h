@@ -25,8 +25,8 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -124,11 +124,11 @@ public:
    * @param[in] size The width and height to fit the loaded image to.
    * @param[in] samplingMode The SamplingMode of the resource to load
    *
-   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   * @return Dali::PixelBuffer The loaded Dali::PixelBuffer. If loading is fail, return empty handle.
    */
-  Dali::Devel::PixelBuffer LoadFrame(uint32_t                 frameIndex,
-                                     ImageDimensions          size         = ImageDimensions(),
-                                     Dali::SamplingMode::Type samplingMode = Dali::SamplingMode::BOX_THEN_LINEAR);
+  Dali::PixelBuffer LoadFrame(uint32_t                 frameIndex,
+                              ImageDimensions          size         = ImageDimensions(),
+                              Dali::SamplingMode::Type samplingMode = Dali::SamplingMode::BOX_THEN_LINEAR);
 
   /**
    * @brief Load frame planes of the animated image.
@@ -139,7 +139,7 @@ public:
    * @param[in] size The width and height to fit the loaded image to.
    * @return true if loading succeeded, false otherwise.
    */
-  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size = ImageDimensions());
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size = ImageDimensions());
 
   /**
    * @brief Get the size of a animated image.

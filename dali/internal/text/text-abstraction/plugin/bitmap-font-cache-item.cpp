@@ -42,7 +42,7 @@ BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont)
   unsigned int index = 0u;
   for(auto& glyph : font.glyphs)
   {
-    Devel::PixelBuffer& pixelBuffer = pixelBuffers[index];
+    Dali::PixelBuffer& pixelBuffer = pixelBuffers[index];
 
     if(EqualsZero(glyph.ascender) && EqualsZero(glyph.descender))
     {
@@ -80,7 +80,7 @@ bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpi
   {
     if(item.utf32 == glyphInfo.index)
     {
-      Devel::PixelBuffer& pixelBuffer = const_cast<Devel::PixelBuffer&>(pixelBuffers[index]);
+      Dali::PixelBuffer& pixelBuffer = const_cast<Dali::PixelBuffer&>(pixelBuffers[index]);
       if(!pixelBuffer)
       {
         pixelBuffer = LoadImageFromFile(item.url);
@@ -108,7 +108,7 @@ void BitmapFontCacheItem::CreateBitmap(
   {
     if(item.utf32 == glyphIndex)
     {
-      Devel::PixelBuffer& pixelBuffer = const_cast<Devel::PixelBuffer&>(pixelBuffers[index]);
+      Dali::PixelBuffer& pixelBuffer = const_cast<Dali::PixelBuffer&>(pixelBuffers[index]);
       if(!pixelBuffer)
       {
         pixelBuffer = LoadImageFromFile(item.url);

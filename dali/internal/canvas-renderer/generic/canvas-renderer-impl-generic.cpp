@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ Dali::Texture CanvasRendererGeneric::OnGetRasterizedTexture()
       return Dali::Texture();
     }
 
-    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(mPixelBuffer);
+    Dali::PixelData pixelData = Dali::PixelBuffer::Convert(mPixelBuffer);
 
     if(!mRasterizedTexture || mRasterizedTexture.GetWidth() != width || mRasterizedTexture.GetHeight() != height)
     {
@@ -103,7 +103,7 @@ bool CanvasRendererGeneric::OnRasterize()
 void CanvasRendererGeneric::OnMakeTargetBuffer(const Vector2& size)
 {
 #ifdef THORVG_SUPPORT
-  mPixelBuffer = Devel::PixelBuffer::New(static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height), Dali::Pixel::BGRA8888);
+  mPixelBuffer = Dali::PixelBuffer::New(static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height), Dali::Pixel::BGRA8888);
 
   unsigned char* pBuffer;
   pBuffer = mPixelBuffer.GetBuffer();

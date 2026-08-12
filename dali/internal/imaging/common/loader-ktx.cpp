@@ -24,9 +24,9 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -532,7 +532,7 @@ bool LoadKtxHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   static_assert(sizeof(Byte) == 1);
   static_assert(sizeof(uint32_t) == 4);
@@ -588,7 +588,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
 
   // Load up the image bytes:
-  bitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+  bitmap = Dali::PixelBuffer::New(width, height, pixelFormat);
 
   // Compressed format won't allocate the buffer
   auto pixels = bitmap.GetBuffer();
