@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-map.h>
@@ -55,20 +55,27 @@ public:
                             Pixel::Format pixelFormat);
 
   /**
-   * @brief Create a PixelBuffer object. For internal use only.
+   * @brief Create a PixelBuffer object which takes over the given buffer. For internal use only.
    *
-   * @param [in] buffer           The raw pixel data.
+   * @warning The buffer must have been allocated with malloc(), since the PixelBuffer object
+   * takes ownership of it and releases it with free(). There is no way to tell it to use
+   * another release method, so a buffer that came from an allocator of its own - a decoder
+   * library, new[], and so on - has to be copied into a malloc'd buffer first.
+   * The PixelData that Convert() hands the buffer over to keeps the same contract, as it is
+   * created with PixelData::FREE.
+   *
+   * @param [in] buffer           The raw pixel data, allocated with malloc()
    * @param [in] bufferSize       The size of the buffer in bytes
    * @param [in] width            Buffer width in pixels
    * @param [in] height           Buffer height in pixels
-   * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
+   * @param [in] strideBytes      Buffer stride in bytes, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
    */
   static PixelBufferPtr New(uint8_t*      buffer,
                             uint32_t      bufferSize,
                             uint32_t      width,
                             uint32_t      height,
-                            uint32_t      stride,
+                            uint32_t      strideBytes,
                             Pixel::Format pixelFormat);
 
   /**
@@ -84,18 +91,20 @@ public:
   /**
    * @brief Constructor.
    *
-   * @param [in] buffer           The raw pixel data.
+   * @warning The buffer must have been allocated with malloc(). @see New()
+   *
+   * @param [in] buffer           The raw pixel data, allocated with malloc()
    * @param [in] bufferSize       The size of the buffer in bytes
    * @param [in] width            Buffer width in pixels
    * @param [in] height           Buffer height in pixels
-   * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
+   * @param [in] strideBytes      Buffer stride in bytes, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
    */
   PixelBuffer(uint8_t*      buffer,
               uint32_t      bufferSize,
               uint32_t      width,
               uint32_t      height,
-              uint32_t      stride,
+              uint32_t      strideBytes,
               Pixel::Format pixelFormat);
 
 protected:
@@ -132,14 +141,10 @@ public:
   uint32_t GetHeight() const;
 
   /**
-   * @brief Gets the stride of the buffer in pixels.
-   * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
-   */
-  uint32_t GetStride() const;
-
-  /**
    * @brief Gets the stride of the buffer in bytes.
-   * @return The stride of the buffer in bytes. 0 means the buffer is tightly packed.
+   * @note A tightly packed buffer reports the width in bytes, since the constructor
+   * resolves a 0 stride to width * bpp.
+   * @return The stride of the buffer in bytes, or 0 if there is no pixel buffer.
    */
   uint32_t GetStrideBytes() const;
 
@@ -156,7 +161,7 @@ public:
   uint8_t* GetBuffer() const;
 
   /**
-   * @copydoc Devel::PixelBuffer::GetBuffer()
+   * @copydoc Dali::PixelBuffer::GetBuffer()
    */
   const uint8_t* GetConstBuffer() const;
 
@@ -206,21 +211,23 @@ public:
    * Resizes the buffer to the given dimensions. Uses either Lanczos4 for downscaling
    * or Mitchell for upscaling
    * @param[in] outDimensions The new dimensions
+   * @return @e false if the resize fails (invalid dimensions, invalid pixel format,
+   * empty buffer or memory issues).
    */
-  void Resize(ImageDimensions outDimensions);
+  bool Resize(ImageDimensions outDimensions);
 
   /**
-   * @copydoc Devel::PixelBuffer::ApplyCenterCrop()
+   * @copydoc Dali::DevelPixelBuffer::ApplyCenterCrop()
    */
   void ApplyCenterCrop(uint16_t width, uint16_t height);
 
   /**
-   * @copydoc Devel::PixelBuffer::ApplyLetterbox()
+   * @copydoc Dali::DevelPixelBuffer::ApplyLetterbox()
    */
   void ApplyLetterbox(uint16_t width, uint16_t height);
 
   /**
-   * @copydoc Devel::PixelBuffer::MultiplyColorByAlpha()
+   * @copydoc Dali::DevelPixelBuffer::MultiplyColorByAlpha()
    */
   void MultiplyColorByAlpha();
 
@@ -247,22 +254,23 @@ public:
 
   /**
    * Allocates fixed amount of memory for the pixel data. Used by compressed formats.
+   * @note The memory is allocated with malloc(), to match ReleaseBuffer().
    * @param[in] size Size of memory to be allocated
    */
   void AllocateFixedSize(uint32_t size);
 
   /**
-   * @copydoc Devel::PixelBuffer::Rotate()
+   * @copydoc Dali::DevelPixelBuffer::Rotate()
    */
   bool Rotate(Degree angle);
 
   /**
-   * @copydoc Devel::PixelBuffer::IsAlphaPreMultiplied()
+   * @copydoc Dali::DevelPixelBuffer::IsAlphaPreMultiplied()
    */
   bool IsAlphaPreMultiplied() const;
 
   /**
-   * @copydoc Devel::PixelBuffer::GetBrightness()
+   * @copydoc Dali::DevelPixelBuffer::GetBrightness()
    */
   uint32_t GetBrightness() const;
 
@@ -288,7 +296,8 @@ private:
   void TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer);
 
   /**
-   * Release the buffer
+   * Release the buffer with free(), whether this object allocated it itself or took it
+   * over through New() / the constructor.
    */
   void ReleaseBuffer();
 
@@ -326,7 +335,7 @@ private:
   uint32_t      mBufferSize;  ///< Buffer sized in bytes
   uint32_t      mWidth;       ///< Buffer width in pixels
   uint32_t      mHeight;      ///< Buffer height in pixels
-  uint32_t      mStrideBytes; ///< Buffer stride in bytes, 0 means the buffer is tightly packed
+  uint32_t      mStrideBytes; ///< Buffer stride in bytes, resolved to width * bpp when tightly packed
   Pixel::Format mPixelFormat; ///< Pixel format
 
   bool mPreMultiplied : 1; ///< PreMultiplied
@@ -343,7 +352,7 @@ private:
 /**
  * Helper methods for public API
  */
-inline Internal::Adaptor::PixelBuffer& GetImplementation(Devel::PixelBuffer& handle)
+inline Internal::Adaptor::PixelBuffer& GetImplementation(Dali::PixelBuffer& handle)
 {
   DALI_ASSERT_ALWAYS(handle && "handle is empty");
 
@@ -352,7 +361,7 @@ inline Internal::Adaptor::PixelBuffer& GetImplementation(Devel::PixelBuffer& han
   return static_cast<Internal::Adaptor::PixelBuffer&>(object);
 }
 
-inline const Internal::Adaptor::PixelBuffer& GetImplementation(const Devel::PixelBuffer& handle)
+inline const Internal::Adaptor::PixelBuffer& GetImplementation(const Dali::PixelBuffer& handle)
 {
   DALI_ASSERT_ALWAYS(handle && "handle is empty");
 

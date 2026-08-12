@@ -25,9 +25,9 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -225,7 +225,7 @@ bool LoadWbmpHeader(FILE* const fp, unsigned int& width, unsigned int& height, u
 }
 } // end unnamed namespace
 
-bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   FILE* const fp = input.file;
 
@@ -251,7 +251,7 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   const uint8_t* const inputBufferPtr = &map[0];
 
   // w >= 1 and h >= 1. So we can assume that outputPixels is not null.
-  auto outputPixels = (bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
+  auto outputPixels = (bitmap = Dali::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
 
   /**
    * @code

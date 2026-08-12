@@ -89,9 +89,9 @@ public:
    *
    * @note This function will load the entire animated image into memory if not already loaded.
    * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
-   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   * @return Dali::PixelBuffer The loaded Dali::PixelBuffer. If loading is fail, return empty handle.
    */
-  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
+  Dali::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
 
   /**
    * @brief Load frame planes the image.
@@ -103,7 +103,7 @@ public:
    * @note This method is for static image. If the image is animated image, return empty pixelBuffers.
    * @return true if loading succeeded, false otherwise.
    */
-  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
 
   /**
    * @brief Get the size of a webp image.
@@ -145,9 +145,9 @@ private:
    * @brief Decode Frame of the animated image.
    *
    * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
-   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   * @return Dali::PixelBuffer The loaded Dali::PixelBuffer. If loading is fail, return empty handle.
    */
-  Dali::Devel::PixelBuffer DecodeFrame(uint32_t frameIndex);
+  Dali::PixelBuffer DecodeFrame(uint32_t frameIndex);
 
 private:
   struct Impl;

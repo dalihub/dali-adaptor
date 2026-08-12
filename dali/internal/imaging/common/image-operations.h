@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <third-party/resampler/resampler.h>
 
 namespace Dali
@@ -90,15 +90,15 @@ ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageD
  *         bitmap passed-in, or the original bitmap passed in if the attributes
  *         have no effect.
  */
-Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode = SamplingMode::DEFAULT);
+Dali::PixelBuffer ApplyAttributesToBitmap(Dali::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode = SamplingMode::DEFAULT);
 
 /**
  * @brief Apply downscaling to a bitmap according to requested attributes.
  * @note The input bitmap pixel buffer may be modified and used as scratch working space for efficiency, so it must be discarded.
  **/
-Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
-                                         ImageDimensions          desired,
-                                         SamplingMode::Type       samplingMode);
+Dali::PixelBuffer DownscaleBitmap(Dali::PixelBuffer  bitmap,
+                                  ImageDimensions    desired,
+                                  SamplingMode::Type samplingMode);
 /**@}*/
 
 /**

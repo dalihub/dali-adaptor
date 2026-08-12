@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,19 +116,19 @@ void utc_dali_load_image_cleanup(void)
 
 int UtcDaliLoadImageP(void)
 {
-  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(IMAGE_34_RGBA);
+  Dali::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(IMAGE_34_RGBA);
   DALI_TEST_CHECK(pixelBuffer);
   DALI_TEST_EQUALS(pixelBuffer.GetWidth(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetHeight(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
 
-  Devel::PixelBuffer pixelBuffer2 = Dali::LoadImageFromFile(IMAGE_128_RGB);
+  Dali::PixelBuffer pixelBuffer2 = Dali::LoadImageFromFile(IMAGE_128_RGB);
   DALI_TEST_CHECK(pixelBuffer2);
   DALI_TEST_EQUALS(pixelBuffer2.GetWidth(), 128u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer2.GetHeight(), 128u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
-  Devel::PixelBuffer pixelBufferJpeg = Dali::LoadImageFromFile(IMAGE_LARGE_EXIF3_RGB);
+  Dali::PixelBuffer pixelBufferJpeg = Dali::LoadImageFromFile(IMAGE_LARGE_EXIF3_RGB);
   DALI_TEST_CHECK(pixelBufferJpeg);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 2000u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 2560u, TEST_LOCATION);
@@ -140,7 +140,7 @@ int UtcDaliLoadImageP(void)
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 120u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
-  Devel::PixelBuffer BufferJpeg1 = Dali::LoadImageFromFile(IMAGE_WIDTH_ODD_EXIF1_RGB);
+  Dali::PixelBuffer BufferJpeg1 = Dali::LoadImageFromFile(IMAGE_WIDTH_ODD_EXIF1_RGB);
   DALI_TEST_CHECK(BufferJpeg1);
   DALI_TEST_EQUALS(BufferJpeg1.GetWidth(), 55u, TEST_LOCATION);
   DALI_TEST_EQUALS(BufferJpeg1.GetHeight(), 64u, TEST_LOCATION);
@@ -255,7 +255,7 @@ int UtcDaliLoadImageP(void)
 
 int UtcDaliLoadImageN(void)
 {
-  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(IMAGENONEXIST);
+  Dali::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(IMAGENONEXIST);
   DALI_TEST_CHECK(!pixelBuffer);
 
   END_TEST;
@@ -263,19 +263,19 @@ int UtcDaliLoadImageN(void)
 
 int UtcDaliLoadImageFromBufferP(void)
 {
-  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_34_RGBA));
+  Dali::PixelBuffer pixelBuffer = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_34_RGBA));
   DALI_TEST_CHECK(pixelBuffer);
   DALI_TEST_EQUALS(pixelBuffer.GetWidth(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetHeight(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
 
-  Devel::PixelBuffer pixelBuffer2 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_128_RGB));
+  Dali::PixelBuffer pixelBuffer2 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_128_RGB));
   DALI_TEST_CHECK(pixelBuffer2);
   DALI_TEST_EQUALS(pixelBuffer2.GetWidth(), 128u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer2.GetHeight(), 128u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
-  Devel::PixelBuffer pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_LARGE_EXIF3_RGB));
+  Dali::PixelBuffer pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_LARGE_EXIF3_RGB));
   DALI_TEST_CHECK(pixelBufferJpeg);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 2000u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 2560u, TEST_LOCATION);
@@ -287,7 +287,7 @@ int UtcDaliLoadImageFromBufferP(void)
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 120u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
-  Devel::PixelBuffer BufferJpeg1 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF1_RGB));
+  Dali::PixelBuffer BufferJpeg1 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF1_RGB));
   DALI_TEST_CHECK(BufferJpeg1);
   DALI_TEST_EQUALS(BufferJpeg1.GetWidth(), 55u, TEST_LOCATION);
   DALI_TEST_EQUALS(BufferJpeg1.GetHeight(), 64u, TEST_LOCATION);
@@ -402,14 +402,14 @@ int UtcDaliLoadImageFromBufferP(void)
 
 int UtcDaliLoadImageFromBufferN(void)
 {
-  Devel::PixelBuffer pixelBufferEmpty = Dali::LoadImageFromBuffer(Dali::Vector<uint8_t>());
+  Dali::PixelBuffer pixelBufferEmpty = Dali::LoadImageFromBuffer(Dali::Vector<uint8_t>());
   DALI_TEST_CHECK(!pixelBufferEmpty);
 
   Dali::Vector<uint8_t> strange;
   strange.PushBack(0x11);
   strange.PushBack(0x22);
   strange.PushBack(0x33);
-  Devel::PixelBuffer pixelBufferStrange = Dali::LoadImageFromBuffer(strange);
+  Dali::PixelBuffer pixelBufferStrange = Dali::LoadImageFromBuffer(strange);
   DALI_TEST_CHECK(!pixelBufferStrange);
 
   END_TEST;
@@ -423,13 +423,13 @@ int UtcDaliDownloadImageP(void)
   std::string url2("file://");
   url2.append(IMAGE_128_RGB);
 
-  Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously(url);
+  Dali::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously(url);
   DALI_TEST_CHECK(pixelBuffer);
   DALI_TEST_EQUALS(pixelBuffer.GetWidth(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetHeight(), 34u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
 
-  Devel::PixelBuffer pixelBuffer2 = Dali::DownloadImageSynchronously(url2);
+  Dali::PixelBuffer pixelBuffer2 = Dali::DownloadImageSynchronously(url2);
   DALI_TEST_CHECK(pixelBuffer2);
   DALI_TEST_EQUALS(pixelBuffer2.GetWidth(), 128u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer2.GetHeight(), 128u, TEST_LOCATION);
@@ -440,7 +440,7 @@ int UtcDaliDownloadImageP(void)
 
 int UtcDaliDownloadImageN(void)
 {
-  Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously(IMAGENONEXIST);
+  Dali::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously(IMAGENONEXIST);
   DALI_TEST_CHECK(!pixelBuffer);
 
   END_TEST;
@@ -454,7 +454,7 @@ int UtcDaliLoadImagePlanesFromFileP(void)
   EnvironmentVariable::SetTestEnvironmentVariable("DALI_ENABLE_DECODE_JPEG_TO_YUV_440", "1");
   EnvironmentVariable::SetTestEnvironmentVariable("DALI_ENABLE_DECODE_JPEG_TO_YUV_411", "1");
 
-  std::vector<Devel::PixelBuffer> pixelBuffers;
+  std::vector<Dali::PixelBuffer> pixelBuffers;
 
 #if defined(_WIN32)
   // LoadImagePlanesFromFile() permits a single decoded bitmap when the JPEG
@@ -581,7 +581,7 @@ int UtcDaliLoadImagePlanesFromFileP(void)
 
 int UtcDaliLoadImagePlanesFromFileN(void)
 {
-  std::vector<Devel::PixelBuffer> pixelBuffers;
+  std::vector<Dali::PixelBuffer> pixelBuffers;
 
   Dali::LoadImagePlanesFromFile(IMAGENONEXIST, pixelBuffers);
   DALI_TEST_CHECK(pixelBuffers.empty());

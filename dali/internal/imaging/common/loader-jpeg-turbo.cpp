@@ -32,7 +32,7 @@
 #include <memory>
 #include <utility>
 
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/property-map.h>
 
@@ -808,7 +808,7 @@ namespace Dali
 {
 namespace TizenPlatform
 {
-bool          DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv);
+bool          DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers, bool decodeToYuv);
 JpegTransform ConvertExifOrientation(ExifData* exifData);
 bool          TransformSize(int requiredWidth, int requiredHeight, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight);
 
@@ -859,9 +859,9 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
   return true;
 }
 
-bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
-  std::vector<Dali::Devel::PixelBuffer> pixelBuffers;
+  std::vector<Dali::PixelBuffer> pixelBuffers;
 
   bool result = DecodeJpeg(input, pixelBuffers, false);
   if(!result && pixelBuffers.empty())
@@ -875,7 +875,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   return result;
 }
 
-bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers)
 {
   if(DALI_LIKELY(DecodeJpeg(input, pixelBuffers, true)))
   {
@@ -885,7 +885,7 @@ bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali:
   return DecodeJpeg(input, pixelBuffers, false);
 }
 
-bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv)
+bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers, bool decodeToYuv)
 {
   Vector<uint8_t> jpegBuffer;
   unsigned int    jpegBufferSize = 0u;
@@ -1003,7 +1003,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
       }
 
       Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth * Pixel::GetBytesPerPixel(pixelFormat), pixelFormat);
-      Dali::Devel::PixelBuffer          bitmap   = Devel::PixelBuffer(internal.Get());
+      Dali::PixelBuffer                 bitmap   = Dali::PixelBuffer(internal.Get());
       planes[i]                                  = buffer;
       pixelBuffers.push_back(bitmap);
     }
@@ -1028,7 +1028,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
     GetJpegPixelFormat(jpegColorspace, pixelLibJpegType, pixelFormat);
 
     // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
-    Dali::Devel::PixelBuffer bitmap = Dali::Devel::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
+    Dali::PixelBuffer bitmap = Dali::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
 
     // Set metadata
     if(DALI_LIKELY(exifData))
@@ -1380,7 +1380,7 @@ ExifHandle LoadExifData(FILE* fp)
 
     while(!feof(fp))
     {
-    int32_t size = static_cast<int32_t>(fread(dataBuffer, 1, sizeof(dataBuffer), fp));
+      int32_t size = static_cast<int32_t>(fread(dataBuffer, 1, sizeof(dataBuffer), fp));
       if(size <= 0)
       {
         DALI_PRINT_SYSTEM_ERROR_LOG();

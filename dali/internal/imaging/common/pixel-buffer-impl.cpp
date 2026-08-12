@@ -51,6 +51,35 @@ const float TWO_PI = 2.f * Math::PI; ///< 360 degrees in radians
 constexpr uint32_t BRIGHTNESS_CONSTANT_R = 299;
 constexpr uint32_t BRIGHTNESS_CONSTANT_G = 587;
 constexpr uint32_t BRIGHTNESS_CONSTANT_B = 114;
+
+/**
+ * @brief Whether the resampler used by NewResize() supports the given pixel format.
+ * It only really works for 8 bit wide channels. (But could be expanded to work)
+ */
+bool IsResizeSupportedPixelFormat(Pixel::Format pixelFormat)
+{
+  switch(pixelFormat)
+  {
+    case Pixel::A8:
+    case Pixel::L8:
+    case Pixel::CHROMINANCE_U:
+    case Pixel::CHROMINANCE_V:
+    case Pixel::LA88:
+    case Pixel::RGB888:
+    case Pixel::RGB8888:
+    case Pixel::BGR8888:
+    case Pixel::RGBA8888:
+    case Pixel::BGRA8888: // FALL THROUGH
+    {
+      return true;
+    }
+    default:
+    {
+      // This pixel format is not supported for this operation.
+      return false;
+    }
+  }
+}
 } // namespace
 
 #if defined(DEBUG_ENABLED)
@@ -158,17 +187,6 @@ uint32_t PixelBuffer::GetHeight() const
   return mHeight;
 }
 
-uint32_t PixelBuffer::GetStride() const
-{
-  DALI_LOG_ERROR("GetStride() API deprecated! Use GetStrideBytes() instead\n");
-  const uint32_t bytesPerPixel = Dali::Pixel::GetBytesPerPixel(mPixelFormat);
-  if(DALI_UNLIKELY(bytesPerPixel == 0u))
-  {
-    return 0u;
-  }
-  return mStrideBytes / bytesPerPixel;
-}
-
 uint32_t PixelBuffer::GetStrideBytes() const
 {
   return mStrideBytes;
@@ -201,7 +219,7 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
   if(mBufferSize > 0)
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_CREATE_PIXEL_DATA", [&](std::ostringstream& oss)
-                                            { oss << "[" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat << "]"; });
+    { oss << "[" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat << "]"; });
     destBuffer = static_cast<uint8_t*>(malloc(mBufferSize));
     if(DALI_UNLIKELY(!destBuffer))
     {
@@ -220,7 +238,7 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
 void PixelBuffer::ApplyMask(const PixelBuffer& inMask, float contentScale, bool cropToMask)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_MASK", [&](std::ostringstream& oss)
-                                          {
+  {
     oss << "[image:" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat;
     oss << " mask:" << inMask.GetWidth() << "x" << inMask.GetHeight() << " contentScale:" << contentScale << " cropToMask: " << cropToMask << "]"; });
   if(cropToMask)
@@ -430,7 +448,7 @@ void PixelBuffer::Crop(uint16_t x, uint16_t y, ImageDimensions cropDimensions)
 PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_CROP", [&](std::ostringstream& oss)
-                                          {
+  {
     oss << "[origin:" << inBuffer.mWidth << "x" << inBuffer.mHeight << " format " << inBuffer.GetPixelFormat();
     oss << " offset:" << x << ", " << y;
     oss << " desired:" << cropDimensions.GetWidth() << "x" << cropDimensions.GetHeight() << "]"; });
@@ -485,7 +503,7 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
     DALI_LOG_ERROR("Trying to crop an image with unsupported pixel format: %s or null buffer: in %p out %p\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat), inBuffer.mBuffer, outBuffer->mBuffer);
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_CROP", [&](std::ostringstream& oss)
-                                        { oss << "[valid? " << (bytesPerPixel != 0) << "]"; });
+  { oss << "[valid? " << (bytesPerPixel != 0) << "]"; });
   return outBuffer;
 }
 
@@ -509,19 +527,35 @@ void PixelBuffer::SetMetadata(std::unique_ptr<Property::Map> metadata)
   mMetadata = std::move(metadata);
 }
 
-void PixelBuffer::Resize(ImageDimensions outDimensions)
+bool PixelBuffer::Resize(ImageDimensions outDimensions)
 {
-  if(mWidth != outDimensions.GetWidth() || mHeight != outDimensions.GetHeight())
+  if(mWidth == outDimensions.GetWidth() && mHeight == outDimensions.GetHeight())
   {
-    PixelBufferPtr outBuffer = NewResize(*this, outDimensions);
-    TakeOwnershipOfBuffer(*outBuffer);
+    // Nothing to do.
+    return true;
   }
+
+  if(DALI_UNLIKELY(!IsResizeSupportedPixelFormat(mPixelFormat) || mBuffer == nullptr))
+  {
+    DALI_LOG_ERROR("Trying to resize an image with unsupported pixel format: %s or null buffer: %p\n", Platform::GetPixelFormatName(mPixelFormat), mBuffer);
+    return false;
+  }
+
+  PixelBufferPtr outBuffer = NewResize(*this, outDimensions);
+  if(DALI_UNLIKELY(!outBuffer || outBuffer->mBuffer == nullptr))
+  {
+    DALI_LOG_ERROR("Failed to resize the image to %ux%u\n", outDimensions.GetWidth(), outDimensions.GetHeight());
+    return false;
+  }
+
+  TakeOwnershipOfBuffer(*outBuffer);
+  return true;
 }
 
 void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_CROP", [&](std::ostringstream& oss)
-                                          {
+  {
     oss << "[image:" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat;
     oss << " target:" << width << "x" << height << "]"; });
 
@@ -569,7 +603,7 @@ void PixelBuffer::ApplyCenterCrop(uint16_t width, uint16_t height)
 void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX", [&](std::ostringstream& oss)
-                                          {
+  {
     oss << "[image:" << mWidth << "x" << mHeight << " bufferSize " << mBufferSize << " format " << mPixelFormat;
     oss << " target:" << width << "x" << height << "]"; });
 
@@ -644,43 +678,18 @@ void PixelBuffer::ApplyLetterbox(uint16_t width, uint16_t height)
   }
 
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_LETTER_BOX", [&](std::ostringstream& oss)
-                                        { oss << "[valid? " << (bytesPerPixel != 0u) << "]"; });
+  { oss << "[valid? " << (bytesPerPixel != 0u) << "]"; });
 }
 
 PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensions outDimensions)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_RESIZE", [&](std::ostringstream& oss)
-                                          {
+  {
     oss << "[origin:" << inBuffer.mWidth << "x" << inBuffer.mHeight << " format " << inBuffer.GetPixelFormat();
     oss << " desired:" << outDimensions.GetWidth() << "x" << outDimensions.GetHeight() << "]"; });
   PixelBufferPtr outBuffer = PixelBuffer::New(outDimensions.GetWidth(), outDimensions.GetHeight(), inBuffer.GetPixelFormat());
 
-  // This method only really works for 8 bit wide channels.
-  // (But could be expanded to work)
-  bool validPixelFormat = false;
-  switch(inBuffer.mPixelFormat)
-  {
-    case Pixel::A8:
-    case Pixel::L8:
-    case Pixel::CHROMINANCE_U:
-    case Pixel::CHROMINANCE_V:
-    case Pixel::LA88:
-    case Pixel::RGB888:
-    case Pixel::RGB8888:
-    case Pixel::BGR8888:
-    case Pixel::RGBA8888:
-    case Pixel::BGRA8888: // FALL THROUGH
-    {
-      validPixelFormat = true;
-      break;
-    }
-    default:
-    {
-      // This pixel format is not supported for this operation.
-      validPixelFormat = false;
-      break;
-    }
-  }
+  const bool validPixelFormat = IsResizeSupportedPixelFormat(inBuffer.mPixelFormat);
 
   if(DALI_LIKELY(validPixelFormat && inBuffer.mBuffer != nullptr && outBuffer->mBuffer != nullptr))
   {
@@ -701,7 +710,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
     DALI_LOG_ERROR("Trying to resize an image with unsupported pixel format: %s or null buffer: in %p out %p\n", Platform::GetPixelFormatName(inBuffer.mPixelFormat), inBuffer.mBuffer, outBuffer->mBuffer);
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_NEW_RESIZE", [&](std::ostringstream& oss)
-                                        { oss << "[valid? " << validPixelFormat << "]"; });
+  { oss << "[valid? " << validPixelFormat << "]"; });
 
   return outBuffer;
 }
@@ -709,7 +718,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
 bool PixelBuffer::ApplyGaussianBlur(const float blurRadius)
 {
   DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_GAUSSIAN_BLUR", [&](std::ostringstream& oss)
-                                          { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " blurRadius:" << blurRadius << "]"; });
+  { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " blurRadius:" << blurRadius << "]"; });
   // Check first if ApplyGaussianBlur() can perform the operation in the current pixel buffer.
 
   bool validPixelFormat = false;
@@ -756,7 +765,7 @@ bool PixelBuffer::ApplyGaussianBlur(const float blurRadius)
     DALI_LOG_ERROR("Can't apply gaussian blur to the pixel buffer with the current pixel format : %s\n", Platform::GetPixelFormatName(mPixelFormat));
   }
   DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_APPLY_GAUSSIAN_BLUR", [&](std::ostringstream& oss)
-                                        { oss << "[valid? " << validPixelFormat << " applied? " << applied << "]"; });
+  { oss << "[valid? " << validPixelFormat << " applied? " << applied << "]"; });
 
   return applied;
 }
@@ -774,7 +783,7 @@ void PixelBuffer::MultiplyColorByAlpha()
       DALI_ASSERT_DEBUG(bytesPerPixel > 0 && "Pixel format is invalid!");
 
       DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_MULTIPLY_ALPHA", [&](std::ostringstream& oss)
-                                              { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " bpp " << bytesPerPixel << "]"; });
+      { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " bpp " << bytesPerPixel << "]"; });
 
       uint8_t*       pixel       = mBuffer;
       const uint32_t strideBytes = mStrideBytes;
@@ -841,7 +850,7 @@ uint32_t PixelBuffer::GetBrightness() const
   if(bytesPerPixel && mWidth && mHeight)
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_GET_BRIGHTNESS", [&](std::ostringstream& oss)
-                                            { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " bpp " << bytesPerPixel << "]"; });
+    { oss << "[" << mWidth << "x" << mHeight << " format " << mPixelFormat << " bpp " << bytesPerPixel << "]"; });
     uint8_t*       pixel       = mBuffer;
     const uint32_t strideBytes = mStrideBytes;
     const uint32_t widthBytes  = mWidth * bytesPerPixel;
@@ -863,10 +872,10 @@ uint32_t PixelBuffer::GetBrightness() const
     }
 
     // http://www.w3.org/TR/AERT#color-contrast
-        brightness = static_cast<uint32_t>((red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize));
+    brightness = static_cast<uint32_t>((red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize));
 
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_PIXEL_BUFFER_GET_BRIGHTNESS", [&](std::ostringstream& oss)
-                                          { oss << "[r:" << static_cast<uint32_t>(red / bufferSize) << " g:" << static_cast<uint32_t>(green / bufferSize) << " b:" << static_cast<uint32_t>(blue / bufferSize) << " brightness " << brightness << "]"; });
+    { oss << "[r:" << static_cast<uint32_t>(red / bufferSize) << " g:" << static_cast<uint32_t>(green / bufferSize) << " b:" << static_cast<uint32_t>(blue / bufferSize) << " brightness " << brightness << "]"; });
   }
 
   return brightness;

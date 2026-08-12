@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/imaging/common/loader-webp.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/webp-loading.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -48,13 +48,13 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   return false;
 }
 
-bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   FILE* const                fp          = input.file;
   Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
   if(webPLoading)
   {
-    Dali::Devel::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
+    Dali::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
     if(pixelBuffer)
     {
       bitmap = pixelBuffer;
@@ -64,7 +64,7 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   return false;
 }
 
-bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers)
 {
   FILE* const                fp          = input.file;
   Dali::AnimatedImageLoading webPLoading = Dali::AnimatedImageLoading(Dali::Internal::Adaptor::WebPLoading::New(fp).Get());
@@ -75,7 +75,7 @@ bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali:
       return true;
     }
 
-    Dali::Devel::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
+    Dali::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
     if(pixelBuffer)
     {
       pixelBuffers.clear();

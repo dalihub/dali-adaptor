@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>& pixelBu
   data.height = height;
   if(0u != pixelBufferId)
   {
-    Devel::PixelBuffer pixelBuffer = pixelBufferCache[pixelBufferId - 1u].pixelBuffer;
+    Dali::PixelBuffer pixelBuffer = pixelBufferCache[pixelBufferId - 1u].pixelBuffer;
     if(pixelBuffer)
     {
       ConvertBitmap(data, pixelBuffer.GetWidth(), pixelBuffer.GetHeight(), pixelBuffer.GetBuffer(), pixelBuffer.GetPixelFormat());

@@ -325,12 +325,12 @@ void CalculateCropBorders(ImageDimensions sourceSize, ImageDimensions& requested
 /**
  * @brief Construct a pixel buffer object from a copy of the pixel array passed in.
  */
-Dali::Devel::PixelBuffer MakePixelBuffer(const uint8_t* const pixels, Pixel::Format pixelFormat, uint32_t width, uint32_t height)
+Dali::PixelBuffer MakePixelBuffer(const uint8_t* const pixels, Pixel::Format pixelFormat, uint32_t width, uint32_t height)
 {
   DALI_ASSERT_DEBUG(pixels && "Null bitmap buffer to copy.");
 
   // Allocate a pixel buffer to hold the image passed in:
-  auto newBitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+  auto newBitmap = Dali::PixelBuffer::New(width, height, pixelFormat);
 
   // Copy over the pixels from the downscaled image that was generated in-place in the pixel buffer of the input bitmap:
   memcpy(newBitmap.GetBuffer(), pixels, width * height * Pixel::GetBytesPerPixel(pixelFormat));
@@ -862,7 +862,7 @@ ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageD
  * @return                      A new bitmap with the padding and cropping applied.
  *                              If no modification is needed or possible, the passed in bitmap is returned.
  */
-Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions);
+Dali::PixelBuffer CropAndPadBitmap(Dali::PixelBuffer& bitmap, ImageDimensions desiredDimensions);
 
 /**
  * @brief Adds horizontal or vertical borders to the source image.
@@ -874,7 +874,7 @@ Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, Imag
  */
 void AddBorders(PixelBuffer* targetPixels, const uint32_t bytesPerPixel, const ImageDimensions targetDimensions, const ImageDimensions padDimensions);
 
-Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode)
+Dali::PixelBuffer ApplyAttributesToBitmap(Dali::PixelBuffer bitmap, ImageDimensions dimensions, SamplingMode::Type samplingMode)
 {
   if(bitmap)
   {
@@ -897,7 +897,7 @@ Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap
   return bitmap;
 }
 
-Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, ImageDimensions desiredDimensions)
+Dali::PixelBuffer CropAndPadBitmap(Dali::PixelBuffer& bitmap, ImageDimensions desiredDimensions)
 {
   const uint32_t inputWidth       = bitmap.GetWidth();
   const uint32_t inputHeight      = bitmap.GetHeight();
@@ -954,7 +954,7 @@ Dali::Devel::PixelBuffer CropAndPadBitmap(Dali::Devel::PixelBuffer& bitmap, Imag
       // Create new PixelBuffer with the desired size.
       const auto pixelFormat = bitmap.GetPixelFormat();
 
-      auto croppedBitmap = Devel::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
+      auto croppedBitmap = Dali::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
 
       // Add some pre-calculated offsets to the bitmap pointers so this is not done within a loop.
       // The cropping is added to the source pointer, and the padding is added to the destination.
@@ -1047,9 +1047,9 @@ void AddBorders(PixelBuffer* targetPixels, const uint32_t bytesPerPixel, const I
   }
 }
 
-Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
-                                         ImageDimensions          desired,
-                                         SamplingMode::Type       samplingMode)
+Dali::PixelBuffer DownscaleBitmap(Dali::PixelBuffer  bitmap,
+                                  ImageDimensions    desired,
+                                  SamplingMode::Type samplingMode)
 {
   // Source dimensions as loaded from resources (e.g. filesystem):
   auto bitmapWidth       = bitmap.GetWidth();
@@ -1059,7 +1059,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
   auto desiredWidth  = desired.GetWidth();
   auto desiredHeight = desired.GetHeight();
 
-  Dali::Devel::PixelBuffer outputBitmap{bitmap};
+  Dali::PixelBuffer outputBitmap{bitmap};
 
   // If a different size than the raw one has been requested, resize the image:
   if(
@@ -1091,7 +1091,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
          samplingMode == SamplingMode::LANCZOS || samplingMode == SamplingMode::BOX_THEN_LANCZOS ||
          samplingMode == SamplingMode::NEAREST || samplingMode == SamplingMode::BOX_THEN_NEAREST)
       {
-        outputBitmap = Dali::Devel::PixelBuffer::New(filteredWidth, filteredHeight, pixelFormat);
+        outputBitmap = Dali::PixelBuffer::New(filteredWidth, filteredHeight, pixelFormat);
 
         if(outputBitmap)
         {
@@ -2478,7 +2478,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  const uint8_t* const                       firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
+  const uint8_t* const                      firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
   std::unique_ptr<uint8_t, decltype(&free)> tmpPixelsInPtr((fastRotationPerformed ? pixelsOut : nullptr), &free);
 
   uint32_t strideBytes = fastRotationPerformed ? widthOut * pixelSize : strideBytesIn;

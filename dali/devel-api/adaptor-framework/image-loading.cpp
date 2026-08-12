@@ -22,11 +22,11 @@
 #include <locale>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/object/property-map.h>
 
 namespace Dali
@@ -55,7 +55,7 @@ std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t w
 
 } // namespace
 
-Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
+Dali::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
@@ -63,8 +63,8 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
   FILE* const                    fp = fileReader.GetFile();
   if(DALI_LIKELY(fp != NULL))
   {
-    Dali::Devel::PixelBuffer bitmap;
-    bool                     success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, url, fp, bitmap);
+    Dali::PixelBuffer bitmap;
+    bool              success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, url, fp, bitmap);
     if(success && bitmap)
     {
       return bitmap;
@@ -74,10 +74,10 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
   {
     DALI_LOG_ERROR("Error reading file\n");
   }
-  return Dali::Devel::PixelBuffer();
+  return Dali::PixelBuffer();
 }
 
-void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuffer>& buffers, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
+void LoadImagePlanesFromFile(const std::string& url, std::vector<Dali::PixelBuffer>& buffers, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
@@ -93,12 +93,12 @@ void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuf
   }
 }
 
-Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
+Dali::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   if(buffer.Empty())
   {
     DALI_LOG_ERROR("buffer is empty!\n");
-    return Dali::Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
   Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
@@ -106,7 +106,7 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
   FILE* const                    fp = fileReader.GetFile();
   if(DALI_LIKELY(fp != NULL))
   {
-    Dali::Devel::PixelBuffer bitmap;
+    Dali::PixelBuffer bitmap;
     // Make path as empty string. Path information just for file format hint.
     bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, std::string(""), fp, bitmap);
     if(success && bitmap)
@@ -118,15 +118,15 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
   {
     DALI_LOG_ERROR("Error reading file\n");
   }
-  return Dali::Devel::PixelBuffer();
+  return Dali::PixelBuffer();
 }
 
-Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
+Dali::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   if(buffer == nullptr)
   {
     DALI_LOG_ERROR("buffer is empty!\n");
-    return Dali::Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
   Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
@@ -134,7 +134,7 @@ Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, Image
   FILE* const                    fp = fileReader.GetFile();
   if(DALI_LIKELY(fp != NULL))
   {
-    Dali::Devel::PixelBuffer bitmap;
+    Dali::PixelBuffer bitmap;
     // Make path as empty string. Path information just for file format hint.
     bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, std::string(""), fp, bitmap);
     if(success && bitmap)
@@ -146,7 +146,7 @@ Devel::PixelBuffer LoadImageFromBuffer(uint8_t* buffer, size_t bufferSize, Image
   {
     DALI_LOG_ERROR("Error reading file\n");
   }
-  return Dali::Devel::PixelBuffer();
+  return Dali::PixelBuffer();
 }
 
 ImageDimensions GetClosestImageSize(const std::string& filename,
@@ -167,7 +167,7 @@ ImageDimensions GetOriginalImageSize(const std::string& filename, bool orientati
   return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
 }
 
-Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
+Dali::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   Integration::BitmapResourceType resourceType(size, samplingMode, orientationCorrection);
 
@@ -187,8 +187,8 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
       FILE* const                          fp = fileReader.GetFile();
       if(DALI_LIKELY(NULL != fp))
       {
-        Dali::Devel::PixelBuffer bitmap;
-        bool                     result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
+        Dali::PixelBuffer bitmap;
+        bool              result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
           resourceType,
           url,
           fp,
@@ -223,7 +223,7 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
   {
     DALI_LOG_ERROR("Error download failed!\n");
   }
-  return Dali::Devel::PixelBuffer();
+  return Dali::PixelBuffer();
 }
 
 unsigned int GetMaxTextureSize()

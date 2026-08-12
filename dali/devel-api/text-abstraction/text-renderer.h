@@ -23,8 +23,8 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -145,7 +145,7 @@ public:
    *
    * @return The pixel buffer with the text rendered on it.
    */
-  Devel::PixelBuffer Render(const Parameters& parameters);
+  Dali::PixelBuffer Render(const Parameters& parameters);
 
 public: // Not intended for application developers.
   /// @cond internal

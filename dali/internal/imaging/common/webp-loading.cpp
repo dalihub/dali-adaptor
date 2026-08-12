@@ -182,7 +182,7 @@ public:
         size_t dataSize;
         if(DALI_LIKELY(TizenPlatform::Network::DownloadRemoteFileIntoMemory(mUrl, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE)))
         {
-  mBufferSize = static_cast<uint32_t>(dataBuffer.Size());
+          mBufferSize = static_cast<uint32_t>(dataBuffer.Size());
           if(DALI_LIKELY(mBufferSize > 0U))
           {
             // Open a file handle on the memory buffer:
@@ -319,9 +319,9 @@ public:
 #endif
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-  WebPAnimDecoder*         mWebPAnimDecoder{nullptr};
-  WebPAnimInfo             mWebPAnimInfo{0};
-  Dali::Devel::PixelBuffer mPreLoadedFrame{};
+  WebPAnimDecoder*  mWebPAnimDecoder{nullptr};
+  WebPAnimInfo      mWebPAnimInfo{0};
+  Dali::PixelBuffer mPreLoadedFrame{};
 #endif
 };
 
@@ -356,9 +356,9 @@ WebPLoading::~WebPLoading()
   delete mImpl;
 }
 
-Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
+Dali::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
 {
-  Dali::Devel::PixelBuffer pixelBuffer;
+  Dali::PixelBuffer pixelBuffer;
 
   // If WebP file is still not loaded, Load the information.
   {
@@ -426,7 +426,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
           {
             Pixel::Format pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
             int32_t       bufferSize  = desiredWidth * desiredHeight * Dali::Pixel::GetBytesPerPixel(pixelFormat);
-            pixelBuffer               = Dali::Devel::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
+            pixelBuffer               = Dali::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
             memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
           }
 
@@ -451,7 +451,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
 
             Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width * bytesPerPixel, pixelFormat);
 
-            pixelBuffer = Devel::PixelBuffer(internal.Get());
+            pixelBuffer = Dali::PixelBuffer(internal.Get());
           }
         }
       }
@@ -497,7 +497,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
   return pixelBuffer;
 }
 
-bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
+bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size)
 {
   {
     Mutex::ScopedLock lock(mImpl->mMutex);
@@ -559,14 +559,14 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
     size_t ySize  = width * height;
     size_t uvSize = uvWidth * uvHeight;
 
-    Dali::Devel::PixelBuffer yBuffer = Dali::Devel::PixelBuffer::New(width, height, Dali::Pixel::L8);
-    Dali::Devel::PixelBuffer uBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_U); // U Plane
-    Dali::Devel::PixelBuffer vBuffer = Dali::Devel::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_V); // V Plane
+    Dali::PixelBuffer yBuffer = Dali::PixelBuffer::New(width, height, Dali::Pixel::L8);
+    Dali::PixelBuffer uBuffer = Dali::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_U); // U Plane
+    Dali::PixelBuffer vBuffer = Dali::PixelBuffer::New(uvWidth, uvHeight, Dali::Pixel::CHROMINANCE_V); // V Plane
 
-    Dali::Devel::PixelBuffer aBuffer;
+    Dali::PixelBuffer aBuffer;
     if(config.input.has_alpha)
     {
-      aBuffer = Dali::Devel::PixelBuffer::New(width, height, Dali::Pixel::A8);
+      aBuffer = Dali::PixelBuffer::New(width, height, Dali::Pixel::A8);
     }
 
     config.output.u.YUVA.y = yBuffer.GetBuffer();
@@ -649,9 +649,9 @@ bool WebPLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::
   return false;
 }
 
-Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
+Dali::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
 {
-  Dali::Devel::PixelBuffer pixelBuffer;
+  Dali::PixelBuffer pixelBuffer;
 #ifdef DALI_ANIMATED_WEBP_ENABLED
   if(mImpl->mLatestLoadedFrame >= static_cast<int32_t>(frameIndex))
   {
@@ -670,7 +670,7 @@ Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
   if(frameBuffer != nullptr)
   {
     const int bufferSize = mImpl->mWebPAnimInfo.canvas_width * mImpl->mWebPAnimInfo.canvas_height * sizeof(uint32_t);
-    pixelBuffer          = Dali::Devel::PixelBuffer::New(mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height, Dali::Pixel::RGBA8888);
+    pixelBuffer          = Dali::PixelBuffer::New(mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height, Dali::Pixel::RGBA8888);
     memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
   }
 

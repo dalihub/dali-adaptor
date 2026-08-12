@@ -72,10 +72,10 @@ public:
    *
    * @note This function will load the entire animated image into memory if not already loaded.
    * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
-   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   * @return Dali::PixelBuffer The loaded Dali::PixelBuffer. If loading is fail, return empty handle.
    */
 
-  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
+  Dali::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
 
   /**
    * @brief Get the size of a gif image.
@@ -121,7 +121,7 @@ public:
    * @param[in] size The width and height to fit the loaded image to.
    * @return false, as GIF does not support planes.
    */
-  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
+  bool LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size) override;
 
 private:
   struct Impl;

@@ -38,7 +38,7 @@ void PerformApplyAttributesTest(
   unsigned int expectedHeight,
   const char*  location)
 {
-  auto sourceBitmap = Dali::Devel::PixelBuffer::New(sourceWidth, sourceHeight, Pixel::Format::RGBA8888);
+  auto sourceBitmap = Dali::PixelBuffer::New(sourceWidth, sourceHeight, Pixel::Format::RGBA8888);
 
   // Fill the bitmap to make the result non-empty.
   memset(sourceBitmap.GetBuffer(), 0xff, sourceWidth * sourceHeight * Pixel::GetBytesPerPixel(Pixel::Format::RGBA8888));

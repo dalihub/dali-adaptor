@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_JPEG_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ const unsigned char MAGIC_BYTE_2 = 0xD8;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
+bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
 
 /**
  * Loads the image planes from an JPEG file.  This function checks the header first
@@ -58,7 +58,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
  * @return true if file decoded successfully, false otherwise
  * @note If the image file doesn't support to load planes, this method returns one RGB bitmap image.
  */
-bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
+bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers);
 
 /**
  * Loads the header of a JPEG file and fills in the width and height appropriately.

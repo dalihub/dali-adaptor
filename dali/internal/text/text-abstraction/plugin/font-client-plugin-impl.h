@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
@@ -28,6 +27,7 @@
 #include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/pixel-buffer-cache-item.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
 #include <third-party/glyphy/vector-font-cache.h>
@@ -434,14 +434,14 @@ private:
    *
    * @return The font identifier, or 0 on failure.
    */
-  FontId CreateScalableFaceFont(FT_Face                                    ftFace,
-                                const FontPath&                            path,
-                                PointSize26Dot6&                           requestedPointSize,
-                                FaceIndex                                  faceIndex,
-                                Property::Map*                             variationsMapPtr,
-                                bool                                       hasColorTables,
-                                const FontFaceManager::ColorFontInfo&     colorInfo,
-                                FontFaceManager::ColorFontRenderability    renderability) const;
+  FontId CreateScalableFaceFont(FT_Face                                 ftFace,
+                                const FontPath&                         path,
+                                PointSize26Dot6&                        requestedPointSize,
+                                FaceIndex                               faceIndex,
+                                Property::Map*                          variationsMapPtr,
+                                bool                                    hasColorTables,
+                                const FontFaceManager::ColorFontInfo&   colorInfo,
+                                FontFaceManager::ColorFontRenderability renderability) const;
 
   /**
    * @brief Caches font data for the specified font path if it is not already cached.
