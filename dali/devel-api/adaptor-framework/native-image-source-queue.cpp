@@ -95,11 +95,6 @@ int NativeImageSourceQueue::GetTextureTarget() const
   return mImpl->GetTextureTarget();
 }
 
-bool NativeImageSourceQueue::ApplyNativeFragmentShader(String& shader)
-{
-  return ApplyNativeFragmentShader(shader, 1);
-}
-
 bool NativeImageSourceQueue::ApplyNativeFragmentShader(String& shader, int mask)
 {
   std::string stdShader   = ToStdString(shader);
