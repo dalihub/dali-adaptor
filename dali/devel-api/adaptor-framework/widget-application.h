@@ -98,15 +98,12 @@ class Widget;
  * MyWidgetApplication app;
  * app.ResumeSignal().Connect(&app, &MyWidgetApplication::Resume);
  * @endcode
- *
- * @SINCE_1_3_5
  */
 class DALI_ADAPTOR_API WidgetApplication : public Application
 {
 public:
   /**
    * @brief This is the typedef for Widget creator.
-   * @SINCE_1_3_5
    */
   typedef Widget (*CreateWidgetFunction)(const Dali::String&);
 
@@ -114,7 +111,6 @@ public:
   /**
    * @brief This is the constructor for WidgetApplications with a name.
    *
-   * @SINCE_1_3_5
    * @param[in,out]  argc        A pointer to the number of arguments
    * @param[in,out]  argv        A pointer to the argument list
    * @param[in]      stylesheet  The path to user defined theme file
@@ -125,14 +121,12 @@ public:
 
   /**
    * @brief The default constructor.
-   * @SINCE_1_3_5
    */
   WidgetApplication();
 
   /**
    * @brief Copy Constructor.
    *
-   * @SINCE_1_3_5
    * @param[in] widgetApplication Handle to an object
    */
   WidgetApplication(const WidgetApplication& widgetApplication);
@@ -140,7 +134,6 @@ public:
   /**
    * @brief Assignment operator.
    *
-   * @SINCE_1_3_5
    * @param[in] widgetApplication Handle to an object
    * @return A reference to this
    */
@@ -149,7 +142,6 @@ public:
   /**
    * @brief Move constructor.
    *
-   * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
   WidgetApplication(WidgetApplication&& rhs) noexcept;
@@ -157,7 +149,6 @@ public:
   /**
    * @brief Move assignment operator.
    *
-   * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
@@ -165,14 +156,12 @@ public:
 
   /**
    * @brief Destructor
-   * @SINCE_1_3_5
    */
   ~WidgetApplication();
 
   /**
    * @brief Register create function for widget.
    *
-   * @SINCE_1_3_5
    * @param[in] widgetName  Name of widget
    * @param[in] createFunction     Function pointer for widget creation.
    */

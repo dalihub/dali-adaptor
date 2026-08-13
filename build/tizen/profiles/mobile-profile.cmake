@@ -120,7 +120,7 @@ ENDIF()
 
 IF( NOT ROBOT_PROFILE )
     SET( SOURCES ${SOURCES}
-        ${adaptor_widget_public_api_src_files}
+        ${adaptor_widget_devel_api_src_files}
         ${adaptor_system_tizen_widget_src_files}
     )
 ENDIF()

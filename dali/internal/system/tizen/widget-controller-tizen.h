@@ -27,8 +27,8 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/widget-impl.h>
 #include <dali/internal/system/common/widget-controller.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
 
 namespace Dali
 {

@@ -17,8 +17,8 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
-#include <dali/public-api/adaptor-framework/widget.h>
+#include <dali/devel-api/adaptor-framework/widget-impl.h>
+#include <dali/devel-api/adaptor-framework/widget.h>
 
 using namespace Dali;
 

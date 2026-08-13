@@ -23,7 +23,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/widget-impl.h>
+#include <dali/devel-api/adaptor-framework/widget-impl.h>
 
 namespace Dali
 {

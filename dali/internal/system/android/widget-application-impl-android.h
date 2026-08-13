@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/widget-application.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/widget-application-impl.h>
-#include <dali/public-api/adaptor-framework/widget-application.h>
 
 namespace Dali
 {

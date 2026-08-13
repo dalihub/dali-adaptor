@@ -54,9 +54,6 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>
 #include <dali/public-api/adaptor-framework/video-source-descriptor.h>
-#include <dali/public-api/adaptor-framework/widget-application.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
-#include <dali/public-api/adaptor-framework/widget.h>
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>

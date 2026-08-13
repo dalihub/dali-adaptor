@@ -200,3 +200,15 @@ SET( devel_api_text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/emoji-helper.h
    ${adaptor_devel_api_dir}/text-abstraction/defined-characters.h
 )
+
+SET( adaptor_widget_devel_api_src_files
+  ${adaptor_devel_api_dir}/adaptor-framework/widget.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-application.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-impl.cpp
+)
+
+SET( devel_api_adaptor_framework_widget_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/widget.h
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-application.h
+  ${adaptor_devel_api_dir}/adaptor-framework/widget-impl.h
+)
