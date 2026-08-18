@@ -1176,7 +1176,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
   else
   {
     fileInfo.map      = fileData.globalMap;
-  fileInfo.length   = static_cast<int32_t>(fileData.length);
+    fileInfo.length   = static_cast<int32_t>(fileData.length);
     fileInfo.position = 0;
     GifAccessor gifAccessor(fileInfo);
 
@@ -1528,7 +1528,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
     if(!loaderInfo.gifAccessor)
     {
       loaderInfo.fileInfo.map      = fileData.globalMap;
-  loaderInfo.fileInfo.length   = static_cast<int32_t>(fileData.length);
+      loaderInfo.fileInfo.length   = static_cast<int32_t>(fileData.length);
       loaderInfo.fileInfo.position = 0;
       if(DALI_UNLIKELY(!loaderInfo.fileInfo.map))
       {
@@ -1636,10 +1636,10 @@ GifLoading::~GifLoading()
   delete mImpl;
 }
 
-Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
+Dali::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
 {
-  int                      error;
-  Dali::Devel::PixelBuffer pixelBuffer;
+  int               error;
+  Dali::PixelBuffer pixelBuffer;
 
   DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
 
@@ -1650,14 +1650,14 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex, ImageDimensi
   }
 
   Mutex::ScopedLock lock(mImpl->mMutex);
-  pixelBuffer = Dali::Devel::PixelBuffer::New(mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888);
+  pixelBuffer = Dali::PixelBuffer::New(mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888);
 
   mImpl->loaderInfo.animated.currentFrame = 1 + (frameIndex % mImpl->loaderInfo.animated.frameCount);
   ReadNextFrame(mImpl->loaderInfo, mImpl->imageProperties, pixelBuffer.GetBuffer(), &error);
 
   if(error != 0)
   {
-    pixelBuffer = Dali::Devel::PixelBuffer();
+    pixelBuffer = Dali::PixelBuffer();
   }
   return pixelBuffer;
 }
@@ -1705,7 +1705,7 @@ bool GifLoading::HasLoadingSucceeded() const
   return mImpl->mLoadSucceeded;
 }
 
-bool GifLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, ImageDimensions size)
+bool GifLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuffer>& pixelBuffers, ImageDimensions size)
 {
   // GIF does not support planes
   pixelBuffers.clear();

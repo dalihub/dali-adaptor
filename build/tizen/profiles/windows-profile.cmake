@@ -5,6 +5,7 @@ SET( SOURCES
         ${adaptor_accessibility_common_src_files}
         ${adaptor_accessibility_windows_src_files}
         ${adaptor_adaptor_common_src_files}
+        ${adaptor_app_entity_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_windows_src_files}
@@ -24,7 +25,7 @@ SET( SOURCES
         ${adaptor_network_windows_src_files}
         ${adaptor_offscreen_common_src_files}
         ${adaptor_public_api_src_files}
-        ${adaptor_widget_public_api_src_files}
+        ${adaptor_widget_devel_api_src_files}
         ${adaptor_sensor_common_src_files}
         ${adaptor_styling_common_src_files}
         ${adaptor_system_common_src_files}

@@ -218,11 +218,6 @@ public:
   int GetTextureTarget() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader)
-   */
-  bool ApplyNativeFragmentShader(Dali::String& shader) override;
-
-  /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(Dali::String& shader, int mask);
    */
   bool ApplyNativeFragmentShader(Dali::String& shader, int mask) override;

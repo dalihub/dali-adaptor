@@ -1157,7 +1157,7 @@ GlyphIndex FontClient::Plugin::CreateEmbeddedItem(const TextAbstraction::FontCli
   if(!description.url.empty())
   {
     // Check if the url is in the cache.
-    Devel::PixelBuffer pixelBuffer;
+    Dali::PixelBuffer pixelBuffer;
     if(!mCacheHandler->FindEmbeddedPixelBufferId(description.url, embeddedItem.pixelBufferId))
     {
       // The pixel buffer is not in the cache. Create one and cache it.
@@ -1330,7 +1330,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
     // Use cached color font metadata from FaceCacheData (computed once at LoadFace time).
     // This avoids repeated FT_Load_Sfnt_Table() calls when the same face
     // is used with different point sizes.
-    FontFaceManager::ColorFontInfo colorInfo;
+    FontFaceManager::ColorFontInfo          colorInfo;
     FontFaceManager::ColorFontRenderability renderability = FontFaceManager::ColorFontRenderability::NotColorFont;
     mCacheHandler->mFontFaceManager->GetColorFontInfo(path, colorInfo, renderability);
 

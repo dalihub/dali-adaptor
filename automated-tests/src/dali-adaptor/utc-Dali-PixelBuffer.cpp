@@ -16,7 +16,7 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer-devel.h>
 #include "mesh-builder.h"
 using namespace Dali;
 
@@ -34,11 +34,11 @@ int UtcDaliPixelBufferCreatePixelData(void)
 {
   TestApplication application;
 
-  unsigned int       width     = 20u;
-  unsigned int       height    = 20u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGB888);
+  unsigned int      width     = 20u;
+  unsigned int      height    = 20u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGB888);
 
-  PixelData pixelData = imageData.CreatePixelData();
+  PixelData pixelData = DevelPixelBuffer::CreatePixelData(imageData);
 
   DALI_TEST_EQUALS(true, (bool)pixelData, TEST_LOCATION);
 
@@ -47,7 +47,7 @@ int UtcDaliPixelBufferCreatePixelData(void)
 
 namespace
 {
-void Mask1stQuadrant(Devel::PixelBuffer maskData)
+void Mask1stQuadrant(Dali::PixelBuffer maskData)
 {
   int           width       = maskData.GetWidth();
   int           height      = maskData.GetHeight();
@@ -73,7 +73,7 @@ void Mask1stQuadrant(Devel::PixelBuffer maskData)
   }
 }
 
-void MaskCenterSquare(Devel::PixelBuffer maskData)
+void MaskCenterSquare(Dali::PixelBuffer maskData)
 {
   int           width       = maskData.GetWidth();
   int           height      = maskData.GetHeight();
@@ -100,7 +100,7 @@ void MaskCenterSquare(Devel::PixelBuffer maskData)
   }
 }
 
-void AlternateQuadrants(Devel::PixelBuffer buffer)
+void AlternateQuadrants(Dali::PixelBuffer buffer)
 {
   int           width       = buffer.GetWidth();
   int           height      = buffer.GetHeight();
@@ -127,7 +127,7 @@ void AlternateQuadrants(Devel::PixelBuffer buffer)
   }
 }
 
-void FillCheckerboard(Devel::PixelBuffer imageData)
+void FillCheckerboard(Dali::PixelBuffer imageData)
 {
   int           width       = imageData.GetWidth();
   int           height      = imageData.GetHeight();
@@ -178,7 +178,7 @@ void FillCheckerboard(Devel::PixelBuffer imageData)
   }
 }
 
-int GetAlphaAt(Devel::PixelBuffer buffer, int x, int y)
+int GetAlphaAt(Dali::PixelBuffer buffer, int x, int y)
 {
   unsigned char* pixels = buffer.GetBuffer();
   int            bpp    = Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
@@ -192,8 +192,8 @@ int GetAlphaAt(Devel::PixelBuffer buffer, int x, int y)
 
 int UtcDaliPixelBufferNew01P(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
   DALI_TEST_CHECK(pixbuf);
   DALI_TEST_CHECK(pixbuf.GetBuffer() != NULL);
   END_TEST;
@@ -201,16 +201,16 @@ int UtcDaliPixelBufferNew01P(void)
 
 int UtcDaliPixelBufferConstructor01P(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
 
-  Devel::PixelBuffer copiedBuf = pixbuf;
+  Dali::PixelBuffer copiedBuf = pixbuf;
   DALI_TEST_CHECK(pixbuf);
   DALI_TEST_CHECK(copiedBuf);
   DALI_TEST_CHECK(pixbuf.GetBuffer() != NULL);
   DALI_TEST_CHECK(copiedBuf.GetBuffer() != NULL);
 
-  Devel::PixelBuffer movedBuf = std::move(pixbuf);
+  Dali::PixelBuffer movedBuf = std::move(pixbuf);
   DALI_TEST_CHECK(!pixbuf);
   DALI_TEST_CHECK(movedBuf);
   DALI_TEST_CHECK(movedBuf.GetBuffer() != NULL);
@@ -219,17 +219,17 @@ int UtcDaliPixelBufferConstructor01P(void)
 
 int UtcDaliPixelBufferAssign01P(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
 
-  Devel::PixelBuffer copiedBuf;
+  Dali::PixelBuffer copiedBuf;
   copiedBuf = pixbuf;
   DALI_TEST_CHECK(pixbuf);
   DALI_TEST_CHECK(copiedBuf);
   DALI_TEST_CHECK(pixbuf.GetBuffer() != NULL);
   DALI_TEST_CHECK(copiedBuf.GetBuffer() != NULL);
 
-  Devel::PixelBuffer movedBuf;
+  Dali::PixelBuffer movedBuf;
   DALI_TEST_CHECK(!movedBuf);
   movedBuf = std::move(pixbuf);
   DALI_TEST_CHECK(!pixbuf);
@@ -240,8 +240,8 @@ int UtcDaliPixelBufferAssign01P(void)
 
 int UtcDaliPixelBufferNew01N(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(0, 0, Pixel::RGBA8888);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(0, 0, Pixel::RGBA8888);
   DALI_TEST_CHECK(pixbuf);
   DALI_TEST_CHECK(pixbuf.GetBuffer() == NULL);
   END_TEST;
@@ -254,13 +254,13 @@ int UtcDaliPixelBufferConvert01(void)
   TraceCallStack&    textureTrace = gl.GetTextureTrace();
   textureTrace.Enable(true);
 
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(pixbuf);
 
   {
-    Devel::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
+    Dali::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
 
-    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(pixbuf);
+    Dali::PixelData pixelData = Dali::PixelBuffer::Convert(pixbuf);
     DALI_TEST_CHECK(!pixbuf);
 
     // check the buffer in the second handle is empty
@@ -304,13 +304,13 @@ int UtcDaliPixelBufferConvert02(void)
   TraceCallStack&    textureTrace = gl.GetTextureTrace();
   textureTrace.Enable(true);
 
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(pixbuf);
 
   {
-    Devel::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
+    Dali::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
 
-    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(pixbuf, true);
+    Dali::PixelData pixelData = DevelPixelBuffer::Convert(pixbuf, true);
     DALI_TEST_CHECK(!pixbuf);
 
     // check the buffer in the second handle is empty
@@ -349,8 +349,8 @@ int UtcDaliPixelBufferConvert02(void)
 
 int UtcDaliPixelBufferGetWidth(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(pixbuf);
 
   DALI_TEST_EQUALS(pixbuf.GetWidth(), 10, TEST_LOCATION);
@@ -361,8 +361,8 @@ int UtcDaliPixelBufferGetWidth(void)
 
 int UtcDaliPixelBufferGetHeight(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(pixbuf);
 
   DALI_TEST_EQUALS(pixbuf.GetHeight(), 10, TEST_LOCATION);
@@ -372,8 +372,8 @@ int UtcDaliPixelBufferGetHeight(void)
 
 int UtcDaliPixelBufferGetPixelFormat(void)
 {
-  TestApplication    application;
-  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(pixbuf);
 
   DALI_TEST_EQUALS(pixbuf.GetPixelFormat(), Pixel::RGB565, TEST_LOCATION);
@@ -385,10 +385,10 @@ int UtcDaliPixelBufferMask01(void)
 {
   TestApplication application;
 
-  unsigned int       width       = 10u;
-  unsigned int       height      = 10u;
-  Pixel::Format      pixelFormat = Pixel::L8;
-  Devel::PixelBuffer maskData    = Devel::PixelBuffer::New(width, height, pixelFormat);
+  unsigned int      width       = 10u;
+  unsigned int      height      = 10u;
+  Pixel::Format     pixelFormat = Pixel::L8;
+  Dali::PixelBuffer maskData    = Dali::PixelBuffer::New(width, height, pixelFormat);
 
   Mask1stQuadrant(maskData);
 
@@ -396,10 +396,10 @@ int UtcDaliPixelBufferMask01(void)
   height      = 20u;
   pixelFormat = Pixel::RGBA5551;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, pixelFormat);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, pixelFormat);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -422,10 +422,10 @@ int UtcDaliPixelBufferMask02(void)
 {
   TestApplication application;
 
-  unsigned int       width       = 10u;
-  unsigned int       height      = 10u;
-  Pixel::Format      pixelFormat = Pixel::L8;
-  Devel::PixelBuffer maskData    = Devel::PixelBuffer::New(width, height, pixelFormat);
+  unsigned int      width       = 10u;
+  unsigned int      height      = 10u;
+  Pixel::Format     pixelFormat = Pixel::L8;
+  Dali::PixelBuffer maskData    = Dali::PixelBuffer::New(width, height, pixelFormat);
 
   Mask1stQuadrant(maskData);
 
@@ -433,10 +433,10 @@ int UtcDaliPixelBufferMask02(void)
   height      = 20u;
   pixelFormat = Pixel::RGBA4444;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, pixelFormat);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, pixelFormat);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -460,18 +460,18 @@ int UtcDaliPixelBufferMask03(void)
   TestApplication application;
   tet_infoline("Test application of alpha mask to smaller RGB565 image");
 
-  unsigned int       width    = 20u;
-  unsigned int       height   = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::L8);
+  unsigned int      width    = 20u;
+  unsigned int      height   = 20u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::L8);
   Mask1stQuadrant(maskData);
 
-  width                        = 10u;
-  height                       = 10u;
-  Pixel::Format      format    = Pixel::RGB565;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, format);
+  width                       = 10u;
+  height                      = 10u;
+  Pixel::Format     format    = Pixel::RGB565;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, format);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -495,17 +495,17 @@ int UtcDaliPixelBufferMask04(void)
   TestApplication application;
   tet_infoline("Test application of alpha mask to larger RGBA8888 image");
 
-  unsigned int       width    = 10u;
-  unsigned int       height   = 10u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::L8);
+  unsigned int      width    = 10u;
+  unsigned int      height   = 10u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::L8);
   Mask1stQuadrant(maskData);
 
-  width                        = 20u;
-  height                       = 20u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 20u;
+  height                      = 20u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -529,17 +529,17 @@ int UtcDaliPixelBufferMask05(void)
   TestApplication application;
   tet_infoline("Test application of alpha mask to smaller RGBA8888 image");
 
-  unsigned int       width    = 20u;
-  unsigned int       height   = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  unsigned int      width    = 20u;
+  unsigned int      height   = 20u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   Mask1stQuadrant(maskData);
 
-  width                        = 10u;
-  height                       = 10u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 10u;
+  height                      = 10u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -563,17 +563,17 @@ int UtcDaliPixelBufferMask06(void)
   TestApplication application;
   tet_infoline("Test application of alpha mask to same size RGBA8888 image");
 
-  unsigned int       width    = 10u;
-  unsigned int       height   = 10u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  unsigned int      width    = 10u;
+  unsigned int      height   = 10u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   Mask1stQuadrant(maskData);
 
-  width                        = 10u;
-  height                       = 10u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 10u;
+  height                      = 10u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   FillCheckerboard(imageData);
 
-  imageData.ApplyMask(maskData, 1.0f, false);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.0f, false);
 
   // Test that the pixel format has been promoted to RGBA8888
   DALI_TEST_EQUALS(imageData.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
@@ -597,9 +597,9 @@ int UtcDaliPixelBufferMask07(void)
   TestApplication application;
   tet_infoline("Test scaling of source image to match alpha mask");
 
-  unsigned int       width    = 20u;
-  unsigned int       height   = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  unsigned int      width    = 20u;
+  unsigned int      height   = 20u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   MaskCenterSquare(maskData);
 
   // +----------+
@@ -609,9 +609,9 @@ int UtcDaliPixelBufferMask07(void)
   // |  XXXXXX  |
   // *----------+
 
-  width                        = 10u;
-  height                       = 10u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 10u;
+  height                      = 10u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   AlternateQuadrants(imageData);
 
   // +-----XXXXX+
@@ -621,7 +621,7 @@ int UtcDaliPixelBufferMask07(void)
   // |XXXXX     |
   // *XXXXX-----+
 
-  imageData.ApplyMask(maskData, 2.0f, true);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 2.0f, true);
 
   // +----------+
   // |     XXX  |
@@ -669,9 +669,9 @@ int UtcDaliPixelBufferMask08(void)
   TestApplication application;
   tet_infoline("Test scaling of source image to larger than the alpha mask");
 
-  unsigned int       width    = 32u;
-  unsigned int       height   = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  unsigned int      width    = 32u;
+  unsigned int      height   = 20u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   AlternateQuadrants(maskData);
 
   // +-----XXXXX+
@@ -681,9 +681,9 @@ int UtcDaliPixelBufferMask08(void)
   // |XXXXX     |
   // *XXXXX-----+
 
-  width                        = 20u;
-  height                       = 16u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 20u;
+  height                      = 16u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   MaskCenterSquare(imageData);
 
   // +----------+
@@ -693,7 +693,7 @@ int UtcDaliPixelBufferMask08(void)
   // |  XXXXXX  |
   // *----------+
 
-  imageData.ApplyMask(maskData, 4.0f, true);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 4.0f, true);
 
   // +-----XXXXX+   quadrant
   // |     XXXXX|    1    2
@@ -739,9 +739,9 @@ int UtcDaliPixelBufferMask09(void)
   TestApplication application;
   tet_infoline("Test scaling of large source image to larger than the alpha mask");
 
-  unsigned int       width    = 32u;
-  unsigned int       height   = 20u;
-  Devel::PixelBuffer maskData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  unsigned int      width    = 32u;
+  unsigned int      height   = 20u;
+  Dali::PixelBuffer maskData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   AlternateQuadrants(maskData);
 
   // +-----XXXXX+
@@ -751,9 +751,9 @@ int UtcDaliPixelBufferMask09(void)
   // |XXXXX     |
   // *XXXXX-----+
 
-  width                        = 40u;
-  height                       = 50u;
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(width, height, Pixel::RGBA8888);
+  width                       = 40u;
+  height                      = 50u;
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(width, height, Pixel::RGBA8888);
   MaskCenterSquare(imageData);
 
   // +----------+
@@ -763,7 +763,7 @@ int UtcDaliPixelBufferMask09(void)
   // |  XXXXXX  |
   // *----------+
 
-  imageData.ApplyMask(maskData, 1.6f, true);
+  DevelPixelBuffer::ApplyMask(imageData, maskData, 1.6f, true);
 
   // +-----XXXXX+   quadrant
   // |     XXXXX|    1    2
@@ -808,7 +808,7 @@ int UtcDaliPixelBufferGaussianBlur01(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
   FillCheckerboard(imageData);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
@@ -847,7 +847,7 @@ int UtcDaliPixelBufferGaussianBlur02(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGB888);
   FillCheckerboard(imageData);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
@@ -886,7 +886,7 @@ int UtcDaliPixelBufferGaussianBlur03(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
   FillCheckerboard(imageData);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
@@ -925,7 +925,7 @@ int UtcDaliPixelBufferMultiplyColorByAlpha01(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
   FillCheckerboard(imageData);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
@@ -939,7 +939,7 @@ int UtcDaliPixelBufferMultiplyColorByAlpha01(void)
   buffer[2] = 0x0f;
   buffer[3] = 0x11;
 
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0xff, TEST_LOCATION);
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0xf0, TEST_LOCATION);
@@ -947,9 +947,9 @@ int UtcDaliPixelBufferMultiplyColorByAlpha01(void)
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[3]), 0x11, TEST_LOCATION);
 
   // Apply alpha pre-multiplication
-  imageData.MultiplyColorByAlpha();
+  DevelPixelBuffer::MultiplyColorByAlpha(imageData);
 
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), true, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), true, TEST_LOCATION);
 
   // Test that the buffer is still the same as the previous one.
   DALI_TEST_EQUALS(buffer, imageData.GetBuffer(), TEST_LOCATION);
@@ -967,7 +967,7 @@ int UtcDaliPixelBufferMultiplyColorByAlpha02(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::RGB888);
   FillCheckerboard(imageData);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
@@ -981,17 +981,17 @@ int UtcDaliPixelBufferMultiplyColorByAlpha02(void)
   buffer[2] = 0x0f;
 
   // Test that non-alpha channel item return false.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[0]), 0xff, TEST_LOCATION);
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[1]), 0xf0, TEST_LOCATION);
   DALI_TEST_EQUALS(static_cast<uint32_t>(buffer[2]), 0x0f, TEST_LOCATION);
 
   // Apply alpha pre-multiplication
-  imageData.MultiplyColorByAlpha();
+  DevelPixelBuffer::MultiplyColorByAlpha(imageData);
 
   // Test that non-alpha channel item return true after call MultiplyColorByAlpha.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), true, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), true, TEST_LOCATION);
 
   // Test that the buffer is still the same as the previous one.
   DALI_TEST_EQUALS(buffer, imageData.GetBuffer(), TEST_LOCATION);
@@ -1008,7 +1008,7 @@ int UtcDaliPixelBufferMultiplyColorByAlpha03(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGBA_ASTC_4x4_KHR);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGBA_ASTC_4x4_KHR);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
@@ -1016,13 +1016,13 @@ int UtcDaliPixelBufferMultiplyColorByAlpha03(void)
   // For now, we cannot create compressed pixel buffer directly.
 
   // Test that alpha channel item return false.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   // Apply alpha pre-multiplication
-  imageData.MultiplyColorByAlpha();
+  DevelPixelBuffer::MultiplyColorByAlpha(imageData);
 
   // Test compressed type have no effect.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   END_TEST;
 }
@@ -1031,7 +1031,7 @@ int UtcDaliPixelBufferMultiplyColorByAlpha04(void)
 {
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGB8_ETC2);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(10, 10, Pixel::COMPRESSED_RGB8_ETC2);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 10, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 10, TEST_LOCATION);
@@ -1039,13 +1039,13 @@ int UtcDaliPixelBufferMultiplyColorByAlpha04(void)
   // For now, we cannot create compressed pixel buffer directly.
 
   // Test that non-alpha channel item return false.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   // Apply alpha pre-multiplication
-  imageData.MultiplyColorByAlpha();
+  DevelPixelBuffer::MultiplyColorByAlpha(imageData);
 
   // Test compressed type have no effect.
-  DALI_TEST_EQUALS(imageData.IsAlphaPreMultiplied(), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(DevelPixelBuffer::IsAlphaPreMultiplied(imageData), false, TEST_LOCATION);
 
   END_TEST;
 }
@@ -1057,9 +1057,9 @@ int UtcDaliPixelBufferApplyCenterCrop01(void)
 
   // 4:3 source (400x300), target 200x200 (1:1)
   // Expected: source is wider → crop sides → crop region 300x300 centered → resize 200x200
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 300, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(400, 300, Pixel::RGB888);
 
-  imageData.ApplyCenterCrop(200, 200);
+  DevelPixelBuffer::ApplyCenterCrop(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1074,9 +1074,9 @@ int UtcDaliPixelBufferApplyCenterCrop02(void)
 
   // 3:4 source (300x400), target 200x200 (1:1)
   // Expected: source is taller → crop top/bottom → crop region 300x300 centered → resize 200x200
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(300, 400, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(300, 400, Pixel::RGB888);
 
-  imageData.ApplyCenterCrop(200, 200);
+  DevelPixelBuffer::ApplyCenterCrop(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1089,9 +1089,9 @@ int UtcDaliPixelBufferApplyCenterCrop03(void)
   // Source already matches target aspect ratio: crop region equals source, only resize
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 200, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(400, 200, Pixel::RGB888);
 
-  imageData.ApplyCenterCrop(200, 100);
+  DevelPixelBuffer::ApplyCenterCrop(imageData, 200, 100);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
@@ -1106,9 +1106,9 @@ int UtcDaliPixelBufferApplyLetterbox01(void)
 
   // 4:3 source (400x300), target 200x200
   // scale = min(200/400, 200/300) = 0.5 → scaled to 200x150 → pad 25px top and bottom
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 300, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(400, 300, Pixel::RGB888);
 
-  imageData.ApplyLetterbox(200, 200);
+  DevelPixelBuffer::ApplyLetterbox(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1128,9 +1128,9 @@ int UtcDaliPixelBufferApplyLetterbox02(void)
   TestApplication application;
 
   // 100x100 source, target 200x200 → scale=2.0 >= 1.0 so no resize, just pad
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(100, 100, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(100, 100, Pixel::RGB888);
 
-  imageData.ApplyLetterbox(200, 200);
+  DevelPixelBuffer::ApplyLetterbox(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1143,9 +1143,9 @@ int UtcDaliPixelBufferApplyLetterbox03(void)
   // Source already matches desired size: no-op
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(200, 200, Pixel::RGB888);
 
-  imageData.ApplyLetterbox(200, 200);
+  DevelPixelBuffer::ApplyLetterbox(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1161,7 +1161,7 @@ int UtcDaliPixelBufferApplyCenterCrop04(void)
   // Result: cols 100-299 of source → left 100 cols of result are RED, right 100 cols are BLUE
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(400, 200, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(400, 200, Pixel::RGB888);
 
   // Fill left half (cols 0-199) RED, right half (cols 200-399) BLUE
   uint8_t* buffer = imageData.GetBuffer();
@@ -1172,16 +1172,20 @@ int UtcDaliPixelBufferApplyCenterCrop04(void)
       uint8_t* pixel = buffer + (row * 400u + col) * 3u;
       if(col < 200u)
       {
-        pixel[0] = 0xFF; pixel[1] = 0x00; pixel[2] = 0x00; // RED
+        pixel[0] = 0xFF;
+        pixel[1] = 0x00;
+        pixel[2] = 0x00; // RED
       }
       else
       {
-        pixel[0] = 0x00; pixel[1] = 0x00; pixel[2] = 0xFF; // BLUE
+        pixel[0] = 0x00;
+        pixel[1] = 0x00;
+        pixel[2] = 0xFF; // BLUE
       }
     }
   }
 
-  imageData.ApplyCenterCrop(200, 200);
+  DevelPixelBuffer::ApplyCenterCrop(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1207,7 +1211,7 @@ int UtcDaliPixelBufferApplyCenterCrop05(void)
   // Result rows come from source rows 50-149: top half = RED (rows 50-99), bottom half = BLUE (rows 100-149)
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(200, 200, Pixel::RGB888);
 
   // Fill top half (rows 0-99) RED, bottom half (rows 100-199) BLUE
   uint8_t* buffer = imageData.GetBuffer();
@@ -1218,16 +1222,20 @@ int UtcDaliPixelBufferApplyCenterCrop05(void)
       uint8_t* pixel = buffer + (row * 200u + col) * 3u;
       if(row < 100u)
       {
-        pixel[0] = 0xFF; pixel[1] = 0x00; pixel[2] = 0x00; // RED
+        pixel[0] = 0xFF;
+        pixel[1] = 0x00;
+        pixel[2] = 0x00; // RED
       }
       else
       {
-        pixel[0] = 0x00; pixel[1] = 0x00; pixel[2] = 0xFF; // BLUE
+        pixel[0] = 0x00;
+        pixel[1] = 0x00;
+        pixel[2] = 0xFF; // BLUE
       }
     }
   }
 
-  imageData.ApplyCenterCrop(200, 100);
+  DevelPixelBuffer::ApplyCenterCrop(imageData, 200, 100);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
@@ -1253,16 +1261,18 @@ int UtcDaliPixelBufferApplyLetterbox04(void)
   // offsetY = (200-100)/2 = 50 → rows 0-49 black, rows 50-149 RED, rows 150-199 black
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 100, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(200, 100, Pixel::RGB888);
 
   // Fill entire source RED
   uint8_t* buffer = imageData.GetBuffer();
   for(uint32_t i = 0u; i < 200u * 100u * 3u; i += 3u)
   {
-    buffer[i + 0] = 0xFF; buffer[i + 1] = 0x00; buffer[i + 2] = 0x00; // RED
+    buffer[i + 0] = 0xFF;
+    buffer[i + 1] = 0x00;
+    buffer[i + 2] = 0x00; // RED
   }
 
-  imageData.ApplyLetterbox(200, 200);
+  DevelPixelBuffer::ApplyLetterbox(imageData, 200, 200);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 200u, TEST_LOCATION);
@@ -1298,16 +1308,18 @@ int UtcDaliPixelBufferApplyLetterbox05(void)
   // offsetX = (200-100)/2 = 50 → cols 0-49 black, cols 50-149 GREEN, cols 150-199 black
   TestApplication application;
 
-  Devel::PixelBuffer imageData = Devel::PixelBuffer::New(200, 200, Pixel::RGB888);
+  Dali::PixelBuffer imageData = Dali::PixelBuffer::New(200, 200, Pixel::RGB888);
 
   // Fill entire source GREEN
   uint8_t* buffer = imageData.GetBuffer();
   for(uint32_t i = 0u; i < 200u * 200u * 3u; i += 3u)
   {
-    buffer[i + 0] = 0x00; buffer[i + 1] = 0xFF; buffer[i + 2] = 0x00; // GREEN
+    buffer[i + 0] = 0x00;
+    buffer[i + 1] = 0xFF;
+    buffer[i + 2] = 0x00; // GREEN
   }
 
-  imageData.ApplyLetterbox(200, 100);
+  DevelPixelBuffer::ApplyLetterbox(imageData, 200, 100);
 
   DALI_TEST_EQUALS(imageData.GetWidth(), 200u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageData.GetHeight(), 100u, TEST_LOCATION);
@@ -1331,6 +1343,70 @@ int UtcDaliPixelBufferApplyLetterbox05(void)
   DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 150u * 3u + 0]), 0x00u, TEST_LOCATION);
   // Col 199 of row 0 (last col, right padding) → black
   DALI_TEST_EQUALS(static_cast<uint32_t>(result[0 * stride + 199u * 3u + 0]), 0x00u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferGetBufferSize(void)
+{
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
+
+  DALI_TEST_EQUALS(pixbuf.GetBufferSize(), pixbuf.GetStrideBytes() * pixbuf.GetHeight(), TEST_LOCATION);
+
+  // The whole buffer is writable.
+  memset(pixbuf.GetBuffer(), 0xFF, pixbuf.GetBufferSize());
+  DALI_TEST_EQUALS(static_cast<uint32_t>(pixbuf.GetBuffer()[pixbuf.GetBufferSize() - 1u]), 0xFFu, TEST_LOCATION);
+
+  // No buffer left after the conversion.
+  Dali::PixelData pixelData = Dali::PixelBuffer::Convert(pixbuf);
+  DALI_TEST_CHECK(pixelData);
+  DALI_TEST_CHECK(!pixbuf);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferResize01P(void)
+{
+  TestApplication   application;
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(20, 20, Pixel::RGBA8888);
+  FillCheckerboard(pixbuf);
+
+  // Downscale.
+  DALI_TEST_EQUALS(pixbuf.Resize(10, 10), true, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetWidth(), 10u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetHeight(), 10u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetStrideBytes(), 10u * 4u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetBufferSize(), 10u * 10u * 4u, TEST_LOCATION);
+  DALI_TEST_CHECK(pixbuf.GetBuffer() != nullptr);
+
+  // Upscale.
+  DALI_TEST_EQUALS(pixbuf.Resize(30, 15), true, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetWidth(), 30u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetHeight(), 15u, TEST_LOCATION);
+
+  // Resizing to the current dimensions does nothing and succeeds.
+  const uint8_t* buffer = pixbuf.GetBuffer();
+  DALI_TEST_EQUALS(pixbuf.Resize(30, 15), true, TEST_LOCATION);
+  DALI_TEST_CHECK(pixbuf.GetBuffer() == buffer);
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferResize01N(void)
+{
+  TestApplication application;
+
+  // Zero dimensions cannot be allocated.
+  Dali::PixelBuffer pixbuf = Dali::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+  DALI_TEST_EQUALS(pixbuf.Resize(0, 0), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetWidth(), 10u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetHeight(), 10u, TEST_LOCATION);
+
+  // The resampler does not support this pixel format.
+  Dali::PixelBuffer unsupported = Dali::PixelBuffer::New(10, 10, Pixel::RGB565);
+  DALI_TEST_EQUALS(unsupported.Resize(5, 5), false, TEST_LOCATION);
+  DALI_TEST_EQUALS(unsupported.GetWidth(), 10u, TEST_LOCATION);
 
   END_TEST;
 }

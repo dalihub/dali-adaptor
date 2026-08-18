@@ -19,8 +19,8 @@
 #include <dali/internal/imaging/common/loader-pkm.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/images/pixel.h>
 #include <cstring> ///< for memcmp
 
@@ -177,7 +177,7 @@ bool LoadPkmHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   FILE* const filePointer = input.file;
   if(DALI_UNLIKELY(!filePointer))
@@ -248,7 +248,7 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   // Create bitmap who will use allocated buffer.
   const auto& bitmapInternal = Internal::Adaptor::PixelBuffer::New(pixels, static_cast<uint32_t>(imageByteCount), width, height, 0, pixelFormat);
-  bitmap                     = Dali::Devel::PixelBuffer(bitmapInternal.Get());
+  bitmap                     = Dali::PixelBuffer(bitmapInternal.Get());
 
   // Load the image data.
   const size_t bytesRead = fread(pixels, 1, imageByteCount, filePointer);

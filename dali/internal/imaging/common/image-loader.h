@@ -23,9 +23,9 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/imaging/common/resource-types.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -46,7 +46,7 @@ namespace ImageLoader
  * @param[out] bitmap Pointer to write bitmap to
  * @return true on success, false on failure
  */
-bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
+bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::PixelBuffer& pixelBuffer);
 
 /**
  * Convert a file stream into image planes.
@@ -57,7 +57,7 @@ bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, cons
  * @return true on success, false on failure
  * @note If the image file doesn't support to load planes, this method returns one RGB bitmap image.
  */
-bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
+bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::PixelBuffer>& pixelBuffers);
 
 /**
  * @returns the closest image size

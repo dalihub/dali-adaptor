@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_WEBP_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
+bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
 
 /**
  * Loads the image planes from an WEBP file.  This function checks the header first
@@ -65,7 +65,7 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
  * @return true if file decoded successfully, false otherwise
  * @note If the image file doesn't support to load planes, this method returns one RGB bitmap image.
  */
-bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
+bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers);
 
 } // namespace TizenPlatform
 

@@ -1,0 +1,12 @@
+# module: app-entity
+SET( adaptor_app_entity_common_src_files
+    ${adaptor_app_entity_dir}/common/focused-actor-provider.cpp
+    ${adaptor_app_entity_dir}/common/entity-data-host.cpp
+    ${adaptor_app_entity_dir}/common/entity-data-builder.cpp
+    ${adaptor_app_entity_dir}/common/entity-data-service.cpp
+)
+
+SET( adaptor_app_entity_tizen_src_files
+    ${adaptor_app_entity_dir}/tizen/entity-data-host-tizen.cpp
+    ${adaptor_app_entity_dir}/tizen/tidl-stub/view-stub.cc
+)

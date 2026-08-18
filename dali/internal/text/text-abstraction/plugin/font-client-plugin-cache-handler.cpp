@@ -20,17 +20,18 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/string-utils.h>
 #include <dali/integration-api/trace.h>
 #include <fontconfig/fontconfig.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 
 // Use this macro only if need to log messages before the log function is set.
 #define FONT_LOG_MESSAGE(level, format, ...)                                    \
@@ -1127,7 +1128,7 @@ PixelBufferId FontClient::Plugin::CacheHandler::CacheEmbeddedPixelBuffer(const s
   PixelBufferId pixelBufferId = 0u;
 
   // Load the image from the url.
-  Devel::PixelBuffer pixelBuffer = LoadImageFromFile(url);
+  Dali::PixelBuffer pixelBuffer = LoadImageFromFile(Dali::Integration::ToDaliStringView(url));
   if(pixelBuffer)
   {
     // Create the cache item.

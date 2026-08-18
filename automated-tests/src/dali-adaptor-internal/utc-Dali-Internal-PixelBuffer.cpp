@@ -24,8 +24,8 @@
 
 // Internal headers are allowed here
 
-#include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 
 using namespace Dali;
 using namespace Dali::Internal::Adaptor;
@@ -180,7 +180,7 @@ int UtcDaliPixelManipulationLA88(void)
 {
   tet_infoline("Testing Dali::Internal::AdaptorManipulation Read/WriteChannel - LA88 format");
 
-  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(TEST_IMAGE_LA88);
+  Dali::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(TEST_IMAGE_LA88);
   DALI_TEST_CHECK(pixelBuffer);
 
   unsigned int width  = pixelBuffer.GetWidth();

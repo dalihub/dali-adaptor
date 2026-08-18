@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/capture.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -34,7 +34,7 @@ namespace DevelCapture
  * @return PixelBuffer Captured result
  * @note GetCapturedBuffer is only available inside FinishedSignal, otherwise this returns empty handle.
  */
-DALI_ADAPTOR_API Dali::Devel::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
+DALI_ADAPTOR_API Dali::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
 
 } // namespace DevelCapture
 

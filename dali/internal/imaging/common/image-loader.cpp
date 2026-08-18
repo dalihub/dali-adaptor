@@ -274,7 +274,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
 
 namespace ImageLoader
 {
-bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer)
+bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::PixelBuffer& pixelBuffer)
 {
   DALI_LOG_TRACE_METHOD(gLogFilter);
 
@@ -320,7 +320,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string
   return result;
 }
 
-bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::PixelBuffer>& pixelBuffers)
 {
   DALI_LOG_TRACE_METHOD(gLogFilter);
 
@@ -372,7 +372,7 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
       }
       else
       {
-        Dali::Devel::PixelBuffer pixelBuffer;
+        Dali::PixelBuffer pixelBuffer;
         result = loader(input, pixelBuffer);
         if(!result)
         {

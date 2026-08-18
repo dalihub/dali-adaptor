@@ -17,9 +17,9 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/devel-api/adaptor-framework/widget-application.h>
+#include <dali/devel-api/adaptor-framework/widget.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/adaptor-framework/widget-application.h>
-#include <dali/public-api/adaptor-framework/widget.h>
 
 using namespace Dali;
 using Dali::Integration::ToDaliString;

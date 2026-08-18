@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@
 #include <png.h>
 #include <zlib.h>
 
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -122,7 +122,7 @@ bool LoadPngHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
   return success;
 }
 
-bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   png_structp png  = NULL;
   png_infop   info = NULL;
@@ -304,7 +304,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
 
   // decode the whole image into bitmap buffer
-  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
+  auto pixels = (bitmap = Dali::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
 
   DALI_ASSERT_DEBUG(pixels);
 
@@ -526,7 +526,7 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
   png_write_info(png_ptr, info_ptr);
 
   // Walk the rows:
-  const uint32_t row_step = static_cast<uint32_t>(width * pixelBytes);
+  const uint32_t  row_step = static_cast<uint32_t>(width * pixelBytes);
   png_bytep       row_ptr  = const_cast<png_bytep>(pixelBuffer);
   const png_bytep row_end  = row_ptr + height * row_step;
   for(; row_ptr < row_end; row_ptr += row_step)

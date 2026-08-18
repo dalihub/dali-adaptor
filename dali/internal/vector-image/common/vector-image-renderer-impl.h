@@ -29,8 +29,8 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/adaptor-framework/vector-image-renderer.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #ifndef THORVG_SUPPORT
 struct NSVGrasterizer;
@@ -72,7 +72,7 @@ public:
   /**
    * @copydoc Dali::VectorImageRenderer::Rasterize()
    */
-  Dali::Devel::PixelBuffer Rasterize(uint32_t width, uint32_t height);
+  Dali::PixelBuffer Rasterize(uint32_t width, uint32_t height);
 
   /**
    * @copydoc Dali::VectorImageRenderer::GetDefaultSize()

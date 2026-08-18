@@ -22,8 +22,8 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -60,8 +60,8 @@ struct Input
   bool              reorientationRequested;
 };
 
-using LoadBitmapFunction       = bool (*)(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& pixelData);
-using LoadPlanesFunction       = bool (*)(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
+using LoadBitmapFunction       = bool (*)(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& pixelData);
+using LoadPlanesFunction       = bool (*)(const Dali::ImageLoader::Input& input, std::vector<Dali::PixelBuffer>& pixelBuffers);
 using LoadBitmapHeaderFunction = bool (*)(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height);
 
 /**

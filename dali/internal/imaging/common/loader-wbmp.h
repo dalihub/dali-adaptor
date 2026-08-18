@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_WBMP_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class ResourceLoadingClient;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
+bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap);
 
 /**
  * @param[in]  input  Information about the input image (including file pointer)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 
 #include <gif_lib.h>
 
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/system-error-print.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <memory>
 
 // We need to check if giflib has the new open and close API (including error parameter).
@@ -86,7 +86,7 @@ const unsigned int INTERLACE_PAIR_TABLE_SIZE(sizeof(INTERLACE_PAIR_TABLE) / size
 /// Function used by Gif_Lib to read from the image file.
 int ReadDataFromGif(GifFileType* gifInfo, GifByteType* data, int length)
 {
-  FILE*     fp           = reinterpret_cast<FILE*>(gifInfo->UserData);
+  FILE*         fp           = reinterpret_cast<FILE*>(gifInfo->UserData);
   const int32_t actualLength = static_cast<int32_t>(fread(data, sizeof(GifByteType), length, fp));
   if(DALI_UNLIKELY(actualLength != length))
   {
@@ -182,7 +182,7 @@ GifColorType* GetImageColors(SavedImage* image, GifFileType* gifInfo)
 }
 
 /// Called when we want to handle IMAGE_DESC_RECORD_TYPE
-bool HandleImageDescriptionRecordType(Dali::Devel::PixelBuffer& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished)
+bool HandleImageDescriptionRecordType(Dali::PixelBuffer& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished)
 {
   if(DALI_UNLIKELY(DGifGetImageDesc(gifInfo) == GIF_ERROR))
   {
@@ -224,7 +224,7 @@ bool HandleImageDescriptionRecordType(Dali::Devel::PixelBuffer& bitmap, GifFileT
   const unsigned int bytesPerRow(width * sizeof(GifPixelType));
 
   // Create a buffer to store the decoded data.
-  bitmap = Dali::Devel::PixelBuffer::New(actualWidth, actualHeight, pixelFormat);
+  bitmap = Dali::PixelBuffer::New(actualWidth, actualHeight, pixelFormat);
 
   // Decode the GIF Image
   if(DALI_UNLIKELY(!DecodeImage(gifInfo, decodedData, actualWidth, actualHeight, bytesPerRow)))
@@ -298,7 +298,7 @@ bool LoadGifHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
   return LoadGifHeader(fp, width, height, &gifInfo);
 }
 
-bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::PixelBuffer& bitmap)
 {
   FILE* const fp = input.file;
   // Load the GIF Header file.

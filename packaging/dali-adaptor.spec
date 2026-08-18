@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.34
+Version:    2.5.35
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
@@ -54,6 +54,7 @@ BuildRequires:  dali2-devel
 BuildRequires:  dali2-integration-devel
 
 BuildRequires:  pkgconfig
+BuildRequires:  pkgconfig(rpc-port)
 BuildRequires:  gawk
 BuildRequires:  cmake
 BuildRequires:  python3

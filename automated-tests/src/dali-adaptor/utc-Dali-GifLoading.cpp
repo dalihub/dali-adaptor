@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ int UtcDaliAnimatedImageLoadingGetImageSizeN(void)
 int UtcDaliAnimatedImageLoadingInvalidGif(void)
 {
   Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGifInvalid, true);
-  Dali::Devel::PixelBuffer   pixelBuffer          = animatedImageLoading.LoadFrame(0);
+  Dali::PixelBuffer          pixelBuffer          = animatedImageLoading.LoadFrame(0);
 
   // The pixel buffer should be empty.
   DALI_TEST_CHECK(!pixelBuffer);

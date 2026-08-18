@@ -14,10 +14,12 @@ SET(TC_SOURCES
     utc-Dali-ClipboardData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
+    utc-Dali-EntityData.cpp
     utc-Dali-MouseInOutEvent.cpp
     utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
+    utc-Dali-WebpLoading.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
     utc-Dali-KeyExtension.cpp
@@ -42,7 +44,7 @@ ELSE()
 )
 ENDIF()
 
-SET(TC_SOURCE_LIST ${TC_SOURCES})
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources" FORCE)
 
 LIST(APPEND TC_SOURCES
     dali-test-suite-utils/mesh-builder.cpp

@@ -105,7 +105,7 @@ void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions)
   // Loading the header moves the pointer within the file so reset to start of file.
   fseek(fp, 0, 0);
 
-  Dali::Devel::PixelBuffer bitmap;
+  Dali::PixelBuffer bitmap;
 
   // Load Bitmap and check its return values.
   DALI_TEST_CHECK(functions.loader(input, bitmap));
@@ -143,7 +143,7 @@ void CompareLoadedImageData(const ImageDetails& image, const LoadFunctions& func
   // Loading the header moves the pointer within the file so reset to start of file.
   fseek(filePointer, 0, SEEK_SET);
 
-  Dali::Devel::PixelBuffer bitmap;
+  Dali::PixelBuffer bitmap;
 
   // Load Bitmap and check its return values.
   DALI_TEST_CHECK(functions.loader(input, bitmap));
@@ -178,7 +178,7 @@ void DumpImageBufferToTempFile(std::string filename, std::string targetFilename,
   FILE*         fp = fopen(filename.c_str(), "rb");
   AutoCloseFile autoClose(fp);
 
-  Dali::Devel::PixelBuffer       bitmap;
+  Dali::PixelBuffer              bitmap;
   const Dali::ImageLoader::Input input(fp);
 
   DALI_TEST_CHECK(functions.loader(input, bitmap));

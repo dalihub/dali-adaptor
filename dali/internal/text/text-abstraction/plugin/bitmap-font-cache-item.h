@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_BITMAP_FONT_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
 #include <dali/internal/text/text-abstraction/plugin/font-cache-item-interface.h>
 #include <ft2build.h>
@@ -145,9 +145,9 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
     return false;
   }
 
-  BitmapFont                      font;         ///< The bitmap font.
-  std::vector<Devel::PixelBuffer> pixelBuffers; ///< The pixel buffers of the glyphs.
-  FontId                          id;           ///< Index to the vector with the cache of font's ids.
+  BitmapFont                     font;         ///< The bitmap font.
+  std::vector<Dali::PixelBuffer> pixelBuffers; ///< The pixel buffers of the glyphs.
+  FontId                         id;           ///< Index to the vector with the cache of font's ids.
 };
 
 } // namespace Dali::TextAbstraction::Internal

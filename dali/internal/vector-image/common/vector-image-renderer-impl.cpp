@@ -303,7 +303,7 @@ bool VectorImageRenderer::IsLoaded() const
   return mIsLoaded.load();
 }
 
-Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
+Dali::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
 {
   Mutex::ScopedLock lock(mMutex);
 
@@ -312,7 +312,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
     if(mDefaultWidth == 0)
     {
       DALI_LOG_ERROR("Invalid size [%d, %d]\n", width, height);
-      return Devel::PixelBuffer();
+      return Dali::PixelBuffer();
     }
     else
     {
@@ -325,7 +325,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
     if(mDefaultHeight == 0)
     {
       DALI_LOG_ERROR("Invalid size [%d, %d]\n", width, height);
-      return Devel::PixelBuffer();
+      return Dali::PixelBuffer();
     }
     else
     {
@@ -341,10 +341,10 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 #else
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: either Canvas[%p] or Picture[%p] is invalid [%p]\n", mSwCanvas.get(), mPicture, this);
 #endif
-    return Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
 
-  Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
+  Dali::PixelBuffer pixelBuffer = Dali::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
 
 #ifdef THORVG_VERSION_1
   mSwCanvas->sync();
@@ -356,7 +356,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
   if(!pBuffer)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: pixel buffer is null [%p]\n", this);
-    return Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
 
 #ifdef THORVG_VERSION_1
@@ -376,7 +376,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
     if(mSwCanvas->add(mPicture) != tvg::Result::Success)
     {
       DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Picture push fail [%p]\n", this);
-      return Devel::PixelBuffer();
+      return Dali::PixelBuffer();
     }
   }
 
@@ -386,7 +386,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
   if(mSwCanvas->push(std::unique_ptr<tvg::Picture>(mPicture)) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Picture push fail [%p]\n", this);
-    return Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
 
   auto ret = mSwCanvas->draw();
@@ -395,7 +395,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
   if(ret != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail %d [%p]\n", static_cast<int>(ret), this);
-    return Devel::PixelBuffer();
+    return Dali::PixelBuffer();
   }
 
   mSwCanvas->sync();
@@ -404,7 +404,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
 #else
   if(mParsedImage != nullptr)
   {
-    Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
+    Dali::PixelBuffer pixelBuffer = Dali::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
 
     float scaleX = static_cast<float>(width) / (mDefaultWidth > 0 ? static_cast<float>(mDefaultWidth) : 1.0f);
     float scaleY = static_cast<float>(height) / (mDefaultHeight > 0 ? static_cast<float>(mDefaultHeight) : 1.0f);
@@ -414,7 +414,7 @@ Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t
     nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, pixelBuffer.GetBuffer(), width, height, stride);
     return pixelBuffer;
   }
-  return Devel::PixelBuffer();
+  return Dali::PixelBuffer();
 #endif
 }
 

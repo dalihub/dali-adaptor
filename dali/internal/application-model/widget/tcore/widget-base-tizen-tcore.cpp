@@ -20,10 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <bundle_cpp.h>
+#include <dali/devel-api/adaptor-framework/widget-impl.h>
+#include <dali/devel-api/adaptor-framework/widget.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
-#include <dali/public-api/adaptor-framework/widget.h>
 #include <dlog.h>
 #include <tizen.h>
 #include <widget_base.hh>

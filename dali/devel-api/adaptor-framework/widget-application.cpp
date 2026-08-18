@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/public-api/adaptor-framework/widget-application.h>
+#include <dali/devel-api/adaptor-framework/widget-application.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-string-view.h>

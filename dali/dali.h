@@ -20,6 +20,16 @@
 
 #include <dali/public-api/dali-core.h>
 
+// Canvas Renderer
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-picture.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-shape.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
+
 // Application / UI Framework adaption
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/capture.h>
@@ -30,19 +40,20 @@
 #include <dali/public-api/adaptor-framework/drag-data.h>
 #include <dali/public-api/adaptor-framework/drag-event.h>
 #include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
+#include <dali/public-api/adaptor-framework/image-loading.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/input-method-context.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/key.h>
 #include <dali/public-api/adaptor-framework/keyboard.h>
+#include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
+#include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>
-#include <dali/public-api/adaptor-framework/widget-application.h>
-#include <dali/public-api/adaptor-framework/widget-impl.h>
-#include <dali/public-api/adaptor-framework/widget.h>
+#include <dali/public-api/adaptor-framework/video-source-descriptor.h>
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>

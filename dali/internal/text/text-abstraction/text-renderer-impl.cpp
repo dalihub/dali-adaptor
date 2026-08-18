@@ -63,12 +63,12 @@ TextAbstraction::TextRenderer TextRenderer::Get()
   return shapingHandle;
 }
 
-Devel::PixelBuffer TextRenderer::Render(const TextAbstraction::TextRenderer::Parameters& parameters)
+Dali::PixelBuffer TextRenderer::Render(const TextAbstraction::TextRenderer::Parameters& parameters)
 {
-  Dali::Pixel::Format      pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
-  Dali::Devel::PixelBuffer pixelBuffer = Dali::Devel::PixelBuffer::New(parameters.width,
-                                                                       parameters.height,
-                                                                       pixelFormat);
+  Dali::Pixel::Format pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
+  Dali::PixelBuffer   pixelBuffer = Dali::PixelBuffer::New(parameters.width,
+                                                           parameters.height,
+                                                           pixelFormat);
   return pixelBuffer;
 
   // This function allows you to render text using Cairo
