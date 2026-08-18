@@ -528,6 +528,9 @@ void Adaptor::Stop()
      PAUSED == mState ||
      PAUSED_WHILE_HIDDEN == mState)
   {
+    // Stop accepting entity-data requests before application and Core teardown.
+    mEntityDataHost.reset();
+
     for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
     {
       (*iter)->OnStop();

@@ -31,17 +31,20 @@ FocusedActorProvider* gFocusedActorProvider = nullptr;
 
 } // unnamed namespace
 
-void FocusedActorProvider::Register(FocusedActorProvider* provider)
+void RegisterFocusedActorProvider(FocusedActorProvider* provider)
 {
   gFocusedActorProvider = provider;
 }
 
-void FocusedActorProvider::Unregister()
+void UnregisterFocusedActorProvider(FocusedActorProvider* provider)
 {
-  gFocusedActorProvider = nullptr;
+  if(gFocusedActorProvider == provider)
+  {
+    gFocusedActorProvider = nullptr;
+  }
 }
 
-FocusedActorProvider* FocusedActorProvider::GetRegisteredProvider()
+FocusedActorProvider* GetFocusedActorProvider()
 {
   return gFocusedActorProvider;
 }

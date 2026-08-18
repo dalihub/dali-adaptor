@@ -20,14 +20,14 @@
 
 #ifdef ENABLE_ENTITY_DATA_TIDL
 // EXTERNAL INCLUDES
-#include <memory>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/integration-api/debug.h>
 
 // GENERATED INCLUDES (actionc, build tree)
 #include <view-stub.h>
@@ -49,50 +49,50 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 #endif
 
 /// Converts internal EntityData into the generated TizenEntityView.
-Generated::TizenEntityView ToTizenEntityView(const EntityData& viewData)
+Generated::TizenEntityView ToTizenEntityView(const EntityData& entityData)
 {
-  Generated::ScreenBounds screenBounds(static_cast<double>(viewData.screenBounds.x),
-                                       static_cast<double>(viewData.screenBounds.y),
-                                       static_cast<double>(viewData.screenBounds.width),
-                                       static_cast<double>(viewData.screenBounds.height));
-  Generated::WindowBounds windowBounds(static_cast<double>(viewData.windowBounds.x),
-                                       static_cast<double>(viewData.windowBounds.y),
-                                       static_cast<double>(viewData.windowBounds.width),
-                                       static_cast<double>(viewData.windowBounds.height));
-  Generated::Annotation annotation(viewData.annotation.entityId, viewData.annotation.entityType, viewData.annotation.entityInfo);
+  Generated::ScreenBounds screenBounds(static_cast<double>(entityData.screenBounds.x),
+                                       static_cast<double>(entityData.screenBounds.y),
+                                       static_cast<double>(entityData.screenBounds.width),
+                                       static_cast<double>(entityData.screenBounds.height));
+  Generated::WindowBounds windowBounds(static_cast<double>(entityData.windowBounds.x),
+                                       static_cast<double>(entityData.windowBounds.y),
+                                       static_cast<double>(entityData.windowBounds.width),
+                                       static_cast<double>(entityData.windowBounds.height));
+  Generated::Annotation   annotation(entityData.annotation.entityId, entityData.annotation.entityType, entityData.annotation.entityInfo);
 
   // TizenEntity base fields: Id, Extra (Extra is unused by this contract).
-  return Generated::TizenEntityView(viewData.id, std::string(), viewData.type, viewData.description, screenBounds, windowBounds, viewData.isFocused, viewData.isEnabled, annotation);
+  return Generated::TizenEntityView(entityData.actorId, std::string(), entityData.actorTypeName, entityData.description, screenBounds, windowBounds, entityData.isFocused, entityData.isEnabled, annotation);
 }
 
 /// Converts a generated TizenEntityView into internal EntityData.
 EntityData FromTizenEntityView(const Generated::TizenEntityView& generatedView)
 {
-  EntityData viewData;
-  viewData.id          = generatedView.GetId();
-  viewData.type        = generatedView.GetType();
-  viewData.description = generatedView.GetDescription();
+  EntityData entityData;
+  entityData.actorId       = generatedView.GetId();
+  entityData.actorTypeName = generatedView.GetType();
+  entityData.description   = generatedView.GetDescription();
 
   const Generated::ScreenBounds& generatedScreenBounds = generatedView.GetScreenBounds();
-  viewData.screenBounds.x      = static_cast<float>(generatedScreenBounds.GetX());
-  viewData.screenBounds.y      = static_cast<float>(generatedScreenBounds.GetY());
-  viewData.screenBounds.width  = static_cast<float>(generatedScreenBounds.GetWidth());
-  viewData.screenBounds.height = static_cast<float>(generatedScreenBounds.GetHeight());
+  entityData.screenBounds.x                            = static_cast<float>(generatedScreenBounds.GetX());
+  entityData.screenBounds.y                            = static_cast<float>(generatedScreenBounds.GetY());
+  entityData.screenBounds.width                        = static_cast<float>(generatedScreenBounds.GetWidth());
+  entityData.screenBounds.height                       = static_cast<float>(generatedScreenBounds.GetHeight());
 
   const Generated::WindowBounds& generatedWindowBounds = generatedView.GetWindowBounds();
-  viewData.windowBounds.x      = static_cast<float>(generatedWindowBounds.GetX());
-  viewData.windowBounds.y      = static_cast<float>(generatedWindowBounds.GetY());
-  viewData.windowBounds.width  = static_cast<float>(generatedWindowBounds.GetWidth());
-  viewData.windowBounds.height = static_cast<float>(generatedWindowBounds.GetHeight());
+  entityData.windowBounds.x                            = static_cast<float>(generatedWindowBounds.GetX());
+  entityData.windowBounds.y                            = static_cast<float>(generatedWindowBounds.GetY());
+  entityData.windowBounds.width                        = static_cast<float>(generatedWindowBounds.GetWidth());
+  entityData.windowBounds.height                       = static_cast<float>(generatedWindowBounds.GetHeight());
 
-  viewData.isFocused = generatedView.GetIsFocused();
-  viewData.isEnabled = generatedView.GetIsEnabled();
+  entityData.isFocused = generatedView.GetIsFocused();
+  entityData.isEnabled = generatedView.GetIsEnabled();
 
   const Generated::Annotation& generatedAnnotation = generatedView.GetAnnotation();
-  viewData.annotation.entityId   = generatedAnnotation.GetEntityId();
-  viewData.annotation.entityType = generatedAnnotation.GetEntityType();
-  viewData.annotation.entityInfo = generatedAnnotation.GetEntityInfo();
-  return viewData;
+  entityData.annotation.entityId                   = generatedAnnotation.GetEntityId();
+  entityData.annotation.entityType                 = generatedAnnotation.GetEntityType();
+  entityData.annotation.entityInfo                 = generatedAnnotation.GetEntityInfo();
+  return entityData;
 }
 
 /**
@@ -123,14 +123,14 @@ public:
   Generated::TizenEntityStatus FindById(std::string id, Generated::TizenEntityView& generatedView) override
   {
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host FindById: request id=%s\n", id.c_str());
-    EntityData viewData;
-    if(!mService.FindById(id, viewData))
+    EntityData entityData;
+    if(!mService.FindByActorId(id, entityData))
     {
       DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host FindById: not found id=%s\n", id.c_str());
       return Generated::TizenEntityStatus(false, "View not found");
     }
 
-    generatedView = ToTizenEntityView(viewData);
+    generatedView = ToTizenEntityView(entityData);
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host FindById: response id=%s type=%s entityId=%s\n",
                   generatedView.GetId().c_str(), generatedView.GetType().c_str(),
                   generatedView.GetAnnotation().GetEntityId().c_str());
@@ -140,13 +140,13 @@ public:
   Generated::TizenEntityStatus GetFocusedView(Generated::TizenEntityView& generatedView) override
   {
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetFocusedView: request\n");
-    EntityData viewData;
-    if(!mService.GetFocusedEntityData(viewData))
+    EntityData entityData;
+    if(!mService.GetFocusedEntityData(entityData))
     {
       DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetFocusedView: no focused view\n");
       return Generated::TizenEntityStatus(false, "No focused view");
     }
-    generatedView = ToTizenEntityView(viewData);
+    generatedView = ToTizenEntityView(entityData);
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetFocusedView: response id=%s type=%s entityId=%s\n",
                   generatedView.GetId().c_str(), generatedView.GetType().c_str(),
                   generatedView.GetAnnotation().GetEntityId().c_str());
@@ -156,17 +156,22 @@ public:
   Generated::TizenEntityStatus GetAnnotatedViews(std::vector<Generated::TizenEntityView>& views) override
   {
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: request\n");
-    std::vector<EntityData> viewDataList;
-    mService.GetEntityData(viewDataList);
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: service count=%zu\n", viewDataList.size());
+    std::vector<EntityData> entityDataList;
+    if(!mService.GetAnnotatedEntities(entityDataList))
+    {
+      views.clear();
+      DALI_LOG_ERROR("Failed to enumerate annotated entities\n");
+      return Generated::TizenEntityStatus(false, "Failed to enumerate annotated views");
+    }
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: service count=%zu\n", entityDataList.size());
 
     views.clear();
-    views.reserve(viewDataList.size());
-    for(const auto& viewData : viewDataList)
+    views.reserve(entityDataList.size());
+    for(const auto& entityData : entityDataList)
     {
       DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: id=%s type=%s entityId=%s\n",
-                    viewData.id.c_str(), viewData.type.c_str(), viewData.annotation.entityId.c_str());
-      views.push_back(ToTizenEntityView(viewData));
+                    entityData.actorId.c_str(), entityData.actorTypeName.c_str(), entityData.annotation.entityId.c_str());
+      views.push_back(ToTizenEntityView(entityData));
     }
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: response count=%zu\n", views.size());
     return Generated::TizenEntityStatus(true, std::string());

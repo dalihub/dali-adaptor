@@ -23,9 +23,9 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/focused-actor-provider.h>
 #include <dali/internal/app-entity/common/entity-data-builder.h>
 #include <dali/internal/app-entity/common/entity-data.h>
-#include <dali/integration-api/adaptor-framework/focused-actor-provider.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -42,14 +42,14 @@ using Dali::Integration::FocusedActorProvider;
  * contract.
  *
  * The four methods provide the shared entity-data operations:
- * FindById, GetFocusedEntityData, GetEntityData and ToPresentation.
+ * FindByActorId, GetFocusedEntityData, GetAnnotatedEntities and ToPresentation.
  * Each returns a boolean success flag; a platform backend maps this to its
  * transport-specific response type.
  */
 class DALI_ADAPTOR_API EntityDataService
 {
 public:
-  /// Minimum visible-area ratio for an entity to be included in GetEntityData.
+  /// Minimum visible-area ratio for an entity to be included in GetAnnotatedEntities.
   static constexpr float VISIBILITY_THRESHOLD = 0.70f;
 
   /**
@@ -66,11 +66,24 @@ public:
 
   /**
    * @brief Finds EntityData by its Actor ID string across all windows.
-   * @param[in]  id      Actor ID encoded as a string
+   * @param[in]  actorId Actor ID encoded as a string
    * @param[out] outEntityData EntityData when found
    * @return true when the Actor is alive and converted to EntityData
    */
-  bool FindById(const std::string& id, EntityData& outEntityData);
+  bool FindByActorId(const std::string& actorId, EntityData& outEntityData);
+
+  /**
+   * @brief Finds EntityData by its Actor ID string below a supplied root.
+   *
+   * This platform-neutral overload is also useful when a caller already owns
+   * the scene root and does not need Adaptor window discovery.
+   *
+   * @param[in] actorId Actor ID encoded as a strict unsigned decimal string
+   * @param[in] root Root Actor to search
+   * @param[out] outEntityData EntityData when found
+   * @return true when the Actor is found and converted to EntityData
+   */
+  bool FindByActorId(const std::string& actorId, Dali::Actor root, EntityData& outEntityData);
 
   /**
    * @brief Returns the exact focused EntityData.
@@ -84,7 +97,17 @@ public:
    * @param[out] outEntityDataList Sorted list of qualifying EntityData (may be empty)
    * @return true (success even when empty)
    */
-  bool GetEntityData(std::vector<EntityData>& outEntityDataList);
+  bool GetAnnotatedEntities(std::vector<EntityData>& outEntityDataList);
+
+  /**
+   * @brief Enumerates annotated entities below a supplied root.
+   *
+   * @param[in] root Root Actor to enumerate
+   * @param[in] clipBounds Visible bounds in the root's window coordinates
+   * @param[out] outEntityDataList Sorted list of qualifying EntityData
+   * @return true (success even when the root is empty)
+   */
+  bool GetAnnotatedEntities(Dali::Actor root, const Dali::Bounds& clipBounds, std::vector<EntityData>& outEntityDataList);
 
   /**
    * @brief Converts EntityData into a presentation representation.
@@ -96,16 +119,8 @@ public:
 
 private:
   /**
-   * @brief Computes the ratio of the entity's visible area to its full area.
-   * @param[in] entityBounds Entity bounds
-   * @param[in] clipBounds Clipping bounds (e.g. window)
-   * @return intersectArea / entityArea, in [0.0, 1.0]; 0.0 for degenerate bounds
-   */
-  float ComputeVisibilityRatio(const Dali::Bounds& entityBounds, const Dali::Bounds& clipBounds) const;
-
-  /**
    * @brief Returns the provider to use: the injected one if set, otherwise the
-   * process-wide provider registered via FocusedActorProvider::Register().
+   * process-wide provider registered via RegisterFocusedActorProvider().
    */
   FocusedActorProvider* GetEffectiveProvider() const;
 

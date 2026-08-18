@@ -14,7 +14,6 @@ SET(TC_SOURCES
     utc-Dali-ClipboardData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
-    utc-Dali-EntityData.cpp
     utc-Dali-MouseInOutEvent.cpp
     utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp

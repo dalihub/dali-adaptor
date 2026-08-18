@@ -18,10 +18,9 @@
  *
  */
 
-
 // INTERNAL INCLUDES
-#include <dali/internal/app-entity/common/entity-data.h>
 #include <dali/integration-api/adaptor-framework/focused-actor-provider.h>
+#include <dali/internal/app-entity/common/entity-data.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -38,7 +37,7 @@ using Dali::Integration::FocusedActorProvider;
  *
  * Uses the Accessibility Bridge (Accessible/Component) when available,
  * falling back to Actor properties otherwise. Annotation is always read
- * from the Actor custom Property::Map. Focus is queried via the
+ * from the Actor annotation API. Focus is queried via the
  * FocusedActorProvider.
  *
  * @param[in] actor    The Actor to convert

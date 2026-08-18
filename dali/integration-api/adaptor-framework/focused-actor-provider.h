@@ -47,29 +47,31 @@ public:
    * @return The focused Actor, or an empty Actor handle when none is focused.
    */
   virtual Actor GetFocusedActor() = 0;
-
-  /**
-   * @brief Registers the process-wide provider implementation.
-   *
-   * Called once, on the main/event thread, by the layer that owns focus
-   * management. The caller retains ownership; the pointer must
-   * outlive its use.
-   *
-   * @param[in] provider The implementation to register.
-   */
-  static void Register(FocusedActorProvider* provider);
-
-  /**
-   * @brief Unregisters the process-wide provider.
-   */
-  static void Unregister();
-
-  /**
-   * @brief Returns the registered provider.
-   * @return The registered provider, or nullptr when none is registered.
-   */
-  static FocusedActorProvider* GetRegisteredProvider();
 };
+
+/**
+ * @brief Registers the process-wide focused Actor provider.
+ *
+ * Called on the main/event thread by the layer that owns focus management.
+ * The caller retains ownership; the pointer must outlive its registration.
+ *
+ * @param[in] provider The provider implementation to register
+ */
+DALI_ADAPTOR_API void RegisterFocusedActorProvider(FocusedActorProvider* provider);
+
+/**
+ * @brief Unregisters the focused Actor provider if it is currently registered.
+ *
+ * @param[in] provider The provider implementation to unregister
+ */
+DALI_ADAPTOR_API void UnregisterFocusedActorProvider(FocusedActorProvider* provider);
+
+/**
+ * @brief Returns the process-wide focused Actor provider.
+ *
+ * @return The registered provider, or nullptr when none is registered
+ */
+DALI_ADAPTOR_API FocusedActorProvider* GetFocusedActorProvider();
 
 } // namespace Integration
 } // namespace Dali
