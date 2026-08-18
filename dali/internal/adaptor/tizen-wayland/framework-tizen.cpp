@@ -113,12 +113,16 @@ struct FrameworkTizen::Impl
       }
     }
 
+    DALI_LOG_RELEASE_INFO("FrameworkTizen::Impl: dlopen begin, plugin: %s\n", pluginName.c_str());
     mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
+    DALI_LOG_RELEASE_INFO("FrameworkTizen::Impl: dlopen end, plugin: %s, handle: %p\n", pluginName.c_str(), mHandle);
     if(mHandle == nullptr)
     {
       print_log(DLOG_INFO, "DALI", "error : %s", dlerror());
       return;
     }
+
+    DALI_LOG_RELEASE_INFO("FrameworkTizen::Impl: dlsym begin, plugin: %s\n", pluginName.c_str());
 
     createFunctionPtr = reinterpret_cast<CreateFunction>(dlsym(mHandle, "Create"));
     if(DALI_UNLIKELY(createFunctionPtr == nullptr))
@@ -140,6 +144,8 @@ struct FrameworkTizen::Impl
     {
       DALI_LOG_ERROR("appExitFunctionPtr is null\n");
     }
+
+    DALI_LOG_RELEASE_INFO("FrameworkTizen::Impl: dlsym end, plugin: %s\n", pluginName.c_str());
   }
 
   ~Impl()
@@ -298,14 +304,18 @@ FrameworkTizen::FrameworkTizen(Framework::Observer& observer, Framework::TaskObs
   }
 
   bool featureFlag = true;
+  DALI_LOG_RELEASE_INFO("FrameworkTizen: OpenGL ES feature query begin\n");
   system_info_get_platform_bool("tizen.org/feature/opengles.version.2_0", &featureFlag);
+  DALI_LOG_RELEASE_INFO("FrameworkTizen: OpenGL ES feature query end, supported: %d\n", featureFlag);
 
   if(featureFlag == false)
   {
     set_last_result(TIZEN_ERROR_NOT_SUPPORTED);
   }
 
+  DALI_LOG_RELEASE_INFO("FrameworkTizen: application-model initialization begin, type: %d\n", static_cast<int>(type));
   mImpl = new Impl(this, type, useUiThread);
+  DALI_LOG_RELEASE_INFO("FrameworkTizen: application-model initialization end, type: %d\n", static_cast<int>(type));
 }
 
 FrameworkTizen::~FrameworkTizen()
