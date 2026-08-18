@@ -24,7 +24,7 @@
 #include <appcore_base.h>
 #include <bundle.h>
 #include <bundle_internal.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <glib.h>
 #include <system_info.h>
 #include <system_settings.h>
@@ -73,7 +73,7 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   }
   else
   {
-    print_log(DLOG_INFO, "DALI", "appNormal is nullptr");
+    DALI_TIZEN_DLOG(DLOG_INFO, "appNormal is nullptr");
   }
   return ret;
 }
@@ -254,22 +254,22 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       int OnCreate() override
       {
-        // On the main thread, the log functions are not set. So print_log() is used directly.
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
+        // On the main thread, the log functions are not set. So DALI_TIZEN_DLOG() is used directly.
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
         mFramework->GetTaskObserver().OnTaskInit();
         return AppCoreTaskBase::OnCreate();
       }
 
       int OnTerminate() override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
         mFramework->GetTaskObserver().OnTaskTerminate();
         return AppCoreTaskBase::OnTerminate();
       }
 
       int OnControl(tizen_base::Bundle b) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
         AppCoreTaskBase::OnControl(b);
 
         app_control_h appControl = nullptr;
@@ -279,14 +279,14 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
         {
           if(app_control_create_event(bundleData, &appControl) != TIZEN_ERROR_NONE)
           {
-            print_log(DLOG_ERROR, "DALI", "%s: %s(%d) > Failed to create an app_control handle with Bundle", __MODULE__, __func__, __LINE__);
+            DALI_TIZEN_DLOG(DLOG_ERROR, "%s: %s(%d) > Failed to create an app_control handle with Bundle", __MODULE__, __func__, __LINE__);
           }
         }
         else
         {
           if(app_control_create(&appControl) != TIZEN_ERROR_NONE)
           {
-            print_log(DLOG_ERROR, "DALI", "%s: %s(%d) > Failed to create an app_control handle", __MODULE__, __func__, __LINE__);
+            DALI_TIZEN_DLOG(DLOG_ERROR, "%s: %s(%d) > Failed to create an app_control handle", __MODULE__, __func__, __LINE__);
           }
         }
         mFramework->GetTaskObserver().OnTaskAppControl(appControl);
@@ -298,7 +298,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
       void OnUiEvent(AppCoreTaskBase::UiState state) override
       {
         // This event is emitted when the UI thread is paused or resumed.
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnUiEvent() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnUiEvent() emitted", __MODULE__, __func__, __LINE__);
 
         // Note: This isn't implemented.
         AppCoreTaskBase::OnUiEvent(state);
@@ -306,7 +306,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       void OnLowMemory(AppCoreTaskBase::LowMemoryState state) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
 
         mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
 
@@ -324,7 +324,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       void OnDeviceOrientationChanged(AppCoreTaskBase::DeviceOrientationState state) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted, orientation :%d", __MODULE__, __func__, __LINE__, state);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnDeviceOrientationChanged() emitted, orientation :%d", __MODULE__, __func__, __LINE__, state);
 
         mNewDeviceOrientationStatus = AppCore::GetOrientationStatus(static_cast<app_device_orientation_e>(state));
 
@@ -343,7 +343,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
       }
       void OnLowBattery(AppCoreTaskBase::LowBatteryState state) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
         mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
 
         PostToUiThread(
@@ -360,11 +360,11 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
       void OnLangChanged(const std::string& lang) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 1", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLangChanged() emitted 1", __MODULE__, __func__, __LINE__);
         mNewLanguage = lang;
         mFramework->SetLanguage(mNewLanguage);
 
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 2", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLangChanged() emitted 2", __MODULE__, __func__, __LINE__);
         PostToUiThread(
           [](gpointer userData) -> gboolean
         {
@@ -373,18 +373,18 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
           framework->GetObserver().OnLanguageChanged();
           return G_SOURCE_REMOVE;
         });
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 3", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLangChanged() emitted 3", __MODULE__, __func__, __LINE__);
 
         mFramework->GetTaskObserver().OnTaskLanguageChanged();
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 4", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLangChanged() emitted 4", __MODULE__, __func__, __LINE__);
         AppCoreTaskBase::OnLangChanged(lang);
 
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted 5", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLangChanged() emitted 5", __MODULE__, __func__, __LINE__);
       }
 
       void OnRegionChanged(const std::string& region) override
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > nRegionChanged() emitted", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > nRegionChanged() emitted", __MODULE__, __func__, __LINE__);
         mNewRegion = region;
         mFramework->SetRegion(mNewRegion);
 
@@ -488,7 +488,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnCreate() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnCreate();
       mFramework->Create();
       return 0;
@@ -496,7 +496,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnTerminate() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnTerminate();
       auto* observer = &mFramework->GetObserver();
       observer->OnTerminate();
@@ -505,7 +505,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnPause() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnPause() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnPause() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnPause();
       auto* observer = &mFramework->GetObserver();
       observer->OnPause();
@@ -514,7 +514,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnResume() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnResume() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnResume() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnResume();
       auto* observer = &mFramework->GetObserver();
       observer->OnResume();
@@ -523,7 +523,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     int OnControl(tizen_base::Bundle b) override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
       AppCoreUiBase::OnControl(b);
 
       app_control_h appControl = nullptr;
@@ -556,7 +556,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     void OnLoopInit(int argc, char** argv) override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopInit() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLoopInit() emitted", __MODULE__, __func__, __LINE__);
       mEventLoop = Dali::Internal::Adaptor::GetSystemFactory()->CreateEventLoop();
       if(mEventLoop)
       {
@@ -564,13 +564,13 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
       }
       else
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
       }
     }
 
     void OnLoopFinish() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopFinish() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLoopFinish() emitted", __MODULE__, __func__, __LINE__);
       if(mEventLoop)
       {
         mEventLoop->Shutdown();
@@ -578,40 +578,40 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
       }
       else
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
       }
     }
 
     void OnLoopRun() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopRun() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLoopRun() emitted", __MODULE__, __func__, __LINE__);
       if(mEventLoop)
       {
         mEventLoop->Run();
       }
       else
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
       }
     }
 
     void OnLoopExit() override
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLoopExit() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLoopExit() emitted", __MODULE__, __func__, __LINE__);
       if(mEventLoop)
       {
         mEventLoop->Quit();
       }
       else
       {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+        DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
       }
     }
 
   private:
     static void OnLanguageChanged(app_event_info_h event_info, void* user_data)
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -632,7 +632,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnRegionFormatChanged(app_event_info_h event_info, void* user_data)
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnRegionFormatChanged() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnRegionFormatChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -653,7 +653,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowBattery(app_event_info_h event_info, void* user_data)
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -673,7 +673,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowMemory(app_event_info_h event_info, void* user_data)
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
@@ -693,7 +693,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > OnDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
       auto*                context   = static_cast<UiAppContext*>(user_data);
       auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
