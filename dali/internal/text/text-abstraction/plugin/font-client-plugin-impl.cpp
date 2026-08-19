@@ -27,7 +27,7 @@
 #include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-operations.h>
-#include <dali/internal/system/common/logging.h>
+#include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-cache-handler.h>
@@ -39,22 +39,6 @@
 #include <fontconfig/fontconfig.h>
 #include <algorithm>
 #include <iterator>
-
-// Use this macro only if need to log messages before the log function is set.
-#define FONT_LOG_MESSAGE(level, format, ...)                                    \
-  do                                                                            \
-  {                                                                             \
-    char buffer[256];                                                           \
-    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
-    if(result >= static_cast<int>(sizeof(buffer)))                              \
-    {                                                                           \
-      std::string log("Font log message is too long to fit in the buffer.\n");  \
-      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
-      break;                                                                    \
-    }                                                                           \
-    std::string log(buffer);                                                    \
-    Dali::TizenPlatform::LogMessage(level, log);                                \
-  } while(0)
 
 #if defined(DEBUG_ENABLED)
 

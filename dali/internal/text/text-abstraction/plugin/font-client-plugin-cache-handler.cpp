@@ -27,27 +27,11 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/internal/system/common/logging.h>
+#include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/public-api/adaptor-framework/image-loading.h>
-
-// Use this macro only if need to log messages before the log function is set.
-#define FONT_LOG_MESSAGE(level, format, ...)                                    \
-  do                                                                            \
-  {                                                                             \
-    char buffer[256];                                                           \
-    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
-    if(result >= static_cast<int>(sizeof(buffer)))                              \
-    {                                                                           \
-      std::string log("Font log message is too long to fit in the buffer.\n");  \
-      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
-      break;                                                                    \
-    }                                                                           \
-    std::string log(buffer);                                                    \
-    Dali::TizenPlatform::LogMessage(level, log);                                \
-  } while(0)
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;

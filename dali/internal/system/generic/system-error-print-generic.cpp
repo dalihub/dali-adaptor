@@ -81,7 +81,7 @@ void PrintSystemError(const char* fileName, const char* functionName, const int 
     oss << ConvertResultToString(reternValue, static_cast<const char*>(&errorMessage[0])) << "\n";
 
     std::string message = oss.str();
-    LogMessage(Dali::Integration::Log::DebugPriority::ERROR, message);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugPriority::ERROR, "%s", message.c_str());
   }
   catch(const std::length_error& e)
   {

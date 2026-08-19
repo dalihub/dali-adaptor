@@ -33,7 +33,7 @@
 // EXTERNAL INCLUDES
 #include <bundle.h>
 #include <dlfcn.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <locale>
 #ifdef USE_TCORE_BACKEND
 #include <screen_connector_provider_tcore.h>
@@ -159,7 +159,7 @@ void WidgetApplicationTizen::RegisterWidgetCreatingFunction(const std::string& w
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_INFO, "DALI", "error : %s", dlerror());
+    DALI_TIZEN_DLOG(DLOG_INFO, "error : %s", dlerror());
     return;
   }
 
@@ -170,7 +170,7 @@ void WidgetApplicationTizen::RegisterWidgetCreatingFunction(const std::string& w
   }
   else
   {
-    print_log(DLOG_INFO, "DALI", "registerFunctionPtr is null\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "registerFunctionPtr is null\n");
   }
 
   if(mHandle != NULL)

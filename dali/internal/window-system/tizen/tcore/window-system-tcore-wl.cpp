@@ -21,7 +21,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <tizen_core_wl.h>
 
 #include <vector>
@@ -42,7 +42,7 @@
   durationMilliSeconds = endTime - startTime;                                                                                                         \
   if(durationMilliSeconds > 0)                                                                                                                        \
   {                                                                                                                                                   \
-    print_log(DLOG_DEBUG, "DALI", DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
+    DALI_TIZEN_DLOG(DLOG_DEBUG, DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
   }
 
 namespace Dali
@@ -75,7 +75,7 @@ static bool FetchPreferredScreenSize(int32_t& width, int32_t& height)
   // reuses the cached connection instead of creating a new Wayland connection.
   if(!TcoreWlAcquireDisplay(&display))
   {
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() but display connect failed", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() but display connect failed", DALI_LOG_FORMAT_PREFIX_ARGS);
     return false;
   }
   ownsDisplay = true;
@@ -134,7 +134,7 @@ static bool FetchPreferredScreenSize(int32_t& width, int32_t& height)
 
   FINISH_DURATION_CHECK("tizen_core_wl_screen_get_geometry");
 
-  print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, static_cast<void*>(display), width, height);
+  DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "FetchPreferredScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, static_cast<void*>(display), width, height);
 
   if(ownsDisplay)
   {
@@ -181,10 +181,10 @@ class WindowSystemTcoreWl : public WindowSystemBase
 public:
   WindowSystemTcoreWl()
   {
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     if(tizen_core_wl_init() != TIZEN_CORE_WL_ERROR_NONE)
     {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Fail to tizen_core_wl_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
       return;
     }
 
@@ -215,7 +215,7 @@ public:
     {
       TcoreWlReleaseDisplay(mTcoreDisplay);
     }
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "tizen_core_wl_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "tizen_core_wl_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     tizen_core_wl_shutdown();
   }
 
@@ -234,7 +234,7 @@ public:
   void UpdateScreenSize() override
   {
     FetchPreferredScreenSize(mScreenWidth, mScreenHeight);
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "UpdateScreenSize() return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenWidth, mScreenHeight);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "UpdateScreenSize() return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenWidth, mScreenHeight);
   }
 
   std::vector<Dali::ScreenInformation> GetAvailableScreens() override
@@ -246,7 +246,7 @@ public:
 
       if(!TcoreWlAcquireDisplay(&display))
       {
-        print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to connect tizen-core-wl display", DALI_LOG_FORMAT_PREFIX_ARGS);
+        DALI_TIZEN_DLOG(DLOG_ERROR, DALI_LOG_FORMAT_PREFIX "Fail to connect tizen-core-wl display", DALI_LOG_FORMAT_PREFIX_ARGS);
         return mScreenList;
       }
       ownsDisplay = true;
@@ -256,7 +256,7 @@ public:
       int                     num_list = 0;
       tizen_core_wl_error_e   err      = tizen_core_wl_display_get_screen_list(display, &screens, &num_list);
       FINISH_DURATION_CHECK("tizen_core_wl_display_get_screen_list");
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p, num=%d", DALI_LOG_FORMAT_PREFIX_ARGS, static_cast<void*>(screens), num_list);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p, num=%d", DALI_LOG_FORMAT_PREFIX_ARGS, static_cast<void*>(screens), num_list);
       if(err == TIZEN_CORE_WL_ERROR_NONE && screens && num_list > 0)
       {
         for(int i = 0; i < num_list; ++i)
@@ -268,12 +268,12 @@ public:
           }
           if(w == 0 || h == 0)
           {
-            print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "screen[%d] size 0, width(%d), height(%d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, w, h);
+            DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "screen[%d] size 0, width(%d), height(%d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, w, h);
             continue;
           }
           char screenName[32];
           snprintf(screenName, sizeof(screenName), "Screen-%d", i);
-          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen[%d] name: %s size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, screenName, w, h);
+          DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Get screen[%d] name: %s size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, i, screenName, w, h);
           mScreenList.push_back(Dali::ScreenInformation{std::string(screenName), w, h});
         }
         free(screens);
@@ -283,7 +283,7 @@ public:
         TcoreWlReleaseDisplay(display);
       }
     }
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenList.size());
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenList.size());
     return mScreenList;
   }
 

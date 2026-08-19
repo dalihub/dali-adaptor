@@ -24,7 +24,7 @@
 #include <dali/devel-api/adaptor-framework/widget.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <tizen.h>
 #include <widget_base.hh>
 
@@ -61,7 +61,7 @@ public:
     std::unique_ptr<Context> Create(std::string                        instanceId,
                                     tizen_cpp::AppCoreMultiWindowBase* app) override
     {
-      print_log(DLOG_INFO, "DALI", "WidgetContext::Factory::Create called (instanceId:%s, app:%p)\n", instanceId.c_str(), app);
+      DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::Factory::Create called (instanceId:%s, app:%p)\n", instanceId.c_str(), app);
       return std::unique_ptr<Context>(new WidgetContext(mWidgetId, instanceId, app, mApplication));
     }
 
@@ -74,15 +74,15 @@ public:
   : tizen_cpp::WidgetContext(contextId, instanceId, app),
     mApplication(application)
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::WidgetContext called (contextId:%s, instanceId:%s, app:%p, application:%p)\n", contextId.c_str(), instanceId.c_str(), app, application);
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::WidgetContext called (contextId:%s, instanceId:%s, app:%p, application:%p)\n", contextId.c_str(), instanceId.c_str(), app, application);
   }
 
   bool EnsureApplication(const char* functionName)
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::EnsureApplication called (function:%s, application:%p)\n", functionName, mApplication);
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::EnsureApplication called (function:%s, application:%p)\n", functionName, mApplication);
     if(!mApplication)
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::%s: mApplication is null", functionName);
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::%s: mApplication is null", functionName);
       return false;
     }
 
@@ -91,10 +91,10 @@ public:
 
   bool OnCreate(const tizen_base::Bundle& contents, int w, int h) override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnCreate called (w:%d, h:%d)\n", w, h);
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnCreate called (w:%d, h:%d)\n", w, h);
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnCreate: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnCreate: EnsureApplication failed");
       return false;
     }
 
@@ -104,34 +104,34 @@ public:
     if(mApplication->GetWidgetCount() == 0)
     {
       window = mApplication->GetWidgetWindow();
-      print_log(DLOG_INFO, "DALI", "Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n", &window, w, h, std::string(id).c_str());
+      DALI_TIZEN_DLOG(DLOG_INFO, "Widget Instance use default Window(win:%p), so it need to bind widget (%dx%d) (id:%s) \n", &window, w, h, std::string(id).c_str());
     }
     else
     {
       window = Dali::Window::New(PositionSize(0, 0, w, h), "", false);
       if(window)
       {
-        print_log(DLOG_INFO, "DALI", "Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", &window, mApplication->GetWidgetCount(), w, h, std::string(id).c_str());
+        DALI_TIZEN_DLOG(DLOG_INFO, "Widget Instance create new Window  (win:%p, cnt:%d) (%dx%d) (id:%s )\n", &window, mApplication->GetWidgetCount(), w, h, std::string(id).c_str());
       }
       else
       {
-        print_log(DLOG_ERROR, "DALI", "This device can't support Multi Widget. it means UI may not be properly drawn.");
+        DALI_TIZEN_DLOG(DLOG_ERROR, "This device can't support Multi Widget. it means UI may not be properly drawn.");
         window = mApplication->GetWidgetWindow();
       }
     }
 
-    print_log(DLOG_INFO, "DALI", "Widget Instance set window class before bind (id:%s)\n", id.c_str());
+    DALI_TIZEN_DLOG(DLOG_INFO, "Widget Instance set window class before bind (id:%s)\n", id.c_str());
     window.SetClass(ToDaliString(id), ToDaliString(id));
     window.AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
 
     auto bindingResult = Dali::Internal::Adaptor::WidgetBindingBridge::Instance().BindInstanceWindow(this, id.c_str(), window);
     if(!bindingResult.ok)
     {
-      print_log(DLOG_ERROR, "DALI", "Widget Instance bind failed(id:%s): %s", std::string(id).c_str(), bindingResult.reason.c_str());
+      DALI_TIZEN_DLOG(DLOG_ERROR, "Widget Instance bind failed(id:%s): %s", std::string(id).c_str(), bindingResult.reason.c_str());
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "Widget Instance bind success(id:%s)\n", std::string(id).c_str());
+      DALI_TIZEN_DLOG(DLOG_INFO, "Widget Instance bind success(id:%s)\n", std::string(id).c_str());
     }
     auto positionSize = window.GetPositionSize();
     window.SetPositionSize(Dali::PositionSize(positionSize.x, positionSize.y, w, h));
@@ -165,10 +165,10 @@ public:
   void OnDestroy(DestroyType               reason,
                  const tizen_base::Bundle& contents) override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnDestroy called (reason:%d)\n", static_cast<int>(reason));
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnDestroy called (reason:%d)\n", static_cast<int>(reason));
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnDestroy: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnDestroy: EnsureApplication failed");
       return;
     }
 
@@ -196,10 +196,10 @@ public:
 
   void OnPause() override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnPause called\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnPause called\n");
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnPause: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnPause: EnsureApplication failed");
       return;
     }
 
@@ -211,10 +211,10 @@ public:
 
   void OnResume() override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnResume called\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnResume called\n");
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnResume: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnResume: EnsureApplication failed");
       return;
     }
 
@@ -227,10 +227,10 @@ public:
 
   void OnResize(int w, int h) override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnResize called (w:%d, h:%d)\n", w, h);
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnResize called (w:%d, h:%d)\n", w, h);
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnResize: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnResize: EnsureApplication failed");
       return;
     }
 
@@ -246,10 +246,10 @@ public:
 
   void OnUpdate(const tizen_base::Bundle& contents, bool force) override
   {
-    print_log(DLOG_INFO, "DALI", "WidgetContext::OnUpdate called (force:%d)\n", force ? 1 : 0);
+    DALI_TIZEN_DLOG(DLOG_INFO, "WidgetContext::OnUpdate called (force:%d)\n", force ? 1 : 0);
     if(!EnsureApplication(__FUNCTION__))
     {
-      print_log(DLOG_ERROR, "DALI", "WidgetContext::OnUpdate: EnsureApplication failed");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "WidgetContext::OnUpdate: EnsureApplication failed");
       return;
     }
 
@@ -279,10 +279,10 @@ extern tizen_cpp::WidgetBase* gWidgetBase;
 
 extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, void* data)
 {
-  print_log(DLOG_INFO, "DALI", "RegisterWidgetCallback called (widgetName:%s, data:%p)\n", widgetName ? widgetName : "null", data);
+  DALI_TIZEN_DLOG(DLOG_INFO, "RegisterWidgetCallback called (widgetName:%s, data:%p)\n", widgetName ? widgetName : "null", data);
   if(data == nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "RegisterWidgetCallback: data is null");
+    DALI_TIZEN_DLOG(DLOG_ERROR, "RegisterWidgetCallback: data is null");
   }
 
   auto* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(data);
@@ -293,7 +293,7 @@ extern "C" DALI_ADAPTOR_API void RegisterWidgetCallback(const char* widgetName, 
 
 extern "C" DALI_ADAPTOR_API void SetContentInfo(void* handle, bundle* bundleData)
 {
-  print_log(DLOG_INFO, "DALI", "SetContentInfo called (handle:%p, bundleData:%p)\n", handle, bundleData);
+  DALI_TIZEN_DLOG(DLOG_INFO, "SetContentInfo called (handle:%p, bundleData:%p)\n", handle, bundleData);
   auto*              handleInstance = static_cast<WidgetContext*>(handle);
   tizen_base::Bundle b{bundleData, true, true};
   handleInstance->SetContents(b);
