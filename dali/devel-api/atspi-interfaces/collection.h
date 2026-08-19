@@ -43,6 +43,12 @@ class Accessible;
 class DALI_ADAPTOR_API Collection : public IAccessibilityFeature
 {
 public:
+  using RoleMask = std::array<
+    int32_t,
+    Dali::Integration::Accessibility::Internal::BitSetSize<
+      Dali::Integration::Accessibility::Role,
+      Dali::Integration::Accessibility::Role::MAX_COUNT>>;
+
   /**
    * MatchRule type is a tuple that only carries data of de-serialized parameter from BridgeCollection::GetMatches dbus method.
    */
@@ -51,7 +57,7 @@ public:
     int32_t,
     std::unordered_map<std::string, std::string>,
     int32_t,
-    std::array<int32_t, 4>,
+    RoleMask,
     int32_t,
     std::vector<std::string>,
     int32_t,
