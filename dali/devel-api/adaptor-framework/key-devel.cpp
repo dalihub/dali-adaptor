@@ -27,6 +27,16 @@ int GetDaliKeyCode(const char* keyName)
   return Internal::Adaptor::KeyLookup::GetDaliKeyCode(keyName);
 }
 
+void SetSystemKeyCodePriority(bool preferSystemKeyCode)
+{
+  Internal::Adaptor::KeyLookup::SetSystemKeyCodePriority(preferSystemKeyCode);
+}
+
+bool IsSystemKeyCodePriority()
+{
+  return Internal::Adaptor::KeyLookup::IsSystemKeyCodePriority();
+}
+
 } // namespace DevelKey
 
 } // namespace Dali
