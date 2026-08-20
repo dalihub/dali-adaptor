@@ -38,59 +38,6 @@ std::string Adaptor::GetApplicationPackageName()
   return appname;
 }
 
-void Adaptor::GetResourceStoragePath(std::string& path)
-{
-#ifdef USE_APPFW
-  char* pathInt = app_get_resource_path();
-  if(pathInt)
-  {
-    path = pathInt;
-    free(pathInt);
-  }
-  else
-  {
-    path = "";
-  }
-#endif
-}
-
-void Adaptor::GetDataStoragePath(std::string& path)
-{
-#ifdef USE_APPFW
-  char* pathInt = app_get_data_path();
-  if(pathInt)
-  {
-    path = pathInt;
-    free(pathInt);
-  }
-  else
-  {
-    path = "";
-  }
-#endif
-}
-
-void Adaptor::GetAppId(std::string& appId)
-{
-#ifdef USE_APPFW
-  char* id;
-  app_get_id(&id);
-  if(id)
-  {
-    appId = id;
-    free(id);
-  }
-  else
-  {
-    appId = "";
-  }
-#endif
-}
-
-void Adaptor::SurfaceInitialized()
-{
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

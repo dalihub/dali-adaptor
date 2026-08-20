@@ -1053,16 +1053,25 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
+  // Keep the handle alive
+  Dali::Window handle(this);
+
   FeedTouchPoint(point, timeStamp);
 }
 
 void Window::OnMouseFrameEvent()
 {
+  // Keep the handle alive
+  Dali::Window handle(this);
+
   FeedMouseFrameEvent();
 }
 
 void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 {
+  // Keep the handle alive
+  Dali::Window handle(this);
+
   FeedWheelEvent(wheelEvent);
 }
 
@@ -1070,6 +1079,10 @@ void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   mLastKeyEvent.SetWindowId(keyEvent.windowId);
+
+  // Keep the handle alive
+  Dali::Window handle(this);
+
   FeedKeyEvent(keyEvent);
 }
 
