@@ -1272,14 +1272,23 @@ void Window::OnSceneWheelEvent(Dali::Integration::SceneHolder /*sceneHolder*/, D
 bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
   Dali::Window handle(this);
+  bool consumed = false;
   if(mScene.IsGeometryHittestEnabled())
   {
     // Any connected callback consuming the event consumes it for all of them.
     // The accessibility bridge connects here alongside the application's handler.
     // Gated so that legacy applications keep the previous last-callback-wins behaviour.
-    return mInterceptKeyEventSignal.EmitOr(handle, keyEvent);
+    consumed = mInterceptKeyEventSignal.EmitOr(handle, keyEvent);
   }
-  return mInterceptKeyEventSignal.Emit(handle, keyEvent);
+  else
+  {
+    consumed = mInterceptKeyEventSignal.Emit(handle, keyEvent);
+  }
+  if(consumed)
+  {
+    DALI_LOG_RELEASE_INFO("[KeyEvent] code=%d state=%d consumed at Window::InterceptKeyEventSignal\n", keyEvent.GetKeyCode(), static_cast<int>(keyEvent.GetState()));
+  }
+  return consumed;
 }
 
 void Window::OnSceneKeyEventDelayed(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
