@@ -1882,9 +1882,23 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_KEY_DOWN");
     DALI_LOG_RELEASE_INFO("name %s code %u key %s compose %s", name, keyCode, symbol, compose);
 
-    if(keyCode == 0)
+    if(!KeyLookup::IsSystemKeyCodePriority())
     {
-      // Get a specific key code from dali key look up table.
+      // Consult the dali key look up table first and keep the code the window system reported only
+      // as a fallback. Every other backend resolves a key code this way round, so a named key such
+      // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
+      // the two Tizen backends must report the same code for the same key name.
+      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      if(daliKeyCode != -1)
+      {
+        keyCode = static_cast<unsigned int>(daliKeyCode);
+      }
+    }
+    else if(keyCode == 0)
+    {
+      // Legacy order, for a framework carrying applications written against the old behaviour: the
+      // code the window system reported wins and the look up table is only a fallback.
+      // See Integration::Key.
       int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
@@ -1967,9 +1981,23 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
 
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_KEY_UP");
 
-    if(keyCode == 0)
+    if(!KeyLookup::IsSystemKeyCodePriority())
     {
-      // Get a specific key code from dali key look up table.
+      // Consult the dali key look up table first and keep the code the window system reported only
+      // as a fallback. Every other backend resolves a key code this way round, so a named key such
+      // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
+      // the two Tizen backends must report the same code for the same key name.
+      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      if(daliKeyCode != -1)
+      {
+        keyCode = static_cast<unsigned int>(daliKeyCode);
+      }
+    }
+    else if(keyCode == 0)
+    {
+      // Legacy order, for a framework carrying applications written against the old behaviour: the
+      // code the window system reported wins and the look up table is only a fallback.
+      // See Integration::Key.
       int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }

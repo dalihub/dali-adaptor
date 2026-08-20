@@ -326,6 +326,12 @@ KeyMap& GetKeyMap()
   static KeyMap globalKeyLookup;
   return globalKeyLookup;
 }
+
+bool& SystemKeyCodePriority()
+{
+  static bool preferSystemKeyCode = false;
+  return preferSystemKeyCode;
+}
 } // namespace
 
 bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
@@ -352,6 +358,16 @@ int GetDaliKeyCode(const char* keyName)
 void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count)
 {
   GetKeyMap().SetKeyExtensionLookupTable(table, count);
+}
+
+void SetSystemKeyCodePriority(bool preferSystemKeyCode)
+{
+  SystemKeyCodePriority() = preferSystemKeyCode;
+}
+
+bool IsSystemKeyCodePriority()
+{
+  return SystemKeyCodePriority();
 }
 
 } // namespace KeyLookup

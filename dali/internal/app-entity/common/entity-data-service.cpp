@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
+#include <charconv>
 #include <cmath>
 #include <cstdint>
-#include <limits>
+#include <locale>
 #include <sstream>
 #include <unordered_set>
 #include <utility>
@@ -56,21 +57,15 @@ bool ParseActorId(const std::string& id, uint32_t& outId)
     return false;
   }
 
-  try
-  {
-    size_t             consumed = 0;
-    const unsigned long value    = std::stoul(id, &consumed);
-    if(consumed != id.size() || value > std::numeric_limits<uint32_t>::max())
-    {
-      return false;
-    }
-    outId = static_cast<uint32_t>(value);
-    return true;
-  }
-  catch(...)
+  uint32_t   value  = 0u;
+  const auto result = std::from_chars(id.data(), id.data() + id.size(), value, 10);
+  if(result.ec != std::errc{} || result.ptr != id.data() + id.size())
   {
     return false;
   }
+
+  outId = value;
+  return true;
 }
 
 /**
@@ -81,8 +76,8 @@ bool ParseActorId(const std::string& id, uint32_t& outId)
  */
 bool IdLess(const std::string& lhs, const std::string& rhs)
 {
-  uint32_t leftActorId  = 0;
-  uint32_t rightActorId = 0;
+  uint32_t   leftActorId    = 0;
+  uint32_t   rightActorId   = 0;
   const bool leftIsActorId  = ParseActorId(lhs, leftActorId);
   const bool rightIsActorId = ParseActorId(rhs, rightActorId);
   if(leftIsActorId != rightIsActorId)
@@ -228,245 +223,7 @@ void CollectEntityDataCandidates(Dali::Actor actor, std::vector<EntityDataCandid
   }
 }
 
-} // unnamed namespace
-
-EntityDataService::EntityDataService(FocusedActorProvider* provider)
-: mProvider(provider)
-{
-}
-
-void EntityDataService::SetFocusedActorProvider(FocusedActorProvider* provider)
-{
-  mProvider = provider;
-}
-
-FocusedActorProvider* EntityDataService::GetEffectiveProvider() const
-{
-  return mProvider ? mProvider : FocusedActorProvider::GetRegisteredProvider();
-}
-
-bool EntityDataService::FindById(const std::string& id, EntityData& outEntityData)
-{
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: request id=%s\n", id.c_str());
-
-  if(!Dali::Adaptor::IsAvailable())
-  {
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: adaptor unavailable for id=%s\n", id.c_str());
-    return false;
-  }
-
-  uint32_t actorId = 0;
-  if(!ParseActorId(id, actorId))
-  {
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: invalid actor id=%s\n", id.c_str());
-    return false;
-  }
-
-  Dali::WindowContainer windows = Dali::Adaptor::Get().GetWindows();
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: id=%u windows=%zu\n", actorId, windows.size());
-  for(auto& window : windows)
-  {
-    if(!window)
-    {
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: window is empty\n");
-      continue;
-    }
-
-    Dali::Layer root = window.GetRootLayer();
-    if(!root)
-    {
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: window has no root layer\n");
-      continue;
-    }
-
-    Dali::Actor found = root.FindChildById(actorId);
-    if(found)
-    {
-      outEntityData = MakeEntityData(found, GetEffectiveProvider());
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: found id=%s type=%s entityId=%s\n",
-                    outEntityData.id.c_str(), outEntityData.type.c_str(), outEntityData.annotation.entityId.c_str());
-      return true;
-    }
-
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: id=%u not in window\n", actorId);
-  }
-
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindById: actor id=%u not found\n", actorId);
-  return false;
-}
-
-bool EntityDataService::GetFocusedEntityData(EntityData& outEntityData)
-{
-  FocusedActorProvider* provider = GetEffectiveProvider();
-  if(!provider)
-  {
-    return false;
-  }
-
-  Dali::Actor focused = provider->GetFocusedActor();
-  if(!focused)
-  {
-    return false;
-  }
-
-  outEntityData = MakeEntityData(focused, provider);
-  return true;
-}
-
-bool EntityDataService::GetEntityData(std::vector<EntityData>& outEntityDataList)
-{
-  outEntityDataList.clear();
-
-  if(!Dali::Adaptor::IsAvailable())
-  {
-    // No windows to inspect: an empty result is still a success.
-    return true;
-  }
-
-  std::unordered_set<std::string> emittedIds;
-
-  Dali::WindowContainer windows = Dali::Adaptor::Get().GetWindows();
-  for(auto& window : windows)
-  {
-    if(!window)
-    {
-      continue;
-    }
-
-    Dali::Layer root = window.GetRootLayer();
-    if(!root)
-    {
-      continue;
-    }
-
-    // Clipping is evaluated in the window coordinate system, so the window's own
-    // clip region is its size at the origin.
-    const Dali::PositionSize positionSize = window.GetPositionSize();
-    Dali::Bounds windowClipBounds;
-    windowClipBounds.x      = 0.0f;
-    windowClipBounds.y      = 0.0f;
-    windowClipBounds.width  = static_cast<float>(positionSize.width);
-    windowClipBounds.height = static_cast<float>(positionSize.height);
-
-    std::vector<EntityDataCandidate> candidates;
-    CollectEntityDataCandidates(root, candidates);
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetEntityData: window candidates=%zu\n", candidates.size());
-
-    FocusedActorProvider* provider = GetEffectiveProvider();
-    for(auto& candidate : candidates)
-    {
-      Dali::Actor& actor     = candidate.actor;
-      const bool   isVisible = IsActorHierarchyVisible(actor);
-      if(!isVisible)
-      {
-        DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetEntityData: skip hidden actor id=%d\n",
-                      actor.GetProperty<int32_t>(Dali::Actor::Property::ID));
-        continue;
-      }
-
-      EntityData entityData = MakeEntityData(actor, provider, std::move(candidate.annotation));
-
-      // Only genuinely annotated entities with a non-empty identity qualify.
-      if(entityData.annotation.entityId.empty() || entityData.annotation.entityType.empty())
-      {
-        DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetEntityData: skip id=%s entityId=%s\n",
-                      entityData.id.c_str(), entityData.annotation.entityId.c_str());
-        continue;
-      }
-
-      Dali::Bounds clipBounds = windowClipBounds;
-      for(Dali::Actor parent = actor.GetParent(); parent; parent = parent.GetParent())
-      {
-        // The window already defines the screen clipping region. A root Layer
-        // reports its anchor/center as SCREEN_POSITION, which is not a
-        // top-left bounds origin, so do not use it as an ancestor clip.
-        if(!parent.GetParent() && parent.GetTypeName() == "Layer")
-        {
-          continue;
-        }
-        if(parent.GetProperty<int>(Dali::Actor::Property::CLIPPING_MODE) == static_cast<int>(Dali::ClippingMode::DISABLED))
-        {
-          continue;
-        }
-        clipBounds = IntersectBounds(clipBounds, GetActorWindowBounds(parent));
-      }
-
-      if(!AreBoundsFinite(entityData.screenBounds) || !AreBoundsFinite(entityData.windowBounds) ||
-         clipBounds.width <= 0.0f || clipBounds.height <= 0.0f)
-      {
-        continue;
-      }
-
-      // Emit each Actor ID at most once.
-      if(!emittedIds.insert(entityData.id).second)
-      {
-        continue;
-      }
-
-      const float ratio = ComputeVisibilityRatio(entityData.windowBounds, clipBounds);
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetEntityData: id=%s ratio=%f threshold=%f\n",
-                    entityData.id.c_str(), ratio, VISIBILITY_THRESHOLD);
-      if(ratio >= VISIBILITY_THRESHOLD)
-      {
-        outEntityDataList.push_back(std::move(entityData));
-      }
-    }
-  }
-
-  // Deterministic order: ScreenBounds.Y, then ScreenBounds.X, then Actor ID.
-  // Screen coordinates are used so the order stays meaningful across windows.
-  std::sort(outEntityDataList.begin(), outEntityDataList.end(), [](const EntityData& a, const EntityData& b) {
-    const int yOrder = CompareCoordinate(a.screenBounds.y, b.screenBounds.y);
-    if(yOrder != 0)
-    {
-      return yOrder < 0;
-    }
-    const int xOrder = CompareCoordinate(a.screenBounds.x, b.screenBounds.x);
-    if(xOrder != 0)
-    {
-      return xOrder < 0;
-    }
-    return IdLess(a.id, b.id);
-  });
-
-  return true;
-}
-
-bool EntityDataService::ToPresentation(const EntityData& entityData, std::string& outPresentation)
-{
-  outPresentation.clear();
-  if(!AreBoundsFinite(entityData.screenBounds) || !AreBoundsFinite(entityData.windowBounds))
-  {
-    return false;
-  }
-
-  std::ostringstream oss;
-  oss << "{"
-      << "\"id\":\"" << JsonEscape(entityData.id) << "\","
-      << "\"type\":\"" << JsonEscape(entityData.type) << "\","
-      << "\"description\":\"" << JsonEscape(entityData.description) << "\","
-      << "\"screenBounds\":{"
-      << "\"x\":" << entityData.screenBounds.x << ","
-      << "\"y\":" << entityData.screenBounds.y << ","
-      << "\"width\":" << entityData.screenBounds.width << ","
-      << "\"height\":" << entityData.screenBounds.height << "},"
-      << "\"windowBounds\":{"
-      << "\"x\":" << entityData.windowBounds.x << ","
-      << "\"y\":" << entityData.windowBounds.y << ","
-      << "\"width\":" << entityData.windowBounds.width << ","
-      << "\"height\":" << entityData.windowBounds.height << "},"
-      << "\"isFocused\":" << (entityData.isFocused ? "true" : "false") << ","
-      << "\"isEnabled\":" << (entityData.isEnabled ? "true" : "false") << ","
-      << "\"annotation\":{"
-      << "\"entityId\":\"" << JsonEscape(entityData.annotation.entityId) << "\","
-      << "\"entityType\":\"" << JsonEscape(entityData.annotation.entityType) << "\","
-      << "\"entityInfo\":\"" << JsonEscape(entityData.annotation.entityInfo) << "\"}"
-      << "}";
-  outPresentation = oss.str();
-  return true;
-}
-
-float EntityDataService::ComputeVisibilityRatio(const Dali::Bounds& entityBounds, const Dali::Bounds& clipBounds) const
+float ComputeVisibilityRatio(const Dali::Bounds& entityBounds, const Dali::Bounds& clipBounds)
 {
   if(!AreBoundsFinite(entityBounds) || !AreBoundsFinite(clipBounds))
   {
@@ -492,6 +249,278 @@ float EntityDataService::ComputeVisibilityRatio(const Dali::Bounds& entityBounds
   }
 
   return (intersectWidth * intersectHeight) / entityArea;
+}
+
+void AppendAnnotatedEntities(Dali::Actor                      root,
+                             const Dali::Bounds&              windowClipBounds,
+                             FocusedActorProvider*            provider,
+                             std::unordered_set<std::string>& emittedActorIds,
+                             std::vector<EntityData>&         outEntityDataList)
+{
+  std::vector<EntityDataCandidate> candidates;
+  CollectEntityDataCandidates(root, candidates);
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetAnnotatedEntities: candidates=%zu\n", candidates.size());
+
+  for(auto& candidate : candidates)
+  {
+    Dali::Actor& actor     = candidate.actor;
+    const bool   isVisible = IsActorHierarchyVisible(actor);
+    if(!isVisible)
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetAnnotatedEntities: skip hidden actor id=%u\n", actor.GetId());
+      continue;
+    }
+
+    EntityData entityData = MakeEntityData(actor, provider, std::move(candidate.annotation));
+
+    if(entityData.annotation.entityId.empty() || entityData.annotation.entityType.empty())
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetAnnotatedEntities: skip actorId=%s entityId=%s\n",
+                    entityData.actorId.c_str(), entityData.annotation.entityId.c_str());
+      continue;
+    }
+
+    Dali::Bounds clipBounds = windowClipBounds;
+    for(Dali::Actor parent = actor.GetParent(); parent; parent = parent.GetParent())
+    {
+      // The window already defines the screen clipping region. A root Layer
+      // reports its anchor/center as SCREEN_POSITION, which is not a
+      // top-left bounds origin, so do not use it as an ancestor clip.
+      if(!parent.GetParent() && parent.GetTypeName() == "Layer")
+      {
+        continue;
+      }
+      if(parent.GetProperty<int>(Dali::Actor::Property::CLIPPING_MODE) == static_cast<int>(Dali::ClippingMode::DISABLED))
+      {
+        continue;
+      }
+      clipBounds = IntersectBounds(clipBounds, GetActorWindowBounds(parent));
+    }
+
+    if(!AreBoundsFinite(entityData.screenBounds) || !AreBoundsFinite(entityData.windowBounds) ||
+       clipBounds.width <= 0.0f || clipBounds.height <= 0.0f)
+    {
+      continue;
+    }
+
+    if(!emittedActorIds.insert(entityData.actorId).second)
+    {
+      continue;
+    }
+
+    const float ratio = ComputeVisibilityRatio(entityData.windowBounds, clipBounds);
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData GetAnnotatedEntities: actorId=%s ratio=%f threshold=%f\n",
+                  entityData.actorId.c_str(), ratio, EntityDataService::VISIBILITY_THRESHOLD);
+    if(ratio >= EntityDataService::VISIBILITY_THRESHOLD)
+    {
+      outEntityDataList.push_back(std::move(entityData));
+    }
+  }
+}
+
+void SortEntityData(std::vector<EntityData>& entityDataList)
+{
+  // Deterministic order: ScreenBounds.Y, then ScreenBounds.X, then Actor ID.
+  // Screen coordinates are used so the order stays meaningful across windows.
+  std::sort(entityDataList.begin(), entityDataList.end(), [](const EntityData& a, const EntityData& b)
+  {
+    const int yOrder = CompareCoordinate(a.screenBounds.y, b.screenBounds.y);
+    if(yOrder != 0)
+    {
+      return yOrder < 0;
+    }
+    const int xOrder = CompareCoordinate(a.screenBounds.x, b.screenBounds.x);
+    if(xOrder != 0)
+    {
+      return xOrder < 0;
+    }
+    return IdLess(a.actorId, b.actorId);
+  });
+}
+
+} // unnamed namespace
+
+EntityDataService::EntityDataService(FocusedActorProvider* provider)
+: mProvider(provider)
+{
+}
+
+void EntityDataService::SetFocusedActorProvider(FocusedActorProvider* provider)
+{
+  mProvider = provider;
+}
+
+FocusedActorProvider* EntityDataService::GetEffectiveProvider() const
+{
+  return mProvider ? mProvider : Dali::Integration::GetFocusedActorProvider();
+}
+
+bool EntityDataService::FindByActorId(const std::string& actorId, EntityData& outEntityData)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: request actorId=%s\n", actorId.c_str());
+
+  if(!Dali::Adaptor::IsAvailable())
+  {
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: adaptor unavailable for actorId=%s\n", actorId.c_str());
+    return false;
+  }
+
+  Dali::WindowContainer windows = Dali::Adaptor::Get().GetWindows();
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: windows=%zu\n", windows.size());
+  for(auto& window : windows)
+  {
+    if(!window)
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: window is empty\n");
+      continue;
+    }
+
+    Dali::Layer root = window.GetRootLayer();
+    if(!root)
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: window has no root layer\n");
+      continue;
+    }
+
+    if(FindByActorId(actorId, root, outEntityData))
+    {
+      return true;
+    }
+  }
+
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: actorId=%s not found\n", actorId.c_str());
+  return false;
+}
+
+bool EntityDataService::FindByActorId(const std::string& actorId, Dali::Actor root, EntityData& outEntityData)
+{
+  uint32_t parsedActorId = 0u;
+  if(!root || !ParseActorId(actorId, parsedActorId))
+  {
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: invalid actorId=%s\n", actorId.c_str());
+    return false;
+  }
+
+  Dali::Actor found = root.FindChildById(parsedActorId);
+  if(!found && root.GetId() == parsedActorId)
+  {
+    found = root;
+  }
+  if(!found)
+  {
+    return false;
+  }
+
+  outEntityData = MakeEntityData(found, GetEffectiveProvider());
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData FindByActorId: found actorId=%s actorTypeName=%s entityId=%s\n",
+                outEntityData.actorId.c_str(), outEntityData.actorTypeName.c_str(), outEntityData.annotation.entityId.c_str());
+  return true;
+}
+
+bool EntityDataService::GetFocusedEntityData(EntityData& outEntityData)
+{
+  FocusedActorProvider* provider = GetEffectiveProvider();
+  if(!provider)
+  {
+    return false;
+  }
+
+  Dali::Actor focused = provider->GetFocusedActor();
+  if(!focused)
+  {
+    return false;
+  }
+
+  outEntityData = MakeEntityData(focused, provider);
+  return true;
+}
+
+bool EntityDataService::GetAnnotatedEntities(std::vector<EntityData>& outEntityDataList)
+{
+  outEntityDataList.clear();
+
+  if(!Dali::Adaptor::IsAvailable())
+  {
+    // No windows to inspect: an empty result is still a success.
+    return true;
+  }
+
+  std::unordered_set<std::string> emittedActorIds;
+
+  Dali::WindowContainer windows = Dali::Adaptor::Get().GetWindows();
+  for(auto& window : windows)
+  {
+    if(!window)
+    {
+      continue;
+    }
+
+    Dali::Layer root = window.GetRootLayer();
+    if(!root)
+    {
+      continue;
+    }
+
+    // Clipping is evaluated in the window coordinate system, so the window's own
+    // clip region is its size at the origin.
+    const Dali::PositionSize positionSize = window.GetPositionSize();
+    Dali::Bounds             windowClipBounds;
+    windowClipBounds.x      = 0.0f;
+    windowClipBounds.y      = 0.0f;
+    windowClipBounds.width  = static_cast<float>(positionSize.width);
+    windowClipBounds.height = static_cast<float>(positionSize.height);
+
+    AppendAnnotatedEntities(root, windowClipBounds, GetEffectiveProvider(), emittedActorIds, outEntityDataList);
+  }
+
+  SortEntityData(outEntityDataList);
+
+  return true;
+}
+
+bool EntityDataService::GetAnnotatedEntities(Dali::Actor root, const Dali::Bounds& clipBounds, std::vector<EntityData>& outEntityDataList)
+{
+  outEntityDataList.clear();
+  std::unordered_set<std::string> emittedActorIds;
+  AppendAnnotatedEntities(root, clipBounds, GetEffectiveProvider(), emittedActorIds, outEntityDataList);
+  SortEntityData(outEntityDataList);
+
+  return true;
+}
+
+bool EntityDataService::ToPresentation(const EntityData& entityData, std::string& outPresentation)
+{
+  outPresentation.clear();
+  if(!AreBoundsFinite(entityData.screenBounds) || !AreBoundsFinite(entityData.windowBounds))
+  {
+    return false;
+  }
+
+  std::ostringstream oss;
+  oss.imbue(std::locale::classic());
+  oss << "{"
+      << "\"id\":\"" << JsonEscape(entityData.actorId) << "\","
+      << "\"type\":\"" << JsonEscape(entityData.actorTypeName) << "\","
+      << "\"description\":\"" << JsonEscape(entityData.description) << "\","
+      << "\"screenBounds\":{"
+      << "\"x\":" << entityData.screenBounds.x << ","
+      << "\"y\":" << entityData.screenBounds.y << ","
+      << "\"width\":" << entityData.screenBounds.width << ","
+      << "\"height\":" << entityData.screenBounds.height << "},"
+      << "\"windowBounds\":{"
+      << "\"x\":" << entityData.windowBounds.x << ","
+      << "\"y\":" << entityData.windowBounds.y << ","
+      << "\"width\":" << entityData.windowBounds.width << ","
+      << "\"height\":" << entityData.windowBounds.height << "},"
+      << "\"isFocused\":" << (entityData.isFocused ? "true" : "false") << ","
+      << "\"isEnabled\":" << (entityData.isEnabled ? "true" : "false") << ","
+      << "\"annotation\":{"
+      << "\"entityId\":\"" << JsonEscape(entityData.annotation.entityId) << "\","
+      << "\"entityType\":\"" << JsonEscape(entityData.annotation.entityType) << "\","
+      << "\"entityInfo\":\"" << JsonEscape(entityData.annotation.entityInfo) << "\"}"
+      << "}";
+  outPresentation = oss.str();
+  return true;
 }
 
 } // namespace Adaptor

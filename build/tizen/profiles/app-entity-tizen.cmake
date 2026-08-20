@@ -13,7 +13,8 @@ SET( ENTITY_DATA_STUB_CC  ${ENTITY_DATA_STUB_DIR}/view-stub.cc )
 #             -d <tizen-action>/default-actions
 #   mv implview.h view-stub.h && mv implview.cc view-stub.cc
 #   sed -i 's|#include "implview.h"|#include "view-stub.h"|' view-stub.cc
-# Renaming the files/header include is the only edit made to generated output.
+# The checked-in output also makes Listen() fail closed for every rpc-port
+# error. Reapply that small robustness patch after regeneration.
 INCLUDE_DIRECTORIES( ${ENTITY_DATA_STUB_DIR} ${RPC_PORT_INCLUDE_DIRS} ${BUNDLE_INCLUDE_DIRS} ${GLIB_INCLUDE_DIRS} )
 SET( DALI_LDFLAGS ${DALI_LDFLAGS} ${RPC_PORT_LDFLAGS} ${BUNDLE_LDFLAGS} ${GLIB_LDFLAGS} )
 ADD_DEFINITIONS( -DENABLE_ENTITY_DATA_TIDL )

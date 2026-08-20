@@ -2399,8 +2399,7 @@ void TizenActionView::Listen(std::shared_ptr<TizenActionView::ServiceBase::Facto
   int ret = rpc_port_stub_listen(stub_);
   if (ret != RPC_PORT_ERROR_NONE) {
     _E("Failed to listen stub. error(%d)", ret);
-    if (ret == RPC_PORT_ERROR_INVALID_PARAMETER || ret == RPC_PORT_ERROR_IO_ERROR)
-      throw InvalidIOException();
+    throw InvalidIOException();
   }
 
   TizenActionView_context_->SetListening(true);

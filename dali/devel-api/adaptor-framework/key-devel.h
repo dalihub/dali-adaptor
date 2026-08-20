@@ -39,6 +39,33 @@ namespace DevelKey
  */
 DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
 
+/**
+ * @brief Makes the key code resolved by the window system take priority over the key look up table.
+ *
+ * Every backend resolves the key code of an incoming key event by consulting the key look up table
+ * first and falling back to the code the platform reports, so that a named key such as XF86Back
+ * arrives as DALI_KEY_BACK everywhere.
+ *
+ * The Tizen backends used to do the opposite: the code the window system resolved won, and the
+ * look up table was only a fallback. On a device whose keymap does not agree with the table, that
+ * produced a different key code than the other backends for the very same key.
+ *
+ * This exists solely so that a framework carrying applications written against that old behaviour
+ * can keep it. It is not intended for applications, and it must be called before the adaptor
+ * starts delivering key events.
+ *
+ * @param[in] preferSystemKeyCode True to restore the legacy Tizen order, false for the default
+ *                                order shared by every backend.
+ */
+DALI_ADAPTOR_API void SetSystemKeyCodePriority(bool preferSystemKeyCode);
+
+/**
+ * @brief Retrieves whether the key code resolved by the window system takes priority.
+ *
+ * @return True if the legacy Tizen order is in effect, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsSystemKeyCodePriority();
+
 } // namespace DevelKey
 
 } // namespace Dali

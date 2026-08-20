@@ -22,7 +22,7 @@
 #include <bundle.h>
 #include <bundle_internal.h>
 #include <dali/integration-api/debug.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <glib.h>
 #include <string.h>
 #include <system_info.h>
@@ -51,7 +51,7 @@ tizen_cpp::WidgetBase* gWidgetBase = nullptr;
 
 extern "C" DALI_ADAPTOR_API AppModelWidget* Create()
 {
-  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, AppModelWidget is created");
+  DALI_TIZEN_DLOG(DLOG_INFO, "DALIWidgetAPP, AppModelWidget is created");
   return new AppModelWidget();
 }
 
@@ -63,23 +63,23 @@ extern "C" DALI_ADAPTOR_API void Destroy(void* p)
 
 extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
 {
-  print_log(DLOG_INFO, "DALI", "[WIDGET_APP] === AppMain() ENTERING - pid=%d ===", getpid());
-  print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppMain() - isUiThread=%d, data=%p, pData=%p", isUiThread, data, pData);
+  DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] === AppMain() ENTERING - pid=%d ===", getpid());
+  DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppMain() - isUiThread=%d, data=%p, pData=%p", isUiThread, data, pData);
 
-  print_log(DLOG_INFO, "DALI", "DALIWidgetAPP, AppMain is called for appWidget");
+  DALI_TIZEN_DLOG(DLOG_INFO, "DALIWidgetAPP, AppMain is called for appWidget");
   AppModelWidget* appWidget = static_cast<AppModelWidget*>(pData);
   int             ret       = 0;
   if(appWidget != nullptr)
   {
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppMain() - appWidget is valid, calling AppMain(data)...");
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppMain() - appWidget is valid, calling AppMain(data)...");
     ret = appWidget->AppMain(data);
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppMain() - appWidget->AppMain() returned %d", ret);
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppMain() - appWidget->AppMain() returned %d", ret);
   }
   else
   {
-    print_log(DLOG_ERROR, "DALI", "[WIDGET_APP] AppMain() - ERROR: appWidget is nullptr!");
+    DALI_TIZEN_DLOG(DLOG_ERROR, "[WIDGET_APP] AppMain() - ERROR: appWidget is nullptr!");
   }
-  print_log(DLOG_INFO, "DALI", "[WIDGET_APP] === AppMain() EXITING with ret=%d ===", ret);
+  DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] === AppMain() EXITING with ret=%d ===", ret);
   return ret;
 }
 
@@ -221,7 +221,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     ret = system_info_get_platform_bool("http://tizen.org/feature/shell.appwidget", &feature);
     if(ret != SYSTEM_INFO_ERROR_NONE)
     {
-      print_log(DLOG_ERROR, "DALI", "failed to get system info");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "failed to get system info");
       return false;
     }
 
@@ -231,21 +231,21 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
   int OnCreate() override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > DALIWidgetAPP, WidgetAppCreate() emitted", __MODULE__, __func__, __LINE__);
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Entering\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > DALIWidgetAPP, WidgetAppCreate() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Entering\n");
 
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Calling WidgetBase::OnCreate()\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Calling WidgetBase::OnCreate()\n");
     WidgetBase::OnCreate();
 
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Calling mFramework->Create()\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Calling mFramework->Create()\n");
     int result = static_cast<int>(mFramework->Create());
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Completed with result=%d\n", result);
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnCreate() - Completed with result=%d\n", result);
     return result;
   }
 
   int OnTerminate() override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > DALIWidgetAPP, WidgetAppTerminate() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > DALIWidgetAPP, WidgetAppTerminate() emitted", __MODULE__, __func__, __LINE__);
     auto& observer = mFramework->GetObserver();
     observer.OnTerminate();
 
@@ -254,7 +254,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
   void OnLoopInit(int argc, char** argv) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > DALIWidgetAPP, AppInit() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > DALIWidgetAPP, AppInit() emitted", __MODULE__, __func__, __LINE__);
     mEventLoop = Dali::Internal::Adaptor::GetSystemFactory()->CreateEventLoop();
     if(mEventLoop)
     {
@@ -262,13 +262,13 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
     }
   }
 
   void OnLoopFinish() override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > DALIWidgetAPP, AppFinish() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > DALIWidgetAPP, AppFinish() emitted", __MODULE__, __func__, __LINE__);
     if(mEventLoop)
     {
       mEventLoop->Shutdown();
@@ -276,43 +276,43 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
   void OnLoopRun() override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > DALIWidgetAPP, AppRun() emitted", __MODULE__, __func__, __LINE__);
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Entering\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > DALIWidgetAPP, AppRun() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Entering\n");
 
     if(mEventLoop)
     {
-      print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Starting EventLoop::Run()\n");
+      DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Starting EventLoop::Run()\n");
       mEventLoop->Run();
     }
     else
     {
-      print_log(DLOG_ERROR, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - EventLoop is not created\n");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - EventLoop is not created\n");
     }
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Exiting\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::OnLoopRun() - Exiting\n");
   }
 
   void OnLoopExit() override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
     if(mEventLoop)
     {
       mEventLoop->Quit();
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
   void OnLanguageChanged(const std::string& val) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer& observer  = mFramework->GetObserver();
 
     if(!val.empty())
@@ -322,13 +322,13 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     }
     else
     {
-      print_log(DLOG_ERROR, "DALI", "NULL pointer in Language changed event\n");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "NULL pointer in Language changed event\n");
     }
   }
 
   void OnRegionFormatChanged(const std::string& val) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRegionChanged() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppRegionChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer& observer  = mFramework->GetObserver();
 
     if(!val.empty())
@@ -338,13 +338,13 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     }
     else
     {
-      print_log(DLOG_ERROR, "DALI", "NULL pointer in Region changed event\n");
+      DALI_TIZEN_DLOG(DLOG_ERROR, "NULL pointer in Region changed event\n");
     }
   }
 
   void OnLowBattery(int status) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppBatteryLow() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppBatteryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer&                observer = mFramework->GetObserver();
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
 
@@ -369,7 +369,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
   void OnLowMemory(int status) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppMemoryLow() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppMemoryLow() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer&               observer = mFramework->GetObserver();
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
 
@@ -399,7 +399,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
   void OnDeviceOrientationChanged(int status) override
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
     Framework::Observer&                    observer = mFramework->GetObserver();
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
 
@@ -434,23 +434,23 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
   int AppMain(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 3");
-    print_log(DLOG_INFO, "DALI", "AppModelWidget::Impl::AppMain() - Entering\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget AppMain 3");
+    DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget::Impl::AppMain() - Entering\n");
 
     if(!IsWidgetFeatureEnabled())
     {
-      print_log(DLOG_INFO, "DALI", "widget feature is not supported");
+      DALI_TIZEN_DLOG(DLOG_INFO, "widget feature is not supported");
       return TIZEN_ERROR_NOT_SUPPORTED;
     }
 
     mFramework = static_cast<FrameworkTizen*>(data);
     if(!mFramework)
     {
-      print_log(DLOG_INFO, "DALI", " Widget Framework is null!");
+      DALI_TIZEN_DLOG(DLOG_INFO, " Widget Framework is null!");
       return TIZEN_ERROR_INVALID_PARAMETER;
     }
 
-    print_log(DLOG_INFO, "DALI", "AppModelWidget::Impl::AppMain() - Framework set (argc=%d)\n",
+    DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget::Impl::AppMain() - Framework set (argc=%d)\n",
                          mFramework->GetArgc() ? *mFramework->GetArgc() : 0);
 
     AddEvent(std::shared_ptr<EventBase>(new LowBatteryEvent(this)));
@@ -459,7 +459,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     AddEvent(std::shared_ptr<EventBase>(new LanguageChangedEvent(this)));
     AddEvent(std::shared_ptr<EventBase>(new RegionFormatChangedEvent(this)));
 
-    print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 5");
+    DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget AppMain 5");
 
     int argc = 0;
     char** argv = nullptr;
@@ -469,12 +469,12 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
       argv = *mFramework->GetArgv();
     }
 
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::AppMain() - About to call WidgetBase::Run() with argc=%d\n", argc);
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::AppMain() - About to call WidgetBase::Run() with argc=%d\n", argc);
 
     Run(argc, argv);
 
-    print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 6");
-    print_log(DLOG_INFO, "DALI", "[WIDGET_APP] AppModelWidget::Impl::AppMain() - Run() completed, exiting\n");
+    DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget AppMain 6");
+    DALI_TIZEN_DLOG(DLOG_INFO, "[WIDGET_APP] AppModelWidget::Impl::AppMain() - Run() completed, exiting\n");
     return 0;
   }
 
@@ -502,7 +502,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
 AppModelWidget::AppModelWidget()
 {
-  print_log(DLOG_INFO, "DALI", "AppModelWidget Constructor");
+  DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget Constructor");
   mImpl = new Impl(this);
 }
 
@@ -513,7 +513,7 @@ AppModelWidget::~AppModelWidget()
 
 int AppModelWidget::AppMain(void* data)
 {
-  print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain");
+  DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget AppMain");
   return mImpl->AppMain(data);
 }
 

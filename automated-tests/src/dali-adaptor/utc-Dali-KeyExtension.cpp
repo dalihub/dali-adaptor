@@ -139,6 +139,23 @@ int UtcDaliKeyExtensionSetLookupTableTwiceN(void)
   END_TEST;
 }
 
+int UtcDaliKeyIntegSystemKeyCodePriorityP(void)
+{
+  TestApplication application;
+
+  // Every backend resolves a key code from the look up table first, so the default is off.
+  DALI_TEST_CHECK(!DevelKey::IsSystemKeyCodePriority());
+
+  // The legacy Tizen order is opt-in, for a framework carrying applications written against it.
+  DevelKey::SetSystemKeyCodePriority(true);
+  DALI_TEST_CHECK(DevelKey::IsSystemKeyCodePriority());
+
+  DevelKey::SetSystemKeyCodePriority(false);
+  DALI_TEST_CHECK(!DevelKey::IsSystemKeyCodePriority());
+
+  END_TEST;
+}
+
 int UtcDaliKeyExtensionKeyLookupEntryP(void)
 {
   // KeyLookupEntry is a plain aggregate owned by extension-api.

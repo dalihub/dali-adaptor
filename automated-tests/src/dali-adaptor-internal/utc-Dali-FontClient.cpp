@@ -21,6 +21,7 @@
 #include <dali/dali.h>
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -28,6 +29,18 @@
 #include <iostream>
 
 using namespace Dali;
+
+int UtcDaliFontClientLogDisabledP(void)
+{
+  DALI_TEST_EQUALS(setenv("DALI_LOG_DISABLE", "1", 1), 0, TEST_LOCATION);
+
+  int argumentEvaluationCount = 0;
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "%d", ++argumentEvaluationCount);
+
+  DALI_TEST_EQUALS(argumentEvaluationCount, 0, TEST_LOCATION);
+
+  END_TEST;
+}
 
 int UtcDaliFontClient(void)
 {

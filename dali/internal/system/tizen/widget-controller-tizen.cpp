@@ -22,7 +22,7 @@
 #include <bundle.h>
 #include <dali/public-api/actors/layer.h>
 #include <dlfcn.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <locale>
 #include <tizen.h>
 #include <unistd.h>
@@ -73,7 +73,7 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
 
   if(DALI_UNLIKELY(contentBundleRaw == nullptr || len == 0u))
   {
-    print_log(DLOG_ERROR, "DALI", "error : contentInfo was empty!\n");
+    DALI_TIZEN_DLOG(DLOG_ERROR, "error : contentInfo was empty!\n");
     return;
   }
 
@@ -87,7 +87,7 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
 
   if(mHandle == nullptr)
   {
-    print_log(DLOG_ERROR, "DALI", "error : %s\n", dlerror());
+    DALI_TIZEN_DLOG(DLOG_ERROR, "error : %s\n", dlerror());
     bundle_free(contentBundle);
     return;
   }
@@ -99,7 +99,7 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   }
   else
   {
-    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n");
+    DALI_TIZEN_DLOG(DLOG_ERROR, "SetContentInfo is null\n");
   }
 
   bundle_free(contentBundle);

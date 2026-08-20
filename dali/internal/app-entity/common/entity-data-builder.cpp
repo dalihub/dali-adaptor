@@ -83,8 +83,8 @@ bool ReadActorAnnotation(Dali::Actor actor, EntityData::Annotation& annotation)
   annotation.entityInfo = entityInfo.CStr();
 
   const bool hasAnnotation = !annotation.entityId.empty() && !annotation.entityType.empty();
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData ReadActorAnnotation: actor=%d has=%d entityId=%s entityType=%s entityInfo=%s\n",
-                actor.GetProperty<int>(Dali::Actor::Property::ID), hasAnnotation,
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData ReadActorAnnotation: actorId=%u has=%d entityId=%s entityType=%s entityInfo=%s\n",
+                actor.GetId(), hasAnnotation,
                 annotation.entityId.c_str(), annotation.entityType.c_str(),
                 annotation.entityInfo.c_str());
   return hasAnnotation;
@@ -106,11 +106,11 @@ EntityData MakeEntityData(Dali::Actor actor, FocusedActorProvider* provider, Ent
     return data;
   }
 
-  // Id — Actor ID as string. Stable only for the lifetime of the Actor.
-  data.id = std::to_string(actor.GetProperty<int>(Dali::Actor::Property::ID));
+  // Actor ID as a string. Stable only for the lifetime of the Actor.
+  data.actorId = std::to_string(actor.GetId());
 
-  // Type — always the runtime Actor type name.
-  data.type = actor.GetTypeName().CStr();
+  // Always the runtime Actor type name.
+  data.actorTypeName = actor.GetTypeName().CStr();
 
   // Try the Accessibility Bridge first for description / bounds / state.
   Dali::SharedPtr<Dali::Accessibility::Accessible> accessible = GetAccessibleForActor(actor);
@@ -173,8 +173,8 @@ EntityData MakeEntityData(Dali::Actor actor, FocusedActorProvider* provider, Ent
 
   data.annotation = std::move(annotation);
 
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData MakeEntityData: id=%s type=%s accessible=%d screenBounds=%f,%f,%f,%f windowBounds=%f,%f,%f,%f entityId=%s\n",
-                data.id.c_str(), data.type.c_str(), accessible ? 1 : 0,
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData MakeEntityData: actorId=%s actorTypeName=%s accessible=%d screenBounds=%f,%f,%f,%f windowBounds=%f,%f,%f,%f entityId=%s\n",
+                data.actorId.c_str(), data.actorTypeName.c_str(), accessible ? 1 : 0,
                 data.screenBounds.x, data.screenBounds.y, data.screenBounds.width, data.screenBounds.height,
                 data.windowBounds.x, data.windowBounds.y, data.windowBounds.width, data.windowBounds.height,
                 data.annotation.entityId.c_str());

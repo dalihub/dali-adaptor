@@ -744,18 +744,36 @@ void SceneHolder::OnSceneWheelEvent(Dali::WheelEvent event)
 bool SceneHolder::OnSceneKeyEventGenerated(Dali::KeyEvent event)
 {
   Dali::Integration::SceneHolder handle(this);
+  if(mScene.IsGeometryHittestEnabled())
+  {
+    // Any connected callback consuming the event consumes it for all of them.
+    // Gated so that legacy applications keep the previous last-callback-wins behaviour.
+    return mSceneHolderKeyEventGeneratedSignal.EmitOr(handle, event);
+  }
   return mSceneHolderKeyEventGeneratedSignal.Emit(handle, event);
 }
 
 bool SceneHolder::OnSceneInterceptKeyEvent(Dali::KeyEvent event)
 {
   Dali::Integration::SceneHolder handle(this);
+  if(mScene.IsGeometryHittestEnabled())
+  {
+    // Any connected callback consuming the event consumes it for all of them.
+    // Gated so that legacy applications keep the previous last-callback-wins behaviour.
+    return mSceneHolderInterceptKeyEventSignal.EmitOr(handle, event);
+  }
   return mSceneHolderInterceptKeyEventSignal.Emit(handle, event);
 }
 
 bool SceneHolder::OnSceneWheelEventGenerated(Dali::WheelEvent event)
 {
   Dali::Integration::SceneHolder handle(this);
+  if(mScene.IsGeometryHittestEnabled())
+  {
+    // Any connected callback consuming the event consumes it for all of them.
+    // Gated so that legacy applications keep the previous last-callback-wins behaviour.
+    return mSceneHolderWheelEventGeneratedSignal.EmitOr(handle, event);
+  }
   return mSceneHolderWheelEventGeneratedSignal.Emit(handle, event);
 }
 

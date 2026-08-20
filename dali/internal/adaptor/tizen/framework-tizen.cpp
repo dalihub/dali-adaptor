@@ -19,7 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <dlfcn.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <system_info.h>
 #include <tizen.h>
 #include <locale>
@@ -107,7 +107,7 @@ struct FrameworkTizen::Impl
     mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
     if(mHandle == nullptr)
     {
-      print_log(DLOG_INFO, "DALI", "error : %s", dlerror());
+      DALI_TIZEN_DLOG(DLOG_INFO, "error : %s", dlerror());
       return;
     }
 
@@ -154,7 +154,7 @@ struct FrameworkTizen::Impl
   {
     if(mHandle == nullptr)
     {
-      print_log(DLOG_INFO, "DALI", "mHandle is null");
+      DALI_TIZEN_DLOG(DLOG_INFO, "mHandle is null");
       return TIZEN_ERROR_NOT_SUPPORTED;
     }
 

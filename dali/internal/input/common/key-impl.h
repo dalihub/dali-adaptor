@@ -73,6 +73,16 @@ int GetDaliKeyCode(const char* keyName);
  */
 void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count);
 
+/**
+ * @copydoc Dali::DevelKey::SetSystemKeyCodePriority()
+ */
+void SetSystemKeyCodePriority(bool preferSystemKeyCode);
+
+/**
+ * @copydoc Dali::DevelKey::IsSystemKeyCodePriority()
+ */
+bool IsSystemKeyCodePriority();
+
 } // namespace KeyLookup
 
 } // namespace Adaptor

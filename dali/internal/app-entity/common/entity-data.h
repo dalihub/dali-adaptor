@@ -28,7 +28,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-/// Platform-neutral representation of an application entity exposed as a View.
+/// Platform-neutral representation of application entity data derived from an Actor.
 struct EntityData
 {
   /// Annotation attached to the Actor that owns this entity.
@@ -39,9 +39,9 @@ struct EntityData
     std::string entityInfo;
   };
 
-  std::string id;
-  std::string type;
-  std::string description;
+  std::string  actorId;
+  std::string  actorTypeName;
+  std::string  description;
   Dali::Bounds screenBounds{}; ///< Absolute screen coordinates.
   Dali::Bounds windowBounds{}; ///< Coordinates relative to the owning window.
   bool         isFocused{false};

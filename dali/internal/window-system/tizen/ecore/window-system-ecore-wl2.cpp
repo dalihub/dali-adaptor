@@ -23,7 +23,7 @@
 
 #include <Ecore.h>
 #include <Ecore_Wl2.h>
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 
 #include <vector>
 
@@ -42,7 +42,7 @@
   durationMilliSeconds = endTime - startTime;                                                                                                         \
   if(durationMilliSeconds > 0)                                                                                                                        \
   {                                                                                                                                                   \
-    print_log(DLOG_DEBUG, "DALI", DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
+    DALI_TIZEN_DLOG(DLOG_DEBUG, DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
   }
 
 namespace Dali
@@ -65,16 +65,16 @@ public:
     // registered below live as long as this object does. Ecore frees every registered handler once
     // the count reaches zero, and the references held by the application framework and by
     // EventLoopEcore are released while this object is still alive.
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     if(!ecore_init())
     {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Fail to ecore_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     }
 
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     if(!ecore_wl2_init())
     {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_init()", DALI_LOG_FORMAT_PREFIX_ARGS);
     }
 
     mKeyboardRepeatEventHandler = ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, OnKeyboardRepeatChanged, this);
@@ -86,10 +86,10 @@ public:
     {
       ecore_event_handler_del(mKeyboardRepeatEventHandler);
     }
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_wl2_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_wl2_shutdown();
 
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "ecore_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "ecore_shutdown()", DALI_LOG_FORMAT_PREFIX_ARGS);
     ecore_shutdown();
   }
 
@@ -104,14 +104,14 @@ public:
         ecore_wl2_display_screen_size_get(display, &mScreenWidth, &mScreenHeight);
         FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
 
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "GetScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, display, mScreenWidth, mScreenHeight);
+        DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "GetScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, display, mScreenWidth, mScreenHeight);
 
         DALI_ASSERT_ALWAYS((mScreenWidth > 0) && "screen width is 0");
         DALI_ASSERT_ALWAYS((mScreenHeight > 0) && "screen height is 0");
       }
       else
       {
-        print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "GetScreenSize() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
+        DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "GetScreenSize() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
       }
     }
     width  = mScreenWidth;
@@ -127,11 +127,11 @@ public:
       ecore_wl2_display_screen_size_get(display, &mScreenWidth, &mScreenHeight);
       FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
 
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "GetScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, display, mScreenWidth, mScreenHeight);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "GetScreenSize() for display(%p) return %d x %d", DALI_LOG_FORMAT_PREFIX_ARGS, display, mScreenWidth, mScreenHeight);
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "GetScreenSize() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "GetScreenSize() but display is null", DALI_LOG_FORMAT_PREFIX_ARGS);
     }
   }
 
@@ -141,7 +141,7 @@ public:
     Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
     if(!display)
     {
-      print_log(DLOG_ERROR, "DALI", DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_display_connect()", DALI_LOG_FORMAT_PREFIX_ARGS);
+      DALI_TIZEN_DLOG(DLOG_ERROR, DALI_LOG_FORMAT_PREFIX "Fail to ecore_wl2_display_connect()", DALI_LOG_FORMAT_PREFIX_ARGS);
       mScreenList.clear();
       return mScreenList;
     }
@@ -155,7 +155,7 @@ public:
       START_DURATION_CHECK();
       ecoreScreenList = ecore_wl2_display_screens_get(display);
       FINISH_DURATION_CHECK("ecore_wl2_display_screens_get");
-      print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p", DALI_LOG_FORMAT_PREFIX_ARGS, ecoreScreenList);
+      DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p", DALI_LOG_FORMAT_PREFIX_ARGS, ecoreScreenList);
       if(ecoreScreenList)
       {
         EINA_LIST_FOREACH(ecoreScreenList, l, (screen))
@@ -164,26 +164,26 @@ public:
           const char* ecoreScreenName = ecore_wl2_screen_name_get(static_cast<Ecore_Wl2_Screen*>(screen));
           if(!ecoreScreenName)
           {
-            print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "screen(%p) name is empty", DALI_LOG_FORMAT_PREFIX_ARGS, screen);
+            DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "screen(%p) name is empty", DALI_LOG_FORMAT_PREFIX_ARGS, screen);
             continue;
           }
-          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen(%p) name: %s", DALI_LOG_FORMAT_PREFIX_ARGS, screen, ecoreScreenName);
+          DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Get screen(%p) name: %s", DALI_LOG_FORMAT_PREFIX_ARGS, screen, ecoreScreenName);
 
           ecore_wl2_screen_size_get(static_cast<Ecore_Wl2_Screen*>(screen), &width, &height);
           if(width == 0 || height == 0)
           {
-            print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "screen(%p) size 0, width(%d), height(%d) ", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
+            DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "screen(%p) size 0, width(%d), height(%d) ", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
             continue;
           }
 
-          print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Get screen(%p) size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
+          DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Get screen(%p) size(%d x %d)", DALI_LOG_FORMAT_PREFIX_ARGS, screen, width, height);
           mScreenList.push_back(Dali::ScreenInformation{std::string(ecoreScreenName), width, height});
         }
       }
     }
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenList.size());
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Update Screen List:%zu", DALI_LOG_FORMAT_PREFIX_ARGS, mScreenList.size());
 #else
-    print_log(DLOG_INFO, "DALI", DALI_LOG_FORMAT_PREFIX "Not supported platform version", DALI_LOG_FORMAT_PREFIX_ARGS);
+    DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "Not supported platform version", DALI_LOG_FORMAT_PREFIX_ARGS);
 #endif
     return mScreenList;
   }

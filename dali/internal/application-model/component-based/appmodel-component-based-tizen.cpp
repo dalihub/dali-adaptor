@@ -19,7 +19,7 @@
 #include <dali/internal/application-model/component-based/appmodel-component-based-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dlog.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 
 // CONDITIONAL INCLUDES
 #ifdef COMPONENT_APPLICATION_SUPPORT
@@ -62,7 +62,7 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   }
   else
   {
-    print_log(DLOG_INFO, "DALI", "appComponent is nullptr");
+    DALI_TIZEN_DLOG(DLOG_INFO, "appComponent is nullptr");
   }
   return ret;
 }
@@ -98,7 +98,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void AppInit(int argc, char** argv, void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppInit() emitted", __MODULE__, __func__, __LINE__);
     auto* impl       = static_cast<AppModelComponentBased*>(data)->mImpl;
     impl->mEventLoop = Dali::Internal::Adaptor::GetSystemFactory()->CreateEventLoop();
     if(impl->mEventLoop)
@@ -107,13 +107,13 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > Failed to create EventLoop", __MODULE__, __func__, __LINE__);
     }
   }
 
   static void AppRun(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppRun() emitted", __MODULE__, __func__, __LINE__);
     auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
     if(impl->mEventLoop)
     {
@@ -121,13 +121,13 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
   static void AppExit(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppExit() emitted", __MODULE__, __func__, __LINE__);
     auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
     if(impl->mEventLoop)
     {
@@ -135,13 +135,13 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
   static void* ComponentAppCreate(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppCreate() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > ComponentAppCreate() emitted", __MODULE__, __func__, __LINE__);
     auto*                impl      = static_cast<AppModelComponentBased*>(data)->mImpl;
     FrameworkTizen*      framework = impl->mFramework;
     Framework::Observer* observer  = &framework->GetObserver();
@@ -152,7 +152,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void ComponentAppTerminate(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppTerminate() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > ComponentAppTerminate() emitted", __MODULE__, __func__, __LINE__);
     auto*                impl     = static_cast<AppModelComponentBased*>(data)->mImpl;
     Framework::Observer* observer = &impl->mFramework->GetObserver();
     observer->OnTerminate();
@@ -160,7 +160,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
 
   static void ComponentAppFinish(void* data)
   {
-    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ComponentAppFinish() emitted", __MODULE__, __func__, __LINE__);
+    DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > ComponentAppFinish() emitted", __MODULE__, __func__, __LINE__);
     auto* impl = static_cast<AppModelComponentBased*>(data)->mImpl;
     if(impl->mEventLoop)
     {
@@ -169,7 +169,7 @@ struct DALI_ADAPTOR_API AppModelComponentBased::Impl
     }
     else
     {
-      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
+      DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > EventLoop is not created", __MODULE__, __func__, __LINE__);
     }
   }
 
