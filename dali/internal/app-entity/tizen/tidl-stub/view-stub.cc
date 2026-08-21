@@ -2184,13 +2184,13 @@ void TizenActionView::ServiceBase::DispatchFindById(rpc_port_h port, rpc_port_h 
     std::string id;
     unit_map.Read(3355 /*id*/, id);
 
-    TizenEntityView v;
+    TizenEntityView view;
 
     try {
-      auto ret_ = FindById(id, v);
+      auto ret_ = FindById(id, view);
       UnitMap()
       .Write(1497479973 /*[RESULT]*/, ret_)
-      .Write(118 /*v*/, v)
+      .Write(3619493 /*view*/, view)
       .Write(1355467489 /*[METHOD]*/, static_cast<int>(MethodId::__Result))
       .Serialize(parcel_);
 
@@ -2280,13 +2280,13 @@ void TizenActionView::ServiceBase::DispatchGetFocusedView(rpc_port_h port, rpc_p
     .Write(1355467489 /*[METHOD]*/, static_cast<int>(MethodId::__Result))
     .Serialize(parcel_);
   } else {
-    TizenEntityView v;
+    TizenEntityView view;
 
     try {
-      auto ret_ = GetFocusedView(v);
+      auto ret_ = GetFocusedView(view);
       UnitMap()
       .Write(1497479973 /*[RESULT]*/, ret_)
-      .Write(118 /*v*/, v)
+      .Write(3619493 /*view*/, view)
       .Write(1355467489 /*[METHOD]*/, static_cast<int>(MethodId::__Result))
       .Serialize(parcel_);
 
