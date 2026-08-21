@@ -53,6 +53,7 @@ BuildRequires:  dali2-devel
 BuildRequires:  dali2-integration-devel
 
 BuildRequires:  pkgconfig
+BuildRequires:  pkgconfig(rpc-port)
 BuildRequires:  gawk
 BuildRequires:  cmake
 BuildRequires:  giflib-devel

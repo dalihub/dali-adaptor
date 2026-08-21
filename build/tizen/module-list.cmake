@@ -75,6 +75,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/vector-image/file.list )
 SET( adaptor_canvas_renderer_dir ${ADAPTOR_ROOT}/dali/internal/canvas-renderer )
 include( ${ADAPTOR_ROOT}/dali/internal/canvas-renderer/file.list )
 
+SET( adaptor_app_entity_dir ${ADAPTOR_ROOT}/dali/internal/app-entity )
+include( ${ADAPTOR_ROOT}/dali/internal/app-entity/file.list )
+
 SET( adaptor_public_api_dir ${ADAPTOR_ROOT}/dali/public-api )
 include( ${ADAPTOR_ROOT}/dali/public-api/file.list )
 

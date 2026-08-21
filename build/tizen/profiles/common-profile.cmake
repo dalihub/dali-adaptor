@@ -6,6 +6,8 @@ SET( SOURCES
     ${adaptor_accessibility_tizen_wayland_src_files}
     ${adaptor_accessibility_tizen_common_src_files}
     ${adaptor_adaptor_common_src_files}
+    ${adaptor_app_entity_common_src_files}
+    ${adaptor_app_entity_tizen_src_files}
     ${adaptor_adaptor_tizen_wayland_src_files}
     ${adaptor_canvas_renderer_tizen_src_files}
     ${adaptor_clipboard_tizen_wayland_src_files}
@@ -54,6 +56,8 @@ SET( SOURCES
     ${adaptor_addons_tizen_src_files}
     ${static_libraries_libunibreak_src_files}
 )
+
+INCLUDE( ${CMAKE_CURRENT_LIST_DIR}/app-entity-tizen.cmake )
 
 # GLES Graphics Library
 SET(ADAPTOR_GRAPHICS_GLES_SOURCES

@@ -5,6 +5,7 @@ SET( SOURCES
         ${adaptor_accessibility_common_src_files}
         ${adaptor_accessibility_glib_x11_src_files}
         ${adaptor_adaptor_common_src_files}
+        ${adaptor_app_entity_common_src_files}
         ${adaptor_adaptor_glib_src_files}
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_ubuntu_src_files}

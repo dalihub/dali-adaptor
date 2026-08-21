@@ -17,6 +17,7 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/adaptor.h
   ${adaptor_integration_api_dir}/adaptor-framework/application-controller.h
   ${adaptor_integration_api_dir}/adaptor-framework/egl-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/focused-actor-provider.h
   ${adaptor_integration_api_dir}/adaptor-framework/log-factory-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-render-surface-factory.h

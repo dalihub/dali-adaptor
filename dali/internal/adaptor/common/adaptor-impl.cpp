@@ -51,6 +51,7 @@
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::Shutdown
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
+#include <dali/internal/app-entity/common/entity-data-host.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/addons/common/addon-manager-factory.h>
@@ -347,6 +348,10 @@ void Adaptor::Start()
     bridge->Initialize();
   }
 
+  // Creates the platform entity-data backend when the platform supports it.
+  // The focus provider is resolved lazily from its process-wide registry.
+  mEntityDataHost = CreateEntityDataHost();
+
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
   unsigned int dpiHor, dpiVer;
@@ -479,6 +484,9 @@ void Adaptor::Stop()
      PAUSED == mState ||
      PAUSED_WHILE_HIDDEN == mState)
   {
+    // Stop accepting entity-data requests before application and Core teardown.
+    mEntityDataHost.reset();
+
     for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
     {
       (*iter)->OnStop();
