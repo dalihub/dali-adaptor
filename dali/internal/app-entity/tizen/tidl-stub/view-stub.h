@@ -440,9 +440,9 @@ class TizenActionView : public LocalExecution::IEvent {
     int Dispatch(rpc_port_h port, rpc_port_h callback_port, rpc_port_parcel_h parcel, std::shared_ptr<ServiceBase> service);
     int Dispatch(rpc_port_h port, rpc_port_h callback_port, rpc_port_parcel_h parcel);
 
-    virtual TizenEntityStatus FindById(std::string id, TizenEntityView& v) = 0;
+    virtual TizenEntityStatus FindById(std::string id, TizenEntityView& view) = 0;
     virtual TizenEntityStatus GetAnnotatedViews(std::vector<TizenEntityView>& views) = 0;
-    virtual TizenEntityStatus GetFocusedView(TizenEntityView& v) = 0;
+    virtual TizenEntityStatus GetFocusedView(TizenEntityView& view) = 0;
     virtual TizenEntityStatus ToPresentation(TizenEntityView view, TizenEntityPresentation& result) = 0;
 
    protected:
