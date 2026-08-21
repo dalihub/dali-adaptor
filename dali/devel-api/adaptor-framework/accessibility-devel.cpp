@@ -185,6 +185,16 @@ std::string Accessible::GetRoleName() const
     {Role::MATH_ROOT, "math root"},
     {Role::SUBSCRIPT, "subscript"},
     {Role::SUPERSCRIPT, "superscript"},
+    {Role::DESCRIPTION_LIST, "description list"},
+    {Role::DESCRIPTION_TERM, "description term"},
+    {Role::DESCRIPTION_VALUE, "description value"},
+    {Role::FOOTNOTE, "footnote"},
+    {Role::CONTENT_DELETION, "content deletion"},
+    {Role::CONTENT_INSERTION, "content insertion"},
+    {Role::MARK, "mark"},
+    {Role::SUGGESTION, "suggestion"},
+    {Role::PUSH_BUTTON_MENU, "push button menu"},
+    {Role::SWITCH, "switch"},
   };
 
   auto it = roleMap.find(GetRole());

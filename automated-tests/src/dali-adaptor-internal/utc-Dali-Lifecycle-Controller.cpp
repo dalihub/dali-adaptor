@@ -86,16 +86,19 @@ void OnLanguageChanged()
 
 int UtcDaliLifecycleControllerGet(void)
 {
-  // Attempt to retrieve LifecycleController before creating application
+  // LifecycleController is available before the application is created, so that observers
+  // can connect to its signals from main() before the application main loop starts.
   LifecycleController lifecycleController;
   lifecycleController = LifecycleController::Get();
-  DALI_TEST_CHECK(!lifecycleController);
+  DALI_TEST_CHECK(lifecycleController);
 
   TestApplication app;
   Application     application = Application::New(nullptr, nullptr);
 
-  lifecycleController = LifecycleController::Get();
-  DALI_TEST_CHECK(lifecycleController);
+  // The very same instance is returned once Core is up.
+  LifecycleController lifecycleControllerAfterInit = LifecycleController::Get();
+  DALI_TEST_CHECK(lifecycleControllerAfterInit);
+  DALI_TEST_CHECK(lifecycleControllerAfterInit == lifecycleController);
 
   END_TEST;
 }

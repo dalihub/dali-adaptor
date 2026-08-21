@@ -19,11 +19,7 @@
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/object/type-registry.h>
-
-// INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
@@ -33,23 +29,17 @@ namespace Adaptor
 {
 Dali::LifecycleController LifecycleController::Get()
 {
-  Dali::LifecycleController lifecycleController;
+  // LifecycleController only holds signals and does not depend on Core, whilst the lifecycle it
+  // describes is process-wide. It is therefore kept alive for the lifetime of the process rather
+  // than being owned by SingletonService, so that observers can connect to the signals before Core
+  // has been created (e.g. from main() before the application main loop starts).
+  static Dali::LifecycleController lifecycleController(new LifecycleController());
 
+  // Register with SingletonService, when available, so the instance can still be discovered through it.
   Dali::SingletonService service(SingletonService::Get());
-  if(service)
+  if(service && !service.GetSingleton(typeid(Dali::LifecycleController)))
   {
-    // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::LifecycleController));
-    if(handle)
-    {
-      // If so, downcast the handle
-      lifecycleController = Dali::LifecycleController(static_cast<LifecycleController*>(handle.GetObjectPtr()));
-    }
-    else
-    {
-      lifecycleController = Dali::LifecycleController(new LifecycleController());
-      service.Register(typeid(lifecycleController), lifecycleController);
-    }
+    service.Register(typeid(Dali::LifecycleController), lifecycleController);
   }
 
   return lifecycleController;

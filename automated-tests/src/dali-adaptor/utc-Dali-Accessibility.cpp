@@ -18,11 +18,13 @@
 #include <dali-test-suite-utils.h>
 #include <dali/devel-api/adaptor-framework/accessibility-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-service.h>
 #include <dali/public-api/math/rect.h>
 #include <algorithm>
 #include <string>
+#include <tuple>
 #include <vector>
 
 using namespace Dali;
@@ -308,6 +310,42 @@ int UtcDaliAccessibilityAccessibleDefaultsP(void)
   DALI_TEST_CHECK(root.GetAccessibleAtPoint(Point{15, 15}, CoordinateType::WINDOW) == &child);
   DALI_TEST_CHECK(root.GetAccessibleAtPoint(Point{90, 90}, CoordinateType::WINDOW) == nullptr);
 #endif
+
+  END_TEST;
+}
+
+int UtcDaliAccessibilityNewAtspiRolesP(void)
+{
+  using MatchRuleRoles = std::tuple_element_t<4, Collection::MatchRule>;
+  struct RoleCase
+  {
+    Role        role;
+    uint32_t    value;
+    const char* name;
+  };
+  const RoleCase cases[] = {
+    {Role::DESCRIPTION_LIST, 121u, "description list"},
+    {Role::DESCRIPTION_TERM, 122u, "description term"},
+    {Role::DESCRIPTION_VALUE, 123u, "description value"},
+    {Role::FOOTNOTE, 124u, "footnote"},
+    {Role::CONTENT_DELETION, 125u, "content deletion"},
+    {Role::CONTENT_INSERTION, 126u, "content insertion"},
+    {Role::MARK, 127u, "mark"},
+    {Role::SUGGESTION, 128u, "suggestion"},
+    {Role::PUSH_BUTTON_MENU, 129u, "push button menu"},
+    {Role::SWITCH, 130u, "switch"},
+  };
+
+  DALI_TEST_EQUALS(static_cast<uint32_t>(Role::MAX_COUNT), 131u, TEST_LOCATION);
+  for(const auto& roleCase : cases)
+  {
+    DALI_TEST_EQUALS(static_cast<uint32_t>(roleCase.role), roleCase.value, TEST_LOCATION);
+    DALI_TEST_EQUALS(TestAccessible(roleCase.role).GetRoleName(), std::string(roleCase.name), TEST_LOCATION);
+  }
+
+  RoleSet roles;
+  roles[Role::SWITCH] = true;
+  DALI_TEST_EQUALS(std::tuple_size<MatchRuleRoles>::value, roles.GetRawData().size(), TEST_LOCATION);
 
   END_TEST;
 }

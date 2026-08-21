@@ -437,17 +437,6 @@ public:
   void NotifyLanguageChanged(const std::string& language);
 
   /**
-   * Gets AppId of current application
-   */
-  void GetAppId(std::string& appId);
-
-  /**
-   * Gets path for resource storage.
-   * @param[out] path Path for resource storage
-   */
-  void GetResourceStoragePath(std::string& path);
-
-  /**
    * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
   void SurfaceResizePrepare(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
@@ -699,20 +688,9 @@ private:
   void SetSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
-   * called after surface is created
-   */
-  void SurfaceInitialized();
-
-  /**
    * Sends an notification message from main loop idle handler
    */
   bool ProcessCoreEventsFromIdle();
-
-  /**
-   * Gets path for data/resource storage.
-   * @param[out] path Path for data/resource storage
-   */
-  void GetDataStoragePath(std::string& path);
 
   /**
    * Sets up system information if needs

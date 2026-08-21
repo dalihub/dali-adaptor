@@ -2,7 +2,7 @@
 #define DALI_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,11 @@ public: // Creation & Destruction
 
   /**
    * @brief Retrieve the initialized instance of the LifecycleController.
+   *
+   * @note The instance lives for the lifetime of the process and does not depend on Core, so the
+   * returned handle is always valid. In particular, signals can be connected before the application
+   * has been created, e.g. from main() before the application main loop starts.
+   *
    * @return Handle to LifecycleController.
    */
   static LifecycleController Get();

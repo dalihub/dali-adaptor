@@ -54,11 +54,11 @@
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h> ///< For FileDownloadPluginProxy::Shutdown
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/app-entity/common/entity-data-host.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/app-entity/common/entity-data-host.h>
 #include <dali/internal/graphics/common/graphics-backend-impl.h> ///< For Dali::Graphics::Internal::IsGraphicsBackendSet and etc
 #include <dali/internal/graphics/common/graphics-factory.h>      ///< For Dali::Internal::Adaptor::ResetGraphicsLibrary and GetGraphicsLibraryHandle
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
@@ -1331,9 +1331,6 @@ void Adaptor::NotifySceneCreated()
 
   // Start thread controller after the scene has been created
   mThreadController->Start();
-
-  // Process after surface is created (registering to remote surface provider if required)
-  SurfaceInitialized();
 
   if(mState != PAUSED_WHILE_INITIALIZING)
   {
