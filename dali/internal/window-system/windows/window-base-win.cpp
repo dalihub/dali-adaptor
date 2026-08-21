@@ -1046,7 +1046,10 @@ void WindowBaseWin::WindowRotationCompleted(int degree, int width, int height)
 
 void WindowBaseWin::SetTransparency(bool transparent)
 {
-  mIsTransparent = transparent;
+  if(mWindowImpl.SetTransparency(transparent))
+  {
+    mIsTransparent = transparent;
+  }
 }
 
 int WindowBaseWin::GetWindowRotationAngle() const
@@ -1070,7 +1073,7 @@ uintptr_t WindowBaseWin::GetSurfaceId(Any surface) const
 
 void WindowBaseWin::CreateWinWindow(PositionSize positionSize, bool isTransparent)
 {
-  mWin32Window   = WindowsPlatform::WindowImpl::CreateHwnd("DALi", positionSize.x, positionSize.y, positionSize.width, positionSize.height, 0);
+  mWin32Window   = WindowsPlatform::WindowImpl::CreateHwnd("DALi", positionSize.x, positionSize.y, positionSize.width, positionSize.height, 0, isTransparent);
   mIsTransparent = isTransparent;
 
   DALI_ASSERT_ALWAYS(mWin32Window != 0 && "There is no Windows window");
