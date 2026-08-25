@@ -691,7 +691,8 @@ public:
   void ApplicationPaused() override
   {
     mIsApplicationRunning = false;
-    SwitchBridge();
+    // Temporary test: keep the AT-SPI bridge running while the application is paused.
+    // SwitchBridge();
   }
 
   /**
