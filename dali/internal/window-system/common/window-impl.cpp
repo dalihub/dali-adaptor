@@ -125,7 +125,8 @@ Window::Window()
   mIsEnabledUserGeometry(false),
   mIsEmittedWindowCreatedEvent(false),
   mIsFrontBufferRendering(false),
-  mIsUsePreLoader(false)
+  mIsUsePreLoader(false),
+  mIsScreenReaderAutoReadEnabled(true)
 {
 }
 
@@ -1411,6 +1412,16 @@ void Window::Unparent()
 Dali::Window Window::GetParent()
 {
   return mParentWindow;
+}
+
+void Window::EnableScreenReaderAutoRead(bool enable)
+{
+  mIsScreenReaderAutoReadEnabled = enable;
+}
+
+bool Window::IsScreenReaderAutoReadEnabled() const
+{
+  return mIsScreenReaderAutoReadEnabled;
 }
 
 WindowOrientation Window::GetCurrentOrientation() const

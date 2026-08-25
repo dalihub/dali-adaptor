@@ -400,6 +400,16 @@ public:
   Dali::Window GetParent();
 
   /**
+   * @copydoc Dali::Window::EnableScreenReaderAutoRead()
+   */
+  void EnableScreenReaderAutoRead(bool enable);
+
+  /**
+   * @brief Returns whether automatic screen-reader reading is enabled for this window.
+   */
+  bool IsScreenReaderAutoReadEnabled() const;
+
+  /**
    * @copydoc Dali::Window::GetCurrentOrientation()
    */
   WindowOrientation GetCurrentOrientation() const;
@@ -1228,6 +1238,7 @@ private:
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
   bool mIsUsePreLoader : 1;              ///< The flag is whether is created by preloader process or not.
+  bool mIsScreenReaderAutoReadEnabled : 1; ///< Whether automatic screen-reader reading is enabled for this window.
 };
 
 } // namespace Adaptor
