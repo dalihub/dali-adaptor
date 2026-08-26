@@ -96,7 +96,8 @@ public:
     int             Y,
     int             nWidth,
     int             nHeight,
-    WinWindowHandle parent);
+    WinWindowHandle parent,
+    bool            transparent = false);
 
   static void DestroyHWnd(WinWindowHandle hWnd);
 
@@ -114,6 +115,15 @@ public:
   void SetHWND(WinWindowHandle inHWnd);
   bool SetWinProc();
   void DetachWindow();
+
+  /**
+   * @brief Applies the requested Win32 color-key transparency mode.
+   *
+   * This is intentionally limited to the mode chosen when a DALi-owned
+   * top-level window is created. Runtime transitions and per-pixel alpha
+   * composition are not supported by this implementation.
+   */
+  bool SetTransparency(bool transparent);
 
 private:
   int             colorDepth;
