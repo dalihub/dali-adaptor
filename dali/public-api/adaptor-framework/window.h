@@ -904,6 +904,25 @@ public:
   Window GetParent();
 
   /**
+   * @brief Enables or disables automatic screen-reader reading for this window.
+   *
+   * Automatic reading is enabled by default. Accessibility information and events
+   * remain available, and explicit reading requests are not affected.
+   *
+   * @SINCE_2_5.37
+   * @param[in] enable Whether to enable automatic reading for this window
+   */
+  void EnableScreenReaderAutoRead(bool enable);
+
+  /**
+   * @brief Returns whether automatic screen-reader reading is enabled for this window.
+   *
+   * @SINCE_2_5.37
+   * @return True if automatic reading is enabled, false otherwise
+   */
+  bool IsScreenReaderAutoReadEnabled() const;
+
+  /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
    * @SINCE_2_5.27
