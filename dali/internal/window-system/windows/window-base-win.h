@@ -131,6 +131,11 @@ public:
   Dali::Any CreateWindow(int width, int height) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RequiresDirectComposition()
+   */
+  bool RequiresDirectComposition() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyWindow()
    */
   void DestroyWindow() override;

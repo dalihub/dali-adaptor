@@ -139,6 +139,16 @@ public:
   virtual Any CreateWindow(int width, int height) = 0;
 
   /**
+   * @brief Returns whether the native window requires DirectComposition.
+   *
+   * @return True when DirectComposition is required
+   */
+  virtual bool RequiresDirectComposition() const
+  {
+    return false;
+  }
+
+  /**
    * @brief Destroy the window
    */
   virtual void DestroyWindow() = 0;
