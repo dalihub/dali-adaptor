@@ -225,6 +225,11 @@ public:
   bool IsFocusAcceptable() const;
 
   /**
+   * @copydoc Dali::Window::IsFocused()
+   */
+  bool IsFocused() const;
+
+  /**
    * @copydoc Dali::Window::Show()
    */
   void Show();
