@@ -223,6 +223,11 @@ bool Window::IsFocusAcceptable() const
   return GetImplementation(*this).IsFocusAcceptable();
 }
 
+bool Window::IsFocused() const
+{
+  return GetImplementation(*this).IsFocused();
+}
+
 void Window::Show()
 {
   GetImplementation(*this).Show();

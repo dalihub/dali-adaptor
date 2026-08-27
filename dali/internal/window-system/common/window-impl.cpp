@@ -620,6 +620,11 @@ bool Window::IsFocusAcceptable() const
   return mIsFocusAcceptable;
 }
 
+bool Window::IsFocused() const
+{
+  return mFocused;
+}
+
 void Window::Show()
 {
   mVisible = true;
@@ -1034,6 +1039,7 @@ void Window::OnFocusChanged(bool focusIn)
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), focusIn = %d, previous = %d\n", this, mNativeWindowId, focusIn, mFocused);
 
   Dali::Window handle(this);
+  mFocused = focusIn;
   mFocusChangedSignal.Emit(handle, focusIn);
   FocusChanged(focusIn);
 
@@ -1049,8 +1055,6 @@ void Window::OnFocusChanged(bool focusIn)
       bridge->WindowUnfocused(handle);
     }
   }
-
-  mFocused = focusIn;
 }
 
 void Window::OnOutputTransformed(int screenRotationAngle)

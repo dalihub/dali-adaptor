@@ -386,6 +386,15 @@ public:
   bool IsFocusAcceptable() const;
 
   /**
+   * @brief Returns whether the window is currently focused or not.
+   *
+   * @SINCE_2_5.37
+   * @return True if the window is focused, false otherwise
+   * @note The returned state is updated when FocusChangedSignal() is emitted.
+   */
+  bool IsFocused() const;
+
+  /**
    * @brief Shows the window if it is hidden.
    * @SINCE_1_2.60
    */
