@@ -192,6 +192,7 @@ bool EglGraphicsController::IsShuttingDown()
 EglGraphicsController::EglGraphicsController()
 : mTextureDependencyChecker(*this),
   mSyncPool(*this),
+  mCommandBufferDepth(0u),
   mResourceInitializeFailed(false),
   mUseProgramBinary(false),
   mDidPresent(false)
@@ -348,8 +349,7 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     bool syncCreated = mTextureDependencyChecker.MarkFramebufferTextureRead(currentSurfaceContext);
 
     // Create sync for next frame native texture.
-    GLES::Framebuffer* framebuffer = renderTarget->GetFramebuffer();
-    syncCreated |= mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext, framebuffer);
+    syncCreated |= mTextureDependencyChecker.CreateNativeTextureSync(currentSurfaceContext);
 
     if(syncCreated)
     {
@@ -1039,13 +1039,13 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
           mGraphics->ActivateResourceContext();
         }
 
-        mCurrentContext->BeginRenderPass(descriptor, mTextureDependencyChecker);
+        mCurrentContext->BeginRenderPass(descriptor, mTextureDependencyChecker, cmd.beginRenderPass.isFirstRenderPass);
 
         break;
       }
       case GLES::CommandType::END_RENDERPASS:
       {
-        mCurrentContext->EndRenderPass(mTextureDependencyChecker);
+        mCurrentContext->EndRenderPass(mTextureDependencyChecker, cmd.endRenderPass.isLastRenderPass);
 
         // This sync object is to enable cpu to wait for rendering to complete, not gpu.
         // It's only needed for reading the framebuffer texture in the client.

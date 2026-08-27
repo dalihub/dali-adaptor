@@ -590,10 +590,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         needDraw = false;
       }
 
-      GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
-
       // Must call it after Prepare(), and must cache even if prepare failed.
-      dependencyChecker.MarkNativeTexturePrepared(this, framebuffer, texture);
+      dependencyChecker.MarkNativeTexturePrepared(this, texture);
     }
 
     if(programChanged)
@@ -1089,7 +1087,7 @@ void Context::ResolveStandaloneUniforms(const UniformBufferBindingDescriptor& st
   }
 }
 
-void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, GLES::TextureDependencyChecker& dependencyChecker)
+void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, GLES::TextureDependencyChecker& dependencyChecker, bool createSyncObject)
 {
   auto* gl = mImpl->GetGL();
   if(DALI_UNLIKELY(!gl)) // Early out if no gl
@@ -1111,6 +1109,13 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, 
     // who read the attached texture of this framebuffer.
     // Must be called before bind framebuffer.
     dependencyChecker.CheckFramebufferNeedsSync(this, framebuffer);
+
+    // Prepare forward dependency sync check. All framebuffers will share
+    // the same sync objects until AllocateForwardDependencySync() called.
+    if(createSyncObject)
+    {
+      dependencyChecker.PrepareForwardDependencySync(this);
+    }
 
     framebuffer->Bind();
   }
@@ -1187,7 +1192,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, 
   mImpl->mCurrentRenderTarget = &renderTarget;
 }
 
-void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
+void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker, bool createSyncObject)
 {
   // Unbind all used texture first.
   UnbindCachedTextures();
@@ -1211,8 +1216,13 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
        */
       dependencyChecker.AddTextures(this, framebuffer);
 
-      // Need to call glFlush or eglSwapBuffer after create sync object.
-      gl->Flush();
+      if(createSyncObject)
+      {
+        dependencyChecker.AllocateForwardDependencySync(this);
+
+        // Need to call glFlush or eglSwapBuffer after create sync object.
+        gl->Flush();
+      }
 
       framebuffer->InvalidateDepthStencilRenderBuffers();
 

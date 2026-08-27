@@ -147,11 +147,35 @@ void TextureDependencyChecker::Reset()
   mForwardDependencies.clear();
 
   // Reset all native texture's state as prepared
-  for(auto& iter : mNativeTextureDependencies)
+  if(DALI_UNLIKELY(!mNativeTextureDependencies.empty()))
   {
-    const_cast<GLES::Texture*>(iter.second)->ResetPrepare();
+    NativeTextureSet errorTextureSet;
+    for(auto& iter : mNativeTextureDependencies)
+    {
+      auto& textureSet = iter.second;
+      for(const auto* texture : textureSet)
+      {
+        errorTextureSet.insert(texture);
+      }
+    }
+
+    for(const auto* texture : errorTextureSet)
+    {
+      // Ensure to call ResetPrepare() one more time if CreateNativeTextureSync() not be called.
+      const_cast<GLES::Texture*>(texture)->ResetPrepare();
+      mUsedNativeTextureSet.insert(texture);
+    }
+
+    decltype(mNativeTextureDependencies)().swap(mNativeTextureDependencies); // Clear the map and free memory
   }
-  mNativeTextureDependencies.clear();
+  if(!mUsedNativeTextureSet.empty())
+  {
+    for(const auto* texture : mUsedNativeTextureSet)
+    {
+      const_cast<GLES::Texture*>(texture)->ResetPrepare();
+    }
+    decltype(mUsedNativeTextureSet)().swap(mUsedNativeTextureSet); // Clear the set and free memory
+  }
 
   // Free sync objects from previous frame's read texture dependencies
   FreeAllBackwardSyncObjectSyncs(mController, mBackwardDependencies[mPrevFrameIndex]);
@@ -206,20 +230,24 @@ void TextureDependencyChecker::InvalidateContext(const GLES::Context* invalidate
 
   // Invalidate native texture dependencies
   // Make CreateNativeTextureSync() "do not" create a new sync object.
-  for(auto& iter : mNativeTextureDependencies)
-  {
-    if(iter.first.first == invalidatedContext)
-    {
-      iter.first.first = nullptr;
-    }
-  }
+  mNativeTextureDependencies.erase(invalidatedContext);
+}
+
+///< FBO write -> Surface read synchronization (Forward)
+
+void TextureDependencyChecker::PrepareForwardDependencySync(const GLES::Context* writeContext)
+{
+  mForwardDependencies.emplace_back();
+  auto& forwardDependency        = mForwardDependencies.back();
+  forwardDependency.writeContext = const_cast<GLES::Context*>(writeContext);
 }
 
 void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, const GLES::Framebuffer* framebuffer)
 {
-  uint32_t index = static_cast<uint32_t>(mForwardDependencies.size());
-  mForwardDependencies.emplace_back();
-  auto& textureDependency = mForwardDependencies.back();
+  DALI_ASSERT_ALWAYS(mForwardDependencies.size() > 0u && "PrepareForwardDependencySync() must be called before AddTextures()");
+  auto& forwardDependency = mForwardDependencies.back();
+  DALI_ASSERT_ALWAYS(forwardDependency.writeContext == writeContext && "Context mismatch in AddTextures()");
+  uint32_t index = static_cast<uint32_t>(mForwardDependencies.size()) - 1u;
 
   // Collect all textures attached to the framebuffer (color, depth, stencil)
   for(int i = 0; i < 3; ++i)
@@ -244,22 +272,27 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
     }
     if(texture != nullptr)
     {
-      textureDependency.textures.push_back(texture);
+      forwardDependency.textures.push_back(texture);
       texture->SetDependencyIndex(index);
     }
   }
-  textureDependency.writeContext = const_cast<GLES::Context*>(writeContext);
-  textureDependency.framebuffer  = const_cast<GLES::Framebuffer*>(framebuffer);
+}
+
+void TextureDependencyChecker::AllocateForwardDependencySync(const GLES::Context* writeContext)
+{
+  DALI_ASSERT_ALWAYS(mForwardDependencies.size() > 0u && "PrepareForwardDependencySync() must be called before AddTextures()");
+  auto& forwardDependency = mForwardDependencies.back();
+  DALI_ASSERT_ALWAYS(forwardDependency.writeContext == writeContext && "Context mismatch in AllocateForwardDependencySync()");
 
   // Allocate sync object for cross-context synchronization
   // The shared resource context writes to FBOs, but they are drawn on separate scene contexts
   DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
-  textureDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
+  forwardDependency.agingSyncObjectId = mController.GetSyncPool().AllocateSyncObject(
     writeContext,
     GetTextureDependencySyncContext(mController));
 
   // For native image texture
-  CreateNativeTextureSync(writeContext, framebuffer);
+  CreateNativeTextureSync(writeContext);
 }
 
 void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture, bool cpu)
@@ -299,6 +332,8 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
     }
   }
 }
+
+///< Surface read -> FBO write next frame synchronization (Backward)
 
 bool TextureDependencyChecker::MarkFramebufferTextureRead(const Context* readContext)
 {
@@ -365,30 +400,32 @@ void TextureDependencyChecker::CheckFramebufferNeedsSync(const Context* writeCon
   }
 }
 
-void TextureDependencyChecker::MarkNativeTexturePrepared(const Context* context, const Framebuffer* framebuffer, const GLES::Texture* texture)
+///< NativeTexture dependency checker
+
+void TextureDependencyChecker::MarkNativeTexturePrepared(const Context* context, const GLES::Texture* texture)
 {
   if(DALI_LIKELY(texture->IsNativeTexture()))
   {
-    mNativeTextureDependencies.push_back({{context, framebuffer}, texture});
+    mNativeTextureDependencies[context].insert(texture);
   }
 }
 
-bool TextureDependencyChecker::CreateNativeTextureSync(const Context* context, const Framebuffer* framebuffer)
+bool TextureDependencyChecker::CreateNativeTextureSync(const Context* context)
 {
   bool syncCreated = false;
-  auto iter        = mNativeTextureDependencies.begin();
-  while(iter != mNativeTextureDependencies.end())
+
+  auto iter = mNativeTextureDependencies.find(context);
+  if(iter != mNativeTextureDependencies.end())
   {
-    iter = std::find_if(iter, mNativeTextureDependencies.end(),
-                        [&](const std::pair<NativeTextureDependencyKey, const Texture*>& p)
-    { return p.first.first == context && p.first.second == framebuffer; });
-    if(iter != mNativeTextureDependencies.end())
+    for(const auto* texture : iter->second)
     {
-      const_cast<GLES::Texture*>(iter->second)->ResetPrepare();
+      const_cast<GLES::Texture*>(texture)->ResetPrepare();
       syncCreated = true;
-      ++iter;
+      mUsedNativeTextureSet.insert(texture);
     }
+    mNativeTextureDependencies.erase(iter);
   }
+
   return syncCreated;
 }
 
@@ -396,17 +433,16 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
 {
   if(texture->IsNativeTexture())
   {
-    auto iter = mNativeTextureDependencies.begin();
-    while(iter != mNativeTextureDependencies.end())
+    for(auto& iter : mNativeTextureDependencies)
     {
-      iter = std::find_if(iter, mNativeTextureDependencies.end(),
-                          [&](const std::pair<NativeTextureDependencyKey, const Texture*>& p)
-      { return p.second == texture; });
-      if(iter != mNativeTextureDependencies.end())
+      auto& textureSet = iter.second;
+      auto  setIter    = textureSet.find(texture);
+      if(setIter != textureSet.end())
       {
-        iter = mNativeTextureDependencies.erase(iter);
+        textureSet.erase(setIter);
       }
     }
+    mUsedNativeTextureSet.erase(texture);
   }
 }
 } //namespace DALI_NAMESPACE::Graphics::GLES

@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <unordered_map>
+#include <unordered_set>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
@@ -82,12 +83,29 @@ public:
 
 public: ///< FBO write -> Surface read synchronization (Forward)
   /**
+   * @brief Prepare for a new FBO write -> Surface read dependency.
+   * Call this at the start of a render pass to a framebuffer.
+   *
+   * @post AllocateForwardDependencySync() must be called at the end of all render pass to create the sync object.
+   * @param[in] writeContext The context that will be writing to the framebuffer
+   */
+  void PrepareForwardDependencySync(const GLES::Context* writeContext);
+
+  /**
    * Add Texture dependencies
    *
    * @param[in] writeContext The context of the framebuffer's render pass
    * @param[in] framebuffer The framebuffer to collect textures from
    */
   void AddTextures(const Context* writeContext, const Framebuffer* framebuffer);
+
+  /**
+   * Allocate the sync object for a previously registered framebuffer dependency.
+   *
+   * @pre PrepareForwardDependencySync() must have been called at the start of the render pass.
+   * @param[in] writeContext The context of the framebuffer's render pass
+   */
+  void AllocateForwardDependencySync(const GLES::Context* writeContext);
 
   /**
    * Check if the given texture needs syncing before being read.  This
@@ -129,13 +147,13 @@ public: ///< NativeTexture dependency checker
   /**
    * @brief Add prepared native image texture to dependency list
    */
-  void MarkNativeTexturePrepared(const Context* context, const Framebuffer* framebuffer, const Texture* texture);
+  void MarkNativeTexturePrepared(const Context* context, const Texture* texture);
 
   /**
-   * @brief Create a sync for the native image texture
+   * @brief Create a sync for the native image texture.
    * @return True if sync object created.
    */
-  bool CreateNativeTextureSync(const Context* context, const Framebuffer* framebuffer);
+  bool CreateNativeTextureSync(const Context* context);
 
 private:
   /**
@@ -169,8 +187,8 @@ public:                          // Type definitions. Make it public so unnamed 
   using BackwardDependenciesList = std::vector<FramebufferTextureBackwardDependency>;
   using BackwardDependenciesMap  = std::unordered_map<const GLES::Texture*, BackwardDependenciesList>;
 
-  using NativeTextureDependencyKey    = std::pair<const Context*, const Framebuffer*>;
-  using NativeTextureDependenciesList = std::vector<std::pair<NativeTextureDependencyKey, const Texture*>>;
+  using NativeTextureSet              = std::unordered_set<const Texture*>;
+  using NativeTextureDependenciesList = std::unordered_map<const Context*, NativeTextureSet>;
 
 private:
   // Single-buffered map: track wrote textures at current frame to sync subsequent Surface read.
@@ -184,6 +202,7 @@ private:
   BackwardDependenciesMap mBackwardDependencies[2];
 
   NativeTextureDependenciesList mNativeTextureDependencies;
+  NativeTextureSet              mUsedNativeTextureSet;
 
   EglGraphicsController& mController;
 

@@ -138,7 +138,7 @@ public:
    *
    * @param[in] renderPass render pass object to begin
    */
-  void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, TextureDependencyChecker& dependencyChecker);
+  void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin, TextureDependencyChecker& dependencyChecker, bool createSyncObject);
 
   /**
    * @brief Ends render pass
@@ -146,7 +146,7 @@ public:
    * Ending render pass is necessary in order to ensure
    * proper explicit synchronization is in place
    */
-  void EndRenderPass(TextureDependencyChecker& checker);
+  void EndRenderPass(TextureDependencyChecker& checker, bool createSyncObject);
 
   /**
    * @brief Request to read pixels

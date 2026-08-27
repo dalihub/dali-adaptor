@@ -972,6 +972,32 @@ public:
     return mUseProgramBinary;
   }
 
+  /**
+   * @brief Increases the command buffer depth counter
+   */
+  void IncreaseCommandBufferDepth()
+  {
+    ++mCommandBufferDepth;
+  }
+
+  /**
+   * @brief Decreases the command buffer depth counter
+   */
+  void DecreaseCommandBufferDepth()
+  {
+    DALI_ASSERT_ALWAYS(mCommandBufferDepth > 0 && "Command buffer depth could not be negative");
+    --mCommandBufferDepth;
+  }
+
+  /**
+   * @brief Get the command buffer depth counter
+   * @return The current command buffer depth
+   */
+  uint32_t GetCommandBufferDepth() const
+  {
+    return mCommandBufferDepth;
+  }
+
   const Matrix& GetClipMatrix(const RenderTarget* renderTarget) const override;
 
   uint32_t GetDeviceLimitation(Dali::Graphics::DeviceCapability capability) override;
@@ -1046,24 +1072,26 @@ private:
 
   struct DeferredNativeImageRelease
   {
-    std::vector<Graphics::UniquePtr<GLES::SyncObject>> syncs;
-    std::function<void()> releaseCallback;
-    const void*           nativeImage{nullptr};
-    const void*           nativeSurface{nullptr};
-    std::function<void()> errorCallback;
-    std::function<void()> discardCallback;
-    bool                  firstPoll{true};
-    bool                  waitFailed{false};
+    std::vector<Graphics::UniquePtr<GLES::SyncObject>> syncs{};
+    std::function<void()>                              releaseCallback;
+    const void*                                        nativeImage{nullptr};
+    const void*                                        nativeSurface{nullptr};
+    std::function<void()>                              errorCallback;
+    std::function<void()>                              discardCallback;
+    bool                                               firstPoll{true};
+    bool                                               waitFailed{false};
   };
 
-  std::vector<DeferredNativeImageRelease> mDeferredNativeImageReleases;
+  std::vector<DeferredNativeImageRelease> mDeferredNativeImageReleases{};
 
   struct NativeImageResourceSync
   {
-    const GLES::Context* context{nullptr};
-    Graphics::UniquePtr<GLES::SyncObject> sync;
+    const GLES::Context*                  context{nullptr};
+    Graphics::UniquePtr<GLES::SyncObject> sync{nullptr};
   };
-  std::unordered_map<const void*, std::vector<NativeImageResourceSync>> mNativeImageResourceSyncs;
+  std::unordered_map<const void*, std::vector<NativeImageResourceSync>> mNativeImageResourceSyncs{};
+
+  uint32_t mCommandBufferDepth{0u}; ///< Depth of the command buffer. Increase at CommandBuffer::Begin(), and Decrease at CommandBuffer::End().
 
   bool mResourceInitializeFailed : 1;
   bool mUseProgramBinary : 1;
