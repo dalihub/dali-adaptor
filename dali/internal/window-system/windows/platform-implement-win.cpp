@@ -82,101 +82,57 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 namespace
 {
-const char* DALI_WINDOW_CLASS_NAME             = "DaliWindow";
-const char* DALI_TRANSPARENT_WINDOW_CLASS_NAME = "DaliTransparentWindow";
+const char* DALI_WINDOW_CLASS_NAME = "DaliWindow";
 
-bool                                sWindowClassRegistered            = false;
-bool                                sWindowClassOwned                 = false;
-bool                                sTransparentWindowClassRegistered = false;
-bool                                sTransparentWindowClassOwned      = false;
+bool                                sWindowClassRegistered = false;
+bool                                sWindowClassOwned      = false;
 std::unordered_set<WinWindowHandle> sOwnedWindows;
 
-bool RegisterDaliWindowClass(const char* className, UINT classStyle, bool& registered, bool& owned)
+bool EnsureWindowClassRegistered()
 {
-  if(registered)
+  if(!sWindowClassRegistered)
   {
-    return true;
-  }
+    WNDCLASSA cs{};
+    cs.cbClsExtra    = 0;
+    cs.cbWndExtra    = 0;
+    cs.hbrBackground = nullptr;
+    cs.hCursor       = LoadCursor(nullptr, IDC_ARROW);
+    cs.hIcon         = NULL;
+    cs.hInstance     = GetModuleHandleA(nullptr);
+    cs.lpfnWndProc   = WinProc;
+    cs.lpszClassName = DALI_WINDOW_CLASS_NAME;
+    cs.lpszMenuName  = NULL;
+    cs.style         = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
 
-  WNDCLASSA cs{};
-  cs.cbClsExtra    = 0;
-  cs.cbWndExtra    = 0;
-  cs.hbrBackground = nullptr;
-  cs.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-  cs.hIcon         = NULL;
-  cs.hInstance     = GetModuleHandleA(nullptr);
-  cs.lpfnWndProc   = WinProc;
-  cs.lpszClassName = className;
-  cs.lpszMenuName  = NULL;
-  cs.style         = classStyle;
-
-  if(RegisterClassA(&cs) == 0)
-  {
-    const DWORD error = GetLastError();
-    if(error != ERROR_CLASS_ALREADY_EXISTS)
+    if(RegisterClassA(&cs) == 0)
     {
-      DALI_LOG_ERROR("Failed to register DALi window class %s, error %lu\n", className, static_cast<unsigned long>(error));
-      return false;
-    }
+      const DWORD error = GetLastError();
+      if(error != ERROR_CLASS_ALREADY_EXISTS)
+      {
+        DALI_LOG_ERROR("Failed to register DALi window class, error %lu\n", static_cast<unsigned long>(error));
+        return false;
+      }
 
-    WNDCLASSA existingClass{};
-    if(!GetClassInfoA(cs.hInstance, className, &existingClass) || existingClass.lpfnWndProc != WinProc)
+      WNDCLASSA existingClass{};
+      if(!GetClassInfoA(cs.hInstance, DALI_WINDOW_CLASS_NAME, &existingClass) || existingClass.lpfnWndProc != WinProc)
+      {
+        DALI_LOG_ERROR("A different Win32 class is already registered as %s\n", DALI_WINDOW_CLASS_NAME);
+        return false;
+      }
+      sWindowClassOwned = false;
+    }
+    else
     {
-      DALI_LOG_ERROR("A different Win32 class is already registered as %s\n", className);
-      return false;
+      sWindowClassOwned = true;
     }
-    owned = false;
+    sWindowClassRegistered = true;
   }
-  else
-  {
-    owned = true;
-  }
-
-  registered = true;
   return true;
-}
-
-bool EnsureWindowClassRegistered(bool transparent)
-{
-  // Layered windows cannot use a class registered with CS_OWNDC. Keep the
-  // established class for normal EGL windows and register a compatible class
-  // for the transparent presentation path.
-  return RegisterDaliWindowClass(DALI_WINDOW_CLASS_NAME,
-                                 CS_VREDRAW | CS_HREDRAW | CS_OWNDC,
-                                 sWindowClassRegistered,
-                                 sWindowClassOwned) &&
-         (!transparent ||
-          RegisterDaliWindowClass(DALI_TRANSPARENT_WINDOW_CLASS_NAME,
-                                  CS_VREDRAW | CS_HREDRAW,
-                                  sTransparentWindowClassRegistered,
-                                  sTransparentWindowClassOwned));
 }
 
 void EnsureWindowClassUnregistered()
 {
-  if(!sOwnedWindows.empty())
-  {
-    return;
-  }
-
-  if(sTransparentWindowClassRegistered && sTransparentWindowClassOwned)
-  {
-    if(UnregisterClassA(DALI_TRANSPARENT_WINDOW_CLASS_NAME, GetModuleHandleA(nullptr)) == 0)
-    {
-      const DWORD error = GetLastError();
-      if(error != ERROR_CLASS_HAS_WINDOWS)
-      {
-        DALI_LOG_ERROR("Failed to unregister DALi transparent window class, error %lu\n", static_cast<unsigned long>(error));
-      }
-    }
-    else
-    {
-      sTransparentWindowClassRegistered = false;
-      sTransparentWindowClassOwned      = false;
-    }
-  }
-
-  if(sWindowClassRegistered && sWindowClassOwned)
+  if(sWindowClassRegistered && sWindowClassOwned && sOwnedWindows.empty())
   {
     if(UnregisterClassA(DALI_WINDOW_CLASS_NAME, GetModuleHandleA(nullptr)) == 0)
     {
@@ -381,26 +337,23 @@ WinWindowHandle WindowImpl::CreateHwnd(
   int             Y,
   int             nWidth,
   int             nHeight,
-  WinWindowHandle parent,
-  bool            transparent)
+  WinWindowHandle parent)
 {
-  if(!EnsureWindowClassRegistered(transparent && parent == 0u))
+  if(!EnsureWindowClassRegistered())
   {
     return 0;
   }
 
   const HWND  parentWindow = reinterpret_cast<HWND>(parent);
   const DWORD style        = parentWindow ? (WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN) : STYLE;
-  const DWORD exStyle      = transparent && !parentWindow ? WS_EX_LAYERED : 0u;
-  const char* className    = transparent && !parentWindow ? DALI_TRANSPARENT_WINDOW_CLASS_NAME : DALI_WINDOW_CLASS_NAME;
   RECT        windowRect   = {0, 0, (std::max)(nWidth, 1), (std::max)(nHeight, 1)};
-  if(!AdjustWindowRectEx(&windowRect, style, FALSE, exStyle))
+  if(!AdjustWindowRectEx(&windowRect, style, FALSE, 0))
   {
     DALI_LOG_ERROR("Failed to calculate DALi window frame, error %lu\n", static_cast<unsigned long>(GetLastError()));
   }
 
-  HWND hWnd = CreateWindowExA(exStyle,
-                              className,
+  HWND hWnd = CreateWindowExA(0,
+                              DALI_WINDOW_CLASS_NAME,
                               lpWindowName ? lpWindowName : "DALi",
                               style,
                               X,
@@ -421,16 +374,6 @@ WinWindowHandle WindowImpl::CreateHwnd(
 
   const auto handle = reinterpret_cast<WinWindowHandle>(hWnd);
   sOwnedWindows.insert(handle);
-
-  if(transparent && !parentWindow && !SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 0, LWA_COLORKEY))
-  {
-    const DWORD error = GetLastError();
-    DALI_LOG_ERROR("Failed to set DALi layered-window color key, error %lu\n", static_cast<unsigned long>(error));
-    ::DestroyWindow(hWnd);
-    sOwnedWindows.erase(handle);
-    EnsureWindowClassUnregistered();
-    return 0;
-  }
   return handle;
 }
 
@@ -476,41 +419,6 @@ bool WindowImpl::PostWinMessage(
   return PostMessage(reinterpret_cast<HWND>(mHWnd), Msg, static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam)) != FALSE;
 }
 
-bool WindowImpl::SetTransparency(bool transparent)
-{
-  // Host-owned HWNDs may have their own composition policy. The initial
-  // implementation only changes windows created and owned by DALi.
-  if(mHWnd == 0 || mIsExternalWindow)
-  {
-    return false;
-  }
-
-  HWND window = reinterpret_cast<HWND>(mHWnd);
-  if(!IsWindow(window))
-  {
-    return false;
-  }
-
-  SetLastError(ERROR_SUCCESS);
-  const LONG_PTR previousStyle = GetWindowLongPtr(window, GWL_EXSTYLE);
-  if(previousStyle == 0 && GetLastError() != ERROR_SUCCESS)
-  {
-    DALI_LOG_ERROR("Failed to read DALi window style, error %lu\n", static_cast<unsigned long>(GetLastError()));
-    return false;
-  }
-
-  const bool currentlyTransparent = (previousStyle & WS_EX_LAYERED) != 0;
-  if(transparent == currentlyTransparent)
-  {
-    return true;
-  }
-
-  // A layered HWND must be created from the transparent window class, which
-  // intentionally omits CS_OWNDC. Replacing the class of a live HWND is not
-  // supported, so runtime transitions are deferred to a later implementation.
-  DALI_LOG_RELEASE_INFO("Runtime transparency changes are not supported by the Windows backend\n");
-  return false;
-}
 void WindowImpl::SetHWND(WinWindowHandle inHWnd)
 {
   if(mHWnd != inHWnd)
