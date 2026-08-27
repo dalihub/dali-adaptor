@@ -399,7 +399,7 @@ static Eina_Bool EcoreEventRotate(void* data, int type, void* event)
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::EcoreEventRotate\n");
+    DALI_LOG_RELEASE_INFO("rotate event received\n");
     windowBase->OnRotation(data, type, event);
   }
   return ECORE_CALLBACK_PASS_ON;
@@ -1018,7 +1018,7 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
     }
     catch(std::bad_weak_ptr const& ex)
     {
-      DALI_LOG_ERROR("WindowBaseEcoreWl2::~WindowBaseEcoreWl2() - window (%p) std::bad_weak_ptr caught: %s\n", mEcoreWindow, ex.what());
+      DALI_LOG_ERROR("- window (%p) std::bad_weak_ptr caught: %s\n", mEcoreWindow, ex.what());
     }
   }
 }
@@ -1178,19 +1178,19 @@ Eina_Bool WindowBaseEcoreWl2::OnIconifyStateChanged(void* data, int type, void* 
   {
     if(iconifyChangedEvent->iconified == EINA_TRUE)
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIconifyStateChanged, the window (%p) is iconified\n", mEcoreWindow);
+      DALI_LOG_RELEASE_INFO("the window (%p) is iconified\n", mEcoreWindow);
       mIconifyChangedSignal.Emit(true);
     }
     else
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIconifyStateChanged, the window (%p) is not iconified\n", mEcoreWindow);
+      DALI_LOG_RELEASE_INFO("the window (%p) is not iconified\n", mEcoreWindow);
       mIconifyChangedSignal.Emit(false);
     }
     handled = ECORE_CALLBACK_DONE;
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIconifyStateChanged, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), iconifyChangedEvent->win);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), iconifyChangedEvent->win);
   }
 
   return handled;
@@ -1202,13 +1202,13 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusIn(void* data, int type, void* event)
 
   if(focusInEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusIn, Window (%p) EcoreEventWindowFocusIn\n", mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("Window (%p) EcoreEventWindowFocusIn\n", mEcoreWindow);
 
     mFocusChangedSignal.Emit(true);
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusIn, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusInEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusInEvent->window);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1220,13 +1220,13 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusOut(void* data, int type, void* event)
 
   if(focusOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusOut, Window (%p) EcoreEventWindowFocusOut\n", mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("Window (%p) EcoreEventWindowFocusOut\n", mEcoreWindow);
 
     mFocusChangedSignal.Emit(false);
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusOut, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusOutEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), focusOutEvent->window);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1238,16 +1238,16 @@ Eina_Bool WindowBaseEcoreWl2::OnOutputTransform(void* data, int type, void* even
 
   if(transformEvent->output == ecore_wl2_window_output_find(mEcoreWindow) && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
+    DALI_LOG_RELEASE_INFO("occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
     if(UpdateScreenRotationAngle())
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
+      DALI_LOG_RELEASE_INFO("Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
       mOutputTransformedSignal.Emit(mScreenRotationAngle);
     }
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window (%p) but output not matched\n", mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("Window (%p) but output not matched\n", mEcoreWindow);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1259,16 +1259,16 @@ Eina_Bool WindowBaseEcoreWl2::OnIgnoreOutputTransform(void* data, int type, void
 
   if(ignoreTransformEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
+    DALI_LOG_RELEASE_INFO("occurs, Window(%p), WindowId(%d)\n", mEcoreWindow, GetNativeWindowId());
     if(UpdateScreenRotationAngle())
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
+      DALI_LOG_RELEASE_INFO("Window(%p), WindowId(%d) EcoreEventOutputTransform, angle(%d)\n", mEcoreWindow, GetNativeWindowId(), mScreenRotationAngle);
       mOutputTransformedSignal.Emit(mScreenRotationAngle);
     }
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window (%p) id(%u) and input (%p) comes\n", mEcoreWindow, ignoreTransformEvent->win);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%p) comes\n", mEcoreWindow, static_cast<unsigned int>(GetNativeWindowId()), ignoreTransformEvent->win);
   }
 
   return ECORE_CALLBACK_PASS_ON;
@@ -1280,7 +1280,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
 
   if(ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnRotation, Window (%p), angle: %d, width: %d, height: %d\n", mEcoreWindow, ev->angle, ev->w, ev->h);
+    DALI_LOG_RELEASE_INFO("Window (%p), angle: %d, width: %d, height: %d\n", mEcoreWindow, ev->angle, ev->w, ev->h);
 
     RotationEvent rotationEvent;
     rotationEvent.angle     = ev->angle;
@@ -1314,7 +1314,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnRotation, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
   }
 }
 
@@ -1356,7 +1356,7 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
       mWindowPositionSize.y      = ev->y;
       mWindowPositionSize.width  = newWidth;
       mWindowPositionSize.height = newHeight;
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnConfiguration, Window (%p), Update position & resize signal by Ecore, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mEcoreWindow, mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+      DALI_LOG_RELEASE_INFO("Window (%p), Update position & resize signal by Ecore, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mEcoreWindow, mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
       ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
@@ -1370,7 +1370,7 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
   }
   else if(ev)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnConfiguration, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), ev->win);
   }
 }
 
@@ -1423,7 +1423,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseButtonDown, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
   }
 }
 
@@ -1463,7 +1463,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseButtonUp, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
   }
 }
 
@@ -1502,7 +1502,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseButtonMove, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
   }
 }
 
@@ -1518,7 +1518,7 @@ void WindowBaseEcoreWl2::OnMouseFrame(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseFrame, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseFrameEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseFrameEvent->window);
   }
 }
 #endif
@@ -1544,7 +1544,7 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseButtonRelativeMove, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), relativeMoveEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), relativeMoveEvent->window);
   }
 }
 #endif
@@ -1580,7 +1580,7 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseButtonCancel, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), touchEvent->window);
   }
 }
 
@@ -1593,13 +1593,13 @@ void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_POINTER_CONSTRAINTS");
     Dali::Int32Pair position(constraintsEvent->x, constraintsEvent->y);
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnPointerConstraints[%d, %d]\n", position.GetX(), position.GetY());
+    DALI_LOG_RELEASE_INFO("[%d, %d]\n", position.GetX(), position.GetY());
 
     mPointerConstraintsSignal.Emit(position, constraintsEvent->locked, constraintsEvent->confined);
   }
   else if(constraintsEvent)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnPointerConstraints, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)), constraintsEvent->win);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)), constraintsEvent->win);
   }
 }
 #endif
@@ -1620,7 +1620,7 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseWheel, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseWheelEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseWheelEvent->window);
   }
 }
 
@@ -1661,7 +1661,7 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::M
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMouseInOut, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseInOutEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), mouseInOutEvent->window);
   }
 }
 
@@ -1669,7 +1669,7 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
 {
   Ecore_Event_Detent_Rotate* detentEvent = static_cast<Ecore_Event_Detent_Rotate*>(event);
 
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnDetentRotation, Window (%p)\n", mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("Window (%p)\n", mEcoreWindow);
   if(Dali::Adaptor::IsAvailable())
   {
     int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
@@ -1772,7 +1772,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnKeyDown, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
   }
 }
 
@@ -1868,7 +1868,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
   }
   else
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnKeyUp, Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
+    DALI_LOG_RELEASE_INFO("Window (%p) id(%u) and input (%u) comes\n", mEcoreWindow, static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)), keyEvent->window);
   }
 }
 
@@ -1906,7 +1906,7 @@ void WindowBaseEcoreWl2::OnFontSizeChanged()
 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnTransitionEffectEvent, Window (%p)\n", mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("Window (%p)\n", mEcoreWindow);
 
   if(Dali::Adaptor::IsAvailable())
   {
@@ -1929,7 +1929,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
     Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
     if(message)
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), key:%s, value:%s \n", mEcoreWindow, message->key, message->val);
+      DALI_LOG_RELEASE_INFO("Window (%p), key:%s, value:%s \n", mEcoreWindow, message->key, message->val);
       std::string           key(message->key);
       std::string           value(message->val);
       Dali::Property::Array options;
@@ -1940,7 +1940,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
         void*      data;
         EINA_LIST_FOREACH(message->options, l, data)
         {
-          DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), option: %s\n", mEcoreWindow, (char*)data);
+          DALI_LOG_RELEASE_INFO("Window (%p), option: %s\n", mEcoreWindow, (char*)data);
           String option(static_cast<char*>(data));
           options.Add(option);
         }
@@ -2076,7 +2076,7 @@ void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
 
     mWindowPositionSize.x = orgPositionSize.x;
     mWindowPositionSize.y = orgPositionSize.y;
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMoveCompleted, window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
+    DALI_LOG_RELEASE_INFO("window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
     mMoveCompletedSignal.Emit(newPosition);
   }
 }
@@ -2092,7 +2092,7 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
 
     mWindowPositionSize.width  = orgPositionSize.width;
     mWindowPositionSize.height = orgPositionSize.height;
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnResizeCompleted, window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
+    DALI_LOG_RELEASE_INFO("window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
     mResizeCompletedSignal.Emit(newSize);
   }
 }
@@ -2260,7 +2260,7 @@ void WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone(void* data, struct ti
 
 void WindowBaseEcoreWl2::GetKeyCode(std::string keyName, int32_t& keyCode)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetKeyCode");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   xkb_keysym_t sym = XKB_KEY_NoSymbol;
   KeyCodeMap   foundKeyCode;
 
@@ -2692,33 +2692,46 @@ void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, u
 
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
 {
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_title_set/class_set, name: %s, className: %s\n", name.c_str(), className.c_str());
   ecore_wl2_window_title_set(mEcoreWindow, name.c_str());
   ecore_wl2_window_class_set(mEcoreWindow, className.c_str());
 }
 
 void WindowBaseEcoreWl2::Raise()
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
   // Use ecore_wl2_window_activate to prevent the window shown without rendering
-  ecore_wl2_window_activate(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_activate\n");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
+    ecore_wl2_window_activate(mEcoreWindow);
+  }
 }
 
 void WindowBaseEcoreWl2::Lower()
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_lower");
-  ecore_wl2_window_lower(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_lower\n");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_lower");
+    ecore_wl2_window_lower(mEcoreWindow);
+  }
 }
 
 void WindowBaseEcoreWl2::Activate()
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
-  ecore_wl2_window_activate(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_activate\n");
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_activate");
+    ecore_wl2_window_activate(mEcoreWindow);
+  }
 }
 
 void WindowBaseEcoreWl2::Maximize(bool maximize)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximized_set");
-  ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximized_set, maximize: %d\n", maximize);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_maximized_set");
+    ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
+  }
 }
 
 void WindowBaseEcoreWl2::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
@@ -2754,8 +2767,11 @@ void WindowBaseEcoreWl2::SetMaximumSize(Dali::Window::WindowSize size)
 
 void WindowBaseEcoreWl2::Minimize(bool minimize)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_iconified_set");
-  ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_iconified_set, minimize: %d\n", minimize);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_iconified_set");
+    ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
+  }
 }
 
 bool WindowBaseEcoreWl2::IsMinimized() const
@@ -2779,7 +2795,7 @@ void WindowBaseEcoreWl2::SetMinimumSize(Dali::Window::WindowSize size)
 void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
 {
   int rotations[4] = {0};
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetAvailableAnlges, angle's count: %d, angles\n", angles.size());
+  DALI_LOG_RELEASE_INFO("angle's count: %d, angles\n", angles.size());
   for(std::size_t i = 0; i < angles.size(); ++i)
   {
     rotations[i] = static_cast<int>(angles[i]);
@@ -2792,19 +2808,24 @@ void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
 
 void WindowBaseEcoreWl2::SetPreferredAngle(int angle)
 {
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle);
+  DALI_LOG_RELEASE_INFO("angle: %d\n", angle);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_preferred_rotation_set");
   ecore_wl2_window_preferred_rotation_set(mEcoreWindow, angle);
 }
 
 void WindowBaseEcoreWl2::SetAcceptFocus(bool accept)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_focus_skip_set");
-  ecore_wl2_window_focus_skip_set(mEcoreWindow, !accept);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_focus_skip_set, accept: %d\n", accept);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_focus_skip_set");
+    ecore_wl2_window_focus_skip_set(mEcoreWindow, !accept);
+  }
 }
 
 void WindowBaseEcoreWl2::Show()
 {
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_show, was visible: %d, geometry: (%d, %d) [%d x %d]\n", mVisible, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+
   if(!mVisible)
   {
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_geometry_set");
@@ -2818,6 +2839,8 @@ void WindowBaseEcoreWl2::Show()
 
 void WindowBaseEcoreWl2::Hide()
 {
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_hide, was visible: %d\n", mVisible);
+
   mVisible = false;
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_hide");
@@ -2983,43 +3006,43 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
     {
       case Dali::WindowType::NORMAL:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::NORMAL\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::NORMAL\n");
         windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
         break;
       }
       case Dali::WindowType::NOTIFICATION:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::NOTIFICATION\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::NOTIFICATION\n");
         windowType = ECORE_WL2_WINDOW_TYPE_NOTIFICATION;
         break;
       }
       case Dali::WindowType::UTILITY:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::UTILITY\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::UTILITY\n");
         windowType = ECORE_WL2_WINDOW_TYPE_UTILITY;
         break;
       }
       case Dali::WindowType::DIALOG:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::DIALOG\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::DIALOG\n");
         windowType = ECORE_WL2_WINDOW_TYPE_DIALOG;
         break;
       }
       case Dali::WindowType::IME:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::IME\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::IME\n");
         windowType = ECORE_WL2_WINDOW_TYPE_NONE;
         break;
       }
       case Dali::WindowType::DESKTOP:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::DESKTOP\n");
+        DALI_LOG_RELEASE_INFO("Dali::WindowType::DESKTOP\n");
         windowType = ECORE_WL2_WINDOW_TYPE_DESKTOP;
         break;
       }
       default:
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, default window type\n");
+        DALI_LOG_RELEASE_INFO("default window type\n");
         windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
         break;
       }
@@ -3032,13 +3055,13 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
 
 Dali::WindowType WindowBaseEcoreWl2::GetType() const
 {
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::GetType(), Window (%p), DALI WindType: %d, mIsIMEWindowInitialized: %d\n", mEcoreWindow, mType, mIsIMEWindowInitialized);
+  DALI_LOG_RELEASE_INFO("Window (%p), DALI WindType: %d, mIsIMEWindowInitialized: %d\n", mEcoreWindow, mType, mIsIMEWindowInitialized);
   return mType;
 }
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetNotificationLevel");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3046,7 +3069,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
 
   int notificationLevel;
 
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetNotificationLevel(), Window (%p), level [%d]\n", mEcoreWindow, level);
+  DALI_LOG_RELEASE_INFO("Window (%p), level [%d]\n", mEcoreWindow, level);
   switch(level)
   {
     case Dali::WindowNotificationLevel::NONE:
@@ -3076,7 +3099,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
     }
     default:
     {
-      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetNotificationLevel(), invalid level [%d]\n", level);
+      DALI_LOG_RELEASE_INFO("invalid level [%d]\n", level);
       notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
       break;
     }
@@ -3115,7 +3138,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
 
 Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetNotificationLevel");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3181,7 +3204,9 @@ Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
 
 void WindowBaseEcoreWl2::SetOpaqueState(bool opaque)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetOpaqueState");
+  DALI_LOG_RELEASE_INFO("tizen_policy_set_opaque_state, opaque: %d\n", opaque);
+
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3192,7 +3217,7 @@ void WindowBaseEcoreWl2::SetOpaqueState(bool opaque)
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetScreenOffMode");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3247,7 +3272,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOff
 
 WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetScreenOffMode");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3292,7 +3317,7 @@ WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::SetBrightness");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3331,7 +3356,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 
 int WindowBaseEcoreWl2::GetBrightness() const
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetBrightness");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -3390,14 +3415,24 @@ bool WindowBaseEcoreWl2::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
     }
   }
 
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keygrab_set");
-  return ecore_wl2_window_keygrab_set(mEcoreWindow, KeyLookup::GetKeyName(key), 0, 0, 0, mode);
+  bool result = false;
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keygrab_set");
+    result = ecore_wl2_window_keygrab_set(mEcoreWindow, KeyLookup::GetKeyName(key), 0, 0, 0, mode);
+  }
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_keygrab_set, key: %s, grabMode: %d, result: %d\n", KeyLookup::GetKeyName(key), grabMode, result);
+  return result;
 }
 
 bool WindowBaseEcoreWl2::UngrabKey(Dali::KEY key)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keygrab_unset");
-  return ecore_wl2_window_keygrab_unset(mEcoreWindow, KeyLookup::GetKeyName(key), 0, 0);
+  bool result = false;
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keygrab_unset");
+    result = ecore_wl2_window_keygrab_unset(mEcoreWindow, KeyLookup::GetKeyName(key), 0, 0);
+  }
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_keygrab_unset, key: %s, result: %d\n", KeyLookup::GetKeyName(key), result);
+  return result;
 }
 
 bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
@@ -3409,7 +3444,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   {
     return false;
   }
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GrabKeyList");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
 
   eina_init();
 
@@ -3472,7 +3507,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
       {
         if(static_cast<Ecore_Wl2_Window_Keygrab_Info*>(listData)->key == NULL)
         {
-          DALI_LOG_ERROR("input key list has null data!");
+          DALI_LOG_ERROR("input key list has null data!\n");
           break;
         }
 
@@ -3501,7 +3536,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
   {
     return false;
   }
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::UngrabKeyList");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
 
   eina_init();
 
@@ -3535,7 +3570,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
       {
         if(static_cast<Ecore_Wl2_Window_Keygrab_Info*>(listData)->key == NULL)
         {
-          DALI_LOG_ERROR("input key list has null data!");
+          DALI_LOG_ERROR("input key list has null data!\n");
           break;
         }
 
@@ -3559,7 +3594,7 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
 
 void WindowBaseEcoreWl2::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::GetDpi");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   // calculate DPI
   float xres, yres;
 
@@ -3593,7 +3628,7 @@ bool WindowBaseEcoreWl2::UpdateScreenRotationAngle()
     return 0;
   }
 
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::UpdateScreenRotationAngle");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   if(ecore_wl2_window_ignore_output_transform_get(mEcoreWindow))
   {
     DALI_LOG_RELEASE_INFO("ecore_wl2_window_ignore_output_transform_get()'s return true and transform(0), Window(%p), WindowId(%d)\n", mEcoreWindow, this->GetNativeWindowId());
@@ -3648,17 +3683,17 @@ void WindowBaseEcoreWl2::WindowRotationCompleted(int degree, int width, int heig
 void WindowBaseEcoreWl2::SetTransparency(bool transparent)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_alpha_set");
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetTransparency, ecore_wl2_window_alpha_set with transparent(%d)\n", transparent);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_alpha_set with transparent(%d)\n", transparent);
   ecore_wl2_window_alpha_set(mEcoreWindow, transparent);
 }
 
 void WindowBaseEcoreWl2::CreateInternalWindow(PositionSize positionSize)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::CreateInternalWindow");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(!display)
   {
-    DALI_LOG_ERROR("Failed to get display, then application will be exit");
+    DALI_LOG_ERROR("Failed to get display, then application will be exit\n");
     exit(0);
   }
 
@@ -3694,8 +3729,11 @@ void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
     ecoreParent                       = winBaseEcore2->mEcoreWindow;
   }
 
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_transient_parent_set");
-  ecore_wl2_window_transient_parent_set(mEcoreWindow, ecoreParent, belowParent);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_transient_parent_set, parent: %p, belowParent: %d\n", ecoreParent, belowParent);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_transient_parent_set");
+    ecore_wl2_window_transient_parent_set(mEcoreWindow, ecoreParent, belowParent);
+  }
 }
 
 int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
@@ -3712,7 +3750,7 @@ int WindowBaseEcoreWl2::CreateFramePresentedSyncFence()
 
 void WindowBaseEcoreWl2::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
 {
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPositionSizeWithAngle, angle: %d, x: %d, y: %d, w: %d, h: %d\n", angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  DALI_LOG_RELEASE_INFO("angle: %d, x: %d, y: %d, w: %d, h: %d\n", angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_rotation_geometry_set");
   ecore_wl2_window_rotation_geometry_set(mEcoreWindow, angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
@@ -3720,7 +3758,7 @@ void WindowBaseEcoreWl2::SetPositionSizeWithAngle(PositionSize positionSize, int
 
 void WindowBaseEcoreWl2::InitializeIme()
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::InitializeIme");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   Eina_Iterator*      globals;
   struct wl_registry* registry;
   Ecore_Wl2_Global*   global;
@@ -3728,13 +3766,13 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   if(mIsIMEWindowInitialized)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::InitializeIme, IME Window is already initialized\n");
+    DALI_LOG_RELEASE_INFO("IME Window is already initialized\n");
     return;
   }
 
   if(!(ecoreWl2Display = ecore_wl2_connected_display_get(NULL)))
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 connected display\n");
+    DALI_LOG_ERROR("fail to get ecore_wl2 connected display\n");
     return;
   }
 
@@ -3742,13 +3780,13 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   if(!(registry = ecore_wl2_display_registry_get(ecoreWl2Display)))
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 display registry\n");
+    DALI_LOG_ERROR("fail to get ecore_wl2 display registry\n");
     return;
   }
 
   if(!(globals = ecore_wl2_display_globals_get(ecoreWl2Display)))
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 globals\n");
+    DALI_LOG_ERROR("fail to get ecore_wl2 globals\n");
     return;
   }
 
@@ -3773,13 +3811,13 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   if(!mWlInputPanel)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel interface\n");
+    DALI_LOG_ERROR("fail to get wayland input panel interface\n");
     return;
   }
 
   if(!mWlOutput)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland output panel interface\n");
+    DALI_LOG_ERROR("fail to get wayland output panel interface\n");
     return;
   }
 
@@ -3794,7 +3832,7 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   if(!mWlInputPanelSurface)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
+    DALI_LOG_ERROR("fail to get wayland input panel surface\n");
     return;
   }
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
@@ -3812,13 +3850,13 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
 {
   if(!mWlInputPanelSurface)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::ImeWindowReadyToRender(), wayland input panel surface is null\n");
+    DALI_LOG_ERROR("wayland input panel surface is null\n");
     return;
   }
 
   if(!mVisible)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::ImeWindowReadyToRender, window is hidden, skip input panel ready\n");
+    DALI_LOG_RELEASE_INFO("window is hidden, skip input panel ready\n");
     return;
   }
 
@@ -3833,41 +3871,41 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
 
 void WindowBaseEcoreWl2::RequestMoveToServer()
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::RequestMoveToServer");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   if(!display)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestMoveToServer, Fail to get ecore_wl2_display\n");
+    DALI_LOG_ERROR("Fail to get ecore_wl2_display\n");
     return;
   }
 
   Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
   if(!input)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestMoveToServer, Fail to get default Ecore_Wl2_Input\n");
+    DALI_LOG_ERROR("Fail to get default Ecore_Wl2_Input\n");
     return;
   }
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   ecore_wl2_window_move(mEcoreWindow, input);
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "ecore_wl2_window_move");
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestMoveToServer, starts the window[%p] is moved by server\n", mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("starts the window[%p] is moved by server\n", mEcoreWindow);
 }
 
 void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
 {
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "WindowBaseEcoreWl2::RequestResizeToServer");
+  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   if(!display)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestResizeToServer, Fail to get ecore_wl2_display\n");
+    DALI_LOG_ERROR("Fail to get ecore_wl2_display\n");
     return;
   }
 
   Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
   if(!input)
   {
-    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestResizeToServer, Fail to get default Ecore_Wl2_Input\n");
+    DALI_LOG_ERROR("Fail to get default Ecore_Wl2_Input\n");
     return;
   }
 
@@ -3876,12 +3914,12 @@ void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
   ecore_wl2_window_resize(mEcoreWindow, input, static_cast<int>(location));
   DALI_TIME_CHECKER_END_WITH_MESSAGE(gTimeCheckerFilter, "ecore_wl2_window_resize");
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, direction:%d oriention:%d mode:%d\n", mEcoreWindow, direction, mWindowRotationAngle, location);
+  DALI_LOG_RELEASE_INFO("starts the window[%p] is resized by server, direction:%d oriention:%d mode:%d\n", mEcoreWindow, direction, mWindowRotationAngle, location);
 }
 
 void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
 {
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::EnableFloatingMode, floating mode flag: [%p], enable [%d]\n", mEcoreWindow, enable);
+  DALI_LOG_RELEASE_INFO("floating mode flag: [%p], enable [%d]\n", mEcoreWindow, enable);
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_floating_mode_set");
   if(enable == true)
   {
@@ -3998,8 +4036,11 @@ bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
 void WindowBaseEcoreWl2::CursorVisibleSet(bool visible)
 {
 #ifdef OVER_TIZEN_VERSION_8
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_cursor_visible_set");
-  ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_cursor_visible_set, visible: %d\n", visible);
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_cursor_visible_set");
+    ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
+  }
 #endif
 }
 
@@ -4028,12 +4069,17 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
     }
     default:
     {
-      DALI_LOG_ERROR("deviceSubclass : %d type is not support, subtype could be 'NONE', 'REMOCON', 'VIRTUAL_KEYBOARD'\n");
+      DALI_LOG_ERROR("deviceSubclass : %d type is not support, subtype could be 'NONE', 'REMOCON', 'VIRTUAL_KEYBOARD'\n", deviceSubclass);
       return false;
     }
   }
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_grab");
-  return ecore_wl2_window_keyboard_grab(mEcoreWindow, ecoreDeviceSubclass);
+  bool result = false;
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_grab");
+    result = ecore_wl2_window_keyboard_grab(mEcoreWindow, ecoreDeviceSubclass);
+  }
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_keyboard_grab, deviceSubclass: %d, result: %d\n", deviceSubclass, result);
+  return result;
 #else
   return false;
 #endif
@@ -4043,8 +4089,13 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 bool WindowBaseEcoreWl2::KeyboardUnGrab()
 {
 #ifdef OVER_TIZEN_VERSION_8
-  DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_ungrab");
-  return ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
+  bool result = false;
+  {
+    DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_keyboard_ungrab");
+    result = ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
+  }
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_keyboard_ungrab, result: %d\n", result);
+  return result;
 #else
   return false;
 #endif

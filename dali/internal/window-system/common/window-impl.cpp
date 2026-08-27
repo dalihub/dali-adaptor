@@ -56,10 +56,6 @@ namespace Adaptor
 namespace
 {
 Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), typeid(Dali::BaseHandle), nullptr);
-
-#if defined(DEBUG_ENABLED)
-Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW");
-#endif
 } // unnamed namespace
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
@@ -71,7 +67,7 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
   // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
   if(window->mIsTransparent)
   {
-    DALI_LOG_RELEASE_INFO("Window::New: Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    DALI_LOG_RELEASE_INFO("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
     window->mIsTransparent = false;
   }
 #endif
@@ -86,6 +82,7 @@ Window* Window::New(PositionSize positionSize)
   Any                     surface;
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
   window->Initialize(surface, positionSize);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
   return window.release();
 }
 
@@ -214,7 +211,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // Set the flag of preloader is used.
   mIsUsePreLoader = isUsePreLoader;
-  DALI_LOG_RELEASE_INFO("Window::Initialize, isUsePreLoader(%d)\n", mIsUsePreLoader);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), isUsePreLoader(%d)\n", this, mNativeWindowId, mIsUsePreLoader);
 
   // Set Window Type
   mWindowBase->SetType(type);
@@ -242,6 +239,7 @@ void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
     return;
   }
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), render notification = %p\n", this, mNativeWindowId, renderNotification);
   mWindowSurface->SetRenderNotification(renderNotification);
 }
 
@@ -296,7 +294,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   // If this window is created by pre loader process, window show()'s calling should be delayed.
   // Because detail window property is not decided yet in preloader.
   // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
-  DALI_LOG_RELEASE_INFO("mIsUsePreLoader flag (%d)\n", mIsUsePreLoader);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), mIsUsePreLoader flag (%d)\n", this, mNativeWindowId, mIsUsePreLoader);
   if(!mIsUsePreLoader)
   {
     // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
@@ -307,6 +305,8 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
 void Window::OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), surface = %p\n", this, mNativeWindowId, surface);
+
   mWindowSurface = static_cast<WindowRenderSurface*>(surface);
   if(DALI_LIKELY(mWindowSurface && mAdaptor))
   {
@@ -318,6 +318,7 @@ void Window::SetClass(std::string name, std::string className)
 {
   mName      = name;
   mClassName = className;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), name = %s, className = %s\n", this, mNativeWindowId, name.c_str(), className.c_str());
   mWindowBase->SetClass(name, className);
 }
 
@@ -367,6 +368,7 @@ bool Window::IsMaximized() const
 
 void Window::SetMaximumSize(Dali::Window::WindowSize size)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), maximum size = %d x %d\n", this, mNativeWindowId, size.GetWidth(), size.GetHeight());
   mWindowBase->SetMaximumSize(size);
 }
 
@@ -384,11 +386,13 @@ bool Window::IsMinimized() const
 
 void Window::SetMinimumSize(Dali::Window::WindowSize size)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), minimum size = %d x %d\n", this, mNativeWindowId, size.GetWidth(), size.GetHeight());
   mWindowBase->SetMinimumSize(size);
 }
 
 void Window::MaximizeWithRestoreSize(bool maximize, Dali::Window::WindowSize size)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), maximize = %d, restore size = %d x %d\n", this, mNativeWindowId, maximize, size.GetWidth(), size.GetHeight());
   mWindowBase->MaximizeWithRestoreSize(maximize, size);
 }
 
@@ -465,7 +469,7 @@ void Window::SetPreferredOrientation(WindowOrientation orientation)
 {
   if(orientation < WindowOrientation::NO_ORIENTATION_PREFERENCE || orientation > WindowOrientation::LANDSCAPE_INVERSE)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::CheckOrientation: Invalid input orientation [%d]\n", orientation);
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Invalid input orientation [%d]\n", this, mNativeWindowId, orientation);
     return;
   }
   mPreferredAngle = ConvertToAngle(orientation);
@@ -482,6 +486,7 @@ WindowOrientation Window::GetPreferredOrientation()
 void Window::SetPositionSizeWithOrientation(PositionSize positionSize, WindowOrientation orientation)
 {
   int angle = ConvertToAngle(orientation);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), (%d, %d) [%d x %d], orientation = %d, angle = %d\n", this, mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height, orientation, angle);
   mWindowBase->SetPositionSizeWithAngle(positionSize, angle);
 }
 
@@ -495,10 +500,11 @@ void Window::SetAvailableAnlges(const std::vector<int>& angles)
 {
   if(angles.size() > 4)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetAvailableAnlges: Invalid vector size! [%d]\n", angles.size());
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Invalid vector size! [%zu]\n", this, mNativeWindowId, angles.size());
     return;
   }
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetAvailableAnlges: count = %zu\n", this, mNativeWindowId, angles.size());
   mWindowBase->SetAvailableAnlges(angles);
 }
 
@@ -580,9 +586,10 @@ bool Window::IsOrientationAvailable(WindowOrientation orientation) const
 {
   if(orientation <= WindowOrientation::NO_ORIENTATION_PREFERENCE || orientation > WindowOrientation::LANDSCAPE_INVERSE)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::IsOrientationAvailable: Invalid input orientation [%d]\n", orientation);
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Invalid input orientation [%d]\n", this, mNativeWindowId, orientation);
     return false;
   }
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IsOrientationAvailable: orientation = %d, available = 1\n", this, mNativeWindowId, orientation);
   return true;
 }
 
@@ -605,6 +612,7 @@ void Window::SetAcceptFocus(bool accept)
 {
   mIsFocusAcceptable = accept;
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), accept = %d\n", this, mNativeWindowId, accept);
   mWindowBase->SetAcceptFocus(accept);
 }
 
@@ -685,17 +693,23 @@ std::string Window::GetSupportedAuxiliaryHint(unsigned int index) const
 
 unsigned int Window::AddAuxiliaryHint(const std::string& hint, const std::string& value)
 {
-  return mWindowBase->AddAuxiliaryHint(hint, value);
+  unsigned int id = mWindowBase->AddAuxiliaryHint(hint, value);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), hint = %s, value = %s, id = %u\n", this, mNativeWindowId, hint.c_str(), value.c_str(), id);
+  return id;
 }
 
 bool Window::RemoveAuxiliaryHint(unsigned int id)
 {
-  return mWindowBase->RemoveAuxiliaryHint(id);
+  bool result = mWindowBase->RemoveAuxiliaryHint(id);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), id = %u, result = %d\n", this, mNativeWindowId, id, result);
+  return result;
 }
 
 bool Window::SetAuxiliaryHintValue(unsigned int id, const std::string& value)
 {
-  return mWindowBase->SetAuxiliaryHintValue(id, value);
+  bool result = mWindowBase->SetAuxiliaryHintValue(id, value);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), id = %u, value = %s, result = %d\n", this, mNativeWindowId, id, value.c_str(), result);
+  return result;
 }
 
 std::string Window::GetAuxiliaryHintValue(unsigned int id) const
@@ -714,6 +728,7 @@ void Window::ResetInput(const BoundsInteger& inputRegion)
   if(inputRegion.x == -1 && inputRegion.y == -1 && inputRegion.width == 1 && inputRegion.height == 1)
   {
     // All touch events that were being input will be clear
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), input region reset\n", this, mNativeWindowId);
     Reset();
   }
 }
@@ -727,6 +742,7 @@ void Window::SetInputRegion(const BoundsInteger& inputRegion)
 
 void Window::SetType(WindowType type)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), type = %d\n", this, mNativeWindowId, type);
   mWindowBase->SetType(type);
 }
 
@@ -740,10 +756,11 @@ WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level
   WindowType type = mWindowBase->GetType();
   if(type != WindowType::NOTIFICATION)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", type);
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Not supported window type [%d]\n", this, mNativeWindowId, type);
     return WindowOperationResult::INVALID_OPERATION;
   }
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetNotificationLevel: level = %d\n", this, mNativeWindowId, level);
   return mWindowBase->SetNotificationLevel(level);
 }
 
@@ -752,11 +769,13 @@ WindowNotificationLevel Window::GetNotificationLevel() const
   WindowType type = mWindowBase->GetType();
   if(type != WindowType::NOTIFICATION)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", type);
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Not supported window type [%d]\n", this, mNativeWindowId, type);
     return WindowNotificationLevel::NONE;
   }
 
-  return mWindowBase->GetNotificationLevel();
+  WindowNotificationLevel level = mWindowBase->GetNotificationLevel();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), GetNotificationLevel: level = %d\n", this, mNativeWindowId, level);
+  return level;
 }
 
 void Window::SetOpaqueState(bool opaque)
@@ -765,7 +784,7 @@ void Window::SetOpaqueState(bool opaque)
 
   mWindowBase->SetOpaqueState(opaque);
 
-  DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetOpaqueState: opaque = %d\n", opaque);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetOpaqueState: opaque = %d\n", this, mNativeWindowId, opaque);
 }
 
 bool Window::IsOpaqueState() const
@@ -775,6 +794,7 @@ bool Window::IsOpaqueState() const
 
 WindowOperationResult Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), screenOffMode = %d\n", this, mNativeWindowId, screenOffMode);
   return mWindowBase->SetScreenOffMode(screenOffMode);
 }
 
@@ -787,10 +807,11 @@ WindowOperationResult Window::SetBrightness(int brightness)
 {
   if(brightness < 0 || brightness > 100)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Invalid brightness value [%d]\n", brightness);
+    DALI_LOG_ERROR("Window (%p), WinId (%d), Invalid brightness value [%d]\n", this, mNativeWindowId, brightness);
     return WindowOperationResult::INVALID_OPERATION;
   }
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetBrightness: brightness = %d\n", this, mNativeWindowId, brightness);
   return mWindowBase->SetBrightness(brightness);
 }
 
@@ -811,6 +832,8 @@ void Window::SetPositionSize(PositionSize positionSize)
 {
   SetUserGeometryPolicy();
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), requested (%d, %d) [%d x %d]\n", this, mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+
   // It is asked by application to change window position and size.
   // The related API is called to ask to display server in the backend.
   UpdatePositionSize(positionSize, true);
@@ -819,6 +842,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
   SetUserGeometryPolicy();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), layout = %u x %u, cell = (%u, %u), span = (%u, %u)\n", this, mNativeWindowId, numCols, numRows, column, row, colSpan, rowSpan);
   mWindowBase->SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
 }
 
@@ -830,6 +854,7 @@ Dali::Layer Window::GetRootLayer() const
 void Window::SetBackgroundColor(const Vector4& color)
 {
   mBackgroundColor = color;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), color = (%f, %f, %f, %f), transparent = %d\n", this, mNativeWindowId, color.r, color.g, color.b, color.a, mIsTransparent);
   if(mIsTransparent)
   {
     Vector4 backgroundColor = color;
@@ -862,22 +887,30 @@ void Window::SetTransparency(bool transparent)
 
 bool Window::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
 {
-  return mWindowBase->GrabKey(key, grabMode);
+  bool result = mWindowBase->GrabKey(key, grabMode);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key = %d, grabMode = %d, result = %d\n", this, mNativeWindowId, key, grabMode, result);
+  return result;
 }
 
 bool Window::UngrabKey(Dali::KEY key)
 {
-  return mWindowBase->UngrabKey(key);
+  bool result = mWindowBase->UngrabKey(key);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key = %d, result = %d\n", this, mNativeWindowId, key, result);
+  return result;
 }
 
 bool Window::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
-  return mWindowBase->GrabKeyList(key, grabMode, result);
+  bool ret = mWindowBase->GrabKeyList(key, grabMode, result);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key count = %zu, result = %d\n", this, mNativeWindowId, key.Count(), ret);
+  return ret;
 }
 
 bool Window::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
 {
-  return mWindowBase->UngrabKeyList(key, result);
+  bool ret = mWindowBase->UngrabKeyList(key, result);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key count = %zu, result = %d\n", this, mNativeWindowId, key.Count(), ret);
+  return ret;
 }
 
 Window::TouchEventSignalType& Window::TouchEventSignal()
@@ -973,6 +1006,8 @@ void Window::OnMaximizeChanged(bool maximized)
 
   if(isActuallyChanged)
   {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), maximized = %d\n", this, mNativeWindowId, maximized);
+
     auto         bridge = Dali::Integration::Accessibility::Bridge::GetCurrentBridge();
     Dali::Window handle(this);
 
@@ -997,6 +1032,8 @@ void Window::OnMaximizeChanged(bool maximized)
 
 void Window::OnFocusChanged(bool focusIn)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), focusIn = %d, previous = %d\n", this, mNativeWindowId, focusIn, mFocused);
+
   Dali::Window handle(this);
   mFocusChangedSignal.Emit(handle, focusIn);
   FocusChanged(focusIn);
@@ -1021,7 +1058,7 @@ void Window::OnOutputTransformed(int screenRotationAngle)
 {
   PositionSize positionSize = GetPositionSize();
 
-  DALI_LOG_RELEASE_INFO("Window Resize by screen rotation, screen angle = %d\n", screenRotationAngle);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Window Resize by screen rotation, screen angle = %d\n", this, mNativeWindowId, screenRotationAngle);
 
   SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), mRotationAngle, screenRotationAngle);
 
@@ -1031,17 +1068,23 @@ void Window::OnOutputTransformed(int screenRotationAngle)
 
 void Window::OnDeleteRequest()
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), delete request received\n", this, mNativeWindowId);
+
   mDeleteRequestSignal.Emit();
 }
 
 void Window::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), transition effect, state = %d, type = %d\n", this, mNativeWindowId, state, type);
+
   Dali::Window handle(this);
   mTransitionEffectEventSignal.Emit(handle, state, type);
 }
 
 void Window::OnWindowRedrawRequest()
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window redraw request\n", this, mNativeWindowId);
+
   SetForceRendering(1u);
 }
 
@@ -1108,6 +1151,8 @@ void Window::OnPointerConstraints(const Dali::Int32Pair& position, bool locked, 
   Vector2                                    newPosition = RecalculatePosition(Vector2(static_cast<float>(position.GetX()), static_cast<float>(position.GetY())));
   Dali::DevelWindow::PointerConstraintsEvent pointerConstraintsEvent(static_cast<int32_t>(newPosition.x), static_cast<int32_t>(newPosition.y), locked, confined);
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), pointer constraints (%d, %d), locked = %d, confined = %d\n", this, mNativeWindowId, static_cast<int32_t>(newPosition.x), static_cast<int32_t>(newPosition.y), locked, confined);
+
   mPointerConstraintsSignal.Emit(handle, pointerConstraintsEvent);
 }
 
@@ -1143,6 +1188,8 @@ void Window::OnRotationFinished()
 
 void Window::OnPause()
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), paused\n", this, mNativeWindowId);
+
   if(mEventHandler)
   {
     mEventHandler->Pause();
@@ -1151,6 +1198,8 @@ void Window::OnPause()
 
 void Window::OnResume()
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), resumed\n", this, mNativeWindowId);
+
   if(mEventHandler)
   {
     mEventHandler->Resume();
@@ -1161,11 +1210,16 @@ void Window::OnResume()
 
 void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), auxiliary message, key = %s, value = %s\n", this, mNativeWindowId, key.c_str(), value.c_str());
+
   mAuxiliaryMessageSignal.Emit(key, value, options);
 }
 
 void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 {
+  const auto& insets = insetsInfo.GetExtents();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), insets changed, partType = %d, partState = %d, insets = (%d, %d, %d, %d)\n", this, mNativeWindowId, insetsInfo.GetPartType(), insetsInfo.GetPartState(), insets.start, insets.end, insets.top, insets.bottom);
+
   mInsetsChangedSignal.Emit(Dali::Window(this), insetsInfo);
 }
 
@@ -1227,7 +1281,7 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
 
   if(!bridge || !bridge->IsUp() || Dali::DevelKeyEvent::IsInterceptProcessed(keyEvent))
   {
-    DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
+    DALI_LOG_ERROR("Window (%p), WinId (%d), This KeyEvent should not have been intercepted!\n", this, mNativeWindowId);
 
     return false;
   }
@@ -1399,12 +1453,14 @@ void Window::SetParent(Dali::Window& parent, bool belowParent)
     {
       parent.Unparent();
     }
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), parent = %p, belowParent = %d\n", this, mNativeWindowId, &GetImplementation(mParentWindow), belowParent);
     mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, belowParent);
   }
 }
 
 void Window::Unparent()
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), unparent\n", this, mNativeWindowId);
   mWindowBase->SetParent(nullptr, false);
   mParentWindow.Reset();
 }
@@ -1441,7 +1497,7 @@ void Window::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& ori
   {
     if(IsOrientationAvailable(orientations[index]) == false)
     {
-      DALI_LOG_ERROR("Window::SetAvailableOrientations, invalid orientation: %d\n", orientations[index]);
+      DALI_LOG_ERROR("Window (%p), WinId (%d), invalid orientation: %d\n", this, mNativeWindowId, orientations[index]);
       continue;
     }
 
@@ -1474,17 +1530,20 @@ int32_t Window::GetNativeId() const
 void Window::RequestMoveToServer()
 {
   SetUserGeometryPolicy();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), request move to server\n", this, mNativeWindowId);
   mWindowBase->RequestMoveToServer();
 }
 
 void Window::RequestResizeToServer(WindowResizeDirection direction)
 {
   SetUserGeometryPolicy();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), request resize to server, direction = %d\n", this, mNativeWindowId, direction);
   mWindowBase->RequestResizeToServer(direction);
 }
 
 void Window::EnableFloatingMode(bool enable)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), floating mode enable = %d\n", this, mNativeWindowId, enable);
   mWindowBase->EnableFloatingMode(enable);
 }
 
@@ -1546,16 +1605,21 @@ void Window::SetUserGeometryPolicy()
 
 bool Window::PointerConstraintsLock()
 {
-  return mWindowBase->PointerConstraintsLock();
+  bool result = mWindowBase->PointerConstraintsLock();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), pointer constraints lock, result = %d\n", this, mNativeWindowId, result);
+  return result;
 }
 
 bool Window::PointerConstraintsUnlock()
 {
-  return mWindowBase->PointerConstraintsUnlock();
+  bool result = mWindowBase->PointerConstraintsUnlock();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), pointer constraints unlock, result = %d\n", this, mNativeWindowId, result);
+  return result;
 }
 
 void Window::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), locked pointer region (%d, %d) [%d x %d]\n", this, mNativeWindowId, x, y, width, height);
   mWindowBase->LockedPointerRegionSet(x, y, width, height);
 }
 
@@ -1571,21 +1635,27 @@ bool Window::PointerWarp(int32_t x, int32_t y)
 
 void Window::CursorVisibleSet(bool visible)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), cursor visible = %d\n", this, mNativeWindowId, visible);
   mWindowBase->CursorVisibleSet(visible);
 }
 
 bool Window::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 {
-  return mWindowBase->KeyboardGrab(deviceSubclass);
+  bool result = mWindowBase->KeyboardGrab(deviceSubclass);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), deviceSubclass = %d, result = %d\n", this, mNativeWindowId, deviceSubclass, result);
+  return result;
 }
 
 bool Window::KeyboardUnGrab()
 {
-  return mWindowBase->KeyboardUnGrab();
+  bool result = mWindowBase->KeyboardUnGrab();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), keyboard ungrab, result = %d\n", this, mNativeWindowId, result);
+  return result;
 }
 
 void Window::SetFullScreen(bool fullscreen)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), fullscreen = %d\n", this, mNativeWindowId, fullscreen);
   mWindowBase->SetFullScreen(fullscreen);
 }
 
@@ -1596,6 +1666,7 @@ bool Window::GetFullScreen()
 
 void Window::SetFrontBufferRenderingEnabled(bool enable)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), front buffer rendering enable = %d\n", this, mNativeWindowId, enable);
   mWindowBase->SetFrontBufferRenderingEnabled(enable);
   mWindowSurface->SetFrontBufferRenderingEnabled(enable);
 }
@@ -1607,6 +1678,7 @@ bool Window::IsFrontBufferRenderingEnabled() const
 
 void Window::SetModal(bool modal)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), modal = %d\n", this, mNativeWindowId, modal);
   mWindowBase->SetModal(modal);
 }
 
@@ -1617,6 +1689,7 @@ bool Window::IsModal()
 
 void Window::SetAlwaysOnTop(bool alwaysOnTop)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), alwaysOnTop = %d\n", this, mNativeWindowId, alwaysOnTop);
   mWindowBase->SetAlwaysOnTop(alwaysOnTop);
 }
 
@@ -1627,6 +1700,7 @@ bool Window::IsAlwaysOnTop() const
 
 void Window::SetBottom(bool enable)
 {
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), bottom enable = %d\n", this, mNativeWindowId, enable);
   mWindowBase->SetBottom(enable);
 }
 
@@ -1642,12 +1716,16 @@ Dali::Any Window::GetNativeBuffer() const
 
 bool Window::RelativeMotionGrab(uint32_t boundary)
 {
-  return mWindowBase->RelativeMotionGrab(boundary);
+  bool result = mWindowBase->RelativeMotionGrab(boundary);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), relative motion grab boundary = %u, result = %d\n", this, mNativeWindowId, boundary, result);
+  return result;
 }
 
 bool Window::RelativeMotionUnGrab()
 {
-  return mWindowBase->RelativeMotionUnGrab();
+  bool result = mWindowBase->RelativeMotionUnGrab();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), relative motion ungrab, result = %d\n", this, mNativeWindowId, result);
+  return result;
 }
 
 void Window::SetBlur(const WindowBlurInfo& blurInfo)
@@ -1786,9 +1864,10 @@ void Window::SetScreen(const std::string& screenName)
 {
   if(screenName.empty())
   {
-    DALI_LOG_ERROR("input Screen name is empty\n");
+    DALI_LOG_ERROR("Window (%p), WinId (%d), input Screen name is empty\n", this, mNativeWindowId);
     return;
   }
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetScreen: screenName = %s\n", this, mNativeWindowId, screenName.c_str());
   mWindowBase->SetScreen(screenName);
 }
 

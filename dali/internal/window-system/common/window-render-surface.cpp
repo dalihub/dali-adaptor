@@ -579,7 +579,7 @@ void WindowRenderSurface::Initialize(Any surface)
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle(true);
   if(screenRotationAngle != 0)
   {
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", screenRotationAngle);
+    DALI_LOG_RELEASE_INFO("WinId (%d) screen rotation is enabled, screen rotation angle:[%d]\n", mWindowBase->GetNativeWindowId(), screenRotationAngle);
     OutputTransformed(screenRotationAngle);
   }
 }
@@ -633,7 +633,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 
   mWindowBase->SetWindowRotationAngle(angle);
 
-  DALI_LOG_RELEASE_INFO("start window rotation angle = %d screen rotation = %d\n", angle, mWindowBase->GetScreenRotationAngle(false));
+  DALI_LOG_RELEASE_INFO("start window rotation SurfaceId(%d) angle = %d screen rotation = %d\n", mSurfaceId, angle, mWindowBase->GetScreenRotationAngle(false));
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -722,7 +722,7 @@ void WindowRenderSurface::CreateSurface()
     InitializeImeSurface();
   }
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: SurfaceId(%d) WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
+  DALI_LOG_RELEASE_INFO("SurfaceId(%d) WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
                         mSurfaceId,
                         mWindowBase->GetNativeWindowId(),
                         mPositionSize.width,
@@ -737,7 +737,7 @@ void WindowRenderSurface::DestroySurface()
 
   if(DALI_LIKELY(mGraphics))
   {
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: SurfaceId(%d) WinId (%d)\n",
+    DALI_LOG_RELEASE_INFO("SurfaceId(%d) WinId (%d)\n",
                           mSurfaceId,
                           mWindowBase->GetNativeWindowId());
     mGraphics->DestroySurface(mSurfaceId);
@@ -763,7 +763,7 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
 
   if(DALI_LIKELY(mGraphics))
   {
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ReplaceGraphicsSurface: SurfaceId(%d) WinId (%d), width(%d) height(%d)\n",
+    DALI_LOG_RELEASE_INFO("SurfaceId(%d) WinId (%d), width(%d) height(%d)\n",
                           mSurfaceId,
                           mWindowBase->GetNativeWindowId(),
                           width,
@@ -772,7 +772,7 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
   }
   else
   {
-    DALI_LOG_ERROR("Graphics interface is not initialized yet.");
+    DALI_LOG_ERROR("Graphics interface is not initialized yet.\n");
     return false;
   }
 }
@@ -873,7 +873,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
       {
         Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync);
+        DALI_LOG_RELEASE_INFO("SurfaceId(%d) CreateFrameRenderedSyncFence [%d]\n", mSurfaceId, frameRenderedSync);
 
         mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, frameRenderedSync)));
 
@@ -881,7 +881,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
       }
       else
       {
-        DALI_LOG_ERROR("WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence is failed\n");
+        DALI_LOG_ERROR("CreateFrameRenderedSyncFence is failed\n");
       }
 
       // Clear callbacks
@@ -896,7 +896,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
       {
         Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync);
+        DALI_LOG_RELEASE_INFO("SurfaceId(%d) CreateFramePresentedSyncFence [%d]\n", mSurfaceId, framePresentedSync);
 
         mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, framePresentedSync)));
 
@@ -904,7 +904,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
       }
       else
       {
-        DALI_LOG_ERROR("WindowRenderSurface::PreRender: CreateFramePresentedSyncFence is failed\n");
+        DALI_LOG_ERROR("CreateFramePresentedSyncFence is failed\n");
       }
 
       // Clear callbacks
@@ -950,7 +950,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Boun
     }
     totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
 
-    DALI_LOG_RELEASE_INFO("Window/Screen orientation are changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
+    DALI_LOG_RELEASE_INFO("Window/Screen orientation are changed, SurfaceId(%d) WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mSurfaceId, mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
 
     BoundsInteger surfaceSize = scene.GetCurrentSurfaceRect();
     // update surface size
@@ -1124,7 +1124,7 @@ void WindowRenderSurface::SetNeedsRotationCompletedAcknowledgement(bool needAckn
 
 void WindowRenderSurface::OutputTransformed(int screenRotationAngle)
 {
-  DALI_LOG_RELEASE_INFO("Emit screen rotation signal to new screen angle = %d\n", screenRotationAngle);
+  DALI_LOG_RELEASE_INFO("Emit screen rotation signal, SurfaceId(%d) to new screen angle = %d\n", mSurfaceId, screenRotationAngle);
   mOutputTransformedSignal.Emit(screenRotationAngle);
 }
 
@@ -1135,7 +1135,7 @@ void WindowRenderSurface::ProcessPostRender()
     mWindowRotationFinishedSignal.Emit();
     mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
     mIsWindowOrientationChanging = false;
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done, flag = %d\n", mIsWindowOrientationChanging);
+    DALI_LOG_RELEASE_INFO("SurfaceId(%d) Rotation Done, flag = %d\n", mSurfaceId, mIsWindowOrientationChanging);
   }
 
   if(mIsImeWindowSurface)
@@ -1159,14 +1159,14 @@ void WindowRenderSurface::ProcessFrameCallback()
     {
       iter->fileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(iter->fileDescriptor, MakeCallback(this, &WindowRenderSurface::OnFileDescriptorEventDispatched), FileDescriptorMonitor::FD_READABLE);
 
-      DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor);
+      DALI_LOG_RELEASE_INFO("SurfaceId(%d) Add handler [%d]\n", mSurfaceId, iter->fileDescriptor);
     }
   }
 }
 
 void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor);
+  DALI_LOG_RELEASE_INFO("SurfaceId(%d) Frame rendered [%d]\n", mSurfaceId, fileDescriptor);
 
   std::unique_ptr<FrameCallbackInfo> callbackInfo;
   {
