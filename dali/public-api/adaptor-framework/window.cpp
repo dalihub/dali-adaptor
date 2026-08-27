@@ -512,6 +512,16 @@ Window Window::GetParent()
   return GetImplementation(*this).GetParent();
 }
 
+void Window::EnableScreenReaderAutoRead(bool enable)
+{
+  GetImplementation(*this).EnableScreenReaderAutoRead(enable);
+}
+
+bool Window::IsScreenReaderAutoReadEnabled() const
+{
+  return GetImplementation(*this).IsScreenReaderAutoReadEnabled();
+}
+
 void Window::AddFrameRenderedCallback(CallbackBase* callback, int32_t frameId)
 {
   GetImplementation(*this).AddFrameRenderedCallback(std::unique_ptr<CallbackBase>(callback), frameId);

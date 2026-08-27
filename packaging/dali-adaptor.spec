@@ -17,8 +17,8 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.5.35
-Release:    3
+Version:    2.5.36
+Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary

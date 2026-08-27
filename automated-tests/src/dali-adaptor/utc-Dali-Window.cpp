@@ -151,6 +151,38 @@ int UtcDaliWindowSetClassN(void)
   END_TEST;
 }
 
+int UtcDaliWindowEnableScreenReaderAutoReadN(void)
+{
+  Dali::Window window;
+  try
+  {
+    window.EnableScreenReaderAutoRead(false);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(DaliException& e)
+  {
+    DALI_TEST_ASSERT(e, "Window handle is empty", TEST_LOCATION);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowIsScreenReaderAutoReadEnabledN(void)
+{
+  Dali::Window window;
+  try
+  {
+    window.IsScreenReaderAutoReadEnabled();
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(DaliException& e)
+  {
+    DALI_TEST_ASSERT(e, "Window handle is empty", TEST_LOCATION);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowRaiseN(void)
 {
   Dali::Window window;

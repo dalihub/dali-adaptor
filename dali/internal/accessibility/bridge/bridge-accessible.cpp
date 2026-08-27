@@ -1203,8 +1203,10 @@ DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessibl
 {
   auto                                         self       = FindSelf();
   std::unordered_map<std::string, std::string> attributes = self->GetAttributes();
+  Dali::Window                                 window     = GetWindow(self->GetInternalActor()).GetHandle();
 
-  if(mIsScreenReaderSuppressed)
+  if(mIsScreenReaderSuppressed ||
+     (window && !window.IsScreenReaderAutoReadEnabled()))
   {
     attributes.insert({"suppress-screen-reader", "true"});
   }
