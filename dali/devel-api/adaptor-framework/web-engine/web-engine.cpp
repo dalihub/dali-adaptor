@@ -688,4 +688,29 @@ void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectN
   GetImplementation(*this).RemoveJavaScriptMessageHandler(exposedObjectName);
 }
 
+void WebEngine::RegisterPlaybackVideoReadyCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoReadyCallback callback)
+{
+  GetImplementation(*this).RegisterPlaybackVideoReadyCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoStartedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStartedCallback callback)
+{
+  GetImplementation(*this).RegisterPlaybackVideoStartedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoFinishedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoFinishedCallback callback)
+{
+  GetImplementation(*this).RegisterPlaybackVideoFinishedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoStoppedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoStoppedCallback callback)
+{
+  GetImplementation(*this).RegisterPlaybackVideoStoppedCallback(callback);
+}
+
+void WebEngine::RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback)
+{
+  GetImplementation(*this).RegisterPlaybackVideoPausedCallback(callback);
+}
+
 } // namespace Dali
