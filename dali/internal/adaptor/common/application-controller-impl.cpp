@@ -246,13 +246,16 @@ void ApplicationController::PreTerminate()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PreTerminate\n");
 
-  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
-  GetImplementation(lifecycleController).OnTerminate();
+  // Empty now
 }
 
 void ApplicationController::PostTerminate()
 {
   DALI_LOG_RELEASE_INFO("ApplicationController::PostTerminate\n");
+
+  // Notify after the application terminated, and before the Adaptor is stopped.
+  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
+  GetImplementation(lifecycleController).OnTerminate();
 
   if(auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge())
   {
