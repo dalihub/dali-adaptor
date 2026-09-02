@@ -269,13 +269,46 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
 
+  // Every scene holder starts from the system wide settings; the application may override
+  // them per window afterwards through the Window API.
+  const EnvironmentOptions& environmentOptions    = adaptorImpl.GetEnvironmentOptions();
+  const bool                depthBufferRequired   = environmentOptions.DepthBufferRequired();
+  const bool                stencilBufferRequired = environmentOptions.StencilBufferRequired();
+  const bool                partialUpdateRequired = environmentOptions.PartialUpdateRequired();
+  const int                 multiSamplingLevel    = environmentOptions.GetMultiSamplingLevel();
+
+  Dali::ScenePolicyFlagBits scenePolicyFlags = Dali::ScenePolicyFlagBits::NONE;
+  if(depthBufferRequired)
+  {
+    scenePolicyFlags |= Dali::ScenePolicyFlagBits::DEPTH_BUFFER_ENABLED;
+  }
+  if(stencilBufferRequired)
+  {
+    scenePolicyFlags |= Dali::ScenePolicyFlagBits::STENCIL_BUFFER_ENABLED;
+  }
+  if(partialUpdateRequired)
+  {
+    scenePolicyFlags |= Dali::ScenePolicyFlagBits::PARTIAL_UPDATE_ENABLED;
+  }
+  if(multiSamplingLevel > 0)
+  {
+    scenePolicyFlags |= Dali::ScenePolicyFlagBits::MULTI_SAMPLING_ENABLED;
+  }
+
+  // The surface config has to agree with the scene before the graphics surface is created,
+  // otherwise the first EGL config is built without the requested buffers.
+  mSurface->SetDepthBufferRequired(depthBufferRequired);
+  mSurface->SetStencilBufferRequired(stencilBufferRequired);
+  mSurface->SetPartialUpdateRequired(partialUpdateRequired);
+  mSurface->SetMSAALevel(multiSamplingLevel > 0 ? multiSamplingLevel : 0);
+
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
     .SetSurface(mSurface.get())
     .SetExtent({static_cast<uint32_t>(surfacePositionSize.width), static_cast<uint32_t>(surfacePositionSize.height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
-  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
+  mScene = Dali::Integration::Scene::New(rtInfo, Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation, scenePolicyFlags);
 
   // Connect Core Scene signals to SceneHolder bridge callbacks
   mScene.KeyEventSignal().Connect(mSceneSignalBridgeSlot, &SceneHolder::OnSceneKeyEvent);
