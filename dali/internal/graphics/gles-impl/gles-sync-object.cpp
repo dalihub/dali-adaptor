@@ -39,7 +39,7 @@ void SyncObject::DestroyResource()
   if(DALI_LIKELY(!EglGraphicsController::IsShuttingDown()))
   {
     auto* gl = mController.GetGL();
-    if(DALI_LIKELY(gl))
+    if(DALI_LIKELY(gl) && mGlSyncObject)
     {
       gl->DeleteSync(mGlSyncObject);
     }
@@ -49,13 +49,18 @@ void SyncObject::DestroyResource()
 
 bool SyncObject::InitializeResource()
 {
+  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
+  {
+    return false;
+  }
+
   // Initialized not from a resource queue, but from a command.
   auto* gl = mController.GetGL();
   if(DALI_LIKELY(gl))
   {
     mGlSyncObject = gl->FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
   }
-  return true;
+  return mGlSyncObject != nullptr;
 }
 
 void SyncObject::DiscardResource()
@@ -66,13 +71,28 @@ void SyncObject::DiscardResource()
 
 bool SyncObject::IsSynced()
 {
-  auto* gl = mController.GetGL();
-  if(DALI_LIKELY(gl) && mGlSyncObject)
+  return Poll() == PollResult::SIGNALED;
+}
+
+SyncObject::PollResult SyncObject::Poll(bool flush)
+{
+  if(DALI_UNLIKELY(EglGraphicsController::IsShuttingDown()))
   {
-    GLenum result = gl->ClientWaitSync(mGlSyncObject, 0, 0ull);
-    return result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED;
+    return PollResult::FAILED;
   }
-  return false;
+
+  auto* gl = mController.GetGL();
+  if(DALI_UNLIKELY(!gl || !mGlSyncObject))
+  {
+    return PollResult::FAILED;
+  }
+
+  const auto result = gl->ClientWaitSync(mGlSyncObject, flush ? GL_SYNC_FLUSH_COMMANDS_BIT : 0u, 0ull);
+  if(result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED)
+  {
+    return PollResult::SIGNALED;
+  }
+  return result == GL_TIMEOUT_EXPIRED ? PollResult::PENDING : PollResult::FAILED;
 }
 
 } //namespace DALI_NAMESPACE::Graphics::GLES

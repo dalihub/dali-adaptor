@@ -23,6 +23,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/common/dali-utility.h>
 #include <algorithm>
+#include <cstdlib>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
@@ -199,6 +200,12 @@ EglGraphicsController::EglGraphicsController()
 
 EglGraphicsController::~EglGraphicsController()
 {
+  // Shutdown must discard pending imports before EglGraphics destroys EGL.
+  if(!mDeferredNativeImageReleases.empty())
+  {
+    DALI_LOG_ERROR("Native image releases remain after graphics shutdown.\n");
+  }
+
   while(!mPresentationCommandBuffers.empty())
   {
     auto presentCommandBuffer = const_cast<GLES::CommandBuffer*>(mPresentationCommandBuffers.front());
@@ -276,6 +283,9 @@ void EglGraphicsController::Shutdown()
 
   // Final flush
   Flush();
+
+  // Destroy pending imports without waiting for fences or notifying completion.
+  DiscardNativeImageReleases();
 
   // Invalidate shared context for framebuffers
   GLES::Framebuffer::SetSharedContext(nullptr);
@@ -361,6 +371,191 @@ void EglGraphicsController::PostRender()
   // Delete discarded resource context sync objects.
   // NOTE : We can assume that current context is resource context now.
   mSyncPool.ProcessDiscardSyncObjects(mCurrentContext);
+
+  ProcessDeferredNativeImageReleases();
+}
+
+void EglGraphicsController::AddDeferredNativeImageRelease(Graphics::UniquePtr<GLES::SyncObject> sync,
+                                                          std::function<void()>                 releaseCallback,
+                                                          const void*                           nativeImage,
+                                                          const void*                           nativeSurface,
+                                                          std::function<void()>                 errorCallback,
+                                                          std::function<void()>                 discardCallback)
+{
+  DeferredNativeImageRelease release;
+  if(sync)
+  {
+    release.syncs.push_back(std::move(sync));
+  }
+  release.releaseCallback = std::move(releaseCallback);
+  release.nativeImage     = nativeImage;
+  release.nativeSurface   = nativeSurface;
+  release.errorCallback   = std::move(errorCallback);
+  release.discardCallback = std::move(discardCallback);
+  mDeferredNativeImageReleases.push_back(std::move(release));
+}
+
+void EglGraphicsController::UpdateNativeImageResourceSync(const void* resourceKey, bool flush)
+{
+  if(!resourceKey)
+  {
+    return;
+  }
+
+  DALI_ASSERT_DEBUG(mCurrentContext && mGlAbstraction);
+
+  // A fence only covers commands submitted in its own context. Replacing it
+  // may discard an older fence from that context, but never another reader's.
+  auto&  syncs = mNativeImageResourceSyncs[resourceKey];
+  auto   iter  = std::find_if(syncs.begin(), syncs.end(), [this](const auto& entry)
+     { return entry.context == mCurrentContext; });
+  Graphics::UniquePtr<GLES::SyncObject> sync;
+  if(mGLESVersion >= GLES::GLESVersion::GLES_30)
+  {
+    sync = NewObject<GLES::SyncObject>(Graphics::SyncObjectCreateInfo{}, *this, Graphics::UniquePtr<GLES::SyncObject>{});
+    if(!sync->InitializeResource())
+    {
+      sync.reset();
+    }
+  }
+  if(sync)
+  {
+    // Polling may later run in the resource context. Submit in the creator
+    // context instead of relying on the waiter's flush flag to submit it.
+    if(flush)
+    {
+      mGlAbstraction->Flush();
+    }
+  }
+  else
+  {
+    DALI_LOG_WARNING("Native image fence unavailable; completing current context work. image=%p\n", resourceKey);
+    mGlAbstraction->Finish();
+  }
+
+  if(iter != syncs.end())
+  {
+    iter->sync = std::move(sync);
+  }
+  else
+  {
+    syncs.push_back({mCurrentContext, std::move(sync)});
+  }
+}
+
+void EglGraphicsController::DiscardNativeImageResourceSync(const void* resourceKey)
+{
+  mNativeImageResourceSyncs.erase(resourceKey);
+}
+
+void EglGraphicsController::ReleaseNativeImageResource(const void*           resourceKey,
+                                                       std::function<void()> releaseCallback,
+                                                       const void*           nativeSurface,
+                                                       std::function<void()> errorCallback,
+                                                       std::function<void()> discardCallback)
+{
+  AddDeferredNativeImageRelease(nullptr, std::move(releaseCallback), resourceKey, nativeSurface, std::move(errorCallback), std::move(discardCallback));
+  auto& release = mDeferredNativeImageReleases.back();
+  // These fences were already flushed in their creator contexts.
+  release.firstPoll = false;
+  auto iter         = mNativeImageResourceSyncs.find(resourceKey);
+  if(iter != mNativeImageResourceSyncs.end())
+  {
+    for(auto& entry : iter->second)
+    {
+      if(entry.sync)
+      {
+        release.syncs.push_back(std::move(entry.sync));
+      }
+    }
+    mNativeImageResourceSyncs.erase(iter);
+  }
+}
+
+bool EglGraphicsController::NeedsNativeImageReleaseProcessing() const
+{
+  return std::any_of(mDeferredNativeImageReleases.begin(), mDeferredNativeImageReleases.end(), [](const auto& release)
+  { return !release.waitFailed; });
+}
+
+void EglGraphicsController::ProcessDeferredNativeImageReleases()
+{
+  // Check each active fence once per PostRender with a zero timeout.
+  std::vector<std::function<void()>> callbacks;
+  for(auto iter = mDeferredNativeImageReleases.begin(); iter != mDeferredNativeImageReleases.end();)
+  {
+    if(iter->waitFailed)
+    {
+      ++iter;
+      continue;
+    }
+    bool             completed = true;
+    bool             failed    = false;
+    for(auto& sync : iter->syncs)
+    {
+      if(sync)
+      {
+        const auto result = sync->Poll(iter->firstPoll);
+        if(result == GLES::SyncObject::PollResult::SIGNALED)
+        {
+          sync.reset();
+        }
+        else
+        {
+          completed = false;
+          failed |= result == GLES::SyncObject::PollResult::FAILED;
+        }
+      }
+    }
+    iter->firstPoll = false;
+    if(completed)
+    {
+      if(iter->releaseCallback)
+      {
+        callbacks.push_back(std::move(iter->releaseCallback));
+      }
+      iter = mDeferredNativeImageReleases.erase(iter);
+    }
+    else
+    {
+      if(failed)
+      {
+        DALI_LOG_ERROR("Native image release wait failed; retaining resource. image=%p surface=%p\n", iter->nativeImage, iter->nativeSurface);
+        iter->waitFailed = true;
+        if(iter->errorCallback)
+        {
+          callbacks.push_back(std::move(iter->errorCallback));
+        }
+      }
+      ++iter;
+    }
+  }
+  // Notify after iteration: callbacks may enqueue another release.
+  for(auto& callback : callbacks)
+  {
+    callback();
+  }
+}
+
+void EglGraphicsController::DiscardNativeImageReleases()
+{
+  // Context teardown owns the outstanding GL objects; no context is required.
+  mNativeImageResourceSyncs.clear();
+  // EGL is still alive, but no GL context may be current during shutdown.
+  // Destroy imports without completion notifications; context teardown owns
+  // the remaining GL sync objects.
+  while(!mDeferredNativeImageReleases.empty())
+  {
+    auto releases = std::move(mDeferredNativeImageReleases);
+    mDeferredNativeImageReleases.clear();
+    for(auto& release : releases)
+    {
+      if(release.discardCallback)
+      {
+        release.discardCallback();
+      }
+    }
+  }
 }
 
 Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
@@ -546,6 +741,19 @@ void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfac
       // Remove cached info about given context from texture dependency checker.
       // It will guard several cache-miss issues if new context is created with same pointer as given context.
       mTextureDependencyChecker.InvalidateContext(invalidatedContext);
+
+      // Preserve outstanding completion checks even if a new context later
+      // occupies the same address as the destroyed context.
+      for(auto& resource : mNativeImageResourceSyncs)
+      {
+        for(auto& entry : resource.second)
+        {
+          if(entry.context == invalidatedContext)
+          {
+            entry.context = nullptr;
+          }
+        }
+      }
     }
   }
 

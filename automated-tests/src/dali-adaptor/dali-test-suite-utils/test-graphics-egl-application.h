@@ -251,6 +251,7 @@ public:
   {
     mCallstack.PushCall("SwapBuffers()", "");
   }
+
   /**
    * @return true if advanced blending options are supported
    */

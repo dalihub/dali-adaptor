@@ -25,6 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
+#include <dali/internal/imaging/common/native-image-resource-destruction-result-callback.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
 namespace DALI_NAMESPACE
@@ -35,8 +36,9 @@ namespace Adaptor
 {
 /**
  * Dali internal NativeImage.
+ * Exported for platform implementations in the graphics backend libraries.
  */
-class NativeImage
+class DALI_ADAPTOR_API NativeImage
 {
 public:
   static constexpr uint32_t DEFAULT_QUALITY = 100;
@@ -175,9 +177,32 @@ public:
   virtual void SetResourceDestructionCallback(EventThreadCallback* callback, bool ownedCallback) = 0;
 
   /**
+   * @copydoc Dali::DevelNativeImage::SetDeferredResourceDestruction(NativeImage&, ResourceDestructionCallback)
+   */
+  virtual void SetDeferredResourceDestruction(DevelNativeImage::ResourceDestructionCallback resultCallback);
+
+  // Conservative default for backends without an explicit resource-state check.
+  virtual bool CanReleaseSource()
+  {
+    return false;
+  }
+
+  /**
+   * Identifies resources whose GPU use is tracked by the graphics controller.
+   * Only backends supporting deferred completion opt into this render-thread hook.
+   */
+  virtual const void* GetResourceDestructionKey() const
+  {
+    return nullptr;
+  }
+
+  /**
    * @copydoc Dali::DevelNativeImage::EnableBackBuffer()
    */
   virtual void EnableBackBuffer(bool enable) = 0;
+
+  // The backend must disconnect its borrowed trigger before clearing this state.
+  void ClearResourceDestructionResultCallback();
 
   /**
    * @copydoc Dali::NativeImage::EncodeToFile(const std::string& )
@@ -209,6 +234,9 @@ public:
     }
     return false;
   }
+
+protected:
+  std::shared_ptr<NativeImageResourceDestructionResultCallback> mResourceDestructionResultCallback;
 
 public:
   inline static Internal::Adaptor::NativeImage& GetImplementation(Dali::NativeImage& image)
