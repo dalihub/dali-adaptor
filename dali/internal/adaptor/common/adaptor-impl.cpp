@@ -1013,10 +1013,10 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
 
       if(DALI_UNLIKELY(updateCoreRequired))
       {
-        // Update core relative variables.
-        if(!mWindows.empty())
+        // Update core relative variables. The environment options are the default for every
+        // window, so re-apply them to all of them, not just the main one.
+        for(auto window : mWindows)
         {
-          auto window = mWindows[0];
           window->SetDepthBufferEnabled(depthBufferRequired);
           window->SetStencilBufferEnabled(stencilBufferRequired);
           window->SetPartialUpdateEnabled(partialUpdateRequired);

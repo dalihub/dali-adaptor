@@ -473,7 +473,7 @@ bool IsActorAccessibleFunction(Dali::Actor actor, Dali::HitTestAlgorithm::Traver
     case Dali::HitTestAlgorithm::CHECK_ACTOR:
     {
       // Check whether the actor is visible and not fully transparent.
-      if(actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) && actor.GetCurrentProperty<Dali::Vector4>(Dali::Actor::Property::WORLD_COLOR).a > 0.01f) // not FULLY_TRANSPARENT
+      if(actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) && actor.GetCurrentProperty<Dali::Vector4>(Dali::Actor::Property::WORLD_COLOR_MULTIPLIER).a > 0.01f) // not FULLY_TRANSPARENT
       {
         if(actor)
         {

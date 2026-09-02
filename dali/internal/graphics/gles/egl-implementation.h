@@ -205,6 +205,17 @@ public:
   EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config);
 
   /**
+   * @brief Create an EGL window surface, optionally requesting DirectComposition.
+   *
+   * @param[in] window The native window to create the surface on
+   * @param[in] depth Bit per pixel value (ex. 32 or 24)
+   * @param[in] config The EGL config to use for surface creation
+   * @param[in] requiresDirectComposition Whether DirectComposition is required
+   * @return Handle to an EGL window surface
+   */
+  EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config, bool requiresDirectComposition);
+
+  /**
    * Create the OpenGL surface using a pixmap
    * @param pixmap The pixmap to create the surface on
    * @param colorDepth Bit per pixel value (ex. 32 or 24)
@@ -314,6 +325,7 @@ private:
   bool mPartialUpdateRequired;
   bool mIsSurfacelessContextSupported;
   bool mIsKhrCreateContextSupported;
+  bool mIsDirectCompositionSupported;
 
   uint32_t                           mSwapBufferCountAfterResume;
   PFNEGLSETDAMAGEREGIONKHRPROC       mEglSetDamageRegionKHR;

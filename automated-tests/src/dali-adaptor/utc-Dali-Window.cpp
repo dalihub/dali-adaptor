@@ -457,6 +457,22 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   END_TEST;
 }
 
+int UtcDaliWindowIsFocusedN(void)
+{
+  Dali::Window window;
+  try
+  {
+    window.IsFocused();
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowFocusChangedSignalN(void)
 {
   Dali::Window window;

@@ -750,6 +750,11 @@ Dali::Any WindowBaseWin::CreateWindow(int width, int height)
   return reinterpret_cast<void*>(mWin32Window);
 }
 
+bool WindowBaseWin::RequiresDirectComposition() const
+{
+  return mIsTransparent;
+}
+
 void WindowBaseWin::DestroyWindow()
 {
   // This method releases graphics-window wrapper resources on backends that

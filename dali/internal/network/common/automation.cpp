@@ -389,10 +389,10 @@ bool ExcludeProperty(int propIndex)
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_X ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Y ||
           propIndex == Dali::Actor::Property::PARENT_ORIGIN_Z ||
-          propIndex == Dali::Actor::Property::COLOR_RED ||
-          propIndex == Dali::Actor::Property::COLOR_GREEN ||
-          propIndex == Dali::Actor::Property::COLOR_BLUE ||
-          propIndex == Dali::Actor::Property::COLOR_ALPHA ||
+          propIndex == Dali::Actor::Property::COLOR_MULTIPLIER_RED ||
+          propIndex == Dali::Actor::Property::COLOR_MULTIPLIER_GREEN ||
+          propIndex == Dali::Actor::Property::COLOR_MULTIPLIER_BLUE ||
+          propIndex == Dali::Actor::Property::COLOR_MULTIPLIER_ALPHA ||
           propIndex == Dali::Actor::Property::POSITION_X ||
           propIndex == Dali::Actor::Property::POSITION_Y ||
           propIndex == Dali::Actor::Property::POSITION_Z ||

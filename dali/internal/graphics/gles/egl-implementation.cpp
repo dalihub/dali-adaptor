@@ -48,12 +48,16 @@ namespace
 #ifndef DALI_PROFILE_UBUNTU
 const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 20;
 #endif
-const uint32_t CHECK_EXTENSION_NUMBER                  = 4;
+const uint32_t CHECK_EXTENSION_NUMBER                  = 5;
 const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
 const char*    EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_context";
 const char*    EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_context";
 const char*    EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
 const char*    EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
+const char* EGL_ANGLE_DIRECT_COMPOSITION = "EGL_ANGLE_direct_composition";
+#ifndef EGL_DIRECT_COMPOSITION_ANGLE
+#define EGL_DIRECT_COMPOSITION_ANGLE 0x33A5
+#endif
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
 
@@ -108,6 +112,7 @@ EglImplementation::EglImplementation(int                                 multiSa
   mPartialUpdateRequired(partialUpdateRequired == Integration::PartialUpdateAvailable::TRUE),
   mIsSurfacelessContextSupported(false),
   mIsKhrCreateContextSupported(false),
+  mIsDirectCompositionSupported(false),
   mSwapBufferCountAfterResume(0),
   mEglSetDamageRegionKHR(0),
   mEglSwapBuffersWithDamageKHR(0)
@@ -237,6 +242,11 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
       if(currentExtension == EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE)
       {
         isKhrSwapBuffersWithDamageSupported = true;
+        extensionCheckCount++;
+      }
+      if(currentExtension == EGL_ANGLE_DIRECT_COMPOSITION)
+      {
+        mIsDirectCompositionSupported = true;
         extensionCheckCount++;
       }
     }
@@ -912,11 +922,34 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
 
 EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config)
 {
+  return CreateSurfaceWindow(window, depth, config, false);
+}
+
+EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth, EGLConfig config, bool requiresDirectComposition)
+{
   mEglNativeWindow = window;
   mColorDepth      = depth;
   mIsWindow        = true;
 
-  EGLSurface surface = nullptr;
+  EGLSurface   surface           = EGL_NO_SURFACE;
+  const EGLint* surfaceAttributes = nullptr;
+
+  const EGLint directCompositionAttributes[] = {
+    EGL_DIRECT_COMPOSITION_ANGLE,
+    EGL_TRUE,
+    EGL_NONE};
+
+  if(requiresDirectComposition)
+  {
+    if(mIsDirectCompositionSupported)
+    {
+      surfaceAttributes = directCompositionAttributes;
+    }
+    else
+    {
+      DALI_LOG_ERROR("Native alpha composition requested, but EGL_ANGLE_direct_composition is unavailable; using the default EGL surface path\n");
+    }
+  }
 
   {
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss)
@@ -924,11 +957,18 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
       oss << "[display:" << mEglDisplay << ", config:" << config << ", native:" << mEglNativeWindow << "]";
     });
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "eglCreateWindowSurface");
-    surface = eglCreateWindowSurface(mEglDisplay, config, mEglNativeWindow, NULL);
+    surface = eglCreateWindowSurface(mEglDisplay, config, mEglNativeWindow, surfaceAttributes);
     DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss)
     {
       oss << "[window surface:" << surface << "]";
     });
+  }
+
+  if(surface == EGL_NO_SURFACE && surfaceAttributes)
+  {
+    const EGLint error = eglGetError();
+    DALI_LOG_ERROR("DirectComposition EGL surface creation failed (EGL error 0x%x); retrying with an opaque EGL surface\n", error);
+    surface = eglCreateWindowSurface(mEglDisplay, config, mEglNativeWindow, nullptr);
   }
 
   TEST_EGL_ERROR("eglCreateWindowSurface");

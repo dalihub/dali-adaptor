@@ -386,6 +386,15 @@ public:
   bool IsFocusAcceptable() const;
 
   /**
+   * @brief Returns whether the window is currently focused or not.
+   *
+   * @SINCE_2_5.37
+   * @return True if the window is focused, false otherwise
+   * @note The returned state is updated when FocusChangedSignal() is emitted.
+   */
+  bool IsFocused() const;
+
+  /**
    * @brief Shows the window if it is hidden.
    * @SINCE_1_2.60
    */
@@ -720,8 +729,8 @@ public:
    * @SINCE_2_5.20
    * @param[in] enabled True if a depth buffer should be created.
    * @note This is an alternative to setting the environment variable.
-   * There is no longer a global setting; the environment variable will
-   * only affect the main window (the automatically generated window).
+   * The environment variable provides the initial value for every window;
+   * this overrides it for this window only.
    */
   void SetDepthBufferEnabled(bool enabled);
 
@@ -739,8 +748,8 @@ public:
    * @SINCE_2_5.20
    * @param[in] enabled True if a depth buffer should be created.
    * @note This is an alternative to setting the environment variable.
-   * There is no longer a global setting; the environment variable will
-   * only affect the main window (the automatically generated window).
+   * The environment variable provides the initial value for every window;
+   * this overrides it for this window only.
    */
   void SetStencilBufferEnabled(bool enabled);
 
@@ -774,8 +783,8 @@ public:
    * @SINCE_2_2.33
    * @param[in] enabled True if the window should update partial area
    * @note This is an alternative to setting the environment variable.
-   * There is no longer a global setting; the environment variable will
-   * only affect the main window (the automatically generated window)
+   * The environment variable provides the initial value for every window;
+   * this overrides it for this window only.
    */
   void SetPartialUpdateEnabled(bool enabled);
 

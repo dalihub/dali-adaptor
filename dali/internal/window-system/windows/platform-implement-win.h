@@ -117,11 +117,10 @@ public:
   void DetachWindow();
 
   /**
-   * @brief Applies the requested Win32 color-key transparency mode.
+   * @brief Checks whether the requested Win32 transparency mode is active.
    *
-   * This is intentionally limited to the mode chosen when a DALi-owned
-   * top-level window is created. Runtime transitions and per-pixel alpha
-   * composition are not supported by this implementation.
+   * Per-pixel alpha composition is selected together with the HWND and EGL
+   * surface at creation time. Runtime transitions are not yet supported.
    */
   bool SetTransparency(bool transparent);
 

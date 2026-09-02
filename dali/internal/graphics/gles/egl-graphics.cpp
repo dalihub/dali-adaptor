@@ -250,10 +250,11 @@ Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surface
 
   auto window     = windowBase->CreateWindow(width, height);
   auto eglWindow  = reinterpret_cast<EGLNativeWindowType>(window.Get<void*>());
-  auto eglSurface = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth, config);
+  const bool requiresDirectComposition = windowBase->RequiresDirectComposition();
+  auto       eglSurface                = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth, config, requiresDirectComposition);
 
   auto surfaceId         = ++mBaseSurfaceId;
-  mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context, config, eglWindow, depthBufferRequired, stencilBufferRequired, multiSamplingLevel};
+  mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context, config, eglWindow, requiresDirectComposition, depthBufferRequired, stencilBufferRequired, multiSamplingLevel};
 
   return surfaceId;
 }
@@ -303,7 +304,7 @@ bool EglGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBu
   // may allocate new resources (e.g. a wl_egl_window on Wayland). The
   // existing native window handle is still valid and can be reused with
   // a new EGL surface and context.
-  auto newSurface = mEglImplementation->CreateSurfaceWindow(entry.nativeWindow, COLOR_DEPTH_32, newConfig);
+  auto newSurface = mEglImplementation->CreateSurfaceWindow(entry.nativeWindow, COLOR_DEPTH_32, newConfig, entry.requiresDirectComposition);
 
   // Update map entry
   entry.surface       = newSurface;

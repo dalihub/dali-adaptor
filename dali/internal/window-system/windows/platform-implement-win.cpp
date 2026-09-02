@@ -138,9 +138,8 @@ bool RegisterDaliWindowClass(const char* className, UINT classStyle, bool& regis
 
 bool EnsureWindowClassRegistered(bool transparent)
 {
-  // Layered windows cannot use a class registered with CS_OWNDC. Keep the
-  // established class for normal EGL windows and register a compatible class
-  // for the transparent presentation path.
+  // Keep the established class for normal EGL windows and use a dedicated
+  // class for the transparent DirectComposition presentation path.
   return RegisterDaliWindowClass(DALI_WINDOW_CLASS_NAME,
                                  CS_VREDRAW | CS_HREDRAW | CS_OWNDC,
                                  sWindowClassRegistered,
@@ -391,7 +390,13 @@ WinWindowHandle WindowImpl::CreateHwnd(
 
   const HWND  parentWindow = reinterpret_cast<HWND>(parent);
   const DWORD style        = parentWindow ? (WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN) : STYLE;
-  const DWORD exStyle      = transparent && !parentWindow ? WS_EX_LAYERED : 0u;
+  // DirectComposition owns the transparent window's visual. WS_EX_NOREDIRECTIONBITMAP
+  // prevents the legacy redirected bitmap from placing an opaque surface behind it.
+  //
+  // Do not combine WS_EX_LAYERED with this path. Without the classic layered-window
+  // APIs, that combination caused unstable caption and border painting during show
+  // and reposition operations. DirectComposition provides per-pixel alpha by itself.
+  const DWORD exStyle = transparent && !parentWindow ? WS_EX_NOREDIRECTIONBITMAP : 0u;
   const char* className    = transparent && !parentWindow ? DALI_TRANSPARENT_WINDOW_CLASS_NAME : DALI_WINDOW_CLASS_NAME;
   RECT        windowRect   = {0, 0, (std::max)(nWidth, 1), (std::max)(nHeight, 1)};
   if(!AdjustWindowRectEx(&windowRect, style, FALSE, exStyle))
@@ -422,15 +427,6 @@ WinWindowHandle WindowImpl::CreateHwnd(
   const auto handle = reinterpret_cast<WinWindowHandle>(hWnd);
   sOwnedWindows.insert(handle);
 
-  if(transparent && !parentWindow && !SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 0, LWA_COLORKEY))
-  {
-    const DWORD error = GetLastError();
-    DALI_LOG_ERROR("Failed to set DALi layered-window color key, error %lu\n", static_cast<unsigned long>(error));
-    ::DestroyWindow(hWnd);
-    sOwnedWindows.erase(handle);
-    EnsureWindowClassUnregistered();
-    return 0;
-  }
   return handle;
 }
 
@@ -499,15 +495,14 @@ bool WindowImpl::SetTransparency(bool transparent)
     return false;
   }
 
-  const bool currentlyTransparent = (previousStyle & WS_EX_LAYERED) != 0;
+  const bool currentlyTransparent = (previousStyle & WS_EX_NOREDIRECTIONBITMAP) != 0;
   if(transparent == currentlyTransparent)
   {
     return true;
   }
 
-  // A layered HWND must be created from the transparent window class, which
-  // intentionally omits CS_OWNDC. Replacing the class of a live HWND is not
-  // supported, so runtime transitions are deferred to a later implementation.
+  // The HWND class/style and EGL DirectComposition surface must be selected
+  // together at creation time. Replacing them on a live window is deferred.
   DALI_LOG_RELEASE_INFO("Runtime transparency changes are not supported by the Windows backend\n");
   return false;
 }

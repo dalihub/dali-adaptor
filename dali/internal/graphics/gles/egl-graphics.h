@@ -351,6 +351,7 @@ private:
     EGLContext          context;
     EGLConfig           config;        ///< Per-surface EGL config
     EGLNativeWindowType nativeWindow;  ///< Cached native window handle (from CreateWindow)
+    bool                requiresDirectComposition; ///< Whether DirectComposition was requested
     bool                depthBuffer;   ///< Whether depth buffer was requested
     bool                stencilBuffer; ///< Whether stencil buffer was requested
     int                 msaaLevel;     ///< MSAA level requested
