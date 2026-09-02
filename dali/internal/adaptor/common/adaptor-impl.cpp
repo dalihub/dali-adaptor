@@ -1000,6 +1000,9 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       const bool partialUpdateRequired = mEnvironmentOptions->PartialUpdateRequired();
       const int  multiSamplingLevel    = mEnvironmentOptions->GetMultiSamplingLevel();
 
+      // A single sample is not anti-aliasing, so anything below two counts as off.
+      const uint8_t msaaLevel = (multiSamplingLevel > 1 && multiSamplingLevel < 256) ? static_cast<uint8_t>(multiSamplingLevel) : 0u;
+
       // Update graphics relative variables.
       if(DALI_UNLIKELY(updateGraphicsRequired))
       {
@@ -1020,7 +1023,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
           window->SetDepthBufferEnabled(depthBufferRequired);
           window->SetStencilBufferEnabled(stencilBufferRequired);
           window->SetPartialUpdateEnabled(partialUpdateRequired);
-          window->SetMultiSampledAntiAliasingEnabled(multiSamplingLevel > 0);
+          window->SetMultiSampledAntiAliasingLevel(msaaLevel);
         }
         if(DALI_UNLIKELY(recreateGraphicsRequired))
         {

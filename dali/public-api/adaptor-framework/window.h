@@ -724,34 +724,12 @@ public:
   void KeepRendering(float durationSeconds);
 
   /**
-   * @brief Sets whether the window has a depth buffer or not.
-   *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if a depth buffer should be created.
-   * @note This is an alternative to setting the environment variable.
-   * The environment variable provides the initial value for every window;
-   * this overrides it for this window only.
-   */
-  void SetDepthBufferEnabled(bool enabled);
-
-  /**
    * @brief Queries whether the window has a depth buffer
    *
    * @SINCE_2_5.20
    * @return True if the window has a depth buffer
    */
   bool IsDepthBufferEnabled() const;
-
-  /**
-   * @brief Sets whether the window has a depth buffer or not.
-   *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if a depth buffer should be created.
-   * @note This is an alternative to setting the environment variable.
-   * The environment variable provides the initial value for every window;
-   * this overrides it for this window only.
-   */
-  void SetStencilBufferEnabled(bool enabled);
 
   /**
    * @brief Queries whether the window has a stencil buffer
@@ -762,20 +740,12 @@ public:
   bool IsStencilBufferEnabled() const;
 
   /**
-   * @brief Sets whether the window has MSAA.
+   * @brief Retrieves the number of samples per pixel used for multi-sampled anti-aliasing.
    *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if MSAA should be initialized
+   * @SINCE_2_5.38
+   * @return The number of samples per pixel, or 0 if MSAA is disabled
    */
-  void SetMultiSampledAntiAliasingEnabled(bool enabled);
-
-  /**
-   * @brief Queries whether the window has MSAA
-   *
-   * @SINCE_2_5.20
-   * @return True if the window has MSAA
-   */
-  bool IsMultiSampledAntiAliasingEnabled() const;
+  uint8_t GetMultiSampledAntiAliasingLevel() const;
 
   /**
    * @brief Sets whether the window will update partial area or full area.

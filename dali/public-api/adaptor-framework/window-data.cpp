@@ -18,25 +18,11 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/window-data.h>
 
+// INTERNAL INCLUDES
+#include <dali/internal/window-system/common/window-data-impl.h>
+
 namespace Dali
 {
-struct WindowData::Impl
-{
-  Impl()
-  : mPositionSize(0, 0, 0, 0),
-    mIsTransparent(true),
-    mWindowType(WindowType::NORMAL),
-    mIsFrontBufferRendering(false)
-  {
-  }
-
-  Dali::BoundsInteger mPositionSize;           ///< The position and size of the Window
-  bool                mIsTransparent;          ///< The transparency of the Window
-  WindowType          mWindowType;             ///< The window type of the Window
-  bool                mIsFrontBufferRendering; ///< The front buffer rendering of the Window
-  Dali::String        mScreen;                 ///< The current screen for supporting multiple screen
-};
-
 WindowData::WindowData()
 : mImpl(MakeUnique<Impl>())
 {
@@ -92,6 +78,31 @@ void WindowData::SetScreen(const Dali::String& screen)
 Dali::String WindowData::GetScreen() const
 {
   return mImpl->mScreen;
+}
+
+void WindowData::SetDepthBufferEnabled(bool enabled)
+{
+  mImpl->mDepthBufferEnabled = enabled ? 1 : 0;
+}
+
+void WindowData::SetStencilBufferEnabled(bool enabled)
+{
+  mImpl->mStencilBufferEnabled = enabled ? 1 : 0;
+}
+
+void WindowData::SetMultiSampledAntiAliasingLevel(uint8_t level)
+{
+  mImpl->mMultiSamplingLevel = static_cast<int16_t>(level);
+}
+
+WindowData::Impl& WindowData::GetImplementation()
+{
+  return *mImpl;
+}
+
+const WindowData::Impl& WindowData::GetImplementation() const
+{
+  return *mImpl;
 }
 
 } // namespace Dali

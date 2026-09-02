@@ -54,7 +54,7 @@ const char*    EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_co
 const char*    EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_context";
 const char*    EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
 const char*    EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
-const char* EGL_ANGLE_DIRECT_COMPOSITION = "EGL_ANGLE_direct_composition";
+const char*    EGL_ANGLE_DIRECT_COMPOSITION            = "EGL_ANGLE_direct_composition";
 #ifndef EGL_DIRECT_COMPOSITION_ANGLE
 #define EGL_DIRECT_COMPOSITION_ANGLE 0x33A5
 #endif
@@ -761,7 +761,9 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
   configAttribs.PushBack(EGL_STENCIL_SIZE);
   configAttribs.PushBack(stencilBufferRequired ? 8 : 0);
 
-  if(multiSamplingLevel != EGL_DONT_CARE && multiSamplingLevel > 0)
+  // A single sample is not anti-aliasing, so only ask for a multisample config from two up.
+  // The default level is -1 (EGL_DONT_CARE), which leaves EGL_SAMPLES out altogether.
+  if(multiSamplingLevel > 1)
   {
     configAttribs.PushBack(EGL_SAMPLES);
     configAttribs.PushBack(multiSamplingLevel);
@@ -931,7 +933,7 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
   mColorDepth      = depth;
   mIsWindow        = true;
 
-  EGLSurface   surface           = EGL_NO_SURFACE;
+  EGLSurface    surface           = EGL_NO_SURFACE;
   const EGLint* surfaceAttributes = nullptr;
 
   const EGLint directCompositionAttributes[] = {

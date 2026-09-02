@@ -248,8 +248,8 @@ Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surface
   EGLContext context = 0;
   mEglImplementation->CreateWindowContext(context, config);
 
-  auto window     = windowBase->CreateWindow(width, height);
-  auto eglWindow  = reinterpret_cast<EGLNativeWindowType>(window.Get<void*>());
+  auto       window                    = windowBase->CreateWindow(width, height);
+  auto       eglWindow                 = reinterpret_cast<EGLNativeWindowType>(window.Get<void*>());
   const bool requiresDirectComposition = windowBase->RequiresDirectComposition();
   auto       eglSurface                = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth, config, requiresDirectComposition);
 
@@ -278,18 +278,20 @@ bool EglGraphics::ReconfigureSurface(Graphics::SurfaceId surfaceId, bool depthBu
     return false; // No change needed
   }
 
-  // Destroy old EGL surface and context only.
-  // The native window is independent of the EGL config and can be reused.
-  mEglImplementation->DestroySurface(entry.surface);
-  mEglImplementation->DestroyContext(entry.context);
-
-  // Choose new config with updated depth/stencil/MSAA settings
+  // Choose new config with updated depth/stencil/MSAA settings.
+  // This has to happen before anything is torn down: a level the driver cannot
+  // satisfy must leave the surface usable rather than destroyed.
   if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32, depthBufferRequired, stencilBufferRequired, multiSamplingLevel))
   {
     DALI_LOG_ERROR("Failed to choose EGL config for reconfigured surface\n");
     return false;
   }
   EGLConfig newConfig = mEglImplementation->GetConfig();
+
+  // Destroy old EGL surface and context only.
+  // The native window is independent of the EGL config and can be reused.
+  mEglImplementation->DestroySurface(entry.surface);
+  mEglImplementation->DestroyContext(entry.context);
 
   // Create new context with new config, sharing with the resource context
   EGLContext newContext = 0;

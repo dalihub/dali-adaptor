@@ -110,6 +110,9 @@ SceneHolder::SceneHolder()
   mPreviousHoverEvent(),
   mPreviousType(Integration::TouchEventCombiner::DISPATCH_NONE),
   mDpi(),
+  mMultiSamplingLevel(-1),
+  mDepthBufferEnabled(-1),
+  mStencilBufferEnabled(-1),
   mAdaptorStarted(false),
   mVisible(true),
   mHandledMultiTouch(false)
@@ -269,13 +272,22 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
 
-  // Every scene holder starts from the system wide settings; the application may override
-  // them per window afterwards through the Window API.
+  // Every scene holder starts from the system wide settings, which the buffer
+  // policies given at construction may override for this scene alone.
   const EnvironmentOptions& environmentOptions    = adaptorImpl.GetEnvironmentOptions();
-  const bool                depthBufferRequired   = environmentOptions.DepthBufferRequired();
-  const bool                stencilBufferRequired = environmentOptions.StencilBufferRequired();
   const bool                partialUpdateRequired = environmentOptions.PartialUpdateRequired();
-  const int                 multiSamplingLevel    = environmentOptions.GetMultiSamplingLevel();
+
+  // A negative override means "follow the system".
+  auto resolve = [](int8_t override, bool systemDefault)
+  { return (override < 0) ? systemDefault : (override != 0); };
+
+  const bool depthBufferRequired   = resolve(mDepthBufferEnabled, environmentOptions.DepthBufferRequired());
+  const bool stencilBufferRequired = resolve(mStencilBufferEnabled, environmentOptions.StencilBufferRequired());
+
+  // The environment default is also negative (-1, EGL_DONT_CARE), and a single
+  // sample is not anti-aliasing, so anything below two counts as off.
+  const int requestedMultiSamplingLevel = (mMultiSamplingLevel < 0) ? environmentOptions.GetMultiSamplingLevel() : mMultiSamplingLevel;
+  const int multiSamplingLevel          = (requestedMultiSamplingLevel > 1) ? requestedMultiSamplingLevel : 0;
 
   Dali::ScenePolicyFlagBits scenePolicyFlags = Dali::ScenePolicyFlagBits::NONE;
   if(depthBufferRequired)
@@ -290,17 +302,13 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   {
     scenePolicyFlags |= Dali::ScenePolicyFlagBits::PARTIAL_UPDATE_ENABLED;
   }
-  if(multiSamplingLevel > 0)
-  {
-    scenePolicyFlags |= Dali::ScenePolicyFlagBits::MULTI_SAMPLING_ENABLED;
-  }
 
   // The surface config has to agree with the scene before the graphics surface is created,
   // otherwise the first EGL config is built without the requested buffers.
   mSurface->SetDepthBufferRequired(depthBufferRequired);
   mSurface->SetStencilBufferRequired(stencilBufferRequired);
   mSurface->SetPartialUpdateRequired(partialUpdateRequired);
-  mSurface->SetMSAALevel(multiSamplingLevel > 0 ? multiSamplingLevel : 0);
+  mSurface->SetMSAALevel(multiSamplingLevel);
 
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
@@ -636,19 +644,23 @@ bool SceneHolder::IsStencilBufferEnabled() const
   return mScene.IsStencilBufferEnabled();
 }
 
-void SceneHolder::SetMultiSampledAntiAliasingEnabled(bool enabled)
+void SceneHolder::SetMultiSampledAntiAliasingLevel(uint8_t level)
 {
-  mScene.SetMultiSampledAntiAliasingEnabled(enabled);
+  // A single sample is not anti-aliasing, so anything below two counts as off.
+  // MSAA is decided by the surface configuration alone; the scene has no say in it.
+  const int msaaLevel = (level > 1u) ? static_cast<int>(level) : 0;
+
   if(mSurface)
   {
-    mSurface->SetMSAALevel(enabled ? 1 : 0);
+    mSurface->SetMSAALevel(msaaLevel);
     mSurface->SetSurfaceConfigDirty();
   }
 }
 
-bool SceneHolder::IsMultiSampledAntiAliasingEnabled() const
+uint8_t SceneHolder::GetMultiSampledAntiAliasingLevel() const
 {
-  return mScene.IsMultiSampledAntiAliasingEnabled();
+  const int msaaLevel = mSurface ? mSurface->GetMSAALevel() : 0;
+  return (msaaLevel > 1) ? static_cast<uint8_t>(msaaLevel) : 0u;
 }
 
 void SceneHolder::SetPartialUpdateEnabled(bool enabled)

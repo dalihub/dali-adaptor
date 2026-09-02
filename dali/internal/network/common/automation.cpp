@@ -581,7 +581,7 @@ void DumpWindow(std::ostringstream& msg, Window window)
   msg << "\"DepthBuffer\":" << (window.IsDepthBufferEnabled() ? "true" : "false") << ",\n";
   msg << "\"StencilBuffer\":" << (window.IsStencilBufferEnabled() ? "true" : "false") << ",\n";
   msg << "\"PartialUpdate\":" << (window.IsPartialUpdateEnabled() ? "true" : "false") << ",\n";
-  msg << "\"MSAA\":" << (window.IsMultiSampledAntiAliasingEnabled() ? "true" : "false") << ",\n";
+  msg << "\"MSAA\":" << static_cast<int>(window.GetMultiSampledAntiAliasingLevel()) << ",\n";
   msg << "\"RenderTaskList\":";
   DumpRenderTaskList(msg, window.GetRenderTaskList());
   msg << "\n}\n";

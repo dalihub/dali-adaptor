@@ -740,14 +740,12 @@ private:
    * @brief Second stage initialization
    *
    * @param[in] surface The surface used to render on.
-   * @param[in] positionSize The window's position and size in initailized time.
+   * @param[in] windowData The data the window is created from.
    * @param[in] name The window title
    * @param[in] className The window class name
-   * @param[in] type window's type. Refer the WindowType in window-definitions.h.
-   * @param[in] screenName screen name to set current screen name if this string is not empty.
    * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader);
+  void Initialize(Any surface, const WindowData& windowData, const std::string& name, const std::string& className, const bool isUsePreLoader);
 
   /**
    * @brief Called when the window becomes iconified or deiconified.
@@ -1238,11 +1236,11 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsOrientationChanging : 1;       ///< The orientation changing flag.
-  bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
-  bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
-  bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
-  bool mIsUsePreLoader : 1;              ///< The flag is whether is created by preloader process or not.
+  bool mIsOrientationChanging : 1;         ///< The orientation changing flag.
+  bool mIsEnabledUserGeometry : 1;         ///< The user geometry enable flag.
+  bool mIsEmittedWindowCreatedEvent : 1;   ///< The Window Created Event emit flag for accessibility.
+  bool mIsFrontBufferRendering : 1;        ///< The Front Buffer Rendering state.
+  bool mIsUsePreLoader : 1;                ///< The flag is whether is created by preloader process or not.
   bool mIsScreenReaderAutoReadEnabled : 1; ///< Whether automatic screen-reader reading is enabled for this window.
 };
 

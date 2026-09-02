@@ -139,8 +139,62 @@ public:
    */
   Dali::String GetScreen() const;
 
-private:
+  /**
+   * @brief Sets whether the window has a depth buffer.
+   *
+   * @SINCE_2_5.38
+   * @param[in] enabled True if a depth buffer should be created
+   * @note If this is not called, the system-wide setting is used.
+   * @note The buffers a window renders into are fixed when it is created, so
+   * this is the only place they can be chosen. Query the result with
+   * Window::IsDepthBufferEnabled().
+   */
+  void SetDepthBufferEnabled(bool enabled);
+
+  /**
+   * @brief Sets whether the window has a stencil buffer.
+   *
+   * @SINCE_2_5.38
+   * @param[in] enabled True if a stencil buffer should be created
+   * @note If this is not called, the system-wide setting is used.
+   * @note The buffers a window renders into are fixed when it is created, so
+   * this is the only place they can be chosen. Query the result with
+   * Window::IsStencilBufferEnabled().
+   */
+  void SetStencilBufferEnabled(bool enabled);
+
+  /**
+   * @brief Sets the number of samples per pixel used for multi-sampled anti-aliasing.
+   *
+   * @SINCE_2_5.38
+   * @param[in] level The number of samples per pixel. 0 or 1 disables it, as a
+   * single sample is not anti-aliasing.
+   * @note If this is not called, the system-wide setting is used.
+   * @note If the driver has no configuration matching the requested level, the
+   * window is created with the system-wide setting instead. Query the result
+   * with Window::GetMultiSampledAntiAliasingLevel().
+   */
+  void SetMultiSampledAntiAliasingLevel(uint8_t level);
+
+public:
+  /// @cond internal
   struct Impl;
+
+  /**
+   * @brief Retrieves the internal implementation.
+   *
+   * @return The internal implementation
+   * @note Not intended for application use.
+   */
+  Impl& GetImplementation();
+
+  /**
+   * @copydoc Dali::WindowData::GetImplementation()
+   */
+  const Impl& GetImplementation() const;
+  /// @endcond
+
+private:
   UniquePtr<Impl> mImpl;
 };
 

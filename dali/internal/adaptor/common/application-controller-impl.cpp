@@ -38,6 +38,7 @@
 #include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/window-system/common/window-data-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
 
@@ -309,14 +310,9 @@ void ApplicationController::SetWindowName(const std::string& windowName)
 
 void ApplicationController::SetWindowData(const Dali::WindowData& windowData)
 {
-  mWindowData       = std::unique_ptr<Dali::WindowData>(new Dali::WindowData());
-  PositionSize size = windowData.GetPositionSize();
-  mWindowData->SetPositionSize(size);
-  mWindowData->SetTransparency(windowData.GetTransparency());
-  mWindowData->SetWindowType(windowData.GetWindowType());
-  mWindowData->SetFrontBufferRenderingEnabled(windowData.IsFrontBufferRenderingEnabled());
-  mWindowData->SetScreen(windowData.GetScreen());
-  mWindowPositionSize = mWindowData->GetPositionSize();
+  mWindowData                      = std::unique_ptr<Dali::WindowData>(new Dali::WindowData());
+  mWindowData->GetImplementation() = windowData.GetImplementation();
+  mWindowPositionSize              = mWindowData->GetPositionSize();
 }
 
 void ApplicationController::CreateWindow(bool isPreInitialize)
@@ -352,15 +348,11 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
 
   Dali::WindowData activeWindowData;
 
-  activeWindowData.SetPositionSize(mWindowPositionSize);
-
   if(mWindowData)
   {
-    activeWindowData.SetTransparency(mWindowData->GetTransparency());
-    activeWindowData.SetWindowType(mWindowData->GetWindowType());
-    activeWindowData.SetFrontBufferRenderingEnabled(mWindowData->IsFrontBufferRenderingEnabled());
-    activeWindowData.SetScreen(mWindowData->GetScreen());
+    activeWindowData.GetImplementation() = mWindowData->GetImplementation();
   }
+  activeWindowData.SetPositionSize(mWindowPositionSize);
 
   WindowSystem::Initialize();
 

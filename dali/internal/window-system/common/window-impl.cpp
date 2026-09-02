@@ -40,6 +40,7 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
+#include <dali/internal/window-system/common/window-data-impl.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -61,19 +62,7 @@ Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), type
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
 {
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
-  window->mIsTransparent         = windowData.GetTransparency();
-
-#ifdef DALI_PROFILE_UBUNTU
-  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
-  if(window->mIsTransparent)
-  {
-    DALI_LOG_RELEASE_INFO("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
-    window->mIsTransparent = false;
-  }
-#endif
-
-  window->mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
+  window->Initialize(surface, windowData, name, className, isUsePreLoader);
   return window.release();
 }
 
@@ -205,9 +194,32 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
   mNativeWindowId = mWindowBase->GetNativeWindowId();
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
+void Window::Initialize(Any surface, const WindowData& windowData, const std::string& name, const std::string& className, const bool isUsePreLoader)
 {
-  Initialize(surface, positionSize);
+  const WindowType type = windowData.GetWindowType();
+
+  mIsTransparent = windowData.GetTransparency();
+
+#ifdef DALI_PROFILE_UBUNTU
+  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
+  if(mIsTransparent)
+  {
+    DALI_LOG_RELEASE_INFO("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    mIsTransparent = false;
+  }
+#endif
+
+  mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
+
+  // The buffers this window renders into are fixed once its graphics surface exists,
+  // so they have to be taken before the adaptor is set. A negative value means the
+  // window follows the system-wide setting.
+  const WindowData::Impl& windowDataImpl = windowData.GetImplementation();
+  mDepthBufferEnabled                    = windowDataImpl.mDepthBufferEnabled;
+  mStencilBufferEnabled                  = windowDataImpl.mStencilBufferEnabled;
+  mMultiSamplingLevel                    = windowDataImpl.mMultiSamplingLevel;
+
+  Initialize(surface, windowData.GetPositionSize());
 
   // Set the flag of preloader is used.
   mIsUsePreLoader = isUsePreLoader;
@@ -229,7 +241,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
     SetFrontBufferRenderingEnabled(mIsFrontBufferRendering);
   }
 
-  SetScreen(screenName);
+  SetScreen(ToStdString(windowData.GetScreen()));
 }
 
 void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
@@ -1331,7 +1343,7 @@ void Window::OnSceneWheelEvent(Dali::Integration::SceneHolder /*sceneHolder*/, D
 bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
   Dali::Window handle(this);
-  bool consumed = false;
+  bool         consumed = false;
   if(mScene.IsGeometryHittestEnabled())
   {
     // Any connected callback consuming the event consumes it for all of them.

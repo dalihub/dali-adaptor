@@ -272,7 +272,6 @@ public:
   /**
    * @brief Sets whether the window has a depth buffer or not.
    *
-   * @SINCE_2_5.20
    * @param[in] enabled True if a depth buffer should be created.
    * @note This is an alternative to setting the environment variable.
    * The environment variable provides the initial value for every window;
@@ -283,7 +282,6 @@ public:
   /**
    * @brief Queries whether the window has a depth buffer
    *
-   * @SINCE_2_5.20
    * @return True if the window has a depth buffer
    */
   bool IsDepthBufferEnabled() const;
@@ -291,7 +289,6 @@ public:
   /**
    * @brief Sets whether the window has a depth buffer or not.
    *
-   * @SINCE_2_5.20
    * @param[in] enabled True if a depth buffer should be created.
    * @note This is an alternative to setting the environment variable.
    * The environment variable provides the initial value for every window;
@@ -302,31 +299,31 @@ public:
   /**
    * @brief Queries whether the window has a stencil buffer
    *
-   * @SINCE_2_5.20
    * @return True if the window has a stencil buffer
    */
   bool IsStencilBufferEnabled() const;
 
   /**
-   * @brief Sets whether the window has MSAA.
+   * @brief Sets the number of samples per pixel used for multi-sampled anti-aliasing.
    *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if MSAA should be initialized
+   * @param[in] level The number of samples per pixel. 0 or 1 disables MSAA,
+   * as a single sample is not anti-aliasing.
+   * @note This is an alternative to setting the environment variable.
+   * The environment variable provides the initial value for every window;
+   * this overrides it for this window only.
    */
-  void SetMultiSampledAntiAliasingEnabled(bool enabled);
+  void SetMultiSampledAntiAliasingLevel(uint8_t level);
 
   /**
-   * @brief Queries whether the window has MSAA
+   * @brief Retrieves the number of samples per pixel used for multi-sampled anti-aliasing.
    *
-   * @SINCE_2_5.20
-   * @return True if the window has MSAA
+   * @return The number of samples per pixel, or 0 if MSAA is disabled
    */
-  bool IsMultiSampledAntiAliasingEnabled() const;
+  uint8_t GetMultiSampledAntiAliasingLevel() const;
 
   /**
    * @brief Sets whether the window will update partial area or full area.
    *
-   * @SINCE_2_5.20
    * @param[in] enabled True if the window should update partial area
    * @note This is an alternative to setting the environment variable.
    * The environment variable provides the initial value for every window;
@@ -337,7 +334,6 @@ public:
   /**
    * @brief Queries whether the window will update partial area.
    *
-   * @SINCE_2_5.20
    * @return True if the window should update partial area
    */
   bool IsPartialUpdateEnabled() const;
@@ -612,6 +608,12 @@ protected:
   Integration::TouchEventCombiner::EventDispatchType mPreviousType;
 
   Uint16Pair mDpi; ///< The DPI for this SceneHolder.
+
+  /// Buffer settings taken before the scene exists. A negative value means the
+  /// scene follows the system-wide setting given by the environment variables.
+  int16_t mMultiSamplingLevel;
+  int8_t  mDepthBufferEnabled;
+  int8_t  mStencilBufferEnabled;
 
   bool mAdaptorStarted; ///< Whether the adaptor has started or not
   bool mVisible : 1;    ///< Whether the scene is visible or not
