@@ -51,6 +51,7 @@ void FrameworkUbuntu::Run()
   elm_init(mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr);
 
   mObserver.OnInit();
+  mObserver.OnResume();
 
   elm_run();
 

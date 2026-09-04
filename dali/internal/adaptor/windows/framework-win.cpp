@@ -145,8 +145,12 @@ FrameworkWin::~FrameworkWin()
 void FrameworkWin::Run()
 {
   mImpl->PrepareMessageQueue();
+
   mRunning = true;
+
   mObserver.OnInit();
+  mObserver.OnResume();
+
   mImpl->Run();
 
   mObserver.OnTerminate();
