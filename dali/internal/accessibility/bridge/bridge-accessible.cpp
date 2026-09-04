@@ -119,12 +119,23 @@ bool SortHorizontally(Accessible* lhs, Accessible* rhs)
   return leftRect.x < rightRect.x;
 }
 
-std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>& children)
+std::vector<std::vector<Accessible*>> SplitLines(Accessible* parent, const std::vector<Accessible*>& children)
 {
-  // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Accessible* child) -> bool
+  auto parentExtents = parent->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  auto getExtents    = [&parentExtents](Accessible* child)
   {
     auto extents = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+    if(Dali::EqualsZero(extents.width) && Dali::EqualsZero(extents.height) && child->GetChildCount() > 0u)
+    {
+      extents = parentExtents;
+    }
+    return extents;
+  };
+
+  // Find first with non-zero area
+  auto first = std::find_if(children.begin(), children.end(), [&getExtents](Accessible* child) -> bool
+  {
+    auto extents = getExtents(child);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
 
@@ -134,7 +145,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   }
 
   std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Bounds                          lineRect = (*first)->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  Dali::Bounds                          lineRect = getExtents(*first);
   Dali::Bounds                          rect;
 
   // Split into lines
@@ -142,7 +153,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   {
     auto child = *it;
 
-    rect = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+    rect = getExtents(child);
     if(Dali::EqualsZero(rect.height) || Dali::EqualsZero(rect.width))
     {
       // Zero area, ignore
@@ -166,7 +177,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   return lines;
 }
 
-void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Accessible*>& children)
+void SortChildrenFromTopLeft(Accessible* parent, std::vector<Dali::Accessibility::Accessible*>& children)
 {
   if(children.empty())
   {
@@ -177,7 +188,7 @@ void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Accessible*>& chil
 
   std::sort(children.begin(), children.end(), &SortVertically);
 
-  for(auto& line : SplitLines(children))
+  for(auto& line : SplitLines(parent, children))
   {
     std::sort(line.begin(), line.end(), &SortHorizontally);
     sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
@@ -204,7 +215,7 @@ void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility:
   else
   {
     // Otherwise, sort by spatial position (top-left to bottom-right).
-    SortChildrenFromTopLeft(children);
+    SortChildrenFromTopLeft(parent, children);
   }
 }
 
