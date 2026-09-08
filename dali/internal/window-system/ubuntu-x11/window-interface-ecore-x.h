@@ -23,10 +23,11 @@
 
 #include <Ecore_X.h>
 #include <X11/Xlib.h>
+#include <dali/public-api/common/dali-namespace.h>
 
 // INTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -75,6 +76,6 @@ void SendXEvent(Ecore_X_Display* display, Ecore_X_Window window, bool propagate,
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ECORE_X_RENDER_SURFACE_H

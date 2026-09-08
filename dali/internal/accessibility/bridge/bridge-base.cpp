@@ -39,7 +39,7 @@ namespace
 static Dali::Timer gTickTimer;
 }
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 
 // ApplicationAccessible implementation
@@ -309,7 +309,7 @@ std::vector<Accessible*> ApplicationAccessible::GetMatchesInMatches(MatchRule fi
   return {};
 }
 
-} //namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 // BridgeBase implementation
 BridgeBase::BridgeBase()

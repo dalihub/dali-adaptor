@@ -23,7 +23,7 @@
 #include <dali/internal/imaging/common/gif-loading.h>
 #include <dali/internal/imaging/common/webp-loading.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 AnimatedImageLoading::AnimatedImageLoading()
 {
@@ -103,4 +103,4 @@ AnimatedImageLoading::AnimatedImageLoading(Internal::Adaptor::AnimatedImageLoadi
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

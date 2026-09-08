@@ -23,7 +23,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -59,6 +59,6 @@ public:
 
 } /* namespace Platform */
 } /* namespace Internal */
-} /* namespace Dali */
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_PORTABLE_FILE_READER_H

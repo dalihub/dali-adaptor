@@ -30,7 +30,7 @@
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DisplayConnection;
 class EglInterface;
@@ -199,6 +199,6 @@ private: // Data
   std::unique_ptr<EventThreadCallback> mFrameRenderedCallback; ///< The FrameRendredCallback called from graphics driver
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_TIZEN_NATIVE_SURFACE_TIZEN_EGL_H

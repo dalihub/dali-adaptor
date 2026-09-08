@@ -23,7 +23,7 @@
 #include <ft2build.h>
 #include FT_OUTLINE_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
@@ -32,9 +32,9 @@ namespace
 struct OutlineDecomposeContext
 {
   tvg::Shape* shape{nullptr};
-  float currentX{0.0f};
-  float currentY{0.0f};
-  bool hasOpenContour{false};
+  float       currentX{0.0f};
+  float       currentY{0.0f};
+  bool        hasOpenContour{false};
 };
 
 float ToFloat(FT_Pos value)
@@ -59,7 +59,7 @@ int MoveToCallback(const FT_Vector* to, void* user)
 
 int LineToCallback(const FT_Vector* to, void* user)
 {
-  auto* ctx = static_cast<OutlineDecomposeContext*>(user);
+  auto* ctx     = static_cast<OutlineDecomposeContext*>(user);
   ctx->currentX = ToFloat(to->x);
   ctx->currentY = ToFloat(to->y);
   ctx->shape->lineTo(ctx->currentX, -ctx->currentY);
@@ -68,7 +68,7 @@ int LineToCallback(const FT_Vector* to, void* user)
 
 int ConicToCallback(const FT_Vector* control, const FT_Vector* to, void* user)
 {
-  auto* ctx = static_cast<OutlineDecomposeContext*>(user);
+  auto*       ctx = static_cast<OutlineDecomposeContext*>(user);
   const float p0x = ctx->currentX;
   const float p0y = ctx->currentY;
   const float qx  = ToFloat(control->x);
@@ -89,7 +89,7 @@ int ConicToCallback(const FT_Vector* control, const FT_Vector* to, void* user)
 
 int CubicToCallback(const FT_Vector* control1, const FT_Vector* control2, const FT_Vector* to, void* user)
 {
-  auto* ctx = static_cast<OutlineDecomposeContext*>(user);
+  auto* ctx     = static_cast<OutlineDecomposeContext*>(user);
   ctx->currentX = ToFloat(to->x);
   ctx->currentY = ToFloat(to->y);
   ctx->shape->cubicTo(
@@ -133,6 +133,6 @@ bool FtOutlineToTvgShape(FT_Outline* outline, tvg::Shape* shape)
   return true;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

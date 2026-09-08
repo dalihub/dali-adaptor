@@ -24,8 +24,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/color-depth.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -105,6 +106,6 @@ struct GraphicsCreateInfo
 
 } //namespace Graphics
 
-} //namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_ENUM_H

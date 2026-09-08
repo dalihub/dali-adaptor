@@ -27,7 +27,7 @@
 #include FT_COLOR_H
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -45,7 +45,7 @@ struct CompositeBuffer
   uint32_t width{0};        ///< Width in pixels.
   uint32_t height{0};       ///< Height in pixels.
   uint32_t stride{0};       ///< Row stride in bytes.
-  bool valid{false};        ///< Whether the buffer allocation is valid.
+  bool     valid{false};    ///< Whether the buffer allocation is valid.
 };
 
 /**
@@ -101,14 +101,14 @@ bool IsCompositeModeSupported(FT_Composite_Mode mode);
  * @return @e true if composition succeeds.
  */
 bool CompositeBuffers(
-  FT_Composite_Mode mode,
+  FT_Composite_Mode      mode,
   const CompositeBuffer& backdrop,
   const CompositeBuffer& source,
-  CompositeBuffer& output,
-  uint32_t debugGlyph);
+  CompositeBuffer&       output,
+  uint32_t               debugGlyph);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_COMPOSITE_H

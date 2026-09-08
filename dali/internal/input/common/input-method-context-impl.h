@@ -31,7 +31,7 @@
 #include <dali/integration-api/adaptor-framework/input-method-options.h>
 #include <dali/public-api/adaptor-framework/input-method-context.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -699,6 +699,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_IMPL_H

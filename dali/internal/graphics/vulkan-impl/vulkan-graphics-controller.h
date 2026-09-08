@@ -26,7 +26,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -557,5 +557,5 @@ private:
 
 } // namespace Vulkan
 } // namespace Graphics
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H

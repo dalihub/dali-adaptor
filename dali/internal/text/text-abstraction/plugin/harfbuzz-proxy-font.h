@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_HARFBUZZ_PROXY_FONT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <harfbuzz/hb-ft.h>
 #include FT_FREETYPE_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Helper class to shape of FT_Face by harfbuzz library.
@@ -81,6 +81,6 @@ private:
   Impl* mImpl;
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_TEXT_ABSTRACTION_INTERNAL_HARFBUZZ_PROXY_FONT_H

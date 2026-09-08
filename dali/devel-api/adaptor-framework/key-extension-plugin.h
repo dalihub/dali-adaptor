@@ -23,8 +23,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief KeyExtensionPlugin is an abstract interface, used by dali-adaptor to access key extension plugin.
@@ -74,6 +75,6 @@ public:
   virtual std::size_t GetKeyLookupTableCount() = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

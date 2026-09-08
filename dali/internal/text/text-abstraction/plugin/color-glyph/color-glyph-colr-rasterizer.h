@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-#include <cstddef>
-#include <cstdint>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/internal/text/text-abstraction/plugin/lru-cache-container.h>
 #include <dali/public-api/images/pixel.h>
+#include <cstddef>
+#include <cstdint>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -53,7 +53,7 @@
 #define DALI_ENABLE_COLR_V1_RENDERER 0
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 /**
@@ -89,11 +89,11 @@ public:
       PAINT_GRAPH
     };
 
-    bool  valid{false};   ///< Whether bounds were successfully computed.
-    float minX{0.0f};     ///< Minimum X in font units.
-    float minY{0.0f};     ///< Minimum Y in font units.
-    float maxX{0.0f};     ///< Maximum X in font units.
-    float maxY{0.0f};     ///< Maximum Y in font units.
+    bool   valid{false};         ///< Whether bounds were successfully computed.
+    float  minX{0.0f};           ///< Minimum X in font units.
+    float  minY{0.0f};           ///< Minimum Y in font units.
+    float  maxX{0.0f};           ///< Maximum X in font units.
+    float  maxY{0.0f};           ///< Maximum Y in font units.
     Source source{Source::NONE}; ///< Source used to produce these bounds.
   };
 
@@ -115,10 +115,10 @@ public:
   struct RawClipBox
   {
     ClipBoxCacheStatus status{ClipBoxCacheStatus::UNKNOWN};
-    FT_Pos minX{0};
-    FT_Pos minY{0};
-    FT_Pos maxX{0};
-    FT_Pos maxY{0};
+    FT_Pos             minX{0};
+    FT_Pos             minY{0};
+    FT_Pos             maxX{0};
+    FT_Pos             maxY{0};
 
     bool IsValid() const
     {
@@ -134,21 +134,21 @@ public:
    */
   struct RenderResult
   {
-    bool        success{false};     ///< Whether rendering succeeded.
-    uint8_t*    buffer{nullptr};    ///< BGRA8888 pixel buffer; caller owns it on success.
-    uint32_t    width{0};           ///< Buffer width in pixels.
-    uint32_t    height{0};          ///< Buffer height in pixels.
-    uint32_t    stride{0};          ///< Stride in bytes.
+    bool          success{false};          ///< Whether rendering succeeded.
+    uint8_t*      buffer{nullptr};         ///< BGRA8888 pixel buffer; caller owns it on success.
+    uint32_t      width{0};                ///< Buffer width in pixels.
+    uint32_t      height{0};               ///< Buffer height in pixels.
+    uint32_t      stride{0};               ///< Stride in bytes.
     Pixel::Format format{Pixel::BGRA8888}; ///< Pixel format
 
-    int32_t     horizontalOffset{0}; ///< Horizontal offset from glyph origin to bitmap left edge in pixels.
-    int32_t     verticalOffset{0};   ///< Vertical offset from baseline to bitmap top edge in pixels.
+    int32_t horizontalOffset{0}; ///< Horizontal offset from glyph origin to bitmap left edge in pixels.
+    int32_t verticalOffset{0};   ///< Vertical offset from baseline to bitmap top edge in pixels.
 
-    bool        hasPaintBounds{false}; ///< Whether paint bounds were computed.
-    float       paintMinX{0.0f};       ///< Paint bounds minimum X in font units.
-    float       paintMinY{0.0f};       ///< Paint bounds minimum Y in font units.
-    float       paintMaxX{0.0f};       ///< Paint bounds maximum X in font units.
-    float       paintMaxY{0.0f};       ///< Paint bounds maximum Y in font units.
+    bool  hasPaintBounds{false}; ///< Whether paint bounds were computed.
+    float paintMinX{0.0f};       ///< Paint bounds minimum X in font units.
+    float paintMinY{0.0f};       ///< Paint bounds minimum Y in font units.
+    float paintMaxX{0.0f};       ///< Paint bounds maximum X in font units.
+    float paintMaxY{0.0f};       ///< Paint bounds maximum Y in font units.
   };
 
   /**
@@ -159,10 +159,10 @@ public:
   explicit ColorGlyphColrRasterizer(std::size_t maxPaintBoundsCacheSize = 512u);
   ~ColorGlyphColrRasterizer();
 
-  ColorGlyphColrRasterizer(const ColorGlyphColrRasterizer&) = delete;
+  ColorGlyphColrRasterizer(const ColorGlyphColrRasterizer&)            = delete;
   ColorGlyphColrRasterizer& operator=(const ColorGlyphColrRasterizer&) = delete;
 
-  ColorGlyphColrRasterizer(ColorGlyphColrRasterizer&&) = delete;
+  ColorGlyphColrRasterizer(ColorGlyphColrRasterizer&&)            = delete;
   ColorGlyphColrRasterizer& operator=(ColorGlyphColrRasterizer&&) = delete;
 
   /**
@@ -180,9 +180,9 @@ public:
    * @return true if paint bounds are valid, false otherwise.
    */
   bool GetPaintBounds(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
-    std::size_t variationsHash,
+    FT_Face      ftFace,
+    GlyphIndex   glyphIndex,
+    std::size_t  variationsHash,
     PaintBounds& outBounds);
 
   /**
@@ -198,8 +198,8 @@ public:
    * @return The lookup status.
    */
   ClipBoxCacheStatus GetClipBox(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
+    FT_Face     ftFace,
+    GlyphIndex  glyphIndex,
     std::size_t variationsHash,
     RawClipBox& outClipBox);
 
@@ -219,12 +219,12 @@ public:
    * @return RenderResult with buffer on success (caller takes ownership).
    */
   RenderResult Rasterize(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
+    FT_Face     ftFace,
+    GlyphIndex  glyphIndex,
     std::size_t variationsHash,
-    uint32_t targetWidth,
-    uint32_t targetHeight,
-    uint16_t paletteIndex);
+    uint32_t    targetWidth,
+    uint32_t    targetHeight,
+    uint16_t    paletteIndex);
 
   /**
    * @brief Clear internal caches.
@@ -236,33 +236,33 @@ private:
    * @brief Try to produce font-unit bounds from the ClipBox cache.
    */
   bool TryGetClipBoxPaintBounds(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
-    std::size_t variationsHash,
+    FT_Face      ftFace,
+    GlyphIndex   glyphIndex,
+    std::size_t  variationsHash,
     PaintBounds& outBounds);
 
   /**
    * @brief Compute conservative paint graph bounds for fallback use (no cache).
    */
   bool ComputePaintGraphBounds(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
+    FT_Face      ftFace,
+    GlyphIndex   glyphIndex,
     PaintBounds& outBounds);
 
   /**
    * @brief Get conservative paint graph bounds through the fallback-only cache.
    */
   bool GetFallbackPaintGraphBounds(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
-    std::size_t variationsHash,
+    FT_Face      ftFace,
+    GlyphIndex   glyphIndex,
+    std::size_t  variationsHash,
     PaintBounds& outBounds);
 
   /**
    * @brief Compute raw COLRv1 ClipBox lookup result without consulting the cache.
    */
   RawClipBox ComputeClipBox(
-    FT_Face ftFace,
+    FT_Face    ftFace,
     GlyphIndex glyphIndex) const;
 
   /**
@@ -280,12 +280,12 @@ private:
    * @return RenderResult with a caller-owned buffer on success.
    */
   RenderResult RasterizeInternal(
-    FT_Face ftFace,
-    GlyphIndex glyphIndex,
-    uint32_t targetWidth,
-    uint32_t targetHeight,
-    uint16_t paletteIndex,
-    std::size_t variationsHash,
+    FT_Face            ftFace,
+    GlyphIndex         glyphIndex,
+    uint32_t           targetWidth,
+    uint32_t           targetHeight,
+    uint16_t           paletteIndex,
+    std::size_t        variationsHash,
     const PaintBounds* paintBoundsHint);
 
   // ---- ClipBox and paint graph bounds cache internal types ----
@@ -340,11 +340,11 @@ private:
     std::size_t operator()(ClipBoxCacheKey const& key) const noexcept
     {
       std::size_t hash = static_cast<std::size_t>(reinterpret_cast<std::uintptr_t>(key.mFreeTypeFace));
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mFaceIndex));
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mGlyphIndex));
-      hash = CombineHash(hash, key.mVariationsHash);
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mXPpem));
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mYPpem));
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mFaceIndex));
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mGlyphIndex));
+      hash             = CombineHash(hash, key.mVariationsHash);
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mXPpem));
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mYPpem));
       return hash;
     }
   };
@@ -396,16 +396,16 @@ private:
     std::size_t operator()(PaintBoundsCacheKey const& key) const noexcept
     {
       std::size_t hash = static_cast<std::size_t>(reinterpret_cast<std::uintptr_t>(key.mFreeTypeFace));
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mFaceIndex));
-      hash = CombineHash(hash, static_cast<std::size_t>(key.mGlyphIndex));
-      hash = CombineHash(hash, key.mVariationsHash);
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mFaceIndex));
+      hash             = CombineHash(hash, static_cast<std::size_t>(key.mGlyphIndex));
+      hash             = CombineHash(hash, key.mVariationsHash);
       return hash;
     }
   };
 
   struct PaintBoundsCacheData
   {
-    bool       valid{false};
+    bool        valid{false};
     PaintBounds bounds{};
   };
 
@@ -421,6 +421,6 @@ private:
 #endif
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_RASTERIZER_H

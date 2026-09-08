@@ -23,7 +23,7 @@
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 const float TiltSensor::DEFAULT_UPDATE_FREQUENCY = 60.0f;
 
@@ -100,4 +100,4 @@ TiltSensor::TiltSensor(Internal::Adaptor::TiltSensor* sensor)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

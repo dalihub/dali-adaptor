@@ -22,10 +22,10 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 /**
  * @brief The minimalistic, always empty Accessible object with settable Dali::Devel::Accessibility::Address.
@@ -177,10 +177,10 @@ public:
   }
 
 private:
-  Dali::Devel::Accessibility::Address     mAddress;
-  Accessible* mParent;
+  Dali::Devel::Accessibility::Address mAddress;
+  Accessible*                         mParent;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 #endif // DALI_ADAPTOR_PROXY_ACCESSIBLE_H

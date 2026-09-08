@@ -23,8 +23,8 @@
 #include <dali/devel-api/object/type-info.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/actors/layer.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <algorithm>
 
 // INTERNAL INCLUDES
@@ -33,7 +33,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 using Role = Dali::Integration::Accessibility::Role;
 
@@ -554,4 +554,4 @@ std::vector<Accessible*> ActorAccessible::GetMatchesInMatches(MatchRule firstRul
   return {};
 }
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility

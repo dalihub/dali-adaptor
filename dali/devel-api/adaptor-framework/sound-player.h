@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -101,6 +101,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL SoundPlayer(Internal::Adaptor::SoundPlayer* soundPlayer);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_SOUND_PLAYER_H

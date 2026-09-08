@@ -22,7 +22,7 @@
 #include <dali/public-api/adaptor-framework/capture.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace DevelCapture
@@ -38,6 +38,6 @@ DALI_ADAPTOR_API Dali::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
 
 } // namespace DevelCapture
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CAPTURE_DEVEL_H

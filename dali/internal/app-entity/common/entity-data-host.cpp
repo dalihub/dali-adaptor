@@ -21,7 +21,7 @@
 #include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/app-entity/common/entity-data-host.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -36,4 +36,4 @@ std::unique_ptr<EntityDataHost> CreateEntityDataHost(Dali::Integration::FocusedA
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

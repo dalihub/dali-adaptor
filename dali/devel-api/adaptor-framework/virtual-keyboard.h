@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/input-method.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief This namespace is provided for application developers to be able to show and hide the on-screen keyboard.
@@ -147,6 +147,6 @@ DALI_ADAPTOR_API TextDirection GetTextDirection();
 
 } // namespace VirtualKeyboard
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VIRTUAL_KEYBOARD_H

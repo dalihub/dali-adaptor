@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -72,6 +72,6 @@ struct DALI_ADAPTOR_API FontMetrics
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif //DALI_TEXT_ABSTRACTION_FONT_METRICS_H

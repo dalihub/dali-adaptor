@@ -25,7 +25,7 @@
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A struct that holds screen information.
@@ -107,6 +107,6 @@ private:
   int         screenHeight; ///< screen height
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_SCREEN_INFORMATION_H

@@ -23,7 +23,7 @@
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <algorithm>
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 namespace
 {
@@ -363,4 +363,4 @@ void TextureDependencyChecker::DiscardNativeTexture(const GLES::Texture* texture
     }
   }
 }
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

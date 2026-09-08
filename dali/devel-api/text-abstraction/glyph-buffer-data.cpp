@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/image-operations.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -592,4 +592,4 @@ void GlyphBufferData::DecompressScanline(const GlyphBufferData& __restrict__ inB
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DALI_ADAPTOR_WEAK_SYMBOL Dali::Graphics::Backend GetCurrentGraphicsLibraryBackend()
 {
@@ -41,4 +41,4 @@ DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<GraphicsFactoryInterface> CreateGraphic
 {
   return GraphicsLibrary::CreateGraphicsFactory(environmentOptions);
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

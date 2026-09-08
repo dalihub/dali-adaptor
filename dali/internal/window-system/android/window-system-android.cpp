@@ -27,7 +27,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -105,4 +105,4 @@ WindowSystemBase* GetWindowSystem()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

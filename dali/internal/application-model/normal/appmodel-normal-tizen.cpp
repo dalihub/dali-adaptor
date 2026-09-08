@@ -46,7 +46,7 @@ using namespace tizen_cpp;
 using tizen_cpp::tcore::AppCoreUiBase;
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -438,7 +438,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     explicit UiAppContext(unsigned int hint, FrameworkTizen* framework)
     : AppCoreUiBase(hint
 #ifdef USE_TCORE_BACKEND
-                    , /*tizen_core_enabled=*/true
+                    ,
+                    /*tizen_core_enabled=*/true
 #endif
                     ),
       mFramework(framework),
@@ -843,4 +844,4 @@ void AppModelNormal::AppExit()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

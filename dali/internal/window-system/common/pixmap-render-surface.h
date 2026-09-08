@@ -22,7 +22,7 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class TriggerEventInterface;
 
@@ -102,6 +102,6 @@ protected:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_PIXMAP_RENDER_SURFACE_H

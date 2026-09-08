@@ -25,7 +25,7 @@
 // INTERNAL HEADERS
 #include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -97,4 +97,4 @@ void DisplayConnectionX11::SetSurfaceType(Dali::Integration::RenderSurfaceInterf
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

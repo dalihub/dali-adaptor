@@ -25,7 +25,7 @@
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Dali::PixelBuffer LoadImageFromFile(StringView url, ImageDimensions size, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
@@ -57,4 +57,4 @@ ImageDimensions GetOriginalImageSize(StringView filename, bool orientationCorrec
   return TizenPlatform::ImageLoader::GetClosestImageSize(Integration::ToStdString(filename), ImageDimensions(0, 0), SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

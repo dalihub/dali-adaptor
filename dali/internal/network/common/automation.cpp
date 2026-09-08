@@ -610,7 +610,7 @@ std::string GetRenderTasks()
 
 }; // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -700,4 +700,4 @@ void SetCustomCommand(const std::string& message)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

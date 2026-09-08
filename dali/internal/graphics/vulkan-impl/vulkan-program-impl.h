@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_PROGRAM_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Reflection;
 
@@ -193,6 +193,6 @@ private:
   std::unique_ptr<Impl> mImpl; // TODO: see if we need it (PipelineCache related)
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_PROGRAM_IMPL_H

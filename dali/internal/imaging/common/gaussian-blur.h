@@ -19,7 +19,7 @@
 
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -44,6 +44,6 @@ bool PerformGaussianBlur(PixelBuffer& buffer, const float blurRadius);
 
 } //namespace Internal
 
-} //namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_GAUSSIAN_BLUR_H

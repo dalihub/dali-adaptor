@@ -6,7 +6,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 class Buffer;
 class RenderPass;
@@ -1802,6 +1802,6 @@ struct BeginRenderPassDescriptor
   uint32_t                  clearValuesCount;
 };
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif // DALI_GRAPHICS_API_TYPES_H

@@ -28,7 +28,7 @@
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 #include <map>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DragAndDrop;
 
@@ -45,20 +45,20 @@ struct DelayedWritingData
 
 struct DropTarget
 {
-  Dali::Actor                            target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  bool                                   inside;
-  int                                    parentWindowId;
+  Dali::Actor               target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  bool                      inside;
+  int                       parentWindowId;
 };
 
 struct DropWindowTarget
 {
-  Dali::Window                           target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  bool                                   inside;
-  int                                    windowId;
+  Dali::Window              target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  bool                      inside;
+  int                       windowId;
 };
 
 /**
@@ -201,7 +201,7 @@ private:
   int                                mWindowTargetIndex{-1};
   Dali::Vector2                      mPosition;
   Dali::Vector2                      mWindowPosition;
-  SourceCallback                      mSourceCallback{};
+  SourceCallback                     mSourceCallback{};
   std::vector<DropTarget>            mDropTargets;
   std::vector<DropWindowTarget>      mDropWindowTargets;
   std::map<std::string, std::string> mDataMap;
@@ -211,6 +211,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_ECORE_WL2_H

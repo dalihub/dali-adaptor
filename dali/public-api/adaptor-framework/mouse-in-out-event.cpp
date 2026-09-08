@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/public-api/adaptor-framework/mouse-in-out-event.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct MouseInOutEvent::Impl
 {
@@ -81,4 +81,4 @@ Device::Subclass::Type MouseInOutEvent::GetDeviceSubclass() const
   return mImpl->deviceSubclass;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -19,7 +19,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/widget-application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -68,4 +68,4 @@ void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widget
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

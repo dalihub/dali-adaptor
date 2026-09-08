@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/input-method.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -111,6 +111,6 @@ private:
 };
 
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_INPUT_METHOD_OPTIONS_H

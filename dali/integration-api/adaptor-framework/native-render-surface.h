@@ -23,7 +23,7 @@
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * Native interface of render surface.
@@ -88,6 +88,6 @@ protected:
   NativeRenderSurface& operator=(const NativeRenderSurface& rhs) = delete;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_NATIVE_RENDER_SURFACE_H

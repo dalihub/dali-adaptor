@@ -45,7 +45,7 @@ inline bool IsValidCString(const char* str)
 }
 
 } // namespace
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 inline VertexInputAttributeFormat ToVertexInputAttributeFormat(SpvReflectFormat spvFormat)
 {
@@ -709,4 +709,4 @@ Graphics::ShaderLanguage Reflection::GetLanguage() const
   return ShaderLanguage::SPIRV_1_0;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

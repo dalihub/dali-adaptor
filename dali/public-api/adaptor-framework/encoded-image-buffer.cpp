@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/encoded-image-buffer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 EncodedImageBuffer::EncodedImageBuffer()
 {
@@ -86,4 +86,4 @@ EncodedImageBuffer EncodedImageBuffer::New(RawBufferType&& buffer, ImageType typ
   return EncodedImageBuffer(internal.Get());
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

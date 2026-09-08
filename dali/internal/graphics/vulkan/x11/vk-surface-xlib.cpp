@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <dali/integration-api/render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -56,6 +56,6 @@ std::unique_ptr<SurfaceFactory> SurfaceFactory::New(Dali::RenderSurface& renderS
 }
 
 } // namespace Graphics
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #pragma GCC diagnostic pop

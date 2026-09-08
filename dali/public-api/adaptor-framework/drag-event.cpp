@@ -25,7 +25,7 @@
 #define DALI_ASSERT_VALID_DRAG_EVENT(impl) \
   DALI_ASSERT_ALWAYS((impl) && "Cannot use a moved-from DragEvent object")
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct DragAndDrop::DragEvent::Impl
 {
@@ -124,6 +124,6 @@ Dali::String DragAndDrop::DragEvent::GetData() const
   return mImpl->data;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #undef DALI_ASSERT_VALID_DRAG_EVENT

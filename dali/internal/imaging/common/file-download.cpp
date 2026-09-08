@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/file-download/file-download-plugin-proxy.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -43,4 +43,4 @@ bool DownloadRemoteFileIntoMemory(const std::string&     url,
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

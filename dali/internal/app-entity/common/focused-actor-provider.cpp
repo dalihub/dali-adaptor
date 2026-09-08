@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/integration-api/adaptor-framework/focused-actor-provider.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -50,4 +50,4 @@ FocusedActorProvider* GetFocusedActorProvider()
 }
 
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE

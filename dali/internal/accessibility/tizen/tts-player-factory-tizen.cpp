@@ -18,7 +18,7 @@
 #include <dali/internal/accessibility/common/tts-player-factory.h>
 #include <dali/internal/accessibility/tizen/tts-player-impl-tizen.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -38,4 +38,4 @@ std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -22,7 +22,7 @@
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 Clipboard::Clipboard()
@@ -53,9 +53,9 @@ bool Clipboard::HasType(const Dali::String& mimeType)
   return GetImplementation(*this).HasType(mimeType.CStr());
 }
 
-void Clipboard::DoGetData(const Dali::String& mimeType,
+void Clipboard::DoGetData(const Dali::String&               mimeType,
                           Dali::ConnectionTrackerInterface* connectionTracker,
-                          Dali::CallbackBase* callback)
+                          Dali::CallbackBase*               callback)
 {
   GetImplementation(*this).DoGetData(mimeType, connectionTracker, callback);
 }
@@ -65,4 +65,4 @@ Clipboard::DataOfferedSignalType& Clipboard::DataOfferedSignal()
   return GetImplementation(*this).DataOfferedSignal();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

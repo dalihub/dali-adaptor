@@ -25,7 +25,7 @@
 
 using Dali::Internal::Adaptor::WindowSystem::WindowSystemX;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -683,6 +683,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_LIBUVX_WINDOW_BASE_X_H

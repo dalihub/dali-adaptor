@@ -804,7 +804,7 @@ void ConvertTjpfCMYKToRGB888(PixelArray __restrict__ cmykBuffer, PixelArray __re
 }
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -1453,4 +1453,4 @@ bool LoadJpegHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

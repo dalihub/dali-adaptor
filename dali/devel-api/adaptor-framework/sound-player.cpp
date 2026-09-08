@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/sound-player-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 SoundPlayer::SoundPlayer()
 {
@@ -56,4 +56,4 @@ SoundPlayer::SoundPlayer(Internal::Adaptor::SoundPlayer* player)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -23,7 +23,7 @@
 #include <dali/internal/adaptor/tizen/framework-tizen.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -66,4 +66,4 @@ FrameworkFactory* GetFrameworkFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

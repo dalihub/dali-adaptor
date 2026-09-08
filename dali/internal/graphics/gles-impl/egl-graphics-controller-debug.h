@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <unordered_set>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 #if defined(DEBUG_ENABLED)
 /**
@@ -77,6 +77,6 @@ struct GraphicsFrameDump
 #define DUMP_FRAME_END()
 #endif
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H

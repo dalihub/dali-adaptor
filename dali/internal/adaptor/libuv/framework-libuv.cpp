@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <cstring>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -157,4 +157,4 @@ void UIThreadLoader::Run(Runner runner)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

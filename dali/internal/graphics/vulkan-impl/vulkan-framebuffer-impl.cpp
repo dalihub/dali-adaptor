@@ -31,7 +31,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 
 FramebufferImpl* FramebufferImpl::New(
@@ -386,7 +386,7 @@ std::vector<vk::ClearValue> FramebufferImpl::GetClearValues() const
   return result;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 // Namespace Graphics
 

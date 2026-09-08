@@ -23,7 +23,7 @@
 
 #include <dali/devel-api/object/type-registry.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -386,4 +386,4 @@ void TtsPlayerTizen::LogErrorCode(tts_error_e reason)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

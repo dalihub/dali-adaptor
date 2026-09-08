@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -421,6 +421,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_X_H

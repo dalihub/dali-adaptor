@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_ICU_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/devel-api/text-abstraction/icu-plugin.h>
 #include <dali/devel-api/text-abstraction/icu.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -97,6 +97,6 @@ inline static const TextAbstraction::Internal::ICU& GetImplementation(const Text
   return static_cast<const TextAbstraction::Internal::ICU&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_ICU_IMPL_H

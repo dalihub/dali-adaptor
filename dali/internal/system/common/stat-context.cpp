@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -178,4 +178,4 @@ void StatContext::LogMarker()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

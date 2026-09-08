@@ -24,7 +24,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Capture::Capture()
 {
@@ -116,4 +116,4 @@ Capture::Capture(Internal::Adaptor::Capture* internal)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

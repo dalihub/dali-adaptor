@@ -24,7 +24,7 @@
 #define DALI_ASSERT_VALID_VIDEO_SOURCE_DESCRIPTOR(impl) \
   DALI_ASSERT_ALWAYS((impl) && "Cannot use a moved-from VideoSourceDescriptor object")
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct VideoSourceDescriptor::Impl
 {
@@ -117,6 +117,6 @@ uint32_t VideoSourceDescriptor::GetVersion() const
   return mImpl->version;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #undef DALI_ASSERT_VALID_VIDEO_SOURCE_DESCRIPTOR

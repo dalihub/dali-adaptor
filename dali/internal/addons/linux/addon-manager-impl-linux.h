@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -173,5 +173,5 @@ private:
 };
 
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 #endif //DALI_CMAKE_EXTENSION_MANAGER_IMPL_UBUNTU

@@ -22,7 +22,7 @@
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/tizen/tcore/window-base-tcore-wl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -42,4 +42,4 @@ std::unique_ptr<WindowFactory> GetWindowFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 #include <dali/internal/imaging/common/pixel-buffer-impl.h> ///< for Internal::Adaptor::PixelBuffer::New()
 #include <dali/internal/system/common/system-error-print.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -266,4 +266,4 @@ bool LoadBitmapFromPkm(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

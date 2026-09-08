@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/ui-context.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -172,6 +172,6 @@ inline const UiContext& GetImplementation(const Dali::UiContext& uiContext)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_COMMON_UI_CONTEXT_H

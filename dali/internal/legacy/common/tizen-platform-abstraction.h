@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class CallbackBase;
 
@@ -108,6 +108,6 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_ABSTRACTION_H

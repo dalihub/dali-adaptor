@@ -29,7 +29,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -68,8 +68,8 @@ public:
   /**
    * @copydoc Dali::RemoteFileDownloadManager::StartDownload()
    */
-  Dali::RemoteFileDownloadManager::RequestId StartDownload(const std::string&                                   url,
-                                                           size_t                                               maxSize,
+  Dali::RemoteFileDownloadManager::RequestId StartDownload(const std::string&                                  url,
+                                                           size_t                                              maxSize,
                                                            Dali::RemoteFileDownloadManager::CompletionCallback callback);
 
   /**
@@ -131,6 +131,6 @@ inline const Internal::Adaptor::RemoteFileDownloadManager& GetImplementation(con
   return static_cast<const Internal::Adaptor::RemoteFileDownloadManager&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_REMOTE_FILE_DOWNLOAD_MANAGER_H

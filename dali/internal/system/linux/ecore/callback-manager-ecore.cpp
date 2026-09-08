@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -262,4 +262,4 @@ void EcoreCallbackManager::RemoveAllCallbacks()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

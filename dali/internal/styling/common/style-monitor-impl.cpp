@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -247,4 +247,4 @@ void StyleMonitor::EmitStyleChangeSignal(StyleChange::Type styleChange)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

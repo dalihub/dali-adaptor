@@ -32,7 +32,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/math/rect.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -239,4 +239,4 @@ Dali::Bounds GetActorWindowBounds(Dali::Actor actor)
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

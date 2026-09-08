@@ -22,7 +22,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -162,4 +162,4 @@ bool Clipboard::OnMultiSelectionTimeout()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

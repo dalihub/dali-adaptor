@@ -2,7 +2,7 @@
 #define PLATFORM_IMPLEMENT_WIN_INCLUDE
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 typedef uintptr_t WinWindowHandle;
 typedef uint64_t  WinPixmap;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -139,6 +139,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // PLATFORM_IMPLEMENT_WIN_INCLUDE

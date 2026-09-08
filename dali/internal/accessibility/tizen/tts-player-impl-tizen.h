@@ -30,7 +30,7 @@
 #include <dali/devel-api/adaptor-framework/tts-player.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -145,6 +145,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_TIZEN_TTS_PLAYER_IMPL_TIZEN_H

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/feedback-plugin.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Plugin
 {
@@ -75,6 +75,6 @@ public: // FeedbackPlugin overrides
 
 } // namespace Plugin
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_PLUGIN_DALI_FEEDBACK_H

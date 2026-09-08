@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 class Reflection;
 
@@ -280,6 +280,6 @@ public:
 private:
   ProgramImpl* mProgram{nullptr};
 };
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif //DALI_GRAPHICS_GLES_PROGRAM_H

@@ -30,7 +30,7 @@
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
 #include <dali/internal/canvas-renderer/common/shape-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -770,4 +770,4 @@ void CanvasRenderer::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawabl
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-factory.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 class NativeImageFactoryCocoa : public NativeImageFactory
 {
@@ -39,4 +39,4 @@ public:
     Any                                 nativeImageQueue) override;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

@@ -149,7 +149,7 @@ Dali::InputMethod::AutoCapitalType NormalizeAutoCapitalType(int value)
 
 Dali::InputMethod::PanelLayoutVariation ToPanelLayoutVariation(
   Dali::InputMethod::PanelLayout layout,
-  int rawVariation)
+  int                            rawVariation)
 {
   using namespace Dali::InputMethod;
 
@@ -203,7 +203,7 @@ Dali::InputMethod::PanelLayoutVariation ToPanelLayoutVariation(
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -367,4 +367,4 @@ Dali::InputMethod::PanelLayoutVariation InputMethodOptions::GetPanelLayoutVariat
 }
 
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE

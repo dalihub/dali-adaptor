@@ -18,7 +18,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/key-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelKey
 {
@@ -39,4 +39,4 @@ bool IsSystemKeyCodePriority()
 
 } // namespace DevelKey
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

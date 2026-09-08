@@ -28,7 +28,7 @@
 // INTERNAL HEADERS
 #include <dali/internal/window-system/tizen/display-connection-native-types.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 namespace
 {
@@ -207,4 +207,4 @@ Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
   return result;
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_CACHE_HANDLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-manager.h>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief FontClient Plugin cache item handler.
@@ -482,9 +482,9 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
-  FontPathList                              mCustomFontDirectories; ///< Cache custom font directories to recovery upon reinitialization.
-  std::unique_ptr<FontFaceManager>          mFontFaceManager;       ///< The freetype font face manager. It will cache font face.
-  std::unique_ptr<GlyphCacheManager>        mGlyphCacheManager;     ///< The glyph cache manager. It will cache this face's glyphs.
+  FontPathList                              mCustomFontDirectories;    ///< Cache custom font directories to recovery upon reinitialization.
+  std::unique_ptr<FontFaceManager>          mFontFaceManager;          ///< The freetype font face manager. It will cache font face.
+  std::unique_ptr<GlyphCacheManager>        mGlyphCacheManager;        ///< The glyph cache manager. It will cache this face's glyphs.
   std::unique_ptr<ColorGlyphColrRasterizer> mColorGlyphColrRasterizer; ///< COLRv1 paint bounds/rasterization helper.
 
 private:                                         // Member value
@@ -498,6 +498,6 @@ private:                                         // Member value
   bool     mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_CACHE_HANDLER_H

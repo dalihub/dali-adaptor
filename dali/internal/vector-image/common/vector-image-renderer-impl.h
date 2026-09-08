@@ -37,7 +37,7 @@ struct NSVGrasterizer;
 struct NSVGimage;
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -141,6 +141,6 @@ inline static const Internal::Adaptor::VectorImageRenderer& GetImplementation(co
   return static_cast<const Internal::Adaptor::VectorImageRenderer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_VECTOR_IMAGE_RENDERER_IMPL_H

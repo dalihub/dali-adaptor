@@ -39,7 +39,7 @@
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -88,20 +88,21 @@ extern "C" DALI_ADAPTOR_API void AppExit(AppModelWidget* p)
   p->AppExit();
 }
 
-class IEvents {
- public:
+class IEvents
+{
+public:
   virtual ~IEvents() = default;
 
-  virtual void OnLowBattery(int status) = 0;
-  virtual void OnLowMemory(int status) = 0;
-  virtual void OnDeviceOrientationChanged(int status) = 0;
-  virtual void OnLanguageChanged(const std::string& val) = 0;
+  virtual void OnLowBattery(int status)                      = 0;
+  virtual void OnLowMemory(int status)                       = 0;
+  virtual void OnDeviceOrientationChanged(int status)        = 0;
+  virtual void OnLanguageChanged(const std::string& val)     = 0;
   virtual void OnRegionFormatChanged(const std::string& val) = 0;
 };
 
 class LowBatteryEvent : public tizen_cpp::WidgetBase::EventBase
 {
- public:
+public:
   LowBatteryEvent(IEvents* listener)
   : EventBase(IEvent::Type::LOW_BATTERY),
     mEvents(listener)
@@ -116,13 +117,13 @@ class LowBatteryEvent : public tizen_cpp::WidgetBase::EventBase
     mEvents->OnLowBattery(val);
   }
 
- private:
+private:
   IEvents* mEvents;
 };
 
 class LowMemoryEvent : public tizen_cpp::WidgetBase::EventBase
 {
- public:
+public:
   LowMemoryEvent(IEvents* listener)
   : EventBase(IEvent::Type::LOW_MEMORY),
     mEvents(listener)
@@ -137,13 +138,13 @@ class LowMemoryEvent : public tizen_cpp::WidgetBase::EventBase
     mEvents->OnLowMemory(val);
   }
 
- private:
+private:
   IEvents* mEvents;
 };
 
 class DeviceOrientationChangedEvent : public tizen_cpp::WidgetBase::EventBase
 {
- public:
+public:
   DeviceOrientationChangedEvent(IEvents* listener)
   : EventBase(IEvent::Type::DEVICE_ORIENTATION_CHANGED),
     mEvents(listener)
@@ -158,13 +159,13 @@ class DeviceOrientationChangedEvent : public tizen_cpp::WidgetBase::EventBase
     mEvents->OnDeviceOrientationChanged(val);
   }
 
- private:
+private:
   IEvents* mEvents;
 };
 
 class LanguageChangedEvent : public tizen_cpp::WidgetBase::EventBase
 {
- public:
+public:
   LanguageChangedEvent(IEvents* listener)
   : EventBase(IEvent::Type::LANG_CHANGE),
     mEvents(listener)
@@ -179,13 +180,13 @@ class LanguageChangedEvent : public tizen_cpp::WidgetBase::EventBase
   {
   }
 
- private:
+private:
   IEvents* mEvents;
 };
 
 class RegionFormatChangedEvent : public tizen_cpp::WidgetBase::EventBase
 {
- public:
+public:
   RegionFormatChangedEvent(IEvents* listener)
   : EventBase(IEvent::Type::REGION_CHANGE),
     mEvents(listener)
@@ -200,13 +201,13 @@ class RegionFormatChangedEvent : public tizen_cpp::WidgetBase::EventBase
   {
   }
 
- private:
+private:
   IEvents* mEvents;
 };
 
 class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, public IEvents
 {
- public:
+public:
   bool IsWidgetFeatureEnabled()
   {
     static bool feature   = false;
@@ -313,7 +314,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
   void OnLanguageChanged(const std::string& val) override
   {
     DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppLanguageChanged() emitted", __MODULE__, __func__, __LINE__);
-    Framework::Observer& observer  = mFramework->GetObserver();
+    Framework::Observer& observer = mFramework->GetObserver();
 
     if(!val.empty())
     {
@@ -329,7 +330,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
   void OnRegionFormatChanged(const std::string& val) override
   {
     DALI_TIZEN_DLOG(DLOG_INFO, "%s: %s(%d) > AppRegionChanged() emitted", __MODULE__, __func__, __LINE__);
-    Framework::Observer& observer  = mFramework->GetObserver();
+    Framework::Observer& observer = mFramework->GetObserver();
 
     if(!val.empty())
     {
@@ -451,7 +452,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     }
 
     DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget::Impl::AppMain() - Framework set (argc=%d)\n",
-                         mFramework->GetArgc() ? *mFramework->GetArgc() : 0);
+                    mFramework->GetArgc() ? *mFramework->GetArgc() : 0);
 
     AddEvent(std::shared_ptr<EventBase>(new LowBatteryEvent(this)));
     AddEvent(std::shared_ptr<EventBase>(new LowMemoryEvent(this)));
@@ -461,7 +462,7 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
 
     DALI_TIZEN_DLOG(DLOG_INFO, "AppModelWidget AppMain 5");
 
-    int argc = 0;
+    int    argc = 0;
     char** argv = nullptr;
     if(mFramework->GetArgc() && mFramework->GetArgv())
     {
@@ -495,9 +496,9 @@ class DALI_ADAPTOR_API AppModelWidget::Impl : public tizen_cpp::WidgetBase, publ
     gWidgetBase = nullptr;
   }
 
-  AppModelWidget*                   mAppModelWidget;
-  FrameworkTizen*                   mFramework = nullptr;
-  std::unique_ptr<EventLoop>        mEventLoop;
+  AppModelWidget*            mAppModelWidget;
+  FrameworkTizen*            mFramework = nullptr;
+  std::unique_ptr<EventLoop> mEventLoop;
 }; // Impl
 
 AppModelWidget::AppModelWidget()
@@ -526,4 +527,4 @@ void AppModelWidget::AppExit()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

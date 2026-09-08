@@ -19,13 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
-#include <list>
 #include <tizen_core.h>
+#include <list>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -114,7 +114,7 @@ private:
   void RemoveStandardCallback(TcoreCallbackData* callbackData);
 
   // Undefined
-  TcoreCallbackManager(const TcoreCallbackManager&)      = delete;
+  TcoreCallbackManager(const TcoreCallbackManager&)            = delete;
   TcoreCallbackManager& operator=(const TcoreCallbackManager&) = delete;
 
 private:
@@ -129,6 +129,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_CALLBACK_MANAGER_H

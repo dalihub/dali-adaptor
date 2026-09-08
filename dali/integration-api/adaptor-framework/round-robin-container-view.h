@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstddef>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief RoundRobinContainerView is a view to a container that allows iterating through the elements cyclically.
@@ -123,6 +124,6 @@ private:
   size_t        mNextIndex; //< index to the next element to be viewed
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_ROUND_ROBIN_CONTAINER_VIEW_H

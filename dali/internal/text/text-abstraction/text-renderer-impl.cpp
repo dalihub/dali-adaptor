@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/cairo-renderer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -80,4 +80,4 @@ Dali::PixelBuffer TextRenderer::Render(const TextAbstraction::TextRenderer::Para
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

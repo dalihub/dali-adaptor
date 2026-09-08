@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 void SetThreadName(const std::string& threadName)
 {
@@ -41,4 +41,4 @@ int32_t GetUiThreadId()
 {
   return Internal::Adaptor::ThreadSettings::GetUiThreadId();
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE

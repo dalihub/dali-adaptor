@@ -31,7 +31,7 @@
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 
-namespace Dali::Internal::Adaptor::GraphicsLibrary
+namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 /**
  * @brief Returns the library loaded graphics backend currently.
@@ -94,4 +94,4 @@ std::unique_ptr<NativeImageSurface> CreateNativeImageSurface(NativeImageQueuePtr
  */
 std::unique_ptr<Any> CastToNativeGraphicsType(void*);
 
-} // namespace Dali::Internal::Adaptor::GraphicsLibrary
+} //namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary

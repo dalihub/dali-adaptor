@@ -29,7 +29,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -129,6 +129,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APP_ENTITY_COMMON_ENTITY_DATA_SERVICE_H

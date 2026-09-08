@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_UTILS
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace Graphics
@@ -647,6 +647,6 @@ static inline constexpr FormatInfo GetFormatInfo(const vk::Format format)
 
 } // Namespace Graphics
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_GRAPHICS_VULKAN_UTILS

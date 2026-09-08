@@ -23,7 +23,7 @@
 #include <dali/internal/graphics/common/graphics-library-handle.h>
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * @copydoc Dali::Internal::Adaptor::GraphicsLibrary::GetCurrentGraphicsLibraryBackend()
@@ -44,4 +44,4 @@ extern GraphicsLibraryHandlePtr GetGraphicsLibraryHandle();
  * @copydoc Dali::Internal::Adaptor::GraphicsLibrary::CreateGraphicsFactory()
  */
 extern std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptions& environmentOptions);
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

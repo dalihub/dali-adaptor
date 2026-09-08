@@ -35,7 +35,7 @@
 #undef VOID
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -482,6 +482,6 @@ DALI_ADAPTOR_API LegacyContentReceivedSignalType& LegacyContentReceivedSignal(Da
 
 } // namespace InputMethodContext
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_INPUT_METHOD_CONTEXT_H

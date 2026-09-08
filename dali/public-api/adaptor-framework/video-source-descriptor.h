@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/common/dali-string-view.h>
+#include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/common/unique-ptr.h>
 #include <dali/public-api/object/any.h>
 #include <cstdint>
@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Ownership policy for a video source's native session.
@@ -192,6 +192,6 @@ private:
   UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VIDEO_SOURCE_DESCRIPTOR_H

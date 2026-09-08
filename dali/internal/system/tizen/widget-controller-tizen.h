@@ -30,7 +30,7 @@
 #include <dali/devel-api/adaptor-framework/widget-impl.h>
 #include <dali/internal/system/common/widget-controller.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -101,6 +101,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WIDGET_CONTROLLER_TIZEN_H

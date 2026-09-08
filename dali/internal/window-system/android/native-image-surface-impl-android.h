@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -83,6 +83,6 @@ public:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_ANDROID_NATIVE_IMAGE_SURFACE_IMPL_ANDROID_H

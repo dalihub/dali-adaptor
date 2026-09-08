@@ -38,7 +38,7 @@ Debug::Filter*        gLogCmdBufferFilter = Debug::Filter::New(Debug::NoLogging,
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 const uint32_t EXCESS_BUFFER_COUNT = 8;
 
@@ -639,4 +639,4 @@ void CommandBuffer::Process() const
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

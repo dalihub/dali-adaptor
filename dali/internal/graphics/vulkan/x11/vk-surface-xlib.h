@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_VKSURFACEXLIB_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -50,6 +50,6 @@ private:
 
 } // Namespace Vulkan
 } // Namespace Graphics
-} // Namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_GRAPHICS_VULKAN_VKSURFACEXLIB_H

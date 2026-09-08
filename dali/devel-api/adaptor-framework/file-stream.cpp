@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor-framework/common/file-stream-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 FileStream::FileStream(const std::string& filename, uint8_t mode)
 {
@@ -55,4 +55,4 @@ FILE* FileStream::GetFile()
   return mImpl->GetFile();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

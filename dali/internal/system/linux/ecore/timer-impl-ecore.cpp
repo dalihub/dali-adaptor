@@ -27,7 +27,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -272,4 +272,4 @@ bool TimerEcore::IsRunning() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

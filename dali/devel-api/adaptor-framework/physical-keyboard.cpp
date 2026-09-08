@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 PhysicalKeyboard::PhysicalKeyboard()
 {
@@ -60,4 +60,4 @@ PhysicalKeyboard::PhysicalKeyboard(Internal::Adaptor::PhysicalKeyboard* impl)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

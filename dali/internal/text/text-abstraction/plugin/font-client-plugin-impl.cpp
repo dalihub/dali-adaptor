@@ -92,7 +92,7 @@ constexpr uint32_t ELLIPSIS_CHARACTER = 0x2026;
 
 using Dali::Vector;
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 namespace
 {
@@ -1543,4 +1543,4 @@ bool FontClient::Plugin::HasItalicStyle(FontId fontId) const
   return false;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

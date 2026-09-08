@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -127,4 +127,4 @@ void FpsTracker::OutputFPSRecord()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

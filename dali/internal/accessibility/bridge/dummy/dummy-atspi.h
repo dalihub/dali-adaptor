@@ -22,7 +22,7 @@
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/public-api/common/shared-ptr.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 struct DummyBridge : Dali::Integration::Accessibility::Bridge
 {
@@ -263,6 +263,6 @@ struct DummyBridge : Dali::Integration::Accessibility::Bridge
   }
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 #endif // DALI_ADAPTOR_DUMMY_ATSPI_H

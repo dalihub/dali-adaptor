@@ -47,7 +47,7 @@
 
 typedef uint8_t WebPByteType;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -748,4 +748,4 @@ bool WebPLoading::HasLoadingSucceeded() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

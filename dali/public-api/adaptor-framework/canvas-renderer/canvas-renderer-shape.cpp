@@ -22,7 +22,7 @@
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 #include <dali/internal/canvas-renderer/common/shape-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 CanvasRenderer::Shape CanvasRenderer::Shape::New()
 {
@@ -178,4 +178,4 @@ CanvasRenderer::Shape::StrokeJoin CanvasRenderer::Shape::GetStrokeJoin() const
   return GetImplementation(*this).GetStrokeJoin();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

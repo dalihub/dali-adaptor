@@ -23,7 +23,7 @@
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/network/common/network-service-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelApplication
 {
@@ -92,7 +92,7 @@ Dali::Window GetPreInitializedWindow()
 
 } // namespace DevelApplication
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 extern "C" void ApplicationPreInitialize(int* argc, char** argv[])
 {

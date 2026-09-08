@@ -26,7 +26,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Extension
 {
@@ -46,6 +46,6 @@ DALI_ADAPTOR_API int32_t GetRenderThreadId();
 DALI_ADAPTOR_API Dali::Vector<Window> GetWindows();
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_EXTENSION_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-native-image-handler.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * @brief Dummy implementation of VulkanNativeImageHandler for non-Tizen platforms
@@ -67,4 +67,4 @@ void VulkanNativeImageHandlerGeneric::ResetNativeResources(Device& device, std::
 {
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

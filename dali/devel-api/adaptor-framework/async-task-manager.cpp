@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/async-task-manager-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 AsyncTask::AsyncTask(CallbackBase* callback, PriorityType priority, ThreadType threadType)
 : mCompletedCallback(UniquePtr<CallbackBase>(callback)),
@@ -88,4 +88,4 @@ AsyncTaskManager::AsyncTaskManager(Internal::Adaptor::AsyncTaskManager* impl)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

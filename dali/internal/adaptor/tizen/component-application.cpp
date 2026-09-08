@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/tizen/component-application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 ComponentApplication ComponentApplication::New()
 {
@@ -52,4 +52,4 @@ ComponentApplication::ComponentApplication(Internal::Adaptor::ComponentApplicati
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -22,7 +22,7 @@
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 // CanvasRenderer::Drawable
 //
@@ -88,4 +88,4 @@ CanvasRenderer::Drawable CanvasRenderer::Drawable::DownCast(BaseHandle handle)
 {
   return CanvasRenderer::Drawable(dynamic_cast<Internal::Adaptor::Drawable*>(handle.GetObjectPtr()));
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE

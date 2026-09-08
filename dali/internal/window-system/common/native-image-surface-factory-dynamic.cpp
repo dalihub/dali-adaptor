@@ -23,10 +23,10 @@
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
 {
   return GraphicsLibrary::CreateNativeImageSurface(queue);
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

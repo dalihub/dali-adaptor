@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
 : mEglImplementation(eglImpl),
@@ -59,4 +59,4 @@ void EglImageExtensions::InitializeEglImageKHR()
   DALI_LOG_ERROR(" does not support InitializeEglImageKHR\n");
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

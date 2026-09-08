@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_CONTEXT_MENU_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A class WebEngineContextMenu for context menu of web engine.
@@ -113,6 +113,6 @@ public:
   virtual bool Hide() = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_CONTEXT_MENU_H

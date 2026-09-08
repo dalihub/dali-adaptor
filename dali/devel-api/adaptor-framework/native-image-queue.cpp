@@ -26,7 +26,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 NativeImageQueuePtr NativeImageQueue::New(uint32_t width, uint32_t height, ColorFormat colorFormat)
 {
@@ -205,4 +205,4 @@ NativeImageQueue::~NativeImageQueue()
   delete mImpl;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h>
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -222,6 +222,6 @@ inline static const Internal::Adaptor::Drawable& GetImplementation(const Dali::C
   return static_cast<const Internal::Adaptor::Drawable&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAWABLE_IMPL_H

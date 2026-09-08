@@ -28,7 +28,7 @@
 #include <dali/internal/input/tizen-wayland/tcore/tcore-virtual-keyboard.h>
 #include <dali/internal/system/common/locale-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -202,4 +202,4 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

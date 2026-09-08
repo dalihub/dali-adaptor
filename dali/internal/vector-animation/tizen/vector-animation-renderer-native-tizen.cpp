@@ -20,11 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
-#include <dali/internal/vector-animation/common/vector-animation-renderer-event-manager.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/vector-animation/common/vector-animation-renderer-event-manager.h>
 #include <dali/public-api/rendering/texture-set.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -70,7 +70,7 @@ std::shared_ptr<VectorAnimationRendererNative::RenderingData> VectorAnimationRen
 
 void VectorAnimationRendererNativeTizen::PrepareTarget(std::shared_ptr<RenderingData> renderingData)
 {
-  auto renderingDataImpl = std::static_pointer_cast<RenderingDataImpl>(renderingData);
+  auto renderingDataImpl            = std::static_pointer_cast<RenderingDataImpl>(renderingData);
   renderingDataImpl->mTargetSurface = Dali::NativeImageQueue::New(
     renderingDataImpl->mWidth, renderingDataImpl->mHeight,
     Dali::NativeImageQueue::ColorFormat::BGRA8888);
@@ -156,14 +156,14 @@ bool VectorAnimationRendererNativeTizen::Render(uint32_t frameNumber)
 
     // Try to dequeue TBM buffer. If unavailable, skip this frame (like rlottie plugin).
     if(!renderingDataImpl->mTargetSurface->CanDequeueBuffer())
-      {
-        renderingDataImpl->mTargetSurface->IgnoreSourceImage();
+    {
+      renderingDataImpl->mTargetSurface->IgnoreSourceImage();
 
-        if(!renderingDataImpl->mTargetSurface->CanDequeueBuffer())
-        {
-          return false;
-        }
+      if(!renderingDataImpl->mTargetSurface->CanDequeueBuffer())
+      {
+        return false;
       }
+    }
 
     Dali::NativeImageQueue::BufferAccessType type;
     if(mEnableFixedCache && (frameNumber < mDecodedBuffers.size()) && (!mDecodedBuffers[frameNumber].second))
@@ -271,4 +271,4 @@ VectorAnimationRendererNative* VectorAnimationRendererNative::Create()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

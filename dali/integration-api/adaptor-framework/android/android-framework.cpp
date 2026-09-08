@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/android/android-framework-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -141,4 +141,4 @@ AndroidFramework::AndroidFramework()
 
 } // namespace Integration
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

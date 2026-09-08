@@ -31,7 +31,7 @@
 #include <third-party/nanosvg/nanosvgrast.h>
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -437,4 +437,4 @@ void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) cons
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

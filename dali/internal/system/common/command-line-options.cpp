@@ -26,7 +26,7 @@
 #include <dali/public-api/common/dali-vector.h>
 #include <getopt.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -191,7 +191,7 @@ CommandLineOptions::CommandLineOptions(int32_t* argc, char** argv[])
         {
           (*argv)[index++] = (*argv)[*iter];
         }
-  *argc = static_cast<int32_t>(unhandledOptions.Count() + 1u); // +1 for the program name
+        *argc = static_cast<int32_t>(unhandledOptions.Count() + 1u); // +1 for the program name
       }
       else
       {
@@ -214,4 +214,4 @@ CommandLineOptions::~CommandLineOptions()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

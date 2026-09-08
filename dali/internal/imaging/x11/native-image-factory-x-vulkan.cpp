@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/common/native-image-impl.h>
 #include <dali/internal/imaging/common/native-image-queue-impl.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<NativeImage> NativeImageFactoryX::CreateNativeImage(uint32_t width, uint32_t height, Dali::NativeImage::ColorDepth depth, Any nativeImage)
 {
@@ -40,4 +40,4 @@ std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
   return std::unique_ptr<NativeImageFactoryX>(new NativeImageFactoryX());
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

@@ -319,7 +319,7 @@ void HashPipelineState(size_t& seed, const vk::GraphicsPipelineCreateInfo& ci)
 
 } // anonymous namespace
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 PipelineCacheManager::PipelineCacheManager(VulkanGraphicsController& controller)
 : mDevice(controller.GetGraphicsDevice()),
@@ -630,4 +630,4 @@ void PipelineCacheManager::SaveCacheData()
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

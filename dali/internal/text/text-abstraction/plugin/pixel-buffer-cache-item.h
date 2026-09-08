@@ -23,7 +23,7 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Type used for indices addressing the vector with pixel buffers.
@@ -40,6 +40,6 @@ struct PixelBufferCacheItem
   PixelBufferId     id;          ///< The id of this item. Should be bigger than 0.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_PIXEL_BUFFER_CACHE_ITEM_H

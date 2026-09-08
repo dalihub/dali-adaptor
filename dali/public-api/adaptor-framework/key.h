@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -100,6 +100,6 @@ DALI_ADAPTOR_API bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_KEYCODE_H

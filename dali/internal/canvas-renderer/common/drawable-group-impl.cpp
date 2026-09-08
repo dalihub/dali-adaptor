@@ -19,14 +19,14 @@
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 // EXTERNAL INCLUDES
-#include <algorithm>
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -170,4 +170,4 @@ DrawableGroup::DrawableVector DrawableGroup::GetDrawables() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

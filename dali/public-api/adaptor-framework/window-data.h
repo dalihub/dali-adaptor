@@ -27,7 +27,7 @@
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * The WindowData class is used as a parameter for the constructors of the Application class.
@@ -198,6 +198,6 @@ private:
   UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_DATA_H

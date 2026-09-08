@@ -42,7 +42,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/public-api/signals/slot-delegate.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 class Adaptor;
@@ -639,6 +639,6 @@ inline const Internal::Adaptor::SceneHolder& GetImplementation(const Dali::Integ
   return static_cast<const Internal::Adaptor::SceneHolder&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H

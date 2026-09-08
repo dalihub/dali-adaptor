@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
 #include <dali/devel-api/adaptor-framework/video-player.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 
@@ -323,9 +323,9 @@ private:
   typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerBySourceFunction)(Dali::Actor actor, Dali::VideoPlayerPlugin::VideoSourceDescriptor source, Dali::VideoSyncMode syncMode);
   typedef void (*DestroyVideoPlayerFunction)(Dali::VideoPlayerPlugin* plugin);
 
-  CreateVideoPlayerFunction                           mCreateVideoPlayerPtr;
-  CreateVideoPlayerBySourceFunction                   mCreateVideoPlayerBySourcePtr;
-  DestroyVideoPlayerFunction                          mDestroyVideoPlayerPtr;
+  CreateVideoPlayerFunction         mCreateVideoPlayerPtr;
+  CreateVideoPlayerBySourceFunction mCreateVideoPlayerBySourcePtr;
+  DestroyVideoPlayerFunction        mDestroyVideoPlayerPtr;
 
   Dali::VideoPlayerPlugin::VideoPlayerSignalType      mFinishedSignal;
   Dali::VideoPlayerPlugin::VideoPlayerEventSignalType mEventSignal;
@@ -352,6 +352,6 @@ inline static const Internal::Adaptor::VideoPlayer& GetImplementation(const Dali
   return static_cast<const Internal::Adaptor::VideoPlayer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VIDEO_PLAYER_IMPL_H

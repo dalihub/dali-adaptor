@@ -17,7 +17,7 @@
 
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class WindowInsetsInfo::Impl
 {
@@ -82,4 +82,4 @@ const Extents& WindowInsetsInfo::GetExtents() const
   return mImpl->extents;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class FileStream;
 
@@ -152,6 +152,6 @@ private:                                                   // Data
 };
 
 } // namespace Internal::Adaptor
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H

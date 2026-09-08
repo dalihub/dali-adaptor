@@ -32,7 +32,7 @@
 #include <dali/public-api/object/weak-handle.h>
 #include <atomic>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DisplayConnection;
 class ThreadSynchronizationInterface;
@@ -393,6 +393,6 @@ private:
 };
 
 } // Namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_RENDER_SURFACE_INTERFACE_H

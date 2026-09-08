@@ -30,7 +30,7 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -106,6 +106,6 @@ private:                                                           // Data
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_TIZEN_NATIVE_IMAGE_SURFACE_IMPL_TIZEN_EGL_H

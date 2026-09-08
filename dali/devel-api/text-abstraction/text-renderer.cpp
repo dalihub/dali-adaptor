@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/text-renderer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -50,4 +50,4 @@ TextRenderer::TextRenderer(Internal::TextRenderer* impl)
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

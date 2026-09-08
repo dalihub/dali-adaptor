@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/video/common/video-player-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 VideoPlayer::VideoPlayer()
 {
@@ -299,4 +299,4 @@ void VideoPlayer::SetVideoFrameBuffer(Dali::NativeImagePtr source)
   GetImplementation(*this).SetVideoFrameBuffer(source);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

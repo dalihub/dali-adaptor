@@ -24,7 +24,7 @@
 // EXTERNAL INCLUDES
 #include <uv.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -223,4 +223,4 @@ bool TimerLibuv::IsRunning() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

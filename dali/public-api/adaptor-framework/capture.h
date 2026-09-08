@@ -29,7 +29,7 @@
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -310,6 +310,6 @@ public: // Not intended for application developers
  * @}
  */
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CAPTURE_H

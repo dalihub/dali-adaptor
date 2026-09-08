@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <atomic>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 FramebufferAttachment* FramebufferAttachment::NewColorAttachment(
   ImageView*                             imageView,
@@ -119,4 +119,4 @@ bool FramebufferAttachment::IsValid() const
 {
   return mImageView != nullptr;
 }
-} //namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

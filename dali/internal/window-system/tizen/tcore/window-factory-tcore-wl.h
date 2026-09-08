@@ -20,7 +20,7 @@
 
 #include <dali/internal/window-system/common/window-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -34,6 +34,6 @@ public:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_TCORE_WL_H

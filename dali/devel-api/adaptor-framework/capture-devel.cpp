@@ -19,7 +19,7 @@
 #include <dali/devel-api/adaptor-framework/capture-devel.h>
 #include <dali/internal/system/common/capture-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelCapture
 {
@@ -31,4 +31,4 @@ Dali::PixelBuffer GetCapturedBuffer(Dali::Capture capture)
 
 } //namespace DevelCapture
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

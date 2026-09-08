@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE
 {
 /** Bit depth used when choosing a native graphics surface. */
 enum ColorDepth
@@ -25,6 +28,6 @@ enum ColorDepth
   COLOR_DEPTH_24 = 24,
   COLOR_DEPTH_32 = 32
 };
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_COLOR_DEPTH_H

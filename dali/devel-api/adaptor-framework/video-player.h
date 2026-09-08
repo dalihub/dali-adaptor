@@ -28,7 +28,7 @@
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 
@@ -422,6 +422,6 @@ private: // Not intended for application developers
   explicit DALI_INTERNAL VideoPlayer(Internal::Adaptor::VideoPlayer* internal);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VIDEO_PLAYER_H

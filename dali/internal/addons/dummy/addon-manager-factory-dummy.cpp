@@ -17,7 +17,7 @@
 
 #include <dali/internal/addons/common/addon-manager-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -28,4 +28,4 @@ Integration::AddOnManager* AddOnManagerFactory::CreateAddOnManager()
 }
 
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

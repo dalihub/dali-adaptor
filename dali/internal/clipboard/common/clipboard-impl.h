@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CLIPBOARD_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 #include <dali/public-api/adaptor-framework/clipboard-data.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -125,9 +125,9 @@ public:
    * @param[in] connectionTracker Connection tracker for lifetime management.
    * @param[in] callback Callback to receive the requested clipboard data (ownership transferred).
    */
-  void DoGetData(const Dali::String& mimeType,
+  void DoGetData(const Dali::String&               mimeType,
                  Dali::ConnectionTrackerInterface* connectionTracker,
-                 Dali::CallbackBase* callback);
+                 Dali::CallbackBase*               callback);
 
   /**
    * @brief Requests clipboard data with the given MIME type (id-based).
@@ -210,7 +210,7 @@ private:
   struct PendingRequest
   {
     explicit PendingRequest(Dali::ConnectionTrackerInterface* connectionTracker,
-                            Dali::CallbackBase* callback)
+                            Dali::CallbackBase*               callback)
     : remainingTicks(REQUEST_TIMEOUT_TICKS)
     {
       completionSignal.OnConnect(connectionTracker, callback);
@@ -239,8 +239,8 @@ private:
    * @brief Queues a public GetData completion for processor delivery.
    */
   void QueueCompletion(std::unique_ptr<PendingRequest> request,
-                       bool succeeded,
-                       const Dali::ClipboardData& data);
+                       bool                            succeeded,
+                       const Dali::ClipboardData&      data);
 
   /**
    * @brief Schedules processor dispatch for queued public GetData completions.
@@ -346,6 +346,6 @@ inline static const Internal::Adaptor::Clipboard& GetImplementation(const Dali::
   return static_cast<const Internal::Adaptor::Clipboard&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_CLIPBOARD_H

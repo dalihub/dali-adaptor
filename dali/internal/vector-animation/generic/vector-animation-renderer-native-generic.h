@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -83,12 +83,12 @@ protected:
 private:
   class RenderingDataImpl;
 
-  std::vector<Dali::Texture> mPreviousTextures;  ///< Previously rendered textures awaiting release
-  Dali::Texture              mRenderedTexture;    ///< Currently displayed texture
+  std::vector<Dali::Texture> mPreviousTextures; ///< Previously rendered textures awaiting release
+  Dali::Texture              mRenderedTexture;  ///< Currently displayed texture
 };
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_NATIVE_GENERIC_H

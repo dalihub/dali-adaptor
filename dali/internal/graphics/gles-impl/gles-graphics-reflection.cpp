@@ -128,8 +128,8 @@ void ParseShaderSamplers(const std::string_view& shaderSource, std::vector<Dali:
   if(!shaderSource.empty())
   {
 #if defined(_WIN32)
-    size_t len = shaderSource.size();
-    char* shaderStr = static_cast<char*>(malloc(len + 1));
+    size_t len       = shaderSource.size();
+    char*  shaderStr = static_cast<char*>(malloc(len + 1));
     if(shaderStr != nullptr)
     {
       memcpy(shaderStr, shaderSource.data(), len);
@@ -216,7 +216,7 @@ void ParseShaderSamplers(const std::string_view& shaderSource, std::vector<Dali:
 
 } // anonymous namespace
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 Reflection::Reflection(GLES::ProgramImpl& program, Graphics::EglGraphicsController& controller)
 : Graphics::Reflection(),
@@ -318,7 +318,7 @@ void Reflection::BuildUniformBlockReflection()
   {
     std::vector<GLint> params;
     params.resize(uniformIndices.size());
-  gl->GetActiveUniformsiv(glProgram, static_cast<GLsizei>(uniformIndices.size()), uniformIndices.data(), param, params.data());
+    gl->GetActiveUniformsiv(glProgram, static_cast<GLsizei>(uniformIndices.size()), uniformIndices.data(), param, params.data());
     return params;
   };
 
@@ -732,4 +732,4 @@ void Reflection::SortOpaques()
   { return a.offset < b.offset; });
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_BIDIRECTIONAL_SUPPORT_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/bidirectional-support.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -129,6 +129,6 @@ inline static const TextAbstraction::Internal::BidirectionalSupport& GetImplemen
   return static_cast<const TextAbstraction::Internal::BidirectionalSupport&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_BIDIRECTIONAL_SUPPORT_IMPL_H

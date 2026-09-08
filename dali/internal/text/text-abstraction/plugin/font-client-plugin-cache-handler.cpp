@@ -27,8 +27,8 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
+#include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/public-api/adaptor-framework/image-loading.h>
@@ -118,7 +118,7 @@ inline size_t GetMaxNumberOfDescriptionCache()
 
 } // namespace
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 namespace
 {
@@ -1192,4 +1192,4 @@ BitmapFontCacheItem& FontClient::Plugin::CacheHandler::FindBitmapFontCacheItem(F
   return iter->second;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

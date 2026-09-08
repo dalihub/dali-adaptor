@@ -36,7 +36,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Internal::Adaptor::WindowSystem::WindowSystemX;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1135,4 +1135,4 @@ std::string WindowBaseX::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

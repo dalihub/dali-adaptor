@@ -22,13 +22,13 @@
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/graphics/common/graphics-interface-enum.h>
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -336,6 +336,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_EGL_IMPLEMENTATION_H

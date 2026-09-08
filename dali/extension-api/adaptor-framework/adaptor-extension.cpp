@@ -19,7 +19,7 @@
 #include <dali/extension-api/adaptor-framework/adaptor-extension.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Extension
 {
@@ -42,4 +42,4 @@ Dali::Vector<Window> GetWindows()
 }
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE

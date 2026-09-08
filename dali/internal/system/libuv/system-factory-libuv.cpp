@@ -24,7 +24,7 @@
 #include <dali/internal/system/libuv/timer-impl-libuv.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -57,4 +57,4 @@ std::unique_ptr<SystemFactory> GetSystemFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

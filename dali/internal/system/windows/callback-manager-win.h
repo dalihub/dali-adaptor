@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -123,7 +123,7 @@ private:
 
   typedef std::list<WindowsCallbackData*> CallbackList;
 
-  CallbackList mCallbackContainer;
+  CallbackList         mCallbackContainer;
   WindowsCallbackData* mExecutingCallback{nullptr};
   bool                 mExecutingCallbackRemoved{false};
   bool                 mRunning; ///< flag is set to true if when running
@@ -133,6 +133,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_WINDOWS_CALLBACK_MANAGER_H

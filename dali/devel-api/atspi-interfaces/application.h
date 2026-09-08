@@ -21,10 +21,10 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 /**
  * @brief An interface identifying the root object
@@ -65,15 +65,15 @@ public:
   virtual bool SetIncludeHidden(bool includeHidden) = 0;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<>
 struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::APPLICATION>
 {
   using Type = Dali::Accessibility::Application;
 };
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_APPLICATION_H

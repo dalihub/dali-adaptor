@@ -20,7 +20,7 @@
 
 using namespace Dali::Internal::Adaptor;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -67,4 +67,4 @@ bool NativeImageSurfaceCocoa::SetGraphicsConfig(bool depth, bool stencil, int ms
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

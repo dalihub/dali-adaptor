@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@
  *
  */
 
-namespace Dali::Internal::Adaptor::GraphicsLibrary
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 /**
  * Retrieves the mode used for opening the graphics libraries
@@ -26,4 +29,4 @@ namespace Dali::Internal::Adaptor::GraphicsLibrary
  */
 int GetLibraryOpenMode();
 
-} // namespace Dali::Internal::Adaptor::GraphicsLibrary
+} //namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary

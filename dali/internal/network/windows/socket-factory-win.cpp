@@ -17,8 +17,9 @@
 
 #include <dali/internal/network/common/socket-factory.h>
 #include <dali/internal/network/windows/socket-impl-win.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -36,4 +37,4 @@ void SocketFactory::DestroySocket(SocketInterface* socketInterface)
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

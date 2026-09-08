@@ -24,7 +24,7 @@
 #include <dali/internal/system/common/timer-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -50,6 +50,6 @@ extern DALI_ADAPTOR_API std::unique_ptr<SystemFactory> GetSystemFactory();
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_SYSTEM_FACTORY_H

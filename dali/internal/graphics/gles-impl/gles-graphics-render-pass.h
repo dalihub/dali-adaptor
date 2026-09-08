@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_RENDER_PASS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 using RenderPassResource = Resource<Graphics::RenderPass, Graphics::RenderPassCreateInfo>;
 
@@ -73,6 +73,6 @@ private:
   std::unique_ptr<Impl> mImpl{nullptr};
 };
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif

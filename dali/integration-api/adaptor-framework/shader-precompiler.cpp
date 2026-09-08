@@ -26,7 +26,7 @@ namespace
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 }
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 std::unique_ptr<ShaderPreCompiler> ShaderPreCompiler::mInstance = nullptr;
 std::once_flag                     ShaderPreCompiler::mOnceFlag;
@@ -106,4 +106,4 @@ void ShaderPreCompiler::ClearPreCompiledPrograms()
   mProgram.clear();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

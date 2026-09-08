@@ -34,7 +34,7 @@
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 class Actor;
@@ -1263,6 +1263,6 @@ inline const Internal::Adaptor::Window& GetImplementation(const Dali::Window& wi
   return static_cast<const Internal::Adaptor::Window&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H

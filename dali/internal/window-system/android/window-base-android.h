@@ -24,7 +24,7 @@
 // EXTERNAL HEADERS
 struct ANativeWindow;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -654,6 +654,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_ANDROID_WINDOW_BASE_ANDROID_H

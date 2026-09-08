@@ -39,7 +39,7 @@
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-error-print.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace // unnamed namespace
 {
@@ -524,4 +524,4 @@ void FileDownloadPluginProxy::CancelAsyncDownload(DownloadId downloadId)
   }
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -37,6 +37,6 @@ public:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_FACTORY_VULKAN_H

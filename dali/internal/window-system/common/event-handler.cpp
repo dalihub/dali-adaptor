@@ -38,7 +38,7 @@
 #include <dali/internal/styling/common/style-monitor-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -216,4 +216,4 @@ void EventHandler::RemoveObserver(Observer& observer)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

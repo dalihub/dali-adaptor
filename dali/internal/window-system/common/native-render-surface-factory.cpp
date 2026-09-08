@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
@@ -29,4 +29,4 @@ DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface(SurfaceSize surfaceSiz
   return nativeRenderSurface.release();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

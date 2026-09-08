@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 void ConvertBitmap(TextAbstraction::GlyphBufferData& data,
                    unsigned int                      srcWidth,
@@ -166,6 +166,6 @@ const FontWidth::Type  DefaultFontWidth();
 const FontWeight::Type DefaultFontWeight();
 const FontSlant::Type  DefaultFontSlant();
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H

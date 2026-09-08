@@ -25,7 +25,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/key.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -152,6 +152,6 @@ DALI_ADAPTOR_API bool UngrabKeyList(Window window, const Dali::Vector<Dali::KEY>
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_KEY_GRAB_H

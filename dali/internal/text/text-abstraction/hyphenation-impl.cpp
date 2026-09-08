@@ -65,7 +65,7 @@ void FreeHyphenationResult(char** rep, int* pos, int* cut, Dali::TextAbstraction
 #endif
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -274,4 +274,4 @@ void Hyphenation::CreatePlugin()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -90,7 +90,7 @@ extern std::string GetProgramBinaryPath();
 extern std::string GetInternalProgramBinaryCachePath();
 extern std::string GetCustomProgramBinaryCachePath();
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 namespace
 {
@@ -1729,4 +1729,4 @@ void Adaptor::ApplyEventEnvironmentVariables()
   }
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

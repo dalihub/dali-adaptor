@@ -23,12 +23,12 @@
 #include <functional>
 
 // INTERNAL INCLUDES
+#include <dali/internal/drag-and-drop/common/drag-event-builder.h>
 #include <dali/public-api/adaptor-framework/drag-and-drop.h>
 #include <dali/public-api/adaptor-framework/drag-data.h>
 #include <dali/public-api/adaptor-framework/drag-event.h>
-#include <dali/internal/drag-and-drop/common/drag-event-builder.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -141,6 +141,6 @@ inline static const Internal::Adaptor::DragAndDrop& GetImplementation(const Dali
   return static_cast<const Internal::Adaptor::DragAndDrop&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_H

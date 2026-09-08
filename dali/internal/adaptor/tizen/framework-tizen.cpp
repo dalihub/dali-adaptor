@@ -18,8 +18,8 @@
 #include <dali/internal/adaptor/tizen/framework-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/internal/system/tizen/tizen-dlog.h>
+#include <dlfcn.h>
 #include <system_info.h>
 #include <tizen.h>
 #include <locale>
@@ -35,7 +35,7 @@
 
 using namespace tizen_cpp;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -451,4 +451,4 @@ void UIThreadLoader::Run(Runner runner)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

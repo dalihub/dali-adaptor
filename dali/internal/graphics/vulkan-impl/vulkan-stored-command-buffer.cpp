@@ -37,7 +37,7 @@ extern Debug::Filter* gLogCmdBufferFilter;
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 template<typename VT, typename GT>
 VT* ConstGraphicsCast(const GT* object)
@@ -622,4 +622,4 @@ std::size_t StoredCommandBuffer::GetCapacity()
   return total;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

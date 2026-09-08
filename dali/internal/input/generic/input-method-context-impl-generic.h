@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -312,6 +312,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // __DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_GENERIC_H

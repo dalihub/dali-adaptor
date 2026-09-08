@@ -29,7 +29,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Application Application::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
@@ -206,4 +206,4 @@ Application::Application(Internal::Adaptor::Application* application)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

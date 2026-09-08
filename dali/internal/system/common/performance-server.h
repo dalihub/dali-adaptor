@@ -29,7 +29,7 @@
 #include <dali/internal/system/common/performance-marker.h>
 #include <dali/internal/system/common/stat-context-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -137,6 +137,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_PERFORMANCE_SERVER_H

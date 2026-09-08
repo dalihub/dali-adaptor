@@ -22,7 +22,7 @@
 #include "gles-context-state-cache.h"
 #include "gles-graphics-types.h"
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 class EglGraphicsController;
 namespace GLES
@@ -277,5 +277,5 @@ private:
   std::unique_ptr<Impl> mImpl;
 };
 } // namespace GLES
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 #endif // DALI_GRAPHICS_GLES_CONTEXT_H

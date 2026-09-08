@@ -27,7 +27,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 RenderPassHandle RenderPassImpl::New(
   Vulkan::Device&             device,
@@ -344,4 +344,4 @@ int RenderPassImpl::CreateSubPassDependencies(CreateInfo& createInfo, bool hasDe
   return dependencyCount;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

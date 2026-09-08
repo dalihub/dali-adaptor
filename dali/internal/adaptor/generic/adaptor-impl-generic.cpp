@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -33,4 +33,4 @@ std::string Adaptor::GetApplicationPackageName()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

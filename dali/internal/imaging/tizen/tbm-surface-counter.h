@@ -22,7 +22,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -150,6 +150,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TBM_SURFACE_COUNTER_H

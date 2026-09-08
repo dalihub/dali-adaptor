@@ -29,7 +29,7 @@
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -205,6 +205,6 @@ private: // Data
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_SYSTEM_X11_PIXMAP_RENDER_SURFACE_H

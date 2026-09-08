@@ -22,7 +22,7 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/integration-api/string-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -40,4 +40,4 @@ bool AddCustomFontDirectory(const Dali::String& path)
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

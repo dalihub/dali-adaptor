@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/performance-marker.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -338,4 +338,4 @@ void NetworkPerformanceServer::StopClients()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

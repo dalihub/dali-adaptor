@@ -34,7 +34,7 @@
 
 #include <unordered_map>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -651,7 +651,7 @@ void AsyncTaskManager::NotifyManagerToTaskReady(AsyncTaskPtr task)
 
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]()
-         { return TaskHelper(*this); }),
+{ return TaskHelper(*this); }),
   mAvaliableLowPriorityTaskCounts(static_cast<uint32_t>(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount()))),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),
@@ -1388,4 +1388,4 @@ bool AsyncTaskManager::TaskHelper::Request()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

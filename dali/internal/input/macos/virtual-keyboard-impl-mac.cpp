@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 
-namespace Dali::Internal::Adaptor::VirtualKeyboard
+namespace DALI_NAMESPACE::Internal::Adaptor::VirtualKeyboard
 {
 void Show()
 {
@@ -88,4 +88,4 @@ Dali::InputMethod::ReturnKeyType GetReturnKeyType()
   return Dali::InputMethod::ReturnKeyType::DEFAULT;
 }
 
-} // namespace Dali::Internal::Adaptor::VirtualKeyboard
+} //namespace DALI_NAMESPACE::Internal::Adaptor::VirtualKeyboard

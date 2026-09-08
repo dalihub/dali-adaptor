@@ -26,7 +26,7 @@
 #include <dali/devel-api/text-abstraction/hyphenation.h>
 #include <dali/public-api/common/dali-vector.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -102,6 +102,6 @@ inline static const TextAbstraction::Internal::Hyphenation& GetImplementation(co
   return static_cast<const TextAbstraction::Internal::Hyphenation&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_HYPHENATION_IMPL_H

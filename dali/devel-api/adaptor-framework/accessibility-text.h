@@ -23,7 +23,7 @@
 #include <string>
 #include <utility>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -70,6 +70,6 @@ struct DALI_ADAPTOR_API Range
 
 } // namespace Accessibility
 } // namespace Devel
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DEVEL_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_TEXT_H

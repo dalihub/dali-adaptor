@@ -27,7 +27,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/offscreen/common/offscreen-render-surface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -203,6 +203,6 @@ private: // Data
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_OFFSCREEN_EGL_OFFSCREEN_RENDER_SURFACE_EGL_H

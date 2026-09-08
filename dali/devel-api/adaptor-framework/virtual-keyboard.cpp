@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace VirtualKeyboard
 {
@@ -82,4 +82,4 @@ TextDirection GetTextDirection()
 
 } // namespace VirtualKeyboard
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

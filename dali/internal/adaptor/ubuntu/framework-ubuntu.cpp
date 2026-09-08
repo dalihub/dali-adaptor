@@ -23,7 +23,7 @@
 #include <Elementary.h>
 #include <X11/Xlib.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -118,4 +118,4 @@ void UIThreadLoader::Run(Runner runner)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

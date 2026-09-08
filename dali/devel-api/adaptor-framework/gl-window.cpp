@@ -28,7 +28,7 @@
 #include <dali/devel-api/common/addon-binder.h>
 #include <dali/internal/window-system/gl-window/gl-window-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 using GlWindowImpl = Internal::Adaptor::GlWindow;
 
@@ -365,4 +365,4 @@ GlWindow::GlWindow(Internal::Adaptor::GlWindow* window)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

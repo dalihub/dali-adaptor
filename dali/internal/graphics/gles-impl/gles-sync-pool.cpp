@@ -25,7 +25,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 namespace
 {
@@ -566,4 +566,4 @@ std::shared_ptr<SyncPool::SharedSyncObject> SyncPool::AllocateSharedSyncObject(b
   return syncObject;
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

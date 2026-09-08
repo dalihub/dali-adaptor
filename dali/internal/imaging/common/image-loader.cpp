@@ -37,7 +37,7 @@
 
 using namespace Dali::Integration;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -536,4 +536,4 @@ bool MaxTextureSizeUpdated()
 
 } // namespace ImageLoader
 } // namespace TizenPlatform
-} // namespace Dali
+} //namespace DALI_NAMESPACE

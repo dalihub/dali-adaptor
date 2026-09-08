@@ -39,7 +39,7 @@
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 /**
  * @brief The ApplicationAccessible class is to define Accessibility Application.
@@ -67,8 +67,8 @@ public:
   Dali::Accessibility::Accessible*              GetChildAtIndex(size_t index) override;
   size_t                                        GetIndexInParent() override;
   Dali::Integration::Accessibility::Role        GetRole() const override;
-  Dali::Integration::Accessibility::States                   GetStates() override;
-  Dali::Devel::Accessibility::Attributes               GetAttributes() const override;
+  Dali::Integration::Accessibility::States      GetStates() override;
+  Dali::Devel::Accessibility::Attributes        GetAttributes() const override;
   void                                          InitDefaultFeatures() override;
 
   /**
@@ -80,11 +80,11 @@ public:
    */
   Dali::Accessibility::ActorAccessible* GetWindowAccessible(Dali::Window window);
 
-  bool                                       DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override;
+  bool                                              DoGesture(const Dali::Devel::Accessibility::GestureInfo& gestureInfo) override;
   std::vector<Dali::Devel::Accessibility::Relation> GetRelationSet() override;
-  Dali::Actor                                GetInternalActor() const override;
+  Dali::Actor                                       GetInternalActor() const override;
   Dali::Devel::Accessibility::Address               GetAddress() const override;
-  std::string                                GetStringProperty(std::string propertyName) const override;
+  std::string                                       GetStringProperty(std::string propertyName) const override;
 
   // Application
   std::string GetToolkitName() const override;
@@ -94,18 +94,18 @@ public:
 
   // Socket
   Dali::Devel::Accessibility::Address Embed(Dali::Devel::Accessibility::Address plug) override;
-  void                         Unembed(Dali::Devel::Accessibility::Address plug) override;
-  void                         SetOffset(std::int32_t x, std::int32_t y) override;
+  void                                Unembed(Dali::Devel::Accessibility::Address plug) override;
+  void                                SetOffset(std::int32_t x, std::int32_t y) override;
 
   // Component
-  Dali::Bounds                        GetExtents(Dali::Devel::Accessibility::CoordinateType type) const override;
+  Dali::Bounds                               GetExtents(Dali::Devel::Accessibility::CoordinateType type) const override;
   Dali::Devel::Accessibility::ComponentLayer GetLayer() const override;
-  std::int16_t                        GetMdiZOrder() const override;
-  bool                                GrabFocus() override;
-  double                              GetAlpha() const override;
-  bool                                GrabHighlight() override;
-  bool                                ClearHighlight() override;
-  bool                                IsScrollable() const override;
+  std::int16_t                               GetMdiZOrder() const override;
+  bool                                       GrabFocus() override;
+  double                                     GetAlpha() const override;
+  bool                                       GrabHighlight() override;
+  bool                                       ClearHighlight() override;
+  bool                                       IsScrollable() const override;
 
   // Collection
   std::vector<Accessible*> GetMatches(MatchRule rule, uint32_t sortBy, size_t maxCount) override;
@@ -114,7 +114,7 @@ public:
 private:
   Dali::SharedPtr<Collection> mCollection;
 };
-} //namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 /**
  * @brief Enumeration for CoalescableMessages.

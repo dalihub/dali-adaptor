@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_PLUGIN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/vector-animation-renderer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * VectorAnimationRendererPlugin is an abstract interface, used by dali-adaptor to render a vector animation.
@@ -226,6 +226,6 @@ public:
   using CreateVectorAnimationRendererFunction = VectorAnimationRendererPlugin* (*)();
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VECTOR_ANIMATION_RENDERER_PLUGIN_H

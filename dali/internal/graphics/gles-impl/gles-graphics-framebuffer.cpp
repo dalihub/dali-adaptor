@@ -28,7 +28,7 @@
 #include "egl-graphics-controller.h"
 #include "gles-context.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 namespace
 {
@@ -134,7 +134,7 @@ bool Framebuffer::InitializeResource()
     }
 
     // @todo is this per framebuffer, or more immediate state that needs setting when framebuffer changed?
-  gl->DrawBuffers(static_cast<GLsizei>(mCreateInfo.colorAttachments.size()), COLOR_ATTACHMENTS);
+    gl->DrawBuffers(static_cast<GLsizei>(mCreateInfo.colorAttachments.size()), COLOR_ATTACHMENTS);
 
     // @todo Currently, we don't assume that GL_EXT_PACKED_DEPTH_STENCIL valid.
     // We will assume that stencilTexture / stencilBufferId always mean depth-stencil.
@@ -442,4 +442,4 @@ void Framebuffer::UpdateDepthStencilState(const Graphics::DepthStencilState& dep
   }
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

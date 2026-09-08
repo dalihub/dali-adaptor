@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/input/common/key-impl.h>
 
-namespace Dali::Internal::Adaptor::KeyLookup
+namespace DALI_NAMESPACE::Internal::Adaptor::KeyLookup
 {
 // matches a DALI_KEY enum, to key name
 // clang-format off
@@ -40,4 +40,4 @@ KeyLookup KeyLookupTable[]=
 
 const std::size_t KEY_LOOKUP_COUNT = (sizeof(KeyLookupTable)) / (sizeof(KeyLookup));
 
-} // namespace Dali::Internal::Adaptor::KeyLookup
+} //namespace DALI_NAMESPACE::Internal::Adaptor::KeyLookup

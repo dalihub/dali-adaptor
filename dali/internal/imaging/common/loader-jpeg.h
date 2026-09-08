@@ -24,7 +24,7 @@
 #include <dali/public-api/images/pixel.h>
 #include <stdio.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -86,6 +86,6 @@ bool EncodeToJpeg(const unsigned char* pixelBuffer, Vector<unsigned char>& encod
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_LOADER_JPEG_H

@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -521,4 +521,4 @@ void VideoPlayer::SceneDisconnection()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

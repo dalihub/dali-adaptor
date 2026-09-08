@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_FORM_REPOST_DECISION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@
  *
  */
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A class WebEngineFormRepostDecision for form repost decision.
@@ -44,6 +47,6 @@ public:
   virtual void Reply(bool allowed) = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_FORM_REPOST_DECISION_H

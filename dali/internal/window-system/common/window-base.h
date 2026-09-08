@@ -36,7 +36,7 @@
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -919,6 +919,6 @@ protected:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H

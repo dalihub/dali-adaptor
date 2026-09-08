@@ -19,16 +19,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <thorvg.h>
-#include <thorvg_lottie.h>
 #include <dali/devel-api/adaptor-framework/vector-animation-renderer-plugin.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
+#include <thorvg.h>
+#include <thorvg_lottie.h>
 #include <atomic>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -191,7 +191,7 @@ protected:
   class RenderingData
   {
   public:
-    Dali::Texture mTexture;  ///< Target texture for the rendered frame
+    Dali::Texture mTexture;   ///< Target texture for the rendered frame
     uint32_t      mWidth{0};  ///< Width in pixels
     uint32_t      mHeight{0}; ///< Height in pixels
   };
@@ -199,12 +199,12 @@ protected:
   class PropertyCallback
   {
   public:
-    PropertyCallback() = default;
+    PropertyCallback()  = default;
     ~PropertyCallback() = default;
 
-    PropertyCallback(PropertyCallback&&) = default;
-    PropertyCallback& operator=(PropertyCallback&&) = default;
-    PropertyCallback(const PropertyCallback&) = delete;
+    PropertyCallback(PropertyCallback&&)                 = default;
+    PropertyCallback& operator=(PropertyCallback&&)      = default;
+    PropertyCallback(const PropertyCallback&)            = delete;
     PropertyCallback& operator=(const PropertyCallback&) = delete;
 
     std::string                   keyPath;
@@ -247,45 +247,44 @@ protected:
   virtual void OnNotify() = 0;
 
 protected:
-
   // ThorVG core
-  std::unique_ptr<tvg::SwCanvas>  mCanvas;     ///< ThorVG software canvas
-  std::unique_ptr<tvg::Animation> mAnimation;   ///< ThorVG animation controller
+  std::unique_ptr<tvg::SwCanvas>  mCanvas;    ///< ThorVG software canvas
+  std::unique_ptr<tvg::Animation> mAnimation; ///< ThorVG animation controller
 
   // DALi rendering
-  UploadCompletedSignalType mUploadCompletedSignal;  ///< Upload completed signal
+  UploadCompletedSignalType mUploadCompletedSignal; ///< Upload completed signal
 
   // Buffer cache
   std::vector<std::pair<std::vector<uint8_t>, bool>> mDecodedBuffers; ///< Decoded frame buffer cache {pixel data, valid}
 
   // Rendering data lifecycle (protected by mRenderingDataMutex)
-  std::vector<std::shared_ptr<RenderingData>> mPreviousRenderingData;  ///< Previous data awaiting release
-  std::shared_ptr<RenderingData>              mPreparedRenderingData;  ///< Prepared data (pending activation)
-  std::shared_ptr<RenderingData>              mCurrentRenderingData;   ///< Current active data
+  std::vector<std::shared_ptr<RenderingData>> mPreviousRenderingData; ///< Previous data awaiting release
+  std::shared_ptr<RenderingData>              mPreparedRenderingData; ///< Prepared data (pending activation)
+  std::shared_ptr<RenderingData>              mCurrentRenderingData;  ///< Current active data
 
   // Source data
-  std::string mUrl;       ///< File path of loaded animation
-  std::string mJsonData;  ///< Raw JSON string for metadata parsing
+  std::string mUrl;      ///< File path of loaded animation
+  std::string mJsonData; ///< Raw JSON string for metadata parsing
 
   // Cached metadata (protected by mMutex, lazy-parsed)
-  mutable Property::Map mCachedLayerInfo;   ///< Cached layer info: {name -> [startFrame, endFrame]}
-  mutable Property::Map mCachedMarkerInfo;  ///< Cached marker info: {name -> [startFrame, endFrame]}
+  mutable Property::Map mCachedLayerInfo;  ///< Cached layer info: {name -> [startFrame, endFrame]}
+  mutable Property::Map mCachedMarkerInfo; ///< Cached marker info: {name -> [startFrame, endFrame]}
 
   // Mutexes
   mutable Dali::Mutex mMutex;              ///< Protects main renderer state
   mutable Dali::Mutex mRenderingDataMutex; ///< Protects rendering data lifecycle
 
   // DALi rendering (handle types)
-  Dali::Renderer mRenderer;  ///< Associated DALi Renderer
+  Dali::Renderer mRenderer; ///< Associated DALi Renderer
 
   // Animation properties (4-byte types)
-  std::atomic<uint32_t> mTotalFrame;      ///< Total frame count
-  std::atomic<uint32_t> mDefaultWidth;    ///< Default width from source file
-  std::atomic<uint32_t> mDefaultHeight;   ///< Default height from source file
-  uint32_t              mTargetWidth;     ///< Target rendering width
-  uint32_t              mTargetHeight;    ///< Target rendering height
-  std::atomic<float>    mFrameRate;       ///< Frame rate (FPS)
-  float                 mDuration;        ///< Duration in seconds
+  std::atomic<uint32_t> mTotalFrame;    ///< Total frame count
+  std::atomic<uint32_t> mDefaultWidth;  ///< Default width from source file
+  std::atomic<uint32_t> mDefaultHeight; ///< Default height from source file
+  uint32_t              mTargetWidth;   ///< Target rendering width
+  uint32_t              mTargetHeight;  ///< Target rendering height
+  std::atomic<float>    mFrameRate;     ///< Frame rate (FPS)
+  float                 mDuration;      ///< Duration in seconds
 
   // Dynamic property callbacks (STL container)
   std::vector<std::shared_ptr<PropertyCallback>> mPropertyCallbacks; ///< Dynamic property callbacks
@@ -296,15 +295,15 @@ protected:
   std::atomic<bool> mPendingSizeUpdate;      ///< Pending size update for ThorVG picture
 
   // Non-atomic bools (main thread only or mutex-protected)
-  bool mFinalized : 1;                ///< Finalized flag
-  bool mLoadFailed : 1;               ///< Load failure flag
-  bool mEnableFixedCache : 1;         ///< Fixed cache mode flag
-  bool mEnableAspectFit : 1;          ///< Aspect fit scaling flag (default: true)
+  bool         mFinalized : 1;        ///< Finalized flag
+  bool         mLoadFailed : 1;       ///< Load failure flag
+  bool         mEnableFixedCache : 1; ///< Fixed cache mode flag
+  bool         mEnableAspectFit : 1;  ///< Aspect fit scaling flag (default: true)
   mutable bool mMetadataParsed : 1;   ///< Metadata parsed flag
 };
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_NATIVE_H

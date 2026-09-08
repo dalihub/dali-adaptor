@@ -18,7 +18,7 @@
 #include <dali/internal/window-system/tizen/tcore/display-connection-factory-tcore-wl.h>
 #include <dali/internal/window-system/tizen/tcore/display-connection-impl-tcore-wl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -38,4 +38,4 @@ std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

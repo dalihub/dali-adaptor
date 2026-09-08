@@ -23,7 +23,7 @@
 #include <tizen_core.h>
 #include <tizen_core_internal.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -53,10 +53,10 @@ struct TcoreCallbackData
     delete mRemoveFromContainerFunction;
   }
 
-  CallbackBase*         mCallback;                    ///< call back
-  CallbackBase*         mRemoveFromContainerFunction;  ///< Called to remove the callbackdata from the callback container
-  tizen_core_source_h   mSource;                       ///< tizen core idle source
-  bool                  mHasReturnValue;               ///< true if the callback function has a return value.
+  CallbackBase*       mCallback;                    ///< call back
+  CallbackBase*       mRemoveFromContainerFunction; ///< Called to remove the callbackdata from the callback container
+  tizen_core_source_h mSource;                      ///< tizen core idle source
+  bool                mHasReturnValue;              ///< true if the callback function has a return value.
 };
 
 namespace
@@ -262,4 +262,4 @@ void TcoreCallbackManager::RemoveAllCallbacks()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

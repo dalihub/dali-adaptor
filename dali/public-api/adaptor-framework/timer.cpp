@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <dali/internal/system/common/timer-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Timer::Timer()
 {
@@ -102,4 +102,4 @@ Timer::Timer(Internal::Adaptor::Timer* timer)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

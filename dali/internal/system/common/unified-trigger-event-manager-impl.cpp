@@ -37,7 +37,7 @@ namespace
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } //namespace
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 Dali::UnifiedTriggerEventManager UnifiedTriggerEventManager::Get()
 {
@@ -236,4 +236,4 @@ void UnifiedTriggerEventManager::Trigger(TriggerEvent* triggerEvent)
     }
   }
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

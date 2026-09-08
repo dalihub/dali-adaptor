@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <vector>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -776,4 +776,4 @@ Dali::CanvasRenderer::Shape::StrokeJoin Shape::GetStrokeJoin() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

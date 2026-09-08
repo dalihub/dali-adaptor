@@ -39,7 +39,7 @@ namespace vma
 class Allocator;
 }
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class RenderPassImpl;
 class CommandPool;
@@ -234,6 +234,6 @@ private: // Members
   bool mIsPipelineCreationFeedbackSupported{false};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_DEVICE_H

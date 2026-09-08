@@ -27,7 +27,7 @@
 #include <dali/integration-api/adaptor-framework/application-controller.h>
 #include <dali/public-api/adaptor-framework/ui-context.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -316,6 +316,6 @@ inline const ApplicationController& GetImplementation(const Dali::ApplicationCon
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APPLICATION_CONTROLLER_H

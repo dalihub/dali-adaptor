@@ -32,7 +32,7 @@ VulkanType* VulkanCast(GraphicsType* apiObject)
   return const_cast<VulkanType*>(static_cast<const VulkanType*>(apiObject));
 }
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : Resource(createInfo, controller),
@@ -179,4 +179,4 @@ void Framebuffer::UpdateDepthStencilState(const Graphics::DepthStencilState& dep
   // TODO: If runtime toggling is needed, consider recreating framebuffer with updated attachments.
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

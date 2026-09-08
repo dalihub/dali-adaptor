@@ -37,15 +37,15 @@
   startTime = TimeService::GetMilliSeconds();
 
 // Since dali adaptor doesn't initialize this time, we should use dlog.
-#define FINISH_DURATION_CHECK(functionName)                                                                                                           \
-  endTime              = TimeService::GetMilliSeconds();                                                                                              \
-  durationMilliSeconds = endTime - startTime;                                                                                                         \
-  if(durationMilliSeconds > 0)                                                                                                                        \
-  {                                                                                                                                                   \
+#define FINISH_DURATION_CHECK(functionName)                                                                                                         \
+  endTime              = TimeService::GetMilliSeconds();                                                                                            \
+  durationMilliSeconds = endTime - startTime;                                                                                                       \
+  if(durationMilliSeconds > 0)                                                                                                                      \
+  {                                                                                                                                                 \
     DALI_TIZEN_DLOG(DLOG_DEBUG, DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
   }
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -442,4 +442,4 @@ WindowSystemBase* GetWindowSystem()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

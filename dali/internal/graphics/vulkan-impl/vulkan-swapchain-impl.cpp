@@ -32,7 +32,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * SwapchainBuffer stores all per-buffer data
@@ -527,4 +527,4 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

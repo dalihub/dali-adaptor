@@ -28,7 +28,7 @@
 
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -376,4 +376,4 @@ bool IsSystemKeyCodePriority()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

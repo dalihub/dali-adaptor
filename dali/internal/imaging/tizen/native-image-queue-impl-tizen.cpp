@@ -31,7 +31,7 @@
 #include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -752,4 +752,4 @@ bool NativeImageQueueTizen::CheckBlending(int format)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

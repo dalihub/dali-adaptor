@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -69,4 +69,4 @@ void TransformToArc(const CircularTextParameters& parameters, double& x, double&
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

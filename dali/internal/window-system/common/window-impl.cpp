@@ -48,7 +48,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1906,4 +1906,4 @@ void Window::InitializeImeInfo()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

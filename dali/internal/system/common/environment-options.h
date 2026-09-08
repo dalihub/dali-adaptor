@@ -29,7 +29,7 @@
 #include <dali/internal/adaptor/common/threading-mode.h>
 #include <dali/internal/graphics/common/graphics-interface-enum.h> ///< For Dali::Graphics::ContextPriority
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -440,6 +440,6 @@ private: // Data
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H

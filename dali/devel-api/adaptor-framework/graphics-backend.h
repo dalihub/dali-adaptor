@@ -25,7 +25,7 @@
 #include <dali/public-api/common/dali-string-view.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -73,6 +73,6 @@ DALI_ADAPTOR_API Dali::StringView GetBackendInformation();
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_GRAPHICS_BACKEND_H

@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/widget-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -72,6 +72,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WIDGET_CONTROLLER_H

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_TEST_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include "adaptor-test-adaptor-impl.h"
 #include "test-application.h"
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * Adds some functionality on top of TestApplication that is required by the Adaptor.
@@ -48,6 +48,6 @@ public:
   std::unique_ptr<Internal::Adaptor::FrameworkFactory> mFrameworkFactory;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_TEST_APPLICATION_H

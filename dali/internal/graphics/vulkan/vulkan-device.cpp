@@ -87,7 +87,7 @@ namespace
 const uint32_t INVALID_MEMORY_INDEX = -1u;
 } // Anonymous namespace
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class RenderPassImpl;
 
@@ -1445,4 +1445,4 @@ const vk::PhysicalDeviceProperties& Device::GetPhysicalDeviceProperties() const
   return mPhysicalDeviceProperties;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

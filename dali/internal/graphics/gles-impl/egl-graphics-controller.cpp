@@ -52,7 +52,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
 DUMP_FRAME_INIT();
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 namespace
 {
@@ -1326,4 +1326,4 @@ void EglGraphicsController::UpdateRenderTarget(Graphics::RenderTarget& renderTar
   createInfo->extent.height = renderTargetCreateInfo.extent.height;
 }
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics

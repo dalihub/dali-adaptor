@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-error-print.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 FileStream::Impl::Impl(const std::string& filename, uint8_t mode)
 : mFileName(filename),
@@ -217,4 +217,4 @@ FILE* FileStream::Impl::GetFile()
   return mFile;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -21,12 +21,12 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 DALI_ADAPTOR_API extern const unsigned int ADAPTOR_MAJOR_VERSION; ///< The major version number of the Adaptor.
 DALI_ADAPTOR_API extern const unsigned int ADAPTOR_MINOR_VERSION; ///< The minor version number of the Adaptor.
 DALI_ADAPTOR_API extern const unsigned int ADAPTOR_MICRO_VERSION; ///< The micro version number of the Adaptor.
 DALI_ADAPTOR_API extern const char* const  ADAPTOR_BUILD_DATE;    ///< The date/time the Adaptor library was built.
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_VERSION_H

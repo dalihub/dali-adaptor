@@ -31,7 +31,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Window Window::New(PositionSize posSize, const Dali::String& name, bool isTransparent)
 {
@@ -627,4 +627,4 @@ Window::Window(Internal::Adaptor::Window* window)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

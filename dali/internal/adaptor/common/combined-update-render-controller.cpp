@@ -38,7 +38,7 @@
 #include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1291,7 +1291,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   vertexShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::VERTEX_SHADER);
   vertexShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
   const std::vector<char>& vertexShaderSrc = StringToVector(std::move(vertexShader));
-    vertexShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(vertexShaderSrc.size()));
+  vertexShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(vertexShaderSrc.size()));
   vertexShaderCreateInfo.SetSourceData(static_cast<const void*>(vertexShaderSrc.data()));
 
   uint32_t vertexShaderVersion = 0;
@@ -1304,7 +1304,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
   fragmentShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::FRAGMENT_SHADER);
   fragmentShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
   const std::vector<char>& fragmentShaderSrc = StringToVector(std::move(fragmentShader));
-    fragmentShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(fragmentShaderSrc.size()));
+  fragmentShaderCreateInfo.SetSourceSize(static_cast<uint32_t>(fragmentShaderSrc.size()));
   fragmentShaderCreateInfo.SetSourceData(static_cast<const void*>(fragmentShaderSrc.data()));
 
   uint32_t fragmentShaderVersion = 0;
@@ -1402,4 +1402,4 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

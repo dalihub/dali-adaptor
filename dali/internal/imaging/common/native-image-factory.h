@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -50,6 +50,6 @@ extern DALI_ADAPTOR_API std::unique_ptr<NativeImageFactory> GetNativeImageFactor
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_FACTORY_H

@@ -25,7 +25,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/time-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -422,4 +422,4 @@ void GlWindowRenderThread::PostRenderWaitForFinished()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

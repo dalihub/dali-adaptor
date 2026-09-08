@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -80,4 +80,4 @@ Dali::Integration::SystemSettings::FontSizeChangedSignalType& SystemSettings::Fo
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

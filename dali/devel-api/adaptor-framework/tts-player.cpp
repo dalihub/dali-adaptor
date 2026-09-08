@@ -25,7 +25,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 TtsPlayer::TtsPlayer()
 {
@@ -90,4 +90,4 @@ TtsPlayer::TtsPlayer(Internal::Adaptor::TtsPlayer* player)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

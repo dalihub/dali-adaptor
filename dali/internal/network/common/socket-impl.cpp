@@ -34,7 +34,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -387,6 +387,6 @@ bool Socket::Write(const void* buffer, unsigned int bufferSizeInBytes)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #pragma GCC diagnostic pop

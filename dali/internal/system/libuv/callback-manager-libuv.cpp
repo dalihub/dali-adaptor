@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -243,4 +243,4 @@ void UvCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

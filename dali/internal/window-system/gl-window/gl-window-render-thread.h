@@ -30,7 +30,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/window-base.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -283,6 +283,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

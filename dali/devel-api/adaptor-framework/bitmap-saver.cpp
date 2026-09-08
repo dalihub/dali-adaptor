@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/legacy/tizen/image-encoder.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 // Pieces needed to save compressed images (temporary location while plumbing):
 namespace
@@ -137,4 +137,4 @@ bool EncodeToFile(const unsigned char* const pixelBuffer,
   return TizenPlatform::SaveFile(filename, pixbufEncoded.Begin(), static_cast<uint32_t>(pixbufEncoded.Count()));
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

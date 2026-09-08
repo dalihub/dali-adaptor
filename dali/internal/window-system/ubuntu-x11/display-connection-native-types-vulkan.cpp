@@ -18,7 +18,7 @@
 // EXTERNAL INCLUDES
 #include <dali/internal/window-system/ubuntu-x11/display-connection-native-types.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
 {
@@ -26,4 +26,4 @@ std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
   return std::unique_ptr<Any>(nullptr);
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

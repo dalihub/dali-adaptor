@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_SAMPLER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 using SamplerResource = Resource<Graphics::Sampler, Graphics::SamplerCreateInfo>;
 class SamplerImpl;
@@ -88,6 +88,6 @@ private:
   SamplerImpl* mSamplerImpl{nullptr};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif

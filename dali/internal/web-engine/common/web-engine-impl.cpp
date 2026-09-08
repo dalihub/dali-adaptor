@@ -41,7 +41,7 @@
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/images/pixel-data.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -940,4 +940,4 @@ void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectN
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

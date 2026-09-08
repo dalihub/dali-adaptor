@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <dali/internal/window-system/x11/display-connection-factory-x.h>
 #include <dali/internal/window-system/x11/display-connection-impl-x.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryX::CreateDisplayConnection()
 {
@@ -32,4 +32,4 @@ std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
   return Utils::MakeUnique<DisplayConnectionFactoryX>();
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

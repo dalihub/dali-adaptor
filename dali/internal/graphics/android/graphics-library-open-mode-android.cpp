@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-library-open-mode.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali::Internal::Adaptor::GraphicsLibrary
+namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 int GetLibraryOpenMode()
 {
   return RTLD_NOW | RTLD_GLOBAL;
 }
-} // namespace Dali::Internal::Adaptor::GraphicsLibrary
+} //namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary

@@ -36,7 +36,7 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/x11/window-system-x.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -371,4 +371,4 @@ unsigned int PixmapRenderSurfaceX::GetSurfaceId(Any surface) const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

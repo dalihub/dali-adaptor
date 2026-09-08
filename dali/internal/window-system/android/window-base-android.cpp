@@ -28,7 +28,7 @@
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -596,4 +596,4 @@ std::string WindowBaseAndroid::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

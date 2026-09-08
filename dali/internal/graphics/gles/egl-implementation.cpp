@@ -69,7 +69,7 @@ Debug::Filter* gEglLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_
 
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1123,7 +1123,7 @@ bool EglImplementation::CreateOffscreenContext(EGLContext& eglContext)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop

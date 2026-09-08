@@ -25,7 +25,7 @@
 
 #include "dali/internal/window-system/common/window-render-surface.h"
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -311,4 +311,4 @@ void VulkanGraphics::LogMemoryPools()
 }
 
 } // Namespace Graphics
-} // Namespace Dali
+} //namespace DALI_NAMESPACE

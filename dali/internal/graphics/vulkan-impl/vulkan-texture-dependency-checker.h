@@ -17,10 +17,11 @@
  */
 
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstdint>
 #include <unordered_map>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class VulkanGraphicsController;
 class Texture;
@@ -118,4 +119,4 @@ private:
   std::vector<Vulkan::RenderTarget*>                  mRenderTargets;        // set of all render targets that may consume textures.
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

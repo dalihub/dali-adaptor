@@ -29,7 +29,7 @@
 #include <dali/internal/imaging/common/native-image-impl.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -256,6 +256,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_IMPL_TIZEN_VULKAN_H

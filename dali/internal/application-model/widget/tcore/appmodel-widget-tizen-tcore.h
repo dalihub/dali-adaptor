@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -53,6 +53,6 @@ private: // impl members
 };
 } //namespace Adaptor
 } //namespace Internal
-} //namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

@@ -29,7 +29,7 @@
 #undef NO_ERROR
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -150,4 +150,4 @@ bool NativeBitmapBuffer::SourceChanged() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

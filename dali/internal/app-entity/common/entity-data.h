@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -51,6 +51,6 @@ struct EntityData
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APP_ENTITY_COMMON_ENTITY_DATA_H

@@ -32,7 +32,7 @@
 #include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -142,6 +142,6 @@ protected:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H

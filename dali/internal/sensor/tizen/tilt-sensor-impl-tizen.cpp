@@ -45,7 +45,7 @@ Dali::SignalConnectorType signalConnector1(typeRegistration, SIGNAL_TILTED, Dali
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -394,4 +394,4 @@ void TiltSensorTizen::Update(sensor_event_s* event)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

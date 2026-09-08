@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -112,6 +112,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LIBUV_CALLBACK_MANAGER_H

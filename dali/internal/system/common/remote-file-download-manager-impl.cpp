@@ -25,7 +25,7 @@
 #include <mutex>
 #include <utility>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -48,10 +48,10 @@ CallbackBase* CreateRemoteFileDownloadStartTaskCompleteCallback()
 class RemoteFileDownloadStartTask : public Dali::AsyncTask
 {
 public:
-  RemoteFileDownloadStartTask(Dali::IntrusivePtr<RemoteFileDownloadManager>       manager,
-                              RemoteFileDownloadManager::RequestId                requestId,
-                              std::string                                         url,
-                              size_t                                              maxSize)
+  RemoteFileDownloadStartTask(Dali::IntrusivePtr<RemoteFileDownloadManager> manager,
+                              RemoteFileDownloadManager::RequestId          requestId,
+                              std::string                                   url,
+                              size_t                                        maxSize)
   : Dali::AsyncTask(CreateRemoteFileDownloadStartTaskCompleteCallback(), Dali::AsyncTask::PriorityType::LOW, Dali::AsyncTask::ThreadType::WORKER_THREAD),
     mManager(std::move(manager)),
     mRequestId(requestId),
@@ -105,7 +105,8 @@ bool RemoteFileDownloadManager::IsAsyncDownloadSupported()
 {
   static bool           sAvailable = false;
   static std::once_flag sOnce;
-  std::call_once(sOnce, [&]() {
+  std::call_once(sOnce, [&]()
+  {
     sAvailable = Dali::FileDownloadPluginProxy::IsAsyncDownloadSupported();
     DALI_LOG_RELEASE_INFO("[FileDownload][RemoteManager] async download %s\n", sAvailable ? "ENABLED (download-api path)" : "DISABLED (direct LoadingTask path)");
   });
@@ -122,14 +123,14 @@ RemoteFileDownloadManager::~RemoteFileDownloadManager()
   CancelAllDownloadsInternal();
 }
 
-Dali::RemoteFileDownloadManager::RequestId RemoteFileDownloadManager::StartDownload(const std::string&                                   url,
-                                                                                    size_t                                               maxSize,
+Dali::RemoteFileDownloadManager::RequestId RemoteFileDownloadManager::StartDownload(const std::string&                                  url,
+                                                                                    size_t                                              maxSize,
                                                                                     Dali::RemoteFileDownloadManager::CompletionCallback callback)
 {
   DALI_LOG_INFO(gRemoteFileDownloadManagerLogFilter, Debug::Verbose, "[FileDownload][RemoteManager] StartDownload url=%s\n", url.c_str());
 
   Dali::IntrusivePtr<RemoteFileDownloadManager> selfPtr(this);
-  RequestId                                    requestId = ++mNextRequestId;
+  RequestId                                     requestId = ++mNextRequestId;
   if(DALI_UNLIKELY(requestId == Dali::RemoteFileDownloadManager::INVALID_REQUEST_ID))
   {
     requestId = ++mNextRequestId;
@@ -160,7 +161,8 @@ void RemoteFileDownloadManager::RequestProviderDownload(RequestId          reque
     }
   }
 
-  auto pluginCallback = [this, selfPtr, requestId](bool success, std::string filePath) {
+  auto pluginCallback = [this, selfPtr, requestId](bool success, std::string filePath)
+  {
     NotifyCompletion(requestId, success, std::move(filePath));
   };
 
@@ -207,7 +209,7 @@ void RemoteFileDownloadManager::NotifyCompletion(RequestId   requestId,
       return;
     }
 
-    auto             requestInfoIter = mRequestInfos.find(requestId);
+    auto requestInfoIter = mRequestInfos.find(requestId);
     if(requestInfoIter == mRequestInfos.end())
     {
       return;
@@ -268,4 +270,4 @@ void RemoteFileDownloadManager::CancelAllDownloadsInternal()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

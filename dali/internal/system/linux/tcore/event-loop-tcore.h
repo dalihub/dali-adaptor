@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/event-loop.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -41,6 +41,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_EVENT_LOOP_TCORE_H

@@ -30,7 +30,7 @@
 #include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class KeyEvent;
 class PixelData;
@@ -1183,6 +1183,6 @@ struct EnableBitMaskOperators<WebEnginePlugin::FindOption>
   static const bool ENABLE = true;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

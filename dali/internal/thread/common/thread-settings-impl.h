@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -75,6 +75,6 @@ int32_t GetUiThreadId();
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_THREAD_SETTINGS_H

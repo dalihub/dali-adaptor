@@ -26,7 +26,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -292,4 +292,4 @@ vk::SampleCountFlagBits Image::GetSampleCount() const
 
 } // namespace Graphics
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

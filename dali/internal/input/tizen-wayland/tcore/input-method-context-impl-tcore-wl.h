@@ -22,20 +22,20 @@
 // Tizen Core IMF C API
 #include <tizen-core-imf/tizen_core_imf.h>
 
+#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
-#include <queue>
 #include <tizen_core_wl.h>
+#include <queue>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
 using Dali::Integration::ToPropertyValue;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -505,6 +505,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_TCORE_WL_H

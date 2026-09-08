@@ -23,6 +23,7 @@
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl3.h>
 
+#include <dali/public-api/common/dali-namespace.h>
 #include <algorithm> // for std::find_if
 #include <locale>
 #include <sstream>
@@ -30,7 +31,7 @@
 #include <string_view>
 #include <utility> // for std::pair
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -102,4 +103,4 @@ void GlExtensionSupportedCacheList::EnsureGlExtensionSupportedCheck()
 } // namespace GlExtensionCache
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 #include <dali/internal/imaging/common/animated-image-loading-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class PixelData;
 typedef Dali::Uint16Pair ImageDimensions;
@@ -158,6 +158,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WEBP_LOADING_H

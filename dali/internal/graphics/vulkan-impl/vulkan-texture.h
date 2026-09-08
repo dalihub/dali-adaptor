@@ -26,7 +26,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Device;
 class Memory;
@@ -266,6 +266,6 @@ private:
   bool                                      mHasSurfaceReference{false}; ///< Whether we have acquired a surface reference
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_TEXTURE_IMPL_H

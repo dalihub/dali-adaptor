@@ -28,7 +28,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -36,7 +36,7 @@ namespace Adaptor
 {
 class DragAndDrop;
 class DragEventBuilder;
-}
+} //namespace Adaptor
 } //namespace Internal DALI_INTERNAL
 
 /**
@@ -237,6 +237,6 @@ public:
   explicit DALI_INTERNAL DragAndDrop(Internal::Adaptor::DragAndDrop* dnd);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DRAG_AND_DROP_H

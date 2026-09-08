@@ -21,10 +21,10 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/windows/unified-trigger-event-manager-impl-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 UnifiedTriggerEventManager::UnifiedTriggerEventManager(Internal::Adaptor::UnifiedTriggerEventManager* internal)
 : BaseHandle(internal)
 {
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE

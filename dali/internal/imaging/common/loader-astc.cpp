@@ -26,7 +26,7 @@
 #include <dali/public-api/images/pixel.h>
 #include <cstring>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -255,4 +255,4 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::PixelBuffer
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

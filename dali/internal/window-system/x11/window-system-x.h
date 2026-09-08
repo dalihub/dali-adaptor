@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace Dali::Internal::Adaptor::WindowSystem
+namespace DALI_NAMESPACE::Internal::Adaptor::WindowSystem
 {
 /**
  * Class to encapsulate the actual window system calls to X11
@@ -415,6 +415,6 @@ private:
  */
 DALI_ADAPTOR_API WindowSystemX& GetImplementation();
 
-} // namespace Dali::Internal::Adaptor::WindowSystem
+} //namespace DALI_NAMESPACE::Internal::Adaptor::WindowSystem
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_SYSTEM_H

@@ -29,7 +29,7 @@
 #include <dali/internal/offscreen/common/offscreen-render-surface.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -133,4 +133,4 @@ void OffscreenWindow::PostRenderAsyncCallback(int32_t fenceFd)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

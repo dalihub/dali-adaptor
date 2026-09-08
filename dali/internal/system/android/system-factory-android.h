@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -38,6 +38,6 @@ public:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_SYSTEM_FACTORY_H

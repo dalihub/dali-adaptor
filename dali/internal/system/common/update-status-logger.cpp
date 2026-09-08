@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -106,4 +106,4 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

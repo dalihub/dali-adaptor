@@ -36,7 +36,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/images/pixel-data.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 WebEngine::WebEngine()
 {
@@ -713,4 +713,4 @@ void WebEngine::RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEn
   GetImplementation(*this).RegisterPlaybackVideoPausedCallback(callback);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

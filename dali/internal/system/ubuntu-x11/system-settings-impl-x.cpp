@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 //   DALI_SYSTEM_FONT_SIZE_WATCH=1 enables polling so runtime setenv() can emit FontSizeChangedSignal().
 // This is only implemented by the Ubuntu/X backend.
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -236,4 +236,4 @@ void SystemSettings::NotifyFontSizeChanged()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

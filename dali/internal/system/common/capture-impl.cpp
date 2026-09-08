@@ -35,7 +35,7 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -544,4 +544,4 @@ void Capture::CaptureFileSaveTask::Process()
 
 } // End of namespace Internal
 
-} // End of namespace Dali
+} //namespace DALI_NAMESPACE

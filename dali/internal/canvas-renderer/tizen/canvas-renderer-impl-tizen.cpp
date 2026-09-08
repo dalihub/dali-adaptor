@@ -23,7 +23,7 @@
 
 // INTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -164,4 +164,4 @@ void CanvasRendererTizen::OnMakeTargetBuffer(const Vector2& size)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

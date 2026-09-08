@@ -22,7 +22,7 @@
 #include <dali/devel-api/adaptor-framework/virtual-keyboard.h>
 #include <tizen_core_imf.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -53,6 +53,6 @@ void DisconnectCallbacks(tizen_core_imf_context_h imfContext);
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TCORE_VIRTUAL_KEYBOARD_H

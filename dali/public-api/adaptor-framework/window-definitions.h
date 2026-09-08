@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
@@ -298,6 +298,6 @@ private:
   Dali::UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_DEFINITIONS_H

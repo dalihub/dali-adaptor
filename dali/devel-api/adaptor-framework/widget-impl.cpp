@@ -25,7 +25,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -163,4 +163,4 @@ const Internal::Adaptor::Widget& GetImplementation(const Dali::Widget& widget)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

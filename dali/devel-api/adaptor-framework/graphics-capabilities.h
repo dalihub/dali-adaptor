@@ -2,7 +2,7 @@
 #define DALI_DEVEL_API_ADAPTOR_GRAPHICS_CAPABILITIES_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 // EXTERNAL INCLUDES
 #include <cstdint>
 
-namespace Dali::GraphicsCapabilities
+namespace DALI_NAMESPACE::GraphicsCapabilities
 {
 /**
  * @brief Get the total number of combined texture units that can be used by
@@ -33,6 +33,6 @@ namespace Dali::GraphicsCapabilities
  */
 DALI_ADAPTOR_API uint32_t GetMaxCombinedTextureUnits();
 
-} // namespace Dali::GraphicsCapabilities
+} //namespace DALI_NAMESPACE::GraphicsCapabilities
 
 #endif //DALI_DEVEL_API_ADAPTOR_GRAPHICS_CAPABILITIES_H

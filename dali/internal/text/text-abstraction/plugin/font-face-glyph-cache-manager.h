@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_GLYPH_CACHE_MANAGER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Helper class to load and cache some glyphs of FT_Face.
@@ -303,6 +303,6 @@ private:
   CacheContainer mLRUGlyphCache; ///< LRU Cache container of glyph
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_GLYPH_CACHE_MANAGER_H

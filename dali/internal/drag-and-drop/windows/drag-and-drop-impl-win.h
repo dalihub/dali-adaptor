@@ -18,8 +18,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <windows.h>
 #include <oleidl.h>
+#include <windows.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -41,8 +41,8 @@ public:
   DropTargetWin(DragAndDropWin& owner, HWND window);
 
   HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** object) override;
-  ULONG STDMETHODCALLTYPE AddRef() override;
-  ULONG STDMETHODCALLTYPE Release() override;
+  ULONG STDMETHODCALLTYPE   AddRef() override;
+  ULONG STDMETHODCALLTYPE   Release() override;
   HRESULT STDMETHODCALLTYPE DragEnter(IDataObject* object, DWORD keys, POINTL point, DWORD* effect) override;
   HRESULT STDMETHODCALLTYPE DragOver(DWORD keys, POINTL point, DWORD* effect) override;
   HRESULT STDMETHODCALLTYPE DragLeave() override;
@@ -116,7 +116,7 @@ private:
   void EmitActorEvent(const ActorTarget& target, POINTL point, Dali::DragAndDrop::DragType type, const Dali::String& data = Dali::String());
   void EmitWindowEvent(const WindowTarget& target, POINTL point, Dali::DragAndDrop::DragType type, const Dali::String& data = Dali::String());
 
-  ActorTarget* FindActorTarget(HWND window, POINTL point);
+  ActorTarget*  FindActorTarget(HWND window, POINTL point);
   WindowTarget* FindWindowTarget(HWND window);
 
   void PrepareShadowWindow();
@@ -124,26 +124,26 @@ private:
   void CallSourceCallback(Dali::DragAndDrop::SourceEventType type);
 
 private:
-  std::vector<ActorTarget>      mActorTargets;
-  std::vector<WindowTarget>     mWindowTargets;
-  std::map<HWND, NativeTarget>  mNativeTargets;
-  SourceCallback                mSourceCallback;
-  Dali::Window                  mShadowWindow;
-  Dali::Actor                   mActiveActor;
-  Dali::Window                  mActiveDropWindow;
-  HWND                          mActiveWindow{nullptr};
-  HWND                          mShadowHandle{nullptr};
-  LONG_PTR                      mShadowExtendedStyle{0};
-  POINTL                        mLastPoint{};
-  bool                          mOleInitialized{false};
-  bool                          mDragging{false};
-  bool                          mTextAvailable{false};
+  std::vector<ActorTarget>     mActorTargets;
+  std::vector<WindowTarget>    mWindowTargets;
+  std::map<HWND, NativeTarget> mNativeTargets;
+  SourceCallback               mSourceCallback;
+  Dali::Window                 mShadowWindow;
+  Dali::Actor                  mActiveActor;
+  Dali::Window                 mActiveDropWindow;
+  HWND                         mActiveWindow{nullptr};
+  HWND                         mShadowHandle{nullptr};
+  LONG_PTR                     mShadowExtendedStyle{0};
+  POINTL                       mLastPoint{};
+  bool                         mOleInitialized{false};
+  bool                         mDragging{false};
+  bool                         mTextAvailable{false};
 };
 
 void NotifyDragAndDropWindowDestroyed(HWND window);
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_IMPL_WIN_H

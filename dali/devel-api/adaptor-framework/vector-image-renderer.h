@@ -25,7 +25,7 @@
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -123,6 +123,6 @@ public: // Not intended for application developers
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VECTOR_IMAGE_RENDERER_H

@@ -28,7 +28,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/system-error-print.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -210,4 +210,4 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

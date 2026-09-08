@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstdint> ///< for uint32_t
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Interface for a trigger event class.
@@ -73,6 +74,6 @@ private:
   TriggerEventInterface& operator=(const TriggerEventInterface&);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H

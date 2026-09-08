@@ -30,7 +30,7 @@
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindow
 {
@@ -392,6 +392,6 @@ DALI_ADAPTOR_API PointerConstraintsSignalType& PointerConstraintsSignal(Window w
 
 } // namespace DevelWindow
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_DEVEL_H

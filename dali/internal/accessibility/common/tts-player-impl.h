@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/tts-player.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -100,6 +100,6 @@ inline const Internal::Adaptor::TtsPlayer& GetImplementation(const Dali::TtsPlay
   return static_cast<const Internal::Adaptor::TtsPlayer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_IMPL_H

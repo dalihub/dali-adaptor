@@ -19,7 +19,7 @@
 #include <dali/devel-api/adaptor-framework/window-system-devel.h>
 #include <dali/internal/window-system/common/window-system.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindowSystem
 {
@@ -50,4 +50,4 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
 
 } // namespace DevelWindowSystem
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

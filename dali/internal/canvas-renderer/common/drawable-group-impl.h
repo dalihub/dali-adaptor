@@ -27,10 +27,10 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -128,6 +128,6 @@ inline static const Internal::Adaptor::DrawableGroup& GetImplementation(const Da
   return static_cast<const Internal::Adaptor::DrawableGroup&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAWABLE_GROUP_IMPL_H

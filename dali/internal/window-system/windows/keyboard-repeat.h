@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 
+#include <dali/public-api/common/dali-namespace.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <limits>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -153,6 +154,6 @@ private:
 } // namespace WindowsPlatform
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_WINDOWS_KEYBOARD_REPEAT_H

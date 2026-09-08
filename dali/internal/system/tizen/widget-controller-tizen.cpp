@@ -20,19 +20,19 @@
 
 // EXTERNAL INCLUDES
 #include <bundle.h>
+#include <dali/internal/system/tizen/tizen-dlog.h>
 #include <dali/public-api/actors/layer.h>
 #include <dlfcn.h>
-#include <dali/internal/system/tizen/tizen-dlog.h>
-#include <locale>
 #include <tizen.h>
 #include <unistd.h>
+#include <locale>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -138,7 +138,7 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   // Widget should not send window events (which could narrow down the navigation context)
   if(auto accessible = Accessibility::Accessible::Get(window.GetRootLayer()))
   {
-    auto& suppressedEvents                                      = accessible->GetSuppressedEvents();
+    auto& suppressedEvents                                                                 = accessible->GetSuppressedEvents();
     suppressedEvents[Dali::Integration::Accessibility::AccessibilityEvent::STATE_CHANGED]  = true;
     suppressedEvents[Dali::Integration::Accessibility::AccessibilityEvent::WINDOW_CHANGED] = true;
   }
@@ -158,4 +158,4 @@ std::string WidgetImplTizen::GetWidgetId() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -22,12 +22,12 @@
 #include <thorvg.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/vector-animation/common/vector-animation-renderer-native.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/vector-animation/common/vector-animation-renderer-native.h>
 #include <map>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -182,8 +182,8 @@ void VectorAnimationRendererEventManager::OnEventTriggered()
     // Copy the list to the local variable and clear
     movedTriggeredHandlers.swap(mTriggeredHandlers);
 
-    mTriggerOrderId  = 0u;
-    mEventTriggered  = false;
+    mTriggerOrderId = 0u;
+    mEventTriggered = false;
   }
 
   // Reorder event handler ordered by trigger request.
@@ -214,4 +214,4 @@ void VectorAnimationRendererEventManager::OnEventTriggered()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

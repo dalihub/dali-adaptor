@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -236,4 +236,4 @@ void PerformanceServer::LogMarker(const PerformanceMarker& marker, const char* c
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

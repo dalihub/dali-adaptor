@@ -29,7 +29,7 @@
 #include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -268,6 +268,6 @@ protected:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_COMMON_WINDOW_SYSTEM_H

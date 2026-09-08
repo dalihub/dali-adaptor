@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -171,4 +171,4 @@ LegacyContentReceivedSignalType& LegacyContentReceivedSignal(Dali::InputMethodCo
 
 } // namespace InputMethodContext
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE

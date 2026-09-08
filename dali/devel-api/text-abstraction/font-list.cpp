@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/devel-api/text-abstraction/font-list.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -36,4 +36,4 @@ DALI_ADAPTOR_API std::ostream& operator<<(std::ostream& o, const FontList& fontL
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

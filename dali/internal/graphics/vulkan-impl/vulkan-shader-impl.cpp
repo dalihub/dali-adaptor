@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-spirv.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 struct ShaderImpl::Impl
 {
@@ -267,4 +267,4 @@ void ShaderImpl::SetPreprocessedCode(void* data, uint32_t size)
   mImpl->SetPreprocessedCode(data, size);
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

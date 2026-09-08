@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -220,6 +220,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_IMPL_H

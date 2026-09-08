@@ -21,7 +21,7 @@
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
 #include <cstdio>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -49,6 +49,6 @@ bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_LOADER_WBMP_H

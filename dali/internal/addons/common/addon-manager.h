@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_COMMON_ADDON_MANAGER
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include <dali/integration-api/addon-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -118,6 +118,6 @@ private:
   std::unique_ptr<Internal::AddOnManager> mImpl; /// Implementation of the AddOnManager
 };
 } // namespace Adaptor
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_COMMON_ADDON_MANAGER

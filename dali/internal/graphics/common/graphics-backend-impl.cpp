@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory.h> ///< for Dali::Internal::Adaptor::GetCurrentGraphicsLibraryBackend()
 
-namespace Dali::Graphics::Internal
+namespace DALI_NAMESPACE::Graphics::Internal
 {
 namespace
 {
@@ -119,4 +119,4 @@ void SetBackendInformation(std::string&& backendInformation)
   gBackendInformation = std::move(backendInformation);
 }
 
-} // namespace Dali::Graphics::Internal
+} //namespace DALI_NAMESPACE::Graphics::Internal

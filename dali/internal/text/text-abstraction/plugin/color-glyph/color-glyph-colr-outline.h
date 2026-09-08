@@ -25,7 +25,7 @@
 #include <thorvg.h>
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -44,6 +44,6 @@ bool FtOutlineToTvgShape(FT_Outline* outline, tvg::Shape* shape);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_OUTLINE_H

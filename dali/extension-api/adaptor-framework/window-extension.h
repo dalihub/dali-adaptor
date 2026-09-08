@@ -22,7 +22,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Window;
 
@@ -47,6 +47,6 @@ namespace Extension
 DALI_ADAPTOR_API Any GetWindowNativeHandle(Window window);
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_EXTENSION_H

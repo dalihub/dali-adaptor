@@ -22,8 +22,8 @@
 #include <dali/devel-api/common/singleton-service.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -32,7 +32,7 @@
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -136,4 +136,4 @@ void OffscreenApplication::CreateAdaptor()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

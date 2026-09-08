@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -108,4 +108,4 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

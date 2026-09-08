@@ -20,7 +20,8 @@
 
 #include <dali/internal/window-system/common/display-connection-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
-namespace Dali
+#include <dali/public-api/common/dali-namespace.h>
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -36,6 +37,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_TCOREWL_DISPLAY_CONNECTION_FACTORY_TCORE_WL_H

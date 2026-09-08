@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRADIENT_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -145,6 +145,6 @@ inline static const Internal::Adaptor::Gradient& GetImplementation(const Dali::C
   return static_cast<const Internal::Adaptor::Gradient&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_GRADIENT_IMPL_H

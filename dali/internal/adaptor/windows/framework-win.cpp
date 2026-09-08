@@ -31,7 +31,7 @@
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -212,4 +212,4 @@ void UIThreadLoader::Run(Runner runner)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 typedef Dali::BoundsInteger DisplayArea;
 
@@ -435,6 +435,6 @@ public:
   virtual void SetVideoFrameBuffer(Dali::NativeImagePtr source) = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_VIDEO_PLAYER_PLUGIN_H

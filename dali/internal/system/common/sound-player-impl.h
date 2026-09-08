@@ -27,7 +27,7 @@
 #include <dali/internal/haptics/common/feedback-plugin-proxy.h>
 #include <dali/public-api/common/dali-string.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -131,6 +131,6 @@ inline const Internal::Adaptor::SoundPlayer& GetImplementation(const Dali::Sound
   return static_cast<const Internal::Adaptor::SoundPlayer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_SOUND_PLAYER_H

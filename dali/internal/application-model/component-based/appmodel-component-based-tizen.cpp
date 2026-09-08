@@ -34,7 +34,7 @@
 #include <dali/internal/system/common/event-loop.h>
 #include <dali/internal/system/common/system-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -217,4 +217,4 @@ void AppModelComponentBased::AppExit()
 }
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

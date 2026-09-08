@@ -25,7 +25,7 @@
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -76,6 +76,6 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_IMAGE_LOADING_H

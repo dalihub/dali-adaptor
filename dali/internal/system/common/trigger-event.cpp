@@ -32,7 +32,7 @@
 #include <dali/internal/system/common/unified-trigger-event-manager-impl.h>
 #include <dali/internal/system/common/unified-trigger-event-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -155,4 +155,4 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

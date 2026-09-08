@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -157,6 +157,6 @@ DALI_INIT_TIME_CHECKER_FILTER_WITH_DEFAULT_THRESHOLD(gTimeCheckerFilter, DALI_CO
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_DEBUG_H

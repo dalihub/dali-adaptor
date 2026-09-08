@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/offscreen/common/offscreen-application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 OffscreenApplication OffscreenApplication::New(int* argc, char** argv[], FrameworkBackend framework, RenderMode renderMode)
 {
@@ -70,4 +70,4 @@ OffscreenApplication::OffscreenApplication(Internal::Adaptor::OffscreenApplicati
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

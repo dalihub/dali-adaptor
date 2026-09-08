@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/vector-animation-renderer.h>
 #include <dali/internal/vector-animation/common/vector-animation-renderer-plugin-proxy.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -188,6 +188,6 @@ inline static const Internal::Adaptor::VectorAnimationRenderer& GetImplementatio
   return static_cast<const Internal::Adaptor::VectorAnimationRenderer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_IMPL_H

@@ -18,7 +18,7 @@
 // FILE HEADER
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -59,4 +59,4 @@ BitmapFont::~BitmapFont()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -25,7 +25,7 @@
 #include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 // Expose KeyLookupEntry as a convenience (defined in extension-api)
 using KeyLookupEntry = Dali::Extension::KeyLookupEntry;
@@ -68,6 +68,6 @@ DALI_ADAPTOR_API bool IsSystemKeyCodePriority();
 
 } // namespace DevelKey
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_KEY_DEVEL_H

@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief
@@ -62,6 +62,6 @@ public:
   typedef void DestroyImageLoaderPlugin(ImageLoaderPlugin* plugin);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

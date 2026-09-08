@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
@@ -65,20 +65,20 @@ struct FontFaceCacheItem : public FontCacheItemInterface
    * @param[in] colorFontInfo Detected SFNT color table flags.
    * @param[in] colorFontRenderability Current-build color renderability classification.
    */
-  FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
-                    FT_Face                            ftFace,
-                    FontFaceManager*                   fontFaceManager,
-                    GlyphCacheManager*                 glyphCacheManager,
-                    ColorGlyphColrRasterizer*          colorGlyphColrRasterizer,
-                    const FontPath&                    path,
-                    PointSize26Dot6                    requestedPointSize,
-                    FaceIndex                          face,
-                    const FontMetrics&                 metrics,
-                    const std::size_t                  variationsHash,
-                    const std::vector<FT_Fixed>&       freeTypeCoords,
-                    const std::vector<hb_variation_t>& harfBuzzVariations,
-                    bool                               hasColorTables = false,
-                    const FontFaceManager::ColorFontInfo& colorFontInfo = FontFaceManager::ColorFontInfo{},
+  FontFaceCacheItem(const FT_Library&                       freeTypeLibrary,
+                    FT_Face                                 ftFace,
+                    FontFaceManager*                        fontFaceManager,
+                    GlyphCacheManager*                      glyphCacheManager,
+                    ColorGlyphColrRasterizer*               colorGlyphColrRasterizer,
+                    const FontPath&                         path,
+                    PointSize26Dot6                         requestedPointSize,
+                    FaceIndex                               face,
+                    const FontMetrics&                      metrics,
+                    const std::size_t                       variationsHash,
+                    const std::vector<FT_Fixed>&            freeTypeCoords,
+                    const std::vector<hb_variation_t>&      harfBuzzVariations,
+                    bool                                    hasColorTables         = false,
+                    const FontFaceManager::ColorFontInfo&   colorFontInfo          = FontFaceManager::ColorFontInfo{},
                     FontFaceManager::ColorFontRenderability colorFontRenderability = FontFaceManager::ColorFontRenderability::NotColorFont);
 
   /**
@@ -103,20 +103,20 @@ struct FontFaceCacheItem : public FontCacheItemInterface
    * @param[in] colorFontInfo Detected SFNT color table flags.
    * @param[in] colorFontRenderability Current-build color renderability classification.
    */
-  FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
-                    FT_Face            ftFace,
-                    FontFaceManager*   fontFaceManager,
-                    GlyphCacheManager* glyphCacheManager,
-                    ColorGlyphColrRasterizer* colorGlyphColrRasterizer,
-                    const FontPath&    path,
-                    PointSize26Dot6    requestedPointSize,
-                    FaceIndex          face,
-                    const FontMetrics& metrics,
-                    int                fixedSizeIndex,
-                    float              fixedWidth,
-                    float              fixedHeight,
-                    bool               hasColorTables,
-                    const FontFaceManager::ColorFontInfo& colorFontInfo = FontFaceManager::ColorFontInfo{},
+  FontFaceCacheItem(const FT_Library&                       freeTypeLibrary,
+                    FT_Face                                 ftFace,
+                    FontFaceManager*                        fontFaceManager,
+                    GlyphCacheManager*                      glyphCacheManager,
+                    ColorGlyphColrRasterizer*               colorGlyphColrRasterizer,
+                    const FontPath&                         path,
+                    PointSize26Dot6                         requestedPointSize,
+                    FaceIndex                               face,
+                    const FontMetrics&                      metrics,
+                    int                                     fixedSizeIndex,
+                    float                                   fixedWidth,
+                    float                                   fixedHeight,
+                    bool                                    hasColorTables,
+                    const FontFaceManager::ColorFontInfo&   colorFontInfo          = FontFaceManager::ColorFontInfo{},
                     FontFaceManager::ColorFontRenderability colorFontRenderability = FontFaceManager::ColorFontRenderability::NotColorFont);
 
   FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
@@ -212,30 +212,30 @@ public:
   const FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
   FT_Face           mFreeTypeFace;    ///< The FreeType face.
 
-  FontFaceManager*                   mFontFaceManager;        ///< The reference of font face manager. Owned from font-client-plugin-cache-handler.
-  GlyphCacheManager*                 mGlyphCacheManager;      ///< The reference of Glyph cache manager. Owned from font-client-plugin-cache-handler.
+  FontFaceManager*                   mFontFaceManager;          ///< The reference of font face manager. Owned from font-client-plugin-cache-handler.
+  GlyphCacheManager*                 mGlyphCacheManager;        ///< The reference of Glyph cache manager. Owned from font-client-plugin-cache-handler.
   ColorGlyphColrRasterizer*          mColorGlyphColrRasterizer; ///< Non-owning pointer to COLRv1 rasterizer. Owned by CacheHandler.
-  std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont;      ///< The harfbuzz font. It will store harfbuzz relate data.
+  std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont;        ///< The harfbuzz font. It will store harfbuzz relate data.
 
-  FontPath                    mPath;                  ///< The path to the font file name.
-  PointSize26Dot6             mRequestedPointSize;    ///< The font point size.
-  FaceIndex                   mFaceIndex;             ///< The face index.
-  FontMetrics                 mMetrics;               ///< The font metrics.
-  _FcCharSet*                 mCharacterSet;          ///< Pointer with the range of characters.
-  int                         mFixedSizeIndex;        ///< Index to the fixed size table for the requested size.
-  float                       mFixedWidthPixels;      ///< The height in pixels (fixed size bitmaps only)
-  float                       mFixedHeightPixels;     ///< The height in pixels (fixed size bitmaps only)
-  unsigned int                mVectorFontId;          ///< The ID of the equivalent vector-based font
-  FontId                      mFontId;                ///< Index to the vector with the cache of font's ids.
-  bool                        mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
-  bool                        mHasColorTables : 1;    ///< Whether any color font tables were detected.
-  FontFaceManager::ColorFontInfo           mColorFontInfo;          ///< Detected SFNT color table flags.
-  FontFaceManager::ColorFontRenderability  mColorFontRenderability; ///< Current-build color renderability classification.
-  std::size_t                 mVariationsHash;        ///< The hash of the variations to use key.
-  std::vector<FT_Fixed>       mFreeTypeCoords;        ///< The FreeType coordinates for the variations.
-  std::vector<hb_variation_t> mHarfBuzzVariations;    ///< The HarfBuzz variations data.
+  FontPath                                mPath;                   ///< The path to the font file name.
+  PointSize26Dot6                         mRequestedPointSize;     ///< The font point size.
+  FaceIndex                               mFaceIndex;              ///< The face index.
+  FontMetrics                             mMetrics;                ///< The font metrics.
+  _FcCharSet*                             mCharacterSet;           ///< Pointer with the range of characters.
+  int                                     mFixedSizeIndex;         ///< Index to the fixed size table for the requested size.
+  float                                   mFixedWidthPixels;       ///< The height in pixels (fixed size bitmaps only)
+  float                                   mFixedHeightPixels;      ///< The height in pixels (fixed size bitmaps only)
+  unsigned int                            mVectorFontId;           ///< The ID of the equivalent vector-based font
+  FontId                                  mFontId;                 ///< Index to the vector with the cache of font's ids.
+  bool                                    mIsFixedSizeBitmap : 1;  ///< Whether the font has fixed size bitmaps.
+  bool                                    mHasColorTables : 1;     ///< Whether any color font tables were detected.
+  FontFaceManager::ColorFontInfo          mColorFontInfo;          ///< Detected SFNT color table flags.
+  FontFaceManager::ColorFontRenderability mColorFontRenderability; ///< Current-build color renderability classification.
+  std::size_t                             mVariationsHash;         ///< The hash of the variations to use key.
+  std::vector<FT_Fixed>                   mFreeTypeCoords;         ///< The FreeType coordinates for the variations.
+  std::vector<hb_variation_t>             mHarfBuzzVariations;     ///< The HarfBuzz variations data.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H

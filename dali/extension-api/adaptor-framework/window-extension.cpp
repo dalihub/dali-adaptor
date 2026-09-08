@@ -19,7 +19,7 @@
 #include <dali/extension-api/adaptor-framework/window-extension.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Extension
 {
@@ -30,4 +30,4 @@ Any GetWindowNativeHandle(Window window)
 }
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE

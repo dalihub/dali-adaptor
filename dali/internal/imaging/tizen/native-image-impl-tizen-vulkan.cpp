@@ -44,7 +44,7 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -814,4 +814,4 @@ void NativeImageTizenVulkan::DestroyBackBuffer()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

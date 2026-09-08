@@ -22,7 +22,7 @@
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 NativeImageSurfacePtr NativeImageSurface::New(Dali::NativeImageQueuePtr queue)
 {
@@ -78,4 +78,4 @@ NativeImageSurface::~NativeImageSurface()
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

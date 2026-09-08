@@ -38,7 +38,7 @@
 #include <dali/internal/graphics/gles/gles3-implementation.h>
 #include <dali/internal/system/common/time-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1634,6 +1634,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_GL_IMPLEMENTATION_H

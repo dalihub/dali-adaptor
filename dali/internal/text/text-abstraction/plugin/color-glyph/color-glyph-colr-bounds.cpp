@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.h>
 
 #if !DALI_ENABLE_COLR_V1_RENDERER
 // empty compilation unit
@@ -23,13 +23,13 @@
 
 #include <cmath>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
 {
 
-constexpr float PI = 3.14159265358979323846f;
+constexpr float PI            = 3.14159265358979323846f;
 constexpr float FROM_FT_FIXED = 1.0f / 65536.0f;
 
 float FixedToFloat16Dot16(FT_Fixed value)
@@ -58,7 +58,10 @@ void PaintBoundsUnion(ColrPaintBounds& bounds, float x1, float y1, float x2, flo
 {
   if(!bounds.valid)
   {
-    bounds.minX = x1; bounds.minY = y1; bounds.maxX = x2; bounds.maxY = y2;
+    bounds.minX  = x1;
+    bounds.minY  = y1;
+    bounds.maxX  = x2;
+    bounds.maxY  = y2;
     bounds.valid = true;
   }
   else
@@ -74,18 +77,19 @@ void PaintBoundsUnionBBox(ColrPaintBounds& bounds, float bMinX, float bMinY, flo
                           const TransformState& transform)
 {
   float corners[4][2] = {
-    {bMinX, bMinY}, {bMaxX, bMinY},
-    {bMinX, bMaxY}, {bMaxX, bMaxY}
-  };
+    {bMinX, bMinY}, {bMaxX, bMinY}, {bMinX, bMaxY}, {bMaxX, bMaxY}};
   for(int i = 0; i < 4; i++)
   {
-    float x = corners[i][0];
-    float y = corners[i][1];
+    float x  = corners[i][0];
+    float y  = corners[i][1];
     float tx = transform.matrix[0] * x + transform.matrix[1] * y + transform.matrix[4];
     float ty = transform.matrix[2] * x + transform.matrix[3] * y + transform.matrix[5];
     if(!bounds.valid)
     {
-      bounds.minX = tx; bounds.minY = ty; bounds.maxX = tx; bounds.maxY = ty;
+      bounds.minX  = tx;
+      bounds.minY  = ty;
+      bounds.maxX  = tx;
+      bounds.maxY  = ty;
       bounds.valid = true;
     }
     else
@@ -102,7 +106,7 @@ void PaintBoundsUnionBBox(ColrPaintBounds& bounds, float bMinX, float bMinY, flo
 ColrPaintBounds ComputeGlyphOutlineBounds(FT_Face ftFace, uint32_t glyphIndex)
 {
   ColrPaintBounds result;
-  FT_Error error = FT_Load_Glyph(ftFace, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_NO_SCALE);
+  FT_Error        error = FT_Load_Glyph(ftFace, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_NO_SCALE);
   if(error != FT_Err_Ok) return result;
 
   FT_Outline* outline = &ftFace->glyph->outline;
@@ -112,10 +116,10 @@ ColrPaintBounds ComputeGlyphOutlineBounds(FT_Face ftFace, uint32_t glyphIndex)
   FT_Outline_Get_BBox(outline, &ftBBox);
   if(ftBBox.xMin >= ftBBox.xMax || ftBBox.yMin >= ftBBox.yMax) return result;
 
-  result.minX = static_cast<float>(ftBBox.xMin);
-  result.minY = static_cast<float>(ftBBox.yMin);
-  result.maxX = static_cast<float>(ftBBox.xMax);
-  result.maxY = static_cast<float>(ftBBox.yMax);
+  result.minX  = static_cast<float>(ftBBox.xMin);
+  result.minY  = static_cast<float>(ftBBox.yMin);
+  result.maxX  = static_cast<float>(ftBBox.xMax);
+  result.maxY  = static_cast<float>(ftBBox.yMax);
   result.valid = true;
   return result;
 }
@@ -133,7 +137,7 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_COLR_LAYERS:
     {
       FT_LayerIterator& layerIter = paint.u.colr_layers.layer_iterator;
-      FT_OpaquePaint layerOpaque;
+      FT_OpaquePaint    layerOpaque;
       while(FT_Get_Paint_Layers(ftFace, &layerIter, &layerOpaque))
       {
         TraversePaintBounds(ftFace, layerOpaque, bounds, geometryTransform, debugGlyph, depth + 1);
@@ -143,7 +147,7 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
 
     case FT_COLR_PAINTFORMAT_GLYPH:
     {
-      uint32_t glyphID = paint.u.glyph.glyphID;
+      uint32_t        glyphID     = paint.u.glyph.glyphID;
       ColrPaintBounds glyphBounds = ComputeGlyphOutlineBounds(ftFace, glyphID);
       if(glyphBounds.valid)
       {
@@ -163,13 +167,13 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_TRANSFORM:
     {
       TransformState prevTransform = geometryTransform;
-      const auto& tf = paint.u.transform;
-      float xx = static_cast<float>(tf.affine.xx) / 65536.0f;
-      float xy = static_cast<float>(tf.affine.xy) / 65536.0f;
-      float yx = static_cast<float>(tf.affine.yx) / 65536.0f;
-      float yy = static_cast<float>(tf.affine.yy) / 65536.0f;
-      float dx = static_cast<float>(tf.affine.dx) / 65536.0f;
-      float dy = static_cast<float>(tf.affine.dy) / 65536.0f;
+      const auto&    tf            = paint.u.transform;
+      float          xx            = static_cast<float>(tf.affine.xx) / 65536.0f;
+      float          xy            = static_cast<float>(tf.affine.xy) / 65536.0f;
+      float          yx            = static_cast<float>(tf.affine.yx) / 65536.0f;
+      float          yy            = static_cast<float>(tf.affine.yy) / 65536.0f;
+      float          dx            = static_cast<float>(tf.affine.dx) / 65536.0f;
+      float          dy            = static_cast<float>(tf.affine.dy) / 65536.0f;
       geometryTransform.Apply(xx, xy, yx, yy, dx, dy);
       TraversePaintBounds(ftFace, tf.paint, bounds, geometryTransform, debugGlyph, depth + 1);
       geometryTransform = prevTransform;
@@ -179,8 +183,8 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_TRANSLATE:
     {
       TransformState prevTransform = geometryTransform;
-      float dx = static_cast<float>(paint.u.translate.dx) / 65536.0f;
-      float dy = static_cast<float>(paint.u.translate.dy) / 65536.0f;
+      float          dx            = static_cast<float>(paint.u.translate.dx) / 65536.0f;
+      float          dy            = static_cast<float>(paint.u.translate.dy) / 65536.0f;
       geometryTransform.Apply(1, 0, 0, 1, dx, dy);
       TraversePaintBounds(ftFace, paint.u.translate.paint, bounds, geometryTransform, debugGlyph, depth + 1);
       geometryTransform = prevTransform;
@@ -190,10 +194,10 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_SCALE:
     {
       TransformState prevTransform = geometryTransform;
-      float sx = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
-      float sy = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
-      float cx = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
-      float cy = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
+      float          sx            = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
+      float          sy            = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
+      float          cx            = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
+      float          cy            = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
       geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       geometryTransform.Apply(sx, 0, 0, sy, 0, 0);
       geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
@@ -205,11 +209,11 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_ROTATE:
     {
       TransformState prevTransform = geometryTransform;
-      float angle = ColrAngleToRadians(paint.u.rotate.angle);
-      float cx = FixedToFloat16Dot16(paint.u.rotate.center_x);
-      float cy = FixedToFloat16Dot16(paint.u.rotate.center_y);
-      float cosA = std::cos(angle);
-      float sinA = std::sin(angle);
+      float          angle         = ColrAngleToRadians(paint.u.rotate.angle);
+      float          cx            = FixedToFloat16Dot16(paint.u.rotate.center_x);
+      float          cy            = FixedToFloat16Dot16(paint.u.rotate.center_y);
+      float          cosA          = std::cos(angle);
+      float          sinA          = std::sin(angle);
       geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       geometryTransform.Apply(cosA, -sinA, sinA, cosA, 0, 0);
       geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
@@ -221,10 +225,10 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
     case FT_COLR_PAINTFORMAT_SKEW:
     {
       TransformState prevTransform = geometryTransform;
-      float skewX = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
-      float skewY = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
-      float cx = FixedToFloat16Dot16(paint.u.skew.center_x);
-      float cy = FixedToFloat16Dot16(paint.u.skew.center_y);
+      float          skewX         = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
+      float          skewY         = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
+      float          cx            = FixedToFloat16Dot16(paint.u.skew.center_x);
+      float          cy            = FixedToFloat16Dot16(paint.u.skew.center_y);
       geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       geometryTransform.Apply(1, skewX, skewY, 1, 0, 0);
       geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
@@ -241,7 +245,7 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
       const GlyphIndex referencedGlyphID = paint.u.colr_glyph.glyphID;
 
       FT_OpaquePaint referencedRootPaint;
-      referencedRootPaint.p = nullptr;
+      referencedRootPaint.p                     = nullptr;
       referencedRootPaint.insert_root_transform = false;
 
       const FT_Bool hasReferencedPaint = FT_Get_Color_Glyph_Paint(
@@ -299,14 +303,14 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
         const bool hasSource   = (paint.u.composite.source_paint.p != nullptr);
 
         FT_PaintFormat backdropFormat = static_cast<FT_PaintFormat>(-1);
-        const char* backdropName = "(null)";
+        const char*    backdropName   = "(null)";
         if(hasBackdrop)
         {
           FT_COLR_Paint backdropPaint;
           if(FT_Get_Paint(ftFace, paint.u.composite.backdrop_paint, &backdropPaint))
           {
             backdropFormat = backdropPaint.format;
-            backdropName = PaintFormatToString(backdropPaint.format);
+            backdropName   = PaintFormatToString(backdropPaint.format);
           }
           else
           {
@@ -315,14 +319,14 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
         }
 
         FT_PaintFormat sourceFormat = static_cast<FT_PaintFormat>(-1);
-        const char* sourceName = "(null)";
+        const char*    sourceName   = "(null)";
         if(hasSource)
         {
           FT_COLR_Paint sourcePaint;
           if(FT_Get_Paint(ftFace, paint.u.composite.source_paint, &sourcePaint))
           {
             sourceFormat = sourcePaint.format;
-            sourceName = PaintFormatToString(sourcePaint.format);
+            sourceName   = PaintFormatToString(sourcePaint.format);
           }
           else
           {
@@ -331,13 +335,13 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
         }
 
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER CompositeBounds depth:%u mode:%d(%s) backdrop:%s format:%d(%s) bounds:[%d,(%.1f,%.1f)-(%.1f,%.1f)] source:%s format:%d(%s) bounds:[%d,(%.1f,%.1f)-(%.1f,%.1f)] union:[%d,(%.1f,%.1f)-(%.1f,%.1f)]\n",
-                       depth,
-                       static_cast<int>(paint.u.composite.composite_mode), CompositeModeToString(paint.u.composite.composite_mode),
-                       hasBackdrop ? "yes" : "no", static_cast<int>(backdropFormat), backdropName,
-                       backdropBounds.valid, backdropBounds.minX, backdropBounds.minY, backdropBounds.maxX, backdropBounds.maxY,
-                       hasSource ? "yes" : "no", static_cast<int>(sourceFormat), sourceName,
-                       sourceBounds.valid, sourceBounds.minX, sourceBounds.minY, sourceBounds.maxX, sourceBounds.maxY,
-                       bounds.valid, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY);
+                              depth,
+                              static_cast<int>(paint.u.composite.composite_mode), CompositeModeToString(paint.u.composite.composite_mode),
+                              hasBackdrop ? "yes" : "no", static_cast<int>(backdropFormat), backdropName,
+                              backdropBounds.valid, backdropBounds.minX, backdropBounds.minY, backdropBounds.maxX, backdropBounds.maxY,
+                              hasSource ? "yes" : "no", static_cast<int>(sourceFormat), sourceName,
+                              sourceBounds.valid, sourceBounds.minX, sourceBounds.minY, sourceBounds.maxX, sourceBounds.maxY,
+                              bounds.valid, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY);
       }
       break;
     }
@@ -347,6 +351,6 @@ void TraversePaintBounds(FT_Face ftFace, FT_OpaquePaint opaquePaint, ColrPaintBo
   }
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

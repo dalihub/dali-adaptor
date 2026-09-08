@@ -28,7 +28,7 @@
 #include <thorvg.h>
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -50,16 +50,19 @@ namespace Dali::TextAbstraction::Internal
 struct TransformState
 {
   float matrix[6] = {1, 0, 0, 1, 0, 0}; ///< 2x3 affine matrix [xx, xy, yx, yy, dx, dy].
-  bool hasTransform{false};             ///< Whether any non-identity transform was applied.
+  bool  hasTransform{false};            ///< Whether any non-identity transform was applied.
 
   /**
    * @brief Resets the transform to identity.
    */
   void Reset()
   {
-    matrix[0] = 1.0f; matrix[1] = 0.0f;
-    matrix[2] = 0.0f; matrix[3] = 1.0f;
-    matrix[4] = 0.0f; matrix[5] = 0.0f;
+    matrix[0]    = 1.0f;
+    matrix[1]    = 0.0f;
+    matrix[2]    = 0.0f;
+    matrix[3]    = 1.0f;
+    matrix[4]    = 0.0f;
+    matrix[5]    = 0.0f;
     hasTransform = false;
   }
 
@@ -75,15 +78,18 @@ struct TransformState
    */
   void Apply(float xx, float xy, float yx, float yy, float dx, float dy)
   {
-    float nxx = xx * matrix[0] + xy * matrix[2];
-    float nxy = xx * matrix[1] + xy * matrix[3];
-    float nyx = yx * matrix[0] + yy * matrix[2];
-    float nyy = yx * matrix[1] + yy * matrix[3];
-    float ndx = dx * matrix[0] + dy * matrix[2] + matrix[4];
-    float ndy = dx * matrix[1] + dy * matrix[3] + matrix[5];
-    matrix[0] = nxx; matrix[1] = nxy;
-    matrix[2] = nyx; matrix[3] = nyy;
-    matrix[4] = ndx; matrix[5] = ndy;
+    float nxx    = xx * matrix[0] + xy * matrix[2];
+    float nxy    = xx * matrix[1] + xy * matrix[3];
+    float nyx    = yx * matrix[0] + yy * matrix[2];
+    float nyy    = yx * matrix[1] + yy * matrix[3];
+    float ndx    = dx * matrix[0] + dy * matrix[2] + matrix[4];
+    float ndy    = dx * matrix[1] + dy * matrix[3] + matrix[5];
+    matrix[0]    = nxx;
+    matrix[1]    = nxy;
+    matrix[2]    = nyx;
+    matrix[3]    = nyy;
+    matrix[4]    = ndx;
+    matrix[5]    = ndy;
     hasTransform = true;
   }
 };
@@ -126,12 +132,12 @@ const char* CompositeModeToString(FT_Composite_Mode mode);
  */
 tvg::Matrix BuildGeometryMatrix(
   const TransformState& geometryTransform,
-  float globalScale,
-  float offsetX,
-  float offsetY);
+  float                 globalScale,
+  float                 offsetX,
+  float                 offsetY);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_COMMON_H

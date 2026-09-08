@@ -34,7 +34,7 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -439,4 +439,4 @@ void NativeImageAndroid::EnableBackBuffer(bool enable)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

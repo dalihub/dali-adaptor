@@ -22,7 +22,7 @@
 
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -32,9 +32,9 @@ namespace Adaptor
 class EntityDataHost
 {
 public:
-  virtual ~EntityDataHost() = default;
-  virtual EntityDataService& GetService() = 0;
-  virtual bool IsListening() const = 0;
+  virtual ~EntityDataHost()                      = default;
+  virtual EntityDataService& GetService()        = 0;
+  virtual bool               IsListening() const = 0;
 };
 
 // Creates the platform backend for entity-data actions. Common code uses this
@@ -44,6 +44,6 @@ extern DALI_ADAPTOR_API std::unique_ptr<EntityDataHost> CreateEntityDataHost(Dal
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APP_ENTITY_COMMON_ENTITY_DATA_HOST_H

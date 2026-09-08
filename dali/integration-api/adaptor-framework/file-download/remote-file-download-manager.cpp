@@ -24,7 +24,7 @@
 // EXTERNAL INCLUDES
 #include <utility>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 RemoteFileDownloadManager::RemoteFileDownloadManager()
@@ -66,4 +66,4 @@ void RemoteFileDownloadManager::CancelDownload(RequestId requestId)
   }
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

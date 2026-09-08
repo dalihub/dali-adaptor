@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 VectorImageRenderer VectorImageRenderer::New()
 {
@@ -62,4 +62,4 @@ void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) cons
   GetImplementation(*this).GetDefaultSize(width, height);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

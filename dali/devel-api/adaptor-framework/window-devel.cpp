@@ -28,7 +28,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindow
 {
@@ -204,4 +204,4 @@ PointerConstraintsSignalType& PointerConstraintsSignal(Window window)
 
 } // namespace DevelWindow
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

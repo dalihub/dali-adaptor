@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-settings-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -59,4 +59,4 @@ SystemSettings::SystemSettings(Dali::Internal::Adaptor::SystemSettings* implemen
 }
 
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE

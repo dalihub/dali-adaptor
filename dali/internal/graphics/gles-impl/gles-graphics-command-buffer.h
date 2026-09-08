@@ -30,7 +30,7 @@
 
 #include <cstring>
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 class Pipeline;
 class RenderPass;
@@ -427,21 +427,21 @@ public:
   /**
    * @copydoc Dali::Graphics::CommandBuffer::SetColorBlendEquation
    */
-  void SetColorBlendEquation(uint32_t attachment,
+  void SetColorBlendEquation(uint32_t              attachment,
                              Graphics::BlendFactor srcColorBlendFactor,
                              Graphics::BlendFactor dstColorBlendFactor,
-                             Graphics::BlendOp colorBlendOp,
+                             Graphics::BlendOp     colorBlendOp,
                              Graphics::BlendFactor srcAlphaBlendFactor,
                              Graphics::BlendFactor dstAlphaBlendFactor,
-                             Graphics::BlendOp alphaBlendOp) override;
+                             Graphics::BlendOp     alphaBlendOp) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::SetColorBlendAdvanced
    */
-  void SetColorBlendAdvanced(uint32_t attachment,
-                             bool     srcPremultiplied,
-                             bool     dstPremultiplied,
-                             Graphics::BlendOp      blendOp) override;
+  void SetColorBlendAdvanced(uint32_t          attachment,
+                             bool              srcPremultiplied,
+                             bool              dstPremultiplied,
+                             Graphics::BlendOp blendOp) override;
 
   /**
    * @brief Presents specified render target
@@ -485,6 +485,6 @@ private:
   struct GlStateCommandCache;
   std::unique_ptr<GlStateCommandCache> mGlStateCommandCache; ///< Stack of GL state caches
 };
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif

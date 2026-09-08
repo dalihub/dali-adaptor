@@ -38,7 +38,7 @@
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 #include <dali/internal/system/common/time-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -826,4 +826,4 @@ bool SceneHolder::OnSceneWheelEventGenerated(Dali::WheelEvent event)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

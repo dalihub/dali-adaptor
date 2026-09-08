@@ -18,7 +18,10 @@
  *
  */
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Interface for the ThreadSyncrhonization handler.
@@ -80,6 +83,6 @@ private:
   ThreadSynchronizationInterface& operator=(const ThreadSynchronizationInterface&);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_THREAD_SYNCHRONIZATION_INTERFACE_H

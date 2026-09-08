@@ -22,7 +22,7 @@
 #include <dali/public-api/common/dali-common.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -62,6 +62,6 @@ DALI_ADAPTOR_API void TransformToArc(const CircularTextParameters& parameters, d
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_PLATFORM_TEXT_ABSTRACTION_TEXT_RENDERER_LAYOUT_HELPER_H

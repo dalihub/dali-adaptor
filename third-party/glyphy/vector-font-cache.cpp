@@ -44,7 +44,7 @@ accumulate_endpoint( glyphy_arc_endpoint_t*         endpoint,
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace TextAbstraction

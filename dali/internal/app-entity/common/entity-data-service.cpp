@@ -34,7 +34,7 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -525,4 +525,4 @@ bool EntityDataService::ToPresentation(const EntityData& entityData, std::string
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

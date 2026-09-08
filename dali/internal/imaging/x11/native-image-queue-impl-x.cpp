@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -132,4 +132,4 @@ bool NativeImageQueueX::SourceChanged() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

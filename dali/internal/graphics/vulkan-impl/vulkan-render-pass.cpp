@@ -21,7 +21,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, VulkanGraphicsController& controller)
 : mCreateInfo(createInfo)
@@ -83,4 +83,4 @@ void RenderPass::RemoveLifecycleObserver(LifecycleObserver& observer)
   mLifecycleObservers.erase(&observer);
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

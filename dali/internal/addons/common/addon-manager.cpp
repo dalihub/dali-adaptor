@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/addons/common/addon-manager-impl.h>
-#include <dali/internal/addons/common/addon-manager-factory.h>
-#include <dali/internal/addons/common/addon-manager.h>
 #include <dali/internal/adaptor/common/weak-symbol.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
+#include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/addons/common/addon-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -97,4 +97,4 @@ void AddOnManager::Stop()
 }
 
 } // namespace Adaptor
-} // namespace Dali
+} //namespace DALI_NAMESPACE

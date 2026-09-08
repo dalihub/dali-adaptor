@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_LOAD_ERROR_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A class WebEngineLoadError for loading error of web engine.
@@ -101,6 +102,6 @@ public:
   virtual ErrorType GetType() const = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_LOAD_ERROR_H

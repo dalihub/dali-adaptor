@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -187,6 +187,6 @@ DALI_ADAPTOR_API std::ostream& operator<<(std::ostream& o, const FontList& fontL
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TEXT_ABSTRACTION_FONT_LIST_H

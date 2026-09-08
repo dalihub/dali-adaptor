@@ -32,7 +32,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -188,4 +188,4 @@ SceneHolder::FocusChangedGeneratedSignalType& SceneHolder::FocusChangedGenerated
 
 } // namespace Integration
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

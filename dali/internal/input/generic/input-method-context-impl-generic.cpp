@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -349,4 +349,4 @@ void InputMethodContextGeneric::GetPreeditStyle(Dali::Integration::InputMethodCo
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

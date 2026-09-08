@@ -22,7 +22,7 @@
 #include <chrono>
 #include <thread>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -67,4 +67,4 @@ void SleepUntil(uint64_t timeInNanoseconds)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

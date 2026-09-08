@@ -23,7 +23,7 @@
 #include <limits> // for std::numeric_limits
 #include <unordered_map>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Helper class to cache as LRU algirhtm.
@@ -591,6 +591,6 @@ private:
   std::vector<CacheNode>                                  mData{};    ///< The real data container.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_TEXT_ABSTRACTION_INTERNAL_LRU_CACHE_CONTAINER_H

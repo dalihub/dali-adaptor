@@ -72,7 +72,7 @@ int GetCookie(const std::string& description, std::string& markerName)
 }
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -114,4 +114,4 @@ void SystemTrace::Trace(const PerformanceMarker& marker, const std::string& trac
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

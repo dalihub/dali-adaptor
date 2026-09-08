@@ -35,7 +35,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -387,4 +387,4 @@ unsigned int PixmapRenderSurfaceEcoreX::GetSurfaceId(Any surface) const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

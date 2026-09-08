@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/window-system/android/display-connection-impl-android.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DisplayConnection* DisplayConnectionAndroid::New()
 {
@@ -53,4 +53,4 @@ void DisplayConnectionAndroid::SetSurfaceType(Dali::Integration::RenderSurfaceIn
   mDisplay = EGL_DEFAULT_DISPLAY;
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

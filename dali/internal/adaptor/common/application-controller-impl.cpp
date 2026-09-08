@@ -42,7 +42,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -490,4 +490,4 @@ void ApplicationController::UpdatePreInitializedWindowInfo()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

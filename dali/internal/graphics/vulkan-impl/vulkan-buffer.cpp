@@ -26,7 +26,7 @@
 
 // EXTERNAL INCLUDES
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, VulkanGraphicsController& controller)
 : BufferResource(createInfo, controller)
@@ -137,7 +137,6 @@ bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, VulkanGrap
   return false;
 }
 
-
 void Buffer::DiscardResource()
 {
   mController.DiscardResource(this);
@@ -165,4 +164,4 @@ void Buffer::Bind(Graphics::BufferUsage bindingTarget) const
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

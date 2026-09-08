@@ -21,11 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-include.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<Any> CastToNativeGraphicsType(XDisplay* display)
 {
   return std::unique_ptr<Any>(new Any(static_cast<EGLNativeDisplayType>(display)));
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

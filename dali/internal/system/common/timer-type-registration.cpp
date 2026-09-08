@@ -19,7 +19,7 @@
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace
 {
@@ -27,4 +27,4 @@ namespace
 Dali::TypeRegistration TIMER_TYPE("Timer", typeid(Dali::BaseHandle), nullptr);
 
 } // unnamed namespace
-} // namespace Dali
+} //namespace DALI_NAMESPACE

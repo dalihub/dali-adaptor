@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Abstract interface for file download implementations (e.g., curl-based, libfetch, etc.)
@@ -67,6 +67,6 @@ public:
                                             size_t                 maximumAllowedSizeBytes) = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_FILE_DOWNLOAD_PLUGIN_H

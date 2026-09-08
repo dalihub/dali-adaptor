@@ -28,7 +28,7 @@
 // Vulkan headers for function pointer types
 #include <vulkan/vulkan.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Buffer;
 class Device;
@@ -326,6 +326,6 @@ private:
   bool mRecording{false};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H

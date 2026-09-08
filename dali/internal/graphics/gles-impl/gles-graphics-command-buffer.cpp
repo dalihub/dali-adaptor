@@ -30,7 +30,7 @@
 #include "gles-graphics-render-target.h"
 #include "gles-graphics-texture.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 namespace
 {
@@ -196,7 +196,7 @@ public:
   {
     const auto typeSize       = sizeof(T);
     const auto memoryRequired = typeSize * count;
-  auto       ptr            = memoryPool.Allocate(static_cast<uint32_t>(memoryRequired));
+    auto       ptr            = memoryPool.Allocate(static_cast<uint32_t>(memoryRequired));
 
     // Convert generic pointer and return
     return IndirectPtr<T>{ptr.ptr, ptr.base};
@@ -742,21 +742,21 @@ void CommandBuffer::SetColorBlendEnable(uint32_t attachment, bool enabled)
   // Not implemented for GLES
 }
 
-void CommandBuffer::SetColorBlendEquation(uint32_t attachment,
-                                         Graphics::BlendFactor srcColorBlendFactor,
-                                         Graphics::BlendFactor dstColorBlendFactor,
-                                         Graphics::BlendOp colorBlendOp,
-                                         Graphics::BlendFactor srcAlphaBlendFactor,
-                                         Graphics::BlendFactor dstAlphaBlendFactor,
-                                         Graphics::BlendOp alphaBlendOp)
+void CommandBuffer::SetColorBlendEquation(uint32_t              attachment,
+                                          Graphics::BlendFactor srcColorBlendFactor,
+                                          Graphics::BlendFactor dstColorBlendFactor,
+                                          Graphics::BlendOp     colorBlendOp,
+                                          Graphics::BlendFactor srcAlphaBlendFactor,
+                                          Graphics::BlendFactor dstAlphaBlendFactor,
+                                          Graphics::BlendOp     alphaBlendOp)
 {
   // Not implemented for GLES
 }
 
-void CommandBuffer::SetColorBlendAdvanced(uint32_t attachment,
-                                          bool     srcPremultiplied,
-                                          bool     dstPremultiplied,
-                                          Graphics::BlendOp      blendOp)
+void CommandBuffer::SetColorBlendAdvanced(uint32_t          attachment,
+                                          bool              srcPremultiplied,
+                                          bool              dstPremultiplied,
+                                          Graphics::BlendOp blendOp)
 {
   // Not implemented for GLES
 }
@@ -803,4 +803,4 @@ std::size_t CommandBuffer::GetCapacity()
   return total;
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

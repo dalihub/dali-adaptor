@@ -24,7 +24,7 @@
 #include <dali/internal/window-system/windows/keyboard-repeat.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -660,8 +660,8 @@ private:
   void EventEntry(TWinEventInfo* event);
 
 private:
-  WinWindowHandle mWin32Window;       ///< Native window handle
-  int             mNativeWindowId;    ///< Stable DALi id; HWND is exposed separately as a raw handle
+  WinWindowHandle mWin32Window;    ///< Native window handle
+  int             mNativeWindowId; ///< Stable DALi id; HWND is exposed separately as a raw handle
   int32_t         mVerticalWheelRemainder;
   int32_t         mHorizontalWheelRemainder;
   bool            mOwnSurface : 1;    ///< Whether we own the surface (responsible for deleting it)
@@ -679,6 +679,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_WINDOW_BASE_WIN_H

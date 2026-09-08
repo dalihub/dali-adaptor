@@ -28,7 +28,7 @@
 #include <dali/internal/system/linux/ecore/timer-impl-ecore.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -76,4 +76,4 @@ std::unique_ptr<SystemFactory> GetSystemFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

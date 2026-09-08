@@ -31,7 +31,7 @@
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -39,10 +39,10 @@ namespace Adaptor
 {
 namespace
 {
-constexpr const char* TEXT_MIME_TYPE = "text/plain";
-constexpr const char* ALL_MIME_TYPES = "*/*";
+constexpr const char*    TEXT_MIME_TYPE         = "text/plain";
+constexpr const char*    ALL_MIME_TYPES         = "*/*";
 constexpr const wchar_t* SHADOW_WINDOW_PROPERTY = L"DALI_DRAG_AND_DROP_SHADOW";
-constexpr int SHADOW_OFFSET = 8;
+constexpr int            SHADOW_OFFSET          = 8;
 
 DragAndDropWin* gDragAndDropWin = nullptr;
 
@@ -211,7 +211,7 @@ public:
       return E_POINTER;
     }
 
-    auto* clone  = new FormatEnumerator(mFormats);
+    auto* clone   = new FormatEnumerator(mFormats);
     clone->mIndex = mIndex;
     *enumerator   = clone;
     return S_OK;
@@ -221,9 +221,9 @@ private:
   ~FormatEnumerator() = default;
 
 private:
-  LONG                    mReferenceCount{1};
-  std::vector<FORMATETC>  mFormats;
-  size_t                  mIndex{0u};
+  LONG                   mReferenceCount{1};
+  std::vector<FORMATETC> mFormats;
+  size_t                 mIndex{0u};
 };
 
 class DataObject final : public IDataObject
@@ -235,7 +235,7 @@ public:
     {
       if(data.GetMimeType(index) == TEXT_MIME_TYPE)
       {
-        mText = data.GetData(index).CStr();
+        mText    = data.GetData(index).CStr();
         mHasText = true;
         break;
       }
@@ -608,7 +608,7 @@ DragAndDropWin::DragAndDropWin()
   {
     DALI_LOG_ERROR("Windows drag-and-drop OLE initialization failed: 0x%08lx\n", static_cast<unsigned long>(result));
   }
-  gDragAndDropWin      = this;
+  gDragAndDropWin = this;
 }
 
 DragAndDropWin::~DragAndDropWin()
@@ -657,7 +657,7 @@ bool DragAndDropWin::RegisterWindow(HWND window)
     return true;
   }
 
-  auto* target = new DropTargetWin(*this, window);
+  auto*         target = new DropTargetWin(*this, window);
   const HRESULT result = RegisterDragDrop(window, target);
   if(FAILED(result))
   {
@@ -701,7 +701,8 @@ void DragAndDropWin::RevokeWindows()
 
 bool DragAndDropWin::AddListener(Dali::Actor target, const Dali::String& mimeType, DragCallback callback)
 {
-  const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&target](const ActorTarget& item) {
+  const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&target](const ActorTarget& item)
+  {
     return item.target == target;
   });
   if(found != mActorTargets.end())
@@ -722,7 +723,8 @@ bool DragAndDropWin::AddListener(Dali::Actor target, const Dali::String& mimeTyp
 
 bool DragAndDropWin::RemoveListener(Dali::Actor target)
 {
-  const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&target](const ActorTarget& item) {
+  const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&target](const ActorTarget& item)
+  {
     return item.target == target;
   });
   if(found == mActorTargets.end())
@@ -745,7 +747,8 @@ bool DragAndDropWin::RemoveListener(Dali::Actor target)
 
 bool DragAndDropWin::AddListener(Dali::Window target, const Dali::String& mimeType, DragCallback callback)
 {
-  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&target](const WindowTarget& item) {
+  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&target](const WindowTarget& item)
+  {
     return item.target == target;
   });
   if(found != mWindowTargets.end())
@@ -765,7 +768,8 @@ bool DragAndDropWin::AddListener(Dali::Window target, const Dali::String& mimeTy
 
 bool DragAndDropWin::RemoveListener(Dali::Window target)
 {
-  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&target](const WindowTarget& item) {
+  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&target](const WindowTarget& item)
+  {
     return item.target == target;
   });
   if(found == mWindowTargets.end())
@@ -810,7 +814,7 @@ bool DragAndDropWin::ReadTextData(IDataObject* object, Dali::String& data) const
     return false;
   }
 
-  FORMATETC format       = MakeFormat(CF_UNICODETEXT);
+  FORMATETC format      = MakeFormat(CF_UNICODETEXT);
   bool      unicodeText = SUCCEEDED(object->QueryGetData(&format));
   if(!unicodeText)
   {
@@ -862,7 +866,8 @@ bool DragAndDropWin::ReadTextData(IDataObject* object, Dali::String& data) const
 
 DragAndDropWin::ActorTarget* DragAndDropWin::FindActorTarget(HWND window, POINTL point)
 {
-  auto found = std::find_if(mActorTargets.rbegin(), mActorTargets.rend(), [window, point](const ActorTarget& item) {
+  auto found = std::find_if(mActorTargets.rbegin(), mActorTargets.rend(), [window, point](const ActorTarget& item)
+  {
     return item.window == window && IsSupportedMimeType(item.mimeType) && Contains(window, item.target, point);
   });
   return found == mActorTargets.rend() ? nullptr : &(*found);
@@ -870,7 +875,8 @@ DragAndDropWin::ActorTarget* DragAndDropWin::FindActorTarget(HWND window, POINTL
 
 DragAndDropWin::WindowTarget* DragAndDropWin::FindWindowTarget(HWND window)
 {
-  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [window](const WindowTarget& item) {
+  const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [window](const WindowTarget& item)
+  {
     return item.window == window && IsSupportedMimeType(item.mimeType);
   });
   return found == mWindowTargets.end() ? nullptr : &(*found);
@@ -906,7 +912,8 @@ void DragAndDropWin::EmitLeave(POINTL point)
   {
     const Dali::Actor activeActor = mActiveActor;
     mActiveActor.Reset();
-    const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&activeActor](const ActorTarget& item) {
+    const auto found = std::find_if(mActorTargets.begin(), mActorTargets.end(), [&activeActor](const ActorTarget& item)
+    {
       return item.target == activeActor;
     });
     if(found != mActorTargets.end())
@@ -920,7 +927,8 @@ void DragAndDropWin::EmitLeave(POINTL point)
   {
     const Dali::Window activeWindow = mActiveDropWindow;
     mActiveDropWindow.Reset();
-    const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&activeWindow](const WindowTarget& item) {
+    const auto found = std::find_if(mWindowTargets.begin(), mWindowTargets.end(), [&activeWindow](const WindowTarget& item)
+    {
       return item.target == activeWindow;
     });
     if(found != mWindowTargets.end())
@@ -949,7 +957,7 @@ bool DragAndDropWin::UpdateActiveTarget(HWND window, POINTL point, bool emitMove
     hasWindowTarget = true;
   }
 
-  const bool actorChanged = hasActorTarget ? mActiveActor != actorTarget.target : static_cast<bool>(mActiveActor);
+  const bool actorChanged  = hasActorTarget ? mActiveActor != actorTarget.target : static_cast<bool>(mActiveActor);
   const bool windowChanged = hasWindowTarget ? mActiveDropWindow != windowTarget.target : static_cast<bool>(mActiveDropWindow);
   if(actorChanged || windowChanged || mActiveWindow != window)
   {
@@ -1025,8 +1033,8 @@ HRESULT DragAndDropWin::OnDragEnter(HWND window, IDataObject* object, POINTL poi
   }
 
   const bool copyAllowed = (*effect & DROPEFFECT_COPY) != 0u;
-  mLastPoint     = point;
-  mTextAvailable = IsTextAvailable(object);
+  mLastPoint             = point;
+  mTextAvailable         = IsTextAvailable(object);
   if(copyAllowed && mTextAvailable && UpdateActiveTarget(window, point, false))
   {
     *effect = DROPEFFECT_COPY;
@@ -1048,7 +1056,7 @@ HRESULT DragAndDropWin::OnDragOver(HWND window, POINTL point, DWORD* effect)
   }
 
   const bool copyAllowed = (*effect & DROPEFFECT_COPY) != 0u;
-  mLastPoint = point;
+  mLastPoint             = point;
   if(copyAllowed && mTextAvailable && UpdateActiveTarget(window, point, true))
   {
     *effect = DROPEFFECT_COPY;
@@ -1065,8 +1073,8 @@ HRESULT DragAndDropWin::OnDragOver(HWND window, POINTL point, DWORD* effect)
 HRESULT DragAndDropWin::OnDragLeave(HWND)
 {
   EmitLeave(mLastPoint);
-  mActiveWindow   = nullptr;
-  mTextAvailable  = false;
+  mActiveWindow  = nullptr;
+  mTextAvailable = false;
   return S_OK;
 }
 
@@ -1078,11 +1086,11 @@ HRESULT DragAndDropWin::OnDrop(HWND window, IDataObject* object, POINTL point, D
   }
 
   const bool copyAllowed = (*effect & DROPEFFECT_COPY) != 0u;
-  *effect    = DROPEFFECT_NONE;
-  mLastPoint = point;
+  *effect                = DROPEFFECT_NONE;
+  mLastPoint             = point;
 
   Dali::String data;
-  const bool hasTarget = copyAllowed && mTextAvailable && UpdateActiveTarget(window, point, false);
+  const bool   hasTarget = copyAllowed && mTextAvailable && UpdateActiveTarget(window, point, false);
   if(hasTarget && ReadTextData(object, data) && EmitDrop(window, point, data))
   {
     *effect = DROPEFFECT_COPY;
@@ -1178,8 +1186,8 @@ bool DragAndDropWin::StartDragAndDrop(Dali::Actor, Dali::Window shadowWindow, co
   UpdateShadow();
   CallSourceCallback(Dali::DragAndDrop::SourceEventType::START);
 
-  auto* source = new DropSource(*this);
-  DWORD effect = DROPEFFECT_NONE;
+  auto*         source = new DropSource(*this);
+  DWORD         effect = DROPEFFECT_NONE;
   const HRESULT result = DoDragDrop(object, source, DROPEFFECT_COPY, &effect);
   object->Release();
   source->Release();
@@ -1231,13 +1239,15 @@ void DragAndDropWin::WindowDestroyed(HWND window)
     mTextAvailable = false;
   }
 
-  mActorTargets.erase(std::remove_if(mActorTargets.begin(), mActorTargets.end(), [window](const ActorTarget& target) {
-                        return target.window == window;
-                      }),
+  mActorTargets.erase(std::remove_if(mActorTargets.begin(), mActorTargets.end(), [window](const ActorTarget& target)
+  {
+    return target.window == window;
+  }),
                       mActorTargets.end());
-  mWindowTargets.erase(std::remove_if(mWindowTargets.begin(), mWindowTargets.end(), [window](const WindowTarget& target) {
-                         return target.window == window;
-                       }),
+  mWindowTargets.erase(std::remove_if(mWindowTargets.begin(), mWindowTargets.end(), [window](const WindowTarget& target)
+  {
+    return target.window == window;
+  }),
                        mWindowTargets.end());
 
   const auto found = mNativeTargets.find(window);
@@ -1292,4 +1302,4 @@ std::unique_ptr<DragAndDropFactory> GetDragAndDropFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

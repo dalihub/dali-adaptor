@@ -22,7 +22,7 @@
 #include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/widget-application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Widget;
 
@@ -171,6 +171,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WIDGET_APPLICATION_TIZEN_H

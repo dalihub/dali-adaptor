@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-data.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief The data a WindowData carries.
@@ -59,6 +59,6 @@ struct WindowData::Impl
   int16_t mMultiSamplingLevel;   ///< Samples per pixel for MSAA, negative to follow the system
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOW_SYSTEM_COMMON_WINDOW_DATA_IMPL_H

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-composite.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-composite.h>
 
 #if !DALI_ENABLE_COLR_V1_RENDERER
 // empty compilation unit
@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
@@ -56,7 +56,7 @@ namespace
 
 // BGRA byte order: B=[0], G=[1], R=[2], A=[3]
 void BlendSoftLightPixelBgra(
-  uint8_t* outPixel,
+  uint8_t*       outPixel,
   const uint8_t* backdropPixel,
   const uint8_t* sourcePixel)
 {
@@ -68,7 +68,10 @@ void BlendSoftLightPixelBgra(
 
   if(Ao <= 0.0f)
   {
-    outPixel[0] = 0; outPixel[1] = 0; outPixel[2] = 0; outPixel[3] = 0;
+    outPixel[0] = 0;
+    outPixel[1] = 0;
+    outPixel[2] = 0;
+    outPixel[3] = 0;
     return;
   }
 
@@ -102,8 +105,8 @@ void BlendSoftLightPixelBgra(
     //   Co_premul = (1 - Ab) * As * Cs + (1 - As) * Ab * Cb + As * Ab * B
     //   Co = Co_premul / Ao
     const float Co_premul = (1.0f - Ab) * As * Cs + (1.0f - As) * Ab * Cb + As * Ab * B;
-    const float Co = Co_premul / Ao;
-    outPixel[i] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Co * 255.0f)));
+    const float Co        = Co_premul / Ao;
+    outPixel[i]           = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Co * 255.0f)));
   }
 
   outPixel[3] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Ao * 255.0f)));
@@ -222,9 +225,9 @@ float BlendSeparableChannel(FT_Composite_Mode mode, float cb, float cs)
 //   Co_premul = (1 - Ab) * As * Cs + (1 - As) * Ab * Cb + As * Ab * B(Cb, Cs)
 //   Co = Co_premul / Ao
 void BlendSeparablePixelBgra(
-  uint8_t* outPixel,
-  const uint8_t* backdropPixel,
-  const uint8_t* sourcePixel,
+  uint8_t*          outPixel,
+  const uint8_t*    backdropPixel,
+  const uint8_t*    sourcePixel,
   FT_Composite_Mode mode)
 {
   const float Ab = backdropPixel[3] / 255.0f;
@@ -242,7 +245,7 @@ void BlendSeparablePixelBgra(
   {
     const float Cb = backdropPixel[c] / 255.0f;
     const float Cs = sourcePixel[c] / 255.0f;
-    const float B = BlendSeparableChannel(mode, Cb, Cs);
+    const float B  = BlendSeparableChannel(mode, Cb, Cs);
 
     coPremul[c] =
       (1.0f - Ab) * As * Cs +
@@ -365,9 +368,9 @@ FloatRgb BlendNonSeparableRgb(FT_Composite_Mode mode, const FloatRgb& backdrop, 
 }
 
 void BlendNonSeparablePixelBgra(
-  uint8_t* outPixel,
-  const uint8_t* backdropPixel,
-  const uint8_t* sourcePixel,
+  uint8_t*          outPixel,
+  const uint8_t*    backdropPixel,
+  const uint8_t*    sourcePixel,
   FT_Composite_Mode mode)
 {
   const float Ab = backdropPixel[3] / 255.0f;
@@ -418,19 +421,19 @@ void FreeCompositeBuffer(CompositeBuffer& buf)
     free(buf.buffer);
     buf.buffer = nullptr;
   }
-  buf.width = 0;
+  buf.width  = 0;
   buf.height = 0;
   buf.stride = 0;
-  buf.valid = false;
+  buf.valid  = false;
 }
 
 // Allocate a CompositeBuffer with calloc. Returns valid=false on failure.
 CompositeBuffer AllocateCompositeBuffer(uint32_t width, uint32_t height)
 {
   CompositeBuffer buf;
-  buf.width = width;
-  buf.height = height;
-  buf.stride = width * 4;
+  buf.width     = width;
+  buf.height    = height;
+  buf.stride    = width * 4;
   uint32_t size = buf.stride * height;
   if(size == 0) return buf;
   buf.buffer = static_cast<uint8_t*>(calloc(size, 1));
@@ -453,7 +456,7 @@ void UnpremultiplyBgraBuffer(uint8_t* buffer, uint32_t width, uint32_t height, u
     uint8_t* row = buffer + static_cast<size_t>(y) * stride;
     for(uint32_t x = 0u; x < width; ++x)
     {
-      uint8_t* pixel = row + x * 4u;
+      uint8_t*      pixel = row + x * 4u;
       const uint8_t alpha = pixel[3];
       if(alpha == 0u)
       {
@@ -470,7 +473,7 @@ void UnpremultiplyBgraBuffer(uint8_t* buffer, uint32_t width, uint32_t height, u
       for(uint32_t c = 0u; c < 3u; ++c)
       {
         const uint32_t straight = (static_cast<uint32_t>(pixel[c]) * 255u + alpha / 2u) / alpha;
-        pixel[c] = static_cast<uint8_t>(std::min(straight, 255u));
+        pixel[c]                = static_cast<uint8_t>(std::min(straight, 255u));
       }
     }
   }
@@ -525,11 +528,11 @@ bool IsCompositeModeSupported(FT_Composite_Mode mode)
 // Output: straight BGRA8888 CompositeBuffer (allocated internally, caller owns)
 // Returns true on success, false if mode is unsupported or validation fails.
 bool CompositeBuffers(
-  FT_Composite_Mode mode,
+  FT_Composite_Mode      mode,
   const CompositeBuffer& backdrop,
   const CompositeBuffer& source,
-  CompositeBuffer& output,
-  uint32_t debugGlyph)
+  CompositeBuffer&       output,
+  uint32_t               debugGlyph)
 {
   // Validation
   if(!backdrop.valid || !source.valid) return false;
@@ -549,9 +552,9 @@ bool CompositeBuffers(
     {
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
           BlendSoftLightPixelBgra(outRow + x * 4, bdRow + x * 4, srRow + x * 4);
@@ -593,30 +596,32 @@ bool CompositeBuffers(
       //   else: transparent black
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = As + Ab * (1.0f - As);
           if(Ao <= 0.0f)
           {
-            outRow[x*4+0] = 0; outRow[x*4+1] = 0;
-            outRow[x*4+2] = 0; outRow[x*4+3] = 0;
+            outRow[x * 4 + 0] = 0;
+            outRow[x * 4 + 1] = 0;
+            outRow[x * 4 + 2] = 0;
+            outRow[x * 4 + 3] = 0;
           }
           else
           {
             for(int c = 0; c < 3; ++c)
             {
-              const float Cs = srRow[x*4+c] / 255.0f;
-              const float Cb = bdRow[x*4+c] / 255.0f;
+              const float Cs        = srRow[x * 4 + c] / 255.0f;
+              const float Cb        = bdRow[x * 4 + c] / 255.0f;
               const float Co_premul = As * Cs + Ab * Cb * (1.0f - As);
-              const float Co = Co_premul / Ao;
-              outRow[x*4+c] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Co * 255.0f)));
+              const float Co        = Co_premul / Ao;
+              outRow[x * 4 + c]     = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Co * 255.0f)));
             }
-            outRow[x*4+3] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Ao * 255.0f)));
+            outRow[x * 4 + 3] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Ao * 255.0f)));
           }
         }
       }
@@ -636,27 +641,29 @@ bool CompositeBuffers(
       // only alpha is modified by backdrop alpha.
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = As * Ab;
 
           if(Ao <= 0.0f)
           {
-            outRow[x*4+0] = 0; outRow[x*4+1] = 0;
-            outRow[x*4+2] = 0; outRow[x*4+3] = 0;
+            outRow[x * 4 + 0] = 0;
+            outRow[x * 4 + 1] = 0;
+            outRow[x * 4 + 2] = 0;
+            outRow[x * 4 + 3] = 0;
           }
           else
           {
             // Source color is preserved, only alpha is masked by backdrop
-            outRow[x*4+0] = srRow[x*4+0];
-            outRow[x*4+1] = srRow[x*4+1];
-            outRow[x*4+2] = srRow[x*4+2];
-            outRow[x*4+3] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Ao * 255.0f)));
+            outRow[x * 4 + 0] = srRow[x * 4 + 0];
+            outRow[x * 4 + 1] = srRow[x * 4 + 1];
+            outRow[x * 4 + 2] = srRow[x * 4 + 2];
+            outRow[x * 4 + 3] = static_cast<uint8_t>(std::max(0.0f, std::min(255.0f, Ao * 255.0f)));
           }
         }
       }
@@ -683,13 +690,13 @@ bool CompositeBuffers(
       // Co = Co_premul / Ao
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = Ab + As * (1.0f - Ab);
 
           if(Ao <= 0.0f)
@@ -698,12 +705,12 @@ bool CompositeBuffers(
           }
           else
           {
-            const float CbB = bdRow[x*4+0] / 255.0f;
-            const float CbG = bdRow[x*4+1] / 255.0f;
-            const float CbR = bdRow[x*4+2] / 255.0f;
-            const float CsB = srRow[x*4+0] / 255.0f;
-            const float CsG = srRow[x*4+1] / 255.0f;
-            const float CsR = srRow[x*4+2] / 255.0f;
+            const float CbB = bdRow[x * 4 + 0] / 255.0f;
+            const float CbG = bdRow[x * 4 + 1] / 255.0f;
+            const float CbR = bdRow[x * 4 + 2] / 255.0f;
+            const float CsB = srRow[x * 4 + 0] / 255.0f;
+            const float CsG = srRow[x * 4 + 1] / 255.0f;
+            const float CsR = srRow[x * 4 + 2] / 255.0f;
 
             const float coPremulB = Ab * CbB + As * CsB * (1.0f - Ab);
             const float coPremulG = Ab * CbG + As * CsG * (1.0f - Ab);
@@ -722,13 +729,13 @@ bool CompositeBuffers(
       // Co = Cb (backdrop color preserved, alpha masked by source)
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = Ab * As;
 
           if(Ao <= 0.0f)
@@ -738,10 +745,10 @@ bool CompositeBuffers(
           else
           {
             // Backdrop color preserved, alpha masked by source
-            outRow[x*4+0] = bdRow[x*4+0];
-            outRow[x*4+1] = bdRow[x*4+1];
-            outRow[x*4+2] = bdRow[x*4+2];
-            outRow[x*4+3] = ClampToByte(Ao * 255.0f);
+            outRow[x * 4 + 0] = bdRow[x * 4 + 0];
+            outRow[x * 4 + 1] = bdRow[x * 4 + 1];
+            outRow[x * 4 + 2] = bdRow[x * 4 + 2];
+            outRow[x * 4 + 3] = ClampToByte(Ao * 255.0f);
           }
         }
       }
@@ -755,13 +762,13 @@ bool CompositeBuffers(
       // Co = Cs (source color preserved, alpha masked by 1-Ab)
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = As * (1.0f - Ab);
 
           if(Ao <= 0.0f)
@@ -771,10 +778,10 @@ bool CompositeBuffers(
           else
           {
             // Source color preserved, alpha masked by (1 - Ab)
-            outRow[x*4+0] = srRow[x*4+0];
-            outRow[x*4+1] = srRow[x*4+1];
-            outRow[x*4+2] = srRow[x*4+2];
-            outRow[x*4+3] = ClampToByte(Ao * 255.0f);
+            outRow[x * 4 + 0] = srRow[x * 4 + 0];
+            outRow[x * 4 + 1] = srRow[x * 4 + 1];
+            outRow[x * 4 + 2] = srRow[x * 4 + 2];
+            outRow[x * 4 + 3] = ClampToByte(Ao * 255.0f);
           }
         }
       }
@@ -788,13 +795,13 @@ bool CompositeBuffers(
       // Co = Cb (backdrop color preserved, alpha masked by 1-As)
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = Ab * (1.0f - As);
 
           if(Ao <= 0.0f)
@@ -804,10 +811,10 @@ bool CompositeBuffers(
           else
           {
             // Backdrop color preserved, alpha masked by (1 - As)
-            outRow[x*4+0] = bdRow[x*4+0];
-            outRow[x*4+1] = bdRow[x*4+1];
-            outRow[x*4+2] = bdRow[x*4+2];
-            outRow[x*4+3] = ClampToByte(Ao * 255.0f);
+            outRow[x * 4 + 0] = bdRow[x * 4 + 0];
+            outRow[x * 4 + 1] = bdRow[x * 4 + 1];
+            outRow[x * 4 + 2] = bdRow[x * 4 + 2];
+            outRow[x * 4 + 3] = ClampToByte(Ao * 255.0f);
           }
         }
       }
@@ -822,13 +829,13 @@ bool CompositeBuffers(
       // Co = Co_premul / Ao
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = Ab;
 
           if(Ao <= 0.0f)
@@ -837,12 +844,12 @@ bool CompositeBuffers(
           }
           else
           {
-            const float CbB = bdRow[x*4+0] / 255.0f;
-            const float CbG = bdRow[x*4+1] / 255.0f;
-            const float CbR = bdRow[x*4+2] / 255.0f;
-            const float CsB = srRow[x*4+0] / 255.0f;
-            const float CsG = srRow[x*4+1] / 255.0f;
-            const float CsR = srRow[x*4+2] / 255.0f;
+            const float CbB = bdRow[x * 4 + 0] / 255.0f;
+            const float CbG = bdRow[x * 4 + 1] / 255.0f;
+            const float CbR = bdRow[x * 4 + 2] / 255.0f;
+            const float CsB = srRow[x * 4 + 0] / 255.0f;
+            const float CsG = srRow[x * 4 + 1] / 255.0f;
+            const float CsR = srRow[x * 4 + 2] / 255.0f;
 
             const float coPremulB = As * CsB * Ab + Ab * CbB * (1.0f - As);
             const float coPremulG = As * CsG * Ab + Ab * CbG * (1.0f - As);
@@ -862,13 +869,13 @@ bool CompositeBuffers(
       // Co = Co_premul / Ao
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = As;
 
           if(Ao <= 0.0f)
@@ -877,12 +884,12 @@ bool CompositeBuffers(
           }
           else
           {
-            const float CbB = bdRow[x*4+0] / 255.0f;
-            const float CbG = bdRow[x*4+1] / 255.0f;
-            const float CbR = bdRow[x*4+2] / 255.0f;
-            const float CsB = srRow[x*4+0] / 255.0f;
-            const float CsG = srRow[x*4+1] / 255.0f;
-            const float CsR = srRow[x*4+2] / 255.0f;
+            const float CbB = bdRow[x * 4 + 0] / 255.0f;
+            const float CbG = bdRow[x * 4 + 1] / 255.0f;
+            const float CbR = bdRow[x * 4 + 2] / 255.0f;
+            const float CsB = srRow[x * 4 + 0] / 255.0f;
+            const float CsG = srRow[x * 4 + 1] / 255.0f;
+            const float CsR = srRow[x * 4 + 2] / 255.0f;
 
             const float coPremulB = Ab * CbB * As + As * CsB * (1.0f - Ab);
             const float coPremulG = Ab * CbG * As + As * CsG * (1.0f - Ab);
@@ -902,13 +909,13 @@ bool CompositeBuffers(
       // Co = Co_premul / Ao
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
-          const float As = srRow[x*4+3] / 255.0f;
-          const float Ab = bdRow[x*4+3] / 255.0f;
+          const float As = srRow[x * 4 + 3] / 255.0f;
+          const float Ab = bdRow[x * 4 + 3] / 255.0f;
           const float Ao = As * (1.0f - Ab) + Ab * (1.0f - As);
 
           if(Ao <= 0.0f)
@@ -917,12 +924,12 @@ bool CompositeBuffers(
           }
           else
           {
-            const float CbB = bdRow[x*4+0] / 255.0f;
-            const float CbG = bdRow[x*4+1] / 255.0f;
-            const float CbR = bdRow[x*4+2] / 255.0f;
-            const float CsB = srRow[x*4+0] / 255.0f;
-            const float CsG = srRow[x*4+1] / 255.0f;
-            const float CsR = srRow[x*4+2] / 255.0f;
+            const float CbB = bdRow[x * 4 + 0] / 255.0f;
+            const float CbG = bdRow[x * 4 + 1] / 255.0f;
+            const float CbR = bdRow[x * 4 + 2] / 255.0f;
+            const float CsB = srRow[x * 4 + 0] / 255.0f;
+            const float CsG = srRow[x * 4 + 1] / 255.0f;
+            const float CsR = srRow[x * 4 + 2] / 255.0f;
 
             const float coPremulB = As * CsB * (1.0f - Ab) + Ab * CbB * (1.0f - As);
             const float coPremulG = As * CsG * (1.0f - Ab) + Ab * CbG * (1.0f - As);
@@ -942,9 +949,9 @@ bool CompositeBuffers(
       // Co = Co_premul / Ao
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
         for(uint32_t x = 0; x < w; ++x)
         {
           const float As = srRow[x * 4 + 3] / 255.0f;
@@ -992,9 +999,9 @@ bool CompositeBuffers(
     {
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
 
         for(uint32_t x = 0; x < w; ++x)
         {
@@ -1021,9 +1028,9 @@ bool CompositeBuffers(
     {
       for(uint32_t y = 0; y < h; ++y)
       {
-        const uint8_t* bdRow = backdrop.buffer + y * backdrop.stride;
-        const uint8_t* srRow = source.buffer + y * source.stride;
-        uint8_t* outRow = output.buffer + y * output.stride;
+        const uint8_t* bdRow  = backdrop.buffer + y * backdrop.stride;
+        const uint8_t* srRow  = source.buffer + y * source.stride;
+        uint8_t*       outRow = output.buffer + y * output.stride;
 
         for(uint32_t x = 0; x < w; ++x)
         {
@@ -1040,13 +1047,13 @@ bool CompositeBuffers(
     default:
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER CompositeBuffers unsupported mode:%d\n",
-                     static_cast<int>(mode));
+                            static_cast<int>(mode));
       FreeCompositeBuffer(output);
       return false;
     }
   }
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

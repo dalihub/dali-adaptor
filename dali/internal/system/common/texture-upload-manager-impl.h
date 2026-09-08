@@ -29,7 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/texture-upload-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -150,6 +150,6 @@ inline const Internal::Adaptor::TextureUploadManager& GetImplementation(const Da
   return static_cast<const Internal::Adaptor::TextureUploadManager&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

@@ -28,7 +28,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -607,4 +607,4 @@ NativeImageQueueTizenVulkan::SurfaceReferenceData& NativeImageQueueTizenVulkan::
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

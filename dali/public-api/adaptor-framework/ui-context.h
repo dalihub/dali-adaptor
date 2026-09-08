@@ -29,7 +29,7 @@
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace Internal
@@ -263,6 +263,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL UiContext(Internal::Adaptor::UiContext* uiContext);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_UI_CONTEXT_H

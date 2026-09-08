@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/widget-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Widget Widget::New()
 {
@@ -50,4 +50,4 @@ Widget::Widget(Internal::Adaptor::Widget* widget)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

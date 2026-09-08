@@ -26,7 +26,7 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <deque>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -139,6 +139,6 @@ inline const Internal::Adaptor::TiltSensor& GetImplementation(const Dali::TiltSe
   return static_cast<const Internal::Adaptor::TiltSensor&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_SENSOR_COMMON_TILT_SENSOR_IMPL_H

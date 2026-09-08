@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 InputMethodContext::InputMethodContext() = default;
 
@@ -231,4 +231,4 @@ InputMethodContext::InputMethodContext(Internal::Adaptor::InputMethodContext* im
 : BaseHandle(impl)
 {
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE

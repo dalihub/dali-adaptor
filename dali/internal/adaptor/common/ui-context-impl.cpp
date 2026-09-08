@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace Internal
@@ -144,4 +144,4 @@ Dali::UiContext::RenderingBehavior UiContext::GetRenderingBehavior() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

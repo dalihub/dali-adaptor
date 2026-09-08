@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-data-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 WindowData::WindowData()
 : mImpl(MakeUnique<Impl>())
@@ -105,4 +105,4 @@ const WindowData::Impl& WindowData::GetImplementation() const
   return *mImpl;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

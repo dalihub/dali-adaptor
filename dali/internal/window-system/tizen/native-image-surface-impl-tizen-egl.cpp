@@ -31,7 +31,7 @@
 
 using namespace Dali::Internal::Adaptor;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -217,4 +217,4 @@ bool NativeImageSurfaceTizen::CanRender()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

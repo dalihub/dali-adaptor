@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 static constexpr uint32_t DEFAULT_JPG_QUALITY = 100;
 
@@ -68,6 +68,6 @@ DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
                                    const std::size_t          height,
                                    const uint32_t             quality);
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_BITMAP_SAVER_H

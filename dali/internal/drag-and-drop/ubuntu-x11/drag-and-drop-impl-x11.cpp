@@ -33,7 +33,7 @@
 // DragAndDropX11
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -233,7 +233,7 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
   mDataMap.clear();
   for(uint32_t i = 0u; i < data.GetDataCount(); ++i)
   {
-    const Dali::String mimeType = data.GetMimeType(i);
+    const Dali::String mimeType            = data.GetMimeType(i);
     mDataMap[std::string(mimeType.CStr())] = std::string(data.GetData(i).CStr());
   }
 
@@ -258,7 +258,7 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
   {
     strncpy(mCurrentMimeTypesBuf[i], data.GetMimeType(i).CStr(), MAX_MIME_LEN - 1);
     mCurrentMimeTypesBuf[i][MAX_MIME_LEN - 1] = '\0';
-    mCurrentMimeTypes[i] = mCurrentMimeTypesBuf[i];
+    mCurrentMimeTypes[i]                      = mCurrentMimeTypesBuf[i];
   }
   mCurrentMimeTypes[mCurrentMimeCount] = nullptr;
 
@@ -277,9 +277,9 @@ bool DragAndDropX11::StartDragAndDrop(Dali::Actor                        source,
 // AddListener / RemoveListener
 // ---------------------------------------------------------------------------
 
-bool DragAndDropX11::AddListener(Dali::Actor                            target,
-                                 const Dali::String&                    mimeType,
-                                 DragCallback                            callback)
+bool DragAndDropX11::AddListener(Dali::Actor         target,
+                                 const Dali::String& mimeType,
+                                 DragCallback        callback)
 {
   for(const auto& dt : mDropTargets)
   {
@@ -315,9 +315,9 @@ bool DragAndDropX11::AddListener(Dali::Actor                            target,
   return true;
 }
 
-bool DragAndDropX11::AddListener(Dali::Window                           target,
-                                 const Dali::String&                    mimeType,
-                                 DragCallback                            callback)
+bool DragAndDropX11::AddListener(Dali::Window        target,
+                                 const Dali::String& mimeType,
+                                 DragCallback        callback)
 {
   for(const auto& wt : mDropWindowTargets)
   {
@@ -1059,7 +1059,7 @@ void DragAndDropX11::HandleMouseButtonUp(void* event)
 
         mimesPool[0] = mime;
         mimesPool[1] = nullptr;
-        Dali::Vector2 relPos(cx - winPositionSize.x, cy - winPositionSize.y);
+        Dali::Vector2    relPos(cx - winPositionSize.x, cy - winPositionSize.y);
         DragEventBuilder dropEvent(Dali::DragAndDrop::DragType::DROP, relPos);
         dropEvent.AddMimeType(mimesPool[0]);
         dropEvent.SetData(dropData);
@@ -1140,4 +1140,4 @@ void DragAndDropX11::DropTargetSceneOn(Dali::Actor target)
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -22,7 +22,7 @@
 #include <dali/devel-api/adaptor-framework/component-application.h>
 #include <dali/internal/adaptor/common/application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -104,5 +104,5 @@ inline const ComponentApplication& GetImplementation(const Dali::ComponentApplic
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 #endif

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_RADIAL_GRADIENT_IMPL_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
+#include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -110,6 +110,6 @@ inline static const Internal::Adaptor::RadialGradient& GetImplementation(const D
   return static_cast<const Internal::Adaptor::RadialGradient&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_RADIAL_GRADIENT_IMPL_H

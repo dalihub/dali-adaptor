@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_STORED_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <cstdint>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Buffer;
 class RenderPass;
@@ -376,12 +376,12 @@ struct Command
 
     struct
     {
-      bool enabled;
+      bool               enabled;
       ColorBlendEquation equation;
       struct
       {
-        bool srcPremultiplied;
-        bool dstPremultiplied;
+        bool              srcPremultiplied;
+        bool              dstPremultiplied;
         Graphics::BlendOp blendOp;
       } advanced;
     } colorBlend;
@@ -575,13 +575,13 @@ public:
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
   void SetColorBlendEnable(uint32_t attachment, bool enabled) override;
-  void SetColorBlendEquation(uint32_t attachment,
+  void SetColorBlendEquation(uint32_t              attachment,
                              Graphics::BlendFactor srcColorBlendFactor,
                              Graphics::BlendFactor dstColorBlendFactor,
-                             Graphics::BlendOp colorBlendOp,
+                             Graphics::BlendOp     colorBlendOp,
                              Graphics::BlendFactor srcAlphaBlendFactor,
                              Graphics::BlendFactor dstAlphaBlendFactor,
-                             Graphics::BlendOp alphaBlendOp) override;
+                             Graphics::BlendOp     alphaBlendOp) override;
 
   void SetColorBlendAdvanced(uint32_t attachment, bool srcPremultiplied, bool dstPremultiplied, Graphics::BlendOp blendOp) override;
 
@@ -606,6 +606,6 @@ private:
   std::unique_ptr<StoredCommandPool>       mCommandPool;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_STORED_COMMAND_BUFFER_H

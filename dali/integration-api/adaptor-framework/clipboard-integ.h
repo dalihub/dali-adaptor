@@ -18,15 +18,15 @@
  *
  */
 
- // EXTERNAL INCLUDES
-#include <cstdint>
+// EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <cstdint>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Clipboard;
 
@@ -121,6 +121,6 @@ DALI_ADAPTOR_API bool IsVisible(const Dali::Clipboard& clipboard);
 
 } // namespace Clipboard
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_CLIPBOARD_INTEG_H

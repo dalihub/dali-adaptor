@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_UNIFIED_TRIGGER_EVENT_MANAGER_IMPL_WIN_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/system/common/unified-trigger-event-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal::Adaptor
 {
@@ -117,6 +117,6 @@ inline const Internal::Adaptor::UnifiedTriggerEventManager& GetImplementation(co
 
   return static_cast<const Internal::Adaptor::UnifiedTriggerEventManager&>(handle);
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_UNIFIED_TRIGGER_EVENT_MANAGER_IMPL_WIN_H

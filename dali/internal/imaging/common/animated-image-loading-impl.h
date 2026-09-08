@@ -29,7 +29,7 @@
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class PixelData;
 typedef Dali::Uint16Pair ImageDimensions;
@@ -159,6 +159,6 @@ inline const Internal::Adaptor::AnimatedImageLoading& GetImplementation(const Da
   return static_cast<const Internal::Adaptor::AnimatedImageLoading&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ANIMATED_IMAGE_LOADING_IMPL_H

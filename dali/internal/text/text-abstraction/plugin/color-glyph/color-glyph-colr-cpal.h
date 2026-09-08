@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-context.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 #include <cstdint>
 
@@ -29,7 +29,7 @@
 #include <thorvg.h>
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -50,7 +50,7 @@ namespace Dali::TextAbstraction::Internal
  * @return @e true if the color is resolved.
  */
 bool ResolveCpalColor(
-  FT_Face ftFace,
+  FT_Face  ftFace,
   uint16_t paletteIndex,
   uint16_t colorIndex,
   uint8_t& outR,
@@ -68,11 +68,11 @@ bool ResolveCpalColor(
  */
 bool HandlePaintSolid(
   FT_PaintSolid& solid,
-  tvg::Shape* shape,
-  PaintContext& ctx);
+  tvg::Shape*    shape,
+  PaintContext&  ctx);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_CPAL_H

@@ -17,8 +17,9 @@
 
 // CLASS HEADER
 #include <dali/internal/system/common/locale-utils.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -167,4 +168,4 @@ Locale::Direction GetDirection(const std::string& locale)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

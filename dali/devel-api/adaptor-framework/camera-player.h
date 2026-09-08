@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/camera-player-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 
@@ -116,6 +116,6 @@ private: // Not intended for application developers
   explicit DALI_INTERNAL CameraPlayer(Internal::Adaptor::CameraPlayer* internal);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CAMERA_PLAYER_H

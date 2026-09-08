@@ -29,7 +29,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -154,6 +154,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_NATIVE_BITMAP_BUFFER_H

@@ -33,7 +33,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/async-task-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -318,6 +318,6 @@ inline const Internal::Adaptor::AsyncTaskManager& GetImplementation(const Dali::
   return static_cast<const Internal::Adaptor::AsyncTaskManager&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

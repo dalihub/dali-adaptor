@@ -26,7 +26,7 @@
 #include <functional>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A proxy loader for the file download plugin system.
@@ -122,6 +122,6 @@ private:
   FileDownloadPluginProxy() = delete;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_FILE_DOWNLOAD_PLUGIN_PROXY_H

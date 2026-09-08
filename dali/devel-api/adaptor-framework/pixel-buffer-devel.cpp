@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelPixelBuffer
 {
@@ -84,4 +84,4 @@ uint32_t GetBrightness(PixelBuffer pixelBuffer)
 
 } // namespace DevelPixelBuffer
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

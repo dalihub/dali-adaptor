@@ -60,11 +60,11 @@ extern "C" DALI_ADAPTOR_API bool FileDownloadPluginIsAsyncDownloadSupported()
   return true;
 }
 
-extern "C" DALI_ADAPTOR_API Dali::Plugin::DownloadApiFileDownloader::DownloadId FileDownloadPluginStartAsyncDownload(Dali::FileDownloadPlugin* plugin,
-                                                                                                                      const char*               url,
-                                                                                                                      size_t                    maxSize,
-                                                                                                                      Dali::Plugin::DownloadApiFileDownloader::AsyncCompletionCallback callback,
-                                                                                                                      void* userData)
+extern "C" DALI_ADAPTOR_API Dali::Plugin::DownloadApiFileDownloader::DownloadId FileDownloadPluginStartAsyncDownload(Dali::FileDownloadPlugin*                                        plugin,
+                                                                                                                     const char*                                                      url,
+                                                                                                                     size_t                                                           maxSize,
+                                                                                                                     Dali::Plugin::DownloadApiFileDownloader::AsyncCompletionCallback callback,
+                                                                                                                     void*                                                            userData)
 {
   if(DALI_LIKELY(plugin))
   {
@@ -73,8 +73,8 @@ extern "C" DALI_ADAPTOR_API Dali::Plugin::DownloadApiFileDownloader::DownloadId 
   return INVALID_DOWNLOAD_ID;
 }
 
-extern "C" DALI_ADAPTOR_API void FileDownloadPluginCancelAsyncDownload(Dali::FileDownloadPlugin* plugin,
-                                                                        Dali::Plugin::DownloadApiFileDownloader::DownloadId downloadId)
+extern "C" DALI_ADAPTOR_API void FileDownloadPluginCancelAsyncDownload(Dali::FileDownloadPlugin*                           plugin,
+                                                                       Dali::Plugin::DownloadApiFileDownloader::DownloadId downloadId)
 {
   if(DALI_LIKELY(plugin))
   {
@@ -84,7 +84,7 @@ extern "C" DALI_ADAPTOR_API void FileDownloadPluginCancelAsyncDownload(Dali::Fil
 
 // Implementation
 
-namespace Dali::Plugin
+namespace DALI_NAMESPACE::Plugin
 {
 namespace
 {
@@ -410,7 +410,7 @@ void DownloadApiFileDownloader::OnStateChanged(int id, download_state_e state, v
 
   AsyncCompletionCallback completionCallback;
   void*                   callbackUserData = nullptr;
-  bool                    success = (state == DOWNLOAD_STATE_COMPLETED);
+  bool                    success          = (state == DOWNLOAD_STATE_COMPLETED);
   std::string             filePath;
   size_t                  maxSize = 0u;
 
@@ -467,4 +467,4 @@ void DownloadApiFileDownloader::OnStateChanged(int id, download_state_e state, v
   }
 }
 
-} // namespace Dali::Plugin
+} //namespace DALI_NAMESPACE::Plugin
