@@ -22,6 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
@@ -32,6 +33,53 @@ namespace DALI_NAMESPACE
 {
 namespace DevelWindow
 {
+Window New(const Dali::String& name, const Dali::String& className, const WindowData& windowData, bool isShowOnAdaptorSet)
+{
+  Window newWindow;
+
+  const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
+  bool       isNewWindowAllowed = true;
+
+  if(isAdaptorAvailable)
+  {
+    Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
+  }
+
+  if(isNewWindowAllowed)
+  {
+    Any                        surface;
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false, isShowOnAdaptorSet);
+
+    Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
+
+    if(isAdaptorAvailable)
+    {
+      Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
+      // AddWindow() sets the adaptor on the window, which dispatches Window::OnAdaptorSet().
+      // That is where isShowOnAdaptorSet is honoured.
+      Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
+    }
+    newWindow = Window(window);
+  }
+  else
+  {
+    DALI_LOG_ERROR("This device can't support multiple windows.\n");
+  }
+
+  return newWindow;
+}
+
+Window New(PositionSize windowPosition, const Dali::String& name, bool isTransparent, bool isShowOnAdaptorSet)
+{
+  // Same WindowData defaults as Dali::Window::New(windowPosition, name, isTransparent).
+  WindowData windowData;
+  windowData.SetPositionSize(windowPosition);
+  windowData.SetTransparency(isTransparent);
+  windowData.SetWindowType(WindowType::NORMAL);
+  return DevelWindow::New(name, Dali::String(""), windowData, isShowOnAdaptorSet);
+}
+
 EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window)
 {
   return GetImplementation(window).EventProcessingFinishedSignal();
