@@ -38,6 +38,14 @@ ELSE()
   )
 ENDIF()
 
+# The built-in ThorVG vector animation renderer is compiled into dali-adaptor only with thorvg >= 1.0.0
+PKG_CHECK_MODULES(THORVG thorvg>=1.0.0)
+IF(THORVG_FOUND)
+  LIST(APPEND TC_SOURCES
+    utc-Dali-VectorAnimationRendererNative.cpp
+  )
+ENDIF()
+
 SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
 
 LIST(APPEND TC_SOURCES
@@ -96,6 +104,7 @@ INCLUDE_DIRECTORIES(
     ../../../third-party/image-resampler
   ../../../dali/integration-api/adaptor-framework
     ${${CAPI_LIB}_INCLUDE_DIRS}
+    ${THORVG_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
 )
 
@@ -108,6 +117,7 @@ ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
     ${GLES_GRAPHICS_LIB}
+    ${THORVG_LDFLAGS}
     -lpthread --coverage -rdynamic
 )
 

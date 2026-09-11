@@ -185,6 +185,8 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
 
   mUrl            = url;
   mMetadataParsed = false;
+  mCachedLayerInfo.Clear();
+  mCachedMarkerInfo.Clear();
 
   if(!mAnimation)
   {
@@ -224,6 +226,14 @@ bool VectorAnimationRendererNative::Load(const std::string& url)
   mDuration   = mAnimation->duration();
   mFrameRate  = (mDuration > 0.0f) ? (static_cast<float>(mTotalFrame) / mDuration) : 60.0f;
 
+  // A zero-frame result means ThorVG resolved a non-Lottie loader by content sniffing (e.g. a PNG,
+  // which still loads and renders as a still image). LottieAnimation's marker API would cast that
+  // loader to LottieLoader unchecked, so skip the marker query; mCachedMarkerInfo was cleared above.
+  if(mTotalFrame > 0)
+  {
+    UpdateMarkerInfo();
+  }
+
   ApplyAspectFitSize(picture, mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
 
   if(!mCanvas)
@@ -259,6 +269,8 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
 
   mJsonData.assign(reinterpret_cast<const char*>(data.Begin()), data.Count());
   mMetadataParsed = false;
+  mCachedLayerInfo.Clear();
+  mCachedMarkerInfo.Clear();
 
   if(!mAnimation)
   {
@@ -296,6 +308,15 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
   mTotalFrame = static_cast<uint32_t>(mAnimation->totalFrame());
   mDuration   = mAnimation->duration();
   mFrameRate  = (mDuration > 0.0f) ? (static_cast<float>(mTotalFrame) / mDuration) : 60.0f;
+
+  // A zero-frame result means ThorVG ignored the "lottie" hint and resolved a non-Lottie loader by
+  // content sniffing (e.g. a PNG served by a remote URL, which still loads and renders as a still
+  // image). LottieAnimation's marker API would cast that loader to LottieLoader unchecked, so skip
+  // the marker query; mCachedMarkerInfo was cleared above.
+  if(mTotalFrame > 0)
+  {
+    UpdateMarkerInfo();
+  }
 
   ApplyAspectFitSize(picture, mDefaultWidth, mDefaultHeight, mTargetWidth, mTargetHeight);
 
@@ -465,8 +486,8 @@ void VectorAnimationRendererNative::GetLayerInfo(Property::Map& map) const
 bool VectorAnimationRendererNative::GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const
 {
   Dali::Mutex::ScopedLock lock(mMutex);
-  ParseLottieMetadata();
 
+  // First match wins, matching the rlottie plugin behaviour.
   const Property::Value* value = mCachedMarkerInfo.Find(Dali::StringView(marker.c_str(), marker.size()));
   if(value)
   {
@@ -485,7 +506,6 @@ bool VectorAnimationRendererNative::GetMarkerInfo(const std::string& marker, uin
 void VectorAnimationRendererNative::GetMarkerInfo(Property::Map& map) const
 {
   Dali::Mutex::ScopedLock lock(mMutex);
-  ParseLottieMetadata();
   map = mCachedMarkerInfo;
 }
 
@@ -896,7 +916,22 @@ float ExtractJsonNumber(const std::string& json, size_t pos, size_t& endPos)
   }
 }
 
-void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t keyLen, const char* nameKey, const char* val1Key, const char* val2Key, bool val2IsDuration, bool convertTimeToFrame, float frameRate, Property::Map& outMap)
+/**
+ * @brief Collects {name -> [frame1, frame2]} entries from a top-level JSON array of objects.
+ *
+ * Only the array found at the root of the document is parsed, so nested arrays with the
+ * same key (e.g. assets[].layers) are skipped. The numeric values are used as frame
+ * numbers as-is.
+ *
+ * @param[in]  jsonContent The whole Lottie JSON document
+ * @param[in]  arrayKey    Key of the top-level array (e.g. "layers")
+ * @param[in]  keyLen      Length of @p arrayKey
+ * @param[in]  nameKey     Key of the name string inside each object (e.g. "nm")
+ * @param[in]  val1Key     Key of the first frame number inside each object (e.g. "ip")
+ * @param[in]  val2Key     Key of the second frame number inside each object (e.g. "op")
+ * @param[out] outMap      Map to receive the entries
+ */
+void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t keyLen, const char* nameKey, const char* val1Key, const char* val2Key, Property::Map& outMap)
 {
   // Find the top-level array by looking for the pattern at the root level
   // We need to skip any nested arrays with the same key (e.g., assets[].layers)
@@ -1011,24 +1046,10 @@ void ParseJsonArray(const std::string& jsonContent, const char* arrayKey, size_t
 
       if(hasName && hasV1 && hasV2)
       {
-        int frame1, frame2;
-
-        if(convertTimeToFrame && frameRate > 0.0f)
-        {
-          // Convert time in seconds to frame number (for markers: tm and dr are in seconds)
-          frame1 = static_cast<int>(v1 * frameRate);
-          frame2 = val2IsDuration ? static_cast<int>((v1 + v2) * frameRate) : static_cast<int>(v2 * frameRate);
-        }
-        else
-        {
-          // Values are already frame numbers (for layers: ip and op are frame numbers)
-          frame1 = static_cast<int>(v1);
-          frame2 = val2IsDuration ? static_cast<int>(v1 + v2) : static_cast<int>(v2);
-        }
-
+        // Values are already frame numbers (for layers: ip and op are frame numbers)
         Property::Array frames;
-        frames.PushBack(Property::Value(frame1));
-        frames.PushBack(Property::Value(frame2));
+        frames.PushBack(Property::Value(static_cast<int>(v1)));
+        frames.PushBack(Property::Value(static_cast<int>(v2)));
         outMap.Add(Dali::String(name.c_str()), frames);
       }
 
@@ -1073,12 +1094,38 @@ void VectorAnimationRendererNative::ParseLottieMetadata() const
   }
 
   // "layers": [{"nm":"name", "ip":0, "op":60, ...}, ...]
-  // For layers: ip and op are already frame numbers, no conversion needed
-  ParseJsonArray(jsonContent, "layers", 6, "nm", "ip", "op", false, false, mFrameRate, mCachedLayerInfo);
+  // ip and op are frame numbers. ThorVG exposes no layer API, so layers are still parsed from JSON.
+  ParseJsonArray(jsonContent, "layers", 6, "nm", "ip", "op", mCachedLayerInfo);
+}
 
-  // "markers": [{"cm":"name", "tm":10, "dr":20}, ...]
-  // For markers: tm (time) and dr (duration) are in seconds, need to convert to frame numbers
-  ParseJsonArray(jsonContent, "markers", 7, "cm", "tm", "dr", true, true, mFrameRate, mCachedMarkerInfo);
+void VectorAnimationRendererNative::UpdateMarkerInfo()
+{
+  mCachedMarkerInfo.Clear();
+
+  // mAnimation is always created by tvg::LottieAnimation::gen(), so the downcast is safe.
+  auto* lottieAnimation = static_cast<tvg::LottieAnimation*>(mAnimation.get());
+  if(!lottieAnimation)
+  {
+    return;
+  }
+
+  const uint32_t markerCount = lottieAnimation->markersCnt();
+  for(uint32_t index = 0; index < markerCount; ++index)
+  {
+    float       begin = 0.0f;
+    float       end   = 0.0f;
+    const char* name  = lottieAnimation->marker(index, &begin, &end);
+    if(!name)
+    {
+      continue;
+    }
+
+    // ThorVG reports marker ranges in frames (tm, tm + dr). Truncate to int like the rlottie plugin does.
+    Property::Array frames;
+    frames.PushBack(Property::Value(static_cast<int>(begin)));
+    frames.PushBack(Property::Value(static_cast<int>(end)));
+    mCachedMarkerInfo.Add(Dali::String(name), frames);
+  }
 }
 
 } // namespace Adaptor

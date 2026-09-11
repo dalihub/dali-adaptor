@@ -234,8 +234,11 @@ protected:
   /// @brief Registers with VectorAnimationRendererEventManager. Call from subclass constructor.
   void Initialize();
 
-  /// @brief Parses Lottie JSON metadata (layers, markers) and caches results. Must be called under mMutex.
+  /// @brief Parses Lottie JSON metadata (layers) and caches results. Must be called under mMutex.
   void ParseLottieMetadata() const;
+
+  /// @brief Rebuilds mCachedMarkerInfo from ThorVG's marker API. Must be called under mMutex after the animation is loaded.
+  void UpdateMarkerInfo();
 
   /// @brief Emits the UploadCompleted signal.
   void EmitUploadCompleted();
@@ -266,9 +269,9 @@ protected:
   std::string mUrl;      ///< File path of loaded animation
   std::string mJsonData; ///< Raw JSON string for metadata parsing
 
-  // Cached metadata (protected by mMutex, lazy-parsed)
-  mutable Property::Map mCachedLayerInfo;  ///< Cached layer info: {name -> [startFrame, endFrame]}
-  mutable Property::Map mCachedMarkerInfo; ///< Cached marker info: {name -> [startFrame, endFrame]}
+  // Cached metadata (protected by mMutex)
+  mutable Property::Map mCachedLayerInfo;  ///< Cached layer info: {name -> [startFrame, endFrame]}, lazy-parsed from JSON
+  Property::Map         mCachedMarkerInfo; ///< Cached marker info: {name -> [startFrame, endFrame]}, filled from ThorVG on Load
 
   // Mutexes
   mutable Dali::Mutex mMutex;              ///< Protects main renderer state
