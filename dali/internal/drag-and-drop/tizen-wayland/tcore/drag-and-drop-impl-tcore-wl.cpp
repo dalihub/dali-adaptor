@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 namespace DALI_NAMESPACE

@@ -36,7 +36,7 @@
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 namespace DALI_NAMESPACE
 {

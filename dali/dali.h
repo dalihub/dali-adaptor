@@ -56,6 +56,7 @@
 #include <dali/public-api/adaptor-framework/video-source-descriptor.h>
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-definitions.h>
+#include <dali/public-api/adaptor-framework/window-system.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-version.h>
 

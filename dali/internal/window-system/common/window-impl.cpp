@@ -43,7 +43,7 @@
 #include <dali/internal/window-system/common/window-data-impl.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 
 // DALI_DLOG_AVAILABLE only says that the dlog package was found. print_log() is defined by

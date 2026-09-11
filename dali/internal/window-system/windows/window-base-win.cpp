@@ -42,7 +42,7 @@
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 using Dali::Integration::ToDaliString;
 

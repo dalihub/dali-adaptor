@@ -15,34 +15,24 @@
  *
  */
 
+// CLASS HEADER
+#include <dali/public-api/adaptor-framework/window-system.h>
+
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/window-system-devel.h>
 #include <dali/internal/window-system/common/window-system-impl.h>
 
 namespace DALI_NAMESPACE
 {
-namespace DevelWindowSystem
+namespace WindowSystem
 {
-void GetDpi(uint32_t& horizontalDpi, uint32_t& verticalDpi)
+Int32Pair GetMainScreenSize()
 {
-  Dali::Internal::Adaptor::WindowSystem::GetDpi(horizontalDpi, verticalDpi);
+  int32_t width  = 0;
+  int32_t height = 0;
+  Dali::Internal::Adaptor::WindowSystem::GetScreenSize(width, height);
+  return Int32Pair(width, height);
 }
 
-void SetGeometryHittestEnabled(bool enabled)
-{
-  Dali::Internal::Adaptor::WindowSystem::SetGeometryHittestEnabled(enabled);
-}
+} // namespace WindowSystem
 
-bool IsGeometryHittestEnabled()
-{
-  return Dali::Internal::Adaptor::WindowSystem::IsGeometryHittestEnabled();
-}
-
-std::vector<Dali::ScreenInformation> GetAvailableScreens()
-{
-  return Internal::Adaptor::WindowSystem::GetAvailableScreens();
-}
-
-} // namespace DevelWindowSystem
-
-} //namespace DALI_NAMESPACE
+} // namespace DALI_NAMESPACE
