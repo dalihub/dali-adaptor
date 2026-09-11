@@ -46,6 +46,25 @@
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 
+// DALI_DLOG_AVAILABLE only says that the dlog package was found. print_log() is defined by
+// logging-tizen.cpp, which only the Tizen backend profiles build, so this common file has to
+// check the profile as well before reaching for tizen-dlog.h.
+#if defined(DALI_DLOG_AVAILABLE) && (defined(DALI_PROFILE_COMMON) || defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV))
+#define DALI_WINDOW_INIT_LOG_TO_DLOG
+#endif
+
+#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
+#include <dali/internal/system/tizen/tizen-dlog.h>
+#endif
+
+// Window::Initialize() runs before the adaptor installs the DALi log function,
+// so DALI_LOG_RELEASE_INFO() would be dropped there. On Tizen, write to dlog directly.
+#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
+#define DALI_WINDOW_INIT_LOG(format, ...) DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX format, DALI_LOG_FORMAT_PREFIX_ARGS, ##__VA_ARGS__)
+#else
+#define DALI_WINDOW_INIT_LOG(format, ...) DALI_LOG_RELEASE_INFO(format, ##__VA_ARGS__)
+#endif
+
 using Dali::Integration::ToStdString;
 
 namespace DALI_NAMESPACE
@@ -77,7 +96,7 @@ Window* Window::New(PositionSize positionSize)
   Any                     surface;
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
   window->Initialize(surface, positionSize);
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
   return window.release();
 }
 
@@ -138,6 +157,8 @@ Window::~Window()
 
 void Window::Initialize(Any surface, const PositionSize& positionSize)
 {
+  DALI_WINDOW_INIT_LOG("Window (%p), Initialize with position (%d, %d) size [%d x %d], transparent(%d), surface(%d)\n", this, positionSize.x, positionSize.y, positionSize.width, positionSize.height, mIsTransparent, !surface.Empty());
+
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
   DALI_ASSERT_DEBUG(renderSurfaceFactory && "Cannot create render surface factory\n");
@@ -147,6 +168,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
+  DALI_WINDOW_INIT_LOG("Window (%p), render surface (%p) and window base (%p) created\n", this, mWindowSurface, mWindowBase);
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect(this, &Window::OnIconifyChanged);
@@ -189,7 +211,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
     mWindowWidth        = screenWidth;
     mWindowHeight       = screenHeight;
     isSetWithScreenSize = true;
-    DALI_LOG_RELEASE_INFO("Window size is set with screen size(%d x %d)\n", mWindowWidth, mWindowHeight);
+    DALI_WINDOW_INIT_LOG("Window (%p), size is set with screen size(%d x %d)\n", this, mWindowWidth, mWindowHeight);
   }
 
   if(isSetWithScreenSize == false || positionSize.x != 0 || positionSize.y != 0)
@@ -199,6 +221,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
 
   // For Debugging
   mNativeWindowId = mWindowBase->GetNativeWindowId();
+
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), Initialized. screen(%d x %d), orientationMode(%s), window(%d x %d), userGeometry(%d)\n", this, mNativeWindowId, screenWidth, screenHeight, (mOrientationMode == Internal::Adaptor::Window::OrientationMode::LANDSCAPE) ? "LANDSCAPE" : "PORTRAIT", mWindowWidth, mWindowHeight, mIsEnabledUserGeometry);
 }
 
 void Window::Initialize(Any surface, const WindowData& windowData, const std::string& name, const std::string& className, const bool isUsePreLoader)
@@ -211,7 +235,7 @@ void Window::Initialize(Any surface, const WindowData& windowData, const std::st
   // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
   if(mIsTransparent)
   {
-    DALI_LOG_RELEASE_INFO("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    DALI_WINDOW_INIT_LOG("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
     mIsTransparent = false;
   }
 #endif
@@ -226,11 +250,13 @@ void Window::Initialize(Any surface, const WindowData& windowData, const std::st
   mStencilBufferEnabled                  = windowDataImpl.mStencilBufferEnabled;
   mMultiSamplingLevel                    = windowDataImpl.mMultiSamplingLevel;
 
+  DALI_WINDOW_INIT_LOG("Window (%p), Initialize with name(%s), className(%s), type(%d), transparent(%d), frontBufferRendering(%d), depth(%d), stencil(%d), msaa(%d)\n", this, name.c_str(), className.c_str(), static_cast<int>(type), mIsTransparent, mIsFrontBufferRendering, mDepthBufferEnabled, mStencilBufferEnabled, mMultiSamplingLevel);
+
   Initialize(surface, windowData.GetPositionSize());
 
   // Set the flag of preloader is used.
   mIsUsePreLoader = isUsePreLoader;
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), isUsePreLoader(%d)\n", this, mNativeWindowId, mIsUsePreLoader);
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), isUsePreLoader(%d)\n", this, mNativeWindowId, mIsUsePreLoader);
 
   // Set Window Type
   mWindowBase->SetType(type);
