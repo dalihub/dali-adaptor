@@ -24,7 +24,7 @@ class WindowInsetsInfo::Impl
 public:
   WindowInsetsPartType  partType  = WindowInsetsPartType::STATUS_BAR;
   WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
-  Extents               extents   = Extents(0, 0, 0, 0);
+  Insets                insets;
 };
 
 WindowInsetsInfo::WindowInsetsInfo()
@@ -32,12 +32,12 @@ WindowInsetsInfo::WindowInsetsInfo()
 {
 }
 
-WindowInsetsInfo::WindowInsetsInfo(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& extents)
+WindowInsetsInfo::WindowInsetsInfo(WindowInsetsPartType partType, WindowInsetsPartState partState, const Insets& insets)
 : mImpl(Dali::MakeUnique<Impl>())
 {
   mImpl->partType  = partType;
   mImpl->partState = partState;
-  mImpl->extents   = extents;
+  mImpl->insets    = insets;
 }
 
 WindowInsetsInfo::~WindowInsetsInfo() = default;
@@ -77,9 +77,9 @@ WindowInsetsPartState WindowInsetsInfo::GetPartState() const
   return mImpl->partState;
 }
 
-const Extents& WindowInsetsInfo::GetExtents() const
+const Insets& WindowInsetsInfo::GetInsets() const
 {
-  return mImpl->extents;
+  return mImpl->insets;
 }
 
 } //namespace DALI_NAMESPACE

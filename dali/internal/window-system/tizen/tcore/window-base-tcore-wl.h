@@ -738,12 +738,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
    */
-  Extents GetInsets() override;
+  Insets GetInsets() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets(WindowInsetsPartFlags)
    */
-  Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
+  Insets GetInsets(WindowInsetsPartFlags insetsFlags) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreen()

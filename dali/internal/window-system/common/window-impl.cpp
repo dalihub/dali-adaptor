@@ -1270,8 +1270,8 @@ void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value
 
 void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 {
-  const auto& insets = insetsInfo.GetExtents();
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), insets changed, partType = %d, partState = %d, insets = (%d, %d, %d, %d)\n", this, mNativeWindowId, insetsInfo.GetPartType(), insetsInfo.GetPartState(), insets.start, insets.end, insets.top, insets.bottom);
+  const auto& insets = insetsInfo.GetInsets();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), insets changed, partType = %d, partState = %d, insets = (%f, %f, %f, %f)\n", this, mNativeWindowId, insetsInfo.GetPartType(), insetsInfo.GetPartState(), insets.start, insets.end, insets.top, insets.bottom);
 
   mInsetsChangedSignal.Emit(Dali::Window(this), insetsInfo);
 }
@@ -1823,12 +1823,12 @@ WindowBlurInfo Window::GetBlur() const
   return mBlurInfo;
 }
 
-Extents Window::GetInsets()
+Insets Window::GetInsets()
 {
   return mWindowBase->GetInsets();
 }
 
-Extents Window::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets Window::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
   return mWindowBase->GetInsets(insetsFlags);
 }

@@ -726,7 +726,7 @@ public:
    *
    * @return The window insets from all parts.
    */
-  virtual Extents GetInsets() = 0;
+  virtual Insets GetInsets() = 0;
 
   /**
    * @brief Gets the combined window insets for the specified parts of the system UI.
@@ -734,7 +734,7 @@ public:
    * @param[in] insetsFlags A bitwise combination of WindowInsetsPartFlags values specifying which window insets parts to include.
    * @return The combined window insets from the specified parts.
    */
-  virtual Extents GetInsets(WindowInsetsPartFlags insetsFlags) = 0;
+  virtual Insets GetInsets(WindowInsetsPartFlags insetsFlags) = 0;
 
   /**
    * @brief Sets the screen for the window. It means the window is moved to the screen.

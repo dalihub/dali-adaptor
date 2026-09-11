@@ -643,12 +643,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::DevelWindow::GetInsets()
    */
-  Extents GetInsets();
+  Insets GetInsets();
 
   /**
    * @copydoc Dali::DevelWindow::GetInsets(WindowInsetsPartFlags)
    */
-  Extents GetInsets(WindowInsetsPartFlags insetsFlags);
+  Insets GetInsets(WindowInsetsPartFlags insetsFlags);
 
 public: // It is only for window-impl. Need not public for the others.
   /**
