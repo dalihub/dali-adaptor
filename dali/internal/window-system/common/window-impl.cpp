@@ -59,9 +59,15 @@ namespace
 Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), typeid(Dali::BaseHandle), nullptr);
 } // unnamed namespace
 
-Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
+Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet)
 {
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
+
+  // OnAdaptorSet() is dispatched from SceneHolder::SetAdaptor() when the window is added to
+  // the adaptor, which happens after this function returns. Setting the flag here is therefore
+  // early enough for OnAdaptorSet() to observe it.
+  window->mIsShowOnAdaptorSet = isShowOnAdaptorSet;
+
   window->Initialize(surface, windowData, name, className, isUsePreLoader);
   return window.release();
 }
@@ -112,6 +118,7 @@ Window::Window()
   mIsEmittedWindowCreatedEvent(false),
   mIsFrontBufferRendering(false),
   mIsUsePreLoader(false),
+  mIsShowOnAdaptorSet(false),
   mIsScreenReaderAutoReadEnabled(true)
 {
 }
@@ -305,9 +312,13 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   // If this window is created by pre loader process, window show()'s calling should be delayed.
   // Because detail window property is not decided yet in preloader.
-  // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), mIsUsePreLoader flag (%d)\n", this, mNativeWindowId, mIsUsePreLoader);
-  if(!mIsUsePreLoader)
+  // So, show() will be callled on ApplicationController::UpdatePreInitializedWindowInfo().
+  // mIsShowOnAdaptorSet is opted in by the creator through DevelWindow::New(); a window that does
+  // not request it is shown by whoever created it instead of from here. The default window is
+  // shown from Adaptor::NotifySceneCreated(), and a native secondary window by the application.
+  const bool showFromHere = !mIsUsePreLoader && mIsShowOnAdaptorSet;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnAdaptorSet(): mIsUsePreLoader = %d, mIsShowOnAdaptorSet = %d, calls Show() = %d\n", this, mNativeWindowId, mIsUsePreLoader, mIsShowOnAdaptorSet, showFromHere);
+  if(showFromHere)
   {
     // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
     // The show must be called after the adaptor is initialized.

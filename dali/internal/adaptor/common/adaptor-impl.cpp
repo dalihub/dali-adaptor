@@ -1328,6 +1328,20 @@ void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
 
+  // Show the default window now that the scene exists. A preloaded window is skipped: it is
+  // already shown from ApplicationController::UpdatePreInitializedWindowInfo(), which runs
+  // before this point, and Window::Show() is not idempotent.
+  if(!mWindows.empty())
+  {
+    // mWindows holds scene holders that are not windows, so downcast first.
+    auto* defaultWindow = dynamic_cast<Dali::Internal::Adaptor::Window*>(mWindows.front());
+    if(defaultWindow)
+    {
+      DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Show the default window (%p)\n", defaultWindow);
+      defaultWindow->Show();
+    }
+  }
+
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();

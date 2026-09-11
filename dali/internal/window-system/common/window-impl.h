@@ -84,9 +84,11 @@ public:
    * @param[in] className The window class name
    * @param[in] windowData The window data
    * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
+   * @param[in] isShowOnAdaptorSet The flag is whether OnAdaptorSet() shows this window or not.
+   *            It is only honoured when isUsePreLoader is false.
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader);
+  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet = false);
 
   /**
    * @brief Create a new Window.
@@ -1241,6 +1243,7 @@ private:
   bool mIsEmittedWindowCreatedEvent : 1;   ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;        ///< The Front Buffer Rendering state.
   bool mIsUsePreLoader : 1;                ///< The flag is whether is created by preloader process or not.
+  bool mIsShowOnAdaptorSet : 1;            ///< The flag is whether OnAdaptorSet() shows this window or not.
   bool mIsScreenReaderAutoReadEnabled : 1; ///< Whether automatic screen-reader reading is enabled for this window.
 };
 

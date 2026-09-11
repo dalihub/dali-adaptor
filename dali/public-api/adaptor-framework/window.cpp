@@ -58,7 +58,7 @@ Window Window::New(const Dali::String& name, const Dali::String& className, cons
   if(isNewWindowAllowed)
   {
     Any                        surface;
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false, false);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 

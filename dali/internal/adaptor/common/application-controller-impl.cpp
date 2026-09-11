@@ -357,7 +357,7 @@ void ApplicationController::CreateWindow(bool isPreInitialize)
   WindowSystem::Initialize();
 
   Dali::Any                        surface;
-  Dali::Internal::Adaptor::Window* window = Dali::Internal::Adaptor::Window::New(surface, finalWindowName, windowClassName, activeWindowData, isPreInitialize);
+  Dali::Internal::Adaptor::Window* window = Dali::Internal::Adaptor::Window::New(surface, finalWindowName, windowClassName, activeWindowData, isPreInitialize, false);
   mMainWindow                             = Dali::Window(window);
 }
 
@@ -482,8 +482,6 @@ void ApplicationController::UpdatePreInitializedWindowInfo()
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(mMainWindow);
     windowImpl.InitializeImeInfo();
   }
-
-  mMainWindow.Show();
 }
 
 } // namespace Adaptor
