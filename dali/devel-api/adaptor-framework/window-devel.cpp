@@ -225,12 +225,12 @@ WindowBlurInfo GetBlur(Window window)
   return GetImplementation(window).GetBlur();
 }
 
-Extents GetInsets(Window window)
+Insets GetInsets(Window window)
 {
   return GetImplementation(window).GetInsets();
 }
 
-Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags)
+Insets GetInsets(Window window, WindowInsetsPartFlags insetsFlags)
 {
   return GetImplementation(window).GetInsets(insetsFlags);
 }

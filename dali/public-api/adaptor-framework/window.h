@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/common/extents.h>
 #include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/math/int-pair.h>
@@ -1231,7 +1230,7 @@ public: // Signals
    * @code
    *   void YourCallbackName(Window window, const WindowInsetsInfo& insetsInfo);
    * @endcode
-   * The parameter contains the insets information including the part type, part state, and the extents (left, right, top, bottom).
+   * The parameter contains the part type, the part state, and the insets the part causes. See WindowInsetsInfo::GetInsets().
    *
    * @SINCE_2_5.28
    * @return The signal to connect to

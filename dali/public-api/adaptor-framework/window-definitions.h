@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/extents.h>
+#include <dali/public-api/common/insets.h>
 #include <dali/public-api/common/type-traits.h>
 #include <dali/public-api/common/unique-ptr.h>
 #include <dali/public-api/object/base-handle.h>
@@ -235,12 +235,12 @@ public:
 
   /**
    * @brief Constructor with insets information.
-   * @SINCE_2_5.28
+   * @SINCE_2_5.40
    * @param[in] partType The part type
    * @param[in] partState The part state
-   * @param[in] extents The extents
+   * @param[in] insets The insets, as described in GetInsets()
    */
-  WindowInsetsInfo(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& extents);
+  WindowInsetsInfo(WindowInsetsPartType partType, WindowInsetsPartState partState, const Insets& insets);
 
   /**
    * @brief Destructor.
@@ -287,11 +287,16 @@ public:
   WindowInsetsPartState GetPartState() const;
 
   /**
-   * @brief Gets the extents of the window insets.
-   * @SINCE_2_5.28
-   * @return The extents
+   * @brief Gets how far the part covers the window from each edge.
+   *
+   * Each value is a distance in pixels measured inward from its own edge of the window.
+   * The start and end values are the left and right edges; they are not swapped for a
+   * right-to-left layout direction. All values are zero while the part is invisible.
+   *
+   * @SINCE_2_5.40
+   * @return The insets
    */
-  const Extents& GetExtents() const;
+  const Insets& GetInsets() const;
 
 private:
   class Impl;

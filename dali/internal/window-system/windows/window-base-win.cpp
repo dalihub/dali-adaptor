@@ -1426,14 +1426,14 @@ Vector4 WindowBaseWin::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseWin::GetInsets()
+Insets WindowBaseWin::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseWin::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseWin::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseWin::SetScreen(const std::string& screenName)

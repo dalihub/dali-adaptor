@@ -1181,14 +1181,14 @@ Vector4 WindowBaseEcoreX::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseEcoreX::GetInsets()
+Insets WindowBaseEcoreX::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseEcoreX::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseEcoreX::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseEcoreX::SetScreen(const std::string& screenName)
