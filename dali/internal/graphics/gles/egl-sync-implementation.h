@@ -29,7 +29,7 @@
 #include <dali/integration-api/graphics-sync-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -204,6 +204,6 @@ void CloseFD(int32_t fenceFd);
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_EGL_ADAPTOR_SYNC_IMPLEMENTATION_H

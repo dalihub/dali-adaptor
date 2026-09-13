@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 #include <dali/internal/graphics/common/surface-factory.h>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
 {
@@ -26,4 +26,4 @@ std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativ
   return surfaceFactory;
 }
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics

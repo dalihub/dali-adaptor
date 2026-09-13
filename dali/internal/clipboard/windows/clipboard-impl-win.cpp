@@ -54,7 +54,7 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -63,7 +63,7 @@ namespace Adaptor
 namespace
 {
 constexpr const char* MIME_TYPE_TEXT_PLAIN_WINDOWS = "text/plain;charset=utf-8";
-constexpr uint32_t    INVALID_DATA_ID               = 0u;
+constexpr uint32_t    INVALID_DATA_ID              = 0u;
 
 bool IsPlainTextMimeType(const std::string& mimeType)
 {
@@ -77,7 +77,7 @@ HWND GetApplicationWindow()
     return nullptr;
   }
 
-  Adaptor& adaptorImpl = Adaptor::GetImplementation(Adaptor::Get());
+  Adaptor& adaptorImpl  = Adaptor::GetImplementation(Adaptor::Get());
   Any      nativeWindow = adaptorImpl.GetNativeWindowHandle();
   if(nativeWindow.Empty() || !nativeWindow.IsType<WinWindowHandle>())
   {
@@ -573,11 +573,11 @@ struct Clipboard::Impl
 
   HWND mApplicationWindow{nullptr};
 
-  uint32_t mDataId{INVALID_DATA_ID};
-  std::string mLastType;
-  std::vector<std::string> mMimeTypes;
+  uint32_t                           mDataId{INVALID_DATA_ID};
+  std::string                        mLastType;
+  std::vector<std::string>           mMimeTypes;
   std::map<std::string, std::string> mDatas;
-  std::deque<PendingData> mDataReceiveQueue;
+  std::deque<PendingData>            mDataReceiveQueue;
 
   DWORD mClipboardSequenceNumber{0u};
   bool  mHasClipboardSequenceNumber{false};
@@ -632,7 +632,7 @@ class ClipboardFactoryWindows : public ClipboardFactory
 public:
   Dali::Clipboard CreateClipboard() override
   {
-    Dali::Clipboard clipboard;
+    Dali::Clipboard        clipboard;
     Dali::SingletonService service(SingletonService::Get());
     if(service)
     {
@@ -736,4 +736,4 @@ bool Clipboard::OnMultiSelectionTimeout()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

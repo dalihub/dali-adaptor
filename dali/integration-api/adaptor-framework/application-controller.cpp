@@ -23,7 +23,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-controller-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 ApplicationController ApplicationController::New(PositionSize windowPositionSize)
 {
@@ -94,4 +94,4 @@ ApplicationController::ApplicationController(Internal::Adaptor::ApplicationContr
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

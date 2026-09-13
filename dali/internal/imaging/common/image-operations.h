@@ -27,7 +27,7 @@
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <third-party/resampler/resampler.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -750,6 +750,6 @@ inline uint8_t CompressBitPerPixel8To4(const uint8_t x) noexcept
 
 } /* namespace Platform */
 } /* namespace Internal */
-} /* namespace Dali */
+} //namespace DALI_NAMESPACE
 
 #endif /* DALI_INTERNAL_PLATFORM_IMAGE_OPERATIONS_H */

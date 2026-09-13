@@ -26,7 +26,7 @@
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Trigger interface factory class
@@ -57,6 +57,6 @@ public:
   static TriggerEventPtr CreateTriggerEvent(CallbackBase* callback);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H

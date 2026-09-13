@@ -32,7 +32,7 @@
 
 using Dali::Internal::Adaptor::WindowSystem::WindowSystemX;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -474,4 +474,4 @@ void NativeImageX::EnableBackBuffer(bool enable)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -291,4 +291,4 @@ void OffscreenRenderSurfaceEgl::ProcessPostRender()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

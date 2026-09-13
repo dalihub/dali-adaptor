@@ -30,7 +30,7 @@
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Adaptor& Adaptor::New(Window window)
 {
@@ -371,4 +371,4 @@ Adaptor::Adaptor()
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

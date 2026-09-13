@@ -21,7 +21,7 @@
 #include <dali/internal/window-system/common/window-base.h>
 #include <memory>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * WindowBaseCocoa class provides an WindowBase Win32 implementation.
@@ -541,12 +541,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
    */
-  Extents GetInsets() override;
+  Insets GetInsets() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets(WindowInsetsPartFlags)
    */
-  Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
+  Insets GetInsets(WindowInsetsPartFlags insetsFlags) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreen()
@@ -569,4 +569,4 @@ private:
   std::unique_ptr<Impl> mImpl;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

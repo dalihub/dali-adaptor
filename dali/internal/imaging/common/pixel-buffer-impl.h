@@ -29,7 +29,7 @@
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -370,6 +370,6 @@ inline const Internal::Adaptor::PixelBuffer& GetImplementation(const Dali::Pixel
   return static_cast<const Internal::Adaptor::PixelBuffer&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H

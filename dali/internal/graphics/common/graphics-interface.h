@@ -30,7 +30,7 @@
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/window-base.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -427,6 +427,6 @@ protected:
 
 } // namespace Graphics
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H

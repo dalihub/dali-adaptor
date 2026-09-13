@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 class Context;
 using FramebufferResource = Resource<Graphics::Framebuffer, Graphics::FramebufferCreateInfo>;
@@ -124,6 +124,6 @@ private:
   GLenum mAttachedInternalFormat;
 };
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif

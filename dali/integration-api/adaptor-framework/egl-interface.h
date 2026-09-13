@@ -52,7 +52,7 @@
 #include <dali/integration-api/adaptor-framework/color-depth.h>
 #include <dali/public-api/math/rect.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * EglInterface provides an interface for managing EGL contexts
@@ -161,7 +161,7 @@ protected:
   }
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 // Restore exactly the Win32 macro state present at header entry.
 #if defined(_WIN32)

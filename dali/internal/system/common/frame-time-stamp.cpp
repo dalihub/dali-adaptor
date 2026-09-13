@@ -17,8 +17,9 @@
 
 // CLASS HEADER
 #include <dali/internal/system/common/frame-time-stamp.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -56,4 +57,4 @@ unsigned int FrameTimeStamp::MicrosecondDiff(const FrameTimeStamp& start, const 
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

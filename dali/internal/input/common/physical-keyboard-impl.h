@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PHYSICAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/physical-keyboard.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -110,6 +110,6 @@ inline static const Internal::Adaptor::PhysicalKeyboard& GetImplementation(const
   return static_cast<const Internal::Adaptor::PhysicalKeyboard&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_PHYSICAL_KEYBOARD_H

@@ -25,7 +25,7 @@
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
 #include <dali/internal/imaging/common/file-download.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace
 {
@@ -69,4 +69,4 @@ bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t
 
 } // namespace FileLoader
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

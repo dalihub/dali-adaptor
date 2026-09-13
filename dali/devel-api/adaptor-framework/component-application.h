@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -123,6 +123,6 @@ public:
   explicit DALI_INTERNAL ComponentApplication(Internal::Adaptor::ComponentApplication* componentApplication);
   /// @endcond
 };
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_COMPONENT_APPLICATION_H

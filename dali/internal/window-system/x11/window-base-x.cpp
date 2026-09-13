@@ -36,7 +36,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Internal::Adaptor::WindowSystem::WindowSystemX;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1112,14 +1112,14 @@ Vector4 WindowBaseX::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseX::GetInsets()
+Insets WindowBaseX::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseX::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseX::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseX::SetScreen(const std::string& screenName)
@@ -1135,4 +1135,4 @@ std::string WindowBaseX::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

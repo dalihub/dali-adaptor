@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class NativeImageSurface;
 
@@ -80,6 +80,6 @@ public:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_NATIVE_IMAGE_SURFACE_IMPL_H

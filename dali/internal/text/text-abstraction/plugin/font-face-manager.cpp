@@ -34,7 +34,7 @@
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 namespace
 {
@@ -360,9 +360,10 @@ FontFaceManager::ColorFontInfo FontFaceManager::DetectColorFontTables(FT_Face ft
     return info;
   }
 
-  auto checkTable = [](FT_Face face, FT_ULong tag) -> bool {
+  auto checkTable = [](FT_Face face, FT_ULong tag) -> bool
+  {
     FT_ULong length = 0;
-    FT_Error error = FT_Load_Sfnt_Table(face, tag, 0, nullptr, &length);
+    FT_Error error  = FT_Load_Sfnt_Table(face, tag, 0, nullptr, &length);
     return (FT_Err_Ok == error && length > 0);
   };
 
@@ -456,7 +457,7 @@ void FontFaceManager::EraseColrV1GlyphPaintCacheForFace(FT_Face ftFace)
   }
 
   // Erase() returns the next valid iterator, so we can continue iterating safely.
-  for(auto it = mColrV1GlyphPaintCache.Begin(); it != mColrV1GlyphPaintCache.End(); )
+  for(auto it = mColrV1GlyphPaintCache.Begin(); it != mColrV1GlyphPaintCache.End();)
   {
     if(mColrV1GlyphPaintCache.GetKey(it).mFreeTypeFace == ftFace)
     {
@@ -589,4 +590,4 @@ FontFaceManager::FaceSizeCacheData& FontFaceManager::FaceSizeCacheData::operator
   return *this;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

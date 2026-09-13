@@ -35,7 +35,7 @@
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -707,4 +707,4 @@ bool Clipboard::OnMultiSelectionTimeout()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-context.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 #include <cstdint>
 #include <vector>
@@ -31,7 +31,7 @@
 #include <thorvg.h>
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -57,7 +57,7 @@ tvg::FillSpread ConvertColorLineExtend(FT_PaintExtend extend);
  */
 bool BuildThorvgSafeStopsForUnitRange(
   const std::vector<tvg::Fill::ColorStop>& rawStops,
-  std::vector<tvg::Fill::ColorStop>& safeStops);
+  std::vector<tvg::Fill::ColorStop>&       safeStops);
 
 /**
  * @brief Validates color stops before passing them to ThorVG.
@@ -84,14 +84,14 @@ bool ValidateStopsForThorvg(const std::vector<tvg::Fill::ColorStop>& stops);
  * @return @e true if the stops are resolved.
  */
 bool BuildColorStops(
-  FT_Face ftFace,
-  uint16_t paletteIndex,
-  FT_ColorLine& colorline,
+  FT_Face                            ftFace,
+  uint16_t                           paletteIndex,
+  FT_ColorLine&                      colorline,
   std::vector<tvg::Fill::ColorStop>& stops,
-  uint32_t& stopCount,
-  float& outMinOffset,
-  float& outMaxOffset,
-  uint32_t debugGlyph);
+  uint32_t&                          stopCount,
+  float&                             outMinOffset,
+  float&                             outMaxOffset,
+  uint32_t                           debugGlyph);
 
 /**
  * @brief Builds a ThorVG matrix for a COLRv1 paint-space transform.
@@ -111,8 +111,8 @@ tvg::Matrix BuildPaintMatrix(const TransformState& paintTransform);
  */
 bool HandlePaintLinearGradient(
   FT_PaintLinearGradient& linear,
-  tvg::Shape* shape,
-  PaintContext& ctx);
+  tvg::Shape*             shape,
+  PaintContext&           ctx);
 
 /**
  * @brief Applies a COLRv1 PaintRadialGradient fill to a ThorVG shape.
@@ -124,11 +124,11 @@ bool HandlePaintLinearGradient(
  */
 bool HandlePaintRadialGradient(
   FT_PaintRadialGradient& radial,
-  tvg::Shape* shape,
-  PaintContext& ctx);
+  tvg::Shape*             shape,
+  PaintContext&           ctx);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_GRADIENT_H

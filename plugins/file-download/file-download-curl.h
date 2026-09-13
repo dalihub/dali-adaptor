@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Dali::Plugin
+namespace DALI_NAMESPACE::Plugin
 {
 /**
  * @brief curl-based implementation of the FileDownloadPlugin interface
@@ -89,6 +89,6 @@ private:
   Impl* mImpl{nullptr};
 };
 
-} // namespace Dali::Plugin
+} //namespace DALI_NAMESPACE::Plugin
 
 #endif // DALI_PLUGIN_CURL_FILE_DOWNLOADER_H

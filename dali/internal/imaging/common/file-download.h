@@ -24,7 +24,7 @@
 #include <mutex>    //c++11
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -53,6 +53,6 @@ bool DownloadRemoteFileIntoMemory(const std::string&     url,
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_RESOURCE_THREAD_IMAGE_H

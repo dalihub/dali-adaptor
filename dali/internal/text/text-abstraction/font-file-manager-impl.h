@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-file-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -104,6 +104,6 @@ inline static const TextAbstraction::Internal::FontFileManager& GetImplementatio
   return static_cast<const TextAbstraction::Internal::FontFileManager&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_FILE_MANAGER_IMPL_H

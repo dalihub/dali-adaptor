@@ -35,7 +35,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class ObjectRegistry;
 
@@ -607,6 +607,6 @@ private:
   friend class Internal::Adaptor::Adaptor;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_ADAPTOR_H

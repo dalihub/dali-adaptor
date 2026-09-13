@@ -28,7 +28,7 @@
 #endif
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace EnvironmentVariable
 {
@@ -43,7 +43,7 @@ const char* GetEnvironmentVariable(const char* variable)
   }
 
   thread_local std::unordered_map<std::string, std::string> values;
-  std::string&                                               value = values[variable];
+  std::string&                                              value = values[variable];
   value.assign(buffer);
   std::free(buffer);
   return value.c_str();
@@ -63,4 +63,4 @@ bool SetEnvironmentVariable(const char* variable, const char* value)
 
 } // namespace EnvironmentVariable
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

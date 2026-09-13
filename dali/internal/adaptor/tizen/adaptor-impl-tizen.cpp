@@ -24,7 +24,7 @@
 #include <aul.h>
 #include <unistd.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -42,4 +42,4 @@ std::string Adaptor::GetApplicationPackageName()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

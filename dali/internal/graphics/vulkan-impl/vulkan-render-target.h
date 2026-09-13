@@ -28,7 +28,7 @@
 
 #include <dali/devel-api/common/set-wrapper.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Framebuffer;
 class Surface;
@@ -189,6 +189,6 @@ private:
   bool mSubmitted{false}; ///< Check if this render target was submitted this frame
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_TARGET_H

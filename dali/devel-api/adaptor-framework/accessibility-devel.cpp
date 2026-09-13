@@ -25,7 +25,6 @@
 #include <unordered_map>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -39,6 +38,7 @@
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -53,7 +53,7 @@ const std::string& Dali::Devel::Accessibility::Address::GetBus() const
   return mBus.empty() && Dali::Integration::Accessibility::Bridge::GetCurrentBridge() ? Dali::Integration::Accessibility::Bridge::GetCurrentBridge()->GetBusName() : mBus;
 }
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 
 std::string Accessible::GetLocalizedRoleName() const
@@ -220,8 +220,8 @@ Dali::Integration::Accessibility::AccessibilityInterfaces Accessible::GetInterfa
 
 std::vector<std::string> Accessible::GetInterfacesAsStrings() const
 {
-  std::vector<std::string> ret;
-  Dali::Integration::Accessibility::AccessibilityInterfaces          interfaces = GetInterfaces();
+  std::vector<std::string>                                  ret;
+  Dali::Integration::Accessibility::AccessibilityInterfaces interfaces = GetInterfaces();
 
   for(std::size_t i = 0u; i < static_cast<std::size_t>(Dali::Integration::Accessibility::AccessibilityInterface::MAX_COUNT); ++i)
   {
@@ -336,7 +336,7 @@ void Accessible::SetHighlightActor(Dali::Actor actor)
   }
 }
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 void Dali::Integration::Accessibility::Bridge::ForceDown()
 {
@@ -357,7 +357,7 @@ void Dali::Integration::Accessibility::Bridge::SetIsOnRootLevel(Dali::Accessibil
   owner->mIsOnRootLevel = true;
 }
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 
 namespace
@@ -467,8 +467,8 @@ public:
     Dali::Integration::Accessibility::States state;
     if(mRoot)
     {
-      auto window             = Dali::Window::Get(Self());
-      auto visible            = window.IsVisible();
+      auto window                                               = Dali::Window::Get(Self());
+      auto visible                                              = window.IsVisible();
       state[Dali::Integration::Accessibility::State::ENABLED]   = true;
       state[Dali::Integration::Accessibility::State::SENSITIVE] = true;
       state[Dali::Integration::Accessibility::State::SHOWING]   = visible;
@@ -477,7 +477,7 @@ public:
     }
     else if(GetParent())
     {
-      auto parentState      = GetParent()->GetStates();
+      auto parentState                                        = GetParent()->GetStates();
       state[Dali::Integration::Accessibility::State::SHOWING] = parentState[Dali::Integration::Accessibility::State::SHOWING];
       state[Dali::Integration::Accessibility::State::VISIBLE] = parentState[Dali::Integration::Accessibility::State::VISIBLE];
     }
@@ -497,7 +497,7 @@ public:
     {
       Dali::Window                     window     = Dali::Window::Get(Self());
       Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
-      attributes["resID"] = windowImpl.GetNativeResourceId();
+      attributes["resID"]                         = windowImpl.GetNativeResourceId();
     }
 
     if(mRoot && GetName() == "RootLayer")
@@ -636,4 +636,4 @@ Accessible* Accessible::Get(Dali::Actor actor)
   return accessible ? accessible.Get() : nullptr;
 }
 
-} //namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility

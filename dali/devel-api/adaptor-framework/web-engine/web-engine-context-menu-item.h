@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_CONTEXT_MENU_ITEM_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <memory>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class WebEngineContextMenu;
 
@@ -202,6 +203,6 @@ public:
   virtual std::unique_ptr<Dali::WebEngineContextMenu> GetParentMenu() const = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_CONTEXT_MENU_ITEM_H

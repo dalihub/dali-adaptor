@@ -26,7 +26,7 @@
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Load an image and save each plane to a separate buffer synchronously from local file.
@@ -128,6 +128,6 @@ DALI_ADAPTOR_API Dali::PixelBuffer DownloadImageSynchronously(
  */
 DALI_ADAPTOR_API unsigned int GetMaxTextureSize();
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_IMAGE_LOADING_DEVEL_H

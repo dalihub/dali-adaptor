@@ -25,7 +25,7 @@
 #define DALI_ASSERT_VALID_DRAG_DATA(impl) \
   DALI_ASSERT_ALWAYS((impl) && "Cannot use a moved-from DragData object")
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct DragAndDrop::DragData::Impl
 {
@@ -90,6 +90,6 @@ Dali::String DragAndDrop::DragData::GetData(uint32_t index) const
   return index < mImpl->entries.Count() ? mImpl->entries[index].data : Dali::String();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #undef DALI_ASSERT_VALID_DRAG_DATA

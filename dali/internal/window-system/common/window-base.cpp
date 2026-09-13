@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/window-system/common/window-base.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -179,4 +179,4 @@ WindowBase::PointerConstraintsSignalType& WindowBase::PointerConstraintsSignal()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

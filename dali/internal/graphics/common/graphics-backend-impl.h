@@ -24,7 +24,7 @@
 #include <dali/devel-api/adaptor-framework/graphics-backend.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali::Graphics::Internal
+namespace DALI_NAMESPACE::Graphics::Internal
 {
 /**
  * @copydoc Dali::Graphics::GetCurrentGraphicsBackend()
@@ -71,4 +71,4 @@ const std::string& GetBackendInformation();
  * @param[in] backendInformation A string representation of the graphics backend.
  */
 DALI_ADAPTOR_API void SetBackendInformation(std::string&& backendInformation);
-} // namespace Dali::Graphics::Internal
+} //namespace DALI_NAMESPACE::Graphics::Internal

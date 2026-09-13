@@ -20,7 +20,7 @@
 
 #include <dali/internal/adaptor/common/framework-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -50,6 +50,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_TIZEN_FRAMEWORK_FACTORY_H

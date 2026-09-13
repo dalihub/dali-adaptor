@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -42,6 +42,6 @@ std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H

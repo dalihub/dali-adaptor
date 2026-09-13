@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Widget;
 
@@ -99,6 +99,6 @@ inline const WidgetApplication& GetImplementation(const Dali::WidgetApplication&
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WIDGET_APPLICATION_IMPL_H

@@ -30,7 +30,7 @@
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 namespace
 {
@@ -384,10 +384,10 @@ bool GlyphCacheManager::CacheExternalGlyphBuffer(
     }
 
     TextAbstraction::GlyphBufferData& renderBuffer = *glyphData.mRenderedBuffer;
-    renderBuffer.width           = width;
-    renderBuffer.height          = height;
-    renderBuffer.format          = format;
-    renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
+    renderBuffer.width                             = width;
+    renderBuffer.height                            = height;
+    renderBuffer.format                            = format;
+    renderBuffer.compressionType                   = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
     // Use Compress() consistent with existing CacheRenderedGlyphBuffer()
     const auto compressedBufferSize = TextAbstraction::GlyphBufferData::Compress(buffer, renderBuffer);
@@ -676,4 +676,4 @@ GlyphCacheManager::GlyphCacheData& GlyphCacheManager::GlyphCacheData::operator=(
   return *this;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

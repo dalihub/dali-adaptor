@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <cmath>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -170,4 +170,4 @@ void FrameTimeStats::CalculateMean(float& meanOut, float& standardDeviationOut) 
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

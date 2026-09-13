@@ -40,14 +40,34 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
+#include <dali/internal/window-system/common/window-data-impl.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 
+// DALI_DLOG_AVAILABLE only says that the dlog package was found. print_log() is defined by
+// logging-tizen.cpp, which only the Tizen backend profiles build, so this common file has to
+// check the profile as well before reaching for tizen-dlog.h.
+#if defined(DALI_DLOG_AVAILABLE) && (defined(DALI_PROFILE_COMMON) || defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV))
+#define DALI_WINDOW_INIT_LOG_TO_DLOG
+#endif
+
+#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
+#include <dali/internal/system/tizen/tizen-dlog.h>
+#endif
+
+// Window::Initialize() runs before the adaptor installs the DALi log function,
+// so DALI_LOG_RELEASE_INFO() would be dropped there. On Tizen, write to dlog directly.
+#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
+#define DALI_WINDOW_INIT_LOG(format, ...) DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX format, DALI_LOG_FORMAT_PREFIX_ARGS, ##__VA_ARGS__)
+#else
+#define DALI_WINDOW_INIT_LOG(format, ...) DALI_LOG_RELEASE_INFO(format, ##__VA_ARGS__)
+#endif
+
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -58,22 +78,16 @@ namespace
 Dali::TypeRegistration WINDOW_TYPE(typeid(Dali::Internal::Adaptor::Window), typeid(Dali::BaseHandle), nullptr);
 } // unnamed namespace
 
-Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader)
+Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet)
 {
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
-  window->mIsTransparent         = windowData.GetTransparency();
 
-#ifdef DALI_PROFILE_UBUNTU
-  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
-  if(window->mIsTransparent)
-  {
-    DALI_LOG_RELEASE_INFO("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
-    window->mIsTransparent = false;
-  }
-#endif
+  // OnAdaptorSet() is dispatched from SceneHolder::SetAdaptor() when the window is added to
+  // the adaptor, which happens after this function returns. Setting the flag here is therefore
+  // early enough for OnAdaptorSet() to observe it.
+  window->mIsShowOnAdaptorSet = isShowOnAdaptorSet;
 
-  window->mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
-  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType(), ToStdString(windowData.GetScreen()), isUsePreLoader);
+  window->Initialize(surface, windowData, name, className, isUsePreLoader);
   return window.release();
 }
 
@@ -82,7 +96,7 @@ Window* Window::New(PositionSize positionSize)
   Any                     surface;
   std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window());
   window->Initialize(surface, positionSize);
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), (%d, %d) [%d x %d]\n", window.get(), window->mNativeWindowId, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
   return window.release();
 }
 
@@ -123,6 +137,7 @@ Window::Window()
   mIsEmittedWindowCreatedEvent(false),
   mIsFrontBufferRendering(false),
   mIsUsePreLoader(false),
+  mIsShowOnAdaptorSet(false),
   mIsScreenReaderAutoReadEnabled(true)
 {
 }
@@ -142,6 +157,8 @@ Window::~Window()
 
 void Window::Initialize(Any surface, const PositionSize& positionSize)
 {
+  DALI_WINDOW_INIT_LOG("Window (%p), Initialize with position (%d, %d) size [%d x %d], transparent(%d), surface(%d)\n", this, positionSize.x, positionSize.y, positionSize.width, positionSize.height, mIsTransparent, !surface.Empty());
+
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
   DALI_ASSERT_DEBUG(renderSurfaceFactory && "Cannot create render surface factory\n");
@@ -151,6 +168,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
+  DALI_WINDOW_INIT_LOG("Window (%p), render surface (%p) and window base (%p) created\n", this, mWindowSurface, mWindowBase);
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect(this, &Window::OnIconifyChanged);
@@ -193,7 +211,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
     mWindowWidth        = screenWidth;
     mWindowHeight       = screenHeight;
     isSetWithScreenSize = true;
-    DALI_LOG_RELEASE_INFO("Window size is set with screen size(%d x %d)\n", mWindowWidth, mWindowHeight);
+    DALI_WINDOW_INIT_LOG("Window (%p), size is set with screen size(%d x %d)\n", this, mWindowWidth, mWindowHeight);
   }
 
   if(isSetWithScreenSize == false || positionSize.x != 0 || positionSize.y != 0)
@@ -203,15 +221,42 @@ void Window::Initialize(Any surface, const PositionSize& positionSize)
 
   // For Debugging
   mNativeWindowId = mWindowBase->GetNativeWindowId();
+
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), Initialized. screen(%d x %d), orientationMode(%s), window(%d x %d), userGeometry(%d)\n", this, mNativeWindowId, screenWidth, screenHeight, (mOrientationMode == Internal::Adaptor::Window::OrientationMode::LANDSCAPE) ? "LANDSCAPE" : "PORTRAIT", mWindowWidth, mWindowHeight, mIsEnabledUserGeometry);
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader)
+void Window::Initialize(Any surface, const WindowData& windowData, const std::string& name, const std::string& className, const bool isUsePreLoader)
 {
-  Initialize(surface, positionSize);
+  const WindowType type = windowData.GetWindowType();
+
+  mIsTransparent = windowData.GetTransparency();
+
+#ifdef DALI_PROFILE_UBUNTU
+  // Ubuntu doesn't support transparent windows; force ColorDepth to 24-bit (RGB888)
+  if(mIsTransparent)
+  {
+    DALI_WINDOW_INIT_LOG("Forcing transparency to false for Ubuntu (ColorDepth: 24-bit RGB888)\n");
+    mIsTransparent = false;
+  }
+#endif
+
+  mIsFrontBufferRendering = windowData.IsFrontBufferRenderingEnabled();
+
+  // The buffers this window renders into are fixed once its graphics surface exists,
+  // so they have to be taken before the adaptor is set. A negative value means the
+  // window follows the system-wide setting.
+  const WindowData::Impl& windowDataImpl = windowData.GetImplementation();
+  mDepthBufferEnabled                    = windowDataImpl.mDepthBufferEnabled;
+  mStencilBufferEnabled                  = windowDataImpl.mStencilBufferEnabled;
+  mMultiSamplingLevel                    = windowDataImpl.mMultiSamplingLevel;
+
+  DALI_WINDOW_INIT_LOG("Window (%p), Initialize with name(%s), className(%s), type(%d), transparent(%d), frontBufferRendering(%d), depth(%d), stencil(%d), msaa(%d)\n", this, name.c_str(), className.c_str(), static_cast<int>(type), mIsTransparent, mIsFrontBufferRendering, mDepthBufferEnabled, mStencilBufferEnabled, mMultiSamplingLevel);
+
+  Initialize(surface, windowData.GetPositionSize());
 
   // Set the flag of preloader is used.
   mIsUsePreLoader = isUsePreLoader;
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), isUsePreLoader(%d)\n", this, mNativeWindowId, mIsUsePreLoader);
+  DALI_WINDOW_INIT_LOG("Window (%p), WinId (%d), isUsePreLoader(%d)\n", this, mNativeWindowId, mIsUsePreLoader);
 
   // Set Window Type
   mWindowBase->SetType(type);
@@ -229,7 +274,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
     SetFrontBufferRenderingEnabled(mIsFrontBufferRendering);
   }
 
-  SetScreen(screenName);
+  SetScreen(ToStdString(windowData.GetScreen()));
 }
 
 void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
@@ -293,9 +338,13 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   // If this window is created by pre loader process, window show()'s calling should be delayed.
   // Because detail window property is not decided yet in preloader.
-  // So, show() will be callled on internal::Adaptor::Application::ChangePreInitializedWindowInfo().
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), mIsUsePreLoader flag (%d)\n", this, mNativeWindowId, mIsUsePreLoader);
-  if(!mIsUsePreLoader)
+  // So, show() will be callled on ApplicationController::UpdatePreInitializedWindowInfo().
+  // mIsShowOnAdaptorSet is opted in by the creator through DevelWindow::New(); a window that does
+  // not request it is shown by whoever created it instead of from here. The default window is
+  // shown from Adaptor::NotifySceneCreated(), and a native secondary window by the application.
+  const bool showFromHere = !mIsUsePreLoader && mIsShowOnAdaptorSet;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnAdaptorSet(): mIsUsePreLoader = %d, mIsShowOnAdaptorSet = %d, calls Show() = %d\n", this, mNativeWindowId, mIsUsePreLoader, mIsShowOnAdaptorSet, showFromHere);
+  if(showFromHere)
   {
     // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
     // The show must be called after the adaptor is initialized.
@@ -1221,8 +1270,8 @@ void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value
 
 void Window::OnInsetsChanged(const WindowInsetsInfo& insetsInfo)
 {
-  const auto& insets = insetsInfo.GetExtents();
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), insets changed, partType = %d, partState = %d, insets = (%d, %d, %d, %d)\n", this, mNativeWindowId, insetsInfo.GetPartType(), insetsInfo.GetPartState(), insets.start, insets.end, insets.top, insets.bottom);
+  const auto& insets = insetsInfo.GetInsets();
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), insets changed, partType = %d, partState = %d, insets = (%f, %f, %f, %f)\n", this, mNativeWindowId, insetsInfo.GetPartType(), insetsInfo.GetPartState(), insets.start, insets.end, insets.top, insets.bottom);
 
   mInsetsChangedSignal.Emit(Dali::Window(this), insetsInfo);
 }
@@ -1331,7 +1380,7 @@ void Window::OnSceneWheelEvent(Dali::Integration::SceneHolder /*sceneHolder*/, D
 bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
   Dali::Window handle(this);
-  bool consumed = false;
+  bool         consumed = false;
   if(mScene.IsGeometryHittestEnabled())
   {
     // Any connected callback consuming the event consumes it for all of them.
@@ -1774,12 +1823,12 @@ WindowBlurInfo Window::GetBlur() const
   return mBlurInfo;
 }
 
-Extents Window::GetInsets()
+Insets Window::GetInsets()
 {
   return mWindowBase->GetInsets();
 }
 
-Extents Window::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets Window::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
   return mWindowBase->GetInsets(insetsFlags);
 }
@@ -1894,4 +1943,4 @@ void Window::InitializeImeInfo()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

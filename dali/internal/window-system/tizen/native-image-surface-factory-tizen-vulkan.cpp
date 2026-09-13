@@ -19,10 +19,10 @@
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
 {
   return nullptr;
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

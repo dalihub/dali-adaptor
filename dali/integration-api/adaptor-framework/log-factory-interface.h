@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE
 {
 class LogFactoryInterface
 {
@@ -30,6 +33,6 @@ public:
   virtual void InstallLogFunction() const = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif //DALI_ADAPTOR_LOG_FACTORY_INTERFACE_H

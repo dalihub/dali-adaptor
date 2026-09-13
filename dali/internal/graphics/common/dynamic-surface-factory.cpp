@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/graphics/common/surface-factory.h>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<SurfaceFactory> SurfaceFactory::New(NativeWindowInterface& nativeWindow)
 {
   return Internal::Adaptor::GraphicsLibrary::CreateSurfaceFactory(nativeWindow);
 }
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics

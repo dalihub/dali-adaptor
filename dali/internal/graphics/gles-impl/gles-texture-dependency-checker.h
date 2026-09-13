@@ -24,8 +24,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 class EglGraphicsController;
 
@@ -185,6 +186,6 @@ private:
 };
 
 } // namespace GLES
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif //DALI_GLES_TEXTURE_DEPENDENCY_CHECKER_H

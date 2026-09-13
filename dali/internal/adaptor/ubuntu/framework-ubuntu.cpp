@@ -23,7 +23,7 @@
 #include <Elementary.h>
 #include <X11/Xlib.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -51,6 +51,7 @@ void FrameworkUbuntu::Run()
   elm_init(mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr);
 
   mObserver.OnInit();
+  mObserver.OnResume();
 
   elm_run();
 
@@ -117,4 +118,4 @@ void UIThreadLoader::Run(Runner runner)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BITSET_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<std::size_t>
 class BitSet;
@@ -521,6 +521,6 @@ private:
   // No data members (non-virtual destructor)
 };
 
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BITSET_H

@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelNativeImage
 {
@@ -100,6 +100,6 @@ DALI_ADAPTOR_API void EnableBackBuffer(NativeImage& image, bool enable);
 
 } // namespace DevelNativeImage
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_NATIVE_IMAGE_DEVEL_H

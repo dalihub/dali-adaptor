@@ -23,7 +23,7 @@
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -143,4 +143,4 @@ void Segmentation::CreatePlugin()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

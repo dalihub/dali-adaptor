@@ -20,9 +20,10 @@
 // EXTERNAL HEADERS
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstdint>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 /**
@@ -44,7 +45,7 @@ struct PaletteInfo
 struct CpalColor
 {
   uint8_t r{0}, g{0}, b{0}, a{255}; ///< RGBA color values.
-  bool    valid{false};              ///< Whether color resolution succeeded.
+  bool    valid{false};             ///< Whether color resolution succeeded.
 };
 
 /**
@@ -85,6 +86,6 @@ public:
   static void ResolveColor(FT_Face ftFace, uint16_t paletteIndex, uint16_t colorIndex, CpalColor& outColor);
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_INTERNAL_TEXT_TEXT_ABSTRACTION_PLUGIN_COLOR_GLYPH_CPAL_PARSER_H

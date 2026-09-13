@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dlfcn.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -159,4 +159,4 @@ void FeedbackPluginProxy::Initialize()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

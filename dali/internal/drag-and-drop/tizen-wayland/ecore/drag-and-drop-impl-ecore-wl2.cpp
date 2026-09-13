@@ -32,7 +32,7 @@
 // DragAndDrop
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -214,7 +214,7 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   mDataMap.clear();
   for(uint32_t i = 0u; i < data.GetDataCount(); ++i)
   {
-    const Dali::String mimeType = data.GetMimeType(i);
+    const Dali::String mimeType            = data.GetMimeType(i);
     mDataMap[std::string(mimeType.CStr())] = std::string(data.GetData(i).CStr());
   }
 
@@ -823,4 +823,4 @@ void DragAndDropEcoreWl::DropTargetSceneOn(Dali::Actor target)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

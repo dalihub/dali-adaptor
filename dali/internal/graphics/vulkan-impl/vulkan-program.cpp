@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 Program::Program(const Graphics::ProgramCreateInfo& createInfo, VulkanGraphicsController& controller)
 {
@@ -80,4 +80,4 @@ void Program::DestroyResource()
   // nothing to do here
 }
 
-}; // namespace Dali::Graphics::Vulkan
+}; //namespace DALI_NAMESPACE::Graphics::Vulkan

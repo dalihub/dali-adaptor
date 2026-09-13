@@ -24,9 +24,9 @@
 #include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
@@ -40,7 +40,7 @@
 // To disable a macro with the same name from one of OpenGL headers
 #undef Status
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -460,4 +460,4 @@ int32_t Application::GetMainThreadId() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -23,7 +23,7 @@
 #include <string>
 #include <widget_base.hh>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -45,7 +45,7 @@ struct WidgetBindingResult
 class IWidgetBindingBackend
 {
 public:
-  virtual ~IWidgetBindingBackend() = default;
+  virtual ~IWidgetBindingBackend()                                                      = default;
   virtual WidgetBindingResult Bind(void* instance, const char* id, Dali::Window window) = 0;
 };
 
@@ -71,7 +71,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APPLICATION_MODEL_TCORE_WIDGET_BINDING_BRIDGE_H
-

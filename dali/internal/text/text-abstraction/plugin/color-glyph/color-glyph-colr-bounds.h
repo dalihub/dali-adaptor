@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 #if DALI_ENABLE_COLR_V1_RENDERER
 #include <ft2build.h>
@@ -27,7 +27,7 @@
 #include FT_BBOX_H
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 #if DALI_ENABLE_COLR_V1_RENDERER
@@ -56,11 +56,11 @@ void PaintBoundsUnion(ColrPaintBounds& bounds, float x1, float y1, float x2, flo
  * @param[in] transform The accumulated COLRv1 geometry transform.
  */
 void PaintBoundsUnionBBox(
-  ColrPaintBounds& bounds,
-  float bMinX,
-  float bMinY,
-  float bMaxX,
-  float bMaxY,
+  ColrPaintBounds&      bounds,
+  float                 bMinX,
+  float                 bMinY,
+  float                 bMaxX,
+  float                 bMaxY,
   const TransformState& transform);
 
 /**
@@ -86,15 +86,15 @@ ColrPaintBounds ComputeGlyphOutlineBounds(FT_Face ftFace, uint32_t glyphIndex);
  * @param[in] depth The current paint graph recursion depth.
  */
 void TraversePaintBounds(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face          ftFace,
+  FT_OpaquePaint   opaquePaint,
   ColrPaintBounds& bounds,
-  TransformState& geometryTransform,
-  uint32_t debugGlyph,
-  uint32_t depth);
+  TransformState&  geometryTransform,
+  uint32_t         debugGlyph,
+  uint32_t         depth);
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEXT_ABSTRACTION_INTERNAL_COLOR_GLYPH_COLR_BOUNDS_H

@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/offscreen/vulkan/offscreen-render-surface-vulkan.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -139,4 +139,4 @@ void OffscreenRenderSurfaceVulkan::MakeContextCurrent()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

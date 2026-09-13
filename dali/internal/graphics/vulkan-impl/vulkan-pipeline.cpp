@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 //#include <dali/internal/graphics/vulkan-impl/gles-graphics-pipeline-cache.h"
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 const PipelineCreateInfo& Pipeline::GetCreateInfo() const
 {
@@ -77,4 +77,4 @@ bool Pipeline::operator==(const PipelineImpl* impl) const
   return false; // &mPipeline == impl; // TODO: needs caching
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

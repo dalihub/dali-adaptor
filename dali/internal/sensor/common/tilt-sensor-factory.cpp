@@ -20,7 +20,7 @@
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -65,4 +65,4 @@ Dali::TiltSensor Get()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -43,7 +43,7 @@
 #include <dali/internal/graphics/gles-impl/gles-texture-dependency-checker.h>
 #include <dali/internal/graphics/gles-impl/gles2-graphics-memory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -729,8 +729,8 @@ public:
       auto* value = createQueue.front();
       createQueue.pop();
       // Queue don't have iterator. Just full search here.
-      bool found = false;
-    int32_t n     = static_cast<int32_t>(discardQueue.size());
+      bool    found = false;
+      int32_t n     = static_cast<int32_t>(discardQueue.size());
       while(n-- != 0)
       {
         auto* discardedValue = discardQueue.front();
@@ -998,6 +998,6 @@ private:
 
 } // namespace Graphics
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_EGL_GRAPHICS_CONTROLLER_H

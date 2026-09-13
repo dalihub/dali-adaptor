@@ -27,7 +27,7 @@
 #include <filesystem>
 #include <queue>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 #if defined(DEBUG_ENABLED)
 namespace
@@ -680,4 +680,4 @@ bool GraphicsFrameDump::IsDumpFrame()
   return dump;
 }
 #endif
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics

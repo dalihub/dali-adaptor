@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/int-pair.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -95,6 +95,6 @@ const Type DEFAULT = BOX;
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_IMAGE_OPTIONS_H

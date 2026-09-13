@@ -31,7 +31,7 @@
 #include <dali/internal/window-system/tizen/display-connection-native-types.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 namespace
 {
@@ -220,4 +220,4 @@ Any DisplayConnectionTcoreWl::GetNativeGraphicsDisplay()
   return std::move(*nativeGraphicsDisplay);
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

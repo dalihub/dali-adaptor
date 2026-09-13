@@ -25,7 +25,7 @@
 #include <dali/internal/window-system/x11/display-connection-native-types.h>
 #include <dali/internal/window-system/x11/window-system-x.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DisplayConnectionX11::DisplayConnectionX11()
 : mDisplay(nullptr)
@@ -67,4 +67,4 @@ void DisplayConnectionX11::SetSurfaceType(Dali::Integration::RenderSurfaceInterf
   }
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

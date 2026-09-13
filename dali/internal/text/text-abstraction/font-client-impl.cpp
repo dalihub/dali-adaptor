@@ -36,7 +36,7 @@
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -850,4 +850,4 @@ void FontClient::CreatePlugin()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -19,15 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
+#include <tizen_core_wl.h>
 #include <limits>
 #include <map>
-#include <tizen_core_wl.h>
 #include <vector>
 
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DragAndDrop;
 
@@ -38,20 +38,20 @@ namespace Adaptor
 
 struct DropTarget
 {
-  Dali::Actor                            target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  tizen_core_wl_window_h                parentWindow{nullptr};
-  bool                                   inside;
+  Dali::Actor               target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  tizen_core_wl_window_h    parentWindow{nullptr};
+  bool                      inside;
 };
 
 struct DropWindowTarget
 {
-  Dali::Window                           target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  tizen_core_wl_window_h                window{nullptr};
-  bool                                   inside;
+  Dali::Window              target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  tizen_core_wl_window_h    window{nullptr};
+  bool                      inside;
 };
 
 /**
@@ -86,31 +86,31 @@ public:
   void ResetDropTargets();
 
 private:
-  void DropTargetSceneOn(Dali::Actor target);
+  void    DropTargetSceneOn(Dali::Actor target);
   Vector2 RecalculatePositionByOrientation(int x, int y, Dali::Window window);
 
   DragAndDropTcoreWl(const DragAndDropTcoreWl&)            = delete;
   DragAndDropTcoreWl& operator=(const DragAndDropTcoreWl&) = delete;
-  DragAndDropTcoreWl(DragAndDropTcoreWl&&)                = delete;
-  DragAndDropTcoreWl& operator=(DragAndDropTcoreWl&&)       = delete;
+  DragAndDropTcoreWl(DragAndDropTcoreWl&&)                 = delete;
+  DragAndDropTcoreWl& operator=(DragAndDropTcoreWl&&)      = delete;
 
 private:
   Dali::Window                       mDragWindow;
   uint32_t                           mSerial{std::numeric_limits<uint32_t>::max()};
   tizen_core_event_h                 mEvent{nullptr};
-  tizen_core_wl_event_listener_h    mSendHandler{nullptr};
-  tizen_core_wl_event_listener_h    mSourceEndHandler{nullptr};
-  tizen_core_wl_event_listener_h    mSourceDropHandler{nullptr};
-  tizen_core_wl_event_listener_h    mReceiveHandler{nullptr};
-  tizen_core_wl_event_listener_h    mMotionHandler{nullptr};
-  tizen_core_wl_event_listener_h    mDropHandler{nullptr};
-  tizen_core_wl_event_listener_h    mEnterHandler{nullptr};
-  tizen_core_wl_event_listener_h    mLeaveHandler{nullptr};
+  tizen_core_wl_event_listener_h     mSendHandler{nullptr};
+  tizen_core_wl_event_listener_h     mSourceEndHandler{nullptr};
+  tizen_core_wl_event_listener_h     mSourceDropHandler{nullptr};
+  tizen_core_wl_event_listener_h     mReceiveHandler{nullptr};
+  tizen_core_wl_event_listener_h     mMotionHandler{nullptr};
+  tizen_core_wl_event_listener_h     mDropHandler{nullptr};
+  tizen_core_wl_event_listener_h     mEnterHandler{nullptr};
+  tizen_core_wl_event_listener_h     mLeaveHandler{nullptr};
   int                                mTargetIndex{-1};
   int                                mWindowTargetIndex{-1};
   Dali::Vector2                      mPosition;
   Dali::Vector2                      mWindowPosition;
-  SourceCallback                      mSourceCallback{};
+  SourceCallback                     mSourceCallback{};
   std::vector<DropTarget>            mDropTargets;
   std::vector<DropWindowTarget>      mDropWindowTargets;
   std::map<std::string, std::string> mDataMap;
@@ -120,6 +120,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_TIZEN_WAYLAND_TCORE_WL_H

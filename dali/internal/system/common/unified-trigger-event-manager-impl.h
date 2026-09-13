@@ -32,7 +32,7 @@
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/unified-trigger-event-manager.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal::Adaptor
 {
@@ -119,6 +119,6 @@ inline const Internal::Adaptor::UnifiedTriggerEventManager& GetImplementation(co
 
   return static_cast<const Internal::Adaptor::UnifiedTriggerEventManager&>(handle);
 }
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_UNIFIED_TRIGGER_EVENT_MANAGER_IMPL_H

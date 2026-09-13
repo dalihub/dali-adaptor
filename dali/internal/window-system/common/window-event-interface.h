@@ -24,7 +24,7 @@
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -98,6 +98,6 @@ protected:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_BASE_WINDOW_EVENT_INTERFACE_H

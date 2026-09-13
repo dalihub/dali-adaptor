@@ -19,7 +19,7 @@
 #include <dali/extension-api/adaptor-framework/key-extension.h>
 #include <dali/internal/input/common/key-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Extension
 {
@@ -29,4 +29,4 @@ void SetKeyExtensionLookupTable(const Dali::Extension::KeyLookupEntry* table, ui
 }
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE

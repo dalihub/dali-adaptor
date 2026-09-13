@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class WebEngineContext;
 class WebEngineCookieManager;
@@ -990,6 +990,6 @@ private: // Not intended for application developers
   explicit DALI_INTERNAL WebEngine(Internal::Adaptor::WebEngine* internal);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_H

@@ -20,7 +20,7 @@
 
 #include <dali/integration-api/debug.h>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 void EmbeddedItem::GetGlyphMetrics(GlyphInfo& glyph)
 {
@@ -66,4 +66,4 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>& pixelBu
   }
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

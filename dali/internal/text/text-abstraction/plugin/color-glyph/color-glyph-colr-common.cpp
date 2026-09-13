@@ -20,11 +20,11 @@
 // empty compilation unit
 #else
 
-#include <cstdlib>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 // DALI_COLR_DEBUG_GLYPH=<glyphIndex> enables detailed trace logs for one glyph.
@@ -34,19 +34,19 @@ bool IsColrDebugTraceEnabled(uint32_t glyphIndex)
   struct ColrDebugTraceConfig
   {
     uint32_t glyphIndex{0};
-    bool enabled{false};
+    bool     enabled{false};
 
     ColrDebugTraceConfig()
     {
       const char* env = std::getenv("DALI_COLR_DEBUG_GLYPH");
       if(env && env[0] != '\0')
       {
-        char* end = nullptr;
+        char*         end   = nullptr;
         unsigned long value = std::strtoul(env, &end, 10);
         if(end != env && value <= UINT32_MAX)
         {
           glyphIndex = static_cast<uint32_t>(value);
-          enabled = true;
+          enabled    = true;
         }
       }
     }
@@ -68,19 +68,32 @@ const char* PaintFormatToString(FT_PaintFormat format)
 {
   switch(format)
   {
-    case FT_COLR_PAINTFORMAT_COLR_LAYERS:     return "ColrLayers";
-    case FT_COLR_PAINTFORMAT_SOLID:           return "Solid";
-    case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT: return "LinearGradient";
-    case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT: return "RadialGradient";
-    case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT:  return "SweepGradient";
-    case FT_COLR_PAINTFORMAT_GLYPH:           return "Glyph";
-    case FT_COLR_PAINTFORMAT_COLR_GLYPH:      return "ColrGlyph";
-    case FT_COLR_PAINTFORMAT_TRANSFORM:       return "Transform";
-    case FT_COLR_PAINTFORMAT_TRANSLATE:       return "Translate";
-    case FT_COLR_PAINTFORMAT_SCALE:           return "Scale";
-    case FT_COLR_PAINTFORMAT_ROTATE:          return "Rotate";
-    case FT_COLR_PAINTFORMAT_SKEW:            return "Skew";
-    case FT_COLR_PAINTFORMAT_COMPOSITE:       return "Composite";
+    case FT_COLR_PAINTFORMAT_COLR_LAYERS:
+      return "ColrLayers";
+    case FT_COLR_PAINTFORMAT_SOLID:
+      return "Solid";
+    case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT:
+      return "LinearGradient";
+    case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT:
+      return "RadialGradient";
+    case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT:
+      return "SweepGradient";
+    case FT_COLR_PAINTFORMAT_GLYPH:
+      return "Glyph";
+    case FT_COLR_PAINTFORMAT_COLR_GLYPH:
+      return "ColrGlyph";
+    case FT_COLR_PAINTFORMAT_TRANSFORM:
+      return "Transform";
+    case FT_COLR_PAINTFORMAT_TRANSLATE:
+      return "Translate";
+    case FT_COLR_PAINTFORMAT_SCALE:
+      return "Scale";
+    case FT_COLR_PAINTFORMAT_ROTATE:
+      return "Rotate";
+    case FT_COLR_PAINTFORMAT_SKEW:
+      return "Skew";
+    case FT_COLR_PAINTFORMAT_COMPOSITE:
+      return "Composite";
     default:
     {
       static thread_local char buf[32];
@@ -97,34 +110,62 @@ const char* CompositeModeToString(FT_Composite_Mode mode)
 {
   switch(mode)
   {
-    case FT_COLR_COMPOSITE_CLEAR:          return "Clear";
-    case FT_COLR_COMPOSITE_SRC:            return "Src";
-    case FT_COLR_COMPOSITE_DEST:           return "Dest";
-    case FT_COLR_COMPOSITE_SRC_OVER:       return "SrcOver";
-    case FT_COLR_COMPOSITE_DEST_OVER:      return "DstOver";
-    case FT_COLR_COMPOSITE_SRC_IN:         return "SrcIn";
-    case FT_COLR_COMPOSITE_DEST_IN:        return "DstIn";
-    case FT_COLR_COMPOSITE_SRC_OUT:        return "SrcOut";
-    case FT_COLR_COMPOSITE_DEST_OUT:       return "DstOut";
-    case FT_COLR_COMPOSITE_SRC_ATOP:       return "SrcAtop";
-    case FT_COLR_COMPOSITE_DEST_ATOP:      return "DstAtop";
-    case FT_COLR_COMPOSITE_XOR:            return "Xor";
-    case FT_COLR_COMPOSITE_PLUS:           return "Plus";
-    case FT_COLR_COMPOSITE_SCREEN:         return "Screen";
-    case FT_COLR_COMPOSITE_OVERLAY:        return "Overlay";
-    case FT_COLR_COMPOSITE_DARKEN:         return "Darken";
-    case FT_COLR_COMPOSITE_LIGHTEN:        return "Lighten";
-    case FT_COLR_COMPOSITE_COLOR_DODGE:    return "ColorDodge";
-    case FT_COLR_COMPOSITE_COLOR_BURN:     return "ColorBurn";
-    case FT_COLR_COMPOSITE_HARD_LIGHT:     return "HardLight";
-    case FT_COLR_COMPOSITE_SOFT_LIGHT:     return "SoftLight";
-    case FT_COLR_COMPOSITE_DIFFERENCE:     return "Difference";
-    case FT_COLR_COMPOSITE_EXCLUSION:      return "Exclusion";
-    case FT_COLR_COMPOSITE_MULTIPLY:       return "Multiply";
-    case FT_COLR_COMPOSITE_HSL_HUE:        return "HslHue";
-    case FT_COLR_COMPOSITE_HSL_SATURATION: return "HslSaturation";
-    case FT_COLR_COMPOSITE_HSL_COLOR:      return "HslColor";
-    case FT_COLR_COMPOSITE_HSL_LUMINOSITY: return "HslLuminosity";
+    case FT_COLR_COMPOSITE_CLEAR:
+      return "Clear";
+    case FT_COLR_COMPOSITE_SRC:
+      return "Src";
+    case FT_COLR_COMPOSITE_DEST:
+      return "Dest";
+    case FT_COLR_COMPOSITE_SRC_OVER:
+      return "SrcOver";
+    case FT_COLR_COMPOSITE_DEST_OVER:
+      return "DstOver";
+    case FT_COLR_COMPOSITE_SRC_IN:
+      return "SrcIn";
+    case FT_COLR_COMPOSITE_DEST_IN:
+      return "DstIn";
+    case FT_COLR_COMPOSITE_SRC_OUT:
+      return "SrcOut";
+    case FT_COLR_COMPOSITE_DEST_OUT:
+      return "DstOut";
+    case FT_COLR_COMPOSITE_SRC_ATOP:
+      return "SrcAtop";
+    case FT_COLR_COMPOSITE_DEST_ATOP:
+      return "DstAtop";
+    case FT_COLR_COMPOSITE_XOR:
+      return "Xor";
+    case FT_COLR_COMPOSITE_PLUS:
+      return "Plus";
+    case FT_COLR_COMPOSITE_SCREEN:
+      return "Screen";
+    case FT_COLR_COMPOSITE_OVERLAY:
+      return "Overlay";
+    case FT_COLR_COMPOSITE_DARKEN:
+      return "Darken";
+    case FT_COLR_COMPOSITE_LIGHTEN:
+      return "Lighten";
+    case FT_COLR_COMPOSITE_COLOR_DODGE:
+      return "ColorDodge";
+    case FT_COLR_COMPOSITE_COLOR_BURN:
+      return "ColorBurn";
+    case FT_COLR_COMPOSITE_HARD_LIGHT:
+      return "HardLight";
+    case FT_COLR_COMPOSITE_SOFT_LIGHT:
+      return "SoftLight";
+    case FT_COLR_COMPOSITE_DIFFERENCE:
+      return "Difference";
+    case FT_COLR_COMPOSITE_EXCLUSION:
+      return "Exclusion";
+    case FT_COLR_COMPOSITE_MULTIPLY:
+      return "Multiply";
+    case FT_COLR_COMPOSITE_HSL_HUE:
+      return "HslHue";
+    case FT_COLR_COMPOSITE_HSL_SATURATION:
+      return "HslSaturation";
+    case FT_COLR_COMPOSITE_HSL_COLOR:
+      return "HslColor";
+    case FT_COLR_COMPOSITE_HSL_LUMINOSITY:
+      return "HslLuminosity";
     default:
     {
       static thread_local char buf[32];
@@ -140,11 +181,11 @@ const char* CompositeModeToString(FT_Composite_Mode mode)
 // transform y components need negation to stay consistent with y-flipped coords.
 tvg::Matrix BuildGeometryMatrix(
   const TransformState& geometryTransform,
-  float globalScale,
-  float offsetX,
-  float offsetY)
+  float                 globalScale,
+  float                 offsetX,
+  float                 offsetY)
 {
-  const float s = globalScale;
+  const float s   = globalScale;
   const float txx = geometryTransform.matrix[0];
   const float txy = geometryTransform.matrix[1];
   const float tyx = geometryTransform.matrix[2];
@@ -162,12 +203,18 @@ tvg::Matrix BuildGeometryMatrix(
   const float mdy = s * (-tdy) + offsetY;
 
   tvg::Matrix matrix;
-  matrix.e11 = mxx;  matrix.e12 = mxy;  matrix.e13 = mdx;
-  matrix.e21 = myx;  matrix.e22 = myy;  matrix.e23 = mdy;
-  matrix.e31 = 0.0f; matrix.e32 = 0.0f; matrix.e33 = 1.0f;
+  matrix.e11 = mxx;
+  matrix.e12 = mxy;
+  matrix.e13 = mdx;
+  matrix.e21 = myx;
+  matrix.e22 = myy;
+  matrix.e23 = mdy;
+  matrix.e31 = 0.0f;
+  matrix.e32 = 0.0f;
+  matrix.e33 = 1.0f;
   return matrix;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

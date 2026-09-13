@@ -26,7 +26,7 @@
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -160,6 +160,6 @@ public: // Not intended for application developers.
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TOOLKIT_TEXT_ABSTRACTION_TEXT_RENDERER_H

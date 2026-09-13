@@ -52,7 +52,7 @@
     return ret;                                 \
   } while(0)
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1716,4 +1716,4 @@ bool GifLoading::LoadFramePlanes(uint32_t frameIndex, std::vector<Dali::PixelBuf
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

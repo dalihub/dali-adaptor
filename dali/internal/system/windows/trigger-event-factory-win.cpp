@@ -23,7 +23,7 @@
 #include <dali/internal/system/windows/trigger-event-win.h>
 #include <dali/internal/system/windows/unified-trigger-event-manager-impl-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback)
 {
@@ -55,4 +55,4 @@ void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEven
   }
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

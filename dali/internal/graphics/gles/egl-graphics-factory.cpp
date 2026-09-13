@@ -26,7 +26,7 @@
 #include <dali/internal/graphics/common/graphics-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -100,4 +100,4 @@ std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptio
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

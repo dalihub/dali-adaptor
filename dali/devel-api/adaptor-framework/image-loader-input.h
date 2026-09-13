@@ -25,7 +25,7 @@
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace ImageLoader
 {
@@ -77,6 +77,6 @@ struct BitmapLoader
 };
 
 } // namespace ImageLoader
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_IMAGE_LOADER_INPUT_H

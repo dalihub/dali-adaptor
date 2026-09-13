@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <uv.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -147,4 +147,4 @@ FileDescriptorMonitorLibuv::~FileDescriptorMonitorLibuv()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

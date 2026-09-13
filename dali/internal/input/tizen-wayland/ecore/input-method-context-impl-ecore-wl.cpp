@@ -36,7 +36,7 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/public-api/adaptor-framework/input-method.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -2037,4 +2037,4 @@ void InputMethodContextEcoreWl::OnStaged(Dali::Actor actor)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -22,7 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-stored-command-buffer.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class CommandBufferImpl;
 class Swapchain;
@@ -103,6 +103,6 @@ private:
   RenderTarget*             mRenderTarget{nullptr};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H

@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Accessibility
 {
@@ -98,11 +98,11 @@ struct DALI_ADAPTOR_API Relation
   }
 
   Dali::Integration::Accessibility::RelationType mRelationType;
-  std::vector<Dali::Accessibility::Accessible*> mTargets;
+  std::vector<Dali::Accessibility::Accessible*>  mTargets;
 };
 
 } // namespace Accessibility
 } // namespace Devel
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DEVEL_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_TYPES_H

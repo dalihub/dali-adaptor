@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/performance-logger-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 PerformanceLogger::PerformanceLogger()
 {
@@ -77,4 +77,4 @@ PerformanceLogger::PerformanceLogger(Internal::Adaptor::PerformanceLogger* Perfo
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

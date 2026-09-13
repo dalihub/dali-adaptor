@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_USER_MEDIA_PERMISSION_REQUEST_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@
  *
  */
 
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
 // EXTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief A class WebEngineUserMediaPermissionRequest for handling user's media permission of web engine.
@@ -51,6 +54,6 @@ public:
    */
   virtual bool Suspend() const = 0;
 };
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WEB_ENGINE_USER_MEDIA_PERMISSION_REQUEST_H

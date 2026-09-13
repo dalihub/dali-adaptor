@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/ubuntu-x11/native-image-impl-x.h>
 #include <dali/internal/imaging/ubuntu-x11/native-image-queue-impl-x.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -47,4 +47,4 @@ std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

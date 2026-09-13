@@ -26,7 +26,7 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 
 NativeImageCocoa* NativeImageCocoa::New(
@@ -233,4 +233,4 @@ void NativeImageCocoa::EnableBackBuffer(bool enable)
 {
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

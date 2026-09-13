@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 class TriggerEvent : public TriggerEventInterface
 {
@@ -66,4 +66,4 @@ private:
   std::unique_ptr<Impl>         mImpl;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

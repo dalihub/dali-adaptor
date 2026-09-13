@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-factory.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 namespace
 {
@@ -53,4 +53,4 @@ GraphicsFactoryInterface& AdaptorBuilder::GetGraphicsFactory() const
   return *mGraphicsFactory;
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

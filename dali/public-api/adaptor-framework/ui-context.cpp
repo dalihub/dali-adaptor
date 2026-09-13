@@ -26,7 +26,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 UiContext UiContext::Get()
@@ -101,4 +101,4 @@ UiContext::RenderingBehavior UiContext::GetRenderingBehavior() const
   return Internal::Adaptor::GetImplementation(*this).GetRenderingBehavior();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

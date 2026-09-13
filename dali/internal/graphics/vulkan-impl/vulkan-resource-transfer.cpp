@@ -31,7 +31,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-texture.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-utils.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * If a texture appears more than once we need to process it preserving the order
@@ -1010,4 +1010,4 @@ void ResourceTransfer::WaitOnResourceTransferFutures()
   mTransferFutures.clear();
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

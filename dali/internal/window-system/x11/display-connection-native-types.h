@@ -22,7 +22,7 @@
 #include <dali/public-api/object/any.h>
 #include <memory> ///< for std::unique_ptr
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * Returns the Any cast of the given display to the native graphics type.
@@ -30,4 +30,4 @@ namespace Dali::Internal::Adaptor
  * @return The Any with the appropriate cast
  */
 std::unique_ptr<Any> CastToNativeGraphicsType(::Display* display);
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

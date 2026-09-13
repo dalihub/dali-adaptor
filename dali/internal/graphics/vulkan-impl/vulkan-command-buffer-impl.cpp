@@ -40,7 +40,7 @@
 extern Debug::Filter* gLogCmdBufferFilter;
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -850,4 +850,4 @@ void CommandBufferImpl::UpdateDescriptorSet(vk::DescriptorSet descriptorSet)
 
 } // namespace Vulkan
 } // namespace Graphics
-} // namespace Dali
+} //namespace DALI_NAMESPACE

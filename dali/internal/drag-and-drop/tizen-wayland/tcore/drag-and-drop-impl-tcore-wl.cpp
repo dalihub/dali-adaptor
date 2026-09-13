@@ -31,7 +31,7 @@
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -259,7 +259,7 @@ bool DragAndDropTcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   mDataMap.clear();
   for(uint32_t i = 0u; i < data.GetDataCount(); ++i)
   {
-    const Dali::String mimeType = data.GetMimeType(i);
+    const Dali::String mimeType            = data.GetMimeType(i);
     mDataMap[std::string(mimeType.CStr())] = std::string(data.GetData(i).CStr());
   }
 
@@ -484,7 +484,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
 
   if(mTargetIndex != -1)
   {
-    const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
+    const char*      mimes[] = {mimetype ? mimetype : "", nullptr};
     DragEventBuilder dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition);
     dragEvent.AddMimeType(mimes[0]);
     dragEvent.SetData(dataPtr ? static_cast<char*>(dataPtr) : "");
@@ -498,7 +498,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
 
   if(mWindowTargetIndex != -1)
   {
-    const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
+    const char*      mimes[] = {mimetype ? mimetype : "", nullptr};
     DragEventBuilder dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition);
     dragEvent.AddMimeType(mimes[0]);
     dragEvent.SetData(dataPtr ? static_cast<char*>(dataPtr) : "");
@@ -511,7 +511,7 @@ void DragAndDropTcoreWl::ReceiveData(void* event)
     {
       if(mDropWindowTargets[i].window == eventWindow)
       {
-        const char*                  mimes[] = {mimetype ? mimetype : "", nullptr};
+        const char*      mimes[] = {mimetype ? mimetype : "", nullptr};
         DragEventBuilder dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition);
         dragEvent.AddMimeType(mimes[0]);
         dragEvent.SetData(dataPtr ? static_cast<char*>(dataPtr) : "");
@@ -867,4 +867,4 @@ void DragAndDropTcoreWl::DropTargetSceneOn(Dali::Actor target)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

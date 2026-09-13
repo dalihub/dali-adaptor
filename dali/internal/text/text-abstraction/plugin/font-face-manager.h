@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/property-map.h>
 
-#include <cstdint> // for std::uintptr_t in hash function
+#include <cstdint>    // for std::uintptr_t in hash function
 #include <functional> // for std::hash
-#include <memory> // for std::shared_ptr
+#include <memory>     // for std::shared_ptr
 #include <unordered_map>
 
 #include <fontconfig/fontconfig.h>
@@ -40,7 +40,7 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_MULTIPLE_MASTERS_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief A manager for handling font faces and their associated sizes and variations.
@@ -72,12 +72,12 @@ public:
    */
   struct ColorFontInfo
   {
-    bool hasCOLR{false};  ///< Whether the font has a COLR table.
-    bool hasCPAL{false};  ///< Whether the font has a CPAL table.
-    bool hasSVG{false};   ///< Whether the font has an SVG  table.
-    bool hasCBDT{false};  ///< Whether the font has a CBDT table.
-    bool hasCBLC{false};  ///< Whether the font has a CBLC table.
-    bool hasSbix{false};  ///< Whether the font has an sbix table.
+    bool hasCOLR{false}; ///< Whether the font has a COLR table.
+    bool hasCPAL{false}; ///< Whether the font has a CPAL table.
+    bool hasSVG{false};  ///< Whether the font has an SVG  table.
+    bool hasCBDT{false}; ///< Whether the font has a CBDT table.
+    bool hasCBLC{false}; ///< Whether the font has a CBLC table.
+    bool hasSbix{false}; ///< Whether the font has an sbix table.
   };
 
   /**
@@ -124,9 +124,9 @@ public:
     {
     }
 
-    FT_Face                mFreeTypeFace;          ///< The FreeType face handle.
-    int                    mReference;             ///< The reference count for the face.
-    ColorFontInfo          mColorFontInfo;         ///< Cached color table presence (face-level, independent of point size).
+    FT_Face                mFreeTypeFace;           ///< The FreeType face handle.
+    int                    mReference;              ///< The reference count for the face.
+    ColorFontInfo          mColorFontInfo;          ///< Cached color table presence (face-level, independent of point size).
     ColorFontRenderability mColorFontRenderability; ///< Cached color font renderability (face-level, independent of point size).
 
     void ReleaseData();
@@ -392,9 +392,9 @@ private:
   CacheContainer mLRUFaceSizeCache; ///< LRU Cache container of face size.
 
   TextAbstraction::FontFileManager               mFontFileManager; ///< Handle to the font file manager.
-  std::unordered_map<std::string, FaceCacheData>  mFreeTypeFaces;   ///< Cache of loaded FreeType faces.
-  std::unordered_map<FT_Face, ActivatedSizeData>  mActivatedSizes;  ///< Cache of activated face sizes.
-  std::unordered_map<FT_Face, PointSize26Dot6>    mSelectedIndices; ///< Cache of selected fixed size indices.
+  std::unordered_map<std::string, FaceCacheData> mFreeTypeFaces;   ///< Cache of loaded FreeType faces.
+  std::unordered_map<FT_Face, ActivatedSizeData> mActivatedSizes;  ///< Cache of activated face sizes.
+  std::unordered_map<FT_Face, PointSize26Dot6>   mSelectedIndices; ///< Cache of selected fixed size indices.
 
   uint32_t mDpiHorizontal; ///< Horizontal dpi.
   uint32_t mDpiVertical;   ///< Vertical dpi.
@@ -461,6 +461,6 @@ private:
   ColrV1GlyphPaintCache mColrV1GlyphPaintCache; ///< Bounded LRU cache: (FT_Face, GlyphIndex) → has root paint.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_MANAGER_H

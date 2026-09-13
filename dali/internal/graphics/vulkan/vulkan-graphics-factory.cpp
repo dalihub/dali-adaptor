@@ -24,7 +24,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-graphics-impl.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 VulkanGraphicsFactory::VulkanGraphicsFactory(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions)
@@ -112,4 +112,4 @@ std::unique_ptr<GraphicsFactoryInterface> CreateGraphicsFactory(EnvironmentOptio
   return Utils::MakeUnique<VulkanGraphicsFactory>(environmentOptions);
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

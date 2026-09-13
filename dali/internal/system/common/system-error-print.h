@@ -2,7 +2,7 @@
 #define DALI_TIZEN_SYSTEM_ERROR_PRINT_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -37,6 +37,6 @@ DALI_ADAPTOR_API void PrintSystemError(const char* fileName, const char* functio
 #define DALI_PRINT_SYSTEM_ERROR_LOG() Dali::TizenPlatform::PrintSystemError(DALI_LOG_FORMAT_PREFIX_ARGS);
 #endif
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_SYSTEM_ERROR_PRINT_H

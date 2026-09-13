@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 #include "window-render-surface-cocoa.h"
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 WindowRenderSurfaceCocoa::WindowRenderSurfaceCocoa(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : WindowRenderSurface(positionSize, surface, isTransparent),
@@ -42,4 +42,4 @@ void WindowRenderSurfaceCocoa::CreateSurface()
   mReady = true;
   mRenderWait.notify_all();
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

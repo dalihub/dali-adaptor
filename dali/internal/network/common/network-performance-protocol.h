@@ -19,9 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace PerformanceProtocol
 {
@@ -77,6 +78,6 @@ const char* const GetHelpMessage();
 
 } // namespace PerformanceProtocol
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif //DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_PROTOCOL_H

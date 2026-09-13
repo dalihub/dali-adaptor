@@ -71,7 +71,7 @@ const uint32_t INITIAL_POOL_CAPACITY = 32u;
 constexpr Dali::Graphics::GraphicsFeatureFlags DEFAULT_GRAPHICS_FEATURE_FLAGS = 0 | Dali::Graphics::GraphicsFeatureFlagBits::HAS_CLIP_MATRIX_BIT | Dali::Graphics::GraphicsFeatureFlagBits::PIPELINE_USE_RENDER_TARGET_BIT;
 } // Anonymous namespace
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * @brief Custom deleter for all Graphics objects created
@@ -1320,4 +1320,4 @@ void VulkanGraphicsController::RemoveTextureArray(TextureArray* textureArray)
   mImpl->RemoveTextureArray(textureArray);
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

@@ -22,8 +22,9 @@
 #include <cstdint>
 
 #include <dali/internal/network/common/socket-interface.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -46,17 +47,17 @@ public:
 
   ~SocketWin() override;
 
-  bool SocketIsOpen() const override;
-  bool CloseSocket() override;
-  bool Bind(uint16_t port) override;
-  bool Listen(int backlog) override;
+  bool             SocketIsOpen() const override;
+  bool             CloseSocket() override;
+  bool             Bind(uint16_t port) override;
+  bool             Listen(int backlog) override;
   SocketInterface* Accept() const override;
-  SelectReturn Select() override;
-  void ExitSelect() override;
-  bool Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead) override;
-  bool Write(const void* buffer, unsigned int bufferSizeInBytes) override;
-  bool ReuseAddress(bool reuse) override;
-  bool SetBufferSize(SocketInterface::BufferType type, unsigned int bufferSizeInBytes) override;
+  SelectReturn     Select() override;
+  void             ExitSelect() override;
+  bool             Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead) override;
+  bool             Write(const void* buffer, unsigned int bufferSizeInBytes) override;
+  bool             ReuseAddress(bool reuse) override;
+  bool             SetBufferSize(SocketInterface::BufferType type, unsigned int bufferSizeInBytes) override;
 
 private:
   /**
@@ -84,6 +85,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SOCKET_IMPL_WIN_H

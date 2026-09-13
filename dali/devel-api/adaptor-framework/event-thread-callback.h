@@ -2,7 +2,7 @@
 #define DALI_EVENT_THREAD_CALLBACK_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief The EventThreadCallback class provides a mechanism for the worker thread to trigger the execution of a given callback in main event thread .
@@ -75,5 +75,5 @@ private:
   Impl* mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 #endif /* DALI_EVENT_THREAD_CALLBACK_H */

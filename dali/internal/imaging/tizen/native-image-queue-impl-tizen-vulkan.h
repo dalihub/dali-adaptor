@@ -33,7 +33,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-queue-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -329,6 +329,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_QUEUE_IMPL_TIZEN_VULKAN_H

@@ -31,7 +31,7 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
 
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -160,4 +160,4 @@ void FontFileManager::ClearCache()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

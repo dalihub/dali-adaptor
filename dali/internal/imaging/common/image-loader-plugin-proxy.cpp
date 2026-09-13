@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dlfcn.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -117,4 +117,4 @@ const ImageLoader::BitmapLoader* BitmapLoaderLookup(const std::string& filename)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

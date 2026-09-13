@@ -23,7 +23,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal::Adaptor
 {
@@ -267,6 +267,6 @@ private:
 
 } // namespace GLES
 } // namespace Graphics
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif //DALI_GRAPHICS_GLES_SYNC_POOL_H

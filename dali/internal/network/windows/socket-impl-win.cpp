@@ -29,7 +29,7 @@
 #undef ERROR
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -37,8 +37,8 @@ namespace Adaptor
 {
 namespace
 {
-constexpr unsigned int MAX_SOCKET_DATA_WRITE_SIZE = 10u * 1024u * 1024u;
-constexpr std::uintptr_t INVALID_NATIVE_SOCKET    = static_cast<std::uintptr_t>(INVALID_SOCKET);
+constexpr unsigned int   MAX_SOCKET_DATA_WRITE_SIZE = 10u * 1024u * 1024u;
+constexpr std::uintptr_t INVALID_NATIVE_SOCKET      = static_cast<std::uintptr_t>(INVALID_SOCKET);
 
 SOCKET ToNativeSocket(std::uintptr_t socket)
 {
@@ -77,7 +77,7 @@ SocketWin::SocketWin(Protocol protocol, std::uintptr_t nativeSocket)
 
 void SocketWin::Initialize(Protocol protocol, bool createSocket)
 {
-  WSADATA winsockData{};
+  WSADATA   winsockData{};
   const int startupResult = WSAStartup(MAKEWORD(2, 2), &winsockData);
   if(startupResult != 0)
   {
@@ -123,7 +123,7 @@ bool SocketWin::CreateWakeSockets(Protocol protocol)
   int               protocolInfoSize = static_cast<int>(sizeof(protocolInfo));
   if(getsockopt(ToNativeSocket(mSocket),
                 SOL_SOCKET,
-                 SO_PROTOCOL_INFOW,
+                SO_PROTOCOL_INFOW,
                 reinterpret_cast<char*>(&protocolInfo),
                 &protocolInfoSize) == SOCKET_ERROR)
   {
@@ -134,7 +134,8 @@ bool SocketWin::CreateWakeSockets(Protocol protocol)
   // select() on Windows only accepts sockets from the same service provider.
   // Create every wake socket from the target socket's exact provider rather
   // than relying on the system's current default provider ordering.
-  const auto createProviderSocket = [&protocolInfo]() {
+  const auto createProviderSocket = [&protocolInfo]()
+  {
     WSAPROTOCOL_INFOW socketProtocolInfo = protocolInfo;
     return WSASocketW(FROM_PROTOCOL_INFO,
                       FROM_PROTOCOL_INFO,
@@ -148,7 +149,8 @@ bool SocketWin::CreateWakeSockets(Protocol protocol)
   SOCKET wakeReader   = INVALID_SOCKET;
   SOCKET wakeWriter   = INVALID_SOCKET;
 
-  const auto closeSocket = [](SOCKET& socketHandle) {
+  const auto closeSocket = [](SOCKET& socketHandle)
+  {
     if(socketHandle != INVALID_SOCKET)
     {
       closesocket(socketHandle);
@@ -156,7 +158,8 @@ bool SocketWin::CreateWakeSockets(Protocol protocol)
     }
   };
 
-  const auto closeWakeSockets = [&]() {
+  const auto closeWakeSockets = [&]()
+  {
     closeSocket(wakeListener);
     closeSocket(wakeReader);
     closeSocket(wakeWriter);
@@ -432,8 +435,8 @@ SocketInterface* SocketWin::Accept() const
   sockaddr_storage clientAddress{};
   int              addressLength = static_cast<int>(sizeof(clientAddress));
   const SOCKET     clientSocket  = accept(ToNativeSocket(mSocket),
-                                      reinterpret_cast<sockaddr*>(&clientAddress),
-                                      &addressLength);
+                                          reinterpret_cast<sockaddr*>(&clientAddress),
+                                          &addressLength);
   if(clientSocket == INVALID_SOCKET)
   {
     LogWinsockError("accept");
@@ -481,7 +484,7 @@ SocketInterface::SelectReturn SocketWin::Select()
 
   if(FD_ISSET(wakeReadSocket, &readSockets))
   {
-    char wakeByte = 0;
+    char      wakeByte  = 0;
     const int bytesRead = recv(wakeReadSocket, &wakeByte, 1, 0);
     mQuitPending.store(false, std::memory_order_release);
     if(bytesRead != 1)
@@ -588,10 +591,10 @@ bool SocketWin::Write(const void* buffer, unsigned int bufferSizeInBytes)
   while(bytesWritten < bufferSizeInBytes)
   {
     const char* byteBuffer = static_cast<const char*>(buffer) + bytesWritten;
-    const int result = send(ToNativeSocket(mSocket),
-                            byteBuffer,
-                            static_cast<int>(bufferSizeInBytes - bytesWritten),
-                            0);
+    const int   result     = send(ToNativeSocket(mSocket),
+                                  byteBuffer,
+                                  static_cast<int>(bufferSizeInBytes - bytesWritten),
+                                  0);
     if(result == SOCKET_ERROR)
     {
       LogWinsockError("send");
@@ -657,4 +660,4 @@ bool SocketWin::SetBufferSize(SocketInterface::BufferType type, unsigned int buf
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -30,7 +30,7 @@
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindow
 {
@@ -41,6 +41,49 @@ typedef Signal<void(const std::string&, const std::string&, const Property::Arra
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType; ///< Accessibility Highlight signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>           MouseRelativeEventSignalType;     ///< MouseRelativeEvent signal type
 typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;     ///< PointerConstraintsEvent signal type
+
+/**
+ * @brief Creates an initialized handle to a new Window, choosing whether the window shows itself.
+ *
+ * It behaves like Dali::Window::New(name, className, windowData), except that the caller decides
+ * whether the window calls Show() on itself once the adaptor is set on it.
+ *
+ * When @a isShowOnAdaptorSet is false, the window is created hidden and the caller is responsible
+ * for showing it. This is the same behaviour as Dali::Window::New().
+ *
+ * When @a isShowOnAdaptorSet is true, the window shows itself while the adaptor is being set,
+ * unless it was created by the preloader process. A preloaded window is always left hidden here
+ * because its properties are not decided yet; it is shown later from
+ * Internal::Adaptor::ApplicationController::UpdatePreInitializedWindowInfo().
+ *
+ * @param[in] name The window title
+ * @param[in] className The window class name
+ * @param[in] windowData The window data
+ * @param[in] isShowOnAdaptorSet Whether the window shows itself when the adaptor is set on it
+ * @return A new window
+ *
+ * @note This is an internal API for use inside the DALi module only. Application code must use
+ *       Dali::Window::New() instead.
+ */
+DALI_ADAPTOR_API Window New(const Dali::String& name, const Dali::String& className, const WindowData& windowData, bool isShowOnAdaptorSet);
+
+/**
+ * @brief Creates an initialized handle to a new Window, choosing whether the window shows itself.
+ *
+ * It behaves like Dali::Window::New(windowPosition, name, isTransparent), except that the caller
+ * decides whether the window calls Show() on itself once the adaptor is set on it. See the
+ * WindowData overload above for the exact meaning of @a isShowOnAdaptorSet.
+ *
+ * @param[in] windowPosition The position and size of the window
+ * @param[in] name The window title
+ * @param[in] isTransparent Whether the window is transparent
+ * @param[in] isShowOnAdaptorSet Whether the window shows itself when the adaptor is set on it
+ * @return A new window
+ *
+ * @note This is an internal API for use inside the DALi module only. Application code must use
+ *       Dali::Window::New() instead.
+ */
+DALI_ADAPTOR_API Window New(PositionSize windowPosition, const Dali::String& name, bool isTransparent, bool isShowOnAdaptorSet);
 
 /**
  * @brief This signal is emitted just after the event processing is finished.
@@ -347,19 +390,23 @@ DALI_ADAPTOR_API WindowBlurInfo GetBlur(Window window);
 /**
  * @brief Gets the window insets for all parts of the system UI.
  *
+ * The values have the same meaning as WindowInsetsInfo::GetInsets().
+ *
  * @param[in] window The window instance.
  * @return The window insets from all parts.
  */
-DALI_ADAPTOR_API Extents GetInsets(Window window);
+DALI_ADAPTOR_API Insets GetInsets(Window window);
 
 /**
  * @brief Gets the combined window insets for the specified parts of the system UI.
+ *
+ * The values have the same meaning as WindowInsetsInfo::GetInsets().
  *
  * @param[in] window The window instance.
  * @param[in] insetsFlags A bitwise combination of WindowInsetsPartFlags values specifying which window insets parts to include.
  * @return The combined window insets from the specified parts.
  */
-DALI_ADAPTOR_API Extents GetInsets(Window window, WindowInsetsPartFlags insetsFlags);
+DALI_ADAPTOR_API Insets GetInsets(Window window, WindowInsetsPartFlags insetsFlags);
 
 /**
  * @brief Request to rendering forcibly for this window
@@ -392,6 +439,6 @@ DALI_ADAPTOR_API PointerConstraintsSignalType& PointerConstraintsSignal(Window w
 
 } // namespace DevelWindow
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_DEVEL_H

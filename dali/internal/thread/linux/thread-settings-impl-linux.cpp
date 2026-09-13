@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -56,4 +56,4 @@ int32_t GetMainThreadId()
 } // namespace ThreadSettings
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

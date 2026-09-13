@@ -25,7 +25,7 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/public-api/images/native-image-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -150,6 +150,6 @@ protected:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_RENDER_SURFACE_H

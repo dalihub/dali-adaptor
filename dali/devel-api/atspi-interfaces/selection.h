@@ -18,10 +18,10 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 class Accessible;
 
@@ -113,15 +113,15 @@ public:
   virtual bool DeselectChild(int childIndex) = 0;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<>
 struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::SELECTION>
 {
   using Type = Dali::Accessibility::Selection;
 };
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_SELECTION_H

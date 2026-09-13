@@ -19,7 +19,7 @@
 #include <dali/internal/window-system/android/native-image-surface-impl-android.h>
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -32,4 +32,4 @@ std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceF
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

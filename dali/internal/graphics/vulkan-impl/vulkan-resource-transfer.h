@@ -22,7 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class ResourceTransfer
 {
@@ -120,4 +120,4 @@ private:
   std::vector<std::shared_ptr<Future<void> > > mTransferFutures;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

@@ -19,6 +19,7 @@
 #include <dali/internal/system/common/shared-file.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +30,7 @@
 #include <unistd.h>
 #include <cstring>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -118,4 +119,4 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

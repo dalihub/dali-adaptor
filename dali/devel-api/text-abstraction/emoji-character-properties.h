@@ -25,7 +25,7 @@
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -208,6 +208,6 @@ DALI_ADAPTOR_API bool IsNegativeSquaredLatinCapitalLetter(Character character);
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TOOLKIT_TEXT_ABSTRACTION_EMOJI_CHARACTER_PROPERTIES_H

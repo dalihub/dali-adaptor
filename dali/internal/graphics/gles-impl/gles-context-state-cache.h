@@ -30,7 +30,7 @@
 #include "gles-blend-state-cache.h"
 #include "gles-framebuffer-state-cache.h"
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 namespace GLES
 {
@@ -121,6 +121,6 @@ struct GLStateCache
 
 } // namespace GLES
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_GLES_CONTEXT_STATE_CACHE_H

@@ -33,7 +33,7 @@
 #include <mutex>
 #include <string_view>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * ShaderPreCompiler  is used to precompile shaders.
@@ -146,6 +146,6 @@ private:
   bool mNeedsSleep : 1;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_SHADER_PRECOMPILER_H

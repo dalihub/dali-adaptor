@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/window-system/windows/event-system-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -204,7 +204,7 @@ void RefreshDaliMessageWindow()
 {
   gDaliMessageWindow.store(sHWndToListener.empty() ? WinWindowHandle{0u} : sHWndToListener.begin()->first, std::memory_order_relaxed);
 }
-std::map<WinWindowHandle, intptr_t>    sDetachedWindowProcedures;
+std::map<WinWindowHandle, intptr_t> sDetachedWindowProcedures;
 
 struct RegisteredCallback
 {
@@ -396,9 +396,9 @@ WinWindowHandle WindowImpl::CreateHwnd(
   // Do not combine WS_EX_LAYERED with this path. Without the classic layered-window
   // APIs, that combination caused unstable caption and border painting during show
   // and reposition operations. DirectComposition provides per-pixel alpha by itself.
-  const DWORD exStyle = transparent && !parentWindow ? WS_EX_NOREDIRECTIONBITMAP : 0u;
-  const char* className    = transparent && !parentWindow ? DALI_TRANSPARENT_WINDOW_CLASS_NAME : DALI_WINDOW_CLASS_NAME;
-  RECT        windowRect   = {0, 0, (std::max)(nWidth, 1), (std::max)(nHeight, 1)};
+  const DWORD exStyle    = transparent && !parentWindow ? WS_EX_NOREDIRECTIONBITMAP : 0u;
+  const char* className  = transparent && !parentWindow ? DALI_TRANSPARENT_WINDOW_CLASS_NAME : DALI_WINDOW_CLASS_NAME;
+  RECT        windowRect = {0, 0, (std::max)(nWidth, 1), (std::max)(nHeight, 1)};
   if(!AdjustWindowRectEx(&windowRect, style, FALSE, exStyle))
   {
     DALI_LOG_ERROR("Failed to calculate DALi window frame, error %lu\n", static_cast<unsigned long>(GetLastError()));
@@ -1200,4 +1200,4 @@ unsigned int GetCurrentMilliSeconds(void)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

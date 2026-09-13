@@ -19,13 +19,13 @@
 #include <dali/internal/vector-animation/generic/vector-animation-renderer-native-generic.h>
 
 // EXTERNAL INCLUDES
-#include <cstring>
-#include <dali/internal/vector-animation/common/vector-animation-renderer-event-manager.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/vector-animation/common/vector-animation-renderer-event-manager.h>
 #include <dali/public-api/rendering/texture-set.h>
 #include <chrono>
+#include <cstring>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -59,7 +59,6 @@ void VectorAnimationRendererNativeGeneric::OnFinalize()
   mRenderedTexture.Reset();
   mPreviousTextures.clear();
 }
-
 
 std::shared_ptr<VectorAnimationRendererNative::RenderingData> VectorAnimationRendererNativeGeneric::CreateRenderingData()
 {
@@ -234,4 +233,4 @@ VectorAnimationRendererNative* VectorAnimationRendererNative::Create()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

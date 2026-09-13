@@ -86,7 +86,7 @@ TARGET_COMPILE_DEFINITIONS(tct-dali-adaptor-core PRIVATE
   WIN32_LEAN_AND_MEAN
 )
 
-TARGET_COMPILE_OPTIONS(tct-dali-adaptor-core PRIVATE /vmg /utf-8 /W3)
+TARGET_COMPILE_OPTIONS(tct-dali-adaptor-core PRIVATE /vmg /utf-8 /W3 /wd4251 /wd4275)
 
 TARGET_LINK_LIBRARIES(tct-dali-adaptor-core PRIVATE
   dali2-adaptor::dali2-adaptor

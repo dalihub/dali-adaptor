@@ -23,7 +23,7 @@
 #include <dali/devel-api/adaptor-framework/key-extension-plugin.h>
 #include <dali/public-api/adaptor-framework/key.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -89,6 +89,6 @@ bool IsSystemKeyCodePriority();
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_KEY_IMPL_H

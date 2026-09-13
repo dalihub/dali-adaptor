@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/performance-server.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -38,4 +38,4 @@ PerformanceInterface* PerformanceInterfaceFactory::CreateInterface(
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

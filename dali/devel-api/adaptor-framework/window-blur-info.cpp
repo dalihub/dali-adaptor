@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/devel-api/adaptor-framework/window-blur-info.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 bool WindowBlurInfo::operator==(const WindowBlurInfo& blurInfo) const
@@ -83,4 +83,4 @@ WindowDimInfo WindowBlurInfo::GetBehindBlurDimInfo() const
   return behindDimInfo;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

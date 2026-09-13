@@ -18,7 +18,7 @@
 // CLASS HEADER
 #include <dali/internal/adaptor/tizen/component-application-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -48,4 +48,4 @@ Any ComponentApplication::OnCreate()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -26,7 +26,7 @@
 #endif
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace EnvironmentVariable
 {
@@ -49,6 +49,6 @@ DALI_ADAPTOR_API bool SetEnvironmentVariable(const char* variable, const char* v
 
 } // namespace EnvironmentVariable
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif /*DALI_ ENVIRONMENT_VARIABLE_H */

@@ -24,7 +24,7 @@
 #include <dali/graphics-api/graphics-framebuffer-create-info.h>
 #include <dali/graphics-api/graphics-framebuffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Graphics
 {
@@ -95,6 +95,6 @@ private:
 
 } // namespace Vulkan
 } // namespace Graphics
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H

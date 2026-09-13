@@ -24,7 +24,7 @@
 #include <dali/integration-api/debug.h>
 #include <cstdio>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -164,4 +164,4 @@ bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

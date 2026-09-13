@@ -29,7 +29,7 @@
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class PixelData;
 typedef Dali::Uint16Pair ImageDimensions;
@@ -187,6 +187,6 @@ public: // Not intended for application developers
   /// @endcond
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ANIMATED_IMAGE_LOADING_H

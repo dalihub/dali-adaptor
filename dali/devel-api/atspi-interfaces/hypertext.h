@@ -21,11 +21,11 @@
 #include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 class Accessible;
 
@@ -66,15 +66,15 @@ public:
   virtual std::int32_t GetLinkCount() const = 0;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<>
 struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::HYPERTEXT>
 {
   using Type = Dali::Accessibility::Hypertext;
 };
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_HYPERTEXT_H

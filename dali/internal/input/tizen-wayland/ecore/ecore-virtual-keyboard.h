@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/virtual-keyboard.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -55,6 +55,6 @@ void DisconnectCallbacks(Ecore_IMF_Context* imfContext);
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ECORE_VIRTUAL_KEYBOARD_H

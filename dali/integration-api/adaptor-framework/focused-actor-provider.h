@@ -22,7 +22,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -74,6 +74,6 @@ DALI_ADAPTOR_API void UnregisterFocusedActorProvider(FocusedActorProvider* provi
 DALI_ADAPTOR_API FocusedActorProvider* GetFocusedActorProvider();
 
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_FOCUSED_ACTOR_PROVIDER_H

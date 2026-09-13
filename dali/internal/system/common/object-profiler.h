@@ -29,7 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/timer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -93,6 +93,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ADAPTOR_OBJECT_PROFILER_H

@@ -29,7 +29,7 @@
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/system/common/locale-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -85,4 +85,4 @@ Dali::InputMethod::ReturnKeyType GetReturnKeyType()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

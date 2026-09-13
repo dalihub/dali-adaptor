@@ -11,7 +11,9 @@ SET(TC_SOURCES
     utc-Dali-AdaptorExtension.cpp
     utc-Dali-Application.cpp
     utc-Dali-Accessibility.cpp
+    utc-Dali-AsyncTaskManager.cpp
     utc-Dali-ClipboardData.cpp
+    utc-Dali-DragData.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-UiContext.cpp
     utc-Dali-MouseInOutEvent.cpp

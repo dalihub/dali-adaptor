@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/haptics/common/feedback-player-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 FeedbackPlayer::FeedbackPlayer()
 {
@@ -76,4 +76,4 @@ FeedbackPlayer::FeedbackPlayer(Internal::Adaptor::FeedbackPlayer* player)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

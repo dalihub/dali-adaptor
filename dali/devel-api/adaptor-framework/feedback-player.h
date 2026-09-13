@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -115,6 +115,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL FeedbackPlayer(Internal::Adaptor::FeedbackPlayer* feedbackPlayer);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_FEEDBACK_PLAYER_H

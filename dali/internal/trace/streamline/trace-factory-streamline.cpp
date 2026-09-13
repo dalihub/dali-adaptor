@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <dali/internal/trace/common/trace-factory.h>
 #include <dali/internal/trace/streamline/trace-manager-impl-streamline.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -38,4 +38,4 @@ TraceManagerUPtr CreateTraceFactory(PerformanceInterface* performanceInterface)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

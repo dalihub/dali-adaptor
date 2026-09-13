@@ -20,7 +20,7 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct EventThreadCallback::Impl
 {
@@ -53,4 +53,4 @@ uint32_t EventThreadCallback::GetId() const
   return mImpl->id;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

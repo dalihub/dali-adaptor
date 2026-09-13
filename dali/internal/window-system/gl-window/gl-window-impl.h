@@ -30,7 +30,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -453,6 +453,6 @@ inline const Internal::Adaptor::GlWindow& GetImplementation(const Dali::GlWindow
   return static_cast<const Internal::Adaptor::GlWindow&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_IMPL_H

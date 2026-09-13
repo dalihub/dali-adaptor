@@ -21,7 +21,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <cstdint>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -137,6 +137,6 @@ struct DALI_ADAPTOR_API ActionInfo
 
 } // namespace Accessibility
 } // namespace Devel
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DEVEL_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_ACTIONS_H

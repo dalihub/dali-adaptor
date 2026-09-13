@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+#include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-cpal-parser.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
-#include <dali/integration-api/debug.h>
 
 #if !DALI_ENABLE_COLR_V1_RENDERER
 // empty compilation unit
@@ -26,14 +26,14 @@
 #include <algorithm>
 #include <cmath>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
 {
 // FreeType fixed-point conversion constant
 // FT_F2Dot14 2.14: value / 16384.0f (alpha, angle)
-constexpr float FROM_F2DOT14 = 1.0f / 16384.0f;  // FT_F2Dot14 2.14
+constexpr float FROM_F2DOT14 = 1.0f / 16384.0f; // FT_F2Dot14 2.14
 } // anonymous namespace
 
 // ---- Resolve CPAL color for a palette index ----
@@ -43,7 +43,10 @@ bool ResolveCpalColor(FT_Face ftFace, uint16_t paletteIndex, uint16_t colorIndex
   // It must not be treated as an actual CPAL palette entry.
   if(colorIndex == 0xFFFF)
   {
-    outR = 0; outG = 0; outB = 0; outA = 0;
+    outR = 0;
+    outG = 0;
+    outB = 0;
+    outA = 0;
     return false;
   }
 
@@ -60,7 +63,10 @@ bool ResolveCpalColor(FT_Face ftFace, uint16_t paletteIndex, uint16_t colorIndex
 
   // Keep deterministic output values for callers that inspect them, but signal
   // failure so the paint path does not synthesize a color.
-  outR = 0; outG = 0; outB = 0; outA = 255;
+  outR = 0;
+  outG = 0;
+  outB = 0;
+  outA = 255;
   return false;
 }
 
@@ -77,7 +83,7 @@ bool HandlePaintSolid(FT_PaintSolid& solid, tvg::Shape* shape, PaintContext& ctx
 
   // Apply alpha from FT_PaintColor (FT_F2Dot14, clamped to [0,1] for safety)
   float alphaF = std::max(0.0f, std::min(1.0f, static_cast<float>(solid.color.alpha) * FROM_F2DOT14));
-  a = static_cast<uint8_t>(a * alphaF);
+  a            = static_cast<uint8_t>(a * alphaF);
 
   // ThorVG 1.0: fill(r, g, b, a) - same API as 0.8 for solid color
   shape->fill(r, g, b, a);
@@ -85,12 +91,12 @@ bool HandlePaintSolid(FT_PaintSolid& solid, tvg::Shape* shape, PaintContext& ctx
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER PaintSolid paletteIndex:%u alpha:%.3f rgba:(%u,%u,%u,%u)\n",
-                   solid.color.palette_index, alphaF, r, g, b, a);
+                          solid.color.palette_index, alphaF, r, g, b, a);
   }
 
   return true;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

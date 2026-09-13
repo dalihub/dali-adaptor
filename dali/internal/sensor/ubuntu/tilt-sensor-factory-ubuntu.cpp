@@ -17,7 +17,7 @@
 
 #include <dali/internal/sensor/ubuntu/tilt-sensor-impl-ubuntu.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -36,4 +36,4 @@ Dali::Internal::Adaptor::TiltSensor* Create()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

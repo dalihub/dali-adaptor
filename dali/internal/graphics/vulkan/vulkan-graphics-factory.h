@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 class DALI_ADAPTOR_API VulkanGraphicsFactory : public GraphicsFactoryInterface
 {
@@ -51,6 +51,6 @@ private:
   EnvironmentOptions& mEnvironmentOptions;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor
 
 #endif // DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H

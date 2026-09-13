@@ -28,7 +28,7 @@
 #include <dali/internal/adaptor/common/application-controller-impl.h>
 #include <dali/internal/adaptor/common/framework.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 class Window;
@@ -497,6 +497,6 @@ inline const Application& GetImplementation(const Dali::Application& application
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APPLICATION_H

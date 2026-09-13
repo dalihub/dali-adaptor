@@ -36,7 +36,7 @@
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -2151,4 +2151,4 @@ void InputMethodContextTcoreWl::OnStaged(Dali::Actor actor)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

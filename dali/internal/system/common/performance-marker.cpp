@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -100,4 +100,4 @@ bool PerformanceMarker::IsFilterEnabled(MarkerFilter filter) const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

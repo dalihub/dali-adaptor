@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/virtual-keyboard.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -93,6 +93,6 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection();
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_VIRTUAL_KEYBOARD_H

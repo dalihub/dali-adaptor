@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ PFNEGLDESTROYIMAGEKHRPROC           eglDestroyImageKHRProc           = 0;
 PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -229,4 +229,4 @@ void EglImageExtensions::InitializeEglImageKHR()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

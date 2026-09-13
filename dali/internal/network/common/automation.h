@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/network/common/client-send-data-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -86,6 +86,6 @@ void SetCustomCommand(const std::string& message);
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

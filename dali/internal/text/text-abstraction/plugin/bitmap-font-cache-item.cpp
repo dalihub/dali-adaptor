@@ -29,7 +29,7 @@
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont)
 : font(bitmapFont),
@@ -139,4 +139,4 @@ bool BitmapFontCacheItem::IsCharacterSupported(FcConfig* fontConfig, Character c
   return false;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

@@ -32,7 +32,7 @@
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/internal/system/common/thread-controller.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -458,4 +458,4 @@ void ConfigurationManager::ClearConfigurationCache()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

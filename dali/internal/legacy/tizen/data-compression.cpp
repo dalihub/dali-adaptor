@@ -19,7 +19,7 @@
 #include <dali/integration-api/debug.h>
 #include <memory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -148,4 +148,4 @@ bool DecodeRle(const unsigned char* input,
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

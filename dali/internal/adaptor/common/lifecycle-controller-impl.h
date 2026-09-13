@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -198,6 +198,6 @@ inline const Internal::Adaptor::LifecycleController& GetImplementation(const Dal
   return static_cast<const Internal::Adaptor::LifecycleController&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_LIFECYCLE_CONTROLLER_H

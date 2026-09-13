@@ -50,7 +50,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -2048,7 +2048,7 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 
       if(applyInsets)
       {
-        mInsetsChangedSignal.Emit(WindowInsetsInfo(partType, partState, Extents(left, right, top, bottom)));
+        mInsetsChangedSignal.Emit(WindowInsetsInfo(partType, partState, Insets(left, right, top, bottom)));
       }
     }
   }
@@ -4319,12 +4319,12 @@ Vector4 WindowBaseEcoreWl2::GetBehindBlurDim(bool& enable)
 #endif
 }
 
-Extents WindowBaseEcoreWl2::GetInsets()
+Insets WindowBaseEcoreWl2::GetInsets()
 {
   return GetInsets(WindowInsetsPartFlags::STATUS_BAR | WindowInsetsPartFlags::KEYBOARD | WindowInsetsPartFlags::CLIPBOARD);
 }
 
-Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
   int left   = 0;
   int right  = 0;
@@ -4343,7 +4343,7 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
 
   if(insetsFlags == WindowInsetsPartFlags::NONE)
   {
-    return Extents(left, right, top, bottom);
+    return Insets(left, right, top, bottom);
   }
 
   for(int i = 0; i < 3; i++)
@@ -4406,7 +4406,7 @@ Extents WindowBaseEcoreWl2::GetInsets(WindowInsetsPartFlags insetsFlags)
     }
   }
 
-  return Extents(left, right, top, bottom);
+  return Insets(left, right, top, bottom);
 }
 
 void WindowBaseEcoreWl2::SetScreen(const std::string& screenName)
@@ -4476,6 +4476,6 @@ std::string WindowBaseEcoreWl2::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #pragma GCC diagnostic pop

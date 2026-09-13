@@ -22,7 +22,7 @@
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * Implementation of the Adaptor Builder class.
@@ -57,6 +57,6 @@ private:
   std::unique_ptr<GraphicsFactoryInterface> mGraphicsFactory; ///< GraphicsFactory object
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor
 
 #endif // DALI_INTERNAL_ADAPTOR_BUILDER_IMPL_H

@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -134,6 +134,6 @@ private:
   std::unique_ptr<Internal::Adaptor::NativeImageSurface> mImpl; ///< Implementation pointer
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_NATIVE_IMAGE_SURFACE_H

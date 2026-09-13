@@ -18,7 +18,7 @@
 // FILE HEADER
 #include <dali/devel-api/text-abstraction/emoji-character-properties.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -498,4 +498,4 @@ DALI_ADAPTOR_API bool IsNegativeSquaredLatinCapitalLetter(Character character)
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

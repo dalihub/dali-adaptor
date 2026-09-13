@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_SYSTEM_SETTINGS_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -138,7 +138,7 @@ private:
   SystemSettings();
   ~SystemSettings() override;
 
-  SystemSettings(const SystemSettings&) = delete;
+  SystemSettings(const SystemSettings&)            = delete;
   SystemSettings& operator=(const SystemSettings&) = delete;
 
 private:
@@ -147,7 +147,7 @@ private:
   bool mLocaleChangedCallbackRegistered{false};
   bool mFontSizeChangedCallbackRegistered{false};
 
-  std::string mLocaleLanguage;
+  std::string                                 mLocaleLanguage;
   Dali::Integration::SystemSettings::FontSize mFontSize{
     Dali::Integration::SystemSettings::FontSize::NORMAL};
 
@@ -172,6 +172,6 @@ inline static const SystemSettings& GetImplementation(const Dali::Integration::S
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_SYSTEM_SETTINGS_IMPL_H

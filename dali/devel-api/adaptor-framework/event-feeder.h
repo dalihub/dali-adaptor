@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class WheelEvent;
 class KeyEvent;
@@ -59,6 +59,6 @@ DALI_ADAPTOR_API void FeedKeyEvent(KeyEvent& keyEvent);
 
 } // namespace EventFeeder
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_EVENT_FEEDER_H

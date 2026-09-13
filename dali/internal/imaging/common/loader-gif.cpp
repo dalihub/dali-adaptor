@@ -29,7 +29,7 @@
 #define LIBGIF_VERSION_5_1_OR_ABOVE
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -347,4 +347,4 @@ bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

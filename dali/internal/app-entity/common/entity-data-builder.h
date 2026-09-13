@@ -24,7 +24,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -105,6 +105,6 @@ DALI_ADAPTOR_API Dali::Bounds GetActorWindowBounds(Dali::Actor actor);
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APP_ENTITY_COMMON_ENTITY_DATA_BUILDER_H

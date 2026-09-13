@@ -37,7 +37,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 namespace
 {
@@ -1053,4 +1053,4 @@ void PipelineImpl::InitializeColorBlendState(vk::PipelineColorBlendStateCreateIn
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

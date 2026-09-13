@@ -20,10 +20,10 @@
 #include <dali/internal/graphics/common/graphics-library.h>
 #include <dali/internal/imaging/common/native-image-factory.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
 {
   return GraphicsLibrary::GetNativeImageFactory();
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

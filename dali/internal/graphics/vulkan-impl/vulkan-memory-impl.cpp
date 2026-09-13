@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-memory-allocation.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 MemoryImpl::MemoryImpl(Device& device, vk::MemoryPropertyFlags memoryProperties, ::vma::Allocation* vmaAllocation)
 : mDevice(device),
@@ -122,4 +122,4 @@ vk::DeviceSize MemoryImpl::GetOffset() const
   return offset;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

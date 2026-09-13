@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief ClipboardData stores clipboard MIME type and content.
@@ -132,6 +132,6 @@ private:
   UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CLIPBOARD_DATA_H

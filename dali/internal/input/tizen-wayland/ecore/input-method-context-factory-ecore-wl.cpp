@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <dali/internal/input/tizen-wayland/ecore/input-method-context-impl-ecore-wl.h>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -40,4 +40,4 @@ InputMethodContextPtr CreateInputMethodContext(Dali::Actor actor)
 } // namespace Adaptor
 
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

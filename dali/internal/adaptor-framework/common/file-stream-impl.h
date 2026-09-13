@@ -2,7 +2,7 @@
 #define DALI_FILE_STREAM_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class FileStream::Impl
 {
@@ -54,6 +54,6 @@ private:
   PlatformSpecificImpl* mPlatformSpecificImpl{nullptr};
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_FILE_STREAM_IMPL_GENERIC_H

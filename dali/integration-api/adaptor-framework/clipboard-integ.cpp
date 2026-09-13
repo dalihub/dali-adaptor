@@ -19,10 +19,10 @@
 #include <dali/integration-api/adaptor-framework/clipboard-integ.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/clipboard.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/public-api/adaptor-framework/clipboard.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -76,4 +76,4 @@ bool IsVisible(const Dali::Clipboard& clipboard)
 
 } // namespace Clipboard
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE

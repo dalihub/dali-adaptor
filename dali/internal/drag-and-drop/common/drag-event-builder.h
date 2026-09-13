@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/drag-event.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -79,6 +79,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_EVENT_BUILDER_H

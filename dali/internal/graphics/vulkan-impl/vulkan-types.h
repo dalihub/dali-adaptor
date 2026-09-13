@@ -36,7 +36,7 @@
 #undef WAYLAND
 #endif
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 namespace
 {
@@ -553,6 +553,6 @@ const std::array<vk::Format, 4> DEPTH_STENCIL_FORMATS = {
 };
 
 } // namespace Vulkan
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_VULKAN_TYPES

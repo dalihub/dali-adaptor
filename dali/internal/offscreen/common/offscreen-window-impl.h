@@ -22,7 +22,7 @@
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Layer;
 
@@ -156,6 +156,6 @@ inline const OffscreenWindow& GetImplementation(const Dali::OffscreenWindow& off
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_OFFSCREEN_WINDOW_IMPL_H

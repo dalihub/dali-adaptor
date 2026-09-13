@@ -19,8 +19,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/network/common/socket-impl.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -41,4 +42,4 @@ void SocketFactory::DestroySocket(SocketInterface* socketInterface)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -26,7 +26,7 @@
 #include <dlfcn.h>
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -290,4 +290,4 @@ VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendere
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

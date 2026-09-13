@@ -27,7 +27,7 @@
 #include <dali/devel-api/adaptor-framework/screen-information.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindowSystem
 {
@@ -80,6 +80,6 @@ DALI_ADAPTOR_API std::vector<Dali::ScreenInformation> GetAvailableScreens();
 
 } // namespace DevelWindowSystem
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_SYSTEM_DEVEL_H

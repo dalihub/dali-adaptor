@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@
 #include <dali/public-api/adaptor-framework/drag-event.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
+#include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 DragAndDrop::DragAndDrop()
 {
@@ -59,7 +59,8 @@ bool DragAndDrop::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow
   }
 
   auto& implementation = GetImplementation(*this);
-  return implementation.StartDragAndDrop(source, shadowWindow, dragData, [&implementation, source](SourceEventType type) {
+  return implementation.StartDragAndDrop(source, shadowWindow, dragData, [&implementation, source](SourceEventType type)
+  {
     implementation.SourceEventSignal().Emit(DragAndDrop(&implementation), source, type);
   });
 }
@@ -72,7 +73,8 @@ bool DragAndDrop::AddListener(Dali::Actor target, const Dali::String& mimeType)
   }
 
   auto& implementation = GetImplementation(*this);
-  return implementation.AddListener(target, mimeType, [&implementation, target](const DragEvent& event) {
+  return implementation.AddListener(target, mimeType, [&implementation, target](const DragEvent& event)
+  {
     implementation.ActorDragEventSignal().Emit(DragAndDrop(&implementation), target, event);
   });
 }
@@ -90,7 +92,8 @@ bool DragAndDrop::AddListener(Dali::Window target, const Dali::String& mimeType)
   }
 
   auto& implementation = GetImplementation(*this);
-  return implementation.AddListener(target, mimeType, [&implementation, target](const DragEvent& event) {
+  return implementation.AddListener(target, mimeType, [&implementation, target](const DragEvent& event)
+  {
     implementation.WindowDragEventSignal().Emit(DragAndDrop(&implementation), target, event);
   });
 }
@@ -115,4 +118,4 @@ DragAndDrop::WindowDragEventSignalType& DragAndDrop::WindowDragEventSignal()
   return GetImplementation(*this).WindowDragEventSignal();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

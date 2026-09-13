@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-system.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Keyboard
 {
@@ -62,4 +62,4 @@ RepeatSettingsChangedSignalType& RepeatSettingsChangedSignal()
 
 } // namespace Keyboard
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

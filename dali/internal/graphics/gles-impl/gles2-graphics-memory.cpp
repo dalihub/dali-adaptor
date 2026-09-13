@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 Memory2::Memory2(const Graphics::MapBufferInfo& mapInfo, EglGraphicsController& controller)
 : mController(controller)
@@ -118,4 +118,4 @@ void Memory2::Flush()
   }
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

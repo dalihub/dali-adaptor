@@ -20,7 +20,7 @@
 
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -58,6 +58,6 @@ bool LoadPkmHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_LOADER_PKM_H

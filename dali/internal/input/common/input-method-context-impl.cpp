@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ Dali::TypeRegistration type(typeid(Dali::InputMethodContext), typeid(Dali::BaseH
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -188,7 +188,7 @@ void InputMethodContext::EmitKeyboardTypeChangedSignal(Dali::InputMethodContext:
 
 void InputMethodContext::EmitContentReceivedSignal(const Dali::String& content, const Dali::String& description, const Dali::String& mimeTypes)
 {
-  Dali::InputMethodContext handle(this);
+  Dali::InputMethodContext                                   handle(this);
   Dali::Integration::InputMethodContext::ContentReceivedData data(content, description, mimeTypes);
 
   mContentReceivedSignal.Emit(handle, data);
@@ -197,4 +197,4 @@ void InputMethodContext::EmitContentReceivedSignal(const Dali::String& content, 
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

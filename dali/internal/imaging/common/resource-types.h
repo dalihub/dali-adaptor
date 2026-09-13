@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/image-options.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 using ImageDimensions = Uint16Pair;
 
@@ -75,6 +75,6 @@ private:
 
 } // namespace Integration
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_IMAGING_COMMON_RESOURCE_TYPE_H

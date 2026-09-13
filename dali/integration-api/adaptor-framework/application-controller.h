@@ -26,7 +26,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace Internal DALI_INTERNAL
@@ -186,6 +186,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL ApplicationController(Internal::Adaptor::ApplicationController* controller);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_APPLICATION_CONTROLLER_H

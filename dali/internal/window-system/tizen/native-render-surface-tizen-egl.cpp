@@ -33,7 +33,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace
 {
@@ -426,4 +426,4 @@ void NativeRenderSurfaceTizen::CreateNativeRenderable()
   }
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

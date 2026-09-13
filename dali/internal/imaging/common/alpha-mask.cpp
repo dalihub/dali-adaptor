@@ -21,7 +21,7 @@
 #include <dali/internal/imaging/common/pixel-manipulation.h>
 #include <dali/public-api/adaptor-framework/image-options.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -211,4 +211,4 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -27,7 +27,7 @@
 
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 WidgetApplication WidgetApplication::New(int* argc, char** argv[], Dali::StringView stylesheet)
 {
@@ -66,4 +66,4 @@ WidgetApplication::WidgetApplication(Internal::Adaptor::WidgetApplication* widge
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

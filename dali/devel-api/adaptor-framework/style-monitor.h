@@ -2,7 +2,7 @@
 #define DALI_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/style-change.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -194,6 +194,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL StyleMonitor(Internal::Adaptor::StyleMonitor* styleMonitor);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_STYLE_MONITOR_H

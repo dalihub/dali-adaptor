@@ -29,7 +29,7 @@
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/object/property-map.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace
 {
@@ -204,4 +204,4 @@ unsigned int GetMaxTextureSize()
   return TizenPlatform::ImageLoader::GetMaxTextureSize();
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
