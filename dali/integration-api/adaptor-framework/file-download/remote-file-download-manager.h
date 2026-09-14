@@ -19,14 +19,14 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/dali-adaptor-common.h>
-#include <cstdint>
+#include <dali/public-api/object/base-handle.h>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace Internal DALI_INTERNAL
@@ -98,6 +98,6 @@ public: // Not intended for application developers
   explicit DALI_INTERNAL RemoteFileDownloadManager(Internal::Adaptor::RemoteFileDownloadManager* impl);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_REMOTE_FILE_DOWNLOAD_MANAGER_H

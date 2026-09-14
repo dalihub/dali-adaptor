@@ -29,7 +29,7 @@
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 
 using State = Dali::Integration::Accessibility::State;
@@ -177,7 +177,7 @@ struct Comparer
   {
     std::unordered_map<std::string, std::string> mRequested;
     std::unordered_map<std::string, std::string> mObject;
-    Mode                                         mMode = Mode::INVALID;
+    Mode                                         mMode   = Mode::INVALID;
     Accessible*                                  mObjPtr = nullptr;
 
     ComparerAttributes(MatchRule* rule)
@@ -222,7 +222,7 @@ struct Comparer
         else
         {
           auto it = mObject.find(iname.first);
-          found = it != mObject.end() && iname.second == it->second;
+          found   = it != mObject.end() && iname.second == it->second;
         }
 
         if(found)
@@ -304,9 +304,9 @@ struct Comparer
    */
   struct ComparerStates
   {
-    Dali::Integration::Accessibility::States     mRequested;
-    Dali::Integration::Accessibility::States     mObject;
-    const Mode mMode = Mode::INVALID;
+    Dali::Integration::Accessibility::States mRequested;
+    Dali::Integration::Accessibility::States mObject;
+    const Mode                               mMode = Mode::INVALID;
 
     ComparerStates(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::STATES_MATCH_TYPE)>(*rule)))
@@ -620,4 +620,4 @@ std::vector<Accessible*> CollectionImpl::GetMatchesInMatches(MatchRule firstRule
   return res;
 }
 
-} //namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility

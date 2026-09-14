@@ -18,7 +18,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 Memory::Memory(const Graphics::MapBufferInfo& mapInfo, VulkanGraphicsController& controller)
 {
@@ -87,4 +87,4 @@ void Memory::Flush()
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

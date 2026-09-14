@@ -25,7 +25,7 @@
 
 #include <unordered_set>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class RenderPassImpl;
 
@@ -100,6 +100,6 @@ private:
   bool                                         mObserverNotifying{false};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDERPASS_H

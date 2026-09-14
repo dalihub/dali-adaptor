@@ -103,28 +103,44 @@ bool IsSubWindow(Accessible* accessible)
   return false;
 }
 
-bool SortVertically(Accessible* lhs, Accessible* rhs)
+Dali::Bounds GetNavigationExtents(Accessible* accessible, Accessible* parent)
 {
-  auto leftRect  = lhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
-  auto rightRect = rhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  if(!accessible)
+  {
+    return {};
+  }
+
+  auto extents = accessible->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  if(parent && (Dali::EqualsZero(extents.width) || Dali::EqualsZero(extents.height)) && accessible->GetChildCount() > 0u)
+  {
+    return GetNavigationExtents(parent, parent->GetParent());
+  }
+
+  return extents;
+}
+
+bool SortVertically(Accessible* parent, Accessible* lhs, Accessible* rhs)
+{
+  auto leftRect  = GetNavigationExtents(lhs, parent);
+  auto rightRect = GetNavigationExtents(rhs, parent);
 
   return leftRect.y < rightRect.y;
 }
 
-bool SortHorizontally(Accessible* lhs, Accessible* rhs)
+bool SortHorizontally(Accessible* parent, Accessible* lhs, Accessible* rhs)
 {
-  auto leftRect  = lhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
-  auto rightRect = rhs->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  auto leftRect  = GetNavigationExtents(lhs, parent);
+  auto rightRect = GetNavigationExtents(rhs, parent);
 
   return leftRect.x < rightRect.x;
 }
 
-std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>& children)
+std::vector<std::vector<Accessible*>> SplitLines(Accessible* parent, const std::vector<Accessible*>& children)
 {
   // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Accessible* child) -> bool
+  auto first = std::find_if(children.begin(), children.end(), [parent](Accessible* child) -> bool
   {
-    auto extents = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+    auto extents = GetNavigationExtents(child, parent);
     return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
 
@@ -134,7 +150,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   }
 
   std::vector<std::vector<Accessible*>> lines(1);
-  Dali::Bounds                          lineRect = (*first)->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+  Dali::Bounds                          lineRect = GetNavigationExtents(*first, parent);
   Dali::Bounds                          rect;
 
   // Split into lines
@@ -142,7 +158,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   {
     auto child = *it;
 
-    rect = child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
+    rect = GetNavigationExtents(child, parent);
     if(Dali::EqualsZero(rect.height) || Dali::EqualsZero(rect.width))
     {
       // Zero area, ignore
@@ -166,7 +182,7 @@ std::vector<std::vector<Accessible*>> SplitLines(const std::vector<Accessible*>&
   return lines;
 }
 
-void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Accessible*>& children)
+void SortChildrenFromTopLeft(Accessible* parent, std::vector<Dali::Accessibility::Accessible*>& children)
 {
   if(children.empty())
   {
@@ -175,11 +191,17 @@ void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Accessible*>& chil
 
   std::vector<Accessible*> sortedChildren;
 
-  std::sort(children.begin(), children.end(), &SortVertically);
-
-  for(auto& line : SplitLines(children))
+  std::sort(children.begin(), children.end(), [parent](Accessible* lhs, Accessible* rhs)
   {
-    std::sort(line.begin(), line.end(), &SortHorizontally);
+    return SortVertically(parent, lhs, rhs);
+  });
+
+  for(auto& line : SplitLines(parent, children))
+  {
+    std::sort(line.begin(), line.end(), [parent](Accessible* lhs, Accessible* rhs)
+    {
+      return SortHorizontally(parent, lhs, rhs);
+    });
     sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
   }
 
@@ -204,7 +226,7 @@ void ApplySortingToChildren(Accessible* parent, std::vector<Dali::Accessibility:
   else
   {
     // Otherwise, sort by spatial position (top-left to bottom-right).
-    SortChildrenFromTopLeft(children);
+    SortChildrenFromTopLeft(parent, children);
   }
 }
 
@@ -275,7 +297,7 @@ static bool IsVisibleInScrollableParent(Accessible* accessible)
 
   auto scrollableParentExtents = scrollableParent->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW);
 
-  if(!scrollableParentExtents.Intersects(accessible->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW)))
+  if(!scrollableParentExtents.Intersects(GetNavigationExtents(accessible, accessible->GetParent())))
   {
     return false;
   }
@@ -895,7 +917,7 @@ Accessible* BridgeAccessible::GetCurrentlyHighlighted()
   return Accessible::Get(mData->mCurrentlyHighlightedActor);
 }
 
-std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
+std::vector<Accessible*> BridgeAccessible::GetValidChildren(Accessible* parent, const std::vector<Accessible*>& children, Accessible* start)
 {
   if(children.empty())
   {
@@ -913,7 +935,7 @@ std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Ac
 
   for(auto child : children)
   {
-    if(child && (nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(child->GetExtents(Dali::Devel::Accessibility::CoordinateType::WINDOW))))
+    if(child && (nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(GetNavigationExtents(child, parent))))
     {
       vec.push_back(child);
     }
@@ -974,7 +996,7 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
     return parent;
   }
 
-  auto children = GetValidChildren(parent->GetChildren(), start);
+  auto children = GetValidChildren(parent, parent->GetChildren(), start);
   ApplySortingToChildren(parent, children);
 
   unsigned int childrenCount = children.size();
@@ -1082,7 +1104,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
       return node;
     }
 
-    auto children = GetValidChildren(node->GetChildren(), start);
+    auto children = GetValidChildren(node, node->GetChildren(), start);
     ApplySortingToChildren(node, children);
 
     // do accept:

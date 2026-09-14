@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DisplayConnection;
 
@@ -86,6 +86,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_TCOREWL_DISPLAY_CONNECTION_IMPL_TCORE_WL_H

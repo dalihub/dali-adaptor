@@ -28,7 +28,7 @@
 #include <dali/internal/input/common/input-method-context-impl.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -363,6 +363,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_WIN_H

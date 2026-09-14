@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-base.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -612,12 +612,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets()
    */
-  Extents GetInsets() override;
+  Insets GetInsets() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetInsets(WindowInsetsPartFlags)
    */
-  Extents GetInsets(WindowInsetsPartFlags insetsFlags) override;
+  Insets GetInsets(WindowInsetsPartFlags insetsFlags) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreen()
@@ -666,6 +666,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H

@@ -24,7 +24,7 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 class EglGraphicsController;
 
@@ -269,6 +269,6 @@ private:
 };
 
 } // namespace GLES
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_GLES_REFLECTION_H

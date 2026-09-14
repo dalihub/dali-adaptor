@@ -30,7 +30,7 @@
 #include <test-render-controller.h>
 #include <test-vk-abstraction.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal::Adaptor
 {
@@ -128,4 +128,4 @@ protected:
   static bool mLoggingEnabled;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -28,7 +28,7 @@
 // EXTERNAL INCLUDES
 #include <memory>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryTizen::CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
@@ -57,4 +57,4 @@ std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
   return Utils::MakeUnique<RenderSurfaceFactoryTizen>();
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

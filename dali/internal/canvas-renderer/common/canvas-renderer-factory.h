@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CANVAS_RENDERER_FACTORY_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/public-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -46,6 +46,6 @@ Dali::Internal::Adaptor::CanvasRendererPtr New(const Vector2& viewBox);
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_CANVAS_RENDERER_FACTORY_H

@@ -25,7 +25,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-shader-impl.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Shader : public Graphics::Shader
 {
@@ -86,6 +86,6 @@ private:
   ShaderHandle mShader{nullptr};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif

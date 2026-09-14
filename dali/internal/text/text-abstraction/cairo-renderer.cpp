@@ -219,7 +219,7 @@ void WrapToCircularPath(cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstra
 
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -1007,4 +1007,4 @@ Dali::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Parameter
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -43,7 +43,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * Remaps components
@@ -1762,4 +1762,4 @@ void Texture::PrepareTexture()
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

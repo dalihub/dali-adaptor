@@ -22,13 +22,13 @@
 #include <dali/devel-api/common/vector-wrapper.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
-#include <algorithm>
 #include <tizen_core_imf.h>
+#include <algorithm>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/locale-utils.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -84,4 +84,4 @@ Dali::InputMethod::ReturnKeyType GetReturnKeyType()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

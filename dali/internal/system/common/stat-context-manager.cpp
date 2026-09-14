@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -225,4 +225,4 @@ StatContext* StatContextManager::GetContext(PerformanceInterface::ContextId cont
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

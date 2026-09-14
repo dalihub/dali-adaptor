@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class NativeRenderSurface;
 
@@ -36,6 +36,6 @@ class NativeRenderSurface;
  */
 NativeRenderSurface* CreateNativeSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent);
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_NATIVE_RENDER_SURFACE_FACTORY_H

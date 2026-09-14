@@ -28,7 +28,7 @@
 #include <dali/internal/graphics/gles/gl-implementation.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -349,12 +349,12 @@ private:
     WindowBase*         windowBase;
     EGLSurface          surface;
     EGLContext          context;
-    EGLConfig           config;        ///< Per-surface EGL config
-    EGLNativeWindowType nativeWindow;  ///< Cached native window handle (from CreateWindow)
+    EGLConfig           config;                    ///< Per-surface EGL config
+    EGLNativeWindowType nativeWindow;              ///< Cached native window handle (from CreateWindow)
     bool                requiresDirectComposition; ///< Whether DirectComposition was requested
-    bool                depthBuffer;   ///< Whether depth buffer was requested
-    bool                stencilBuffer; ///< Whether stencil buffer was requested
-    int                 msaaLevel;     ///< MSAA level requested
+    bool                depthBuffer;               ///< Whether depth buffer was requested
+    bool                stencilBuffer;             ///< Whether stencil buffer was requested
+    int                 msaaLevel;                 ///< MSAA level requested
   };
 
   ///<@todo Should SurfaceId be sequential from here, or just a hash of the surface ptr?
@@ -373,6 +373,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H

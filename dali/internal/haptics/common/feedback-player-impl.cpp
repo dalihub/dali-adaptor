@@ -24,7 +24,7 @@
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -130,4 +130,4 @@ FeedbackPlayer::~FeedbackPlayer()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

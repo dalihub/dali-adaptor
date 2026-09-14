@@ -22,7 +22,7 @@
 #include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/public-api/common/shared-ptr.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 class CollectionImpl : public Collection
 {
@@ -60,6 +60,6 @@ private:
   Dali::WeakPtr<Accessible> mAccessible;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_COLLECTION_H

@@ -18,8 +18,10 @@ SET(TC_SOURCES
     utc-Dali-IcoLoader.cpp
     utc-Dali-ImageOperations.cpp
     utc-Dali-Internal-PixelBuffer.cpp
+    utc-Dali-LegacyPlatformAbstraction.cpp
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-LRUCacheContainer.cpp
+    utc-Dali-SocketFactory.cpp
     utc-Dali-TiltSensor.cpp
     utc-Dali-WbmpLoader.cpp
 )

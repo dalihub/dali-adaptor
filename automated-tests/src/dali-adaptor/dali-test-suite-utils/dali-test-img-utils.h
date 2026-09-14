@@ -73,7 +73,7 @@ inline void DALI_TEST_EQUALS(const unsigned char* buffer1, const unsigned char* 
     maskBits = ~maskBits;
 
     bool equal = true;
-    for(i = 0; i < size; ++i, ++buff1, ++buff2)
+    for(i = 0; i < static_cast<unsigned int>(size); ++i, ++buff1, ++buff2)
     {
       //Check bit difference, if exist, do more exhaustive comparison with tolerance value
       if((*buff1 ^ *buff2) & maskBits)

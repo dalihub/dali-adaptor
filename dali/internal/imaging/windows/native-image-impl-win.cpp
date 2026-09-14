@@ -34,7 +34,7 @@
 #undef NO_ERROR
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -160,7 +160,7 @@ bool NativeImageWin::SetPixels(uint8_t* pixbuf, const Pixel::Format& pixelFormat
     {
       for(size_t i = 0u; i < pixelCount; ++i)
       {
-        const size_t offset      = i * 4u;
+        const size_t offset     = i * 4u;
         mCpuBuffer[offset + 0u] = pixbuf[offset + 2u]; // R <- B
         mCpuBuffer[offset + 1u] = pixbuf[offset + 1u]; // G
         mCpuBuffer[offset + 2u] = pixbuf[offset + 0u]; // B <- R
@@ -412,4 +412,4 @@ void NativeImageWin::EnableBackBuffer(bool enable)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

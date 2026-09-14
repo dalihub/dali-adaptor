@@ -80,7 +80,7 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 using Dali::Integration::ToDaliString;
 using Dali::TextAbstraction::FontClient;
@@ -90,7 +90,7 @@ extern std::string GetProgramBinaryPath();
 extern std::string GetInternalProgramBinaryCachePath();
 extern std::string GetCustomProgramBinaryCachePath();
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 namespace
 {
@@ -1000,6 +1000,9 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
       const bool partialUpdateRequired = mEnvironmentOptions->PartialUpdateRequired();
       const int  multiSamplingLevel    = mEnvironmentOptions->GetMultiSamplingLevel();
 
+      // A single sample is not anti-aliasing, so anything below two counts as off.
+      const uint8_t msaaLevel = (multiSamplingLevel > 1 && multiSamplingLevel < 256) ? static_cast<uint8_t>(multiSamplingLevel) : 0u;
+
       // Update graphics relative variables.
       if(DALI_UNLIKELY(updateGraphicsRequired))
       {
@@ -1020,7 +1023,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
           window->SetDepthBufferEnabled(depthBufferRequired);
           window->SetStencilBufferEnabled(stencilBufferRequired);
           window->SetPartialUpdateEnabled(partialUpdateRequired);
-          window->SetMultiSampledAntiAliasingEnabled(multiSamplingLevel > 0);
+          window->SetMultiSampledAntiAliasingLevel(msaaLevel);
         }
         if(DALI_UNLIKELY(recreateGraphicsRequired))
         {
@@ -1324,6 +1327,20 @@ void Adaptor::IncreaseSurfaceResizeCounter()
 void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
+
+  // Show the default window now that the scene exists. A preloaded window is skipped: it is
+  // already shown from ApplicationController::UpdatePreInitializedWindowInfo(), which runs
+  // before this point, and Window::Show() is not idempotent.
+  if(!mWindows.empty())
+  {
+    // mWindows holds scene holders that are not windows, so downcast first.
+    auto* defaultWindow = dynamic_cast<Dali::Internal::Adaptor::Window*>(mWindows.front());
+    if(defaultWindow)
+    {
+      DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Show the default window (%p)\n", defaultWindow);
+      defaultWindow->Show();
+    }
+  }
 
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
@@ -1726,4 +1743,4 @@ void Adaptor::ApplyEventEnvironmentVariables()
   }
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

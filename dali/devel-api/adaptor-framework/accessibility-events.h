@@ -17,9 +17,10 @@
  *
  */
 
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstdint>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -97,6 +98,6 @@ enum class WindowRestoreType
 
 } // namespace Accessibility
 } // namespace Devel
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DEVEL_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_EVENTS_H

@@ -20,7 +20,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 // submission
 SubmissionData::SubmissionData(const std::vector<vk::Semaphore>&          waitSemaphores_,
@@ -138,4 +138,4 @@ vk::Result Queue::Submit(const std::vector<SubmissionData>& submissionData, Fenc
   return VkAssert(mQueue.submit(submitInfos, fence ? fence->GetVkHandle() : nullptr));
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

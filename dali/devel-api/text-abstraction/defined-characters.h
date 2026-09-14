@@ -18,7 +18,10 @@
  *
  */
 
-namespace Dali
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -77,6 +80,6 @@ constexpr unsigned int CHAR_ZWS = 0x200B; ///< Zero width space.
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TOOLKIT_TEXT_ABSTRACTION_DEFINED_CHARACTERS_H

@@ -1,7 +1,7 @@
 #ifndef DALI_ENCODED_IMAGE_BUFFER_H
 #define DALI_ENCODED_IMAGE_BUFFER_H
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -182,6 +182,6 @@ public: // Not intended for developer use
   explicit DALI_INTERNAL EncodedImageBuffer(Internal::EncodedImageBuffer* impl);
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_ENCODED_IMAGE_BUFFER_H

@@ -19,10 +19,10 @@
 #include <dali/internal/window-system/common/native-image-surface-factory.h>
 #include <dali/internal/window-system/tizen/native-image-surface-impl-tizen-egl.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<Dali::Internal::Adaptor::NativeImageSurface> NativeImageSurfaceFactory::CreateNativeImageSurface(Dali::NativeImageQueuePtr queue)
 {
   return std::make_unique<Internal::Adaptor::NativeImageSurfaceTizen>(queue);
 }
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

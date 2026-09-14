@@ -23,7 +23,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 
-namespace Dali::Graphics::EGL
+namespace DALI_NAMESPACE::Graphics::EGL
 {
 SyncObject::SyncObject(const Graphics::SyncObjectCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : SyncObjectResource(createInfo, controller),
@@ -68,4 +68,4 @@ bool SyncObject::IsSynced()
   return false;
 }
 
-} // namespace Dali::Graphics::EGL
+} //namespace DALI_NAMESPACE::Graphics::EGL

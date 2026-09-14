@@ -19,19 +19,19 @@
  */
 
 // EXTERNAL INCLUDES
-#include <type_traits>
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/signals/connection-tracker-interface.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/signals/slot-delegate.h>
+#include <type_traits>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/clipboard-data.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal DALI_INTERNAL
 {
@@ -128,7 +128,7 @@ public:
    */
   template<class Receiver>
   void GetData(const Dali::String& mimeType,
-               Receiver* receiver,
+               Receiver*           receiver,
                void (Receiver::*callback)(bool, const Dali::ClipboardData&))
   {
     static_assert(std::is_base_of<Dali::ConnectionTrackerInterface, Receiver>::value,
@@ -167,7 +167,7 @@ public:
    * @SINCE_2_5.28
    */
   template<class Receiver>
-  void GetData(const Dali::String& mimeType,
+  void GetData(const Dali::String&           mimeType,
                Dali::SlotDelegate<Receiver>& delegate,
                void (Receiver::*callback)(bool, const Dali::ClipboardData&))
   {
@@ -213,9 +213,9 @@ private:
    * @param[in] connectionTracker Connection tracker for lifetime management.
    * @param[in] callback The callback. Ownership is transferred.
    */
-  void DoGetData(const Dali::String& mimeType,
+  void DoGetData(const Dali::String&               mimeType,
                  Dali::ConnectionTrackerInterface* connectionTracker,
-                 Dali::CallbackBase* callback);
+                 Dali::CallbackBase*               callback);
 
 public: // Not intended for application developers
   /// @cond internal
@@ -223,6 +223,6 @@ public: // Not intended for application developers
   /// @endcond
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CLIPBOARD_H

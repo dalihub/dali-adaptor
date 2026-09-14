@@ -22,7 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-attachment.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class CommandBufferImpl;
 class Device;
@@ -210,6 +210,6 @@ private:
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H

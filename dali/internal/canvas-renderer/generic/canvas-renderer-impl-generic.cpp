@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -126,4 +126,4 @@ void CanvasRendererGeneric::OnMakeTargetBuffer(const Vector2& size)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -35,7 +35,7 @@ using std::string;
 using namespace Dali::Integration::Profiling;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -175,4 +175,4 @@ std::size_t ObjectProfiler::GetMemorySize(const std::string& name, uint32_t coun
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

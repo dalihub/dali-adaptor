@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindow
 {
@@ -58,6 +58,6 @@ struct DALI_ADAPTOR_API PointerConstraintsEvent
 
 } // namespace DevelWindow
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_DEVEL_POINTER_CONSTRAINTS_EVENT_H

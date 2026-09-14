@@ -24,7 +24,7 @@
 #include <fribidi/fribidi.h>
 #include <memory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -433,4 +433,4 @@ void BidirectionalSupport::CreatePlugin()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

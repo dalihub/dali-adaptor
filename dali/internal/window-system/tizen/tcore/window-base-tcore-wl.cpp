@@ -47,12 +47,12 @@
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -2285,7 +2285,7 @@ void WindowBaseTcoreWl::OnConformantChange(void* data, int type, void* event)
         }
       }
 
-      mInsetsChangedSignal.Emit(WindowInsetsInfo(insetsPartType, partState, Extents(left, right, top, bottom)));
+      mInsetsChangedSignal.Emit(WindowInsetsInfo(insetsPartType, partState, Insets(left, right, top, bottom)));
     }
   }
 }
@@ -4520,12 +4520,12 @@ Vector4 WindowBaseTcoreWl::GetBehindBlurDim(bool& enable)
   return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-Extents WindowBaseTcoreWl::GetInsets()
+Insets WindowBaseTcoreWl::GetInsets()
 {
   return GetInsets(WindowInsetsPartFlags::STATUS_BAR | WindowInsetsPartFlags::KEYBOARD | WindowInsetsPartFlags::CLIPBOARD);
 }
 
-Extents WindowBaseTcoreWl::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseTcoreWl::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
   int left   = 0;
   int right  = 0;
@@ -4544,7 +4544,7 @@ Extents WindowBaseTcoreWl::GetInsets(WindowInsetsPartFlags insetsFlags)
 
   if(insetsFlags == WindowInsetsPartFlags::NONE)
   {
-    return Extents(left, right, top, bottom);
+    return Insets(left, right, top, bottom);
   }
 
   for(int i = 0; i < 3; i++)
@@ -4613,7 +4613,7 @@ Extents WindowBaseTcoreWl::GetInsets(WindowInsetsPartFlags insetsFlags)
     }
   }
 
-  return Extents(left, right, top, bottom);
+  return Insets(left, right, top, bottom);
 }
 
 void WindowBaseTcoreWl::SetScreen(const std::string& screenName)
@@ -4672,6 +4672,6 @@ std::string WindowBaseTcoreWl::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #pragma GCC diagnostic pop

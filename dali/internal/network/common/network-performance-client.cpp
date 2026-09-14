@@ -28,7 +28,7 @@
 #include <dali/internal/network/common/network-performance-protocol.h>
 #include <dali/internal/network/common/socket-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -329,4 +329,4 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

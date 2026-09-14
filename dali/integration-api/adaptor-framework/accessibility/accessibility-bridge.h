@@ -35,7 +35,7 @@
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Accessibility
 {
@@ -678,6 +678,6 @@ inline bool IsUp()
 
 } // namespace Accessibility
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_BRIDGE_H

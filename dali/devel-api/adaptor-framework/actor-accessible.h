@@ -28,7 +28,7 @@
 #include <dali/devel-api/adaptor-framework/accessibility-events.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 class DALI_ADAPTOR_API ActorAccessible : public Dali::Accessibility::Accessible,
                                          public Dali::Accessibility::Collection,
@@ -324,15 +324,15 @@ private:
   // Ensures children are up to date (calls DoGetChildren() if necessary)
   void UpdateChildren();
 
-  Dali::WeakHandle<Dali::Actor> mSelf;
-  std::vector<Accessible*>      mChildren;
-  bool                          mChildrenDirty;
-  bool                          mIsBeingDestroyed;
-  const uint32_t                mActorId;
+  Dali::WeakHandle<Dali::Actor>                          mSelf;
+  std::vector<Accessible*>                               mChildren;
+  bool                                                   mChildrenDirty;
+  bool                                                   mIsBeingDestroyed;
+  const uint32_t                                         mActorId;
   std::map<Dali::Integration::Accessibility::State, int> mLastEmittedState;
-  Dali::SharedPtr<Collection>   mCollection;
+  Dali::SharedPtr<Collection>                            mCollection;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 #endif // DALI_ADAPTOR_ACTOR_ACCESSIBLE_H

@@ -22,7 +22,7 @@
 #include <dali/internal/text/text-abstraction/plugin/pixel-buffer-cache-item.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Caches embedded items.
@@ -57,6 +57,6 @@ struct EmbeddedItem
   GlyphIndex    index{0u};         ///< The glyph index of this embedded items. Should be bigger than 0.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_EMBEDDED_ITEM_H

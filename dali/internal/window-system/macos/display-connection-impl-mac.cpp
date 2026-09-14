@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 // INTERNAL INCLUDES
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DisplayConnection* DisplayConnectionCocoa::New()
 {
@@ -50,4 +50,4 @@ void DisplayConnectionCocoa::SetSurfaceType(Dali::Integration::RenderSurfaceInte
 {
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

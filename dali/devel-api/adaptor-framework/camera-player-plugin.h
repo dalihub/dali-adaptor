@@ -25,7 +25,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 using DisplayArea = Dali::BoundsInteger;
@@ -76,6 +76,6 @@ public:
   virtual void SetCameraPlayer(Any handle) = 0;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CAMERA_PLAYER_PLUGIN_H

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 NetworkServicePtr NetworkService::Get()
 {
@@ -56,4 +56,4 @@ void NetworkService::EmitCustomCommandReceivedSignal(const std::string& message)
   }
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

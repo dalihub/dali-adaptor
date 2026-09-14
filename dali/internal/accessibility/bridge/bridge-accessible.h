@@ -259,11 +259,12 @@ private:
   /**
    * @brief Gets valid children accessible.
    *
+   * @param[in] parent Parent of the children
    * @param[in] children Children accessible objects
    * @param start The start node
    * @return The valid children
    */
-  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
+  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(Dali::Accessibility::Accessible* parent, const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
 
   /**
    * @brief Gets the currently highlighted accessible.

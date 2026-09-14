@@ -38,7 +38,7 @@
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 #include <dali/internal/window-system/ubuntu-x11/window-interface-ecore-x.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -633,4 +633,4 @@ bool Clipboard::OnMultiSelectionTimeout()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

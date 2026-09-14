@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -182,4 +182,4 @@ void LifecycleController::OnLanguageChanged()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

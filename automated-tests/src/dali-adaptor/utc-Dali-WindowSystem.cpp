@@ -31,25 +31,18 @@ void utc_dali_window_system_cleanup(void)
   test_return_value = TET_PASS;
 }
 
-int UtcDaliWindowSystemGetScreenSizeP(void)
+int UtcDaliWindowSystemGetMainScreenSizeP(void)
 {
-  try
-  {
-    int width, height;
-    DevelWindowSystem::GetScreenSize(width, height);
+  Int32Pair size = WindowSystem::GetMainScreenSize();
 
 #if defined(_WIN32)
-    // The Windows backend reports the dimensions of the real primary display.
-    DALI_TEST_CHECK((width > 0) && (height > 0));
+  // The Windows backend reports the dimensions of the real primary display.
+  DALI_TEST_CHECK((size.GetWidth() > 0) && (size.GetHeight() > 0));
 #else
-    // The width and height refer ecore_x_screen_size_get defined in utc-Dali-Window.cpp.
-    DALI_TEST_CHECK((width == 100) && (height == 100));
+  // The width and height refer ecore_x_screen_size_get defined in utc-Dali-Window.cpp.
+  DALI_TEST_EQUALS(size.GetWidth(), 100, TEST_LOCATION);
+  DALI_TEST_EQUALS(size.GetHeight(), 100, TEST_LOCATION);
 #endif
-  }
-  catch(...)
-  {
-    DALI_TEST_CHECK(false);
-  }
 
   END_TEST;
 }

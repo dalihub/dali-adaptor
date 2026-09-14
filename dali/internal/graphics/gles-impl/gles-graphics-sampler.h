@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 using SamplerResource = Resource<Graphics::Sampler, Graphics::SamplerCreateInfo>;
 
@@ -62,6 +62,6 @@ public:
   void DiscardResource() override;
 };
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES
 
 #endif

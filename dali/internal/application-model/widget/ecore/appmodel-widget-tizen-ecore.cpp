@@ -37,7 +37,7 @@
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -472,4 +472,4 @@ void AppModelWidget::AppExit()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

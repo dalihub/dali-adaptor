@@ -15,16 +15,16 @@
  */
 
 // INTERNAL HEADERS
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
+#include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-composite.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-outline.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-graph.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-outline.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-context.h>
-#include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-paint-graph.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 // =====================================================================
 // When DALI_ENABLE_COLR_V1_RENDERER == 0: stubs only
@@ -32,13 +32,13 @@
 // =====================================================================
 #if !DALI_ENABLE_COLR_V1_RENDERER
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 bool ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  std::size_t variationsHash,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
+  std::size_t  variationsHash,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -46,8 +46,8 @@ bool ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds(
 }
 
 bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -55,7 +55,7 @@ bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
 }
 
 ColorGlyphColrRasterizer::RawClipBox ColorGlyphColrRasterizer::ComputeClipBox(
-  FT_Face ftFace,
+  FT_Face    ftFace,
   GlyphIndex glyphIndex) const
 {
   RawClipBox result;
@@ -64,12 +64,12 @@ ColorGlyphColrRasterizer::RawClipBox ColorGlyphColrRasterizer::ComputeClipBox(
 }
 
 ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeInternal(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  uint32_t targetWidth,
-  uint32_t targetHeight,
-  uint16_t paletteIndex,
-  std::size_t variationsHash,
+  FT_Face            ftFace,
+  GlyphIndex         glyphIndex,
+  uint32_t           targetWidth,
+  uint32_t           targetHeight,
+  uint16_t           paletteIndex,
+  std::size_t        variationsHash,
   const PaintBounds* paintBoundsHint)
 {
   RenderResult result;
@@ -77,7 +77,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   return result;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 // =====================================================================
 // When DALI_ENABLE_COLR_V1_RENDERER == 1: Full implementation
@@ -132,11 +132,11 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
 // ThorVG headers (ThorVG 1.0 API - guaranteed by DALI_HAS_THORVG_COLR_RENDER_API)
 #include <thorvg.h>
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
@@ -165,13 +165,13 @@ uint32_t CountNonZeroPixels(const uint8_t* buffer, uint32_t width, uint32_t heig
 struct OutlineBBox
 {
   float minX{0}, minY{0}, maxX{0}, maxY{0};
-  bool valid{false};
+  bool  valid{false};
 };
 
 OutlineBBox ComputeOutlineBBox(FT_Face ftFace, uint32_t glyphIndex)
 {
   OutlineBBox bbox;
-  FT_Error error = FT_Load_Glyph(ftFace, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_NO_HINTING | FT_LOAD_NO_SCALE);
+  FT_Error    error = FT_Load_Glyph(ftFace, glyphIndex, FT_LOAD_NO_BITMAP | FT_LOAD_NO_HINTING | FT_LOAD_NO_SCALE);
   if(error != FT_Err_Ok) return bbox;
 
   FT_Outline* outline = &ftFace->glyph->outline;
@@ -190,10 +190,10 @@ OutlineBBox ComputeOutlineBBox(FT_Face ftFace, uint32_t glyphIndex)
     if(outline->points[i].y > maxY) maxY = outline->points[i].y;
   }
 
-  bbox.minX = static_cast<float>(minX);
-  bbox.minY = static_cast<float>(minY);
-  bbox.maxX = static_cast<float>(maxX);
-  bbox.maxY = static_cast<float>(maxY);
+  bbox.minX  = static_cast<float>(minX);
+  bbox.minY  = static_cast<float>(minY);
+  bbox.maxX  = static_cast<float>(maxX);
+  bbox.maxY  = static_cast<float>(maxY);
   bbox.valid = true;
   return bbox;
 }
@@ -208,7 +208,7 @@ OutlineBBox ComputeOutlineBBox(FT_Face ftFace, uint32_t glyphIndex)
 //   paint-graph: TryBuildRootPaintForSceneBuilder, BuildCompositeOffscreenRootBuffer
 
 // ---- Paint bounds type alias ----
-using PaintBounds = ColorGlyphColrRasterizer::PaintBounds;
+using PaintBounds  = ColorGlyphColrRasterizer::PaintBounds;
 using RenderResult = ColorGlyphColrRasterizer::RenderResult;
 
 // Root PaintComposite already owns a composited BGRA buffer. Move that buffer
@@ -222,10 +222,10 @@ using RenderResult = ColorGlyphColrRasterizer::RenderResult;
 // union bounds used by non-root Composite placement.
 bool MoveRootOffscreenToRenderResult(
   RootCompositeOffscreenResult& offscreen,
-  RenderResult& result,
-  const PaintBounds& paintBounds,
-  float offsetX,
-  float offsetY)
+  RenderResult&                 result,
+  const PaintBounds&            paintBounds,
+  float                         offsetX,
+  float                         offsetY)
 {
   if(!offscreen.IsValid())
   {
@@ -233,19 +233,19 @@ bool MoveRootOffscreenToRenderResult(
   }
 
   result.success = true;
-  result.buffer = offscreen.surface.buffer;
-  result.width = offscreen.surface.width;
-  result.height = offscreen.surface.height;
-  result.stride = offscreen.surface.stride;
-  result.format = Pixel::BGRA8888;
+  result.buffer  = offscreen.surface.buffer;
+  result.width   = offscreen.surface.width;
+  result.height  = offscreen.surface.height;
+  result.stride  = offscreen.surface.stride;
+  result.format  = Pixel::BGRA8888;
 
   if(paintBounds.valid)
   {
     result.hasPaintBounds = true;
-    result.paintMinX = paintBounds.minX;
-    result.paintMinY = paintBounds.minY;
-    result.paintMaxX = paintBounds.maxX;
-    result.paintMaxY = paintBounds.maxY;
+    result.paintMinX      = paintBounds.minX;
+    result.paintMinY      = paintBounds.minY;
+    result.paintMaxX      = paintBounds.maxX;
+    result.paintMaxY      = paintBounds.maxY;
   }
   else
   {
@@ -253,7 +253,7 @@ bool MoveRootOffscreenToRenderResult(
   }
 
   result.horizontalOffset = static_cast<int32_t>(-offsetX + static_cast<float>(offscreen.pixelX));
-  result.verticalOffset = static_cast<int32_t>(offsetY - static_cast<float>(offscreen.pixelY));
+  result.verticalOffset   = static_cast<int32_t>(offsetY - static_cast<float>(offscreen.pixelY));
 
   offscreen.surface = CompositeBuffer();
   return true;
@@ -299,10 +299,10 @@ void ApplyPaintBoundsToRenderResult(RenderResult& result, const PaintBounds& pai
   if(paintBounds.valid)
   {
     result.hasPaintBounds = true;
-    result.paintMinX = paintBounds.minX;
-    result.paintMinY = paintBounds.minY;
-    result.paintMaxX = paintBounds.maxX;
-    result.paintMaxY = paintBounds.maxY;
+    result.paintMinX      = paintBounds.minX;
+    result.paintMinY      = paintBounds.minY;
+    result.paintMaxX      = paintBounds.maxX;
+    result.paintMaxY      = paintBounds.maxY;
   }
   else
   {
@@ -314,14 +314,14 @@ void ApplyPaintBoundsToRenderResult(RenderResult& result, const PaintBounds& pai
 // root SwCanvas target and return a BGRA RenderResult using the existing glyph
 // bitmap metadata contract.
 bool RenderRootPaintToRenderResult(
-  tvg::Paint*& rootPaint,
-  RenderResult& result,
+  tvg::Paint*&       rootPaint,
+  RenderResult&      result,
   const PaintBounds& paintBounds,
-  uint32_t bitmapWidth,
-  uint32_t bitmapHeight,
-  float offsetX,
-  float offsetY,
-  uint32_t glyphIndex)
+  uint32_t           bitmapWidth,
+  uint32_t           bitmapHeight,
+  float              offsetX,
+  float              offsetY,
+  uint32_t           glyphIndex)
 {
   if(!rootPaint || bitmapWidth == 0u || bitmapHeight == 0u)
   {
@@ -335,8 +335,8 @@ bool RenderRootPaintToRenderResult(
     return false;
   }
 
-  const uint32_t stride = bitmapWidth * 4u;
-  const size_t byteCount = static_cast<size_t>(stride) * static_cast<size_t>(bitmapHeight);
+  const uint32_t stride    = bitmapWidth * 4u;
+  const size_t   byteCount = static_cast<size_t>(stride) * static_cast<size_t>(bitmapHeight);
   if(bitmapHeight != 0u && byteCount / bitmapHeight != stride)
   {
     ReleaseRootPaint(rootPaint);
@@ -402,20 +402,20 @@ bool RenderRootPaintToRenderResult(
   delete canvas;
 
   result.success = true;
-  result.buffer = buffer;
-  result.width = bitmapWidth;
-  result.height = bitmapHeight;
-  result.stride = stride;
-  result.format = Pixel::BGRA8888;
+  result.buffer  = buffer;
+  result.width   = bitmapWidth;
+  result.height  = bitmapHeight;
+  result.stride  = stride;
+  result.format  = Pixel::BGRA8888;
   ApplyPaintBoundsToRenderResult(result, paintBounds);
   result.horizontalOffset = static_cast<int32_t>(-offsetX);
-  result.verticalOffset = static_cast<int32_t>(offsetY);
+  result.verticalOffset   = static_cast<int32_t>(offsetY);
 
   if(IsColrDebugTraceEnabled(glyphIndex))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER DirectRootRaster success glyph:%u bitmap:%ux%u nonZero:%u offset:(%d,%d)\n",
-                   glyphIndex, bitmapWidth, bitmapHeight, nonZero,
-                   result.horizontalOffset, result.verticalOffset);
+                          glyphIndex, bitmapWidth, bitmapHeight, nonZero,
+                          result.horizontalOffset, result.verticalOffset);
   }
 
   return true;
@@ -427,9 +427,9 @@ bool RenderRootPaintToRenderResult(
 // ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds
 // ============================================================
 bool ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  std::size_t variationsHash,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
+  std::size_t  variationsHash,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -447,17 +447,17 @@ bool ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds(
   }
 
   const float unitsPerEm = static_cast<float>(ftFace->units_per_EM);
-  const float scale = unitsPerEm > 0.0f ? static_cast<float>(ftFace->size->metrics.y_ppem) / unitsPerEm : 0.0f;
+  const float scale      = unitsPerEm > 0.0f ? static_cast<float>(ftFace->size->metrics.y_ppem) / unitsPerEm : 0.0f;
   if(scale <= 0.0f)
   {
     return false;
   }
 
-  outBounds.valid = true;
-  outBounds.minX = Clip26Dot6ToFloat(clipBox.minX) / scale;
-  outBounds.minY = Clip26Dot6ToFloat(clipBox.minY) / scale;
-  outBounds.maxX = Clip26Dot6ToFloat(clipBox.maxX) / scale;
-  outBounds.maxY = Clip26Dot6ToFloat(clipBox.maxY) / scale;
+  outBounds.valid  = true;
+  outBounds.minX   = Clip26Dot6ToFloat(clipBox.minX) / scale;
+  outBounds.minY   = Clip26Dot6ToFloat(clipBox.minY) / scale;
+  outBounds.maxX   = Clip26Dot6ToFloat(clipBox.maxX) / scale;
+  outBounds.maxY   = Clip26Dot6ToFloat(clipBox.maxY) / scale;
   outBounds.source = PaintBounds::Source::CLIP_BOX;
   return true;
 }
@@ -466,8 +466,8 @@ bool ColorGlyphColrRasterizer::TryGetClipBoxPaintBounds(
 // ColorGlyphColrRasterizer::ComputePaintGraphBounds
 // ============================================================
 bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -478,7 +478,7 @@ bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
   }
 
   FT_OpaquePaint rootPaint;
-  rootPaint.p = nullptr;
+  rootPaint.p                     = nullptr;
   rootPaint.insert_root_transform = false;
 
   const FT_Bool hasPaint = FT_Get_Color_Glyph_Paint(
@@ -493,7 +493,7 @@ bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
   }
 
   TransformState identityTransform;
-  PaintBounds bounds;
+  PaintBounds    bounds;
   TraversePaintBounds(ftFace, rootPaint, bounds, identityTransform, glyphIndex, 0);
 
   if(!bounds.valid)
@@ -501,13 +501,13 @@ bool ColorGlyphColrRasterizer::ComputePaintGraphBounds(
     return false;
   }
 
-  outBounds = bounds;
+  outBounds        = bounds;
   outBounds.source = PaintBounds::Source::PAINT_GRAPH;
   return true;
 }
 
 ColorGlyphColrRasterizer::RawClipBox ColorGlyphColrRasterizer::ComputeClipBox(
-  FT_Face ftFace,
+  FT_Face    ftFace,
   GlyphIndex glyphIndex) const
 {
   RawClipBox result;
@@ -543,26 +543,26 @@ ColorGlyphColrRasterizer::RawClipBox ColorGlyphColrRasterizer::ComputeClipBox(
     if(corner.y > maxY) maxY = corner.y;
   }
 
-  const float clipWidth = Clip26Dot6ToFloat(maxX - minX);
-  const float clipHeight = Clip26Dot6ToFloat(maxY - minY);
+  const float     clipWidth               = Clip26Dot6ToFloat(maxX - minX);
+  const float     clipHeight              = Clip26Dot6ToFloat(maxY - minY);
   constexpr float MAX_COLR_CLIPBOX_PIXELS = 1019.0f;
   if(!std::isfinite(clipWidth) || !std::isfinite(clipHeight) ||
      clipWidth <= 0.0f || clipHeight <= 0.0f ||
      clipWidth > MAX_COLR_CLIPBOX_PIXELS || clipHeight > MAX_COLR_CLIPBOX_PIXELS)
   {
     result.status = ClipBoxCacheStatus::INVALID_BOUNDS;
-    result.minX = minX;
-    result.minY = minY;
-    result.maxX = maxX;
-    result.maxY = maxY;
+    result.minX   = minX;
+    result.minY   = minY;
+    result.maxX   = maxX;
+    result.maxY   = maxY;
     return result;
   }
 
   result.status = ClipBoxCacheStatus::OK;
-  result.minX = minX;
-  result.minY = minY;
-  result.maxX = maxX;
-  result.maxY = maxY;
+  result.minX   = minX;
+  result.minY   = minY;
+  result.maxX   = maxX;
+  result.maxY   = maxY;
   return result;
 }
 
@@ -570,12 +570,12 @@ ColorGlyphColrRasterizer::RawClipBox ColorGlyphColrRasterizer::ComputeClipBox(
 // ColorGlyphColrRasterizer::RasterizeInternal
 // ============================================================
 ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeInternal(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  uint32_t targetWidth,
-  uint32_t targetHeight,
-  uint16_t paletteIndex,
-  std::size_t variationsHash,
+  FT_Face            ftFace,
+  GlyphIndex         glyphIndex,
+  uint32_t           targetWidth,
+  uint32_t           targetHeight,
+  uint16_t           paletteIndex,
+  std::size_t        variationsHash,
   const PaintBounds* paintBoundsHint)
 {
   RenderResult result;
@@ -596,26 +596,26 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
 
   // Get root paint for this glyph - MUST initialize before calling FT_Get_Color_Glyph_Paint
   FT_OpaquePaint rootPaint;
-  rootPaint.p = nullptr;
+  rootPaint.p                     = nullptr;
   rootPaint.insert_root_transform = false;
 
   // Use COLR_ROOT_TRANSFORM_OPTION for root transform control
   // See the define at the top of this file for explanation
   FT_Bool hasPaint = FT_Get_Color_Glyph_Paint(ftFace, glyphIndex,
-                                                COLR_ROOT_TRANSFORM_OPTION,
-                                                &rootPaint);
+                                              COLR_ROOT_TRANSFORM_OPTION,
+                                              &rootPaint);
   if(!hasPaint || rootPaint.p == nullptr)
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER Fail glyph:%u reason:no-root-paint hasPaint:%d rootPaint.p:%p\n",
-                   glyphIndex, static_cast<int>(hasPaint), static_cast<void*>(rootPaint.p));
+                          glyphIndex, static_cast<int>(hasPaint), static_cast<void*>(rootPaint.p));
     return result;
   }
 
   if(IsColrDebugTraceEnabled(glyphIndex))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RootPaint OK glyph:%u hasPaint:%d rootPaint.p:%p insertRootTransform:%d\n",
-                   glyphIndex, static_cast<int>(hasPaint), static_cast<void*>(rootPaint.p),
-                   static_cast<int>(rootPaint.insert_root_transform));
+                          glyphIndex, static_cast<int>(hasPaint), static_cast<void*>(rootPaint.p),
+                          static_cast<int>(rootPaint.insert_root_transform));
   }
 
   // Compute bounding box of the base glyph outline for scaling
@@ -642,10 +642,10 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   if(IsColrDebugTraceEnabled(glyphIndex))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER PaintBounds glyph:%u valid:%d min:(%.1f,%.1f) max:(%.1f,%.1f) size:(%.1f,%.1f)\n",
-                   glyphIndex, paintBounds.valid,
-                   paintBounds.minX, paintBounds.minY, paintBounds.maxX, paintBounds.maxY,
-                   paintBounds.valid ? paintBounds.maxX - paintBounds.minX : 0.0f,
-                   paintBounds.valid ? paintBounds.maxY - paintBounds.minY : 0.0f);
+                          glyphIndex, paintBounds.valid,
+                          paintBounds.minX, paintBounds.minY, paintBounds.maxX, paintBounds.maxY,
+                          paintBounds.valid ? paintBounds.maxX - paintBounds.minX : 0.0f,
+                          paintBounds.valid ? paintBounds.maxY - paintBounds.minY : 0.0f);
   }
   // Log transform configuration (after unitsPerEm is available)
   if(IsColrDebugTraceEnabled(glyphIndex))
@@ -654,7 +654,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
       (COLR_ROOT_TRANSFORM_OPTION == FT_COLOR_INCLUDE_ROOT_TRANSFORM) ? "INCLUDE_ROOT_TRANSFORM" : "NO_ROOT_TRANSFORM";
     const char* boundsSource = paintBounds.valid ? PaintBoundsSourceToString(paintBounds.source) : (bbox.valid ? "BASE_GLYPH" : "UPEM_FALLBACK");
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER TransformConfig glyph:%u root:%s yFlip:PATH_NEGATE bbox:%s upem:%.0f\n",
-                   glyphIndex, rootTransformName, boundsSource, unitsPerEm);
+                          glyphIndex, rootTransformName, boundsSource, unitsPerEm);
   }
 
   // Calculate bitmap size, scale, and offset
@@ -667,10 +667,10 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   //
   // Fallback paths (BASE_GLYPH, UPEM_FALLBACK): Fit into targetWidth x targetHeight
   //   These are used when paint bounds are not available.
-  float scale;
-  float offsetX, offsetY;
-  uint32_t bitmapWidth = targetWidth;
-  uint32_t bitmapHeight = targetHeight;
+  float       scale;
+  float       offsetX, offsetY;
+  uint32_t    bitmapWidth  = targetWidth;
+  uint32_t    bitmapHeight = targetHeight;
   const char* boundsSource = "UPEM_FALLBACK";
 
   if(paintBounds.valid && (paintBounds.maxX - paintBounds.minX) > 0 && (paintBounds.maxY - paintBounds.minY) > 0 && ftFace->size)
@@ -693,7 +693,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
       if(IsColrDebugTraceEnabled(glyphIndex))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER Fail glyph:%u reason:invalid-scale scale:%f\n",
-                       glyphIndex, scale);
+                              glyphIndex, scale);
       }
       return result;
     }
@@ -706,8 +706,8 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     // safety margin does not also shift visible COLR glyphs to the lower-right.
     const float bufferPadding = 2.0f;
     const float originPadding = 1.0f;
-    bitmapWidth  = static_cast<uint32_t>(std::ceil(paintW * scale + bufferPadding * 2.0f));
-    bitmapHeight = static_cast<uint32_t>(std::ceil(paintH * scale + bufferPadding * 2.0f));
+    bitmapWidth               = static_cast<uint32_t>(std::ceil(paintW * scale + bufferPadding * 2.0f));
+    bitmapHeight              = static_cast<uint32_t>(std::ceil(paintH * scale + bufferPadding * 2.0f));
 
     // Maximum bitmap size limit.
     // TODO: Replace this local limit with FontClient/atlas policy input.
@@ -721,8 +721,8 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
       if(IsColrDebugTraceEnabled(glyphIndex))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER Fail glyph:%u reason:bitmap-too-large bitmap:%ux%u limit:%ux%u\n",
-                       glyphIndex, bitmapWidth, bitmapHeight,
-                       MAX_COLR_BITMAP_WIDTH, MAX_COLR_BITMAP_HEIGHT);
+                              glyphIndex, bitmapWidth, bitmapHeight,
+                              MAX_COLR_BITMAP_WIDTH, MAX_COLR_BITMAP_HEIGHT);
       }
       return result;
     }
@@ -735,14 +735,14 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     //   bufferPadding controls the bitmap size for clipping safety
     //   originPadding controls paint placement inside that bitmap
     // Previously a single padding value was used for both roles.
-    offsetX = originPadding - paintBounds.minX * scale;
-    offsetY = originPadding + paintBounds.maxY * scale;
+    offsetX      = originPadding - paintBounds.minX * scale;
+    offsetY      = originPadding + paintBounds.maxY * scale;
     boundsSource = PaintBoundsSourceToString(paintBounds.source);
 
     if(IsColrDebugTraceEnabled(glyphIndex))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER BBox source:%s min:(%.0f,%.0f) max:(%.0f,%.0f) scale:%.4f offset:(%.1f,%.1f) bitmap:%ux%u\n",
-                     boundsSource, paintBounds.minX, paintBounds.minY, paintBounds.maxX, paintBounds.maxY, scale, offsetX, offsetY, bitmapWidth, bitmapHeight);
+                            boundsSource, paintBounds.minX, paintBounds.minY, paintBounds.maxX, paintBounds.maxY, scale, offsetX, offsetY, bitmapWidth, bitmapHeight);
     }
   }
   else if(bbox.valid && (bbox.maxX - bbox.minX) > 0 && (bbox.maxY - bbox.minY) > 0)
@@ -751,32 +751,32 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     float glyphW = bbox.maxX - bbox.minX;
     float glyphH = bbox.maxY - bbox.minY;
 
-    float pad = 2.0f;
+    float pad    = 2.0f;
     float scaleX = (targetWidth - pad * 2) / glyphW;
     float scaleY = (targetHeight - pad * 2) / glyphH;
-    scale = (scaleX < scaleY) ? scaleX : scaleY;
+    scale        = (scaleX < scaleY) ? scaleX : scaleY;
 
-    offsetX = (targetWidth - glyphW * scale) / 2.0f - bbox.minX * scale;
-    offsetY = (targetHeight - glyphH * scale) / 2.0f + bbox.maxY * scale;
+    offsetX      = (targetWidth - glyphW * scale) / 2.0f - bbox.minX * scale;
+    offsetY      = (targetHeight - glyphH * scale) / 2.0f + bbox.maxY * scale;
     boundsSource = "BASE_GLYPH";
 
     if(IsColrDebugTraceEnabled(glyphIndex))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER BBox source:BASE_GLYPH min:(%.0f,%.0f) max:(%.0f,%.0f) scale:%.4f offset:(%.1f,%.1f)\n",
-                     bbox.minX, bbox.minY, bbox.maxX, bbox.maxY, scale, offsetX, offsetY);
+                            bbox.minX, bbox.minY, bbox.maxX, bbox.maxY, scale, offsetX, offsetY);
     }
   }
   else
   {
-    scale = static_cast<float>(targetWidth) / unitsPerEm;
-    offsetX = 0.0f;
-    offsetY = static_cast<float>(targetHeight);
+    scale        = static_cast<float>(targetWidth) / unitsPerEm;
+    offsetX      = 0.0f;
+    offsetY      = static_cast<float>(targetHeight);
     boundsSource = "UPEM_FALLBACK";
 
     if(IsColrDebugTraceEnabled(glyphIndex))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER BBoxSource glyph:%u source:UPEM_FALLBACK reason:base-glyph-empty upem:%.0f scale:%.4f offset:(%.1f,%.1f)\n",
-                     glyphIndex, unitsPerEm, scale, offsetX, offsetY);
+                            glyphIndex, unitsPerEm, scale, offsetX, offsetY);
     }
   }
 
@@ -784,10 +784,10 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   if(IsColrDebugTraceEnabled(glyphIndex))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER BitmapConfig glyph:%u ppem:(%u,%u) upem:%.0f bitmap:%ux%u scale:%.4f offset:(%.1f,%.1f) boundsSource:%s\n",
-                   glyphIndex,
-                   ftFace->size ? ftFace->size->metrics.x_ppem : 0,
-                   ftFace->size ? ftFace->size->metrics.y_ppem : 0,
-                   unitsPerEm, bitmapWidth, bitmapHeight, scale, offsetX, offsetY, boundsSource);
+                          glyphIndex,
+                          ftFace->size ? ftFace->size->metrics.x_ppem : 0,
+                          ftFace->size ? ftFace->size->metrics.y_ppem : 0,
+                          unitsPerEm, bitmapWidth, bitmapHeight, scale, offsetX, offsetY, boundsSource);
   }
 
   // ---- Root Composite path ----
@@ -802,26 +802,26 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
       if(IsColrDebugTraceEnabled(glyphIndex))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RootComposite detected glyph:%u mode:%d(%s) - using offscreen core\n",
-                       glyphIndex,
-                       static_cast<int>(rootPaintPeek.u.composite.composite_mode),
-                       CompositeModeToString(rootPaintPeek.u.composite.composite_mode));
+                              glyphIndex,
+                              static_cast<int>(rootPaintPeek.u.composite.composite_mode),
+                              CompositeModeToString(rootPaintPeek.u.composite.composite_mode));
       }
 
       PaintContext rootCompositeCtx;
-      rootCompositeCtx.ftFace = ftFace;
-      rootCompositeCtx.paletteIndex = paletteIndex;
-      rootCompositeCtx.targetWidth = bitmapWidth;
-      rootCompositeCtx.targetHeight = bitmapHeight;
-      rootCompositeCtx.unitsPerEm = unitsPerEm;
-      rootCompositeCtx.scale = scale;
-      rootCompositeCtx.offsetX = offsetX;
-      rootCompositeCtx.offsetY = offsetY;
-      rootCompositeCtx.debugGlyph = glyphIndex;
+      rootCompositeCtx.ftFace                        = ftFace;
+      rootCompositeCtx.paletteIndex                  = paletteIndex;
+      rootCompositeCtx.targetWidth                   = bitmapWidth;
+      rootCompositeCtx.targetHeight                  = bitmapHeight;
+      rootCompositeCtx.unitsPerEm                    = unitsPerEm;
+      rootCompositeCtx.scale                         = scale;
+      rootCompositeCtx.offsetX                       = offsetX;
+      rootCompositeCtx.offsetY                       = offsetY;
+      rootCompositeCtx.debugGlyph                    = glyphIndex;
       rootCompositeCtx.allowOffscreenCompositeResult = false;
-      rootCompositeCtx.rasterizer = this;
-      rootCompositeCtx.variationsHash = variationsHash;
-      rootCompositeCtx.useClipBoxBounds = true;
-      rootCompositeCtx.clipBoxBoundsGlyph = glyphIndex;
+      rootCompositeCtx.rasterizer                    = this;
+      rootCompositeCtx.variationsHash                = variationsHash;
+      rootCompositeCtx.useClipBoxBounds              = true;
+      rootCompositeCtx.clipBoxBoundsGlyph            = glyphIndex;
 
       RootCompositeOffscreenResult offscreen = BuildCompositeOffscreenRootBuffer(
         ftFace, rootPaintPeek.u.composite, rootCompositeCtx, 0);
@@ -832,14 +832,14 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
         {
           uint32_t nonZero = CountNonZeroPixels(result.buffer, result.width, result.height, result.stride);
           DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RootComposite success glyph:%u bitmap:%ux%u origin:(%d,%d) offset:(%d,%d) nonZero:%u\n",
-                         glyphIndex,
-                         result.width,
-                         result.height,
-                         offscreen.pixelX,
-                         offscreen.pixelY,
-                         result.horizontalOffset,
-                         result.verticalOffset,
-                         nonZero);
+                                glyphIndex,
+                                result.width,
+                                result.height,
+                                offscreen.pixelX,
+                                offscreen.pixelY,
+                                result.horizontalOffset,
+                                result.verticalOffset,
+                                nonZero);
         }
 
         return result;
@@ -847,7 +847,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
       else
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RootComposite failed glyph:%u\n",
-                       glyphIndex);
+                              glyphIndex);
         return result; // invalid
       }
     }
@@ -856,30 +856,30 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   // ---- Normal (non-Composite) paint graph path ----
   // Set up paint context
   PaintContext ctx;
-  ctx.ftFace = ftFace;
-  ctx.paletteIndex = paletteIndex;
-  ctx.targetWidth = targetWidth;
-  ctx.targetHeight = targetHeight;
-  ctx.unitsPerEm = unitsPerEm;
-  ctx.scale = scale;
-  ctx.offsetX = offsetX;
-  ctx.offsetY = offsetY;
-  ctx.debugGlyph = glyphIndex;
-  ctx.rasterizer = this;
-  ctx.variationsHash = variationsHash;
-  ctx.useClipBoxBounds = true;
+  ctx.ftFace             = ftFace;
+  ctx.paletteIndex       = paletteIndex;
+  ctx.targetWidth        = targetWidth;
+  ctx.targetHeight       = targetHeight;
+  ctx.unitsPerEm         = unitsPerEm;
+  ctx.scale              = scale;
+  ctx.offsetX            = offsetX;
+  ctx.offsetY            = offsetY;
+  ctx.debugGlyph         = glyphIndex;
+  ctx.rasterizer         = this;
+  ctx.variationsHash     = variationsHash;
+  ctx.useClipBoxBounds   = true;
   ctx.clipBoxBoundsGlyph = glyphIndex;
 
   // Verify TransformState identity initialization (debug glyph only)
   if(IsColrDebugTraceEnabled(glyphIndex))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER TransformStateInit geometry:[%.2f,%.2f,%.2f,%.2f,%.1f,%.1f] paint:[%.2f,%.2f,%.2f,%.2f,%.1f,%.1f]\n",
-                   ctx.geometryTransform.matrix[0], ctx.geometryTransform.matrix[1],
-                   ctx.geometryTransform.matrix[2], ctx.geometryTransform.matrix[3],
-                   ctx.geometryTransform.matrix[4], ctx.geometryTransform.matrix[5],
-                   ctx.paintTransform.matrix[0], ctx.paintTransform.matrix[1],
-                   ctx.paintTransform.matrix[2], ctx.paintTransform.matrix[3],
-                   ctx.paintTransform.matrix[4], ctx.paintTransform.matrix[5]);
+                          ctx.geometryTransform.matrix[0], ctx.geometryTransform.matrix[1],
+                          ctx.geometryTransform.matrix[2], ctx.geometryTransform.matrix[3],
+                          ctx.geometryTransform.matrix[4], ctx.geometryTransform.matrix[5],
+                          ctx.paintTransform.matrix[0], ctx.paintTransform.matrix[1],
+                          ctx.paintTransform.matrix[2], ctx.paintTransform.matrix[3],
+                          ctx.paintTransform.matrix[4], ctx.paintTransform.matrix[5]);
   }
 
   tvg::Paint* rootScenePaint = nullptr;
@@ -895,7 +895,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
     if(IsColrDebugTraceEnabled(glyphIndex))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER DirectRootRaster failed glyph:%u - fail closed\n",
-                     glyphIndex);
+                            glyphIndex);
     }
   }
 
@@ -907,7 +907,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
   return result;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 
@@ -918,7 +918,7 @@ ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::RasterizeIntern
 // preventing linker errors when other translation units reference them.
 // ============================================================
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 ColorGlyphColrRasterizer::ColorGlyphColrRasterizer(std::size_t maxPaintBoundsCacheSize)
@@ -955,9 +955,9 @@ ColorGlyphColrRasterizer::~ColorGlyphColrRasterizer()
 }
 
 bool ColorGlyphColrRasterizer::GetPaintBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  std::size_t variationsHash,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
+  std::size_t  variationsHash,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -976,9 +976,9 @@ bool ColorGlyphColrRasterizer::GetPaintBounds(
 }
 
 bool ColorGlyphColrRasterizer::GetFallbackPaintGraphBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
-  std::size_t variationsHash,
+  FT_Face      ftFace,
+  GlyphIndex   glyphIndex,
+  std::size_t  variationsHash,
   PaintBounds& outBounds)
 {
   outBounds = PaintBounds();
@@ -994,7 +994,7 @@ bool ColorGlyphColrRasterizer::GetFallbackPaintGraphBounds(
   if(iter != mPaintBoundsCache.End())
   {
     auto& data = mPaintBoundsCache.Get(key);
-    outBounds = data.bounds;
+    outBounds  = data.bounds;
     return data.valid;
   }
 
@@ -1008,8 +1008,8 @@ bool ColorGlyphColrRasterizer::GetFallbackPaintGraphBounds(
 }
 
 ColorGlyphColrRasterizer::ClipBoxCacheStatus ColorGlyphColrRasterizer::GetClipBox(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face     ftFace,
+  GlyphIndex  glyphIndex,
   std::size_t variationsHash,
   RawClipBox& outClipBox)
 {
@@ -1040,15 +1040,15 @@ ColorGlyphColrRasterizer::ClipBoxCacheStatus ColorGlyphColrRasterizer::GetClipBo
 }
 
 ColorGlyphColrRasterizer::RenderResult ColorGlyphColrRasterizer::Rasterize(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face     ftFace,
+  GlyphIndex  glyphIndex,
   std::size_t variationsHash,
-  uint32_t targetWidth,
-  uint32_t targetHeight,
-  uint16_t paletteIndex)
+  uint32_t    targetWidth,
+  uint32_t    targetHeight,
+  uint16_t    paletteIndex)
 {
   PaintBounds paintBounds;
-  const bool hasPaintBounds = GetPaintBounds(ftFace, glyphIndex, variationsHash, paintBounds);
+  const bool  hasPaintBounds = GetPaintBounds(ftFace, glyphIndex, variationsHash, paintBounds);
 
   return RasterizeInternal(
     ftFace,
@@ -1066,4 +1066,4 @@ void ColorGlyphColrRasterizer::ClearCache()
   mPaintBoundsCache.Clear();
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

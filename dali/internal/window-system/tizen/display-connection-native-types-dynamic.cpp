@@ -22,11 +22,11 @@
 #include <dali/internal/adaptor/common/weak-symbol.h>
 #include <dali/internal/graphics/common/graphics-library.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 DALI_ADAPTOR_WEAK_SYMBOL std::unique_ptr<Any> CastToNativeGraphicsType(wl_display* display)
 {
   return GraphicsLibrary::CastToNativeGraphicsType(display);
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

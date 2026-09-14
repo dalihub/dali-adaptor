@@ -19,10 +19,13 @@
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
 // EXTERNAL INCLUDES
+// Include windows.h first: processthreadsapi.h otherwise reaches winnt.h before
+// the Windows SDK has established its target-architecture macros.
 #include <windows.h>
+
 #include <processthreadsapi.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -55,8 +58,8 @@ void SetThreadName(const std::string& threadName)
   }
 
   using SetThreadDescriptionFunction = HRESULT(WINAPI*)(HANDLE, PCWSTR);
-  HMODULE kernel32                    = GetModuleHandleW(L"Kernel32.dll");
-  auto    setThreadDescription        = kernel32 ? reinterpret_cast<SetThreadDescriptionFunction>(GetProcAddress(kernel32, "SetThreadDescription")) : nullptr;
+  HMODULE kernel32                   = GetModuleHandleW(L"Kernel32.dll");
+  auto    setThreadDescription       = kernel32 ? reinterpret_cast<SetThreadDescriptionFunction>(GetProcAddress(kernel32, "SetThreadDescription")) : nullptr;
   if(setThreadDescription)
   {
     setThreadDescription(GetCurrentThread(), wideThreadName.c_str());
@@ -76,4 +79,4 @@ int32_t GetMainThreadId()
 } // namespace ThreadSettings
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

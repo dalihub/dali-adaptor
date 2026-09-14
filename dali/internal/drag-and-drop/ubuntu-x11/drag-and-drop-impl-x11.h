@@ -29,7 +29,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class DragAndDrop;
 
@@ -40,20 +40,20 @@ namespace Adaptor
 
 struct DropTarget
 {
-  Dali::Actor                            target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  bool                                   inside;
-  Ecore_X_Window                         parentWindowId;
+  Dali::Actor               target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  bool                      inside;
+  Ecore_X_Window            parentWindowId;
 };
 
 struct DropWindowTarget
 {
-  Dali::Window                           target;
-  std::string                            mimeType;
-  DragAndDrop::DragCallback               callback;
-  bool                                   inside;
-  Ecore_X_Window                         windowId;
+  Dali::Window              target;
+  std::string               mimeType;
+  DragAndDrop::DragCallback callback;
+  bool                      inside;
+  Ecore_X_Window            windowId;
 };
 
 /**
@@ -103,19 +103,19 @@ private:
   static constexpr int MAX_MIME_LEN  = 128;
 
   // Current drag session: MIME types received from XDND_ENTER (copied strings)
-  char        mCurrentMimeTypesBuf[MAX_MIME_SIZE][MAX_MIME_LEN]{};  // 1280 bytes
-  const char* mCurrentMimeTypes[MAX_MIME_SIZE + 1]{};               //   88 bytes
+  char        mCurrentMimeTypesBuf[MAX_MIME_SIZE][MAX_MIME_LEN]{}; // 1280 bytes
+  const char* mCurrentMimeTypes[MAX_MIME_SIZE + 1]{};              //   88 bytes
 
   // Source drag state
-  std::map<std::string, std::string> mDataMap;                       //   48 bytes
-  SourceCallback                      mSourceCallback{};              //   32 bytes
+  std::map<std::string, std::string> mDataMap;          //   48 bytes
+  SourceCallback                     mSourceCallback{}; //   32 bytes
 
   // Drop target lists
-  std::vector<DropTarget>       mDropTargets;                        //   24 bytes
-  std::vector<DropWindowTarget> mDropWindowTargets;                  //   24 bytes
+  std::vector<DropTarget>       mDropTargets;       //   24 bytes
+  std::vector<DropWindowTarget> mDropWindowTargets; //   24 bytes
 
   // Ecore event handlers
-  Ecore_Event_Handler* mEnterHandler{nullptr};                       //    8 bytes
+  Ecore_Event_Handler* mEnterHandler{nullptr}; //    8 bytes
   Ecore_Event_Handler* mMotionHandler{nullptr};
   Ecore_Event_Handler* mDropHandler{nullptr};
   Ecore_Event_Handler* mLeaveHandler{nullptr};
@@ -125,9 +125,9 @@ private:
   Ecore_Event_Handler* mMouseUpHandler{nullptr};
 
   // Source window handle and pending drop positions
-  Dali::Window  mDragWindow;                                         //    8 bytes
-  Dali::Vector2 mPosition;                                           //    8 bytes
-  Dali::Vector2 mWindowPosition;                                     //    8 bytes
+  Dali::Window  mDragWindow;     //    8 bytes
+  Dali::Vector2 mPosition;       //    8 bytes
+  Dali::Vector2 mWindowPosition; //    8 bytes
 
   // Window IDs (Ecore_X_Window = unsigned int, 4 bytes)
   Ecore_X_Window mSourceWindowId{0};
@@ -147,6 +147,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_DRAG_AND_DROP_X11_H

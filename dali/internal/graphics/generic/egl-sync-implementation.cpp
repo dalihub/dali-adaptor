@@ -34,7 +34,7 @@ Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG
 DALI_INIT_TIME_CHECKER_FILTER(gTimeCheckerFilter, DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
 } // namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -229,4 +229,4 @@ void NativeFence::CloseFD(int32_t fenceFd)
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

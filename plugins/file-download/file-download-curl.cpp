@@ -75,7 +75,7 @@ extern "C" DALI_FILE_DOWNLOAD_PLUGIN_EXPORT bool FileDownloadPluginShutdown(Dali
 
 #undef DALI_FILE_DOWNLOAD_PLUGIN_EXPORT
 
-namespace Dali::Plugin
+namespace DALI_NAMESPACE::Plugin
 {
 namespace // unnamed namespace
 {
@@ -823,4 +823,4 @@ bool CurlFileDownloader::DownloadRemoteFileIntoMemory(const std::string&     url
   return result;
 }
 
-} // namespace Dali::Plugin
+} //namespace DALI_NAMESPACE::Plugin

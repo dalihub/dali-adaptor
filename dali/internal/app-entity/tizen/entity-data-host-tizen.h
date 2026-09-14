@@ -28,7 +28,7 @@
 #include <dali/internal/app-entity/tizen/tidl-stub/view-stub.h>
 #endif // ENABLE_ENTITY_DATA_TIDL
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -37,7 +37,6 @@ namespace Adaptor
 #ifdef ENABLE_ENTITY_DATA_TIDL
 using GeneratedEntityDataStub = ::rpc_port::implview::stub::TizenActionView;
 #endif // ENABLE_ENTITY_DATA_TIDL
-
 
 /**
  * @brief Owns the EntityDataService and the generated TIDL server stub.
@@ -88,6 +87,6 @@ private:
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_APP_ENTITY_TIZEN_ENTITY_DATA_HOST_TIZEN_H

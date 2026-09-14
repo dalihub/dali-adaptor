@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace PerformanceProtocol
 {
@@ -183,4 +183,4 @@ const char* const GetHelpMessage()
 
 } // namespace PerformanceProtocol
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

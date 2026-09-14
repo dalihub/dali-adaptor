@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/camera/common/camera-player-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 CameraPlayer::CameraPlayer()
 {
@@ -84,4 +84,4 @@ void CameraPlayer::SetCameraPlayer(Any handle)
   GetImplementation(*this).SetCameraPlayer(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -59,7 +59,7 @@
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -778,4 +778,4 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

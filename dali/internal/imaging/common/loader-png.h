@@ -24,7 +24,7 @@
 #include <dali/public-api/images/pixel.h>
 #include <cstdio>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Devel
 {
@@ -72,6 +72,6 @@ bool EncodeToPng(const unsigned char* pixelBuffer, Vector<unsigned char>& encode
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_LOADER_PNG_H

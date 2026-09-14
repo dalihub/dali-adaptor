@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_CACHE_ITEM_INTERFACE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 struct FontCacheItemInterface
 {
@@ -142,6 +142,6 @@ struct FontCacheItemInterface
   virtual bool HasItalicStyle() const = 0;
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_TEST_ABSTRACTION_INTERNAL_FONT_CACHE_ITEM_INTERFACE_H

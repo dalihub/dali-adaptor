@@ -42,11 +42,11 @@
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 using Dali::Integration::ToDaliString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1426,14 +1426,14 @@ Vector4 WindowBaseWin::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseWin::GetInsets()
+Insets WindowBaseWin::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseWin::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseWin::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseWin::SetScreen(const std::string& screenName)
@@ -1449,4 +1449,4 @@ std::string WindowBaseWin::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

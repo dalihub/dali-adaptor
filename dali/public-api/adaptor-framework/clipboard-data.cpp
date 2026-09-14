@@ -24,7 +24,7 @@
 #define DALI_ASSERT_VALID_CLIPBOARD_DATA(impl) \
   DALI_ASSERT_ALWAYS((impl) && "Cannot use a moved-from ClipboardData object")
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 struct ClipboardData::Impl
 {
@@ -97,6 +97,6 @@ Dali::String ClipboardData::GetContent() const
   return mImpl->mContent;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #undef DALI_ASSERT_VALID_CLIPBOARD_DATA

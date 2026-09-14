@@ -34,7 +34,7 @@
 
 using Dali::Integration::ToPropertyValue;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurface;
 
@@ -502,6 +502,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H

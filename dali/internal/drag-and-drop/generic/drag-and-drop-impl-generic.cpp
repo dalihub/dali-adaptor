@@ -22,7 +22,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -125,4 +125,4 @@ bool DragAndDropGeneric::CalculateViewRegion(void* event)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

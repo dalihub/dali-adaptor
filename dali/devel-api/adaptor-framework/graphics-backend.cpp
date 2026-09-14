@@ -27,7 +27,7 @@
 
 using Dali::Integration::ToDaliStringView;
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 Backend GetCurrentGraphicsBackend()
 {
@@ -43,4 +43,4 @@ Dali::StringView GetBackendInformation()
 {
   return ToDaliStringView(Internal::GetBackendInformation());
 }
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics

@@ -37,7 +37,7 @@
 extern Debug::Filter* gGraphicsProgramLogFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 struct ProgramImpl::Impl
 {
@@ -506,4 +506,4 @@ void ProgramImpl::ResetDescriptorSetsForFrame(uint32_t frameIndex)
   }
 }
 
-}; // namespace Dali::Graphics::Vulkan
+}; //namespace DALI_NAMESPACE::Graphics::Vulkan

@@ -31,7 +31,7 @@
 // INTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -138,4 +138,4 @@ void KernelTrace::Trace(const PerformanceMarker& marker, const std::string& trac
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

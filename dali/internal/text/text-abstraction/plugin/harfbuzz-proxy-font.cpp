@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Helper class to create and destroy harfbuzz font, and hold data in harfbuzz callback
@@ -418,7 +418,7 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
 
     if(!mHarfBuzzVariations.empty())
     {
-  hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), static_cast<uint32_t>(mHarfBuzzVariations.size()));
+      hb_font_set_variations(mHarfBuzzFont, mHarfBuzzVariations.data(), static_cast<uint32_t>(mHarfBuzzVariations.size()));
     }
 
     SetHarfBuzzFunctions();
@@ -488,4 +488,4 @@ void HarfBuzzProxyFont::Impl::SetHarfBuzzFunctions()
   }
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

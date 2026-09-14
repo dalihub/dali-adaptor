@@ -26,7 +26,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 OffscreenWindow OffscreenWindow::New()
 {
@@ -129,4 +129,4 @@ OffscreenWindow::OffscreenWindow(Internal::Adaptor::OffscreenWindow* window)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

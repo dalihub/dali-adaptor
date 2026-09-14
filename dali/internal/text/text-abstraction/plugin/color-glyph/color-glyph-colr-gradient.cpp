@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.h>
 
 #if !DALI_ENABLE_COLR_V1_RENDERER
 // empty compilation unit
@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 // ---- Convert COLRv1 ColorLine extend mode to ThorVG FillSpread ----
@@ -59,7 +59,7 @@ tvg::FillSpread ConvertColorLineExtend(FT_PaintExtend extend)
 // Returns false if safe stops cannot be produced (e.g., all offsets invalid).
 bool BuildThorvgSafeStopsForUnitRange(
   const std::vector<tvg::Fill::ColorStop>& rawStops,
-  std::vector<tvg::Fill::ColorStop>& safeStops)
+  std::vector<tvg::Fill::ColorStop>&       safeStops)
 {
   safeStops.clear();
 
@@ -76,7 +76,7 @@ bool BuildThorvgSafeStopsForUnitRange(
       continue;
     }
     tvg::Fill::ColorStop safe = s;
-    safe.offset = std::max(0.0f, std::min(1.0f, s.offset));
+    safe.offset               = std::max(0.0f, std::min(1.0f, s.offset));
     safeStops.push_back(safe);
   }
 
@@ -87,15 +87,16 @@ bool BuildThorvgSafeStopsForUnitRange(
 
   // Sort by offset (non-decreasing)
   std::sort(safeStops.begin(), safeStops.end(),
-    [](const tvg::Fill::ColorStop& a, const tvg::Fill::ColorStop& b) {
-      return a.offset < b.offset;
-    });
+            [](const tvg::Fill::ColorStop& a, const tvg::Fill::ColorStop& b)
+  {
+    return a.offset < b.offset;
+  });
 
   // Ensure first stop at offset 0
   if(safeStops.front().offset > 0.0f)
   {
     tvg::Fill::ColorStop first = safeStops.front();
-    first.offset = 0.0f;
+    first.offset               = 0.0f;
     safeStops.insert(safeStops.begin(), first);
   }
 
@@ -103,7 +104,7 @@ bool BuildThorvgSafeStopsForUnitRange(
   if(safeStops.back().offset < 1.0f)
   {
     tvg::Fill::ColorStop last = safeStops.back();
-    last.offset = 1.0f;
+    last.offset               = 1.0f;
     safeStops.push_back(last);
   }
 
@@ -139,8 +140,8 @@ namespace
 // FreeType fixed-point conversion constants
 // FT_Fixed 16.16: value / 65536.0f  (stop_offset, affine coefficients, coordinates)
 // FT_F2Dot14 2.14: value / 16384.0f (alpha, angle)
-constexpr float FROM_FT_FIXED  = 1.0f / 65536.0f;  // FT_Fixed 16.16
-constexpr float FROM_F2DOT14   = 1.0f / 16384.0f;  // FT_F2Dot14 2.14
+constexpr float FROM_FT_FIXED = 1.0f / 65536.0f; // FT_Fixed 16.16
+constexpr float FROM_F2DOT14  = 1.0f / 16384.0f; // FT_F2Dot14 2.14
 } // anonymous namespace
 
 // ---- Build color stops from COLRv1 ColorLine ----
@@ -157,21 +158,21 @@ constexpr float FROM_F2DOT14   = 1.0f / 16384.0f;  // FT_F2Dot14 2.14
 // - A single stop (stopCount==1) means the gradient is effectively a solid color;
 //   the caller should handle this case (use solid fill instead of gradient).
 bool BuildColorStops(
-  FT_Face ftFace,
-  uint16_t paletteIndex,
-  FT_ColorLine& colorline,
+  FT_Face                            ftFace,
+  uint16_t                           paletteIndex,
+  FT_ColorLine&                      colorline,
   std::vector<tvg::Fill::ColorStop>& stops,
-  uint32_t& stopCount,
-  float& outMinOffset,
-  float& outMaxOffset,
-  uint32_t debugGlyph)
+  uint32_t&                          stopCount,
+  float&                             outMinOffset,
+  float&                             outMaxOffset,
+  uint32_t                           debugGlyph)
 {
   stops.clear();
-  stopCount = 0;
+  stopCount    = 0;
   outMinOffset = 0.0f;
   outMaxOffset = 1.0f;
 
-  FT_ColorStop stop;
+  FT_ColorStop         stop;
   FT_ColorStopIterator stopIter = colorline.color_stop_iterator;
 
   while(stopIter.current_color_stop < stopIter.num_color_stops)
@@ -202,7 +203,7 @@ bool BuildColorStops(
 
     // Apply stop alpha (FT_F2Dot14, clamped to [0,1] for safety)
     float stopAlpha = std::max(0.0f, std::min(1.0f, static_cast<float>(stop.color.alpha) * FROM_F2DOT14));
-    a = static_cast<uint8_t>(a * stopAlpha);
+    a               = static_cast<uint8_t>(a * stopAlpha);
 
     stops.push_back({offset, r, g, b, a});
     ++stopCount;
@@ -215,9 +216,10 @@ bool BuildColorStops(
 
   // Sort stops by offset (ascending) per spec requirement
   std::sort(stops.begin(), stops.end(),
-    [](const tvg::Fill::ColorStop& a, const tvg::Fill::ColorStop& b) {
-      return a.offset < b.offset;
-    });
+            [](const tvg::Fill::ColorStop& a, const tvg::Fill::ColorStop& b)
+  {
+    return a.offset < b.offset;
+  });
 
   // Report actual offset range for caller normalization decisions
   outMinOffset = stops.front().offset;
@@ -249,9 +251,15 @@ tvg::Matrix BuildPaintMatrix(const TransformState& paintTransform)
   const float mdy = -tdy;
 
   tvg::Matrix matrix;
-  matrix.e11 = mxx;  matrix.e12 = mxy;  matrix.e13 = mdx;
-  matrix.e21 = myx;  matrix.e22 = myy;  matrix.e23 = mdy;
-  matrix.e31 = 0.0f; matrix.e32 = 0.0f; matrix.e33 = 1.0f;
+  matrix.e11 = mxx;
+  matrix.e12 = mxy;
+  matrix.e13 = mdx;
+  matrix.e21 = myx;
+  matrix.e22 = myy;
+  matrix.e23 = mdy;
+  matrix.e31 = 0.0f;
+  matrix.e32 = 0.0f;
+  matrix.e33 = 1.0f;
   return matrix;
 }
 
@@ -322,23 +330,23 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER PaintLinearGradient p0:(%.1f,%.1f) p1:(%.1f,%.1f) p2:(%.1f,%.1f)\n",
-                   static_cast<float>(linear.p0.x) / 65536.0f,
-                   static_cast<float>(linear.p0.y) / 65536.0f,
-                   static_cast<float>(linear.p1.x) / 65536.0f,
-                   static_cast<float>(linear.p1.y) / 65536.0f,
-                   static_cast<float>(linear.p2.x) / 65536.0f,
-                   static_cast<float>(linear.p2.y) / 65536.0f);
+                          static_cast<float>(linear.p0.x) / 65536.0f,
+                          static_cast<float>(linear.p0.y) / 65536.0f,
+                          static_cast<float>(linear.p1.x) / 65536.0f,
+                          static_cast<float>(linear.p1.y) / 65536.0f,
+                          static_cast<float>(linear.p2.x) / 65536.0f,
+                          static_cast<float>(linear.p2.y) / 65536.0f);
   }
 
   // Convert COLRv1 p0/p1/p2 from F16.16 font-unit space to y-flipped space.
   // FtOutlineToTvgShape negates y coordinates (font y-up → canvas y-down),
   // so gradient coordinates must also be in y-flipped space for consistency.
   // No double y-flip: we negate once here, and the path data is already negated.
-  const float p0x =  static_cast<float>(linear.p0.x) / 65536.0f;
+  const float p0x = static_cast<float>(linear.p0.x) / 65536.0f;
   const float p0y = -static_cast<float>(linear.p0.y) / 65536.0f;
-  const float p1x =  static_cast<float>(linear.p1.x) / 65536.0f;
+  const float p1x = static_cast<float>(linear.p1.x) / 65536.0f;
   const float p1y = -static_cast<float>(linear.p1.y) / 65536.0f;
-  const float p2x =  static_cast<float>(linear.p2.x) / 65536.0f;
+  const float p2x = static_cast<float>(linear.p2.x) / 65536.0f;
   const float p2y = -static_cast<float>(linear.p2.y) / 65536.0f;
 
   // Gradient direction vector (p0 → p1): axis along which gradient parameter varies.
@@ -354,12 +362,12 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
   }
 
   // ---- Build color stops ----
-  FT_ColorLine& colorline = linear.colorline;
-  tvg::FillSpread spread = ConvertColorLineExtend(colorline.extend);
+  FT_ColorLine&   colorline = linear.colorline;
+  tvg::FillSpread spread    = ConvertColorLineExtend(colorline.extend);
 
   std::vector<tvg::Fill::ColorStop> stops;
-  uint32_t stopCount = 0;
-  float minOffset = 0.0f, maxOffset = 1.0f;
+  uint32_t                          stopCount = 0;
+  float                             minOffset = 0.0f, maxOffset = 1.0f;
   if(!BuildColorStops(ctx.ftFace, ctx.paletteIndex, colorline, stops, stopCount, minOffset, maxOffset, ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient unsupported: no usable stops\n");
@@ -437,7 +445,7 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient stops sanitized after normalize raw:%u safe:%u\n",
-                      stopCount, static_cast<uint32_t>(safeStops.size()));
+                            stopCount, static_cast<uint32_t>(safeStops.size()));
     }
   }
   else
@@ -448,8 +456,8 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient stops:%u spread:%d offsetRange:[%.3f,%.3f] start:(%.1f,%.1f) end:(%.1f,%.1f)\n",
-                   stopCount, static_cast<int>(spread), minOffset, maxOffset,
-                   gradStartX, gradStartY, gradEndX, gradEndY);
+                          stopCount, static_cast<int>(spread), minOffset, maxOffset,
+                          gradStartX, gradStartY, gradEndX, gradEndY);
   }
 
   // ---- Compute the final transform (applied exactly once) ----
@@ -468,24 +476,24 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
 
   // --- Step 1: Compute shear matrix from p2 orientation ---
   tvg::Matrix shearMatrix;
-  bool hasShear = false;
+  bool        hasShear = false;
 
   // Check if p2 defines a different orientation than p1.
   // p2 == p1 means standard perpendicular bands (no shear needed).
   // p2 == p0 is degenerate (use standard perpendicular as fallback).
-  const float wx = p2x - p0x;
-  const float wy = p2y - p0y;
+  const float wx     = p2x - p0x;
+  const float wy     = p2y - p0y;
   const float wLenSq = wx * wx + wy * wy;
 
   // Check if p2 is different from p1 (not just collinear)
   // Cross direction: perpendicular to p0→p2, rotated 90° CCW
   const float crossX = (wLenSq > 1e-10f) ? -wy : -v1y;
-  const float crossY = (wLenSq > 1e-10f) ?  wx :  v1x;
+  const float crossY = (wLenSq > 1e-10f) ? wx : v1x;
 
   // Check if cross is already perpendicular to v1
   const float dotV1Cross = v1x * crossX + v1y * crossY;
   const float crossLenSq = crossX * crossX + crossY * crossY;
-  hasShear = (std::abs(dotV1Cross) > 1e-6f * std::sqrt(v1LenSq * crossLenSq));
+  hasShear               = (std::abs(dotV1Cross) > 1e-6f * std::sqrt(v1LenSq * crossLenSq));
 
   if(hasShear)
   {
@@ -493,7 +501,7 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
     // This maps v1→v1 and cross→v1_perp, skewing the coordinate system
     // so ThorVG's perpendicular bands align with the p2-defined orientation.
     const float v1px = -v1y; // v1_perp
-    const float v1py =  v1x;
+    const float v1py = v1x;
 
     const float det = v1x * crossY - crossX * v1y;
     if(std::abs(det) < 1e-10f)
@@ -508,10 +516,10 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
     else
     {
       const float invDet = 1.0f / det;
-      const float a11 =  crossY * invDet;
-      const float a12 = -crossX * invDet;
-      const float a21 = -v1y * invDet;
-      const float a22 =  v1x * invDet;
+      const float a11    = crossY * invDet;
+      const float a12    = -crossX * invDet;
+      const float a21    = -v1y * invDet;
+      const float a22    = v1x * invDet;
 
       shearMatrix.e11 = v1x * a11 + v1px * a21;
       shearMatrix.e12 = v1x * a12 + v1px * a22;
@@ -526,8 +534,8 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
       if(IsColrDebugTraceEnabled(ctx.debugGlyph))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient shear computed [%.3f,%.3f,%.1f,%.3f,%.3f,%.1f] dotV1Cross:%.1f\n",
-                       shearMatrix.e11, shearMatrix.e12, 0.0f,
-                       shearMatrix.e21, shearMatrix.e22, 0.0f, dotV1Cross);
+                              shearMatrix.e11, shearMatrix.e12, 0.0f,
+                              shearMatrix.e21, shearMatrix.e22, 0.0f, dotV1Cross);
       }
     }
   }
@@ -546,8 +554,8 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
       if(IsColrDebugTraceEnabled(ctx.debugGlyph))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient transform: paintMatrix*shearMatrix [%.2f,%.2f,%.1f,%.2f,%.2f,%.1f]\n",
-                       finalMatrix.e11, finalMatrix.e12, finalMatrix.e13,
-                       finalMatrix.e21, finalMatrix.e22, finalMatrix.e23);
+                              finalMatrix.e11, finalMatrix.e12, finalMatrix.e13,
+                              finalMatrix.e21, finalMatrix.e22, finalMatrix.e23);
       }
     }
     else
@@ -558,8 +566,8 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
       if(IsColrDebugTraceEnabled(ctx.debugGlyph))
       {
         DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient transform: paintMatrix only [%.2f,%.2f,%.1f,%.2f,%.2f,%.1f]\n",
-                       paintMatrix.e11, paintMatrix.e12, paintMatrix.e13,
-                       paintMatrix.e21, paintMatrix.e22, paintMatrix.e23);
+                              paintMatrix.e11, paintMatrix.e12, paintMatrix.e13,
+                              paintMatrix.e21, paintMatrix.e22, paintMatrix.e23);
       }
     }
   }
@@ -571,8 +579,8 @@ bool HandlePaintLinearGradient(FT_PaintLinearGradient& linear, tvg::Shape* shape
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER LinearGradient transform: shearMatrix only [%.3f,%.3f,%.1f,%.3f,%.3f,%.1f]\n",
-                     shearMatrix.e11, shearMatrix.e12, 0.0f,
-                     shearMatrix.e21, shearMatrix.e22, 0.0f);
+                            shearMatrix.e11, shearMatrix.e12, 0.0f,
+                            shearMatrix.e21, shearMatrix.e22, 0.0f);
     }
   }
   // else: no transform needed (no shear, no paintTransform)
@@ -588,12 +596,12 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER PaintRadialGradient c0:(%.1f,%.1f) r0:%.1f c1:(%.1f,%.1f) r1:%.1f\n",
-                   static_cast<float>(radial.c0.x) / 65536.0f,
-                   static_cast<float>(radial.c0.y) / 65536.0f,
-                   static_cast<float>(radial.r0) / 65536.0f,
-                   static_cast<float>(radial.c1.x) / 65536.0f,
-                   static_cast<float>(radial.c1.y) / 65536.0f,
-                   static_cast<float>(radial.r1) / 65536.0f);
+                          static_cast<float>(radial.c0.x) / 65536.0f,
+                          static_cast<float>(radial.c0.y) / 65536.0f,
+                          static_cast<float>(radial.r0) / 65536.0f,
+                          static_cast<float>(radial.c1.x) / 65536.0f,
+                          static_cast<float>(radial.c1.y) / 65536.0f,
+                          static_cast<float>(radial.r1) / 65536.0f);
   }
 
   // ThorVG 1.0: gen() returns raw pointer (no .release() needed)
@@ -624,22 +632,22 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   const float rawR1  = static_cast<float>(radial.r1) / 65536.0f;
 
   // y-flip: negate y coordinates to match path coordinate system
-  float c0x =  rawC0x;
+  float c0x = rawC0x;
   float c0y = -rawC0y;
-  float c1x =  rawC1x;
+  float c1x = rawC1x;
   float c1y = -rawC1y;
 
   // Build color stops FIRST to determine offset range before computing geometry.
   // This is different from the previous approach where grad->radial() was called
   // before stops were known. We need the offset range to decide whether to
   // normalize the circle geometry.
-  FT_ColorLine& colorline = radial.colorline;
-  tvg::FillSpread spread = ConvertColorLineExtend(colorline.extend);
+  FT_ColorLine&   colorline = radial.colorline;
+  tvg::FillSpread spread    = ConvertColorLineExtend(colorline.extend);
   grad->spread(spread);
 
   std::vector<tvg::Fill::ColorStop> stops;
-  uint32_t stopCount = 0;
-  float minOffset = 0.0f, maxOffset = 1.0f;
+  uint32_t                          stopCount = 0;
+  float                             minOffset = 0.0f, maxOffset = 1.0f;
   if(!BuildColorStops(ctx.ftFace, ctx.paletteIndex, colorline, stops, stopCount, minOffset, maxOffset, ctx.debugGlyph))
   {
     delete grad;
@@ -699,12 +707,12 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   // When offsets are already in [0,1], no normalization is needed and the
   // original circle geometry is used directly.
 
-  bool useNormalizedGeometry = false;
+  bool  useNormalizedGeometry = false;
   float finalC0x = c0x, finalC0y = c0y, finalR0 = rawR0;
   float finalC1x = c1x, finalC1y = c1y, finalR1 = rawR1;
 
   // Check if normalization is needed
-  const bool offsetsInRange = (minOffset >= 0.0f && maxOffset <= 1.0f);
+  const bool offsetsInRange    = (minOffset >= 0.0f && maxOffset <= 1.0f);
   const bool rangeIsDegenerate = (maxOffset - minOffset < 1e-6f);
 
   if(!offsetsInRange && !rangeIsDegenerate)
@@ -761,20 +769,20 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
       s.offset = (s.offset - minOffset) / range;
     }
 
-    finalC0x = normC0x;
-    finalC0y = normC0y;
-    finalR0  = normR0;
-    finalC1x = normC1x;
-    finalC1y = normC1y;
-    finalR1  = normR1;
+    finalC0x              = normC0x;
+    finalC0y              = normC0y;
+    finalR0               = normR0;
+    finalC1x              = normC1x;
+    finalC1y              = normC1y;
+    finalR1               = normR1;
     useNormalizedGeometry = true;
 
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGeometry normalization applied: offsetRange:[%.3f,%.3f]\n",
-                     minOffset, maxOffset);
+                            minOffset, maxOffset);
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGeometry norm c0:(%.1f,%.1f) r0:%.1f c1:(%.1f,%.1f) r1:%.1f\n",
-                     normC0x, normC0y, normR0, normC1x, normC1y, normR1);
+                            normC0x, normC0y, normR0, normC1x, normC1y, normR1);
     }
   }
   else if(rangeIsDegenerate)
@@ -788,7 +796,7 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient degenerate offset range [%.3f,%.3f] → solid\n",
-                     minOffset, maxOffset);
+                            minOffset, maxOffset);
     }
     return true;
   }
@@ -803,15 +811,15 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient raw c0:(%.1f,%.1f) r0:%.1f c1:(%.1f,%.1f) r1:%.1f\n",
-                   rawC0x, rawC0y, rawR0, rawC1x, rawC1y, rawR1);
+                          rawC0x, rawC0y, rawR0, rawC1x, rawC1y, rawR1);
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient yflip c0:(%.1f,%.1f) c1:(%.1f,%.1f)\n",
-                   c0x, c0y, c1x, c1y);
+                          c0x, c0y, c1x, c1y);
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGeometry normalized:%s offsetRange:[%.3f,%.3f]\n",
-                   useNormalizedGeometry ? "yes" : "no", minOffset, maxOffset);
+                          useNormalizedGeometry ? "yes" : "no", minOffset, maxOffset);
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient ThorVG radial(cx:%.1f,cy:%.1f,r:%.1f,fx:%.1f,fy:%.1f,fr:%.1f)\n",
-                   finalC1x, finalC1y, finalR1, finalC0x, finalC0y, finalR0);
+                          finalC1x, finalC1y, finalR1, finalC0x, finalC0y, finalR0);
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient paintTransform hasTransform:%s\n",
-                   ctx.paintTransform.hasTransform ? "true" : "false");
+                          ctx.paintTransform.hasTransform ? "true" : "false");
   }
 
   // Set color stops on ThorVG.
@@ -831,8 +839,8 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient stops sanitized raw:%u safe:%u offsetRange:[%.3f,%.3f] normalized:%s\n",
-                      stopCount, static_cast<uint32_t>(safeStops.size()), minOffset, maxOffset,
-                      useNormalizedGeometry ? "yes" : "no");
+                            stopCount, static_cast<uint32_t>(safeStops.size()), minOffset, maxOffset,
+                            useNormalizedGeometry ? "yes" : "no");
     }
   }
   else
@@ -843,8 +851,8 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   if(IsColrDebugTraceEnabled(ctx.debugGlyph))
   {
     DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient stops:%u spread:%d offsetRange:[%.3f,%.3f] normalized:%s\n",
-                   stopCount, static_cast<int>(spread), minOffset, maxOffset,
-                   useNormalizedGeometry ? "yes" : "no");
+                          stopCount, static_cast<int>(spread), minOffset, maxOffset,
+                          useNormalizedGeometry ? "yes" : "no");
   }
 
   // Apply paint transform to gradient coordinates if present.
@@ -855,8 +863,8 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
     if(IsColrDebugTraceEnabled(ctx.debugGlyph))
     {
       DALI_LOG_RELEASE_INFO("COLOR_GLYPH_COLR_RENDER RadialGradient paintTransform applied:1 matrix:[%.2f,%.2f,%.1f,%.2f,%.2f,%.1f]\n",
-                     paintMatrix.e11, paintMatrix.e12, paintMatrix.e13,
-                     paintMatrix.e21, paintMatrix.e22, paintMatrix.e23);
+                            paintMatrix.e11, paintMatrix.e12, paintMatrix.e13,
+                            paintMatrix.e21, paintMatrix.e22, paintMatrix.e23);
     }
   }
   else
@@ -872,6 +880,6 @@ bool HandlePaintRadialGradient(FT_PaintRadialGradient& radial, tvg::Shape* shape
   return true;
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/text-renderer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -83,6 +83,6 @@ inline static const TextAbstraction::Internal::TextRenderer& GetImplementation(c
   return static_cast<const TextAbstraction::Internal::TextRenderer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_TEXT_RENDERER_IMPL_H

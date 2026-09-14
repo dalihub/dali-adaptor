@@ -29,7 +29,7 @@
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 namespace TextAbstraction

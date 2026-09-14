@@ -20,9 +20,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstdint>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -176,6 +177,6 @@ struct GlExtensionSupportedCacheList : public ExtensionSupportedCacheListInterfa
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif /* DALI_INTERNAL_GL_EXTENSION_SUPPORT_H */

@@ -23,7 +23,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/vector4.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 
 /**
@@ -306,6 +306,6 @@ public:
   WindowDimInfo  behindDimInfo;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_WINDOW_BLUR_INFO_H

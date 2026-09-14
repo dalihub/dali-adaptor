@@ -21,7 +21,7 @@
 //INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelNativeImage
 {
@@ -57,4 +57,4 @@ void EnableBackBuffer(NativeImage& image, bool enable)
 
 } // namespace DevelNativeImage
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

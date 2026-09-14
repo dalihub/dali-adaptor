@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * @brief Cocoa Implementation of CallbackManager
@@ -94,4 +94,4 @@ private:
   bool                  mRunning;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

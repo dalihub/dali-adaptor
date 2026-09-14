@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Set the thread name.
@@ -55,6 +55,6 @@ DALI_ADAPTOR_API int32_t GetMainThreadId();
  */
 DALI_ADAPTOR_API int32_t GetUiThreadId();
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_THREAD_SETTINGS_H

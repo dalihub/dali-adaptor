@@ -127,7 +127,7 @@ void InitializeVulkanExtensions(vk::Device device)
 
 } // namespace
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 /**
  * @brief Tizen-specific implementation of VulkanNativeImageHandler
@@ -1140,4 +1140,4 @@ SurfaceReferenceManager* VulkanNativeImageHandlerTizen::GetSurfaceReferenceManag
   return reinterpret_cast<SurfaceReferenceManager*>(extension);
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

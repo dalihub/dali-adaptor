@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <iterator>
 #include <sstream>
 
-namespace Dali::Internal
+namespace DALI_NAMESPACE::Internal
 {
 AddOnManagerLinux::AddOnManagerLinux(int dlopenFlags)
 : mDlopenFlags(dlopenFlags)
@@ -371,4 +371,4 @@ void AddOnManagerLinux::InvokeLifecycleFunction(uint32_t lifecycleEvent)
   }
 }
 
-} // namespace Dali::Internal
+} //namespace DALI_NAMESPACE::Internal

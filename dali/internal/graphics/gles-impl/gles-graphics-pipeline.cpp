@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-program.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 /**
  * Copy of pipeline state, can be also used for internal caching
@@ -147,4 +147,4 @@ void Pipeline::DiscardResource()
   GetController().DiscardResource(this);
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

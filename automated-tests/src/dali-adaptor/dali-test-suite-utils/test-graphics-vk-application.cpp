@@ -17,7 +17,7 @@
 
 #include "test-graphics-vk-application.h"
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 bool TestGraphicsApplication::mLoggingEnabled = true;
 
@@ -304,4 +304,4 @@ uint32_t TestGraphicsApplication::Wait(uint32_t durationToWait)
   return time;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

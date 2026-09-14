@@ -24,7 +24,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-factory.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/public-api/adaptor-framework/keyboard.h>
 #include <algorithm>
 
@@ -49,7 +49,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1130,4 +1130,4 @@ WindowSystemBase* GetWindowSystem()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -21,12 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/tizen/tizen-dlog.h>
-#include <memory>
 #include <tizen.h>
 #include <tizen_core_wl.h>
+#include <memory>
 #include <widget_base.hh>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -102,7 +102,7 @@ public:
   }
 
 private:
-  WidgetBackendType                        mBackendType{WidgetBackendType::TCORE};
+  WidgetBackendType                      mBackendType{WidgetBackendType::TCORE};
   std::unique_ptr<IWidgetBindingBackend> mBackend;
 };
 
@@ -145,5 +145,4 @@ WidgetBindingResult WidgetBindingBridge::BindInstanceWindow(tizen_cpp::WidgetCon
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
-
+} //namespace DALI_NAMESPACE

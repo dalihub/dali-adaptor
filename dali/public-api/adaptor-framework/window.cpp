@@ -31,7 +31,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 Window Window::New(PositionSize posSize, const Dali::String& name, bool isTransparent)
 {
@@ -58,7 +58,7 @@ Window Window::New(const Dali::String& name, const Dali::String& className, cons
   if(isNewWindowAllowed)
   {
     Any                        surface;
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, ToStdString(name), ToStdString(className), windowData, false, false);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 
@@ -432,19 +432,9 @@ void Window::KeepRendering(float durationSeconds)
   GetImplementation(*this).KeepRendering(durationSeconds);
 }
 
-void Window::SetDepthBufferEnabled(bool enabled)
-{
-  GetImplementation(*this).SetDepthBufferEnabled(enabled);
-}
-
 bool Window::IsDepthBufferEnabled() const
 {
   return GetImplementation(*this).IsDepthBufferEnabled();
-}
-
-void Window::SetStencilBufferEnabled(bool enabled)
-{
-  GetImplementation(*this).SetStencilBufferEnabled(enabled);
 }
 
 bool Window::IsStencilBufferEnabled() const
@@ -452,14 +442,9 @@ bool Window::IsStencilBufferEnabled() const
   return GetImplementation(*this).IsStencilBufferEnabled();
 }
 
-void Window::SetMultiSampledAntiAliasingEnabled(bool enabled)
+uint8_t Window::GetMultiSampledAntiAliasingLevel() const
 {
-  GetImplementation(*this).SetMultiSampledAntiAliasingEnabled(enabled);
-}
-
-bool Window::IsMultiSampledAntiAliasingEnabled() const
-{
-  return GetImplementation(*this).IsMultiSampledAntiAliasingEnabled();
+  return GetImplementation(*this).GetMultiSampledAntiAliasingLevel();
 }
 
 void Window::SetPartialUpdateEnabled(bool enabled)
@@ -642,4 +627,4 @@ Window::Window(Internal::Adaptor::Window* window)
 {
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

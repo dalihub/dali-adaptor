@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -98,6 +98,6 @@ struct DALI_ADAPTOR_API BitmapFont
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TEXT_ABSTRACTION_BITMAP_FONT_H

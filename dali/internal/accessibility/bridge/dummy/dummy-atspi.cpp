@@ -15,33 +15,47 @@
  *
  */
 
+#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/action.h>
-#include <dali/devel-api/atspi-interfaces/value.h>
-#include <dali/devel-api/atspi-interfaces/hyperlink.h>
 #include <dali/devel-api/atspi-interfaces/editable-text.h>
+#include <dali/devel-api/atspi-interfaces/hyperlink.h>
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
-#include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
-#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/internal/accessibility/bridge/collection-impl.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 
 // ============================================================================
 // ATSPI interface class destructors (DALI_ADAPTOR_API forces non-inline)
 // ============================================================================
-Action::~Action() {}
-Value::~Value() {}
-Hyperlink::~Hyperlink() {}
-EditableText::~EditableText() {}
-Hypertext::~Hypertext() {}
-Text::~Text() {}
-Selection::~Selection() {}
+Action::~Action()
+{
+}
+Value::~Value()
+{
+}
+Hyperlink::~Hyperlink()
+{
+}
+EditableText::~EditableText()
+{
+}
+Hypertext::~Hypertext()
+{
+}
+Text::~Text()
+{
+}
+Selection::~Selection()
+{
+}
 
 // ============================================================================
 // CollectionImpl
@@ -129,7 +143,7 @@ void ProxyAccessible::SetParent(Accessible* parent)
   mParent = parent;
 }
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 // ============================================================================
 // Bridge stubs

@@ -29,7 +29,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 NativeImagePtr NativeImage::New(uint32_t width, uint32_t height, ColorDepth depth)
 {
@@ -168,4 +168,4 @@ NativeImage::~NativeImage()
   delete mImpl;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

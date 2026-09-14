@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/system-error-print.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -82,7 +82,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
 
     file.read(reinterpret_cast<char*>(memblock.Begin()), requestedSize);
     const std::streamsize readSize = file.gcount();
-    const bool readFailed =
+    const bool            readFailed =
       file.bad() ||
       (file.fail() && !file.eof()) ||
       (fileType == Dali::FileLoader::BINARY && readSize != requestedSize);
@@ -136,4 +136,4 @@ std::streampos GetFileSize(const std::string& filename)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

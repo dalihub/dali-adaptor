@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 #include <adaptor-environment-variable.h>
 #include <dali-test-img-utils.h>
 #include <dali-test-suite-utils.h>
@@ -90,7 +89,11 @@ Dali::Vector<uint8_t> FileToMemory(const char* filename)
 {
   Dali::Vector<uint8_t> buffer;
   FILE*                 fp;
+#if defined(_MSC_VER)
+  fopen_s(&fp, filename, "rb");
+#else
   fp = fopen(filename, "rb");
+#endif
   if(fp != NULL)
   {
     fseek(fp, 0, SEEK_END);

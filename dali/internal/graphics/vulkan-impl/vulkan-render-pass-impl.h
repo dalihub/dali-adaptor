@@ -23,7 +23,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-handle.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Device;
 class VulkanGraphicsController;
@@ -115,6 +115,6 @@ private:
   bool           mHasDepthAttachment{false};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_PASS_IMPL_H

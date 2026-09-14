@@ -17,14 +17,17 @@
  * limitations under the License.
  */
 
-namespace Dali::Accessibility
+// INTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
+
+namespace DALI_NAMESPACE::Accessibility
 {
 
 struct IAccessibilityFeature
 {
-    virtual ~IAccessibilityFeature() = default;
+  virtual ~IAccessibilityFeature() = default;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
 #endif // DALI_ADAPTOR_ACCESSIBILITY_FEATURE_H

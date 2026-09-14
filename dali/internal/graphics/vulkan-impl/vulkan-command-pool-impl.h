@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_COMMAND_POOL_IMPL_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Device;
 class CommandBufferImpl;
@@ -177,6 +177,6 @@ private: // Data members
   std::unique_ptr<InternalPool> mInternalPoolSecondary;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_COMMAND_POOL_IMPL_H

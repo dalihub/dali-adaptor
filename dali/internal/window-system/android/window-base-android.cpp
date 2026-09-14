@@ -28,7 +28,7 @@
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -573,14 +573,14 @@ Vector4 WindowBaseAndroid::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseAndroid::GetInsets()
+Insets WindowBaseAndroid::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseAndroid::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseAndroid::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseAndroid::SetScreen(const std::string& screenName)
@@ -596,4 +596,4 @@ std::string WindowBaseAndroid::GetScreen() const
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

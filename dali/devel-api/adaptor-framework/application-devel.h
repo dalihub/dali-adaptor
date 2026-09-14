@@ -27,7 +27,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/dali-signal.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelApplication
 {
@@ -139,7 +139,7 @@ DALI_ADAPTOR_API Dali::Window GetPreInitializedWindow();
 
 } // namespace DevelApplication
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 /**
  * @brief This is used to improve application launch performance.

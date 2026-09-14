@@ -21,7 +21,7 @@
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bitset.h>
 #include <cstdint>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -378,6 +378,6 @@ using AccessibilityInterfaceType = typename AccessibilityInterfaceTypeHelper<I>:
 
 } // namespace Accessibility
 } // namespace Integration
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTEGRATION_API_ADAPTOR_FRAMEWORK_ACCESSIBILITY_INTEG_H

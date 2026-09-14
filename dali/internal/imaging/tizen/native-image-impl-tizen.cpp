@@ -31,7 +31,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/imaging/tizen/tbm-surface-counter.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -861,4 +861,4 @@ void NativeImageTizen::PostRender()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

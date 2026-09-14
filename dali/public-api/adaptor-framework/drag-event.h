@@ -24,10 +24,10 @@
 #include <dali/public-api/math/vector2.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/adaptor-framework/drag-and-drop.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief Describes an event delivered to a drop target.
@@ -126,6 +126,6 @@ private:
   UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_DRAG_EVENT_H

@@ -26,7 +26,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -85,6 +85,6 @@ public:
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_PLATFORM_TEXT_ABSTRACTION_ICU_H

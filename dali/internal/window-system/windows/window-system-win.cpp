@@ -16,7 +16,7 @@
  */
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/windows/keyboard-repeat.h>
 
 // EXTERNAL HEADERS
@@ -26,7 +26,7 @@
 #include <dali/integration-api/debug.h>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -149,4 +149,4 @@ WindowSystemBase* GetWindowSystem()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

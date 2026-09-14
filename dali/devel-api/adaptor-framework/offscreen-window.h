@@ -28,7 +28,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/images/native-image-interface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Actor;
 class Layer;
@@ -285,6 +285,6 @@ public: // Not intended for application developers
  * @}
  */
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_OFFSCREEN_WINDOW_H

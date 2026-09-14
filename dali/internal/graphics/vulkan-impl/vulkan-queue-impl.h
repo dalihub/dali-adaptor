@@ -23,7 +23,7 @@
 
 #include <mutex>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class CommandBufferImpl;
 class FenceImpl;
@@ -79,6 +79,6 @@ private:
   std::recursive_mutex mMutex;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H

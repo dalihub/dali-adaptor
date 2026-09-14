@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-namespace.h>
 #include <cstddef>
 
 /*
@@ -28,7 +29,7 @@
  * There may be platform-specific versions of this file in other directories.
  */
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -70,6 +71,6 @@ inline uint32_t AtomicReadFromCacheableAlignedAddress(const volatile uint32_t* c
 }
 
 } /* namespace Internal */
-} /* namespace Dali */
+} //namespace DALI_NAMESPACE
 
 #endif /* _DALI_INTERNAL_PLATFORM_ATOMICS_H_ */

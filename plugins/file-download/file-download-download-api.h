@@ -27,7 +27,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace Dali::Plugin
+namespace DALI_NAMESPACE::Plugin
 {
 /**
  * @brief download-provider (capi-web-url-download) based implementation of FileDownloadPlugin.
@@ -101,6 +101,6 @@ private:
   std::mutex                                  mMutex;
 };
 
-} // namespace Dali::Plugin
+} //namespace DALI_NAMESPACE::Plugin
 
 #endif // DALI_PLUGIN_DOWNLOAD_API_FILE_DOWNLOADER_H

@@ -40,7 +40,7 @@
 #endif
 #endif
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @brief MouseInOutEvent occurs when the mouse enters or leaves the window.
@@ -142,7 +142,7 @@ private:
   Dali::UniquePtr<Impl> mImpl;
 };
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 /**
  * @}

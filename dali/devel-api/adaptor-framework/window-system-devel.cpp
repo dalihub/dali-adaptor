@@ -17,20 +17,15 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-system-devel.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace DevelWindowSystem
 {
 void GetDpi(uint32_t& horizontalDpi, uint32_t& verticalDpi)
 {
   Dali::Internal::Adaptor::WindowSystem::GetDpi(horizontalDpi, verticalDpi);
-}
-
-void GetScreenSize(int32_t& width, int32_t& height)
-{
-  Dali::Internal::Adaptor::WindowSystem::GetScreenSize(width, height);
 }
 
 void SetGeometryHittestEnabled(bool enabled)
@@ -50,4 +45,4 @@ std::vector<Dali::ScreenInformation> GetAvailableScreens()
 
 } // namespace DevelWindowSystem
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

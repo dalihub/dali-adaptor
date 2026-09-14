@@ -27,7 +27,7 @@
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 
 SurfaceImpl::SurfaceImpl(Device& device, vk::SurfaceKHR surfaceKhr)
@@ -124,4 +124,4 @@ void SurfaceImpl::UpdateSize(unsigned int width, unsigned int height)
   mCapabilities.currentExtent.height = height;
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

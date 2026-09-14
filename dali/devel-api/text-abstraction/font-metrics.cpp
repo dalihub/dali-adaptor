@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -119,4 +119,4 @@ void FontMetrics::ApplyDesignLineHeightCompat()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

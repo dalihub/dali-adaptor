@@ -24,7 +24,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <sys/types.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -324,6 +324,6 @@ DALI_ADAPTOR_API bool IsCombiningDiacriticalMarks(Character character);
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TOOLKIT_TEXT_ABSTRACTION_SCRIPT_H

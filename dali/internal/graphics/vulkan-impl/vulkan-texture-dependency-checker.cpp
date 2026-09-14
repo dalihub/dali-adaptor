@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 void TextureDependencyChecker::Reset()
 {
@@ -126,4 +126,4 @@ void TextureDependencyChecker::RemoveRenderTarget(Vulkan::RenderTarget* renderTa
   }
 }
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan

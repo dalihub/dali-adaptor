@@ -80,7 +80,7 @@ void ApplyAspectFitSize(tvg::Picture* picture, uint32_t defaultWidth, uint32_t d
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1132,4 +1132,4 @@ void VectorAnimationRendererNative::UpdateMarkerInfo()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

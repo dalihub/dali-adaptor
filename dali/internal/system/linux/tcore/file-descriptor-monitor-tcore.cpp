@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -84,8 +84,8 @@ struct FileDescriptorMonitorTcore::Impl
       return false;
     }
 
-    uint16_t returnedEvents = 0;
-    const int ret = tizen_core_poll_fd_get_returned_events(impl->mPollFd, &returnedEvents);
+    uint16_t  returnedEvents = 0;
+    const int ret            = tizen_core_poll_fd_get_returned_events(impl->mPollFd, &returnedEvents);
     if(ret != TIZEN_CORE_ERROR_NONE)
     {
       DALI_LOG_ERROR("FileDescriptorMonitorTcore::SourceCheck: tizen_core_poll_fd_get_returned_events failed: %d\n", ret);
@@ -120,8 +120,8 @@ struct FileDescriptorMonitorTcore::Impl
       return false;
     }
 
-    uint16_t returnedEvents = 0;
-    const int ret = tizen_core_poll_fd_get_returned_events(impl->mPollFd, &returnedEvents);
+    uint16_t  returnedEvents = 0;
+    const int ret            = tizen_core_poll_fd_get_returned_events(impl->mPollFd, &returnedEvents);
     if(ret != TIZEN_CORE_ERROR_NONE)
     {
       DALI_LOG_ERROR("FileDescriptorMonitorTcore::SourceDispatch: tizen_core_poll_fd_get_returned_events failed: %d\n", ret);
@@ -295,4 +295,4 @@ FileDescriptorMonitorTcore::~FileDescriptorMonitorTcore()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

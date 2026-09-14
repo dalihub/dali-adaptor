@@ -25,7 +25,7 @@
 #include <dali/extension-api/adaptor-framework/key-lookup-entry.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Extension
 {
@@ -42,6 +42,6 @@ namespace Extension
 DALI_ADAPTOR_API void SetKeyExtensionLookupTable(const Dali::Extension::KeyLookupEntry* table, uint32_t count);
 
 } // namespace Extension
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_KEY_EXTENSION_H

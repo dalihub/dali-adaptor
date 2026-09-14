@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/common/webp-loading.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -88,4 +88,4 @@ bool LoadPlanesFromWebp(const Dali::ImageLoader::Input& input, std::vector<Dali:
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

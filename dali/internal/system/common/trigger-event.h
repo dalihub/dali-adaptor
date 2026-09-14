@@ -28,7 +28,7 @@
 #include <dali/internal/system/common/unified-trigger-event-manager.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * The TriggerEvent class is used to send events between threads.  For example, this can be used
@@ -113,6 +113,6 @@ private:
   int                                    mFileDescriptor;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor
 
 #endif // DALI_INTERNAL_TRIGGER_EVENT_H

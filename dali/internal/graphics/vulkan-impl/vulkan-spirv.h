@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_VULKAN_SPIRV_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include <glslang/Include/glslang_c_interface.h>
 #include <glslang/Public/resource_limits_c.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class ShaderImpl;
 
@@ -89,5 +89,5 @@ private:
   SPIRVGeneratorInfo    mGeneratorInfo;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 #endif //DALI_GRAPHICS_VULKAN_SPIRV_H

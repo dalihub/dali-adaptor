@@ -30,7 +30,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Program;
 class PipelineCache; // TODO
@@ -244,5 +244,5 @@ private:
   std::vector<DepthStatePipelineHashed> mPipelineForDepthStateCache;
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 #endif

@@ -20,15 +20,15 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
-#include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-rasterizer.h>
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 #endif
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 namespace
 {
@@ -105,20 +105,20 @@ void SetGlyphBufferDataFromRenderedCache(const TextAbstraction::GlyphBufferData&
 #endif // DALI_ENABLE_COLR_V1_RENDERER
 } // namespace
 
-FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeTypeLibrary,
-                                     FT_Face                            ftFace,
-                                     FontFaceManager*                   fontFaceManager,
-                                     GlyphCacheManager*                 glyphCacheManager,
-                                     ColorGlyphColrRasterizer*          colorGlyphColrRasterizer,
-                                     const FontPath&                    path,
-                                     PointSize26Dot6                    requestedPointSize,
-                                     FaceIndex                          face,
-                                     const FontMetrics&                 metrics,
-                                     const std::size_t                  variationsHash,
-                                     const std::vector<FT_Fixed>&       freeTypeCoords,
-                                     const std::vector<hb_variation_t>& harfBuzzVariations,
-                                     bool                               hasColorTables,
-                                     const FontFaceManager::ColorFontInfo& colorFontInfo,
+FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                       freeTypeLibrary,
+                                     FT_Face                                 ftFace,
+                                     FontFaceManager*                        fontFaceManager,
+                                     GlyphCacheManager*                      glyphCacheManager,
+                                     ColorGlyphColrRasterizer*               colorGlyphColrRasterizer,
+                                     const FontPath&                         path,
+                                     PointSize26Dot6                         requestedPointSize,
+                                     FaceIndex                               face,
+                                     const FontMetrics&                      metrics,
+                                     const std::size_t                       variationsHash,
+                                     const std::vector<FT_Fixed>&            freeTypeCoords,
+                                     const std::vector<hb_variation_t>&      harfBuzzVariations,
+                                     bool                                    hasColorTables,
+                                     const FontFaceManager::ColorFontInfo&   colorFontInfo,
                                      FontFaceManager::ColorFontRenderability colorFontRenderability)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
@@ -146,20 +146,20 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                  freeType
 {
 }
 
-FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
-                                     FT_Face            ftFace,
-                                     FontFaceManager*   fontFaceManager,
-                                     GlyphCacheManager* glyphCacheManager,
-                                     ColorGlyphColrRasterizer* colorGlyphColrRasterizer,
-                                     const FontPath&    path,
-                                     PointSize26Dot6    requestedPointSize,
-                                     FaceIndex          face,
-                                     const FontMetrics& metrics,
-                                     int                fixedSizeIndex,
-                                     float              fixedWidth,
-                                     float              fixedHeight,
-                                     bool               hasColorTables,
-                                     const FontFaceManager::ColorFontInfo& colorFontInfo,
+FontFaceCacheItem::FontFaceCacheItem(const FT_Library&                       freeTypeLibrary,
+                                     FT_Face                                 ftFace,
+                                     FontFaceManager*                        fontFaceManager,
+                                     GlyphCacheManager*                      glyphCacheManager,
+                                     ColorGlyphColrRasterizer*               colorGlyphColrRasterizer,
+                                     const FontPath&                         path,
+                                     PointSize26Dot6                         requestedPointSize,
+                                     FaceIndex                               face,
+                                     const FontMetrics&                      metrics,
+                                     int                                     fixedSizeIndex,
+                                     float                                   fixedWidth,
+                                     float                                   fixedHeight,
+                                     bool                                    hasColorTables,
+                                     const FontFaceManager::ColorFontInfo&   colorFontInfo,
                                      FontFaceManager::ColorFontRenderability colorFontRenderability)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
@@ -192,32 +192,32 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
 FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs) noexcept
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
-  mFreeTypeFace            = rhs.mFreeTypeFace;
-  mFontFaceManager        = rhs.mFontFaceManager;
-  mGlyphCacheManager      = rhs.mGlyphCacheManager;
+  mFreeTypeFace             = rhs.mFreeTypeFace;
+  mFontFaceManager          = rhs.mFontFaceManager;
+  mGlyphCacheManager        = rhs.mGlyphCacheManager;
   mColorGlyphColrRasterizer = rhs.mColorGlyphColrRasterizer;
-  mHarfBuzzProxyFont      = std::move(rhs.mHarfBuzzProxyFont);
-  mPath               = std::move(rhs.mPath);
-  mRequestedPointSize = rhs.mRequestedPointSize;
-  mFaceIndex          = rhs.mFaceIndex;
-  mMetrics            = rhs.mMetrics;
-  mCharacterSet       = rhs.mCharacterSet;
-  mFixedSizeIndex     = rhs.mFixedSizeIndex;
-  mFixedWidthPixels   = rhs.mFixedWidthPixels;
-  mFixedHeightPixels  = rhs.mFixedHeightPixels;
-  mVectorFontId       = rhs.mVectorFontId;
-  mFontId             = rhs.mFontId;
-  mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
-  mHasColorTables     = rhs.mHasColorTables;
-  mColorFontInfo      = rhs.mColorFontInfo;
-  mColorFontRenderability = rhs.mColorFontRenderability;
-  mVariationsHash     = rhs.mVariationsHash;
-  mFreeTypeCoords     = std::move(rhs.mFreeTypeCoords);
-  mHarfBuzzVariations = std::move(rhs.mHarfBuzzVariations);
+  mHarfBuzzProxyFont        = std::move(rhs.mHarfBuzzProxyFont);
+  mPath                     = std::move(rhs.mPath);
+  mRequestedPointSize       = rhs.mRequestedPointSize;
+  mFaceIndex                = rhs.mFaceIndex;
+  mMetrics                  = rhs.mMetrics;
+  mCharacterSet             = rhs.mCharacterSet;
+  mFixedSizeIndex           = rhs.mFixedSizeIndex;
+  mFixedWidthPixels         = rhs.mFixedWidthPixels;
+  mFixedHeightPixels        = rhs.mFixedHeightPixels;
+  mVectorFontId             = rhs.mVectorFontId;
+  mFontId                   = rhs.mFontId;
+  mIsFixedSizeBitmap        = rhs.mIsFixedSizeBitmap;
+  mHasColorTables           = rhs.mHasColorTables;
+  mColorFontInfo            = rhs.mColorFontInfo;
+  mColorFontRenderability   = rhs.mColorFontRenderability;
+  mVariationsHash           = rhs.mVariationsHash;
+  mFreeTypeCoords           = std::move(rhs.mFreeTypeCoords);
+  mHarfBuzzVariations       = std::move(rhs.mHarfBuzzVariations);
 
-  rhs.mFreeTypeFace      = nullptr;
-  rhs.mFontFaceManager   = nullptr;
-  rhs.mGlyphCacheManager = nullptr;
+  rhs.mFreeTypeFace             = nullptr;
+  rhs.mFontFaceManager          = nullptr;
+  rhs.mGlyphCacheManager        = nullptr;
   rhs.mColorGlyphColrRasterizer = nullptr;
 }
 
@@ -529,8 +529,9 @@ void FontFaceCacheItem::CreateBitmap(
         IsRenderableColrV1Glyph(glyphIndex);
       if(isRenderableColrV1Glyph)
       {
-        const uint32_t yPpem = mFreeTypeFace->size ? mFreeTypeFace->size->metrics.y_ppem : 64u;
-        const uint32_t targetSize = (yPpem < 16u) ? 16u : (yPpem > 128u) ? 128u : yPpem;
+        const uint32_t yPpem      = mFreeTypeFace->size ? mFreeTypeFace->size->metrics.y_ppem : 64u;
+        const uint32_t targetSize = (yPpem < 16u) ? 16u : (yPpem > 128u) ? 128u
+                                                                         : yPpem;
 
         if(glyphData.mRenderedBuffer)
         {
@@ -763,7 +764,7 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
   // We do NOT trigger COLRv1 rasterization here - only check cache state.
   if(mColorFontRenderability == FontFaceManager::ColorFontRenderability::RenderableColrV1)
   {
-    FT_Error error = -1;
+    FT_Error                             error = -1;
     GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
     mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, mRequestedPointSize, glyphIndex, FT_LOAD_COLOR, false, mVariationsHash, glyphDataPtr, error);
     const bool hasRenderedBuffer = (FT_Err_Ok == error && glyphDataPtr && glyphDataPtr->mRenderedBuffer != nullptr);
@@ -885,4 +886,4 @@ HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontal
   return mHarfBuzzProxyFont->GetHarfBuzzFont();
 }
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal

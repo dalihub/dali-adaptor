@@ -28,7 +28,7 @@
 #include <dali/internal/graphics/common/graphics-library-open-mode.h>
 #include <dali/internal/window-system/common/native-image-surface-impl.h>
 
-namespace Dali::Internal::Adaptor::GraphicsLibrary
+namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary
 {
 namespace
 {
@@ -209,4 +209,4 @@ std::unique_ptr<Any> CastToNativeGraphicsType(void* display)
   return std::unique_ptr<Any>(CallReturnValueFunction<Any* (*)(void*), Any*, void*>("CastToNativeGraphicsType", false, display));
 }
 
-} // namespace Dali::Internal::Adaptor::GraphicsLibrary
+} //namespace DALI_NAMESPACE::Internal::Adaptor::GraphicsLibrary

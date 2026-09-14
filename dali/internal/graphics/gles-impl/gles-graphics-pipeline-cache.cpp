@@ -27,7 +27,7 @@ namespace
 constexpr uint32_t CACHE_CLEAN_FLUSH_COUNT = 3600u; // 60fps * 60sec / ~3 flushes per frame
 }
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 /**
  * @brief custom delete function for cached object
@@ -388,7 +388,7 @@ ProgramImpl* PipelineCache::FindProgramImpl(const ProgramCreateInfo& info)
       continue;
     }
 
-  int32_t k = static_cast<int32_t>(shaderImplsSize);
+    int32_t k = static_cast<int32_t>(shaderImplsSize);
 
     while(--k >= 0 && item.shaderWrappers[k]->GetImplementation() == shaderImpls[k]);
 
@@ -632,4 +632,4 @@ void PipelineCache::MarkShaderCacheFlushRequired()
   mImpl->shaderEntriesFlushRequired = mImpl->flushEnabled;
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

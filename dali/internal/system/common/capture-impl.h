@@ -39,7 +39,7 @@
 #include <dali/public-api/common/dali-string.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -331,6 +331,6 @@ inline const Internal::Adaptor::Capture& GetImpl(const Dali::Capture& captureWor
   return static_cast<const Internal::Adaptor::Capture&>(handle);
 }
 
-} // End of namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_CAPTURE_H

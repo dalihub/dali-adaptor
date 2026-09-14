@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -102,4 +102,4 @@ void PrintError(EGLint error)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

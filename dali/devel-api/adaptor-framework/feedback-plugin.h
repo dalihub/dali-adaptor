@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * FeedbackPlugin is an abstract interface, used by Dali-adaptor to access haptic and audio feedback.
@@ -91,6 +91,6 @@ public:
 
 }; // class FeedbackPlugin
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_FEEDBACK_PLUGIN_H

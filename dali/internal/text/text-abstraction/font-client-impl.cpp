@@ -32,11 +32,11 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
 {
@@ -850,4 +850,4 @@ void FontClient::CreatePlugin()
 
 } // namespace TextAbstraction
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

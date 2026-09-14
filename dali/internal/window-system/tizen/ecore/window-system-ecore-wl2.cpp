@@ -29,7 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 #define START_DURATION_CHECK()                               \
   uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
@@ -37,15 +37,15 @@
   startTime = TimeService::GetMilliSeconds();
 
 // Since dali adaptor doesn't initialize this time, we should use dlog.
-#define FINISH_DURATION_CHECK(functionName)                                                                                                           \
-  endTime              = TimeService::GetMilliSeconds();                                                                                              \
-  durationMilliSeconds = endTime - startTime;                                                                                                         \
-  if(durationMilliSeconds > 0)                                                                                                                        \
-  {                                                                                                                                                   \
+#define FINISH_DURATION_CHECK(functionName)                                                                                                         \
+  endTime              = TimeService::GetMilliSeconds();                                                                                            \
+  durationMilliSeconds = endTime - startTime;                                                                                                       \
+  if(durationMilliSeconds > 0)                                                                                                                      \
+  {                                                                                                                                                 \
     DALI_TIZEN_DLOG(DLOG_DEBUG, DALI_LOG_FORMAT_PREFIX "%s : duration [%u ms]\n", DALI_LOG_FORMAT_PREFIX_ARGS, functionName, durationMilliSeconds); \
   }
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -313,4 +313,4 @@ WindowSystemBase* GetWindowSystem()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

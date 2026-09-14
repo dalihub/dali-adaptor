@@ -30,7 +30,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -250,4 +250,4 @@ void TextureUploadManager::RequestUpload(Dali::Devel::TextureUploadManager::Reso
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

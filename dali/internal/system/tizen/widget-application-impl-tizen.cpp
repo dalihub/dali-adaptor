@@ -32,8 +32,8 @@
 
 // EXTERNAL INCLUDES
 #include <bundle.h>
-#include <dlfcn.h>
 #include <dali/internal/system/tizen/tizen-dlog.h>
+#include <dlfcn.h>
 #include <locale>
 #ifdef USE_TCORE_BACKEND
 #include <screen_connector_provider_tcore.h>
@@ -45,7 +45,7 @@
 using Dali::Integration::ToDaliString;
 using Dali::Integration::ToStdString;
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -340,4 +340,4 @@ Dali::Internal::Adaptor::WidgetApplicationPtr Create(int* argc, char** argv[], c
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -44,7 +44,7 @@ const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
 const int32_t DALI_WRAP_DEFAULT    = GL_CLAMP_TO_EDGE;
 } // namespace
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 struct ColorConversion
 {
@@ -471,4 +471,4 @@ void Texture::SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t
   }
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/timer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -111,6 +111,6 @@ private: // Data
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LINUX_TIMER_H

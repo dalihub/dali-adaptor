@@ -20,33 +20,33 @@
 // empty compilation unit
 #else
 
+#include <dali/integration-api/debug.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-bounds.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-common.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-composite.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-cpal.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-gradient.h>
 #include <dali/internal/text/text-abstraction/plugin/color-glyph/color-glyph-colr-outline.h>
-#include <dali/integration-api/debug.h>
 
 #include <algorithm>
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <vector>
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 
 namespace
 {
 
-#define COLR_TRACE(glyphIndex, ...)          \
-  do                                         \
-  {                                          \
-    if(IsColrDebugTraceEnabled(glyphIndex))  \
-    {                                        \
-      DALI_LOG_RELEASE_INFO(__VA_ARGS__);    \
-    }                                        \
+#define COLR_TRACE(glyphIndex, ...)         \
+  do                                        \
+  {                                         \
+    if(IsColrDebugTraceEnabled(glyphIndex)) \
+    {                                       \
+      DALI_LOG_RELEASE_INFO(__VA_ARGS__);   \
+    }                                       \
   } while(false)
 
 #define COLR_UNSUPPORTED(...) DALI_LOG_RELEASE_INFO(__VA_ARGS__)
@@ -54,7 +54,7 @@ namespace
 // Forward declaration for fill helpers used before ApplyPaintToShape() is defined.
 bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintContext& ctx, uint32_t depth);
 
-constexpr float PI = 3.14159265358979323846f;
+constexpr float PI            = 3.14159265358979323846f;
 constexpr float FROM_FT_FIXED = 1.0f / 65536.0f;
 
 float FixedToFloat16Dot16(FT_Fixed value)
@@ -104,9 +104,9 @@ enum class PaintBuildStatus
  */
 struct PaintBuildResult
 {
-  PaintBuildStatus status{PaintBuildStatus::FAILED};
-  tvg::Paint* paint{nullptr};
-  FT_PaintFormat unsupportedFormat{static_cast<FT_PaintFormat>(0)};
+  PaintBuildStatus  status{PaintBuildStatus::FAILED};
+  tvg::Paint*       paint{nullptr};
+  FT_PaintFormat    unsupportedFormat{static_cast<FT_PaintFormat>(0)};
   FT_Composite_Mode unsupportedCompositeMode{static_cast<FT_Composite_Mode>(0)};
 
   static PaintBuildResult Success(tvg::Paint* paint)
@@ -119,14 +119,14 @@ struct PaintBuildResult
     }
 
     result.status = PaintBuildStatus::SUCCESS;
-    result.paint = paint;
+    result.paint  = paint;
     return result;
   }
 
   static PaintBuildResult Unsupported(FT_PaintFormat format)
   {
     PaintBuildResult result;
-    result.status = PaintBuildStatus::UNSUPPORTED;
+    result.status            = PaintBuildStatus::UNSUPPORTED;
     result.unsupportedFormat = format;
     return result;
   }
@@ -134,8 +134,8 @@ struct PaintBuildResult
   static PaintBuildResult UnsupportedComposite(FT_Composite_Mode mode)
   {
     PaintBuildResult result;
-    result.status = PaintBuildStatus::UNSUPPORTED;
-    result.unsupportedFormat = FT_COLR_PAINTFORMAT_COMPOSITE;
+    result.status                   = PaintBuildStatus::UNSUPPORTED;
+    result.unsupportedFormat        = FT_COLR_PAINTFORMAT_COMPOSITE;
     result.unsupportedCompositeMode = mode;
     return result;
   }
@@ -192,15 +192,15 @@ constexpr float OFFSCREEN_PADDING_PIXELS = 2.0f;
 
 struct OffscreenBounds
 {
-  bool valid{false};
-  bool capExceeded{false};
-  bool overflow{false};
+  bool            valid{false};
+  bool            capExceeded{false};
+  bool            overflow{false};
   ColrPaintBounds conservativeBounds{};
-  int32_t pixelX{0};
-  int32_t pixelY{0};
-  uint32_t pixelWidth{0u};
-  uint32_t pixelHeight{0u};
-  uint64_t pixelCount{0u};
+  int32_t         pixelX{0};
+  int32_t         pixelY{0};
+  uint32_t        pixelWidth{0u};
+  uint32_t        pixelHeight{0u};
+  uint64_t        pixelCount{0u};
 };
 
 enum class OffscreenAlpha
@@ -214,10 +214,10 @@ struct OffscreenBuffer
 {
   CompositeBuffer surface{};
   OffscreenBounds bounds{};
-  OffscreenAlpha alpha{OffscreenAlpha::UNKNOWN};
-  float scale{0.0f};
-  float offsetX{0.0f};
-  float offsetY{0.0f};
+  OffscreenAlpha  alpha{OffscreenAlpha::UNKNOWN};
+  float           scale{0.0f};
+  float           offsetX{0.0f};
+  float           offsetY{0.0f};
 
   OffscreenBuffer() = default;
   ~OffscreenBuffer()
@@ -225,7 +225,7 @@ struct OffscreenBuffer
     Reset();
   }
 
-  OffscreenBuffer(const OffscreenBuffer&) = delete;
+  OffscreenBuffer(const OffscreenBuffer&)            = delete;
   OffscreenBuffer& operator=(const OffscreenBuffer&) = delete;
 
   OffscreenBuffer(OffscreenBuffer&& other) noexcept
@@ -282,9 +282,9 @@ struct OffscreenBuffer
  */
 OffscreenBounds ValidateOffscreenBounds(
   const ColrPaintBounds& bounds,
-  float scale,
-  float offsetX,
-  float offsetY)
+  float                  scale,
+  float                  offsetX,
+  float                  offsetY)
 {
   OffscreenBounds result;
   result.conservativeBounds = bounds;
@@ -311,8 +311,8 @@ OffscreenBounds ValidateOffscreenBounds(
     return result;
   }
 
-  const double padding = static_cast<double>(OFFSCREEN_PADDING_PIXELS);
-  const double scaleD = static_cast<double>(scale);
+  const double padding  = static_cast<double>(OFFSCREEN_PADDING_PIXELS);
+  const double scaleD   = static_cast<double>(scale);
   const double offsetXD = static_cast<double>(offsetX);
   const double offsetYD = static_cast<double>(offsetY);
 
@@ -339,7 +339,7 @@ OffscreenBounds ValidateOffscreenBounds(
     return result;
   }
 
-  const double widthD = pixelMaxX - pixelMinX;
+  const double widthD  = pixelMaxX - pixelMinX;
   const double heightD = pixelMaxY - pixelMinY;
   if(widthD <= 0.0 || heightD <= 0.0)
   {
@@ -358,11 +358,11 @@ OffscreenBounds ValidateOffscreenBounds(
     return result;
   }
 
-  result.pixelX = static_cast<int32_t>(pixelMinX);
-  result.pixelY = static_cast<int32_t>(pixelMinY);
-  result.pixelWidth = static_cast<uint32_t>(widthD);
+  result.pixelX      = static_cast<int32_t>(pixelMinX);
+  result.pixelY      = static_cast<int32_t>(pixelMinY);
+  result.pixelWidth  = static_cast<uint32_t>(widthD);
   result.pixelHeight = static_cast<uint32_t>(heightD);
-  result.pixelCount = static_cast<uint64_t>(result.pixelWidth) * static_cast<uint64_t>(result.pixelHeight);
+  result.pixelCount  = static_cast<uint64_t>(result.pixelWidth) * static_cast<uint64_t>(result.pixelHeight);
 
   if(result.pixelCount > MAX_OFFSCREEN_PIXELS)
   {
@@ -378,10 +378,10 @@ OffscreenBounds ValidateOffscreenBounds(
 bool TryBuildClipBoxPaintBounds(FT_Face ftFace, const PaintContext& ctx, ColrPaintBounds& bounds);
 
 OffscreenBounds BuildCompositeOffscreenBounds(
-  FT_Face ftFace,
+  FT_Face                  ftFace,
   const FT_PaintComposite& composite,
-  const PaintContext& ctx,
-  uint32_t depth)
+  const PaintContext&      ctx,
+  uint32_t                 depth)
 {
   if(!ftFace || depth > 64u)
   {
@@ -430,16 +430,16 @@ OffscreenBuffer AllocateOffscreenBuffer(const OffscreenBounds& bounds)
 }
 
 PaintContext BuildOffscreenPaintContext(
-  FT_Face ftFace,
-  const PaintContext& ctx,
+  FT_Face                ftFace,
+  const PaintContext&    ctx,
   const OffscreenBounds& bounds)
 {
   PaintContext offscreenCtx;
-  offscreenCtx.ftFace = ftFace;
+  offscreenCtx.ftFace       = ftFace;
   offscreenCtx.paletteIndex = ctx.paletteIndex;
-  offscreenCtx.targetWidth = bounds.pixelWidth;
+  offscreenCtx.targetWidth  = bounds.pixelWidth;
   offscreenCtx.targetHeight = bounds.pixelHeight;
-  offscreenCtx.unitsPerEm = ctx.unitsPerEm;
+  offscreenCtx.unitsPerEm   = ctx.unitsPerEm;
   if(offscreenCtx.unitsPerEm <= 0.0f)
   {
     offscreenCtx.unitsPerEm = ftFace ? static_cast<float>(ftFace->units_per_EM) : 1000.0f;
@@ -451,19 +451,19 @@ PaintContext BuildOffscreenPaintContext(
   offscreenCtx.scale = ctx.scale;
   // Render into local offscreen pixel space by subtracting the guarded pixel
   // origin. WrapOffscreenPicture() adds the same origin back as a translation.
-  offscreenCtx.offsetX = ctx.offsetX - static_cast<float>(bounds.pixelX);
-  offscreenCtx.offsetY = ctx.offsetY - static_cast<float>(bounds.pixelY);
-  offscreenCtx.geometryTransform = ctx.geometryTransform;
-  offscreenCtx.debugGlyph = ctx.debugGlyph;
+  offscreenCtx.offsetX                       = ctx.offsetX - static_cast<float>(bounds.pixelX);
+  offscreenCtx.offsetY                       = ctx.offsetY - static_cast<float>(bounds.pixelY);
+  offscreenCtx.geometryTransform             = ctx.geometryTransform;
+  offscreenCtx.debugGlyph                    = ctx.debugGlyph;
   offscreenCtx.allowOffscreenCompositeResult = false;
-  offscreenCtx.rasterizer = ctx.rasterizer;
-  offscreenCtx.variationsHash = ctx.variationsHash;
+  offscreenCtx.rasterizer                    = ctx.rasterizer;
+  offscreenCtx.variationsHash                = ctx.variationsHash;
   // Parent/root ClipBox only selects the already-created isolated surface.
   // Do not propagate it into nested Composite operands; they compute their own
   // isolation bounds unless a child explicitly opts into referenced glyph bounds.
-  offscreenCtx.useClipBoxBounds = false;
+  offscreenCtx.useClipBoxBounds   = false;
   offscreenCtx.clipBoxBoundsGlyph = 0u;
-  offscreenCtx.colrGlyphStack = ctx.colrGlyphStack;
+  offscreenCtx.colrGlyphStack     = ctx.colrGlyphStack;
   return offscreenCtx;
 }
 
@@ -616,10 +616,10 @@ bool IsStandaloneFillTreeForOffscreen(FT_Face ftFace, FT_OpaquePaint opaquePaint
 }
 
 bool RenderStandaloneFillToOffscreen(
-  FT_OpaquePaint paint,
+  FT_OpaquePaint   paint,
   OffscreenBuffer& target,
-  PaintContext& offscreenCtx,
-  uint32_t depth)
+  PaintContext&    offscreenCtx,
+  uint32_t         depth)
 {
   if(!target.IsValid() || offscreenCtx.scale <= 0.0f)
   {
@@ -670,33 +670,33 @@ bool RenderStandaloneFillToOffscreen(
 }
 
 OffscreenBuffer RenderPaintToOffscreen(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face                ftFace,
+  FT_OpaquePaint         opaquePaint,
   const OffscreenBounds& bounds,
-  const PaintContext& ctx,
-  uint32_t depth);
+  const PaintContext&    ctx,
+  uint32_t               depth);
 
 PaintBuildResult BuildPaintNodeForSceneBuilder(
-  FT_Face ftFace,
+  FT_Face        ftFace,
   FT_OpaquePaint opaquePaint,
-  PaintContext& ctx,
-  uint32_t depth);
+  PaintContext&  ctx,
+  uint32_t       depth);
 
 void ReleasePaintIfNotNull(tvg::Paint*& paint);
 
 OffscreenBuffer BuildCompositeOffscreenBuffer(
-  FT_Face ftFace,
+  FT_Face                  ftFace,
   const FT_PaintComposite& composite,
-  const OffscreenBounds& bounds,
-  const PaintContext& ctx,
-  uint32_t depth);
+  const OffscreenBounds&   bounds,
+  const PaintContext&      ctx,
+  uint32_t                 depth);
 
 OffscreenBuffer RenderPaintToOffscreen(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face                ftFace,
+  FT_OpaquePaint         opaquePaint,
   const OffscreenBounds& bounds,
-  const PaintContext& ctx,
-  uint32_t depth)
+  const PaintContext&    ctx,
+  uint32_t               depth)
 {
   OffscreenBuffer target = AllocateOffscreenBuffer(bounds);
   if(!target.IsValid())
@@ -730,9 +730,9 @@ OffscreenBuffer RenderPaintToOffscreen(
   }
 
   PaintContext offscreenCtx = BuildOffscreenPaintContext(ftFace, ctx, bounds);
-  target.scale = offscreenCtx.scale;
-  target.offsetX = offscreenCtx.offsetX;
-  target.offsetY = offscreenCtx.offsetY;
+  target.scale              = offscreenCtx.scale;
+  target.offsetX            = offscreenCtx.offsetX;
+  target.offsetY            = offscreenCtx.offsetY;
 
   if(IsStandaloneFillTreeForOffscreen(ftFace, opaquePaint, depth))
   {
@@ -753,14 +753,14 @@ OffscreenBuffer RenderPaintToOffscreen(
 }
 
 OffscreenBuffer CompositeOffscreenBuffers(
-  FT_Composite_Mode mode,
+  FT_Composite_Mode      mode,
   const OffscreenBuffer& backdrop,
   const OffscreenBuffer& source,
-  uint32_t debugGlyph)
+  uint32_t               debugGlyph)
 {
   OffscreenBuffer output;
-  output.bounds = backdrop.bounds;
-  output.scale = backdrop.scale;
+  output.bounds  = backdrop.bounds;
+  output.scale   = backdrop.scale;
   output.offsetX = backdrop.offsetX;
   output.offsetY = backdrop.offsetY;
 
@@ -784,11 +784,11 @@ OffscreenBuffer CompositeOffscreenBuffers(
 }
 
 OffscreenBuffer BuildCompositeOffscreenBuffer(
-  FT_Face ftFace,
+  FT_Face                  ftFace,
   const FT_PaintComposite& composite,
-  const OffscreenBounds& bounds,
-  const PaintContext& ctx,
-  uint32_t depth)
+  const OffscreenBounds&   bounds,
+  const PaintContext&      ctx,
+  uint32_t                 depth)
 {
   OffscreenBuffer result;
   result.bounds = bounds;
@@ -831,7 +831,7 @@ OffscreenBuffer BuildCompositeOffscreenBuffer(
 CompositeBuffer TakeOffscreenSurface(OffscreenBuffer& buffer)
 {
   CompositeBuffer surface = buffer.surface;
-  buffer.surface = CompositeBuffer();
+  buffer.surface          = CompositeBuffer();
   return surface;
 }
 
@@ -887,10 +887,10 @@ tvg::Picture* WrapOffscreenPicture(const OffscreenBuffer& buffer)
  * bounded offscreen Composite results.
  */
 PaintBuildResult BuildCompositeOffscreen(
-  FT_Face ftFace,
+  FT_Face                  ftFace,
   const FT_PaintComposite& composite,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&            ctx,
+  uint32_t                 depth)
 {
   if(!IsCompositeModeSupported(composite.composite_mode))
   {
@@ -898,7 +898,7 @@ PaintBuildResult BuildCompositeOffscreen(
   }
 
   const OffscreenBounds bounds = BuildCompositeOffscreenBounds(ftFace, composite, ctx, depth);
-  OffscreenBuffer output = BuildCompositeOffscreenBuffer(ftFace, composite, bounds, ctx, depth);
+  OffscreenBuffer       output = BuildCompositeOffscreenBuffer(ftFace, composite, bounds, ctx, depth);
   if(!output.IsValid())
   {
     return PaintBuildResult::RequiresOffscreenResult();
@@ -971,7 +971,7 @@ struct GlyphChildInfo
   static GlyphChildInfo SimpleFill(FT_PaintFormat format)
   {
     GlyphChildInfo result;
-    result.kind = PaintGlyphChildKind::SIMPLE_FILL;
+    result.kind   = PaintGlyphChildKind::SIMPLE_FILL;
     result.format = format;
     return result;
   }
@@ -979,7 +979,7 @@ struct GlyphChildInfo
   static GlyphChildInfo BuildAndClip(FT_PaintFormat format)
   {
     GlyphChildInfo result;
-    result.kind = PaintGlyphChildKind::BUILD_AND_CLIP;
+    result.kind   = PaintGlyphChildKind::BUILD_AND_CLIP;
     result.format = format;
     return result;
   }
@@ -987,9 +987,9 @@ struct GlyphChildInfo
   static GlyphChildInfo Boundary(PaintBuildResult buildResult, FT_PaintFormat format)
   {
     GlyphChildInfo result;
-    result.kind = PaintGlyphChildKind::BOUNDARY;
+    result.kind           = PaintGlyphChildKind::BOUNDARY;
     result.boundaryResult = buildResult;
-    result.format = format;
+    result.format         = format;
     return result;
   }
 
@@ -1004,8 +1004,8 @@ struct GlyphChildInfo
   }
 
   PaintGlyphChildKind kind{PaintGlyphChildKind::BOUNDARY};
-  PaintBuildResult boundaryResult{PaintBuildResult::Failed()};
-  FT_PaintFormat format{static_cast<FT_PaintFormat>(0)};
+  PaintBuildResult    boundaryResult{PaintBuildResult::Failed()};
+  FT_PaintFormat      format{static_cast<FT_PaintFormat>(0)};
 };
 
 /**
@@ -1019,9 +1019,9 @@ struct GlyphChildInfo
  * shape-fill path.
  */
 GlyphChildInfo ClassifyGlyphChild(
-  FT_Face ftFace,
+  FT_Face        ftFace,
   FT_OpaquePaint childPaint,
-  uint32_t depth)
+  uint32_t       depth)
 {
   if(depth > 64)
   {
@@ -1118,7 +1118,7 @@ GlyphChildInfo ClassifyGlyphChild(
  */
 PaintBuildResult BuildGlyphOutlineShape(
   FT_PaintGlyph& paintGlyph,
-  PaintContext& ctx)
+  PaintContext&  ctx)
 {
   FT_Error error = FT_Load_Glyph(ctx.ftFace, paintGlyph.glyphID,
                                  FT_LOAD_NO_BITMAP | FT_LOAD_NO_HINTING | FT_LOAD_NO_SCALE);
@@ -1231,8 +1231,8 @@ const char* ClipBoxStatusToString(ClipBoxStatus status)
 }
 
 ColorGlyphColrRasterizer::RawClipBox LookupGlyphClipBox(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face             ftFace,
+  GlyphIndex          glyphIndex,
   const PaintContext& ctx)
 {
   ColorGlyphColrRasterizer::RawClipBox rawClipBox;
@@ -1252,14 +1252,14 @@ ColorGlyphColrRasterizer::RawClipBox LookupGlyphClipBox(
 struct GlyphClipBoxCanvasBounds
 {
   ClipBoxStatus status{ClipBoxStatus::INVALID_BOUNDS};
-  float clipMinX{0.0f};
-  float clipMinY{0.0f};
-  float clipMaxX{0.0f};
-  float clipMaxY{0.0f};
-  float canvasMinX{0.0f};
-  float canvasMinY{0.0f};
-  float canvasMaxX{0.0f};
-  float canvasMaxY{0.0f};
+  float         clipMinX{0.0f};
+  float         clipMinY{0.0f};
+  float         clipMaxX{0.0f};
+  float         clipMaxY{0.0f};
+  float         canvasMinX{0.0f};
+  float         canvasMinY{0.0f};
+  float         canvasMaxX{0.0f};
+  float         canvasMaxY{0.0f};
 
   bool IsValid() const
   {
@@ -1287,8 +1287,8 @@ tvg::Shape* BuildClipBoxRectClipper(float minX, float minY, float maxX, float ma
 }
 
 GlyphClipBoxCanvasBounds BuildGlyphClipBoxCanvasBounds(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face             ftFace,
+  GlyphIndex          glyphIndex,
   const PaintContext& ctx)
 {
   GlyphClipBoxCanvasBounds result;
@@ -1300,7 +1300,7 @@ GlyphClipBoxCanvasBounds BuildGlyphClipBoxCanvasBounds(
   }
 
   const ColorGlyphColrRasterizer::RawClipBox rawClipBox = LookupGlyphClipBox(ftFace, glyphIndex, ctx);
-  result.status = rawClipBox.status;
+  result.status                                         = rawClipBox.status;
   if(!rawClipBox.IsValid())
   {
     return result;
@@ -1311,7 +1311,7 @@ GlyphClipBoxCanvasBounds BuildGlyphClipBoxCanvasBounds(
   result.clipMaxX = Clip26Dot6ToFloat(rawClipBox.maxX);
   result.clipMaxY = Clip26Dot6ToFloat(rawClipBox.maxY);
 
-  const float clipWidth = result.clipMaxX - result.clipMinX;
+  const float clipWidth  = result.clipMaxX - result.clipMinX;
   const float clipHeight = result.clipMaxY - result.clipMinY;
 
   constexpr float MAX_ROOT_CLIPBOX_PIXELS = 1019.0f;
@@ -1327,7 +1327,7 @@ GlyphClipBoxCanvasBounds BuildGlyphClipBoxCanvasBounds(
   result.canvasMaxX = ctx.offsetX + result.clipMaxX;
   result.canvasMinY = ctx.offsetY - result.clipMaxY;
   result.canvasMaxY = ctx.offsetY - result.clipMinY;
-  result.status = ClipBoxStatus::OK;
+  result.status     = ClipBoxStatus::OK;
   return result;
 }
 
@@ -1351,11 +1351,11 @@ bool TryBuildClipBoxPaintBounds(FT_Face ftFace, const PaintContext& ctx, ColrPai
   }
 
   const float invScale = 1.0f / ctx.scale;
-  bounds.valid = true;
-  bounds.minX = clip.clipMinX * invScale;
-  bounds.minY = clip.clipMinY * invScale;
-  bounds.maxX = clip.clipMaxX * invScale;
-  bounds.maxY = clip.clipMaxY * invScale;
+  bounds.valid         = true;
+  bounds.minX          = clip.clipMinX * invScale;
+  bounds.minY          = clip.clipMinY * invScale;
+  bounds.maxX          = clip.clipMaxX * invScale;
+  bounds.maxY          = clip.clipMaxY * invScale;
 
   COLR_TRACE(ctx.debugGlyph,
              "COLOR_GLYPH_COLR_RENDER ClipBoxBounds glyph:%u boundsGlyph:%u source:clipbox bounds:(%.1f,%.1f)-(%.1f,%.1f)\n",
@@ -1371,8 +1371,8 @@ bool TryBuildClipBoxPaintBounds(FT_Face ftFace, const PaintContext& ctx, ColrPai
 // ---- Root ClipBox vector clip and referenced PaintColrGlyph ClipBox helpers ----
 
 tvg::Shape* BuildRootClipBoxClipper(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face             ftFace,
+  GlyphIndex          glyphIndex,
   const PaintContext& ctx)
 {
   const GlyphClipBoxCanvasBounds clip = BuildGlyphClipBoxCanvasBounds(ftFace, glyphIndex, ctx);
@@ -1415,8 +1415,8 @@ tvg::Shape* BuildRootClipBoxClipper(
 }
 
 tvg::Shape* BuildGlyphClipBoxClipper(
-  FT_Face ftFace,
-  GlyphIndex glyphIndex,
+  FT_Face             ftFace,
+  GlyphIndex          glyphIndex,
   const PaintContext& ctx)
 {
   const GlyphClipBoxCanvasBounds clip = BuildGlyphClipBoxCanvasBounds(ftFace, glyphIndex, ctx);
@@ -1436,10 +1436,10 @@ tvg::Shape* BuildGlyphClipBoxClipper(
   }
 
   const float invScale = 1.0f / ctx.scale;
-  const float minX = clip.clipMinX * invScale;
-  const float minY = clip.clipMinY * invScale;
-  const float maxX = clip.clipMaxX * invScale;
-  const float maxY = clip.clipMaxY * invScale;
+  const float minX     = clip.clipMinX * invScale;
+  const float minY     = clip.clipMinY * invScale;
+  const float maxX     = clip.clipMaxX * invScale;
+  const float maxY     = clip.clipMaxY * invScale;
 
   tvg::Shape* clipper = BuildClipBoxRectClipper(minX, -maxY, maxX, -minY);
   if(!clipper)
@@ -1465,9 +1465,9 @@ tvg::Shape* BuildGlyphClipBoxClipper(
 }
 
 void ApplyPaintColrGlyphClipBoxIfAvailable(
-  FT_Face ftFace,
-  GlyphIndex referencedGlyphID,
-  PaintContext& ctx,
+  FT_Face           ftFace,
+  GlyphIndex        referencedGlyphID,
+  PaintContext&     ctx,
   PaintBuildResult& buildResult)
 {
   if(!buildResult.IsSuccess() || !buildResult.paint)
@@ -1515,9 +1515,9 @@ void ApplyPaintColrGlyphClipBoxIfAvailable(
 // It intentionally preserves allocation size, buffer origin, and RenderResult
 // placement metadata; it is not an antialiased clip path.
 void ClearOutsideRootClipBoxInCompositeBuffer(
-  FT_Face ftFace,
+  FT_Face             ftFace,
   const PaintContext& ctx,
-  OffscreenBuffer& buffer)
+  OffscreenBuffer&    buffer)
 {
   if(!buffer.IsValid() ||
      buffer.surface.stride < buffer.surface.width * static_cast<uint32_t>(sizeof(uint32_t)))
@@ -1544,14 +1544,14 @@ void ClearOutsideRootClipBoxInCompositeBuffer(
   const int64_t bufferMinY = static_cast<int64_t>(buffer.bounds.pixelY);
   const int64_t bufferMaxX = bufferMinX + static_cast<int64_t>(buffer.surface.width);
 
-  const int64_t keepMinX = std::max(bufferMinX, clipMinX) - bufferMinX;
-  const int64_t keepMaxX = std::min(bufferMaxX, clipMaxX) - bufferMinX;
-  const bool hasHorizontalOverlap = keepMinX < keepMaxX;
+  const int64_t keepMinX             = std::max(bufferMinX, clipMinX) - bufferMinX;
+  const int64_t keepMaxX             = std::min(bufferMaxX, clipMaxX) - bufferMinX;
+  const bool    hasHorizontalOverlap = keepMinX < keepMaxX;
 
   for(uint32_t y = 0; y < buffer.surface.height; ++y)
   {
-    uint8_t* const row = buffer.surface.buffer + static_cast<size_t>(y) * buffer.surface.stride;
-    const int64_t globalY = bufferMinY + static_cast<int64_t>(y);
+    uint8_t* const row     = buffer.surface.buffer + static_cast<size_t>(y) * buffer.surface.stride;
+    const int64_t  globalY = bufferMinY + static_cast<int64_t>(y);
     if(globalY < clipMinY || globalY >= clipMaxY || !hasHorizontalOverlap)
     {
       std::memset(row, 0, static_cast<size_t>(buffer.surface.width) * sizeof(uint32_t));
@@ -1614,8 +1614,8 @@ bool WrapRootPaintForOuterClip(PaintBuildResult& buildResult)
 }
 
 void ApplyRootClipBoxIfAvailable(
-  FT_Face ftFace,
-  PaintContext& ctx,
+  FT_Face           ftFace,
+  PaintContext&     ctx,
   PaintBuildResult& buildResult)
 {
   if(!buildResult.IsSuccess() || !buildResult.paint)
@@ -1661,8 +1661,8 @@ void ApplyRootClipBoxIfAvailable(
  */
 PaintBuildResult BuildClippedGlyphChild(
   FT_PaintGlyph& paintGlyph,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&  ctx,
+  uint32_t       depth)
 {
   PaintBuildResult childResult = BuildPaintNodeForSceneBuilder(ctx.ftFace, paintGlyph.paint, ctx, depth + 1);
   if(!childResult.IsSuccess())
@@ -1718,8 +1718,8 @@ PaintBuildResult BuildClippedGlyphChild(
  */
 PaintBuildResult BuildPaintGlyph(
   FT_PaintGlyph& paintGlyph,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&  ctx,
+  uint32_t       depth)
 {
   if(paintGlyph.paint.p != nullptr)
   {
@@ -1741,7 +1741,7 @@ PaintBuildResult BuildPaintGlyph(
     return outlineResult;
   }
 
-  tvg::Shape* shape = static_cast<tvg::Shape*>(outlineResult.paint);
+  tvg::Shape* shape   = static_cast<tvg::Shape*>(outlineResult.paint);
   outlineResult.paint = nullptr;
 
   if(paintGlyph.paint.p != nullptr)
@@ -1750,8 +1750,8 @@ PaintBuildResult BuildPaintGlyph(
     // tree is a simple fill. Preserve builder side-effect isolation by restoring
     // unsupportedCount after the call.
     const uint32_t previousUnsupportedCount = ctx.unsupportedCount;
-    const bool fillApplied = ApplyPaintToShape(paintGlyph.paint, shape, ctx, depth + 1);
-    ctx.unsupportedCount = previousUnsupportedCount;
+    const bool     fillApplied              = ApplyPaintToShape(paintGlyph.paint, shape, ctx, depth + 1);
+    ctx.unsupportedCount                    = previousUnsupportedCount;
     if(!fillApplied)
     {
       tvg::Paint* shapePaint = shape;
@@ -1855,31 +1855,31 @@ bool IsRootPaintNode(uint32_t depth)
  */
 struct PaintFeatureFlags
 {
-  bool hasComposite{false};
-  bool hasSweepGradient{false};
-  bool hasColrGlyph{false};
-  bool hasNestedGlyph{false};
-  bool hasGlyphChildColrLayers{false};
-  bool hasUnsupported{false};
-  bool hasRequiresOffscreen{false};
-  bool hasTransform{false};
-  bool hasTranslate{false};
-  bool hasScale{false};
-  bool hasRotate{false};
-  bool hasSkew{false};
-  bool hasLinearGradient{false};
-  bool hasRadialGradient{false};
-  bool hasSolid{false};
-  bool hasStandaloneLeafPaint{false};
-  bool traversalFailed{false};
-  bool paintCountExceeded{false};
+  bool     hasComposite{false};
+  bool     hasSweepGradient{false};
+  bool     hasColrGlyph{false};
+  bool     hasNestedGlyph{false};
+  bool     hasGlyphChildColrLayers{false};
+  bool     hasUnsupported{false};
+  bool     hasRequiresOffscreen{false};
+  bool     hasTransform{false};
+  bool     hasTranslate{false};
+  bool     hasScale{false};
+  bool     hasRotate{false};
+  bool     hasSkew{false};
+  bool     hasLinearGradient{false};
+  bool     hasRadialGradient{false};
+  bool     hasSolid{false};
+  bool     hasStandaloneLeafPaint{false};
+  bool     traversalFailed{false};
+  bool     paintCountExceeded{false};
   uint32_t visitedPaintCount{0u};
   uint32_t maxDepthReached{0u};
 };
 
 bool NoteVisitedPaint(
   PaintFeatureFlags& flags,
-  uint32_t depth)
+  uint32_t           depth)
 {
   if(depth > MAX_FEATURE_SCAN_DEPTH)
   {
@@ -1891,7 +1891,7 @@ bool NoteVisitedPaint(
   if(flags.visitedPaintCount >= MAX_FEATURE_SCAN_PAINTS)
   {
     flags.paintCountExceeded = true;
-    flags.traversalFailed   = true;
+    flags.traversalFailed    = true;
     return false;
   }
 
@@ -1905,12 +1905,12 @@ bool NoteVisitedPaint(
 }
 
 bool ScanPaintFeatures(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face            ftFace,
+  FT_OpaquePaint     opaquePaint,
   PaintFeatureFlags& flags,
-  uint32_t depth,
-  bool insideGlyph,
-  bool insideOffscreenOperand)
+  uint32_t           depth,
+  bool               insideGlyph,
+  bool               insideOffscreenOperand)
 {
   if(!ftFace || !opaquePaint.p)
   {
@@ -1940,7 +1940,7 @@ bool ScanPaintFeatures(
         return false;
       }
 
-      bool             hasLayer = false;
+      bool             hasLayer  = false;
       FT_LayerIterator layerIter = paint.u.colr_layers.layer_iterator;
       FT_OpaquePaint   layerOpaque;
       while(FT_Get_Paint_Layers(ftFace, &layerIter, &layerOpaque))
@@ -2083,10 +2083,10 @@ bool ScanPaintFeatures(
 }
 
 bool CollectPaintFeatures(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face            ftFace,
+  FT_OpaquePaint     opaquePaint,
   PaintFeatureFlags& flags,
-  uint32_t depth)
+  uint32_t           depth)
 {
   return ScanPaintFeatures(ftFace, opaquePaint, flags, depth, false, false);
 }
@@ -2115,10 +2115,10 @@ bool HasBlockedFeature(const PaintFeatureFlags& flags)
  * without synthesizing replacement paints.
  */
 bool IsRootColrLayersCandidate(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face              ftFace,
+  FT_OpaquePaint       opaquePaint,
   const FT_COLR_Paint& paint,
-  uint32_t depth)
+  uint32_t             depth)
 {
   if(!IsRootPaintNode(depth) ||
      !ftFace ||
@@ -2146,10 +2146,10 @@ bool IsRootColrLayersCandidate(
  * excluded by the feature scan until bounds parity is fixture-verified.
  */
 bool IsRootShapeCandidate(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face              ftFace,
+  FT_OpaquePaint       opaquePaint,
   const FT_COLR_Paint& paint,
-  uint32_t depth)
+  uint32_t             depth)
 {
   if(!IsRootPaintNode(depth) ||
      !ftFace ||
@@ -2182,11 +2182,11 @@ bool IsRootShapeCandidate(
  * cannot leak into root Glyph/Transform by accident.
  */
 bool ShouldUseSceneBuilder(
-  FT_Face ftFace,
-  FT_OpaquePaint opaquePaint,
+  FT_Face              ftFace,
+  FT_OpaquePaint       opaquePaint,
   const FT_COLR_Paint& paint,
-  uint32_t depth,
-  bool& allowOffscreenCompositeResult)
+  uint32_t             depth,
+  bool&                allowOffscreenCompositeResult)
 {
   allowOffscreenCompositeResult = false;
 
@@ -2220,7 +2220,7 @@ struct OffscreenCompositeResultGuard
   }
 
   PaintContext& ctx;
-  bool previous{false};
+  bool          previous{false};
 };
 
 /**
@@ -2246,11 +2246,11 @@ struct ColrGlyphBuildGuard
     }
   }
 
-  ColrGlyphBuildGuard(const ColrGlyphBuildGuard&) = delete;
+  ColrGlyphBuildGuard(const ColrGlyphBuildGuard&)            = delete;
   ColrGlyphBuildGuard& operator=(const ColrGlyphBuildGuard&) = delete;
 
   PaintContext& ctx;
-  bool pushed{false};
+  bool          pushed{false};
 };
 
 /**
@@ -2265,10 +2265,10 @@ struct ColrGlyphBuildGuard
  * a replacement paint.
  */
 PaintBuildResult BuildColrLayersScene(
-  FT_Face ftFace,
+  FT_Face             ftFace,
   FT_PaintColrLayers& colrLayers,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&       ctx,
+  uint32_t            depth)
 {
   tvg::Scene* scene = tvg::Scene::gen();
   if(!scene)
@@ -2276,9 +2276,9 @@ PaintBuildResult BuildColrLayersScene(
     return PaintBuildResult::Failed();
   }
 
-  uint32_t layerCount = 0u;
-  FT_LayerIterator& layerIter = colrLayers.layer_iterator;
-  FT_OpaquePaint layerOpaque;
+  uint32_t          layerCount = 0u;
+  FT_LayerIterator& layerIter  = colrLayers.layer_iterator;
+  FT_OpaquePaint    layerOpaque;
 
   while(FT_Get_Paint_Layers(ftFace, &layerIter, &layerOpaque))
   {
@@ -2324,10 +2324,10 @@ PaintBuildResult BuildColrLayersScene(
  * subtree. No fallback paint, log, or unsupported counter update is created here.
  */
 PaintBuildResult BuildPaintColrGlyph(
-  FT_Face ftFace,
+  FT_Face            ftFace,
   FT_PaintColrGlyph& colrGlyph,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&      ctx,
+  uint32_t           depth)
 {
   if(depth > 64)
   {
@@ -2349,7 +2349,7 @@ PaintBuildResult BuildPaintColrGlyph(
   }
 
   FT_OpaquePaint referencedRootPaint;
-  referencedRootPaint.p = nullptr;
+  referencedRootPaint.p                     = nullptr;
   referencedRootPaint.insert_root_transform = false;
 
   const FT_Bool hasReferencedPaint = FT_Get_Color_Glyph_Paint(
@@ -2365,15 +2365,15 @@ PaintBuildResult BuildPaintColrGlyph(
 
   ColrGlyphBuildGuard guard(ctx, referencedGlyphID);
 
-  const bool previousUseClipBoxBounds = ctx.useClipBoxBounds;
+  const bool       previousUseClipBoxBounds   = ctx.useClipBoxBounds;
   const GlyphIndex previousClipBoxBoundsGlyph = ctx.clipBoxBoundsGlyph;
-  ctx.useClipBoxBounds = true;
-  ctx.clipBoxBoundsGlyph = referencedGlyphID;
+  ctx.useClipBoxBounds                        = true;
+  ctx.clipBoxBoundsGlyph                      = referencedGlyphID;
 
   PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, referencedRootPaint, ctx, depth + 1);
   ApplyPaintColrGlyphClipBoxIfAvailable(ftFace, referencedGlyphID, ctx, result);
 
-  ctx.useClipBoxBounds = previousUseClipBoxBounds;
+  ctx.useClipBoxBounds   = previousUseClipBoxBounds;
   ctx.clipBoxBoundsGlyph = previousClipBoxBoundsGlyph;
   return result;
 }
@@ -2387,10 +2387,10 @@ PaintBuildResult BuildPaintColrGlyph(
  * replacement paints here.
  */
 PaintBuildResult BuildPaintNodeForSceneBuilder(
-  FT_Face ftFace,
+  FT_Face        ftFace,
   FT_OpaquePaint opaquePaint,
-  PaintContext& ctx,
-  uint32_t depth)
+  PaintContext&  ctx,
+  uint32_t       depth)
 {
   if(depth > 64)
   {
@@ -2423,73 +2423,73 @@ PaintBuildResult BuildPaintNodeForSceneBuilder(
     case FT_COLR_PAINTFORMAT_TRANSFORM:
     {
       TransformState prevTransform = ctx.geometryTransform;
-      const auto& tf = paint.u.transform;
-      const float xx = static_cast<float>(tf.affine.xx) / 65536.0f;
-      const float xy = static_cast<float>(tf.affine.xy) / 65536.0f;
-      const float yx = static_cast<float>(tf.affine.yx) / 65536.0f;
-      const float yy = static_cast<float>(tf.affine.yy) / 65536.0f;
-      const float dx = static_cast<float>(tf.affine.dx) / 65536.0f;
-      const float dy = static_cast<float>(tf.affine.dy) / 65536.0f;
+      const auto&    tf            = paint.u.transform;
+      const float    xx            = static_cast<float>(tf.affine.xx) / 65536.0f;
+      const float    xy            = static_cast<float>(tf.affine.xy) / 65536.0f;
+      const float    yx            = static_cast<float>(tf.affine.yx) / 65536.0f;
+      const float    yy            = static_cast<float>(tf.affine.yy) / 65536.0f;
+      const float    dx            = static_cast<float>(tf.affine.dx) / 65536.0f;
+      const float    dy            = static_cast<float>(tf.affine.dy) / 65536.0f;
       ctx.geometryTransform.Apply(xx, xy, yx, yy, dx, dy);
       PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, tf.paint, ctx, depth + 1);
-      ctx.geometryTransform = prevTransform;
+      ctx.geometryTransform   = prevTransform;
       return result;
     }
 
     case FT_COLR_PAINTFORMAT_TRANSLATE:
     {
       TransformState prevTransform = ctx.geometryTransform;
-      const float dx = static_cast<float>(paint.u.translate.dx) / 65536.0f;
-      const float dy = static_cast<float>(paint.u.translate.dy) / 65536.0f;
+      const float    dx            = static_cast<float>(paint.u.translate.dx) / 65536.0f;
+      const float    dy            = static_cast<float>(paint.u.translate.dy) / 65536.0f;
       ctx.geometryTransform.Apply(1, 0, 0, 1, dx, dy);
       PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, paint.u.translate.paint, ctx, depth + 1);
-      ctx.geometryTransform = prevTransform;
+      ctx.geometryTransform   = prevTransform;
       return result;
     }
 
     case FT_COLR_PAINTFORMAT_SCALE:
     {
       TransformState prevTransform = ctx.geometryTransform;
-      const float sx = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
-      const float sy = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
-      const float cx = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
-      const float cy = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
+      const float    sx            = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
+      const float    sy            = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
+      const float    cx            = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
+      const float    cy            = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
       ctx.geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       ctx.geometryTransform.Apply(sx, 0, 0, sy, 0, 0);
       ctx.geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
       PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, paint.u.scale.paint, ctx, depth + 1);
-      ctx.geometryTransform = prevTransform;
+      ctx.geometryTransform   = prevTransform;
       return result;
     }
 
     case FT_COLR_PAINTFORMAT_ROTATE:
     {
       TransformState prevTransform = ctx.geometryTransform;
-      const float angleRadians = ColrAngleToRadians(paint.u.rotate.angle);
-      const float cx = FixedToFloat16Dot16(paint.u.rotate.center_x);
-      const float cy = FixedToFloat16Dot16(paint.u.rotate.center_y);
-      const float cosA = std::cos(angleRadians);
-      const float sinA = std::sin(angleRadians);
+      const float    angleRadians  = ColrAngleToRadians(paint.u.rotate.angle);
+      const float    cx            = FixedToFloat16Dot16(paint.u.rotate.center_x);
+      const float    cy            = FixedToFloat16Dot16(paint.u.rotate.center_y);
+      const float    cosA          = std::cos(angleRadians);
+      const float    sinA          = std::sin(angleRadians);
       ctx.geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       ctx.geometryTransform.Apply(cosA, -sinA, sinA, cosA, 0, 0);
       ctx.geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
       PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, paint.u.rotate.paint, ctx, depth + 1);
-      ctx.geometryTransform = prevTransform;
+      ctx.geometryTransform   = prevTransform;
       return result;
     }
 
     case FT_COLR_PAINTFORMAT_SKEW:
     {
       TransformState prevTransform = ctx.geometryTransform;
-      const float skewX = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
-      const float skewY = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
-      const float cx = FixedToFloat16Dot16(paint.u.skew.center_x);
-      const float cy = FixedToFloat16Dot16(paint.u.skew.center_y);
+      const float    skewX         = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
+      const float    skewY         = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
+      const float    cx            = FixedToFloat16Dot16(paint.u.skew.center_x);
+      const float    cy            = FixedToFloat16Dot16(paint.u.skew.center_y);
       ctx.geometryTransform.Apply(1, 0, 0, 1, cx, cy);
       ctx.geometryTransform.Apply(1, skewX, skewY, 1, 0, 0);
       ctx.geometryTransform.Apply(1, 0, 0, 1, -cx, -cy);
       PaintBuildResult result = BuildPaintNodeForSceneBuilder(ftFace, paint.u.skew.paint, ctx, depth + 1);
-      ctx.geometryTransform = prevTransform;
+      ctx.geometryTransform   = prevTransform;
       return result;
     }
 
@@ -2525,10 +2525,10 @@ PaintBuildResult BuildPaintNodeForSceneBuilder(
 } // anonymous namespace
 
 bool TryBuildRootPaintForSceneBuilder(
-  FT_Face ftFace,
+  FT_Face        ftFace,
   FT_OpaquePaint opaquePaint,
-  PaintContext& ctx,
-  tvg::Paint*& outPaint)
+  PaintContext&  ctx,
+  tvg::Paint*&   outPaint)
 {
   outPaint = nullptr;
 
@@ -2553,7 +2553,7 @@ bool TryBuildRootPaintForSceneBuilder(
   }
 
   OffscreenCompositeResultGuard offscreenCompositeResultGuard(ctx, allowOffscreenCompositeResult);
-  PaintBuildResult buildResult = BuildPaintNodeForSceneBuilder(ftFace, opaquePaint, ctx, 0u);
+  PaintBuildResult              buildResult = BuildPaintNodeForSceneBuilder(ftFace, opaquePaint, ctx, 0u);
   if(!buildResult.IsSuccess())
   {
     COLR_TRACE(ctx.debugGlyph,
@@ -2569,16 +2569,16 @@ bool TryBuildRootPaintForSceneBuilder(
 
   ApplyRootClipBoxIfAvailable(ftFace, ctx, buildResult);
 
-  outPaint = buildResult.paint;
+  outPaint          = buildResult.paint;
   buildResult.paint = nullptr;
   return true;
 }
 
 RootCompositeOffscreenResult BuildCompositeOffscreenRootBuffer(
-  FT_Face ftFace,
+  FT_Face                  ftFace,
   const FT_PaintComposite& composite,
-  const PaintContext& ctx,
-  uint32_t depth)
+  const PaintContext&      ctx,
+  uint32_t                 depth)
 {
   RootCompositeOffscreenResult result;
 
@@ -2596,8 +2596,8 @@ RootCompositeOffscreenResult BuildCompositeOffscreenRootBuffer(
 
   ClearOutsideRootClipBoxInCompositeBuffer(ftFace, ctx, output);
 
-  result.pixelX = output.bounds.pixelX;
-  result.pixelY = output.bounds.pixelY;
+  result.pixelX  = output.bounds.pixelX;
+  result.pixelY  = output.bounds.pixelY;
   result.surface = TakeOffscreenSurface(output);
   return result;
 }
@@ -2647,13 +2647,13 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
     case FT_COLR_PAINTFORMAT_TRANSFORM:
     {
       TransformState prevTransform = ctx.paintTransform;
-      const auto& tf = paint.u.transform;
-      float xx = static_cast<float>(tf.affine.xx) / 65536.0f;
-      float xy = static_cast<float>(tf.affine.xy) / 65536.0f;
-      float yx = static_cast<float>(tf.affine.yx) / 65536.0f;
-      float yy = static_cast<float>(tf.affine.yy) / 65536.0f;
-      float dx = static_cast<float>(tf.affine.dx) / 65536.0f;
-      float dy = static_cast<float>(tf.affine.dy) / 65536.0f;
+      const auto&    tf            = paint.u.transform;
+      float          xx            = static_cast<float>(tf.affine.xx) / 65536.0f;
+      float          xy            = static_cast<float>(tf.affine.xy) / 65536.0f;
+      float          yx            = static_cast<float>(tf.affine.yx) / 65536.0f;
+      float          yy            = static_cast<float>(tf.affine.yy) / 65536.0f;
+      float          dx            = static_cast<float>(tf.affine.dx) / 65536.0f;
+      float          dy            = static_cast<float>(tf.affine.dy) / 65536.0f;
       ctx.paintTransform.Apply(xx, xy, yx, yy, dx, dy);
       COLR_TRACE(ctx.debugGlyph,
                  "COLOR_GLYPH_COLR_RENDER ApplyPaintToShape PaintTransform TransformWrapper [%.2f,%.2f,%.2f,%.2f,%.1f,%.1f] accumulated:[%.2f,%.2f,%.2f,%.2f,%.1f,%.1f]\n",
@@ -2661,7 +2661,7 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
                  ctx.paintTransform.matrix[0], ctx.paintTransform.matrix[1],
                  ctx.paintTransform.matrix[2], ctx.paintTransform.matrix[3],
                  ctx.paintTransform.matrix[4], ctx.paintTransform.matrix[5]);
-      bool result = ApplyPaintToShape(tf.paint, shape, ctx, depth + 1);
+      bool result        = ApplyPaintToShape(tf.paint, shape, ctx, depth + 1);
       ctx.paintTransform = prevTransform;
       return result;
     }
@@ -2669,13 +2669,13 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
     case FT_COLR_PAINTFORMAT_TRANSLATE:
     {
       TransformState prevTransform = ctx.paintTransform;
-      float dx = static_cast<float>(paint.u.translate.dx) / 65536.0f;
-      float dy = static_cast<float>(paint.u.translate.dy) / 65536.0f;
+      float          dx            = static_cast<float>(paint.u.translate.dx) / 65536.0f;
+      float          dy            = static_cast<float>(paint.u.translate.dy) / 65536.0f;
       ctx.paintTransform.Apply(1, 0, 0, 1, dx, dy);
       COLR_TRACE(ctx.debugGlyph,
                  "COLOR_GLYPH_COLR_RENDER ApplyPaintToShape PaintTransform TranslateWrapper dx:%.1f dy:%.1f\n",
                  dx, dy);
-      bool result = ApplyPaintToShape(paint.u.translate.paint, shape, ctx, depth + 1);
+      bool result        = ApplyPaintToShape(paint.u.translate.paint, shape, ctx, depth + 1);
       ctx.paintTransform = prevTransform;
       return result;
     }
@@ -2683,10 +2683,10 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
     case FT_COLR_PAINTFORMAT_SCALE:
     {
       TransformState prevTransform = ctx.paintTransform;
-      float sx = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
-      float sy = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
-      float cx = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
-      float cy = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
+      float          sx            = static_cast<float>(paint.u.scale.scale_x) / 65536.0f;
+      float          sy            = static_cast<float>(paint.u.scale.scale_y) / 65536.0f;
+      float          cx            = static_cast<float>(paint.u.scale.center_x) / 65536.0f;
+      float          cy            = static_cast<float>(paint.u.scale.center_y) / 65536.0f;
       // TransformState::Apply() right-composes transforms, so center-based
       // wrappers are listed as T(c) * operation * T(-c).
       ctx.paintTransform.Apply(1, 0, 0, 1, cx, cy);
@@ -2698,7 +2698,7 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
                  ctx.paintTransform.matrix[0], ctx.paintTransform.matrix[1],
                  ctx.paintTransform.matrix[2], ctx.paintTransform.matrix[3],
                  ctx.paintTransform.matrix[4], ctx.paintTransform.matrix[5]);
-      bool result = ApplyPaintToShape(paint.u.scale.paint, shape, ctx, depth + 1);
+      bool result        = ApplyPaintToShape(paint.u.scale.paint, shape, ctx, depth + 1);
       ctx.paintTransform = prevTransform;
       return result;
     }
@@ -2706,18 +2706,18 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
     case FT_COLR_PAINTFORMAT_ROTATE:
     {
       TransformState prevTransform = ctx.paintTransform;
-      const float angleRadians = ColrAngleToRadians(paint.u.rotate.angle);
-      const float cx = FixedToFloat16Dot16(paint.u.rotate.center_x);
-      const float cy = FixedToFloat16Dot16(paint.u.rotate.center_y);
-      const float cosA = std::cos(angleRadians);
-      const float sinA = std::sin(angleRadians);
+      const float    angleRadians  = ColrAngleToRadians(paint.u.rotate.angle);
+      const float    cx            = FixedToFloat16Dot16(paint.u.rotate.center_x);
+      const float    cy            = FixedToFloat16Dot16(paint.u.rotate.center_y);
+      const float    cosA          = std::cos(angleRadians);
+      const float    sinA          = std::sin(angleRadians);
       ctx.paintTransform.Apply(1, 0, 0, 1, cx, cy);
       ctx.paintTransform.Apply(cosA, -sinA, sinA, cosA, 0, 0);
       ctx.paintTransform.Apply(1, 0, 0, 1, -cx, -cy);
       COLR_TRACE(ctx.debugGlyph,
                  "COLOR_GLYPH_COLR_RENDER ApplyPaintToShape PaintTransform Rotate angle:%.1f center:(%.1f,%.1f)\n",
                  angleRadians, cx, cy);
-      bool result = ApplyPaintToShape(paint.u.rotate.paint, shape, ctx, depth + 1);
+      bool result        = ApplyPaintToShape(paint.u.rotate.paint, shape, ctx, depth + 1);
       ctx.paintTransform = prevTransform;
       return result;
     }
@@ -2725,17 +2725,17 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
     case FT_COLR_PAINTFORMAT_SKEW:
     {
       TransformState prevTransform = ctx.paintTransform;
-      const float skewX = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
-      const float skewY = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
-      const float cx = FixedToFloat16Dot16(paint.u.skew.center_x);
-      const float cy = FixedToFloat16Dot16(paint.u.skew.center_y);
+      const float    skewX         = ColrSkewAngleToShear(paint.u.skew.x_skew_angle);
+      const float    skewY         = ColrSkewAngleToShear(paint.u.skew.y_skew_angle);
+      const float    cx            = FixedToFloat16Dot16(paint.u.skew.center_x);
+      const float    cy            = FixedToFloat16Dot16(paint.u.skew.center_y);
       ctx.paintTransform.Apply(1, 0, 0, 1, cx, cy);
       ctx.paintTransform.Apply(1, skewX, skewY, 1, 0, 0);
       ctx.paintTransform.Apply(1, 0, 0, 1, -cx, -cy);
       COLR_TRACE(ctx.debugGlyph,
                  "COLOR_GLYPH_COLR_RENDER ApplyPaintToShape SkewWrapper sx:%.2f sy:%.2f center:(%.1f,%.1f)\n",
                  skewX, skewY, cx, cy);
-      bool result = ApplyPaintToShape(paint.u.skew.paint, shape, ctx, depth + 1);
+      bool result        = ApplyPaintToShape(paint.u.skew.paint, shape, ctx, depth + 1);
       ctx.paintTransform = prevTransform;
       return result;
     }
@@ -2776,6 +2776,6 @@ bool ApplyPaintToShape(FT_OpaquePaint opaquePaint, tvg::Shape* shape, PaintConte
 
 } // anonymous namespace
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif // DALI_ENABLE_COLR_V1_RENDERER

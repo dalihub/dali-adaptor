@@ -23,7 +23,7 @@
 #include <dali/graphics-api/graphics-buffer-create-info.h>
 #include <dali/graphics-api/graphics-buffer.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class BufferImpl;
 
@@ -101,6 +101,6 @@ private:
   bool mTransient{false};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_BUFFER_H

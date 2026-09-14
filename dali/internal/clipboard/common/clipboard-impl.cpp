@@ -24,19 +24,19 @@
 #include <utility>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/debug.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
 namespace Adaptor
 {
 
-void Clipboard::DoGetData(const Dali::String& mimeType,
+void Clipboard::DoGetData(const Dali::String&               mimeType,
                           Dali::ConnectionTrackerInterface* connectionTracker,
-                          Dali::CallbackBase* callback)
+                          Dali::CallbackBase*               callback)
 {
   std::unique_ptr<Dali::CallbackBase> callbackHolder(callback);
 
@@ -66,7 +66,7 @@ void Clipboard::DoGetData(const Dali::String& mimeType,
   const uint32_t    id              = GetData(requestMimeType);
 
   ReceivedResult earlyResult;
-  const bool hasEarlyResult = TakeEarlyResult(id, earlyResult);
+  const bool     hasEarlyResult = TakeEarlyResult(id, earlyResult);
 
   EndSubmission();
 
@@ -104,8 +104,8 @@ void Clipboard::DoGetData(const Dali::String& mimeType,
 }
 
 void Clipboard::QueueCompletion(std::unique_ptr<PendingRequest> request,
-                                bool succeeded,
-                                const Dali::ClipboardData& data)
+                                bool                            succeeded,
+                                const Dali::ClipboardData&      data)
 {
   if(!request)
   {
@@ -365,4 +365,4 @@ void Clipboard::FinalizeGetDataCallbacks()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

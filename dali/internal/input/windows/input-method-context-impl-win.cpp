@@ -23,7 +23,10 @@
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/events/key-event.h>
+
+// imm.h requires Windows base types and macros from windows.h.
 #include <windows.h>
+
 #include <imm.h>
 
 // WinUser.h defines CreateWindow as a macro (CreateWindowA/W). It collides with the
@@ -48,7 +51,7 @@
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/public-api/adaptor-framework/key.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -797,4 +800,4 @@ void InputMethodContextWin::OnStaged(Dali::Actor actor)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

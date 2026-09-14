@@ -40,7 +40,7 @@ extern "C" DALI_ADAPTOR_API Dali::FeedbackPlugin* CreateFeedbackPlugin(void)
   return new Dali::Plugin::DaliFeedback;
 }
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Plugin
 {
@@ -102,4 +102,4 @@ void DaliFeedback::PlayFeedbackPattern(int type, int pattern)
 
 } // namespace Plugin
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/camera-player-plugin.h>
 #include <dali/devel-api/adaptor-framework/camera-player.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Any;
 
@@ -123,6 +123,6 @@ inline static const Internal::Adaptor::CameraPlayer& GetImplementation(const Dal
   return static_cast<const Internal::Adaptor::CameraPlayer&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_CAMERA_PLAYER_IMPL_H

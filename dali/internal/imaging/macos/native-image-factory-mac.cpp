@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/common/native-image-queue-impl.h>
 #include <dali/internal/imaging/macos/native-image-impl-mac.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 std::unique_ptr<NativeImage>
 NativeImageFactoryCocoa::CreateNativeImage(
@@ -56,4 +56,4 @@ std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
   return std::unique_ptr<NativeImageFactoryCocoa>(new NativeImageFactoryCocoa());
 }
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

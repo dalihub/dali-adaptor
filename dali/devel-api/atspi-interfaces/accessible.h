@@ -36,16 +36,16 @@
 #include <dali/devel-api/adaptor-framework/accessibility-geometry.h>
 #include <dali/devel-api/adaptor-framework/accessibility-text.h>
 #include <dali/devel-api/adaptor-framework/accessibility-types.h>
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 class Bridge;
 }
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 /**
  * @brief Basic interface implemented by all accessibility objects.
@@ -299,14 +299,14 @@ public:
    */
   enum class DumpDetailLevel
   {
-    DUMP_SHORT                                    = 0,
-    DUMP_SHORT_SHOWING_ONLY                       = 1,
-    DUMP_FULL                                     = 2,
-    DUMP_FULL_SHOWING_ONLY                        = 3,
-    DUMP_FULL_EFFECTIVE_SHOWING_ONLY              = 4,
-    DUMP_FULL_COMPRESSION                         = 5,
-    DUMP_FULL_COMPRESSION_SHOWING_ONLY            = 6,
-    DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY  = 7,
+    DUMP_SHORT                                   = 0,
+    DUMP_SHORT_SHOWING_ONLY                      = 1,
+    DUMP_FULL                                    = 2,
+    DUMP_FULL_SHOWING_ONLY                       = 3,
+    DUMP_FULL_EFFECTIVE_SHOWING_ONLY             = 4,
+    DUMP_FULL_COMPRESSION                        = 5,
+    DUMP_FULL_COMPRESSION_SHOWING_ONLY           = 6,
+    DUMP_FULL_COMPRESSION_EFFECTIVE_SHOWING_ONLY = 7,
   };
 
   /**
@@ -464,22 +464,22 @@ public:
 private:
   friend class Dali::Integration::Accessibility::Bridge;
 
-  mutable Dali::Integration::Accessibility::AccessibilityInterfaces                                                   mInterfaces;
-  Dali::Integration::Accessibility::AccessibilityEvents                                                               mSuppressedEvents;
+  mutable Dali::Integration::Accessibility::AccessibilityInterfaces         mInterfaces;
+  Dali::Integration::Accessibility::AccessibilityEvents                     mSuppressedEvents;
   bool                                                                      mIsOnRootLevel{false};
   std::unordered_map<std::type_index, Dali::WeakPtr<IAccessibilityFeature>> mFeatures;
 
 }; // Accessible class
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<>
 struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::ACCESSIBLE>
 {
   using Type = Dali::Accessibility::Accessible;
 };
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_ACCESSIBLE_H

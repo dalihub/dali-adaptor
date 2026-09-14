@@ -36,9 +36,9 @@
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -1328,4 +1328,4 @@ void WindowRenderSurface::SetFrontBufferRenderingEnabled(bool enable)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

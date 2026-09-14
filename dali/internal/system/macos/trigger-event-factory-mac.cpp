@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/macos/trigger-event-mac.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 TriggerEventFactory::TriggerEventPtr TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback)
 {
@@ -34,4 +34,4 @@ void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEven
   delete triggerEvent;
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

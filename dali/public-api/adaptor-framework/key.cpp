@@ -21,11 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/key-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 bool IsKey(const KeyEvent& keyEvent, KEY daliKey)
 {
   return Internal::Adaptor::KeyLookup::IsKey(keyEvent, daliKey);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

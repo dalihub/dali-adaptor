@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_NETWORK_UTILS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
  * limitations under the License.
  *
  */
+#include <dali/public-api/common/dali-namespace.h>
 #include <string>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -36,6 +37,6 @@ bool IsHttpUrl(const std::string& path);
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_NETWORK_UTILS_H

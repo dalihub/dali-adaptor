@@ -33,7 +33,7 @@
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 #include <cmath>
 
@@ -894,14 +894,14 @@ Vector4 WindowBaseCocoa::GetBehindBlurDim(bool& enable)
   return Vector4(0.0, 0.0, 0.0, 0.0);
 }
 
-Extents WindowBaseCocoa::GetInsets()
+Insets WindowBaseCocoa::GetInsets()
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
-Extents WindowBaseCocoa::GetInsets(WindowInsetsPartFlags insetsFlags)
+Insets WindowBaseCocoa::GetInsets(WindowInsetsPartFlags insetsFlags)
 {
-  return Extents(0, 0, 0, 0);
+  return Insets(0, 0, 0, 0);
 }
 
 void WindowBaseCocoa::SetScreen(const std::string& screenName)

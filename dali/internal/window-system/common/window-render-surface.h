@@ -36,7 +36,7 @@
 #include <dali/internal/graphics/common/surface-factory.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -396,6 +396,6 @@ private:                                              // Data
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H

@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/android/native-image-impl-android.h>
 #include <dali/internal/imaging/android/native-image-queue-impl-android.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -45,4 +45,4 @@ std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

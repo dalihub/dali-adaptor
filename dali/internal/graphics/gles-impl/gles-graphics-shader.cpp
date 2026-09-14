@@ -26,7 +26,7 @@
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 
-namespace Dali::Graphics::GLES
+namespace DALI_NAMESPACE::Graphics::GLES
 {
 static std::string AddLineNumbers(const char* source)
 {
@@ -35,7 +35,7 @@ static std::string AddLineNumbers(const char* source)
   outputStream.imbue(std::locale::classic());
 
   // Let we print 4095 prefix of shader codes.
-  char  buffer[4096];
+  char buffer[4096];
 #if defined(DALI_PROFILE_WINDOWS)
   strncpy_s(buffer, sizeof(buffer), source, 4095u);
   char* bufferCursor = buffer;
@@ -78,7 +78,7 @@ struct ShaderImpl::Impl
 
     // Substitute pointer
     createInfo.sourceData = source.data();
-  createInfo.sourceSize = static_cast<uint32_t>(dataSize);
+    createInfo.sourceSize = static_cast<uint32_t>(dataSize);
   }
 
   ~Impl() {};
@@ -429,4 +429,4 @@ std::string_view Shader::GetSourceStringView() const
   return GetImplementation()->GetSourceStringView();
 }
 
-} // namespace Dali::Graphics::GLES
+} //namespace DALI_NAMESPACE::Graphics::GLES

@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -324,4 +324,4 @@ bool GlImplementation::ApplyNativeFragmentShader(std::string& shader, const char
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

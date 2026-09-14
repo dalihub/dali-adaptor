@@ -17,7 +17,7 @@
 
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -101,4 +101,4 @@ bool TiltSensor::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface*
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

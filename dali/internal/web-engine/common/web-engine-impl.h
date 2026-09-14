@@ -22,11 +22,11 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 // forward declaration
 class WebEngineBackForwardList;
@@ -741,6 +741,6 @@ inline static const Internal::Adaptor::WebEngine& GetImplementation(const Dali::
   return static_cast<const Internal::Adaptor::WebEngine&>(handle);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif

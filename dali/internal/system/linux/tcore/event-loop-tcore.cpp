@@ -23,7 +23,7 @@
 #include <dali/integration-api/debug.h>
 #include <tizen_core.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -47,7 +47,7 @@ void EventLoopTcore::Initialize(int argc, char** argv)
 
   auto* task = static_cast<tizen_core_task_h*>(&mTask);
   DALI_LOG_RELEASE_INFO("[EVENT_LOOP] EventLoopTcore::Initialize() - Creating tizen_core_task...\n");
-  int   ret  = tizen_core_task_create("main", false, task);
+  int ret = tizen_core_task_create("main", false, task);
   if(ret != TIZEN_CORE_ERROR_NONE)
   {
     DALI_LOG_ERROR("[EVENT_LOOP] Failed to create tizen core task: %d\n", ret);
@@ -130,4 +130,4 @@ void EventLoopTcore::Quit()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

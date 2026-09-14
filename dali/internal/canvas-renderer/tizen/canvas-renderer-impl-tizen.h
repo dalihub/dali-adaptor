@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -81,6 +81,6 @@ private:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_TIZEN_CANVAS_RENDERER_IMPL_TIZEN_H

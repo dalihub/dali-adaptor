@@ -25,8 +25,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class Device;
 class VulkanGraphicsController;
@@ -56,7 +57,7 @@ public:
    */
   ~PipelineCacheManager();
 
-  PipelineCacheManager(const PipelineCacheManager&) = delete;
+  PipelineCacheManager(const PipelineCacheManager&)            = delete;
   PipelineCacheManager& operator=(const PipelineCacheManager&) = delete;
 
   /**
@@ -72,7 +73,6 @@ public:
    * @note Automatically called during destruction
    */
   void SaveCacheData();
-
 
   /**
    * @brief Removes a pipeline from the main cache and moves it to orphaned list for safe destruction
@@ -126,16 +126,16 @@ private:
   };
 #pragma pack(pop)
 
-  Vulkan::Device&                                mDevice;      ///< Vulkan device
-  vk::PhysicalDeviceProperties                   mDeviceProps; ///< Cached device properties for validation
-  vk::UniquePipelineCache                        mVulkanCache; ///< Vulkan pipeline cache object
-  std::unordered_map<size_t, vk::UniquePipeline> mPipelineMap; ///< Application-level pipeline cache
+  Vulkan::Device&                                mDevice;            ///< Vulkan device
+  vk::PhysicalDeviceProperties                   mDeviceProps;       ///< Cached device properties for validation
+  vk::UniquePipelineCache                        mVulkanCache;       ///< Vulkan pipeline cache object
+  std::unordered_map<size_t, vk::UniquePipeline> mPipelineMap;       ///< Application-level pipeline cache
   std::vector<vk::UniquePipeline>                mOrphanedPipelines; ///< Temporarily stored pipelines for safe destruction
-  mutable std::shared_mutex                      mCacheMutex;  ///< Mutex for thread-safe map access
+  mutable std::shared_mutex                      mCacheMutex;        ///< Mutex for thread-safe map access
 
   std::string mCacheFilePath; ///< Absolute path to cache file
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_PIPELINE_CACHE_MANAGER__H

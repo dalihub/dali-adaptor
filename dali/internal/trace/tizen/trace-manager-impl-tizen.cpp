@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -92,4 +92,4 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

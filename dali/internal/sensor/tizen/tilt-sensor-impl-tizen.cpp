@@ -45,20 +45,23 @@ Dali::SignalConnectorType signalConnector1(typeRegistration, SIGNAL_TILTED, Dali
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
 namespace Adaptor
 {
 #ifdef SENSOR_ENABLED
-static void sensor_changed_cb(sensor_h sensor, sensor_event_s* event, void* user_data)
+static void sensor_changed_cb(sensor_h sensor, sensor_event_s events[], int events_count, void* user_data)
 {
   TiltSensorTizen* tiltSensor = reinterpret_cast<TiltSensorTizen*>(user_data);
 
   if(tiltSensor)
   {
-    tiltSensor->Update(event);
+    for(int i = 0; i < events_count; ++i)
+    {
+      tiltSensor->Update(&events[i]);
+    }
   }
 
   return;
@@ -171,7 +174,7 @@ bool TiltSensorTizen::Connect()
     return false;
   }
 
-  sensor_listener_set_event_cb(mSensorListener, interval, sensor_changed_cb, this);
+  sensor_listener_set_events_cb(mSensorListener, sensor_changed_cb, this);
   sensor_listener_set_interval(mSensorListener, interval);
 
   sensor_listener_set_option(mSensorListener, SENSOR_OPTION_DEFAULT /* Not receive data when LCD is off and in power save mode */);
@@ -196,7 +199,7 @@ void TiltSensorTizen::Disconnect()
     if(mState == STOPPED || mState == CONNECTED)
     {
 #ifdef SENSOR_ENABLED
-      sensor_listener_unset_event_cb(mSensorListener);
+      sensor_listener_unset_events_cb(mSensorListener);
       sensor_listener_stop(mSensorListener);
       sensor_destroy_listener(mSensorListener);
 #endif
@@ -391,4 +394,4 @@ void TiltSensorTizen::Update(sensor_event_s* event)
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

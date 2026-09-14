@@ -22,7 +22,7 @@
 #include <dali/internal/imaging/tizen/native-image-impl-tizen.h>
 #include <dali/internal/imaging/tizen/native-image-queue-impl-tizen.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -47,4 +47,4 @@ std::unique_ptr<NativeImageFactory> GetNativeImageFactory()
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

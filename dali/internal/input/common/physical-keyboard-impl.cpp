@@ -23,7 +23,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -90,4 +90,4 @@ PhysicalKeyboard::PhysicalKeyboard()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

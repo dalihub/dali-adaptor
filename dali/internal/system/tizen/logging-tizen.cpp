@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-variables.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -94,4 +94,4 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

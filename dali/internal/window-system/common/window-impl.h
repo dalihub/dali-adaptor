@@ -34,7 +34,7 @@
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 class Actor;
@@ -84,9 +84,11 @@ public:
    * @param[in] className The window class name
    * @param[in] windowData The window data
    * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
+   * @param[in] isShowOnAdaptorSet The flag is whether OnAdaptorSet() shows this window or not.
+   *            It is only honoured when isUsePreLoader is false.
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader);
+  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData, const bool isUsePreLoader, const bool isShowOnAdaptorSet = false);
 
   /**
    * @brief Create a new Window.
@@ -641,12 +643,12 @@ public: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::DevelWindow::GetInsets()
    */
-  Extents GetInsets();
+  Insets GetInsets();
 
   /**
    * @copydoc Dali::DevelWindow::GetInsets(WindowInsetsPartFlags)
    */
-  Extents GetInsets(WindowInsetsPartFlags insetsFlags);
+  Insets GetInsets(WindowInsetsPartFlags insetsFlags);
 
 public: // It is only for window-impl. Need not public for the others.
   /**
@@ -740,14 +742,12 @@ private:
    * @brief Second stage initialization
    *
    * @param[in] surface The surface used to render on.
-   * @param[in] positionSize The window's position and size in initailized time.
+   * @param[in] windowData The data the window is created from.
    * @param[in] name The window title
    * @param[in] className The window class name
-   * @param[in] type window's type. Refer the WindowType in window-definitions.h.
-   * @param[in] screenName screen name to set current screen name if this string is not empty.
    * @param[in] isUsePreLoader The flag is whether this window is created by preloader process or not.
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type, const std::string& screenName, const bool isUsePreLoader);
+  void Initialize(Any surface, const WindowData& windowData, const std::string& name, const std::string& className, const bool isUsePreLoader);
 
   /**
    * @brief Called when the window becomes iconified or deiconified.
@@ -1238,11 +1238,12 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsOrientationChanging : 1;       ///< The orientation changing flag.
-  bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
-  bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
-  bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
-  bool mIsUsePreLoader : 1;              ///< The flag is whether is created by preloader process or not.
+  bool mIsOrientationChanging : 1;         ///< The orientation changing flag.
+  bool mIsEnabledUserGeometry : 1;         ///< The user geometry enable flag.
+  bool mIsEmittedWindowCreatedEvent : 1;   ///< The Window Created Event emit flag for accessibility.
+  bool mIsFrontBufferRendering : 1;        ///< The Front Buffer Rendering state.
+  bool mIsUsePreLoader : 1;                ///< The flag is whether is created by preloader process or not.
+  bool mIsShowOnAdaptorSet : 1;            ///< The flag is whether OnAdaptorSet() shows this window or not.
   bool mIsScreenReaderAutoReadEnabled : 1; ///< Whether automatic screen-reader reading is enabled for this window.
 };
 
@@ -1265,6 +1266,6 @@ inline const Internal::Adaptor::Window& GetImplementation(const Dali::Window& wi
   return static_cast<const Internal::Adaptor::Window&>(object);
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H

@@ -34,7 +34,7 @@
 
 // INTERNAL INCLUDES
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -2656,4 +2656,4 @@ void HorizontalShear(const uint8_t* const pixelsIn,
 
 } /* namespace Platform */
 } /* namespace Internal */
-} /* namespace Dali */
+} //namespace DALI_NAMESPACE

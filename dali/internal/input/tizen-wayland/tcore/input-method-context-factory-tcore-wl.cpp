@@ -22,7 +22,7 @@
 #include <dali/internal/input/common/input-method-context-factory.h>
 #include <dali/internal/input/tizen-wayland/tcore/input-method-context-impl-tcore-wl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -43,4 +43,4 @@ InputMethodContextPtr CreateInputMethodContext(Dali::Actor actor)
 } // namespace Adaptor
 
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE

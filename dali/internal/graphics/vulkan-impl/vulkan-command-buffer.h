@@ -22,7 +22,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali::Graphics::Vulkan
+namespace DALI_NAMESPACE::Graphics::Vulkan
 {
 class CommandBufferImpl;
 class Swapchain;
@@ -470,6 +470,6 @@ private:
   bool mDoubleBuffered{true};
 };
 
-} // namespace Dali::Graphics::Vulkan
+} //namespace DALI_NAMESPACE::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H

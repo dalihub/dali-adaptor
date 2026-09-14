@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/common/extents.h>
 #include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/math/int-pair.h>
@@ -37,7 +36,7 @@
 #include <dali/public-api/adaptor-framework/window-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -724,34 +723,12 @@ public:
   void KeepRendering(float durationSeconds);
 
   /**
-   * @brief Sets whether the window has a depth buffer or not.
-   *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if a depth buffer should be created.
-   * @note This is an alternative to setting the environment variable.
-   * The environment variable provides the initial value for every window;
-   * this overrides it for this window only.
-   */
-  void SetDepthBufferEnabled(bool enabled);
-
-  /**
    * @brief Queries whether the window has a depth buffer
    *
    * @SINCE_2_5.20
    * @return True if the window has a depth buffer
    */
   bool IsDepthBufferEnabled() const;
-
-  /**
-   * @brief Sets whether the window has a depth buffer or not.
-   *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if a depth buffer should be created.
-   * @note This is an alternative to setting the environment variable.
-   * The environment variable provides the initial value for every window;
-   * this overrides it for this window only.
-   */
-  void SetStencilBufferEnabled(bool enabled);
 
   /**
    * @brief Queries whether the window has a stencil buffer
@@ -762,20 +739,12 @@ public:
   bool IsStencilBufferEnabled() const;
 
   /**
-   * @brief Sets whether the window has MSAA.
+   * @brief Retrieves the number of samples per pixel used for multi-sampled anti-aliasing.
    *
-   * @SINCE_2_5.20
-   * @param[in] enabled True if MSAA should be initialized
+   * @SINCE_2_5.38
+   * @return The number of samples per pixel, or 0 if MSAA is disabled
    */
-  void SetMultiSampledAntiAliasingEnabled(bool enabled);
-
-  /**
-   * @brief Queries whether the window has MSAA
-   *
-   * @SINCE_2_5.20
-   * @return True if the window has MSAA
-   */
-  bool IsMultiSampledAntiAliasingEnabled() const;
+  uint8_t GetMultiSampledAntiAliasingLevel() const;
 
   /**
    * @brief Sets whether the window will update partial area or full area.
@@ -1261,7 +1230,7 @@ public: // Signals
    * @code
    *   void YourCallbackName(Window window, const WindowInsetsInfo& insetsInfo);
    * @endcode
-   * The parameter contains the insets information including the part type, part state, and the extents (left, right, top, bottom).
+   * The parameter contains the part type, the part state, and the insets the part causes. See WindowInsetsInfo::GetInsets().
    *
    * @SINCE_2_5.28
    * @return The signal to connect to
@@ -1282,6 +1251,6 @@ public: // Not intended for application developers
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // __DALI_WINDOW_H__

@@ -27,7 +27,7 @@
 #include <dali/public-api/adaptor-framework/image-options.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Integration
 {
@@ -98,6 +98,6 @@ bool MaxTextureSizeUpdated();
 
 } // namespace ImageLoader
 } // namespace TizenPlatform
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_TIZEN_PLATFORM_IMAGE_LOADER_H

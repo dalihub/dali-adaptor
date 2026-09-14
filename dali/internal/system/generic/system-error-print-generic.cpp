@@ -28,7 +28,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/logging.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
 {
@@ -91,4 +91,4 @@ void PrintSystemError(const char* fileName, const char* functionName, const int 
 
 } // namespace TizenPlatform
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

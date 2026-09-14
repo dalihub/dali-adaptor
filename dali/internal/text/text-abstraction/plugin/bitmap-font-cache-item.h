@@ -26,7 +26,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-namespace Dali::TextAbstraction::Internal
+namespace DALI_NAMESPACE::TextAbstraction::Internal
 {
 /**
  * @brief Stores a bitmap font and its pixel buffers per glyph.
@@ -150,6 +150,6 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   FontId                         id;           ///< Index to the vector with the cache of font's ids.
 };
 
-} // namespace Dali::TextAbstraction::Internal
+} //namespace DALI_NAMESPACE::TextAbstraction::Internal
 
 #endif //DALI_INTERNAL_TEXT_ABSTRACTION_BITMAP_FONT_CACHE_ITEM_H

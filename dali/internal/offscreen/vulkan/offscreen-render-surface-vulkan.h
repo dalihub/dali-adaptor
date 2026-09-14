@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/offscreen/common/offscreen-render-surface.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -177,6 +177,6 @@ private: // Data
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_OFFSCREEN_VULKAN_OFFSCREEN_RENDER_SURFACE_VULKAN_H

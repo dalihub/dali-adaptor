@@ -42,7 +42,7 @@ Dali::SignalConnectorType signalConnector1(typeRegistration, Dali::String(SIGNAL
 
 } // unnamed namespace
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -203,4 +203,4 @@ bool TiltSensorUbuntu::Update()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

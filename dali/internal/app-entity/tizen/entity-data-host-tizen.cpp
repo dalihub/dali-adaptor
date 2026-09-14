@@ -33,7 +33,7 @@
 #include <view-stub.h>
 #endif // ENABLE_ENTITY_DATA_TIDL
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -258,7 +258,7 @@ bool EntityDataHostTizen::IsListening() const
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 std::unique_ptr<Dali::Internal::Adaptor::EntityDataHost> Dali::Internal::Adaptor::CreateEntityDataHost(Dali::Integration::FocusedActorProvider* provider)
 {

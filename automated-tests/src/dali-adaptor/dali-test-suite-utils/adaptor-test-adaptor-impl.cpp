@@ -16,8 +16,9 @@
  */
 
 #include "adaptor-test-adaptor-impl.h"
+#include <dali/public-api/common/dali-namespace.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -44,4 +45,4 @@ void Adaptor::SetAvailable()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

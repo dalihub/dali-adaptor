@@ -24,7 +24,7 @@
 #include <dali/internal/imaging/common/native-image-impl.h>
 #include <extern-definitions.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * Dali internal NativeImage.
@@ -204,4 +204,4 @@ private:
   bool                 mOwnResourceDestructionCallback;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor

@@ -25,12 +25,12 @@
 // EXTERNAL INCLUDES
 #include <memory>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 class ConfigurationManager;
 }
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 /**
  * Graphics implementation class
@@ -250,6 +250,6 @@ private:
   Dali::Internal::Adaptor::ConfigurationManager* mConfigurationManager{nullptr};
 };
 
-} // Namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H

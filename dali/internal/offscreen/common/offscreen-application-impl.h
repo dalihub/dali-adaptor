@@ -25,7 +25,7 @@
 #include <dali/devel-api/adaptor-framework/offscreen-application.h>
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class Adaptor;
 
@@ -130,6 +130,6 @@ inline const OffscreenApplication& GetImplementation(const Dali::OffscreenApplic
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_OFFSCREEN_COMMON_OFFSCREEN_APPLICATION_H

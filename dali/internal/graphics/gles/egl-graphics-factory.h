@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_GRAPHICS_FACTORY_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 // Needs exporting as it's called directly by the GlWindow library
 class DALI_ADAPTOR_API EglGraphicsFactory : public GraphicsFactoryInterface
@@ -54,6 +54,6 @@ private:
   EnvironmentOptions& mEnvironmentOptions;
 };
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor
 
 #endif // DALI_INTERNAL_EGL_GRAPHICS_FACTORY_H

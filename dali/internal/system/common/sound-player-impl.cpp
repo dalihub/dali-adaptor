@@ -22,7 +22,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/devel-api/object/type-registry.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -131,4 +131,4 @@ void SoundPlayer::EmitSoundPlayFinishedSignal()
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

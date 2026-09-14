@@ -28,7 +28,7 @@
 #include <dali/public-api/common/dali-string-view.h>
 #include <dali/public-api/common/dali-string.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 /**
  * @addtogroup dali_adaptor_framework
@@ -216,5 +216,5 @@ DALI_ADAPTOR_API const Internal::Adaptor::Widget& GetImplementation(const Dali::
  * @}
  */
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 #endif // DALI_INTERNAL_WIDGET_H

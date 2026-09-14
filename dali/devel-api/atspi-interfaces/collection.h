@@ -27,10 +27,10 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 #include <dali/devel-api/atspi-interfaces/accessibility-feature.h>
+#include <dali/integration-api/adaptor-framework/accessibility/accessibility-integ.h>
 
-namespace Dali::Accessibility
+namespace DALI_NAMESPACE::Accessibility
 {
 class Accessible;
 
@@ -86,15 +86,15 @@ public:
   virtual std::vector<Accessible*> GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount) = 0;
 };
 
-} // namespace Dali::Accessibility
+} //namespace DALI_NAMESPACE::Accessibility
 
-namespace Dali::Integration::Accessibility
+namespace DALI_NAMESPACE::Integration::Accessibility
 {
 template<>
 struct AccessibilityInterfaceTypeHelper<Dali::Integration::Accessibility::AccessibilityInterface::COLLECTION>
 {
   using Type = Dali::Accessibility::Collection;
 };
-} // namespace Dali::Integration::Accessibility
+} //namespace DALI_NAMESPACE::Integration::Accessibility
 
 #endif // DALI_ADAPTOR_ATSPI_COLLECTION_H

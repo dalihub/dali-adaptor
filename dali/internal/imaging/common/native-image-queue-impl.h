@@ -24,7 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/native-image-queue.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 namespace Internal
 {
@@ -176,6 +176,6 @@ public:
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_QUEUE_IMPL_H

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GRAPHICS_LIBRARY_HANDLE_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h> ///< For Destroy()
 
-namespace Dali::Internal::Adaptor
+namespace DALI_NAMESPACE::Internal::Adaptor
 {
 /**
  * Interface of graphics library handle.
@@ -91,6 +91,6 @@ protected:
 
 using GraphicsLibraryHandlePtr = std::shared_ptr<GraphicsLibraryHandleBase>;
 
-} // namespace Dali::Internal::Adaptor
+} //namespace DALI_NAMESPACE::Internal::Adaptor
 
 #endif // DALI_INTERNAL_GRAPHICS_LIBRARY_HANDLE_H

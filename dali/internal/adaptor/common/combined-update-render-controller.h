@@ -37,7 +37,7 @@
 #include <dali/internal/system/common/update-status-logger.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class RenderSurfaceInterface;
 
@@ -431,6 +431,6 @@ private:                                  // Attributes
 
 } // namespace Internal
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H

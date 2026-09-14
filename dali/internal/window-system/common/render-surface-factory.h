@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_RENDER_SURFACE_FACTORY_H
 
 /*
- * Copyright (c) 2025 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <dali/public-api/object/any.h>
 #include <memory>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class NativeRenderSurface;
 
@@ -56,6 +56,6 @@ extern std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory();
 
 } // namespace Adaptor
 } // namespace Internal
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_RENDER_SURFACE_FACTORY_H

@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 PixelBuffer PixelBuffer::New(uint32_t            width,
                              uint32_t            height,
@@ -105,4 +105,4 @@ bool PixelBuffer::Resize(uint16_t width, uint16_t height)
   return GetImplementation(*this).Resize(ImageDimensions(width, height));
 }
 
-} // namespace Dali
+} //namespace DALI_NAMESPACE

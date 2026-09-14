@@ -66,7 +66,7 @@ const std::unordered_set<std::string_view> gExceptUniformBlockNames{
 #endif
 } // namespace
 
-namespace Dali::Internal::ShaderParser
+namespace DALI_NAMESPACE::Internal::ShaderParser
 {
 /**
  * @brief Tokenizes a single line of code.
@@ -221,7 +221,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
     if(line.substr(0, 12) == "//@ignore:on")
     {
       legacyPrefixCount = static_cast<int32_t>(legacyPrefixCount - line.size() - 1u);
-      ignoreLines = true;
+      ignoreLines       = true;
       continue;
     }
 
@@ -265,7 +265,7 @@ void TokenizeSource(Program& program, ShaderStage stage, std::istream& ss)
       {
         if(GetToken(lineOfCode, 0) == "OUTPUT")
         {
-      output->customOutputLineIndex = static_cast<int32_t>(output->codeLines.size());
+          output->customOutputLineIndex = static_cast<int32_t>(output->codeLines.size());
         }
       }
       // find main function
@@ -898,4 +898,4 @@ void Parse(const ShaderParserInfo& parseInfo, std::vector<std::string>& output)
   DALI_LOG_INFO(gLogFilter, Debug::General, "Output Fragment shader:\n%s", output[1].c_str());
 }
 
-} // namespace Dali::Internal::ShaderParser
+} //namespace DALI_NAMESPACE::Internal::ShaderParser

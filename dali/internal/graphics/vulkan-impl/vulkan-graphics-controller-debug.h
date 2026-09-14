@@ -20,7 +20,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-stored-command-buffer.h>
 #include <unordered_set>
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 #if defined(DEBUG_ENABLED)
 /**
@@ -77,6 +77,6 @@ struct GraphicsFrameDump
 #define DUMP_FRAME_END()
 #endif
 
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_VULKAN_GRAPHICS_CONTROLLER_DEBUG_H

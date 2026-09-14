@@ -31,7 +31,7 @@
 struct SpvReflectShaderModule;
 struct SpvReflectBlockVariable;
 
-namespace Dali::Graphics
+namespace DALI_NAMESPACE::Graphics
 {
 namespace Vulkan
 {
@@ -258,6 +258,6 @@ private:
 };
 
 } // namespace Vulkan
-} // namespace Dali::Graphics
+} //namespace DALI_NAMESPACE::Graphics
 
 #endif // DALI_GRAPHICS_VULKAN_REFLECTION_H

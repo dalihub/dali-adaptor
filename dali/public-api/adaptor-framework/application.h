@@ -27,7 +27,7 @@
 #include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
-namespace Dali
+namespace DALI_NAMESPACE
 {
 class ObjectRegistry;
 
@@ -480,6 +480,6 @@ public: // Not intended for application developers
 /**
  * @}
  */
-} // namespace Dali
+} //namespace DALI_NAMESPACE
 
 #endif // DALI_APPLICATION_H
