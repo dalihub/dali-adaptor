@@ -16,7 +16,7 @@
  */
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/windows/keyboard-repeat.h>
 
 // EXTERNAL HEADERS

@@ -26,7 +26,7 @@
 
 #ifndef THORVG_SUPPORT
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <third-party/nanosvg/nanosvg.h>
 #include <third-party/nanosvg/nanosvgrast.h>
 #endif

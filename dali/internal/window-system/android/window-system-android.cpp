@@ -17,7 +17,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/common/framework.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <memory>
 
 // EXTERNAL_HEADERS

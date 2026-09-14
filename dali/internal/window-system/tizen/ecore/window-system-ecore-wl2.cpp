@@ -29,7 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 #define START_DURATION_CHECK()                               \
   uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \

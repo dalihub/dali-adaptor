@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/public-api/adaptor-framework/keyboard.h>
 #include <memory>
 

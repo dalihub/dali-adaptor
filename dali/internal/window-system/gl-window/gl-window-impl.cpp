@@ -35,7 +35,7 @@
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/internal/window-system/gl-window/gl-window-render-thread.h>
 

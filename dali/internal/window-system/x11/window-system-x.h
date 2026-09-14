@@ -19,7 +19,7 @@
 
 #include <X11/Xlib.h>
 #include <dali/devel-api/adaptor-framework/screen-information.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <climits>
 #include <cstdint>
 #include <string>

@@ -41,16 +41,6 @@ namespace DevelWindowSystem
 DALI_ADAPTOR_API void GetDpi(uint32_t& horizontalDpi, uint32_t& verticalDpi);
 
 /**
- * @brief Get the screen size.
- *
- * This function gets the screen size.
- *
- * @param[out] width The width of the screen
- * @param[out] height The height of the screen
- */
-DALI_ADAPTOR_API void GetScreenSize(int32_t& width, int32_t& height);
-
-/**
  * @brief Sets the processes using geometry event propagation touch and hover events.
  *
  * @param[in] enabled True if the processes using geometry event propagation touch and hover events.
