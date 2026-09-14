@@ -2695,6 +2695,12 @@ public:
   template<typename... ARGS>
   void emit2(const std::string& path, const std::string& interfaceName, const std::string& signalName, const ARGS&... args)
   {
+    if(!connection)
+    {
+      DBUS_DEBUG("unable to emit signal '%s': not connected", signalName.c_str());
+      return;
+    }
+
     auto           msg = DBUS_W->dbus_message_signal_new_impl(path, interfaceName, signalName);
     detail::CallId id;
     detail::packValues(id, msg, args...);
