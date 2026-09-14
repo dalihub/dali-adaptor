@@ -7,7 +7,7 @@ SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/window-base.cpp
     ${adaptor_window_system_dir}/common/window-impl.cpp
     ${adaptor_window_system_dir}/common/window-render-surface.cpp
-    ${adaptor_window_system_dir}/common/window-system.cpp
+    ${adaptor_window_system_dir}/common/window-system-impl.cpp
 )
 
 SET( adaptor_window_system_gl_window_src_files

@@ -28,7 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/time-service.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/tizen/tcore/tizen-core-wl-display-util.h>
 
 #define START_DURATION_CHECK()                               \

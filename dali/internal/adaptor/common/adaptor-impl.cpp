@@ -80,7 +80,7 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 using Dali::Integration::ToDaliString;
 using Dali::TextAbstraction::FontClient;

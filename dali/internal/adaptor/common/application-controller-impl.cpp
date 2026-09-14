@@ -40,7 +40,7 @@
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/window-system/common/window-data-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
-#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-system-impl.h>
 
 namespace DALI_NAMESPACE
 {
