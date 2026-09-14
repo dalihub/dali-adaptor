@@ -426,10 +426,20 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   if(!addr)
   {
     DALI_LOG_ERROR("failed at call '%s': %s\n", dbusLocators::atspi::GET_ADDRESS, addr.getError().message.c_str());
+    // Bridge::ForceUp() creates mData before the AT-SPI connection is ready.
+    // Roll it back so IsUp() stays false while BridgeImpl retries ForceUp().
+    Bridge::ForceDown();
     return ForceUpResult::FAILED;
   }
 
   mConnectionPtr  = DBus::getDBusConnectionByName(std::get<0>(addr));
+  if(!mConnectionPtr)
+  {
+    DALI_LOG_ERROR("failed to connect to accessibility bus at '%s'\n", std::get<0>(addr).c_str());
+    Bridge::ForceDown();
+    return ForceUpResult::FAILED;
+  }
+
   mData->mBusName = DBus::getConnectionName(mConnectionPtr);
   mDbusServer     = {mConnectionPtr};
 
