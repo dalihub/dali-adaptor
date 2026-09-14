@@ -8,6 +8,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/application.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-service.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
@@ -57,6 +58,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.h
   ${adaptor_devel_api_dir}/adaptor-framework/async-task-manager.h
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
+  ${adaptor_devel_api_dir}/adaptor-framework/application.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/graphics-backend.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
