@@ -459,7 +459,23 @@ public:
 
   Role GetRole() const override
   {
-    return mRoot ? Role::WINDOW : Role::REDUNDANT_OBJECT;
+    if(!mRoot)
+    {
+      return Role::REDUNDANT_OBJECT;
+    }
+
+    return IsImeWindow() ? Role::INPUT_METHOD_WINDOW : Role::WINDOW;
+  }
+
+  std::string GetName() const override
+  {
+    // A Window is not an Actor, so its accessibility name is exposed through the root layer.
+    if(!mRoot)
+    {
+      return ActorAccessible::GetName();
+    }
+
+    return IsImeWindow() ? "keyboard" : "window";
   }
 
   Dali::Integration::Accessibility::States GetStates() override
@@ -500,7 +516,8 @@ public:
       attributes["resID"]                         = windowImpl.GetNativeResourceId();
     }
 
-    if(mRoot && GetName() == "RootLayer")
+    // Deliberately checks the raw Actor name, not GetName(), which reports the window name.
+    if(mRoot && ActorAccessible::GetName() == "RootLayer")
     {
       attributes["reading_info_type"] = "none";
     }
@@ -558,6 +575,23 @@ public:
     {
       DALI_LOG_ERROR("SharedFromThis() returned null - object not managed by SharedPtr");
     }
+  }
+
+private:
+  /**
+   * @brief Tells whether the window owning this root layer is an IME (virtual keyboard) window.
+   *
+   * Only meaningful when mRoot is true; a non-root Actor does not represent a window.
+   */
+  bool IsImeWindow() const
+  {
+    Dali::Window window = Dali::Window::Get(Self());
+    if(!window)
+    {
+      return false;
+    }
+
+    return Dali::GetImplementation(window).GetType() == Dali::WindowType::IME;
   }
 }; // AdaptorAccessible
 
