@@ -102,7 +102,7 @@ bool NativeImageSurfaceTizen::SetGraphicsConfig(bool depth, bool stencil, int ms
   // The GLES version support is done by the caller
   mDepth   = depth;
   mStencil = stencil;
-  if(mMSAA == 0)
+  if(msaa == 0)
   {
     //EGL_DONT_CARE is -1
     mMSAA = -1;
