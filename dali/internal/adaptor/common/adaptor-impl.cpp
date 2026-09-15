@@ -1335,7 +1335,7 @@ void Adaptor::NotifySceneCreated()
   {
     // mWindows holds scene holders that are not windows, so downcast first.
     auto* defaultWindow = dynamic_cast<Dali::Internal::Adaptor::Window*>(mWindows.front());
-    if(defaultWindow)
+    if(defaultWindow && defaultWindow->IsVisible())
     {
       DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Show the default window (%p)\n", defaultWindow);
       defaultWindow->Show();
