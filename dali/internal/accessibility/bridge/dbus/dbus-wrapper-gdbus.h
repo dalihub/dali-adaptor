@@ -23,6 +23,8 @@
 #include <dali/integration-api/debug.h>
 #include <gio/gio.h>
 #include <glib.h>
+#include <memory>
+#include <mutex>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -717,16 +719,19 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   struct GlobalEntries
   {
+    // Callbacks may synchronously unregister interfaces, so allow re-entry.
+    std::recursive_mutex mutex;
+
     static GlobalEntries& Get()
     {
       static GlobalEntries instance;
       return instance;
     }
 
-    Implementation* Find(const std::string& path)
+    std::shared_ptr<Implementation> Find(const std::string& path)
     {
-      Implementation* impl = nullptr;
-      auto            it   = globalEntries.find(path);
+      std::shared_ptr<Implementation> impl;
+      auto                            it = globalEntries.find(path);
       if(it != globalEntries.end())
       {
         impl = it->second;
@@ -734,7 +739,7 @@ struct GdbusDBusWrapper : public DBusWrapper
       return impl;
     }
 
-    void Add(const std::string& path, Implementation* impl)
+    void Add(const std::string& path, const std::shared_ptr<Implementation>& impl)
     {
       globalEntries[path] = impl;
     }
@@ -745,13 +750,20 @@ struct GdbusDBusWrapper : public DBusWrapper
     }
 
   private:
-    std::map<std::string, Implementation*> globalEntries;
+    std::map<std::string, std::shared_ptr<Implementation>> globalEntries;
   };
+
+  static void on_implementation_destroy(gpointer user_data)
+  {
+    // GDBus releases its ownership after the registration's pending callbacks.
+    delete static_cast<std::shared_ptr<Implementation>*>(user_data);
+  }
 
   static GDBusInterfaceInfo**
   on_subtree_introspect(GDBusConnection* conn, const gchar* sender, const gchar* path, const gchar* node, gpointer user_data)
   {
-    Implementation* impl = static_cast<Implementation*>(user_data);
+    auto                                  impl = *static_cast<std::shared_ptr<Implementation>*>(user_data);
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
 
     if(impl->interface_infos.empty()) return nullptr;
 
@@ -769,11 +781,12 @@ struct GdbusDBusWrapper : public DBusWrapper
                       const gchar* interface_name, const gchar* node,
                       gpointer* out_user_data, gpointer user_data)
   {
-    Implementation* impl = static_cast<Implementation*>(user_data);
+    auto                                  impl = *static_cast<std::shared_ptr<Implementation>*>(user_data);
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
 
     if(impl->interface_infos.find(interface_name) != impl->interface_infos.end())
     {
-      *out_user_data = impl;
+      *out_user_data = user_data;
       return &interface_vtable;
     }
 
@@ -795,7 +808,8 @@ struct GdbusDBusWrapper : public DBusWrapper
                              GDBusMethodInvocation* invocation,
                              gpointer               user_data)
   {
-    Implementation* impl = static_cast<Implementation*>(user_data);
+    auto                                  impl = *static_cast<std::shared_ptr<Implementation>*>(user_data);
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
 
     if(impl->interface_methods.find(interface_name) == impl->interface_methods.end())
     {
@@ -813,10 +827,12 @@ struct GdbusDBusWrapper : public DBusWrapper
                                                  "Unknown method");
       return;
     }
-    auto msg = g_dbus_method_invocation_get_message(invocation);
+    // Keep the callable alive if it unregisters its own interface.
+    auto callback = it->second.callback;
+    auto msg      = g_dbus_method_invocation_get_message(invocation);
 
     DBus::DBusServer::CurrentObjectSetter currentObjectSetter(create(connection, false), object_path);
-    auto                                  reply_wrapper = it->second.callback(create(msg, false));
+    auto                                  reply_wrapper = callback(create(msg, false));
 
     if(!reply_wrapper)
     {
@@ -845,7 +861,8 @@ struct GdbusDBusWrapper : public DBusWrapper
                                    GError**         error,
                                    gpointer         user_data)
   {
-    Implementation* impl = static_cast<Implementation*>(user_data);
+    auto                                  impl = *static_cast<std::shared_ptr<Implementation>*>(user_data);
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
 
     if(impl->interface_properties.find(interface_name) == impl->interface_properties.end())
     {
@@ -860,9 +877,10 @@ struct GdbusDBusWrapper : public DBusWrapper
       return nullptr;
     }
 
+    auto                                  callback = it->second.getCallback;
     auto                                  iter = create(g_variant_builder_new(G_VARIANT_TYPE_TUPLE), true);
     DBus::DBusServer::CurrentObjectSetter currentObjectSetter(create(connection, false), object_path);
-    auto                                  reply = it->second.getCallback(nullptr, iter);
+    auto                                  reply = callback(nullptr, iter);
 
     if(!reply.empty())
     {
@@ -886,7 +904,8 @@ struct GdbusDBusWrapper : public DBusWrapper
                                   GError**         error,
                                   gpointer         user_data)
   {
-    Implementation* impl = static_cast<Implementation*>(user_data);
+    auto                                  impl = *static_cast<std::shared_ptr<Implementation>*>(user_data);
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
 
     if(impl->interface_properties.find(interface_name) == impl->interface_properties.end())
     {
@@ -902,8 +921,9 @@ struct GdbusDBusWrapper : public DBusWrapper
       return FALSE;
     }
 
+    auto                                  callback = it->second.setCallback;
     DBus::DBusServer::CurrentObjectSetter currentObjectSetter(create(connection, false), object_path);
-    auto                                  reply = it->second.setCallback(nullptr, create(static_cast<GVariant*>(g_object_ref(value)), g_variant_iter_new(value), true));
+    auto                                  reply = callback(nullptr, create(static_cast<GVariant*>(g_object_ref(value)), g_variant_iter_new(value), true));
 
     if(!reply.empty())
     {
@@ -944,16 +964,23 @@ struct GdbusDBusWrapper : public DBusWrapper
                           std::vector<PropertyInfo>&          dscrProperties,
                           std::vector<SignalInfo>&            dscrSignals) override
   {
+    std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
     auto impl = GlobalEntries::Get().Find(pathName);
 
     DBUS_DEBUG("interface %s path %s on bus %s", interfaceName.c_str(), pathName.c_str(), DBus::getConnectionName(connection).c_str());
 
     if(!impl)
     {
-      impl              = new Implementation();
+      impl              = std::make_shared<Implementation>();
       impl->connection  = get(connection);
       impl->object_path = pathName;
       GlobalEntries::Get().Add(pathName, impl);
+    }
+
+    if(impl->interface_infos.find(interfaceName) != impl->interface_infos.end())
+    {
+      DBUS_DEBUG("interface %s is already registered at %s", interfaceName.c_str(), pathName.c_str());
+      return;
     }
 
     GDBusInterfaceInfo* info = g_new0(GDBusInterfaceInfo, 1);
@@ -1015,46 +1042,70 @@ struct GdbusDBusWrapper : public DBusWrapper
     impl->interface_infos[interfaceName] = info;
 
     GError* error = nullptr;
-    auto    id    = 0;
+    guint   id    = 0;
+    std::unique_ptr<std::shared_ptr<Implementation>> registration;
 
     if(fallback)
     {
       if(!impl->is_subtree_registered)
       {
+        registration = std::make_unique<std::shared_ptr<Implementation>>(impl);
         id                          = g_dbus_connection_register_subtree(impl->connection,
                                                 !pathName.compare("/") ? AtspiPath : pathName.c_str(),
                                                                          &subtree_vtable,
                                                                          G_DBUS_SUBTREE_FLAGS_DISPATCH_TO_UNENUMERATED_NODES,
-                                                                         impl,
-                                                                         nullptr,
+                                                                         registration.get(),
+                                                                         on_implementation_destroy,
                                                                          &error);
-        impl->is_subtree_registered = true;
-        impl->reg_ids["subtree"]    = id;
+        if(id != 0)
+        {
+          impl->is_subtree_registered = true;
+          impl->reg_ids["subtree"]    = id;
+          registration.release();
+        }
       }
     }
     else
     {
+      registration = std::make_unique<std::shared_ptr<Implementation>>(impl);
       id                           = g_dbus_connection_register_object(impl->connection,
                                                                        pathName.c_str(),
                                                                        info,
                                                                        &interface_vtable,
-                                                                       impl,
-                                                                       NULL,
+                                                                       registration.get(),
+                                                                       on_implementation_destroy,
                                                                        &error);
-      impl->reg_ids[interfaceName] = id;
+      if(id != 0)
+      {
+        impl->reg_ids[interfaceName] = id;
+        registration.release();
+      }
     }
 
-    if(error)
+    if(registration)
     {
-      DBUS_DEBUG("add_interface_impl failed: %s", error->message);
-      g_error_free(error);
+      DBUS_DEBUG("add_interface_impl failed: %s", error ? error->message : "Registration failed");
+      if(error) g_error_free(error);
+      impl->interface_methods.erase(interfaceName);
+      impl->interface_properties.erase(interfaceName);
+      impl->interface_infos.erase(interfaceName);
+      g_dbus_interface_info_unref(info);
+      if(impl->interface_infos.empty())
+      {
+        GlobalEntries::Get().Erase(impl->object_path);
+      }
       return;
     }
 
     destructors.push_back([impl, interfaceName, fallback]()
     {
+      std::lock_guard<std::recursive_mutex> lock(GlobalEntries::Get().mutex);
+      auto info = impl->interface_infos.find(interfaceName);
+      if(info == impl->interface_infos.end()) return;
+
       impl->interface_methods.erase(interfaceName);
-      impl->interface_infos.erase(interfaceName);
+      g_dbus_interface_info_unref(info->second);
+      impl->interface_infos.erase(info);
       impl->interface_properties.erase(interfaceName);
 
       if(fallback)
@@ -1080,7 +1131,6 @@ struct GdbusDBusWrapper : public DBusWrapper
       if(impl->interface_infos.empty())
       {
         GlobalEntries::Get().Erase(impl->object_path);
-        delete impl;
       }
     });
 
