@@ -471,8 +471,9 @@ bool LoadKtxHeader(FILE* const fp, unsigned int& width, unsigned int& height, Kt
   width  = fileHeader.pixelWidth;
   height = fileHeader.pixelHeight;
 
-  if(DALI_UNLIKELY(width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION))
+  if(DALI_UNLIKELY(width == 0 || height == 0 || width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION))
   {
+    DALI_LOG_ERROR("KTX file with unsupported dimensions (%u x %u).\n", width, height);
     return false;
   }
 
@@ -584,6 +585,15 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
   if(DALI_UNLIKELY(!pixelFormatKnown))
   {
     DALI_LOG_ERROR("No internal pixel format supported for KTX file pixel format.\n");
+    return false;
+  }
+
+  // This is the point where the file-supplied dimensions become an allocation size, so restate
+  // the bound LoadKtxHeader() already applied. Keeping it local makes the invariant that caps the
+  // allocation at MAX_TEXTURE_DIMENSION squared texels visible here rather than one call away.
+  if(DALI_UNLIKELY(width == 0 || height == 0 || width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION))
+  {
+    DALI_LOG_ERROR("KTX file with unsupported dimensions (%u x %u).\n", width, height);
     return false;
   }
 

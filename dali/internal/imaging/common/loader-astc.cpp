@@ -140,9 +140,9 @@ bool LoadAstcHeader(FILE* const filePointer, unsigned int& width, unsigned int& 
   const unsigned int zDepth = static_cast<unsigned int>(fileHeader.zsize[0]) + (static_cast<unsigned int>(fileHeader.zsize[1]) << 8) + (static_cast<unsigned int>(fileHeader.zsize[2]) << 16);
 
   // Check image dimensions are within limits.
-  if(DALI_UNLIKELY((width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION)))
+  if(DALI_UNLIKELY((width == 0) || (height == 0) || (width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION)))
   {
-    DALI_LOG_ERROR("ASTC file has larger than supported dimensions: %d,%d\n", width, height);
+    DALI_LOG_ERROR("ASTC file has unsupported dimensions: %d,%d\n", width, height);
     headerIsValid = false;
   }
 

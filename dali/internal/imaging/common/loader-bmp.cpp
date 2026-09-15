@@ -22,6 +22,8 @@
 #include <dali/internal/system/common/system-error-print.h>
 #include <dali/public-api/adaptor-framework/pixel-buffer.h>
 
+#include <cstdint>
+
 namespace DALI_NAMESPACE
 {
 namespace TizenPlatform
@@ -31,6 +33,15 @@ namespace
 const unsigned int FileHeaderOffsetOfBF32V4  = 0x7A;
 const unsigned int MaskForBFRGB565           = 0x80;
 const unsigned int FileHeaderOffsetOfRGB24V5 = 0x8A;
+
+/**
+ * The largest width or height accepted from a BMP header. Every buffer size and decode loop
+ * count below is derived from these two fields, which come straight from the file and are
+ * therefore attacker controlled, so they are bounded here at the source. Image sizes are
+ * reported through ImageDimensions (a Uint16Pair), so a larger BMP could not be described by
+ * the image loading API in any case and no usable file is rejected by this limit.
+ */
+const unsigned int MaxImageDimension = 65535u;
 
 enum BmpFormat
 {
@@ -110,14 +121,25 @@ bool LoadBmpHeader(FILE* fp, unsigned int& width, unsigned int& height, BmpFileH
     return false;
   }
 
-  width  = infoHeader.width;
-  height = abs(infoHeader.height);
-
-  if(DALI_UNLIKELY(infoHeader.width == 0))
+  if(DALI_UNLIKELY(infoHeader.width == 0 || infoHeader.width > MaxImageDimension))
   {
-    DALI_LOG_ERROR("Invalid header size\n");
+    DALI_LOG_ERROR("Invalid BMP width (%u)\n", infoHeader.width);
     return false;
   }
+
+  // A negative height means the rows are stored top down. Negate through a wider type because
+  // abs() is undefined for the most negative value, which a crafted header can easily contain.
+  const std::int64_t signedHeight = static_cast<std::int64_t>(infoHeader.height);
+  const std::int64_t absHeight    = (signedHeight < 0) ? -signedHeight : signedHeight;
+
+  if(DALI_UNLIKELY(absHeight == 0 || absHeight > static_cast<std::int64_t>(MaxImageDimension)))
+  {
+    DALI_LOG_ERROR("Invalid BMP height (%d)\n", infoHeader.height);
+    return false;
+  }
+
+  width  = infoHeader.width;
+  height = static_cast<unsigned int>(absHeight);
 
   return true;
 }

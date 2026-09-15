@@ -158,9 +158,9 @@ bool LoadPkmHeader(FILE* const filePointer, unsigned int& width, unsigned int& h
   height = GetBigEndianValue(fileHeader.originalHeight);
 
   // Check image dimensions are within limits.
-  if(DALI_UNLIKELY((width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION)))
+  if(DALI_UNLIKELY((width == 0) || (height == 0) || (width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION)))
   {
-    DALI_LOG_ERROR("PKM file has larger than supported dimensions: %d,%d\n", width, height);
+    DALI_LOG_ERROR("PKM file has unsupported dimensions: %d,%d\n", width, height);
     headerIsValid = false;
   }
 
