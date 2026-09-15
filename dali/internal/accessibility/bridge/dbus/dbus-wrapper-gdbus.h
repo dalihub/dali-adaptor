@@ -17,6 +17,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_DBUS_WRAPPER_GDBUS_H
 
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus-client-gdbus.h>
 #include <dali/internal/accessibility/bridge/dbus/dbus.h>
 
 // EXTERNAL INCLUDES
@@ -228,10 +229,39 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   DEFINE_TYPE(Connection, GDBusConnection, g_object_unref(Value))
   DEFINE_TYPE(Message, GDBusMessage, g_object_unref(Value))
-  DEFINE_TYPE(Proxy, GDBusProxy, g_object_unref(Value))
   DEFINE_TYPE(Pending, GCancellable, g_object_unref(Value))
 
 #undef DEFINE_TYPE
+
+  struct ProxyImpl : public Proxy
+  {
+    GDBusProxy*                                Value;
+    bool                                       EraseOnExit;
+    std::shared_ptr<DBus::GdbusPropertyMonitor> propertyMonitor;
+
+    ProxyImpl(GDBusProxy* value, bool eraseOnExit = false)
+    : Value(value),
+      EraseOnExit(eraseOnExit)
+    {
+    }
+
+    ~ProxyImpl()
+    {
+      // Stop subscriptions and pending property reads before releasing the
+      // proxy. The object cache may still hold another GDBusProxy reference.
+      if(propertyMonitor)
+      {
+        propertyMonitor->Stop();
+        propertyMonitor.reset();
+      }
+      if(EraseOnExit && Value)
+      {
+        g_object_unref(Value);
+      }
+    }
+  };
+
+  DEFINE_GS(Proxy, GDBusProxy, )
 
   ConnectionPtr dbus_address_connection_get_impl(const std::string& addr) override
   {
@@ -640,11 +670,8 @@ struct GdbusDBusWrapper : public DBusWrapper
       return create(static_cast<GDBusProxy*>(g_object_ref(exist)), true);
     }
 
-    auto flags = (GDBusProxyFlags)(G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS | G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES);
-    if(!get_bus(obj).compare(A11yDbusName)) flags = G_DBUS_PROXY_FLAGS_NONE;
-
     GError* error = nullptr;
-    auto    proxy = g_dbus_proxy_new_sync(get_conn(obj), flags,
+    auto    proxy = g_dbus_proxy_new_sync(get_conn(obj), DBus::GDBUS_CLIENT_PROXY_FLAGS,
                                           nullptr, get_bus(obj).c_str(), get_path(obj).c_str(),
                                           interface.c_str(), nullptr, &error);
 
@@ -662,7 +689,7 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   ProxyPtr dbus_proxy_copy_impl(const ProxyPtr& ptr) override
   {
-    return create(static_cast<GDBusProxy*>(g_object_ref(get(ptr))), true);
+    return ptr;
   }
 
   void dbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus) override
@@ -1139,42 +1166,6 @@ struct GdbusDBusWrapper : public DBusWrapper
     dscrSignals.clear();
   }
 
-  struct PropertyListenerContext
-  {
-    std::string                      interface_name;
-    std::string                      property_name;
-    std::function<void(const void*)> callback;
-
-    ~PropertyListenerContext() = default;
-  };
-
-  static void on_proxy_properties_changed(GDBusProxy*         proxy,
-                                          GVariant*           changed_properties,
-                                          const gchar* const* invalidated_properties,
-                                          gpointer            user_data)
-  {
-    PropertyListenerContext* ctx = static_cast<PropertyListenerContext*>(user_data);
-
-    const gchar* ifc = g_dbus_proxy_get_interface_name(proxy);
-    if(!ifc || ctx->interface_name != ifc) return;
-
-    auto value = g_variant_lookup_value(changed_properties,
-                                        ctx->property_name.c_str(),
-                                        nullptr);
-
-    if(value)
-    {
-      ctx->callback(value);
-      g_variant_unref(value);
-    }
-  }
-
-  static void on_listener_data_destroy(gpointer data, GClosure* closure)
-  {
-    PropertyListenerContext* ctx = static_cast<PropertyListenerContext*>(data);
-    delete ctx;
-  }
-
   void add_property_changed_event_listener_impl(const ProxyPtr&                  proxy,
                                                 const std::string&               interface,
                                                 const std::string&               name,
@@ -1184,15 +1175,17 @@ struct GdbusDBusWrapper : public DBusWrapper
     auto g_proxy = get(proxy);
     if(!g_proxy) return;
 
-    PropertyListenerContext* ctx = new PropertyListenerContext{interface, name, cb};
+    auto impl = static_cast<ProxyImpl*>(proxy.get());
+    if(!impl->propertyMonitor)
+    {
+      impl->propertyMonitor = DBus::GdbusPropertyMonitor::New(g_proxy);
+    }
+    impl->propertyMonitor->Add(name, std::move(cb));
+  }
 
-    g_signal_connect_data(
-      g_proxy,
-      "g-properties-changed",
-      G_CALLBACK(on_proxy_properties_changed),
-      ctx,
-      on_listener_data_destroy,
-      G_CONNECT_AFTER);
+  bool property_changed_events_include_initial_value_impl() const override
+  {
+    return true;
   }
 
   bool get_from_value_impl(const void* v, void* dst) override
