@@ -865,11 +865,14 @@ public:
 
   void ReadAndListenProperties()
   {
-    ReadIsEnabledProperty();
     ListenIsEnabledProperty();
-
-    ReadScreenReaderEnabledProperty();
     ListenScreenReaderEnabledProperty();
+
+    if(!mAccessibilityStatusClient.propertyChangedEventsIncludeInitialValue())
+    {
+      ReadIsEnabledProperty();
+      ReadScreenReaderEnabledProperty();
+    }
   }
 
   bool InitializeAccessibilityStatusClient()
