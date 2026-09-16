@@ -264,6 +264,7 @@ uint32_t NativeImageWin::TargetTexture()
     std::lock_guard<std::mutex> lock(mCpuBufferMutex);
     if(!mCpuBuffer.empty())
     {
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(mWidth), static_cast<GLsizei>(mHeight), 0, GL_RGBA, GL_UNSIGNED_BYTE, mCpuBuffer.data());
     }
     return 0;

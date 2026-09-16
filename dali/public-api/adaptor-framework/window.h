@@ -64,7 +64,7 @@ class HoverEvent;
  * @brief The window class is used internally for drawing.
  *
  * A Window has an orientation and indicator properties.
- * You can get a valid Window handle by calling Dali::Application::GetWindow().
+ * You can get a valid Window handle by calling Dali::UiContext::GetDefaultWindow() or Dali::Window::New().
  * @SINCE_1_0.0
  */
 class DALI_ADAPTOR_API Window : public BaseHandle
@@ -116,7 +116,7 @@ public:
   /**
    * @brief Creates an uninitialized handle.
    *
-   * This can be initialized using Dali::Application::GetWindow() or
+   * This can be initialized using Dali::UiContext::GetDefaultWindow() or
    * Dali::Window::New().
    * @SINCE_1_0.0
    */
@@ -1240,7 +1240,7 @@ public: // Signals
 public: // Not intended for application developers
   /// @cond internal
   /**
-   * @brief This constructor is used by Dali::Application::GetWindow().
+   * @brief This constructor is used internally to create a Window handle.
    * @SINCE_1_0.0
    * @param[in] window A pointer to the Window
    */

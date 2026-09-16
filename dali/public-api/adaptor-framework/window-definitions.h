@@ -50,8 +50,7 @@ enum class WindowOrientation
  * Window type has effect of DALi window's behavior, window's stack and extra functions.
  * The default window type is NORMAL. If application does not set the specific window type, this type will be set.
  *
- * Ime window type is special type. It can only set by one Application::New function.
- * The fuction is "New(int* argc, char** argv[], Dali::StringView stylesheet, Application::WindowOpacity windowOpacity, PositionSize positionSize, WindowType type)".
+ * Ime window type is special type. It can only be set when the window is created, through WindowData::SetWindowType().
  * Ime window type can not set by Window::SetType().
  *
  * @SINCE_2_0.0

@@ -23,7 +23,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/application.h>
+#include <dali/devel-api/adaptor-framework/application.h>
 
 #include <dali/internal/adaptor/common/application-controller-impl.h>
 #include <dali/internal/adaptor/common/framework.h>

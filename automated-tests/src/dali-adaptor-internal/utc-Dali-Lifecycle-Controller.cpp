@@ -18,10 +18,10 @@
 // EXTERNAL INCLUDES
 #include <dali-test-suite-utils.h>
 #include <dali.h>
+#include <dali/devel-api/adaptor-framework/application.h>
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <stdlib.h>
 #include <iostream>
-#include "dali/public-api/adaptor-framework/application.h"
 
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 

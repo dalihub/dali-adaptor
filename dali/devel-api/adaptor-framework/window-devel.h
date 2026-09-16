@@ -164,7 +164,7 @@ DALI_ADAPTOR_API int GetPhysicalOrientation(Window window);
  * @param[in] orientation The orientation
  *
  * @note Currently, it only works when the window's type is WindowType::IME.
- * @note To set WindowType::IME, use Application New(... WindowType type), not Window::SetType().
+ * @note To set WindowType::IME, use WindowData::SetWindowType() when the window is created, not Window::SetType().
  * @note This function is only useful in Tizen world.
  */
 DALI_ADAPTOR_API void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation);

@@ -30,8 +30,8 @@
 namespace DALI_NAMESPACE
 {
 /**
- * The WindowData class is used as a parameter for the constructors of the Application class.
- * The data from the WindowData object is used to customize the default window created by the Application class.
+ * The WindowData class is used as a parameter for Window::New().
+ * The data from the WindowData object is used to customize the window being created.
  *
  * The default values are below:
  * PositionSize : x:0, y:0, w:0, h:0 (full-screen window)
