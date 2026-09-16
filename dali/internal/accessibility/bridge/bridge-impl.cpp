@@ -54,6 +54,42 @@ using Dali::Integration::Accessibility::Bridge;
 namespace // unnamed namespace
 {
 const int RETRY_INTERVAL = 1000;
+
+/**
+ * @brief Bit flags carried in detail1 of the AT-SPI "window:activate" signal.
+ *
+ * These values are part of the Tizen AT-SPI protocol, so they must stay in sync with
+ * at-spi2-core (registryd/registry.h) and EFL (elm_atspi_bridge.c).
+ */
+enum WindowActivateInfo
+{
+  WINDOW_ACTIVATE_INFO_DEFAULT_LABEL_ENABLED                = 0,
+  WINDOW_ACTIVATE_INFO_DEFAULT_LABEL_ENABLED_WITHOUT_WINDOW = 1 << 0,
+  WINDOW_ACTIVATE_INFO_DEFAULT_LABEL_DISABLED               = 1 << 1,
+  WINDOW_ACTIVATE_INFO_KEYBOARD                             = 1 << 2,
+};
+
+/**
+ * @brief Builds the detail1 value to send along with a "window:activate" signal.
+ *
+ * A window whose role is INPUT_METHOD_WINDOW is flagged as a keyboard window, so that
+ * at-spi2-core keeps it out of GetActiveWindow and the screen-reader excludes it from
+ * its window stack instead of switching the reading context to it.
+ *
+ * @param[in] windowAccessible The accessible object of the activated window
+ * @return The detail1 value
+ */
+unsigned int GetWindowActivateInfo(const Dali::Accessibility::Accessible* windowAccessible)
+{
+  unsigned int info = WINDOW_ACTIVATE_INFO_DEFAULT_LABEL_ENABLED;
+
+  if(windowAccessible->GetRole() == Dali::Integration::Accessibility::Role::INPUT_METHOD_WINDOW)
+  {
+    info |= WINDOW_ACTIVATE_INFO_KEYBOARD;
+  }
+
+  return info;
+}
 } // unnamed namespace
 
 /**
@@ -532,7 +568,7 @@ public:
     auto windowAccessible = mApplication->GetWindowAccessible(window);
     if(windowAccessible)
     {
-      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::ACTIVATE, 0);
+      windowAccessible->Emit(Dali::Devel::Accessibility::WindowEvent::ACTIVATE, GetWindowActivateInfo(windowAccessible));
     }
   }
 
@@ -616,6 +652,15 @@ public:
     if(IsUp())
     {
       EmitShown(window);
+
+      // An IME window is never focused, so WindowFocused() would never emit "window:activate"
+      // for it. Emit it on show instead, so that at-spi2-core and the screen-reader get told a
+      // keyboard window appeared. This mirrors what EFL does in _elm_win_atspi().
+      auto windowAccessible = mApplication->GetWindowAccessible(window);
+      if(windowAccessible && windowAccessible->GetRole() == Dali::Integration::Accessibility::Role::INPUT_METHOD_WINDOW)
+      {
+        EmitActivate(window);
+      }
     }
   }
 

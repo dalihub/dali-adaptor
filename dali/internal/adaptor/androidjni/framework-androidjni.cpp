@@ -19,10 +19,10 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/application-devel.h>
+#include <dali/devel-api/adaptor-framework/application.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/adaptor-framework/application.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/android/android-framework-impl.h>

@@ -23,7 +23,7 @@
 #include <signal.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/application.h>
+#include <dali/devel-api/adaptor-framework/application.h>
 
 #if !defined(_NSIG) && defined(NSIG)
 #define _NSIG NSIG
