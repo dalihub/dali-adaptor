@@ -120,9 +120,9 @@ void DisconnectCallbacks(tizen_core_imf_context_h imfContext)
   {
     DALI_LOG_INFO(gLogFilter, Debug::General, "VKB DisconnectPanelCallbacks\n");
 
-    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback);
-    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback);
-    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback);
+    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, nullptr);
+    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, nullptr);
+    tizen_core_imf_context_del_input_panel_event_callback(imfContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, nullptr);
   }
 }
 

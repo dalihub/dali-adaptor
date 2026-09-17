@@ -18,7 +18,7 @@
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
 Version:    2.5.39
-Release:    2
+Release:    3
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT and CC0-1.0 and Unlicense and Zlib
 URL:        https://review.tizen.org/git/?p=platform/core/uifw/dali-adaptor.git;a=summary
@@ -332,6 +332,11 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
 cmake_flags+=" -DENABLE_WARNING_TO_ERROR=ON"
 %else
 cmake_flags+=" -DENABLE_WARNING_TO_ERROR=OFF"
+%endif
+
+# Use this conditional when Tizen version is 11.x or greater
+%if 0%{?tizen_version_major} >= 11
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_11"
 %endif
 
 %if "%{vd_asan}" == "1" || "%{asan}" == "1"

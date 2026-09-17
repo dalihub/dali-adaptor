@@ -155,7 +155,7 @@ public:
     Internal::Adaptor::GetImplementation(widgetInstance).OnCreate(encodedContentString, window);
 
     // connect keyEvent for widget
-#ifdef OVER_TIZEN_VERSION_7
+#ifdef OVER_TIZEN_VERSION_11
     mApplication->ConnectKeyEvent(window);
 #endif
 
