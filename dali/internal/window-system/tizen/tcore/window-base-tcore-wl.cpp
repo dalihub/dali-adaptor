@@ -32,6 +32,8 @@
 #include <dali/public-api/object/any.h>
 
 #include <tizen-core-wl/tizen_core_wl_internal.h>
+#include <tizen-core-wl/tizen_core_wl_notification.h>
+#include <tizen-core-wl/tizen_core_wl_window_property.h>
 #include <vector>
 
 #if defined(VCONF_ENABLED)
@@ -2316,8 +2318,8 @@ void WindowBaseTcoreWl::OnMoveCompleted(void* data, int type, void* event)
     return;
   }
 
-  tizen_core_wl_event_window_interactive_move_done_h moveDone = nullptr;
-  if(tizen_core_wl_event_window_base_to_interactive_move_done(baseEvent, &moveDone) != TIZEN_CORE_WL_ERROR_NONE || !moveDone)
+  tizen_core_wl_event_window_interactive_done_h moveDone = nullptr;
+  if(tizen_core_wl_event_window_base_to_interactive_done(baseEvent, &moveDone) != TIZEN_CORE_WL_ERROR_NONE || !moveDone)
   {
     DALI_LOG_ERROR("failed to convert to interactive move done event\n");
     return;
@@ -2325,7 +2327,7 @@ void WindowBaseTcoreWl::OnMoveCompleted(void* data, int type, void* event)
 
   int32_t  x = 0, y = 0;
   uint32_t w = 0u, h = 0u;
-  if(tizen_core_wl_event_window_interactive_move_done_get_geometry(moveDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
+  if(tizen_core_wl_event_window_interactive_done_get_geometry(moveDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_ERROR("failed to get geometry\n");
     return;
@@ -2356,8 +2358,8 @@ void WindowBaseTcoreWl::OnResizeCompleted(void* data, int type, void* event)
     return;
   }
 
-  tizen_core_wl_event_window_interactive_resize_done_h resizeDone = nullptr;
-  if(tizen_core_wl_event_window_base_to_interactive_resize_done(baseEvent, &resizeDone) != TIZEN_CORE_WL_ERROR_NONE || !resizeDone)
+  tizen_core_wl_event_window_interactive_done_h resizeDone = nullptr;
+  if(tizen_core_wl_event_window_base_to_interactive_done(baseEvent, &resizeDone) != TIZEN_CORE_WL_ERROR_NONE || !resizeDone)
   {
     DALI_LOG_ERROR("failed to convert to interactive resize done event\n");
     return;
@@ -2365,7 +2367,7 @@ void WindowBaseTcoreWl::OnResizeCompleted(void* data, int type, void* event)
 
   int32_t  x = 0, y = 0;
   uint32_t w = 0u, h = 0u;
-  if(tizen_core_wl_event_window_interactive_resize_done_get_geometry(resizeDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
+  if(tizen_core_wl_event_window_interactive_done_get_geometry(resizeDone, &x, &y, &w, &h) != TIZEN_CORE_WL_ERROR_NONE)
   {
     DALI_LOG_ERROR("failed to get geometry\n");
     return;

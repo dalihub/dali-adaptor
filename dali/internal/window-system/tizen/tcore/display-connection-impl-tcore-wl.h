@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <tizen_core_wl.h>
+#include <wayland-client.h> ///< for wl_display, which tizen_core_wl.h keeps opaque
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
