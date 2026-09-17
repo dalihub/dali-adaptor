@@ -196,6 +196,13 @@ struct DBusWrapper
   };
   virtual void        add_interface_impl(bool fallback, const std::string& pathName, const ConnectionPtr& connection, std::vector<std::function<void()>>& destructors, const std::string& interfaceName, std::vector<MethodInfo>& dscrMethods, std::vector<PropertyInfo>& dscrProperties, std::vector<SignalInfo>& dscrSignals) = 0;
   virtual void        add_property_changed_event_listener_impl(const ProxyPtr& proxy, const std::string& interface, const std::string& name, std::function<void(const void*)> cb)                                                                                                                                               = 0;
+
+  // Backends with an initial/recovery property monitor do not need a separate
+  // initial Get. Other backends keep the explicit read-and-listen behavior.
+  virtual bool property_changed_events_include_initial_value_impl() const
+  {
+    return false;
+  }
   virtual bool        get_from_value_impl(const void* v, void* dst)                                                                                                                                                                                                                                                             = 0;
   static DBusWrapper* Installed();
   static void         Install(std::unique_ptr<DBusWrapper>);
@@ -2349,6 +2356,11 @@ public:
       }
       callback(val);
     });
+  }
+
+  bool propertyChangedEventsIncludeInitialValue() const
+  {
+    return DBUS_W->property_changed_events_include_initial_value_impl();
   }
 
   /**
