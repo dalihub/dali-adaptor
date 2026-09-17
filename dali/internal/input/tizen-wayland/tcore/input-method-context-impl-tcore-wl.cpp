@@ -48,7 +48,7 @@ namespace
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_INPUT_METHOD_CONTEXT");
 #endif
 
-bool IsTcoreSuccess(tizen_core_imf_error_e error)
+bool IsTcoreSuccess(int error)
 {
   return error == TIZEN_CORE_IMF_ERROR_NONE;
 }
@@ -710,19 +710,19 @@ void InputMethodContextTcoreWl::DisconnectCallbacks()
   {
     DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::DisconnectCallbacks\n");
 
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart);
-    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
 
-    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback);
-    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback);
-    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback);
-    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback, this);
   }
 }
 
@@ -1688,7 +1688,7 @@ bool InputMethodContextTcoreWl::SetFullScreenMode(bool fullScreen)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::SetFullScreenMode\n");
 
-#ifdef OVER_TIZEN_VERSION_10
+#ifdef OVER_TIZEN_VERSION_11
   bool result = true;
 
   if(mIMFContext)
@@ -1709,7 +1709,7 @@ bool InputMethodContextTcoreWl::IsFullScreenMode() const
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::IsFullScreenMode\n");
   bool fullScreen = false;
 
-#ifdef OVER_TIZEN_VERSION_10
+#ifdef OVER_TIZEN_VERSION_11
   if(mIMFContext)
   {
     tizen_core_imf_input_hints_e hints = TIZEN_CORE_IMF_INPUT_HINTS_NONE;
