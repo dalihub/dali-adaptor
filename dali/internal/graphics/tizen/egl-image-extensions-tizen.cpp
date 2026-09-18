@@ -273,6 +273,10 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
   }
 }
 
+void EglImageExtensions::OnDisplayInitialized()
+{
+}
+
 void EglImageExtensions::InitializeEglImageKHR()
 {
   // avoid trying to reload extended KHR functions, if it fails the first time

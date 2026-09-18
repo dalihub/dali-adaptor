@@ -243,6 +243,19 @@ ENDIF()
 
 CHECK_MODULE_AND_SET( WAYLAND_EXTENSION xdg-shell-client text-client input-method-client [] )
 
+# GBM allocates the CPU-mappable dma_bufs that back NativeImageQueue on the
+# ubuntu-x11 backend, the only one that uses it. Optional: without it the queue
+# reports itself unsupported, rather than falling back on a mechanism that would
+# behave differently from the target.
+IF( UBUNTU_PROFILE )
+  CHECK_MODULE_AND_SET( GBM gbm DALI_USE_GBM [] )
+  IF( DALI_USE_GBM )
+    ADD_DEFINITIONS( -DDALI_USE_GBM )
+  ELSE()
+    MESSAGE( STATUS "gbm not found: NativeImageQueue offscreen rendering will be unavailable" )
+  ENDIF()
+ENDIF()
+
 # BUILD CONDITIONS
 IF( watch_available AND WEARABLE_PROFILE )
   ADD_DEFINITIONS( -DAPPCORE_WATCH_AVAILABLE )
@@ -724,6 +737,13 @@ ENDIF()
 IF( UBUNTU_PROFILE )
   SET( DALI_CFLAGS ${DALI_CFLAGS} -fPIC )
   SET( DALI_LDFLAGS ${DALI_LDFLAGS} -ljpeg)
+ENDIF()
+
+# Appended here rather than where gbm is detected, because DALI_LDFLAGS is only
+# assembled further down and would otherwise overwrite this.
+IF( DALI_USE_GBM )
+  SET( DALI_CFLAGS ${DALI_CFLAGS} ${GBM_CFLAGS} )
+  SET( DALI_LDFLAGS ${DALI_LDFLAGS} ${GBM_LDFLAGS} )
 ENDIF()
 
 # Dali depends on shm_open, but librt is usually included from framework (ecore, libuv etc)
