@@ -17,6 +17,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/key-impl.h>
+#include <dali/public-api/adaptor-framework/key.h>
 
 namespace DALI_NAMESPACE
 {
@@ -24,7 +25,7 @@ namespace DevelKey
 {
 int GetDaliKeyCode(const char* keyName)
 {
-  return Internal::Adaptor::KeyLookup::GetDaliKeyCode(keyName);
+  return Dali::GetKeyCode(keyName);
 }
 
 void SetSystemKeyCodePriority(bool preferSystemKeyCode)

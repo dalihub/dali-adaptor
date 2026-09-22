@@ -64,9 +64,9 @@ bool IsDeviceButton(const char* keyName);
 const char* GetKeyName(Dali::KEY daliKey);
 
 /**
- * @copydoc Dali::DevelKey::GetDaliKeyCode()
+ * @copydoc Dali::GetKeyCode()
  */
-int GetDaliKeyCode(const char* keyName);
+int GetKeyCode(const char* keyName);
 
 /**
  * @copydoc Dali::Extension::SetKeyExtensionLookupTable()

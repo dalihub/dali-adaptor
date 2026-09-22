@@ -170,14 +170,14 @@ ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, VulkanGr
       info.setStage(vk::ShaderStageFlagBits::eVertex);
       info.setPName("main");
     }
-    if(state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    else if(state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
     {
       info.setStage(vk::ShaderStageFlagBits::eFragment);
       info.setPName("main");
     }
     else
     {
-      DALI_ASSERT_ALWAYS(true && "Invalid pipeline shader stage!");
+      DALI_ASSERT_ALWAYS(false && "Invalid pipeline shader stage!");
     }
   }
 }

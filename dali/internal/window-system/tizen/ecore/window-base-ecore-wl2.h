@@ -252,9 +252,12 @@ public:
   void DisplayPolicyBrightnessChangeDone(void* data, struct tizen_display_policy* displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state);
 
   /**
-   * @brief Gets the key code by keyName.
+   * @brief Gets the key code the keymap resolves a key name to.
+   *
+   * This is the code the window system carries for the key, not the one the dali key look
+   * up table holds for it. Leaves keyCode alone if the keymap does not resolve the name.
    */
-  void GetKeyCode(std::string keyName, int32_t& keyCode);
+  void GetKeyCodeFromKeymap(std::string keyName, int32_t& keyCode);
 
 public:
   /**

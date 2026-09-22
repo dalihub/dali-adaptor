@@ -1890,7 +1890,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int daliKeyCode = KeyLookup::GetKeyCode(name);
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -1901,7 +1901,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int dalyKeyCode = KeyLookup::GetKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
 
@@ -1989,7 +1989,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int daliKeyCode = KeyLookup::GetKeyCode(name);
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -2000,7 +2000,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int dalyKeyCode = KeyLookup::GetKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
     if(!strncmp(name, "Keycode-", 8))

@@ -620,7 +620,7 @@ void WindowBaseWin::EmitKeyDown(TWinEventInfo* event, bool isRepeat)
   // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
   // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
   // code for ordinary keys that have no such entry.
-  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+  const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
   const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
   Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
@@ -712,7 +712,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys the same way OnKeyDown does; see the comment there.
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
     const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
     // Match the Linux backends: the released key still carries its translated string

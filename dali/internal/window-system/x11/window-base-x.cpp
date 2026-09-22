@@ -570,7 +570,7 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
   }
 
   const int rawKeyCode    = keyEvent->keyCode;
-  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname.c_str());
+  const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname.c_str());
   int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
   int       modifier(keyEvent->modifiers);
   uint32_t  time(keyEvent->timestamp);

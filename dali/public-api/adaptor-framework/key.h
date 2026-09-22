@@ -2,7 +2,7 @@
 #define DALI_KEYCODE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,19 @@ enum KEY
  * @return @c true if the key is matched, @c false if not
  */
 DALI_ADAPTOR_API bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
+
+/**
+ * @brief Gets the key code that the key look up table maps a key name to.
+ *
+ * Use this when only the name of a key is available. To test a key event against
+ * a Dali::KEY, prefer IsKey().
+ *
+ * @SINCE_2_5.41
+ * @param[in] keyName The key name
+ * @return The key code, or DALI_KEY_INVALID if the key name is not in the look up table
+ * @see IsKey()
+ */
+DALI_ADAPTOR_API int GetKeyCode(const char* keyName);
 
 /**
  * @}

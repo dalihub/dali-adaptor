@@ -290,7 +290,7 @@ void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State k
 
     // Normalize named/special keys to the portable DALI_KEY_* codes shared with
     // every other backend; keep the raw native keyCode for keys with no entry.
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
     const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : static_cast<int>(event.keyCode);
 
     Integration::KeyEvent keyEvent(

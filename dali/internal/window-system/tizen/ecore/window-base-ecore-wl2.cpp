@@ -1711,12 +1711,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     {
       // Legacy order, for a framework carrying applications written against the old behaviour:
       // the keymap wins and the look up table is only a fallback. See Integration::Key.
-      GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+      GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
 
       if(keyCode == 0)
       {
         // Get a specific key code from dali key look up table.
-        keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+        keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
       }
     }
     else
@@ -1725,11 +1725,11 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
       // Every other backend resolves a key code this way round, so a named key such as XF86Back
       // arrives as DALI_KEY_BACK here too, rather than as whatever code the device keymap happens
       // to carry for it.
-      keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+      keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
 
       if(keyCode == -1)
       {
-        GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+        GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
       }
     }
 
@@ -1816,12 +1816,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     {
       // Legacy order, for a framework carrying applications written against the old behaviour:
       // the keymap wins and the look up table is only a fallback. See Integration::Key.
-      GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+      GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
 
       if(keyCode == 0)
       {
         // Get a specific key code from dali key look up table.
-        keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+        keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
       }
     }
     else
@@ -1830,11 +1830,11 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
       // Every other backend resolves a key code this way round, so a named key such as XF86Back
       // arrives as DALI_KEY_BACK here too, rather than as whatever code the device keymap happens
       // to carry for it.
-      keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+      keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
 
       if(keyCode == -1)
       {
-        GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+        GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
       }
     }
 
@@ -2258,7 +2258,7 @@ void WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone(void* data, struct ti
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone: brightness = %d, state = %d\n", brightness, state);
 }
 
-void WindowBaseEcoreWl2::GetKeyCode(std::string keyName, int32_t& keyCode)
+void WindowBaseEcoreWl2::GetKeyCodeFromKeymap(std::string keyName, int32_t& keyCode)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   xkb_keysym_t sym = XKB_KEY_NoSymbol;

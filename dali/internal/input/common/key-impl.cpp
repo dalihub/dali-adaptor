@@ -76,7 +76,7 @@ public:
     }
   }
 
-  int GetDaliKeyEnum(const char* keyName)
+  int GetKeyCode(const char* keyName)
   {
     // If lookup table is not initialized, initialize lookup table
     if(!mIsLookupTableInitialized)
@@ -336,7 +336,7 @@ bool& SystemKeyCodePriority()
 
 bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
 {
-  int key = GetKeyMap().GetDaliKeyEnum(keyEvent.GetKeyName().CStr());
+  int key = GetKeyMap().GetKeyCode(keyEvent.GetKeyName().CStr());
   return daliKey == key;
 }
 
@@ -350,9 +350,9 @@ const char* GetKeyName(Dali::KEY daliKey)
   return GetKeyMap().GetKeyName(daliKey);
 }
 
-int GetDaliKeyCode(const char* keyName)
+int GetKeyCode(const char* keyName)
 {
-  return GetKeyMap().GetDaliKeyEnum(keyName);
+  return GetKeyMap().GetKeyCode(keyName);
 }
 
 void SetKeyExtensionLookupTable(const Dali::KeyLookupEntry* table, uint32_t count)

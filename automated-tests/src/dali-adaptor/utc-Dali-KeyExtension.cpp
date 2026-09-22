@@ -58,8 +58,8 @@ int UtcDaliKeyExtensionSetLookupTableP(void)
   const int   codeB    = 2002;
 
   // Before registration, the extension keys are unknown.
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameA), -1, TEST_LOCATION);
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameB), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode(keyNameA), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode(keyNameB), -1, TEST_LOCATION);
 
   // Register an extension table. The source strings and array are deliberately
   // scoped so they are destroyed before we query, proving the data is deep-copied.
@@ -76,15 +76,15 @@ int UtcDaliKeyExtensionSetLookupTableP(void)
   }
 
   // After registration, the extension keys resolve to the custom codes (name -> code).
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameA), codeA, TEST_LOCATION);
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode(keyNameB), codeB, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode(keyNameA), codeA, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode(keyNameB), codeB, TEST_LOCATION);
 
   // IsKey() goes through the same extension lookup.
   DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameA), static_cast<Dali::KEY>(codeA)));
   DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameB), static_cast<Dali::KEY>(codeB)));
 
   // A key not present in either the base or extension table is still unknown.
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionTestKeyMissing"), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionTestKeyMissing"), -1, TEST_LOCATION);
 
   END_TEST;
 }
@@ -96,7 +96,7 @@ int UtcDaliKeyExtensionSetLookupTableNullN(void)
   // Passing a null table with a non-zero count must not crash; nothing is registered.
   Dali::Extension::SetKeyExtensionLookupTable(NULL, 5u);
 
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionTestKeyA"), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionTestKeyA"), -1, TEST_LOCATION);
 
   END_TEST;
 }
@@ -109,10 +109,10 @@ int UtcDaliKeyExtensionSetLookupTableEmptyP(void)
   Dali::Extension::KeyLookupEntry table[] = {{"XF86ExtensionUnused", 2100, false}};
   Dali::Extension::SetKeyExtensionLookupTable(table, 0u);
 
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionUnused"), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionUnused"), -1, TEST_LOCATION);
 
   // Base keys keep working.
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86Back"), static_cast<int>(DALI_KEY_BACK), TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86Back"), static_cast<int>(DALI_KEY_BACK), TEST_LOCATION);
 
   END_TEST;
 }
@@ -127,14 +127,14 @@ int UtcDaliKeyExtensionSetLookupTableTwiceN(void)
   Dali::Extension::SetKeyExtensionLookupTable(first, 1u);
 
   // This lookup materialises the table.
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionFirst"), 2201, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionFirst"), 2201, TEST_LOCATION);
 
   Dali::Extension::KeyLookupEntry second[] = {{"XF86ExtensionSecond", 2202, false}};
   Dali::Extension::SetKeyExtensionLookupTable(second, 1u);
 
   // The second table was ignored; the first one is still in effect.
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionFirst"), 2201, TEST_LOCATION);
-  DALI_TEST_EQUALS(DevelKey::GetDaliKeyCode("XF86ExtensionSecond"), -1, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionFirst"), 2201, TEST_LOCATION);
+  DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionSecond"), -1, TEST_LOCATION);
 
   END_TEST;
 }

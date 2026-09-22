@@ -571,7 +571,7 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
     }
 
     const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
     int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time = keyEvent->timestamp;
@@ -614,7 +614,7 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
     }
 
     const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
     int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time(keyEvent->timestamp);
