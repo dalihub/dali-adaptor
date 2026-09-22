@@ -334,7 +334,7 @@ bool& SystemKeyCodePriority()
 }
 } // namespace
 
-bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
+bool IsKey(const Dali::KeyEvent& keyEvent, Dali::Key daliKey)
 {
   int key = GetKeyMap().GetKeyCode(keyEvent.GetKeyName().CStr());
   return daliKey == key;
@@ -345,7 +345,7 @@ bool IsDeviceButton(const char* keyName)
   return GetKeyMap().IsDeviceButton(keyName);
 }
 
-const char* GetKeyName(Dali::KEY daliKey)
+const char* GetKeyName(Dali::Key daliKey)
 {
   return GetKeyMap().GetKeyName(daliKey);
 }

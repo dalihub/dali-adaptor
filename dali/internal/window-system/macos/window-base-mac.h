@@ -285,18 +285,18 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKey()
    */
-  bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) override;
+  bool GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKey()
    */
-  bool UngrabKey(Dali::KEY key) override;
+  bool UngrabKey(Dali::Key key) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKeyList()
    */
   bool GrabKeyList(
-    const Dali::Vector<Dali::KEY>&            key,
+    const Dali::Vector<Dali::Key>&            key,
     const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode,
     Dali::Vector<bool>&                       result) override;
 
@@ -304,7 +304,7 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKeyList()
    */
   bool UngrabKeyList(
-    const Dali::Vector<Dali::KEY>& key,
+    const Dali::Vector<Dali::Key>& key,
     Dali::Vector<bool>&            result) override;
 
   /**

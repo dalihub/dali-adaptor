@@ -366,22 +366,22 @@ public:
   /**
    * @copydoc Dali::KeyGrab::GrabKey()
    */
-  virtual bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) = 0;
+  virtual bool GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKey()
    */
-  virtual bool UngrabKey(Dali::KEY key) = 0;
+  virtual bool UngrabKey(Dali::Key key) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::GrabKeyList()
    */
-  virtual bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) = 0;
+  virtual bool GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKeyList()
    */
-  virtual bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result) = 0;
+  virtual bool UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result) = 0;
 
   /**
    * @brief Get DPI

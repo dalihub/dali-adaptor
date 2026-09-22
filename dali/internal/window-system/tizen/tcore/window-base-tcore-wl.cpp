@@ -3508,7 +3508,7 @@ int WindowBaseTcoreWl::GetBrightness() const
   return brightness;
 }
 
-bool WindowBaseTcoreWl::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseTcoreWl::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   tizen_core_wl_keygrab_mode_e mode = TIZEN_CORE_WL_KEYGRAB_UNKNOWN;
 
@@ -3557,7 +3557,7 @@ bool WindowBaseTcoreWl::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
   return false;
 }
 
-bool WindowBaseTcoreWl::UngrabKey(Dali::KEY key)
+bool WindowBaseTcoreWl::UngrabKey(Dali::Key key)
 {
   if(mTcoreWindow)
   {
@@ -3566,7 +3566,7 @@ bool WindowBaseTcoreWl::UngrabKey(Dali::KEY key)
   return false;
 }
 
-bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   int keyCount         = key.Count();
   int keyGrabModeCount = grabMode.Count();
@@ -3633,7 +3633,7 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Da
   return true;
 }
 
-bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   int keyCount = key.Count();
   if(keyCount == 0)

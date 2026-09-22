@@ -895,22 +895,22 @@ int WindowBaseEcoreX::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseEcoreX::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseEcoreX::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::UngrabKey(Dali::KEY key)
+bool WindowBaseEcoreX::UngrabKey(Dali::Key key)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseEcoreX::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseEcoreX::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   return false;
 }

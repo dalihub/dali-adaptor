@@ -369,22 +369,22 @@ public:
   /**
    * @copydoc Dali::KeyGrab::GrabKey()
    */
-  bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode);
+  bool GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode);
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKey()
    */
-  bool UngrabKey(Dali::KEY key);
+  bool UngrabKey(Dali::Key key);
 
   /**
    * @copydoc Dali::KeyGrab::GrabKeyList()
    */
-  bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result);
+  bool GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result);
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKeyList()
    */
-  bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result);
+  bool UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result);
 
   /**
    * @copydoc Dali::Window::Get()

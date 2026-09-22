@@ -3383,7 +3383,7 @@ int WindowBaseEcoreWl2::GetBrightness() const
   return mBrightness;
 }
 
-bool WindowBaseEcoreWl2::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseEcoreWl2::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   Ecore_Wl2_Window_Keygrab_Mode mode;
 
@@ -3424,7 +3424,7 @@ bool WindowBaseEcoreWl2::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
   return result;
 }
 
-bool WindowBaseEcoreWl2::UngrabKey(Dali::KEY key)
+bool WindowBaseEcoreWl2::UngrabKey(Dali::Key key)
 {
   bool result = false;
   {
@@ -3435,7 +3435,7 @@ bool WindowBaseEcoreWl2::UngrabKey(Dali::KEY key)
   return result;
 }
 
-bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   int keyCount         = key.Count();
   int keyGrabModeCount = grabMode.Count();
@@ -3529,7 +3529,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   return true;
 }
 
-bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   int keyCount = key.Count();
   if(keyCount == 0)

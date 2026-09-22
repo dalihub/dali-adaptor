@@ -939,28 +939,28 @@ void Window::SetTransparency(bool transparent)
   mWindowSurface->SetTransparency(mIsTransparent);
 }
 
-bool Window::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool Window::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   bool result = mWindowBase->GrabKey(key, grabMode);
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key = %d, grabMode = %d, result = %d\n", this, mNativeWindowId, key, grabMode, result);
   return result;
 }
 
-bool Window::UngrabKey(Dali::KEY key)
+bool Window::UngrabKey(Dali::Key key)
 {
   bool result = mWindowBase->UngrabKey(key);
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key = %d, result = %d\n", this, mNativeWindowId, key, result);
   return result;
 }
 
-bool Window::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool Window::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   bool ret = mWindowBase->GrabKeyList(key, grabMode, result);
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key count = %zu, result = %d\n", this, mNativeWindowId, key.Count(), ret);
   return ret;
 }
 
-bool Window::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool Window::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   bool ret = mWindowBase->UngrabKeyList(key, result);
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), key count = %zu, result = %d\n", this, mNativeWindowId, key.Count(), ret);

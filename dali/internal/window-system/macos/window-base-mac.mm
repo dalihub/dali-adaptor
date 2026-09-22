@@ -650,18 +650,18 @@ int WindowBaseCocoa::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseCocoa::GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode )
+bool WindowBaseCocoa::GrabKey( Dali::Key key, KeyGrab::KeyGrabMode grabMode )
 {
   return false;
 }
 
-bool WindowBaseCocoa::UngrabKey( Dali::KEY key )
+bool WindowBaseCocoa::UngrabKey( Dali::Key key )
 {
   return false;
 }
 
 bool WindowBaseCocoa::GrabKeyList(
-  const Dali::Vector< Dali::KEY >& key,
+  const Dali::Vector< Dali::Key >& key,
   const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode,
   Dali::Vector< bool >& result
 )
@@ -670,7 +670,7 @@ bool WindowBaseCocoa::GrabKeyList(
 }
 
 bool WindowBaseCocoa::UngrabKeyList(
-  const Dali::Vector< Dali::KEY >& key,
+  const Dali::Vector< Dali::Key >& key,
   Dali::Vector< bool >& result
 )
 {

@@ -80,8 +80,8 @@ int UtcDaliKeyExtensionSetLookupTableP(void)
   DALI_TEST_EQUALS(GetKeyCode(keyNameB), codeB, TEST_LOCATION);
 
   // IsKey() goes through the same extension lookup.
-  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameA), static_cast<Dali::KEY>(codeA)));
-  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameB), static_cast<Dali::KEY>(codeB)));
+  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameA), static_cast<Dali::Key>(codeA)));
+  DALI_TEST_CHECK(IsKey(GenerateKeyPress(keyNameB), static_cast<Dali::Key>(codeB)));
 
   // A key not present in either the base or extension table is still unknown.
   DALI_TEST_EQUALS(GetKeyCode("XF86ExtensionTestKeyMissing"), -1, TEST_LOCATION);

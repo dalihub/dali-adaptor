@@ -23,7 +23,7 @@
 
 namespace DALI_NAMESPACE
 {
-bool IsKey(const KeyEvent& keyEvent, KEY daliKey)
+bool IsKey(const KeyEvent& keyEvent, Key daliKey)
 {
   return Internal::Adaptor::KeyLookup::IsKey(keyEvent, daliKey);
 }

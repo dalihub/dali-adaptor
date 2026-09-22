@@ -47,7 +47,7 @@ void utc_dali_adaptor_keygrab_cleanup(void)
 struct KeyLookup
 {
   const char* keyName;      ///< X string representation
-  const KEY   daliKeyCode;  ///< Dali Enum Representation
+  const Key   daliKeyCode;  ///< Dali Enum Representation
   const bool  deviceButton; ///< Whether the key is from a button on the device
 };
 
