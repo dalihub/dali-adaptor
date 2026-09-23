@@ -37,6 +37,7 @@
 #include <dali/integration-api/adaptor-framework/accessibility/accessibility-bridge.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/string-utils.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
@@ -46,24 +47,10 @@
 #include <dali/internal/window-system/common/window-system-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 
-// DALI_DLOG_AVAILABLE only says that the dlog package was found. print_log() is defined by
-// logging-tizen.cpp, which only the Tizen backend profiles build, so this common file has to
-// check the profile as well before reaching for tizen-dlog.h.
-#if defined(DALI_DLOG_AVAILABLE) && (defined(DALI_PROFILE_COMMON) || defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV))
-#define DALI_WINDOW_INIT_LOG_TO_DLOG
-#endif
-
-#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
-#include <dali/internal/system/tizen/tizen-dlog.h>
-#endif
-
-// Window::Initialize() runs before the adaptor installs the DALi log function,
-// so DALI_LOG_RELEASE_INFO() would be dropped there. On Tizen, write to dlog directly.
-#ifdef DALI_WINDOW_INIT_LOG_TO_DLOG
-#define DALI_WINDOW_INIT_LOG(format, ...) DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX format, DALI_LOG_FORMAT_PREFIX_ARGS, ##__VA_ARGS__)
-#else
-#define DALI_WINDOW_INIT_LOG(format, ...) DALI_LOG_RELEASE_INFO(format, ##__VA_ARGS__)
-#endif
+// Window::Initialize() runs before the adaptor installs the DALi log function, so
+// Integration::Log output would only reach stdout there. Call the platform logging
+// backend directly instead (dlog on Tizen).
+#define DALI_WINDOW_INIT_LOG(format, ...) Dali::TizenPlatform::LogMessageFormat(Dali::Integration::Log::INFO, DALI_LOG_FORMAT_PREFIX format, DALI_LOG_FORMAT_PREFIX_ARGS, ##__VA_ARGS__)
 
 using Dali::Integration::ToStdString;
 

@@ -36,6 +36,7 @@ namespace
 {
 const char* EMPTY_TAG                   = "(null)";
 static bool gTraceManagerEnablePrintLog = false;
+static bool gTraceManagerEnableTTrace   = true;
 
 } // namespace
 
@@ -46,6 +47,12 @@ TraceManagerTizen::TraceManagerTizen(PerformanceInterface* performanceInterface)
   if(enablePrintLog && std::atoi(enablePrintLog) != 0)
   {
     gTraceManagerEnablePrintLog = true;
+  }
+
+  const char* enableTTrace = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_TRACE_ENABLE_PLATFORM_TRACE);
+  if(enableTTrace && std::atoi(enableTTrace) == 0)
+  {
+    gTraceManagerEnableTTrace = false;
   }
 }
 
@@ -58,32 +65,26 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 {
   if(start)
   {
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
-    traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
-#endif // DALI_PROFILE_TV
+    if(gTraceManagerEnableTTrace)
+    {
+      traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
+    }
 
     if(gTraceManagerEnablePrintLog)
     {
-#ifndef DALI_PROFILE_TV // printing INFO level in TV
       DALI_LOG_DEBUG_INFO("BEGIN: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
-#else
-      DALI_LOG_RELEASE_INFO("BEGIN: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
-#endif
     }
   }
   else
   {
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
-    traceEnd(TTRACE_TAG_GRAPHICS);
-#endif // DALI_PROFILE_TV
+    if(gTraceManagerEnableTTrace)
+    {
+      traceEnd(TTRACE_TAG_GRAPHICS);
+    }
 
     if(gTraceManagerEnablePrintLog)
     {
-#ifndef DALI_PROFILE_TV // printing INFO level in TV
       DALI_LOG_DEBUG_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
-#else
-      DALI_LOG_RELEASE_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
-#endif
     }
   }
 }

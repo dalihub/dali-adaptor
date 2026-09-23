@@ -34,9 +34,10 @@ namespace TizenPlatform
 {
 namespace
 {
-static Dali::Integration::Log::DebugPriority gPrintLogLevel = Dali::Integration::Log::DebugPriority::DEBUG;
+static Dali::Integration::Log::DebugPriority gPrintLogLevel    = Dali::Integration::Log::DebugPriority::DEBUG;
+static log_priority                          gDebugLogPriority = DLOG_DEBUG;
 
-Dali::Integration::Log::DebugPriority GetAllowedPrintLogLevel()
+void ApplyEnvironment()
 {
   static bool gEnvironmentApplied = false;
 
@@ -53,16 +54,21 @@ Dali::Integration::Log::DebugPriority GetAllowedPrintLogLevel()
         gPrintLogLevel = static_cast<Dali::Integration::Log::DebugPriority>(logLevelInteger);
       }
     }
-  }
 
-  return gPrintLogLevel;
+    const char* printDebugAsInfo = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_PRINT_LOG_DEBUG_AS_INFO);
+    if(printDebugAsInfo && std::strtoul(printDebugAsInfo, nullptr, 10) != 0u)
+    {
+      gDebugLogPriority = DLOG_INFO;
+    }
+  }
 }
 } // namespace
 
 void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
 {
   const char* DALI_TAG = "DALI";
-  if(level < GetAllowedPrintLogLevel())
+  ApplyEnvironment();
+  if(level < gPrintLogLevel)
   {
     return;
   }
@@ -70,11 +76,7 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   switch(level)
   {
     case Dali::Integration::Log::DEBUG:
-#ifdef DALI_PROFILE_TV // TV profile want to print debug level information as INFO level.
-      print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
-#else
-      print_log(DLOG_DEBUG, DALI_TAG, "%s", message.c_str());
-#endif
+      print_log(gDebugLogPriority, DALI_TAG, "%s", message.c_str());
       break;
     case Dali::Integration::Log::INFO:
       print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
