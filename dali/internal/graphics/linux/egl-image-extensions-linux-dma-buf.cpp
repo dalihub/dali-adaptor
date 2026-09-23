@@ -33,6 +33,12 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
+// EGL_EXT_device_drm_render_node was added to the EGL headers after the
+// extension itself became available in some drivers.
+#ifndef EGL_DRM_RENDER_NODE_FILE_EXT
+#define EGL_DRM_RENDER_NODE_FILE_EXT 0x3377
+#endif
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -99,7 +105,14 @@ void EglImageExtensionsLinuxDmaBuf::OnDisplayInitialized(EglImplementation& impl
     return;
   }
 
-  const char* path = queryDeviceString(reinterpret_cast<EGLDeviceEXT>(device), EGL_DRM_RENDER_NODE_FILE_EXT);
+  const auto  eglDevice        = reinterpret_cast<EGLDeviceEXT>(device);
+  const char* deviceExtensions = queryDeviceString(eglDevice, EGL_EXTENSIONS);
+  if(!deviceExtensions || !strstr(deviceExtensions, "EGL_EXT_device_drm_render_node"))
+  {
+    return;
+  }
+
+  const char* path = queryDeviceString(eglDevice, EGL_DRM_RENDER_NODE_FILE_EXT);
   if(!path)
   {
     // No DRM device, which is the honest answer for a software renderer.
