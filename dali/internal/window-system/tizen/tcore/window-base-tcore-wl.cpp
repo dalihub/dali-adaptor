@@ -4326,7 +4326,7 @@ bool WindowBaseTcoreWl::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 }
 
 // Request ungrab key events
-bool WindowBaseTcoreWl::KeyboardUnGrab()
+bool WindowBaseTcoreWl::KeyboardUngrab()
 {
   if(mTcoreWindow)
   {
@@ -4460,7 +4460,7 @@ bool WindowBaseTcoreWl::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseTcoreWl::RelativeMotionUnGrab()
+bool WindowBaseTcoreWl::RelativeMotionUngrab()
 {
   if(mTcoreWindow)
   {

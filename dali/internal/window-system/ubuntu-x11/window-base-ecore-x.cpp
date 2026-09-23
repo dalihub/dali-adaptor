@@ -1083,7 +1083,7 @@ bool WindowBaseEcoreX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseEcoreX::KeyboardUnGrab()
+bool WindowBaseEcoreX::KeyboardUngrab()
 {
   return false;
 }
@@ -1148,7 +1148,7 @@ bool WindowBaseEcoreX::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseEcoreX::RelativeMotionUnGrab()
+bool WindowBaseEcoreX::RelativeMotionUngrab()
 {
   return false;
 }

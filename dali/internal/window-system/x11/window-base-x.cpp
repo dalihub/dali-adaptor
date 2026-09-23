@@ -1014,7 +1014,7 @@ bool WindowBaseX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseX::KeyboardUnGrab()
+bool WindowBaseX::KeyboardUngrab()
 {
   return false;
 }
@@ -1079,7 +1079,7 @@ bool WindowBaseX::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseX::RelativeMotionUnGrab()
+bool WindowBaseX::RelativeMotionUngrab()
 {
   return false;
 }

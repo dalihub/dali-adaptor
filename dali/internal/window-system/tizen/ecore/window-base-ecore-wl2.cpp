@@ -4086,7 +4086,7 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 }
 
 // Request ungrab key events
-bool WindowBaseEcoreWl2::KeyboardUnGrab()
+bool WindowBaseEcoreWl2::KeyboardUngrab()
 {
 #ifdef OVER_TIZEN_VERSION_8
   bool result = false;
@@ -4219,7 +4219,7 @@ bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
   return ret;
 }
 
-bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
+bool WindowBaseEcoreWl2::RelativeMotionUngrab()
 {
 #ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_ungrab");

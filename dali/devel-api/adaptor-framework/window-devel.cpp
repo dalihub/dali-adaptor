@@ -165,9 +165,14 @@ bool KeyboardGrab(Window window, Device::Subclass::Type deviceSubclass)
   return GetImplementation(window).KeyboardGrab(deviceSubclass);
 }
 
+bool KeyboardUngrab(Window window)
+{
+  return GetImplementation(window).KeyboardUngrab();
+}
+
 bool KeyboardUnGrab(Window window)
 {
-  return GetImplementation(window).KeyboardUnGrab();
+  return KeyboardUngrab(window);
 }
 
 void SetFullScreen(Window window, bool fullscreen)
@@ -210,9 +215,14 @@ bool RelativeMotionGrab(Window window, uint32_t boundary)
   return GetImplementation(window).RelativeMotionGrab(boundary);
 }
 
+bool RelativeMotionUngrab(Window window)
+{
+  return GetImplementation(window).RelativeMotionUngrab();
+}
+
 bool RelativeMotionUnGrab(Window window)
 {
-  return GetImplementation(window).RelativeMotionUnGrab();
+  return RelativeMotionUngrab(window);
 }
 
 void SetBlur(Window window, const WindowBlurInfo& blurInfo)

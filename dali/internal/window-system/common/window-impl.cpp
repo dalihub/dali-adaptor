@@ -1699,9 +1699,9 @@ bool Window::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return result;
 }
 
-bool Window::KeyboardUnGrab()
+bool Window::KeyboardUngrab()
 {
-  bool result = mWindowBase->KeyboardUnGrab();
+  bool result = mWindowBase->KeyboardUngrab();
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), keyboard ungrab, result = %d\n", this, mNativeWindowId, result);
   return result;
 }
@@ -1774,9 +1774,9 @@ bool Window::RelativeMotionGrab(uint32_t boundary)
   return result;
 }
 
-bool Window::RelativeMotionUnGrab()
+bool Window::RelativeMotionUngrab()
 {
-  bool result = mWindowBase->RelativeMotionUnGrab();
+  bool result = mWindowBase->RelativeMotionUngrab();
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), relative motion ungrab, result = %d\n", this, mNativeWindowId, result);
   return result;
 }

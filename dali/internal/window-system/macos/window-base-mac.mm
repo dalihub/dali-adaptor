@@ -796,7 +796,7 @@ bool WindowBaseCocoa::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseCocoa::KeyboardUnGrab()
+bool WindowBaseCocoa::KeyboardUngrab()
 {
   return false;
 }
@@ -861,7 +861,7 @@ bool WindowBaseCocoa::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseCocoa::RelativeMotionUnGrab()
+bool WindowBaseCocoa::RelativeMotionUngrab()
 {
   return false;
 }

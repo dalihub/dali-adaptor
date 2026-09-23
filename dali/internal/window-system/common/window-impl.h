@@ -561,9 +561,9 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool KeyboardGrab(Device::Subclass::Type deviceSubclass);
 
   /**
-   * @copydoc Dali::DevelWindow::KeyboardUnGrab()
+   * @copydoc Dali::DevelWindow::KeyboardUngrab()
    */
-  bool KeyboardUnGrab();
+  bool KeyboardUngrab();
 
   /**
    * @copydoc Dali::DevelWindow::SetFullScreen()
@@ -626,9 +626,9 @@ public: // Dali::Internal::Adaptor::SceneHolder
   bool RelativeMotionGrab(uint32_t boundary);
 
   /**
-   * @copydoc Dali::DevelWindow::RelativeMotionUnGrab()
+   * @copydoc Dali::DevelWindow::RelativeMotionUngrab()
    */
-  bool RelativeMotionUnGrab();
+  bool RelativeMotionUngrab();
 
   /**
    * @copydoc Dali::DevelWindow::SetBlur()

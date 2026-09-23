@@ -475,7 +475,7 @@ bool WindowBaseAndroid::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseAndroid::KeyboardUnGrab()
+bool WindowBaseAndroid::KeyboardUngrab()
 {
   return false;
 }
@@ -540,7 +540,7 @@ bool WindowBaseAndroid::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseAndroid::RelativeMotionUnGrab()
+bool WindowBaseAndroid::RelativeMotionUngrab()
 {
   return false;
 }

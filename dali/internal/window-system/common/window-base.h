@@ -552,9 +552,9 @@ public:
    * @brief Requests ungrab key events
    *
    * @param[in] window The window instance.
-   * @return Returns true if KeyboardUnGrab succeeds.
+   * @return Returns true if KeyboardUngrab succeeds.
    */
-  virtual bool KeyboardUnGrab() = 0;
+  virtual bool KeyboardUngrab() = 0;
 
   /**
    * @brief Sets full screen sized window.
@@ -658,7 +658,7 @@ public:
    *
    * @return True if the request was successful, false otherwise.
    */
-  virtual bool RelativeMotionUnGrab() = 0;
+  virtual bool RelativeMotionUngrab() = 0;
 
   /**
    * @brief Set the window's background blur.
