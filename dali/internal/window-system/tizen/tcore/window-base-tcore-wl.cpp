@@ -1890,7 +1890,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int daliKeyCode = KeyLookup::GetKeyCode(name);
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -1901,7 +1901,7 @@ void WindowBaseTcoreWl::OnKeyDown(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int dalyKeyCode = KeyLookup::GetKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
 
@@ -1989,7 +1989,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // as a fallback. Every other backend resolves a key code this way round, so a named key such
       // as XF86Back arrives as DALI_KEY_BACK here too. Keep this in step with WindowBaseEcoreWl2;
       // the two Tizen backends must report the same code for the same key name.
-      int daliKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int daliKeyCode = KeyLookup::GetKeyCode(name);
       if(daliKeyCode != -1)
       {
         keyCode = static_cast<unsigned int>(daliKeyCode);
@@ -2000,7 +2000,7 @@ void WindowBaseTcoreWl::OnKeyUp(void* data, int type, void* event)
       // Legacy order, for a framework carrying applications written against the old behaviour: the
       // code the window system reported wins and the look up table is only a fallback.
       // See Integration::Key.
-      int dalyKeyCode = KeyLookup::GetDaliKeyCode(name);
+      int dalyKeyCode = KeyLookup::GetKeyCode(name);
       keyCode         = (dalyKeyCode == -1) ? 0 : dalyKeyCode;
     }
     if(!strncmp(name, "Keycode-", 8))
@@ -3508,7 +3508,7 @@ int WindowBaseTcoreWl::GetBrightness() const
   return brightness;
 }
 
-bool WindowBaseTcoreWl::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseTcoreWl::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   tizen_core_wl_keygrab_mode_e mode = TIZEN_CORE_WL_KEYGRAB_UNKNOWN;
 
@@ -3557,7 +3557,7 @@ bool WindowBaseTcoreWl::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
   return false;
 }
 
-bool WindowBaseTcoreWl::UngrabKey(Dali::KEY key)
+bool WindowBaseTcoreWl::UngrabKey(Dali::Key key)
 {
   if(mTcoreWindow)
   {
@@ -3566,7 +3566,7 @@ bool WindowBaseTcoreWl::UngrabKey(Dali::KEY key)
   return false;
 }
 
-bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   int keyCount         = key.Count();
   int keyGrabModeCount = grabMode.Count();
@@ -3633,7 +3633,7 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Da
   return true;
 }
 
-bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   int keyCount = key.Count();
   if(keyCount == 0)
@@ -4326,7 +4326,7 @@ bool WindowBaseTcoreWl::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 }
 
 // Request ungrab key events
-bool WindowBaseTcoreWl::KeyboardUnGrab()
+bool WindowBaseTcoreWl::KeyboardUngrab()
 {
   if(mTcoreWindow)
   {
@@ -4460,7 +4460,7 @@ bool WindowBaseTcoreWl::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseTcoreWl::RelativeMotionUnGrab()
+bool WindowBaseTcoreWl::RelativeMotionUngrab()
 {
   if(mTcoreWindow)
   {

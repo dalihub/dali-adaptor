@@ -108,14 +108,16 @@ SET( adaptor_graphics_tizen_src_files
 
 # module: graphics, backend: ubuntu
 SET( adaptor_graphics_ubuntu_src_files
-    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
-    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
+    ${adaptor_graphics_dir}/linux/egl-image-extensions-linux.cpp
+    ${adaptor_graphics_dir}/linux/egl-image-extensions-linux-dma-buf.cpp
+    ${adaptor_graphics_dir}/linux/egl-sync-implementation-linux.cpp
 )
 
 # module: graphics, backend: libuv-x11
 SET( adaptor_graphics_x11_src_files
-    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
-    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
+    ${adaptor_graphics_dir}/linux/egl-image-extensions-linux.cpp
+    ${adaptor_graphics_dir}/linux/egl-image-extensions-linux-dma-buf.cpp
+    ${adaptor_graphics_dir}/linux/egl-sync-implementation-linux.cpp
 )
 
 # module: graphics, backend: android, egl

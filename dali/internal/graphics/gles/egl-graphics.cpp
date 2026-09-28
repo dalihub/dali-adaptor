@@ -213,6 +213,9 @@ void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayCo
   auto display    = displayConnection.GetNativeGraphicsDisplay();
   auto eglDisplay = display.Get<EGLNativeDisplayType>();
   mEglImplementation->InitializeGles(eglDisplay);
+
+  // EglImageExtensions was constructed before there was a display to query.
+  mEglImageExtensions->OnDisplayInitialized();
 }
 
 Dali::Any EglGraphics::GetDisplay() const

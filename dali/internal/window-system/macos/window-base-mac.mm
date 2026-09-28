@@ -290,7 +290,7 @@ void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State k
 
     // Normalize named/special keys to the portable DALI_KEY_* codes shared with
     // every other backend; keep the raw native keyCode for keys with no entry.
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
     const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : static_cast<int>(event.keyCode);
 
     Integration::KeyEvent keyEvent(
@@ -650,18 +650,18 @@ int WindowBaseCocoa::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseCocoa::GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode )
+bool WindowBaseCocoa::GrabKey( Dali::Key key, KeyGrab::KeyGrabMode grabMode )
 {
   return false;
 }
 
-bool WindowBaseCocoa::UngrabKey( Dali::KEY key )
+bool WindowBaseCocoa::UngrabKey( Dali::Key key )
 {
   return false;
 }
 
 bool WindowBaseCocoa::GrabKeyList(
-  const Dali::Vector< Dali::KEY >& key,
+  const Dali::Vector< Dali::Key >& key,
   const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode,
   Dali::Vector< bool >& result
 )
@@ -670,7 +670,7 @@ bool WindowBaseCocoa::GrabKeyList(
 }
 
 bool WindowBaseCocoa::UngrabKeyList(
-  const Dali::Vector< Dali::KEY >& key,
+  const Dali::Vector< Dali::Key >& key,
   Dali::Vector< bool >& result
 )
 {
@@ -796,7 +796,7 @@ bool WindowBaseCocoa::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseCocoa::KeyboardUnGrab()
+bool WindowBaseCocoa::KeyboardUngrab()
 {
   return false;
 }
@@ -861,7 +861,7 @@ bool WindowBaseCocoa::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseCocoa::RelativeMotionUnGrab()
+bool WindowBaseCocoa::RelativeMotionUngrab()
 {
   return false;
 }

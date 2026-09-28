@@ -589,18 +589,14 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers started. eglSurface(%p)\n", eglSurface);
     }
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
-#endif
 #endif //DALI_PROFILE_UBUNTU
 
     // DALI_LOG_ERROR("EglImplementation::SwapBuffers()\n");
     eglSwapBuffers(mEglDisplay, eglSurface);
 
 #ifndef DALI_PROFILE_UBUNTU
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
-#endif
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers finished.\n");
@@ -665,9 +661,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Bo
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR started. eglSurface(%p)\n", eglSurface);
     }
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
-#endif
 #endif //DALI_PROFILE_UBUNTU
 
     EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<BoundsInteger>&>(damagedRects).data()), static_cast<EGLint>(damagedRects.size()));
@@ -677,9 +671,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Bo
     }
 
 #ifndef DALI_PROFILE_UBUNTU
-#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
-#endif
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR finished.\n");

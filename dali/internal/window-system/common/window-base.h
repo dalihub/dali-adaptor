@@ -366,22 +366,22 @@ public:
   /**
    * @copydoc Dali::KeyGrab::GrabKey()
    */
-  virtual bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) = 0;
+  virtual bool GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKey()
    */
-  virtual bool UngrabKey(Dali::KEY key) = 0;
+  virtual bool UngrabKey(Dali::Key key) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::GrabKeyList()
    */
-  virtual bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) = 0;
+  virtual bool GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKeyList()
    */
-  virtual bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result) = 0;
+  virtual bool UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result) = 0;
 
   /**
    * @brief Get DPI
@@ -552,9 +552,9 @@ public:
    * @brief Requests ungrab key events
    *
    * @param[in] window The window instance.
-   * @return Returns true if KeyboardUnGrab succeeds.
+   * @return Returns true if KeyboardUngrab succeeds.
    */
-  virtual bool KeyboardUnGrab() = 0;
+  virtual bool KeyboardUngrab() = 0;
 
   /**
    * @brief Sets full screen sized window.
@@ -658,7 +658,7 @@ public:
    *
    * @return True if the request was successful, false otherwise.
    */
-  virtual bool RelativeMotionUnGrab() = 0;
+  virtual bool RelativeMotionUngrab() = 0;
 
   /**
    * @brief Set the window's background blur.

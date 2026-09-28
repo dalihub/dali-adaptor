@@ -571,7 +571,7 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
     }
 
     const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
     int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time = keyEvent->timestamp;
@@ -614,7 +614,7 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
     }
 
     const int rawKeyCode    = ecore_x_keysym_keycode_get(keyEvent->keyname);
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
     int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
     int       modifier(keyEvent->modifiers);
     uint32_t  time(keyEvent->timestamp);
@@ -895,22 +895,22 @@ int WindowBaseEcoreX::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseEcoreX::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseEcoreX::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::UngrabKey(Dali::KEY key)
+bool WindowBaseEcoreX::UngrabKey(Dali::Key key)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseEcoreX::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   return false;
 }
 
-bool WindowBaseEcoreX::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseEcoreX::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   return false;
 }
@@ -1083,7 +1083,7 @@ bool WindowBaseEcoreX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseEcoreX::KeyboardUnGrab()
+bool WindowBaseEcoreX::KeyboardUngrab()
 {
   return false;
 }
@@ -1148,7 +1148,7 @@ bool WindowBaseEcoreX::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseEcoreX::RelativeMotionUnGrab()
+bool WindowBaseEcoreX::RelativeMotionUngrab()
 {
   return false;
 }

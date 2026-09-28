@@ -75,6 +75,16 @@ public: // EGLImageKHR extension support
    */
   void InitializeEglImageKHR();
 
+  /**
+   * @brief Called once the EGL display is available.
+   *
+   * The constructor runs before EglImplementation has a display, so anything
+   * that has to query EGL about the device waits for this.
+   *
+   * @note Called on the render thread, from EglGraphics::InitializeGraphicsAPI().
+   */
+  void OnDisplayInitialized();
+
 private:
   struct Impl;
   Impl* mImpl{nullptr};
