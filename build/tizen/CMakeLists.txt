@@ -637,7 +637,6 @@ INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_header_files ${adaptor_i
 INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
-INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptordevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_widget_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_canvas_renderer_header_files} DESTINATION ${tizencanvasrendererpublicapidir} )

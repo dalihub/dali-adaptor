@@ -1,10 +1,10 @@
-# PROFILE: MOBILE
+# PROFILE: TIZEN
 
 # Set the sources
 SET( SOURCES
     ${adaptor_accessibility_common_src_files}
     ${adaptor_accessibility_tizen_src_files}
-    ${adaptor_accessibility_tizen_mobile_src_files}
+    ${adaptor_accessibility_tizen_common_src_files}
     ${adaptor_adaptor_common_src_files}
     ${adaptor_app_entity_common_src_files}
     ${adaptor_app_entity_tizen_src_files}

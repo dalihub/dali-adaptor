@@ -1,19 +1,5 @@
 # NOTES
-# This spec file is used to build DALi Adaptor for different Tizen Profiles
-# Current profiles are:  Mobile, TV, Common
-#
-# The profile variable is defined outside of the spec file in a build.conf file.
-# It will contain the profile and whether or not to build with X11 or Wayland
-#
-# gbs will try to download the build.conf for the platform automatically from the repo location when
-# performing a gbs build ( use gbs build -v to see it download location) E.g.
-# http://download.tizen.org/snapshots/tizen/tv/tizen-tv/repos/arm-wayland/packages/repodata/xxxx-build.conf.gz
-
-# Do not provide .so automatically for the extensions.
-# This if statement is for backward compatibility with GBM/Obsolete build systems
-%if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "common"
-%global __provides_exclude_from ^.*\\.(mobile|tv|common)$
-%endif
+# This spec file builds one DALi Adaptor, used by every Tizen profile.
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
@@ -158,9 +144,14 @@ BuildRequires: asan-build-env
 BuildRequires: libasan
 %endif
 
-# for multiprofile
-Requires:   %{name}-compat = %{version}-%{release}
-Recommends: %{name}-profile_common = %{version}-%{release}
+# Absorbs the profile_mobile, profile_tv and profile_common packages an image
+# may still have installed. The library they carried is in this package.
+Provides:   %{name}-profile_common = %{version}-%{release}
+Provides:   %{name}-profile_mobile = %{version}-%{release}
+Provides:   %{name}-profile_tv = %{version}-%{release}
+Obsoletes:  %{name}-profile_common < %{version}-%{release}
+Obsoletes:  %{name}-profile_mobile < %{version}-%{release}
+Obsoletes:  %{name}-profile_tv < %{version}-%{release}
 
 %description
 The DALi Tizen Adaptor provides a Tizen specific implementation of the dali-core
@@ -175,50 +166,6 @@ Requires:       %{name}
 Requires:       glslang
 %description vulkan
 The DALi Tizen Adaptor with the Vulkan library.
-
-###########################################
-# Dali adapter for profiles
-###########################################
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if mobile || "undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "common"
-%package profile_mobile
-Summary:        The DALi Tizen Adaptor for mobile
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_tv
-Conflicts:      %{name}-profile_common
-Requires:       %{name}
-%description profile_mobile
-The DALi Tizen Adaptor for mobile.
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if tv ||"undefined"
-%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%package profile_tv
-Summary:        The DALi Tizen Adaptor for tv
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_common
-Requires:       %{name}
-%description profile_tv
-The DALi Tizen Adaptor for tv.
-%endif
-
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
-# Currently Tizen Common we use does not have wayland extensions like xdg-shell
-%package profile_common
-Summary:        The DALi Tizen Adaptor for common
-Provides:       %{name}-compat = %{version}-%{release}
-Conflicts:      %{name}-profile_mobile
-Conflicts:      %{name}-profile_tv
-Requires:       %{name}
-%description profile_common
-The DALi Tizen Adaptor for common.
-%endif
 
 ##############################
 # devel
@@ -385,53 +332,15 @@ cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 
 # Set up the build via Cmake
 #######################################################################
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if mobile || "undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "common"
 
-mkdir -p mobile
-pushd mobile
+mkdir -p build
+pushd build
 
-cmake -DENABLE_PROFILE=MOBILE $cmake_flags ..
+cmake -DENABLE_PROFILE=TIZEN $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
 popd
-
-%endif
-
-#######################################################################
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if tv ||"undefined"
-%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
-
-mkdir -p tv
-pushd tv
-
-cmake -DENABLE_PROFILE=TV $cmake_flags ..
-
-# Build.
-make %{?jobs:-j%jobs}
-popd
-
-%endif
-
-#######################################################################
-# common
-# This is for backward-compatibility. This does not deteriorate 4.0 Configurability
-# if common ||"undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
-
-mkdir -p common
-pushd common
-
-cmake -DENABLE_PROFILE=COMMON $cmake_flags ..
-
-# Build.
-make %{?jobs:-j%jobs}
-popd
-
-%endif
 
 ##############################
 # Installation
@@ -441,39 +350,9 @@ rm -rf %{buildroot}
 
 pushd %{_builddir}/%{name}-%{version}/build/tizen
 
-# if mobile || "undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "common"
-pushd mobile
+pushd build
 %make_install
-%if "%{?profile}" != "mobile"
-pushd  %{buildroot}%{_libdir}
-cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.mobile # If we're only building this profile, then there's no need to copy the lib
 popd
-make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
-%endif
-popd
-%endif
-
-# if tv ||"undefined"
-%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
-pushd tv
-%make_install
-%if "%{?profile}" != "tv"
-pushd  %{buildroot}%{_libdir}
-cp libdali2-adaptor.so.*.*.* libdali2-adaptor.so.tv # If we're only building this profile, then there's no need to copy the lib
-popd
-make clean # So that we can gather symbol/size information for only one profile if we're building all profiles
-%endif
-popd
-%endif
-
-# if common ||"undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
-pushd common
-%make_install
-# No clean so we can gather symbol/size information for the common profile
-popd
-%endif
 
 # Create a symbolic link in integration-api to preserve legacy repo build
 pushd %{buildroot}%{_includedir}/dali/integration-api
@@ -496,9 +375,6 @@ popd
 exit 0
 
 %post
-pushd %{_libdir}
-for i in mobile tv; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
-popd
 /sbin/ldconfig
 rm -rf %{system_cache_dir}shader/  # this code is used to clear all existing binaries when installing Tizen packages. see build/tizen/shader-cache-path.in.
 exit 0
@@ -511,54 +387,6 @@ exit 0
 exit 0
 
 ##############################
-# Mobile Profile Commands
-# if mobile || "undefined"
-# No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "tv" && "%{?profile}" != "common"
-%post profile_mobile
-%if "%{?profile}" != "mobile"
-pushd %{_libdir}
-ln -sf libdali2-adaptor.so.mobile libdali2-adaptor.so.2.0.0
-popd
-%endif
-/sbin/ldconfig
-exit 0
-
-%postun profile_mobile
-/sbin/ldconfig
-exit 0
-%endif
-
-##############################
-# TV Profile Commands
-# No need to create a symbolic link on install required if only building this profile
-%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%post profile_tv
-%if "%{?profile}" != "tv"
-pushd %{_libdir}
-ln -sf libdali2-adaptor.so.tv libdali2-adaptor.so.2.0.0
-popd
-%endif
-/sbin/ldconfig
-exit 0
-
-%postun profile_tv
-/sbin/ldconfig
-exit 0
-%endif
-
-##############################
-# Common Profile Commands
-%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
-%post profile_common
-/sbin/ldconfig
-exit 0
-
-%postun profile_common
-/sbin/ldconfig
-exit 0
-%endif
-
 ##############################
 # Files in Binary Packages
 ##############################
@@ -607,33 +435,6 @@ exit 0
 %{dali_plugin_sound_files_install_dir}/*
 
 #################################################
-
-# if common ||"undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "mobile"
-%files profile_common
-%manifest dali-adaptor.manifest
-# default .so files are housed in the main pkg.
-%endif
-
-# if mobile || "undefined"
-%if "%{?profile}" != "tv" && "%{?profile}" != "common"
-%files profile_mobile
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%if "%{?profile}" != "mobile"
-%{_libdir}/libdali2-adaptor.so.mobile
-%endif
-%endif
-
-# if tv ||"undefined"
-%if "%{?profile}" != "common" && "%{?profile}" != "mobile"
-%files profile_tv
-%manifest dali-adaptor.manifest
-%defattr(-,root,root,-)
-%if "%{?profile}" != "tv"
-%{_libdir}/libdali2-adaptor.so.tv
-%endif
-%endif
 
 %files devel
 %defattr(-,root,root,-)
