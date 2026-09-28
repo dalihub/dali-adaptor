@@ -23,7 +23,6 @@
 // CLASS HEADER
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
-#include <dali/devel-api/adaptor-framework/key-devel.h>
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/string-utils.h>
 #include <dali/public-api/adaptor-framework/key.h>
@@ -48,7 +47,7 @@ void utc_dali_adaptor_key_cleanup(void)
 struct KeyLookup
 {
   const char*     keyName;      ///< XF86 key name
-  const Dali::KEY daliKeyCode;  ///< Dali key code
+  const Dali::Key daliKeyCode;  ///< Dali key code
   const bool      deviceButton; ///< Whether the key is from a button on the device
 };
 

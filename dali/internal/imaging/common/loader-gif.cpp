@@ -303,14 +303,15 @@ bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::PixelBuffer&
   FILE* const fp = input.file;
   // Load the GIF Header file.
 
-  GifFileType* gifInfo(NULL);
+  GifFileType*   gifInfo(NULL);
+  AutoCleanupGif autoGif(gifInfo); // Hold the reference of gifInfo before loading
+
   unsigned int width(0);
   unsigned int height(0);
   if(DALI_UNLIKELY(!LoadGifHeader(fp, width, height, &gifInfo)))
   {
     return false;
   }
-  AutoCleanupGif autoGif(gifInfo);
 
   // Check each record in the GIF file.
 

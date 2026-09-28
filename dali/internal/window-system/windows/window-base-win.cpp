@@ -620,7 +620,7 @@ void WindowBaseWin::EmitKeyDown(TWinEventInfo* event, bool isRepeat)
   // Normalize named/special keys (Return, Back, arrows, media keys, ...) to the
   // portable DALI_KEY_* codes shared with every other backend; keep the raw VK
   // code for ordinary keys that have no such entry.
-  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+  const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
   const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
   Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
@@ -712,7 +712,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     const auto        time     = static_cast<uint32_t>(event->timestamp);
 
     // Normalize named/special keys the same way OnKeyDown does; see the comment there.
-    const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyName.CStr());
+    const int mappedKeyCode = KeyLookup::GetKeyCode(keyName.CStr());
     const int keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
 
     // Match the Linux backends: the released key still carries its translated string
@@ -1007,22 +1007,22 @@ int WindowBaseWin::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseWin::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseWin::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   return false;
 }
 
-bool WindowBaseWin::UngrabKey(Dali::KEY key)
+bool WindowBaseWin::UngrabKey(Dali::Key key)
 {
   return false;
 }
 
-bool WindowBaseWin::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseWin::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   return false;
 }
 
-bool WindowBaseWin::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseWin::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   return false;
 }
@@ -1328,7 +1328,7 @@ bool WindowBaseWin::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseWin::KeyboardUnGrab()
+bool WindowBaseWin::KeyboardUngrab()
 {
   return false;
 }
@@ -1393,7 +1393,7 @@ bool WindowBaseWin::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseWin::RelativeMotionUnGrab()
+bool WindowBaseWin::RelativeMotionUngrab()
 {
   return false;
 }

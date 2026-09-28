@@ -335,22 +335,22 @@ int WindowBaseAndroid::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseAndroid::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseAndroid::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   return false;
 }
 
-bool WindowBaseAndroid::UngrabKey(Dali::KEY key)
+bool WindowBaseAndroid::UngrabKey(Dali::Key key)
 {
   return false;
 }
 
-bool WindowBaseAndroid::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseAndroid::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   return false;
 }
 
-bool WindowBaseAndroid::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseAndroid::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   return false;
 }
@@ -475,7 +475,7 @@ bool WindowBaseAndroid::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseAndroid::KeyboardUnGrab()
+bool WindowBaseAndroid::KeyboardUngrab()
 {
   return false;
 }
@@ -540,7 +540,7 @@ bool WindowBaseAndroid::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseAndroid::RelativeMotionUnGrab()
+bool WindowBaseAndroid::RelativeMotionUngrab()
 {
   return false;
 }

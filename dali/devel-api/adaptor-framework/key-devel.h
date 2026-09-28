@@ -34,8 +34,12 @@ namespace DevelKey
 {
 /**
  * @brief Get the key code from a key name.
+ *
+ * @DEPRECATED_2_5.41 Use Dali::GetKeyCode() instead.
  * @param[in] keyName The key name
  * @return The key code. -1 if the daliKey does not exist in the supported key lookup table.
+ * @note Kept only so that an application still calling this keeps building and linking while it
+ *   moves over to Dali::GetKeyCode(). It forwards to that function and will be removed.
  */
 DALI_ADAPTOR_API int GetDaliKeyCode(const char* keyName);
 

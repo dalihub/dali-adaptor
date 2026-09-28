@@ -29,6 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/graphics/linux/egl-image-extensions-linux-dma-buf.h>
 
 namespace
 {
@@ -203,6 +204,11 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     }
 #endif
   }
+}
+
+void EglImageExtensions::OnDisplayInitialized()
+{
+  EglImageExtensionsLinuxDmaBuf::OnDisplayInitialized(*mEglImplementation);
 }
 
 void EglImageExtensions::InitializeEglImageKHR()

@@ -58,6 +58,11 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
   DALI_LOG_ERROR(" does not support TargetTextureKHR\n");
 }
 
+void EglImageExtensions::OnDisplayInitialized()
+{
+  DALI_LOG_ERROR(" does not support OnDisplayInitialized\n");
+}
+
 void EglImageExtensions::InitializeEglImageKHR()
 {
   DALI_LOG_ERROR(" does not support InitializeEglImageKHR\n");

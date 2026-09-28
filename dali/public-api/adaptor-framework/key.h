@@ -2,7 +2,7 @@
 #define DALI_KEYCODE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2026 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,7 @@ namespace DALI_NAMESPACE
  * @brief Enumeration for mapping keyboard and mouse button event keycodes to platform specific codes.
  * @SINCE_1_0.0
  */
-
-enum KEY
+enum Key
 {
   DALI_KEY_INVALID         = -1,  ///< Invalid key value @SINCE_1_0.0
   DALI_KEY_ESCAPE          = 9,   ///< Escape key @SINCE_1_0.0
@@ -88,14 +87,37 @@ enum KEY
 };
 
 /**
- * @brief Checks if a key event is for a specific DALI KEY.
+ * @brief The former name of Dali::Key.
+ * @SINCE_1_0.0
+ * @DEPRECATED_2_5.41 Use Dali::Key instead.
+ * @note This keeps existing source compiling only. A binary built against the former name has to
+ *   be rebuilt regardless, because the name of the enumeration is part of the signature of IsKey()
+ *   and of the key grab functions.
+ */
+using KEY = Key;
+
+/**
+ * @brief Checks if a key event is for a specific Dali::Key.
  *
  * @SINCE_1_0.0
  * @param keyEvent reference to a keyEvent structure
  * @param daliKey Dali key enum
  * @return @c true if the key is matched, @c false if not
  */
-DALI_ADAPTOR_API bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
+DALI_ADAPTOR_API bool IsKey(const Dali::KeyEvent& keyEvent, Dali::Key daliKey);
+
+/**
+ * @brief Gets the key code that the key look up table maps a key name to.
+ *
+ * Use this when only the name of a key is available. To test a key event against
+ * a Dali::Key, prefer IsKey().
+ *
+ * @SINCE_2_5.41
+ * @param[in] keyName The key name
+ * @return The key code, or DALI_KEY_INVALID if the key name is not in the look up table
+ * @see IsKey()
+ */
+DALI_ADAPTOR_API int GetKeyCode(const char* keyName);
 
 /**
  * @}

@@ -1711,12 +1711,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     {
       // Legacy order, for a framework carrying applications written against the old behaviour:
       // the keymap wins and the look up table is only a fallback. See Integration::Key.
-      GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+      GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
 
       if(keyCode == 0)
       {
         // Get a specific key code from dali key look up table.
-        keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+        keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
       }
     }
     else
@@ -1725,11 +1725,11 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
       // Every other backend resolves a key code this way round, so a named key such as XF86Back
       // arrives as DALI_KEY_BACK here too, rather than as whatever code the device keymap happens
       // to carry for it.
-      keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+      keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
 
       if(keyCode == -1)
       {
-        GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+        GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
       }
     }
 
@@ -1816,12 +1816,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     {
       // Legacy order, for a framework carrying applications written against the old behaviour:
       // the keymap wins and the look up table is only a fallback. See Integration::Key.
-      GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+      GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
 
       if(keyCode == 0)
       {
         // Get a specific key code from dali key look up table.
-        keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+        keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
       }
     }
     else
@@ -1830,11 +1830,11 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
       // Every other backend resolves a key code this way round, so a named key such as XF86Back
       // arrives as DALI_KEY_BACK here too, rather than as whatever code the device keymap happens
       // to carry for it.
-      keyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname);
+      keyCode = KeyLookup::GetKeyCode(keyEvent->keyname);
 
       if(keyCode == -1)
       {
-        GetKeyCode(ToStdString(keyName), keyCode); // Get key code dynamically.
+        GetKeyCodeFromKeymap(ToStdString(keyName), keyCode);
       }
     }
 
@@ -2258,7 +2258,7 @@ void WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone(void* data, struct ti
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::DisplayPolicyBrightnessChangeDone: brightness = %d, state = %d\n", brightness, state);
 }
 
-void WindowBaseEcoreWl2::GetKeyCode(std::string keyName, int32_t& keyCode)
+void WindowBaseEcoreWl2::GetKeyCodeFromKeymap(std::string keyName, int32_t& keyCode)
 {
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "");
   xkb_keysym_t sym = XKB_KEY_NoSymbol;
@@ -3384,7 +3384,7 @@ int WindowBaseEcoreWl2::GetBrightness() const
   return mBrightness;
 }
 
-bool WindowBaseEcoreWl2::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseEcoreWl2::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   Ecore_Wl2_Window_Keygrab_Mode mode;
 
@@ -3425,7 +3425,7 @@ bool WindowBaseEcoreWl2::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
   return result;
 }
 
-bool WindowBaseEcoreWl2::UngrabKey(Dali::KEY key)
+bool WindowBaseEcoreWl2::UngrabKey(Dali::Key key)
 {
   bool result = false;
   {
@@ -3436,7 +3436,7 @@ bool WindowBaseEcoreWl2::UngrabKey(Dali::KEY key)
   return result;
 }
 
-bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   int keyCount         = key.Count();
   int keyGrabModeCount = grabMode.Count();
@@ -3530,7 +3530,7 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
   return true;
 }
 
-bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   int keyCount = key.Count();
   if(keyCount == 0)
@@ -4087,7 +4087,7 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 }
 
 // Request ungrab key events
-bool WindowBaseEcoreWl2::KeyboardUnGrab()
+bool WindowBaseEcoreWl2::KeyboardUngrab()
 {
 #ifdef OVER_TIZEN_VERSION_8
   bool result = false;
@@ -4220,7 +4220,7 @@ bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
   return ret;
 }
 
-bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
+bool WindowBaseEcoreWl2::RelativeMotionUngrab()
 {
 #ifdef OVER_TIZEN_VERSION_9
   DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "ecore_wl2_window_relative_motion_ungrab");

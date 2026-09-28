@@ -195,7 +195,15 @@ namespace Adaptor
 // Debug relative environments
 #define DALI_ENV_PRINT_LOG_LEVEL "DALI_PRINT_LOG_LEVEL"
 
+// Print DebugPriority::DEBUG messages at the platform's info priority. Useful where the platform
+// log daemon drops debug priority messages.
+#define DALI_ENV_PRINT_LOG_DEBUG_AS_INFO "DALI_PRINT_LOG_DEBUG_AS_INFO"
+
 #define DALI_ENV_TRACE_ENABLE_PRINT_LOG "DALI_TRACE_ENABLE_PRINT_LOG"
+
+// Emit the platform trace events themselves. Set to 0 where the platform reacts badly to the
+// graphics trace tag, in which case DALI_TRACE_ENABLE_PRINT_LOG still gives the trace as log.
+#define DALI_ENV_TRACE_ENABLE_PLATFORM_TRACE "DALI_TRACE_ENABLE_PLATFORM_TRACE"
 
 #define DALI_ENV_SHADER_USE_PROGRAM_BINARY "DALI_SHADER_USE_PROGRAM_BINARY"
 

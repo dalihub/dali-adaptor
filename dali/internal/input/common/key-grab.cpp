@@ -25,37 +25,37 @@ namespace DALI_NAMESPACE
 {
 namespace KeyGrab
 {
-bool GrabKeyTopmost(Window window, Dali::KEY daliKey)
+bool GrabKeyTopmost(Window window, Dali::Key daliKey)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.GrabKey(daliKey, TOPMOST);
 }
 
-bool UngrabKeyTopmost(Window window, Dali::KEY daliKey)
+bool UngrabKeyTopmost(Window window, Dali::Key daliKey)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.UngrabKey(daliKey);
 }
 
-bool GrabKey(Window window, Dali::KEY daliKey, KeyGrabMode grabMode)
+bool GrabKey(Window window, Dali::Key daliKey, KeyGrabMode grabMode)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.GrabKey(daliKey, grabMode);
 }
 
-bool UngrabKey(Window window, Dali::KEY daliKey)
+bool UngrabKey(Window window, Dali::Key daliKey)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.UngrabKey(daliKey);
 }
 
-bool GrabKeyList(Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector)
+bool GrabKeyList(Window window, const Dali::Vector<Dali::Key>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.GrabKeyList(daliKeyVector, grabModeVector, returnVector);
 }
 
-bool UngrabKeyList(Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector)
+bool UngrabKeyList(Window window, const Dali::Vector<Dali::Key>& daliKeyVector, Dali::Vector<bool>& returnVector)
 {
   Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
   return windowImpl.UngrabKeyList(daliKeyVector, returnVector);

@@ -37,7 +37,7 @@ namespace KeyLookup
 struct KeyLookup
 {
   const char*     keyName;      ///< XF86 key name
-  const Dali::KEY daliKeyCode;  ///< Dali key code
+  const Dali::Key daliKeyCode;  ///< Dali key code
   const bool      deviceButton; ///< Whether the key is from a button on the device
 };
 
@@ -47,7 +47,7 @@ extern const std::size_t KEY_LOOKUP_COUNT;
 /**
  * @copydoc Dali::IsKey()
  */
-bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
+bool IsKey(const Dali::KeyEvent& keyEvent, Dali::Key daliKey);
 
 /**
  * Check if a the given key name string is a button on the device itself.
@@ -61,12 +61,12 @@ bool IsDeviceButton(const char* keyName);
  * @param daliKey The dali key code
  * @return The key name. NULL if the daliKey does not exist in the supported key lookup table.
  */
-const char* GetKeyName(Dali::KEY daliKey);
+const char* GetKeyName(Dali::Key daliKey);
 
 /**
- * @copydoc Dali::DevelKey::GetDaliKeyCode()
+ * @copydoc Dali::GetKeyCode()
  */
-int GetDaliKeyCode(const char* keyName);
+int GetKeyCode(const char* keyName);
 
 /**
  * @copydoc Dali::Extension::SetKeyExtensionLookupTable()

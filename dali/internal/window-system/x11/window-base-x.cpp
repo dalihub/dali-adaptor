@@ -570,7 +570,7 @@ Integration::KeyEvent WindowBaseX::CreateKeyEvent(WindowSystemX::X11KeyEvent* ke
   }
 
   const int rawKeyCode    = keyEvent->keyCode;
-  const int mappedKeyCode = KeyLookup::GetDaliKeyCode(keyEvent->keyname.c_str());
+  const int mappedKeyCode = KeyLookup::GetKeyCode(keyEvent->keyname.c_str());
   int       keyCode       = (mappedKeyCode != -1) ? mappedKeyCode : rawKeyCode;
   int       modifier(keyEvent->modifiers);
   uint32_t  time(keyEvent->timestamp);
@@ -839,22 +839,22 @@ int WindowBaseX::GetBrightness() const
   return 0;
 }
 
-bool WindowBaseX::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
+bool WindowBaseX::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
   return false;
 }
 
-bool WindowBaseX::UngrabKey(Dali::KEY key)
+bool WindowBaseX::UngrabKey(Dali::Key key)
 {
   return false;
 }
 
-bool WindowBaseX::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
+bool WindowBaseX::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
 {
   return false;
 }
 
-bool WindowBaseX::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result)
+bool WindowBaseX::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
 {
   return false;
 }
@@ -1014,7 +1014,7 @@ bool WindowBaseX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
   return false;
 }
 
-bool WindowBaseX::KeyboardUnGrab()
+bool WindowBaseX::KeyboardUngrab()
 {
   return false;
 }
@@ -1079,7 +1079,7 @@ bool WindowBaseX::RelativeMotionGrab(uint32_t boundary)
   return false;
 }
 
-bool WindowBaseX::RelativeMotionUnGrab()
+bool WindowBaseX::RelativeMotionUngrab()
 {
   return false;
 }
