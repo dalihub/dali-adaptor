@@ -224,61 +224,61 @@ Feedback plugin to play haptic and audio feedback for Dali
 # Build
 ##############################
 %build
-PREFIX+="/usr"
-CXXFLAGS+=" -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES -Wno-psabi"
-LDFLAGS+=" -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
+PREFIX="$PREFIX/usr"
+CXXFLAGS="$CXXFLAGS -Wall -g -Os -fPIC -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -DGL_GLEXT_PROTOTYPES -Wno-psabi"
+LDFLAGS="$LDFLAGS -Wl,--rpath=%{_libdir} -Wl,--as-needed -Wl,--gc-sections -lttrace -Wl,-Bsymbolic-functions "
 
 %ifarch %{arm}
-CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
+CXXFLAGS="$CXXFLAGS -D_ARCH_ARM_ -lgcc"
 %endif
 
-CFLAGS+=" -DWAYLAND -DEFL_BETA_API_SUPPORT"
-CXXFLAGS+=" -DWAYLAND -DEFL_BETA_API_SUPPORT"
+CFLAGS="$CFLAGS -DWAYLAND -DEFL_BETA_API_SUPPORT"
+CXXFLAGS="$CXXFLAGS -DWAYLAND -DEFL_BETA_API_SUPPORT"
 cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
 
 %if 0%{?enable_streamline}
-cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
+cmake_flags="$cmake_flags -DENABLE_TRACE_STREAMLINE=ON"
 %else
-cmake_flags+=" -DENABLE_TRACE=ON"
+cmake_flags="$cmake_flags -DENABLE_TRACE=ON"
 %endif
 
 # Tizen Wayland backend (see default at top of spec)
 %if "%{tizen_wayland_backend}" == "TCORE"
-cmake_flags+=" -DTIZEN_WAYLAND_BACKEND=TCORE"
+cmake_flags="$cmake_flags -DTIZEN_WAYLAND_BACKEND=TCORE"
 %else
-cmake_flags+=" -DTIZEN_WAYLAND_BACKEND=ECORE"
+cmake_flags="$cmake_flags -DTIZEN_WAYLAND_BACKEND=ECORE"
 %endif
 
 # Enable preinitialized adaptor as default if not defined
 %{!?enable_preinitialize_adaptor: %global enable_preinitialize_adaptor 1}
 
 %if 0%{?enable_preinitialize_adaptor}
-cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=ON"
+cmake_flags="$cmake_flags -DENABLE_PREINITIALIZE_ADAPTOR=ON"
 %else
-cmake_flags+=" -DENABLE_PREINITIALIZE_ADAPTOR=OFF"
+cmake_flags="$cmake_flags -DENABLE_PREINITIALIZE_ADAPTOR=OFF"
 %endif
 
 # Use this conditional when Tizen version is 7.x or greater
 %if 0%{?tizen_version_major} >= 7
-CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
+CXXFLAGS="$CXXFLAGS -DOVER_TIZEN_VERSION_7"
 %endif
 
 # Use this conditional when Tizen version is 8.x or greater
 %if 0%{?tizen_version_major} >= 8
-CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
+CXXFLAGS="$CXXFLAGS -DOVER_TIZEN_VERSION_8"
 %endif
 
 # Use this conditional when Tizen version is 9.x or greater
 %if 0%{?tizen_version_major} >= 9
-CXXFLAGS+=" -DOVER_TIZEN_VERSION_9"
+CXXFLAGS="$CXXFLAGS -DOVER_TIZEN_VERSION_9"
 %endif
 
 # Use this conditional when Tizen version is 10.x or greater
 %if 0%{?tizen_version_major} >= 10
-CXXFLAGS+=" -DOVER_TIZEN_VERSION_10"
-cmake_flags+=" -DENABLE_WARNING_TO_ERROR=ON"
+CXXFLAGS="$CXXFLAGS -DOVER_TIZEN_VERSION_10"
+cmake_flags="$cmake_flags -DENABLE_WARNING_TO_ERROR=ON"
 %else
-cmake_flags+=" -DENABLE_WARNING_TO_ERROR=OFF"
+cmake_flags="$cmake_flags -DENABLE_WARNING_TO_ERROR=OFF"
 %endif
 
 # Use this conditional when Tizen version is 11.x or greater
@@ -287,18 +287,18 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_11"
 %endif
 
 %if "%{vd_asan}" == "1" || "%{asan}" == "1"
-CFLAGS+=" -fsanitize=address"
-CXXFLAGS+=" -fsanitize=address"
-LDFLAGS+=" -fsanitize=address"
-cmake_flags+=" -DENABLE_ASAN=ON"
+CFLAGS="$CFLAGS -fsanitize=address"
+CXXFLAGS="$CXXFLAGS -fsanitize=address"
+LDFLAGS="$LDFLAGS -fsanitize=address"
+cmake_flags="$cmake_flags -DENABLE_ASAN=ON"
 %endif
 
 %if 0%{?enable_debug}
-cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
+cmake_flags="$cmake_flags -DCMAKE_BUILD_TYPE=Debug"
 %endif
 
 %if 0%{?enable_logging}
-cmake_flags+=" -DENABLE_NETWORK_LOGGING=ON"
+cmake_flags="$cmake_flags -DENABLE_NETWORK_LOGGING=ON"
 %endif
 
 libtoolize --force
@@ -314,33 +314,33 @@ FONT_CONFIGURATION_FILE="%{font_configuration_file}" ; export FONT_CONFIGURATION
 TIZEN_PLATFORM_CONFIG_SUPPORTED="%{tizen_platform_config_supported}" ; export TIZEN_PLATFORM_CONFIG_SUPPORTED
 %endif
 
-cmake_flags+=" -DCMAKE_INSTALL_PREFIX=$PREFIX"
-cmake_flags+=" -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
-cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
-cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
-cmake_flags+=" -DENABLE_FEEDBACK=YES"
-cmake_flags+=" -DENABLE_APPMODEL=ON"
+cmake_flags="$cmake_flags -DCMAKE_INSTALL_PREFIX=$PREFIX"
+cmake_flags="$cmake_flags -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
+cmake_flags="$cmake_flags -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
+cmake_flags="$cmake_flags -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
+cmake_flags="$cmake_flags -DENABLE_FEEDBACK=YES"
+cmake_flags="$cmake_flags -DENABLE_APPMODEL=ON"
 
 %if "%{mv_prj}" != "1"
-cmake_flags+=" -DROBOT_PROFILE=NO"
+cmake_flags="$cmake_flags -DROBOT_PROFILE=NO"
 %else
-cmake_flags+=" -DROBOT_PROFILE=YES"
+cmake_flags="$cmake_flags -DROBOT_PROFILE=YES"
 %endif
 
-cmake_flags+=" -DENABLE_APPFW=YES"
-cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
+cmake_flags="$cmake_flags -DENABLE_APPFW=YES"
+cmake_flags="$cmake_flags -DCOMPONENT_APPLICATION_SUPPORT=YES"
 
 # Set up the build via Cmake
 #######################################################################
 
 mkdir -p build
-pushd build
+cd build
 
 cmake -DENABLE_PROFILE=TIZEN $cmake_flags ..
 
 # Build.
 make %{?jobs:-j%jobs}
-popd
+cd ..
 
 ##############################
 # Installation
@@ -348,16 +348,17 @@ popd
 %install
 rm -rf %{buildroot}
 
-pushd %{_builddir}/%{name}-%{version}/build/tizen
+cd %{_builddir}/%{name}-%{version}/build/tizen
 
-pushd build
+cd build
 %make_install
-popd
+cd ..
 
 # Create a symbolic link in integration-api to preserve legacy repo build
-pushd %{buildroot}%{_includedir}/dali/integration-api
+_dali_install_tizen_dir=$(pwd)
+cd %{buildroot}%{_includedir}/dali/integration-api
 ln -sf adaptor-framework adaptors
-popd
+cd "$_dali_install_tizen_dir"
 
 ##############################
 # Upgrade order:
