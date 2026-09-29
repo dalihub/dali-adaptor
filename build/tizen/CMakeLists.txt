@@ -263,7 +263,7 @@ IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
   ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-#  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
+  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
   # Use /Z7 (debug info embedded in .obj) instead of /Zi (shared .pdb) to avoid
   # fatal error C1090: PDB API call failed during parallel compilation.
   # Replace /Zi in CMake's default debug flags to avoid D9025 warning.
