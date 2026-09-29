@@ -36,6 +36,7 @@
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/public-api/math/math-utils.h>
 #include <dali/public-api/object/any.h>
 
 #if defined(_WIN32)
@@ -944,6 +945,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
                                            updateCoreRequired);
 
       const bool updateThreadController = (mEnvironmentOptions->GetRenderRefreshRate() != newEnvironmentOptions.GetRenderRefreshRate() ||
+                                           !Dali::Equals(mEnvironmentOptions->GetMaximumRenderFrameRate(), newEnvironmentOptions.GetMaximumRenderFrameRate()) ||
                                            mEnvironmentOptions->GetUpdateStatusLoggingFrequency() != newEnvironmentOptions.GetUpdateStatusLoggingFrequency() ||
                                            mEnvironmentOptions->GetFrameRateLoggingFrequency() != newEnvironmentOptions.GetFrameRateLoggingFrequency());
 
