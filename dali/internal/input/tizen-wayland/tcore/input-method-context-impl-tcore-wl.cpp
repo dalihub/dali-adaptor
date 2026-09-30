@@ -686,21 +686,21 @@ void InputMethodContextTcoreWl::ConnectCallbacks()
   {
     DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::ConnectCallbacks\n");
 
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
-    tizen_core_imf_context_add_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
+    tizen_core_imf_context_add_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
 
-    tizen_core_imf_context_add_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, this);
-    tizen_core_imf_context_add_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, this);
-    tizen_core_imf_context_add_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, this);
-    tizen_core_imf_context_add_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback, this);
+    tizen_core_imf_context_add_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, this);
+    tizen_core_imf_context_add_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, this);
+    tizen_core_imf_context_add_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, this);
+    tizen_core_imf_context_add_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback, this);
 
-    tizen_core_imf_context_set_retrieve_surrounding_cb(mIMFContext, ImfRetrieveSurrounding, this);
+    tizen_core_imf_context_set_retrieve_surrounding_callback(mIMFContext, ImfRetrieveSurrounding, this);
   }
 }
 
@@ -710,19 +710,19 @@ void InputMethodContextTcoreWl::DisconnectCallbacks()
   {
     DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextTcoreWl::DisconnectCallbacks\n");
 
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
-    tizen_core_imf_context_del_event_cb(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT, Commit, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_START, TransactionStart, this);
+    tizen_core_imf_context_del_event_callback(mIMFContext, TIZEN_CORE_IMF_CALLBACK_TRANSACTION_END, TransactionEnd, this);
 
-    tizen_core_imf_context_del_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, this);
-    tizen_core_imf_context_del_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, this);
-    tizen_core_imf_context_del_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, this);
-    tizen_core_imf_context_del_input_panel_event_cb(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_STATE, InputPanelStateChangeCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_LANGUAGE, InputPanelLanguageChangeCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_GEOMETRY, InputPanelGeometryChangedCallback, this);
+    tizen_core_imf_context_del_input_panel_event_callback(mIMFContext, TIZEN_CORE_IMF_INPUT_PANEL_EVENT_KEYBOARD_MODE, InputPanelKeyboardTypeChangedCallback, this);
   }
 }
 
