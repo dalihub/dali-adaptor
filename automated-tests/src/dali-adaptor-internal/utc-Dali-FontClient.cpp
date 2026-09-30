@@ -15,12 +15,14 @@
  *
  */
 
+#include <fstream>
 #include <iostream>
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/devel-api/text-abstraction/font-file-manager.h>
 #include <dali/internal/text/text-abstraction/font-client-log.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <stdint.h>
@@ -153,6 +155,58 @@ int UtcDaliFontClientAtlasLimitation(void)
 const std::string DEFAULT_FONT_DIR("/resources/fonts");
 const uint32_t    MAX_WIDTH_FIT_IN_ATLAS  = TextAbstraction::FontClient::MAX_TEXT_ATLAS_WIDTH - TextAbstraction::FontClient::PADDING_TEXT_ATLAS_BLOCK;
 const uint32_t    MAX_HEIGHT_FIT_IN_ATLAS = TextAbstraction::FontClient::MAX_TEXT_ATLAS_HEIGHT - TextAbstraction::FontClient::PADDING_TEXT_ATLAS_BLOCK;
+
+int UtcDaliFontClientPreloadedDataSurvivesPeerDestruction(void)
+{
+  TestApplication application;
+
+  const std::string path = std::string(TEST_RESOURCE_DIR) + "/fonts/dejavu/DejaVuSans.ttf";
+  std::ifstream    file(path, std::ios::binary | std::ios::ate);
+  DALI_TEST_CHECK(file.good());
+  const auto size = file.tellg();
+  DALI_TEST_CHECK(size > 0);
+  Vector<uint8_t> bytes;
+  bytes.Resize(static_cast<Vector<uint8_t>::SizeType>(size));
+  file.seekg(0);
+  file.read(reinterpret_cast<char*>(bytes.Begin()), static_cast<std::streamsize>(size));
+  DALI_TEST_CHECK(file.good());
+
+  auto manager = TextAbstraction::FontFileManager::Get();
+  manager.CacheFontFile(path, std::move(bytes), size);
+  Any            cachedBytes;
+  std::streampos cachedSize;
+  DALI_TEST_CHECK(manager.FindFontFile(path, cachedBytes, cachedSize));
+  auto* const backing = AnyCast<uint8_t*>(cachedBytes);
+
+  auto       survivor = TextAbstraction::FontClient::New(96, 96);
+  const auto fontId   = survivor.GetFontId(path, 24 * 64);
+  DALI_TEST_CHECK(fontId != 0u);
+  const auto glyph = survivor.GetGlyphIndex(fontId, 'A');
+  DALI_TEST_CHECK(glyph != 0u);
+
+  {
+    auto peer = TextAbstraction::FontClient::New(96, 96);
+    DALI_TEST_CHECK(peer.GetFontId(path, 24 * 64) != 0u);
+  }
+
+  // Destroying one client must preserve bytes borrowed by another client's face.
+  DALI_TEST_CHECK(manager.FindFontFile(path, cachedBytes, cachedSize));
+  DALI_TEST_CHECK(AnyCast<uint8_t*>(cachedBytes) == backing);
+  DALI_TEST_EQUALS(cachedSize, size, TEST_LOCATION);
+  DALI_TEST_EQUALS(survivor.GetGlyphIndex(fontId, 'A'), glyph, TEST_LOCATION);
+  TextAbstraction::GlyphBufferData bitmap;
+  survivor.CreateBitmap(fontId, glyph, false, false, bitmap, 0);
+  DALI_TEST_CHECK(bitmap.buffer != nullptr);
+  DALI_TEST_CHECK(bitmap.width > 0u && bitmap.height > 0u);
+
+  survivor.Reset();
+  // The shared manager remains an owner even after the last client is gone.
+  DALI_TEST_CHECK(manager.FindFontFile(path, cachedBytes, cachedSize));
+  DALI_TEST_CHECK(AnyCast<uint8_t*>(cachedBytes) == backing);
+  manager.ClearCache(); // No memory-backed faces remain.
+  DALI_TEST_CHECK(!manager.FindFontFile(path));
+  END_TEST;
+}
 
 int UtcDaliFontClientAtlasLimitationEnabled(void)
 {
