@@ -67,7 +67,7 @@ int UtcDaliEncodedImageBufferNew02(void)
   DALI_TEST_CHECK(!buffer);
 
   // initialise handle
-  buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE);
+  buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::SVG);
 
   DALI_TEST_CHECK(buffer);
   END_TEST;
@@ -81,7 +81,7 @@ int UtcDaliEncodedImageBufferNew03(void)
   DALI_TEST_CHECK(!buffer);
 
   // initialise handle by move operator
-  buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE);
+  buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::LOTTIE);
 
   DALI_TEST_CHECK(buffer);
   END_TEST;
@@ -185,15 +185,15 @@ int UtcDaliEncodedImageBufferSetGetType(void)
   DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::DEFAULT, TEST_LOCATION);
   DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::DEFAULT, TEST_LOCATION);
 
-  buffer1.SetImageType(Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE);
+  buffer1.SetImageType(Dali::EncodedImageBuffer::ImageType::SVG);
 
-  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE, TEST_LOCATION);
-  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::SVG, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::SVG, TEST_LOCATION);
 
-  buffer2.SetImageType(Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE);
+  buffer2.SetImageType(Dali::EncodedImageBuffer::ImageType::LOTTIE);
 
-  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE, TEST_LOCATION);
-  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::LOTTIE, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::LOTTIE, TEST_LOCATION);
 
   END_TEST;
 }

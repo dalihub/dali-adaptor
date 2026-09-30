@@ -22,7 +22,6 @@
 #include <dali/public-api/common/shared-ptr.h>
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/object/object-registry.h>
 #include <cstdint>
 #include <map>
 #include <string>

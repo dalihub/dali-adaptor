@@ -49,7 +49,7 @@ void ApplyEnvironment()
     if(printLogLevel)
     {
       auto logLevelInteger = std::strtoul(printLogLevel, nullptr, 10);
-      if(logLevelInteger >= static_cast<unsigned long>(Dali::Integration::Log::DebugPriority::DEBUG) && logLevelInteger <= static_cast<unsigned long>(Dali::Integration::Log::DebugPriority::ERROR))
+      if(logLevelInteger <= static_cast<unsigned long>(Dali::Integration::Log::DebugPriority::ERROR))
       {
         gPrintLogLevel = static_cast<Dali::Integration::Log::DebugPriority>(logLevelInteger);
       }

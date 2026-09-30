@@ -1204,7 +1204,7 @@ void Device::PreparePhysicalDevice(SurfaceImpl* surface)
   imageProps.imbue(std::locale::classic());
   imageProps << "Device image properties:\n maxImageArrayLayers:" << mPhysicalDeviceProperties.limits.maxImageArrayLayers << "\n";
 
-  DALI_LOG_RELEASE_INFO(imageProps.str().c_str());
+  DALI_LOG_RELEASE_INFO("%s", imageProps.str().c_str());
 }
 
 void Device::InitializePhysicalDeviceProperties()

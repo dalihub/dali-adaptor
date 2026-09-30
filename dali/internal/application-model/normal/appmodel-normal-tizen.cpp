@@ -30,6 +30,9 @@
 #include <system_settings.h>
 #include <app_core_task_base.hh>
 #include <app_core_ui_base.hh>
+#ifdef USE_TCORE_BACKEND
+#include <app_core_tcore_base.hh>
+#endif
 #include <app_event_internal.hh>
 
 // INTERNAL INCLUDES
@@ -44,6 +47,9 @@
 using namespace tizen_cpp;
 #ifdef USE_TCORE_BACKEND
 using tizen_cpp::tcore::AppCoreUiBase;
+using UiAppCoreBase = tizen_cpp::AppCoreTcoreBase;
+#else
+using UiAppCoreBase = tizen_cpp::AppCoreUiBase;
 #endif
 
 namespace DALI_NAMESPACE
@@ -234,7 +240,7 @@ DeviceStatus::Orientation::Status GetOrientationStatus(app_device_orientation_e 
 
 struct DALI_ADAPTOR_API AppModelNormal::Impl
 {
-  class UiAppContext : public AppCoreUiBase
+  class UiAppContext : public UiAppCoreBase
   {
   public:
     class Task : public AppCoreTaskBase
@@ -436,12 +442,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     };
 
     explicit UiAppContext(unsigned int hint, FrameworkTizen* framework)
-    : AppCoreUiBase(hint
-#ifdef USE_TCORE_BACKEND
-                    ,
-                    /*tizen_core_enabled=*/true
-#endif
-                    ),
+    : UiAppCoreBase(hint),
       mFramework(framework),
       mUseUiThread(false)
     {

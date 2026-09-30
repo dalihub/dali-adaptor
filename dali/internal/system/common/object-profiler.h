@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/vector-wrapper.h>
+#include <dali/devel-api/object/object-registry.h>
 #include <dali/devel-api/object/type-registry.h>
-#include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <cstddef> // size_t
 #include <cstdint> // uint32_t

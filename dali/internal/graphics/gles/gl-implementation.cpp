@@ -176,7 +176,7 @@ void GlImplementation::ContextCreated()
             GLsizei msgSize;
             glGetShaderInfoLog(shaderModule, 4096, &msgSize, msg);
             msg[msgSize] = 0;
-            DALI_LOG_ERROR(msg);
+            DALI_LOG_ERROR("%s", msg);
             mShadingLanguageVersion = 300; // fallback to the minimum GLES3 version;
           }
           glDeleteShader(vertexShader);

@@ -254,7 +254,7 @@ public:
       START_DURATION_CHECK();
       tizen_core_wl_screen_h* screens  = nullptr;
       int                     num_list = 0;
-      tizen_core_wl_error_e   err      = tizen_core_wl_display_get_screen_list(display, &screens, &num_list);
+      int err      = tizen_core_wl_display_get_screen_list(display, &screens, &num_list);
       FINISH_DURATION_CHECK("tizen_core_wl_display_get_screen_list");
       DALI_TIZEN_DLOG(DLOG_INFO, DALI_LOG_FORMAT_PREFIX "try to get Screens Information: %p, num=%d", DALI_LOG_FORMAT_PREFIX_ARGS, static_cast<void*>(screens), num_list);
       if(err == TIZEN_CORE_WL_ERROR_NONE && screens && num_list > 0)

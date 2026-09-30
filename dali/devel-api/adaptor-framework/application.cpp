@@ -19,9 +19,9 @@
 #include <dali/devel-api/adaptor-framework/application.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/string-utils.h>
-#include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
