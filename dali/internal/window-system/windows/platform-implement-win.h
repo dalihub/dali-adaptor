@@ -73,6 +73,12 @@ void GetNanoseconds(uint64_t& timeInNanoseconds);
 
 unsigned int GetCurrentMilliSeconds(void);
 
+/** Convert a queued Win32 message time to the adaptor's steady clock domain. */
+constexpr uint32_t ConvertMessageTimeToSteadyMilliseconds(uint32_t messageTime, uint32_t tickNow, uint32_t steadyNow, bool hasMessageTime)
+{
+  return hasMessageTime ? steadyNow - (tickNow - messageTime) : steadyNow;
+}
+
 class WindowImpl
 {
 public:
