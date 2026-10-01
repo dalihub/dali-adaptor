@@ -250,8 +250,6 @@ FontClient::Plugin::~Plugin()
 #endif
 
   FT_Done_FreeType(mFreeTypeLibrary);
-
-  mFontFileManager.ClearCache();
 }
 
 void FontClient::Plugin::ClearCache() const
