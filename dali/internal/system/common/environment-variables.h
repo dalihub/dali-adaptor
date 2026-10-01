@@ -128,7 +128,18 @@ namespace Adaptor
  */
 #define DALI_ENV_GRAPHICS_CONTEXT_PRIORITY "DALI_GRAPHICS_CONTEXT_PRIORITY"
 
-#define DALI_REFRESH_RATE "DALI_REFRESH_RATE"
+/**
+ * The render refresh rate as the number of vsyncs per render.
+ * e.g. 1 renders every frame, 2 renders every other frame. Values below one are ignored.
+ */
+#define DALI_ENV_REFRESH_RATE "DALI_REFRESH_RATE"
+
+/**
+ * The maximum render frame rate in frames per second, used for Vsync.
+ * e.g. 60.0 limits rendering to 60 fps, 90.0 to 90 fps.
+ * Values equal to or below zero are ignored.
+ */
+#define DALI_ENV_MAXIMUM_RENDER_FRAME_RATE "DALI_MAXIMUM_RENDER_FRAME_RATE"
 
 #define DALI_WIDGET_REFRESH_RATE "DALI_WIDGET_REFRESH_RATE"
 

@@ -350,6 +350,7 @@ EnvironmentOptions::EnvironmentOptions()
   mRenderRefreshRate(1u),
   mMaxTextureSize(0),
   mRenderToFboInterval(0u),
+  mMaximumRenderFrameRate(0.0f),
   mPanGesturePredictionMode(-1),
   mPanGesturePredictionAmount(-1), ///< only sets value in pan gesture if greater than 0
   mPanGestureMaxPredictionAmount(-1),
@@ -630,6 +631,11 @@ unsigned int EnvironmentOptions::GetRenderRefreshRate() const
   return mRenderRefreshRate;
 }
 
+float EnvironmentOptions::GetMaximumRenderFrameRate() const
+{
+  return mMaximumRenderFrameRate;
+}
+
 int EnvironmentOptions::GetMultiSamplingLevel() const
 {
   return mMultiSamplingLevel;
@@ -754,7 +760,16 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetGraphicsBackendFromEnvironmentVariable(mGraphicsBackend);
   SetGraphicsContextPriorityFromEnvironmentVariable(mGraphicsContextProirity);
 
-  SetFromEnvironmentVariable<int>(DALI_REFRESH_RATE, GreaterThan(mRenderRefreshRate, 1));
+  SetFromEnvironmentVariable<int>(DALI_ENV_REFRESH_RATE, GreaterThan(mRenderRefreshRate, 1));
+
+  SetFromEnvironmentVariable<float>(DALI_ENV_MAXIMUM_RENDER_FRAME_RATE,
+                                    [&](float maximumRenderFrameRate)
+  {
+    if(maximumRenderFrameRate > 0.0f)
+    {
+      mMaximumRenderFrameRate = maximumRenderFrameRate;
+    }
+  });
 
   SetFromEnvironmentVariable(DALI_ENV_MULTI_SAMPLING_LEVEL, mMultiSamplingLevel);
 
@@ -793,11 +808,12 @@ void EnvironmentOptions::CopyEnvironmentOptions(const EnvironmentOptions& rhs)
   mPerformanceTimeStampOutput = rhs.mPerformanceTimeStampOutput;
   mPanGestureLoggingLevel     = rhs.mPanGestureLoggingLevel;
 
-  mWindowWidth         = rhs.mWindowWidth;
-  mWindowHeight        = rhs.mWindowHeight;
-  mRenderRefreshRate   = rhs.mRenderRefreshRate;
-  mMaxTextureSize      = rhs.mMaxTextureSize;
-  mRenderToFboInterval = rhs.mRenderToFboInterval;
+  mWindowWidth            = rhs.mWindowWidth;
+  mWindowHeight           = rhs.mWindowHeight;
+  mRenderRefreshRate      = rhs.mRenderRefreshRate;
+  mMaximumRenderFrameRate = rhs.mMaximumRenderFrameRate;
+  mMaxTextureSize         = rhs.mMaxTextureSize;
+  mRenderToFboInterval    = rhs.mRenderToFboInterval;
 
   mPanGesturePredictionMode              = rhs.mPanGesturePredictionMode;
   mPanGesturePredictionAmount            = rhs.mPanGesturePredictionAmount;
