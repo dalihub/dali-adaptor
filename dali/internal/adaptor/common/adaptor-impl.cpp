@@ -21,6 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
+#include <dali/devel-api/object/object-registry.h>
 #include <dali/integration-api/addon-manager.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/debug.h>
@@ -35,8 +36,8 @@
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/public-api/math/math-utils.h>
 #include <dali/public-api/object/any.h>
-#include <dali/public-api/object/object-registry.h>
 
 #if defined(_WIN32)
 #include <filesystem>
@@ -944,6 +945,7 @@ void Adaptor::UpdateEnvironmentOptions(const EnvironmentOptions& newEnvironmentO
                                            updateCoreRequired);
 
       const bool updateThreadController = (mEnvironmentOptions->GetRenderRefreshRate() != newEnvironmentOptions.GetRenderRefreshRate() ||
+                                           !Dali::Equals(mEnvironmentOptions->GetMaximumRenderFrameRate(), newEnvironmentOptions.GetMaximumRenderFrameRate()) ||
                                            mEnvironmentOptions->GetUpdateStatusLoggingFrequency() != newEnvironmentOptions.GetUpdateStatusLoggingFrequency() ||
                                            mEnvironmentOptions->GetFrameRateLoggingFrequency() != newEnvironmentOptions.GetFrameRateLoggingFrequency());
 

@@ -49,11 +49,14 @@ public:
    */
   enum class ImageType
   {
-    REGULAR_IMAGE,
-    VECTOR_IMAGE,          ///< svg format.
-    ANIMATED_VECTOR_IMAGE, ///< lottie format.
+    REGULAR_IMAGE, ///< png, jpg, gif, webp and other raster formats.
+    SVG,
+    LOTTIE,
 
     DEFAULT = REGULAR_IMAGE,
+
+    VECTOR_IMAGE          = SVG,    ///< @DEPRECATED_2_5.42 Use SVG instead.
+    ANIMATED_VECTOR_IMAGE = LOTTIE, ///< @DEPRECATED_2_5.42 Use LOTTIE instead.
   };
 
 public:

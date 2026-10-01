@@ -263,7 +263,7 @@ IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
   ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
-#  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
+  ADD_COMPILE_OPTIONS( /W3 /WX )                       # Treat all level 3 warnings as errors.
   # Use /Z7 (debug info embedded in .obj) instead of /Zi (shared .pdb) to avoid
   # fatal error C1090: PDB API call failed during parallel compilation.
   # Replace /Zi in CMake's default debug flags to avoid D9025 warning.
@@ -637,7 +637,6 @@ INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_header_files ${adaptor_i
 INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
-INSTALL( FILES ${adaptor_dali_wearable_header_file} DESTINATION ${tizenadaptordevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_widget_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_canvas_renderer_header_files} DESTINATION ${tizencanvasrendererpublicapidir} )

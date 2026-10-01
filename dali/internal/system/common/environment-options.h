@@ -314,6 +314,11 @@ public:
   unsigned int GetRenderRefreshRate() const;
 
   /**
+   * @return The maximum render frame rate in frames per second, used for Vsync. 0.0f means not set.
+   */
+  float GetMaximumRenderFrameRate() const;
+
+  /**
    * @return The number of samples required in multisample buffers
    */
   int GetMultiSamplingLevel() const;
@@ -397,6 +402,7 @@ private: // Data
   unsigned int mRenderRefreshRate;          ///< render refresh rate
   unsigned int mMaxTextureSize;             ///< The maximum texture size that GL can handle
   unsigned int mRenderToFboInterval;        ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
+  float        mMaximumRenderFrameRate;     ///< maximum render frame rate in frames per second, used for Vsync. 0.0f means not set
 
   int   mPanGesturePredictionMode;              ///< prediction mode for pan gestures
   int   mPanGesturePredictionAmount;            ///< prediction amount for pan gestures

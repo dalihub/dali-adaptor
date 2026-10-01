@@ -164,6 +164,14 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
 
   // Initialise frame delta/duration variables first
   mNumberOfFramesPerRender = environmentOptions.GetRenderRefreshRate();
+
+  float maximumRenderFrameRate = environmentOptions.GetMaximumRenderFrameRate();
+  if(maximumRenderFrameRate > 0.0f)
+  {
+    Dali::ClampInPlace(maximumRenderFrameRate, LOWER_BOUND_MAXIMUM_RENDER_FRAME_RATE, UPPER_BOUND_MAXIMUM_RENDER_FRAME_RATE);
+    mMaximumFramesPerSecond = maximumRenderFrameRate;
+  }
+
   UpdateDefaultFrameDurations();
 
   // Set the thread-synchronization interface on the render-surface
@@ -489,6 +497,11 @@ void CombinedUpdateRenderController::UpdateEnvironmentOptions()
   LOG_EVENT("Update environment options");
 
   SetRenderRefreshRate(mEnvironmentOptions.GetRenderRefreshRate());
+  const float maximumRenderFrameRate = mEnvironmentOptions.GetMaximumRenderFrameRate();
+  if(maximumRenderFrameRate > 0.0f)
+  {
+    SetMaximumRenderFrameRate(maximumRenderFrameRate);
+  }
   mFpsTracker.UpdateEnvironmentOptions(mEnvironmentOptions);
   mUpdateStatusLogger.UpdateEnvironmentOptions(mEnvironmentOptions);
 }
