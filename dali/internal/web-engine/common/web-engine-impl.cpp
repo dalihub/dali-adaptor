@@ -343,6 +343,11 @@ Dali::NativeImagePtr WebEngine::GetNativeImage()
   return mPlugin->GetNativeImage();
 }
 
+Dali::NativeImageInterfacePtr WebEngine::GetNativeImageInterface()
+{
+  return mPlugin->GetNativeImageInterface();
+}
+
 void WebEngine::ChangeOrientation(int orientation)
 {
   return mPlugin->ChangeOrientation(orientation);
