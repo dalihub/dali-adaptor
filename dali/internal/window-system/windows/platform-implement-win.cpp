@@ -30,6 +30,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/windows/event-system-win.h>
 
 namespace DALI_NAMESPACE
@@ -293,7 +294,14 @@ bool WindowImpl::ProcWinMessage(WinWindowHandle hWnd, uint32_t uMsg, uintptr_t w
 
     if(listener)
     {
-      TWinEventInfo eventInfo(hWnd, uMsg, wParam, lParam, static_cast<uint32_t>(GetMessageTime()));
+      // Preserve the time spent in the Win32 queue while translating the event
+      // to the same steady clock used by DALi Core and receiveTime.
+      const uint32_t messageTime    = static_cast<uint32_t>(GetMessageTime());
+      const uint32_t tickNow        = static_cast<uint32_t>(GetTickCount());
+      const uint32_t steadyNow      = TimeService::GetMilliSeconds();
+      const bool     hasMessageTime = InSendMessageEx(nullptr) == ISMEX_NOSEND;
+      const uint32_t eventTime      = ConvertMessageTimeToSteadyMilliseconds(messageTime, tickNow, steadyNow, hasMessageTime);
+      TWinEventInfo  eventInfo(hWnd, uMsg, wParam, lParam, eventTime);
       CallbackBase::Execute(*listener, &eventInfo);
     }
     return handleClose;

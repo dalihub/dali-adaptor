@@ -40,6 +40,7 @@
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
+#include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system-impl.h>
@@ -626,7 +627,7 @@ void WindowBaseWin::EmitKeyDown(TWinEventInfo* event, bool isRepeat)
   Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
   keyEvent.isRepeat    = isRepeat;
   keyEvent.windowId    = GetNativeWindowId();
-  keyEvent.receiveTime = GetTickCount();
+  keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
   mKeyEventSignal.Emit(keyEvent);
 }
@@ -678,7 +679,7 @@ bool WindowBaseWin::OnKeyboardRepeatTimer()
     mKeyboardRepeatState.EnableNativeFallback();
   }
 
-  TWinEventInfo repeatEvent(mWin32Window, repeatKey.message, repeatKey.key, repeatKey.nativeData, WindowsPlatform::GetCurrentMilliSeconds());
+  TWinEventInfo repeatEvent(mWin32Window, repeatKey.message, repeatKey.key, repeatKey.nativeData, TimeService::GetMilliSeconds());
   EmitKeyDown(&repeatEvent, true);
   return false;
 }
@@ -719,7 +720,7 @@ void WindowBaseWin::OnKeyUp(int, TWinEventInfo* event)
     // (keyEvent->string), so populate keyString on UP just like DOWN.
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, KEYBOARD_DEVICE_CLASS, DEFAULT_DEVICE_SUBCLASS);
     keyEvent.windowId    = GetNativeWindowId();
-    keyEvent.receiveTime = GetTickCount();
+    keyEvent.receiveTime = TimeService::GetMilliSeconds();
 
     mKeyEventSignal.Emit(keyEvent);
   }
