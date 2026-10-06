@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <limits>
 #include <vector>
 
 namespace DALI_NAMESPACE
@@ -272,12 +273,21 @@ bool Shape::AddPath(const Dali::Vector<Dali::CanvasRenderer::Shape::PathCommandT
     return false;
   }
 
-  uint32_t requiredPointCount = 0u;
+  if(commands.Count() > std::numeric_limits<uint32_t>::max() || points.Count() > std::numeric_limits<uint32_t>::max())
+  {
+    DALI_LOG_ERROR("AddPath() path exceeds ThorVG count limits.\n");
+    return false;
+  }
+
+  const uint32_t commandCount = static_cast<uint32_t>(commands.Count());
+  const uint32_t pointCount   = static_cast<uint32_t>(points.Count());
+
+  uint64_t requiredPointCount = 0u;
   for(auto&& command : commands)
   {
     requiredPointCount += GetRequiredPointCount(command);
   }
-  if(requiredPointCount != points.Count())
+  if(requiredPointCount != pointCount)
   {
     DALI_LOG_ERROR("AddPath() the commands and points do not agree.\n");
     return false;
@@ -285,14 +295,14 @@ bool Shape::AddPath(const Dali::Vector<Dali::CanvasRenderer::Shape::PathCommandT
 
   // Converting each command keeps this independent of the underlying type ThorVG picks
   // for PathCommand, which is uint8_t in 1.x and int in 0.x.
-  std::vector<tvg::PathCommand> tvgPathCommands(commands.Count());
-  for(uint32_t i = 0u; i < commands.Count(); ++i)
+  std::vector<tvg::PathCommand> tvgPathCommands(commandCount);
+  for(uint32_t i = 0u; i < commandCount; ++i)
   {
     tvgPathCommands[i] = ToTvgPathCommand(commands[i]);
   }
 
   // Vector2 and tvg::Point are both a pair of floats, so the point array is passed as it is.
-  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands.data(), commands.Count(), reinterpret_cast<const tvg::Point*>(&points[0]), points.Count()) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(tvgPathCommands.data(), commandCount, reinterpret_cast<const tvg::Point*>(&points[0]), pointCount) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("AddPath() fail.\n");
     return false;
@@ -573,17 +583,24 @@ bool Shape::SetStrokeDash(const Dali::Vector<float> dashPattern)
     return false;
   }
 
-  float* tvgDashPattern = (float*)alloca(sizeof(float) * dashPattern.Count());
+  if(dashPattern.Count() > std::numeric_limits<uint32_t>::max())
+  {
+    DALI_LOG_ERROR("SetStrokeDash() pattern exceeds ThorVG count limits.\n");
+    return false;
+  }
 
-  for(unsigned int i = 0u; i < dashPattern.Count(); ++i)
+  const uint32_t dashCount      = static_cast<uint32_t>(dashPattern.Count());
+  float*         tvgDashPattern = (float*)alloca(sizeof(float) * dashCount);
+
+  for(uint32_t i = 0u; i < dashCount; ++i)
   {
     tvgDashPattern[i] = dashPattern[i];
   }
 
 #ifdef THORVG_VERSION_1
-  if(static_cast<tvg::Shape*>(mTvgShape)->strokeDash(tvgDashPattern, dashPattern.Count()) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->strokeDash(tvgDashPattern, dashCount) != tvg::Result::Success)
 #else
-  if(static_cast<tvg::Shape*>(mTvgShape)->stroke(tvgDashPattern, dashPattern.Count()) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->stroke(tvgDashPattern, dashCount) != tvg::Result::Success)
 #endif
   {
     DALI_LOG_ERROR("SetStrokeDash fail.\n");
