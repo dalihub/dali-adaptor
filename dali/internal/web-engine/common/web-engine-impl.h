@@ -98,11 +98,6 @@ public:
   Dali::NativeImagePtr GetNativeImage();
 
   /**
-   * @copydoc Dali::WebEngine::GetNativeImageInterface()
-   */
-  Dali::NativeImageInterfacePtr GetNativeImageInterface();
-
-  /**
    * @copydoc Dali::WebEngine::ChangeOrientation()
    */
   void ChangeOrientation(int orientation);
