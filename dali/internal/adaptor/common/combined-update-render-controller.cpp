@@ -955,6 +955,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           const uint32_t sceneSurfaceResized = scene.GetSurfaceRectChangedCount();
 
+          // Skip rendering of the invisible scene. Surface resize should be applied even if the scene is invisible.
+          if(!scene.IsCurrentlyVisible() && sceneSurfaceResized == 0u)
+          {
+            continue;
+          }
+
           // clear previous frame damaged render items rects, buffer history is tracked on surface level
           mDamagedRects.clear();
 
