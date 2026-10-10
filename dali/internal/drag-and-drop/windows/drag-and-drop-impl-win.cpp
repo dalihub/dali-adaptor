@@ -39,6 +39,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::DragAndDrop);
+
 constexpr const char*    TEXT_MIME_TYPE         = "text/plain";
 constexpr const char*    ALL_MIME_TYPES         = "*/*";
 constexpr const wchar_t* SHADOW_WINDOW_PROPERTY = L"DALI_DRAG_AND_DROP_SHADOW";
@@ -1275,14 +1277,14 @@ Dali::DragAndDrop GetDragAndDrop()
     return Dali::DragAndDrop();
   }
 
-  Dali::BaseHandle handle = singletonService.GetSingleton(typeid(Dali::DragAndDrop));
+  Dali::BaseHandle handle = singletonService.GetSingleton(gSingletonTypeInfoId);
   if(handle)
   {
     return Dali::DragAndDrop(static_cast<DragAndDrop*>(handle.GetObjectPtr()));
   }
 
   Dali::DragAndDrop dragAndDrop(new DragAndDropWin());
-  singletonService.Register(typeid(Dali::DragAndDrop), dragAndDrop);
+  singletonService.Register(gSingletonTypeInfoId, dragAndDrop);
   return dragAndDrop;
 }
 

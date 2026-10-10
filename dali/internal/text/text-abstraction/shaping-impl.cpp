@@ -30,6 +30,8 @@
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::Shaping);
+
 #if defined(DEBUG_ENABLED)
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_FONT_CLIENT");
 #endif
@@ -336,7 +338,7 @@ TextAbstraction::Shaping Shaping::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::Shaping));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -346,7 +348,7 @@ TextAbstraction::Shaping Shaping::Get()
     else // create and register the object
     {
       shapingHandle = TextAbstraction::Shaping(new Shaping);
-      service.Register(typeid(shapingHandle), shapingHandle);
+      service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }
 

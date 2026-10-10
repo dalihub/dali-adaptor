@@ -22,6 +22,11 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/drag-and-drop/common/drag-and-drop-factory.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::DragAndDrop);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -37,7 +42,7 @@ Dali::DragAndDrop GetDragAndDrop()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::DragAndDrop));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -47,7 +52,7 @@ Dali::DragAndDrop GetDragAndDrop()
     {
       // Create a singleon instance
       dnd = Dali::DragAndDrop(new DragAndDropGeneric());
-      service.Register(typeid(Dali::DragAndDrop), dnd);
+      service.Register(gSingletonTypeInfoId, dnd);
     }
   }
 

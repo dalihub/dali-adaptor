@@ -34,6 +34,8 @@
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::UnifiedTriggerEventManager);
+
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } //namespace
 
@@ -47,7 +49,7 @@ Dali::UnifiedTriggerEventManager UnifiedTriggerEventManager::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::UnifiedTriggerEventManager));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -56,7 +58,7 @@ Dali::UnifiedTriggerEventManager UnifiedTriggerEventManager::Get()
     else
     {
       unifiedTriggerEventManager = Dali::UnifiedTriggerEventManager(new UnifiedTriggerEventManager());
-      service.Register(typeid(unifiedTriggerEventManager), unifiedTriggerEventManager);
+      service.Register(gSingletonTypeInfoId, unifiedTriggerEventManager);
     }
   }
 

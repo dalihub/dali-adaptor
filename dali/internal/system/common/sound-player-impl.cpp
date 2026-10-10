@@ -30,6 +30,8 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::SoundPlayer);
+
 static const char* SIGNAL_SOUND_PLAY_FINISHED("soundPlayFinished");
 
 // Type Registration
@@ -58,7 +60,7 @@ Dali::SoundPlayer SoundPlayer::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::SoundPlayer));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -67,7 +69,7 @@ Dali::SoundPlayer SoundPlayer::Get()
     else
     {
       player = Dali::SoundPlayer(New());
-      service.Register(typeid(player), player);
+      service.Register(gSingletonTypeInfoId, player);
     }
   }
 

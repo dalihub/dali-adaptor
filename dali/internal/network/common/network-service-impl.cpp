@@ -21,6 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(NetworkService);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE::Internal::Adaptor
 {
 NetworkServicePtr NetworkService::Get()
@@ -31,7 +36,7 @@ NetworkServicePtr NetworkService::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(NetworkService));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -41,7 +46,7 @@ NetworkServicePtr NetworkService::Get()
     {
       // Create a singleon instance
       networkService = NetworkServicePtr(new NetworkService());
-      service.Register(typeid(NetworkService), BaseHandle(networkService.Get()));
+      service.Register(gSingletonTypeInfoId, BaseHandle(networkService.Get()));
     }
   }
 

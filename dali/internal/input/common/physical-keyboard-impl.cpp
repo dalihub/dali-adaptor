@@ -23,6 +23,11 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::PhysicalKeyboard);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -37,7 +42,7 @@ Dali::PhysicalKeyboard PhysicalKeyboard::New()
   if(service)
   {
     keyboardHandle = Dali::PhysicalKeyboard(new PhysicalKeyboard());
-    service.Register(typeid(keyboardHandle), keyboardHandle);
+    service.Register(gSingletonTypeInfoId, keyboardHandle);
   }
 
   return keyboardHandle;
@@ -50,7 +55,7 @@ Dali::PhysicalKeyboard PhysicalKeyboard::Get()
   Dali::SingletonService service = SingletonService::Get();
   if(service)
   {
-    BaseHandle handle = service.GetSingleton(typeid(Dali::PhysicalKeyboard));
+    BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle of singleton to focus manager

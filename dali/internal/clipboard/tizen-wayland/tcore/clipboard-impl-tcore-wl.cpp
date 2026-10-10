@@ -43,6 +43,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::Clipboard);
+
 const char*    DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT("DALI_CLIPBOARD_MULTI_SELECTION_TIMEOUT");
 const uint32_t DEFAULT_MULTI_SELECTION_TIMEOUT = 500u;
 } // namespace
@@ -603,7 +605,7 @@ public:
     Dali::SingletonService service(SingletonService::Get());
     if(service)
     {
-      Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+      Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
       if(handle)
       {
         clipboard = Dali::Clipboard(static_cast<Clipboard*>(handle.GetObjectPtr()));
@@ -612,7 +614,7 @@ public:
       {
         Clipboard::Impl* impl(new Clipboard::Impl());
         clipboard = Dali::Clipboard(new Clipboard(impl));
-        service.Register(typeid(Dali::Clipboard), clipboard);
+        service.Register(gSingletonTypeInfoId, clipboard);
       }
     }
 
@@ -630,7 +632,7 @@ bool Clipboard::IsAvailable()
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       return true;

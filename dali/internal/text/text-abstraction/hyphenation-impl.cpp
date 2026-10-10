@@ -38,6 +38,8 @@
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::Hyphenation);
+
 #if defined(DEBUG_ENABLED)
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_HYPHENATION");
 #endif
@@ -229,7 +231,7 @@ TextAbstraction::Hyphenation Hyphenation::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::Hyphenation));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -239,7 +241,7 @@ TextAbstraction::Hyphenation Hyphenation::Get()
     else // create and register the object
     {
       hyphenationHandle = TextAbstraction::Hyphenation(new Hyphenation);
-      service.Register(typeid(hyphenationHandle), hyphenationHandle);
+      service.Register(gSingletonTypeInfoId, hyphenationHandle);
     }
   }
 

@@ -25,6 +25,11 @@
 #include <mutex>
 #include <utility>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::RemoteFileDownloadManager);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -87,7 +92,7 @@ Dali::RemoteFileDownloadManager RemoteFileDownloadManager::Get()
   Dali::SingletonService service(Dali::SingletonService::Get());
   if(DALI_LIKELY(service))
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::RemoteFileDownloadManager));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       manager = Dali::RemoteFileDownloadManager(static_cast<RemoteFileDownloadManager*>(handle.GetObjectPtr()));
@@ -95,7 +100,7 @@ Dali::RemoteFileDownloadManager RemoteFileDownloadManager::Get()
     else
     {
       manager = Dali::RemoteFileDownloadManager(new RemoteFileDownloadManager());
-      service.Register(typeid(Dali::RemoteFileDownloadManager), manager);
+      service.Register(gSingletonTypeInfoId, manager);
     }
   }
   return manager;
