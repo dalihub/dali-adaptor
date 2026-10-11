@@ -410,7 +410,7 @@ bool Texture::PrepareNativeTexture(GLES::Context* prepareContext)
     Dali::NativeImageInterface::PrepareTextureResult result = nativeImage->PrepareTexture();
 
     if(DALI_UNLIKELY(result >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MIN &&
-                     result >= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
+                     result <= Dali::NativeImageInterface::PrepareTextureResult::ERROR_MAX))
     {
       DALI_LOG_ERROR("[ERROR] NativeImage::PrepareTexture failed with error code [%x]\n", result);
       return false;
