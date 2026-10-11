@@ -169,6 +169,52 @@ void TextureDependencyChecker::DiscardTexture(const GLES::Texture* texture)
   FreeBackwardSyncObjectSyncs(mController, mBackwardDependencies[mCurrentFrameIndex], texture);
 }
 
+void TextureDependencyChecker::InvalidateContext(const GLES::Context* invalidatedContext)
+{
+  // Invalidate forward dependencies
+  // Make CheckNeedsSync() create a new sync object always.
+  for(auto& forwardDependency : mForwardDependencies)
+  {
+    if(forwardDependency.writeContext == invalidatedContext)
+    {
+      forwardDependency.writeContext = nullptr;
+    }
+  }
+
+  // Invalidate backward dependencies
+  // Make WaitBackwardSyncObjectSyncs() wait for the sync object always.
+  for(auto& backwardDependencies : mBackwardDependencies[mPrevFrameIndex])
+  {
+    for(auto& backwardDependency : backwardDependencies.second)
+    {
+      if(backwardDependency.readContext == invalidatedContext)
+      {
+        backwardDependency.readContext = nullptr;
+      }
+    }
+  }
+  for(auto& backwardDependencies : mBackwardDependencies[mCurrentFrameIndex])
+  {
+    for(auto& backwardDependency : backwardDependencies.second)
+    {
+      if(backwardDependency.readContext == invalidatedContext)
+      {
+        backwardDependency.readContext = nullptr;
+      }
+    }
+  }
+
+  // Invalidate native texture dependencies
+  // Make CreateNativeTextureSync() "do not" create a new sync object.
+  for(auto& iter : mNativeTextureDependencies)
+  {
+    if(iter.first.first == invalidatedContext)
+    {
+      iter.first.first = nullptr;
+    }
+  }
+}
+
 void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, const GLES::Framebuffer* framebuffer)
 {
   uint32_t index = static_cast<uint32_t>(mForwardDependencies.size());
