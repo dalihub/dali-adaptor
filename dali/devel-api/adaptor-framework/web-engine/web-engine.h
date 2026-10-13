@@ -162,6 +162,11 @@ public:
   NativeImagePtr GetNativeImage();
 
   /**
+   * @brief Get native image interface to render.
+   */
+  NativeImageInterfacePtr GetNativeImageInterface();
+
+  /**
    * @brief Change orientation.
    */
   void ChangeOrientation(int orientation);
