@@ -118,6 +118,11 @@ NativeImagePtr WebEngine::GetNativeImage()
   return GetImplementation(*this).GetNativeImage();
 }
 
+NativeImageInterfacePtr WebEngine::GetNativeImageInterface()
+{
+  return GetImplementation(*this).GetNativeImageInterface();
+}
+
 void WebEngine::ChangeOrientation(int orientation)
 {
   return GetImplementation(*this).ChangeOrientation(orientation);
