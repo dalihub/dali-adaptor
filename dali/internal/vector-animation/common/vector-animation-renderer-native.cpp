@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <cstring>
 #include <fstream>
-#include <limits>
 #include <locale>
 #include <sstream>
 
@@ -268,14 +267,7 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
     return false;
   }
 
-  if(data.Count() > std::numeric_limits<uint32_t>::max())
-  {
-    DALI_LOG_ERROR("VectorAnimationRendererNative::Load(data): Data exceeds ThorVG size limit [%p]\n", this);
-    return false;
-  }
-
-  const uint32_t dataSize = static_cast<uint32_t>(data.Count());
-  mJsonData.assign(reinterpret_cast<const char*>(data.Begin()), dataSize);
+  mJsonData.assign(reinterpret_cast<const char*>(data.Begin()), data.Count());
   mMetadataParsed = false;
   mCachedLayerInfo.Clear();
   mCachedMarkerInfo.Clear();
@@ -298,7 +290,7 @@ bool VectorAnimationRendererNative::Load(const Dali::Vector<uint8_t>& data)
     return false;
   }
 
-  auto loadResult = picture->load(reinterpret_cast<const char*>(data.Begin()), dataSize, "lottie", nullptr, true);
+  auto loadResult = picture->load(reinterpret_cast<const char*>(data.Begin()), data.Count(), "lottie", nullptr, true);
   if(loadResult != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorAnimationRendererNative::Load(data): Failed to load (result=%d) [%p]\n",
@@ -495,14 +487,8 @@ bool VectorAnimationRendererNative::GetMarkerInfo(const std::string& marker, uin
 {
   Dali::Mutex::ScopedLock lock(mMutex);
 
-  if(marker.size() > std::numeric_limits<uint32_t>::max())
-  {
-    DALI_LOG_ERROR("GetMarkerInfo() marker exceeds StringView length limit.\n");
-    return false;
-  }
-
   // First match wins, matching the rlottie plugin behaviour.
-  const Property::Value* value = mCachedMarkerInfo.Find(Dali::StringView(marker.c_str(), static_cast<uint32_t>(marker.size())));
+  const Property::Value* value = mCachedMarkerInfo.Find(Dali::StringView(marker.c_str(), marker.size()));
   if(value)
   {
     const Property::Array* arr = value->GetArray();
@@ -573,7 +559,7 @@ void VectorAnimationRendererNative::AddPropertyValueCallback(const std::string& 
         float o       = 1.0f;
         if(val.Get(o))
         {
-          *opacity = static_cast<uint8_t>(Min(255, Max(0, static_cast<int>(o * 255.0f))));
+          *opacity = Min(255, Max(0, static_cast<int>(o * 255.0f)));
           return true;
         }
         break;
