@@ -1174,20 +1174,6 @@ public:
    * @param[in] callback The callback function called when playback video paused.
    */
   virtual void RegisterPlaybackVideoPausedCallback(WebEnginePlaybackVideoPausedCallback callback) = 0;
-
-  // Declared last so the slots of the members above stay where they were.
-  /**
-   * @brief Get the native image interface to render.
-   *
-   * A plugin that renders through a native image queue returns the queue here,
-   * so the renderer acquires and releases the buffers itself. The default
-   * returns GetNativeImage().
-   * @return The native image interface to render
-   */
-  virtual NativeImageInterfacePtr GetNativeImageInterface()
-  {
-    return GetNativeImage();
-  }
 };
 
 // specialization has to be done in the same namespace
