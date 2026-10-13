@@ -333,16 +333,13 @@ struct GdbusDBusWrapper : public DBusWrapper
     if(!iter) return false;
     auto value = g_variant_iter_next_value(iter);
     if(!value) return false;
-    const gchar* q;
-    if(g_variant_is_of_type(value, G_VARIANT_TYPE_STRING) || g_variant_is_of_type(value, G_VARIANT_TYPE_OBJECT_PATH))
+    bool isString = g_variant_is_of_type(value, G_VARIANT_TYPE_STRING) || g_variant_is_of_type(value, G_VARIANT_TYPE_OBJECT_PATH);
+    if(isString)
     {
-      q   = g_variant_get_string(value, nullptr);
-      dst = q;
-      g_variant_unref(value);
-      return true;
+      dst = g_variant_get_string(value, nullptr);
     }
-
-    return false;
+    g_variant_unref(value);
+    return isString;
   }
 
   void dbus_message_iter_arguments_append_impl(const MessageIterPtr& it, const ObjectPath& src) override
@@ -357,12 +354,13 @@ struct GdbusDBusWrapper : public DBusWrapper
 
   bool dbus_message_iter_get_and_next_impl(const MessageIterPtr& it, ObjectPath& dst) override
   {
-    const gchar* q;
-    auto         iter = get_iter(it);
+    gchar* q    = nullptr;
+    auto   iter = get_iter(it);
     if(!iter) return false;
     if(g_variant_iter_next(iter, "o", &q))
     {
       dst.value = q;
+      g_free(q);
       return true;
     }
 
@@ -505,8 +503,10 @@ struct GdbusDBusWrapper : public DBusWrapper
         }
         else
         {
-          name = "";
-          text = g_variant_print(error_detail, false);
+          name       = "";
+          gchar* str = g_variant_print(error_detail, false);
+          text       = str;
+          g_free(str);
         }
         return true;
       }
@@ -871,9 +871,11 @@ struct GdbusDBusWrapper : public DBusWrapper
 
     if(g_dbus_message_get_message_type(reply) == G_DBUS_MESSAGE_TYPE_ERROR)
     {
+      gchar* text = g_variant_print(g_dbus_message_get_body(reply), false);
       g_dbus_method_invocation_return_dbus_error(invocation,
                                                  g_dbus_message_get_error_name(reply),
-                                                 g_variant_print(g_dbus_message_get_body(reply), false));
+                                                 text);
+      g_free(text);
       return;
     }
 
