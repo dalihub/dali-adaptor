@@ -211,7 +211,7 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data)
   }
 
 #ifdef THORVG_VERSION_1
-  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), "svg", nullptr, true);
+  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), static_cast<uint32_t>(data.Size()), "svg", nullptr, true);
 #else
   tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), true);
 #endif
