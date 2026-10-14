@@ -271,6 +271,11 @@ public:
   Dali::Any CreateWindow(int width, int height) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RequiresSurfaceAlpha()
+   */
+  bool RequiresSurfaceAlpha() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyWindow()
    */
   void DestroyWindow() override;

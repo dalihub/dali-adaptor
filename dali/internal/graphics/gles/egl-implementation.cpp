@@ -700,9 +700,9 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 
 bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
                                      bool depthBufferRequired, bool stencilBufferRequired,
-                                     int multiSamplingLevel)
+                                     int multiSamplingLevel, bool surfaceAlphaRequired)
 {
-  DALI_LOG_INFO(gEglLogFilter, Debug::General, "EglImplementation::ChooseConfig(isWindowType:%s, colorDepth:%s, depthBuffer:%s, stencilBuffer:%s, msaa:%d\n", isWindowType ? "true" : "false", depth == COLOR_DEPTH_24 ? "24" : "32", depthBufferRequired ? "true" : "false", stencilBufferRequired ? "true" : "false", multiSamplingLevel);
+  DALI_LOG_INFO(gEglLogFilter, Debug::General, "EglImplementation::ChooseConfig(isWindowType:%s, colorDepth:%s, depthBuffer:%s, stencilBuffer:%s, msaa:%d, surfaceAlpha:%s\n", isWindowType ? "true" : "false", depth == COLOR_DEPTH_24 ? "24" : "32", depthBufferRequired ? "true" : "false", stencilBufferRequired ? "true" : "false", multiSamplingLevel, surfaceAlphaRequired ? "true" : "false");
   mColorDepth = depth;
   mIsWindow   = isWindowType;
 
@@ -743,10 +743,15 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth,
   configAttribs.PushBack(EGL_BLUE_SIZE);
   configAttribs.PushBack(8);
 
-  //  For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+  // An alpha channel is needed when the window itself is 32 bit, or when the window
+  // system needs one regardless of the window's transparency: e.g. for underlay video
+  // playback, which punches a hole through the UI by rendering transparent pixels.
+  // Strict X11 EGL implementations (NVIDIA on XWayland) refuse to create a window
+  // surface from a 32 bit visual config on a 24 bit window, so only request alpha
+  // when it is actually needed.
   // TODO: When the tbm queue of GlView is 24bit, do we have to set the alpha size??
   configAttribs.PushBack(EGL_ALPHA_SIZE);
-  configAttribs.PushBack(8);
+  configAttribs.PushBack((surfaceAlphaRequired || depth == COLOR_DEPTH_32) ? 8 : 0);
 
   configAttribs.PushBack(EGL_DEPTH_SIZE);
   configAttribs.PushBack(depthBufferRequired ? 24 : 0);
