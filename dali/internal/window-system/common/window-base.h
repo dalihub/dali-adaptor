@@ -149,6 +149,17 @@ public:
   }
 
   /**
+   * @brief Returns whether the window's EGL surface requires an alpha channel
+   * even when the window itself is opaque.
+   *
+   * @return True when the EGL surface requires an alpha channel
+   */
+  virtual bool RequiresSurfaceAlpha() const
+  {
+    return false;
+  }
+
+  /**
    * @brief Destroy the window
    */
   virtual void DestroyWindow() = 0;

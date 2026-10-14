@@ -291,7 +291,7 @@ bool RegisterTizenCoreEventListener(tizen_core_event_h                          
   }
 
   tizen_core_wl_event_listener_h handle = nullptr;
-  int err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
+  int                            err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
   if(err == TIZEN_CORE_WL_ERROR_NONE && handle)
   {
     listeners.push_back(handle);
@@ -1437,7 +1437,7 @@ void WindowBaseTcoreWl::OnMouseButtonDown(void* data, int type, void* event)
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
   tizen_core_wl_window_h window    = NULL;
-  int retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
+  int                    retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonDown::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
@@ -1503,7 +1503,7 @@ void WindowBaseTcoreWl::OnMouseButtonUp(void* data, int type, void* event)
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
   tizen_core_wl_window_h window    = NULL;
-  int retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
+  int                    retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonUp::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
@@ -1556,7 +1556,7 @@ void WindowBaseTcoreWl::OnMouseButtonMove(void* data, int type, void* event)
   tizen_core_wl_event_input_base_h ev = static_cast<tizen_core_wl_event_input_base_h>(event);
 
   tizen_core_wl_window_h window    = NULL;
-  int retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
+  int                    retWindow = tizen_core_wl_event_input_base_get_window(ev, &window);
   DALI_LOG_RELEASE_INFO("OnMouseButtonMove::get_window ret=%d eventType=%d window=%p\n", retWindow, type, static_cast<void*>(window));
 
   if(window == mTcoreWindow && Dali::Adaptor::IsAvailable())
@@ -2432,6 +2432,14 @@ Dali::Any WindowBaseTcoreWl::CreateWindow(int width, int height)
   }
 
   return static_cast<void*>(mEglWindow);
+}
+
+bool WindowBaseTcoreWl::RequiresSurfaceAlpha() const
+{
+  // Underlay video playback punches a hole through the UI by rendering
+  // transparent pixels, so the surface always needs an alpha channel even
+  // when the window itself is opaque.
+  return true;
 }
 
 void WindowBaseTcoreWl::DestroyWindow()
@@ -3324,7 +3332,7 @@ Dali::WindowNotificationLevel WindowBaseTcoreWl::GetNotificationLevel() const
 
   Dali::WindowNotificationLevel      level;
   tizen_core_wl_notification_level_e notificationLevel;
-  int ret = tizen_core_wl_notification_get_level(mTcoreWindow, &notificationLevel);
+  int                                ret = tizen_core_wl_notification_get_level(mTcoreWindow, &notificationLevel);
 
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
@@ -3434,7 +3442,7 @@ WindowScreenOffMode WindowBaseTcoreWl::GetScreenOffMode() const
   }
 
   tizen_core_wl_screen_mode_e mode;
-  int ret = tizen_core_wl_window_get_screen_mode(mTcoreWindow, &mode);
+  int                         ret = tizen_core_wl_window_get_screen_mode(mTcoreWindow, &mode);
 
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
   {
@@ -3494,7 +3502,7 @@ int WindowBaseTcoreWl::GetBrightness() const
     return 0;
   }
 
-  int                   brightness = 0;
+  int brightness = 0;
   int ret        = tizen_core_wl_window_get_brightness(mTcoreWindow, &brightness);
 
   if(ret != TIZEN_CORE_WL_ERROR_NONE)
@@ -3547,8 +3555,8 @@ bool WindowBaseTcoreWl::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
     {
       return false;
     }
-    GList*                list = g_list_append(nullptr, info);
-    int err  = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
+    GList* list = g_list_append(nullptr, info);
+    int    err  = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
     tizen_core_wl_keygrab_info_destroy(info);
     g_list_free(list);
 
@@ -4242,7 +4250,7 @@ void WindowBaseTcoreWl::LockedPointerRegionSet(int32_t x, int32_t y, int32_t wid
   if(mTcoreWindow && mTcoreDisplay)
   {
     tizen_core_wl_region_h region = NULL;
-    int ret    = tizen_core_wl_display_create_region(mTcoreDisplay, &region);
+    int                    ret    = tizen_core_wl_display_create_region(mTcoreDisplay, &region);
     if(ret != TIZEN_CORE_WL_ERROR_NONE)
     {
       return;
