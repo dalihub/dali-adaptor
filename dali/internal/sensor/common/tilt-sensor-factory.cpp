@@ -20,6 +20,11 @@
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::TiltSensor);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -43,7 +48,7 @@ Dali::TiltSensor Get()
   if(service)
   {
     // Check whether the keyboard focus manager is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TiltSensor));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle of singleton to keyboard focus manager
@@ -53,7 +58,7 @@ Dali::TiltSensor Get()
     {
       // Create a singleton instance
       sensor = Dali::TiltSensor(TiltSensorFactory::Create());
-      service.Register(typeid(sensor), sensor);
+      service.Register(gSingletonTypeInfoId, sensor);
       handle = sensor;
     }
   }

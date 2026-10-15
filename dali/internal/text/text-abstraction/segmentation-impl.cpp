@@ -23,6 +23,11 @@
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::Segmentation);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
@@ -78,7 +83,7 @@ TextAbstraction::Segmentation Segmentation::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::Segmentation));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -88,7 +93,7 @@ TextAbstraction::Segmentation Segmentation::Get()
     else // create and register the object
     {
       segmentationHandle = TextAbstraction::Segmentation(new Segmentation);
-      service.Register(typeid(segmentationHandle), segmentationHandle);
+      service.Register(gSingletonTypeInfoId, segmentationHandle);
     }
   }
 

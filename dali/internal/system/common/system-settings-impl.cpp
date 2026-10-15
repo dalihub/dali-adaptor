@@ -21,6 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::Integration::SystemSettings);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -35,7 +40,7 @@ Dali::Integration::SystemSettings SystemSettings::Get()
   Dali::SingletonService service(Dali::SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Integration::SystemSettings));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       systemSettingsHandle = Dali::Integration::SystemSettings(static_cast<SystemSettings*>(handle.GetObjectPtr()));
@@ -43,7 +48,7 @@ Dali::Integration::SystemSettings SystemSettings::Get()
     else
     {
       systemSettingsHandle = Dali::Integration::SystemSettings(new SystemSettings);
-      service.Register(typeid(Dali::Integration::SystemSettings), systemSettingsHandle);
+      service.Register(gSingletonTypeInfoId, systemSettingsHandle);
     }
   }
 
@@ -55,7 +60,7 @@ bool SystemSettings::IsAvailable()
   Dali::SingletonService service(Dali::SingletonService::Get());
   if(service)
   {
-    return static_cast<bool>(service.GetSingleton(typeid(Dali::Integration::SystemSettings)));
+    return static_cast<bool>(service.GetSingleton(gSingletonTypeInfoId));
   }
 
   return false;

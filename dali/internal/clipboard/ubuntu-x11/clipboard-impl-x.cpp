@@ -46,6 +46,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::Clipboard);
+
 static Eina_Bool EcoreEventSelectionClear(void* data, int type, void* event);
 static Eina_Bool EcoreEventSelectionNotify(void* data, int type, void* event);
 
@@ -516,7 +518,7 @@ public:
     if(service)
     {
       // Check whether the singleton is already created
-      Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+      Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
       if(handle)
       {
         // If so, downcast the handle
@@ -537,7 +539,7 @@ public:
           // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
           Clipboard::Impl* impl(new Clipboard::Impl(ecoreXwin));
           clipboard = Dali::Clipboard(new Clipboard(impl));
-          service.Register(typeid(clipboard), clipboard);
+          service.Register(gSingletonTypeInfoId, clipboard);
         }
       }
     }
@@ -556,7 +558,7 @@ bool Clipboard::IsAvailable()
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       return true;

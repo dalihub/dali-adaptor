@@ -244,7 +244,7 @@ Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surface
 Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height, bool depthBufferRequired, bool stencilBufferRequired, int multiSamplingLevel)
 {
   // Choose config with per-surface depth/stencil/MSAA settings
-  mEglImplementation->ChooseConfig(true, colorDepth, depthBufferRequired, stencilBufferRequired, multiSamplingLevel);
+  mEglImplementation->ChooseConfig(true, colorDepth, depthBufferRequired, stencilBufferRequired, multiSamplingLevel, windowBase->RequiresSurfaceAlpha());
   EGLConfig config = mEglImplementation->GetConfig();
 
   // Create the OpenGL context for this window using the chosen config

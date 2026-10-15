@@ -32,6 +32,8 @@ namespace Internal
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::BidirectionalSupport);
+
 /**
  * @param[in] paragraphDirection The FriBiDi paragraph's direction.
  *
@@ -341,7 +343,7 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::BidirectionalSupport));
+    BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -351,7 +353,7 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
     else // create and register the object
     {
       bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(new BidirectionalSupport);
-      service.Register(typeid(bidirectionalSupportHandle), bidirectionalSupportHandle);
+      service.Register(gSingletonTypeInfoId, bidirectionalSupportHandle);
     }
   }
 

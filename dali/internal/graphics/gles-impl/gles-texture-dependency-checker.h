@@ -74,6 +74,12 @@ public:
    */
   void DiscardTexture(const Texture* texture);
 
+  /**
+   * @brief Notify that given context will be destroyed soon.
+   * @param invalidatedContext The context which will be called eglDestroyContext soon.
+   */
+  void InvalidateContext(const Context* invalidatedContext);
+
 public: ///< FBO write -> Surface read synchronization (Forward)
   /**
    * Add Texture dependencies

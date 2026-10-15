@@ -38,6 +38,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::Devel::TextureUploadManager);
+
 Dali::Devel::TextureUploadManager::ResourceId gUniqueResourceId = 0;
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
@@ -57,7 +59,7 @@ Dali::Devel::TextureUploadManager TextureUploadManager::Get()
   if(singletonService)
   {
     // Check whether the texture upload manager is already created
-    Dali::BaseHandle handle = singletonService.GetSingleton(typeid(Dali::Devel::TextureUploadManager));
+    Dali::BaseHandle handle = singletonService.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle of singleton
@@ -69,7 +71,7 @@ Dali::Devel::TextureUploadManager TextureUploadManager::Get()
       // If not, create the texture upload manager and register it as a singleton
       Internal::Adaptor::TextureUploadManager* internalTextureUploadManager = new Internal::Adaptor::TextureUploadManager();
       manager                                                               = Dali::Devel::TextureUploadManager(internalTextureUploadManager);
-      singletonService.Register(typeid(manager), manager);
+      singletonService.Register(gSingletonTypeInfoId, manager);
     }
   }
   return manager;

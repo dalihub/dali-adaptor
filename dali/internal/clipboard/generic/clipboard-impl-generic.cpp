@@ -22,6 +22,11 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/clipboard/common/clipboard-factory.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::Clipboard);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -58,7 +63,7 @@ public:
     if(service)
     {
       // Check whether the singleton is already created
-      Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+      Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
       if(handle)
       {
         // If so, downcast the handle
@@ -68,7 +73,7 @@ public:
       {
         Clipboard::Impl* impl(new Clipboard::Impl());
         clipboard = Dali::Clipboard(new Clipboard(impl));
-        service.Register(typeid(Dali::Clipboard), clipboard);
+        service.Register(gSingletonTypeInfoId, clipboard);
       }
     }
 
@@ -86,7 +91,7 @@ bool Clipboard::IsAvailable()
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       return true;

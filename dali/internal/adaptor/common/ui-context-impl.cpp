@@ -36,6 +36,8 @@ namespace Adaptor
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::UiContext);
+
 // The public enumeration mirrors the integration one, so a simple cast is enough.
 static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::IF_REQUIRED) == static_cast<int>(Dali::Integration::RenderingBehavior::IF_REQUIRED));
 static_assert(static_cast<int>(Dali::UiContext::RenderingBehavior::CONTINUOUSLY) == static_cast<int>(Dali::Integration::RenderingBehavior::CONTINUOUSLY));
@@ -48,7 +50,7 @@ Dali::UiContext UiContext::Get()
   if(singletonService)
   {
     // Check whether the async task manager is already created
-    Dali::BaseHandle handle = singletonService.GetSingleton(typeid(Dali::UiContext));
+    Dali::BaseHandle handle = singletonService.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle of singleton
@@ -69,7 +71,7 @@ Dali::UiContext UiContext::New(Dali::Adaptor* adaptor)
       // If not, create the UiContext and register it as a singleton
       Internal::Adaptor::UiContext* internalUiContext = new Internal::Adaptor::UiContext(adaptor);
       uiContext                                       = Dali::UiContext(internalUiContext);
-      singletonService.Register(typeid(uiContext), uiContext);
+      singletonService.Register(gSingletonTypeInfoId, uiContext);
     }
   }
 

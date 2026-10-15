@@ -2323,6 +2323,14 @@ Dali::Any WindowBaseEcoreWl2::CreateWindow(int width, int height)
   return static_cast<void*>(mEglWindow);
 }
 
+bool WindowBaseEcoreWl2::RequiresSurfaceAlpha() const
+{
+  // Underlay video playback punches a hole through the UI by rendering
+  // transparent pixels, so the surface always needs an alpha channel even
+  // when the window itself is opaque.
+  return true;
+}
+
 void WindowBaseEcoreWl2::DestroyWindow()
 {
   if(mEglWindow != NULL)

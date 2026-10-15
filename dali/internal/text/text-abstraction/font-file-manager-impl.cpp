@@ -25,6 +25,8 @@
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::FontFileManager);
+
 #if defined(DEBUG_ENABLED)
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_FONT_FILE_MANAGER");
 #endif
@@ -103,7 +105,7 @@ TextAbstraction::FontFileManager FontFileManager::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::FontFileManager));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -121,7 +123,7 @@ TextAbstraction::FontFileManager FontFileManager::Get()
       {
         fontFileManagerHandle = TextAbstraction::FontFileManager(new FontFileManager);
       }
-      service.Register(typeid(fontFileManagerHandle), fontFileManagerHandle);
+      service.Register(gSingletonTypeInfoId, fontFileManagerHandle);
     }
   }
   else
