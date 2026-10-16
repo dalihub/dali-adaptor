@@ -23,6 +23,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-devel.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-direct-rendering-connection.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -122,7 +123,9 @@ public:
   static WebEngine DownCast(BaseHandle handle);
 
   /**
-   * @brief Create WebEngine instance.
+   * @brief Initializes a native-image WebEngine once.
+   * Repeated calls before Destroy() are rejected. Failures are logged; use
+   * InitializeNativeImageRendering() when a success result is required.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
@@ -132,17 +135,24 @@ public:
   void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
 
   /**
-   * @brief Create WebEngine instance.
+   * @brief Initializes a native-image WebEngine once.
+   * Repeated calls before Destroy() are rejected. Failures are logged; use
+   * InitializeNativeImageRendering() when a success result is required.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
-   * @param [in] argc The count of application arguments
-   * @param [in] argv The string array of application arguments
+   * @note Uses the default profile and ignores argc/argv. Configure startup arguments
+   * through WebEngineRuntime::SetArguments() before engine initialization begins.
+   * @param [in] argc Ignored legacy argument count
+   * @param [in] argv Ignored legacy argument array
    */
   void Create(uint32_t width, uint32_t height, uint32_t argc, char** argv);
 
   /**
-   * @brief Destroy WebEngine instance.
+   * @brief Destroys the initialized engine.
+   * Native-image destruction is synchronous. Direct output first stops its core
+   * callback registration and destroys the plugin after completion. Repeated
+   * requests are harmless; reinitialization is rejected while stopping.
    */
   void Destroy();
 
@@ -987,6 +997,40 @@ public:
    * @param[in] callback The callback function called when playback video paused.
    */
   void RegisterPlaybackVideoPausedCallback(Dali::WebEnginePlugin::WebEnginePlaybackVideoPausedCallback callback);
+
+  /**
+   * @brief Initializes rendering through a native image.
+   *
+   * Call once on the event thread after New(), before navigation, instead of Create().
+   * Failed initialization must release partially allocated resources.
+   * The native image is exposed through GetNativeImageInterface().
+   *
+   * @param[in] width The initial content width in pixels
+   * @param[in] height The initial content height in pixels
+   * @param[in] locale The locale used by the web engine
+   * @param[in] timezoneId The timezone used by the web engine
+   * @return True on success, false on failure.
+   */
+  bool InitializeNativeImageRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
+
+  /**
+   * @brief Initializes direct rendering and returns its output connection.
+   *
+   * Call once on the event thread after New(), before navigation, instead of Create().
+   * Failed initialization must release partially allocated resources.
+   * Requires an initialized GLES adaptor with resource-context support. This
+   * event-thread call may wait for graphics initialization. Unsupported environments
+   * return an empty connection without invoking the plugin initialization method.
+   * The adaptor owns rendering and termination. Destroy() closes the connection
+   * before destroying the engine. Unsupported direct rendering has no native-image fallback.
+   *
+   * @param[in] width The initial content width in pixels
+   * @param[in] height The initial content height in pixels
+   * @param[in] locale The locale used by the web engine
+   * @param[in] timezoneId The timezone used by the web engine
+   * @return A connection on success, or an empty handle on failure or unsupported rendering.
+   */
+  Dali::WebEngineDirectRenderingConnection InitializeDirectRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
 
 private: // Not intended for application developers
   /**

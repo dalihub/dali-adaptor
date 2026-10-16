@@ -26,6 +26,7 @@ SET(TC_SOURCES
     utc-Dali-TiltSensor.cpp
     utc-Dali-TtsPlayer-internal.cpp
     utc-Dali-WbmpLoader.cpp
+    utc-Dali-WebEngineDirectRendering.cpp
 )
 
 IF(WIN32)
@@ -63,6 +64,7 @@ SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources" FORCE)
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
+    ../../../dali/internal/web-engine/common/web-engine-direct-rendering-connection-impl.cpp
     ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
     ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp

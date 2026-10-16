@@ -93,10 +93,10 @@ Dali::WebEngineCookieManager* Cookies(void*)
 }
 bool View(Dali::WebEnginePlugin* plugin, void* token, uint32_t, uint32_t)
 {
-  return plugin && token;
+  return plugin && token && !std::getenv("TEST_VIEW_FAILURE");
 }
-const Dali::WebEngineProfileApi api{1, sizeof(Dali::WebEngineProfileApi), Store, Read, Initialize,
-  Default, Create, Destroy, Context, Cookies, View};
+Dali::WebEngineProfileApi api{1, sizeof(Dali::WebEngineProfileApi), Store, Read, Initialize,
+  Default, Create, Destroy, Context, Cookies, View, nullptr};
 }
 extern "C" Dali::WebEnginePlugin* CreateWebEnginePlugin()
 {
@@ -108,6 +108,7 @@ extern "C" void DestroyWebEnginePlugin(Dali::WebEnginePlugin* plugin)
 }
 extern "C" const Dali::WebEngineProfileApi* GetWebEngineProfileApi(uint32_t version)
 {
+  api.structSize = std::getenv("TEST_LEGACY_PROFILE_API") ? offsetof(Dali::WebEngineProfileApi, createDirectRenderingView) : sizeof(Dali::WebEngineProfileApi);
   return version == 1 && !std::getenv("TEST_UNSUPPORTED") ? &api : nullptr;
 }
 extern "C" int InitializationCalls()

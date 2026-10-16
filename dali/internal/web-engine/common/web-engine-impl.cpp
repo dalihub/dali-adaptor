@@ -16,6 +16,8 @@
  */
 
 // CLASS HEADER
+#include <dali/devel-api/adaptor-framework/graphics-backend.h>
+#include <dali/internal/web-engine/common/web-engine-direct-rendering-connection-impl.h>
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
 // EXTERNAL INCLUDES
@@ -42,6 +44,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-load-error.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-policy-decision.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-settings.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
 #include <dali/public-api/images/pixel-data.h>
@@ -54,6 +57,15 @@ namespace Adaptor
 {
 namespace // unnamed namespace
 {
+bool IsDirectRenderingSupported()
+{
+  if(Graphics::GetCurrentGraphicsBackend() != Graphics::Backend::GLES || !Adaptor::IsAvailable())
+  {
+    return false;
+  }
+  return Adaptor::GetImplementation(Adaptor::Get()).IsResourceContextSupported();
+}
+
 static constexpr int32_t USE_ENVIRONMENT_VALUE          = -1;
 static constexpr int32_t USE_CHROMIUM_WEB_ENGINE        = 0;
 static constexpr int32_t USE_LIGHT_WEIGHT_WEB_ENGINE    = 1;
@@ -155,7 +167,7 @@ public:
     using GetApi = const Dali::WebEngineProfileApi* (*)(uint32_t);
     auto getApi = mHandle ? reinterpret_cast<GetApi>(dlsym(mHandle, "GetWebEngineProfileApi")) : nullptr;
     const auto* api = getApi ? getApi(1) : nullptr;
-    if(!api || api->version != 1 || api->structSize < sizeof(Dali::WebEngineProfileApi) ||
+    if(!api || api->version != 1 || api->structSize < offsetof(Dali::WebEngineProfileApi, createDirectRenderingView) ||
        !api->storeArguments || !api->readArguments || !api->initialize ||
        !api->getDefaultProfile || !api->createProfile || !api->destroyProfile ||
        !api->getContext || !api->getCookieManager || !api->createView)
@@ -386,7 +398,10 @@ WebEngine::~WebEngine()
 {
   if(mPlugin != nullptr)
   {
-    mPlugin->Destroy();
+    if(mInitialized)
+    {
+      mPlugin->Destroy();
+    }
     // Check whether plugin load sccess or not.
     mDestroyPlugin(mPlugin);
     mPlugin = nullptr;
@@ -415,39 +430,47 @@ bool WebEngine::Initialize()
 
 void WebEngine::Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
 {
-  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
-  auto library = std::static_pointer_cast<WebEnginePluginObject>(mPluginLibrary);
-  if(library != WebEnginePluginObject::GetSharedInstance(webEnginePluginType))
+  if(!InitializeNativeImageRendering(width, height, locale, timezoneId))
   {
-    DALI_LOG_ERROR("Cannot create a view from an inactive backend\n");
-    return;
+    DALI_LOG_ERROR("WebEngine: native-image initialization failed\n");
   }
-  if(!InitializeRuntime())
-  {
-    return;
-  }
-  mPlugin->Create(width, height, locale, timezoneId);
 }
 
-void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** argv)
+void WebEngine::Create(uint32_t width, uint32_t height, uint32_t /*argc*/, char** /*argv*/)
 {
   std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
-  auto library = std::static_pointer_cast<WebEnginePluginObject>(mPluginLibrary);
-  if(library != WebEnginePluginObject::GetSharedInstance(webEnginePluginType))
+  if(!PrepareInitialization())
   {
-    DALI_LOG_ERROR("Cannot create a view from an inactive backend\n");
+    DALI_LOG_ERROR("WebEngine: native-image initialization failed\n");
     return;
   }
-  if(!InitializeRuntime())
+  auto profile = Dali::WebEngineRuntime::GetDefaultProfile();
+  if(!Dali::WebEngineRuntime::CreateView(Dali::WebEngine::DownCast(Dali::BaseHandle(this)), profile, width, height))
   {
-    return;
+    DALI_LOG_ERROR("WebEngine: native-image initialization failed\n");
   }
-  mPlugin->Create(width, height, argc, argv);
 }
 
 void WebEngine::Destroy()
 {
-  mPlugin->Destroy();
+  if(mDirectRenderingState)
+  {
+    mDirectRenderingState->Stop();
+    return;
+  }
+  if(mInitialized)
+  {
+    mPlugin->Destroy();
+    mInitialized = false;
+    mProfile.reset();
+  }
+}
+
+void WebEngine::DirectRenderingStopped(WebEngineDirectRenderingState& state)
+{
+  DALI_ASSERT_ALWAYS(mDirectRenderingState == &state);
+  mDirectRenderingState = nullptr;
+  Destroy();
 }
 
 bool WebEngine::IsIncognito() const
@@ -1065,6 +1088,81 @@ void WebEngine::RemoveJavaScriptMessageHandler(const std::string& exposedObjectN
   mPlugin->RemoveJavaScriptMessageHandler(exposedObjectName);
 }
 
+bool WebEngine::PrepareInitialization()
+{
+  auto library = std::static_pointer_cast<WebEnginePluginObject>(mPluginLibrary);
+  if(mInitialized || !mPlugin || library != WebEnginePluginObject::GetSharedInstance(webEnginePluginType))
+  {
+    DALI_LOG_ERROR("WebEngine: initialization requires an uninitialized engine from the active backend\n");
+    return false;
+  }
+  return InitializeRuntime() != nullptr;
+}
+
+bool WebEngine::InitializeNativeImageRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(!PrepareInitialization())
+  {
+    return false;
+  }
+  mInitialized = mPlugin->InitializeNativeImageRendering(width, height, locale, timezoneId);
+  return mInitialized;
+}
+
+Dali::WebEngineDirectRenderingConnection WebEngine::InitializeDirectRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  if(!IsDirectRenderingSupported() || !PrepareInitialization())
+  {
+    return {};
+  }
+  return ConnectDirectRendering(mPlugin->InitializeDirectRendering(width, height, locale, timezoneId));
+}
+
+bool WebEngine::CreateView(const Dali::WebEngineProfilePtr& profile, const Dali::WebEngineProfileApi& api, void* token, uint32_t width, uint32_t height)
+{
+  if(!PrepareInitialization())
+  {
+    return false;
+  }
+  mInitialized = api.createView(mPlugin, token, width, height);
+  if(mInitialized)
+  {
+    mProfile = profile;
+  }
+  return mInitialized;
+}
+
+Dali::WebEngineDirectRenderingConnection WebEngine::CreateDirectRenderingView(const Dali::WebEngineProfilePtr& profile, const Dali::WebEngineProfileApi& api, void* token, uint32_t width, uint32_t height)
+{
+  if(api.structSize < sizeof(Dali::WebEngineProfileApi) || !api.createDirectRenderingView ||
+     !IsDirectRenderingSupported() || !PrepareInitialization())
+  {
+    return {};
+  }
+  auto connection = ConnectDirectRendering(api.createDirectRenderingView(mPlugin, token, width, height));
+  if(connection)
+  {
+    mProfile = profile;
+  }
+  return connection;
+}
+
+Dali::WebEngineDirectRenderingConnection WebEngine::ConnectDirectRendering(Dali::WebEngineDirectRenderingSessionPtr session)
+{
+  if(!session)
+  {
+    return {};
+  }
+  mInitialized = true;
+  mDirectRenderingState = new WebEngineDirectRenderingState(std::move(session), [engine = IntrusivePtr<WebEngine>(this)](WebEngineDirectRenderingState& state)
+  {
+    engine->DirectRenderingStopped(state);
+  });
+  return Dali::WebEngineDirectRenderingConnection(new WebEngineDirectRenderingConnection(mDirectRenderingState));
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } //namespace DALI_NAMESPACE
@@ -1211,6 +1309,17 @@ bool WebEngineRuntime::CreateView(Dali::WebEngine engine, const WebEngineProfile
   {
     return false;
   }
-  return owned->mApi->createView(engine.GetPlugin(), owned->mToken, width, height);
+  return Dali::GetImplementation(engine).CreateView(profile, *owned->mApi, owned->mToken, width, height);
+}
+Dali::WebEngineDirectRenderingConnection WebEngineRuntime::CreateDirectRenderingView(Dali::WebEngine engine, const WebEngineProfilePtr& profile, uint32_t width, uint32_t height)
+{
+  std::lock_guard<std::recursive_mutex> lock(runtimeMutex);
+  auto owned = std::dynamic_pointer_cast<OwnedWebEngineProfile>(profile);
+  if(!engine || !owned || !owned->GetContext() ||
+     Dali::GetImplementation(engine).GetPluginLibrary() != owned->mLibrary || !engine.GetPlugin())
+  {
+    return {};
+  }
+  return Dali::GetImplementation(engine).CreateDirectRenderingView(profile, *owned->mApi, owned->mToken, width, height);
 }
 } // namespace DALI_NAMESPACE

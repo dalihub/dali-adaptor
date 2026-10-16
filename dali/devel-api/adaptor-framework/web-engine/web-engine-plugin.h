@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-devel.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-direct-rendering-session.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/adaptor-framework/native-image.h>
@@ -1188,6 +1189,39 @@ public:
   {
     return GetNativeImage();
   }
+
+public:
+  /**
+   * @brief Initializes rendering through a native image.
+   *
+   * Call once on the event thread before navigation, instead of Create().
+   * Failed initialization must release partially allocated resources.
+   * The native image is exposed through GetNativeImageInterface().
+   *
+   * @param[in] width The initial content width in pixels
+   * @param[in] height The initial content height in pixels
+   * @param[in] locale The locale used by the web engine
+   * @param[in] timezoneId The timezone used by the web engine
+   * @return True on success, false on failure.
+   */
+  virtual bool InitializeNativeImageRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId) = 0;
+
+  /**
+   * @brief Initializes direct rendering and returns its render session.
+   *
+   * Call once on the event thread before navigation, instead of Create().
+   * Failed initialization must release partially allocated resources.
+   * The session must finish rendering before Destroy(). Render() and ReleaseGraphicsResources()
+   * run on the render thread. Unsupported direct rendering has no native-image fallback.
+   *
+   * @param[in] width The initial content width in pixels
+   * @param[in] height The initial content height in pixels
+   * @param[in] locale The locale used by the web engine
+   * @param[in] timezoneId The timezone used by the web engine
+   * @return A session on success, or an empty pointer on failure or unsupported rendering.
+   */
+  virtual WebEngineDirectRenderingSessionPtr InitializeDirectRendering(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId) = 0;
+
 };
 
 // specialization has to be done in the same namespace

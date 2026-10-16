@@ -18,6 +18,7 @@
  */
 
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-direct-rendering-session.h>
 #include <cstdint>
 #include <memory>
 
@@ -63,6 +64,8 @@ struct WebEngineProfileApi
   WebEngineContext* (*getContext)(void* profile);
   WebEngineCookieManager* (*getCookieManager)(void* profile);
   bool (*createView)(WebEnginePlugin* plugin, void* profile, uint32_t width, uint32_t height);
+  /** Optional append-only entry. Check structSize before accessing it. */
+  WebEngineDirectRenderingSessionPtr (*createDirectRenderingView)(WebEnginePlugin* plugin, void* profile, uint32_t width, uint32_t height);
 };
 
 /** Shared initialization/type state for the UI and plugin loader. */
@@ -75,5 +78,7 @@ public:
   static WebEngineProfilePtr GetDefaultProfile();
   static WebEngineProfilePtr CreateProfile(bool incognito, const char* bundlePath);
   static bool CreateView(WebEngine engine, const WebEngineProfilePtr& profile, uint32_t width, uint32_t height);
+  /** Creates direct output with the same profile ownership and backend checks as CreateView(). */
+  static WebEngineDirectRenderingConnection CreateDirectRenderingView(WebEngine engine, const WebEngineProfilePtr& profile, uint32_t width, uint32_t height);
 };
 } // namespace DALI_NAMESPACE
