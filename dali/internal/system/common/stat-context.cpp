@@ -19,7 +19,12 @@
 #include <dali/internal/system/common/stat-context.h>
 
 // EXTERNAL INCLUDES
+#include <algorithm>
 #include <cstdio>
+#include <cstring>
+#include <iomanip>
+#include <locale>
+#include <sstream>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
@@ -30,9 +35,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-#define TIME_FMT "%0.2f ms"         // 2 decimal places, e.g. 5.34 ms
-#define TOTAL_TIME_FMT "%0.1f secs" // 1 decimal place, e.g. 4.5 seconds
-
 namespace
 {
 const unsigned int MILLISECONDS_PER_SECOND = 1000; ///< 1000 milliseconds per second
@@ -161,15 +163,19 @@ void StatContext::LogMarker()
   float mean, standardDeviation;
   mStats.CalculateMean(mean, standardDeviation);
 
-  snprintf(mTempLogBuffer,
-           CONTEXT_LOG_SIZE,
-           "%s, min " TIME_FMT ", max " TIME_FMT ", total (" TOTAL_TIME_FMT "), avg " TIME_FMT ", std dev " TIME_FMT "\n",
-           mName ? mName : UNKNOWN_CONTEXT_NAME,
-           mStats.GetMinTime() * MILLISECONDS_PER_SECOND,
-           mStats.GetMaxTime() * MILLISECONDS_PER_SECOND,
-           mStats.GetTotalTime(),
-           mean * MILLISECONDS_PER_SECOND,
-           standardDeviation * MILLISECONDS_PER_SECOND);
+  std::ostringstream stream;
+  stream.imbue(std::locale::classic());
+  stream << (mName ? mName : UNKNOWN_CONTEXT_NAME)
+         << ", min " << std::fixed << std::setprecision(2) << mStats.GetMinTime() * MILLISECONDS_PER_SECOND << " ms"
+         << ", max " << std::fixed << std::setprecision(2) << mStats.GetMaxTime() * MILLISECONDS_PER_SECOND << " ms"
+         << ", total (" << std::fixed << std::setprecision(1) << mStats.GetTotalTime() << " secs)"
+         << ", avg " << std::fixed << std::setprecision(2) << mean * MILLISECONDS_PER_SECOND << " ms"
+         << ", std dev " << std::fixed << std::setprecision(2) << standardDeviation * MILLISECONDS_PER_SECOND << " ms\n";
+
+  const std::string message = stream.str();
+  const std::size_t length  = std::min(message.size(), static_cast<std::size_t>(CONTEXT_LOG_SIZE - 1u));
+  std::memcpy(mTempLogBuffer, message.data(), length);
+  mTempLogBuffer[length] = '\0';
 
   mLogInterface.LogContextStatistics(mTempLogBuffer);
 }
