@@ -63,7 +63,7 @@ public:
   EntityDataHostTizen& operator=(const EntityDataHostTizen&) = delete;
 
   /**
-   * @brief Returns the service that implements the four view actions.
+   * @brief Returns the service that implements the view actions.
    */
   EntityDataService& GetService() override;
 

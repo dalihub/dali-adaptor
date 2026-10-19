@@ -7,10 +7,13 @@ PKG_CHECK_MODULES( RPC_PORT REQUIRED rpc-port )
 SET( ENTITY_DATA_STUB_DIR ${ADAPTOR_ROOT}/dali/internal/app-entity/tizen/tidl-stub )
 SET( ENTITY_DATA_STUB_CC  ${ENTITY_DATA_STUB_DIR}/view-stub.cc )
 
-# To regenerate after a Tizen.Entity.View / Tizen.Action.View change:
-#   ACTIONC_ACTION_SEQ=<tizen-action>/default-actions/action.seq \
-#     actionc -a Tizen.Action.View -l C++ -o implview \
-#             -d <tizen-action>/default-actions
+# Generated with TizenActionToolchain 2.3.0 (tidlc 3.1.6) from the
+# tizen-action 1.9.0 schemas; the device needs tizen-action >= 1.8.0.
+# To regenerate after a Tizen.Entity.View / Tizen.Action.View change, point
+# <data> at the matching TizenActionRepo/<version> directory (or
+# <tizen-action>/default-actions, which holds the same schemas):
+#   ACTIONC_ACTION_SEQ=<data>/action.seq \
+#     actionc -a Tizen.Action.View -l C++ -o implview -d <data>
 #   mv implview.h view-stub.h && mv implview.cc view-stub.cc
 #   sed -i 's|#include "implview.h"|#include "view-stub.h"|' view-stub.cc
 # The checked-in output also makes Listen() fail closed for every rpc-port
