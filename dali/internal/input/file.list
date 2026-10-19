@@ -28,6 +28,8 @@ ELSE()
 ENDIF()
 
 # module: input, backend: ubuntu-x11
+# The Ubuntu product uses its platform backend. Bridge sources are compiled
+# separately into the UTC executable, without replacing this factory.
 SET( adaptor_input_ubuntu_x11_src_files
     ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp
     ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp
@@ -52,12 +54,41 @@ SET( adaptor_input_generic_src_files
 )
 
 # module: input, backend: windows
-SET( adaptor_input_windows_src_files
-    ${adaptor_input_dir}/windows/input-method-context-factory-win.cpp
-    ${adaptor_input_dir}/windows/input-method-context-impl-win.cpp
-    ${adaptor_input_dir}/windows/key-mapping-win.cpp
-    ${adaptor_input_dir}/windows/virtual-keyboard-impl-win.cpp
-)
+#
+# input-method-context-impl-win.cpp is listed in BOTH arms on purpose. It is
+# not only the platform InputMethodContext: it also carries the static
+# InputMethodContextWin::ProcessWindowMessage()
+# (dali/internal/input/windows/input-method-context-impl-win.h:56, defined at
+# input-method-context-impl-win.cpp:206), which
+# dali/internal/window-system/windows/window-base-win.cpp:1103 calls
+# unconditionally -- window-base-win.cpp is listed without any guard in
+# dali/internal/window-system/file.list:161. Dropping the impl here therefore
+# left the windows profile with an undefined reference under
+# IME_BACKEND=BRIDGE.
+#
+# Only the *factory* is swapped, because the factory holds the single
+# definition of InputMethodContextFactory::CreateInputMethodContext().
+# Compiling both impl translation units together is ODR-safe: the win impl's
+# namespace-scope globals (gLogFilter, gActiveInputContexts) sit in an
+# anonymous namespace (input-method-context-impl-win.cpp:57-63) and the
+# bridge context impl declares no namespace-scope globals at all.
+IF(USE_IME_BRIDGE)
+  SET( adaptor_input_windows_src_files
+      ${adaptor_input_dir}/windows/bridge/ime-bridge.cpp
+      ${adaptor_input_dir}/windows/bridge/input-method-context-factory-bridge.cpp
+      ${adaptor_input_dir}/windows/bridge/input-method-context-impl-bridge.cpp
+      ${adaptor_input_dir}/windows/input-method-context-impl-win.cpp
+      ${adaptor_input_dir}/windows/key-mapping-win.cpp
+      ${adaptor_input_dir}/windows/virtual-keyboard-impl-win.cpp
+  )
+ELSE()
+  SET( adaptor_input_windows_src_files
+      ${adaptor_input_dir}/windows/input-method-context-factory-win.cpp
+      ${adaptor_input_dir}/windows/input-method-context-impl-win.cpp
+      ${adaptor_input_dir}/windows/key-mapping-win.cpp
+      ${adaptor_input_dir}/windows/virtual-keyboard-impl-win.cpp
+  )
+ENDIF()
 
 # module: input, backend: macos
 SET( adaptor_input_macos_src_files

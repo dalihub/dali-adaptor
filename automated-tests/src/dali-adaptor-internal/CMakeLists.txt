@@ -48,7 +48,16 @@ IF(THORVG_FOUND)
   )
 ENDIF()
 
-SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
+# Ubuntu bridge tests compile the production bridge sources directly into the
+# test executable; the installed adaptor keeps its platform input backend.
+IF(NOT WIN32)
+  LIST(APPEND TC_SOURCES
+    utc-Dali-ImeBridge.cpp
+    utc-Dali-ImeBridgeContext.cpp
+  )
+ENDIF()
+
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources" FORCE)
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
@@ -116,6 +125,12 @@ IF(GLES_GRAPHICS_LIB_FOUND)
 ENDIF()
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})
+IF(NOT WIN32)
+  TARGET_SOURCES(${EXEC_NAME} PRIVATE
+    ../../../dali/internal/input/windows/bridge/ime-bridge.cpp
+    ../../../dali/internal/input/windows/bridge/input-method-context-impl-bridge.cpp
+  )
+ENDIF()
 TARGET_LINK_LIBRARIES(${EXEC_NAME}
     ${${CAPI_LIB}_LIBRARIES}
     ${GLES_GRAPHICS_LIB}

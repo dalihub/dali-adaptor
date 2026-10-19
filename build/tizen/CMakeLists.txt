@@ -227,6 +227,25 @@ IF( UNIX )
   INCLUDE( deps-check.cmake )
 ENDIF()
 
+# PLATFORM is the default; Windows builds can opt in with -DIME_BACKEND=BRIDGE.
+# Configure this after PROFILE_LCASE is set and before module-list.cmake.
+SET(IME_BACKEND "PLATFORM" CACHE STRING "IME backend: PLATFORM or BRIDGE")
+SET_PROPERTY(CACHE IME_BACKEND PROPERTY STRINGS PLATFORM BRIDGE)
+
+SET(USE_IME_BRIDGE OFF)
+IF(IME_BACKEND STREQUAL "BRIDGE")
+  IF(NOT PROFILE_LCASE STREQUAL "windows")
+    MESSAGE(FATAL_ERROR
+      "IME_BACKEND=BRIDGE is implemented for the windows profile only "
+      "(PROFILE_LCASE is '${PROFILE_LCASE}').")
+  ENDIF()
+  SET(USE_IME_BRIDGE ON)
+  ADD_DEFINITIONS(-DUSE_IME_BRIDGE)
+ELSEIF(NOT IME_BACKEND STREQUAL "PLATFORM")
+  MESSAGE(FATAL_ERROR "IME_BACKEND must be either PLATFORM or BRIDGE")
+ENDIF()
+MESSAGE(STATUS "Using ${IME_BACKEND} IME backend (profile: ${PROFILE_LCASE})")
+
 IF( UBUNTU_PROFILE OR ANDROID_PROFILE OR WIN32 OR APPLE OR LIBUV_X11_PROFILE OR GLIB_X11_PROFILE)
   SET( ENABLE_VCONF OFF )
 ELSE()
@@ -635,6 +654,9 @@ SET( androidadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor
 INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir} )
 INSTALL_HEADERS_WITH_DIRECTORY( adaptor_extension_api_header_files ${adaptor_extension_api_dir} dali/extension-api )
 INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_header_files ${adaptor_integration_api_dir} dali/integration-api )
+IF( USE_IME_BRIDGE )
+  INSTALL_HEADERS_WITH_DIRECTORY( adaptor_integration_api_ime_bridge_header_files ${adaptor_integration_api_dir} dali/integration-api )
+ENDIF()
 INSTALL( FILES ${adaptor_integration_api_system_header_files} DESTINATION ${tizenadaptorintegrationsystemapidir} )
 INSTALL( FILES ${adaptor_integration_api_file_download_plugin_header_files} DESTINATION ${tizenadaptorfiledownloadapidir} )
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
