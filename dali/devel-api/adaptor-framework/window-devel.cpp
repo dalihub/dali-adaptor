@@ -180,6 +180,11 @@ bool KeyboardUngrab(Window window)
   return GetImplementation(window).KeyboardUngrab();
 }
 
+bool KeyboardUnGrab(Window window)
+{
+  return KeyboardUngrab(window);
+}
+
 void SetFullScreen(Window window, bool fullscreen)
 {
   GetImplementation(window).SetFullScreen(fullscreen);
@@ -223,6 +228,11 @@ bool RelativeMotionGrab(Window window, uint32_t boundary)
 bool RelativeMotionUngrab(Window window)
 {
   return GetImplementation(window).RelativeMotionUngrab();
+}
+
+bool RelativeMotionUnGrab(Window window)
+{
+  return RelativeMotionUngrab(window);
 }
 
 void SetBlur(Window window, const WindowBlurInfo& blurInfo)
