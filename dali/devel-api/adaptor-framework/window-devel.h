@@ -293,6 +293,17 @@ DALI_ADAPTOR_API bool KeyboardGrab(Window window, Device::Subclass::Type deviceS
 DALI_ADAPTOR_API bool KeyboardUngrab(Window window);
 
 /**
+ * @brief Requests ungrab key events
+ *
+ * @DEPRECATED_2_5.41 Use KeyboardUngrab() instead.
+ * @param[in] window The window instance.
+ * @return Returns true if KeyboardUngrab succeeds.
+ * @note Kept only so that an application still calling this keeps building and linking while it
+ *   moves over to KeyboardUngrab(). It forwards to that function and will be removed.
+ */
+DALI_ADAPTOR_API bool KeyboardUnGrab(Window window);
+
+/**
  * @brief Sets full screen sized window.
  * If full screen size is set for the window,
  * window will be resized with full screen size.
@@ -370,6 +381,17 @@ DALI_ADAPTOR_API bool RelativeMotionGrab(Window window, uint32_t boundary);
  * @return True if the request was successful, false otherwise.
  */
 DALI_ADAPTOR_API bool RelativeMotionUngrab(Window window);
+
+/**
+ * @brief Requests relative motion ungrab
+ *
+ * @DEPRECATED_2_5.41 Use RelativeMotionUngrab() instead.
+ * @param[in] window The window instance.
+ * @return True if the request was successful, false otherwise.
+ * @note Kept only so that an application still calling this keeps building and linking while it
+ *   moves over to RelativeMotionUngrab(). It forwards to that function and will be removed.
+ */
+DALI_ADAPTOR_API bool RelativeMotionUnGrab(Window window);
 
 /**
  * @brief Sets the window blur.
