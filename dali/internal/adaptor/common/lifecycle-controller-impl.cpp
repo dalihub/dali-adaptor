@@ -21,6 +21,11 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::LifecycleController);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace Internal
@@ -37,9 +42,9 @@ Dali::LifecycleController LifecycleController::Get()
 
   // Register with SingletonService, when available, so the instance can still be discovered through it.
   Dali::SingletonService service(SingletonService::Get());
-  if(service && !service.GetSingleton(typeid(Dali::LifecycleController)))
+  if(service && !service.GetSingleton(gSingletonTypeInfoId))
   {
-    service.Register(typeid(Dali::LifecycleController), lifecycleController);
+    service.Register(gSingletonTypeInfoId, lifecycleController);
   }
 
   return lifecycleController;

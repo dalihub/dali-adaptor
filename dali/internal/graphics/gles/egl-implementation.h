@@ -177,11 +177,12 @@ public:
    * @param[in] depthBufferRequired Whether depth buffer is required
    * @param[in] stencilBufferRequired Whether stencil buffer is required
    * @param[in] multiSamplingLevel The multi-sampling level required
+   * @param[in] surfaceAlphaRequired Whether the surface requires an alpha channel even for a 24 bit window
    * @return true on success, false on failure
    */
   bool ChooseConfig(bool isWindowType, ColorDepth depth,
                     bool depthBufferRequired, bool stencilBufferRequired,
-                    int multiSamplingLevel);
+                    int multiSamplingLevel, bool surfaceAlphaRequired = true);
 
   /**
    * @brief Gets the currently chosen EGL config.

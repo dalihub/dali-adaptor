@@ -42,6 +42,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::AsyncTaskManager);
+
 constexpr auto FORCE_TRIGGER_THRESHOLD = 128u; ///< Trigger TasksCompleted() forcely if the number of completed task contain too much.
 
 constexpr auto DEFAULT_NUMBER_OF_ASYNC_THREADS = size_t{8u};
@@ -617,7 +619,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
   if(singletonService)
   {
     // Check whether the async task manager is already created
-    Dali::BaseHandle handle = singletonService.GetSingleton(typeid(Dali::AsyncTaskManager));
+    Dali::BaseHandle handle = singletonService.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle of singleton
@@ -629,7 +631,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
       // If not, create the async task manager and register it as a singleton
       Internal::Adaptor::AsyncTaskManager* internalAsyncTaskManager = new Internal::Adaptor::AsyncTaskManager();
       manager                                                       = Dali::AsyncTaskManager(internalAsyncTaskManager);
-      singletonService.Register(typeid(manager), manager);
+      singletonService.Register(gSingletonTypeInfoId, manager);
     }
   }
   return manager;

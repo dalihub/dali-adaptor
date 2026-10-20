@@ -48,6 +48,8 @@ using EcoreWl2EventDragAndDropWindowIdType = unsigned int;
 
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::DragAndDrop);
+
 static constexpr int32_t DEFAULT_POSITION            = -1;
 static constexpr int32_t INVALID_ECORE_WL2_WINDOW_ID = -1;
 static constexpr int32_t MAX_MIME_SIZE               = 10;
@@ -144,7 +146,7 @@ Dali::DragAndDrop GetDragAndDrop()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::DragAndDrop));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -156,7 +158,7 @@ Dali::DragAndDrop GetDragAndDrop()
       DragAndDropEcoreWl* dndImpl = new DragAndDropEcoreWl();
 
       dnd = Dali::DragAndDrop(dndImpl);
-      service.Register(typeid(Dali::DragAndDrop), dnd);
+      service.Register(gSingletonTypeInfoId, dnd);
     }
   }
 

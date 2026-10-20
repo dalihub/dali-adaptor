@@ -536,10 +536,16 @@ void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfac
     }
     else
     {
+      const auto* invalidatedContext = iter->second.get();
+
       // Mark as given context will be deleted soon.
       // It will make sync object id that created by given context
       // become invalidated.
-      mSyncPool.InvalidateContext(iter->second.get());
+      mSyncPool.InvalidateContext(invalidatedContext);
+
+      // Remove cached info about given context from texture dependency checker.
+      // It will guard several cache-miss issues if new context is created with same pointer as given context.
+      mTextureDependencyChecker.InvalidateContext(invalidatedContext);
     }
   }
 

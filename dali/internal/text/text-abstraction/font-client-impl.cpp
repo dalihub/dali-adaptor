@@ -44,6 +44,8 @@ namespace Internal
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::TextAbstraction::FontClient);
+
 class FontThread
 {
   /*
@@ -119,7 +121,7 @@ Dali::TextAbstraction::FontClient FontClient::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextAbstraction::FontClient));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -156,7 +158,7 @@ Dali::TextAbstraction::FontClient FontClient::Get()
 
       fontClientHandle.SetDpiFromWindowSystem();
 
-      service.Register(typeid(fontClientHandle), fontClientHandle);
+      service.Register(gSingletonTypeInfoId, fontClientHandle);
     }
   }
 

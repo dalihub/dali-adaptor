@@ -823,18 +823,28 @@ private:
 
   /**
    * @brief Called when Accessibility is disabled.
-   *
-   * This method is to remove the window from accessibility bridge.
    */
   void OnAccessibilityDisabled();
 
   /**
-   * @brief Called in Accessibility mode on every KeyEvent
+   * @brief Offers a key event to accessibility before application intercept handlers run.
+   *
+   * Called only for events not yet processed by accessibility while the bridge is up.
+   * If accessibility does not consume the event, its reply feeds it back to core for
+   * application intercept handling and normal key delivery.
    *
    * @param[in] keyEvent The key event
-   * @return Always true, meaning that the event is consumed
+   * @return True if the bridge accepted the event, false if application delivery should continue
    */
-  bool OnAccessibilityInterceptKeyEvent(Dali::Window window, Dali::KeyEvent keyEvent);
+  bool ProcessAccessibilityKeyEvent(Dali::KeyEvent keyEvent);
+
+  /**
+   * @brief Emits the application's intercept key event signal.
+   *
+   * @param[in] keyEvent The key event
+   * @return True if the application consumed the event
+   */
+  bool EmitInterceptKeyEventSignal(Dali::KeyEvent keyEvent);
 
   /**
    * @brief Called when key event is received from SceneHolder.
@@ -865,10 +875,11 @@ private:
 
   /**
    * @brief Called when intercept key event is received from SceneHolder.
-   * Re-emits the event via mInterceptKeyEventSignal with Window as the first parameter.
+   * Offers the event to accessibility before emitting the application's intercept signal.
    *
    * @param[in] sceneHolder The SceneHolder that emitted the signal
    * @param[in] keyEvent The key event
+   * @return True if accessibility deferred delivery or the application consumed the event
    */
   bool OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder sceneHolder, Dali::KeyEvent keyEvent);
 

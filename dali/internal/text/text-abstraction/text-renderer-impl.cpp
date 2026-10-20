@@ -24,6 +24,11 @@
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/cairo-renderer.h>
 
+namespace
+{
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(TextAbstraction::TextRenderer);
+} // unnamed namespace
+
 namespace DALI_NAMESPACE
 {
 namespace TextAbstraction
@@ -46,7 +51,7 @@ TextAbstraction::TextRenderer TextRenderer::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::TextRenderer));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -56,7 +61,7 @@ TextAbstraction::TextRenderer TextRenderer::Get()
     else // create and register the object
     {
       shapingHandle = TextAbstraction::TextRenderer(new TextRenderer);
-      service.Register(typeid(shapingHandle), shapingHandle);
+      service.Register(gSingletonTypeInfoId, shapingHandle);
     }
   }
 

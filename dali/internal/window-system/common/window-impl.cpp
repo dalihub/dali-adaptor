@@ -1276,8 +1276,6 @@ void Window::OnAccessibilityEnabled()
   }
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
 
-  InterceptKeyEventSignal().Connect(this, &Window::OnAccessibilityInterceptKeyEvent);
-
   Dali::Window handle(this);
   if(!mIsEmittedWindowCreatedEvent)
   {
@@ -1311,11 +1309,9 @@ void Window::OnAccessibilityEnabled()
 void Window::OnAccessibilityDisabled()
 {
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
-
-  InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
 }
 
-bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::KeyEvent keyEvent)
+bool Window::ProcessAccessibilityKeyEvent(Dali::KeyEvent keyEvent)
 {
   auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge();
 
@@ -1326,21 +1322,44 @@ bool Window::OnAccessibilityInterceptKeyEvent(Dali::Window /*window*/, Dali::Key
     return false;
   }
 
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) mutable
+  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool accessibilityConsumed) mutable
   {
-    if(!consumed)
+    if(accessibilityConsumed)
     {
-      Dali::DevelKeyEvent::SetInterceptProcessed(keyEvent, true);
-      handle.FeedKeyEvent(keyEvent);
+      return;
     }
+
+    // Skip accessibility on re-injection, then let core dispatch the application intercept.
+    Dali::DevelKeyEvent::SetInterceptProcessed(keyEvent, true);
+    handle.FeedKeyEvent(keyEvent);
   };
 
   bool emitted = bridge->EmitKeyEvent(keyEvent, callback);
 
-  // If emitted, consume the event in order not to have to wait for the D-Bus call
-  // to finish. If the event turns out not to be consumed by the remote client,
-  // then it is fed back to the window from the D-Bus callback.
+  // Defer application delivery until the accessibility reply. Unconsumed events are fed
+  // back to core so application intercept handlers run in the normal event processing context.
   return emitted;
+}
+
+bool Window::EmitInterceptKeyEventSignal(Dali::KeyEvent keyEvent)
+{
+  Dali::Window handle(this);
+  bool         consumed = false;
+  if(mScene.IsGeometryHittestEnabled())
+  {
+    // Any connected callback consuming the event consumes it for all of them.
+    // Gated so that legacy applications keep the previous last-callback-wins behaviour.
+    consumed = mInterceptKeyEventSignal.EmitOr(handle, keyEvent);
+  }
+  else
+  {
+    consumed = mInterceptKeyEventSignal.Emit(handle, keyEvent);
+  }
+  if(consumed)
+  {
+    DALI_LOG_RELEASE_INFO("[KeyEvent] code=%d state=%d consumed at Window::InterceptKeyEventSignal\n", keyEvent.GetKeyCode(), static_cast<int>(keyEvent.GetState()));
+  }
+  return consumed;
 }
 
 void Window::OnSceneKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
@@ -1366,24 +1385,13 @@ void Window::OnSceneWheelEvent(Dali::Integration::SceneHolder /*sceneHolder*/, D
 
 bool Window::OnSceneInterceptKeyEvent(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)
 {
-  Dali::Window handle(this);
-  bool         consumed = false;
-  if(mScene.IsGeometryHittestEnabled())
+  auto bridge = Integration::Accessibility::Bridge::GetCurrentBridge();
+  if(!Dali::DevelKeyEvent::IsInterceptProcessed(keyEvent) &&
+     bridge && bridge->IsUp() && ProcessAccessibilityKeyEvent(keyEvent))
   {
-    // Any connected callback consuming the event consumes it for all of them.
-    // The accessibility bridge connects here alongside the application's handler.
-    // Gated so that legacy applications keep the previous last-callback-wins behaviour.
-    consumed = mInterceptKeyEventSignal.EmitOr(handle, keyEvent);
+    return true;
   }
-  else
-  {
-    consumed = mInterceptKeyEventSignal.Emit(handle, keyEvent);
-  }
-  if(consumed)
-  {
-    DALI_LOG_RELEASE_INFO("[KeyEvent] code=%d state=%d consumed at Window::InterceptKeyEventSignal\n", keyEvent.GetKeyCode(), static_cast<int>(keyEvent.GetState()));
-  }
-  return consumed;
+  return EmitInterceptKeyEventSignal(keyEvent);
 }
 
 void Window::OnSceneKeyEventDelayed(Dali::Integration::SceneHolder /*sceneHolder*/, Dali::KeyEvent keyEvent)

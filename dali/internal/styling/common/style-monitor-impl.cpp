@@ -36,6 +36,8 @@ namespace Adaptor
 {
 namespace
 {
+static constexpr Dali::TypeInfoId gSingletonTypeInfoId = DALI_TYPE_ID(Dali::StyleMonitor);
+
 #if defined(DEBUG_ENABLED)
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_STYLE_MONITOR");
 #endif
@@ -65,7 +67,7 @@ Dali::StyleMonitor StyleMonitor::Get()
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::StyleMonitor));
+    Dali::BaseHandle handle = service.GetSingleton(gSingletonTypeInfoId);
     if(handle)
     {
       // If so, downcast the handle
@@ -74,7 +76,7 @@ Dali::StyleMonitor StyleMonitor::Get()
     else
     {
       styleMonitor = Dali::StyleMonitor(new StyleMonitor());
-      service.Register(typeid(styleMonitor), styleMonitor);
+      service.Register(gSingletonTypeInfoId, styleMonitor);
     }
   }
 

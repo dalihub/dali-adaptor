@@ -65,38 +65,8 @@ Generated::TizenEntityView ToTizenEntityView(const EntityData& entityData)
   return Generated::TizenEntityView(entityData.actorId, std::string(), entityData.actorTypeName, entityData.description, screenBounds, windowBounds, entityData.isFocused, entityData.isEnabled, annotation);
 }
 
-/// Converts a generated TizenEntityView into internal EntityData.
-EntityData FromTizenEntityView(const Generated::TizenEntityView& generatedView)
-{
-  EntityData entityData;
-  entityData.actorId       = generatedView.GetId();
-  entityData.actorTypeName = generatedView.GetType();
-  entityData.description   = generatedView.GetDescription();
-
-  const Generated::ScreenBounds& generatedScreenBounds = generatedView.GetScreenBounds();
-  entityData.screenBounds.x                            = static_cast<float>(generatedScreenBounds.GetX());
-  entityData.screenBounds.y                            = static_cast<float>(generatedScreenBounds.GetY());
-  entityData.screenBounds.width                        = static_cast<float>(generatedScreenBounds.GetWidth());
-  entityData.screenBounds.height                       = static_cast<float>(generatedScreenBounds.GetHeight());
-
-  const Generated::WindowBounds& generatedWindowBounds = generatedView.GetWindowBounds();
-  entityData.windowBounds.x                            = static_cast<float>(generatedWindowBounds.GetX());
-  entityData.windowBounds.y                            = static_cast<float>(generatedWindowBounds.GetY());
-  entityData.windowBounds.width                        = static_cast<float>(generatedWindowBounds.GetWidth());
-  entityData.windowBounds.height                       = static_cast<float>(generatedWindowBounds.GetHeight());
-
-  entityData.isFocused = generatedView.GetIsFocused();
-  entityData.isEnabled = generatedView.GetIsEnabled();
-
-  const Generated::Annotation& generatedAnnotation = generatedView.GetAnnotation();
-  entityData.annotation.entityId                   = generatedAnnotation.GetEntityId();
-  entityData.annotation.entityType                 = generatedAnnotation.GetEntityType();
-  entityData.annotation.entityInfo                 = generatedAnnotation.GetEntityInfo();
-  return entityData;
-}
-
 /**
- * @brief Per-connection TIDL request handler that delegates the four entity-data
+ * @brief Per-connection TIDL request handler that delegates the three entity-data
  * actions to the shared EntityDataService and maps generated/internal types.
  */
 class EntityDataTidlRequestHandler : public Generated::stub::TizenActionView::ServiceBase
@@ -132,7 +102,7 @@ public:
 
     generatedView = ToTizenEntityView(entityData);
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host FindById: response id=%s type=%s entityId=%s\n",
-                  generatedView.GetId().c_str(), generatedView.GetType().c_str(),
+                  entityData.actorId.c_str(), generatedView.GetType().c_str(),
                   generatedView.GetAnnotation().GetEntityId().c_str());
     return Generated::TizenEntityStatus(true, std::string());
   }
@@ -148,7 +118,7 @@ public:
     }
     generatedView = ToTizenEntityView(entityData);
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetFocusedView: response id=%s type=%s entityId=%s\n",
-                  generatedView.GetId().c_str(), generatedView.GetType().c_str(),
+                  entityData.actorId.c_str(), generatedView.GetType().c_str(),
                   generatedView.GetAnnotation().GetEntityId().c_str());
     return Generated::TizenEntityStatus(true, std::string());
   }
@@ -174,22 +144,6 @@ public:
       views.push_back(ToTizenEntityView(entityData));
     }
     DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host GetAnnotatedViews: response count=%zu\n", views.size());
-    return Generated::TizenEntityStatus(true, std::string());
-  }
-
-  Generated::TizenEntityStatus ToPresentation(Generated::TizenEntityView generatedView, Generated::TizenEntityPresentation& result) override
-  {
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host ToPresentation: request id=%s type=%s\n",
-                  generatedView.GetId().c_str(), generatedView.GetType().c_str());
-    std::string presentation;
-    if(!mService.ToPresentation(FromTizenEntityView(generatedView), presentation))
-    {
-      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host ToPresentation: failed id=%s\n", generatedView.GetId().c_str());
-      return Generated::TizenEntityStatus(false, "ToPresentation failed");
-    }
-    // The View presentation payload is carried in the Document field.
-    result = Generated::TizenEntityPresentation(presentation, std::string());
-    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "EntityData host ToPresentation: response bytes=%zu\n", presentation.size());
     return Generated::TizenEntityStatus(true, std::string());
   }
 
