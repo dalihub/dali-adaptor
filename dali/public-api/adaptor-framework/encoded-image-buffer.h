@@ -54,6 +54,9 @@ public:
     LOTTIE,
 
     DEFAULT = REGULAR_IMAGE,
+
+    VECTOR_IMAGE          = SVG,    ///< @DEPRECATED_2_5.42 Use SVG instead.
+    ANIMATED_VECTOR_IMAGE = LOTTIE, ///< @DEPRECATED_2_5.42 Use LOTTIE instead.
   };
 
 public:
