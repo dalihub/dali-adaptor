@@ -212,6 +212,20 @@ void BridgeObject::EmitStateChanged(Dali::SharedPtr<Accessible> obj, State state
 
   if(stateName != stateMap.end())
   {
+    if(state == State::FOCUSED || state == State::HIGHLIGHTED)
+    {
+      mDbusServer.emit2<std::string, int, int, DBus::DbusVariant<int>, Dali::Devel::Accessibility::Address>(
+        GetAccessiblePath(obj.Get()),
+        Accessible::GetInterfaceName(Dali::Integration::Accessibility::AccessibilityInterface::EVENT_OBJECT),
+        "StateChanged",
+        std::string{stateName->second},
+        newValue,
+        reserved,
+        {0},
+        {"", "root"});
+      return;
+    }
+
     AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj.Get(), 1.0f, [this, weakObj = Dali::WeakPtr<Accessible>(obj), stateNameString = std::string{stateName->second}, newValue, reserved]()
     {
       if(auto accessible = weakObj.Lock())
