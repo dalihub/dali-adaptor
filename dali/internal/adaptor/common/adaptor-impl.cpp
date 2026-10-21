@@ -1330,17 +1330,28 @@ void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();
 
-  // Show the default window now that the scene exists. A preloaded window is skipped: it is
-  // already shown from ApplicationController::UpdatePreInitializedWindowInfo(), which runs
-  // before this point, and Window::Show() is not idempotent.
+  // Show the default window now that the scene exists, unless its visibility has already been
+  // decided: a window the application hid during OnCreate stays hidden, and a window that was
+  // already shown before this point is not shown again. Window::Show() is not idempotent. Every
+  // call shows the native window again, which sends the window's policy state to the window
+  // manager again and can undo what the window manager applied in the meantime (e.g. the focus
+  // skip it sets on a taskbar).
   if(!mWindows.empty())
   {
     // mWindows holds scene holders that are not windows, so downcast first.
     auto* defaultWindow = dynamic_cast<Dali::Internal::Adaptor::Window*>(mWindows.front());
-    if(defaultWindow && defaultWindow->IsVisible())
+    if(defaultWindow)
     {
-      DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Show the default window (%p)\n", defaultWindow);
-      defaultWindow->Show();
+      const auto visibility = defaultWindow->GetVisibility();
+      if(visibility == Dali::Internal::Adaptor::SceneHolder::Visibility::UNDECIDED)
+      {
+        DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Show the default window (%p)\n", defaultWindow);
+        defaultWindow->Show();
+      }
+      else
+      {
+        DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: The default window (%p) is already %s\n", defaultWindow, (visibility == Dali::Internal::Adaptor::SceneHolder::Visibility::VISIBLE) ? "shown" : "hidden");
+      }
     }
   }
 
