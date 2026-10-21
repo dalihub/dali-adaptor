@@ -556,6 +556,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void CursorVisibleSet(bool visible);
 
   /**
+   * @copydoc Dali::DevelWindow::SetMouseInputEnabled()
+   */
+  bool SetMouseInputEnabled(bool enabled);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMouseInputEnabled()
+   */
+  bool IsMouseInputEnabled() const;
+
+  /**
    * @copydoc Dali::DevelWindow::KeyboardGrab()
    */
   bool KeyboardGrab(Device::Subclass::Type deviceSubclass);

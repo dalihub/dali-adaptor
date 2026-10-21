@@ -160,6 +160,16 @@ void CursorVisibleSet(Window window, bool visible)
   GetImplementation(window).CursorVisibleSet(visible);
 }
 
+bool SetMouseInputEnabled(Window window, bool enabled)
+{
+  return GetImplementation(window).SetMouseInputEnabled(enabled);
+}
+
+bool IsMouseInputEnabled(Window window)
+{
+  return GetImplementation(window).IsMouseInputEnabled();
+}
+
 bool KeyboardGrab(Window window, Device::Subclass::Type deviceSubclass)
 {
   return GetImplementation(window).KeyboardGrab(deviceSubclass);

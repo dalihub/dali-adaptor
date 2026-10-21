@@ -1415,7 +1415,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
 #ifndef OVER_TIZEN_VERSION_8
     mMouseFrameEventSignal.Emit();
@@ -1455,7 +1455,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
 #ifndef OVER_TIZEN_VERSION_8
     mMouseFrameEventSignal.Emit();
@@ -1494,7 +1494,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
     point.SetDeviceName(deviceName);
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
 #ifndef OVER_TIZEN_VERSION_8
     mMouseFrameEventSignal.Emit();
@@ -1540,7 +1540,7 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
 
     Dali::DevelWindow::MouseRelativeEvent mouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, relativeMoveEvent->modifiers, relativeMoveEvent->timestamp, Vector2(relativeMoveEvent->dx, relativeMoveEvent->dy), Vector2(relativeMoveEvent->dx_unaccel, relativeMoveEvent->dy_unaccel), deviceClass, deviceSubclass);
 
-    mMouseRelativeEventSignal.Emit(mouseRelativeEvent);
+    EmitMouseRelativeEvent(mouseRelativeEvent);
   }
   else
   {
@@ -1570,7 +1570,7 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
     point.SetDeviceClass(deviceClass);
     point.SetDeviceSubclass(deviceSubclass);
 
-    mTouchEventSignal.Emit(point, touchEvent->timestamp);
+    EmitTouchEvent(point, touchEvent->timestamp);
 
 #ifndef OVER_TIZEN_VERSION_8
     mMouseFrameEventSignal.Emit();
@@ -1616,7 +1616,7 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
   else
   {
@@ -1642,7 +1642,7 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::M
 
     Dali::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
 
-    mMouseInOutEventSignal.Emit(inOutEvent);
+    EmitMouseInOutEvent(inOutEvent);
 
     if(action == Dali::MouseInOutEvent::Type::IN)
     {
@@ -1656,7 +1656,7 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::M
       point.SetDeviceSubclass(deviceSubclass);
       point.SetDeviceName(deviceName);
 
-      mTouchEventSignal.Emit(point, mouseInOutEvent->timestamp);
+      EmitTouchEvent(point, mouseInOutEvent->timestamp);
     }
   }
   else
@@ -1676,7 +1676,7 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, detentEvent->direction, 0, Vector2(0.0f, 0.0f), clockwise, detentEvent->timestamp);
 
-    mWheelEventSignal.Emit(wheelEvent);
+    EmitWheelEvent(wheelEvent);
   }
 }
 

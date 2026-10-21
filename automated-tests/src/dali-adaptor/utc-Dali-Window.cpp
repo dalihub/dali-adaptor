@@ -71,6 +71,36 @@ int UtcDaliWindowConstructorP(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetMouseInputEnabledN(void)
+{
+  Window window;
+  try
+  {
+    DevelWindow::SetMouseInputEnabled(window, false);
+    DALI_TEST_CHECK(false);
+  }
+  catch(DaliException& exception)
+  {
+    DALI_TEST_ASSERT(exception, "Window handle is empty", TEST_LOCATION);
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowIsMouseInputEnabledN(void)
+{
+  Window window;
+  try
+  {
+    DevelWindow::IsMouseInputEnabled(window);
+    DALI_TEST_CHECK(false);
+  }
+  catch(DaliException& exception)
+  {
+    DALI_TEST_ASSERT(exception, "Window handle is empty", TEST_LOCATION);
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowCopyConstructorP(void)
 {
   Dali::Window window;
