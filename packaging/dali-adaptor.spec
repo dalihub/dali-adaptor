@@ -116,10 +116,11 @@ BuildRequires:  pkgconfig(cynara-creds-self)
 %if "%{mv_prj}" != "1"
 %if "%{tizen_wayland_backend}" == "TCORE"
 BuildRequires:  pkgconfig(appcore-widget-base-tcore)
+BuildRequires:  pkgconfig(component-based-core-base-tcore)
 %else
 BuildRequires:  pkgconfig(appcore-widget-base)
-%endif
 BuildRequires:  pkgconfig(component-based-core-base)
+%endif
 %endif
 
 BuildRequires:  pkgconfig(bundle)
