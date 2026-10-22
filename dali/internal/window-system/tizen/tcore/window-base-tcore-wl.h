@@ -823,6 +823,19 @@ private:
    */
   Rect<int> RecalculateInputRect(const Rect<int>& rect, const Rect<int>& surfaceSize);
 
+  typedef std::vector<std::pair<std::string, tizen_core_wl_keygrab_mode_e>> KeyGrabs;
+
+  /**
+   * @brief Replaces the keys grabbed by this window with the given set.
+   *
+   * Tizen Core WL keeps the given list instead of copying it and walks it again on unset,
+   * so the window owns the list until it has been unset.
+   *
+   * @param[in] keyGrabs The keys and grab modes to be grabbed. Empty releases all grabs.
+   * @return True if the grabs are applied, false otherwise.
+   */
+  bool ApplyKeyGrabs(const KeyGrabs& keyGrabs);
+
 protected:
   WindowBaseTcoreWl(const WindowBaseTcoreWl&)                = delete;
   WindowBaseTcoreWl& operator=(const WindowBaseTcoreWl& rhs) = delete;
@@ -871,6 +884,9 @@ private:
   InsetsGeometry mLastClipboardGeometry;
 
   AuxiliaryHints mAuxiliaryHints;
+
+  KeyGrabs mKeyGrabs;    ///< The keys currently grabbed
+  GList*   mKeyGrabList; ///< The list passed to Tizen Core WL for mKeyGrabs; kept alive until it is unset
 
   WindowType mType;
   int32_t    mWindowRotationAngle;
