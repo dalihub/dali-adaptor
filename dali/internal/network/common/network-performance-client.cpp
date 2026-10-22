@@ -19,8 +19,9 @@
 #include <dali/internal/network/common/network-performance-client.h>
 
 // EXTERNAL INCLUDES
-#include <stdio.h>
-#include <iostream>
+#include <iomanip>
+#include <locale>
+#include <sstream>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -207,12 +208,13 @@ bool NetworkPerformanceClient::TransmitMarker(const PerformanceMarker& marker, c
   if(mConsoleClient)
   {
     // write out the time stamp
-    char*  buffer;
-    double usec   = marker.GetTimeStamp().microseconds;
-    int    size   = asprintf(&buffer, "%.6f (seconds), %s\n", usec * MICROSECONDS_TO_SECOND, description);
-    auto   retVal = mSocket->Write(buffer, size);
-    free(buffer);
-    return retVal;
+    std::ostringstream stream;
+    stream.imbue(std::locale::classic());
+    stream << std::fixed << std::setprecision(6)
+           << marker.GetTimeStamp().microseconds * MICROSECONDS_TO_SECOND
+           << " (seconds), " << description << '\n';
+    const std::string message = stream.str();
+    return mSocket->Write(message.data(), static_cast<unsigned int>(message.size()));
   }
 
   // todo serialize the data

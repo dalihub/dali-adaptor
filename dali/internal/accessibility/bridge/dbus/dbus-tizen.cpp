@@ -19,14 +19,15 @@
 #include <dali/internal/accessibility/bridge/dbus/dbus.h>
 
 // EXTERNAL INCLUDES
-#include <iostream>
+#include <dali/integration-api/locale-numeric-guard.h>
+#include <algorithm>
+#include <locale>
 #include <mutex>
 #include <sstream>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/accessibility/bridge/dbus/dbus-wrapper-gdbus.h>
-
+#include <dali/public-api/dali-adaptor-common.h>
 
 #define DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
 
@@ -52,30 +53,30 @@ void DBus::debugPrint(const char* file, size_t line, const char* format, ...)
       return;
     debugPrintFunc = debugPrinter;
   }
-  std::vector<char> buf(4096);
-  int               offset;
-  while(true)
+  std::ostringstream prefixStream;
+  prefixStream.imbue(std::locale::classic());
+  prefixStream << file << ':' << static_cast<unsigned int>(line) << ": ";
+  const std::string prefix = prefixStream.str();
+  const size_t      offset = prefix.size();
+  std::vector<char> buf(std::max<size_t>(4096, offset + 1));
+  std::copy(prefix.begin(), prefix.end(), buf.begin());
   {
-    offset = snprintf(buf.data(), buf.size(), "%s:%u: ", file, static_cast<unsigned int>(line));
-    if(offset < 0)
-      return;
-    if(static_cast<size_t>(offset) < buf.size())
-      break;
-    buf.resize(offset + 1);
-  }
-
-  while(true)
-  {
-    va_list args;
-    va_start(args, format);
-    int z = vsnprintf(buf.data() + offset, buf.size() - offset, format, args);
-    va_end(args);
-    if(z < 0)
-      return;
-    bool done = static_cast<size_t>(z) + static_cast<size_t>(offset) < buf.size();
-    buf.resize(static_cast<size_t>(z) + static_cast<size_t>(offset));
-    if(done)
-      break;
+    // TODO: Replace vsnprintf when the printf-style variadic API can be changed.
+    Dali::LocaleNumericGuard localeGuard;
+    while(true)
+    {
+      va_list args;
+      va_start(args, format);
+      int z = vsnprintf(buf.data() + offset, buf.size() - offset, format, args);
+      va_end(args);
+      if(z < 0)
+        return;
+      const size_t formattedSize = offset + static_cast<size_t>(z);
+      const bool   done          = formattedSize < buf.size();
+      buf.resize(done ? formattedSize : formattedSize + 1);
+      if(done)
+        break;
+    }
   }
   debugPrintFunc(buf.data(), buf.size());
 }
@@ -104,7 +105,6 @@ void DBus::releaseBusName(const DBusWrapper::ConnectionPtr& conn, const std::str
 {
   DBUS_W->dbus_name_release_impl(conn, bus);
 }
-
 
 DBus::DBusClient::DBusClient(std::string busName, std::string pathName, std::string interfaceName, ConnectionType tp)
 : DBusClient(std::move(busName), std::move(pathName), std::move(interfaceName), getDBusConnectionByType(tp))
