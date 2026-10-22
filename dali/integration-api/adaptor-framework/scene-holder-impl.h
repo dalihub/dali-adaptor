@@ -76,6 +76,21 @@ class DALI_ADAPTOR_API SceneHolder : public BaseObject
 {
 public:
   /**
+   * @brief The visibility of the SceneHolder as decided so far.
+   *
+   * A SceneHolder starts as UNDECIDED: nobody has shown or hidden it yet, and IsVisible() reports
+   * it as visible, as it always has. A subclass that can be shown and hidden moves it to VISIBLE
+   * or HIDDEN; Window does so from Show() and Hide(). UNDECIDED lets the adaptor tell the default
+   * window that nobody has touched from one that the application has already shown.
+   */
+  enum class Visibility : uint8_t
+  {
+    UNDECIDED, ///< Neither shown nor hidden yet. IsVisible() reports true.
+    VISIBLE,   ///< Shown.
+    HIDDEN     ///< Hidden.
+  };
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::Add
    */
   void Add(Dali::Actor actor);
@@ -449,10 +464,21 @@ public:
    */
   void FocusChanged(bool focusIn);
 
+  /**
+   * @brief Returns the visibility as decided so far.
+   *
+   * Unlike IsVisible(), this tells a SceneHolder that nobody has shown or hidden yet (UNDECIDED)
+   * apart from one that has been shown (VISIBLE). It does not reflect iconification, while
+   * Window::IsVisible() also reports false for an iconified window.
+   * @return The visibility state
+   */
+  Visibility GetVisibility() const;
+
 public: // The following methods can be overridden if required
   /**
    * @brief Returns whether the Scene is visible or not.
    * @return True if the Scene is visible, false otherwise.
+   * @note A SceneHolder that has not been shown or hidden yet counts as visible.
    */
   virtual bool IsVisible() const;
 
@@ -615,9 +641,9 @@ protected:
   int8_t  mDepthBufferEnabled;
   int8_t  mStencilBufferEnabled;
 
-  bool mAdaptorStarted; ///< Whether the adaptor has started or not
-  bool mVisible : 1;    ///< Whether the scene is visible or not
-  bool mHandledMultiTouch : 1;
+  bool       mAdaptorStarted; ///< Whether the adaptor has started or not
+  Visibility mVisibility : 2; ///< The visibility as decided so far, see Visibility
+  bool       mHandledMultiTouch : 1;
 };
 
 } // namespace Adaptor

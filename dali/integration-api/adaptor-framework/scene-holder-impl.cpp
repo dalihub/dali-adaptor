@@ -114,7 +114,7 @@ SceneHolder::SceneHolder()
   mDepthBufferEnabled(-1),
   mStencilBufferEnabled(-1),
   mAdaptorStarted(false),
-  mVisible(true),
+  mVisibility(Visibility::UNDECIDED),
   mHandledMultiTouch(false)
 {
 }
@@ -185,9 +185,14 @@ std::string SceneHolder::GetName() const
   return mName;
 }
 
+SceneHolder::Visibility SceneHolder::GetVisibility() const
+{
+  return mVisibility;
+}
+
 bool SceneHolder::IsVisible() const
 {
-  return mVisible;
+  return mVisibility != Visibility::HIDDEN;
 }
 
 Dali::Integration::Scene SceneHolder::GetScene()
