@@ -328,7 +328,7 @@ public:
    * @param[in] applicationType The Application_Type enum
    *
    */
-  virtual void SetApplicationType(const ApplicationType applicationType) = 0;
+  virtual void SetApplicationType(ApplicationType applicationType) = 0;
 
   /**
    * @brief Set time offset

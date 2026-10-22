@@ -45,7 +45,7 @@ void ApplySettings(const Property::Map& settingsMap)
   Internal::Adaptor::VirtualKeyboard::ApplySettings(settingsMap);
 }
 
-void SetReturnKeyType(const InputMethod::ReturnKeyType type)
+void SetReturnKeyType(InputMethod::ReturnKeyType type)
 {
   Internal::Adaptor::VirtualKeyboard::SetReturnKeyType(type);
 }
@@ -55,7 +55,7 @@ InputMethod::ReturnKeyType GetReturnKeyType()
   return Internal::Adaptor::VirtualKeyboard::GetReturnKeyType();
 }
 
-void EnablePrediction(const bool enable)
+void EnablePrediction(bool enable)
 {
   Internal::Adaptor::VirtualKeyboard::EnablePrediction(enable);
 }
