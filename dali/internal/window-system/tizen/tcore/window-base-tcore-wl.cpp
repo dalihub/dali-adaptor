@@ -34,6 +34,7 @@
 #include <tizen-core-wl/tizen_core_wl_internal.h>
 #include <tizen-core-wl/tizen_core_wl_notification.h>
 #include <tizen-core-wl/tizen_core_wl_window_property.h>
+#include <algorithm>
 #include <vector>
 
 #if defined(VCONF_ENABLED)
@@ -291,7 +292,7 @@ bool RegisterTizenCoreEventListener(tizen_core_event_h                          
   }
 
   tizen_core_wl_event_listener_h handle = nullptr;
-  int                            err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
+  int err    = tizen_core_wl_event_add_listener(event, eventType, callback, userData, &handle);
   if(err == TIZEN_CORE_WL_ERROR_NONE && handle)
   {
     listeners.push_back(handle);
@@ -795,6 +796,62 @@ static void TcoreWlEventConformantChange(void* event, tizen_core_wl_event_type_e
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Key grab
+/////////////////////////////////////////////////////////////////////////////////////////////////
+tizen_core_wl_keygrab_mode_e ConvertKeyGrabMode(KeyGrab::KeyGrabMode grabMode)
+{
+  switch(grabMode)
+  {
+    case KeyGrab::TOPMOST:
+    {
+      return TIZEN_CORE_WL_KEYGRAB_TOPMOST;
+    }
+    case KeyGrab::SHARED:
+    {
+      return TIZEN_CORE_WL_KEYGRAB_SHARED;
+    }
+    case KeyGrab::OVERRIDE_EXCLUSIVE:
+    {
+      return TIZEN_CORE_WL_KEYGRAB_OVERRIDE_EXCLUSIVE;
+    }
+    case KeyGrab::EXCLUSIVE:
+    {
+      return TIZEN_CORE_WL_KEYGRAB_EXCLUSIVE;
+    }
+    default:
+    {
+      return TIZEN_CORE_WL_KEYGRAB_UNKNOWN;
+    }
+  }
+}
+
+void DestroyKeyGrabList(GList* list)
+{
+  g_list_free_full(list, [](gpointer info)
+  { tizen_core_wl_keygrab_info_destroy(static_cast<tizen_core_wl_keygrab_info_h>(info)); });
+}
+
+/**
+ * @brief Creates a keygrab info list for tizen_core_wl_window_set_keygrab_list().
+ * @return The list, or nullptr if any info could not be created.
+ */
+GList* CreateKeyGrabList(const std::vector<std::pair<std::string, tizen_core_wl_keygrab_mode_e>>& keyGrabs)
+{
+  GList* list = nullptr;
+  for(const auto& keyGrab : keyGrabs)
+  {
+    tizen_core_wl_keygrab_info_h info = nullptr;
+    if(tizen_core_wl_keygrab_info_create(keyGrab.first.c_str(), keyGrab.second, &info) != TIZEN_CORE_WL_ERROR_NONE || !info)
+    {
+      DestroyKeyGrabList(list);
+      return nullptr;
+    }
+    list = g_list_append(list, info);
+  }
+  return list;
+}
+
 } // unnamed namespace
 
 WindowBaseTcoreWl::WindowBaseTcoreWl(Dali::PositionSize positionSize, Any surface, bool isTransparent)
@@ -813,6 +870,8 @@ WindowBaseTcoreWl::WindowBaseTcoreWl(Dali::PositionSize positionSize, Any surfac
   mSupportedAuxiliaryHints(),
   mWindowPositionSize(positionSize),
   mAuxiliaryHints(),
+  mKeyGrabs(),
+  mKeyGrabList(nullptr),
   mType(WindowType::NORMAL),
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
@@ -876,6 +935,9 @@ WindowBaseTcoreWl::~WindowBaseTcoreWl()
     wl_egl_window_destroy(mEglWindow);
     mEglWindow = NULL;
   }
+
+  // Tizen Core WL keeps a pointer to the keygrab list, so unset it while the list and the window are alive.
+  ApplyKeyGrabs(KeyGrabs());
 
   if(mOwnSurface)
   {
@@ -2994,9 +3056,8 @@ void WindowBaseTcoreWl::SetAcceptFocus(bool accept)
 {
   if(mTcoreWindow)
   {
-    // Tizen Core WL has no focus_skip equivalent
     DALI_TIME_CHECKER_SCOPE(gTimeCheckerFilter, "tizen_core_wl_window_set_focus_skip");
-    tizen_core_wl_window_set_focus_skip(mTcoreWindow, accept);
+    tizen_core_wl_window_set_focus_skip(mTcoreWindow, !accept);
   }
 }
 
@@ -3516,62 +3577,92 @@ int WindowBaseTcoreWl::GetBrightness() const
   return brightness;
 }
 
+bool WindowBaseTcoreWl::ApplyKeyGrabs(const KeyGrabs& keyGrabs)
+{
+  if(keyGrabs == mKeyGrabs)
+  {
+    return true;
+  }
+
+  if(!mTcoreWindow)
+  {
+    return false;
+  }
+
+  GList* newList = nullptr;
+  if(!keyGrabs.empty())
+  {
+    newList = CreateKeyGrabList(keyGrabs);
+    if(!newList)
+    {
+      return false;
+    }
+  }
+
+  // Tizen Core WL keeps one list per window and replaces it as a whole, and unsetting walks the
+  // stored list. So unset the previous list first, and destroy it only after that.
+  if(mKeyGrabList)
+  {
+    tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr);
+    DestroyKeyGrabList(mKeyGrabList);
+    mKeyGrabList = nullptr;
+  }
+
+  if(newList && tizen_core_wl_window_set_keygrab_list(mTcoreWindow, newList) != TIZEN_CORE_WL_ERROR_NONE)
+  {
+    // Tizen Core WL does not keep the list on failure. Restore the previous grabs.
+    DestroyKeyGrabList(newList);
+
+    GList* previousList = mKeyGrabs.empty() ? nullptr : CreateKeyGrabList(mKeyGrabs);
+    if(previousList && tizen_core_wl_window_set_keygrab_list(mTcoreWindow, previousList) == TIZEN_CORE_WL_ERROR_NONE)
+    {
+      mKeyGrabList = previousList;
+    }
+    else
+    {
+      DestroyKeyGrabList(previousList);
+      mKeyGrabs.clear();
+    }
+    return false;
+  }
+
+  mKeyGrabs    = keyGrabs;
+  mKeyGrabList = newList;
+  return true;
+}
+
 bool WindowBaseTcoreWl::GrabKey(Dali::Key key, KeyGrab::KeyGrabMode grabMode)
 {
-  tizen_core_wl_keygrab_mode_e mode = TIZEN_CORE_WL_KEYGRAB_UNKNOWN;
-
-  switch(grabMode)
+  tizen_core_wl_keygrab_mode_e mode    = ConvertKeyGrabMode(grabMode);
+  const char*                  keyName = KeyLookup::GetKeyName(key);
+  if(mode == TIZEN_CORE_WL_KEYGRAB_UNKNOWN || !keyName)
   {
-    case KeyGrab::TOPMOST:
-    {
-      mode = TIZEN_CORE_WL_KEYGRAB_TOPMOST;
-      break;
-    }
-    case KeyGrab::SHARED:
-    {
-      mode = TIZEN_CORE_WL_KEYGRAB_SHARED;
-      break;
-    }
-    case KeyGrab::OVERRIDE_EXCLUSIVE:
-    {
-      mode = TIZEN_CORE_WL_KEYGRAB_OVERRIDE_EXCLUSIVE;
-      break;
-    }
-    case KeyGrab::EXCLUSIVE:
-    {
-      mode = TIZEN_CORE_WL_KEYGRAB_EXCLUSIVE;
-      break;
-    }
-    default:
-    {
-      return false;
-    }
+    return false;
   }
 
-  if(mTcoreWindow)
+  KeyGrabs                   keyGrabs = mKeyGrabs;
+  const KeyGrabs::value_type keyGrab(keyName, mode);
+  if(std::find(keyGrabs.begin(), keyGrabs.end(), keyGrab) == keyGrabs.end())
   {
-    tizen_core_wl_keygrab_info_h info = nullptr;
-    if(tizen_core_wl_keygrab_info_create(KeyLookup::GetKeyName(key), mode, &info) != TIZEN_CORE_WL_ERROR_NONE || !info)
-    {
-      return false;
-    }
-    GList* list = g_list_append(nullptr, info);
-    int    err  = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
-    tizen_core_wl_keygrab_info_destroy(info);
-    g_list_free(list);
-
-    return (err == TIZEN_CORE_WL_ERROR_NONE);
+    keyGrabs.push_back(keyGrab);
   }
-  return false;
+  return ApplyKeyGrabs(keyGrabs);
 }
 
 bool WindowBaseTcoreWl::UngrabKey(Dali::Key key)
 {
-  if(mTcoreWindow)
+  const char* keyName = KeyLookup::GetKeyName(key);
+  if(!keyName)
   {
-    return (tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr) == TIZEN_CORE_WL_ERROR_NONE);
+    return false;
   }
-  return false;
+
+  // Release the key in every grab mode, as ecore_wl2_window_keygrab_unset() does.
+  KeyGrabs keyGrabs = mKeyGrabs;
+  keyGrabs.erase(std::remove_if(keyGrabs.begin(), keyGrabs.end(), [keyName](const KeyGrabs::value_type& keyGrab)
+                                { return keyGrab.first == keyName; }),
+                 keyGrabs.end());
+  return ApplyKeyGrabs(keyGrabs);
 }
 
 bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result)
@@ -3590,55 +3681,39 @@ bool WindowBaseTcoreWl::GrabKeyList(const Dali::Vector<Dali::Key>& key, const Da
     return false;
   }
 
-  GList* list = nullptr;
+  result.Resize(keyCount, true);
+
+  KeyGrabs keyGrabs = mKeyGrabs;
   for(int index = 0; index < keyCount; ++index)
   {
-    tizen_core_wl_keygrab_mode_e tcoreMode = TIZEN_CORE_WL_KEYGRAB_UNKNOWN;
-    switch(grabMode[index])
+    tizen_core_wl_keygrab_mode_e mode    = ConvertKeyGrabMode(grabMode[index]);
+    const char*                  keyName = KeyLookup::GetKeyName(key[index]);
+    if(mode == TIZEN_CORE_WL_KEYGRAB_UNKNOWN || !keyName)
     {
-      case KeyGrab::TOPMOST:
-        tcoreMode = TIZEN_CORE_WL_KEYGRAB_TOPMOST;
-        break;
-      case KeyGrab::SHARED:
-        tcoreMode = TIZEN_CORE_WL_KEYGRAB_SHARED;
-        break;
-      case KeyGrab::OVERRIDE_EXCLUSIVE:
-        tcoreMode = TIZEN_CORE_WL_KEYGRAB_OVERRIDE_EXCLUSIVE;
-        break;
-      case KeyGrab::EXCLUSIVE:
-        tcoreMode = TIZEN_CORE_WL_KEYGRAB_EXCLUSIVE;
-        break;
-      default:
-        break;
+      result[index] = false;
+      continue;
     }
-    tizen_core_wl_keygrab_info_h info = nullptr;
-    if(tizen_core_wl_keygrab_info_create(KeyLookup::GetKeyName(key[index]), tcoreMode, &info) == TIZEN_CORE_WL_ERROR_NONE && info)
+
+    const KeyGrabs::value_type keyGrab(keyName, mode);
+    if(std::find(keyGrabs.begin(), keyGrabs.end(), keyGrab) == keyGrabs.end())
     {
-      list = g_list_append(list, info);
+      keyGrabs.push_back(keyGrab);
     }
   }
 
   DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-  int err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, list);
+  bool applied = ApplyKeyGrabs(keyGrabs);
   DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
   { oss << "tizen_core_wl_window_set_keygrab_list [" << keyCount << "]"; });
 
-  for(GList* l = list; l; l = l->next)
-  {
-    tizen_core_wl_keygrab_info_destroy(static_cast<tizen_core_wl_keygrab_info_h>(l->data));
-  }
-  g_list_free(list);
-
-  result.Resize(keyCount, true);
-  if(err != TIZEN_CORE_WL_ERROR_NONE)
+  if(!applied)
   {
     for(int index = 0; index < keyCount; ++index)
     {
       result[index] = false;
     }
-    return false;
   }
-  return true;
+  return applied;
 }
 
 bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::Vector<bool>& result)
@@ -3655,13 +3730,36 @@ bool WindowBaseTcoreWl::UngrabKeyList(const Dali::Vector<Dali::Key>& key, Dali::
     return false;
   }
 
-  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
-  int err = tizen_core_wl_window_set_keygrab_list(mTcoreWindow, nullptr);
-  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
-  { oss << "tizen_core_wl_window_set_keygrab_list(clear) [" << keyCount << "]"; });
-
   result.Resize(keyCount, true);
-  return (err == TIZEN_CORE_WL_ERROR_NONE);
+
+  KeyGrabs keyGrabs = mKeyGrabs;
+  for(int index = 0; index < keyCount; ++index)
+  {
+    const char* keyName = KeyLookup::GetKeyName(key[index]);
+    if(!keyName)
+    {
+      result[index] = false;
+      continue;
+    }
+
+    keyGrabs.erase(std::remove_if(keyGrabs.begin(), keyGrabs.end(), [keyName](const KeyGrabs::value_type& keyGrab)
+                                  { return keyGrab.first == keyName; }),
+                   keyGrabs.end());
+  }
+
+  DALI_TIME_CHECKER_BEGIN(gTimeCheckerFilter);
+  bool applied = ApplyKeyGrabs(keyGrabs);
+  DALI_TIME_CHECKER_END_WITH_MESSAGE_GENERATOR(gTimeCheckerFilter, [&](std::ostringstream& oss)
+  { oss << "tizen_core_wl_window_set_keygrab_list(ungrab) [" << keyCount << "]"; });
+
+  if(!applied)
+  {
+    for(int index = 0; index < keyCount; ++index)
+    {
+      result[index] = false;
+    }
+  }
+  return applied;
 }
 
 void WindowBaseTcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
